@@ -168,9 +168,12 @@ python3 tools/ac004_supervisor_test.py
 The tests use standard-library `unittest`, with no pytest and no Cargo. Each test makes a
 private temporary guard directory, lock files and fake memory guard, and uses only
 self-limiting fake payloads. Each test also has its own bounded cleanup, which kills only
-processes the test started. It registers sentry/payload kernel birth, session and group
-identities independently of the supervisor's completion trace, and verifies those identities
-before cleaning a private payload group. The disabled controller-death kill regression
-exercises that fallback, including inherited output pipes. Delayed-controller, short-write,
+processes the test started. It registers sentry, payload and fake-descendant kernel birth,
+session and group identities independently of the supervisor's completion trace. Every
+fake Python fork registers its child before either branch continues, so cleanup retains
+ownership even when the sentry and main have both died. Cleanup verifies the recorded
+identities before signalling a private group. Disabled controller-death kill regressions
+exercise both a live main and a lone orphan, including inherited output pipes, with a
+separate exact-identity fallback for the negative control itself. Delayed-controller, short-write,
 foreign-FIFO and process-inspection-error controls cover the review repairs. No test reads
 or touches the host's real guard.

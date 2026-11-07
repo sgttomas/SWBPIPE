@@ -94,6 +94,8 @@ class Fixture(unittest.TestCase):
         self.out.mkdir()
         self.procs = []
         self.payload_records = []
+        self.descendant_records = self.tmp / "descendant-identities"
+        self.descendant_records.mkdir()
         self.memguard = self.spawn([PY, "-c", "import time; time.sleep(120)", str(self.guard / ac.MEMGUARD_NAME)])
         # an unrelated same-user process and a foreign file that must survive every run
         self.sentinel = self.spawn(["sleep", "120"])
@@ -121,9 +123,9 @@ class Fixture(unittest.TestCase):
         shutil.rmtree(self.tmp, ignore_errors=True)
 
     def cleanup_payloads(self):
-        # Registration comes from the private sentry/payload launch, not a success trace.
+        # Registration comes from private launches/forks, not a success trace.
         # Check kernel birth/session/group identities before signalling, never a name match.
-        for record in self.payload_records:
+        for record in self.payload_records + sorted(self.descendant_records.glob("*.json")):
             if not record.exists():
                 continue
             identities = [json.loads(line) for line in record.read_text().splitlines()]
@@ -140,7 +142,44 @@ class Fixture(unittest.TestCase):
 
     def script(self, name, body):
         path = self.tmp / name
-        path.write_text("import os, sys, time, signal, fcntl\nOUT = %r\n" % str(self.out) + textwrap.dedent(body))
+        # Every maintained fake descendant is forked here. Register in the child before
+        # returning to either branch, so the parent cannot disappear before registration.
+        # This instrumentation changes no production process/descriptor behavior.
+        boot = f"""
+import os, sys, time, signal, fcntl, json, select
+sys.path.insert(0, {str(HERE)!r})
+from ac004_supervisor_test import process_identity
+OUT = {str(self.out)!r}
+original_fork = os.fork
+def registered_fork():
+    read_fd, write_fd = os.pipe()
+    pid = original_fork()
+    if pid == 0:
+        os.close(read_fd)
+        try:
+            identity = process_identity(os.getpid())
+            if identity is None:
+                os._exit(70)
+            with open(os.path.join({str(self.descendant_records)!r}, str(os.getpid()) + '.json'), 'w') as f:
+                f.write(json.dumps(identity) + '\\n')
+            os.write(write_fd, b'1')
+        except BaseException:
+            os._exit(70)
+        finally:
+            os.close(write_fd)
+    else:
+        os.close(write_fd)
+        try:
+            if not select.select([read_fd], [], [], 3)[0] or os.read(read_fd, 1) != b'1':
+                os.kill(pid, signal.SIGKILL)
+                os.waitpid(pid, 0)
+                raise RuntimeError('fake descendant registration failed')
+        finally:
+            os.close(read_fd)
+    return pid
+os.fork = registered_fork
+"""
+        path.write_text(boot + textwrap.dedent(body))
         return [PY, str(path)]
 
     def start(self, payload, budget="2", reserve="0.6", grace="0.2", extra=(), patch=""):
@@ -457,6 +496,47 @@ ac._sentry_main = broken_sentry
         sup.communicate(timeout=5)  # inherited pipes no longer keep this blocked
         self.assertEqual([m for m in ac.members(pgid) if not m[1]], [])
         self.assert_released_and_intact()
+
+    def test_independent_cleanup_retains_orphan_after_both_recorded_processes_die(self):
+        marker = self.out / "orphan-identity"
+        payload = self.script("orphan-death-fault.py", f"""
+if os.fork() == 0:
+    with open({str(marker)!r}, 'w') as f:
+        f.write(json.dumps(process_identity(os.getpid())))
+    time.sleep(30)
+    os._exit(0)
+""")
+        patch = """
+recorded_sentry = ac._sentry_main
+def broken_sentry(*args):
+    ac.os.killpg = lambda *args: None
+    return recorded_sentry(*args)
+ac._sentry_main = broken_sentry
+ac.Supervisor.supervise = lambda self: ac.time.sleep(10)
+"""
+        sup = self.start(payload, budget="20", reserve="1", patch=patch)
+        child_identity = None
+        try:
+            self.assertTrue(wait_for(lambda: marker.exists() and marker.read_text()))
+            child_identity = json.loads(marker.read_text())
+            pgid = child_identity[2]
+            # The main exited; leave only sentry and orphan before killing the controller.
+            self.assertTrue(wait_for(lambda: len([m for m in ac.members(pgid) if not m[1]]) == 2, 3))
+            sup.kill()
+            sup.wait(timeout=5)
+            original_records = [json.loads(line) for line in self.payload_records[-1].read_text().splitlines()]
+            self.assertTrue(wait_for(lambda: all(not i or process_identity(i[0]) != i for i in original_records), 3))
+            self.assertEqual(process_identity(child_identity[0]), child_identity)
+            self.cleanup_payloads()
+            self.assertTrue(wait_for(lambda: not [m for m in ac.members(pgid) if not m[1]], 3))
+            sup.communicate(timeout=3)
+            self.assert_released_and_intact()
+        finally:
+            # Also contain a negative control that deliberately disables fixture tracking.
+            # This identity was written by this exact private grandchild, not inferred by name.
+            if child_identity and process_identity(child_identity[0]) == child_identity:
+                os.killpg(child_identity[2], signal.SIGKILL)
+                self.assertTrue(wait_for(lambda: not [m for m in ac.members(child_identity[2]) if not m[1]], 3))
 
     def test_spawn_failure_cleans_up(self):
         bad = self.tmp / "bad-interp"
