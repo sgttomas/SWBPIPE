@@ -165,13 +165,16 @@ pub(crate) fn initial_grant(reserve: u64, ingress_bound: u64) -> Option<u64> {
 /// §3.9.5, task 3: [`crate::mbf_export::worker_render`]), which attests nothing,
 /// or the hanger sizing (DEL-04-11 Design `hanger-sizing.md` §13, increment 3c
 /// part 2, task 4: `open_pipe_stress_hanger_sizing::desktop::size_and_read`),
-/// which attests nothing either.
+/// which attests nothing either, or the MBF import (DEL-17-04 Design
+/// `desktop-mbf-export-import.md` §4.8.3, task 5:
+/// [`crate::mbf_import::worker_import`]), which attests nothing.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum WorkerTask {
     Solve(PreviewSolverMode),
     ModelChecks,
     MbfRender,
     HangerSizing,
+    MbfImport,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -190,6 +193,7 @@ fn task_code(task: WorkerTask) -> u64 {
         WorkerTask::ModelChecks => 2,
         WorkerTask::MbfRender => 3,
         WorkerTask::HangerSizing => 4,
+        WorkerTask::MbfImport => 5,
     }
 }
 
@@ -214,6 +218,7 @@ fn decode_request(bytes: &[u8; REQUEST_BYTES]) -> Option<Request> {
         2 => WorkerTask::ModelChecks,
         3 => WorkerTask::MbfRender,
         4 => WorkerTask::HangerSizing,
+        5 => WorkerTask::MbfImport,
         _ => return None,
     };
     let request = Request { task, initial_grant: field(1), max_grant: field(2), reserve: field(3), raw_len: field(4) };
@@ -522,7 +527,7 @@ fn workload(raw: Vec<u8>, task: WorkerTask) -> Result<(String, Option<SolveAttes
     if let Some(workload) = tests::scripted_workload() {
         let mode = match task {
             WorkerTask::Solve(mode) => mode,
-            WorkerTask::ModelChecks | WorkerTask::MbfRender | WorkerTask::HangerSizing => PreviewSolverMode::SparseInteractive,
+            WorkerTask::ModelChecks | WorkerTask::MbfRender | WorkerTask::HangerSizing | WorkerTask::MbfImport => PreviewSolverMode::SparseInteractive,
         };
         return tests::run_scripted_attested(&workload, raw, mode);
     }
@@ -536,6 +541,10 @@ fn workload(raw: Vec<u8>, task: WorkerTask) -> Result<(String, Option<SolveAttes
         // The sizing attests nothing (`ATST` status 0); its refusal of the
         // input bytes is the worker's `FAIL` with its code and message.
         WorkerTask::HangerSizing => hanger_sizing(&raw).map(|reply| (reply, None)),
+        // The MBF import attests nothing (`ATST` status 0); its failure is a
+        // named, bounded `<code>: <message>` with no engine text. Only the raw
+        // read precedes the arm; parsing happens here, after it.
+        WorkerTask::MbfImport => crate::mbf_import::worker_import(&raw).map(|envelope| (envelope, None)),
     }
 }
 
@@ -2749,7 +2758,7 @@ pub(crate) mod tests {
     }
 
     /// Every task code round-trips (0-2 unchanged, 3 the MBF render, 4 the
-    /// hanger sizing), an unassigned code is refused, and task 3's workload is
+    /// hanger sizing, 5 the MBF import), an unassigned code is refused, and task 3's workload is
     /// exactly `mbf_export::worker_render` on the raw request: its envelope
     /// with no attestation (`ATST` status 0), or its named failure.
     #[test]
@@ -2760,6 +2769,7 @@ pub(crate) mod tests {
             (WorkerTask::ModelChecks, 2),
             (WorkerTask::MbfRender, 3),
             (WorkerTask::HangerSizing, 4),
+            (WorkerTask::MbfImport, 5),
         ];
         let request = Request { task: WorkerTask::MbfRender, initial_grant: 2 * MIB, max_grant: 4 * MIB, reserve: MIB, raw_len: 7 };
         for (task, code) in tasks {
@@ -2769,7 +2779,7 @@ pub(crate) mod tests {
             assert_eq!(u64::from_le_bytes(bytes[4..12].try_into().unwrap()), code);
             assert_eq!(decode_request(&bytes), Some(request));
         }
-        for unassigned in [5u64, 6, u64::MAX] {
+        for unassigned in [6u64, 7, u64::MAX] {
             let mut bytes = encode_request(&request);
             bytes[4..12].copy_from_slice(&unassigned.to_le_bytes());
             assert_eq!(decode_request(&bytes), None, "task {unassigned}");
@@ -2784,6 +2794,24 @@ pub(crate) mod tests {
         ] {
             let expected = crate::mbf_export::worker_render(&raw).map(|envelope| (envelope, None));
             assert_eq!(workload(raw, WorkerTask::MbfRender), expected);
+        }
+    }
+
+    /// Task 5's workload is exactly `mbf_import::worker_import` on the raw
+    /// request: its envelope with no attestation, or its named failure.
+    #[test]
+    fn task_5_is_the_mbf_import() {
+        use crate::mbf_import::{encode_worker_request, worker_import, ImportMode, WorkerRequest};
+        let mbf = include_bytes!("../../../../fixtures/caepipe_mbf/invented/import/units_si.mbf");
+        let declaration = br#"{"CS1":{"origin":"project_invented","source_name":"invented"}}"#;
+        for raw in [
+            encode_worker_request(&WorkerRequest { mode: ImportMode::Review, label: "units_si.mbf", declaration, mbf, identity: None }),
+            encode_worker_request(&WorkerRequest { mode: ImportMode::Adopt, label: "units_si.mbf", declaration, mbf, identity: None }),
+            encode_worker_request(&WorkerRequest { mode: ImportMode::Review, label: "units_si.mbf", declaration: b"", mbf, identity: None }),
+            vec![9, 0, 0, 0],
+        ] {
+            let expected = worker_import(&raw).map(|envelope| (envelope, None));
+            assert_eq!(workload(raw, WorkerTask::MbfImport), expected);
         }
     }
 
