@@ -4508,7 +4508,9 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
         ("largest_difference", "weight_basis.rs", ("max",), "1e88b0f40e93ff68abb97c1108c3da5d01ef067f48b067b5fab6b278ed862acc"),
         ("bounding_diagonal", "weight_basis.rs", ("min", "max"), "cab8c9dbaae3e9440ee030532f766599051375fb98184259cdd73570b2860c1d"),
         # I2b-1 (#96): `reported.max(1)` on a usize; the bounding box on [f64; 3] coordinates.
-        ("modal_sturm_count", "eigen.rs", ("max",), "cbb35dc0019efe629a21e73f05f844cf61bc365e98f3eebe4b542ccba9175233"),
+        # Provisional b1e2d1f97: only construction-error mapping moved to modal_sturm_pencil_refusal;
+        # `reported` and its `.max(1)` receiver remain usize, unchanged.
+        ("modal_sturm_count", "eigen.rs", ("max",), "330fda90a325a87eed43eacd7c78d992092e4d4cfaedb3f40f162776347a8f1a"),
         ("bounding_box_diagonal", "outcome.rs", ("min", "max"), "1ae2c9375f2aadf0106a9c79ba7681ddb61f48ff6b2fd806bc00b80a258038ec"),
     ]
     # SKW-MF (§8.55, R-6/R-7 S-K1): the reduced pencil's mass entries order each lower pair by `p.max(q)`, `p.min(q)`
@@ -4531,7 +4533,9 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
     # Only that candidate is subtracted; the body is pinned, so an edit stops the run.
     if _os.path.exists(_os.path.join(_SNAP, _MODAL + "resource.rs")):
         _rb = _fn_text("modal_resource_bound_dimensions", _MODAL + "resource.rs")
-        if (_modal_hashlib.sha256(_rb.encode()).hexdigest() != "d7e206833ae73a70a4bd1f765396597e92b57de2ccfecc5a38e9b7ed062ed845"
+        # Provisional b1e2d1f97 adds two assembly dimension fields only; the one `.min(`
+        # receiver is still the same u128 `free`, with the same budget operand.
+        if (_modal_hashlib.sha256(_rb.encode()).hexdigest() != "b05d4e74c3e9183379ff6c24fdd2a3f0fe99f16b9ba24f42ac2cd488b843f057"
                 or "FallbackError" in _rb):
             raise SystemExit("MODAL-FB: resource.rs:modal_resource_bound_dimensions changed; re-review its receivers and re-pin (§8.58)")
         _target = fnkey("min", _CP)
@@ -4885,17 +4889,19 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
         # root reaches modal). Counts and charges are u128 (39 B), weights and allotments u64 (20 B).
         _RS, _TRS = _MODAL + "resource.rs", _MODAL + "tests_resource.rs"
         _rs_digest = _modal_hashlib.sha256(_text_of(_RS).encode()).hexdigest()
-        if _rs_digest != "9c5edf4015b022969a134c4e67c5d332755fa6456c46d075ebb4e2c714db0fee":
+        # PROPOSAL ONLY: source b1e2d1f97, independently reviewed support implementation. This tool run
+        # establishes no final predecessor, registration, compiled-source identity or witness binding.
+        if _rs_digest != "f85562f6b73580d02e1c6736d472b74d98ad9fbbf25f0e024c8b0ad3a54c2c5c":
             raise SystemExit(f"MODAL-ID: modal/resource.rs changed ({_rs_digest}); re-review its refusal texts and re-pin (§8.58)")
         if _text_of(_MODAL[:-1] + ".rs").count("#[cfg(test)] mod tests_resource;") != 1:
             raise SystemExit("MODAL-ID: tests_resource is no longer a test-only module; re-review (§8.58)")
         _M_U128 = _md(39, "a u128 decimal (count, charge, W or W_budget)")
         _M_U64 = _md(20, "a u64 decimal")
         # The pinned source's static texts: modal_resource_id's 34 literal arms (longest `T8.generalized_mass`, 19 B);
-        # modal_resource_unbounded_reason's five literal reasons (longest 143 B) or the `no bound at P0` fallback.
+        # modal_resource_unbounded_reason's two literal reasons (longest 143 B) or the `no bound at P0` fallback.
         _rs_ids = _re.findall(r'T::\w+ => "([^"]*)"', _fn_text("modal_resource_id", _RS))
         _rs_why = _re.findall(r'Some\("([^"]*)"\)', _fn_text("modal_resource_unbounded_reason", _RS))
-        if len(_rs_ids) != 34 or len(_rs_why) != 5:
+        if len(_rs_ids) != 34 or len(_rs_why) != 2:
             raise SystemExit("MODAL-ID: resource.rs's term ids or unbounded reasons changed; re-review (§8.58)")
         _rs_id = max(len(_x.encode()) for _x in _rs_ids)
         _rs_reason = max([len(_x.encode()) for _x in _rs_why] + [len(b"no bound at P0")])
@@ -4911,7 +4917,7 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
              {"overflow.0": _md(_rs_id, "a ModalResourceOverflow quantity: a static literal of resource.rs or a term id")}),
             (site("modal_resource_judge", _RS, 'format!("unbounded: {}"', full=True),
              {'term.modal_resource_unbounded_reason().unwrap_or("noboundatP0")':
-              _md(_rs_reason, "one of modal_resource_unbounded_reason's five static reasons, or `no bound at P0`")}),
+              _md(_rs_reason, "one of modal_resource_unbounded_reason's two static reasons, or `no bound at P0`")}),
             # By name `count` would be a usize (20 B); it is a u128 term count.
             (site("modal_resource_judge", _RS, 'format!("count {count}, weight undetermined")', full=True), {"count": _M_U128}),
             (site("modal_resource_judge", _RS, 'format!("{id} ({why})")', full=True),
@@ -4943,6 +4949,49 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
         O10_SITE_SIZE = list(globals().get("O10_SITE_SIZE", [])) + [(_k, 0, _RS_T) for _k in (
             site("solution_bits", _TRS, 'let bits = |name: &str, values: &[f64]| format!("{name}:{:x?}"'),
             site("run_modal_dense_and_its_none_budget_wrapper_agree", _TRS, 'assert_eq!(format!("{none:?}"), format!("{plain:?}")'))]
+
+        # Provisional support-operations MODAL-ID: the new diagnostic's stage is one of four literal arguments.
+        # Pin all three caller bodies, and audit every code mention of the helper in PP (including aliases/imports,
+        # excluding the separately guarded test-only tests_resource module). A new caller or changed binding stops
+        # before the 31-byte bound is used. The error keeps the existing error_display class (8192 B); no byte class,
+        # D1 domain, numerical tolerance, coefficient or production resource value is introduced here.
+        for _fn, _f, _sha in (
+            ("solve_modal_pencil_within", "eigen.rs", "f0d37c1f05c22a87200401d39538b1796b5def3d49a4e3f8bdbf5d575e558de5"),
+            ("modal_sturm_pencil_refusal", "eigen.rs", "e5de40fbd3dde8f46646af05b01ea7446a1e9468aa7407d591e8f9a481f5ccea"),
+            ("reform_modal_pencil", "integrity.rs", "d397332f2fdb857b190b4a44cf63887daa21fcf2cad6fb7600f8d872d573498a"),
+        ):
+            if _modal_hashlib.sha256(_fn_text(_fn, _MODAL + _f).encode()).hexdigest() != _sha:
+                raise SystemExit(f"MODAL-ID: support refusal caller {_f}:{_fn} changed; re-review its stage binding")
+        _support_mentions = {}
+        _rl = _production_lexer()
+        for _d, _, _ns in _os.walk(_os.path.join(_SNAP, PP_)):
+            for _n in _ns:
+                _f = _os.path.relpath(_os.path.join(_d, _n), _SNAP)
+                if not _n.endswith(".rs") or _f == _TRS:
+                    continue
+                _text = _production(_f)
+                _toks, _comments = _rl["scan"](_text, _f)
+                _mask = _rl["_masks"](_text, _toks, _comments)
+                _code = "".join(" " if _mask[_i] else _c for _i, _c in enumerate(_text))
+                _mentions = len(_re.findall(r"\bmodal_support_resource_refusal\b", _code))
+                if _mentions:
+                    _support_mentions[_f] = _mentions
+        if _support_mentions != {_MODAL + "eigen.rs": 3, _MODAL + "integrity.rs": 3, _RS: 1}:
+            raise SystemExit("MODAL-ID: support refusal helper callers or imports changed; re-review its stage binding")
+        _support_site = site("modal_support_resource_refusal", _RS, 'format!("{error}; {stage} is refused', full=True)
+        O10_ID_AUDIT += [(_support_site, {
+            "error": _md(8192, "the existing error_display bound (TEXT.md section 3); SupportResourceError's literal structure names and usize decimal fit it"),
+            "stage": _md(31, "one of the four literal support-refusal stages in the pinned caller bodies; longest 31 UTF-8 bytes"),
+        })]
+        # The two new/moved production rows stay fully classed, and must stay zero on the retained graph.
+        # O-10 rejects positive multiplicity or a missing row: future retained entry needs a new derivation.
+        # o10_check's keys are basename-relative (`modal/resource.rs`), unlike full ID_AUDIT keys.
+        O10_MULT0_SITES = list(globals().get("O10_MULT0_SITES", [])) + [
+            (site("modal_support_resource_refusal", _RS, 'format!("{error}; {stage} is refused'),
+             O10 + "MODAL-ID support proposal: no retained root reaches modal; fully classed support diagnostic"),
+            (site("modal_sturm_pencil_refusal", _MODAL + "eigen.rs", 'format!("the Sturm pencil cannot be formed ({error})")'),
+             O10 + "MODAL-ID support proposal: no retained root reaches modal; moved, fully classed Sturm construction diagnostic"),
+        ]
 
 # ---- RT-A4 (DEL-05-02 Work absolute-sum-srss-combinations.md §10; retained-pricing-rules.md §8.46): absolute sums, SRSS
 # and nested combinations on both routes. D1.4 (retained_memory.rs family_clauses) refuses on both routes every absolute_sum
