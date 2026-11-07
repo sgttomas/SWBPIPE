@@ -616,7 +616,7 @@ fn keyed_retirements_apply_once_exhaust_truthfully_and_stay_apart_from_the_expor
 /// The performance session reset carries no page identity (#149) and never names the import's state.
 #[test]
 fn the_performance_reset_does_not_touch_the_import() {
-    let lib = include_str!("lib.rs");
+    let lib = fs::read_to_string(Path::new(env!("CARGO_MANIFEST_DIR")).join("src/lib.rs")).unwrap();
     let start = lib.find("fn dispose_all_preview_mechanics_results").expect("the reset");
     let body = &lib[start..start + lib[start..].find("\n}\n").unwrap()];
     assert!(!body.contains("mbf_import") && !body.contains("MbfImports"), "{body}");

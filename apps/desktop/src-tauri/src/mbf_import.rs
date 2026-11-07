@@ -1058,7 +1058,9 @@ pub(crate) fn worker_import(raw: &[u8]) -> Result<String, String> {
         envelope.push_str(std::str::from_utf8(model).map_err(|_| worker_failure(ENGINE_FAILED, "the canonical model is not ASCII"))?);
     }
     envelope.push_str(&review.text);
-    debug_assert_eq!(envelope.len() as u64, total);
+    if envelope.len() as u64 != total {
+        return Err(worker_failure(ENGINE_FAILED, "the envelope's length is not its counted length"));
+    }
     Ok(envelope)
 }
 
@@ -1698,7 +1700,6 @@ fn respond_with<R>(memory: &NativeLeaseMemory<'_>, reply: Reply<'_>, held: &mut 
     }
     let mut buffer = Vec::with_capacity(length as usize);
     reply.write(&mut buffer);
-    debug_assert_eq!(buffer.len() as u64, length);
     drop(reply);
     respond(String::from_utf8(buffer).expect("the reply is UTF-8"))
 }

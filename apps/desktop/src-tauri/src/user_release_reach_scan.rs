@@ -588,14 +588,19 @@ const ENTRY_RULES: [(&str, &str, Entry); 6] = [
 /// entries, `size_hangers` and `cancel_hanger_sizing`, after
 /// `cancel_mbf_export` (the previous digest `99d282f6…6eba6` reproduced
 /// first; the macro's only change is those two lines; reviewed likewise: no
-/// `mod`, no `$parameter ::`, no scanned name).
+/// `mod`, no `$parameter ::`, no scanned name), and after DEL-17-04 slice 5
+/// (`desktop-mbf-export-import.md` §3.8, §4.8.8) added four ordinary handler
+/// entries, `open_mbf_import`, `review_mbf_import`, `adopt_mbf_import` and
+/// `cancel_mbf_import`, after `cancel_mbf_export` (the previous digest
+/// `3eb2fe1c…117ce069` reproduced first; the macro's only change is those four
+/// lines; reviewed likewise: no `mod`, no `$parameter ::`, no scanned name).
 /// RT-A4 §10.4 (#98) re-pinned both headless macros: each `read` closure
 /// now chooses between the current reader and its `reader_verdict::*_recorded`
 /// twin by the input's `recorded_binding` member (were e4ca5430…/b000ef8e…;
 /// reviewed: no `mod`, no `$parameter ::`, no scanned name; `rv::` was
 /// already named; still one `Reader` literal each).
 const MACRO_DEFINITIONS: [(&str, &str, &str); 3] = [
-    ("src-tauri/src/lib.rs", "app_invoke_handler", "3eb2fe1ce93e49e4813e90d06b840645e0e62e23fb228d9aa5bfb30c117ce069"),
+    ("src-tauri/src/lib.rs", "app_invoke_handler", "5d3090f63e0386e5770233280bf809538352315044abbe0f815700f8f9807a4b"),
     ("headless/src/reader_binding.rs", "base", "d80e766036e0f651522ebfe11ebc6ba1fc32ec2b9c2b3702e0b978eb86558cb2"),
     ("headless/src/reader_binding.rs", "transport", "057aa56311a7531f094632a3fe9f2d781b9364ab4865add6c7d257403732169a"),
 ];

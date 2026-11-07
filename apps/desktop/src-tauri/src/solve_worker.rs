@@ -2802,7 +2802,7 @@ pub(crate) mod tests {
     #[test]
     fn task_5_is_the_mbf_import() {
         use crate::mbf_import::{encode_worker_request, worker_import, ImportMode, WorkerRequest};
-        let mbf = include_bytes!("../../../../fixtures/caepipe_mbf/invented/import/units_si.mbf");
+        let mbf = include_str!("../../../../fixtures/caepipe_mbf/invented/import/units_si.mbf").as_bytes();
         let declaration = br#"{"CS1":{"origin":"project_invented","source_name":"invented"}}"#;
         for raw in [
             encode_worker_request(&WorkerRequest { mode: ImportMode::Review, label: "units_si.mbf", declaration, mbf, identity: None }),
