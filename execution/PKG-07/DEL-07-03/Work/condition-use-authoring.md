@@ -17,18 +17,24 @@ the load/reference-state inputs, for the selected case.
   - An unticked mark is absent, never `false`, and nothing is defaulted.
   - The whole `ConditionUse` object is the `after` of `set_load_case_condition_use`. "Clear"
     is `clear_load_case_condition_use` with `after` `not_present`.
-- **Uses refused on pressure-free documents.** Pressure and contents are listed as
-  refused, with their codes, and offer no input:
-  - `LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT`;
-  - `LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED`.
+- **Uses refused on pressure-free documents.** Pressure is listed as refused, with its
+  code, and offers no input: `LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT`.
+- **Contents density (RT-A6 H1, DEL-05-01 Work `hydrostatic-test.md` §8).** A key chosen
+  from the keys whose condition states a contents density, on both routes. The control
+  states that this is mass input. A valid source selection without generated
+  contents weight gives nonblocking `CASE_CONTENTS_WEIGHT_NOT_APPLIED`, with no
+  implicit force or gravity; the source selection need not be cleared. Invalid
+  inputs and unconnected seismic mass stay blocking. The self-weight
+  panel's "Contents density from case" lists the cases with such a use, sends
+  `contents_source_case_ref`, and checks that the plan's new case records the same key.
 - **Members the control does not edit.** A use edit starts from the stored use and
   changes only the members the person changed. A stored member the control does not edit,
   or a stored value the engine refuses (for example `added_weight: false`), is shown as
   "Retained as authored" and written back unchanged, so the engine judges it by name
   (`LOAD_CASE_CONDITION_USE_EMPTY`).
 - **Documents with `pressure_contract`.** The control is shown refused,
-  `LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED`, and offers no input. A stored use is shown
-  as it is.
+  `LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED`, for every use but contents density, which
+  alone is offered (RT-A6 H1). A stored use is shown as it is.
 - **The engine's outcome in place.** Each edit is checked validate-only by the operation
   engine, then queued for Review/Apply (`engineCheckedQueue.tsx`). The findings are
   listed by code, message and references:

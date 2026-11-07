@@ -5,6 +5,36 @@ import { generateSelfWeightPlan, SELF_WEIGHT_SCOPES, type SelfWeightOperationPla
 import { draftIntent, usePreparation, type WorkflowProps } from "../offline-proposal-intake/workflowSupport";
 import { VirtualMultiTargetPicker } from "../workspace/VirtualTargetPicker";
 
+/** RT-A6 H1: the load cases whose authored `condition_use.contents_density` can select contents. */
+export function contentsSourceCases(model: WorkflowProps["model"]): { id: string; label: string; key: string }[] {
+  return model.load_cases.flatMap((loadCase) => {
+    const key = loadCase.condition_use?.contents_density;
+    return typeof key === "string" ? [{ id: loadCase.id, label: loadCase.label || loadCase.id, key }] : [];
+  });
+}
+
+/** The selection the plan's new case records (`condition_use.contents_density`), if any. */
+export function plannedContentsKey(plan: SelfWeightOperationPlan): string | undefined {
+  const created = plan.changes.find((change) => change.change_kind === "create_load_case");
+  if (!created) return undefined;
+  try {
+    const key = (JSON.parse(created.after) as { condition_use?: { contents_density?: unknown } }).condition_use?.contents_density;
+    return typeof key === "string" ? key : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Source selection and the new case's selection must agree before adoption (§4.1 step 3):
+ * with a source case, the plan's new case records exactly that case's current key; without
+ * one, it records none. */
+export function contentsSelectionAgrees(plan: SelfWeightOperationPlan, model: WorkflowProps["model"], sourceCase: string): boolean {
+  const planned = plannedContentsKey(plan);
+  if (!sourceCase) return planned === undefined;
+  const sources = model.load_cases.filter((loadCase) => loadCase.id === sourceCase);
+  return sources.length === 1 && planned !== undefined && sources[0].condition_use?.contents_density === planned;
+}
+
 export function selfWeightPlanBatch(plan: SelfWeightOperationPlan, sourceHash: string): OperationBatch {
   if (plan.source_model_hash !== sourceHash || !(SELF_WEIGHT_SCOPES as readonly string[]).includes(plan.scope_label) || !plan.changes.length)
     throw new Error("The self-weight plan does not match the current model or supported scope. Generate it again.");
@@ -35,7 +65,7 @@ export function selfWeightPlanBatch(plan: SelfWeightOperationPlan, sourceHash: s
 }
 export function SelfWeightPlanPanel(props: WorkflowProps & { selectedPipeRefs?: readonly string[] }) {
   const [input, setInput] = useState({ mode: "create" as "create" | "refresh", preserveModified: false,
-    caseId: "", label: "", value: "", unit: "", axis: "", provenance: "", pipes: [] as string[] });
+    caseId: "", label: "", value: "", unit: "", axis: "", provenance: "", pipes: [] as string[], contentsSource: "" });
   const [review, setReview] = useState<{
     plan: SelfWeightOperationPlan; model: WorkflowProps["model"]; inputs: typeof input;
     selectionId: string; selectionType: string; requestEpoch?: number; revision: number;
@@ -46,6 +76,7 @@ export function SelfWeightPlanPanel(props: WorkflowProps & { selectedPipeRefs?: 
     label: pipe.label || pipe.id,
     keywords: [pipe.from, pipe.to]
   })), [props.model.pipe_segments]);
+  const contentsSources = useMemo(() => contentsSourceCases(props.model), [props.model]);
   const disabledReason = props.busy ? "Wait for the current operation to finish before changing this draft."
     : state.pending ? "Preparing the self-weight plan or its review batch. Wait for it to finish." : undefined;
   const current = review && review.revision === state.revision && review.model === props.model && review.inputs === input &&
@@ -66,12 +97,16 @@ export function SelfWeightPlanPanel(props: WorkflowProps & { selectedPipeRefs?: 
       } : {
         case_id: input.caseId, label: input.label, pipe_refs: input.pipes,
         gravity: { value: Number(input.value), unit: input.unit, axis: input.axis },
-        provenance: input.provenance, source_model_hash: hash.value
+        provenance: input.provenance, source_model_hash: hash.value,
+        // Absence is the section-density request; a chosen case is sent exactly as authored.
+        ...(input.contentsSource ? { contents_source_case_ref: input.contentsSource } : {})
       });
       if (result.status !== "ready" || !result.plan)
         throw new Error(result.diagnostics.map(d => `${d.code}: ${d.message} ${d.remediation}`).join("\n") || "The generator did not return a plan.");
       if (result.source_model_hash !== hash.value || result.plan.source_model_hash !== hash.value)
         throw new Error("The generated plan has a different source model hash.");
+      if (input.mode === "create" && !contentsSelectionAgrees(result.plan, props.model, input.contentsSource))
+        throw new Error("The generated plan's contents selection does not match the chosen source case. Generate it again.");
       return result.plan;
     }, plan => setReview({ plan, model: props.model, inputs: input,
       selectionId: props.selection.id, selectionType: props.selection.type, requestEpoch: props.requestEpoch, revision: state.revision }));
@@ -81,6 +116,8 @@ export function SelfWeightPlanPanel(props: WorkflowProps & { selectedPipeRefs?: 
     await state.run(async () => {
       const hash = await computeModelHash(props.model);
       if (!hash) throw new Error("Model hash is unavailable.");
+      if (review.inputs.mode === "create" && !contentsSelectionAgrees(review.plan, props.model, review.inputs.contentsSource))
+        throw new Error("The contents source case changed since the plan was generated. Generate it again.");
       return selfWeightPlanBatch(review.plan, hash.value);
     }, batch => { props.onQueueBatch(batch); setReview(null); });
   }
@@ -89,7 +126,7 @@ export function SelfWeightPlanPanel(props: WorkflowProps & { selectedPipeRefs?: 
     {disabledReason && <p id="self-weight-plan-disabled-reason" role="status">{disabledReason}</p>}
     <p>Uses each selected pipe's own mass. A selected member mapped by a valve, flange, reducer, rigid or specialty component in mechanics geometry only carries that component's weight instead, at the component's node with the moment r × F (r: its centre of gravity in global X/Y/Z from the node). Supports and equipment are excluded. Missing mass inputs are reported; none are assumed.</p>
     <fieldset disabled={props.busy || state.pending} aria-describedby={disabledReason ? "self-weight-plan-disabled-reason" : undefined} title={disabledReason}><legend>Load case and gravity</legend>
-      <label>Self-weight action<select value={input.mode} onChange={event => setInput({ ...input, mode: event.target.value as "create" | "refresh", caseId: "", preserveModified: false })}>
+      <label>Self-weight action<select value={input.mode} onChange={event => setInput({ ...input, mode: event.target.value as "create" | "refresh", caseId: "", preserveModified: false, contentsSource: "" })}>
         <option value="create">Create a self-weight case</option><option value="refresh">Refresh an existing case</option>
       </select></label>
       {input.mode === "refresh" ? <>
@@ -105,6 +142,13 @@ export function SelfWeightPlanPanel(props: WorkflowProps & { selectedPipeRefs?: 
         <option value="">Choose an axis</option>{["global_x", "global_y", "global_z"].map(axis => <option key={axis} value={axis}>{axis.replace("global_", "Global ").toUpperCase()}</option>)}
       </select></label>
       <p>Enter a signed acceleration and a compatible acceleration unit, such as m/s^2.</p>
+      <label>Contents density from case<select data-testid="self-weight-contents-source" value={input.contentsSource} onChange={event => setInput({ ...input, contentsSource: event.target.value })}>
+        <option value="">Each section's own contents density (no case selection)</option>
+        {contentsSources.map(source => <option key={source.id} value={source.id}>{source.label} (condition {source.key})</option>)}
+      </select></label>
+      <p data-testid="self-weight-contents-source-note">{input.contentsSource
+        ? `Contents come from load case ${input.contentsSource}'s condition_use.contents_density, resolved for each selected pipe from its condition set. The new case records the same selection as its own; ${input.contentsSource} is kept as origin provenance only. Missing sets, keys or densities are refused by name; nothing falls back to section density.`
+        : contentsSources.length ? "No case selection: each section's own contents density is used, as before." : "No load case states a contents-density condition use, so each section's own contents density is used."}</p>
       <fieldset><legend>Pipes to include</legend><VirtualMultiTargetPicker
         label="Self-weight pipes"
         onChange={(pipes) => setInput({ ...input, pipes: [...pipes] })}
@@ -133,6 +177,9 @@ export function SelfWeightPlanPanel(props: WorkflowProps & { selectedPipeRefs?: 
       {review.plan.warnings?.length ? <ul aria-label="Self-weight warnings" data-testid="self-weight-plan-warnings">
         {review.plan.warnings.map((warning) => <li key={warning.id}>{warning.code}: {warning.message}</li>)}
       </ul> : null}
+      {plannedContentsKey(review.plan) !== undefined && <p data-testid="self-weight-plan-contents">
+        {`Contents from load case ${review.inputs.contentsSource} (condition ${plannedContentsKey(review.plan)}). The new case ${review.inputs.caseId} records condition_use.contents_density = ${plannedContentsKey(review.plan)} as its own selection.`}
+      </p>}
       <p>Review the source evidence, then queue the complete plan as one batch.</p>
       <pre aria-label="Self-weight source evidence">{JSON.stringify(review.plan.source_evidence, null, 2)}</pre>
       <details><summary>Proposed changes and model basis</summary><p>{review.plan.source_model_hash}</p>

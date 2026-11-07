@@ -42,12 +42,16 @@
 //!
 //! **Route admission of a use** ([`admit_case_use`], also applied to
 //! `create_load_case`'s `condition_use`): on a pressure-free document
-//! `temperature`, `added_weight: true` and `wind_exposure: true` are admitted;
-//! `contents_density` is refused (`LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED`)
-//! and `pressure` is refused
+//! `temperature`, `added_weight: true`, `wind_exposure: true` and (RT-A6 H1)
+//! `contents_density` are admitted, and `pressure` is refused
 //! (`LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT`). On a document with
-//! a `pressure_contract` every use is refused
-//! (`LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED`, until S4).
+//! a `pressure_contract` a use stating only `contents_density` is admitted
+//! (RT-A6 H1) and every other use is refused
+//! (`LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED`, until S4). A contents use is
+//! mass input: a valid selection without generated contents weight carries
+//! `CASE_CONTENTS_WEIGHT_NOT_APPLIED` as a nonblocking warning. Invalid inputs
+//! and unconnected seismic consumers remain blocking; authoring does not
+//! downgrade `LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED`.
 //!
 //! **The solve's judgement, classified (SWBPIPE Agent 0, 2026-11-02;
 //! [`report_judgement`]).** After an admitted operation, and once the document
@@ -64,8 +68,9 @@
 //! naming only entities of the document before the edit, outside the edit's
 //! dependency scope ([`edit_scope`]) and not a route or admission code, is
 //! reported as `info` with the solve's code and message, and the edit applies.
-//! The solve still refuses it, and every case with a staged finding, by name;
-//! nothing records that the document solves. The applier computes no
+//! Staged blocking-input findings still refuse at solve. H1's explicit
+//! CASE_CONTENTS_WEIGHT_NOT_APPLIED notice is nonblocking there as well; no
+//! authoring outcome certifies that the whole document solves. The applier computes no
 //! temperature difference of its own.
 //!
 //! Inverses: create and delete (at the deleted index), update and update with
@@ -119,8 +124,10 @@ pub(crate) enum Staged {
 }
 
 /// The staged-state findings (§11, SWBPIPE Agent 0, 2026-11-02): exactly these
-/// are warnings. Every other finding blocks.
-pub(crate) const STAGED_FINDINGS: [Staged; 8] = [
+/// are warnings. Every other finding blocks. RT-A6 H1 adds the unconsumed
+/// contents notice: a valid source selection may remain without generated
+/// weight. Unsupported seismic consumers and invalid inputs still block.
+pub(crate) const STAGED_FINDINGS: [Staged; 9] = [
     Staged::Code(pp_resolution::OPERATING_CONDITION_SET_MISSING),
     Staged::Code(pp_resolution::OPERATING_CONDITION_KEY_MISSING),
     Staged::Code(pp_resolution::OPERATING_CONDITION_VALUE_MISSING),
@@ -128,6 +135,7 @@ pub(crate) const STAGED_FINDINGS: [Staged; 8] = [
     Staged::Code(pp_resolution::LOAD_CASE_CONDITION_TEMPERATURE_CONFLICT),
     Staged::Code(pp_resolution::LOAD_CASE_CONDITION_WIND_EXPOSURE_CONFLICT),
     Staged::Code(pp_resolution::LOAD_CASE_CONDITION_WIND_INPUT_MISSING),
+    Staged::Code(pp_conditions::contents::CASE_CONTENTS_WEIGHT_NOT_APPLIED),
     Staged::EmptyGeneratedWindExposure,
 ];
 
@@ -209,9 +217,13 @@ pub(crate) fn admit_case_use(model: &Value, case_ref: &str, using: &Value) -> Ve
         return Vec::new();
     };
     if has_pressure_contract(model) {
+        // RT-A6 H1: contents density alone is admitted on the exact route.
+        if members.keys().all(|member| member == "contents_density") {
+            return Vec::new();
+        }
         return vec![refusal(
             pp_conditions::LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED,
-            format!("Load case `{case_ref}` would use operating conditions on a document with a pressure contract; the exact route's condition resolution is not built yet (S4), so the use is not authored."),
+            format!("Load case `{case_ref}` would use operating conditions other than contents density on a document with a pressure contract; the exact route's condition resolution is not built yet (S4), so the use is not authored."),
             &refs,
         )];
     }
@@ -221,13 +233,6 @@ pub(crate) fn admit_case_use(model: &Value, case_ref: &str, using: &Value) -> Ve
         refusals.push(refusal(
             pp_resolution::LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT,
             format!("Load case `{case_ref}` would use condition `{key}` for pressure on a pressure-free document, which has no pressure carrier; pressure from conditions needs a pressure contract."),
-            &refs,
-        ));
-    }
-    if let Some(key) = key("contents_density") {
-        refusals.push(refusal(
-            pp_resolution::LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED,
-            format!("Load case `{case_ref}` would use condition `{key}` for contents density; the resolution of contents density is not designed yet (RT-A6), so the use is not authored."),
             &refs,
         ));
     }
@@ -327,10 +332,9 @@ pub(crate) const CREATE_LOAD_CASE: &str = "create_load_case";
 
 /// The route and admission refusals of a case's use (§11): never a permitted
 /// carried refusal, wherever they appear.
-const ROUTE_ADMISSION_CODES: [&str; 4] = [
+const ROUTE_ADMISSION_CODES: [&str; 3] = [
     pp_conditions::LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED,
     pp_resolution::LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT,
-    pp_resolution::LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED,
     // The exact route's refusal of a declared operating comparison (review r1).
     "LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED",
 ];
@@ -542,6 +546,8 @@ pub(crate) fn report_judgement(checker: &mut crate::Checker, before: &Value, cha
     };
     for finding in found {
         let remediation = match finding.severity {
+            "warning" if finding.code == pp_conditions::contents::CASE_CONTENTS_WEIGHT_NOT_APPLIED =>
+                "Contents density has not been applied as weight in this case. No force or gravity is assumed; the valid source selection can remain authored.",
             "warning" => "Authoring is not blocked; the solve refuses the named case until the named input is stated.",
             "info" => "Authoring is not blocked by a refusal the document already carried outside this edit's scope; the solve refuses the document until the named member is resolved.",
             _ => "The solve refuses the candidate document for this finding; correct it or the operation and retry.",
@@ -962,6 +968,7 @@ mod tests {
                 "LOAD_CASE_CONDITION_TEMPERATURE_CONFLICT",
                 "LOAD_CASE_CONDITION_WIND_EXPOSURE_CONFLICT",
                 "LOAD_CASE_CONDITION_WIND_INPUT_MISSING",
+                "CASE_CONTENTS_WEIGHT_NOT_APPLIED",
             ]
         );
         assert!(STAGED_FINDINGS.contains(&Staged::EmptyGeneratedWindExposure));
@@ -981,9 +988,9 @@ mod tests {
     #[test]
     fn a_code_not_on_the_list_blocks() {
         for code in [
-            "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED",
             "LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT",
             "LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED",
+            "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED",
             "LOAD_CASE_CONDITION_USE_EMPTY",
             "OPERATING_CONDITION_SET_UNRESOLVED",
             "OPERATING_CONDITION_QUANTITY_INVALID",

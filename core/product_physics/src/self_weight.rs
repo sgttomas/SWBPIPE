@@ -11,8 +11,13 @@ use super::{
     compute_pipe_mass_per_length, normalize_quantity, normalize_vector_quantity,
     resolve_shared_sections, Diagnostic, PreviewComponent, PreviewModel, Quantity,
 };
+use crate::operating_conditions::contents::{
+    case_contents_density, CaseContentsContext, ResolvedContents, CASE_CONTENTS_CONTEXT_CONFLICT,
+    CASE_CONTENTS_CONTEXT_MISSING, CONTENTS_SOURCE_METHOD,
+};
 use crate::rigid_component::{self, is_rigid_family, mapped_pipe_ref, GEOMETRY_ONLY};
 use open_pipe_stress_units::Dimension;
+use std::borrow::Cow;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::collections::{BTreeMap, BTreeSet, HashSet};
@@ -136,13 +141,117 @@ pub fn generate_self_weight_operations(
     model: &PreviewModel,
     request: &SelfWeightRequest,
 ) -> Result<SelfWeightOperationPlan, Vec<Diagnostic>> {
-    generate_operations(model, request, false)
+    generate_operations(model, request, false, None)
+}
+
+/// RT-A6 H1 (DEL-05-01 Work `hydrostatic-test.md` §4.1): the request-only
+/// member naming the authoritative case whose `condition_use.contents_density`
+/// selects the generated self-weight's contents.
+pub const CONTENTS_SOURCE_CASE_REF: &str = "contents_source_case_ref";
+/// A present `contents_source_case_ref` that is not a nonblank string.
+pub const SELF_WEIGHT_CONTENTS_SOURCE_INVALID: &str = "SELF_WEIGHT_CONTENTS_SOURCE_INVALID";
+/// A selected member whose mass path cannot consume the selected contents (a
+/// component weight replaces its distributed self-weight).
+pub const SELF_WEIGHT_CONTENTS_NOT_CONSUMED: &str = "SELF_WEIGHT_CONTENTS_NOT_CONSUMED";
+
+/// RT-A6 H1: the closed self-weight request plus the optional, request-only
+/// contents source. Absence of the member is the unchanged legacy request; a
+/// present member never falls back to it.
+#[derive(Debug, Clone)]
+pub struct ContentsAwareSelfWeightRequest {
+    pub request: SelfWeightRequest,
+    pub contents_source_case_ref: Option<String>,
+}
+
+/// Why a JSON self-weight request was not read.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum SelfWeightRequestRefusal {
+    /// Not an object, or a member of the closed request is missing, unknown or
+    /// of the wrong type.
+    Shape,
+    /// `contents_source_case_ref` is present and not a nonblank string; the
+    /// message names what it is.
+    ContentsSourceInvalid(String),
+}
+
+impl ContentsAwareSelfWeightRequest {
+    /// Read a JSON request: `contents_source_case_ref`, when present, must be a
+    /// string with a non-whitespace character (kept exactly as authored, never
+    /// trimmed); the rest is the closed [`SelfWeightRequest`].
+    pub fn from_value(value: &Value) -> Result<Self, SelfWeightRequestRefusal> {
+        let Some(object) = value.as_object() else {
+            return Err(SelfWeightRequestRefusal::Shape);
+        };
+        let mut rest = object.clone();
+        let contents_source_case_ref = match rest.remove(CONTENTS_SOURCE_CASE_REF) {
+            None => None,
+            Some(Value::String(text)) if !text.trim().is_empty() => Some(text),
+            Some(other) => {
+                let what = match &other {
+                    Value::Null => "null".to_string(),
+                    Value::String(_) => "an empty or whitespace-only string".to_string(),
+                    _ => format!("not a string ({other})"),
+                };
+                return Err(SelfWeightRequestRefusal::ContentsSourceInvalid(format!(
+                    "{CONTENTS_SOURCE_CASE_REF} is {what}; name the authored load case whose contents-density use selects the contents, or omit the member to use each section's own contents density"
+                )));
+            }
+        };
+        let request = serde_json::from_value(Value::Object(rest)).map_err(|_| SelfWeightRequestRefusal::Shape)?;
+        Ok(Self { request, contents_source_case_ref })
+    }
+}
+
+/// RT-A6 H1: generate from a [`ContentsAwareSelfWeightRequest`]. With no
+/// contents source this is exactly [`generate_self_weight_operations`]. With
+/// one, the named case's selection is captured by exact id before anything
+/// else, every consumed pipe's density is resolved from it by
+/// [`case_contents_density`], and the created case persists the same
+/// selection on its own `condition_use.contents_density`.
+pub fn generate_contents_aware_self_weight_operations(
+    model: &PreviewModel,
+    request: &ContentsAwareSelfWeightRequest,
+) -> Result<SelfWeightOperationPlan, Vec<Diagnostic>> {
+    let Some(source) = request.contents_source_case_ref.as_deref() else {
+        return generate_operations(model, &request.request, false, None);
+    };
+    let refuse = |code: &str, message: String| {
+        Err(vec![crate::diag(
+            &format!("diagnostic:self-weight:contents-source:{}", crate::stable_suffix(source)),
+            code,
+            "blocking",
+            message,
+            vec![source.to_string(), request.request.case_id.clone()],
+        )])
+    };
+    if source == request.request.case_id {
+        return refuse(CASE_CONTENTS_CONTEXT_CONFLICT, format!(
+            "the contents source case `{source}` is also the new self-weight case; generate into a different new case, which records the selection as its own"
+        ));
+    }
+    let Some(context) = CaseContentsContext::capture(model, source)? else {
+        return refuse(CASE_CONTENTS_CONTEXT_MISSING, format!(
+            "the contents source case `{source}` states no condition_use.contents_density; no contents are assumed, so nothing is generated"
+        ));
+    };
+    let origin = context.case_id().to_string();
+    generate_operations(model, &request.request, false, Some(ContentsSelection { context: &context, origin_case: &origin }))
+}
+
+/// The contents a generation consumes: the captured selection and the origin
+/// case recorded as provenance (the selecting case at creation; the original
+/// origin on a refresh).
+#[derive(Clone, Copy)]
+struct ContentsSelection<'a> {
+    context: &'a CaseContentsContext,
+    origin_case: &'a str,
 }
 
 fn generate_operations(
     model: &PreviewModel,
     request: &SelfWeightRequest,
     inspection: bool,
+    contents: Option<ContentsSelection>,
 ) -> Result<SelfWeightOperationPlan, Vec<Diagnostic>> {
     let mut d = Vec::new();
     for (name, value) in [
@@ -301,6 +410,31 @@ fn generate_operations(
     }
     subset.pipe_segments.retain(|pipe| !bodies.contains_key(&pipe.id));
     subset.pipe_segments.sort_by(|a, b| a.id.cmp(&b.id));
+    // RT-A6 H1: each consumed member's selected contents, resolved from the
+    // captured selection; a member whose component weight replaces its
+    // distributed self-weight cannot consume them and is refused by name.
+    let mut selected_contents: BTreeMap<String, ResolvedContents> = BTreeMap::new();
+    if let Some(selection) = contents {
+        for body in bodies.values() {
+            d.push(crate::diag(
+                &format!("diagnostic:self-weight:contents:{}:not-consumed", crate::stable_suffix(&body.component.id)),
+                SELF_WEIGHT_CONTENTS_NOT_CONSUMED,
+                "blocking",
+                format!("load case `{}` selects contents `{}`, and selected member {} carries the weight of component {} instead of its distributed self-weight, which has no contents term; the selected contents would not be applied, so nothing is generated (deselect the member or generate its contents separately)",
+                    selection.context.case_id(), selection.context.key(), body.pipe, body.component.id),
+                vec![selection.context.case_id().to_string(), body.pipe.clone(), body.component.id.clone()],
+            ));
+        }
+        for pipe in &mut subset.pipe_segments {
+            match case_contents_density(selection.context, &pipe.id) {
+                Ok(resolved) => {
+                    pipe.section.contents_density = Some(resolved.authored.clone());
+                    selected_contents.insert(pipe.id.clone(), resolved);
+                }
+                Err(found) => d.extend(found),
+            }
+        }
+    }
     resolve_shared_sections(&mut subset, &mut d);
     if !d.is_empty() {
         return Err(d);
@@ -391,7 +525,18 @@ fn generate_operations(
             d.last_mut().unwrap().code = "SELF_WEIGHT_RANGE_INVALID".into();
             continue;
         }
-        let s = &original.section;
+        let resolved_contents = selected_contents.get(&pipe.id);
+        // The mass inputs as consumed: the section as authored, with the
+        // selected contents in place of its own contents density (RT-A6 H1).
+        let consumed: Cow<super::PipeSectionInput> = match resolved_contents {
+            None => Cow::Borrowed(&original.section),
+            Some(resolved) => {
+                let mut section = original.section.clone();
+                section.contents_density = Some(resolved.authored.clone());
+                Cow::Owned(section)
+            }
+        };
+        let s = &*consumed;
         let shared_evidence=shared.map(|s|json!({"id":s.id,"name":s.name,"section_type":s.section_type,"provenance":s.provenance,
             "properties":s.properties.iter().map(|(k,v)|(k.clone(),quantity(v))).collect::<serde_json::Map<String,Value>>()}));
         let mut e = json!({"method":GENERATED_METHOD,"gravity":request.gravity,
@@ -406,6 +551,15 @@ fn generate_operations(
         e["mass_method"] = json!(if exact { EXACT_MASS_METHOD } else { STABLE_MASS_METHOD });
         e["source_model_hash"] = json!(request.source_model_hash);
         e["normalized_dependencies"] = dependency_projection(&pipe.section, &original.section_ref, exact);
+        if let (Some(resolved), Some(selection)) = (resolved_contents, contents) {
+            e["contents_source"] = json!({"method":CONTENTS_SOURCE_METHOD,"use":"contents_density",
+                "selected_by_case":resolved.case_id,"origin_case":selection.origin_case,
+                "condition_set":resolved.condition_set,"condition_key":resolved.key,
+                "contents_density":quantity(&resolved.authored),
+                "normalized_contents_density_kg_per_m3":resolved.normalized,
+                "section_contents_density_superseded":optional(&original.section.contents_density)});
+            e["normalized_dependencies"]["contents_source"] = contents_dependency(&resolved.condition_set, &resolved.key);
+        }
         let id = format!(
             "load:self-weight:{}:{}:{}:{}",
             request.case_id.len(),
@@ -440,7 +594,18 @@ fn generate_operations(
         }
     }
     let scope = if bodies.is_empty() { PIPE_MASS_SCOPE } else { COMPONENT_WEIGHT_SCOPE };
-    let case = json!({"id":request.case_id,"label":request.label,"kind":"primitive_user_load","status":"draft","provenance":request.provenance,"primitive_loads":[]});
+    let mut case = json!({"id":request.case_id,"label":request.label,"kind":"primitive_user_load","status":"draft","provenance":request.provenance,"primitive_loads":[]});
+    // RT-A6 H1 (§4.1 step 3): the created case states the selection as its own;
+    // the origin case is provenance, not a live dependency.
+    if let Some(selection) = contents {
+        case["condition_use"] = json!({"contents_density":selection.context.key()});
+        // An EX self-weight target explicitly carries no pressure regions.
+        // This belongs to the reviewed contents-aware case draft; the legacy
+        // no-use case/evidence bytes are unchanged.
+        if exact {
+            case["pressure_regions"] = json!([]);
+        }
+    }
     let mut changes = vec![draft(
         request,
         "create_load_case",
@@ -882,6 +1047,12 @@ fn valid_hash(value: &str) -> bool {
                 .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
     })
 }
+/// RT-A6 H1: the source identity a contents-selected record depends on, beside
+/// the normalized density in the section projection: the set and the key. An
+/// equal density from another set or key is a different source.
+fn contents_dependency(set: &str, key: &str) -> Value {
+    json!({"condition_set":set,"condition_key":key})
+}
 fn dependency_projection(s: &super::PipeSectionInput, reference: &Option<String>, exact: bool) -> Value {
     let mut projection = json!({"section_ref":reference,
         "outside_diameter":quantity(&s.outside_diameter),
@@ -1071,7 +1242,31 @@ fn retained_basis(
     {
         return Err(fail());
     }
-    let dependencies = dependency_projection(&section, &reference, exact);
+    let mut dependencies = dependency_projection(&section, &reference, exact);
+    // RT-A6 H1: a contents-selected record's source binding, validated against
+    // its own consumed density; only the current generation method carries one.
+    if let Some(source) = evidence.get("contents_source") {
+        let text = |key: &str| source[key].as_str().filter(|text| !text.trim().is_empty());
+        let consumed = section.contents_density.as_ref().map(|q| q.value);
+        if method != GENERATED_METHOD
+            || source["method"] != CONTENTS_SOURCE_METHOD
+            || source["use"] != "contents_density"
+            || text("selected_by_case").is_none()
+            || text("origin_case").is_none()
+            || !source["condition_set"].is_string()
+            || !source["condition_key"].is_string()
+            || source["contents_density"] != inputs["contents_density"]
+            || consumed.is_none()
+            || source["normalized_contents_density_kg_per_m3"].as_f64().map(f64::to_bits) != consumed.map(f64::to_bits)
+            || !source.get("section_contents_density_superseded").is_some_and(|q| q.is_null() || q.is_object())
+        {
+            return Err(fail());
+        }
+        dependencies["contents_source"] = contents_dependency(
+            source["condition_set"].as_str().unwrap_or_default(),
+            source["condition_key"].as_str().unwrap_or_default(),
+        );
+    }
     let pipe = super::PreviewPipe {
         id: pipe_id.into(),
         from: String::new(),
@@ -1366,12 +1561,22 @@ pub fn inspect_applied_self_weight(
                     status.state = AppliedSelfWeightState::Modified;
                     return Ok(());
                 }
+                // RT-A6 H1 (§4.1 steps 1, 4): this case's own contents
+                // selection, captured from the authored model before the clone
+                // clears its cases; the origin stays the record's own.
+                let context = CaseContentsContext::of_case_in_place(model, case)?;
+                let origin = evidence["contents_source"]["origin_case"]
+                    .as_str()
+                    .map(str::to_string)
+                    .or_else(|| context.as_ref().map(|c| c.case_id().to_string()))
+                    .unwrap_or_default();
+                let selection = context.as_ref().map(|context| ContentsSelection { context, origin_case: &origin });
                 // Clear only load identity collisions on a clone. Current source
                 // quantities and shared-section cache checks stay authoritative
                 // for primitives that retain their generated physical payload.
                 let mut source = model.clone();
                 source.load_cases.clear();
-                let generated = generate_operations(&source, &request, true)?;
+                let generated = generate_operations(&source, &request, true, selection)?;
                 // The regenerated row of this primitive: the member's own row,
                 // or the same component wrench part and axis. None when the
                 // selection now generates other loads (W-15 slice b: a
@@ -1487,6 +1692,7 @@ fn old_dependencies_mass(evidence: &Value, case_id: &str) -> Option<f64> {
     // The projection's one member beside the section's own (the closed section refuses any other).
     dependencies.as_object_mut()?.remove(DEPENDENCY_SECTION_REF);
     let section = serde_json::from_value(dependencies).ok()?;
+    // (A legacy record carries no contents source: `retained_basis` refuses one.)
     let pipe = super::PreviewPipe {
         id: String::new(),
         from: String::new(),
@@ -1553,7 +1759,7 @@ pub(crate) fn inspect_generated_self_weight(
         provenance: "DEL-04-09 modal weight-basis identity: an in-memory inspection of the generated self-weight, never applied or published".into(),
         source_model_hash: String::new(),
     };
-    generate_operations(model, &request, true)
+    generate_operations(model, &request, true, None)
 }
 
 #[cfg(test)]

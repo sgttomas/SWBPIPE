@@ -12,6 +12,11 @@ export type SelfWeightRequest = {
   };
   provenance: string;
   source_model_hash: string;
+  /** RT-A6 H1 (DEL-05-01 Work `hydrostatic-test.md` §4.1): the authored load case whose
+   * `condition_use.contents_density` selects the contents; request-only. Absent: each
+   * section's own contents density (the unchanged request). The new case records the
+   * selection as its own `condition_use`. */
+  contents_source_case_ref?: string;
 };
 export type SelfWeightRefreshRequest = {
   mode: "refresh";

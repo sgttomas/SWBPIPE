@@ -88,7 +88,8 @@ describe("the connecting path: set, pipe assignment and case use through the eng
     // 3. Set case SUS's use; P2 and P3 carry no set, so the engine stages warnings by name.
     render(<ConditionUseControl {...props()} loadCase={model.load_cases.find((item) => item.id === "SUS")!} />);
     expect(screen.getByTestId("load-condition-use-refused-pressure")).toHaveTextContent("LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT");
-    expect(screen.getByTestId("load-condition-use-refused-contents")).toHaveTextContent("LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED");
+    // RT-A6 H1: contents density is offered, staged by name until generated self-weight consumes it.
+    expect(screen.getByTestId("load-condition-use-contents-note")).toHaveTextContent("CASE_CONTENTS_WEIGHT_NOT_APPLIED");
     expect(within(screen.getByTestId("load-condition-use-temperature")).getAllByRole("option").map((option) => option.textContent)).toEqual(["not used", "OPE1"]);
     fireEvent.change(screen.getByTestId("load-condition-use-temperature"), { target: { value: "OPE1" } });
     fireEvent.click(screen.getByTestId("load-condition-use-added-weight"));
@@ -342,7 +343,8 @@ describe("the set form: labels, pressure, retained members", () => {
     render(<ConditionSetsSection model={model} onQueueIntent={(intent) => list.push(intent)} />);
     fireEvent.click(screen.getByTestId("condition-set-new-add-condition"));
     const form = screen.getByTestId("condition-set-create-form");
-    expect(within(form).getAllByText(`(${NOT_USED_BY_SOLVE})`).length).toBe(5); // contents density, design, peak, snow/ice, wave
+    expect(within(form).getAllByText(`(${NOT_USED_BY_SOLVE})`).length).toBe(4); // design, peak, snow/ice, wave
+    expect(within(form).getByRole("columnheader", { name: /Contents density/ })).toHaveTextContent("used only by explicitly selected contents self-weight");
     expect(screen.getByTestId("condition-set-new-design-not-used")).toBeInTheDocument();
     expect(screen.getByTestId("condition-set-new-peak-not-used")).toBeInTheDocument();
     expect(screen.getByTestId("condition-set-new-exposure-snow-ice-not-used")).toBeInTheDocument();
@@ -392,13 +394,16 @@ describe("the set form: labels, pressure, retained members", () => {
 });
 
 describe("the load manager's Conditions control", () => {
-  it("is refused by name on a document with a pressure contract and offers no input", () => {
+  it("refuses every use but contents density by name on a document with a pressure contract", () => {
     const model = corpusBase("s3a_12");
     render(<ConditionUseControl model={model} onQueueIntent={() => undefined} loadCase={model.load_cases[0]} />);
     expect(screen.getByTestId("load-condition-use-refused-exact")).toHaveTextContent("LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED");
     expect(screen.queryByTestId("load-condition-use-temperature")).toBeNull();
     expect(screen.queryByTestId("load-condition-use-added-weight")).toBeNull();
-    expect(screen.queryByTestId("load-condition-use-queue")).toBeNull();
+    expect(screen.queryByTestId("load-condition-use-wind-exposure")).toBeNull();
+    // RT-A6 H1: a contents-density key alone is offered on the exact route.
+    expect(screen.getByTestId("load-condition-use-contents")).toBeInTheDocument();
+    expect(screen.getByTestId("load-condition-use-queue")).toBeDisabled();
   });
 
   it("writes absence for an unticked mark, never false, and shows the engine's per-pipe resolution", async () => {

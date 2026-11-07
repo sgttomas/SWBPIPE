@@ -77,10 +77,20 @@ needs:
     dependency fulfilment, acceptance or release. Existing primitive-load inputs
     consumed by DEL-04-07 remain governed by its own staged dependency.
   gating: true
+- from: DEL-02-01
+  condition: >-
+    RT-A6 H1's contents resolver (Work/hydrostatic-test.md section 8) reads model
+    document 0.9.0's condition_sets, pipe condition_set_ref and a load case's
+    condition_use.contents_density as DEL-02-01 defines and validates them, and
+    the self-weight generator's created case writes that existing member. No new
+    member or version is implied; this records the consumed format, not
+    fulfilment, acceptance or release.
+  gating: false
 code_paths:
 - core/loads/primitive_loads/**
 - core/loads/self_weight_wasm/**
 - core/product_physics/src/self_weight.rs
+- core/product_physics/src/operating_conditions/contents.rs
 - core/product_physics/src/certified_loads.rs
 - core/product_physics/src/exact_admission.rs
 - core/product_physics/src/pressure_runtime.rs
@@ -108,6 +118,9 @@ checks:
 - validation/references/w16_timoshenko_partial_wind/generators/w16t_reference.py
 - core/model_operations/operation_applier/tests/generated_self_weight.rs
 - core/loads/self_weight_wasm/tests/applied_self_weight.rs
+- core/loads/self_weight_wasm/tests/contents_self_weight.rs
+- core/product_physics/tests/h1_contents_self_weight.rs
+- apps/desktop/src/features/self-weight-authoring/SelfWeightContents.engine.test.tsx
 - apps/desktop/src/features/self-weight-authoring/SelfWeightRefresh.test.tsx
 - apps/desktop/src/features/load-cases/primitiveLoadVocabulary.test.ts
 - apps/desktop/src/features/load-cases/LoadCaseManagerPanel.test.tsx

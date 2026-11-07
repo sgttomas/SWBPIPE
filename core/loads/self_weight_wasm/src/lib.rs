@@ -2,9 +2,9 @@
 //! Produces operation proposals only; it never applies or accepts a model.
 use open_pipe_stress_canonical_json::canonical_json;
 use open_pipe_stress_product_physics::{
-    self_weight::{generate_self_weight_operations, inspect_applied_self_weight, AppliedSelfWeightState,
-        COMPONENT_WEIGHT_METHOD, COMPONENT_WEIGHT_SCOPE, PIPE_MASS_SCOPE,
-        SelfWeightOperationDraft, SelfWeightOperationPlan, SelfWeightRequest},
+    self_weight::{generate_contents_aware_self_weight_operations, inspect_applied_self_weight, AppliedSelfWeightState,
+        ContentsAwareSelfWeightRequest, SelfWeightRequestRefusal, COMPONENT_WEIGHT_METHOD, COMPONENT_WEIGHT_SCOPE, PIPE_MASS_SCOPE,
+        SELF_WEIGHT_CONTENTS_SOURCE_INVALID, SelfWeightOperationDraft, SelfWeightOperationPlan},
     PreviewModel,
 };
 use serde_json::{json, Value};
@@ -72,9 +72,12 @@ pub fn generate_plan(model: &Value, request: &Value) -> Value {
     if request.get("mode").is_some() {
         return refresh_plan(model, &typed_model, request, &hash);
     }
-    let typed_request: SelfWeightRequest = match serde_json::from_value(request.clone()) {
+    // RT-A6 H1: the closed request plus the request-only
+    // `contents_source_case_ref`; a malformed one is refused by name and never
+    // read as the legacy request. The native command forwards this same JSON.
+    let typed_request = match ContentsAwareSelfWeightRequest::from_value(request) {
         Ok(value) => value,
-        Err(_) => {
+        Err(SelfWeightRequestRefusal::Shape) => {
             return blocked(
                 Some(&hash),
                 "SELF-WEIGHT-REQUEST-SHAPE-INVALID",
@@ -82,8 +85,16 @@ pub fn generate_plan(model: &Value, request: &Value) -> Value {
                 "Supply only the defined request and gravity fields with their expected types.",
             )
         }
+        Err(SelfWeightRequestRefusal::ContentsSourceInvalid(message)) => {
+            return blocked(
+                Some(&hash),
+                SELF_WEIGHT_CONTENTS_SOURCE_INVALID,
+                &message,
+                "Choose the authored load case whose contents-density use selects the contents, or omit it.",
+            )
+        }
     };
-    match generate_self_weight_operations(&typed_model,&typed_request) {
+    match generate_contents_aware_self_weight_operations(&typed_model,&typed_request) {
         Ok(plan)=>match serde_json::to_value(plan) {
             Ok(plan)=>envelope(Some(&hash),plan,vec![]),
             Err(_)=>blocked(Some(&hash),"SELF-WEIGHT-PLAN-INVALID","Generated plan could not be serialized.","Correct the source quantities and regenerate the proposal."),
@@ -198,6 +209,7 @@ pub fn generate_self_weight_plan_json(model_json: &str, request_json: &str) -> S
 #[cfg(test)]
 mod tests {
     use super::*;
+    use open_pipe_stress_product_physics::self_weight::generate_self_weight_operations;
     fn fixture() -> (Value, Value) {
         let model = json!({"schema_version":"invented","document_kind":"preview","project":{"id":"invented"},
             "analysis_status":{"mechanics":"draft","rule_check":"not_run","professional_acceptance":"not_assessed"},

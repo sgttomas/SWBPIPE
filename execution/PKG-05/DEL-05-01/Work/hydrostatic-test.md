@@ -35,7 +35,9 @@ required or authorized by this contents/hydrotest design.
 At the checked source, `operating_conditions::judge` blocks every test case
 with `LOAD_CASE_TEST_CONDITION_UNSUPPORTED`; EX condition use is also blocked.
 The applier's `create_load_case` refuses `test_condition`, and contents use is
-refused in both condition authoring and resolution. Hanger sizing and MBF have
+refused in both condition authoring and resolution. (H1, §8, since admits an
+explicitly selected contents use consumed by generated self-weight; the test
+case, EX non-contents use and every other refusal here are unchanged.) Hanger sizing and MBF have
 their own test-case refusals. None changes in Step 0. Readers must not silently
 turn a stored test case into an ordinary case.
 
@@ -363,3 +365,91 @@ are reviewed together; no S6 production ancestor is included. Necessary guide/th
 must distinguish the current refusals from this planned behavior. Step 0
 provides no production hook, schema change, native entry or modal edit, and
 changes no release-target criterion or accepted limitation.
+
+## 8. H1: explicit contents selection (implemented)
+
+H1 delivers §4/§4.1's contents consumer for **self-weight only**. It admits no
+`test_condition`, held device, H-a ledger, preload, EX pressure/temperature/added
+weight/wind use, schema version or model member; hydrotest is not complete.
+
+- **Resolver.** `operating_conditions::contents` holds the one resolver.
+  `CaseContentsContext::capture(model, case_id)` takes an owned snapshot of one
+  case's `condition_use.contents_density`, the pipes' `condition_set_ref` and the
+  sets, by exact id (never trimmed; absent `CASE_CONTENTS_CONTEXT_MISSING`,
+  duplicated `CASE_CONTENTS_CONTEXT_CONFLICT`). `case_contents_density(context,
+  pipe)` returns the set, key, authored quantity and the density normalized by
+  the generator's own units authority, or the named refusal
+  (`OPERATING_CONDITION_SET_MISSING`, `_SET_UNRESOLVED`, `_KEY_MISSING`,
+  `_KEY_DUPLICATE`, `_VALUE_MISSING`, `_QUANTITY_INVALID` for a non-density unit,
+  a non-finite or a negative value). Zero is authored, not absence.
+- **Request.** The self-weight JSON request takes one optional, request-only
+  `contents_source_case_ref` (`ContentsAwareSelfWeightRequest`, beside the
+  unchanged closed `SelfWeightRequest`). Present and not a nonblank string is
+  `SELF_WEIGHT_CONTENTS_SOURCE_INVALID`; a source equal to the new case id is
+  `CASE_CONTENTS_CONTEXT_CONFLICT`; a source with no contents use is
+  `CASE_CONTENTS_CONTEXT_MISSING`. Malformed input never becomes the legacy
+  request. The Wasm export and the native command forward the same JSON to
+  `self_weight_wasm::generate_plan`; hash and unknown-field guards are unchanged.
+- **Generation.** The selection replaces each consumed member's section contents
+  density in the one existing mass computation (`stable_mass_per_length`; PF wall
+  and EX D-5 bore unchanged). A member whose component weight replaces its
+  distributed weight cannot consume contents and is refused
+  (`SELF_WEIGHT_CONTENTS_NOT_CONSUMED`); component eligibility is unchanged. The
+  record's `mass_inputs.contents_density` is the selected quantity, and
+  `contents_source` records method `case_condition_contents_density/v1`, the
+  selecting case, the origin case, set, key, authored and normalized density and
+  any superseded section density. `normalized_dependencies.contents_source` is
+  `{condition_set, condition_key}`. The created case carries
+  `condition_use.contents_density` equal to the source's key, so the target owns
+  its selection after adoption; the origin is provenance only.
+- **Inspection and refresh.** Each generated record is regenerated with its own
+  case's selection, captured from the authored model before the clone clears its
+  cases. Changing the target's key, a pipe's set or the selected value, or adding
+  or removing the target's use, is `SELF_WEIGHT_INPUTS_STALE` (an equal density
+  from another set or key included). Editing or removing the origin case, an
+  unrelated set or key, or the superseded section density is not a dependency.
+  A refresh keeps identity and origin. A missing selected value is invalid by
+  name, never a section-density fallback.
+- **Solve admission.** Contents alone is admitted on PF and EX; other EX uses
+  stay `LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED`. A valid selected source with
+  no generated contents weight gives `CASE_CONTENTS_WEIGHT_NOT_APPLIED`, a
+  nonblocking warning explicitly saying no contents weight or gravity has been
+  applied. It creates no force, and the source case remains in the solved model.
+  Invalid sets/keys/quantities/context and stale generated inputs remain blocking.
+  Contents plus unconnected seismic mass stays blocking as
+  `LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED`; authoring does not downgrade it.
+  A nonempty warning vector never changes the PF plan into Err/no-plan.
+  `lower` keeps only the contents selection (the case key, the sets' contents
+  values and the pipes' references) when a case uses contents, so the
+  post-lowering self-weight validation resolves the same selection; no solve
+  body changed.
+- **Unchanged and declined.** With no source the request, plan, evidence and
+  create-case bytes are unchanged (pinned against the DEL-09-01 reference-system
+  capture). The modal production entry is unchanged: selected contents leave
+  context on the lowered model, so its existing explicit binder refuses the
+  state case (`MODAL_STATE_CASE_UNAVAILABLE`); a modal
+  without a state case keeps the section mass. The retained Direct/headless
+  routes and their D1 admission still decline condition sets by name. The weight
+  summary keeps the section-density plan. A contents-aware new EX target
+  explicitly plans `pressure_regions: []`, which the real create operation
+  preserves; it copies no source pressure or test flag. Legacy no-use case
+  payloads remain unchanged. The positive static and transport proofs solve the
+  complete applied/reopened source-plus-target document without deletion or a
+  test-only pressure-field patch.
+- **Repaired connecting proof (pre-review).** The complete source-plus-target
+  model, unchanged after real batch apply and reopen, solves on PF and plain EX
+  in both solver modes. Valid unused source selections remain authored with a
+  warning and no inferred force. The positive proofs contain no origin deletion
+  or post-generation target patch; intentional origin-removal independence is
+  tested separately. The real panel/service/Wasm path covers PF and EX and
+  retains the target's explicit empty regions. The modal production binder is
+  unchanged; its deferral regression now asserts the existing
+  `MODAL_STATE_CASE_UNAVAILABLE` gate exposed by the nonblocking static policy.
+- **Evidence.** `core/product_physics/tests/h1_contents_self_weight.rs`
+  (independent PF/EX closed forms `(902800199/4000000)π` and
+  `(5686876335/25000000)π` N/m, a 6 m cantilever reaction, section-density twins,
+  staleness, refusals, admission), `core/loads/self_weight_wasm/tests/contents_self_weight.rs`
+  (transport, applier batch, save/reopen, refresh, solve, legacy capture bytes)
+  and `apps/desktop/src/features/self-weight-authoring/SelfWeightContents.engine.test.tsx`
+  (Conditions control and self-weight panel through the actual Wasm engines,
+  atomic apply, project save/reopen and refresh inspection).

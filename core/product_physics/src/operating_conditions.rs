@@ -5,18 +5,26 @@
 //!
 //! A set is a source of values; a case's use of it resolves into the per-case
 //! records the solve already consumes. On the pressure-free route S2 resolves
-//! temperature, added weight and wind exposure ([`resolution`]); contents
-//! density and a pressure use stay refused by name there, and on a document with
-//! a pressure contract every use is refused (`LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED`,
-//! until S4). Every set and reference is judged whether or not a case uses it,
-//! so a document's admissibility does not depend on which cases use what.
+//! temperature, added weight and wind exposure ([`resolution`]); a pressure use
+//! stays refused by name there, and on a document with a pressure contract every
+//! use other than contents density is refused
+//! (`LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED`, until S4). A contents-density
+//! use (RT-A6 H1, [`contents`]) is mass input on either route: it is admitted
+//! through generated self-weight of the same case. A valid selection without
+//! such weight gives nonblocking `CASE_CONTENTS_WEIGHT_NOT_APPLIED`; invalid
+//! selections and unconnected seismic mass still block. Every set and
+//! reference is judged whether or not a case uses it, so a document's
+//! admissibility does not depend on which cases use what.
 //!
 //! [`lower`] runs first in the solve. It applies the document-level rules of
 //! every 0.9.0 member ([`crate::document_members`]), the interim refusals, and
 //! then removes the members no later stage reads: `condition_sets`,
 //! `condition_set_ref`, `condition_use`, `spectra`, and an exactly axis-aligned
-//! support `direction` (its DOF token set to that axis, §2.1). Everything after
-//! it is today's pipeline applied to the lowered model.
+//! support `direction` (its DOF token set to that axis, §2.1). Only when a case
+//! uses contents does it keep the contents selection
+//! ([`contents::RetainedContents`]) for the post-lowering self-weight
+//! validation. Everything after it is today's pipeline applied to the lowered
+//! model.
 use crate::case_state::temperature::canonical_decimal::{canonical_decimal, kelvin_numerator, CanonicalError};
 use crate::document_members::{Finding, MemberFindings};
 use crate::{Diagnostic, PreviewModel, PreviewPrimitiveLoad, Quantity};
@@ -24,6 +32,7 @@ use open_pipe_stress_units::{convert, unit_by_symbol, Dimension, UnitId};
 use serde::Deserialize;
 use std::collections::HashSet;
 
+pub mod contents;
 pub mod resolution;
 
 /// Two conditions in one set share a key.
@@ -389,12 +398,21 @@ pub(crate) fn judge(model: &PreviewModel) -> Judgement {
         }
     };
     for case in &model.load_cases {
-        if exact && case.condition_use.is_some() {
-            diagnostics.push(crate::diag(&format!("diagnostic:load-case:{}:condition-use", crate::stable_suffix(&case.id)),
-                LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED, "blocking",
-                format!("load case `{}` uses operating conditions on a document with a pressure contract; the exact route's condition resolution is not built yet, so nothing is solved", case.id),
-                vec![case.id.clone()]));
+        if let (true, Some(using)) = (exact, case.condition_use.as_ref()) {
+            // RT-A6 H1: contents density alone is admitted on the exact route
+            // (its consumer is the generated self-weight, as on PF); every
+            // other use waits for S4.
+            let other = using.temperature.is_some() || using.pressure.is_some() || using.added_weight.is_some() || using.wind_exposure.is_some();
+            if other {
+                diagnostics.push(crate::diag(&format!("diagnostic:load-case:{}:condition-use", crate::stable_suffix(&case.id)),
+                    LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED, "blocking",
+                    format!("load case `{}` uses operating conditions on a document with a pressure contract; the exact route's condition resolution is not built yet, so nothing is solved", case.id),
+                    vec![case.id.clone()]));
+            }
         }
+        // A valid unused selection is a warning, not a failed PF plan or an
+        // EX refusal. Actual source and unsupported-consumer errors block.
+        diagnostics.extend(contents::contents_use_findings(model, case));
         if case.test_condition.is_some() {
             diagnostics.push(crate::diag(
                 &format!("diagnostic:load-case:{}:test-condition", crate::stable_suffix(&case.id)),
@@ -424,6 +442,8 @@ pub(crate) fn lower(model: &mut PreviewModel, diagnostics: &mut Vec<Diagnostic>)
     if let Some(planned) = judged.plan {
         planned.apply(model);
     }
+    // RT-A6 H1: the contents selection, taken before the clear (module docs).
+    let retained = contents::RetainedContents::take(model);
     // The members no later stage reads.
     model.condition_sets.clear();
     model.spectra.clear();
@@ -432,6 +452,11 @@ pub(crate) fn lower(model: &mut PreviewModel, diagnostics: &mut Vec<Diagnostic>)
     }
     for case in &mut model.load_cases {
         case.condition_use = None;
+    }
+    // Only the contents selection returns, for the self-weight validation that
+    // follows; a document with no contents use keeps nothing.
+    if let Some(retained) = retained {
+        retained.restore(model);
     }
     crate::document_members::lower_axis_aligned_directions(model);
 }

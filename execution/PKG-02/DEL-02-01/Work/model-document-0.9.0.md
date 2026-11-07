@@ -139,7 +139,7 @@ least one member:
 |---|---|---|
 | `temperature` | `Id` (a condition key) | Each pipe's temperature comes from condition `key` of its set |
 | `pressure` | `Id` (a condition key) | Each region's pressure comes from condition `key` of its member pipes' sets (EX only) |
-| `contents_density` | `Id` (a condition key) | Reserved consumer (§1.6); refused at solve in 0.9.0 |
+| `contents_density` | `Id` (a condition key) | Consumed by self-weight generated from the case's selection (RT-A6 H1, §1.6); otherwise refused at solve |
 | `added_weight` | `true` only | Each pipe's set's `added_weight` joins the case |
 | `wind_exposure` | `true` only | The case's wind marks come from the sets' `exposure.wind` |
 
@@ -408,7 +408,11 @@ empty), so it is per condition. Its consumers (self-weight generation from
 condition `key`, seismic and modal mass) and their relation to
 `section.contents_density` and to self-weight's staleness check are not designed
 here. 0.9.0 carries the member and the case key so that no later version step is
-needed, and the solve refuses the key by name (OC-7).
+needed, and the solve refuses the key by name (OC-7). **RT-A6 H1 (DEL-05-01 Work
+`hydrostatic-test.md` §8)** designs and builds the self-weight consumer: the
+selected case's key resolves per pipe, generated self-weight records the source,
+and a use no such record consumes stays refused by that name (staged at
+authoring). Seismic and modal consumers remain undesigned and refused.
 
 ### 1.7 Coexistence with per-case values: exclusive, except added weight
 
@@ -1538,11 +1542,15 @@ current member's canonical JSON or `not_present`; `after` the whole
 admits `condition_use` in its record under the same judgement. Admission at
 authoring is the document's route:
 - **Pressure-free documents:** `temperature`, `added_weight: true` and
-  `wind_exposure: true` are admitted. `contents_density` is refused,
-  `LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED` (RT-A6), and `pressure` is refused,
+  `wind_exposure: true` are admitted. `contents_density` was refused,
+  `LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED` (RT-A6), until RT-A6 H1 admitted it
+  with `CASE_CONTENTS_WEIGHT_NOT_APPLIED` as a nonblocking notice when valid
+  selected contents have not been applied as weight; invalid/stale inputs and
+  unconnected seismic mass remain blocking. `pressure` is refused,
   `LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT`.
 - **Documents with `pressure_contract`:** every use is refused,
-  `LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED` (S4).
+  `LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED` (S4), except (RT-A6 H1) a use
+  stating only `contents_density`.
 - An empty use, or `false` in a `true`-only member, is the validator's
   `LOAD_CASE_CONDITION_USE_EMPTY`.
 
@@ -1612,7 +1620,8 @@ finding it gives deliberately, never by blanket downgrade:
   condition sets, while an edit of a hydrostatic test case, or of any set
   feeding a case that uses conditions, blocks with the case's refusal.
 
-The solve still refuses a case with a staged finding, and every carried
+Except for H1's nonblocking `CASE_CONTENTS_WEIGHT_NOT_APPLIED` notice, the
+solve still refuses a case with a staged blocking-input finding, and every carried
 refusal, by name until it is resolved; authoring never implies the document
 solves, and nothing in the outcome or the applied document claims or records
 solvability. The applier computes no ΔT of its own.
