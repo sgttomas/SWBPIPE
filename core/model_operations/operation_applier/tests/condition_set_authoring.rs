@@ -465,24 +465,44 @@ fn create_load_case_admits_a_use_under_the_same_judgement() {
     let staged = warnings(&outcome);
     assert_eq!(staged.iter().filter(|(code, _)| code == "OPERATING_CONDITION_SET_MISSING").count(), 2, "{staged:?}");
     assert!(staged.iter().any(|(_, message)| message.contains("`P2`")) && staged.iter().any(|(_, message)| message.contains("`P3`")));
+    // RT-A6 H1: a contents use is carried; unconsumed, it is a staged warning.
+    let (created, outcome) = applied(&model, &create_case("OPE", json!({"condition_use": {"contents_density": "OPE1"}})));
+    assert_eq!(find(&created, "load_cases", "OPE").unwrap()["condition_use"], json!({"contents_density": "OPE1"}));
+    assert!(warnings(&outcome).iter().any(|(code, _)| code == "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED"), "{:?}", warnings(&outcome));
     // Refusals: route and validator.
-    refused(&model, &create_case("OPE", json!({"condition_use": {"contents_density": "OPE1"}})), "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED");
     refused(&model, &create_case("OPE", json!({"condition_use": {"pressure": "OPE1"}})), "LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT");
     refused(&model, &create_case("OPE", json!({"condition_use": {}})), "LOAD_CASE_CONDITION_USE_EMPTY");
     refused(&model, &create_case("OPE", json!({"condition_use": {"wind_exposure": false}})), "LOAD_CASE_CONDITION_USE_EMPTY");
 }
 
-/// Route admission: contents density and pressure-free pressure are refused;
-/// every use on a document with a pressure contract is refused (S4).
+/// Route admission: pressure-free pressure is refused; on a document with a
+/// pressure contract every use other than contents density alone is refused
+/// (S4). RT-A6 H1: a contents-density use is authored on either route, its
+/// unconsumed state a staged warning.
 #[test]
 fn the_exact_route_and_contents_refusals() {
     let model = with_refs(with_sets(&[set_a()]), &[("P1", "cs:a"), ("P2", "cs:a"), ("P3", "cs:a")]);
-    refused(&model, &set_use(&model, "SUS", &json!({"contents_density": "OPE1"})), "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED");
+    let (_, outcome) = applied(&model, &set_use(&model, "SUS", &json!({"contents_density": "OPE1"})));
+    assert!(warnings(&outcome).iter().any(|(code, _)| code == "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED"), "{:?}", warnings(&outcome));
     refused(&model, &set_use(&model, "SUS", &json!({"pressure": "OPE1"})), "LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT");
-    let both = refused(&model, &set_use(&model, "SUS", &json!({"temperature": "OPE1", "pressure": "OPE1", "contents_density": "OPE1"})), "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED");
-    assert_eq!(blocking(&both).len(), 2, "each refused member is named: {:?}", records(&both));
+    let both = refused(&model, &set_use(&model, "SUS", &json!({"temperature": "OPE1", "pressure": "OPE1", "contents_density": "OPE1"})), "LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT");
+    assert_eq!(blocking(&both), ["LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT"], "{:?}", records(&both));
     let mut exact = model.clone();
     exact["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});
+    // A complete exact document (allowances, explicit pressure_regions) admits a
+    // contents-only use, staged until consumed.
+    let mut complete = exact.clone();
+    for pipe in complete["pipe_segments"].as_array_mut().unwrap() {
+        pipe["section"]["corrosion_allowance"] = q(0.0, "m");
+    }
+    for case in complete["load_cases"].as_array_mut().unwrap() {
+        case["pressure_regions"] = json!([]);
+    }
+    let (next, outcome) = applied(&complete, &set_use(&complete, "SUS", &json!({"contents_density": "OPE1"})));
+    assert_eq!(find(&next, "load_cases", "SUS").unwrap()["condition_use"], json!({"contents_density": "OPE1"}));
+    assert!(warnings(&outcome).iter().any(|(code, _)| code == "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED"), "{:?}", warnings(&outcome));
+    let mixed = refused(&exact, &set_use(&exact, "SUS", &json!({"temperature": "OPE1", "contents_density": "OPE1"})), "LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED");
+    assert_eq!(blocking(&mixed), ["LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED"]);
     for using in [json!({"temperature": "OPE1"}), json!({"added_weight": true}), json!({"wind_exposure": true}), json!({"pressure": "OPE1"})] {
         let outcome = refused(&exact, &set_use(&exact, "SUS", &using), "LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED");
         assert_eq!(blocking(&outcome), ["LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED"]);
@@ -858,7 +878,7 @@ fn atomic_batches_apply_all_or_nothing() {
     let original = bytes(&model);
     let last_refused = {
         let mut ops = steps.clone();
-        ops.push(op("modify", "set_load_case_condition_use", "Load", "SUS", "condition_use", "not_present", r#"{"contents_density":"OPE1"}"#));
+        ops.push(op("modify", "set_load_case_condition_use", "Load", "SUS", "condition_use", "not_present", r#"{"pressure":"OPE1"}"#));
         ops
     };
     let middle_refused = {
@@ -872,7 +892,7 @@ fn atomic_batches_apply_all_or_nothing() {
         ops[3]["change"]["before"] = json!(r#"{"condition_set_ref":"cs:a"}"#);
         ops
     };
-    for (ops, code) in [(last_refused, "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED"), (middle_refused, "OP-CONDITION-SET-IN-USE"), (stale, "OP-STALE-BEFORE-VALUE")] {
+    for (ops, code) in [(last_refused, "LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT"), (middle_refused, "OP-CONDITION-SET-IN-USE"), (stale, "OP-STALE-BEFORE-VALUE")] {
         for apply in [false, true] {
             let outcome = batch(&model, &ops, apply);
             assert!(outcome["applied_model"].is_null(), "{code}: no document from a refused batch");

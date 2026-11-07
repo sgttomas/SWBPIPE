@@ -5489,19 +5489,270 @@
       },
       "case_id": "s3a_10_block_contents_density_use",
       "claimed_model_hash": null,
-      "description": "A contents-density use is refused (RT-A6).",
+      "description": "A contents-density use is authored; until self-weight generated from the case's selection consumes it, the solve's refusal is a staged warning (RT-A6 H1; this case id predates that admission and is kept).",
       "expected": {
-        "applied_model": null,
-        "applied_model_canonical_sha256": null,
+        "applied_model": {
+          "analysis_status": {
+            "mechanics": "ready_for_preview_diagnostics",
+            "professional_acceptance": "not_provided",
+            "rule_check": "not_performed_user_rule_inputs_missing"
+          },
+          "combinations": [],
+          "condition_sets": [
+            {
+              "added_weight": {
+                "direction": "global_z",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": -50.0
+                }
+              },
+              "conditions": [
+                {
+                  "key": "OPE1",
+                  "temperature": {
+                    "unit": "degC",
+                    "value": 150.0
+                  }
+                }
+              ],
+              "exposure": {
+                "wind": true
+              },
+              "id": "cs:a",
+              "installation_temperature": {
+                "unit": "degC",
+                "value": 20.0
+              },
+              "label": "Line A",
+              "provenance": "invented_s3a_condition_set_corpus_input"
+            }
+          ],
+          "document_kind": "openpipestress.product_preview.model",
+          "load_cases": [
+            {
+              "condition_use": {
+                "contents_density": "OPE1"
+              },
+              "id": "SUS",
+              "primitive_loads": [],
+              "provenance": "invented_s3a_condition_set_corpus_input"
+            },
+            {
+              "equivalent_static": {
+                "provenance": "invented_s3a_condition_set_corpus_input",
+                "wind": {
+                  "direction": "global_y",
+                  "pressure": {
+                    "unit": "Pa",
+                    "value": 1200.0
+                  },
+                  "shape_factor": {
+                    "unit": "1",
+                    "value": 0.7
+                  }
+                }
+              },
+              "id": "WIND",
+              "primitive_loads": [],
+              "provenance": "invented_s3a_condition_set_corpus_input"
+            }
+          ],
+          "materials": [
+            {
+              "elastic_modulus": {
+                "unit": "Pa",
+                "value": 200000000000.0
+              },
+              "id": "mat",
+              "provenance": "invented_s3a_condition_set_corpus_input",
+              "shear_modulus": {
+                "unit": "Pa",
+                "value": 80000000000.0
+              },
+              "thermal_expansion_coefficient": {
+                "unit": "1/degC",
+                "value": 0.000012
+              }
+            }
+          ],
+          "nodes": [
+            {
+              "id": "N0",
+              "label": "N0",
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "provenance": "invented_s3a_condition_set_corpus_input"
+            },
+            {
+              "id": "N1",
+              "label": "N1",
+              "position": {
+                "x": 3.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "provenance": "invented_s3a_condition_set_corpus_input"
+            },
+            {
+              "id": "N2",
+              "label": "N2",
+              "position": {
+                "x": 6.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "provenance": "invented_s3a_condition_set_corpus_input"
+            },
+            {
+              "id": "N3",
+              "label": "N3",
+              "position": {
+                "x": 9.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "provenance": "invented_s3a_condition_set_corpus_input"
+            }
+          ],
+          "pipe_segments": [
+            {
+              "condition_set_ref": "cs:a",
+              "from": "N0",
+              "id": "P1",
+              "material": "mat",
+              "provenance": "invented_s3a_condition_set_corpus_input",
+              "section": {
+                "outside_diameter": {
+                  "unit": "m",
+                  "value": 0.2
+                },
+                "wall_thickness": {
+                  "unit": "m",
+                  "value": 0.01
+                }
+              },
+              "to": "N1",
+              "y_reference": {
+                "x": 0,
+                "y": 0,
+                "z": 1
+              }
+            },
+            {
+              "condition_set_ref": "cs:a",
+              "from": "N1",
+              "id": "P2",
+              "material": "mat",
+              "provenance": "invented_s3a_condition_set_corpus_input",
+              "section": {
+                "outside_diameter": {
+                  "unit": "m",
+                  "value": 0.2
+                },
+                "wall_thickness": {
+                  "unit": "m",
+                  "value": 0.01
+                }
+              },
+              "to": "N2",
+              "y_reference": {
+                "x": 0,
+                "y": 0,
+                "z": 1
+              }
+            },
+            {
+              "condition_set_ref": "cs:a",
+              "from": "N2",
+              "id": "P3",
+              "material": "mat",
+              "provenance": "invented_s3a_condition_set_corpus_input",
+              "section": {
+                "outside_diameter": {
+                  "unit": "m",
+                  "value": 0.2
+                },
+                "wall_thickness": {
+                  "unit": "m",
+                  "value": 0.01
+                }
+              },
+              "to": "N3",
+              "y_reference": {
+                "x": 0,
+                "y": 0,
+                "z": 1
+              }
+            }
+          ],
+          "project": {
+            "id": "invented:rt-g5-s3a-corpus",
+            "units": {
+              "angle": "rad",
+              "force": "N",
+              "length": "m",
+              "pressure": "Pa",
+              "stress": "Pa",
+              "temperature": "degC"
+            }
+          },
+          "schema_version": "0.9.0",
+          "supports": [
+            {
+              "family": "anchor",
+              "id": "anchor",
+              "node": "N0",
+              "provenance": "invented_s3a_condition_set_corpus_input",
+              "restraints": [
+                "UX",
+                "UY",
+                "UZ",
+                "RX",
+                "RY",
+                "RZ"
+              ]
+            },
+            {
+              "family": "line_stop",
+              "id": "stop",
+              "node": "N1",
+              "provenance": "invented_s3a_condition_set_corpus_input",
+              "restraints": [
+                "UZ"
+              ]
+            },
+            {
+              "family": "spring",
+              "id": "spring",
+              "node": "N3",
+              "provenance": "invented_s3a_condition_set_corpus_input",
+              "restraints": [
+                "UX"
+              ],
+              "stiffness": {
+                "dof": "UX",
+                "value": {
+                  "unit": "N/m",
+                  "value": 10000000.0
+                }
+              }
+            }
+          ]
+        },
+        "applied_model_canonical_sha256": "sha256:5b8f7ecf224df64596489b0b51f779fac41de0bc6a1fd4c006b87d8d1b38686f",
         "outcome": {
           "acceptance": {
-            "acceptance_basis": "none_validation_only",
+            "acceptance_basis": "user_initiated_apply_in_local_session",
             "acceptance_is_professional_approval": false,
-            "persistence_status": "not_applicable_no_application"
+            "persistence_status": "session_state_only_not_yet_saved"
           },
-          "applied": false,
+          "applied": true,
           "audit_boundary": {
-            "applied_model_is_new_document": false,
+            "applied_model_is_new_document": true,
             "direct_model_mutation_allowed": false,
             "input_model_mutated_in_place": false,
             "mutation_route": "structured_operations_only",
@@ -5516,14 +5767,26 @@
           "diagnostics": [
             {
               "affected_refs": [
-                "SUS"
+                "SUS",
+                "OPE1"
               ],
-              "blocking": true,
+              "blocking": false,
               "code": "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED",
-              "severity": "blocking"
+              "severity": "warning"
             }
           ],
-          "diff_preview": [],
+          "diff_preview": [
+            {
+              "after": "{\"contents_density\":\"OPE1\"}",
+              "before": "not_present",
+              "change_kind": "set_load_case_condition_use",
+              "dimension": "dimensionless",
+              "entity_ref": "SUS",
+              "field_path": "condition_use",
+              "object_type": "Load",
+              "unit": "none"
+            }
+          ],
           "document_kind": "openpipestress.desktop.operation_outcome",
           "input_model_unchanged": true,
           "mode": "apply",
@@ -5548,12 +5811,12 @@
           "target_object_type": "Load",
           "target_ref": "SUS",
           "validation": {
-            "application_status": "blocked",
-            "before_state_validation": "not_run",
-            "diff_preview_status": "blocked_by_validation",
-            "reference_validation": "not_run",
+            "application_status": "applied_to_session_model",
+            "before_state_validation": "passed",
+            "diff_preview_status": "generated",
+            "reference_validation": "passed",
             "schema_validation": "passed",
-            "unit_validation": "not_run"
+            "unit_validation": "passed"
           }
         }
       },

@@ -16150,13 +16150,17 @@ mod tests {
              "LOAD_COMBINATION_OPERAND_CYCLE"),
             (create("Load", "load:L-3", "create_load_case", "load_cases", json!({"id": "load:L-3", "label": "Test", "kind": "hydrotest", "status": "draft",
                 "provenance": "user", "primitive_loads": [], "test_condition": {"kind": "hydrostatic", "held_supports": "none"}})), "LOAD_CASE_TEST_CONDITION_UNSUPPORTED"),
-            (create("Load", "load:L-3", "create_load_case", "load_cases", json!({"id": "load:L-3", "label": "Operating", "kind": "operating", "status": "draft",
-                "provenance": "user", "primitive_loads": [], "condition_use": {"contents_density": "OPE1"}})), "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED"),
         ] {
             assert_eq!(outcome.validation.application_status, "blocked", "{code}");
             assert!(outcome.applied_model.is_none(), "{code}");
             assert!(codes(&outcome).contains(&code), "{code} not in {:?}", codes(&outcome));
         }
+        // RT-A6 H1: a contents-density use is no longer an interim member; it
+        // passes route admission (its authoring and staged judgement are
+        // covered by `tests/condition_set_authoring.rs`).
+        let contents = create("Load", "load:L-3", "create_load_case", "load_cases", json!({"id": "load:L-3", "label": "Operating", "kind": "operating", "status": "draft",
+            "provenance": "user", "primitive_loads": [], "condition_use": {"contents_density": "OPE1"}}));
+        assert!(!codes(&contents).contains(&"LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED"), "{:?}", codes(&contents));
         // The same create without the member applies.
         let outcome = combination(json!({}));
         assert!(outcome.applied_model.is_some(), "{:?}", codes(&outcome));

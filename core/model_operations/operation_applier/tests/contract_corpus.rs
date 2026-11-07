@@ -443,9 +443,8 @@ const CONDITION_SET_KINDS: [&str; 7] = [
     "clear_load_case_condition_use",
     "create_load_case",
 ];
-const CONDITION_SET_BLOCK_CODES: [&str; 8] = [
+const CONDITION_SET_BLOCK_CODES: [&str; 7] = [
     "OP-CONDITION-SET-IN-USE",
-    "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED",
     "LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT",
     "LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED",
     "OP-STALE-BEFORE-VALUE",
@@ -498,7 +497,8 @@ fn condition_set_corpus_cases_match_the_rust_contract_reference() {
     for code in CONDITION_SET_BLOCK_CODES {
         assert!(blocked.contains(code), "no condition-set corpus case blocks with `{code}`");
     }
-    for code in ["OPERATING_CONDITION_SET_MISSING", "EQUIVALENT_STATIC_INPUT_MISSING"] {
+    // RT-A6 H1: an unconsumed contents-density use is staged, not refused.
+    for code in ["OPERATING_CONDITION_SET_MISSING", "EQUIVALENT_STATIC_INPUT_MISSING", "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED"] {
         assert!(warned.contains(code) && !blocked.contains(code), "`{code}` is a staged warning in the corpus");
     }
     for code in ["LOAD_CASE_TEST_CONDITION_UNSUPPORTED", "SNUBBER_DYNAMIC_ONLY_UNSUPPORTED"] {

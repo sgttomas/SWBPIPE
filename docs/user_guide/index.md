@@ -428,17 +428,26 @@ wind-exposure use without `equivalent_static.wind`
 existing `EQUIVALENT_STATIC_INPUT_MISSING` names the empty exposure. A set and
 its values are checked whether or not a case uses them.
 
-**Not yet available.** `contents_density` uses are refused
-(`LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED`) until their consumer is designed;
-a `pressure` use on a pressure-free document is refused
+**Contents density from a case.** A case's `contents_density` use names a
+condition key; it is mass, not a load. Choose that case under "Contents density
+from case" when you plan self-weight: the generator resolves each selected
+pipe's density from its set and key (nothing falls back to the section's own
+contents density), and the new case records the same key as its own use, so a
+later change to that key, set or value makes its weight stale. A use that no
+self-weight generated from it consumes is refused at solve
+(`LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED`; a warning while you author), so
+clear the source case's use, or generate its weight, before you solve. This is
+not the hydrostatic test workflow below.
+
+**Not yet available.** A `pressure` use on a pressure-free document is refused
 (`LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT`); every use on a
 document with a pressure contract is refused
 (`LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED`) until the exact route's resolution
-(S4). A hydrostatic `test_condition` and a skewed support `direction` keep their
+(S4), except a use stating only `contents_density`. A hydrostatic `test_condition` and a skewed support `direction` keep their
 own refusals. The retained Direct and headless routes and the independent
 source readers still decline condition sets, references and uses by name; the
-ordinary solve publishes. `design`, `peak`, `snow_ice`, `wave` and
-`contents_density` are carried but not used by the solve in 0.9.0.
+ordinary solve publishes. `design`, `peak`, `snow_ice` and `wave` are carried
+but not used by the solve in 0.9.0; `contents_density` is used only as above.
 
 **Editing through the operations (S3a).** The engine's structured operations
 author condition sets, pipe assignments and case uses, one record or one member
@@ -459,10 +468,10 @@ operation seam.
 - `set_load_case_condition_use` and `clear_load_case_condition_use` state or
   remove a case's use, and `create_load_case` may carry one. On a pressure-free
   document `temperature`, `added_weight: true` and `wind_exposure: true` are
-  admitted. `contents_density` (`LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED`) and
-  `pressure` (`LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT`) are
+  admitted, and so is `contents_density` (staged until consumed, above).
+  `pressure` (`LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT`) is
   refused, and so is every use on a document with a pressure contract
-  (`LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED`).
+  (`LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED`) except `contents_density` alone.
 
 You may state a case's use before every pipe has its set. After each of these
 operations the engine runs the solve's own resolution on the result and reports

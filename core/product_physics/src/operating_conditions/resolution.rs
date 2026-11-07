@@ -11,9 +11,12 @@
 //! case-level codes), naming the case, pipe, set, key and quantity; nothing is
 //! skipped and nothing is synthesized.
 //!
-//! Interim refusals stay (§3.8): `contents_density` (no consumer yet), a
-//! `pressure` use on a pressure-free document (no carrier) and, on the exact
-//! route, any use at all (S4; `super::lower` refuses those before planning).
+//! Interim refusals stay (§3.8): a `pressure` use on a pressure-free document
+//! (no carrier) and, on the exact route, any use other than contents density
+//! (S4; `super::lower` refuses those before planning). A `contents_density` use
+//! (RT-A6 H1) appends nothing here: it is mass input consumed by generated
+//! self-weight, and a use no such record consumes is refused by name
+//! (`super::contents::unconsumed_refusal`).
 use super::{ConditionSetInput, GlobalAxis};
 use crate::case_state::temperature::canonical_decimal::{
     canonical_decimal, kelvin_numerator, round_kelvin_ratio,
@@ -40,7 +43,9 @@ pub const LOAD_CASE_CONDITION_WIND_INPUT_MISSING: &str = "LOAD_CASE_CONDITION_WI
 /// A `pressure` use on a pressure-free document, which has no pressure carrier.
 pub const LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT: &str =
     "LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT";
-/// Interim (§1.6, OC-7): a `contents_density` use; its consumer is not designed.
+/// A `contents_density` use that no self-weight generated from the case's own
+/// selection consumes (RT-A6 H1, `super::contents`); originally the interim
+/// refusal of every contents use (§1.6, OC-7).
 pub const LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED: &str = "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED";
 
 /// The `method` of every generated record's provenance.
@@ -193,10 +198,11 @@ fn resolve_case(
             format!("load case `{id}` uses condition `{key}` for pressure on a pressure-free document, which has no pressure carrier; pressure from conditions needs a pressure contract, so nothing is solved"),
             vec![id.to_string(), key.clone()]));
     }
-    if let Some(key) = &using.contents_density {
-        refusals.push(case_diag(id, "contents-density", LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED,
-            format!("load case `{id}` uses condition `{key}` for contents density; the resolution of contents density is not designed yet, so nothing is solved"),
-            vec![id.to_string(), key.clone()]));
+    // RT-A6 H1: contents density is mass input, consumed only by self-weight
+    // generated from this case's selection (`super::contents`); a use no such
+    // record consumes is refused by name.
+    if let Some(refusal) = super::contents::unconsumed_refusal(case) {
+        refusals.push(refusal);
     }
     if using.temperature.is_some() {
         for load in case.primitive_loads.iter().filter(|load| load.category == "thermal") {
