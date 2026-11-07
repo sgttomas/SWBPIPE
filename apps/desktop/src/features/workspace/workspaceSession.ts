@@ -87,7 +87,7 @@ import {
   type ProjectUnitMap
 } from "../../services/projectService";
 import type { BlankProjectKind, BlankProjectUnitsRequest } from "../project-units/ProjectUnitsDialog";
-import { MODEL_DOCUMENT_FILE_SOURCE, modelFileRefusalMessage, modelFileWarningSuffix, type ModelDocumentSource } from "../../services/modelDocumentFile";
+import { MODEL_DOCUMENT_FILE_SOURCE, checkNativeOutcome, modelFileRefusalMessage, modelFileWarningSuffix, type ModelDocumentSource } from "../../services/modelDocumentFile";
 import { checkModelLibraryRefs, modelLibraryRefs } from "../../services/libraryImportService";
 import { currentLibraryRefFindings, libraryRefDiagnostics, publishLibraryRefFindings } from "../library/libraryRefFindings";
 import { cancelNativeModelChecks, runModelChecks, type ModelCheckRun } from "../diagnostics/modelChecks";
@@ -95,6 +95,18 @@ import { retireMbfExportSession, reviewMbfExport, saveMbfExport } from "../caepi
 import type { MbfExportDialogRequest } from "../caepipe-mbf/MbfExportDialog";
 import { closedSaveStatusLine } from "../caepipe-mbf/mbfExport";
 import { mbfExportRetirementOwner } from "../caepipe-mbf/mbfExportSession";
+import { adoptMbfImport, openMbfImport, retireMbfImportSession, reviewMbfImport } from "../caepipe-mbf/mbfImportCancel";
+import type { MbfImportDialogRequest } from "../caepipe-mbf/MbfImportDialog";
+import {
+  MBF_IMPORT_BUSY_MESSAGE,
+  MBF_IMPORT_NATIVE_ONLY,
+  MBF_IMPORT_REVIEW_STALE,
+  importCodeText,
+  importFailureDiagnostic,
+  importedStatusLine,
+  productDiagnostics,
+  type MbfAdoptCapture
+} from "../caepipe-mbf/mbfImport";
 import { modelDocumentSlotValidation } from "../model-file/modelDocumentShape";
 import {
   keptStoredProjectMessage,
@@ -406,6 +418,12 @@ export function useWorkspaceSession() {
   // The open Export MBF… dialog (DEL-17-04 slice 4b.2b), modal in the same way.
   const [mbfExportRequest, setMbfExportRequest] = useState<MbfExportDialogRequest | null>(null);
   const mbfExportDialogOpenRef = useRef(false);
+  // File > Import MBF… (DEL-17-04 §4.1, §4.8.6): the open dialog's request, its modal hold (in every list that holds
+  // project commands), and the request's one logical retirement (the dialog's close, or after Adopt the import
+  // flow's; a session's end calls the same one, so only the first call sends anything).
+  const [mbfImportRequest, setMbfImportRequest] = useState<MbfImportDialogRequest | null>(null);
+  const mbfImportDialogOpenRef = useRef(false);
+  const mbfImportRetireRef = useRef<(() => void) | null>(null);
   // The session's ownership of the export's retirements and of a closed dialog's save (`mbfExportSession.ts`): one
   // logical retirement per close, unmount or session end.
   const [mbfExportRetirement] = useState(() => mbfExportRetirementOwner(retireMbfExportSession));
@@ -855,6 +873,11 @@ export function useWorkspaceSession() {
   // retirement, sent at mount whether or not the export is ever opened: it retires natively whatever an old page left
   // queued or running (the reset above does not touch the MBF export), and the starts wait for its acknowledgement.
   useEffect(() => { void retireMbfExportSession(); }, []);
+  // File > Import MBF… (DEL-17-04 §4.8.6): the import's own keyed retirement at mount (page load included), so an old
+  // page's chosen source and run are dropped natively; its starts wait for the acknowledgement. Separate from the
+  // export's, and the performance reset touches neither. The browser-only route has no native import (it is refused
+  // before anything is sent), so it sends none.
+  useEffect(() => { if (isTauriRuntime()) void retireMbfImportSession(); }, []);
   useEffect(() => {
     const previous = heldResultRef.current;
     heldResultRef.current = result;
@@ -3083,7 +3106,7 @@ export function useWorkspaceSession() {
   function requestSaveModelDocument() {
     const saveModel = modelDocumentSaveBasisRef.current.model;
     if (!saveModel) return;
-    if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current || mbfExportDialogOpenRef.current || projectOperationOwner.current !== null) return;
+    if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current || mbfExportDialogOpenRef.current || mbfImportDialogOpenRef.current || projectOperationOwner.current !== null) return;
     // Captured before the workspace turns inert, which drops its focus.
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const close = () => { modelDocumentSaveDialogOpenRef.current = false; setModelDocumentSaveRequest(null); };
@@ -3157,6 +3180,92 @@ export function useWorkspaceSession() {
         return started;
       },
       libraries
+    });
+  }
+
+  /** File > Import MBF…'s document source (DEL-17-04 §4.1 step 5, §4.8.7): a `ModelDocumentSource` for the maintained
+   * Open transaction. `read()` is the native Adopt through the barrier, a check of the reply's bounded identities
+   * against the captured ones, then the one `checkNativeOutcome` (shape check and the wasm validator). It captures only
+   * the bounded identities and status summary, never the review, model or file bytes. */
+  function mbfImportSource(capture: MbfAdoptCapture, stillCurrent: () => boolean): ModelDocumentSource {
+    return {
+      action: "Importing a model batch file",
+      operation: "import_mbf",
+      read: async () => {
+        let started;
+        try {
+          started = await adoptMbfImport({ sourceId: capture.sourceId, declaration: capture.declaration, reviewSha256: capture.reviewSha256 }, stillCurrent);
+        } catch (error) {
+          return { outcome: "refused", file_name: capture.fileName, diagnostics: [importFailureDiagnostic(error)] };
+        }
+        if (!started.current()) return { outcome: "cancelled" };
+        const reply = started.outcome;
+        if (reply.outcome === "refused") return { outcome: "refused", file_name: reply.file_name || capture.fileName, diagnostics: productDiagnostics(reply.diagnostics) };
+        if (reply.reviewSha256 !== capture.reviewSha256 || reply.modelSha256 !== capture.modelSha256) {
+          return { outcome: "refused", file_name: capture.fileName, diagnostics: [{ code: MBF_IMPORT_REVIEW_STALE, path: "", message: importCodeText(MBF_IMPORT_REVIEW_STALE) }] };
+        }
+        return checkNativeOutcome(reply);
+      },
+      opened: () => importedStatusLine(capture)
+    };
+  }
+
+  /** File > Import MBF… (DEL-17-04 Design `desktop-mbf-export-import.md` §4.1): mounts the import dialog with the
+   * barrier's native starts. It does nothing while another project operation or modal holds the session, and in the
+   * browser-only route it is refused `MBF-IMPORT-NATIVE-ONLY` before anything is sent. A review touches nothing in the
+   * session; Adopt releases the modal hold and adopts through `handleOpenModelDocument`, whose unsaved-changes guard,
+   * currentness, index guard and commit are Open's own. */
+  function requestImportMbf() {
+    if (projectSessionBusy()) return;
+    if (!isTauriRuntime()) {
+      ++projectRequest.current;
+      setProjectMessage(`${MBF_IMPORT_NATIVE_ONLY}: ${importCodeText(MBF_IMPORT_NATIVE_ONLY)}`);
+      setProjectOperation("import_mbf_refused");
+      return;
+    }
+    // Captured before the workspace turns inert, which drops its focus.
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const generation = projectSessionGenerationRef.current;
+    let retired = false;
+    let handedOff = false;
+    let open = true;
+    const retire = () => {
+      if (retired) return;
+      retired = true;
+      if (mbfImportRetireRef.current === retire) mbfImportRetireRef.current = null;
+      void retireMbfImportSession();
+    };
+    const stillCurrent = () => open && generation === projectSessionGenerationRef.current;
+    const releaseHold = () => {
+      open = false;
+      mbfImportDialogOpenRef.current = false;
+      setMbfImportRequest(null);
+    };
+    mbfImportRetireRef.current = retire;
+    mbfImportDialogOpenRef.current = true;
+    setMbfImportRequest({
+      opener,
+      close: () => {
+        releaseHold();
+        if (!handedOff) retire();
+      },
+      open: () => openMbfImport(stillCurrent),
+      review: (args) => reviewMbfImport(args, stillCurrent),
+      adopt: (capture) => {
+        if (handedOff) return;
+        handedOff = true;
+        releaseHold();
+        if (projectSessionBusy()) {
+          ++projectRequest.current;
+          setProjectMessage(MBF_IMPORT_BUSY_MESSAGE);
+          setProjectOperation("import_mbf_refused");
+          retire();
+          return;
+        }
+        const adoptGeneration = projectSessionGenerationRef.current;
+        const source = mbfImportSource(capture, () => adoptGeneration === projectSessionGenerationRef.current);
+        void handleOpenModelDocument(source).finally(retire);
+      }
     });
   }
 
@@ -3834,6 +3943,16 @@ export function useWorkspaceSession() {
   // An open Export MBF… dialog belongs to its project session too: a new session closes it (its request has been
   // retired just above).
   useEffect(() => () => { mbfExportDialogOpenRef.current = false; setMbfExportRequest(null); }, [projectSessionGeneration]);
+  // File > Import MBF…: a project session's end (each new generation, unmount included) retires the import, through
+  // the held request's one retirement when there is one, and closes an open import dialog.
+  useEffect(() => () => {
+    const retire = mbfImportRetireRef.current;
+    mbfImportRetireRef.current = null;
+    if (retire) retire();
+    else if (isTauriRuntime()) void retireMbfImportSession();
+    mbfImportDialogOpenRef.current = false;
+    setMbfImportRequest(null);
+  }, [projectSessionGeneration]);
   async function handleRunModelChecks() {
     if (!model) return;
     const request = ++modelCheckRequest.current;
@@ -3854,7 +3973,7 @@ export function useWorkspaceSession() {
   // viewport | inspector) is always present, so Insert commands arm the same
   // creation tools exposed in the command bar instead of acting as navigation.
   function runMenuCommand(command: MenuCommandId) {
-    if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current || mbfExportDialogOpenRef.current) return;
+    if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current || mbfExportDialogOpenRef.current || mbfImportDialogOpenRef.current) return;
     setOpenMenu(null);
     switch (command) {
       case "file.new-local":
@@ -3883,6 +4002,9 @@ export function useWorkspaceSession() {
         break;
       case "file.export-mbf":
         void requestExportMbf();
+        break;
+      case "file.import-mbf":
+        requestImportMbf();
         break;
       case "file.save-report-package":
         setActiveSection("report");
@@ -4045,7 +4167,7 @@ export function useWorkspaceSession() {
     // Any dialog or prompt holding the window, read after the busy prompt has
     // released its own hold: a dialog that opened behind it (a replace prompt
     // after a refused save) must be decided first (Codex r2 P2).
-    const dialogOpen = () => replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current || mbfExportDialogOpenRef.current;
+    const dialogOpen = () => replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current || mbfExportDialogOpenRef.current || mbfImportDialogOpenRef.current;
     const keptForDialog = () => {
       setProjectMessage(`${refused}: a dialog is open. Finish or cancel it first; nothing was closed.`);
       setProjectOperation(kind === "quit" ? "quit_dialog_open" : "close_dialog_open");
@@ -4322,7 +4444,7 @@ export function useWorkspaceSession() {
   shellKeyHandlersRef.current = shellKeyHandlers;
   useEffect(() => {
     function handleShellAccelerator(event: KeyboardEvent) {
-      if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current || mbfExportDialogOpenRef.current) return;
+      if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current || mbfExportDialogOpenRef.current || mbfImportDialogOpenRef.current) return;
       if ((!event.metaKey && !event.ctrlKey) || event.altKey || event.defaultPrevented) return;
       const key = event.key.toLowerCase();
       // ⇧⌘M runs the model checks (Analyze → Check Model). AppKit owns it in the
@@ -4437,7 +4559,7 @@ export function useWorkspaceSession() {
    * model-replacing commands, Open State and Save Model State start nothing then. */
   function projectSessionBusy(): boolean {
     return projectOperationOwner.current !== null || replacePromptOpenRef.current || projectUnitsDialogOpenRef.current
-      || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current || mbfExportDialogOpenRef.current;
+      || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current || mbfExportDialogOpenRef.current || mbfImportDialogOpenRef.current;
   }
 
   async function saveLocalProjectFirst(): Promise<LandedProjectSave | null> {
@@ -4643,7 +4765,9 @@ export function useWorkspaceSession() {
       requestSaveHandoff,
       handoffSaveRequest,
       requestExportMbf,
-      mbfExportRequest
+      mbfExportRequest,
+      requestImportMbf,
+      mbfImportRequest
     },
     chrome: {
       uiPreferences, setUiPreferences,
