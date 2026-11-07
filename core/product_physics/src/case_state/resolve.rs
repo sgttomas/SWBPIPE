@@ -9,10 +9,11 @@ use super::thermal::{
     ThermalPoint,
 };
 use super::{LOAD_REFERENCE_STATE_CONTRACT, LOAD_STATE_PROFILE_ID};
+use crate::imposed_motion::{acting, nonlinear_dof, Acting};
 use crate::pressure_exact::IsotropicENu;
 use crate::{
-    diag, dof_index, is_constant_effort_support, is_variable_spring_hanger, parse_dof,
-    stable_suffix, Diagnostic, MaterialInput, PreviewLoadCase, PreviewModel, PreviewSupport,
+    diag, dof_index, is_constant_effort_support, parse_dof,
+    stable_suffix, Diagnostic, MaterialInput, PreviewLoadCase, PreviewModel,
     Quantity, DOF_PER_NODE,
 };
 use open_pipe_stress_correct_norm::norm3;
@@ -56,10 +57,6 @@ fn normalized(quantity: &Quantity, dimension: Dimension) -> Result<f64, String> 
         return Err("absolute temperature cannot be below zero kelvin".into());
     }
     Ok(value)
-}
-
-fn is_spring(support: &PreviewSupport) -> bool {
-    support.family.as_deref() == Some("spring") || is_variable_spring_hanger(support)
 }
 
 /// Structural validation before unit normalization. Runs for every document so
@@ -300,29 +297,38 @@ fn validate_case(
             block(diagnostics, "LOAD_STATE_SUPPORT_PARTICIPATION_UNSUPPORTED", &[id, support, "participation"],
                 "inactive and locked support states are outside this capability; the support is not silently kept, removed or locked");
         }
-        if support_state.base_motion.is_some() || support_state.device_reference.is_some() {
+        // R-4 §3.7 S6: an active spring's base motion is admitted (routed by
+        // `resolve_case`); a device preload/reference law stays refused.
+        if support_state.device_reference.is_some() {
             block(diagnostics, "LOAD_STATE_SUPPORT_REFERENCE_UNSUPPORTED", &[id, support],
-                "spring base motion and device preload/reference laws are outside this capability; no rigid substitute is applied");
+                "device preload/reference laws are outside this capability; no rigid substitute is applied");
         }
-        let mut dofs = HashSet::new();
-        for motion in support_state.boundary_motion.iter().flatten() {
-            match parse_dof(&motion.dof) {
-                Ok(dof) => {
-                    if !dofs.insert(dof_index(dof)) {
-                        block(
-                            diagnostics,
-                            "LOAD_STATE_BOUNDARY_MOTION_DUPLICATE",
-                            &[id, support, &motion.dof],
-                            "each support DOF may carry at most one boundary motion",
-                        );
+        // Each field's DOFs parse and appear once; `boundary_motion` and
+        // `base_motion` are separate laws, each routed by its own DOF.
+        for (field, motions) in [
+            ("boundary_motion", &support_state.boundary_motion),
+            ("base_motion", &support_state.base_motion),
+        ] {
+            let mut dofs = HashSet::new();
+            for motion in motions.iter().flatten() {
+                match parse_dof(&motion.dof) {
+                    Ok(dof) => {
+                        if !dofs.insert(dof_index(dof)) {
+                            block(
+                                diagnostics,
+                                "LOAD_STATE_BOUNDARY_MOTION_DUPLICATE",
+                                &[id, support, field, &motion.dof],
+                                "each support DOF may carry at most one boundary motion and at most one base motion",
+                            );
+                        }
                     }
+                    Err(message) => block(
+                        diagnostics,
+                        "LOAD_STATE_BOUNDARY_MOTION_DOF_INVALID",
+                        &[id, support, field, &motion.dof],
+                        message,
+                    ),
                 }
-                Err(message) => block(
-                    diagnostics,
-                    "LOAD_STATE_BOUNDARY_MOTION_DOF_INVALID",
-                    &[id, support, &motion.dof],
-                    message,
-                ),
             }
         }
     }
@@ -393,8 +399,17 @@ pub(crate) struct ResolvedCase {
     pub members: Vec<ResolvedMember>,
     pub pairs: HashMap<String, IsotropicENu>,
     /// Prescribed nonzero-capable boundary values by global DOF; absent
-    /// restrained DOFs are explicit zero.
+    /// restrained DOFs are explicit zero. Includes the rigid restraints of a
+    /// mixed nonlinear record (W-16 R-d's semantics, R-4 §3.7 S6).
     pub prescribed: BTreeMap<usize, f64>,
+    /// R-4 §3.7 S6 (W-16 R-b's semantics): each active nonlinear support's
+    /// moved ground g_s (m or rad) from `boundary_motion` on its own DOF, by
+    /// support id, in support-state order; an absent support's ground is 0.
+    pub ground_motion: Vec<(String, f64)>,
+    /// R-4 §3.7 S6 (W-16 R-c's semantics): each active spring or variable
+    /// spring hanger's base motion g_k (m or rad) from `base_motion` on its
+    /// stiffness axis, as (support id, DOF, value); an absent base is 0.
+    pub spring_base: Vec<(String, FrameDof, f64)>,
     /// The authored case restricted to its declared ordinary source ledger.
     pub effective_case: PreviewLoadCase,
     /// Resolved consumed inputs, published as the case evidence record.
@@ -1034,6 +1049,8 @@ pub(crate) fn resolve_case(
         .map(|(index, node)| (node.id.as_str(), index))
         .collect::<HashMap<_, _>>();
     let mut prescribed = BTreeMap::new();
+    let mut ground_motion = Vec::new();
+    let mut spring_base = Vec::new();
     let mut support_evidence = Vec::new();
     for support_state in &state.support_states {
         let Some(support) = model
@@ -1046,44 +1063,90 @@ pub(crate) fn resolve_case(
         let Some(&node) = node_index.get(support.node.as_str()) else {
             continue;
         };
-        let restrained = support
-            .restraints
-            .iter()
-            .filter_map(|dof| parse_dof(dof).ok())
-            .collect::<Vec<_>>();
-        let rigid = !is_spring(support)
-            && support.nonlinear.is_none()
-            && !is_constant_effort_support(support);
-        for motion in support_state.boundary_motion.iter().flatten() {
-            let Ok(dof) = parse_dof(&motion.dof) else {
-                continue;
-            };
-            if !rigid || !restrained.contains(&dof) {
-                block(diagnostics, "LOAD_STATE_BOUNDARY_MOTION_UNRESTRAINED", &[id, &support.id, &motion.dof],
-                    "boundary motion applies only to a DOF this support already restrains rigidly; motion on a free or spring DOF requires its own explicit law");
-                continue;
-            }
-            let dimension = if matches!(dof, FrameDof::Ux | FrameDof::Uy | FrameDof::Uz) {
-                Dimension::Displacement
-            } else {
-                Dimension::Rotation
-            };
-            let value = match normalized(&motion.value, dimension) {
-                Ok(value) => value,
-                Err(message) => {
-                    block(diagnostics, "LOAD_STATE_BOUNDARY_MOTION_UNIT_INVALID", &[id, &support.id, &motion.dof],
-                        format!("translations require a length unit and rotations an angle unit: {message}"));
+        // R-4 §3.7 S6: each motion is routed by the action the record has on
+        // that DOF, with W-16 stage 2's classifier (`imposed_motion::acting`,
+        // DEL-04-03 `pf-nonlinear-imposed-motion.md` §10.1): `boundary_motion`
+        // on a rigid restraint (a mixed nonlinear record's included, R-d) is a
+        // prescribed value, on a nonlinear support's own DOF it moves that
+        // support's ground (R-b); `base_motion` on a spring's stiffness axis
+        // moves its base (R-c). A constant-effort device has no base, and every
+        // other DOF keeps its refusal; nothing is silently dropped or moved.
+        let device = is_constant_effort_support(support);
+        let skewed = crate::document_members::is_skewed_record(support);
+        for (field, motions) in [
+            ("boundary_motion", &support_state.boundary_motion),
+            ("base_motion", &support_state.base_motion),
+        ] {
+            for motion in motions.iter().flatten() {
+                let Ok(dof) = parse_dof(&motion.dof) else {
                     continue;
-                }
-            };
-            let global = node * DOF_PER_NODE + dof_index(dof);
-            prescribed.insert(global, value);
-            support_evidence.push(json!({"support_id": support.id, "node_id": support.node, "dof": motion.dof.to_ascii_uppercase(),
-                "global_dof": global, "law_kind": "rigid_prescribed", "prescribed_value": value,
-                "unit": if dimension == Dimension::Displacement { "m" } else { "rad" },
-                "meaning": "absolute_reference_displacement", "physical_state_source": "support_state.boundary_motion"}));
-            contributions.push(json!({"source_id": format!("support_state:{}:{}", support.id, motion.dof.to_ascii_uppercase()),
-                "owner_kind": "support_state", "classification": "prescribed_boundary", "value": value}));
+                };
+                let acts = if device { Acting::None } else { acting(support, dof) };
+                let law = match (field, acts) {
+                    ("boundary_motion", Acting::Rigid) => "rigid_prescribed",
+                    ("boundary_motion", Acting::Nonlinear) if !skewed => "nonlinear_ground",
+                    ("base_motion", Acting::Spring) if !skewed => "spring_base",
+                    ("boundary_motion", _) => {
+                        block(diagnostics, "LOAD_STATE_BOUNDARY_MOTION_UNRESTRAINED", &[id, &support.id, &motion.dof],
+                            "boundary motion applies only to a DOF this support already restrains rigidly or to an active nonlinear support's own DOF; motion on a free, spring or constant-effort DOF requires its own explicit law");
+                        continue;
+                    }
+                    _ => {
+                        block(diagnostics, "LOAD_STATE_BASE_MOTION_UNSUPPORTED", &[id, &support.id, &motion.dof],
+                            "base motion applies only to the stiffness axis of an active spring or variable spring hanger that is not skewed; no rigid substitute is applied");
+                        continue;
+                    }
+                };
+                let dimension = if matches!(dof, FrameDof::Ux | FrameDof::Uy | FrameDof::Uz) {
+                    Dimension::Displacement
+                } else {
+                    Dimension::Rotation
+                };
+                let value = match normalized(&motion.value, dimension) {
+                    Ok(value) => value,
+                    Err(message) => {
+                        block(diagnostics, "LOAD_STATE_BOUNDARY_MOTION_UNIT_INVALID", &[id, &support.id, &motion.dof],
+                            format!("translations require a length unit and rotations an angle unit: {message}"));
+                        continue;
+                    }
+                };
+                let global = node * DOF_PER_NODE + dof_index(dof);
+                let classification = match law {
+                    "rigid_prescribed" => {
+                        prescribed.insert(global, value);
+                        "prescribed_boundary"
+                    }
+                    "nonlinear_ground" => {
+                        // W-16 §3.2: a gap's closing position c + sigma*g_s
+                        // must be finite and exact in binary64, and a moving
+                        // ground belongs to exactly one nonlinear support.
+                        if crate::imposed_motion::normalized_gap_closure_exact(support, value) == Some(false) {
+                            block(diagnostics, "LOAD_STATE_BOUNDARY_MOTION_GAP_CLOSURE_INEXACT", &[id, &support.id, &motion.dof],
+                                "the gap's closing position c + sigma*g_s, formed from the normalized clearance and ground motion, is not finite and exact in binary64; a rounded closing position is never used");
+                            continue;
+                        }
+                        if model.supports.iter().any(|other| {
+                            other.id != support.id && other.node == support.node && nonlinear_dof(other) == Some(dof)
+                        }) {
+                            block(diagnostics, "LOAD_STATE_BOUNDARY_MOTION_COINCIDENT", &[id, &support.id, &motion.dof],
+                                "another nonlinear support acts on the same node DOF; a moving ground must belong to exactly one support");
+                            continue;
+                        }
+                        ground_motion.push((support.id.clone(), value));
+                        "nonlinear_ground_motion"
+                    }
+                    _ => {
+                        spring_base.push((support.id.clone(), dof, value));
+                        "spring_base_motion"
+                    }
+                };
+                support_evidence.push(json!({"support_id": support.id, "node_id": support.node, "dof": motion.dof.to_ascii_uppercase(),
+                    "global_dof": global, "law_kind": law, "prescribed_value": value,
+                    "unit": if dimension == Dimension::Displacement { "m" } else { "rad" },
+                    "meaning": "absolute_reference_displacement", "physical_state_source": format!("support_state.{field}")}));
+                contributions.push(json!({"source_id": format!("support_state:{}:{}", support.id, motion.dof.to_ascii_uppercase()),
+                    "owner_kind": "support_state", "classification": classification, "value": value}));
+            }
         }
     }
     let mut effective_case = case.clone();
@@ -1123,6 +1186,8 @@ pub(crate) fn resolve_case(
     // case already refused for another reason is not judged here.
     let applies_action = !effective_case.primitive_loads.is_empty()
         || !prescribed.is_empty()
+        || !ground_motion.is_empty()
+        || !spring_base.is_empty()
         || crate::validation::model_loads_every_case(model)
         || case.pressure_regions.iter().flatten().next().is_some()
         || contributions.iter().any(|contribution| {
@@ -1200,6 +1265,8 @@ pub(crate) fn resolve_case(
         members,
         pairs,
         prescribed,
+        ground_motion,
+        spring_base,
         effective_case,
         evidence,
         applies_action,

@@ -39,7 +39,7 @@ use super::prepare::Prepared;
 use super::MODAL_STATE_CASE_UNAVAILABLE;
 use crate::{
     dense_loop_memory_guard, dense_scrutiny_ceiling_bytes, dense_scrutiny_guard, dense_scrutiny_refusal_diagnostic, diag, dof_index,
-    form_basis_stiffness, has_blocking, solve_load_case_observed, stable_suffix, ActiveSetState, Diagnostic, NonlinearQualification,
+    form_basis_stiffness, has_blocking, solve_load_case_observed, stable_suffix, ActiveSetState, CaseMotionEvidence, Diagnostic, NonlinearQualification,
     NonlinearStateEvidence, NonlinearStateStanding, NonlinearSupport, NonlinearSupportBehavior, PreviewSolverMode, SourceRecoveryBudget,
     SupportStateRecord, DENSE_LOOP_MEMORY_CEILING_BYTES, DOF_PER_NODE,
 };
@@ -107,6 +107,8 @@ pub(crate) enum StateCaseRefusal {
     /// No evidence, and the solve's blocking diagnostic codes.
     MissingEvidence(Vec<String>),
     CaseMismatch { expected: String, found: String },
+    /// R-4 §3.7 S6: the evidence's consumed motion is not the bound case's.
+    MotionMismatch,
     ModeMismatch { requested: PreviewSolverMode, solved: PreviewSolverMode },
     /// Only the dense path is built; the state solve runs only in its mode.
     ModeUnsupported(PreviewSolverMode),
@@ -136,6 +138,7 @@ impl StateCaseRefusal {
                 codes.len()
             ),
             Self::CaseMismatch { expected, found } => format!("the solve's evidence is bound to case `{found}`, not `{expected}`"),
+            Self::MotionMismatch => "the solve's evidence records boundary motion other than the state case's own resolved motion".into(),
             Self::ModeMismatch { requested, solved } => {
                 format!("the solve's evidence records solver mode {}, not the requested {}", solved.as_str(), requested.as_str())
             }
@@ -182,6 +185,7 @@ fn state_case_refusal(mut diagnostics: Vec<Diagnostic>, case: &str, refusal: &St
 pub(crate) fn admit_modal_state_evidence<'a>(
     evidence: Option<&'a NonlinearStateEvidence>,
     case_id: &str,
+    motion: &CaseMotionEvidence,
     requested: PreviewSolverMode,
     diagnostics: &[Diagnostic],
 ) -> Result<&'a NonlinearStateEvidence, StateCaseRefusal> {
@@ -193,6 +197,9 @@ pub(crate) fn admit_modal_state_evidence<'a>(
     };
     if evidence.case_id != case_id {
         return Err(StateCaseRefusal::CaseMismatch { expected: case_id.to_string(), found: evidence.case_id.clone() });
+    }
+    if &evidence.motion != motion {
+        return Err(StateCaseRefusal::MotionMismatch);
     }
     if requested != PreviewSolverMode::DenseScrutiny {
         return Err(StateCaseRefusal::ModeUnsupported(requested));
@@ -377,7 +384,15 @@ pub(crate) fn solve_modal_state_case(prepared: &Prepared, mode: PreviewSolverMod
             return Err(state_case_refusal(diagnostics, case_id, &StateCaseRefusal::SolveFailed(error.to_string())));
         }
     };
-    let evidence = match admit_modal_state_evidence(solve.nonlinear_state.as_deref(), case_id, mode, &diagnostics) {
+    // R-4 §3.7 S6: the state case's own motion, by the static resolvers.
+    let motion = CaseMotionEvidence::resolve(
+        &prepared.model,
+        &prepared.model.load_cases[bound.case_index],
+        prepared.state_resolution.as_ref(),
+        &boundary.restrained_dofs,
+        &boundary.springs,
+    );
+    let evidence = match admit_modal_state_evidence(solve.nonlinear_state.as_deref(), case_id, &motion, mode, &diagnostics) {
         Ok(evidence) => evidence,
         Err(refusal) => return Err(state_case_refusal(diagnostics, case_id, &refusal)),
     };

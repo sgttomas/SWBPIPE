@@ -280,24 +280,15 @@ fn a1_precedence_follows_emission_order() {
             .any(|d| d["code"] == FAMILY && d["affected_refs"] == json!(["combination:sum"])));
 
         // Component before support. RT-A3 increment 4 admits the nonlinear
-        // support on the plain document (X0), so there only the component is
-        // named; on the load/reference-state document (Y0, S6) the support
-        // keeps its refusal, after the component.
+        // support on the plain document (X0) and S6 on the
+        // load/reference-state document (Y0), so only the component is named.
         let mut document = with_support(base, gap(base), true);
         push(&mut document, "components", other(base));
         let envelope = run_all(&document);
         assert_blocked(&envelope, base);
-        match base {
-            Base::X0 => {
-                position(&envelope, FAMILY, &["component:other"]);
-                assert!(!envelope["diagnostics"].as_array().unwrap().iter()
-                    .any(|d| d["code"] == FAMILY && d["affected_refs"] == json!(["support:gap"])));
-            }
-            Base::Y0 => assert!(
-                position(&envelope, FAMILY, &["component:other"])
-                    < position(&envelope, FAMILY, &["support:gap"])
-            ),
-        }
+        position(&envelope, FAMILY, &["component:other"]);
+        assert!(!envelope["diagnostics"].as_array().unwrap().iter()
+            .any(|d| d["code"] == FAMILY && d["affected_refs"] == json!(["support:gap"])));
 
         // A combination beside the per-case equivalent_static code. W-16 slice
         // c admits generation at the seam and slice b the combination; the
@@ -316,12 +307,13 @@ fn a1_precedence_follows_emission_order() {
         }
     }
 
+    // S6 (R-4 §3.7): an undeclared support state is refused by its own code;
+    // the nonlinear support itself is no longer a refused family.
     let envelope = run_all(&with_support(Base::Y0, gap(Base::Y0), false));
     assert_blocked(&envelope, Base::Y0);
-    assert!(
-        position(&envelope, FAMILY, &["support:gap"])
-            < index_of(&envelope, "LOAD_STATE_SUPPORT_STATE_MISSING")
-    );
+    index_of(&envelope, "LOAD_STATE_SUPPORT_STATE_MISSING");
+    assert!(!envelope["diagnostics"].as_array().unwrap().iter()
+        .any(|d| d["code"] == FAMILY && d["affected_refs"] == json!(["support:gap"])));
 }
 
 /// A2.4 and A2.5: both signed zeros are admitted. An authored Pa value is
