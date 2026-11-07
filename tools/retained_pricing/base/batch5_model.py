@@ -51,7 +51,8 @@ PINS = {
         # records. The carrier set and counts are unchanged; the two Result<LoadCaseSolve, _> carriers stay bound to
         # their in-build size (the field's bytes reach the profile through the in-build atoms). Staging and
         # prepared-pressure calls unchanged.
-        "solve_prepared_load_case": "b71598a00a79be55cdd5f2b4751e53bb3b69daa73d15d74353e1ba5fe431d095",
+        # RT-A3 S6 D3 (§8.59): the case consumer's carriers, children and staging are unchanged (see PRESSURE_PREFIX_PIN).
+        "solve_prepared_load_case": "c6d77195d0533f25745736b634a4e05a786211d103d19376c47b2587f4515dd7",
         "append_curved_bend_macro_element_results": "9e9b5010a84aa73268d72fabcf99c5cb2012f6f35ef5a15adb41bb30bf045a4e",
     },
     # B7b: branch E is 0.5.0 with {3.0.0, exact_pressure_v3, euler_bernoulli}; the
@@ -119,7 +120,12 @@ PINS = {
 # (case_state::carries_fields and `components.iter().any`, both allocation-free) and judges a NonlinearSupport family by
 # nonlinear_support_admission; D1.6 refuses every nonlinear support, so that arm never runs on D1. Diagnostics only; no
 # carrier, child or staging changes.
-PRESSURE_PREFIX_PIN = "6868b756571a3f196cbf37a82b145beb5cdce6acb581c9d7beed036ee185c38a"
+# RT-A3 S6 D3 (§8.59): validate_profile no longer forms the S6 context (`carries_fields` and the connector scan are
+# gone); every support family, the nonlinear one included, is judged by exact_admission::admission, whose arm is
+# Admitted; D1.6 refuses every nonlinear support, so no new verdict is reached on D1. Diagnostics only; no carrier, child
+# or staging changes. solve_prepared_load_case (PINS, KD5T2) also changes only behind a load state or a nonlinear
+# support, beside S6-ME's argument (w16_owners_model).
+PRESSURE_PREFIX_PIN = "98cfd97b4bb2914eb02c42b35976c8792c013a95f716fe700000479f4fb88617"
 LEGACY_PRESSURE_PREFIX_PIN = "d335b7c22bee4bf5832a4e2b9f82f63a77930aa2bbcedeab15369e62c205b017"
 LEGACY_CASE_PIN = "273d31e03921bad5b4d28852b54b17ba7e70acd85d590b4213a3d5d8141aa00c"
 

@@ -27,6 +27,19 @@ Not owners on D1: `case_ground_motion`'s Vec<(String, f64)>, collected from a fi
 support target (Vec's FromIterator allocates only on a first element), and the nonlinear loop's ground and base maps
 (D1.6 refuses nonlinear supports).
 
+RT-A3 S6 D3 (DEL-04-07 Work/route-unification-r4.md §3.7; retained-pricing-rules.md §8.59):
+S6-ME (both routes, per case solve, CasePrefix): `solve_prepared_load_case` passes the motion its loop consumed,
+`CaseMotionEvidence::new(base_motion, &ground_motion, &spring_ground)`, to `capture_nonlinear_state_evidence` as an
+argument, so it is built for every case before the capture's first statement returns None on D1 (MODAL-SEAM). Its three
+vectors are each collected from an exact-size iterator: `base_prescribed` over the base prescribed map (None on D1: no
+load state, D1.5, and `case_prescribed` returns None without a support target, D1.7, W16-NS), `ground_motion` over the
+moved grounds (empty on D1) and `spring_ground`, one u64 per prepared spring (s entries, allocated whenever s > 0).
+Vec's FromIterator allocates nothing for an empty iterator, so on D1 only `spring_ground` owns heap: B(8s) per case
+(s <= 32: prepare_boundary gives a scalar spring exactly one entry, refusing any other, and D1 caps supports at 32),
+dropped at the capture's return, one case at a time; charged beside W16S-SG for the whole case (an over-bound of its
+life). A resolved case's base vector (`load_state_spring_ground`) and moved grounds are reached only with a load state,
+which D1.5 refuses (`analysis_state` Absent), as before for the zero vector it replaces.
+
 Bound to imposed_motion.rs's sha256 (W-16's new module) and to the exact statements, whitespace-normalized; a snapshot
 without the module adds nothing (earlier registered trees keep their coefficients), a partly present or changed owner stops
 the run."""
@@ -39,7 +52,10 @@ from g3lib import B, HashReq, s, pushcap
 PP = "core/product_physics/src/"
 IM = PP + "imposed_motion.rs"
 LIB = PP + "lib.rs"
-PIN = "267825ee66cf1ca5b447b4cdb71c5ffbbaf31c998c3d84af9775a2f789195107"
+# RT-A3 S6 D3 (§8.59): imposed_motion.rs exposes acting, Acting, is_spring_family and nonlinear_dof to case_state and
+# adds normalized_gap_closure_exact (resolve.rs's nonlinear-ground arm only: D1.5); W16-NI, W16-VF and W16S-SG's
+# statements are byte-identical.
+PIN = "ec554e159dc389b4c7c71bfd7871c41d7dc327ab9a45016365d902cb00eaa6ef"
 CL = PP + "certified_loads.rs"
 
 # (file, function, statement, count) with line breaks and their indentation removed.
@@ -61,7 +77,13 @@ STATEMENTS = (
     (IM, "case_spring_ground", "let Some((record, dof, Acting::Spring)) = target_acting(model, load) else { continue };", 1),
     (IM, "target_acting", "let LoadTargetInput::Support { support, dof } = &load.target else { return None };", 1),
     (CL, "spring_base_motion", "if g == 0.0 {continue;}", 1),
-    (LIB, "solve_prepared_load_case", "Some(_) => vec![0.0; spring_entries.len()],", 1),
+    (LIB, "solve_prepared_load_case",
+     "Some(state) => load_state_spring_ground(state, spring_entries, &load_case.id, diagnostics),", 1),
+    (LIB, "solve_prepared_load_case", "CaseMotionEvidence::new(base_motion, &ground_motion, &spring_ground),", 1),
+    (LIB, "solve_prepared_load_case", "let base_motion = load_state.map(|state| &state.prescribed).or(pf_motion.as_ref());", 1),
+    (LIB, "CaseMotionEvidence::new", "base_prescribed: base.into_iter().flatten().map(|(&dof, value)| (dof, value.to_bits())).collect(),", 1),
+    (LIB, "CaseMotionEvidence::new", "ground_motion: ground.iter().map(|(id, value)| (id.clone(), value.to_bits())).collect(),", 1),
+    (LIB, "CaseMotionEvidence::new", "spring_ground: springs.iter().map(|value| value.to_bits()).collect(),", 1),
     (LIB, "solve_prepared_load_case",
      "None => imposed_motion::case_spring_ground(model, load_case, spring_entries, diagnostics),", 1),
     (LIB, "solve_prepared_load_case", "certified_loads::spring_base_motion(&mut ledger, spring_entries, &spring_ground);", 1),
@@ -80,6 +102,14 @@ def _read(snapshot, rel):
 
 
 def _body(text, name):
+    if "::" in name:
+        # `Impl::name`: the one fn `name` inside the one top-level `impl Impl {` block.
+        owner, name = name.split("::")
+        blocks = [m.start() for m in re.finditer(r"^impl " + re.escape(owner) + r" \{\n", text, re.M)]
+        if len(blocks) != 1:
+            return ""
+        end = text.find("\n}\n", blocks[0])
+        return _body(text[blocks[0]:end + 3], name) if end >= 0 else ""
     hits = list(re.finditer(r"^([ \t]*)(?:pub(?:\([a-z]+\))?\s+)?fn\s+" + re.escape(name) + r"\b", text, re.M))
     if len(hits) != 1:
         return ""
@@ -111,6 +141,12 @@ def validation_findings(loads):
     """W16-VF (per ordinary run): validate's push-grown Vec<Diagnostic> of <= one finding per primitive load, with its
     previous backing."""
     return s("Diagnostic") * (pushcap(loads) + pushcap(loads) // 2)
+
+
+def case_motion(springs):
+    """S6-ME (per case solve, one case at a time): CaseMotionEvidence's `spring_ground`, one u64 per prepared spring
+    (its other two vectors are empty on D1)."""
+    return B(8 * springs)
 
 
 def spring_ground(springs):
