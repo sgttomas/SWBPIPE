@@ -6,6 +6,7 @@
 (cited here as "the import Design"). Release target `docs/RELEASE_TARGET_v1.0.md`: rows RT-R7
 and RT-R8 (Must) and exit criterion 6. File names follow DEL-07-01 `Work/export-file-names.md`
 (#1711).
+Slice 5's design (§4, §4.8, 2026-11-07) reads source on `main` at `b06e1da32`.
 
 This is a design before implementation, drafted for Agent 0 and independent review. Risk class:
 persistence, file writes and numerical meaning. Standard claim fence applies (claims taxonomy
@@ -115,8 +116,9 @@ and "imports it back with the same entity identities". They map to these checks:
 | C6-7 | C6-1 to C6-6 run through the desktop's own engine: the native command and the wasm build, not the Python harness. |
 
 *Note on C6-7 (Agent 0's 2026-11-02 decisions, §3.9.5):* for export, the desktop's own engine is
-the native commands only; the webview runs no writer. The import's engine route is slice 5's
-design (§6). C6-7's text is unchanged.
+the native commands only; the webview runs no writer. For import (slice 5's design, §4.8), the
+engine is worker task 5 in the native capped worker, and the webview's wasm build runs only the
+document validator at Adopt (`checkNativeOutcome`). C6-7's text is unchanged.
 
 ### 1.4 Coverage against the reference system
 
@@ -813,14 +815,16 @@ only the staleness check of step 6.
 
 ### 3.8 Reach-scan re-pin
 
-- **The pin.** Adding `save_mbf_export`, `review_mbf_export` and `cancel_mbf_export` (and
-  `open_mbf_file`, §4.7) changes the text of `app_invoke_handler`.
+- **The pin.** Adding `save_mbf_export`, `review_mbf_export` and `cancel_mbf_export` (and the
+  import's `open_mbf_import`, `review_mbf_import`, `adopt_mbf_import` and `cancel_mbf_import`,
+  §4.7) changes the text of `app_invoke_handler`.
   - The PR that adds each command re-pins its SHA-256 in `user_release_reach_scan.rs`
     `MACRO_DEFINITIONS`.
   - It extends the doc comment with the entries, each reviewed: no `mod`, no
     `$parameter ::`, no scanned name added.
-- **Unsafe code.** The new `src-tauri` module (`mbf_file.rs`) carries no
-  `#[allow(unsafe_code)]` and is not added to `SHELL_UNSAFE_MODULES`.
+- **Unsafe code.** The new `src-tauri` modules (the export's `mbf_export.rs` and `mbf_worker.rs`,
+  and slice 5's `mbf_import.rs`) carry no `#[allow(unsafe_code)]` and are not added to
+  `SHELL_UNSAFE_MODULES`.
 - **Reach closure.** The engine crate depends on no reporting crate, so the renderer's reach
   closure is unchanged (DEL-08-01 `Work/report-user-release.md` §2.8).
 
@@ -967,9 +971,10 @@ No term is bounded by an existing limit.
     there with `MBF-REVIEW-NATIVE-ONLY` ("The model batch file review runs in the desktop app.")
     and runs no writer.
   - **The wasm export entry point** (`caepipe_mbf_wasm` `render_mbf_json`) stays only as an
-    explicitly unconnected or test resource. It is never a fallback. Whether the import runs in
-    wasm (which also runs the writer, through regeneration: `importer/build.rs:404-405`) is slice
-    5's design (§6); §4's wasm route is not adopted until then.
+    explicitly unconnected or test resource. It is never a fallback. The import does not run in wasm.
+    Slice 5's design assessed that route, which also runs the writer through regeneration
+    (`importer/build.rs:404-405`), and did not adopt it (§4.8.1). The import runs as task 5 in
+    the capped worker (§4.8.3).
 - **Admission.** The review uses the same model, settings, admission and binding as
   `save_mbf_export`: the same ingress admission, the settings text read by
   `export_settings_from_json`, and §3.6 steps 2 and 3 (the 64 MiB cap, canonicalization, the
@@ -1139,41 +1144,82 @@ save of a 64 MiB result remain planned.
 - **The save's outputs** are bounded by the 64 MiB output ceiling (§3.7), because the identity
   file carries Q1 and so cannot be priced from M.
 - **The import slice.** The import (§4.7) runs the same regeneration. It needs its own design
-  before connection (§6, slice 5); this section does not analyse it.
+  before connection (§6, slice 5); this section does not analyse it. That design is §4.8, and
+  none of this section's proofs is carried over to it.
 
 ## 4. Import (RT-R8)
 
+**Status of this section.** §4.1, §4.3 and §4.5 to §4.8 are slice 5's source, memory and transaction design
+(2026-11-07, drafted on `main` at `b06e1da32`). They replace the earlier wasm-route text of §4.1 and §4.7, which is
+not adopted (§4.8.1). The design takes independent review (§4.8.10) and is merged before any production connection.
+Nothing here is implemented or connected. §4.2 and §4.4 are unchanged.
+
 ### 4.1 Flow
 
-1. **Entry point.** File > Import MBF… (`file.import-mbf`), placed after Open Model Document….
-   - It is a `ModelDocumentSource` (`action: "Importing a model batch file"`, `operation:
-     "import_mbf"`) passed to `handleOpenModelDocument`.
-   - It therefore takes the same busy check, the same unsaved-changes guard (Cancel keeps the
-     edits) and the same adoption.
-2. **Reading.** `open_mbf_file` (§4.7) opens the native open chooser (`.mbf`). It reads the
-   MBF and, when present, `<stem>.swbpipe-ids.json` beside it, and returns both as bytes with
-   their SHA-256 values.
-3. **Import.** (Subject to slice 5's design, §6.) The wasm importer runs with `source_label` set
-   to the chosen file's name.
-4. **Review.** The import review (§4.3) is shown before anything is adopted.
-   - When `MBF-IMPORT-MATERIAL-PROVENANCE-REQUIRED` is returned, the review asks per material
-     (or for all of them at once): "project-invented example data" or "my own source:
-     [name]".
-   - Vendor-library and unknown origins cannot be declared, so such a material keeps the
-     import refused.
-   - The importer runs again in wasm with the declaration. The files are not read again.
-5. **Adopt.** The document goes through `checkNativeOutcome`: the desktop shape check and the
-   document validator through the wasm engine. It then goes through `buildModelIndex`,
-   exactly as Open does.
-   - It starts unsaved, with no stored base. New Local Project saves it.
-   - The first native save checks it again.
-6. **Afterwards.** The import report and id map stay viewable in the review until it closes.
-   They are not persisted (import Design §16.4).
+1. **Entry point.** File > Import MBF… (`file.import-mbf`) follows Open Model Document… in the native File menu
+   (`lib.rs` `NATIVE_FILE_MENU`, disabled while a project operation is busy, like its neighbours) and in the in-window
+   File menu (`App.tsx`). Both dispatch through `runMenuCommand` to `requestImportMbf` (`workspaceSession.ts`). It does
+   nothing while `projectSessionBusy()` holds. In the browser-only route it is refused with `MBF-IMPORT-NATIVE-ONLY`
+   ("Importing a model batch file needs the desktop app.") before anything is sent.
+2. **Choose and read.** `requestImportMbf` mounts the import dialog (`MbfImportDialog.tsx`, mounted by `App.tsx`). The
+   dialog is modal like the export dialog: `mbfImportDialogOpenRef` joins every list that holds project commands
+   (`projectSessionBusy`, the menu, accelerator and close-request holds). The dialog calls `open_mbf_import` (§4.7)
+   through the import barrier (§4.8.6). Native code opens the read-only chooser (`.mbf`). It opens the chosen MBF
+   and, when one is present, its identity file `<stem>.swbpipe-ids.json` beside it, checks and reads both, and
+   records the source (§4.8.2). It then runs the first review in worker task 5 (§4.8.3). If the user dismisses the
+   chooser, the dialog closes and nothing changes.
+3. **Review** (§4.3). The dialog shows the bounded review the worker formed. No file bytes, base64 copy, model,
+   import report or id map reaches the webview during review.
+4. **Declarations.** When the review lists materials that need a provenance declaration (`declaration_needed`), the
+   dialog asks for each listed material, or for all listed materials at once: "project-invented example data", or
+   "my own source: [name]" with a non-empty name. Vendor-library and unknown origins cannot be declared, so such a
+   material keeps the import refused. "All listed materials" sends one entry per listed name. It never sends the
+   engine's `*` key, which would conflict with an origin a bound identity file records (import Design §7.4, "A
+   recorded origin is the material's"). Each change sends `review_mbf_import` with the declaration. Native code
+   re-reads the chosen files through their pinned handles, refuses any change, and runs task 5 again. Adopt is
+   disabled while a review is pending, refused or stale.
+5. **Adopt.** Adopt is enabled only when the review shown is current, `complete` and `adoptable`, and was formed for
+   the declaration the form now holds. Adopt releases the dialog's modal hold. If another project operation has
+   started meanwhile, it refuses with "Import not adopted: another project operation is in progress." Otherwise it
+   hands the request's one retirement to the import flow, so closing the dialog sends none (§4.8.6). It then
+   calls `handleOpenModelDocument(mbfImportSource(...))`, a `ModelDocumentSource` (`action: "Importing a model batch
+   file"`, `operation: "import_mbf"`). That function then applies its own steps:
+   - the busy check;
+   - the unsaved-changes guard, whose Cancel keeps the edits (`open_model_kept_edits`);
+   - the project-operation owner;
+   - `source.read()`, which is `adopt_mbf_import` (§4.8.7) followed by `checkNativeOutcome` (the desktop shape check
+     and the document validator through the loaded wasm engine);
+   - `stillCurrent()`;
+   - `buildModelIndex`;
+   - the synchronous commit.
 
-Running the importer in wasm keeps declaration re-runs local, with no second chooser. Native
-code does the file-level reading. This meets REQ-017's "only through the existing document
-open path": the open path's webview half is the same validator the native half runs, and
-nothing is written before a native save.
+   The model starts unsaved, with no stored base. New Local Project saves it, and the first native save checks it
+   again.
+6. **Afterwards.** Once `handleOpenModelDocument` returns, the import flow retires the source with a keyed
+   `cancel_mbf_import`, whatever the outcome. The status line after a landed import names the file, the binding and
+   the restored identity counts from the review the user adopted. The import report and id map are not shown or
+   persisted (import Design §16.4); the review carries their bounded summary (§4.3).
+
+REQ-017's "only through the existing document open path" holds. The document enters through `handleOpenModelDocument`
+and `checkNativeOutcome`, exactly as Open's does. Before that, the worker runs the native half of the open path's
+checks (`check_model_document`: kind, version and the W-13 validator) over the same bytes (§4.8.3). Nothing is written
+to disk before a native save.
+
+**What changed from the earlier text, and why.**
+
+- *Old:* "The importer runs again in wasm with the declaration. The files are not read again." The earlier text also
+  had `open_mbf_file` return both files to the webview as base64 bytes, and ran the importer and its writer-backed
+  regeneration in webview memory.
+- *New:* the importer runs only in the capped worker. Each review and each Adopt re-reads the chosen files through
+  their pinned handles, and refuses a change.
+- *Why:* §4.8.1 has the full assessment. In short, the wasm route puts the importer's working set, including the
+  writer that regeneration runs (§3.9.2's super-linear terms), into ungoverned, never-shrinking webview memory, and
+  it puts up to 80 MiB of file bytes into the webview several times over. Retaining the bytes natively between
+  commands would need a long-lived pool custody that no command ledger owns. Re-reading keeps no model-sized custody
+  between commands, and SHA-256 proves that every run imports exactly the bytes the user chose.
+- *Guard placement:* the unsaved-changes guard now runs at Adopt, not before the chooser. A review touches nothing in
+  the session, and the guard means what it meant before: nothing is replaced without the user's yes, and Cancel keeps
+  the edits.
 
 ### 4.2 Coverage
 
@@ -1187,23 +1233,76 @@ nothing is written before a native save.
     `MBF-IMPORT-PRESSURE-CLOSURE-REQUIRED`.
   - Rebinding by node name (`rebind_by_node_number`) is not offered.
 
-### 4.3 Import review
+### 4.3 Import review (bounded)
 
-- **Status.** Bound or unbound, and why: no identity file; an identity file for other bytes
-  (`MBF-IMPORT-SIDECAR-NOT-APPLIED`); or a refused identity file, such as one with a failed
-  self-digest (`MBF-IMPORT-SIDECAR-DIGEST-MISMATCH`).
-- **Refusals (block).** Each with its code, line and name, and no model values (the report
-  carries none). Adopt is disabled.
-- **Loss entries (do not block).** By category: `omitted`, `approximated`, `delegated`,
-  `unsupported` and `tbd`.
-- **Target options.** "Recorded, not applied" (REQ-015).
-- **Assumptions.** For example the G derivation, the exact conversions and the Z rotation.
-- **Identity.** Restored counts per class and the unrecoverable list. An unbound import says
-  "ids formed from node numbers".
-- **Units.** The file's unit mode and angles, and the project units the document receives
-  (import Design §5.2).
-- **Boundary.** "A successful import means the listed subset of this file was read. It is not
-  evidence that two programs analyse the model alike."
+One engine function, `import_review(result, source, declaration_sha256, document_check, allowance)`, forms the review
+inside the worker. It lives in `core/handoff/caepipe_mbf_engine/src/import_review.rs`, beside `export_review.rs`, and
+uses the same mechanics as the export review (§3.9.5).
+
+- **Format.** ASCII JSON, `swbpipe.mbf_import_review`, format 1. The whole review is at most R = 1 MiB after escaping
+  (`MBF_REVIEW_MAX_BYTES`, reused, not raised). A string longer than the per-field bound (`REVIEW_FIELD_MAX_BYTES`,
+  512 bytes) is carried as `{prefix, bytes, sha256}`, formed in place.
+- **Fixed leading members**, in this order and byte form, so the host can check them without parsing:
+  `{"document_kind":"swbpipe.mbf_import_review","format":1,"status":"<imported|refused>","adoptable":<true|false>,
+  "model_sha256":<"hex"|null>,"model_bytes":<n>,`.
+- **Status first.** The importer's status, `adoptable` and the blocking state are computed over the full result
+  before any bound applies. Overflow never makes a refused import adoptable.
+- **`adoptable`** holds when the importer's status is `imported`, the worker's document check passes (§4.8.3), the
+  review is `complete`, and the adopt result is within the transfer limit (§4.8.4).
+- **Source.** The file name (the `source_label`), the MBF's SHA-256 and byte count, and the identity file: `absent`,
+  or present with its SHA-256 and byte count.
+- **Binding.** Bound, or unbound and why: no identity file; an identity file for other bytes
+  (`MBF-IMPORT-SIDECAR-NOT-APPLIED`); or a refused identity file (for example `MBF-IMPORT-SIDECAR-DIGEST-MISMATCH`,
+  `MBF-IMPORT-SIDECAR-INVALID`, a sidecar format the engine does not read included).
+- **Declaration.** `declaration_sha256`, the SHA-256 of the declaration bytes the worker was given, or null. The list
+  `declaration_needed` holds the MBF material names refused `MBF-IMPORT-MATERIAL-PROVENANCE-REQUIRED`. The count of
+  materials whose origin a bound identity file recorded is carried as well.
+- **Refusals** (block). Each with its code, MBF line and entity, and no message text and no model values.
+- **Loss entries** (do not block). Each with its code, entity and category (`omitted`, `approximated`, `delegated`,
+  `unsupported`, `tbd`).
+- **Target options.** Their names, marked "Recorded, not applied" (REQ-015).
+- **Identity.** Per class of A-3's identity set: the restored count, the count formed from MBF names, and the
+  unrecoverable list, all computed from the id map. An unbound import says "ids formed from node numbers". The
+  implementation names the id-map members it reads and pins them in a test with one bound and one unbound fixture
+  (§4.8.9).
+- **Units.** The file's unit mode and angle option, and the project units the document receives, as the import
+  report records them (import Design §5.2). A member the report does not carry is stated as not available, never
+  recomputed.
+- **Model.** `model_sha256` and `model_bytes` (the canonical model text), the document check's outcome (`passed`, or
+  its codes), the transfer limit (`within` or `beyond`) and `schema_status`.
+- **Completeness.** `complete` or `truncated`, with the counts not shown, how many of them block, and the same counts
+  per list.
+- **Mapping assumptions (REQ-015).** An `assumptions` list carries every applied mapping assumption as a stable
+  identifier and structured parameters, rendered with source-safe product descriptions. These facts are recorded
+  alongside the existing assumption emissions, under the same conditions in `importer/finish.rs` and
+  `importer/pressure.rs`; they are not guessed from diagnostic codes or parsed back from English sentences.
+  The existing full-report assumption strings and serialized Python/Rust parity outputs are unchanged.
+  - Coverage includes the input units and angle mode; Y axes or the exact Z-to-Y rotation; exact offset summation
+    and one binary64 rounding per node; English-to-SI re-export normalization; bare-metal-only weight and its unit
+    conversion; G derivation and temperature-independent material handling; thermal differences and zero-field
+    handling; applied pressure-region, closure and shear choices; support/spring mappings; earth-weight direction;
+    binding/profile conventions actually applied; and the absence of created combinations. Conditional parameters
+    preserve the source meaning rather than replace it with a generic success statement.
+  - The worker bounds these entries, parameters and descriptions within R, using the same per-field and aggregate
+    completeness accounting as the other lists. An assumption counted but not fully represented makes the review
+    truncated and blocks Adopt. A new or unmapped assumption identifier refuses adoption with
+    `MBF-IMPORT-ASSUMPTION-UNAVAILABLE`; it cannot silently disappear from a complete review.
+  - Maintained tests exercise each emission branch, require every emitted full-report assumption to have its
+    structured counterpart, compare the represented choices with expected mappings, and hold the existing parity
+    bytes unchanged. This metadata is desktop-review support, not another numerical interpretation or importer.
+- **Not carried.** Raw engine message texts and raw assumption sentences. Several state facts about the target
+  program. The dialog instead shows the codes and structured assumption identifiers with product descriptions from
+  `MBF_IMPORT_DESCRIPTIONS` and `MBF_IMPORT_ASSUMPTIONS` in `mbfImport.ts`. Their tests cover every emitted diagnostic
+  code and assumption identifier, including the meaningful conditional parameters above. Product descriptions state
+  SWBPIPE's mapping behavior and preserve the applied assumptions without introducing new target-program claims.
+- **Deterministic.** The review contains no token, epoch, time or path. The same bytes, file name and declaration
+  give byte-identical reviews (REQ-017), so `review_sha256` binds the source digests, the declaration, the model
+  digest and everything the user saw.
+- **A truncated review blocks Adopt** with `MBF-IMPORT-REVIEW-TRUNCATED`. Every refusal and loss entry must have been
+  shown before adoption (REQ-013, REQ-015). This is a stated usability limit of the route, which the owner has not
+  accepted as a release limitation.
+- **Boundary.** "A successful import means the listed subset of this file was read. It is not evidence that two
+  programs analyse the model alike."
 
 ### 4.4 Entity identity
 
@@ -1239,29 +1338,604 @@ nothing is written before a native save.
   without the user seeing why.
 - **Moved MBF.** An MBF moved without its identity file imports unbound, and the review says
   so.
+- **Supported engine subset only.** The desktop passes the engine's `ImportOptions` with a sidecar, a material
+  provenance declaration and the source label only. It passes no pressure closure, no rebinding (slice 7), no shear
+  model and no source document. A sidecar format the engine does not read, format 5 included (import Design §20.4),
+  is the engine's `MBF-IMPORT-SIDECAR-INVALID`. Nothing here adds a format-5 or designated-source route, a Route 1
+  input, an unsupported-family exemption or a value change. Supplier Route 1 stays held.
 
 ### 4.6 Refusals
 
-- **Native, before the importer runs** (`MBF-OPEN-*`): the chosen path or the identity file
-  is not a regular file or is a symlink; a file exceeds its cap; a read fails; or the memory
-  pool refuses a reservation.
-- **Importer.** Every importer refusal is shown with its own code (import Design §4 to §15).
-- **Adoption.** The refusals of `checkNativeOutcome` and `buildModelIndex`, as Open shows
-  them.
-- **Effect.** A refusal leaves the session unchanged.
+Every refusal leaves the session unchanged. The dialog shows each code with a product text.
 
-### 4.7 Native command and memory
+| Where | Codes |
+|---|---|
+| Before the chooser, at entry | `MBF-IMPORT-NATIVE-ONLY` (webview); `MBF-IMPORT-EPOCH-INVALID`, `MBF-IMPORT-EPOCH-EXHAUSTED`, `MBF-IMPORT-CANCELLED` (the ticket, §4.8.6); `MBF-IMPORT-ARGS-INVALID` (an unknown or missing member, a path member included); `MBF-IMPORT-RETIREMENT-ID-INVALID` and, in the webview, `MBF-IMPORT-RETIREMENT-UNCONFIRMED` (retirement, §4.8.6); the ingress refusals (`INGRESS-*`) |
+| At the chosen files (`path` `mbf` or `identity_file`) | `MBF-OPEN-NOT-A-FILE` (a symlink, directory or other non-regular file); `MBF-OPEN-TOO-LARGE` (MBF above 16 MiB, identity file above 64 MiB); `MBF-OPEN-UNREADABLE` (open, stat or read failed); `MBF-OPEN-NAME-INVALID` (a file name that is not UTF-8 or is longer than 1 KiB) |
+| At a re-read | `MBF-IMPORT-SOURCE-RETIRED` (the source id is not the current source); `MBF-IMPORT-SOURCE-CHANGED` (§4.8.2) |
+| Declaration | `MBF-IMPORT-DECLARATION-INVALID` (not an object of MBF material names to `{origin, source_name}` with `origin` `project_invented` or `user_supplied` and a non-empty `source_name` of at most 512 bytes; or above the argument bound) |
+| Worker and memory | `MBF-IMPORT-MEMORY-UNAVAILABLE` (a refused bound, grant, growth, footprint, request copy, wait or reservation); `MBF-IMPORT-WORKER-PROTOCOL`; `MBF-IMPORT-WORKER-REQUEST-INVALID`; `MBF-IMPORT-ENGINE-FAILED` (the engine returned no result) |
+| Importer | Every importer refusal by its own code (import Design §4 to §15), carried in the review |
+| Adopt | `MBF-IMPORT-REVIEW-STALE` (the reviewed digest differs); `MBF-IMPORT-REVIEW-TRUNCATED`; `MBF-IMPORT-ASSUMPTION-UNAVAILABLE` (an applied assumption lacks its bounded source-safe representation); `MBF-IMPORT-MODEL-TOO-LARGE` (the transfer limit); `MBF-IMPORT-NOT-ADOPTABLE` (the review's blocking codes, listed); then `checkNativeOutcome`'s and `buildModelIndex`'s refusals, as Open shows them |
+| Transport | `INGRESS-RAW-BODY-REQUIRED`: "Import isn't available in this window. Nothing was imported and your model is unchanged. Reload the window or restart SWBPIPE to import again." Import writes nothing, and the session changes only on a reply the page received, so this outcome is known (§4.8.6) |
 
-`open_mbf_file` takes no model-sized arguments.
+### 4.7 Native commands
 
-- **Admission.** It is admitted within 4 KiB.
-- **Reading.** Each file's load is reserved before it is read: the MBF up to 16 MiB and the
-  identity file up to `MAX_MODEL_DOCUMENT_BYTES`.
-- **Response.** The response (base64 bytes and digests) is reserved and sent through
-  `respond_metered`, as `read_project_autosave` does.
-- **The webview.** (Subject to slice 5's design, §6.) The wasm importer's working set is webview memory. The dialog drops the
-  bytes when it closes.
-- **The pin.** The command changes `app_invoke_handler` and is re-pinned as in §3.8.
+Four commands are registered in `app_invoke_handler!`. None takes a path or file bytes.
+
+| Command | Arguments | Reply |
+|---|---|---|
+| `open_mbf_import` | `{expectedEpoch}`, an `args-json-v1` raw body of at most 4 KiB | `{outcome: "cancelled"}`; `{outcome: "reviewed", sourceId, fileName, reviewSha256, review}`; or `{outcome: "refused", fileName, diagnostics}` |
+| `review_mbf_import` | `{expectedEpoch, sourceId, declaration}`, raw body of at most 1 MiB | `reviewed` or `refused`, as above |
+| `adopt_mbf_import` | `{expectedEpoch, sourceId, declaration, reviewSha256}`, raw body of at most 1 MiB | `{outcome: "opened", file_name, byte_count, schema_status, document, warnings: [], reviewSha256, modelSha256}`, the `NativeModelDocumentOutcome` shape `checkNativeOutcome` takes; or `{outcome: "refused", file_name, diagnostics}` |
+| `cancel_mbf_import` | `{retirementId: {page, sequence}}`, as Tauri's JSON arguments or as a raw body (§4.8.6) | `{cancelled, epoch, retirement_id}`, with `duplicate` or `exhausted` only when true |
+
+- **Arguments.** The starts (`open`, `review`, `adopt`) are raw-body only, admitted in C1's form as the export's are
+  (§3.7, "Admission"). An unknown member is refused `MBF-IMPORT-ARGS-INVALID` before anything else is read from the
+  arguments. `declaration` is `null` or the object of §4.6. `sourceId` is a positive integer.
+- **Replies.** The `review` member is the worker's review bytes, embedded verbatim (at most R). A refusal carries at
+  most 8 diagnostics, each `{code, path, message}` with a message of at most 2 KiB (at most 32 KiB in all). Native
+  message texts are not shown: the dialog maps each code to its product text.
+- **The pin.** The commands change `app_invoke_handler` and are re-pinned as in §3.8.
+
+### 4.8 Source, memory and transaction design (slice 5)
+
+Paths are relative to `apps/desktop/src-tauri/src/` unless named otherwise. The source reading behind this section is
+on `main` at `b06e1da32`. Counts and bounds are from reading source. §4.8.9 plans the tests that confirm them. None
+has run.
+
+#### 4.8.1 Alternatives assessed
+
+| Option | What actually happens | Verdict |
+|---|---|---|
+| **(a) §4's wasm route.** The MBF and identity file are sent to the webview as base64; `caepipe_mbf_wasm::import_mbf_json` runs per declaration | The webview holds each file as base64, as a decoded `Uint8Array` and as a copy in wasm memory: up to (16 + 64) MiB × about 3.3. `import_mbf_outcome` builds the whole `ImportResult` (model, diagnostics, loss report, id map) and returns `model_json`, `report_json` and `id_map_json` inside one JSON string, which the webview parses again. A bound import's `regeneration_identity` (`importer/build.rs:404`) calls `SiWriter`, whose `regenerate_caepipe_sidecar` (`writer/mod.rs:640`) runs `Writer::run` over the imported model and clones the sidecar for comparison. The writer's super-linear terms (§3.9.2) therefore run in wasm memory, which never shrinks (§3.9.1), and §3.7 has already disproved a k·input bound. The export's governance proof covers the native export worker, not this route | Not adopted. It is ungoverned. The wasm `import_mbf_json` stays only as an unconnected test resource, as `render_mbf_json` does, and no product source imports it (a source scan holds this) |
+| **(b) Native worker; host retains the file bytes between commands** | Up to 80 MiB plus its envelope would be held from Open until retirement, across commands and across page reloads until a keyed retirement reaches the host. Each `CommandLedger` belongs to one command (DEL-14-01 r4), so this needs a new long-lived pool custody that no ledger owns, whose release depends on IPC delivery | Not chosen. It is a new memory-custody class outside the adopted pool policy (DEL-04-07), and changing that policy is not authorized here |
+| **(c) Native worker; host retains the imported model and report** | Their size follows the importer's working set, not the input, so it cannot be priced from M | Rejected for the reason of (b), and worse |
+| **(d) The webview keeps the file bytes and re-sends them** | Raw file copies in the webview, re-sent at every declaration change, and model-sized raw bodies that Tauri's postMessage fallback cannot carry | Rejected |
+| **(e) Low custody: pinned handles, re-read under each command's leases** | The host keeps only a fixed-size source record (§4.8.2). Every model-sized byte lives inside one command's ledger and is released before its reply is returned. SHA-256 proves that each re-read is the selected bytes | **Chosen** |
+
+#### 4.8.2 Source state
+
+- **Managed state** (`mbf_import.rs`, the new MBF import module): `MbfImportState { epoch, exhausted, applied, run,
+  source, next_source_id }`.
+  - `applied` holds the retirement page tokens, at most `RETIREMENT_PAGES_MAX` = 64, as for the export.
+  - `run` holds at most one import run in progress.
+  - `source` holds at most one source.
+
+  It is separate from the export's `MbfRuns`. An import retirement never cancels an export run, and an export
+  retirement never cancels an import run. Neither touches the performance reset.
+- **The source record.** One `Source { id, entry_epoch, file_name, mbf: Pinned, identity: IdentityFile }`.
+  - `Pinned { path, handle, identity, size, sha256 }`. `path` is the chooser's path and is never sent to the
+    webview. `handle` is the open file. `identity` is the device and inode on Unix, or elsewhere the size and both
+    times, each present (§3.6 step 8's rule). `size` and `sha256` are as read at selection.
+  - `IdentityFile` is `Absent { expected_path }` or `Present(Pinned)`, where `expected_path` is the derived
+    `<stem>.swbpipe-ids.json` (A-5).
+  - Its size is fixed: two paths of the platform's length, two file descriptors, two digests and a few integers. It
+    is not charged to the pool, as the export's 64 page tokens are not. There is at most one source per process, so
+    the native registry is bounded.
+- **Source id.** A `u64` taken from `next_source_id`, starting at 1 and advanced by `checked_add`. Overflow makes
+  the import exhausted, as epoch overflow does. The id is opaque and authorizes nothing (§4.8.6, "Not
+  authenticated").
+- **Selection** (`open_mbf_import`, after the chooser).
+  - `lstat` the chosen path. It must be a regular file and not a symlink. It is then opened read-only with no
+    following of a final symlink and with nonblocking acquisition (`O_RDONLY | O_NOFOLLOW | O_NONBLOCK` on Unix,
+    through safe `OpenOptions` flags). The acquired handle's `fstat` must itself report a regular file, with
+    identity equal to the `lstat` identity and size at most 16 MiB, before any read is attempted. Replacing the
+    checked regular file with a FIFO cannot make the open wait for a writer: the acquired non-regular handle is
+    refused and dropped. Cancellation is checked before acquisition and immediately after it, before the handle
+    can be installed or read. This removes that FIFO wait; it is not a wall-clock guarantee for arbitrary
+    filesystem/kernel latency.
+  - `lstat` the derived identity-file path. If it is not found, the identity file is `Absent`. If it exists, it is
+    checked and opened the same way with a 64 MiB cap (`MAX_MODEL_DOCUMENT_BYTES`). A failure refuses the import by
+    name (§4.5, "Refused, not set aside").
+  - Each file is read into the run's request buffer (§4.8.4) and hashed, and the digests are recorded.
+- **Install.** The source is installed under the state lock only if the run is not cancelled and `entry_epoch` is
+  still the current epoch. Installing replaces the previous source and drops its handles. Otherwise the new handles
+  are dropped and the reply is `MBF-IMPORT-CANCELLED`.
+- **Re-read** (each `review_mbf_import` and `adopt_mbf_import`).
+  1. Under the lock, the request's `sourceId` must equal the current source's id, and the source's `entry_epoch`
+     must equal the current epoch. Otherwise the run refuses `MBF-IMPORT-SOURCE-RETIRED`. The run duplicates the
+     handles (`try_clone`) and copies the record, then leaves the lock. It reads by position (`read_at` on Unix,
+     `seek_read` on Windows), so a superseded run still reading can never move another run's offset.
+  2. For each pinned file, the path's `lstat` must still give a regular non-symlink file with the recorded identity
+     and size. The run reads exactly `size` bytes in 64 KiB blocks into the request buffer, checking cancellation
+     between blocks. A one-byte read at `size` must return 0. The SHA-256 of the bytes read must equal the recorded
+     digest.
+  3. If the identity file was `Absent`, `lstat(expected_path)` must still report not found. An identity file that
+     appeared since is a change.
+  4. Any difference refuses `MBF-IMPORT-SOURCE-CHANGED`: a file modified in place, replaced, renamed away, removed,
+     grown or shrunk, an identity file that appeared, or a symlink or other non-regular file at a name. The refusal
+     says "The chosen file or its identity file changed since it was chosen. Choose it again." The source stays
+     installed, so the change is refused again until a new Open or a retirement.
+- **What the checks prove.** The worker imports exactly the bytes in the request buffer, and their digests equal the
+  bytes selected, so what is imported never depends on a race. The name checks are there to be truthful to the user.
+  A rename that races the checks can at worst refuse; it cannot change what is imported.
+- **Release.** The source is dropped, closing its descriptors, by: a retirement (§4.8.6); a new Open that installs
+  a source; exhaustion; and process exit. Nothing else holds it.
+
+#### 4.8.3 Worker task 5 (`WorkerTask::MbfImport`)
+
+- **Code.** `solve_worker.rs` gains `WorkerTask::MbfImport`, request code 5, in `task_code` and in the request's
+  decode. Codes 0 to 4 (sparse and dense solves, model checks, task 3 `MbfRender`, task 4 `HangerSizing`) are
+  unchanged, and 6 and above are refused.
+- **The `workload` arm** returns `(mbf_import::worker_import(&raw)?, None)`. Its `ATST` frame has status 0, followed
+  by `RSLT`. Before arm, only `resident_envelope(raw_len) + reserve` and the raw read run; parsing happens after
+  arm, as for task 3. `supervise` is unchanged.
+- **Request** (little-endian): `u32 mode ‖ u32 label_len ‖ label ‖ u32 declaration_len ‖ declaration ‖ u32 mbf_len ‖
+  MBF bytes ‖ u32 identity_len ‖ identity bytes`.
+  - Mode 1 is `review` and mode 2 is `adopt`.
+  - `label_len` is at most 1 KiB of UTF-8.
+  - `declaration_len` is 0 for none, or at most 1 MiB of JSON.
+  - `mbf_len` is at most 16 MiB.
+  - `identity_len` is `0xFFFFFFFF` for absent, or at most 64 MiB.
+  - Anything else is refused `MBF-IMPORT-WORKER-REQUEST-INVALID`.
+- **What the worker runs.**
+  1. It parses the declaration with the engine's reader (`parse_sidecar_json`) and builds `ImportOptions::new(label)`
+     with `sidecar: Some(SidecarInput::Json(bytes))` when the identity file is present and `material_provenance`.
+     Every other option stays at its default (§4.5).
+  2. It calls `mbf::import`. A bound import's regeneration runs the writer here, inside the grant.
+  3. For an `imported` result it forms `model_bytes()` and reads them with `serde_json`. It runs
+     `model_document_file::check_model_document` (kind, version, W-13 validator) on them; a blocking finding makes
+     the review not adoptable, with its codes.
+  4. It forms `import_review` and disposes of the `ImportResult` without recursion (`value::dispose`).
+  5. It forms the envelope.
+- **Envelope** (ASCII): `MBFI1\n<mode>\n<import_status>\n<adoptable>\n<model_sha256 or ->\n<review_sha256>\n<model_bytes>\n<model_len>\n<review_len>\n`,
+  then the model bytes, then the review bytes.
+  - `import_status` is `imported` or `refused`; `adoptable` is `0` or `1`, and can be `1` only for `imported`.
+  - `model_bytes` is the candidate canonical model length, distinct from the carried `model_len`. With no
+    candidate it is 0 and the model digest is `-`.
+  - `review` mode always has `model_len` 0, even when a candidate model has been digested in the worker.
+  - `adopt` mode carries the model only when `adoptable` is `1`, with `model_len == model_bytes`; otherwise it
+    carries the review only and `model_len` is 0.
+  - The worker decides the transfer limit from the computed lengths before it builds the result (§4.8.4).
+  - A failure is `<code>: <message>` of at most 64 KiB, with no engine text.
+- **Decode** (`decode_import_result(mode, text)`, host). It reads the envelope as views and checks:
+  - the header as borrowed slices, bounded before any derived storage: fixed magic, one-byte mode/flag,
+    at most eight bytes for import status, at most 20 digits per canonical decimal length (checked `u64` parse),
+    and exactly 64 lowercase hexadecimal bytes for each SHA-256. Only the model-digest field permits the single
+    `-` sentinel, and only when there is no candidate (`model_bytes == 0`). The review digest never permits it.
+    An overlong or malformed field is a protocol refusal before any field is copied;
+  - canonical decimal lengths that exactly cover the bodies;
+  - the mode, the import status and adoptable flag, and the mode's fixed payload shape;
+  - a review of at most R;
+  - the review's fixed leading members, byte for byte, by streamed comparison or a fixed 1 KiB stack buffer using
+    only the validated fields (`status` from `import_status`, the adoptable flag mapped to JSON `false` or `true`,
+    `model_sha256`, `model_bytes`). No model/header-sized `String`, `Vec` or formatted prefix is allocated outside
+    H6/H7. The fixed prefix and numeric/hash scratch are covered by the separately admitted H8 control term;
+  - the SHA-256 of the review view against `review_sha256`;
+  - only in `adopt` mode with `adoptable == 1`, a carried model view that is all ASCII (the canonical bytes are
+    `ensure_ascii`) and whose SHA-256 equals `model_sha256`;
+  - in `review` mode, an empty model payload and valid candidate metadata. A positive `model_bytes` and its
+    digest describe the candidate computed inside the worker; they are not a claim that the model is carried.
+    The empty payload is never hashed as though it were that candidate. Non-adoptable `adopt` results likewise
+    carry no model, as specified above.
+
+  Anything else is `MBF-IMPORT-WORKER-PROTOCOL`. The host never parses the model or the review.
+
+#### 4.8.4 The command's ledger and its copies (host)
+
+Each start takes C1's form (§3.7, "Admission"):
+
+- the raw body is copied under a capped interactive lease (`mbf_worker::reserve`'s pattern), which seeds the
+  command's `CommandLedger` through `NativeLeaseMemory`;
+- the budget is captured then, as min(the lease's budget, 12 GiB);
+- `command_ingress::admit_raw` grows the ledger for the arguments' parse;
+- every later lease is reserved in that ledger before the pool admits it (DEL-14-01 r4).
+
+The model-sized copies, all within that one ledger:
+
+| # | Copy | Bound | Charged as |
+|---|---|---|---|
+| H1 | The raw arguments | 4 KiB (open) or 1 MiB | The seeding lease |
+| H2 | The arguments' parse | `admit_raw`'s bound for H1 | The ledger's growth |
+| H3 | The declaration, re-serialized for the worker after its shape check | At most H1 | A named lease |
+| H4 | The request buffer. The files are read straight into it, with no other read buffer and constant hashing state | `allocation_envelope(raw_len)`, where `raw_len` is the request's exact length from the recorded sizes, at most 16 MiB + 64 MiB + 1 MiB + 1 KiB + 20 | The bound's request share |
+| H5 | The worker's grant | Up to the maximum grant: the captured budget less the ledger's other live leases, H4's share and the result share | The bound's grant share; released only after the reap |
+| H6 | The worker's result | `review`: R + 4 KiB (`result_limit`). `adopt`: 64 MiB (`result_limit`, `MBF_IMPORT_RESULT_MAX_BYTES`, the same number as the export's output ceiling, not raised) | The bound's result share, `resident_envelope(limit)`; after the reap the bound shrinks to the result lease |
+| H7 | The reply text | Its exact serialized length J, counted before allocation, including JSON escaping of the file name and all wrapper members: the review reply at most R + 8 KiB; a refusal at most 32 KiB; the adopt reply at most 64 MiB | A named lease of `envelope(J)`, reserved before the buffer is allocated (`serialize_metered`'s rule) |
+| H8 | Decoder control scratch | Fixed 4 KiB, including the at-most-1-KiB prefix buffer, decimal formatting and hash state; no header-sized dynamic storage | A named lease before decode, held through response construction; a size/layout check holds the fixed scratch within it |
+
+- **The bound.** One `LedgerBound` reserves H4, H5's maximum and H6's share before any of them is admitted. Above
+  the budget it is refused `MBF-IMPORT-MEMORY-UNAVAILABLE` with the ledger unchanged. A starting grant
+  (`initial_grant(reserve, resident_envelope(raw_len))`) above the maximum grant is refused before any worker starts.
+- **Order.**
+  1. The bound.
+  2. The grant's queue wait: `wait_acquire`, at most 2 s (`MBF_START_WAIT`'s value), ended by cancellation or a
+     newer run.
+  3. H4's admission.
+  4. The selection or re-read into H4 (§4.8.2).
+  5. `supervise` with this run's hooks. The worker is reaped inside `supervise`, and only then is the grant
+     released.
+  6. Result custody: the bound shrinks to the result lease. A result lease larger than the bound's share is refused
+     `MBF-IMPORT-WORKER-PROTOCOL` in every build.
+  7. Admit H8, then decode. A refused H8 admission returns a memory refusal with no derived header allocation.
+  8. The exact H7 length is counted over borrowed views, including the file name's escapes; an adopt reply above
+     64 MiB is refused before any response buffer allocation. H7 is then reserved and written: the reply's fixed
+     members, with the review or model view copied in once.
+  9. The response takes ownership of H7's buffer; no application-side handoff clone is made. The result lease and
+     the bound are held through response construction, then released, then H7's lease, then the command's other
+     leases. An implementation that copies at handoff must admit that additional copy before making it.
+- **Lifetimes.** H4 is handed to the supervisor, which drops it once it is sent. H5 ends at the reap. H6 and H7 are
+  held together only from the reply's construction until the response exists. Between commands the import holds no
+  pool or ledger charge, only the fixed source record (§4.8.2).
+- **Policy boundary.** H7 and every application-owned handoff copy are admitted above. Once the response is handed
+  to Tauri, its transport lifetime and internal IPC copies are the existing `respond_metered` residual in
+  DEL-04-07 `memory-budget-decision.md`; this is not a bound on their heap. No import-only application buffer may
+  be hidden in that residual. §4.8.5 compares the receiving consumer with Open.
+- **Transfer limit.** Both the worker's adopt envelope (header + model + review) and the actual serialized native
+  adopt reply (wrapper + model, with no review body) must fit 64 MiB. The worker computes both lengths, with checked
+  arithmetic and actual JSON escaping, before forming its result. If either exceeds the limit the review reports
+  `beyond`, so Adopt is disabled (`MBF-IMPORT-MODEL-TOO-LARGE`). `result_limit` enforces the worker-envelope limit
+  again before any result lease, and step 8 enforces the final reply limit before allocation or delivery. The
+  model's own exact L-byte canonical text must also fit `MAX_MODEL_DOCUMENT_BYTES` (64 MiB); no subtraction of the
+  maximum R is substituted for these actual lengths. A model whose import exceeds a limit cannot be imported from
+  the desktop.
+  This is a stated route limitation; the owner has not accepted it as a release limitation.
+- **What the worker's cap does and does not bound.** The cap enforces the admitted per-invocation budget on the
+  importer, the regeneration's writer, the canonical model, the document check and the review. Nothing predicts
+  their peak in advance (§3.9.5, "What (iii) does not bound"). A model beyond the budget is refused by name, and is
+  still a valid file.
+- **No budget, ceiling or pricing changes.** Every number here is an existing limit (64 MiB document cap, R, 512
+  bytes, 2 s, 64 MiB result value) or a new import-route bound on a new command's payload: the 16 MiB MBF cap, the
+  1 MiB argument bound and the 4 KiB open argument bound. No pool budget, worker ceiling or retained-route pricing
+  moves, and no re-pricing registration is needed: the import touches no retained route (RT-A3 alone owns released
+  Rust pricing).
+
+#### 4.8.5 Webview copies and the existing Open-consumer boundary
+
+**Policy application (Agent 0, 2026-11-07).** DEL-04-07 `memory-budget-decision.md` states that custody counts
+delivered bytes, not webview heap, and records the common command-response and webview-heap residuals. Existing
+Open is not a heap proof. The lack of such a proof is equally not a new slice-5-only gate. The new native reading,
+importer, writer-backed regeneration, review, reply and application-owned handoff copies need their own admission
+(§4.8.4). The delivered document must fit the existing Open domain and use exactly its maintained consumer, with
+no additional unmetered import stage. This applies existing policy; it grants no allowance, multiplier, budget
+change or risk acceptance. Whole-App/model-state heap qualification remains unresolved under RT-U4, and historical
+v0.1 residuals do not establish owner acceptance for v1.0.
+
+**During review.** Each serialized review reply is at most R + 8 KiB. The page keeps the current bounded review
+and declaration form, and replaces rather than accumulates previous reviews. A superseded reply is discarded by
+generation. This is additional bounded import-control data, not an inherited model consumer: its wire bytes are
+admitted as H7, while its decoded graph is not represented as a proven JavaScript heap bound. No MBF bytes,
+identity-file bytes, full import report, id map or candidate model reaches the webview. At Adopt the flow captures
+only the source id, declaration, review/model digests, file name and bounded status summary; it releases the review
+body and dialog's references before the model reply is requested. The flow does not close over the review object.
+
+**At Adopt.** L is the exact canonical model byte count and J the exact serialized native reply byte count, both
+checked natively against their limits before delivery (§4.8.4). These byte counts do not price WebKit objects. The
+following inventory describes overlaps and ownership, not a measured or proven heap multiplier:
+
+| # | Copy or work | Byte account, overlap and lifetime |
+|---|---|---|
+| W1 | Tauri's reply body and decoded reply string | J ≤ 64 MiB, admitted as H7 through native response construction. Transport-internal copies and the decoded string can overlap parsing. JavaScript code-unit lengths and UTF-8 byte counts differ; no claim of a J-byte heap follows. The import adapter retains no raw reply text after Tauri decodes it. |
+| W2 | Tauri's one reply parse, including its document object | One candidate document graph, the same graph passed by reference through the source, validator and session. There is no import-side `JSON.parse(model_json)`, `structuredClone`, retained candidate cache or second full-model object. The old session model/history remain live until adoption, as for Open. |
+| W3 | `checkNativeOutcome`'s `modelDocumentShapeDiagnostics` | The maintained shape walk over W2, with its diagnostics; no additional import shape walk. A refusal ends the candidate flow without session replacement. On success the returned envelope is shallow: its document is still W2. |
+| W4 | `checkNativeOutcome`'s `modelDocumentSlotValidation` | Exactly the existing one wasm-validator call (`modelDocumentShape.ts`): `JSON.stringify(document)`, wasm input/parse, validator report string/parse and findings. These temporaries overlap W2; wasm linear-memory high-water capacity can remain afterwards. Stringified numbers/escapes can differ in length from L. No import validator call is added before or after it in the webview. |
+| W5 | The maintained model-index work | `handleOpenModelDocument`'s uncached `buildModelIndex(document, 0, 0)` guard precedes session mutation; publication/rendering later use `modelIndexFor` and its existing cache. Their records refer to W2. The guard's temporary index is not retained by the import flow. Existing indexes/history can overlap the new graph until the shared consumer releases its references. |
+| W6 | `commitModel` and ordinary model publication | `prepareModelPublication` calls `uiModelIdentityHash`, which stringifies the document synchronously before publication; that text is temporary. The model assigned to current-model refs and React state is W2, not a clone. Original session/history/result references are cleared by the existing open reset, and garbage collection timing remains the common residual. |
+| W7 | The existing post-adoption consumer | `handleOpenModelDocument` runs `libraryReferenceWarnings` and its saved-basis `computeModelHash`; the existing `[model]` layout effect also calls `computeModelHash`. Hash calls can overlap while loading the wasm engine. `hashService.ts` stringifies and invokes the existing wasm canonical hash, with its input/parse/hash temporaries. The imported source adds no hash or library pass, and keeps no candidate text for them. |
+
+**Source/call-path comparison.** Ordinary Open's `modelDocumentFile.ts::openModelDocumentFile` invokes the native
+reader and calls `checkNativeOutcome`. The import's `mbfImportSource.read` invokes native Adopt, checks only its
+bounded captured identity fields, then calls that same `checkNativeOutcome` once. Both return into the unchanged
+`handleOpenModelDocument` transaction: currentness, index guard, publication and reset, then the existing library
+warnings/hash work. The worker applies `check_model_document` before delivery, the same native kind/version/slot
+checks Open applies, and the source preserves the engine model bytes and semantics. A model refused by the common
+consumer is refused by import; the adapter does not default, normalize or bypass it.
+
+**Remaining condition.** Independent review must establish this comparison against committed source, and the
+implementation must hold it with connected tests (§4.8.9): the same document object enters the common consumer,
+the same validation/index/adoption and failure behavior occurs, and no importer, report, file-byte work, additional
+validator pass or retained extra model is introduced in the webview. Every genuinely additional import-only
+allocation/lifetime needs an explicit account; it is not inherited merely because Open also handles documents.
+An unaccounted additional stage is repaired within current policy or returned with the exact required policy
+change. No measurement campaign or new webview allowance is selected, and this comparison makes no claim about a
+whole-WebKit or whole-App heap ceiling.
+
+#### 4.8.6 Cancellation, retirement and duplicate deliveries
+
+- **Runs.** At most one import run is in progress. A newer start of any kind cancels the older one: its wait ends,
+  or its worker is killed and reaped before its grant is released. The run's control is the export's pattern (a
+  `cancelled` flag and kill access to the worker while it is unreaped), without a commit, because import writes
+  nothing. The run's control is checked:
+  - after the chooser returns (an Open retired while its chooser was open installs no source);
+  - between re-read blocks;
+  - at the supervisor;
+  - before the source is installed.
+
+  A cancelled run replies `MBF-IMPORT-CANCELLED`.
+- **The ticket** (`expectedEpoch`). Each start carries the import barrier's latest acknowledged import epoch. It is
+  read from the admitted arguments before any other member (`MbfImportState::enter`):
+  - below the current epoch: `MBF-IMPORT-CANCELLED`;
+  - missing, malformed or future: `MBF-IMPORT-EPOCH-INVALID`;
+  - exhausted: `MBF-IMPORT-EPOCH-EXHAUSTED`.
+
+  It is compared again when the run registers. It authorizes nothing.
+- **Retirement** (`cancel_mbf_import`). It is the export's keyed retirement (§3.7, "Idempotent retirement" and
+  "Wire form and bounds"), applied to the import's own state:
+  - `{page, sequence}` ids, each applied once; a duplicate or older delivery is a truthful no-op;
+  - at most 64 page tokens, never evicted, and a new token beyond them exhausts the import until restart;
+  - a checked epoch advance;
+  - the JSON form, which survives Tauri's postMessage fallback, admitted beside the raw form through one keyed path,
+    with the same 4 KiB measurement.
+
+  An applied retirement cancels the run in progress and drops the source. The reply has no `too_late`, because
+  import has no commit.
+- **The id reader.** The id rule is the export's (`RetirementId`'s members and limits). `mbf_import.rs` reads it with
+  its own reader, which refuses `MBF-IMPORT-RETIREMENT-ID-INVALID` with import wording, so `mbf_worker.rs` is
+  unchanged.
+- **Not authenticated.** As with the export, code in the webview could retire or exhaust the import. It gains no
+  authority: a retirement only cancels and drops.
+- **Retirement triggers** (the import barrier, `features/caepipe-mbf/mbfImportCancel.ts`). It has the export
+  barrier's rules (§3.7, "The frontend barrier"):
+  - serialized retirements;
+  - one ticket per start for all its sends;
+  - a generation check before every send;
+  - a re-delivery of an unacknowledged retirement with the same id, once, then
+    `MBF-IMPORT-RETIREMENT-UNCONFIRMED`;
+  - a handshake retirement before the page's first start;
+  - its own page token, made once per page load.
+
+  It retires the import:
+  - at workspace mount, page load included, so an old page's source is dropped;
+  - at each project-session retirement;
+  - at the dialog's Close, Escape or unmount, except after Adopt, which hands the request's one retirement to the
+    import flow;
+  - after Adopt's `handleOpenModelDocument` returns;
+  - when a new Open supersedes the dialog's request.
+- **Performance reset.** `dispose_all_preview_mechanics_results` does not touch the import. Its comment and meaning
+  (#149: it carries no page identity) are unchanged. The export's retirement, barrier, tickets and states are
+  unchanged.
+- **Duplicate and stale deliveries.**
+  - The starts are raw-body only. After Tauri's fallback a resent start arrives as JSON and is refused
+    `INGRESS-RAW-BODY-REQUIRED`. Import has no external effect, so that outcome is known (§4.6):
+    - a duplicated Open may have registered a source, which the next retirement drops;
+    - a duplicated review changed nothing;
+    - a duplicated adopt changed nothing natively, and the session changes only if the page received its reply
+      (§4.8.7).
+  - No "unavailable" page state is needed, unlike the export's unknown save (§6, "Export unavailable after an unknown
+    save"). Every later raw start is refused the same way and says so.
+  - A reply whose start is no longer current (its generation was retired, or a newer review replaced it) is
+    discarded.
+  - An adopt reply is consumed by one `await` in `handleOpenModelDocument` and by nothing else.
+
+#### 4.8.7 Adopt linearization and session atomicity
+
+1. **The webview's capture.** At Adopt the dialog captures `{sourceId, declaration, reviewSha256, modelSha256}` from
+   the current review, whose request generation is current and whose declaration equals the form's.
+2. **The native adopt.** It admits the arguments, checks the ticket, takes the source under the lock (otherwise
+   `MBF-IMPORT-SOURCE-RETIRED`), re-serializes the declaration, and re-reads into H4 with the checks of §4.8.2. It
+   runs task 5 in `adopt` mode and decodes the result (§4.8.3).
+   - It requires the recomputed `review_sha256` to equal the request's `reviewSha256`. Otherwise it refuses
+     `MBF-IMPORT-REVIEW-STALE`, and no model is returned.
+   - It requires the adoptable flag to be `1`. Otherwise it refuses with the review's blocking codes:
+     `MBF-IMPORT-NOT-ADOPTABLE`, `MBF-IMPORT-REVIEW-TRUNCATED` or `MBF-IMPORT-MODEL-TOO-LARGE`.
+
+   Equal review digests bind the source digests, the declaration digest and the model digest the user saw, because
+   they are all inside the review. The host has recomputed the model's digest over the bytes it returns.
+3. **Native has no commit point.** The adopt writes nothing and changes no native state except its own run. A
+   cancellation before the reply is built replies `MBF-IMPORT-CANCELLED` with no model. After the reply is built
+   there is nothing native left to cancel.
+4. **`read()` in the webview** (`mbfImportSource`).
+   - If the barrier reports the reply not current, it returns `{outcome: "cancelled"}`. This can only come from a
+     retirement that also ends the session's currency.
+   - A refusal, an invoke rejection or `INGRESS-RAW-BODY-REQUIRED` becomes `{outcome: "refused", diagnostics}`,
+     shown in product text.
+   - Otherwise the reply's `reviewSha256` and `modelSha256` must equal the captured ones. If not, it refuses
+     `MBF-IMPORT-REVIEW-STALE`.
+   - It then returns `checkNativeOutcome(reply)`.
+5. **The session's linearization point.** This is `handleOpenModelDocument`'s synchronous block after `await
+   source.read()`: `stillCurrent()` (`projectRequest`, `requestEpochRef`), then `buildModelIndex`, then
+   `advanceProjectSession` and `commitModel` with the rest of the reset (`storedBaseRef.current = null`, the saved
+   basis as `loaded-source`, the cleared history and results). There is no `await` inside it.
+   - Any refused, cancelled, stale, changed, retired or not-current outcome returns before this block. It leaves the
+     original session's model, history, stored base, saved basis and results exactly as they were.
+   - The only awaits after it (`libraryReferenceWarnings`, `computeModelHash`) are guarded by generation, as for
+     Open.
+   - While the project-operation owner is held, every session-replacing command is held. Only an unmount can
+     intervene, and it leaves nothing to commit into.
+6. **After it.** The import flow sends the keyed retirement, which releases the native source. If that delivery goes
+   unacknowledged, the barrier's next start re-delivers it, and the next workspace mount drops the source in any
+   case.
+7. **Duplicate outcomes.** Two deliveries of one adopt produce at most one received reply that is consumed once. A
+   lost reply means no session change. An Adopt pressed twice is impossible, because the button is disabled when
+   the modal hold is released.
+
+#### 4.8.8 Permissions and reach
+
+- **Inputs.** Native code reads only files the user chose in the native open chooser, and the identity file of the
+  derived name beside the chosen MBF (A-5, the same name the export writes). There is no caller path and no other
+  file access: the arguments carry no path, and an extra member is refused. The files are opened read-only, with no
+  final-symlink follow and regular files only, and nothing is created, written, renamed or removed. The import opens
+  no store and adds no store schema, retention or deletion behaviour. No entitlement or capability file changes.
+- **Commands.** The four commands (§4.7) are registered in `app_invoke_handler!`. That changes its text, so its
+  SHA-256 in `user_release_reach_scan.rs` `MACRO_DEFINITIONS` is re-pinned as in §3.8:
+  - the previous digest is reproduced first;
+  - the new value is taken from the scan's own report, not typed;
+  - the doc comment lists the entries, each reviewed: no `mod`, no `$parameter ::` and no scanned name added.
+
+  `mbf_import.rs` carries no `#[allow(unsafe_code)]` and is not added to `SHELL_UNSAFE_MODULES`.
+- **Routing.** A new `.rs` file in a crate with runtime-read declarations refreshes its `source_trees` digest and the
+  `scan.files` inventories in `tools/hosted-ci-routing.json`. They are refreshed with the value
+  `tools/ci/numerical_ci.py` (`source_read_dependencies`) computes, never typed by hand, and checked by
+  `tests/test_ci_numerical.py` and `tools/software_workflow/test_hosted_ci.py` (`docs/CI_STRATEGY.md`).
+- **Ingress lists.** `open_mbf_import`, `review_mbf_import` and `adopt_mbf_import` join `NATIVE_INGRESS_COMMANDS` and
+  its test twin, sent only through the import barrier. `cancel_mbf_import` does not, like `cancel_mbf_export`.
+- **Route.** The import writes no file, so it takes no governed storage route.
+- **Data.** Imported content is private, like an opened document. Material provenance is affirmative (REQ-019). An
+  imported document carries the MBF hash in its provenance (import Design §7.4).
+
+#### 4.8.9 Planned tests (none run)
+
+Every test must fail without its wiring. Only invented, project-written inputs are used: the engine writer's output
+for the invented corpus and `fixtures/caepipe_mbf/invented/desktop_export/` cases.
+
+- **Engine (`tests/import_review.rs`).**
+  - The status, `adoptable` and blocking state are computed before truncation, with exact counts.
+  - The per-field bound is applied in place, and the counting allocator shows no whole escaped copy.
+  - The fixed leading members are byte-exact.
+  - Identical inputs give byte-identical reviews. A changed declaration, file name or identity file changes
+    `review_sha256`.
+  - A bound fixture and an unbound fixture each pin the per-class identity counts.
+  - The writer and import parity vectors are unchanged.
+  - Every applied assumption emission has its structured source-safe counterpart, including conditional Z-axis
+    rotation, offset rounding, G derivation, bare-metal weight, pressure and support mappings. Unknown identifiers
+    and a missing counterpart block Adopt; overflow counts assumptions exactly and makes the review truncated.
+- **Native (`mbf_import_tests.rs`, with the real worker; `solve_worker.rs`'s task-code round trip).**
+  - Codes 0 to 5 round-trip, and 6 is refused.
+  - Selection: a symlinked MBF; a directory; a FIFO; a file of 16 MiB + 1; an identity file that is a symlink, a
+    directory, above 64 MiB or unreadable (each refused, never set aside); absent (unbound review); present (bound
+    review).
+  - Acquisition races for both MBF and identity file: the seam replaces a checked regular file with a FIFO before
+    `open`. Nonblocking acquisition promptly refuses the non-regular handle without waiting for a writer. A
+    cancellation at the same seam installs no source, drops every acquired descriptor and returns every lease.
+    Removing `O_NONBLOCK` must fail the bounded-deadline race test; the test owns and cleans up its FIFO.
+  - Re-read, after each of these, gives `MBF-IMPORT-SOURCE-CHANGED`: an in-place edit with the same inode; a replace
+    or rename at the name; removal; growth during the read (the EOF check); an identity file appearing beside an
+    originally absent one; an identity file removed or edited. An unchanged re-read gives a review byte-identical to
+    the first.
+  - No caller path: a `path` or other extra member is refused `MBF-IMPORT-ARGS-INVALID`, and no file is opened (a
+    chooser and file seam records none).
+  - Ledger:
+    - one byte above the budget is refused by name before any worker, and at the budget the worker starts;
+    - the bound holds the whole remainder while the worker runs, and the result lease alone after the reap;
+    - the result lease is held until the response;
+    - the pool's reservations are the same before Open and after each reply (no charge between commands);
+    - a budget raised while a run waits does not extend it.
+  - `result_limit`: a review result above R + 4 KiB, and an adopt result above 64 MiB, are refused before any result
+    lease. The test grants above the ceiling, as §3.9.6's does.
+  - Cancellation:
+    - in the queue wait;
+    - with the worker running (killed, reaped and its grant released);
+    - while the chooser is held open (no source installed);
+    - between re-read blocks;
+    - a newer review superseding an older one.
+  - Ticket and retirement:
+    - stale, missing, null, malformed and future tickets;
+    - retirement before admission and before registration;
+    - the JSON and raw forms (one id delivered both ways is applied once);
+    - a duplicate as a no-op;
+    - 64 tokens, then exhaustion;
+    - epoch and source-id overflow;
+    - the performance reset leaving the import's run and source alone;
+    - an import retirement leaving an export review running, and the reverse.
+  - Adopt:
+    - a changed declaration, or a review digest from another source, gives `MBF-IMPORT-REVIEW-STALE` with no model;
+    - a retired source gives `MBF-IMPORT-SOURCE-RETIRED`;
+    - not adoptable, truncated and too large each refuse;
+    - for every invented corpus case, the adopted document's bytes equal `mbf::import(...).model_bytes()` and the
+      import parity vectors' `model.json` (parity).
+  - Tampered results give `MBF-IMPORT-WORKER-PROTOCOL`: a model in review mode, the other mode's envelope, a review
+    prefix mismatch, a review or model digest mismatch, a non-ASCII model, an attested result, an exit or a panic.
+  - Successful `review` mode has an adoptable candidate digest/length and zero model payload; successful `adopt`
+    mode carries and verifies that same candidate. Applying body hashing to review mode must fail its positive
+    test; omitting body verification in adopt mode must fail a tampered-model test.
+  - Oversized digest/status/decimal header tokens, uppercase or nonhex digests, a review-digest sentinel and an
+    inconsistent model sentinel all refuse before prefix construction. The bounded-prefix/streamed comparison
+    uses no token-sized allocation; a counting-allocator negative control that formats an unchecked token must
+    fail its scratch account. H8 is admitted before this stage and its fixed scratch stays within 4 KiB.
+  - A `syn` source scan holds that in production code task 5's arm is the only caller of `worker_import`, and that no
+    product source references `import_mbf_json`, with negative controls.
+- **Vitest.**
+  - The import never imports the wasm MBF engine, and no invoke's arguments or reply carries MBF or identity-file
+    bytes or base64 (spies on `invoke`).
+  - The review is shown with its completeness and counts.
+  - Applied mapping assumptions are displayed with their source-safe descriptions and parameters. An unavailable
+    assumption and a truncated assumptions list each disable Adopt; raw assumption sentences are never displayed.
+  - A refusal, a truncated review, a stale review and `MBF-IMPORT-MODEL-TOO-LARGE` each disable Adopt.
+  - Declarations:
+    - each declaration change sends a new review and disables Adopt until it returns;
+    - vendor and unknown origins are not offered;
+    - "all listed" sends per-name entries and never `*`.
+  - Cancel in the guard keeps the edits (`open_model_kept_edits`), and the source is retired once.
+  - Session preservation: after each refused, cancelled, stale, changed, retired or not-current outcome, the session's
+    model, undo stack, stored base and saved basis are deep-equal to before.
+  - A bound import restores the fixture's exported ids in the session. An unbound import's status line says ids were
+    formed from node numbers.
+  - The adopted model starts unsaved with no stored base.
+  - `INGRESS-RAW-BODY-REQUIRED` shows the import's product text.
+  - The barrier: mount retirement; serialized retirements; JSON-form cancel; re-delivery with the same id; a
+    `MBF-IMPORT-RETIREMENT-UNCONFIRMED` refusal.
+  - App level (`App.mbfImportDialog.test.tsx`):
+    - the native menu event and the in-window item open the dialog;
+    - a busy session does not open it;
+    - Close, Escape and an App unmount each send one retirement;
+    - a reply arriving after close is discarded;
+    - the export dialog and its tests are unchanged.
+- **Mutations to check** (each must fail a test):
+  - no hash comparison on re-read;
+  - no check for an identity file that appeared;
+  - the source kept after a retirement;
+  - adopt without the reviewed digest;
+  - the result lease released before the response;
+  - no generation check before a send;
+  - the commit before `stillCurrent`;
+  - a declaration change that does not invalidate Adopt;
+  - `*` sent for "all listed".
+  - model-body hashing applied to a successful review-mode reply;
+  - blocking file acquisition after the path check;
+  - an applied mapping assumption dropped from the review;
+  - an unchecked header token copied into a dynamic prefix.
+- **Open-consumer comparison.** Feed the same maintained native-produced document through ordinary Open and the
+  import source. Assert one call to the shared webview validator in each flow, the same document reference at its
+  entry and at adoption, the same index/refusal and unsaved-adoption behavior, and no import-only model/report/file
+  bytes or raw model text retained by the dialog or source. Keep the existing publication/hash/library call path;
+  do not add import-specific calls to make the comparison pass. Negative controls add a second validator call or
+  retain a second model and must fail the corresponding maintained check. Native tests cover the actual escaped
+  final reply lengths and H6/H7 overlap through response construction, including an application-side handoff copy
+  if the implementation makes one. This is a source/connected-behavior comparison, not a heap-ceiling measurement.
+- **Not claimed.** These tests do not show criterion 6. Slice 6's connected supported-subset round trip
+  (`save_mbf_export` → `open_mbf_import` → `adopt_mbf_import`, bound and unbound, in the desktop) is the next finish
+  dependency (§5, §6). Criterion 6 stays open for the reference system's families (§1.4).
+
+#### 4.8.10 Review gate and implementation boundary
+
+- **Before any production connection,** this design takes independent review of:
+  - numerical meaning and parity: the adopted bytes are the engine's import, unchanged;
+  - persistence: session replacement atomicity, source custody and release, and the absence of any write;
+  - permissions: chooser-owned read-only inputs, no caller path, the four commands, the reach re-pin and the ingress
+    lists.
+
+  It is then merged, and Agent 0 confirms it.
+- **Policy/application condition.** Review must establish §4.8.5's existing-consumer comparison and the independent
+  admission of every new import stage; implementation must preserve both with the specified connected checks.
+  A genuine additional unaccounted import allocation blocks connection. The unresolved common-consumer heap
+  qualification is tracked under RT-U4, not converted to a new slice-5-only proof gate or risk acceptance.
+- **The implementation PR** carries the review records above and the generated reach and routing artifacts from
+  their writers (§4.8.8).
+- **The implementation's intended touch set,** which the manager confirms in the draft PR before editing:
+  - DEL-17-04: `core/handoff/caepipe_mbf_engine/src/import_review.rs` and its test; `apps/desktop/src-tauri/src/
+    mbf_import.rs` and `mbf_import_tests.rs`.
+  - Strictly necessary importer support in `core/handoff/caepipe_mbf_engine/src/lib.rs` and
+    `src/importer/{mod,finish,pressure}.rs`: structured assumption facts paired with existing emissions. The
+    report/model/id-map bytes and numerical branches stay unchanged and are held by parity and mapping tests.
+  - Slice 5's shared hunks, by the owner's assignment: `lib.rs` (the module, the four commands, the managed state,
+    the menu item and its tests); `solve_worker.rs` (task 5's code, decode and arm only); `user_release_reach_scan.rs`
+    (the pin); `tools/hosted-ci-routing.json` (by its writer).
+  - DEL-07-12's paths: `features/caepipe-mbf/MbfImportDialog.tsx`, `mbfImport.ts` and `mbfImportCancel.ts`, with
+    their tests.
+  - The mount and wiring: `App.tsx` (the dialog's mount and the in-window item); `workspaceSession.ts`
+    (`requestImportMbf`, `mbfImportSource`, the modal hold and the retirements);
+    `services/nativeIngress.ts` and its test twin (the lists).
+  - Nothing in `mbf_export.rs`, `mbf_worker.rs`, the export dialog, `mbfExportCancel.ts`, tasks 3 and 4, the
+    performance reset, `services/modelDocumentFile.ts`, `native-smoke/expected.json`, store schemas or retained
+    pricing changes.
+- **Reconciliation in the implementation PR.**
+  - DEL-17-04's `ScopeOfWork.md` gains a CLM-003 paragraph for the desktop import and two CLM-010 trace rows: the
+    mount, and the memory and source custody.
+  - Its `deliverable.yaml` `code_paths` and `checks` gain the new files.
+  - DEL-07-12's finite inventory already names the import (".mbf model export and import"), and its `code_paths`
+    already cover `features/caepipe-mbf/**`. Its `checks` gain the dialog tests.
+
+#### 4.8.11 Open matters
+
+- **Existing consumer and additional work** (§4.8.5). Review and connected implementation checks must distinguish
+  the admitted new native import/handoff stages from the unchanged Open-consumer heap residual. No common heap
+  bound or v1.0 risk acceptance is inferred; whole-App qualification remains under RT-U4.
+- **Usability limits, not accepted as release limitations:** a truncated review blocks Adopt; an import result above
+  64 MiB cannot be adopted; a material whose name the review cannot carry in full (more than 512 bytes) cannot be
+  declared, and keeps the import refused.
+- **Exhaustion.** The 65th distinct page load in one process exhausts the import until restart, as for the export
+  (§3.7).
 
 ## 5. The round-trip check
 
@@ -1277,10 +1951,13 @@ nothing is written before a native save.
   - For each family marked `refused`, it asserts that the named refusal still occurs, so the
     table cannot drift.
   - Criterion 6's fixture-level check holds when the table has no `refused` Must family.
-- **Native test** (`src-tauri`). In a temporary directory, `save_mbf_export` writes the pair
-  and the files read from disk import bound with the same ids (C6-3, C6-7).
+- **Native test** (`src-tauri`). In a temporary directory, `save_mbf_export` writes the pair,
+  and the files read from disk import bound with the same ids through `open_mbf_import` and
+  `adopt_mbf_import` (§4.7) (C6-3, C6-7).
 - **Desktop test** (Vitest). The export dialog drives mocked `review_mbf_export` and
-  `save_mbf_export` (the bytes may come from the wasm writer, used as a test resource). Import MBF adopts them, and the session's id sets equal the exported ones.
+  `save_mbf_export` (the bytes may come from the wasm writer, used as a test resource). Import MBF adopts them through mocked `open_mbf_import`,
+  `review_mbf_import` and `adopt_mbf_import`, whose replies are the native import's of those
+  bytes, and the session's id sets equal the exported ones.
 - **CI routing.** The tests are routed in `tools/hosted-ci-routing.json`.
 
 **What only the owner's reference system shows.**
@@ -1312,8 +1989,8 @@ Each slice is one PR. Every test must fail without its wiring.
 | 2 | Engine crate: the writer port and `sidecar`, the wasm build, parity vectors. It starts from the CAEPIPE lane's SIF fix and Q-6 omitted-entries sweep (its named head), so the port does not copy the drop | Byte parity with Python over the whole committed MBF corpus and the authored cases, both ways, plus every writer test model and pilot case (text, sidecar, `to_dict()`); every `MBF-SI-*` code; normalization factors exact; float formatting at rounding boundaries; `forbid(unsafe_code)` | Independent numerical review (numerical meaning, file bytes) and targeted regressions |
 | 3 | Engine crate: the importer port | Byte parity over the whole committed MBF corpus and the authored cases, both ways, plus every import fixture and the outputs of `test_caepipe_mbf_round_trip.py`; every named refusal; bound and unbound imports; self-digest; the reversible and byte-reproducible sets in Rust | Independent numerical review |
 | 4 | Export: `DOTH-MBF-012` (local_private, explicit intent, lossless) in the three catalogues, with parity tests in all three; `save_mbf_export` and `review_mbf_export` (worker task 3 in `save` and `review` modes, §3.9.5); the atomic formats; reach-scan re-pin; menu item and dialog; retire the TypeScript builder (A-6); the #1711 row | Rust: admitted under its lease, with the counting-allocator peak within it; named arguments; hash mismatch; stale review; writer refusal opens no chooser; protected disposition refused; Cancel writes nothing; identity file before MBF; an injected failure of the second write removes the first; a read-back mismatch removes both; bytes equal the engine's; review mode touches no file or chooser; unknown modes refused; the review is at most 1 MiB in total, with its status and blocking counts computed before truncation; a save result over 64 MiB refused with `MBF-EXPORT-OUTPUT-TOO-LARGE` before allocation, writing nothing. Route-catalogue parity; reach-scan pin. Vitest: the dialog never runs the wasm writer; `MBF-REVIEW-NATIVE-ONLY` in the browser-only route; refusals block Save, omissions warn, degF reference temperature, stale review runs again, suggested names, keyboard reach | Independent review (persistence, file writes) and an independent permissions review of the new governed route |
-| 5 | Import: `open_mbf_file`; the import source and review; material declaration; reach-scan re-pin. Before connection it needs its own source, memory and transaction design, analogous to §3.7 and §3.9: the export's proof does not cover the import, whose regeneration runs the writer again | Rust: caps, symlink and non-regular-file refusals, identity file absent, present and unreadable, lease. Vitest: the guard's Cancel keeps edits; refusals block Adopt; a bound import restores ids; an unbound import states its consequence; the declaration re-run; the adopted document passes `checkNativeOutcome`; unsaved with no stored base | Independent review (session replacement; provenance declarations) |
-| 6 | The criterion-6 check of §5 and its CI routing | As in §5, and for the reference system: its review is complete and its export result is below the 64 MiB output ceiling | Focused review |
+| 5 | Import: the four commands of §4.7 and worker task 5 (§4.8.3); the bounded import review (§4.3); the low-custody source (§4.8.2); material declaration; the dialog, the menu item and the import barrier; reach-scan re-pin and routing refresh by their writers. Its source, memory and transaction design is §4.8 (2026-11-07). That design is independently reviewed and merged before any production connection: the export's proof does not cover the import, whose regeneration runs the writer again | §4.8.9 (planned). It includes the earlier list: Rust caps, symlink and non-regular-file refusals, identity file absent, present and unreadable, the leases; Vitest: the guard's Cancel keeps edits; refusals block Adopt; a bound import restores ids; an unbound import states its consequence; the declaration re-run; the adopted document passes `checkNativeOutcome`; unsaved with no stored base | First, independent review of the §4.8 design: numerical meaning and parity, persistence (session replacement, source custody), permissions (chooser-owned read-only inputs, the commands, the reach re-pin). Then independent review of the implementation (session replacement; provenance declarations) |
+| 6 | The connected supported-subset round trip in the desktop, bound and unbound (save, then import and adopt), which is the next finish dependency after slice 5; the criterion-6 check of §5 and its CI routing | As in §5, and for the reference system: its review is complete and its export result is below the 64 MiB output ceiling | Focused review |
 | 7 | Unbound pressure closure declaration; rebinding by node name | Vitest and engine tests for both | Independent review |
 | 8+ | Coverage tranches (CAEPIPE lane, each designed in the import Design §20.3), in Python and Rust together | Parity; each new family moves from `refused` to `covered` in §5's table | That Design's gates |
 
@@ -1370,7 +2047,7 @@ integrates.
 - **Webview writer.** `core/handoff/caepipe_mbf_wasm` wraps the engine for wasm (`render_mbf_json`,
   `import_mbf_json`), built by `build-wasm-engine.mjs` into `public/mbf-engine/` and loaded by
   `src/services/mbfEngine.ts`. The model text is read as the engine reads JSON (`parse_sidecar_json`). Under §3.9's
-  adopted design the wasm export entry point stays only as an unconnected or test resource; the shipped dialog never runs it, and the import's wasm route is slice 5's design.
+  adopted design the wasm export entry point stays only as an unconnected or test resource; the shipped dialog never runs it, and the import's wasm route is not adopted (slice 5's design, §4.8.1).
 - **Settings.** `{title, referenceTemperature: {value, unit}, maxLayoutRows: null}`: `degC` is passed as
   `reference_temperature_c`, `degF` as `reference_temperature_f`, with no row limit, and the title is at most 4 KiB of
   UTF-8. One engine function maps them, `export_settings_from_json` in `core/handoff/caepipe_mbf_engine`
@@ -1861,6 +2538,28 @@ command, IPC form, protocol or backend changes.
   the review is sent again. A closed dialog's committed save whose reply was lost leaves the reopened dialog
   declining with no review sent. With `markMbfExportUnavailable` made a no-op, twelve of the new tests fail. The
   retry, text and fresh-page tests pass, as they should.
+
+**Slice 5 design candidate (2026-11-07; for independent review, nothing connected).** §4.8 records the source,
+memory and transaction design that slice 5's row requires before connection. In summary:
+
+- **Engine route.** The import runs in a new worker task 5 (`WorkerTask::MbfImport`; tasks 0 to 4 are
+  unchanged) in `review` and `adopt` modes.
+- **Commands.** `open_mbf_import`, `review_mbf_import`, `adopt_mbf_import` and the keyed
+  `cancel_mbf_import`, with the import's own epoch and tokens.
+- **Low custody.** The host keeps one source record of pinned read-only handles and digests, and no
+  model-sized custody between commands. Each review and Adopt re-reads the files under that command's
+  ledger and refuses any change.
+- **Review.** The webview sees only a bounded review (at most 1 MiB) until Adopt.
+- **Adopt.** Adopt goes through `handleOpenModelDocument` and `checkNativeOutcome`, after the existing
+  unsaved-changes guard, with the reviewed digest checked natively and in the webview.
+- **What it replaces.** §4's earlier wasm route and its "files are not read again" rule (§4.1, "What
+  changed from the earlier text, and why").
+- **Policy application and open matters** (§4.8.5, §4.8.11). New import stages and handoff bytes are independently
+  admitted; the final document uses the existing Open consumer. Exact independent review and connected comparison
+  checks must establish that boundary. Common-consumer heap qualification remains under RT-U4; no new allowance or
+  risk acceptance is inferred.
+
+Criterion 6 is not claimed.
 
 ## 7. Boundaries
 
