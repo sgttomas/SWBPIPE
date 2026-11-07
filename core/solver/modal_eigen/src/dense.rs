@@ -419,9 +419,9 @@ pub fn solve_dense_pencil_with_allotments(
     let massless = structurally_massless_dofs(mass);
     let n0 = massless.len();
     let nm = n - n0;
-    let massive: Vec<usize> = (0..n)
-        .filter(|i| massless.binary_search(i).is_err())
-        .collect();
+    // The complement by one cursor walk (`T3.filters`; it was a
+    // `binary_search` filter): the same members, ascending.
+    let massive = crate::support::ascending_complement(&massless, n);
     let order: Vec<usize> = massless.iter().chain(&massive).copied().collect();
     let (r, min_cholesky_pivot_ratio) = cholesky_ordered(stiffness, &order)?;
     check_finite("stiffness factor", &r)?;
@@ -964,9 +964,9 @@ pub fn established_finite_mode_count(
         return None;
     }
     let massless = structurally_massless_dofs(mass);
-    let kept: Vec<usize> = (0..mass.dimension())
-        .filter(|i| massless.binary_search(i).is_err())
-        .collect();
+    // The complement by one cursor walk (`T3.filters`; it was a
+    // `binary_search` filter): the same members, ascending.
+    let kept = crate::support::ascending_complement(&massless, mass.dimension());
     let m = kept.len();
     let mut root = Vec::with_capacity(m);
     for &i in &kept {

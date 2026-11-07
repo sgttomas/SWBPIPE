@@ -62,8 +62,8 @@ use std::error::Error;
 use std::fmt;
 
 use open_pipe_stress_sparse_direct::{
-    factorize_ldlt, reverse_cuthill_mckee, ProfileFactorization, SparseDirectError,
-    SymmetricMatrixEntry, SymmetricProfileMatrix,
+    factorize_ldlt, ProfileFactorization, SparseDirectError, SymmetricMatrixEntry,
+    SymmetricProfileMatrix,
 };
 
 use crate::admission::{check_entry, PencilMatrix, PencilRangeUnsupported};
@@ -71,6 +71,7 @@ use crate::dd::max_propagating_nan;
 use crate::exact::ExactSum;
 use crate::norm_estimate::inverse_one_norm_estimate;
 use crate::matrix::SymmetricMatrix;
+use crate::support::{reverse_cuthill_mckee_lower, stable_counting_order};
 
 /// c_f of the formation term: one rounding each for σ·m_ij, the
 /// subtraction and the two scalings, with one to spare for the second-order
@@ -532,6 +533,34 @@ impl ShiftPencil {
 
     /// From assembled entries of K and M, one triangle each: a position
     /// (in either orientation) may appear at most once per matrix.
+    ///
+    /// **Order.** The merged records are ordered by a stable counting sort
+    /// (matrix, then column, then row: `support::stable_counting_order`),
+    /// where this was the stable `sort_by_key((row, col, is_mass))`: a stable
+    /// sort by the same key gives the same sequence, ties (refused below as
+    /// duplicates) included. The reverse Cuthill–McKee order is
+    /// `support::reverse_cuthill_mckee_lower` on the union pattern's
+    /// off-diagonal positions, which is exactly `sparse_direct`'s
+    /// `reverse_cuthill_mckee` on the adjacency lists formerly built here.
+    ///
+    /// **Count** with L = |K| + |M| entries and at most P union positions
+    /// before and after the retain (distinct lower positions, so P ≤
+    /// n(n + 1)/2), in support steps (each body at most 60 operations): the
+    /// two lists and their checks 2 + L, the three counting sorts
+    /// (3L + 5) + 2(3L + 2n + 1), the gather L, the duplicate scan L, the
+    /// union build L + n (the diagonals pushed at most n times over both
+    /// loops), the retain P, the scaling's fill and pass n + P, the row
+    /// sums' fills, pass and check 3n + P, the order's two passes over the
+    /// union 2P, and 3: so `13L + 9n + 5P + 12`, plus the order's count
+    /// (`reverse_cuthill_mckee_lower`) on q = P_u − n off-diagonal
+    /// positions.
+    ///
+    /// **Capacity.** The merged list L + n records (32 B; as before), the
+    /// sorted list L records, the three orders (8L B each) and the starts
+    /// (8n B), freed on return; the union list L + n `PencilEntry`s (as
+    /// before); the scaling and the two row sums, n each; and the order's.
+    /// The adjacency lists formerly built here (one `Vec` per node, grown by
+    /// pushes) are gone.
     pub fn from_entries(
         dimension: usize,
         stiffness: &[SymmetricMatrixEntry],
@@ -568,7 +597,19 @@ impl ShiftPencil {
                 merged.push((row, col, is_mass, entry.value));
             }
         }
-        merged.sort_by_key(|a| (a.0, a.1, a.2));
+        let len = merged.len();
+        let by_matrix = stable_counting_order(0..len, len, 2, |i| usize::from(merged[i].2));
+        let by_col = stable_counting_order(by_matrix.iter().copied(), len, dimension, |i| merged[i].1);
+        drop(by_matrix);
+        let by_key = stable_counting_order(by_col.iter().copied(), len, dimension, |i| merged[i].0);
+        drop(by_col);
+        let mut sorted = Vec::with_capacity(len);
+        for &i in &by_key {
+            sorted.push(merged[i]);
+        }
+        drop(by_key);
+        drop(merged);
+        let merged = sorted;
         for pair in merged.windows(2) {
             if (pair[0].0, pair[0].1, pair[0].2) == (pair[1].0, pair[1].1, pair[1].2) {
                 return Err(SturmError::DuplicateEntry {
@@ -649,13 +690,15 @@ impl ShiftPencil {
             }
         }
 
-        let mut adjacency = vec![Vec::new(); dimension];
-        for e in entries.iter().filter(|e| e.row != e.col) {
-            adjacency[e.row].push(e.col);
-            adjacency[e.col].push(e.row);
-        }
-        let order = reverse_cuthill_mckee(&adjacency)
-            .expect("the adjacency indices are within the dimension");
+        // The union positions are ascending by (row, col), each once, with
+        // row ≥ col and row < n: the order's precondition.
+        let order = reverse_cuthill_mckee_lower(
+            dimension,
+            entries
+                .iter()
+                .filter(|e| e.row != e.col)
+                .map(|e| (e.row, e.col)),
+        );
 
         Ok(Self {
             dimension,
@@ -1261,5 +1304,209 @@ mod tests {
         let (nu, solves) = inverse_one_norm_estimate(2, |x| factorization.solve_ordered(x).ok());
         assert_eq!(nu, 4.0);
         assert!(solves >= 3);
+    }
+}
+
+/// Old against new for the Sturm pencil's construction (design §5.3.8,
+/// `T9.construction`): the former `from_entries`, with its stable std sort
+/// and `sparse_direct`'s `reverse_cuthill_mckee`, kept here as the
+/// test-only oracle. Every field is compared, every float by its bits.
+#[cfg(test)]
+mod former_oracle_tests {
+    use super::*;
+    use open_pipe_stress_sparse_direct::reverse_cuthill_mckee;
+
+    /// The former `from_entries`, verbatim.
+    fn former_from_entries(
+        dimension: usize,
+        stiffness: &[SymmetricMatrixEntry],
+        mass: &[SymmetricMatrixEntry],
+    ) -> Result<ShiftPencil, SturmError> {
+        let mut merged: Vec<(usize, usize, bool, f64)> = Vec::with_capacity(stiffness.len() + mass.len() + dimension);
+        for (is_mass, list) in [(false, stiffness), (true, mass)] {
+            for entry in list {
+                if entry.row >= dimension || entry.col >= dimension {
+                    return Err(SturmError::EntryOutOfBounds { row: entry.row, col: entry.col });
+                }
+                if !entry.value.is_finite() {
+                    return Err(SturmError::NonFiniteEntry { row: entry.row, col: entry.col });
+                }
+                let (row, col) = if entry.row >= entry.col { (entry.row, entry.col) } else { (entry.col, entry.row) };
+                let matrix = if is_mass { PencilMatrix::Mass } else { PencilMatrix::Stiffness };
+                check_entry(matrix, row, col, entry.value).map_err(SturmError::PencilRangeUnsupported)?;
+                merged.push((row, col, is_mass, entry.value));
+            }
+        }
+        merged.sort_by_key(|a| (a.0, a.1, a.2));
+        for pair in merged.windows(2) {
+            if (pair[0].0, pair[0].1, pair[0].2) == (pair[1].0, pair[1].1, pair[1].2) {
+                return Err(SturmError::DuplicateEntry { row: pair[0].0, col: pair[0].1 });
+            }
+        }
+        let mut entries: Vec<PencilEntry> = Vec::with_capacity(merged.len() + dimension);
+        let mut next_diagonal = 0;
+        let push = |entries: &mut Vec<PencilEntry>, row: usize, col: usize| {
+            if entries.last().is_some_and(|last| (last.row, last.col) == (row, col)) {
+                return;
+            }
+            entries.push(PencilEntry { row, col, stiffness: 0.0, mass: 0.0 });
+        };
+        for &(row, col, is_mass, value) in &merged {
+            while next_diagonal < row {
+                push(&mut entries, next_diagonal, next_diagonal);
+                next_diagonal += 1;
+            }
+            push(&mut entries, row, col);
+            let last = entries.last_mut().expect("just pushed");
+            if is_mass {
+                last.mass = value;
+            } else {
+                last.stiffness = value;
+            }
+            if row == col {
+                next_diagonal = row + 1;
+            }
+        }
+        while next_diagonal < dimension {
+            push(&mut entries, next_diagonal, next_diagonal);
+            next_diagonal += 1;
+        }
+        entries.retain(|e| e.row == e.col || e.stiffness != 0.0 || e.mass != 0.0);
+        let mut scaling = vec![0.0; dimension];
+        for e in entries.iter().filter(|e| e.row == e.col) {
+            if e.stiffness <= 0.0 {
+                return Err(SturmError::NonPositiveStiffnessDiagonal { index: e.row });
+            }
+            let d = 1.0 / e.stiffness.sqrt();
+            if !d.is_normal() {
+                return Err(SturmError::ScalingOutOfRange { index: e.row });
+            }
+            scaling[e.row] = d;
+        }
+        let mut stiffness_row_sums = vec![0.0; dimension];
+        let mut mass_row_sums = vec![0.0; dimension];
+        for e in &entries {
+            let k = scale(e.stiffness.abs(), scaling[e.row], scaling[e.col]);
+            let m = scale(e.mass.abs(), scaling[e.row], scaling[e.col]);
+            stiffness_row_sums[e.row] += k;
+            mass_row_sums[e.row] += m;
+            if e.row != e.col {
+                stiffness_row_sums[e.col] += k;
+                mass_row_sums[e.col] += m;
+            }
+        }
+        for i in 0..dimension {
+            if !(stiffness_row_sums[i].is_finite() && mass_row_sums[i].is_finite()) {
+                return Err(SturmError::ScalingOutOfRange { index: i });
+            }
+        }
+        let mut adjacency = vec![Vec::new(); dimension];
+        for e in entries.iter().filter(|e| e.row != e.col) {
+            adjacency[e.row].push(e.col);
+            adjacency[e.col].push(e.row);
+        }
+        let order = reverse_cuthill_mckee(&adjacency).expect("the adjacency indices are within the dimension");
+        Ok(ShiftPencil { dimension, entries, scaling, stiffness_row_sums, mass_row_sums, order })
+    }
+
+    /// Every field of a pencil, every float as its bits (no `..`, so a new
+    /// field fails to compile here until it is keyed).
+    fn key(pencil: &ShiftPencil) -> (usize, Vec<(usize, usize, u64, u64)>, Vec<u64>, Vec<u64>, Vec<u64>, Vec<usize>) {
+        let ShiftPencil { dimension, entries, scaling, stiffness_row_sums, mass_row_sums, order } = pencil;
+        let bits = |v: &[f64]| v.iter().map(|x| x.to_bits()).collect::<Vec<_>>();
+        (
+            *dimension,
+            entries.iter().map(|e| (e.row, e.col, e.stiffness.to_bits(), e.mass.to_bits())).collect(),
+            bits(scaling),
+            bits(stiffness_row_sums),
+            bits(mass_row_sums),
+            order.clone(),
+        )
+    }
+
+    fn same(dimension: usize, k: &[SymmetricMatrixEntry], m: &[SymmetricMatrixEntry], what: &str) -> bool {
+        let new = ShiftPencil::from_entries(dimension, k, m);
+        let old = former_from_entries(dimension, k, m);
+        match (&new, &old) {
+            (Ok(a), Ok(b)) => assert_eq!(key(a), key(b), "{what}"),
+            (a, b) => assert_eq!(a.as_ref().err(), b.as_ref().err(), "{what}: the same refusal"),
+        }
+        new.is_ok()
+    }
+
+    fn entry(row: usize, col: usize, value: f64) -> SymmetricMatrixEntry {
+        SymmetricMatrixEntry { row, col, value }
+    }
+
+    struct Mix(u64);
+    impl Mix {
+        fn next(&mut self) -> u64 {
+            self.0 = self.0.wrapping_add(0x9E37_79B9_7F4A_7C15);
+            let mut z = self.0;
+            z = (z ^ (z >> 30)).wrapping_mul(0xBF58_476D_1CE4_E5B9);
+            z = (z ^ (z >> 27)).wrapping_mul(0x94D0_49BB_1331_11EB);
+            z ^ (z >> 31)
+        }
+        fn below(&mut self, n: usize) -> usize {
+            (self.next() % n as u64) as usize
+        }
+    }
+
+    #[test]
+    fn the_pencil_is_the_former_construction_on_random_patterns() {
+        let mut mix = Mix(4242);
+        let mut built = 0;
+        for case in 0..500 {
+            let n = 1 + mix.below(30);
+            let mut k = Vec::new();
+            let mut m = Vec::new();
+            for i in 0..n {
+                k.push(entry(i, i, 1.0 + mix.below(1000) as f64));
+                if mix.below(3) != 0 {
+                    m.push(entry(i, i, 0.5 + mix.below(100) as f64));
+                }
+            }
+            for _ in 0..mix.below(3 * n + 1) {
+                let (r, c) = (mix.below(n), mix.below(n));
+                if r == c {
+                    continue;
+                }
+                // Either orientation; sometimes a stored zero (dropped from the
+                // pattern when the other matrix has none there).
+                let value = if mix.below(8) == 0 { 0.0 } else { (mix.below(200) as f64 - 100.0) / 1000.0 };
+                let target = if mix.below(2) == 0 { &mut k } else { &mut m };
+                if target.iter().any(|e| (e.row.max(e.col), e.row.min(e.col)) == (r.max(c), r.min(c))) && case % 9 != 0 {
+                    continue;
+                }
+                target.push(entry(r, c, value));
+            }
+            for list in [&mut k, &mut m] {
+                for i in (1..list.len()).rev() {
+                    list.swap(i, mix.below(i + 1));
+                }
+            }
+            built += usize::from(same(n, &k, &m, &format!("case {case}")));
+        }
+        assert!(built > 300, "most random pencils are formed ({built})");
+    }
+
+    #[test]
+    fn the_pencil_refuses_as_the_former_construction() {
+        let d = |i: usize| entry(i, i, 4.0);
+        // A duplicate in either orientation, in either matrix, at either end
+        // of the input.
+        same(3, &[d(0), d(1), d(2), entry(2, 0, 1.0), entry(0, 2, 2.0)], &[], "duplicate K");
+        same(3, &[d(0), d(1), d(2)], &[entry(1, 1, 1.0), entry(1, 1, 2.0)], "duplicate M");
+        same(3, &[entry(2, 1, 1.0), d(0), d(1), d(2), entry(1, 2, 1.0)], &[entry(1, 0, 1.0)], "duplicate first");
+        // Bounds, a non-finite value, a missing or negative diagonal.
+        same(3, &[d(0), d(1), entry(3, 0, 1.0)], &[], "bounds");
+        same(3, &[d(0), d(1), d(2), entry(1, 0, f64::NAN)], &[], "non-finite");
+        same(3, &[d(0), d(2)], &[], "missing diagonal");
+        same(3, &[d(0), entry(1, 1, -1.0), d(2)], &[], "negative diagonal");
+        // Empty, singleton, and a dense reverse-ordered pattern.
+        same(0, &[], &[], "empty");
+        assert!(same(1, &[d(0)], &[entry(0, 0, 1.0)], "singleton"));
+        let dense: Vec<_> = (0..8).rev().flat_map(|r| (0..=r).rev().map(move |c| entry(c, r, if r == c { 10.0 } else { 0.1 }))).collect();
+        assert!(same(8, &dense, &dense, "dense, reversed, upper orientation"));
     }
 }

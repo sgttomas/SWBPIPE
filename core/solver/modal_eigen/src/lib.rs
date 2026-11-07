@@ -29,6 +29,7 @@ pub mod norm_estimate;
 pub mod orthogonality;
 pub mod reformation;
 pub mod sturm;
+mod support;
 mod workspace;
 
 pub use matrix::{MatrixError, SymmetricMatrix};

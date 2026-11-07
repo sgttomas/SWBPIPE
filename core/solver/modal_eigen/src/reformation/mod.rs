@@ -40,7 +40,6 @@
 pub mod mass;
 pub mod section;
 
-use std::collections::BTreeMap;
 use std::error::Error;
 use std::fmt;
 
@@ -56,6 +55,7 @@ use open_pipe_stress_sparse_direct::SymmetricMatrixEntry;
 use crate::admission::{check_entry, PencilMatrix, PencilRangeUnsupported};
 use crate::dd::{max_propagating_nan, Dd, WideDd};
 use crate::exact::{ExactSum, LimbAllotmentExceeded, Term};
+use crate::support::stable_counting_order;
 use crate::workspace::{reset_rows, ProductWorkspace, Retained};
 use mass::{
     arc_lumps, component_mass, straight_mass, ComponentBody, ComponentRangeOperand, GeometryError,
@@ -452,6 +452,63 @@ fn two_prod_scaled(a: f64, b: f64) -> ((f64, i32), (f64, i32)) {
     ((hi, ea + eb), (lo, ea + eb))
 }
 
+/// One assembly position's contribution (see [`for_each_position`]).
+#[derive(Clone, Copy)]
+enum Contribution {
+    /// e_ab: its two words, each added as a scaled value.
+    Plain(Dd),
+    /// q_a·e_ab·q_b: one exact product per word of e_ab.
+    Mixed { qa: f64, entry: Dd, qb: f64 },
+}
+
+/// Visits every assembly position of `list` (lower triangle, r ≥ c), in
+/// the fixed order of the former map's insertions: element by element; for
+/// a mixed element every ordered element pair (a, b) and every coordinate
+/// pair with r ≥ c (D-1 (a)); otherwise each pair b ≤ a of mapped rows,
+/// keyed (max, min). `visit` gets the element, the key and the
+/// contribution; its first error stops the traversal.
+///
+/// Count t, in support steps (each loop body at most 24 operations
+/// besides `visit`): one per element and per row a; plain, one per pair
+/// b ≤ a (a restrained row's skip included), so 1 + d + d(d + 1)/2 ≤ 3d²;
+/// mixed, one per pair (a, b), per coordinate of a and per coordinate pair
+/// (at most three coordinates per DOF), so 1 + d + d² + 3d² + 9d² ≤ 15d².
+/// So t ≤ θ·D_list, D_list = Σ d², θ = 3 with no mixed element and 15
+/// otherwise. Visits v: at most d(d + 1)/2 ≤ d² per plain element and 9d²
+/// per mixed one.
+fn for_each_position<E>(
+    list: &[Mapped],
+    mut visit: impl FnMut(usize, (usize, usize), Contribution) -> Result<(), E>,
+) -> Result<(), E> {
+    for e in list {
+        if let Some(mixed) = &e.mixed {
+            for (a, ca) in mixed.iter().enumerate() {
+                for (b, cb) in mixed.iter().enumerate() {
+                    let entry = e.matrix.get(a, b);
+                    for &(ra, qa) in ca.as_slice() {
+                        for &(rb, qb) in cb.as_slice() {
+                            if ra < rb {
+                                continue;
+                            }
+                            visit(e.element, (ra, rb), Contribution::Mixed { qa, entry, qb })?;
+                        }
+                    }
+                }
+            }
+            continue;
+        }
+        for (a, ra) in e.rows.iter().enumerate() {
+            let Some(ra) = *ra else { continue };
+            for (b, rb) in e.rows.iter().enumerate().take(a + 1) {
+                let Some(rb) = *rb else { continue };
+                let key = if ra >= rb { (ra, rb) } else { (rb, ra) };
+                visit(e.element, key, Contribution::Plain(e.matrix.get(a, b)))?;
+            }
+        }
+    }
+    Ok(())
+}
+
 impl Mapped {
     fn touches(&self, row: usize, col: usize) -> bool {
         match &self.mixed {
@@ -634,14 +691,15 @@ impl ReformedPencil {
             (PencilMatrix::Stiffness, &pencil.stiffness),
             (PencilMatrix::Mass, &pencil.mass),
         ] {
-            let assembled =
-                Self::assembled_exact(list, limb_allotment).map_err(|(element, exceeded)| {
-                    ReformationError {
-                        element,
-                        failure: ReformationFailure::LimbAllotmentExceeded(exceeded),
-                    }
-                })?;
-            for (&(row, col), sum) in &assembled {
+            let assembled = Self::assembled_exact(list, dimension, limb_allotment).map_err(
+                |(element, exceeded)| ReformationError {
+                    element,
+                    failure: ReformationFailure::LimbAllotmentExceeded(exceeded),
+                },
+            )?;
+            // 5 support steps a position: `to_dd` (at most five scaling
+            // iterations each way at the level-1 span) and `check_entry`.
+            for &((row, col), ref sum) in &assembled {
                 let value = sum.to_wide_with(&mut scratch).to_dd();
                 if let Err(range) = check_entry(matrix, row, col, value.to_f64()) {
                     let element = list
@@ -772,61 +830,110 @@ impl ReformedPencil {
     }
 
     /// The assembled entries, each the exact sum of the element
-    /// contributions. Under a limb allotment, an entry whose sum would grow
-    /// past it refuses before that growth, naming the contributing element
-    /// (the formation-map guard, design §5.3.8). The map gains at most one
-    /// entry per distinct position, Σ_e d_e(d_e + 1)/2 at most, which the
-    /// element counts bound before formation.
+    /// contributions, ascending by (row, col) with each position once. Under
+    /// a limb allotment, an entry whose sum would grow past it refuses
+    /// before that growth, naming the contributing element (the
+    /// formation-map guard, design §5.3.8).
+    ///
+    /// **Former map.** This was a `BTreeMap` filled by `entry(key)
+    /// .or_default()` at each position visit, in [`for_each_position`]'s
+    /// order. Here the visits' keys are put in order by a stable counting
+    /// sort (column, then row: `support::stable_counting_order`), each visit
+    /// is given its key's slot, and the visits are replayed in the same
+    /// order, adding the same parts to the same slot. Each sum therefore
+    /// receives the same adds in the same order, the entries come out in the
+    /// map's key order, and the first refusing add, in visit order, is the
+    /// one the map refused, with the same sum state and so the same
+    /// `LimbAllotmentExceeded`. The keys are below `dimension`: `rows` and
+    /// `mixed` hold only free indices checked against it.
+    ///
+    /// **Count** with v position visits and t traversal steps
+    /// ([`for_each_position`]: t ≤ θ·D_list, θ = 3 plain or 15 mixed), in
+    /// support steps (`support`'s unit; an `ExactSum` call is one
+    /// operation, its limb work `T7.limbs`): three traversals 3t and their
+    /// visit bodies 3v (each at most 30 operations); two counting sorts
+    /// 2(3v + 2n + 1); `slot_of`'s fill, the slots and the output's pushes
+    /// 3v; and 1 for the call. So at most `3t + 12v + 4n + 3` with n =
+    /// `dimension`.
+    ///
+    /// **Capacity.** The keys (16v B), the two orders (8v B each), the
+    /// counting starts (8n B, one per sort), `slot_of` (8v B) and the
+    /// result, exactly u ≤ v entries of a key and an `ExactSum` (each
+    /// allocated at its exact length; the keys and orders are freed before
+    /// the adds, `slot_of` on return, also on a refusal). Peak 40v + 8n B
+    /// plus the result and its sums' limbs, where the map held u entries
+    /// in its nodes. Nothing grows: every push is within a capacity counted
+    /// before it, and allocation is std's infallible kind, as before.
     fn assembled_exact(
         list: &[Mapped],
+        dimension: usize,
         limb_allotment: Option<usize>,
-    ) -> Result<BTreeMap<(usize, usize), ExactSum>, (usize, LimbAllotmentExceeded)> {
-        let mut out: BTreeMap<(usize, usize), ExactSum> = BTreeMap::new();
-        for e in list {
-            if let Some(mixed) = &e.mixed {
-                // The lower triangle (r ≥ c) of Q̃ᵀ E Q̃: every ordered element
-                // pair and every coordinate pair, each term exact (D-1 (a)).
-                for (a, ca) in mixed.iter().enumerate() {
-                    for (b, cb) in mixed.iter().enumerate() {
-                        let entry = e.matrix.get(a, b);
-                        for &(ra, qa) in ca.as_slice() {
-                            for &(rb, qb) in cb.as_slice() {
-                                if ra < rb {
-                                    continue;
-                                }
-                                let slot = out.entry((ra, rb)).or_default();
-                                for word in [entry.hi, entry.lo] {
-                                    slot.add_product4_within(&[qa, word, qb], 0, limb_allotment)
-                                        .map_err(|exceeded| (e.element, exceeded))?;
-                                }
-                            }
-                        }
-                    }
-                }
-                continue;
+    ) -> Result<Vec<((usize, usize), ExactSum)>, (usize, LimbAllotmentExceeded)> {
+        let unreachable = |never: std::convert::Infallible| match never {};
+        let mut visits = 0usize;
+        for_each_position(list, |_, _, _| {
+            visits += 1;
+            Ok(())
+        })
+        .unwrap_or_else(unreachable);
+        let mut keys: Vec<(usize, usize)> = Vec::with_capacity(visits);
+        for_each_position(list, |_, key, _| {
+            keys.push(key);
+            Ok(())
+        })
+        .unwrap_or_else(unreachable);
+        let by_col = stable_counting_order(0..visits, visits, dimension, |i| keys[i].1);
+        let by_key = stable_counting_order(by_col.iter().copied(), visits, dimension, |i| keys[i].0);
+        drop(by_col);
+        // Slots in key order: a new slot at each change of key.
+        let mut slot_of = vec![0usize; visits];
+        let mut distinct = 0usize;
+        let mut previous: Option<(usize, usize)> = None;
+        for &visit in &by_key {
+            if previous != Some(keys[visit]) {
+                distinct += 1;
+                previous = Some(keys[visit]);
             }
-            for (a, ra) in e.rows.iter().enumerate() {
-                let Some(ra) = *ra else { continue };
-                for (b, rb) in e.rows.iter().enumerate().take(a + 1) {
-                    let Some(rb) = *rb else { continue };
-                    let key = if ra >= rb { (ra, rb) } else { (rb, ra) };
-                    let entry = e.matrix.get(a, b);
-                    let slot = out.entry(key).or_default();
-                    let refused = |exceeded| (e.element, exceeded);
+            slot_of[visit] = distinct - 1;
+        }
+        let mut out: Vec<((usize, usize), ExactSum)> = Vec::with_capacity(distinct);
+        previous = None;
+        for &visit in &by_key {
+            if previous != Some(keys[visit]) {
+                out.push((keys[visit], ExactSum::new()));
+                previous = Some(keys[visit]);
+            }
+        }
+        drop(by_key);
+        drop(keys);
+        let mut visit = 0usize;
+        for_each_position(list, |element, _, contribution| {
+            let slot = &mut out[slot_of[visit]].1;
+            visit += 1;
+            let refused = |exceeded| (element, exceeded);
+            match contribution {
+                Contribution::Plain(entry) => {
                     slot.add_scaled_within(entry.hi, 0, limb_allotment)
                         .map_err(refused)?;
                     slot.add_scaled_within(entry.lo, 0, limb_allotment)
                         .map_err(refused)?;
                 }
+                Contribution::Mixed { qa, entry, qb } => {
+                    for word in [entry.hi, entry.lo] {
+                        slot.add_product4_within(&[qa, word, qb], 0, limb_allotment)
+                            .map_err(refused)?;
+                    }
+                }
             }
-        }
+            Ok(())
+        })?;
         Ok(out)
     }
 
-    /// The assembled entries rounded once to double-double.
-    fn assembled(list: &[Mapped]) -> BTreeMap<(usize, usize), Dd> {
+    /// The assembled entries rounded once to double-double, ascending.
+    fn assembled(&self, list: &[Mapped]) -> Vec<((usize, usize), Dd)> {
         let mut scratch = Vec::new();
-        Self::assembled_exact(list, None)
+        Self::assembled_exact(list, self.dimension, None)
             .expect("no allotment")
             .into_iter()
             .map(|(key, sum)| (key, sum.to_wide_with(&mut scratch).to_dd()))
@@ -835,12 +942,26 @@ impl ReformedPencil {
 
     /// The assembled K̂ on the free DOFs, lower triangle, ascending.
     pub fn assembled_stiffness(&self) -> Vec<((usize, usize), Dd)> {
-        Self::assembled(&self.stiffness).into_iter().collect()
+        self.assembled(&self.stiffness)
     }
 
     /// The assembled M̂ on the free DOFs, lower triangle, ascending.
     pub fn assembled_mass(&self) -> Vec<((usize, usize), Dd)> {
-        Self::assembled(&self.mass).into_iter().collect()
+        self.assembled(&self.mass)
+    }
+
+    /// The position visits of the assembly of K̂ and of M̂ (v in
+    /// [`ReformedPencil::assembled_exact`]'s count), for resource evidence.
+    pub fn assembly_visits(&self) -> [usize; 2] {
+        [&self.stiffness, &self.mass].map(|list| {
+            let mut visits = 0usize;
+            for_each_position(list, |_, _, _| {
+                visits += 1;
+                Ok::<(), std::convert::Infallible>(())
+            })
+            .unwrap_or_else(|never| match never {});
+            visits
+        })
     }
 }
 
@@ -916,6 +1037,17 @@ pub struct FormationDifference {
 }
 
 /// Lower-triangle formed entries, ascending, checked.
+///
+/// The order is a stable counting sort (column, then row) of the checked
+/// entries, where this was `sort_unstable_by_key`: with no equal keys both
+/// give the one ascending order, and with equal keys both refuse the least
+/// duplicated key, so the order among equal keys is never observed.
+///
+/// Count with F entries, in support steps (each body at most 40
+/// operations): the checks F, two counting sorts 2(3F + 2n + 1), the
+/// gather F, the duplicate scan F and 1, so `9F + 4n + 3`. Capacity: the
+/// checked list and the sorted list, F entries (24 B) each, and the two
+/// orders and the starts (8F, 8F and 8n B, freed on return).
 fn formed_lower(
     n: usize,
     matrix: PencilMatrix,
@@ -943,9 +1075,16 @@ fn formed_lower(
         check_entry(matrix, key.0, key.1, e.value).map_err(FormationError::PencilRangeUnsupported)?;
         out.push((key, e.value));
     }
-    // Unstable (no sort buffer): equal keys are refused below, naming the
-    // key, so the order among them is never observed.
-    out.sort_unstable_by_key(|x| x.0);
+    let by_col = stable_counting_order(0..out.len(), out.len(), n, |i| out[i].0 .1);
+    let by_key = stable_counting_order(by_col.iter().copied(), out.len(), n, |i| out[i].0 .0);
+    drop(by_col);
+    let mut sorted = Vec::with_capacity(out.len());
+    for &i in &by_key {
+        sorted.push(out[i]);
+    }
+    drop(by_key);
+    drop(out);
+    let out = sorted;
     for w in out.windows(2) {
         if w[0].0 == w[1].0 {
             return Err(FormationError::DuplicateEntry {
@@ -990,11 +1129,34 @@ fn scaled_norm(
     Ok(best)
 }
 
+/// One matrix's formation difference: `formed` and `reformed` are each
+/// ascending by (row, col), each position once.
+///
+/// Each re-formed position is matched to its formed entry by one merge
+/// walk (a cursor that only advances), where this binary-searched the
+/// formed list; both find the one formed entry with the same key, or none.
+/// The off-pattern values were a `BTreeMap` filled in the re-formed (so
+/// ascending) key order with distinct keys; here they are pushed in that
+/// same order, so they are read in the same order and counted the same.
+///
+/// Count with F formed entries and u re-formed ones, in support steps (an
+/// `ExactSum` call one operation): the accumulators F, the absent count's
+/// walk F + u, the matching walk F + u, the term adds within it (one step
+/// a term, at most L̄ terms a read, so u·L̄), and `scaled_norm` at 24 steps
+/// an entry (about 1,253 operations of WideDd arithmetic: two `from_dd`,
+/// two `mul`, `abs` and two `add`) over the F + (≤ u) deltas and the u
+/// re-formed entries, and per row its fill and 6 steps
+/// (`to_normal_or_zero`, at most six scaling iterations: about 265
+/// operations), twice; and 3. So at most `27F + 50u + u·L̄ + 14n + 3`.
+/// Capacity: F accumulators, the off-pattern list at exactly the number of
+/// re-formed positions absent from `formed` (≤ u; a key and a `WideDd`
+/// each), the reads' scratch and term list, and two `scaled_norm` row
+/// vectors of n.
 fn difference(
     n: usize,
     d: &[Dd],
     formed: &[((usize, usize), f64)],
-    reformed: &BTreeMap<(usize, usize), ExactSum>,
+    reformed: &[((usize, usize), ExactSum)],
     names: [&'static str; 2],
     limb_allotment: Option<usize>,
 ) -> Result<(MatrixDifference, f64), FormationError> {
@@ -1011,9 +1173,26 @@ fn difference(
     // One scratch vector and one term list, reused for every entry read.
     let mut scratch = Vec::new();
     let mut terms: Vec<Term> = Vec::new();
-    let mut off_pattern = BTreeMap::new();
+    // The re-formed positions absent from the formed list bound the
+    // off-pattern list's capacity.
+    let mut absent = 0usize;
+    let mut cursor = 0usize;
+    for (key, _) in reformed {
+        while cursor < formed.len() && formed[cursor].0 < *key {
+            cursor += 1;
+        }
+        if !(cursor < formed.len() && formed[cursor].0 == *key) {
+            absent += 1;
+        }
+    }
+    let mut off_pattern: Vec<((usize, usize), WideDd)> = Vec::with_capacity(absent);
+    cursor = 0;
     for (key, sum) in reformed {
-        match formed.binary_search_by_key(key, |x| x.0) {
+        while cursor < formed.len() && formed[cursor].0 < *key {
+            cursor += 1;
+        }
+        let found = if cursor < formed.len() && formed[cursor].0 == *key { Ok(cursor) } else { Err(()) };
+        match found {
             Ok(at) => {
                 sum.terms_into(&mut scratch, &mut terms);
                 for &(value, exponent) in &terms {
@@ -1025,7 +1204,7 @@ fn difference(
             Err(_) => {
                 let value = sum.to_wide_with(&mut scratch);
                 if !value.is_zero() {
-                    off_pattern.insert(*key, value.neg());
+                    off_pattern.push((*key, value.neg()));
                 }
             }
         }
@@ -1034,14 +1213,14 @@ fn difference(
         .iter()
         .zip(&accumulators)
         .map(|(&(key, _), sum)| (key, sum.to_wide_with(&mut scratch)))
-        .chain(off_pattern.iter().map(|(&key, &v)| (key, v)));
+        .chain(off_pattern.iter().copied());
     let (norm, row) = scaled_norm(n, d, deltas, names[0])?;
     let (reformed_norm, _) = scaled_norm(
         n,
         d,
         reformed
             .iter()
-            .map(|(&k, sum)| (k, sum.to_wide_with(&mut scratch))),
+            .map(|(k, sum)| (*k, sum.to_wide_with(&mut scratch))),
         names[1],
     )?;
     Ok((
@@ -1078,17 +1257,22 @@ pub fn formation_difference_within_limb_allotment(
 ) -> Result<FormationDifference, FormationError> {
     let n = pencil.dimension;
     let assembled = |list: &[Mapped]| {
-        ReformedPencil::assembled_exact(list, limb_allotment)
+        ReformedPencil::assembled_exact(list, n, limb_allotment)
             .map_err(|(_, exceeded)| FormationError::LimbAllotmentExceeded(exceeded))
     };
     let k = formed_lower(n, PencilMatrix::Stiffness, formed_stiffness)?;
     let m = formed_lower(n, PencilMatrix::Mass, formed_mass)?;
+    // Each diagonal by a merge walk over the ascending K list (n + F steps),
+    // where this binary-searched it: the one entry keyed (i, i), or none.
+    // Its scaling is 16 support steps an index (`Dd::div`, `Dd::sqrt`).
     let mut scaling = vec![Dd::ZERO; n];
+    let mut cursor = 0usize;
     for (index, d) in scaling.iter_mut().enumerate() {
-        let diagonal = k
-            .binary_search_by_key(&(index, index), |x| x.0)
-            .ok()
-            .map(|at| k[at].1)
+        while cursor < k.len() && k[cursor].0 < (index, index) {
+            cursor += 1;
+        }
+        let diagonal = (cursor < k.len() && k[cursor].0 == (index, index))
+            .then(|| k[cursor].1)
             .filter(|&v| v != 0.0)
             .ok_or(FormationError::ZeroStiffnessDiagonal { index })?;
         *d = Dd::from_f64(1.0).div(Dd::from_f64(diagonal.abs()).sqrt());
@@ -1549,5 +1733,343 @@ mod tests {
             cluster_error_estimates(&[1e-9, 3e-9, 2e-9], &[0, 0, 1]),
             Ok(vec![3e-9, 2e-9])
         );
+    }
+}
+
+/// Old against new for the assembly and the formation difference (design
+/// §5.3.8, `T7.assembly`): the former `BTreeMap`, `sort_unstable_by_key` and
+/// `binary_search_by_key` code, kept here as the test-only oracle, against
+/// the repository-owned replacement, on random and adversarial lists. Every
+/// compared sum is compared by its whole state (`ExactSum`'s equality is
+/// over its limbs, `low`, pending adds and non-finite part) and its limb
+/// storage; every float by its bits.
+#[cfg(test)]
+mod former_oracle_tests {
+    use super::*;
+    use std::collections::BTreeMap;
+
+    struct Mix(u64);
+    impl Mix {
+        fn next(&mut self) -> u64 {
+            self.0 = self.0.wrapping_add(0x9E37_79B9_7F4A_7C15);
+            let mut z = self.0;
+            z = (z ^ (z >> 30)).wrapping_mul(0xBF58_476D_1CE4_E5B9);
+            z = (z ^ (z >> 27)).wrapping_mul(0x94D0_49BB_1331_11EB);
+            z ^ (z >> 31)
+        }
+        fn below(&mut self, n: usize) -> usize {
+            (self.next() % n as u64) as usize
+        }
+        /// A nonzero binary64 of either sign over a wide exponent range.
+        fn value(&mut self) -> f64 {
+            let significand = 1.0 + (self.next() >> 11) as f64 / (1u64 << 53) as f64;
+            let exponent = self.below(120) as i32 - 60;
+            let sign = if self.below(2) == 0 { -1.0 } else { 1.0 };
+            sign * crate::dd::scale_by_pow2(significand, exponent)
+        }
+        fn dd(&mut self) -> Dd {
+            match self.below(6) {
+                0 => Dd::ZERO,
+                1 => Dd::from_f64(self.value()),
+                _ => {
+                    let hi = self.value();
+                    let lo = crate::dd::scale_by_pow2(self.value().abs().min(1.0) * hi.abs(), -(54 + self.below(10) as i32));
+                    Dd { hi, lo: if self.below(2) == 0 { lo } else { -lo } }
+                }
+            }
+        }
+    }
+
+    /// The former `assembled_exact`, verbatim but for its signature.
+    fn former_assembled_exact(
+        list: &[Mapped],
+        limb_allotment: Option<usize>,
+    ) -> Result<BTreeMap<(usize, usize), ExactSum>, (usize, LimbAllotmentExceeded)> {
+        let mut out: BTreeMap<(usize, usize), ExactSum> = BTreeMap::new();
+        for e in list {
+            if let Some(mixed) = &e.mixed {
+                for (a, ca) in mixed.iter().enumerate() {
+                    for (b, cb) in mixed.iter().enumerate() {
+                        let entry = e.matrix.get(a, b);
+                        for &(ra, qa) in ca.as_slice() {
+                            for &(rb, qb) in cb.as_slice() {
+                                if ra < rb {
+                                    continue;
+                                }
+                                let slot = out.entry((ra, rb)).or_default();
+                                for word in [entry.hi, entry.lo] {
+                                    slot.add_product4_within(&[qa, word, qb], 0, limb_allotment)
+                                        .map_err(|exceeded| (e.element, exceeded))?;
+                                }
+                            }
+                        }
+                    }
+                }
+                continue;
+            }
+            for (a, ra) in e.rows.iter().enumerate() {
+                let Some(ra) = *ra else { continue };
+                for (b, rb) in e.rows.iter().enumerate().take(a + 1) {
+                    let Some(rb) = *rb else { continue };
+                    let key = if ra >= rb { (ra, rb) } else { (rb, ra) };
+                    let entry = e.matrix.get(a, b);
+                    let slot = out.entry(key).or_default();
+                    let refused = |exceeded| (e.element, exceeded);
+                    slot.add_scaled_within(entry.hi, 0, limb_allotment).map_err(refused)?;
+                    slot.add_scaled_within(entry.lo, 0, limb_allotment).map_err(refused)?;
+                }
+            }
+        }
+        Ok(out)
+    }
+
+    /// The former `formed_lower`, verbatim.
+    fn former_formed_lower(
+        n: usize,
+        matrix: PencilMatrix,
+        entries: &[SymmetricMatrixEntry],
+    ) -> Result<Vec<((usize, usize), f64)>, FormationError> {
+        let mut out = Vec::with_capacity(entries.len());
+        for e in entries {
+            if e.row >= n || e.col >= n {
+                return Err(FormationError::EntryOutOfBounds { row: e.row, col: e.col });
+            }
+            if !e.value.is_finite() {
+                return Err(FormationError::NonFiniteEntry { row: e.row, col: e.col });
+            }
+            let key = if e.row >= e.col { (e.row, e.col) } else { (e.col, e.row) };
+            check_entry(matrix, key.0, key.1, e.value).map_err(FormationError::PencilRangeUnsupported)?;
+            out.push((key, e.value));
+        }
+        out.sort_unstable_by_key(|x| x.0);
+        for w in out.windows(2) {
+            if w[0].0 == w[1].0 {
+                return Err(FormationError::DuplicateEntry { row: w[0].0 .0, col: w[0].0 .1 });
+            }
+        }
+        Ok(out)
+    }
+
+    /// The former `difference`, verbatim but for its signature.
+    fn former_difference(
+        n: usize,
+        d: &[Dd],
+        formed: &[((usize, usize), f64)],
+        reformed: &BTreeMap<(usize, usize), ExactSum>,
+        names: [&'static str; 2],
+        limb_allotment: Option<usize>,
+    ) -> Result<(MatrixDifference, f64), FormationError> {
+        let exceeded = FormationError::LimbAllotmentExceeded;
+        let mut accumulators: Vec<ExactSum> = Vec::with_capacity(formed.len());
+        for &(_, f) in formed {
+            let mut sum = ExactSum::new();
+            sum.add_scaled_within(f, 0, limb_allotment).map_err(exceeded)?;
+            accumulators.push(sum);
+        }
+        let mut scratch = Vec::new();
+        let mut terms: Vec<Term> = Vec::new();
+        let mut off_pattern = BTreeMap::new();
+        for (key, sum) in reformed {
+            match formed.binary_search_by_key(key, |x| x.0) {
+                Ok(at) => {
+                    sum.terms_into(&mut scratch, &mut terms);
+                    for &(value, exponent) in &terms {
+                        accumulators[at].add_scaled_within(-value, exponent, limb_allotment).map_err(exceeded)?;
+                    }
+                }
+                Err(_) => {
+                    let value = sum.to_wide_with(&mut scratch);
+                    if !value.is_zero() {
+                        off_pattern.insert(*key, value.neg());
+                    }
+                }
+            }
+        }
+        let deltas = formed
+            .iter()
+            .zip(&accumulators)
+            .map(|(&(key, _), sum)| (key, sum.to_wide_with(&mut scratch)))
+            .chain(off_pattern.iter().map(|(&key, &v)| (key, v)));
+        let (norm, row) = scaled_norm(n, d, deltas, names[0])?;
+        let (reformed_norm, _) =
+            scaled_norm(n, d, reformed.iter().map(|(&k, sum)| (k, sum.to_wide_with(&mut scratch))), names[1])?;
+        Ok((MatrixDifference { norm, row, off_pattern: off_pattern.len() }, reformed_norm))
+    }
+
+    fn random_list(mix: &mut Mix, n: usize) -> Vec<Mapped> {
+        let elements = 1 + mix.below(6);
+        (0..elements)
+            .map(|element| {
+                let d = [1, 2, 3, 6, 12][mix.below(5)];
+                let lower = (0..d * (d + 1) / 2).map(|_| mix.dd()).collect();
+                let rows = (0..d).map(|_| (mix.below(5) != 0).then(|| mix.below(n))).collect();
+                let mixed = (mix.below(5) < 2).then(|| {
+                    (0..d)
+                        .map(|_| {
+                            let len = mix.below(4);
+                            let entries: Vec<(usize, f64)> = (0..len).map(|_| (mix.below(n), mix.value())).collect();
+                            Coordinates::new(&entries).unwrap()
+                        })
+                        .collect()
+                });
+                Mapped { element: element * 3 + 1, rows, matrix: ElementMatrix { dofs: (0..d).collect(), lower }, mixed }
+            })
+            .collect()
+    }
+
+    fn same_assembly(
+        new: &Result<Vec<((usize, usize), ExactSum)>, (usize, LimbAllotmentExceeded)>,
+        old: &Result<BTreeMap<(usize, usize), ExactSum>, (usize, LimbAllotmentExceeded)>,
+        what: &str,
+    ) {
+        match (new, old) {
+            (Ok(new), Ok(old)) => {
+                assert_eq!(new.len(), old.len(), "{what}: entry count");
+                assert_eq!(new.capacity(), Vec::<((usize, usize), ExactSum)>::with_capacity(new.len()).capacity(), "{what}: the counted capacity");
+                for ((key, sum), (old_key, old_sum)) in new.iter().zip(old) {
+                    assert_eq!(key, old_key, "{what}");
+                    assert_eq!(sum, old_sum, "{what}: {key:?}");
+                    assert_eq!(sum.limb_storage(), old_sum.limb_storage(), "{what}: {key:?}");
+                    assert_eq!(sum.to_wide().mantissa.hi.to_bits(), old_sum.to_wide().mantissa.hi.to_bits(), "{what}");
+                    assert_eq!(sum.to_wide().mantissa.lo.to_bits(), old_sum.to_wide().mantissa.lo.to_bits(), "{what}");
+                    assert_eq!(sum.to_wide().exponent, old_sum.to_wide().exponent, "{what}");
+                }
+            }
+            (Err(new), Err(old)) => assert_eq!(new, old, "{what}: the same element and the same refusal"),
+            (new, old) => panic!("{what}: new {:?} against old {:?}", new.as_ref().map(Vec::len), old.as_ref().map(BTreeMap::len)),
+        }
+    }
+
+    #[test]
+    fn the_assembly_is_the_former_map_with_its_refusals() {
+        let mut mix = Mix(57);
+        let mut refusals = 0;
+        // The empty list and a list whose rows are all restrained.
+        for list in [vec![], vec![Mapped { element: 0, rows: vec![None, None], matrix: ElementMatrix { dofs: vec![0, 1], lower: vec![Dd::from_f64(1.0); 3] }, mixed: None }]] {
+            same_assembly(&ReformedPencil::assembled_exact(&list, 3, None), &former_assembled_exact(&list, None), "empty");
+        }
+        for case in 0..300 {
+            let n = 1 + mix.below(12);
+            let list = random_list(&mut mix, n);
+            let unlimited = ReformedPencil::assembled_exact(&list, n, None);
+            same_assembly(&unlimited, &former_assembled_exact(&list, None), &format!("case {case}"));
+            let longest = unlimited.unwrap().iter().map(|(_, s)| s.limb_storage().0).max().unwrap_or(0);
+            // Every allotment from 0 to one above the longest sum: below it
+            // the same element refuses with the same requirement, at and above
+            // it nothing refuses.
+            for allotment in 0..=longest + 1 {
+                let new = ReformedPencil::assembled_exact(&list, n, Some(allotment));
+                refusals += usize::from(new.is_err());
+                same_assembly(&new, &former_assembled_exact(&list, Some(allotment)), &format!("case {case}, allotment {allotment}"));
+            }
+            // The visit count is the traversal's.
+            let mut pencil = ReformedPencil { dimension: n, stiffness: list.clone(), mass: list, section_difference: None, workspace: Retained::default() };
+            let [k, m] = pencil.assembly_visits();
+            assert_eq!(k, m);
+            pencil.mass.clear();
+            assert_eq!(pencil.assembly_visits()[1], 0);
+        }
+        assert!(refusals > 0, "the allotments exercise the refusal");
+    }
+
+    fn entry(row: usize, col: usize, value: f64) -> SymmetricMatrixEntry {
+        SymmetricMatrixEntry { row, col, value }
+    }
+
+    fn difference_bits(found: &Result<(MatrixDifference, f64), FormationError>) -> Result<(u64, usize, usize, u64), FormationError> {
+        found.clone().map(|(MatrixDifference { norm, row, off_pattern }, reformed)| (norm.to_bits(), row, off_pattern, reformed.to_bits()))
+    }
+
+    #[test]
+    fn the_formed_order_and_the_difference_are_the_former_ones() {
+        let mut mix = Mix(91);
+        let mut off = 0;
+        for case in 0..300 {
+            let n = 1 + mix.below(10);
+            let list = random_list(&mut mix, n);
+            let new_reformed = ReformedPencil::assembled_exact(&list, n, None).unwrap();
+            let old_reformed = former_assembled_exact(&list, None).unwrap();
+            // The formed entries: a random part of the re-formed pattern with
+            // perturbed values, some absent positions (off-pattern), some extra
+            // positions, either orientation, shuffled; sometimes a duplicate.
+            let mut formed: Vec<SymmetricMatrixEntry> = Vec::new();
+            for ((r, c), sum) in &new_reformed {
+                if mix.below(5) == 0 {
+                    continue;
+                }
+                let value = sum.to_f64();
+                let value = if value == 0.0 || !value.is_normal() { 1.0 } else { value * (1.0 + (mix.below(3) as f64 - 1.0) * 1e-13) };
+                formed.push(if mix.below(2) == 0 { entry(*r, *c, value) } else { entry(*c, *r, value) });
+            }
+            for _ in 0..mix.below(4) {
+                let (r, c) = (mix.below(n), mix.below(n));
+                formed.push(entry(r, c, mix.value()));
+            }
+            for i in (1..formed.len()).rev() {
+                formed.swap(i, mix.below(i + 1));
+            }
+            if case % 7 == 0 && !formed.is_empty() {
+                let again = formed[mix.below(formed.len())];
+                formed.push(again);
+            }
+            let matrix = PencilMatrix::Stiffness;
+            let new_formed = formed_lower(n, matrix, &formed);
+            let old_formed = former_formed_lower(n, matrix, &formed);
+            match (&new_formed, &old_formed) {
+                (Ok(a), Ok(b)) => {
+                    assert_eq!(a.len(), b.len());
+                    for (x, y) in a.iter().zip(b) {
+                        assert_eq!((x.0, x.1.to_bits()), (y.0, y.1.to_bits()), "case {case}");
+                    }
+                }
+                (a, b) => assert_eq!(a.as_ref().err(), b.as_ref().err(), "case {case}: the same refusal"),
+            }
+            let Ok(formed) = old_formed else { continue };
+            let d: Vec<Dd> = (0..n).map(|_| Dd::from_f64(mix.value().abs())).collect();
+            for allotment in [None, Some(3), Some(8), Some(64)] {
+                let names = ["difference", "norm"];
+                let new = difference(n, &d, &formed, &new_reformed, names, allotment);
+                let old = former_difference(n, &d, &formed, &old_reformed, names, allotment);
+                assert_eq!(difference_bits(&new), difference_bits(&old), "case {case}, allotment {allotment:?}");
+                if let Ok((m, _)) = new {
+                    off += m.off_pattern;
+                }
+            }
+        }
+        assert!(off > 0, "off-pattern positions are exercised");
+    }
+
+    #[test]
+    fn the_formed_order_refuses_the_least_duplicate_whatever_the_input_order() {
+        let entries = [entry(2, 1, 1.0), entry(1, 1, 2.0), entry(1, 2, 3.0), entry(0, 0, 4.0), entry(0, 0, 5.0)];
+        for rotation in 0..entries.len() {
+            let mut list = entries.to_vec();
+            list.rotate_left(rotation);
+            assert_eq!(formed_lower(3, PencilMatrix::Mass, &list), Err(FormationError::DuplicateEntry { row: 0, col: 0 }));
+            assert_eq!(former_formed_lower(3, PencilMatrix::Mass, &list), Err(FormationError::DuplicateEntry { row: 0, col: 0 }));
+        }
+        // An out-of-range entry refuses before any order is formed.
+        assert_eq!(formed_lower(3, PencilMatrix::Mass, &[entry(3, 0, 1.0)]), Err(FormationError::EntryOutOfBounds { row: 3, col: 0 }));
+        assert_eq!(formed_lower(1, PencilMatrix::Mass, &[]), Ok(vec![]));
+        // Reverse order and a singleton.
+        let reverse: Vec<_> = (0..4).rev().flat_map(|r| (0..=r).rev().map(move |c| entry(r, c, (r * 4 + c + 1) as f64))).collect();
+        assert_eq!(formed_lower(4, PencilMatrix::Mass, &reverse), former_formed_lower(4, PencilMatrix::Mass, &reverse));
+        assert_eq!(formed_lower(1, PencilMatrix::Mass, &[entry(0, 0, 1.0)]), Ok(vec![((0, 0), 1.0)]));
+    }
+
+    /// The diagonal walk: the first index whose diagonal is absent or zero
+    /// refuses, as the binary search did.
+    #[test]
+    fn the_diagonal_walk_refuses_the_first_missing_or_zero_diagonal() {
+        let k = [entry(0, 0, 4.0), entry(1, 0, 1.0), entry(2, 1, 1.0), entry(2, 2, 9.0)];
+        let pencil = ReformedPencil { dimension: 3, stiffness: vec![], mass: vec![], section_difference: None, workspace: Retained::default() };
+        let found = formation_difference(&pencil, &k, &[]);
+        assert_eq!(found, Err(FormationError::ZeroStiffnessDiagonal { index: 1 }));
+        let zero = [entry(0, 0, 0.0), entry(1, 1, 1.0)];
+        let pencil = ReformedPencil { dimension: 2, ..pencil };
+        assert_eq!(formation_difference(&pencil, &zero, &[]), Err(FormationError::ZeroStiffnessDiagonal { index: 0 }));
+        let full = [entry(1, 1, 4.0), entry(0, 0, 16.0)];
+        let found = formation_difference(&pencil, &full, &[]).unwrap();
+        assert_eq!(found.scaling.scaling, vec![Dd::from_f64(0.25), Dd::from_f64(0.5)]);
     }
 }

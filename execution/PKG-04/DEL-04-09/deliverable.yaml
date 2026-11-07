@@ -13,7 +13,7 @@ needs:
     `frame_matrix` and `curved_matrix` reading their section values through two traits whose binary64
     implementations are the exact lifts of the existing path, bit-for-bit unchanged), without K-D5's D5C1 criterion, which judges a static correction and is not
     reused (M1b), and evaluates residuals with `exact_sum`. Both paths take their Sturm counts from
-    `sparse_direct`'s public API (`reverse_cuthill_mckee`, `SymmetricProfileMatrix::from_entries_with_order`,
+    `sparse_direct`'s public API (`SymmetricProfileMatrix::from_entries_with_order`,
     `factorize_ldlt` with its `nonpositive_pivot_count` and `first_nonpositive_pivot`, and `solve_ordered`)
     plus one new read-only accessor on `ProfileFactorization` exposing borrowing iterators over the strictly
     lower factor's stored entries and the pivots (`lower_factor_entries`, `pivots`; built in I1), with no
@@ -21,7 +21,10 @@ needs:
     to DEL-04-01's code in priced crates, re-registered under D3 in their change. The Sturm count relies
     on `nonpositive_pivot_count` being the number of negative pivots of the unpivoted LDLᵀ, and is relied
     on only under the conditioning and separation premises, whose backward-error estimate the accessor's
-    factor entries feed (Design §3.2, §3.3, §3.4). As built (I2b-1), K_ff and M_ff are read through the
+    factor entries feed (Design §3.2, §3.3, §3.4). The shift pencil's reverse Cuthill–McKee order is
+    modal_eigen's own (`support::reverse_cuthill_mckee_lower`, Design §5.3.8), which reproduces
+    `sparse_direct`'s `reverse_cuthill_mckee` order exactly on the same pattern; that function remains its
+    test-only oracle, so a change to its ordering rule is a change to compare against. As built (I2b-1), K_ff and M_ff are read through the
     free DOFs and positions of `reduce_assembled_sparse_system` on the formed basis stiffness with a zero
     force; no reduction arithmetic is copied.
   gating: true
