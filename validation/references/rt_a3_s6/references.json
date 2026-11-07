@@ -3576,6 +3576,10 @@
   {
    "agrees": true,
    "check": "C-1 ledger mutant (face caps doubled) moves u_C by more than 10^6 criteria"
+  },
+  {
+   "agrees": true,
+   "check": "C-1 ledger mutant (effective area dropped) moves u_C by more than 10^6 criteria"
   }
  ],
  "document": "RT-A3 S6 references (DEL-04-07 route-unification-r4.md \u00a73.7): C-1 and LS-1",

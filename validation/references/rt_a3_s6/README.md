@@ -51,10 +51,11 @@ state and no weak one; A at that state equals B on every displacement and
 support action; the C-1 support actions balance (the closed fluid system
 exerts no net force); every Euler–Bernoulli LS-1 value lies in W-16's frozen
 binary64 enclosure for the same case (a second, separately written
-derivation); and every control below holds. 894 exact checks are recorded in
+derivation); and every control below holds. 895 exact checks are recorded in
 `references.json` (`crosscheck`).
 
-Every LS-1 non-axial and every C-1 non-axial component is exactly zero by
+Every LS-1 out-of-plane component (UY, RX and RZ) and every C-1 non-axial
+component is exactly zero by
 decoupling: the loads lie in the x–z plane (LS-1) or along the run (C-1),
 the members are axis-aligned and collinear, and the joint's midpoint relative
 translation along the run is u_Cx − u_Bx.

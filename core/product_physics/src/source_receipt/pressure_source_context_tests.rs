@@ -190,7 +190,7 @@ fn formulation_helpers_preserve_held_callers_and_name_the_actual_publication() {
                 .get("load_reference_states")
                 .is_some();
             let unselected = exact_admission::pressure_v3_formulation_basis_with_source(
-                load_state, connectors, false, false,
+                load_state, connectors, false,
             );
             // The producer (`formulation_basis_for_model_with_source`) appends
             // K-D5's two route-independent certified-recovery statements.
@@ -206,7 +206,7 @@ fn formulation_helpers_preserve_held_callers_and_name_the_actual_publication() {
             assert_eq!(unselected.limitations[0], PRESSURE_1_IDENTITY);
             assert_eq!(unselected.limitations[7], JOINED_LIMITATION_7);
             let selected = exact_admission::pressure_v3_formulation_basis_with_source(
-                load_state, connectors, true, false,
+                load_state, connectors, true,
             );
             assert_eq!(selected.profile_id, unselected.profile_id);
             assert_eq!(selected.limitations.len(), unselected.limitations.len());

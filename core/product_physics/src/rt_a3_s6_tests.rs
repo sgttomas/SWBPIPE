@@ -435,12 +435,11 @@ fn c1_ls_dropped_anchor_motion_is_numerically_distinguished() {
     }
 }
 
-/// The formulation basis states S6 only in an S6 context (R-4 §3.7): a
-/// nonlinear support on a load/reference-state document or beside an
-/// objective connector, or a moved spring base. Every other document keeps
-/// its bytes (the universal wording is a separate text registration).
+/// Ordinary EX disclosure names the current S6 contract on both the new
+/// nonlinear contexts and the no-nonlinear control; mechanics are separately
+/// bound to independent reference values above.
 #[test]
-fn the_formulation_basis_states_s6_in_s6_contexts_only() {
+fn the_formulation_basis_states_current_s6_admission_in_both_contexts() {
     let s6_identity = "beside objective connectors and on load/reference-state documents included, are solved in each case by the active-set loop";
     let s5_identity = "on a document without the load/reference-state group and without an objective connector, gap, one-way, lift-off and friction supports";
     for (name, case) in [("ls1_c5", "load:ACTIVE"), ("c1", "load:PRESSURE"), ("c1_ls", "load:PRESSURE")] {
@@ -455,10 +454,10 @@ fn the_formulation_basis_states_s6_in_s6_contexts_only() {
             assert!(text.contains("contact and friction are static and history-free (DEC-067)"), "{name}");
         }
     }
-    // The no-nonlinear connector control is not an S6 context: S5's bytes.
+    // The no-nonlinear control names the same current contract.
     let (request, _) = bound("c1_linear");
     let output = solve(&single_case(&request, "load:PRESSURE"), PreviewSolverMode::DenseScrutiny);
     let text = output.formulation_basis.limitations.join("\n");
-    assert!(text.contains(s5_identity) && !text.contains(s6_identity));
+    assert!(text.contains(s6_identity) && !text.contains(s5_identity));
 }
 

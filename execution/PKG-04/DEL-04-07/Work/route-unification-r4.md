@@ -857,21 +857,23 @@ supports only and grant no held, lock, preload or device-reference behavior.
   ground, and judges complementarity on the relative displacement (Rust and
   Python mirrors).
 - **Text.** The S6 wording of the v3 nonlinear-support clause and of the
-  load/reference-state motion and history sentences is emitted only in an S6
-  context (`exact_admission::s6_context`); every other envelope keeps its
-  bytes. Exact old/new sentences:
+  load/reference-state motion and history sentences describes the current
+  ordinary contract uniformly. The selected retained-source scope remains
+  separate. Unrelated no-nonlinear mechanics, rows and standing are preserved;
+  canonical table/report registration and text/hash-only carrier
+  reconciliation belong to this same S6 change. Exact old/new sentences:
   - old: "on a document without the load/reference-state group and without
     an objective connector, gap, one-way, lift-off and friction supports
     (friction with an explicit normal or a normal derived from a linear
-    restraint) are solved in each case by the active-set loop"; new (S6
-    context): "gap, one-way, lift-off and friction supports (friction with an
+    restraint) are solved in each case by the active-set loop"; new:
+    "gap, one-way, lift-off and friction supports (friction with an
     explicit normal or a normal derived from a linear restraint), beside
     objective connectors and on load/reference-state documents included, are
     solved in each case by the active-set loop".
   - old: "… A consumed constant-effort support's constant force is a device
     action of the active support in every state. Spring base motion, device
     preload/reference, inactive or locked supports are not provided."; new
-    (S6 context): "… Boundary motion on an active nonlinear support's own DOF
+    (ordinary load-state contract): "… Boundary motion on an active nonlinear support's own DOF
     moves its ground: its state is measured on u - g_s and an active or
     sticking state prescribes the moved ground (plus or minus the clearance
     for a gap). Base motion on an active spring's stiffness axis adds the
@@ -880,13 +882,14 @@ supports only and grant no held, lock, preload or device-reference behavior.
     constant force is a device action of the active support in every state.
     Device preload/reference, inactive or locked supports are not provided."
   - old: "History is independent equilibrium only; no installation, contact,
-    friction or predecessor history is represented."; new (S6 context):
+    friction or predecessor history is represented."; new:
     "History is independent equilibrium only: contact and friction are static
     and history-free (DEC-067), each case's active-set loop starts from the
     authored initial states, and no installation or predecessor history is
     represented."
-  Making the wording universal changes pinned text in desktop, report and
-  recorded fixtures outside this unit; it is a separate registration.
+  These disclosure changes require the current source-derived D3 and affected
+  writer/reader preservation checks; they do not grant another implementation
+  unit, a new numerical parameter or a registration without its disposition.
 - **References.** `validation/references/rt_a3_s6/` (C-1 with no-nonlinear,
   tie-rod, gap, Timoshenko and load/reference-state controls; LS-1 as twins
   of W-16's A-1, D-3 and C-5 with Timoshenko twins and dropped-motion

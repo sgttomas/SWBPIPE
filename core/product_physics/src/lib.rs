@@ -1451,7 +1451,6 @@ fn formulation_basis_for_model_with_source(model: &PreviewModel, source_selected
             load_state,
             connectors,
             source_selected,
-            exact_admission::s6_context(model, load_state, connectors),
         );
         // T4-U2: a model with a realized bend states the bend's terms; a
         // straight-only v3 model keeps its text unchanged (SP-1).
