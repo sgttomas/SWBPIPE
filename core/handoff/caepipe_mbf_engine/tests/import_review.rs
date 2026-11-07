@@ -77,6 +77,36 @@ fn class_counts(value: &Value) -> Vec<(String, i64, i64, i64)> {
     }).collect()
 }
 
+/// Replay a named maintained Python parity input through the real importer. Select by source identity rather than
+/// a vector's incidental position; the pressure examples and summed primitives exercise different map shapes.
+fn parity_case(source_name: &str) -> (ImportResult, Vec<u8>, Vec<u8>) {
+    let doc = common::parse(include_bytes!("../../../../fixtures/caepipe_mbf/invented/parity/import_vectors.json"));
+    let source = doc.get_or_null("sources").as_list().unwrap().iter().position(|entry| entry.as_str() == Some(source_name)).expect("named parity source");
+    let row = doc.get_or_null("imports").as_list().unwrap().iter().map(|entry| entry.as_list().unwrap())
+        .find(|row| mbf::value::small_int(&row[0]) == Some(source as i64) && !row[2].is_null()).expect("bound parity input");
+    let mut inputs = common::Inputs::new(&doc);
+    let bytes = inputs.blob(row[1].as_str().unwrap());
+    let sidecar = row[2].as_list().unwrap();
+    let (sidecar_input, sidecar_bytes) = if sidecar[0].as_str() == Some("json") {
+        let bytes = inputs.blob(sidecar[1].as_str().unwrap());
+        (SidecarInput::Json(bytes.clone()), bytes)
+    } else {
+        let value = inputs.value(&sidecar[1]).unwrap();
+        let bytes = mbf::canonical_bytes(&value).unwrap();
+        (SidecarInput::Parsed(value), bytes)
+    };
+    let mut options = ImportOptions::new(inputs.value(&row[7]).unwrap().as_str().unwrap());
+    options.sidecar = Some(sidecar_input);
+    options.material_provenance = inputs.value(&row[3]);
+    options.pressure_closure = inputs.value(&row[4]);
+    options.shear_model = inputs.value(&row[5]);
+    options.rebind_by_node_number = mbf::value::small_int(&row[6]) == Some(1);
+    options.pd1_disabled = mbf::value::small_int(&row[8]) == Some(1);
+    let result = mbf::import(&bytes, &options).unwrap();
+    assert_eq!(result.status, "imported", "{source_name}: {:?}", result.diagnostics);
+    (result, bytes, sidecar_bytes)
+}
+
 #[test]
 fn the_fixed_leading_members_are_byte_exact() {
     let (text, sidecar) = written_pair();
@@ -123,28 +153,62 @@ fn bound_and_unbound_imports_pin_the_identity_counts() {
     let bound_value = parsed(&review_of(&bound, &text, Some(&sidecar), None, MBF_REVIEW_MAX_BYTES, true).review);
     assert_eq!(bound_value.get_or_null("binding").get_or_null("state").as_str(), Some("bound"));
     assert_eq!(bound_value.get_or_null("identity").get_or_null("basis").as_str(), Some("restored_from_identity_file"));
-    // The id map's members, read as the review reads them.
-    let count = |result: &ImportResult, member: &str| -> i64 {
-        result.id_map.get(member).and_then(Value::as_dict).map_or(0, |map| map.values().map(|value| value.as_list().map_or(1, |items| items.len() as i64)).sum())
-    };
-    for (class, member) in mbf::IDENTITY_MAPS {
-        let expected = count(&bound, member);
-        assert!(class_counts(&bound_value).contains(&(class.to_string(), expected, expected, 0)), "{class}");
-    }
-    let nodes = count(&bound, "node_map");
-    assert!(nodes > 1 && count(&bound, "element_map") > 0 && count(&bound, "support_map") > 0 && count(&bound, "material_map") > 0);
-    assert!(mbf::value::small_int(bound_value.get_or_null("declaration").get_or_null("recorded_origins")).unwrap() > 0);
+    // Independent inventory of the maintained export model: five nodes, four elements, one bend, three supports,
+    // two cases, one material, five primitives and two library sections. It has no pressure region.
+    let expected = [("node", 5), ("element", 4), ("bend", 1), ("support", 3), ("load_case", 2),
+        ("material", 1), ("load", 5), ("pressure_region", 0), ("section", 2)];
+    assert_eq!(class_counts(&bound_value), expected.iter().map(|(class, n)| (class.to_string(), *n, *n, 0)).collect::<Vec<_>>());
+    assert_eq!(mbf::value::small_int(bound_value.get_or_null("declaration").get_or_null("recorded_origins")), Some(1));
     let needed: Vec<String> = parsed(&review_of(&import(&text, None, None, "u.mbf"), &text, None, None, MBF_REVIEW_MAX_BYTES, true).review)
         .get_or_null("declaration_needed").as_list().unwrap().iter().map(|item| item.as_str().unwrap().to_string()).collect();
     let names: Vec<&str> = needed.iter().map(String::as_str).collect();
     let unbound = import(&text, None, Some(invented_declaration(&names)), "invented.mbf");
     let unbound_value = parsed(&review_of(&unbound, &text, None, None, MBF_REVIEW_MAX_BYTES, true).review);
     assert_eq!(unbound_value.get_or_null("identity").get_or_null("basis").as_str(), Some("formed_from_mbf_names"));
-    for (class, member) in mbf::IDENTITY_MAPS {
-        let expected = count(&unbound, member);
-        assert!(class_counts(&unbound_value).contains(&(class.to_string(), expected, 0, expected)), "{class}");
+    assert_eq!(class_counts(&unbound_value), expected.iter().map(|(class, n)| {
+        let n = if *class == "section" { 0 } else { *n }; // Without the identity file no shared section is restored.
+        (class.to_string(), n, 0, n)
+    }).collect::<Vec<_>>());
+}
+
+#[test]
+fn a_summed_primitive_has_a_formed_id_even_in_a_bound_import() {
+    let (result, bytes, sidecar) = parity_case("tests/test_caepipe_mbf_round_trip.py::test_summed_primitives_are_many_to_one_and_reported");
+    let value = parsed(&review_of(&result, &bytes, Some(&sidecar), None, MBF_REVIEW_MAX_BYTES, true).review);
+    let loads = result.id_map.get_or_null("load_map").as_dict().unwrap();
+    assert_eq!(loads.len(), 1);
+    assert!(loads.contains_key(&"load:concentrated_force:N1:global_y".to_string()));
+    assert!(class_counts(&value).contains(&("load".into(), 1, 0, 1)), "neither tip nor tip2 survives as an id");
+    assert!(result.loss_report.iter().any(|entry| entry.get("code").and_then(Value::as_str) == Some("MBF-IMPORT-ID-UNRECOVERABLE")));
+}
+
+#[test]
+fn pressure_regions_are_counted_once_regardless_of_their_member_count() {
+    for (source, members) in [("corpus:authored/cpa-01-pressure written back", 2), ("corpus:authored/cpa-02-pressure-bend written back", 3)] {
+        let (result, bytes, sidecar) = parity_case(source);
+        let regions = result.id_map.get_or_null("region_map").as_dict().unwrap();
+        assert_eq!(regions.len(), 1, "one pressure region in {source}");
+        assert_eq!(regions.values().next().unwrap().as_list().unwrap().len(), members);
+        let value = parsed(&review_of(&result, &bytes, Some(&sidecar), None, MBF_REVIEW_MAX_BYTES, true).review);
+        assert!(class_counts(&value).contains(&("pressure_region".into(), 1, 1, 0)), "{source}");
     }
-    assert_eq!(count(&unbound, "node_map"), nodes);
+}
+
+#[test]
+fn caller_provenance_text_cannot_claim_a_recorded_identity_file_origin() {
+    let (bytes, sidecar) = written_pair();
+    let first = import(&bytes, None, None, "unbound.mbf");
+    let missing = parsed(&review_of(&first, &bytes, None, None, MBF_REVIEW_MAX_BYTES, true).review);
+    let mut declaration = mbf::Dict::new();
+    for name in missing.get_or_null("declaration_needed").as_list().unwrap() {
+        declaration.insert(name.as_str().unwrap().to_string(), mbf::parse_sidecar_json(br#"{"origin":"project_invented","source_name":"material origin recorded by the SWBPIPE MBF writer sidecar"}"#).unwrap());
+    }
+    let unbound = import(&bytes, None, Some(Value::Dict(declaration)), "unbound.mbf");
+    assert_eq!(unbound.status, "imported");
+    assert_eq!(unbound.recorded_material_origins, 0);
+    let value = parsed(&review_of(&unbound, &bytes, None, None, MBF_REVIEW_MAX_BYTES, true).review);
+    assert_eq!(mbf::value::small_int(value.get_or_null("declaration").get_or_null("recorded_origins")), Some(0));
+    assert_eq!(import(&bytes, Some(&sidecar), None, "bound.mbf").recorded_material_origins, 1);
 }
 
 #[test]

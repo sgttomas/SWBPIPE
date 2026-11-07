@@ -43,10 +43,6 @@ pub const MODEL_TOO_LARGE: &str = "MBF-IMPORT-MODEL-TOO-LARGE";
 /// The importer refused, or the document check blocked (§4.6).
 pub const NOT_ADOPTABLE: &str = "MBF-IMPORT-NOT-ADOPTABLE";
 
-/// The provenance source name the importer gives a material whose origin a bound identity file recorded
-/// (`importer/assemble.rs` `material_qualifies`); the review counts such materials.
-const RECORDED_ORIGIN_SOURCE: &str = "material origin recorded by the SWBPIPE MBF writer sidecar";
-
 /// The identity file beside the MBF, as the host read it.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ReviewedIdentityFile<'a> {
@@ -258,12 +254,23 @@ pub const IDENTITY_MAPS: [(&str, &str); 9] = [
     ("section", "section_map"),
 ];
 
-/// The ids an id-map member holds: a dict's values, a list value counting each of its items.
-fn identity_count(id_map: &Value, member: &str) -> u64 {
-    match id_map.get(member).and_then(Value::as_dict) {
-        Some(map) => map.values().map(|value| value.as_list().map_or(1, |items| items.len() as u64)).sum(),
-        None => 0,
-    }
+/// Identity maps have different shapes: supports expand lists of ids, regions are keyed by their ids, and a
+/// summed load retains a generated id rather than either original primitive's id, even in a bound import.
+fn identity_counts(id_map: &Value, member: &str, bound: bool) -> (u64, u64, u64) {
+    let Some(map) = id_map.get(member).and_then(Value::as_dict) else { return (0, 0, 0) };
+    let count = if member == "support_map" {
+        map.values().map(|value| value.as_list().map_or(0, |items| items.len() as u64)).sum()
+    } else {
+        map.len() as u64
+    };
+    let restored = if !bound {
+        0
+    } else if member == "load_map" {
+        map.values().filter(|entry| entry.get("summed_entries").and_then(Value::as_list).is_none_or(|items| items.len() <= 1)).count() as u64
+    } else {
+        count
+    };
+    (count, restored, count - restored)
 }
 
 fn binding_reason(result: &ImportResult, source: &ImportReviewSource<'_>) -> (&'static str, &'static str) {
@@ -276,11 +283,6 @@ fn binding_reason(result: &ImportResult, source: &ImportReviewSource<'_>) -> (&'
         _ if result.status != "imported" => ("unbound", "identity_file_refused_or_import_refused"),
         _ => ("unbound", "identity_file_not_applied"),
     }
-}
-
-fn recorded_origins(result: &ImportResult) -> u64 {
-    let Some(materials) = result.model.as_ref().and_then(|model| model.get("materials")).and_then(Value::as_list) else { return 0 };
-    materials.iter().filter(|material| text(material.get_or_null("provenance_record"), "source_name") == RECORDED_ORIGIN_SOURCE).count() as u64
 }
 
 // -- the review --------------------------------------------------------------------------------------------------------
@@ -365,7 +367,7 @@ impl Header<'_> {
         out.push("\"},\"declaration\":{\"sha256\":");
         push_optional_field(out, self.declaration_sha256);
         out.push(",\"recorded_origins\":");
-        push_u64(out, recorded_origins(self.result));
+        push_u64(out, self.result.recorded_material_origins);
         out.push("},\"units\":{\"unit_mode\":");
         push_field(out, text(&self.result.source, "unit_mode"));
         out.push(",\"angles\":");
@@ -410,15 +412,15 @@ impl Header<'_> {
             if index > 0 {
                 out.push(",");
             }
-            let count = identity_count(&self.result.id_map, member);
+            let (count, restored, formed) = identity_counts(&self.result.id_map, member, bound);
             out.push("{\"class\":\"");
             out.push(class);
             out.push("\",\"count\":");
             push_u64(out, count);
             out.push(",\"restored\":");
-            push_u64(out, if bound { count } else { 0 });
+            push_u64(out, restored);
             out.push(",\"formed_from_mbf_names\":");
-            push_u64(out, if bound { 0 } else { count });
+            push_u64(out, formed);
             out.push("}");
         }
         out.push("],\"unrecoverable\":");

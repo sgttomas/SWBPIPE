@@ -352,5 +352,6 @@ checks:
 - apps/desktop/src/features/caepipe-mbf/MbfExportDialog.test.tsx
 - apps/desktop/src/App.mbfExportDialog.test.tsx
 - apps/desktop/src/features/caepipe-mbf/mbfImport.test.ts
+- apps/desktop/src/features/caepipe-mbf/mbfImportSession.test.ts
 - apps/desktop/src/App.mbfImportDialog.test.tsx
 - apps/desktop/e2e/result-compatibility.spec.ts

@@ -131,6 +131,7 @@ const PAGE_TOKEN_HEX_LEN: usize = 32;
 const RETIREMENT_SEQUENCE_MAX: u64 = (1 << 53) - 1;
 const CANCEL_ARGS_MAX_BYTES: usize = 4 << 10;
 pub(crate) const EXPECTED_EPOCH: &str = "expectedEpoch";
+pub(crate) const REQUEST_SEQUENCE: &str = "requestSequence";
 pub(crate) const RETIREMENT_ID: &str = "retirementId";
 
 // -- Diagnostics ------------------------------------------------------------------------------------------------------
@@ -172,6 +173,7 @@ fn refused(code: &'static str, path: &'static str, message: impl Into<String>) -
 #[derive(Debug, Default)]
 struct RunState {
     cancelled: bool,
+    handed_off: bool,
     worker: Option<Arc<WorkerControl>>,
 }
 
@@ -194,7 +196,7 @@ impl RunControl {
     /// Cancels and kills the worker if one is attached; true if this cancel stopped it.
     fn cancel(&self) -> bool {
         let mut state = self.lock();
-        if state.cancelled {
+        if state.cancelled || state.handed_off {
             return false;
         }
         state.cancelled = true;
@@ -307,6 +309,7 @@ pub(crate) struct Source {
 #[derive(Debug)]
 struct ImportState {
     epoch: u64,
+    latest_sequence: u64,
     exhausted: bool,
     applied: Vec<(String, u64)>,
     run: Option<Arc<RunControl>>,
@@ -316,7 +319,7 @@ struct ImportState {
 
 impl Default for ImportState {
     fn default() -> Self {
-        ImportState { epoch: 0, exhausted: false, applied: Vec::new(), run: None, source: None, next_source_id: 1 }
+        ImportState { epoch: 0, latest_sequence: 0, exhausted: false, applied: Vec::new(), run: None, source: None, next_source_id: 1 }
     }
 }
 
@@ -331,6 +334,7 @@ pub(crate) struct MbfImports {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) struct ImportEntry {
     epoch: u64,
+    sequence: u64,
 }
 
 /// A run's registration: dropping it (as its command ends) stops tracking it.
@@ -356,13 +360,13 @@ impl MbfImports {
     /// The command's entry from its ticket (read from the admitted arguments before any other member is used): below
     /// the current epoch `MBF-IMPORT-CANCELLED`; missing, malformed or future `MBF-IMPORT-EPOCH-INVALID`; exhausted
     /// `MBF-IMPORT-EPOCH-EXHAUSTED`.
-    pub(crate) fn enter(&self, ticket: Option<serde_json::Value>) -> Result<ImportEntry, Diag> {
+    pub(crate) fn enter(&self, ticket: Option<serde_json::Value>, sequence: Option<serde_json::Value>) -> Result<ImportEntry, Diag> {
         let invalid = |what: &str| diag(EPOCH_INVALID, "expectedEpoch", format!("The import did not start: its request {what}. Nothing was imported."));
         let expected = match ticket {
             None => return Err(invalid("carries no retirement epoch")),
             Some(value) => value.as_u64().ok_or_else(|| invalid("carries a malformed retirement epoch"))?,
         };
-        let state = self.lock();
+        let mut state = self.lock();
         if state.exhausted {
             return Err(diag(EPOCH_EXHAUSTED, "", "The import did not start: it cannot be retired any further in this session. Restart SWBPIPE to import again."));
         }
@@ -372,7 +376,13 @@ impl MbfImports {
         if expected < state.epoch {
             return Err(diag(CANCELLED, "", CANCELLED_MESSAGE));
         }
-        Ok(ImportEntry { epoch: expected })
+        let sequence = sequence.and_then(|value| value.as_u64()).filter(|value| (1..=RETIREMENT_SEQUENCE_MAX).contains(value))
+            .ok_or_else(|| diag(ARGS_INVALID, REQUEST_SEQUENCE, "The start requires a positive safe-integer request sequence."))?;
+        if sequence <= state.latest_sequence {
+            return Err(diag(CANCELLED, "", CANCELLED_MESSAGE));
+        }
+        state.latest_sequence = sequence;
+        Ok(ImportEntry { epoch: expected, sequence })
     }
 
     /// Registers a run, cancelling the run in progress (any kind) and waking the pool's waiters. A command that entered
@@ -384,7 +394,7 @@ impl MbfImports {
         }
         let mut state = self.lock();
         let control = Arc::new(RunControl::default());
-        if entry.epoch < state.epoch || state.exhausted {
+        if entry.epoch < state.epoch || entry.sequence < state.latest_sequence || state.exhausted {
             control.cancel();
             return Registration { imports: self.clone(), control };
         }
@@ -415,6 +425,7 @@ impl MbfImports {
                 None => state.exhausted = true,
             }
         }
+        state.latest_sequence = 0;
         let cancelled = state.run.as_ref().is_some_and(|run| run.cancel());
         let source = state.source.take();
         let (epoch, exhausted) = (state.epoch, state.exhausted);
@@ -1490,6 +1501,9 @@ fn open_flow<'h>(
     held: &'h mut Held,
     file_name_out: &mut String,
 ) -> Result<Reply<'h>, Stop> {
+    if command.control.cancelled() {
+        return Err(Stop::Cancelled);
+    }
     let chosen = match choose() {
         Ok(Some(path)) => path,
         Ok(None) => return Ok(Reply::Cancelled),
@@ -1666,15 +1680,15 @@ fn admit<'r>(registry: &'r SolveJobRegistry, raw: Vec<u8>, copy: Lease, command:
 /// The members each start takes (§4.7); any other, a path included, is refused before anything else is read.
 fn members(command: &'static str) -> &'static [&'static str] {
     match command {
-        OPEN_COMMAND => &[EXPECTED_EPOCH],
-        REVIEW_COMMAND => &[EXPECTED_EPOCH, "sourceId", "declaration"],
-        _ => &[EXPECTED_EPOCH, "sourceId", "declaration", "reviewSha256"],
+        OPEN_COMMAND => &[EXPECTED_EPOCH, REQUEST_SEQUENCE],
+        REVIEW_COMMAND => &[EXPECTED_EPOCH, REQUEST_SEQUENCE, "sourceId", "declaration"],
+        _ => &[EXPECTED_EPOCH, REQUEST_SEQUENCE, "sourceId", "declaration", "reviewSha256"],
     }
 }
 
 /// Builds the response: H7 is counted over borrowed views, refused above its limit before any buffer, leased, then
 /// written once; the response takes the buffer.
-fn respond_with<R>(memory: &NativeLeaseMemory<'_>, reply: Reply<'_>, held: &mut Held, respond: impl FnOnce(String) -> R) -> R {
+fn respond_with<R>(memory: &NativeLeaseMemory<'_>, reply: Reply<'_>, held: &mut Held, control: Option<&RunControl>, respond: impl FnOnce(String) -> R) -> R {
     let adopt_file = match &reply {
         Reply::Opened { file_name, .. } => Some(file_name.clone()),
         _ => None,
@@ -1689,7 +1703,19 @@ fn respond_with<R>(memory: &NativeLeaseMemory<'_>, reply: Reply<'_>, held: &mut 
         };
         length = reply.len();
     }
-    match memory.named_lease("the import's reply", exact_text_bytes(length), "nothing was imported.") {
+    let (adopt, file_name) = match &reply {
+        Reply::Opened { file_name, .. } => (true, file_name.as_str()),
+        Reply::Reviewed { file_name, .. } => (false, file_name.as_str()),
+        Reply::Refused { adopt, file_name, .. } => (*adopt, file_name.as_str()),
+        Reply::Cancelled => (false, ""),
+    };
+    let cancelled = diag(CANCELLED, "", CANCELLED_MESSAGE);
+    let mut cancel_length = Counter(0);
+    if control.is_some() {
+        put_refused_reply(&mut cancel_length, adopt, file_name, std::slice::from_ref(&cancelled));
+    }
+    // Admission can wait. Reserve enough for either outcome before taking the final cancellation/handoff lock.
+    match memory.named_lease("the import's reply", exact_text_bytes(length.max(cancel_length.0)), "nothing was imported.") {
         Ok(lease) => held.reply = Some(lease),
         Err(message) => {
             let adopt = matches!(reply, Reply::Opened { .. }) || matches!(reply, Reply::Refused { adopt: true, .. });
@@ -1698,8 +1724,18 @@ fn respond_with<R>(memory: &NativeLeaseMemory<'_>, reply: Reply<'_>, held: &mut 
             return respond(String::from_utf8(text).unwrap_or_default());
         }
     }
-    let mut buffer = Vec::with_capacity(length as usize);
-    reply.write(&mut buffer);
+    let mut handoff = control.map(RunControl::lock);
+    let was_cancelled = handoff.as_ref().is_some_and(|state| state.cancelled);
+    let mut buffer = Vec::with_capacity(if was_cancelled { cancel_length.0 } else { length } as usize);
+    if was_cancelled {
+        put_refused_reply(&mut buffer, adopt, file_name, std::slice::from_ref(&cancelled));
+    } else {
+        reply.write(&mut buffer);
+    }
+    // Retirement is ordered with preparation of the final response. Once handed off, it cannot truthfully count
+    // this command as stopped. No filesystem commit is added; frontend currency still guards session adoption.
+    if let Some(state) = &mut handoff { state.handed_off = true; }
+    drop(handoff);
     drop(reply);
     respond(String::from_utf8(buffer).expect("the reply is UTF-8"))
 }
@@ -1723,16 +1759,16 @@ fn start<R>(
     if let Some(unknown) = unknown {
         let reply = early(ARGS_INVALID, "", format!("`{command_name}` takes no member `{unknown}`."));
         drop(args);
-        let response = respond_with(&memory, reply, &mut held, respond);
+        let response = respond_with(&memory, reply, &mut held, None, respond);
         drop(held);
         drop(lease);
         return Ok(response);
     }
-    let entry = match imports.enter(args.opt_value(EXPECTED_EPOCH)) {
+    let entry = match imports.enter(args.opt_value(EXPECTED_EPOCH), args.opt_value(REQUEST_SEQUENCE)) {
         Ok(entry) => entry,
         Err(item) => {
             drop(args);
-            let response = respond_with(&memory, Reply::Refused { adopt, file_name: String::new(), diagnostics: vec![item] }, &mut held, respond);
+            let response = respond_with(&memory, Reply::Refused { adopt, file_name: String::new(), diagnostics: vec![item] }, &mut held, None, respond);
             drop(held);
             drop(lease);
             return Ok(response);
@@ -1750,7 +1786,7 @@ fn start<R>(
         Ok(reply) => reply,
         Err(stop) => stop_reply(stop, adopt, std::mem::take(&mut file_name)),
     };
-    let response = respond_with(&memory, reply, &mut reply_held, respond);
+    let response = respond_with(&memory, reply, &mut reply_held, Some(&command.control), respond);
     drop(held);
     drop(reply_held);
     drop(command);

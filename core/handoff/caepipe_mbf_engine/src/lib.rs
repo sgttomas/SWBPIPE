@@ -186,6 +186,9 @@ pub struct ImportResult {
     pub assumptions: Vec<String>,
     /// The structured counterpart of each entry of `assumptions`, in the same order (not part of `to_dict()`).
     pub assumption_facts: Vec<AssumptionFact>,
+    /// Number of emitted materials whose origin was selected from a bound sidecar. Review-only metadata, not
+    /// inferred from caller-controlled provenance wording and not part of the serialized model/report/id map.
+    pub recorded_material_origins: u64,
     pub target_options: Dict,
     pub id_map: Value,
     pub source: Value,

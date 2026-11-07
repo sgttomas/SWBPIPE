@@ -53,6 +53,12 @@ describe("the import review's product presentation", () => {
     expect(text("thermal_difference_zero_fields", { thermal_change: "T1-T_ref", corrosion_allowance_under_pressure: "true" })).toContain("except the corrosion allowance");
     expect(text("pressure_regions", { unit: "bar", region_count: "2", contract: "3.0.0/exact_pressure_v3", shear_model: "s", regions: "restored", closure: "sidecar_restored", pressure_case: "sustained", corrosion_allowance: "zero_stated" }))
       .toContain("restored from the identity file");
+    const formed = text("pressure_regions", { unit: "bar", region_count: "1", contract: "3.0.0/exact_pressure_v3", shear_model: "s", regions: "formed", closure: "caller_declared_corner_wall", corner_override: "explicit_node_declaration", pressure_case: "sustained", corrosion_allowance: "zero_stated" });
+    expect(formed).toContain("Closure at each real end is declared by the caller");
+    expect(formed).toContain("unless an explicit node closure declaration overrides it");
+    const guide = text("support_guide", { stiffness_unit: "N/mm", element_selection: "preceding_else_following" });
+    expect(guide).toContain("preceding element, falling back to the following element");
+    expect(guide).toContain("axis-aligned element");
     expect(text("binding_convention", { basis: "profile_decision_pd1", convention: "load_reference", effect: "carried_until_changed", mbf_version: "15.10" })).toContain("still open");
     for (const description of Object.values(MBF_IMPORT_ASSUMPTIONS)) expect(String(description)).not.toMatch(/CAEPIPE/);
   });
@@ -79,6 +85,17 @@ describe("the import review's product presentation", () => {
     expect(declarationFor([["M1", { origin: "project_invented", source_name: "x" }], ["*", { origin: "user_supplied", source_name: "y" }], ["M2", null]]))
       .toEqual({ M1: { origin: "project_invented", source_name: "x" } });
     expect(declarationFor([["M1", { origin: "user_supplied", source_name: "  " }]])).toBeNull();
+  });
+
+  it("keeps prototype-shaped material names as own declaration entries through JSON transport", () => {
+    const entry = { origin: "user_supplied" as const, source_name: "my invented source" };
+    const declaration = declarationFor([["__proto__", entry], ["constructor", entry], ["toString", entry]])!;
+    expect(Object.getPrototypeOf(declaration)).toBeNull();
+    const transported = JSON.parse(JSON.stringify(declaration));
+    for (const name of ["__proto__", "constructor", "toString"]) {
+      expect(Object.hasOwn(transported, name)).toBe(true);
+      expect(transported[name]).toEqual(entry);
+    }
   });
 
   it("no product source imports the wasm MBF importer", () => {

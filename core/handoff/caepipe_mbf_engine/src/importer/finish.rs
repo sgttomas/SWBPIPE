@@ -374,7 +374,11 @@ impl<'a> Importer<'a> {
                     "stop" => "support_limit_stop",
                     _ => "support_skewed",
                 };
-                self.assumption_facts.push(fact(id, vec![("stiffness_unit", unit.to_string())]));
+                let mut parameters = vec![("stiffness_unit", unit.to_string())];
+                if kind == "guide" {
+                    parameters.push(("element_selection", "preceding_else_following".to_string()));
+                }
+                self.assumption_facts.push(fact(id, parameters));
             }
         }
         if flexible {

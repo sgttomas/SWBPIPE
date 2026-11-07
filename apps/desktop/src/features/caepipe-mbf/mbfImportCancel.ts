@@ -79,6 +79,8 @@ let tail: Promise<boolean> | null = null;
 let tailId: MbfImportRetirementId | null = null;
 let deliveries = 0;
 let acknowledgedEpoch: number | null = null;
+let latestStart: symbol | null = null;
+let requestSequence = 0;
 
 function deliver(id: MbfImportRetirementId | null): Promise<MbfImportCancelReceipt | null> {
   const previous: Promise<unknown> = tail ?? Promise.resolve();
@@ -112,7 +114,7 @@ async function retirementSettled(): Promise<boolean> {
   }
 }
 
-/** A start's result: its outcome and whether it is still current (no retirement since, and the caller's own check). A
+/** A start's result: its outcome and whether it is still current (no newer start or retirement, and the caller's check). A
  * caller discards a result that is not current. */
 export type MbfImportStarted<T> = { outcome: T; current: () => boolean };
 export type MbfImportStillCurrent = () => boolean;
@@ -121,14 +123,18 @@ type StartCommand = "open_mbf_import" | "review_mbf_import" | "adopt_mbf_import"
 
 async function start<T>(command: StartCommand, args: Record<string, unknown>, stillCurrent: MbfImportStillCurrent | undefined, refused: (code: string) => T): Promise<MbfImportStarted<T>> {
   const started = generation;
-  const current = () => started === generation && (stillCurrent?.() ?? true);
+  const nonce = Symbol();
+  if (stillCurrent?.() ?? true) latestStart = nonce;
+  const current = () => nonce === latestStart && started === generation && (stillCurrent?.() ?? true);
   const result = (outcome: T): MbfImportStarted<T> => ({ outcome, current });
   const confirmed = await retirementSettled();
   if (!current()) return result(refused(MBF_IMPORT_CANCELLED));
+  if (!Number.isSafeInteger(requestSequence + 1)) return result(refused("MBF-IMPORT-ARGS-INVALID"));
+  const sequence = ++requestSequence;
   const ticket = acknowledgedEpoch;
   if (!confirmed || ticket === null) return result(refused(MBF_IMPORT_RETIREMENT_UNCONFIRMED));
   try {
-    return result(await invokeWithIngress<T>(command, { ...args, [EXPECTED_EPOCH]: ticket }, { stillCurrent: current }));
+    return result(await invokeWithIngress<T>(command, { ...args, [EXPECTED_EPOCH]: ticket, requestSequence: sequence }, { stillCurrent: current }));
   } catch (error) {
     if (error instanceof IngressRequestRetiredError) return result(refused(MBF_IMPORT_CANCELLED));
     throw error;

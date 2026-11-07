@@ -279,9 +279,11 @@ export const MBF_IMPORT_ASSUMPTIONS: Readonly<Record<string, (p: Parameters) => 
     `Shear model ${p.shear_model} (${p.source === "caller" ? "as given" : "the exact pressure contract's default, as the file states none"}); curved bends stay ${p.curved_bends.replace(/_/g, "-")} under either model.`,
   pressure_regions: (p) =>
     `Pressure is kept in ${p.unit} as ${p.region_count} exact pressure region(s) under contract ${p.contract} with shear model ${p.shear_model}; regions are ${
-      p.regions === "restored" ? "restored from the identity file, each checked whole" : "formed from runs of equal pressure and bore, with corner closures deduced from the continuous wall"
+      p.regions === "restored"
+        ? "restored from the identity file, each checked whole"
+        : "formed from maximal runs of equal pressure and bore, ending at tees, pressure or bore changes and non-collinear straight corners. Closure at each real end is declared by the caller; a corner transfers to the continuous wall unless an explicit node closure declaration overrides it"
     }. Pressure acts in the ${p.pressure_case} case; each section's corrosion allowance is the zero the file states.`,
-  support_guide: (p) => `A guide restrains the two translations lateral to its element, rigidly or as springs in ${p.stiffness_unit}.`,
+  support_guide: (p) => `A guide uses the preceding element, falling back to the following element when none precedes it; it restrains the two global translations lateral to that axis-aligned element, rigidly or as springs in ${p.stiffness_unit}.`,
   support_limit_stop: (p) => `A two-way limit stop along an axis-aligned direction is a rigid line stop on that direction, or a spring in ${p.stiffness_unit}.`,
   support_skewed: (p) => `A skewed restraint along an axis-aligned direction is a two-way spring in ${p.stiffness_unit} on that direction.`,
   support_flexible_anchor: () => "A flexible anchor is a spring on each translation with a non-zero stiffness; a zero stiffness leaves that direction free.",
@@ -334,7 +336,7 @@ export function importAdoptable(review: MbfImportReviewPayload): boolean {
 /** The declaration the form sends (§4.1 step 4): one entry per listed material it declares, never the engine's `*`;
  * `null` when it declares none. */
 export function declarationFor(entries: ReadonlyArray<readonly [string, MbfDeclarationEntry | null]>): MbfDeclaration {
-  const declaration: Record<string, MbfDeclarationEntry> = {};
+  const declaration: Record<string, MbfDeclarationEntry> = Object.create(null);
   for (const [name, entry] of entries) {
     if (name === "*" || entry === null) continue;
     if (entry.origin === "user_supplied" && entry.source_name.trim() === "") continue;
@@ -353,7 +355,7 @@ export function declarationKey(declaration: MbfDeclaration): string {
  * the user adopted. */
 export function importedStatusLine(capture: MbfAdoptCapture): string {
   const ids = capture.binding === "bound"
-    ? `bound by its identity file; ${capture.restored} ids restored`
+    ? `bound by its identity file; ${capture.restored} ids restored${capture.formedFromNames ? `, ${capture.formedFromNames} formed` : ""}`
     : `unbound; ids were formed from node numbers (${capture.formedFromNames})`;
   return `Imported model batch file ${capture.fileName} (${ids}).`;
 }

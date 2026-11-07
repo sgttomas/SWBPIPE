@@ -257,6 +257,7 @@ pub(crate) struct Importer<'a> {
     pub assumptions: Vec<String>,
     /// The structured counterpart of each entry of `assumptions`, in the same order.
     pub assumption_facts: Vec<AssumptionFact>,
+    pub recorded_material_origins: u64,
     pub target_options: Dict,
     pub empty_comments: i64,
     pub delegated_sections: Dict,
@@ -302,6 +303,7 @@ impl<'a> Importer<'a> {
             loss: Vec::new(),
             assumptions: Vec::new(),
             assumption_facts: Vec::new(),
+            recorded_material_origins: 0,
             target_options: Dict::new(),
             empty_comments: 0,
             delegated_sections: Dict::new(),
@@ -433,6 +435,7 @@ impl<'a> Importer<'a> {
             loss_report: self.loss.clone(),
             assumptions: self.assumptions.clone(),
             assumption_facts: self.assumption_facts.clone(),
+            recorded_material_origins: if refused { 0 } else { self.recorded_material_origins },
             target_options: self.target_options.clone(),
             id_map: if refused { Value::Dict(Dict::new()) } else { id_map },
             source,

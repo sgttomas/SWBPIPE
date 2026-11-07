@@ -12,7 +12,7 @@ beforeEach(async () => {
   vi.resetModules();
   barrier = await import("./mbfImportCancel");
 });
-afterEach(() => invokeMock.mockReset());
+afterEach(() => { vi.useRealTimers(); invokeMock.mockReset(); });
 
 function epochHost(options: { acknowledge?: () => boolean } = {}) {
   const host = { epoch: 0, calls: [] as Array<{ command: string; args?: Record<string, unknown> }> };
@@ -34,10 +34,10 @@ describe("the MBF import's session barrier", () => {
     await barrier.openMbfImport();
     expect(host.calls.map((call) => call.command)).toEqual(["cancel_mbf_import", "open_mbf_import"]);
     expect(host.calls[0].args).toEqual({ retirementId: { page: expect.stringMatching(/^[0-9a-f]{32}$/), sequence: 1 } });
-    expect(host.calls[1].args).toEqual({ expectedEpoch: 1 });
+    expect(host.calls[1].args).toEqual({ expectedEpoch: 1, requestSequence: 1 });
     await barrier.retireMbfImportSession();
     await barrier.reviewMbfImport({ sourceId: 1, declaration: null });
-    expect(host.calls.at(-1)).toEqual({ command: "review_mbf_import", args: { sourceId: 1, declaration: null, expectedEpoch: 2 } });
+    expect(host.calls.at(-1)).toEqual({ command: "review_mbf_import", args: { sourceId: 1, declaration: null, expectedEpoch: 2, requestSequence: 2 } });
     expect(host.calls.some((call) => call.command === "cancel_mbf_export")).toBe(false);
   });
 
@@ -67,5 +67,36 @@ describe("the MBF import's session barrier", () => {
     const commands = host.calls.map((call) => call.command);
     expect(commands.slice(-2)).toEqual(["cancel_mbf_import", "adopt_mbf_import"]);
     expect(host.calls.at(-1)?.args?.expectedEpoch).toBe(host.epoch);
+  });
+
+  it("never re-sends an older review after a newer start, or after its declaration currency changes", async () => {
+    const host = epochHost();
+    await barrier.retireMbfImportSession();
+    const sent: number[] = [];
+    invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
+      if (command !== "review_mbf_import") return Promise.resolve({ outcome: "cancelled" });
+      sent.push(args?.sourceId as number);
+      if (args?.sourceId === 1) return Promise.reject({ code: "RESOURCE_UNAVAILABLE", refusal: { kind: "headroom_insufficient", required_bytes: 2, available_bytes: 1 }, pool: null });
+      return Promise.resolve({ outcome: "reviewed", sourceId: 2 });
+    });
+    vi.useFakeTimers();
+    const older = barrier.reviewMbfImport({ sourceId: 1, declaration: null });
+    await vi.advanceTimersByTimeAsync(0);
+    expect(sent).toEqual([1]);
+    const newer = await barrier.reviewMbfImport({ sourceId: 2, declaration: null });
+    await vi.advanceTimersByTimeAsync(100);
+    expect((await older).outcome).toMatchObject({ outcome: "refused", diagnostics: [{ code: "MBF-IMPORT-CANCELLED" }] });
+    expect(sent).toEqual([1, 2]);
+    expect(newer.current()).toBe(true);
+
+    let current = true;
+    const reverted = barrier.reviewMbfImport({ sourceId: 1, declaration: null }, () => current);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(sent).toEqual([1, 2, 1]);
+    current = false;
+    await vi.advanceTimersByTimeAsync(100);
+    expect((await reverted).outcome).toMatchObject({ outcome: "refused", diagnostics: [{ code: "MBF-IMPORT-CANCELLED" }] });
+    expect(sent).toEqual([1, 2, 1]);
+    expect(host.calls.some((call) => call.command === "cancel_mbf_export")).toBe(false);
   });
 });

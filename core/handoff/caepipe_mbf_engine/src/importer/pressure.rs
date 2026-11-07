@@ -313,6 +313,7 @@ impl<'a> Importer<'a> {
                 ("shear_model", shear_model.clone()),
                 ("regions", formed.to_string()),
                 ("closure", if formed == "formed" { "caller_declared_corner_wall" } else { "sidecar_restored" }.to_string()),
+                ("corner_override", if formed == "formed" { "explicit_node_declaration" } else { "sidecar_restored" }.to_string()),
                 ("pressure_case", "sustained".to_string()),
                 ("corrosion_allowance", "zero_stated".to_string()),
             ],

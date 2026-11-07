@@ -95,6 +95,7 @@ import { retireMbfExportSession, reviewMbfExport, saveMbfExport } from "../caepi
 import type { MbfExportDialogRequest } from "../caepipe-mbf/MbfExportDialog";
 import { closedSaveStatusLine } from "../caepipe-mbf/mbfExport";
 import { mbfExportRetirementOwner } from "../caepipe-mbf/mbfExportSession";
+import { mbfImportRetirementOwner } from "../caepipe-mbf/mbfImportSession";
 import { adoptMbfImport, openMbfImport, retireMbfImportSession, reviewMbfImport } from "../caepipe-mbf/mbfImportCancel";
 import type { MbfImportDialogRequest } from "../caepipe-mbf/MbfImportDialog";
 import {
@@ -423,7 +424,9 @@ export function useWorkspaceSession() {
   // flow's; a session's end calls the same one, so only the first call sends anything).
   const [mbfImportRequest, setMbfImportRequest] = useState<MbfImportDialogRequest | null>(null);
   const mbfImportDialogOpenRef = useRef(false);
-  const mbfImportRetireRef = useRef<(() => void) | null>(null);
+  const [mbfImportRetirement] = useState(() => mbfImportRetirementOwner(() => {
+    if (isTauriRuntime()) void retireMbfImportSession();
+  }));
   // The session's ownership of the export's retirements and of a closed dialog's save (`mbfExportSession.ts`): one
   // logical retirement per close, unmount or session end.
   const [mbfExportRetirement] = useState(() => mbfExportRetirementOwner(retireMbfExportSession));
@@ -3226,22 +3229,15 @@ export function useWorkspaceSession() {
     // Captured before the workspace turns inert, which drops its focus.
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const generation = projectSessionGenerationRef.current;
-    let retired = false;
     let handedOff = false;
     let open = true;
-    const retire = () => {
-      if (retired) return;
-      retired = true;
-      if (mbfImportRetireRef.current === retire) mbfImportRetireRef.current = null;
-      void retireMbfImportSession();
-    };
+    const { retire } = mbfImportRetirement.openRequest(generation);
     const stillCurrent = () => open && generation === projectSessionGenerationRef.current;
     const releaseHold = () => {
       open = false;
       mbfImportDialogOpenRef.current = false;
       setMbfImportRequest(null);
     };
-    mbfImportRetireRef.current = retire;
     mbfImportDialogOpenRef.current = true;
     setMbfImportRequest({
       opener,
@@ -3250,7 +3246,7 @@ export function useWorkspaceSession() {
         if (!handedOff) retire();
       },
       open: () => openMbfImport(stillCurrent),
-      review: (args) => reviewMbfImport(args, stillCurrent),
+      review: (args, current) => reviewMbfImport(args, () => stillCurrent() && (current?.() ?? true)),
       adopt: (capture) => {
         if (handedOff) return;
         handedOff = true;
@@ -3946,12 +3942,10 @@ export function useWorkspaceSession() {
   // File > Import MBF…: a project session's end (each new generation, unmount included) retires the import, through
   // the held request's one retirement when there is one, and closes an open import dialog.
   useEffect(() => () => {
-    const retire = mbfImportRetireRef.current;
-    mbfImportRetireRef.current = null;
-    if (retire) retire();
-    else if (isTauriRuntime()) void retireMbfImportSession();
-    mbfImportDialogOpenRef.current = false;
-    setMbfImportRequest(null);
+    if (mbfImportRetirement.sessionEnded(projectSessionGeneration)) {
+      mbfImportDialogOpenRef.current = false;
+      setMbfImportRequest(null);
+    }
   }, [projectSessionGeneration]);
   async function handleRunModelChecks() {
     if (!model) return;

@@ -1,8 +1,8 @@
 //! File > Import MBF…'s native path (DEL-17-04 Design `desktop-mbf-export-import.md` §4.8.9, slice 5): the commands'
 //! ingress and ledger, task 5 in a real worker process (this test binary run as the worker), the decode and the
-//! replies, over the writer's own pair for the maintained invented export model
-//! (`fixtures/caepipe_mbf/invented/desktop_export/`, whose recorded digests tie these bytes to what `save_mbf_export`
-//! writes), bound and unbound; then the selection refusals and acquisition races, the re-read's change refusals,
+//! replies, over the actual `save_mbf_export` command's pair for the maintained invented export model
+//! (`fixtures/caepipe_mbf/invented/desktop_export/`), bound and unbound; the App reply fixture follows the same
+//! native-export-to-import path. Other file/refusal cases use engine-written inputs. Then acquisition races and change refusals,
 //! the tickets and keyed retirements, Adopt's staleness, the decode's tamper refusals, the ledger and cancellation,
 //! and the source scan that keeps task 5's arm the only production caller of `worker_import`.
 
@@ -67,6 +67,44 @@ impl Sandbox {
     fn ids(&self) -> PathBuf {
         self.0.join("swbpipe-model.swbpipe-ids.json")
     }
+
+    /// Exercise the actual native review/save command path (task 3 and its file transaction), then let task 5
+    /// open those files. Using this in the reply writer connects the maintained App fixture to native export too.
+    fn native_pair(&self, registry: &SolveJobRegistry) -> PathBuf {
+        use crate::{mbf_export, mbf_worker};
+        let _save_lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
+        let runs = mbf_worker::MbfRuns::default();
+        let text = open_pipe_stress_operation_applier::canonical_json(&serde_json::from_str::<Value>(EXPORT_MODEL).unwrap());
+        let model_hash = format!("sha256:{}", hex(text.as_bytes()));
+        let settings = r#"{"title":"Invented MBF export","referenceTemperature":{"value":20,"unit":"degC"},"maxLayoutRows":null}"#;
+        let mut args = json!({"expectedEpoch": runs.epoch(), "canonicalText": text, "claimedModelHash": model_hash, "settingsJson": settings});
+        let (bytes, copy) = mbf_worker::reserve(registry, &raw(&args), &headers(Some(INGRESS_ARGS_JSON_V1)), mbf_export::REVIEW_COMMAND).unwrap();
+        let reviewed: Value = mbf_worker::review_command(registry, &runs, bytes, copy, |_, text| serde_json::from_str(&text).unwrap()).unwrap();
+        assert_eq!(reviewed["outcome"], "reviewed", "{reviewed}");
+        args["suggestedName"] = json!("swbpipe-model.mbf");
+        args["reviewed"] = json!({"mbfSha256": reviewed["review"]["mbf_sha256"], "sidecarSha256": reviewed["review"]["sidecar_sha256"]});
+        args["screening"] = json!({
+            "route_id": mbf_export::MBF_EXPORT_ROUTE_ID, "export_context": "local_private", "explicit_local_private_intent": true,
+            "blocked": false, "materialization_withheld": false, "lossless_required": true, "exact_payload_match": true,
+            "blocking_count": 0, "payload_sha256": model_hash
+        });
+        args["localFirstEvidence"] = json!({
+            "route_id": mbf_export::MBF_EXPORT_ROUTE_ID, "export_context": "local_private", "storage_context": "local_private",
+            "action": "include_metadata_only", "reason_code": "PRIVATE_LOCAL_METADATA_ALLOWED", "blocked": false,
+            "metadata_only": true, "explicit_local_private_intent": true
+        });
+        let path = self.0.join("swbpipe-model.mbf");
+        let (bytes, copy) = mbf_worker::reserve(registry, &raw(&args), &headers(Some(INGRESS_ARGS_JSON_V1)), mbf_export::COMMAND).unwrap();
+        let saved: Value = mbf_worker::save_command(
+            registry, &runs, bytes, copy, || Err("the invented fixture has no stored library references".into()),
+            |_| Ok(Some(path.clone())), |_, text| serde_json::from_str(&text).unwrap(),
+        ).unwrap();
+        assert_eq!(saved["outcome"], "saved", "{saved}");
+        assert_eq!(hex(&fs::read(&path).unwrap()), reviewed["review"]["mbf_sha256"]);
+        assert_eq!(hex(&fs::read(self.ids()).unwrap()), reviewed["review"]["sidecar_sha256"]);
+        assert_released(registry);
+        path
+    }
 }
 
 impl Drop for Sandbox {
@@ -103,11 +141,17 @@ fn assert_released(registry: &SolveJobRegistry) {
 
 /// `body` with the current ticket unless it names one (or names `"absent"`, which removes it).
 fn ticketed(imports: &MbfImports, body: &Value) -> Value {
+    static SEQUENCE: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
     let mut body = body.clone();
     match body.get(EXPECTED_EPOCH) {
         None => body[EXPECTED_EPOCH] = json!(imports.epoch()),
         Some(value) if value.as_str() == Some("absent") => drop(body.as_object_mut().unwrap().remove(EXPECTED_EPOCH)),
         Some(_) => {}
+    }
+    match body.get(REQUEST_SEQUENCE).and_then(Value::as_str) {
+        Some("absent") => { body.as_object_mut().unwrap().remove(REQUEST_SEQUENCE); }
+        _ if body.get(REQUEST_SEQUENCE).is_none() => body[REQUEST_SEQUENCE] = json!(SEQUENCE.fetch_add(1, Ordering::SeqCst)),
+        _ => {}
     }
     body
 }
@@ -182,7 +226,7 @@ fn engine_model(mbf_bytes: &[u8], sidecar: Option<&[u8]>, declaration: Option<&[
 fn declaration_for(names: &[Value]) -> Value {
     let mut map = serde_json::Map::new();
     for name in names {
-        map.insert(name.as_str().unwrap().to_string(), json!({"origin": "project_invented", "source_name": "invented test data"}));
+        map.insert(name.as_str().unwrap().to_string(), json!({"origin": "project_invented", "source_name": "project-invented example data"}));
     }
     Value::Object(map)
 }
@@ -198,8 +242,8 @@ fn a_bound_saved_pair_imports_through_task_5_with_the_exported_ids() {
     let registry = real_worker();
     let imports = MbfImports::default();
     let sandbox = Sandbox::new("bound");
-    let mbf_path = sandbox.pair(true);
-    let (text, sidecar) = written_pair();
+    let mbf_path = sandbox.native_pair(&registry);
+    let (text, sidecar) = (fs::read(&mbf_path).unwrap(), fs::read(sandbox.ids()).unwrap());
     let opened = open(&registry, &imports, &mbf_path);
     assert!(opened.held_during_response > 0, "the result lease is held while the response is built");
     assert_released(&registry);
@@ -254,8 +298,9 @@ fn an_unbound_mbf_needs_its_declaration_and_imports_with_ids_formed_from_names()
     let registry = real_worker();
     let imports = MbfImports::default();
     let sandbox = Sandbox::new("unbound");
-    let mbf_path = sandbox.pair(false);
-    let (text, sidecar) = written_pair();
+    let mbf_path = sandbox.native_pair(&registry);
+    let (text, sidecar) = (fs::read(&mbf_path).unwrap(), fs::read(sandbox.ids()).unwrap());
+    fs::remove_file(sandbox.ids()).unwrap();
     let first = open(&registry, &imports, &mbf_path).value;
     assert_eq!(first["outcome"], "reviewed");
     assert_eq!(first["review"]["adoptable"], false);
@@ -440,34 +485,59 @@ fn non_regular_oversized_and_unreadable_choices_are_refused_by_name() {
     }
 }
 
-/// The acquisition race: a regular file checked by `lstat` and replaced by a FIFO before its open. Nonblocking
-/// acquisition refuses the non-regular handle at once instead of waiting for a writer (a blocking open would hang this
-/// test past its deadline), for the MBF and for the identity file. A cancellation at the same seam installs no source
-/// and returns every lease.
+/// Run the actual acquisition race in a child owned by the bounded parent test below. The parent owns the sandbox
+/// too, so killing a regressed blocking open closes its descriptors and still permits deterministic cleanup.
+#[cfg(unix)]
+#[test]
+#[ignore = "invoked in a bounded subprocess by the FIFO acquisition regression"]
+fn fifo_substitution_probe() {
+    let mbf_path = PathBuf::from(std::env::var_os("SWBPIPE_MBF_FIFO_PROBE_PATH").expect("probe path"));
+    let identity = std::env::var_os("SWBPIPE_MBF_FIFO_PROBE_IDENTITY").is_some();
+    let swapped = if identity { mbf_path.with_file_name("swbpipe-model.swbpipe-ids.json") } else { mbf_path.clone() };
+    let registry = real_worker();
+    let imports = MbfImports::default();
+    test_hooks::BEFORE_OPEN.with(|hook| {
+        *hook.borrow_mut() = Some(Box::new(move |path: &Path| {
+            if path == swapped {
+                fs::remove_file(path).unwrap();
+                mkfifo(path);
+            }
+        }));
+    });
+    let reply = open(&registry, &imports, &mbf_path).value;
+    test_hooks::BEFORE_OPEN.with(|hook| *hook.borrow_mut() = None);
+    assert_eq!(codes(&reply), vec![OPEN_NOT_A_FILE], "identity: {identity}");
+    assert_eq!(imports.source_id(), None);
+    assert_released(&registry);
+}
+
+/// The acquisition race for both files. A blocking-open regression is killed and reaped within the deadline,
+/// then fails this test, rather than hanging the whole native suite. A cancellation at the seam installs no source.
+#[cfg(unix)]
 #[test]
 fn a_fifo_substituted_before_the_open_is_refused_without_waiting_and_a_cancel_there_installs_nothing() {
-    let registry = real_worker();
     for identity in [false, true] {
-        let imports = MbfImports::default();
         let sandbox = Sandbox::new("fifo-race");
         let mbf_path = sandbox.pair(true);
-        let raced = if identity { sandbox.ids() } else { mbf_path.clone() };
-        let swapped = raced.clone();
-        test_hooks::BEFORE_OPEN.with(|hook| {
-            *hook.borrow_mut() = Some(Box::new(move |path: &Path| {
-                if path == swapped {
-                    fs::remove_file(path).unwrap();
-                    mkfifo(path);
-                }
-            }));
-        });
-        let began = Instant::now();
-        let reply = open(&registry, &imports, &mbf_path).value;
-        test_hooks::BEFORE_OPEN.with(|hook| *hook.borrow_mut() = None);
-        assert!(began.elapsed() < Duration::from_secs(20), "the open did not wait for a writer");
-        assert_eq!(codes(&reply), vec![OPEN_NOT_A_FILE], "identity: {identity}");
-        assert_eq!(imports.source_id(), None);
-        assert_released(&registry);
+        let mut command = std::process::Command::new(std::env::current_exe().unwrap());
+        command.args(["--ignored", "--exact", "mbf_import::tests::fifo_substitution_probe"])
+            .env("SWBPIPE_MBF_FIFO_PROBE_PATH", &mbf_path);
+        if identity { command.env("SWBPIPE_MBF_FIFO_PROBE_IDENTITY", "1"); }
+        else { command.env_remove("SWBPIPE_MBF_FIFO_PROBE_IDENTITY"); }
+        let mut child = command.spawn().expect("FIFO probe subprocess");
+        let deadline = Instant::now() + Duration::from_secs(20);
+        loop {
+            if let Some(status) = child.try_wait().unwrap() {
+                assert!(status.success(), "FIFO acquisition probe failed, identity: {identity}");
+                break;
+            }
+            if Instant::now() >= deadline {
+                let _ = child.kill();
+                child.wait().expect("reap the blocked FIFO probe");
+                panic!("FIFO acquisition blocked past its deadline, identity: {identity}");
+            }
+            std::thread::sleep(Duration::from_millis(5));
+        }
     }
     // A retirement at the seam.
     let imports = MbfImports::default();
@@ -503,6 +573,108 @@ fn a_retirement_while_the_chooser_is_open_installs_no_source() {
     assert_eq!(imports.source_id(), None);
     let dismissed = open_with(&registry, &imports, &json!({}), || Ok(None)).value;
     assert_eq!(dismissed, json!({"outcome": "cancelled"}));
+    assert_released(&registry);
+}
+
+#[test]
+fn a_retirement_before_registration_opens_no_chooser() {
+    let registry = real_worker();
+    let imports = MbfImports::default();
+    let (r, state) = (registry.clone(), imports.clone());
+    test_hooks::BEFORE_REGISTRATION.with(|hook| {
+        *hook.borrow_mut() = Some(Box::new(move || { retire(&r, &state, 12, 1); }));
+    });
+    let reply = open_with(&registry, &imports, &json!({}), || panic!("a cancelled start must not open a chooser")).value;
+    assert_eq!(codes(&reply), vec![CANCELLED]);
+    assert_eq!(imports.source_id(), None);
+    assert_released(&registry);
+}
+
+#[test]
+fn an_older_dispatch_cannot_register_after_a_newer_one_or_replay_itself() {
+    let registry = real_worker();
+    let imports = MbfImports::default();
+    let (r, state) = (registry.clone(), imports.clone());
+    test_hooks::BEFORE_REGISTRATION.with(|hook| {
+        *hook.borrow_mut() = Some(Box::new(move || {
+            assert_eq!(open_with(&r, &state, &json!({REQUEST_SEQUENCE: 2}), || Ok(None)).value["outcome"], "cancelled");
+        }));
+    });
+    let older = open_with(&registry, &imports, &json!({REQUEST_SEQUENCE: 1}), || panic!("older dispatch must not open a chooser")).value;
+    assert_eq!(codes(&older), vec![CANCELLED]);
+    let replay = open_with(&registry, &imports, &json!({REQUEST_SEQUENCE: 2}), || panic!("duplicate dispatch must not open a chooser")).value;
+    assert_eq!(codes(&replay), vec![CANCELLED]);
+    for invalid in [json!(null), json!(0), json!(-1), json!("absent"), json!("1"), json!(1.5), json!(1u64 << 53)] {
+        let reply = open_with(&registry, &imports, &json!({REQUEST_SEQUENCE: invalid}), || panic!("invalid sequence must not choose")).value;
+        assert_eq!(codes(&reply), vec![ARGS_INVALID]);
+    }
+    retire(&registry, &imports, 15, 1);
+    assert_eq!(open_with(&registry, &imports, &json!({REQUEST_SEQUENCE: 1}), || Ok(None)).value["outcome"], "cancelled", "a new epoch has its own sequence space");
+    assert_released(&registry);
+}
+
+#[test]
+fn retirement_during_h7_admission_returns_no_model() {
+    let registry = real_worker();
+    let imports = MbfImports::default();
+    let sandbox = Sandbox::new("cancel-reply");
+    let first = open(&registry, &imports, &sandbox.pair(true)).value;
+    let body = json!({"sourceId": first["sourceId"], "declaration": null, "reviewSha256": first["reviewSha256"]});
+    let (waiting_tx, waiting_rx) = std::sync::mpsc::sync_channel(0);
+    let (resume_tx, resume_rx) = std::sync::mpsc::sync_channel(0);
+    std::thread::scope(|scope| {
+        let run = scope.spawn(|| {
+            crate::stored_read::native_lease_log::take();
+            let mut blocked = false;
+            crate::memory_pool::ledger_probe::set(move |_, _| {
+                if !blocked && crate::stored_read::native_lease_log::last().1.is_some_and(|(what, _)| what == "the import's reply") {
+                    blocked = true;
+                    waiting_tx.send(()).unwrap();
+                    resume_rx.recv_timeout(Duration::from_secs(20)).unwrap();
+                }
+            });
+            let reply = adopt(&registry, &imports, &body).value;
+            crate::memory_pool::ledger_probe::clear();
+            reply
+        });
+        waiting_rx.recv_timeout(Duration::from_secs(20)).expect("Adopt reached H7 admission");
+        assert_eq!(retire(&registry, &imports, 13, 1).cancelled, 1);
+        resume_tx.send(()).unwrap();
+        let reply = run.join().unwrap();
+        assert_eq!(codes(&reply), vec![CANCELLED]);
+        assert!(reply.get("document").is_none(), "an acknowledged cancellation wins before handoff");
+    });
+    assert_released(&registry);
+}
+
+#[test]
+fn the_response_holds_h6_and_h7_separately_through_handoff() {
+    let registry = real_worker();
+    let imports = MbfImports::default();
+    let sandbox = Sandbox::new("response-custody");
+    let first = open(&registry, &imports, &sandbox.pair(true)).value;
+    let body = ticketed(&imports, &json!({"sourceId": first["sourceId"], "declaration": null, "reviewSha256": first["reviewSha256"]}));
+    let (raw_args, copy) = reserve(&registry, &raw(&body), &headers(Some(INGRESS_ARGS_JSON_V1)), ADOPT_COMMAND).unwrap();
+    crate::stored_read::native_lease_log::take();
+    let snapshot = Arc::new(Mutex::new(None));
+    let captured = Arc::clone(&snapshot);
+    let pool = Arc::clone(registry.pool());
+    crate::memory_pool::ledger_probe::set(move |_, bytes| {
+        if crate::stored_read::native_lease_log::last().1.is_some_and(|(what, _)| what == "the import's reply") {
+            *captured.lock().unwrap() = Some((pool.reserved(LeasePurpose::Ingress), pool.reserved(LeasePurpose::Result), bytes));
+        }
+    });
+    let reply: Value = adopt_command(&registry, &imports, raw_args, copy, START_WAIT, |text| {
+        let (prior_ingress, result, h7) = snapshot.lock().unwrap().expect("H7 admission observed");
+        assert!(result > 0, "H6 is a distinct live result lease, not H1");
+        assert_eq!(registry.pool().reserved(LeasePurpose::Result), result, "H6 survives through response construction");
+        assert_eq!(registry.pool().reserved(LeasePurpose::Ingress), prior_ingress + h7, "H7 survives in addition to H1/H2/H8");
+        // A retirement after final response preparation must not claim it stopped this completed command.
+        assert_eq!(retire(&registry, &imports, 14, 1).cancelled, 0);
+        serde_json::from_str(&text).unwrap()
+    }).unwrap();
+    crate::memory_pool::ledger_probe::clear();
+    assert_eq!(reply["outcome"], "opened");
     assert_released(&registry);
 }
 
@@ -850,13 +1022,13 @@ fn a_reread_one_byte_above_the_budget_is_refused_before_any_worker() {
     let sandbox = Sandbox::new("budget");
     let real = real_worker();
     let first = open(&real, &imports, &sandbox.pair(true)).value;
-    let body = ticketed(&imports, &json!({"sourceId": first["sourceId"], "declaration": null}));
     let (text, sidecar) = written_pair();
     let raw_len = request_len("swbpipe-model.mbf".len(), 0, text.len() as u64, Some(sidecar.len() as u64));
     let start = initial_grant(crate::solve_worker::PROCESS_RESERVE_BYTES, resident_envelope(raw_len)).unwrap();
     let scripted = worker_envelope(ImportMode::Review, true);
     for admitted in [false, true] {
         let registry = registry_with(gate.launcher());
+        let body = ticketed(&imports, &json!({"sourceId": first["sourceId"], "declaration": null}));
         // The admitted argument lease and its parse growth are measured by a first admission, then the budget set
         // before the command's copy lease (whose admission captures it).
         let probe_registry = real_worker();
@@ -973,7 +1145,7 @@ const IMPORT_REPLIES: &str = "../../../fixtures/caepipe_mbf/invented/desktop_imp
 fn the_dialogs_import_replies_are_the_native_replies() {
     let registry = real_worker();
     let sandbox = Sandbox::new("replies");
-    let mbf_path = sandbox.pair(true);
+    let mbf_path = sandbox.native_pair(&registry);
     let imports = MbfImports::default();
     let bound_open = open(&registry, &imports, &mbf_path).value;
     let bound_adopt = adopt(&registry, &imports, &json!({"sourceId": bound_open["sourceId"], "declaration": null, "reviewSha256": bound_open["reviewSha256"]})).value;
@@ -986,7 +1158,7 @@ fn the_dialogs_import_replies_are_the_native_replies() {
     assert_eq!(bound_adopt["outcome"], "opened");
     assert_eq!(unbound_adopt["outcome"], "opened");
     let document = json!({
-        "description": "Native File > Import MBF… replies (DEL-17-04 §4.7) for the invented export model's saved pair, formed by worker task 5 through the commands; generated by mbf_import_tests.rs the_dialogs_import_replies_are_the_native_replies",
+        "description": "Native export review/save (task 3) writes the invented pair, then native File > Import MBF… (task 5) reviews and adopts it, bound and unbound; generated by mbf_import_tests.rs the_dialogs_import_replies_are_the_native_replies",
         "declaration": declaration,
         "replies": {
             "bound-open": bound_open,

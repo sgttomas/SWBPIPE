@@ -1367,14 +1367,16 @@ Four commands are registered in `app_invoke_handler!`. None takes a path or file
 
 | Command | Arguments | Reply |
 |---|---|---|
-| `open_mbf_import` | `{expectedEpoch}`, an `args-json-v1` raw body of at most 4 KiB | `{outcome: "cancelled"}`; `{outcome: "reviewed", sourceId, fileName, reviewSha256, review}`; or `{outcome: "refused", fileName, diagnostics}` |
-| `review_mbf_import` | `{expectedEpoch, sourceId, declaration}`, raw body of at most 1 MiB | `reviewed` or `refused`, as above |
-| `adopt_mbf_import` | `{expectedEpoch, sourceId, declaration, reviewSha256}`, raw body of at most 1 MiB | `{outcome: "opened", file_name, byte_count, schema_status, document, warnings: [], reviewSha256, modelSha256}`, the `NativeModelDocumentOutcome` shape `checkNativeOutcome` takes; or `{outcome: "refused", file_name, diagnostics}` |
+| `open_mbf_import` | `{expectedEpoch, requestSequence}`, an `args-json-v1` raw body of at most 4 KiB | `{outcome: "cancelled"}`; `{outcome: "reviewed", sourceId, fileName, reviewSha256, review}`; or `{outcome: "refused", fileName, diagnostics}` |
+| `review_mbf_import` | `{expectedEpoch, requestSequence, sourceId, declaration}`, raw body of at most 1 MiB | `reviewed` or `refused`, as above |
+| `adopt_mbf_import` | `{expectedEpoch, requestSequence, sourceId, declaration, reviewSha256}`, raw body of at most 1 MiB | `{outcome: "opened", file_name, byte_count, schema_status, document, warnings: [], reviewSha256, modelSha256}`, the `NativeModelDocumentOutcome` shape `checkNativeOutcome` takes; or `{outcome: "refused", file_name, diagnostics}` |
 | `cancel_mbf_import` | `{retirementId: {page, sequence}}`, as Tauri's JSON arguments or as a raw body (§4.8.6) | `{cancelled, epoch, retirement_id}`, with `duplicate` or `exhausted` only when true |
 
 - **Arguments.** The starts (`open`, `review`, `adopt`) are raw-body only, admitted in C1's form as the export's are
   (§3.7, "Admission"). An unknown member is refused `MBF-IMPORT-ARGS-INVALID` before anything else is read from the
   arguments. `declaration` is `null` or the object of §4.6. `sourceId` is a positive integer.
+  `requestSequence` is a positive safe integer: the host rejects duplicates/older dispatches within the current
+  retirement epoch and rechecks the accepted sequence at registration (§4.9.2).
 - **Replies.** The `review` member is the worker's review bytes, embedded verbatim (at most R). A refusal carries at
   most 8 diagnostics, each `{code, path, message}` with a message of at most 2 KiB (at most 32 KiB in all). Native
   message texts are not shown: the dialog maps each code to its product text.
@@ -1398,7 +1400,7 @@ on `main` at `b06e1da32`. Counts and bounds are from reading source. §4.8.9 pla
 
 #### 4.8.2 Source state
 
-- **Managed state** (`mbf_import.rs`, the new MBF import module): `MbfImportState { epoch, exhausted, applied, run,
+- **Managed state** (`mbf_import.rs`, the new MBF import module): `MbfImportState { epoch, latest_sequence, exhausted, applied, run,
   source, next_source_id }`.
   - `applied` holds the retirement page tokens, at most `RETIREMENT_PAGES_MAX` = 64, as for the export.
   - `run` holds at most one import run in progress.
@@ -1941,9 +1943,10 @@ for the invented corpus and `fixtures/caepipe_mbf/invented/desktop_export/` case
 
 ### 4.9 Implementation (slice 5)
 
-The slice-5 PR implements §4.1, §4.3 and §4.5 to §4.8 on `main` at `394f4c623`. It is not reviewed yet: the manager
-arranges the independent reviews §4.8.10 names (numerical meaning and parity, persistence and session replacement,
-permissions and the reach re-pin, provenance declarations). Nothing here records acceptance or shows criterion 6.
+The slice-5 PR implements §4.1, §4.3 and §4.5 to §4.8 on `main` at `394f4c623`. Independent reviews requested repairs;
+their checked revisions, dispositions and integration conditions are recorded in the PR. The reviews cover
+numerical meaning and parity, persistence and session replacement, permissions and the reach re-pin, and provenance
+declarations. Nothing here records acceptance or shows criterion 6.
 
 #### 4.9.1 What was built
 
@@ -1954,7 +1957,9 @@ permissions and the reach re-pin, provenance declarations). Nothing here records
   (per class of `IDENTITY_MAPS`: `count`, `restored`, `formed_from_mbf_names`; and `unrecoverable`) and `counts`. The
   lists follow, in this order: `refusals`, `document_check`, `assumptions`, `declaration_needed`, `loss_entries`,
   `target_options`. The serializer helpers are the export review's, shared by visibility only. `ImportResult` gains
-  `assumption_facts`, which is not part of `to_dict()`. `importer/finish.rs` and `importer/pressure.rs` record one
+  `assumption_facts` and `recorded_material_origins`, neither part of `to_dict()`. The origin count is recorded
+  when `assemble_materials` actually selects a bound-sidecar origin for an emitted material; caller provenance
+  wording cannot supply that decision. `importer/finish.rs` and `importer/pressure.rs` record one
   `AssumptionFact` beside each existing assumption emission, under the same condition and in the same order, with
   16 identifiers (`ASSUMPTION_IDS`). The report, model and id-map bytes are unchanged; the parity replay holds them.
 - **Native.** `mbf_import.rs` holds the source record, the selection and re-read, task 5 (`worker_import`), its
@@ -1968,9 +1973,24 @@ permissions and the reach re-pin, provenance declarations). Nothing here records
   `requestImportMbf`, `mbfImportSource`, the modal hold in every list that holds project commands, and the
   retirements. `App.tsx` gains the mount and the in-window item. `menuCommands.ts` gains the id, and `nativeIngress.ts`
   and its test twin gain the three starts.
+  `mbfImportSession.ts` owns generation-specific retirement without retaining model/review/DOM data.
 
 #### 4.9.2 Refinements within this design
 
+- **Dispatch and declaration currency.** Each start carries a positive safe-integer `requestSequence`, retained on
+  every resend. Native entry keeps only the highest sequence in the current retirement epoch, rejects duplicates
+  and older starts, and checks the sequence again at registration. An applied retirement resets that sequence
+  space; a duplicate retirement does not. This prevents an older queued command from superseding a newer one even
+  when executor/admission timing reorders them. The frontend also checks the latest start and the dialog's current
+  declaration before replies or retries; reverting to the displayed declaration invalidates pending work too.
+- **Response handoff.** H7 admission can wait. Once admitted, cancellation and final response preparation are
+  ordered under the run control's lock; a cancellation that won during admission returns no model. A prepared
+  response is marked handed off before invoking the response callback, so a later retirement does not falsely
+  count that command as stopped. This is not a filesystem commit or session adoption; frontend currency and the
+  maintained Open transaction still decide whether a received model enters the session.
+- **Generation-owned retirement.** `mbfImportSession.ts` keeps bounded ownership metadata and a retired-generation
+  watermark. Completion and passive cleanup call the same idempotent retirement, in either order; an older
+  generation cannot retire or close a newer dialog. No review, model or DOM node is retained by this owner.
 - **Retirements in the browser-only route.** The import's mount and session-end retirements are sent only in the
   Tauri runtime. The browser route has no native import: File > Import MBF… is refused `MBF-IMPORT-NATIVE-ONLY` before
   anything is sent, so no source can exist to drop. The export's browser-route behaviour is unchanged.
@@ -1980,8 +2000,8 @@ permissions and the reach re-pin, provenance declarations). Nothing here records
 - **Conventions.** A binding convention's structured form maps the importer's own three `what` texts exactly
   (`importer/mod.rs` `convention_key`). Any other text records the `unavailable` marker, which blocks adoption
   (`MBF-IMPORT-ASSUMPTION-UNAVAILABLE`). Nothing is guessed from diagnostic codes or sentences.
-- **Recorded origins.** The count is read from the candidate model's materials whose provenance source name is the
-  importer's fixed recorded-origin text. It is informational and is not used for adoption.
+- **Recorded origins.** The count follows the importer's actual bound-sidecar origin-selection decision for emitted
+  materials, not caller-controlled source wording. It is informational and is not used for adoption.
 - **Declaration shape (host).** Besides §4.6, the host refuses the `*` key, a material name above 512 bytes and an
   entry with any member other than `origin` and `source_name`. The worker receives the declaration re-serialized
   canonically, so equal declarations give equal `declaration_sha256`.
@@ -1996,8 +2016,11 @@ permissions and the reach re-pin, provenance declarations). Nothing here records
 
 #### 4.9.3 The checks implemented
 
-Every check below uses committed invented inputs: the writer's pair for the desktop export fixture, whose digests are
-the recorded `degc-default` case's, so these are the bytes `save_mbf_export` writes; `units_si.mbf` and
+Every check below uses maintained invented inputs: the desktop export fixture and its recorded `degc-default`
+digests; the native connecting tests and App reply producer call `review_mbf_export` and `save_mbf_export`'s command
+pipeline (task 3 and its file transaction), then open and adopt those actual saved files through task 5, both with
+the identity file and after deliberately removing it. Other file/refusal cases use engine-written bytes. Inputs also
+include `units_si.mbf` and
 `units_english.mbf`; and `fixtures/caepipe_mbf/invented/desktop_import/import_replies.json`. That last fixture holds
 the actual native replies; the native test keeps it equal to them, and it is regenerated only on request.
 
@@ -2008,6 +2031,13 @@ the actual native replies; the native test keeps it equal to them, and it is reg
   the transfer decision sees the adoptable review's exact length; the per-field bound. Over every parity vector,
   each result's facts pair with its assumption strings, and every identifier is recorded at least once. The parity
   bytes are unchanged.
+- **Identity/source review repairs.** Identity expectations use an independent fixture inventory. A bound summed
+  primitive has a generated id, not either original id; only support lists expand their entries, while each
+  pressure-region map key counts one region regardless of its member count. Named maintained parity inputs cover
+  the summed load and two-/three-member regions. An unbound caller supplying the recorded-origin marker as a source
+  name still has zero recorded-sidecar origins. Guide facts preserve preceding-element selection with a following
+  fallback, and formed pressure-region facts preserve explicit node closure overrides. Material declarations use
+  own dictionary entries for names such as `__proto__`; transport tests retain those entries through JSON.
 - **Native** (`mbf_import_tests.rs`, task 5 in a real worker): bound and unbound connected imports of the saved pair,
   with ids restored or formed and the adopted document equal to the engine's import; each change after selection
   (in-place edit, replacement, removal, symlink, identity file removed, edited or appeared, growth during the read)
@@ -2021,15 +2051,22 @@ the actual native replies; the native test keeps it equal to them, and it is reg
   below and at it; the source scan that task 5 is the only production caller of `worker_import`.
   `solve_worker.rs`'s round trip covers codes 0 to 5, refuses 6, and checks that task 5's workload is
   `worker_import`. `lib.rs` covers the menu item.
+  Additional regressions stop an already-cancelled registration before its chooser, reject a late older dispatch,
+  cancel specifically while H7 admission is held, and prove H6 and H7 separately remain held through response
+  construction (H1 alone cannot satisfy those assertions).
 - **Vitest.** `mbfImport.test.ts`: every engine and native code and every structured identifier has its product
   description; the conditional parameters; Adopt blocked by an unknown or cut assumption, truncation or the
   transfer limit; no wildcard; and no product source uses the wasm importer, with negative controls.
   `mbfImportCancel.test.ts`: the handshake, tickets, the JSON-form cancel, re-delivery with the same id, then
-  unconfirmed; a retired start is never sent. `App.mbfImportDialog.test.tsx`, against the actual native replies:
+  unconfirmed; a retired or superseded start is never re-sent. `mbfImportSession.test.ts` covers completion before
+  cleanup, cleanup before completion, reopening in one generation and older cleanup preserving a newer request.
+  `App.mbfImportDialog.test.tsx`, against replies produced using the UI's actual invented-provenance declaration:
   - the native menu and the in-window item open the dialog, and a busy session starts nothing;
   - a bound Adopt goes through the Open transaction, with one validator call given the reply's own document object,
     and the import is the same as ordinary Open for the same document;
   - unbound per-name declarations, with Adopt held until the declared review returns;
+  - declaration reversion invalidates a pending reply and a later declaration can review/adopt again; prototype-like
+    material names remain own declaration entries through the dialog/transport;
   - Close, Escape and unmount each send one retirement, and a reply after close is discarded;
   - a native refusal, a stale digest, `INGRESS-RAW-BODY-REQUIRED` and a shape refusal each leave the session as it
     was;
@@ -2048,8 +2085,10 @@ the actual native replies; the native test keeps it equal to them, and it is reg
 - session preservation as a deep comparison of internal state (the App tests compare what the session shows: the
   project, its edited state and the tree).
 
-The FIFO race test bounds its duration only after the open returns, so a blocking open would hang that test rather
-than fail it. Local Vitest used the main checkout's installed packages and wasm build of 2026-11-05. Seven
+The FIFO acquisition race runs in a bounded test subprocess for each file. The parent owns the sandbox, kills and
+reaps a blocked probe at its deadline, and fails the regression, so removing nonblocking acquisition cannot hang
+the suite. The probe is an ignored helper invoked explicitly by that parent, not an unexecuted regression.
+Initial local Vitest used the main checkout's installed packages and wasm build of 2026-11-05. Seven
 `App.shell` tests fail locally in the wasm result reader (`SOURCE_PREVIEW_PHYSICS_EVIDENCE_SHAPE`), unrelated to the
 import; hosted CI rebuilds the wasm.
 

@@ -34,7 +34,7 @@ export type MbfImportDialogRequest = {
   /** The native chooser, selection and first review. */
   open: () => Promise<MbfImportStarted<MbfImportOpenOutcome>>;
   /** A declaration re-run. */
-  review: (args: MbfReviewImportArgs) => Promise<MbfImportStarted<MbfImportReviewOutcome>>;
+  review: (args: MbfReviewImportArgs, stillCurrent?: () => boolean) => Promise<MbfImportStarted<MbfImportReviewOutcome>>;
   /** Adopt: the session releases the modal hold and adopts through the Open transaction; the request's retirement is
    * then the import flow's. */
   adopt: (capture: MbfAdoptCapture) => void;
@@ -68,9 +68,18 @@ export function MbfImportDialog({ request }: { request: MbfImportDialogRequest |
   const [form, setForm] = useState<Record<string, Choice>>({});
   const generation = useRef(0);
   const live = useRef<MbfImportDialogRequest | null>(null);
+  const reviewOwner = useRef<MbfImportDialogRequest | null>(null);
 
   useLayoutEffect(() => {
-    if (!request) return;
+    reviewOwner.current = null;
+    if (!request) {
+      setState({ phase: "choosing" });
+      setMaterials([]);
+      setUncut([]);
+      setForm({});
+      setPending(false);
+      return;
+    }
     live.current = request;
     generation.current += 1;
     const mine = generation.current;
@@ -117,6 +126,7 @@ export function MbfImportDialog({ request }: { request: MbfImportDialogRequest |
         const needed = outcome.review.declaration_needed;
         setMaterials(needed.filter(fieldWhole));
         setUncut(needed.filter((name) => !fieldWhole(name)).map(fieldText));
+        reviewOwner.current = request;
         setState({ phase: "reviewed", reviewed: outcome, key: declarationKey(null) });
       },
       (error: unknown) => {
@@ -133,18 +143,23 @@ export function MbfImportDialog({ request }: { request: MbfImportDialogRequest |
     };
   }, [request]);
 
-  const declaration = useMemo(() => declarationFor(materials.map((name) => [name, entryOf(form[name] ?? NO_CHOICE)] as const)), [materials, form]);
+  const declaration = useMemo(() => declarationFor(materials.map((name) => [name, entryOf(Object.hasOwn(form, name) ? form[name] : NO_CHOICE)] as const)), [materials, form]);
   const key = declarationKey(declaration);
   const sourceId = state.phase === "reviewed" ? state.reviewed.sourceId : state.phase === "refused" ? state.sourceId : null;
   const formedFor = state.phase === "reviewed" ? state.key : null;
 
   // Each declaration change sends a new review; Adopt waits for it. A superseded reply is discarded by generation.
   useEffect(() => {
-    if (!request || sourceId === null || formedFor === key) return;
+    if (!request || sourceId === null || reviewOwner.current !== request) return;
     generation.current += 1;
     const mine = generation.current;
+    if (formedFor === key) {
+      setPending(false);
+      return;
+    }
+    const current = () => generation.current === mine && live.current === request;
     setPending(true);
-    void request.review({ sourceId, declaration }).then(
+    void request.review({ sourceId, declaration }, current).then(
       (started) => {
         if (generation.current !== mine || live.current !== request || !started.current()) return;
         setPending(false);
@@ -158,8 +173,8 @@ export function MbfImportDialog({ request }: { request: MbfImportDialogRequest |
         setState({ phase: "refused", fileName: "", diagnostics: [importFailureDiagnostic(error)], sourceId });
       }
     );
-    // `declaration` follows `key`.
-  }, [request, sourceId, key]);
+    // `form` also invalidates work when an edit returns to the already displayed declaration.
+  }, [request, sourceId, key, form]);
 
   if (!request) return null;
   const reviewed = state.phase === "reviewed" ? state.reviewed : null;
@@ -175,7 +190,11 @@ export function MbfImportDialog({ request }: { request: MbfImportDialogRequest |
     request.adopt(capture);
   };
 
-  const setAll = (choice: Choice["choice"], name = "") => setForm(Object.fromEntries(materials.map((material) => [material, { choice, name }])));
+  const changeForm = (next: Parameters<typeof setForm>[0]) => {
+    generation.current += 1; // Invalidate replies/retries synchronously, before the next effect runs.
+    setForm(next);
+  };
+  const setAll = (choice: Choice["choice"], name = "") => changeForm(Object.fromEntries(materials.map((material) => [material, { choice, name }])));
 
   return createPortal(
     <div className="replace-project-backdrop" data-testid="mbf-import-backdrop">
@@ -211,7 +230,7 @@ export function MbfImportDialog({ request }: { request: MbfImportDialogRequest |
               </label>
             ) : null}
             {materials.map((material) => {
-              const choice = form[material] ?? NO_CHOICE;
+              const choice = Object.hasOwn(form, material) ? form[material] : NO_CHOICE;
               return (
                 <div key={material} data-testid={`mbf-import-material-${material}`}>
                   <label>
@@ -219,7 +238,7 @@ export function MbfImportDialog({ request }: { request: MbfImportDialogRequest |
                     <select
                       aria-label={`Source of ${material}`}
                       value={choice.choice}
-                      onChange={(event) => setForm((previous) => ({ ...previous, [material]: { ...choice, choice: event.target.value as Choice["choice"] } }))}
+                      onChange={(event) => changeForm((previous) => ({ ...previous, [material]: { ...choice, choice: event.target.value as Choice["choice"] } }))}
                     >
                       <option value="none">Not declared</option>
                       <option value="invented">Project-invented example data</option>
@@ -231,7 +250,7 @@ export function MbfImportDialog({ request }: { request: MbfImportDialogRequest |
                       aria-label={`Source name of ${material}`}
                       value={choice.name}
                       maxLength={512}
-                      onChange={(event) => setForm((previous) => ({ ...previous, [material]: { choice: "user", name: event.target.value } }))}
+                      onChange={(event) => changeForm((previous) => ({ ...previous, [material]: { choice: "user", name: event.target.value } }))}
                     />
                   ) : null}
                 </div>
@@ -345,7 +364,7 @@ function ImportReview({ reviewed }: { reviewed: Reviewed }) {
       ) : null}
       <section data-testid="mbf-import-identity">
         <h3>Identities</h3>
-        <p>{review.identity.basis === "restored_from_identity_file" ? "Restored from the identity file." : "Ids formed from node numbers."}</p>
+        <p>{review.identity.basis === "restored_from_identity_file" ? "Identity file applied; each class lists restored and formed ids." : "Ids formed from node numbers."}</p>
         <ul>
           {review.identity.classes.filter((item) => item.count > 0).map((item) => (
             <li key={item.class}>{item.class.replace(/_/g, " ")}: {item.count} ({item.restored} restored, {item.formed_from_mbf_names} formed)</li>

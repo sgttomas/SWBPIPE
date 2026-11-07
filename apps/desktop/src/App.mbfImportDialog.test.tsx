@@ -107,13 +107,12 @@ function expectDemoSession() {
 /** No start carries a path, file bytes or base64, and no member beyond its own. */
 function expectNoFileContent(host: ReturnType<typeof nativeHost>) {
   const allowed: Record<string, string[]> = {
-    open_mbf_import: ["expectedEpoch"],
-    review_mbf_import: ["expectedEpoch", "sourceId", "declaration"],
-    adopt_mbf_import: ["expectedEpoch", "sourceId", "declaration", "reviewSha256"]
+    open_mbf_import: ["expectedEpoch", "requestSequence"],
+    review_mbf_import: ["expectedEpoch", "requestSequence", "sourceId", "declaration"],
+    adopt_mbf_import: ["expectedEpoch", "requestSequence", "sourceId", "declaration", "reviewSha256"]
   };
   for (const { command, args } of host.commands) {
     if (!(command in allowed)) continue;
-    expect(Object.keys(args).sort()).toEqual(expect.arrayContaining(Object.keys(args)));
     for (const key of Object.keys(args)) expect(allowed[command]).toContain(key);
   }
 }
@@ -147,7 +146,9 @@ describe("File > Import MBF… in the App", () => {
     expect(adoptCall).toMatchObject({ sourceId: REPLIES["bound-open"].sourceId, declaration: null, reviewSha256: REPLIES["bound-open"].reviewSha256 });
     expect(validatorCalls).toHaveLength(1);
     // The source is retired after Open returns (one logical retirement).
-    await waitFor(() => expect(host.count("cancel_mbf_import")).toBeGreaterThan(retirementsBefore));
+    await waitFor(() => expect(host.count("cancel_mbf_import")).toBe(retirementsBefore + 1));
+    await act(async () => {}); // Flush the retiring generation's passive cleanup too.
+    expect(host.count("cancel_mbf_import")).toBe(retirementsBefore + 1);
     expectNoFileContent(host);
   });
 
@@ -191,6 +192,7 @@ describe("File > Import MBF… in the App", () => {
     fireEvent.change(select, { target: { value: "invented" } });
     await waitFor(() => expect(host.held).toHaveLength(1));
     const sent = host.held[0].args.declaration as Record<string, unknown>;
+    expect(sent).toEqual(importReplies.declaration);
     expect(Object.keys(sent)).toEqual(Object.keys(importReplies.declaration));
     expect(Object.keys(sent)).not.toContain("*");
     expect(within(dialog).getByTestId("mbf-import-adopt")).toBeDisabled();
@@ -200,6 +202,41 @@ describe("File > Import MBF… in the App", () => {
     await waitFor(() => expect(projectMessage()).toHaveTextContent("unbound; ids were formed from node numbers"), { timeout: 20000 });
     expect(host.named("adopt_mbf_import")[0].args.declaration).toEqual(sent);
     expectNoFileContent(host);
+  });
+
+  it("invalidates a pending declaration review on reversion, then can review and adopt again", async () => {
+    await renderApp();
+    setTauriRuntime();
+    const host = nativeHost({ open_mbf_import: () => reply("unbound-open"), adopt_mbf_import: () => reply("unbound-adopt") }, new Set(["review_mbf_import"]));
+    const dialog = await openImport();
+    await reviewShown();
+    const select = within(dialog).getByRole("combobox", { name: /Source of / });
+    fireEvent.change(select, { target: { value: "invented" } });
+    await waitFor(() => expect(host.held).toHaveLength(1));
+    fireEvent.change(select, { target: { value: "none" } });
+    await act(async () => { host.held[0].resolve(reply("unbound-declared")); });
+    expect(within(dialog).getByTestId("mbf-import-adopt")).toBeDisabled();
+    fireEvent.change(select, { target: { value: "invented" } });
+    await waitFor(() => expect(host.held).toHaveLength(2));
+    await act(async () => { host.held[1].resolve(reply("unbound-declared")); });
+    await waitFor(() => expect(within(dialog).getByTestId("mbf-import-adopt")).toBeEnabled());
+    fireEvent.click(within(dialog).getByTestId("mbf-import-adopt"));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("unbound; ids were formed from node numbers"), { timeout: 20000 });
+  });
+
+  it("keeps a prototype-shaped material's declaration through the dialog and transport", async () => {
+    await renderApp();
+    setTauriRuntime();
+    const initial = reply("unbound-open");
+    (initial.review as { declaration_needed: string[] }).declaration_needed = ["__proto__"];
+    const host = nativeHost({ open_mbf_import: () => initial }, new Set(["review_mbf_import"]));
+    const dialog = await openImport();
+    await reviewShown();
+    fireEvent.change(within(dialog).getByRole("combobox", { name: "Source of __proto__" }), { target: { value: "invented" } });
+    await waitFor(() => expect(host.held).toHaveLength(1));
+    const declaration = host.held[0].args.declaration as Record<string, unknown>;
+    expect(Object.hasOwn(declaration, "__proto__")).toBe(true);
+    expect(declaration["__proto__"]).toEqual({ origin: "project_invented", source_name: "project-invented example data" });
   });
 
   it("Close, Escape and an App unmount each send one retirement; a reply after close is discarded", async () => {
@@ -225,10 +262,13 @@ describe("File > Import MBF… in the App", () => {
     expect(screen.queryByTestId("mbf-import-dialog")).not.toBeInTheDocument();
     expect(screen.queryByTestId("mbf-import-review")).not.toBeInTheDocument();
     expectDemoSession();
-    // Unmount retires once more.
+    // A fresh request is still choosing when the App unmounts; that request retires exactly once.
+    await openImport();
+    await waitFor(() => expect(late.held).toHaveLength(2));
     const before = late.count("cancel_mbf_import");
     view.unmount();
     await waitFor(() => expect(late.count("cancel_mbf_import")).toBe(before + 1));
+    await act(async () => { late.held[1].resolve(reply("bound-open")); });
   });
 
   it.each([
