@@ -907,7 +907,7 @@ impl ReformedPencil {
         drop(by_key);
         drop(keys);
         let mut visit = 0usize;
-        for_each_position(list, |element, _, contribution| {
+        for_each_position(list, |element, _, contribution| -> Result<(), (usize, LimbAllotmentExceeded)> {
             let slot = &mut out[slot_of[visit]].1;
             visit += 1;
             let refused = |exceeded| (element, exceeded);
