@@ -388,7 +388,6 @@ This Scope of Work defines `DEL-02-03` in service of project scope [SOW-002] and
 > - `ScopeOfWork.md` (rationale)
 > - `ScopeOfWork.md` (procedure)
 > - `_STATUS.md` safe transition record, when state permits.
-> - `_run_records/TASK_RUN_*.md`
 > - Future record target: authorized update to `docs/SPEC.md` state model, if authorized by a separate task or change process.
 
 - **VER-001** — Validate the contract and review source parity, allowed state and interface distinctions, authority labels, diagnostics, and absence of automatic code-compliance or approval claims.

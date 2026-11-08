@@ -1,8 +1,7 @@
 # Model document 0.7.0: one canonical document and its schema (W-13)
 
-**Basis:** `origin/main` at `9d76659e02` (2026-10-23). This is revision 3, after
-two review rounds, each by an independent Claude reviewer and Codex. Design before
-implementation. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+**Basis:** `origin/main` at `9d76659e02` (2026-10-23), before implementation.
+Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## 0. Rulings this design applies
 
