@@ -180,22 +180,35 @@ would rewrite; a member qualifies when its section is
 published in that case's `pipe_sections` evidence and it is in none of the
 case's pressure regions.
 
-## 4. Gates (mechanics basis only)
+<a id="4-gates-mechanics-basis-only"></a>
 
-**Open diagnostic-precedence question.** Trace the promised ordering below
-against the current EX dispatch and certificate readers before claiming it
-is implemented. The pending choices are to reconcile code with the declared
-order (Agent 0 recommendation), or ask the owner to amend the diagnostic
-promise. No specific alternative order has been approved and no complete
-runtime precedence reproduction is retained. Next actor: Agent 0 obtains the
-bounded source/behavior comparison and presents any required wording choice;
-the normative order below remains unchanged.
+## 4. Gates and diagnostic precedence
 
-The gates apply to `mechanics` combinations only, as on PF (~799-819).
-Subtraction and envelopes compare states and may legitimately span different
-stiffness.
+The diagnostic policy is the adopted EX order in
+[`absolute-sum-srss-combinations.md`](absolute-sum-srss-combinations.md)
+§§5.1–5.3, 10 and 10.2 and the pressure-2 table's `combination_policy`.
+The first applicable gate supplies the single withheld reason:
 
-In precedence order:
+- A withheld operand wins first for every form
+  (`LOAD_COMBINATION_OPERAND_WITHHELD`).
+- Subtractions and envelopes have no further gate; they compare states and
+  may legitimately span different stiffness.
+- A `mechanics` combination in a model with nonlinear supports is withheld
+  with `NONLINEAR_COMBINATION_REQUIRES_SOLVE` unless decision OQ-1 admits it.
+  OQ-1 admission continues to the remaining gates; it does not bypass them.
+- For `mechanics`, `absolute_sum` and `srss`, gates 1–4 below follow in that
+  order. Absolute sums and SRSS skip the nonlinear gate and use their
+  installed-reference/constant-effort unsigned codes and exact-zero operand κ
+  rule (§5.1 of the linked policy).
+
+The producer (`core/product_physics/src/exact_combinations.rs`), model-free
+Rust reader (`core/reporting/result_export/src/exact_combination_evidence.rs`),
+model-bound input checks and test-only Python mirror follow that policy. S6's
+composition at `5c413ad701d49536e5d3c30cbd8300df45969a32` changes admission,
+not the gate or reader ordering. This section reconciles the older wording
+with the existing policy; it changes no code, numerical output or table.
+
+After the operand and nonlinear gates, in precedence order:
 1. **`COMBINATION_MODULUS_BASIS_MIXED`**, as today.
 2. **`COMBINATION_RESOLVED_STIFFNESS_MIXED`** (new). Some member's resolved
    stiffness differs between operands:
@@ -230,10 +243,8 @@ In precedence order:
    2^53 + (−2^53) = 0. The exact accumulator cannot overflow to inf.
 
    **The shared check.** The exact dyadic unit-sum check is one shared helper
-   in `load_case_algebra`. The numerical lane adds it when it fixes PF's
-   constant-effort gate, which had the same tolerance weakness (Agent 0,
-   2026-10-25). This gate calls that helper and builds no second
-   implementation. Implementing this slice waits for the helper to land.
+   in `load_case_algebra`. This gate calls the implemented shared helper;
+   it builds no second implementation.
 
 As built:
 - **Gate 2** compares, per member published in any operand, one statement of
@@ -247,16 +258,32 @@ As built:
   properties changes only the thermal load, a right-hand-side contribution to
   the same K. W-15's stiffness scale is a model fact, the same in every case,
   so it cannot differ between operands and is not compared separately.
-- **Gate 3** calls `load_case_algebra::factor_sum_within_unit_tolerance`
-  (#1625). A factor of 2^53 is refused by the checked JSON value entry
+- **Gate 3** calls `load_case_algebra::mechanics_fixed_load_gate` for
+  `mechanics`, or `unsigned_fixed_load_gate` for absolute sums and SRSS.
+  The flat-mechanics case retains the exact inclusive 64ε unit factor-sum
+  rule described above. A factor of 2^53 is refused by the checked JSON value entry
   (`CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT`), so the cancelling 2^53 case reaches
   the gate only through the typed entry; the tests use that entry.
 
-`NONLINEAR_COMBINATION_REQUIRES_SOLVE` cannot arise on EX, which refuses
-nonlinear supports. `CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE` arises on EX
-since RT-A3 increment 3 admitted consuming constant-effort supports, as gate 4
-(DEL-04-07 `pressure-contract.md`, "Combination gate"; κ as in
-`absolute-sum-srss-combinations.md` §10).
+**Gate 4: constant effort.** A consuming constant-effort support uses the
+same fixed-load count κ rule, after installed reference. A `mechanics`
+combination with an undefined operand κ uses
+`CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED`; a failing own κ uses
+`CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE`. Absolute sums and SRSS use
+`CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND`. Gate 3 wins when installed
+reference and constant effort both apply. The nested κ rules and unsigned
+installed-reference code `INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND`
+are defined in the linked policy §5.1; the unit factor-sum explanation above
+is its flat-mechanics case.
+
+**Remaining collision coverage.** Source tracing establishes the order but
+no retained runtime reproduction covers every competing gate. S6 makes
+nonlinear-versus-resolved-stiffness and nonlinear-versus-installed-reference
+collisions reachable. Add targeted producer/reader cases showing nonlinear
+wins outside OQ-1 and that OQ-1 still reaches modulus/stiffness gates (its κ
+is 1, so installed-reference/constant-effort gates do not fire). This is a
+remaining verification item, not new S6 merge evidence or a claim those
+collisions have already been exercised.
 
 Pressure regions, closure transfer, reference eigenstrains and prescribed
 boundary motion may differ between operands. They are right-hand-side
