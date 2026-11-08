@@ -1,10 +1,4 @@
 ---
-
-Pressure applicability follows the [current pressure contract](../execution/PKG-04/DEL-04-07/Work/pressure-contract.md).
-`legacy_pressure_v1` is retired, including zero-pressure documents. References
-to pressure quantities or validation coverage below are subject to that current
-boundary and do not establish implemented T4 capability.
-
 doc_id: OPS-TYPES
 doc_kind: governance.types
 status: draft
@@ -13,6 +7,11 @@ refs:
   - rel: governed_by
     to: OPS-CONTRACT
 ---
+
+Pressure applicability follows the [current pressure contract](../execution/PKG-04/DEL-04-07/Work/pressure-contract.md).
+`legacy_pressure_v1` is retired, including zero-pressure documents. References
+to pressure quantities or validation coverage below are subject to that current
+boundary and do not establish implemented T4 capability.
 
 # TYPES — OpenPipeStress Domain Vocabulary and Identity
 
