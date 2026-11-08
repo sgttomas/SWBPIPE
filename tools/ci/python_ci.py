@@ -5,6 +5,7 @@ import ast
 import functools
 from fnmatch import fnmatchcase
 import json
+import math
 from pathlib import Path
 import subprocess
 import sys
@@ -292,6 +293,58 @@ def select(project, plan, repository_checks_run=False):
     return selected
 
 
+
+TIMINGS = Path(__file__).with_name('python_ci_timings.json')
+UNKNOWN_SECONDS = 120.0
+
+
+def load_timings(path=TIMINGS):
+    """Reject broken measurement inputs; they never decide test eligibility."""
+    data = json.loads(path.read_text())
+    if not isinstance(data, dict) or not isinstance(data.get('seconds'), dict):
+        raise ValueError('invalid Python timing table')
+    times = data['seconds']
+    for name, value in times.items():
+        if (not isinstance(name, str) or not name or isinstance(value, bool)
+                or not isinstance(value, (int, float)) or not math.isfinite(value) or value < 0):
+            raise ValueError(f'invalid Python timing entry: {name!r}')
+    return times
+
+
+def shard_selection(project, selected, count, timings):
+    """Assign overlapping selections together, retaining pytest's own directory discovery.
+
+    Directories stay intact, including explicit files beneath them, so pytest's
+    discovery, import and duplicate-argument semantics remain its own.
+    """
+    if isinstance(count, bool) or not isinstance(count, int) or count < 1:
+        raise ValueError('shard count must be a positive integer')
+    if not selected or len(selected) != len(set(selected)):
+        raise ValueError('selection must be nonempty and unique')
+    groups = {}
+    for name in sorted(selected, key=lambda x: (len(Path(x).parts), x)):
+        path = project / name
+        if not path.exists() or Path(name).is_absolute() or '..' in Path(name).parts:
+            raise ValueError(f'invalid selected path: {name}')
+        parent = next((root for root in groups if (project / root).is_dir()
+                       and Path(root) in Path(name).parents), None)
+        groups.setdefault(parent or name, []).append(name)
+    def weight(root):
+        path = project / root
+        if path.is_file():
+            return timings.get(root, UNKNOWN_SECONDS)
+        files = [p.relative_to(project).as_posix() for p in path.rglob('*.py')
+                 if p.name.startswith('test_') or p.name.endswith('_test.py')]
+        return sum(timings.get(name, UNKNOWN_SECONDS) for name in files) or UNKNOWN_SECONDS
+    assignments = [[] for _ in range(count)]
+    totals = [0.0] * count
+    for root in sorted(groups, key=lambda item: (-weight(item), item)):
+        index = min(range(count), key=lambda i: (totals[i], i))
+        assignments[index].extend(groups[root])
+        totals[index] += weight(root)
+    return [sorted(group) for group in assignments], totals
+
+
 def reaching_paths(project, paths):
     """The changed paths an always-run test reads, or whose own pull-request selection adds a test beyond
     them: hosted planning starts this job for them even where no path rule routes it."""
@@ -310,7 +363,13 @@ def main():
     parser.add_argument('--dry-run', action='store_true')
     parser.add_argument('--repository-checks-run', action='store_true',
                         help='The caller runs tests/test_ci_numerical.py in Repository checks')
+    parser.add_argument('--shard-index', type=int)
+    parser.add_argument('--shard-count', type=int)
     args = parser.parse_args()
+    if (args.shard_index is None) != (args.shard_count is None):
+        parser.error('shard index and count must be supplied together')
+    if args.shard_count is not None and (args.shard_count < 1 or not 1 <= args.shard_index <= args.shard_count):
+        parser.error('shard index must be between 1 and shard count')
     project = Path(__file__).resolve().parents[2]
     plan = json.loads(args.plan.read_text())
     root = project
@@ -318,7 +377,17 @@ def main():
     if plan.get('modes', {}).get('piping-python') != 'full':
         raise ValueError('Python runner requires explicit selected coverage')
     selected = select(project, plan, args.repository_checks_run)
-    print(json.dumps({'selected': selected}, indent=2), flush=True)
+    if args.shard_count is not None:
+        assignments, totals = shard_selection(project, selected, args.shard_count, load_timings())
+        selected = assignments[args.shard_index - 1]
+        print(json.dumps({'shard': args.shard_index, 'count': args.shard_count,
+                          'estimated_worker_seconds': totals[args.shard_index - 1],
+                          'selected': selected}, indent=2), flush=True)
+        if not selected:
+            print('Verified empty shard; no pytest invocation.')
+            return 0
+    else:
+        print(json.dumps({'selected': selected}, indent=2), flush=True)
     # Loadscope groups module functions or class methods on each parallel worker.
     # The controller builds the test binaries once before workers start (tests/conftest.py).
     # Name each result as it arrives, so a timeout cannot hide failing test identities.
