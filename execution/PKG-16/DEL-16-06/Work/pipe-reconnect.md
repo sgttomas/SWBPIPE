@@ -3,8 +3,7 @@
 **Basis:** `origin/main` at `356a9be374` (2026-10-23); W-13 branches
 `origin/claude/piping-model-07-s1b-20261023` (`0d20039cac`, with the S1b-V
 document validator) and
-`origin/claude/piping-model-states-20261023` (`f0cbc15bb6`). Revision 2, after
-a Codex review and an independent Claude review (§8). Implemented in W-10
+`origin/claude/piping-model-states-20261023` (`f0cbc15bb6`). Revision 2. Implemented in W-10
 (`core/model_operations/operation_applier/src/pipe_reconnect.rs`); where
 implementation review changed a rule, the section states the as-built rule
 (§2.2, §3, §7). Paths are relative to `projects/chirality-piping/`, except
