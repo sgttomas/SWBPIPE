@@ -8,8 +8,41 @@ concurrency:
   group: governance-harness-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
+  changes:
+    name: Documentation checks and CI selection
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      mode: ${{ steps.classify.outputs.mode }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          filter: blob:none
+      - name: Classify the complete candidate diff
+        id: classify
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: python3 tools/software_workflow/documentation_ci.py plan --event "$EVENT" --base "$BASE" --head "$HEAD" --output documentation-ci-plan.json
+      - name: Install documentation structure dependency
+        if: steps.classify.outputs.mode == 'documentation'
+        run: python3 -m pip install pyyaml==6.0.3 pytest jsonschema==4.26.0
+      - name: Verify documentation structure and changed content
+        if: steps.classify.outputs.mode == 'documentation'
+        env:
+          BASE: ${{ steps.classify.outputs.base }}
+        run: |
+          python3 tools/software_workflow/documentation_ci.py verify --plan documentation-ci-plan.json
+          python3 -m tools.deliverables --project . check > deliverable-check.json
+          python3 tools/validation/validate_conflict_markers.py --base "$BASE" --head HEAD
+          python3 tools/validation/validate_run_record_leaks.py --base "$BASE" --head HEAD
   repository-checks:
     name: Repository checks
+    needs: changes
+    if: needs.changes.outputs.mode == 'product'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -49,24 +82,24 @@ jobs:
           python3 tools/validation/validate_conflict_markers.py --base "$BASE" --head HEAD
           python3 tools/validation/validate_run_record_leaks.py --base "$BASE" --head HEAD
   piping:
+    needs: changes
+    if: needs.changes.outputs.mode == 'product'
     uses: ./.github/workflows/piping-desktop-e2e.yml
     with:
       # repository-checks above runs tests/test_ci_numerical.py on every run.
       repository-checks-run: true
   harness:
     name: harness
-    needs: [repository-checks, piping]
+    needs: [changes, repository-checks, piping]
     if: always()
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          sparse-checkout: tools/software_workflow
       - name: Require every selected verification to succeed
         env:
           RESULTS: ${{ toJSON(needs) }}
-        run: |
-          python3 - <<'PYTHON'
-          import json, os
-          failed = {name: job['result'] for name, job in json.loads(os.environ['RESULTS']).items()
-                    if job['result'] != 'success'}
-          if failed:
-              raise SystemExit(f'Verification did not succeed: {failed}')
-          PYTHON
+        run: python3 tools/software_workflow/documentation_ci.py aggregate
