@@ -955,6 +955,20 @@ supports only and grant no held, lock, preload or device-reference behavior.
   be hashed as full records; their full-record claims require that same complete
   materialization. Pricing/carrier scrutiny and final qualification remain pending;
   none of these checks establishes the missing global nonlinear reference solution.
+- **Pricing/preservation review repairs.** Scrutiny of `35c5aa04a` confirmed the
+  16 coefficient increases, the 18,761 B phase delta and the source/layout/capacity
+  bounds, but found an unchecked successful-reader-outcome hash. The guard now
+  derives all 178 successful reading endpoints of the 59 moved inputs from their
+  publication and the independent Python classification equations, with a forged
+  successful-hash control; it also re-materializes all 118 input endpoints. This
+  is a preservation warrant, not fresh historical admission. The routing comparison
+  derives three source-tree and seven read-source hashes and adds only
+  `core/product_physics/src/rt_a3_s6_tests.rs` to three existing source scans
+  (RE `retained_precision_carriers`, NI `s11k_tests` and NI `k5_tests`). Scan rules,
+  exclusions, callers, fixture boundaries and unrelated declarations are unchanged.
+  The changed routing JSON is explicitly covered by this comparison, rather than
+  excluded from the guard's completeness assertion. The repairs require their
+  affected checks and focused independent re-check before clearance.
 
 ### 3.8 S7: friction with a one-way normal source, and k > 1 (M–L, both routes)
 

@@ -146,9 +146,11 @@ TABLE_ONLY = (
     "schemas/stress_neutral_export.v0.3.schema.json",
 )
 SCHEMA_MANIFEST = "tools/release/schema_manifest.json"
+ROUTING = "tools/hosted-ci-routing.json"
 SCHEMA_MOVES = ("schemas/analysis_run.v0.3.schema.json", "schemas/load_reference_state.schema.json",
                 "schemas/stress_neutral_export.v0.3.schema.json")
 NOT_CARRIERS = {
+    ROUTING: "derived source-tree/read hashes and three exact source-scan additions (check_routing_inventory)",
     "schemas/load_reference_state.schema.json": "S6's support-law shape (tests/test_load_reference_schema.py)",
     **dict.fromkeys(TABLES, "the restated tables (test_the_tables_restate_only_the_admitted_families_limitation)"),
     # The statement table is keyed and sorted by each producer string's SHA-256, so S1, S13 and S15 move with their
@@ -383,10 +385,51 @@ def _reader_inputs(rev):
     return out
 
 
+def _successful_reader_outcomes(source, readings):
+    """Independently form outcome_json's successful payload from the subject publication and the Python verifier's
+    numerical classification equations, without invoking the Rust reader or accepting a stored outcome hash.
+    The surrounding preservation check establishes identical rows, statuses and all non-disclosure receipt data.
+    Transport readings have no row classifications and make no invocation/eligibility claim."""
+    from tests.verifiers import retained_precision as verifier
+    body = source["retained_precision"]["body"]
+    receipt = source["retained_precision"]
+    assert verifier._hash("retained_precision_receipt_mp_v2", body) == receipt["receipt_sha256"]
+    publication = body["publication_sha256"]
+    if "results" in source:
+        assert verifier._hash("retained_precision_publication_mp_v2", {k: v for k, v in source.items()
+                                                                    if k != "retained_precision"}) == publication
+    classes = []
+    if any(name != "transport" and summary.startswith("pass") for name, (_, summary) in readings.items()):
+        cases = body["cases"]
+        owners = {c["basis_ref"]["ref_id"]: c for c in [*cases, *body["combinations"]]}
+        all_rows = {key: [] for key in owners}
+        for row in source["results"]:
+            all_rows[row["basis_ref"]["ref_id"]].append(row)
+        rows = {}
+        for key, case in owners.items():
+            ref = case.get("source_ref")
+            distinct = verifier._distinct_members(body["sources"][ref]) if type(ref) is int else frozenset()
+            rows[key] = verifier._bound_rows(all_rows[key], distinct)
+        exact = source["producer"]["semantic_contract_id"] == verifier.EXACT_CONTRACT_ID
+        classes = verifier._g5_numeric(body, rows, exact_evidence=(source.get("contract_evidence"),) if exact else None,
+                                       all_rows_by_case=all_rows)
+    out = {}
+    for reading, (_, summary) in readings.items():
+        if not summary.startswith("pass"):
+            continue
+        bound = reading == "bound"
+        eligible = (bound and source["status"]["mechanics"] == "MECHANICS_SOLVED"
+                    and all(c["status"] in {"selected", "not_required"} for c in body["cases"]))
+        selected = [] if reading == "transport" else classes
+        assert summary == f"pass{' eligible' if eligible else ''} rows={len(selected)}"
+        out[reading] = {"ok": True, "validation": {"invocation_bound": bound, "numerical_eligible": eligible,
+                                                 "publication_sha256": publication, "classifications": selected}}
+    return out
+
+
 def check_reader_outcomes(before, after):
-    """The native reader outcomes (the increment-4 rule): keys, readings and summaries token for token; every moved
-    input digest rematerialized at both endpoints; unmoved entries byte-identical; every refusal digest recomputed
-    from its summary; the eight RV120/N2b pins move as retained_precision_contract.rs's do."""
+    """Keys/readings/summaries stay fixed. Re-materialize moved inputs and every successful outcome payload at both
+    endpoints, derive refusal hashes from their summaries, and preserve unmoved entries byte for byte."""
     from tests.verifiers.canonical_json import canonical_sha256
     moves = []
     compare(load(before), load(after), moves=moves, allowed=ce.reader_outcome_digest)
@@ -397,12 +440,17 @@ def check_reader_outcomes(before, after):
     for rev, entries in ((BASE, b), (None, a)):
         inputs = _reader_inputs(rev)
         for key, (_, digest, readings) in entries.items():
+            successful = {}
             if key in inputs and b[key][1] != a[key][1]:
-                assert canonical_sha256(inputs[key]()) == digest, (rev, key)
+                source, invocation = inputs[key]()
+                assert canonical_sha256([source, invocation]) == digest, (rev, key)
+                successful = _successful_reader_outcomes(source, readings)
                 derived += 1
             for reading, (outcome, summary) in readings.items():
                 if not summary.startswith("pass"):
                     assert nl._refusal_digest(summary) == outcome, (rev, key, reading)
+                elif b[key][1] != a[key][1]:
+                    assert canonical_sha256(successful[reading]) == outcome, ("successful outcome hash", rev, key, reading)
     working = _reader_inputs(None)
     for key in b:
         if b[key][1] == a[key][1]:
@@ -477,6 +525,72 @@ def test_the_schema_manifest_moves_only_the_changed_schemas_digests():
     assert {k: v for k, v in before.items() if k != "schemas"} == {k: v for k, v in after.items() if k != "schemas"}
     for path in SCHEMA_MOVES:
         assert ce._sha(_at(BASE, path)) == b[path] and ce._sha(current(path)) == a[path], path
+
+
+def check_routing_inventory(after=None):
+    """Re-derive only the three changed Rust trees, seven source-read hashes and three scan additions.
+    Every source-scan rule, exclusion, caller, fixture enumeration and unrelated control retains its predecessor value.
+    The exact scan contents are checked from the current filesystem, using the selector's declared boundaries."""
+    import importlib.util
+    module_path = ROOT / "tools/ci/numerical_ci.py"
+    spec = importlib.util.spec_from_file_location("s6_routing_inventory", module_path)
+    numerical = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(numerical)
+    expected = json.loads(_at(BASE, ROUTING))
+    trees = expected["piping_runtime_reads"]["source_trees"]
+    for manifest in ("core/product_physics/Cargo.toml", "core/reporting/result_export/Cargo.toml",
+                     "core/solver/nonlinear_integration/Cargo.toml"):
+        digest = numerical.rust_tree_digest(ROOT, Path(manifest))
+        assert digest != trees[manifest]
+        trees[manifest] = digest
+    reads = expected["piping_runtime_reads"]["reads"]
+    for source in ("core/product_physics/src/source_receipt/pressure_source_context_tests.rs",
+                   "core/product_physics/tests/load_reference_state_runtime.rs",
+                   "core/product_physics/tests/pressure_source_join.rs",
+                   "core/reporting/result_export/tests/load_reference_contract.rs",
+                   "core/reporting/result_export/tests/retained_precision_contract.rs",
+                   "core/reporting/result_export/tests/retained_precision_derivative_golden.rs",
+                   "core/solver/nonlinear_integration/src/structural_adapter/k5_tests.rs"):
+        digest = ce._sha(current(source))
+        assert digest != reads[source]["sha256"]
+        reads[source]["sha256"] = digest
+    addition = "core/product_physics/src/rt_a3_s6_tests.rs"
+    for source, anchor in (
+            ("core/reporting/result_export/tests/retained_precision_carriers.rs", "../../.."),
+            ("core/solver/nonlinear_integration/src/s11k_tests.rs", "../../product_physics/src"),
+            ("core/solver/nonlinear_integration/src/structural_adapter/k5_tests.rs", "../../product_physics/src")):
+        entry = next(e for e in reads[source]["inputs"] if e["anchor"] == anchor and e.get("scan"))
+        scan = entry["scan"]
+        assert entry["base"] == "manifest" and scan["suffix"] == ".rs"
+        crate = next(p for p in (ROOT / source).parents if (p / "Cargo.toml").is_file())
+        boundary = (crate / anchor).resolve()
+        excluded = set(scan.get("exclude", []))
+        actual = {p.relative_to(ROOT).as_posix() for p in boundary.rglob("*")
+                  if p.is_file() and p.suffix == scan["suffix"]
+                  and not excluded.intersection(p.relative_to(boundary).parts)
+                  and (not scan.get("hidden") or not any(part.startswith(".") for part in p.relative_to(boundary).parts))}
+        assert actual - set(entry["files"]) == {addition} and not set(entry["files"]) - actual
+        entry["files"] = sorted(actual)
+    assert expected == json.loads(current(ROUTING) if after is None else after), "routing inventory changed outside its derivation"
+
+
+def test_routing_inventory_derives_only_s6_source_bindings_and_scan_additions():
+    check_routing_inventory()
+
+
+@pytest.mark.parametrize("mutation", ["tree_hash", "scan_exclusion", "caller"])
+def test_routing_inventory_refuses_unbound_hashes_weakened_scans_or_lost_callers(mutation):
+    doc = json.loads(current(ROUTING))
+    reads = doc["piping_runtime_reads"]
+    if mutation == "tree_hash":
+        reads["source_trees"]["core/product_physics/Cargo.toml"] = "0" * 64
+    elif mutation == "caller":
+        reads["reads"]["core/product_physics/tests/pressure_source_join.rs"]["source_trees"].pop()
+    else:
+        entry = next(e for e in reads["reads"]["core/solver/nonlinear_integration/src/s11k_tests.rs"]["inputs"] if e.get("scan"))
+        entry["scan"].setdefault("exclude", []).append("src")
+    with pytest.raises(AssertionError, match="routing inventory changed outside its derivation"):
+        check_routing_inventory(json.dumps(doc))
 
 
 def test_the_tables_restate_only_the_admitted_families_limitation():
@@ -1096,3 +1210,12 @@ def test_a_leftover_reader_outcome_or_forged_digest_is_refused():
     refusal = next(e for e in entries if not e[2]["unbound"][1].startswith("pass"))
     with pytest.raises(AssertionError):
         check_reader_outcomes(_at(BASE, READER_OUTCOMES), text.replace(refusal[2]["unbound"][0], "8" * 64))
+
+
+def test_a_forged_successful_reader_outcome_hash_is_refused():
+    document = json.loads(current(READER_OUTCOMES))
+    entry = next(e for e in document["entries"] if e[0] == "corpus:case:w1_member_route_e_baseline_sparse_interactive")
+    assert entry[2]["bound"][1].startswith("pass")
+    entry[2]["bound"][0] = "7" * 64
+    with pytest.raises(AssertionError, match="successful outcome hash"):
+        check_reader_outcomes(_at(BASE, READER_OUTCOMES), json.dumps(document))
