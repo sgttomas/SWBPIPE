@@ -7,7 +7,7 @@ This is RT-E1 transport evidence, not AC-005 completion or product qualification
 
 ## Selected artifacts
 
-[`agent-witness-pin.json`](agent-witness-pin.json) records the exact supplier,
+[`agent-witness-pin.json`](../../../../fixtures/embedded_agent/agent-witness-pin.json) records the exact supplier,
 server and installed model identity. Codex stock 0.160.0 was acquired from the
 official release URL in that file: archive 95,893,648 bytes, SHA-256
 `07c3c7ca376a8f791115342f53138dda37e97cfa29b8125d0652d93784894b5d`;

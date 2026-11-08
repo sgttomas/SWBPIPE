@@ -441,8 +441,12 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           filter: blob:none
-          # The whole tree: a selected test reads whatever its code names (tools/ci/python_test_reads.py),
-          # execution/ records included, so the job cannot leave out a file a test it runs reads.
+          # Declarative specifications are not product inputs: a selected test that read them fails here
+          # (tools/ci/python_test_reads.py; tools/validation/execution_boundary.py).
+          sparse-checkout: |
+            /*
+            !/execution/
+          sparse-checkout-cone-mode: false
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"

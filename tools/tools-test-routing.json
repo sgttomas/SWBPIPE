@@ -35,7 +35,7 @@
         "tools/agent_catalog_resource*",
         "api/agent/**",
         "apps/desktop/src-tauri/resources/agent-capability-catalog.json",
-        "execution/PKG-16/**"
+        "tools/agent_host_witness.py"
       ],
       "checks": [
         "software_workflow"
@@ -52,7 +52,8 @@
     },
     {
       "paths": [
-        "tools/validation/**"
+        "tools/validation/**",
+        "execution/**"
       ],
       "checks": [
         "validation"

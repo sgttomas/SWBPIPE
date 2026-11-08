@@ -29,7 +29,7 @@ from tools.agent_journey_fixture import Script, StubProvider, TURNS, sse, reside
 from tools.agent_journey_fixture import tool_output, user_text  # noqa: E402
 
 PROJECT = Path(__file__).resolve().parents[1]
-CATALOG = PROJECT / 'execution/PKG-16/DEL-16-06/Work/agent-capability-catalog.json'
+CATALOG = PROJECT / 'apps/desktop/src-tauri/resources/agent-capability-catalog.json'
 OUTCOMES = PROJECT / 'fixtures/model_operations/agent_w9a_capture_outcomes.json'
 RUNTIME = PROJECT / 'apps/desktop/src-tauri/src/embedded_agent/live_runtime.rs'
 MACOS = PROJECT / 'apps/desktop/src-tauri/src/embedded_agent/macos.rs'

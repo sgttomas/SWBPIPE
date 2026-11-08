@@ -22,7 +22,11 @@ or matches one of its roots:
   which it may load or run, transitively, with each one's own roots: an imported helper may read
   the test's inputs, and a loaded file holds a guard's scanning code.
 
-The Python job checks out the whole tree, so every root is a path a selected test can read.
+The Python job checks out the whole tree except the declarative `execution/` records
+(`DECLARATIVE_ROOT`), so every other root is a path a selected test can read. A test that reads
+execution/ fails there for the missing file; the maintained boundary guard
+(`tools/validation/execution_boundary.py`) rejects such product readers before that, and a
+changed execution/ path never selects a Python test (`declarative`).
 """
 import ast
 from fnmatch import fnmatchcase
@@ -38,6 +42,8 @@ REPOSITORY_CHECK_TESTS = ('tools/software_workflow', 'tools/deliverables', 'tool
                           'tests/test_release_candidate_scan.py', 'tests/test_repository_history.py')
 # The selector's own tests name paths as selection inputs, not reads; `tools/ci/` changes select them.
 SELECTOR_TESTS = 'tests/test_ci_'
+# Declarative specifications: absent from the Python product job's checkout, read only by document checks.
+DECLARATIVE_ROOT = 'execution/'
 # A test or a file it loads may declare reads its code cannot show; each entry must stay a tracked path or
 # a pattern whose literal prefix is tracked (`declaration_problems`).
 DECLARED_READS = 'CI_READS'
@@ -86,6 +92,11 @@ def maintained_tests(project):
     return tuple(sorted(local for local in paths if is_test(local) and (project / local).is_file()
                         and not local.startswith(SELECTOR_TESTS)
                         and not any(local == suite or local.startswith(suite + '/') for suite in REPOSITORY_CHECK_TESTS)))
+
+
+def declarative(path):
+    """A path under the declarative specification tree, which no product test may read."""
+    return path.startswith(DECLARATIVE_ROOT)
 
 
 def is_pattern(root):
@@ -1235,6 +1246,7 @@ def test_reads(project):
 def reading_tests(project, changed):
     """{test: changed paths it reads} for the maintained tests a change reaches."""
     selected = {}
+    changed = [path for path in changed if not declarative(path)]
     for test, roots in test_reads(project).items():
         hits = [path for path in changed if any(root_matches(path, root) for root in roots)]
         if hits:

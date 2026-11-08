@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# Narrowing what a change runs (a new documentary path, a skipped job, a looser
+# rule) needs independent review, using the model set by current session
+# steering, before merge. Unknown paths keep full coverage; the selector's tests
+# and completeness check enforce the rest.
 from __future__ import annotations
 
 import argparse

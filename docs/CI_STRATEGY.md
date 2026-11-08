@@ -12,33 +12,59 @@ fails if any selected verification fails, is cancelled or never runs. Unselected
 product jobs are explicitly skipped. Selection uses the complete PR diff;
 missing diff information conservatively selects coverage.
 
-Human documentation has a short verification route. The first job checks the
-complete PR diff at the exact candidate. In-place, regular UTF-8 Markdown edits
-under `docs/`, `loop/` or `execution/`, or to root `README.md`/`AGENTS.md`, run
-the dependency-structure, changed-content credential and conflict checks,
-plus the document-content checks named in
-`tools/software_workflow/documentation_ci.py`. They do not start product
-builds, numerical tests or the broad Python cohort. Those source tests cannot
-establish the correctness of a prose edit. Authority, numerical meaning and
-commitment wording still require their ordinary independent review.
+Documents have a short verification route. The first job checks the complete
+PR diff at the exact candidate. Two kinds of change take it:
 
-Markdown used as a runtime asset or verification input keeps its owning route.
-This includes embedded-agent resources, notices/licences, the claims registry
-read by desktop tests, and preserved scope-change source assets. The document
-consumer inventory is maintained alongside the classifier: a new content
-reader must add its focused check or reserve its input for product coverage.
-The inventory is bound to all non-Markdown source/configuration/fixture bytes
-and every tracked path and mode. A source change or a newly introduced document
-invalidates it, so subsequent prose PRs fall back to product verification until
-the reader inventory is reviewed and refreshed. After reviewing changed readers,
-stage the source changes, run
+- `execution/` holds declarative specifications only: Markdown, YAML, JSON,
+  CSV, text, SHA256 lists and patches. Code that runs lives in the project's
+  code locations. Any regular, non-executable UTF-8 change of those kinds there,
+  including additions, deletions and renames, is a document change. It runs the
+  maintained boundary guard (`tools/validation/execution_boundary.py`), parses
+  each changed JSON, YAML and CSV file, and runs the parity and graph checks the
+  changed specifications feed (`DOCUMENT_TESTS`).
+- In-place, regular UTF-8 Markdown edits under `docs/` or `loop/`, or to root
+  `README.md`/`AGENTS.md`, under a current reader audit (below).
+
+Both run the dependency-structure, changed-content credential and conflict
+checks, and neither starts product builds, numerical tests or the broad Python
+cohort. Those source tests cannot establish the correctness of a document edit.
+Authority, numerical meaning and commitment wording still require their
+ordinary independent review. An invalid specification fails the document
+checks; it does not acquire product coverage.
+
+The boundary guard keeps `execution/` free of runnable material and of execution
+edges into it. It rejects other file kinds, executable modes, links and
+tool-discovery files there, and maintained Python, Rust, JS/TS, script,
+workflow, build-configuration and registry sources that import, load, compile,
+execute, put on a path or collect anything from it. Python reads of it are
+limited to the declared document readers; an execution path the guard cannot
+classify must be classified in the guard after review. The 22 accepted SCA-011
+helper sources stay in place as hash-checked fidelity evidence that is never
+run. The guard is a bounded static check, not a proof about arbitrary programs;
+its docstring states its limits. Product jobs check out the tree without
+`execution/`, so a product read that escaped the guard fails there rather than
+passing on absent data. The guard runs on the document route for any
+`execution/` change and in the repository checks for every product-route PR.
+
+Markdown outside `execution/` used as a runtime asset or verification input
+keeps its owning route. This includes embedded-agent resources, notices/licences
+and the claims registry read by desktop tests. The document consumer inventory
+is maintained alongside the classifier: a new content reader must add its
+focused check or reserve its input for product coverage. The inventory is bound
+to all non-Markdown source/configuration/fixture bytes and every tracked path
+and mode outside `execution/`. A source change or a newly introduced document
+there invalidates it, so subsequent prose PRs fall back to product verification
+until the reader inventory is reviewed and refreshed. Declarative `execution/`
+changes neither need nor invalidate it. After reviewing changed readers, stage
+the source changes, run
 `python3 tools/software_workflow/documentation_ci.py refresh-audit`, and stage
 `tools/software_workflow/documentation-inputs.json`. This is an audit of document
 inputs, not a re-pin of any protected product or numerical baseline.
-Additions, deletions, renames, type/mode changes, mixed code/document changes,
-unreadable input, missing diff information and manual dispatch retain product
-verification. Python's conservative source-read derivation is unchanged on
-that route. The short route targets less than two minutes from hosted run
+Outside `execution/`, additions, deletions, renames and type/mode changes keep
+product verification; anywhere, mixed code/document changes, runnable or
+unreadable input, missing diff information and manual dispatch retain it. On the
+product route a changed `execution/` path selects no product suite; the code
+paths in the same diff select their own checks. The short route targets less than two minutes from hosted run
 event to required `harness` completion, including setup and runner queueing.
 Classification or document-check failure, cancellation or missing
 output fails `harness`; skipped product jobs are permitted only after a
@@ -217,9 +243,10 @@ a value it keeps a superset root rather than drop the read. Its roots are:
 A file whose directory scan or pathspec the code does not show at all declares
 `CI_READS` beside it, which stands in for its scans; `tests/test_ci_python.py`
 fails on such a scan without one, on an entry that stops naming a tracked path,
-and on a shown scan no entry covers. The Python job checks out the whole tree,
-`execution/` records included, so a selected test can read every path its code
-names. Tests that no rule names join the broad cohort. A path any test reads starts the Python job even where no path rule
+and on a shown scan no entry covers. The Python job checks out the whole tree
+except the declarative `execution/` records, which no product test may read, so
+a selected test can read every other path its code names, and a changed
+`execution/` path selects no Python test. Tests that no rule names join the broad cohort. A path any test reads starts the Python job even where no path rule
 routes it. Most tests read, directly or through the modules they import, a path
 their code does not show (data-driven fixture lists, injected globals, subprocess
 output, binary locations), so they reach every path, and every pull request now

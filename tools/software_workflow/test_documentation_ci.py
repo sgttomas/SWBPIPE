@@ -21,21 +21,29 @@ def audit(root):
     git(root, "add", docs.INVENTORY)
 
 
+# The real guard checks the real repository (tools/validation/test_execution_boundary.py); here record calls.
+GUARDED = []
+
+
 @pytest.fixture
-def repo(tmp_path):
+def repo(tmp_path, monkeypatch):
     git(tmp_path, "init", "-q")
     git(tmp_path, "config", "user.email", "test@example.invalid")
     git(tmp_path, "config", "user.name", "Documentation CI fixture")
     for path in ("README.md", "docs/note.md", "core/code.py",
                  "execution/PKG-04/DEL-04-08/Work/retained-pricing-rules.md",
                  "apps/desktop/src-tauri/resources/instructions.md",
-                 "docs/claims_registry.md", "docs/THIRD_PARTY_NOTICES.md"):
+                 "docs/claims_registry.md", "docs/THIRD_PARTY_NOTICES.md",
+                 "execution/PKG-01/DEL-01-01/deliverable.yaml", "execution/PKG-01/DEL-01-01/Work/data.json",
+                 "execution/PKG-01/DEL-01-01/Work/rows.csv"):
         file = tmp_path / path
         file.parent.mkdir(parents=True, exist_ok=True)
-        file.write_text("before\n")
+        file.write_text({".json": "{}\n", ".csv": "a\n"}.get(file.suffix, "before\n"))
     git(tmp_path, "add", ".")
     audit(tmp_path)
     git(tmp_path, "commit", "-qm", "base")
+    del GUARDED[:]
+    monkeypatch.setattr(docs, "boundary_check", GUARDED.append)
     return tmp_path, git(tmp_path, "rev-parse", "HEAD")
 
 
@@ -158,3 +166,96 @@ def test_aggregate_requires_classification_and_exact_selected_job_states(mode):
         assert not docs.require_results(changed)
     for output in ({}, {"mode": "invalid"}):
         assert not docs.require_results({**results, "changes": {"result": "success", "outputs": output}})
+
+
+@pytest.mark.parametrize("change", ["yaml", "json", "csv", "add", "delete", "rename", "mixed-kinds"])
+def test_declarative_specification_changes_are_documents_without_an_audit_refresh(repo, change):
+    root, base = repo
+    work = root / "execution/PKG-01/DEL-01-01"
+    if change == "yaml":
+        (work / "deliverable.yaml").write_text("id: DEL-01-01\n")
+    elif change == "json":
+        (work / "Work/data.json").write_text('{"a": 1}\n')
+    elif change == "csv":
+        (work / "Work/rows.csv").write_text("a,b\n1,2\n")
+    elif change == "add":
+        (root / "execution/PKG-02/DEL-02-01/Work/new.md").parent.mkdir(parents=True)
+        (root / "execution/PKG-02/DEL-02-01/Work/new.md").write_text("new\n")
+    elif change == "delete":
+        (work / "Work/rows.csv").unlink()
+    elif change == "rename":
+        (work / "Work/data.json").rename(work / "Work/renamed.json")
+    else:
+        (work / "deliverable.yaml").write_text("id: DEL-01-01\n")
+        (work / "Work/notes.txt").write_text("notes\n")
+        (work / "Work/hashes.sha256").write_text("0" * 64 + "  x\n")
+    head = commit(root, refresh=False)
+    assert docs.source_digest(root, head) == docs.source_digest(root, base)
+    selected = docs.plan(root, "pull_request", base, head)
+    assert selected["mode"] == "documentation", selected["reason"]
+    del GUARDED[:]
+    docs.verify(root, selected)
+    assert GUARDED == [root]
+
+
+@pytest.mark.parametrize("change", ["python", "script", "executable", "symlink", "binary", "code-and-spec", "unknown"])
+def test_runnable_or_mixed_execution_changes_keep_product_checks(repo, change):
+    root, base = repo
+    work = root / "execution/PKG-01/DEL-01-01/Work"
+    if change == "python":
+        (work / "derive.py").write_text("print(1)\n")
+    elif change == "script":
+        (work / "run.sh").write_text("echo\n")
+    elif change == "executable":
+        (work / "data.json").chmod(0o755)
+    elif change == "symlink":
+        (work / "data.json").unlink()
+        (work / "data.json").symlink_to("rows.csv")
+    elif change == "binary":
+        (work / "data.json").write_bytes(b"\x00\xff")
+    elif change == "code-and-spec":
+        (work / "data.json").write_text('{"b": 2}\n')
+        (root / "core/code.py").write_text("changed\n")
+    else:
+        (root / "unknown.cfg").write_text("x\n")
+        (work / "data.json").write_text('{"b": 2}\n')
+    assert docs.plan(root, "pull_request", base, commit(root, refresh=False))["mode"] == "product"
+
+
+@pytest.mark.parametrize("path,text", [("Work/data.json", '{"a": 1, "a": 2}'), ("Work/data.json", "{"),
+                                       ("deliverable.yaml", "a: [1\n"), ("Work/rows.csv", "a,b\n1,2,3\n")])
+def test_invalid_declarative_specifications_fail_document_checks(repo, path, text):
+    root, base = repo
+    (root / "execution/PKG-01/DEL-01-01" / path).write_text(text)
+    selected = docs.plan(root, "pull_request", base, commit(root, refresh=False))
+    assert selected["mode"] == "documentation"
+    with pytest.raises(ValueError, match="Invalid declarative specification"):
+        docs.verify(root, selected)
+
+
+def test_boundary_failure_and_selected_consumers_fail_the_document_route(repo, monkeypatch):
+    root, base = repo
+    (root / "execution/_DAG").mkdir(parents=True)
+    (root / "execution/_DAG/_LATEST.md").write_text("pointer\n")
+    selected = docs.plan(root, "pull_request", base, commit(root, refresh=False))
+    assert selected["mode"] == "documentation"
+    monkeypatch.setitem(docs.DOCUMENT_TESTS, "execution/_DAG/", ["-c", "raise SystemExit(1)"])
+    with pytest.raises(subprocess.CalledProcessError):
+        docs.verify(root, selected)
+    monkeypatch.setitem(docs.DOCUMENT_TESTS, "execution/_DAG/", ["-c", "pass"])
+
+    def fail(root):
+        raise subprocess.CalledProcessError(1, "execution_boundary")
+    monkeypatch.setattr(docs, "boundary_check", fail)
+    with pytest.raises(subprocess.CalledProcessError):
+        docs.verify(root, selected)
+
+
+def test_the_real_guard_rejects_a_runnable_specification(tmp_path):
+    """The verify path's boundary_check runs the maintained guard, not a stand-in."""
+    git(tmp_path, "init", "-q")
+    (tmp_path / "execution/PKG-01").mkdir(parents=True)
+    (tmp_path / "execution/PKG-01/derive.py").write_text("print(1)\n")
+    git(tmp_path, "add", ".")
+    with pytest.raises(subprocess.CalledProcessError):
+        docs.boundary_check(tmp_path)

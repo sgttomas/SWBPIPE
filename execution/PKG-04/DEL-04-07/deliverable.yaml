@@ -303,7 +303,7 @@ needs:
     over evaluate_original_residual; on the pattern since RT-A3 P, finish_sparse_structural and
     finish_sparse_structural_on through the same completion and binary64 residual). Second, the independent kd5 reference formation
     (validation/references/kd5_nonlinear/reference.py and its oracles' normalized sections). A
-    change to either re-runs Work/k1_twin_bound.py before the bound's constants are asserted again.
+    change to either re-runs tools/validation/k1_twin_bound.py before the bound's constants are asserted again.
     Its iterate-delta part also rests on this deliverable's loop rules (nonlinear_integration: the
     authored seeds, no friction force on the first iterate, the deferred first iterate, and the slip
     direction and normal branch taken from the previous iterate; since RT-A5 S2 the seeds, their
@@ -369,6 +369,8 @@ code_paths:
 - apps/desktop/src-tauri/src/result_detail.rs
 # The temperature identity's canonical-decimal corpus writer (pressure-contract.md).
 - tools/fixtures/temperature_canonical_decimal_corpus.py
+# The K-1 bound's independent exact-rational derivation (Work/k1-twin-bound.md).
+- tools/validation/k1_twin_bound.py
 - validation/platform/windows_runner_startup_probe/**
 - validation/platform/windows_arena_probe/**
 - validation/platform/windows_worker_fixture/**

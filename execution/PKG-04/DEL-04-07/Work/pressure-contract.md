@@ -1293,7 +1293,7 @@ basis in [k1-twin-bound.md](k1-twin-bound.md)) asserts on the named corpus:
   (translation and translation deltas) to 2^-26 (force).
 
 The constants come from independent exact-rational forward-error enclosures
-([k1_twin_bound.py](k1_twin_bound.py), on kd5's reference formation). They
+([k1_twin_bound.py](../../../../tools/validation/k1_twin_bound.py), on kd5's reference formation). They
 enclose the exact section-difference response and each route's
 residual-certified solve. The recovery cancellation and its row's formation,
 an applied force's own error, the coupled friction denominator 1 + c·g and the

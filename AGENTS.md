@@ -63,8 +63,6 @@ not update those inputs or establish product adoption.
 
 ## Coordination between projects
 
-Cross-project arrangements (project routes, the merge rule and aligned CI standard, delegations in force and pending owner decisions) are indexed in Root's `execution/_Coordination/CROSS_PROJECT.md` (`sgttomas/chirality`, private). If that repository isn't readable from this session, ask the cross-project coordinator session by T3 message.
-
 The Chirality Library (`sgttomas/chirality-library`), Chirality Root
 (`sgttomas/chirality`), App v4 (`sgttomas/chirality-app`) and SWBPIPE
 (`sgttomas/SWBPIPE`) each have one top-level Agent 0, working in its own T3 Code
@@ -99,10 +97,13 @@ with `check`, `neighborhood`, `impact`, `touches` or `dag-diff`. Preserve unchan
 declarations and historical identities. Git records changes; do not manufacture
 acceptance, lifecycle advancement or a standing backlog from old records.
 
-Keep current findings and their reasons in `Work/`; keep the change's approval
-quotes and review/check narrative in the PR. Lead owner updates with the result
+`Work/` holds the current account: findings with their reasons, working artifacts and outputs. Revise it in place rather than appending history; never rewrite fidelity copies, frozen snapshots or accepted evidence. How the work went (approval quotes, review rounds, retries, run IDs, check results) belongs in the PR description, which states what changed, why, what was checked and what remains open. Cite SHAs or hashes only where they pin something a result relies on. State a fact once and link to it.
+
+Lead owner updates with the result
 or decision needed. Use plain prose with spaced identifiers in messages to
 delegates.
+
+Code that runs (implementation, tests, generators, harnesses) lives outside `execution/`, in the project's code locations, and deliverables link to it; `Work/` may keep documentation-only examples that are never run.
 
 Use focused checks for ordinary changes. Numerical meaning, persistence,
 permissions and destructive operations require targeted regression checks and
@@ -193,7 +194,7 @@ Apply these project conventions while using ordinary Git judgment and the author
 - Close authorized work through a PR under [SWBPIPE AGENTS.md's standing Git grant](#standing-git-grant). No separate commit, push, PR or merge approval is needed when its conditions hold. Use the configured authenticated identity and retain truthful authorship; agent review is not personal owner review.
 - Verify in proportion to consequence and confirm required checks pass on the exact head. Obtain independent scrutiny where the grant requires it. Clear blocking findings and reassess affected checks after candidate changes; a passing rerun does not establish that a known defect was repaired. Verify the source HEAD when merging.
 - Git integration, human acceptance and product release remain distinct. Explicit holds and reserved decisions apply. The grant is limited to `sgttomas/SWBPIPE`; it does not authorize protection bypasses, history rewrites, force pushes, permission changes or releases.
-- Update affected live consumers and references in the change itself. The PR description carries the change, rationale, checks and open matters; no downstream notice or receipt chain is required.
+- Update affected live consumers and references in the change itself; no downstream notice or receipt chain is required.
 - Delete after merge. Once a PR merges, or its work is abandoned, its owner removes what the work created: worktrees (with `git worktree remove`, so Git's records stay consistent), local branches, build output such as Cargo target directories, and scratch. Reviewers and TASKs remove their own when they return. Before removing a worktree, check it holds no uncommitted work that is still wanted. Keep only what an open review, a named consumer or a recovery need still uses, and anything the owner has asked to keep. Build output from parallel lanes fills a disk within days, so this step is not optional.
 
 For implementation and closeout in this repository:

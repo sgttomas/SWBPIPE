@@ -4,11 +4,29 @@ import importlib.util
 import sys
 from pathlib import Path
 
-from tests.public_export import monorepo_only
+import pytest
 
 
 ROOT = Path(__file__).resolve().parents[1]
 MODULE_PATH = ROOT / "tools" / "release" / "check_release_readiness.py"
+# The live approved-graph pointer and register are document checks
+# (tools/validation/test_execution_dag.py); these tests use a fixture project
+# and never read the current execution/ records.
+FIXTURE_DAG = "execution/_DAG/DAG-900"
+
+
+@pytest.fixture
+def project(tmp_path):
+    release = load_module()
+    for path in release.REQUIRED_PATHS:
+        (tmp_path / path).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / path).write_text("fixture")
+    (tmp_path / release.DAG_POINTER).write_text(
+        "# Latest DAG Pointer\n\n- Approved graph authority: `" + FIXTURE_DAG + "/`\n")
+    (tmp_path / FIXTURE_DAG).mkdir(parents=True)
+    (tmp_path / FIXTURE_DAG / "DependencyEdges.csv").write_text("fixture\n")
+    (tmp_path / "loop").mkdir()
+    return tmp_path
 
 
 def load_module():
@@ -21,18 +39,18 @@ def load_module():
     return module
 
 
-def test_required_release_paths_exist():
+def test_required_release_paths_and_approved_graph_pointer(project):
     release = load_module()
-    assert release.check_required_paths(ROOT) == []
-
-
-@monorepo_only("execution/_DAG")
-def test_latest_dag_dependency_edges_uses_approved_graph_pointer():
-    release = load_module()
-    assert (
-        release.latest_dag_dependency_edges(ROOT)
-        == Path("execution/_DAG/DAG-011/DependencyEdges.csv")
-    )
+    assert release.check_required_paths(project) == []
+    assert release.latest_dag_dependency_edges(project) == Path(FIXTURE_DAG) / "DependencyEdges.csv"
+    (project / FIXTURE_DAG / "DependencyEdges.csv").unlink()
+    with pytest.raises(FileNotFoundError):
+        release.latest_dag_dependency_edges(project)
+    (project / release.DAG_POINTER).write_text("# Latest DAG Pointer\n")
+    with pytest.raises(ValueError):
+        release.latest_dag_dependency_edges(project)
+    (project / release.DAG_POINTER).unlink()
+    assert release.check_required_paths(project) == [release.DAG_POINTER]
 
 
 def test_cargo_manifest_discovery_is_crate_local():
@@ -44,22 +62,22 @@ def test_cargo_manifest_discovery_is_crate_local():
     assert all("target" not in manifest.parts for manifest in manifests)
 
 
-def test_skeleton_plan_uses_local_commands_only():
+def test_skeleton_plan_uses_local_commands_only(project):
     release = load_module()
-    steps = release.build_plan("skeleton", ROOT)
+    steps = release.build_plan("skeleton", project)
     commands = [" ".join(step.command) for step in steps]
 
-    # The DAG schema step runs in the monorepo; the public export has no DAG.
+    # The DAG schema step validates the pointer's approved register.
     assert any(
-        "validate_dependencies_schema.py execution/_DAG/DAG-011/DependencyEdges.csv"
+        f"validate_dependencies_schema.py {FIXTURE_DAG}/DependencyEdges.csv"
         in command
         for command in commands
-    ) is not release.is_public_export(ROOT)
+    )
     assert any("test_release_readiness_script.py" in command for command in commands)
     assert all(isinstance(step.command, tuple) for step in steps)
 
 
-def test_python_profiles_use_coordination_maintenance_test():
+def test_python_profiles_use_coordination_maintenance_test(project):
     release = load_module()
     expected = (
         "-m",
@@ -70,22 +88,24 @@ def test_python_profiles_use_coordination_maintenance_test():
     old_target = "tools/coordination"
 
     for profile in ("python", "all"):
-        commands = [step.command for step in release.build_plan(profile, ROOT)]
+        commands = [step.command for step in release.build_plan(profile, project)]
 
         assert any(command[1:] == expected for command in commands)
         assert all(old_target not in part for command in commands for part in command)
 
 
-def test_all_profile_preserves_current_command_surface():
+def test_all_profile_preserves_current_command_surface(project, monkeypatch):
     release = load_module()
-    commands = [" ".join(step.command) for step in release.build_plan("all", ROOT)]
+    # Cargo discovery is the real tree's (test_cargo_manifest_discovery_is_crate_local).
+    discover = release.discover_cargo_manifests
+    monkeypatch.setattr(release, "discover_cargo_manifests", lambda root: discover(ROOT))
+    commands = [" ".join(step.command) for step in release.build_plan("all", project)]
 
-    # The DAG schema step runs in the monorepo; the public export has no DAG.
     assert any(
-        "validate_dependencies_schema.py execution/_DAG/DAG-011/DependencyEdges.csv"
+        f"validate_dependencies_schema.py {FIXTURE_DAG}/DependencyEdges.csv"
         in command
         for command in commands
-    ) is not release.is_public_export(ROOT)
+    )
     assert any("test_release_readiness_script.py" in command for command in commands)
     assert any(" -m pytest -q tests" in command for command in commands)
     assert any("test_coordination_maintenance.py" in command for command in commands)
@@ -123,7 +143,7 @@ def test_run_steps_forces_cargo_offline_environment(monkeypatch):
     assert seen[0][1]["CARGO_NET_OFFLINE"] == "true"
 
 
-def test_main_dry_run_prints_plan_without_executing(monkeypatch, capsys):
+def test_main_dry_run_prints_plan_without_executing(project, monkeypatch, capsys):
     release = load_module()
 
     def fail_run_steps(*args, **kwargs):
@@ -131,39 +151,35 @@ def test_main_dry_run_prints_plan_without_executing(monkeypatch, capsys):
 
     monkeypatch.setattr(release, "run_steps", fail_run_steps)
 
-    result = release.main(["--profile", "skeleton", "--repo-root", str(ROOT)])
+    result = release.main(["--profile", "skeleton", "--repo-root", str(project)])
     captured = capsys.readouterr()
 
     assert result == 0
     assert "SWBPIPE release readiness profile (dry-run)" in captured.out
-    export = release.is_public_export(ROOT)
-    assert ("execution/_DAG/DAG-011/DependencyEdges.csv" in captured.out) is not export
-    assert f"planned checks: {1 if export else 2}" in captured.out
+    assert f"{FIXTURE_DAG}/DependencyEdges.csv" in captured.out
+    assert "planned checks: 2" in captured.out
     assert "running:" not in captured.out
 
 
-def test_main_execute_runs_planned_steps(monkeypatch, capsys):
+def test_main_execute_runs_planned_steps(project, monkeypatch, capsys):
     release = load_module()
     executed: list[str] = []
 
     def fake_run_steps(steps, root):
         executed.extend(step.name for step in steps)
-        assert root == ROOT
+        assert root == project
         return 0
 
     monkeypatch.setattr(release, "run_steps", fake_run_steps)
 
     result = release.main(
-        ["--profile", "skeleton", "--execute", "--repo-root", str(ROOT)]
+        ["--profile", "skeleton", "--execute", "--repo-root", str(project)]
     )
     captured = capsys.readouterr()
 
     assert result == 0
     assert "SWBPIPE release readiness profile (execute)" in captured.out
-    expected = ["release readiness script tests"]
-    if not release.is_public_export(ROOT):
-        expected.insert(0, "dag dependency schema")
-    assert executed == expected
+    assert executed == ["dag dependency schema", "release readiness script tests"]
 
 
 def test_public_export_plans_without_the_monorepo_dag(tmp_path, capsys):
