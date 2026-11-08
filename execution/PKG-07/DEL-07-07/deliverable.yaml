@@ -196,7 +196,7 @@ needs:
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
+  gating: false
   evidence: execution/PKG-07/DEL-07-07/plans/DAG-001_EXECUTION_DEPENDENCY_GRAPH_PLAN.md
 - from: DEL-02-03
   condition: 'DEL-07-07 directly depends on DEL-02-03 because solve event records display canonical analysis

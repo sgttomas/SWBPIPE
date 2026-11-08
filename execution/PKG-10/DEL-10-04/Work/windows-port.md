@@ -216,7 +216,7 @@ for shell dispatch/security (DEL-07-11), admission/custody (DEL-04-07),
 qualification (DEL-04-08), recovery (DEL-02-05), publication (DEL-08-01),
 model save (DEL-15-01), and native UX (DEL-07-06). RT-V7 distinguishes
 authorized parallel development from release qualification: Windows remains
-Later, with an immediate post-v1.0 revisit. DEC-057 retains the macOS Apple
+Later, with an immediate post-v1.0 revisit (adopted by HELP_HUMAN under the §5 Later-row delegation). DEC-057 retains the macOS Apple
 Silicon-only release baseline; the Must conditions and macOS exit criteria apply.
 
 Planning estimates below are engineering work days for bounded implementation

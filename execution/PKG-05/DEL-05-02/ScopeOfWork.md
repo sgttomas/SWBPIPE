@@ -203,7 +203,7 @@ This Scope of Work defines `DEL-05-02` in service of project scope [SOW-014] and
 > | Implementation evidence present | `core/loads/load_case_algebra/README.md`, `Cargo.toml`, and `src/lib.rs` exist. |
 > | Algebra crate tests | `cargo test --manifest-path core/loads/load_case_algebra/Cargo.toml` passes before claiming current implementation evidence is validated. |
 > | Data boundary preserved | No code-specific combinations, allowables, or protected standard formulas are introduced. |
-> | Dependency conditions current | `deliverable.yaml` states current needs and pointers; `python3 -m tools.deliverables --project projects/chirality-piping check` reports no errors. |
+> | Dependency conditions current | `deliverable.yaml` states current needs and pointers; `python3 -m tools.deliverables --project . check` reports no errors. |
 > | No issuance implied | Nothing records or implies acceptance, issuance, or release of this deliverable (F-PIP-3). |
 >
 
