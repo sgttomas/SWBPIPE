@@ -29,4 +29,3 @@ handoff.
 - No blocker queue refresh.
 - No dependency mirror or aggregate DAG edit.
 - No candidate-edge promotion.
-- No commit or push.

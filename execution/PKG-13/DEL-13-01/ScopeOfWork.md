@@ -222,9 +222,9 @@ This candidate defines `DEL-13-01` in service of project scope [SOW-067] and pac
 >
 > | Prerequisite | Status |
 > |---|---|
-> | Deliverable context for DEL-13-01 | Present in `_CONTEXT.md`. |
-> | Reference index | Present in `_REFERENCES.md`. |
-> | Approved dependency mirror | Present as `_DEPENDENCIES.md` and `Dependencies.csv`; preserve all approved graph rows with their recorded statuses through `execution/_DAG/_LATEST.md`. |
+> | Deliverable context for DEL-13-01 | Current scope and source references are in `ScopeOfWork.md`; historical `_CONTEXT.md` is retained in Git history. |
+> | Reference basis | Use the cited governing and historical sources in `ScopeOfWork.md`; the historical `_REFERENCES.md` is retained in Git history. |
+> | Dependency context | Current dependency conditions are declared in `deliverable.yaml`; preserve approved graph rows and their recorded statuses through `execution/_DAG/_LATEST.md`. Historical `_DEPENDENCIES.md` and `Dependencies.csv` remain source records in Git history. |
 > | Decomposition basis | `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see the project decision register). |
 > | Applicable invariants | `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/SPEC.md`, and `docs/IP_AND_DATA_BOUNDARY.md`. |
 > | Implementation evidence | Maintained in `schemas/design_knowledge.schema.json` and `tests/test_design_knowledge_schema.py`. |
@@ -240,7 +240,7 @@ This candidate defines `DEL-13-01` in service of project scope [SOW-067] and pac
 >    - Confirm scope item SOW-067 and objective OBJ-014.
 >
 > 2. Establish the source boundary.
->    - Use `_CONTEXT.md`, `_REFERENCES.md`, the approved local dependency mirror, the decomposition, and cited governing documents.
+>    - Use `ScopeOfWork.md`, `deliverable.yaml`, the decomposition, and cited governing documents; consult historical `_CONTEXT.md`, `_REFERENCES.md`, and the approved local dependency mirror in Git history when their source context is needed.
 >    - Do not import owner standards, protected code data, private project values, proprietary vendor data, or inaccessible standards text.
 >
 > 3. Maintain the design knowledge taxonomy.
@@ -280,7 +280,7 @@ This candidate defines `DEL-13-01` in service of project scope [SOW-067] and pac
 >
 > | Check | Expected result |
 > |---|---|
-> | Scope check | DEL-13-01, PKG-13, SOW-067, and OBJ-014 match `_CONTEXT.md` and decomposition. |
+> | Scope check | DEL-13-01, PKG-13, SOW-067, and OBJ-014 match the historical `_CONTEXT.md` and decomposition. |
 > | Scope of Work consistency | `ScopeOfWork.md` uses the same category list and boundary terms. |
 > | Unsupported details | Unsupported downstream/runtime specifics are marked `TBD` or `ASSUMPTION`. |
 > | Public/private boundary | No prohibited protected/private data is introduced. |
