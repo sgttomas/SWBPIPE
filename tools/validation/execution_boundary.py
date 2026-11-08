@@ -213,6 +213,7 @@ class PythonFile:
         self.scope_of: dict[int, ast.AST] = {}
         self.parent_scope: dict[int, ast.AST] = {}
         self.locals: dict[int, set[str]] = {id(tree): set()}
+        tainted_imports = []
         for node in ast.walk(tree):
             if isinstance(node, ast.Import):
                 for alias in node.names:
@@ -224,13 +225,15 @@ class PythonFile:
                     self.aliases[alias.asname or alias.name] = f"{node.module}.{alias.name}"
                     names = exported.get(node.module)
                     if names and alias.name in names:
-                        self.tainted.add((id(tree), alias.asname or alias.name))
+                        tainted_imports.append((node, alias.asname or alias.name))
             elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 self.functions[node.name] = node
         # Taint starts only at a shown execution path or an imported tainted name; without one there is none.
-        if self.tainted or any(self.seed(node) or self.imported_name(node) for node in ast.walk(tree)
+        if tainted_imports or any(self.seed(node) or self.imported_name(node) for node in ast.walk(tree)
                                if isinstance(node, (ast.Constant, ast.JoinedStr, ast.BinOp, ast.Call, ast.Attribute))):
             self._scopes(tree, tree)
+            for node, name in tainted_imports:
+                self.tainted.add((id(self.scope_of.get(id(node), tree)), name))
             self._propagate()
 
     def imported_name(self, node) -> bool:

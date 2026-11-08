@@ -91,7 +91,9 @@ def test_imported_module_constant_reaching_a_loader_is_rejected(tmp_path):
     repo.write("tools/spec_paths.py", 'SPEC = "execution/PKG-01/x.md"\n')
     repo.write("tools/use.py", 'import runpy\nfrom tools.spec_paths import SPEC\nrunpy.run_path(SPEC)\n')
     repo.write("tools/use2.py", 'import runpy\nimport tools.spec_paths as paths\nrunpy.run_path(paths.SPEC)\n')
-    assert repo.findings() == {("exec", "tools/use.py"), ("exec", "tools/use2.py")}
+    repo.write("tools/use3.py", 'import runpy\ndef run():\n'
+               '    from tools.spec_paths import SPEC as local_spec\n    runpy.run_path(local_spec)\n')
+    assert repo.findings() == {("exec", "tools/use.py"), ("exec", "tools/use2.py"), ("exec", "tools/use3.py")}
 
 
 def test_product_reads_need_a_declared_document_reader_and_unknown_uses_are_exposed(tmp_path):
