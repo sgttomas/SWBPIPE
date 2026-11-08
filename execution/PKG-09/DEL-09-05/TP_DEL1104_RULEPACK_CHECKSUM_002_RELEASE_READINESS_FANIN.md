@@ -49,7 +49,3 @@ human-governed release decisions.
   provider, release matrix, signing/attestation process, release authority,
   waiver roles, maintainer quorum, acceptance workflow, and release-note/risk
   format remain human-owned `TBD` items unless separately accepted.
-- Lifecycle state, candidate rows, dependency records, review dispositions,
-  release records, acceptance records, schemas, tests, fixtures, source code,
-  CI workflows, release automation, professional-boundary decisions, and
-  code-compliance decisions were not changed by TASK 2.

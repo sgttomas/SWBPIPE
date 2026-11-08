@@ -67,7 +67,7 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 >
 > The suite is scoped to verification and regression coverage for nonlinear support behavior in the open mechanics solver. It is not a substitute for project-specific validation or competent professional review.
 >
-> The current task is setup/document production only. It does not create benchmark source files, test fixtures, solver code, or final numerical convergence tolerances.
+> The original setup task was document production only. It did not create benchmark source files, test fixtures, solver code, or final numerical convergence tolerances.
 >
 ### CLM-006 — Construction
 
