@@ -1,10 +1,10 @@
 # Model states, run history and comparison in the desktop (W-12)
 
 **Basis:** `origin/main` at `9d76659e02` (2026-10-23), after model document 0.7.0
-(DEL-02-01 Design `model-document-0.7.0.md`). This is revision 3, after two
-review rounds, each by an independent Claude reviewer and Codex. Design before
-implementation. Persistence changes get targeted regression tests and dual
-review. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+(DEL-02-01 Design `model-document-0.7.0.md`). Design before
+implementation. Persistence changes get targeted
+regression tests and dual review. Standard claim fence applies (F-PIP-2; claims
+taxonomy per DEC-081).
 
 ## 0. Rulings and scope
 
