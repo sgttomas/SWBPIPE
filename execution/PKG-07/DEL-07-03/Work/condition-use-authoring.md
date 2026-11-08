@@ -53,9 +53,9 @@ or reads any other meaning into it (§2.3).
 
 - **Where.** It is offered in the Create combination editor only when the basis is
   `result_state_subtraction` (`load-cases/operatingDifferenceTemplate.ts`).
-- **Choosing it.** Choosing it clears the minuend and subtrahend, which the editor
-  otherwise fills. The person then chooses the operating case (minuend) and the sustained
-  case (subtrahend).
+- **Choosing it.** Choosing it clears any entered minuend and subtrahend. The person
+  then chooses the operating case (minuend) and the sustained case (subtrahend); both
+  start blank in the create editor.
 - **What it writes.** `create_combination` writes exactly those two and
   `difference_basis: "operating_minus_sustained"`. It never writes
   `subtrahend_support_state`, and never offers `minuend_final`.

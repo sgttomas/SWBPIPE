@@ -1,7 +1,6 @@
 # Tee modifier source in the inspector (G11)
 
-Owner/Agent 0 resumed the authoring lane on 2026-11-02 for G11 only: a person
-could enter a tee's SIFs, but the inspector had no route to enter
+On 2026-11-02, a person could enter a tee's SIFs, but the inspector had no route to enter
 `modifiers.source_reference`. The existing component-field applier accepts
 that member as optional text. The reference system's RS-T1 record therefore
 could not be reproduced in full through the GUI, despite having the numerical
