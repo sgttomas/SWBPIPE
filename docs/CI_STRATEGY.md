@@ -43,6 +43,7 @@ event to required `harness` completion, including setup and runner queueing.
 Classification or document-check failure, cancellation or missing
 output fails `harness`; skipped product jobs are permitted only after a
 successful documentation classification and verification job.
+The classification log names every changed path and the reason for its route.
 
 `piping-windows-core.yml` supplies supplemental RT-V7 feasibility evidence on
 `windows-2025` with Rust 1.97.1 and `x86_64-pc-windows-msvc`. It runs the existing
