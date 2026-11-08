@@ -10,7 +10,7 @@ Requirement: FR-RULE-002 (Must), "Expressions reject incompatible units". The
 map row says "Units are checked at run time, not when the pack is validated".
 Also REQ-06-02-003 and -004. The grammar (DEC-022 v1.0.0) is unchanged.
 
-## 1. Where things stand
+## 1. Baseline observations before implementation
 
 - **Validation does not type-check.** `validate_rule_pack_document`
   (`core/rules/rule_pack_document/src/lib.rs:922`) decodes each declarative
@@ -320,10 +320,9 @@ Also REQ-06-02-003 and -004. The grammar (DEC-022 v1.0.0) is unchanged.
 model-document member, so it does not depend on S1b. The §2.7 runtime fix is a
 separate slice with no dependency on this one.
 
-## 6. Review findings resolved
+## 6. Design findings resolved
 
-The Codex review of `1f1b0d7fa9` found these, and the design above resolves
-them:
+The design review of `1f1b0d7fa9` found the following; the design above resolves them:
 1. **A limit mismatch is not always unconditional (P1).** Predicates skip
    limits; findings are candidate-specific or unconditional; undeclared slots
    get a warning; runtime selection is unchanged (§2.2).
@@ -338,7 +337,7 @@ them:
 5. **Lockfiles.** Named exactly; the pinned `core/product_physics/Cargo.lock`
    is unaffected (§5).
 
-Codex round 2 (on `63615afe87`):
+Review of `63615afe87` found:
 
 6. **R2-5, wrong quotient expectation (P2).** The zero-divisor example now
    expects `unsupported_expression_form`, as an unrepresentable quotient

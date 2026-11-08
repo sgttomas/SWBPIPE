@@ -18,7 +18,7 @@ descriptions and mappings. The repository adds no code-standard text, table,
 allowable or category definition. Public examples and fixtures are invented and
 labelled as such (FR-RULE-007; DEL-06-01 REQ-06-01-007, REQ-06-01-011).
 
-## 1. Where things stand
+## 1. Baseline observations before implementation
 
 - **Format.** Packs declare `schema_version` `0.4.0` (top level and
   `metadata.schema_version`). The validator
@@ -456,10 +456,9 @@ declared unit, and the limit is the supplied value. The regressions, decoded
 and raw IPC, are in `src-tauri/src/rule_check_object_form_tests.rs`. They do
 not depend on #1650's validator.
 
-## 7. Review findings resolved
+## 7. Design findings resolved
 
-The Codex design review of `b1d55e38ea` found these; the design above resolves
-them:
+The design review of `b1d55e38ea` found the following; the design above resolves them:
 1. **Tie rods could not be selected separately (blocking).** `tie_rod` joins
    the selector, through the reader's existing rod-row binding; the uniqueness
    regression covers the connector corpus (§2.5).
@@ -472,15 +471,15 @@ them:
    existing qualification and `rule_binding_refusal` gates, per input and basis
    (§2.5), with tests (§5).
 
-Round 2 (`8d5b6495da`) confirmed those and found:
+Review of `8d5b6495da` confirmed those findings and found:
 5. **A required load case could escape the aggregate (blocking).** Every
    required load case must now be reachable from a check (§2.9).
 6. **Outcome identity** is the (check, basis) tuple everywhere (§2.7).
 7. **Count scope** is stated beside the headline (§2.7).
 
-Both rounds reviewed the ScopeOfWork wording in §8 and approved it as written.
+The ScopeOfWork wording and its review basis are recorded in §8.
 
-The implementation review of `c5b6f6a17d` found:
+Implementation review of `c5b6f6a17d` found:
 8. **A tie-rod alias bound the real rod (blocking).** Exact rod-id equality
    against the connector record (§2.5, §6a).
 9. **The new records' required members were not validated.** Two blocking

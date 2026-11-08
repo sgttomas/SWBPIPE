@@ -3,12 +3,18 @@
 This design states what the pressure-free route (PF, preview-physics-2) publishes beside
 a `result_state_subtraction` or `range_envelope` combination of a model with nonlinear
 supports. It is slice 1a of the operating-case item (Agent 0, 2026-10-27, under the
-owner's delegation), and serves RT-A5 of `docs/RELEASE_TARGET_v1.0.md`. It adds no case kind, no model-document member and no solve.
-The 0.9.0 member `combinations[].difference_basis` is slice 1b and is not part of this
-design.
+owner's delegation) and serves RT-A5 of `docs/RELEASE_TARGET_v1.0.md`. It adds no case kind, no
+model-document member and no solve. The 0.9.0 member `combinations[].difference_basis`
+is covered by `operating-case.md` §6.
 
-Paths are relative to `projects/chirality-piping/`. PP is `core/product_physics/src`;
+Paths are relative to the repository root. PP is `core/product_physics/src`;
 RE is `core/reporting/result_export/src`.
+
+The following account describes slice 1a and records its then-identified later items.
+Subsequent slices extended combination admission and evidence (see `absolute-sum-srss-combinations.md`
+§10 and `combination-certificate.md`) and built the declared difference basis and held-status
+solve (`operating-case.md` §6 and §7). The original observations and limits below remain
+tied to slice 1a.
 
 ## 1. What exists
 
