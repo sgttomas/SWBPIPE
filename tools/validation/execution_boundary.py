@@ -12,8 +12,8 @@ entrypoints:
   forbids executing them exactly as it forbids executing anything else in `execution/`;
 - outside `execution/`: Python imports of an `execution` package, and an execution path (a literal,
   an f-string, a constant concatenation, or a component-built `Path(...) / "execution" / ...`, followed
-  through assignments, containers, same-file calls/returns and module-level names imported from other
-  maintained modules) reaching `importlib`/`runpy`/`exec`/`eval`/`compile`/loader calls, `sys.path`,
+  through assignments, containers, same-file calls/returns and module-level names imported or
+  re-exported by other maintained modules) reaching `importlib`/`runpy`/`exec`/`eval`/`compile`/loader calls, `sys.path`,
   `site.addsitedir`, `PYTHONPATH`, `subprocess`/`os` process launchers or `pytest.main`. A git
   subprocess is a read, not an execution. Reading source text and compiling or executing it is caught
   because the text read from a tainted path is itself tainted. These EXEC edges have no exemption;
@@ -25,7 +25,8 @@ entrypoints:
   JS/TS `import`/`require`/dynamic import/`new URL`/file reads/process launches; Cargo manifests,
   package scripts, TS/Vite/Playwright configuration, shell and PowerShell scripts, `.pth` files,
   GitHub workflow/action entrypoints (other than sparse-checkout exclusion), and registry `command`/
-  `cwd`/`pytest_paths` entries naming an execution path; and tracked symlinks resolving into it.
+  `cwd`/`pytest_paths` entries naming an execution path; extensionless executable/shebang entrypoints;
+  and tracked symlinks resolving into it. Unrecognized executable interpreters fail classification.
 
 Practical limits (stated, not repaired): this is a bounded static check of tracked content, not a proof
 about arbitrary programs. It does not follow paths built from runtime input, environment values,
@@ -195,6 +196,8 @@ SCOPES = (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)
 TEMP_PARAMETERS = {"tmp_path", "tmpdir", "tmp_path_factory", "tmpdir_factory"}
 TEMP_CALLS = {"tempfile.mkdtemp", "tempfile.gettempdir", "tempfile.TemporaryDirectory", "tempfile.NamedTemporaryFile",
               "tempfile.mkstemp"}
+MAX_EXPORT_ROUNDS = 32
+MAX_LOCAL_ROUNDS = 50
 
 
 class PythonFile:
@@ -204,43 +207,67 @@ class PythonFile:
                  classified: dict[str, str] = CLASSIFIED):
         self.path, self.tree, self.exported, self.classified = path, tree, exported, classified
         self.aliases: dict[str, str] = {}
-        self.module_aliases: dict[str, str] = {}
+        self.module_aliases: dict[tuple, str] = {}
         self.tainted: set[tuple] = set()
         self.outside: set[tuple] = set()
         self.returns: set[str] = set()
         self.outside_returns: set[str] = set()
+        self.mappings: set[tuple] = set()
+        self.mapping_returns: set[str] = set()
+        self.key_taint: set[tuple] = set()
+        self.key_returns: set[str] = set()
+        self.value_taint: set[tuple] = set()
+        self.value_returns: set[str] = set()
+        self.incomplete = False
         self.functions: dict[str, ast.AST] = {}
         self.scope_of: dict[int, ast.AST] = {}
         self.parent_scope: dict[int, ast.AST] = {}
         self.locals: dict[int, set[str]] = {id(tree): set()}
+        self._scopes(tree, tree)
         tainted_imports = []
         for node in ast.walk(tree):
+            scope = id(self.scope_of.get(id(node), tree))
             if isinstance(node, ast.Import):
                 for alias in node.names:
                     self.aliases[(alias.asname or alias.name).split(".")[0]] = (
                         alias.name if alias.asname else alias.name.split(".")[0])
-                    self.module_aliases[alias.asname or alias.name] = alias.name
-            elif isinstance(node, ast.ImportFrom) and node.module:
+                    binding = alias.asname or alias.name.split(".")[0]
+                    self.module_aliases[(scope, binding)] = alias.name if alias.asname else binding
+            elif isinstance(node, ast.ImportFrom):
+                module = node.module or ""
+                if node.level:
+                    package = PurePosixPath(path).parts[:-1]
+                    module = ".".join((*package[:len(package) - node.level + 1], *module.split("."))).strip(".")
                 for alias in node.names:
-                    self.aliases[alias.asname or alias.name] = f"{node.module}.{alias.name}"
-                    names = exported.get(node.module)
+                    binding = alias.asname or alias.name
+                    imported = f"{module}.{alias.name}".strip(".")
+                    self.aliases[binding] = imported
+                    if imported in exported:
+                        self.module_aliases[(scope, binding)] = imported
+                    names = exported.get(module)
                     if names and alias.name in names:
-                        tainted_imports.append((node, alias.asname or alias.name))
+                        tainted_imports.append((node, binding))
             elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 self.functions[node.name] = node
         # Taint starts only at a shown execution path or an imported tainted name; without one there is none.
         if tainted_imports or any(self.seed(node) or self.imported_name(node) for node in ast.walk(tree)
                                if isinstance(node, (ast.Constant, ast.JoinedStr, ast.BinOp, ast.Call, ast.Attribute))):
-            self._scopes(tree, tree)
             for node, name in tainted_imports:
                 self.tainted.add((id(self.scope_of.get(id(node), tree)), name))
             self._propagate()
 
+    def imported_module(self, node) -> str | None:
+        if isinstance(node, ast.Name):
+            return self.module_aliases.get(self.key(node))
+        if isinstance(node, ast.Attribute):
+            parent = self.imported_module(node.value)
+            return f"{parent}.{node.attr}" if parent else None
+        return None
+
     def imported_name(self, node) -> bool:
         """`module.NAME` where NAME is a tainted module-level name of an imported maintained module."""
-        return (isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name)
-                and node.value.id in self.module_aliases
-                and node.attr in self.exported.get(self.module_aliases[node.value.id], ()))
+        return (isinstance(node, ast.Attribute)
+                and node.attr in self.exported.get(self.imported_module(node.value), ()))
 
     def _scopes(self, node, scope):
         for child in ast.iter_child_nodes(node):
@@ -332,7 +359,7 @@ class PythonFile:
         return text is not None and is_seed(text) and bool(PATHLIKE.match(text))
 
     def is_tainted(self, node) -> bool:
-        if node is None or isinstance(node, (ast.Compare, ast.Lambda, ast.Dict, ast.DictComp)):
+        if node is None or isinstance(node, (ast.Compare, ast.Lambda)):
             return False
         if self.seed(node):
             return True
@@ -342,6 +369,14 @@ class PythonFile:
             return False
         if isinstance(node, ast.Name):
             return self.key(node) in self.tainted
+        if isinstance(node, ast.Dict):
+            return any(self.is_tainted(value) for value in [*node.keys, *node.values])
+        if isinstance(node, ast.DictComp):
+            return self.is_tainted(node.key) or self.is_tainted(node.value)
+        if isinstance(node, ast.Subscript) and self.is_mapping(node.value):
+            return self.values_tainted(node.value)
+        if isinstance(node, ast.IfExp):
+            return self.is_tainted(node.body) or self.is_tainted(node.orelse)
         if isinstance(node, ast.Attribute):
             if ("attr", ast.unparse(node)) in self.tainted:
                 return True
@@ -351,6 +386,11 @@ class PythonFile:
         if isinstance(node, ast.Call):
             name = canonical(node.func, self.aliases)
             tail = name.rsplit(".", 1)[-1]
+            if isinstance(node.func, ast.Attribute) and self.is_mapping(node.func.value):
+                if tail == "keys":
+                    return self.keys_tainted(node.func.value)
+                if tail in {"get", "values", "pop"}:
+                    return self.values_tainted(node.func.value)
             if tail in BARRIERS or tail in {"exists", "is_file", "is_dir", "samefile"}:
                 return False
             if isinstance(node.func, ast.Name) and node.func.id in self.functions:
@@ -359,22 +399,123 @@ class PythonFile:
                 return True
             return any(self.is_tainted(arg) for arg in [*node.args, *(k.value for k in node.keywords)])
         if isinstance(node, (ast.ListComp, ast.SetComp, ast.GeneratorExp)):
-            return self.is_tainted(node.elt) or any(self.is_tainted(g.iter) for g in node.generators)
+            return self.is_tainted(node.elt)
         return any(self.is_tainted(child) for child in ast.iter_child_nodes(node)
                    if isinstance(child, ast.expr))
 
+    def is_mapping(self, node) -> bool:
+        if isinstance(node, (ast.Dict, ast.DictComp)):
+            return True
+        if isinstance(node, ast.Name):
+            return self.key(node) in self.mappings
+        return (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                and node.func.id in self.mapping_returns)
+
+    def keys_tainted(self, node) -> bool:
+        if isinstance(node, ast.Dict):
+            return any(self.is_tainted(key) if key is not None else self.keys_tainted(value)
+                       for key, value in zip(node.keys, node.values))
+        if isinstance(node, ast.DictComp):
+            return self.is_tainted(node.key)
+        if isinstance(node, ast.Name) and self.is_mapping(node):
+            return self.key(node) in self.key_taint
+        if self.is_mapping(node):
+            return node.func.id in self.key_returns
+        return self.is_tainted(node)  # unknown imported/container shape stays conservative
+
+    def values_tainted(self, node) -> bool:
+        if isinstance(node, ast.Dict):
+            return any(self.is_tainted(value) for value in node.values)
+        if isinstance(node, ast.DictComp):
+            return self.is_tainted(node.value)
+        if isinstance(node, ast.Name) and self.is_mapping(node):
+            return self.key(node) in self.value_taint
+        if self.is_mapping(node):
+            return node.func.id in self.value_returns
+        return self.is_tainted(node)
+
+    def _propagate_mapping(self, node):
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
+            source, kind = node.func.value, node.func.attr
+            tainted_key = (kind == "update" and any(self.keys_tainted(arg) for arg in node.args)
+                           or kind == "setdefault" and node.args and self.is_tainted(node.args[0]))
+            if tainted_key:
+                self.key_taint.update(self.target_keys(source))
+                self.tainted.update(self.target_keys(source))
+            tainted_value = (kind == "update" and (any(self.values_tainted(arg) for arg in node.args)
+                                                   or any(self.is_tainted(k.value) for k in node.keywords))
+                             or kind == "setdefault" and len(node.args) > 1 and self.is_tainted(node.args[1]))
+            if tainted_value:
+                self.value_taint.update(self.target_keys(source))
+                self.tainted.update(self.target_keys(source))
+            return
+        if isinstance(node, ast.Assign):
+            targets, value = node.targets, node.value
+        elif isinstance(node, (ast.AnnAssign, ast.NamedExpr)):
+            targets, value = [node.target], node.value
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            for child in ast.walk(node):
+                if (isinstance(child, ast.Return) and self.scope_of.get(id(child)) is node
+                        and self.is_mapping(child.value)):
+                    self.mapping_returns.add(node.name)
+                    if self.keys_tainted(child.value):
+                        self.key_returns.add(node.name)
+                    if self.values_tainted(child.value):
+                        self.value_returns.add(node.name)
+            return
+        else:
+            return
+        for target in targets:
+            if isinstance(target, ast.Subscript) and self.is_tainted(target.slice):
+                self.key_taint.update(self.target_keys(target.value))
+                self.tainted.update(self.target_keys(target.value))
+            if isinstance(target, ast.Subscript) and self.is_tainted(value):
+                self.value_taint.update(self.target_keys(target.value))
+        if self.is_mapping(value):
+            for target in targets:
+                self.mappings.update(self.target_keys(target))
+                if self.keys_tainted(value):
+                    self.key_taint.update(self.target_keys(target))
+                if self.values_tainted(value):
+                    self.value_taint.update(self.target_keys(target))
+
+    def _propagate_iteration(self, target, iterable):
+        while (isinstance(iterable, ast.Call) and isinstance(iterable.func, ast.Name)
+               and iterable.func.id in {"sorted", "reversed", "list", "tuple", "iter"} and iterable.args):
+            iterable = iterable.args[0]
+        if isinstance(iterable, ast.Call) and isinstance(iterable.func, ast.Attribute):
+            source, kind = iterable.func.value, iterable.func.attr
+            if kind == "items" and isinstance(target, (ast.Tuple, ast.List)) and len(target.elts) == 2:
+                for part, tainted in zip(target.elts, [self.keys_tainted(source), self.values_tainted(source)]):
+                    if tainted:
+                        self.tainted.update(self.target_keys(part))
+                return
+            if kind == "keys":
+                if self.keys_tainted(source):
+                    self.tainted.update(self.target_keys(target))
+                return
+        tainted = self.keys_tainted(iterable) if self.is_mapping(iterable) else self.is_tainted(iterable)
+        if tainted:
+            self.tainted.update(self.target_keys(target))
+
     def _propagate(self):
-        for _ in range(50):
-            before = (len(self.tainted), len(self.returns), len(self.outside), len(self.outside_returns))
+        def state():
+            return tuple(map(len, (self.tainted, self.returns, self.outside, self.outside_returns,
+                                   self.mappings, self.mapping_returns, self.key_taint, self.key_returns,
+                                   self.value_taint, self.value_returns)))
+
+        for _ in range(MAX_LOCAL_ROUNDS):
+            before = state()
             for node in ast.walk(self.tree):
                 self._propagate_outside(node)
+                self._propagate_mapping(node)
                 if isinstance(node, ast.Assign) and self.is_tainted(node.value):
                     for target in node.targets:
                         self.tainted.update(self.target_keys(target))
                 elif isinstance(node, (ast.AnnAssign, ast.AugAssign, ast.NamedExpr)) and self.is_tainted(node.value):
                     self.tainted.update(self.target_keys(node.target))
-                elif isinstance(node, (ast.For, ast.AsyncFor, ast.comprehension)) and self.is_tainted(node.iter):
-                    self.tainted.update(self.target_keys(node.target))
+                elif isinstance(node, (ast.For, ast.AsyncFor, ast.comprehension)):
+                    self._propagate_iteration(node.target, node.iter)
                 elif isinstance(node, ast.withitem) and node.optional_vars and self.is_tainted(node.context_expr):
                     self.tainted.update(self.target_keys(node.optional_vars))
                 elif isinstance(node, ast.Call):
@@ -403,8 +544,9 @@ class PythonFile:
                         if (isinstance(child, (ast.Return, ast.Yield)) and self.scope_of.get(id(child)) is node
                                 and self.is_tainted(child.value)):
                             self.returns.add(node.name)
-            if (len(self.tainted), len(self.returns), len(self.outside), len(self.outside_returns)) == before:
+            if state() == before:
                 return
+        self.incomplete = True
 
     def _propagate_outside(self, node):
         if isinstance(node, ast.Assign) and self.is_outside(node.value):
@@ -431,6 +573,8 @@ class PythonFile:
 
     def findings(self) -> list[tuple[str, int, str]]:
         found = []
+        if self.incomplete:
+            found.append(("unclassified", 0, f"Python path analysis did not converge in {MAX_LOCAL_ROUNDS} rounds"))
         for node in ast.walk(self.tree):
             if isinstance(node, ast.Import):
                 for alias in node.names:
@@ -536,15 +680,21 @@ def python_findings(sources: dict[str, bytes], classified: dict[str, str]) -> li
                 problems.append(("unclassified", path, getattr(error, "lineno", 0) or 0,
                                  "unparsable Python naming execution"))
     exported: dict[str, frozenset[str]] = {}
-    for _ in range(2):  # module-level names imported from other maintained modules
+    files = {}
+    for _ in range(MAX_EXPORT_ROUNDS):
         # Every file: an execution path may be assembled from fragments that never spell it.
         files = {path: PythonFile(path, tree, exported, classified) for path, tree in trees.items()}
-        exported = {}
+        previous, exported = exported, {}
         for path, analysis in files.items():
             names = analysis.module_names()
             if names:
                 for name in module_name(path):
                     exported[name] = names
+        if exported == previous:
+            break
+    else:
+        problems.append(("unclassified", "tools/validation/execution_boundary.py", 0,
+                         f"Python exported-path analysis did not converge in {MAX_EXPORT_ROUNDS} rounds"))
     for path, analysis in files.items():
         problems.extend((kind, path, line, message) for kind, line, message in analysis.findings())
     return problems
@@ -683,6 +833,21 @@ def toml_findings(path: str, data: bytes):
 
 
 # --------------------------------------------------------------------------------------------- the tree
+def shebang_language(data: bytes) -> str | None:
+    if not data.startswith(b"#!") or data.startswith(b"#!["):
+        return None
+    header = data.split(b"\n", 1)[0].decode("utf-8", "replace")
+    if re.search(r"\bpython(?:\d+(?:\.\d+)*)?\b", header):
+        return "python"
+    if re.search(r"\b(node|nodejs|deno|bun)\b", header):
+        return "javascript"
+    if re.search(r"\b(sh|bash|dash|ksh|zsh|ash|fish)\b", header):
+        return "shell"
+    if re.search(r"\b(pwsh|powershell)\b", header):
+        return "powershell"
+    return "unknown"
+
+
 def tracked(root: Path) -> list[tuple[str, str, str]]:
     raw = subprocess.check_output(["git", "-C", str(root), "ls-files", "--stage", "-z"])
     entries = []
@@ -751,11 +916,10 @@ def execution_findings(entries, contents, fidelity) -> list[tuple[str, str, int,
 def check(root: Path = ROOT, fidelity: dict[str, str] = FIDELITY,
           classified: dict[str, str] = CLASSIFIED) -> list[tuple[str, str, int, str]]:
     entries = tracked(root)
-    wanted = [oid for mode, oid, path in entries if mode != "160000" and (
-        declarative(path) or mode == "120000" or path.endswith(
-            (".py", ".rs", ".ts", ".tsx", ".js", ".mjs", ".cjs", ".mts", ".cts", ".jsx", ".sh", ".bash", ".zsh",
-             ".ps1", ".psm1", ".bat", ".cmd", ".yml", ".yaml", ".toml", ".pth", ".json", ".ini", ".cfg"))
-        or PurePosixPath(path).name in {"Makefile", "justfile"})]
+    # Read headers regardless of suffix: a regular non-executable file may still be
+    # invoked by an interpreter. Only executable/shebang sources are analyzed below;
+    # other unknown formats remain data rather than acquiring executable exemptions.
+    wanted = [oid for mode, oid, path in entries if mode != "160000"]
     contents = blobs(root, sorted(set(wanted)))
     found = execution_findings(entries, contents, fidelity)
     tops = frozenset(path.split("/")[1] for _, _, path in entries if declarative(path) and path.count("/") >= 1)
@@ -776,18 +940,24 @@ def check(root: Path = ROOT, fidelity: dict[str, str] = FIDELITY,
             if "/".join(parts).startswith(DECLARATIVE_ROOT) or "/".join(parts) == "execution":
                 found.append(("exec", path, 0, "symlink into execution/"))
             continue
-        if b"execution" not in data and not path.endswith(".py"):
+        language = shebang_language(data)
+        if language == "unknown" or (mode == "100755" and language is None
+                                      and not path.endswith((".py", ".sh", ".bash", ".zsh", ".js", ".mjs",
+                                                             ".cjs", ".ps1", ".psm1", ".bat", ".cmd"))):
+            found.append(("unclassified", path, 1, "executable entrypoint has an unclassified interpreter"))
+            continue
+        if b"execution" not in data and not path.endswith(".py") and language != "python":
             continue
         text = data.decode("utf-8", "replace")
-        if path.endswith(".py"):
+        if path.endswith(".py") or language == "python":
             python[path] = data
         elif path.endswith(".rs"):
             found.extend(rust_findings(path, text))
-        elif path.endswith((".ts", ".tsx", ".js", ".mjs", ".cjs", ".mts", ".cts", ".jsx")):
+        elif path.endswith((".ts", ".tsx", ".js", ".mjs", ".cjs", ".mts", ".cts", ".jsx")) or language == "javascript":
             found.extend(js_findings(path, text, config=re.search(r"\.config\.|(^|/)vite|playwright", name) is not None))
-        elif path.endswith((".sh", ".bash", ".zsh", ".pth")) or name in {"Makefile", "justfile"}:
+        elif path.endswith((".sh", ".bash", ".zsh", ".pth")) or name in {"Makefile", "justfile"} or language == "shell":
             found.extend(script_findings(path, text, tops))
-        elif path.endswith((".ps1", ".psm1")):
+        elif path.endswith((".ps1", ".psm1")) or language == "powershell":
             found.extend(script_findings(path, text, tops))
         elif path.endswith((".bat", ".cmd")):
             found.extend(script_findings(path, text, tops, comment="REM "))

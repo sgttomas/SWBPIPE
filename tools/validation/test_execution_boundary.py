@@ -73,6 +73,21 @@ EXEC_PROBES = {
     "through a same-file helper": 'import runpy\n\ndef load(path):\n    return runpy.run_path(path)\n\n'
         'def main():\n    load("execution/PKG-01/x.json")\n',
     "pytest collection": 'import pytest\npytest.main(["execution/PKG-01"])\n',
+    "dictionary path lookup": 'import runpy\npaths = {"entry": "execution/PKG-01/payload.txt"}\n'
+        'runpy.run_path(paths["entry"])\n',
+    "dictionary source lookup": 'from pathlib import Path\n'
+        'sources = {"entry": Path("execution/PKG-01/payload.txt").read_text()}\n'
+        'exec(compile(sources["entry"], "payload", "exec"))\n',
+    "dictionary comprehension lookup": 'import runpy\npaths = {key: "execution/PKG-01/payload.txt" for key in ["entry"]}\n'
+        'runpy.run_path(paths["entry"])\n',
+    "dictionary iteration values": 'import runpy\npaths = {"entry": "execution/PKG-01/payload.txt"}\n'
+        'for name, value in sorted(paths.items()):\n    runpy.run_path(value)\n',
+    "dictionary iteration keys": 'import runpy\npaths = {"execution/PKG-01/payload.txt": "provenance"}\n'
+        'for value in paths:\n    runpy.run_path(value)\n',
+    "dictionary mutated keys": 'import runpy\npaths = {}\npaths["execution/PKG-01/payload.txt"] = "provenance"\n'
+        'for value in paths:\n    runpy.run_path(value)\n',
+    "dictionary updated keys": 'import runpy\npaths = {}\npaths.update({"execution/PKG-01/payload.txt": "provenance"})\n'
+        'for value in paths:\n    runpy.run_path(value)\n',
 }
 
 
@@ -93,7 +108,83 @@ def test_imported_module_constant_reaching_a_loader_is_rejected(tmp_path):
     repo.write("tools/use2.py", 'import runpy\nimport tools.spec_paths as paths\nrunpy.run_path(paths.SPEC)\n')
     repo.write("tools/use3.py", 'import runpy\ndef run():\n'
                '    from tools.spec_paths import SPEC as local_spec\n    runpy.run_path(local_spec)\n')
-    assert repo.findings() == {("exec", "tools/use.py"), ("exec", "tools/use2.py"), ("exec", "tools/use3.py")}
+    repo.write("tools/use4.py", 'import runpy\nfrom tools import spec_paths\nrunpy.run_path(spec_paths.SPEC)\n')
+    repo.write("tools/use5.py", 'import runpy\ndef run():\n'
+               '    from tools import spec_paths as paths\n    runpy.run_path(paths.SPEC)\n')
+    repo.write("tools/use6.py", 'import runpy\nfrom . import spec_paths as paths\nrunpy.run_path(paths.SPEC)\n')
+    repo.write("tools/use7.py", 'import runpy\nimport tools.spec_paths\nrunpy.run_path(tools.spec_paths.SPEC)\n')
+    assert repo.findings() == {("exec", f"tools/use{number if number > 1 else ''}.py") for number in range(1, 8)}
+
+
+def test_package_imports_do_not_taint_unrelated_function_parameters(tmp_path):
+    repo = Repo(tmp_path)
+    repo.write("tools/spec_paths.py", 'SPEC = "execution/PKG-01/payload.txt"\n')
+    repo.write("tools/scope.py", 'import runpy\ndef inspect():\n'
+               '    from tools import spec_paths as paths\n    return paths.SPEC\n'
+               'def execute(paths):\n    runpy.run_path(paths.SPEC)\n')
+    assert repo.findings() == set()
+
+
+def test_reexported_paths_propagate_to_convergence(tmp_path):
+    repo = Repo(tmp_path)
+    repo.write("tools/source.py", 'ENTRY = "execution/PKG-01/payload.txt"\n')
+    previous = "source"
+    for number in range(8):
+        current = f"reexport{number}"
+        repo.write(f"tools/{current}.py", f'from tools.{previous} import ENTRY\n')
+        previous = current
+    repo.write("tools/consumer.py", f'import runpy\nfrom tools.{previous} import ENTRY\nrunpy.run_path(ENTRY)\n')
+    assert repo.findings() == {("exec", "tools/consumer.py")}
+
+
+def test_unfinished_export_analysis_fails_closed(tmp_path, monkeypatch):
+    repo = Repo(tmp_path)
+    repo.write("tools/source.py", 'ENTRY = "execution/PKG-01/payload.txt"\n')
+    repo.write("tools/reexport.py", 'from tools.source import ENTRY\n')
+    repo.write("tools/consumer.py", 'import runpy\nfrom tools.reexport import ENTRY\nrunpy.run_path(ENTRY)\n')
+    monkeypatch.setattr(guard, "MAX_EXPORT_ROUNDS", 2)
+    assert ("unclassified", "tools/validation/execution_boundary.py") in repo.findings()
+
+
+def test_unfinished_local_analysis_fails_closed(tmp_path, monkeypatch):
+    repo = Repo(tmp_path)
+    repo.write("tools/consumer.py", 'import runpy\nfirst = second\nsecond = third\n'
+               'third = "execution/PKG-01/payload.txt"\nrunpy.run_path(first)\n')
+    monkeypatch.setattr(guard, "MAX_LOCAL_ROUNDS", 2)
+    assert ("unclassified", "tools/consumer.py") in repo.findings()
+
+
+@pytest.mark.parametrize("mode", [None, "+x"])
+@pytest.mark.parametrize("header,body", [
+    ("#!/bin/sh", 'python3 execution/PKG-01/payload.txt'),
+    ("#!/usr/bin/env python3", 'import runpy\nrunpy.run_path("execution/PKG-01/payload.txt")'),
+    ("#!/usr/bin/env node", 'require("../execution/PKG-01/payload.txt")'),
+])
+def test_extensionless_shebang_entrypoints_are_checked(tmp_path, mode, header, body):
+    repo = Repo(tmp_path)
+    repo.write("tools/probe", header + "\n" + body + "\n", mode=mode)
+    repo.write(".github/workflows/ci.yml", 'jobs:\n  a:\n    steps:\n      - run: ./tools/probe\n')
+    assert ("exec", "tools/probe") in repo.findings()
+
+
+@pytest.mark.parametrize("text,mode", [
+    ("#!/usr/bin/env unsupported-interpreter\ncontent\n", None),
+    ("unclassified executable content\n", "+x"),
+])
+def test_unrecognized_entrypoint_interpreters_fail_closed(tmp_path, text, mode):
+    repo = Repo(tmp_path)
+    repo.write("tools/probe", text, mode=mode)
+    assert ("unclassified", "tools/probe") in repo.findings()
+
+
+def test_provenance_values_do_not_turn_generated_filenames_into_input_paths(tmp_path):
+    repo = Repo(tmp_path)
+    repo.write("tools/generate.py", 'from pathlib import Path\nimport json\n'
+               'def generate():\n    return {"generated.json": json.dumps({"spec": "execution/PKG-01/ScopeOfWork.md"})}\n'
+               'outputs = generate()\nfor name, text in sorted(outputs.items()):\n'
+               '    (Path("fixtures") / name).write_text(text)\n')
+    repo.write("core/a/src/lib.rs", '#![allow(dead_code)]\nfn source() {}\n')
+    assert repo.findings() == set()
 
 
 def test_product_reads_need_a_declared_document_reader_and_unknown_uses_are_exposed(tmp_path):
