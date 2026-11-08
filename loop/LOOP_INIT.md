@@ -4,6 +4,9 @@ description: Locate and carry SWBPIPE's release work under the standing project 
 metadata:
   kind: instruction
   surface: operating-entry
+  upstream:
+    source: workflows/project-setup/resources/project-entry.md
+    edition: library-v3.3.0
 ---
 # SWBPIPE development entry
 
