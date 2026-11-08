@@ -1,26 +1,14 @@
 ---
-doc_id: OPS-SECURITY-LOCAL-FIRST-STORAGE-POLICY
-doc_kind: security.local_first_storage_policy
-status: draft
-created: 2026-05-02
-deliverable_id: DEL-12-01
-package_id: PKG-12
-scope_items:
-  - SOW-029
-objectives:
-  - OBJ-010
-refs:
-  - rel: governed_by
-    to: OPS-CONTRACT
-  - rel: governed_by
-    to: OPS-IP-DATA-BOUNDARY
-  - rel: informed_by
-    to: OPS-SECURITY-THREAT-MODEL
-  - rel: aligned_with
-    to: OPS-SECURITY-TELEMETRY-POLICY
+name: swbpipe-security-local-first-storage-policy
+description: Define local-first storage and controlled-release obligations.
+metadata:
+  kind: instruction
+  surface: requirements
 ---
 
 # Local-First Storage Policy
+
+This document is governed by [CONTRACT.md](../CONTRACT.md); is governed by [IP_AND_DATA_BOUNDARY.md](../IP_AND_DATA_BOUNDARY.md); is informed by [threat_model.md](threat_model.md); is aligned with [telemetry_policy.md](telemetry_policy.md).
 
 This policy defines SWBPIPE local-first storage and private path posture
 for `DEL-12-01`. It is a privacy and product-boundary artifact, not a

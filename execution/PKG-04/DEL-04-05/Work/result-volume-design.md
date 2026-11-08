@@ -1,10 +1,10 @@
 # Result volume: summary first, detail on demand (design proposal "C")
 
 **Status:** approved by SWBPIPE Agent 0 on 2026-10-31, with the conditions in §7. It changes
-nothing by itself. It is a cross-lane change of what results are published and held where, so
-each phase lands as its own PR, with its own reviews, re-pricing and reconciliation. It serves RT-U4 (exit
-criterion 9) and the usability of ordinary models. Basis: main at `cfd17e103` and the
-measurements in `criterion-9-measurement.md` (§5, §6).
+nothing by itself. It serves RT-U4 (exit criterion 9) and the usability of ordinary models.
+Basis: main at `cfd17e103` and the measurements in `criterion-9-measurement.md` (§5, §6).
+The later C1 integration decision supersedes the draft-until-measured condition in §§4.1 and 7;
+its remaining measurement limits are in `c1-native-custody-plan.md` slice 7.
 
 ## 1. The problem, in numbers
 

@@ -2,7 +2,7 @@
 
 The desktop runs the model's existing checks when the user asks, without
 solving, and lists their findings. Choosing a finding selects the entity it
-names. Paths are relative to `projects/chirality-piping/`. Standard claim fence
+names. Paths identify repository files or desktop features as shown. Standard claim fence
 applies (F-PIP-2; claims taxonomy per DEC-081).
 
 This extends W-8 ([model-topology-checks.md](model-topology-checks.md)). Its
@@ -15,27 +15,31 @@ or refusal changes.
 
 | Group | What runs | Owner |
 |---|---|---|
-| Solve input, restraint and topology checks | The solve's own checks before it forms the first stiffness, in the solve's order and with its stops: request parse and closed records; input validation; applied self weight, shared sections, unit normalization and the base material pair; load-state resolution; the model build; constant-effort consumption; the W-8 topology checks; and the restraint pre-checks (no support, fewer than six ground constraints, invalid support input) | `core/product_physics/src/validation/model_checks.rs` (`LinearStaticPreviewRequest::pre_formation_checks_value`) |
+| Solve input, restraint and topology checks | Pre-formation checks over request parsing, input validation, normalization, model building, topology and restraints; their differences from the solve are described below | `core/product_physics/src/validation/model_checks.rs` (`LinearStaticPreviewRequest::pre_formation_checks_value`) |
 | Model-data slot checks | The W-13 document validator, run in the same native command or wasm call and listed in the same bounded report | `core/model_operations/operation_applier/src/document_validator.rs` (`validate_model_document`) |
 | Library references | The W-13 library-reference findings the store published for this model, read only when the checks were admitted and listed within what the report leaves of its bound | `features/library/libraryRefFindings.ts` |
 
-**One sequence, held to the solve's.** `preview_model_checks_value` takes the
-desktop's solve request (`{"model": …, "materials": []}`). It calls the
-functions that `run_linear_static_preview_observed_inner` calls, with the same
-arguments, and stops where the solve stops at a blocking diagnostic. The only
-copies are the diagnostics that the solve builds inline: document kind, schema
-version and the three restraint pre-checks. The work after the first stiffness
-formation does not run here: the dense-scrutiny size guard, assembly, the
-solve itself and its numerical-integrity diagnostics. Nor does the
-retained-memory observer.
+**Pre-formation sequence.** `preview_model_checks_value` takes the
+desktop's solve request (`{"model": …, "materials": []}`). It calls several
+pre-formation functions used by `run_linear_static_preview_observed_inner` and
+stops at blocking diagnostics. The solve also calls junction-closure warnings
+and partial-span refusals, which these checks omit. The solve builds with the
+consumed Timoshenko basis; these checks use `build_model_for_members` without it.
+The solve's restraint checks account for skew constraints; these checks do not.
+The eccentric-offset refusal described below is also omitted. These differences
+leave REQ-04-06-013 open; the drift guard below establishes parity only for its
+corpus. The checks copy diagnostics that the solve builds inline: document
+kind, schema version and the three restraint pre-checks. The work after the
+first stiffness formation does not run here: the dense-scrutiny size guard,
+assembly, the solve itself and its numerical-integrity diagnostics. Nor does
+the retained-memory observer.
 
 The module is private, declared from `validation.rs`, and exposed as an
 associated function of the already-exported request type,
-`LinearStaticPreviewRequest::pre_formation_checks_value` (Codex review r2 of
-#1665 suggested this over the earlier `model_settings` placement).
-`validation.rs` is not a retained-pricing owner source, so `lib.rs` and every
-other owner source stay byte-identical to main, and the module reaches the
-crate root's private checks as any module of the crate does. Nothing on the
+`LinearStaticPreviewRequest::pre_formation_checks_value`.
+`validation.rs` is not a retained-pricing owner source; at the cited pricing
+basis `lib.rs` and the other owner sources were byte-identical to main. The
+module reaches the crate root's private checks as any module of the crate does. Nothing on the
 solve or retained route calls it. The retained-pricing tool prices this
 placement (at `769bf8c30f`) with exit 0, and its tree compares `a_le_b` and
 identical to main's (`a40bf2a63e`, whose priced crates main has not changed
@@ -52,15 +56,19 @@ statement of the branch stress factors still applied, which the checks, run
 before any rows exist, never carry; so each check message is a prefix of the
 solve's. If a finding blocks, the solve must publish exactly those findings. A
 request that the solve refuses outright is refused with the same text. One
-case (Codex review r1 of #1665) combines an unknown support family, which
+case combines an unknown support family, which
 validation refuses, with a stale generated self-weight load, which the next
 stage would refuse: the checks, like the solve, list the first and not
 `SELF_WEIGHT_INPUTS_STALE`, and removing that stop fails the guard.
 
-**After the 0.8.0 ripple (#1649).** When #1649 merges, its
-`append_eccentric_offset_refusals` call joins the solve's sequence; the checks
-add it at the same place in `pre_formation_checks`, and the corpus's
-hard-coded model-version fixtures follow the 0.8.0 documents.
+**Pending discrepancy after the 0.8.0 ripple (#1649).** The earlier plan
+said the checks would add `append_eccentric_offset_refusals` at the solve's
+position and the corpus's hard-coded model-version fixtures would follow the
+0.8.0 documents. The solve now calls that refusal after normalization and its
+blocking return; `pre_formation_checks` does not call it. The intended sequence
+and REQ-04-06-013 remain open for reconciliation. The currently inspected
+hard-coded model, intermediate-stop fixture and bundled and refused demos use
+0.9.0 documents.
 
 ## Desktop
 
@@ -77,14 +85,13 @@ hard-coded model-version fixtures follow the 0.8.0 documents.
   Machine identifiers (ids, codes, severities, sources, paths and affected
   references) are kept whole, so a listed finding always names the entity it
   was raised on; a finding whose identifiers would pass the remaining bound is
-  counted as not shown rather than altered (Codex review r2 of #1665: a
-  shortened 3,008-byte support id had made its finding unselectable). The
+  counted as not shown rather than altered: a shortened 3,008-byte support id
+  had made its finding unselectable. The
   library-reference findings take what the report leaves of the bound. The
   panel states how many were left out, and how many of those are blocking or
   errors, and marks shortened text. A run whose findings were all left out is
-  not called empty (Codex review r3 of #1665: a support id of 1.1 million
-  characters had left one blocking finding counted and the summary saying the
-  checks found nothing).
+  not called empty: a support id of 1.1 million characters had left one
+  blocking finding counted while the summary said the checks found nothing.
 - **Memory (DEL-04-07).** Model-sized work follows the memory-budget decision
   (`memory-budget-decision.md`, "On-demand model checks"):
   - in the app, the checks run as a solve runs: `check_preview_model` takes a
@@ -93,16 +100,16 @@ hard-coded model-version fixtures follow the 0.8.0 documents.
     copies it, and the checks run in a capped worker process
     (`solve_worker.rs` task `ModelChecks`) whose grant grows on demand up to
     the budget it was admitted under. Their working memory therefore stays within the pool and the
-    budget whatever the model's shape, including the load-state fan-out Codex
-    found in review r2. A refusal at intake, at the starting grant or while
+    budget whatever the model's shape, including load-state fan-out. A refusal
+    at intake, at the starting grant or while
     the worker runs leaves the checks not run, and the panel names it. The
     starting grant waits for a worker slot or headroom as a solve's does, for
     at most 2 s; the check has no job record. At most one check is in
     progress: a newer check, a project-session change (`cancel_model_checks`)
     and a session reset (page load) each cancel it as a solve is cancelled,
     so a waiting check stops waiting and a running check's worker is killed
-    and its grant released after the reap (Codex review r3: an abandoned
-    check had kept 68,157,440 bytes reserved after its request was retired).
+    and its grant released after the reap: an abandoned check had kept
+    68,157,440 bytes reserved after its request was retired.
     When the app exits, the worker ends itself on its parent's exit, as a
     solve's does;
   - in the browser preview, which has no pool, the wasm engine's
@@ -168,16 +175,16 @@ hard-coded model-version fixtures follow the 0.8.0 documents.
   their severity: a 1.1-million-character support id leaves its blocking
   finding counted as blocking.
 - `apps/desktop/src-tauri/src/solve_jobs.rs`:
-  `model_checks_run_in_a_capped_worker_whatever_the_fan_out` (Codex r2's 1-,
+  `model_checks_run_in_a_capped_worker_whatever_the_fan_out` (1-,
   16- and 64-pipe load-state fan-out shapes complete in the worker with the
   applier's report, the grant never passes the budget, and nothing stays
   reserved; figures in `memory-budget-decision.md`) and
-  `model_checks_refuse_by_type_at_the_invocation_budget` (Codex r2's budget
-  probe: the intake refused `ingress_exceeds_budget`; a budget the 64-pipe
+  `model_checks_refuse_by_type_at_the_invocation_budget` (the intake refused
+  `ingress_exceeds_budget`; a budget the 64-pipe
   check outgrows ends its worker with a typed worker refusal).
   `model_checks_wait_for_a_worker_slot_then_refuse_by_type`: the starting
   grant waits in the solve's queue for its 2 s window, then is refused
-  `worker_limit_reached`. Cancellation (Codex r3):
+  `worker_limit_reached`. Cancellation:
   `a_session_reset_cancels_a_running_check_and_releases_its_grant`,
   `a_newer_check_cancels_the_one_in_progress` and
   `a_solve_queued_behind_a_cancelled_check_starts` (which also cancels a

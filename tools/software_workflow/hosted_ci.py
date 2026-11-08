@@ -22,11 +22,17 @@ PIPING = ""
 # Repository-level execution controls are shared inputs even after the
 # product directory is promoted to repository root.
 SHARED_INPUTS = ('.github/**', 'tools/software_workflow/**', 'tools/ci/**',
-                 'tools/hosted-ci-routing.json', 'tools/tools-test-routing.json')
+                 'tools/hosted-ci-routing.json', 'tools/tools-test-routing.json',
+                 '.gitattributes', '.gitignore', '_harness/adapter.yaml', 'api/api_boundary_contract.yaml')
+SHARED_DOCUMENTATION = ('.github/ISSUE_TEMPLATE/*.md', 'tools/*.md')
 
 
 def shared_input(path):
-    return matches(path, SHARED_INPUTS)
+    return matches(path, SHARED_INPUTS) and not matches(path, SHARED_DOCUMENTATION)
+
+
+def rule_matches(path, rule):
+    return matches(path, rule.get("paths", [])) and not matches(path, rule.get("exclude_paths", []))
 
 # The crates `apps/desktop/scripts/build-wasm-engine.mjs` compiles into the
 # engines the desktop suite executes.
@@ -105,7 +111,7 @@ def numerical_plan(root: Path, paths: list[str] | None, profile: dict) -> dict:
         manifests = module.readiness.discover_cargo_manifests(project)
         ignored = []
         for path in paths or []:
-            rules = [rule for rule in profile["path_rules"] if matches(path, rule["paths"])]
+            rules = [rule for rule in profile["path_rules"] if rule_matches(path, rule)]
             if rules and not any("piping-numerical" in rule["checks"] for rule in rules):
                 ignored.append(path)
         desktop = profile.get("piping_desktop_resources", {})
@@ -482,7 +488,7 @@ def route_paths(paths: list[str], profile: dict) -> dict:
     their owning product or to every suite; reachability is not yet applied."""
     selection = select_checks(profile, paths)
     checks = set(selection["checks"])
-    unmatched = [p for p in paths if not any(matches(p, rule["paths"]) for rule in profile["path_rules"])]
+    unmatched = [p for p in paths if not any(rule_matches(p, rule) for rule in profile["path_rules"])]
     for path in unmatched:
         owners = list(SUITES)
         checks.update(owners)

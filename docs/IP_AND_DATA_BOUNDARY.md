@@ -1,14 +1,14 @@
 ---
-doc_id: OPS-IP-DATA-BOUNDARY
-doc_kind: governance.policy
-status: draft
-created: 2026-04-30
-refs:
-  - rel: governed_by
-    to: OPS-CONTRACT
+name: swbpipe-ip-and-data-boundary
+description: Set the public-data, private-input and intellectual-property boundaries.
+metadata:
+  kind: instruction
+  surface: requirements
 ---
 
 # IP and Data Boundary Policy
+
+This document is governed by [CONTRACT.md](CONTRACT.md).
 
 > **Registry:** This document is the policy depth behind the `BS-IP` boundary
 > statement in `docs/claims_registry.md` (D-48 / `DEC-081`).

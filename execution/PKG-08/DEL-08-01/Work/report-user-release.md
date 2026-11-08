@@ -4,10 +4,8 @@
 file:line citation is at that tree and relative to `projects/chirality-piping/`
 unless it names a root path. Revisions 1-3 were at `c7f52fd12a` and
 `3027cf2f35` (2026-10-25). Revision 2 reduced the design to the owner's scope R
-(§0), after Codex round 1 (three blocking, four should-fix) and round 2 (one
-blocking, three should-fix). Revision 3 answered round 3 (one blocking, three
-should-fix, one non-blocking, and A7's wording). §7 says where each finding is
-resolved. Design before implementation; nothing here is built. This design
+(§0), after rounds 1 and 2. Revision 3 answered round 3, including A7's wording. §7 says where each
+finding is resolved. Design before implementation; nothing here is built. This design
 records the mechanism by which a user can state, for one report, that they
 release their own project data for sharing. The design itself records no user
 release and no software release, and it records, implies or derives no
@@ -49,8 +47,8 @@ decision, on exact-route results.
   Where a cited fact changed, the text now says so.
 - **Appendix A.** Each Old was re-checked against main. A1, A10, A11 and A12
   are re-derived, A14 is new and A13 has moved line (Appendix A).
-- **Codex round 1 at revision 4 (`3dfc794601`: one blocking, four
-  should-fix).** The headless runner and the producer's general entries now
+- **Codex round 1 at revision 4 (`3dfc794601`).** The headless runner and the
+  producer's general entries now
   refuse every user-release marker, and one derivation-bound producer entry
   is the only way to a user-released package (B1, §2.8). Route 010 refuses
   exact texts in the outer command, before they are priced (S1, §2.5). Library
@@ -58,8 +56,8 @@ decision, on exact-route results.
   (S2, §2.7). A14's New gives one code per surface (S3). The naming rule is
   applied throughout, including `user_released_at` and the statement (S4).
   §7 says where each finding is resolved.
-- **Codex round 2 at revision 4 (`1dce3ee2b2`: two should-fix, one
-  non-blocking; B1 and S1-S4 closed).** The reach scan now pins every call of
+- **Codex round 2 at revision 4 (`1dce3ee2b2`; B1 and S1-S4 closed).** The reach scan
+  now pins every call of
   the renderer's and `pdf_emitter`'s document functions in the four crates
   that can make one, rejects aliases, re-exports, function values and
   closures, and has negative fixtures. The §2.8 table claims no more than the
@@ -69,8 +67,8 @@ decision, on exact-route results.
   general entries' precedence is stated (S6, §2.8, §6). The runner's
   refusal message names the triggering member from a closed set of three
   paths (N1, §2.8). A1 is unchanged (§7).
-- **Codex round 3 at revision 4 (`80b8244391`: no blocking, one should-fix,
-  one non-blocking; S6 and N1 closed, A1-A14 pass).** The reach scan no longer
+- **Codex round 3 at revision 4 (`80b8244391`; S6 and N1 closed, A1-A14 pass).** The reach scan
+  no longer
   borrows the line scanner's indentation and test-module rules. It parses the
   four crates' source with `syn`, which is already in `src-tauri`'s lock at
   the version it needs. It resolves their modules itself, reads every file
@@ -80,8 +78,8 @@ decision, on exact-route results.
   negative fixtures (S5a, S5b, §2.8, §6). The general entries' precedence now
   keeps `wire::assemble_wire_request`'s own earlier checks (N2, §2.8).
   Appendix A is unchanged, and all fourteen Olds still count 1 (§7).
-- **Codex round 4 at revision 4 (`3d2f35911b`: no blocking, one should-fix,
-  three non-blocking; A1-A14 pass).** A macro could still hide a production
+- **Codex round 4 at revision 4 (`3d2f35911b`; A1-A14 pass).** A macro could still
+  hide a production
   module or build a call path that the token screen cannot see (S5c, S5d), and
   a declarative macro from outside the four crates could emit a call without
   naming it (N4). The reach scan now fails closed on macros. A production

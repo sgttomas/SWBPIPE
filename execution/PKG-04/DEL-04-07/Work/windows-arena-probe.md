@@ -158,7 +158,5 @@ hang/leak; swallowed failure/empty selection; production/reference/policy or
 secret/write/provisioning overreach. Additional threats: underpriced metadata,
 retention, realloc or decommit; physical/commit liability conflation; unclassified
 allocation failure; stale grants/credits; overflow/alignment and case suppression.
-Use at most3 tooling rounds. Record out-of-model findings; route a new kind
-inside the model to Agent0. Repair small findings without new delegates.
 
 Official references: [VirtualAlloc](https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-virtualalloc), [VirtualFree](https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-virtualfree), [GetSystemInfo](https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-getsysteminfo), [process attributes](https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-updateprocthreadattribute), [Job objects](https://learn.microsoft.com/en-us/windows/win32/procthread/job-objects), [thread stacks](https://learn.microsoft.com/en-us/windows/win32/procthread/thread-stack-size), [Rust System](https://doc.rust-lang.org/std/alloc/struct.System.html), [Tauri2.11.1 manifest](https://github.com/tauri-apps/tauri/blob/tauri-v2.11.1/crates/tauri/Cargo.toml), [serde_json1.0.149 RawValue](https://docs.rs/serde_json/1.0.149/serde_json/value/struct.RawValue.html).

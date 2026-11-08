@@ -425,23 +425,28 @@ jobs:
           key: ${{ steps.result-key.outputs.key }}
 
   python-product:
-    name: Python product contracts
+    name: Python product contracts (${{ matrix.shard }}/4)
     needs: selection
     if: needs.selection.outputs.python_mode == 'full'
     runs-on: ubuntu-latest
-    # The initial import selects the complete Python suite on a cold runner.
-    # Execution budget (Agent 0, 2026-11-04): 90 -> 120 min. The same 13,039 tests took 64 min on one hosted runner and
-    # over 90 min (+35% worker time, a broad slowdown) on two others (#113), so 90 left no margin. The tests,
-    # workers, selection and sharding are unchanged.
+    # Four fixed shards retain the full selection; the 120-minute ceiling is unchanged.
     timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           filter: blob:none
-          # The whole tree: a selected test reads whatever its code names (tools/ci/python_test_reads.py),
-          # execution/ records included, so the job cannot leave out a file a test it runs reads.
+          # Declarative specifications are not product inputs: a selected test that read them fails here
+          # (tools/ci/python_test_reads.py; tools/validation/execution_boundary.py).
+          sparse-checkout: |
+            /*
+            !/execution/
+          sparse-checkout-cone-mode: false
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
@@ -455,7 +460,18 @@ jobs:
           REPOSITORY_CHECKS_RUN: ${{ inputs.repository-checks-run }}
         run: |
           if [ "$REPOSITORY_CHECKS_RUN" = true ]; then shared=(--repository-checks-run); else shared=(); fi
-          python3 tools/ci/python_ci.py --plan piping-ci-plan.json "${shared[@]}"
+          python3 tools/ci/python_ci.py --plan piping-ci-plan.json --shard-index "${{ matrix.shard }}" --shard-count 4 "${shared[@]}"
+
+      - name: Mark successful shard
+        run: |
+          mkdir -p "${{ runner.temp }}/python-shard"
+          printf '%s\n' '${{ matrix.shard }}' > "${{ runner.temp }}/python-shard/success"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-shard-${{ matrix.shard }}
+          path: ${{ runner.temp }}/python-shard/success
+          if-no-files-found: error
+          retention-days: 1
 
   browser-matrix:
     name: Broad browser matrix (${{ matrix.shard }}/4)
@@ -527,3 +543,19 @@ jobs:
           python3 tools/software_workflow/hosted_ci.py aggregate --suite piping-python --mode "$PYTHON_MODE" --selection "$SELECTION" --product "$PYTHON_PRODUCT_RESULT"
           python3 tools/software_workflow/hosted_ci.py aggregate --suite piping-desktop --mode "$DESKTOP_MODE" --selection "$SELECTION" --product "$DESKTOP"
           python3 tools/software_workflow/hosted_ci.py aggregate --suite piping-desktop-rust --mode "$DESKTOP_RUST_MODE" --selection "$SELECTION" --product "$DESKTOP_RUST"
+      - name: Download successful Python shard markers
+        if: needs.selection.outputs.python_mode == 'full'
+        uses: actions/download-artifact@v4
+        with:
+          pattern: python-shard-*
+          path: ${{ runner.temp }}/python-shards
+      - name: Require all four Python shards
+        if: needs.selection.outputs.python_mode == 'full'
+        shell: bash
+        run: |
+          set -euo pipefail
+          for shard in 1 2 3 4; do
+            file="${{ runner.temp }}/python-shards/python-shard-$shard/success"
+            test -f "$file"
+            test "$(cat "$file")" = "$shard"
+          done

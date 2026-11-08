@@ -1,4 +1,5 @@
-"""The runtime catalog has one authority even in sparse/export builds."""
+"""The bundled runtime catalog is the one authority, contained, bounded and pinned."""
+import hashlib
 import importlib.util
 import json
 from pathlib import Path
@@ -14,8 +15,14 @@ resource = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(resource)
 
 
-def test_registered_project_check_matches_authoritative_bytes():
-    # This suite runs in the existing full-checkout Repository checks job.
+def write(project, data):
+    target = project / resource.RESOURCE
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(data)
+    return hashlib.sha256(data).hexdigest()
+
+
+def test_registered_project_check_admits_the_bundled_resource():
     # Execute the registered check, not a duplicate implementation of it.
     profile = json.loads((PROJECT / "software-workflow.json").read_text())
     check = profile["checks"]["agent-catalog-resource"]
@@ -24,67 +31,43 @@ def test_registered_project_check_matches_authoritative_bytes():
     assert done.returncode == 0, done.stdout + done.stderr
 
 
-def test_generation_preserves_bytes_and_check_rejects_drift(tmp_path):
-    source, target = tmp_path / resource.SOURCE, tmp_path / resource.RESOURCE
-    source.parent.mkdir(parents=True)
-    data = b'{"invented": true}\r\n'
-    source.write_bytes(data)
-    assert resource.synchronize(tmp_path, check=False)
-    assert target.read_bytes() == data
-    assert resource.synchronize(tmp_path, check=True)
-    target.write_bytes(data.replace(b"true", b"false"))
-    assert not resource.synchronize(tmp_path, check=True)
-    source.unlink()
-    with pytest.raises(OSError):
-        resource.synchronize(tmp_path, check=True)
+def test_pin_drift_absent_and_malformed_resources_fail_closed(tmp_path):
+    data = b'{"tools": [{"name": "invented"}]}\r\n'
+    pin = write(tmp_path, data)
+    assert resource.validate(tmp_path, pin)["tools"] == [{"name": "invented"}]
+    with pytest.raises(ValueError, match="pin"):
+        resource.validate(tmp_path, "0" * 64)
+    for bad in (b"", b"x" * (resource.MAX_BYTES + 1), b'{"tools": [], "tools": [1]}', b'{"tools": [NaN]}',
+                b'{"tools": []}', b"[]", b"\xff"):
+        with pytest.raises((ValueError, UnicodeError)):
+            resource.validate(tmp_path, write(tmp_path, bad))
+    (tmp_path / resource.RESOURCE).unlink()
+    with pytest.raises(ValueError):
+        resource.validate(tmp_path, pin)
 
 
-def test_absent_oversize_and_linked_inputs_fail_closed(tmp_path):
-    source, target = tmp_path / resource.SOURCE, tmp_path / resource.RESOURCE
-    source.parent.mkdir(parents=True)
-    source.write_bytes(b"invented")
-    with pytest.raises(OSError):
-        resource.synchronize(tmp_path, check=True)
-    source.write_bytes(b"x" * (resource.MAX_BYTES + 1))
-    with pytest.raises(ValueError):
-        resource.synchronize(tmp_path, check=False)
-    source.unlink()
-    actual = tmp_path / "invented.json"
-    actual.write_bytes(b"invented")
-    source.symlink_to(actual)
-    with pytest.raises(ValueError):
-        resource.synchronize(tmp_path, check=False)
-    source.unlink()
-    source.write_bytes(b"invented")
+def test_linked_resource_or_parent_cannot_supply_the_catalog(tmp_path):
+    project, outside = tmp_path / "project", tmp_path / "outside"
+    outside.mkdir()
+    data = b'{"tools": [{"name": "invented"}]}'
+    (outside / "agent-capability-catalog.json").write_bytes(data)
+    pin = hashlib.sha256(data).hexdigest()
+    target = project / resource.RESOURCE
     target.parent.mkdir(parents=True)
-    target.symlink_to(actual)
-    for check in [False, True]:
-        with pytest.raises(ValueError):
-            resource.synchronize(tmp_path, check=check)
+    target.symlink_to(outside / "agent-capability-catalog.json")
+    with pytest.raises(ValueError):
+        resource.validate(project, pin)
+    target.unlink()
+    target.parent.rmdir()
+    target.parent.symlink_to(outside, target_is_directory=True)
+    with pytest.raises(ValueError):
+        resource.validate(project, pin)
 
 
-def test_both_selectors_route_all_catalog_authority_inputs():
-    # A future contract-only edit must execute the full-checkout equality test.
+def test_both_selectors_route_the_catalog_and_its_pin():
     from select_affected_checks import select_checks
     root_profile = json.loads((ROOT / "tools/tools-test-routing.json").read_text())
     project_profile = json.loads((PROJECT / "software-workflow.json").read_text())
-    for name in [resource.SOURCE, resource.RESOURCE, Path("tools/agent_catalog_resource.py")]:
+    for name in [resource.RESOURCE, Path("tools/agent_catalog_resource.py"), Path("tools/agent_host_witness.py")]:
         assert "agent-catalog-resource" in select_checks(project_profile, [name.as_posix()])["checks"]
-        path = (Path(".") / name).as_posix()
-        assert "software_workflow" in select_checks(root_profile, [path])["checks"]
-
-
-def test_parent_link_cannot_redirect_generation_outside_project(tmp_path):
-    project = tmp_path / "project"
-    outside = tmp_path / "outside"
-    project.mkdir()
-    outside.mkdir()
-    source = project / resource.SOURCE
-    source.parent.mkdir(parents=True)
-    source.write_bytes(b"invented")
-    target = project / resource.RESOURCE
-    target.parent.parent.mkdir(parents=True)
-    target.parent.symlink_to(outside, target_is_directory=True)
-    with pytest.raises(ValueError):
-        resource.synchronize(project, check=False)
-    assert not list(outside.iterdir())
+        assert "software_workflow" in select_checks(root_profile, [name.as_posix()])["checks"]

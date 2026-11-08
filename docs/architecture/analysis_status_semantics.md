@@ -1,11 +1,9 @@
 ---
-doc_id: OPS-ANALYSIS-STATUS-SEMANTICS
-doc_kind: architecture.data_model
-status: draft
-created: 2026-04-30
-deliverable_id: DEL-05-04
-package_id: PKG-05
-scope_item: SOW-047
+name: swbpipe-architecture-analysis-status-semantics
+description: Define analysis-status meaning without implying professional acceptance.
+metadata:
+  kind: instruction
+  surface: requirements
 ---
 
 # Analysis Status Semantics

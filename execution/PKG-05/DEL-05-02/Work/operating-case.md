@@ -1,6 +1,6 @@
 # Operating case with nonlinear supports, and the kernel side of skewed restraints
 
-> **Status: adopted plan; truthfulness fixes (#1695), stage 2 (#1671) and slice 1a (#1752) built; slice 1b integrated (#107, §6); R-6 unbuilt and scheduled for v1.0 after 1b (2026-10-31, below); `minuend_final` designed (§7) and built as a candidate on `claude/rt-a5-minuend-final` (§7.3 status); §4 built as `combination-certificate.md` (eligibility (b), 2026-11-04); superseded by any later Design text.**
+> **Status: adopted plan; truthfulness fixes (#1695), stage 2 (#1671) and slice 1a (#1752) built; slice 1b integrated (#107, §6); R-6 partially built in S-K1 (#140); remaining skew-restraint slices are open (RT-S1); `minuend_final` merged and registered (#122, §7; RT-A5); hanger sizing integration remains open; §4 built as `combination-certificate.md` (eligibility (b), 2026-11-04); superseded by any later Design text.**
 > Committed from the solver lane's working note so that the adopted decisions are
 > discoverable on main. The text is unchanged except that local absolute paths are
 > shortened to `scratch/…`. Working-file references (`scratch/…` and
@@ -1099,8 +1099,9 @@ becomes current. Regressions: Rust `result_export/tests/recorded_pre_rt_a5_1b.rs
 
 ### 6.9 Follow-on seam: `minuend_final` (designed in §7)
 
-1b adds no held-status solve semantics. The held-status solve is designed in §7 (phase 1, not
-built). §7 replaces the seam sketch that stood here and corrects two of its statements:
+At slice 1b, there were no held-status solve semantics; §7 then designed the solve in phase 1.
+The solve was subsequently merged and registered (#122), while hanger sizing integration remains
+open. The phase-1 design replaced the seam sketch and corrected two of its statements:
 - **The held solve's K-D5 standing.** The sketch said that the held solve's member bound "is the
   linear certificate against the held system". `confirm_converged_state` cannot supply that in
   general. It can establish a held solve only when the target case's own classifier keeps every
@@ -1133,7 +1134,7 @@ registered binary at `d44e5c538`; `61c6214a2`).
 
 ## 7. Held-status solve (`minuend_final`)
 
-**Status: design, phase 1, revision 1; not built.**
+**Historical status at phase 1, revision 1: design; not built.** The held-status solve was subsequently merged and registered (#122; RT-A5).
 - **Revision 1.** It applies the independent review of `9cfbc21cd` ("revise before implementation";
   no P0 findings; every H-1, H-1b and H-2 to H-7 closed form independently confirmed). It also folds
   in Agent 0's decisions and RT-A3's S2 boundary, both recorded where they apply below.
@@ -1327,7 +1328,7 @@ fn complete_iteration(
   slot after P and the current I3a queue.
 - The final merge comes after P.
 
-**Status: S2 built (phase 2 step 1, `d02ec8789`; for RT-A3's boundary review).** Nothing for
+**Historical status: S2 built (phase 2 step 1, `d02ec8789`; for RT-A3's boundary review).** At that phase, nothing for
 `minuend_final` itself is built. The commit holds only the extraction and the S11-F row that moves
 with it (PP `tests/s11f_site_test.rs` rule 6: `complete_iteration` now reads the input force for the
 receipt).
@@ -1346,8 +1347,7 @@ receipt).
   Retained pricing is coefficient-identical to the parent `30b6b34e7` (1,602 equal, 0 higher, 0
   lower), measured read-only because P's D3 pins are still pending. Nothing is registered.
 
-**Status: candidate built (phase 2 step 2, branch `claude/rt-a5-minuend-final`; not integrated, not
-independently reviewed).** The NI wrapper, the PP held path, the applier, the RE and Python readers,
+**Historical status at phase 2 step 2: candidate built on `claude/rt-a5-minuend-final`, not yet integrated or independently reviewed.** The solve was subsequently merged and registered (#122; RT-A5). The NI wrapper, the PP held path, the applier, the RE and Python readers,
 the TS display, policy v4 and the schemas are built as this section and §7.4 to §7.8 describe, with
 these approvals and deviations:
 - **R2, option A (RT-A3, 2026-11-04).** NI `lib.rs` names `confirm_converged_state` exactly once
@@ -2149,8 +2149,7 @@ boundary), then the held slice.
 - O-C2 resolved upstream.
 - Policy (b) unchanged.
 
-**Open for the numerical contract review.**
-- The final candidate texts of §7.8, including §0 R-1, §5 B, §1.4 and RT-A5.
+**Historical review input.** The final candidate texts of §7.8, including §0 R-1, §5 B, §1.4 and RT-A5, were open for numerical contract review at this phase; §7.8 retains the old and new texts.
 
 **Decided by the manager (2026-11-04).** Gap-bearing models are admitted with outcome G: the
 source must be `Qualified` (§7.4), no held gap outcome is ever confirmed (R1), and H-7g is the

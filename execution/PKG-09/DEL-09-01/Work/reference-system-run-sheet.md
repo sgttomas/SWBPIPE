@@ -536,7 +536,7 @@ Historical #41 counts (before the component rows below):
   110 s, rounded to 1.75 minutes. One cycle.
 
 Before G6, the #41 totals were: entries 757 − 98 + 135 − 39 + 9 − 98 + 20 = 686, plus the tee's Size unit entry
-(review r1) = 687; cycles 51 − 6 + 3 − 11 + 1 = 38; minutes 77.25 − 8 + 11 − 5.5 + 0.75 − 13 +
+= 687; cycles 51 − 6 + 3 − 11 + 1 = 38; minutes 77.25 − 8 + 11 − 5.5 + 0.75 − 13 +
 1.75 = 64.25, plus 0.25 for the tee = 64.5.
 
 G6 removes six end-size task edits (24 entries and six cycles), adding six size-unit

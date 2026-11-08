@@ -63,7 +63,7 @@ This candidate defines `DEL-13-02` in service of project scope [SOW-068, SOW-067
 > | Constraint kind enum | `connectivity`, `clearance`, `no_go_volume`, `support_zone`, `route_conflict`, `slope`, `drain`, `vent`, `access`, `equipment_interface`, `missing_required_data`, and `TBD` |
 > | Diagnostic class enum | `CONSTRAINT_MISSING_DATA`, `CONNECTIVITY_CONFLICT`, `CLEARANCE_CONFLICT`, `ROUTE_CONFLICT`, `SUPPORT_ZONE_CONFLICT`, `SLOPE_DRAIN_VENT_CONFLICT`, `PROVENANCE_WARNING`, `UNIT_WARNING`, `IP_BOUNDARY_WARNING`, `SCHEMA_VALIDATION`, and `TBD` |
 > | Provenance shape | `Provenance` requires `source_name`, `source_location`, `source_license`, `contributor`, `contributor_certification`, `redistribution_status`, `review_status`, and `privacy_classification` |
-> | Unit posture | Unit-bearing values use `Quantity` with required `value`, `unit`, `dimension`, and `provenance`; the current dimension enum matches the accepted PKG-02 dimension vocabulary tested by `tests/test_constraint_schema.py` |
+> | Unit posture | Unit-bearing values use `Quantity` with required `value`, `unit`, `dimension`, and `provenance`; `tests/test_constraint_schema.py` checks its enum against a fixed test vocabulary. The current PKG-02 schema includes `force_per_length`, which the constraint enum lacks (DEL-13-02:2). |
 > | Professional-boundary posture | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). (`docs/CONTRACT.md`; `docs/SPEC.md#4.3 Analysis status and authority boundary`) |
 > | IP/data posture | Public artifacts must not bundle protected owner standards, protected code criteria, proprietary project data, copied standards text, protected tables, or code-specific values (`INIT.md`; `docs/IP_AND_DATA_BOUNDARY.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md#PKG-13`) |
 >
@@ -127,7 +127,7 @@ This candidate defines `DEL-13-02` in service of project scope [SOW-068, SOW-067
 >
 > The current implementation evidence is `schemas/constraint.schema.json` and `tests/test_constraint_schema.py`. The schema declares JSON Schema 2020-12, `$id` `https://openpipestress.org/schemas/constraint.schema.json`, root constants for `DEL-13-02` and `PKG-13`, and required root properties for `schema_version`, `deliverable_id`, `package_id`, `scope_items`, `objectives`, `data_boundary`, and `constraint_set`.
 >
-> The schema defines reusable `$defs` for `ConstraintSet`, `ConstraintRecord`, `ConstraintKind`, `Diagnostic`, `Parameter`, `Quantity`, `Provenance`, `Reference`, `ValidationStatus`, and `ProfessionalBoundary`. The accompanying stdlib test checks schema identity, required definitions, required fields, enum coverage, PKG-02 dimension vocabulary alignment, protected-text exclusions, data-boundary constants, and professional-boundary constants.
+> The schema defines reusable `$defs` for `ConstraintSet`, `ConstraintRecord`, `ConstraintKind`, `Diagnostic`, `Parameter`, `Quantity`, `Provenance`, `Reference`, `ValidationStatus`, and `ProfessionalBoundary`. The accompanying stdlib test checks schema identity, required definitions, required fields, enum coverage against a fixed test vocabulary, protected-text exclusions, data-boundary constants, and professional-boundary constants. Current PKG-02 enum parity is not established (DEL-13-02:2).
 >
 
 ### CLM-010 — Requirements
@@ -169,7 +169,7 @@ This candidate defines `DEL-13-02` in service of project scope [SOW-068, SOW-067
 > | R-13-02-001, R-13-02-002 | `tests/test_constraint_schema.py` checks required `ConstraintKind` values and diagnostic classes for the in-scope categories. |
 > | R-13-02-003 | `tests/test_constraint_schema.py` checks `SourceType` coverage for `user`, `project`, `import`, `agent`, and `source_derived`, plus required `Provenance` fields. |
 > | R-13-02-004 | Schema review checks `missing_required_data`, `CONSTRAINT_MISSING_DATA`, diagnostics, assumptions, and missing-data validation statuses; runtime validation behavior remains downstream in `DEL-13-03`. |
-> | R-13-02-005 | `tests/test_constraint_schema.py` checks `Quantity` required fields and exact alignment with the accepted PKG-02 dimension vocabulary. |
+> | R-13-02-005 | Verification requires `Quantity` required fields and exact alignment with the accepted PKG-02 dimension vocabulary. `tests/test_constraint_schema.py` checks the required fields and a fixed dimension vocabulary; current PKG-02 enum parity is not established (DEL-13-02:2). |
 > | R-13-02-006 | `tests/test_constraint_schema.py` checks data-boundary constants and scans schema strings for forbidden protected/professional-claim text. |
 > | R-13-02-007 | `tests/test_constraint_schema.py` checks `ProfessionalBoundary` constants require human review and prohibit software compliance, certification, sealing, approval, and authentication claims (PRD §21.2). |
 > | R-13-02-008, R-13-02-010 | `python3 -m json.tool schemas/constraint.schema.json` checks JSON syntax; `schemas/constraint.schema.json` declares `$id`; `tests/test_constraint_schema.py` checks the JSON Schema 2020-12 declaration, root identity constants, and required version slot. |
@@ -301,7 +301,7 @@ This candidate defines `DEL-13-02` in service of project scope [SOW-068, SOW-067
 >
 > - Constraint categories are source-grounded by SOW-068 and implemented as `ConstraintKind`: `connectivity`, `clearance`, `no_go_volume`, `support_zone`, `route_conflict`, `slope`, `drain`, `vent`, `access`, `equipment_interface`, `missing_required_data`, and `TBD`.
 > - Design-knowledge associations are source-grounded by SOW-067 and represented through typed `Reference` objects plus `design_knowledge_refs`; runtime interpretation of those references remains downstream.
-> - Unit-bearing quantities referenced by constraints should not bypass the canonical unit contract. The implemented `Quantity` definition requires `value`, `unit`, `dimension`, and `provenance`, and the test fixes the dimension enum to the accepted PKG-02 vocabulary.
+> - Unit-bearing quantities referenced by constraints should not bypass the canonical unit contract. The implemented `Quantity` definition requires `value`, `unit`, `dimension`, and `provenance`, and the test fixes its dimension enum to a test vocabulary; current PKG-02 enum parity is not established (DEL-13-02:2).
 > - Provenance should distinguish known facts from unresolved assumptions or imported claims. The implemented `Provenance` definition requires source, contributor, redistribution, review, and privacy-classification fields.
 > - The approved dependency mirror and current approved graph context through `execution/_DAG/_LATEST.md` indicate upstream architecture, canonical model, unit, persistence, design knowledge, and professional-boundary context. They are evidence for predecessor context, not authority to reclassify dependencies.
 > - Runtime constraint validation, GUI presentation/blocking behavior, physical-to-analytical transform consumption, and actual public example payload policy remain `TBD`.

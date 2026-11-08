@@ -27,7 +27,10 @@ def test_every_pr_reaches_single_required_aggregate_and_reusable_products():
     assert 'push' not in root['on']  # no duplicate post-merge product run
     jobs = root['jobs']
     assert jobs['harness']['if'] == 'always()'
-    assert set(jobs['harness']['needs']) == {'repository-checks', 'piping'}
+    assert set(jobs['harness']['needs']) == {'changes', 'repository-checks', 'piping'}
+    for name in ('repository-checks', 'piping'):
+        assert jobs[name]['needs'] == 'changes'
+        assert jobs[name]['if'] == "needs.changes.outputs.mode == 'product'"
     for job, name in [('piping', 'piping-desktop-e2e.yml')]:
         config = workflow(name)
         assert 'workflow_call' in config['on']
@@ -41,9 +44,10 @@ def test_every_pr_reaches_single_required_aggregate_and_reusable_products():
 def test_single_required_result_fails_for_any_unsuccessful_child(tmp_path):
     import os
     import subprocess
-    step = workflow('governance-harness.yml')['jobs']['harness']['steps'][0]
+    step = workflow('governance-harness.yml')['jobs']['harness']['steps'][-1]
     for state in ['success', 'failure', 'cancelled', 'skipped']:
         results = {name: {'result': 'success'} for name in ['repository-checks', 'piping']}
+        results['changes'] = {'result': 'success', 'outputs': {'mode': 'product'}}
         results['piping']['result'] = state
         process = subprocess.run(['bash', '-c', step['run']], env={**os.environ, 'RESULTS': json.dumps(results)}, capture_output=True)
         assert (process.returncode == 0) == (state == 'success')
@@ -67,7 +71,7 @@ def test_python_gate_and_result_are_independent_of_cargo():
     assert jobs['numerical']['if'] == "needs.selection.outputs.numerical_mode == 'full'"
     assert jobs['python-product']['if'] == "needs.selection.outputs.python_mode == 'full'"
     assert jobs['selection']['outputs']['python_mode'] == '${{ steps.numeric.outputs.python_mode }}'
-    aggregate = jobs['desktop-e2e']['steps'][-1]
+    aggregate = next(s for s in jobs['desktop-e2e']['steps'] if s.get('name') == 'Report selected checks without treating skipped work as passed')
     assert aggregate['env']['PYTHON_MODE'] == '${{ needs.selection.outputs.python_mode }}'
     assert 'aggregate --suite piping-python --mode "$PYTHON_MODE"' in aggregate['run']
     # The sharded desktop job joins the aggregate (desktop suite sharding, 2026-10-22).
@@ -91,7 +95,7 @@ def test_selected_desktop_rust_tests_run_on_macos_and_gate_the_aggregate(tmp_pat
     assert run['working-directory'] == '.'
     assert 'if' not in run
     assert not any(s.get('uses', '').startswith('actions/cache') for s in job['steps'])
-    aggregate = jobs['desktop-e2e']['steps'][-1]
+    aggregate = next(s for s in jobs['desktop-e2e']['steps'] if s.get('name') == 'Report selected checks without treating skipped work as passed')
     assert aggregate['env']['DESKTOP_RUST_MODE'] == '${{ needs.selection.outputs.desktop_rust_mode }}'
     assert aggregate['env']['DESKTOP_RUST'] == '${{ needs.desktop-rust.result }}'
     assert 'aggregate --suite piping-desktop-rust --mode "$DESKTOP_RUST_MODE" --selection "$SELECTION" --product "$DESKTOP_RUST"' in aggregate['run']
@@ -141,7 +145,7 @@ def test_selected_desktop_suite_runs_in_the_required_product_job_and_keys_its_re
     assert "needs.product.result == 'success'" in record['if']
     assert "needs.desktop.result == 'success' || (needs.desktop.result == 'skipped' && needs.selection.outputs.desktop_mode != 'full')" in record['if']
     assert not any(s.get('uses') == 'actions/cache/save@v4' for s in jobs['product']['steps'] + desktop_job['steps'])
-    aggregate = jobs['desktop-e2e']['steps'][-1]
+    aggregate = next(s for s in jobs['desktop-e2e']['steps'] if s.get('name') == 'Report selected checks without treating skipped work as passed')
     assert aggregate['env']['DESKTOP_MODE'] == '${{ needs.selection.outputs.desktop_mode }}'
     assert aggregate['env']['DESKTOP'] == '${{ needs.desktop.result }}'
     assert 'aggregate --suite piping-desktop --mode "$DESKTOP_MODE" --selection "$SELECTION" --product "$DESKTOP"' in aggregate['run']
@@ -332,7 +336,7 @@ def test_numerical_matrix_keeps_all_shards_and_gates_selected_coverage():
     assert '--build-only' in build and '--shard' not in build
     aggregate = jobs['desktop-e2e']
     assert aggregate['if'] == 'always()' and 'numerical' in aggregate['needs']
-    step = aggregate['steps'][-1]
+    step = next(s for s in aggregate['steps'] if s.get('name') == 'Report selected checks without treating skipped work as passed')
     assert step['env']['NUMERICAL'] == '${{ needs.numerical.result }}'
     script = '\n'.join(line for line in step['run'].splitlines() if '--suite piping-numerical ' in line)
     assert script
@@ -345,3 +349,46 @@ def test_numerical_matrix_keeps_all_shards_and_gates_selected_coverage():
         env = {**os.environ, 'NUMERICAL_MODE': mode, 'SELECTION': 'success', 'NUMERICAL': state}
         process = subprocess.run(['bash', '-e', '-c', script], cwd=ROOT, env=env, capture_output=True)
         assert (process.returncode == 0) == passed, (mode, state)
+
+
+def test_python_matrix_requires_all_successful_shards(tmp_path):
+    import os
+    import subprocess
+    jobs = workflow('piping-desktop-e2e.yml')['jobs']
+    job = jobs['python-product']
+    assert job['strategy']['matrix']['shard'] == ['1', '2', '3', '4']
+    assert job['strategy']['fail-fast'] == 'false'
+    assert all('continue-on-error' not in step and 'matrix.shard' not in step.get('if', '') for step in job['steps'])
+    runner = next(s for s in job['steps'] if 'python_ci.py' in s.get('run', ''))
+    assert '--shard-index "${{ matrix.shard }}" --shard-count 4' in runner['run']
+    upload = next(s for s in job['steps'] if s.get('uses') == 'actions/upload-artifact@v4')
+    assert upload['with']['name'] == 'python-shard-${{ matrix.shard }}'
+    assert 'if' not in upload
+    aggregate = jobs['desktop-e2e']
+    report = next(s for s in aggregate['steps'] if 'aggregate --suite piping-python' in s.get('run', ''))
+    script = next(line for line in report['run'].splitlines() if '--suite piping-python ' in line)
+    for mode, state, passed in [('full', 'success', True), ('full', 'failure', False),
+                                ('full', 'cancelled', False), ('full', 'skipped', False),
+                                ('not-applicable', 'skipped', True), ('not-applicable', 'success', False)]:
+        env = {**os.environ, 'PYTHON_MODE': mode, 'SELECTION': 'success', 'PYTHON_PRODUCT_RESULT': state}
+        result = subprocess.run(['bash', '-e', '-c', script], cwd=ROOT, env=env, capture_output=True)
+        assert (result.returncode == 0) == passed
+    download = next(s for s in aggregate['steps'] if s.get('name') == 'Download successful Python shard markers')
+    verify = next(s for s in aggregate['steps'] if s.get('name') == 'Require all four Python shards')
+    assert download['if'] == verify['if'] == "needs.selection.outputs.python_mode == 'full'"
+    assert download['with']['pattern'] == 'python-shard-*'
+    check = verify['run'].replace('${{ runner.temp }}', str(tmp_path))
+    for shard in range(1, 5):
+        path = tmp_path / 'python-shards' / f'python-shard-{shard}' / 'success'
+        path.parent.mkdir(parents=True)
+        path.write_text(f'{shard}\n')
+    def succeeds():
+        return subprocess.run(['bash', '-c', check], capture_output=True).returncode == 0
+    assert succeeds()
+    for shard in range(1, 5):
+        path = tmp_path / 'python-shards' / f'python-shard-{shard}' / 'success'
+        path.unlink()
+        assert not succeeds()
+        path.write_text('wrong\n')
+        assert not succeeds()
+        path.write_text(f'{shard}\n')

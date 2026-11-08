@@ -70,10 +70,6 @@ governed project execution evidence.
 
 ## 5. Closeout
 
-- Lifecycle states were preserved.
-- No candidate rows, blocker queues, dependency registers, review findings,
-  production code, schemas, tests, CI workflows, release records, acceptance
-  records, or professional-boundary decisions were changed.
 - Current technical evidence supports treating the specific `TP-VERIFY-010`
   headless regression and mechanics rerun concern as resolved for current
   audit evidence.

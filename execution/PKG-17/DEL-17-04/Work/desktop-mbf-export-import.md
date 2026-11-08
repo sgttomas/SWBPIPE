@@ -1,5 +1,11 @@
 # Desktop MBF export and import (RT-R7, RT-R8)
 
+**Current verification limit.** RT-R8's "connected" status is source/test
+evidence. No current-source real App walkthrough has been performed in this
+work. The next selected integration check must exercise that actual App path;
+this note supplies neither a reference-system round trip nor criterion-6
+qualification. The remaining refusals in the import Design still stand.
+
 **Basis:** `main` at `153485db8c`. The SI writer `core/handoff/caepipe_mbf/si_writer.py`
 (#1652, profile `caepipe-mbf-si-pilot-1`), the importer `importer.py`, tranches 1–3 (#1670,
 #1685, #1697), the authored cases (#1702), and the import Design `caepipe-mbf-import.md`
@@ -9,7 +15,7 @@ and RT-R8 (Must) and exit criterion 6. File names follow DEL-07-01 `Work/export-
 Slice 5's design (§4, §4.8, 2026-11-07) reads source on `main` at `b06e1da32`. Its implementation (§4.9) is on the
 slice-5 PR, from `main` at `394f4c623`.
 
-This is a design before implementation, drafted for Agent 0 and independent review. Risk class:
+This design was drafted before implementation for Agent 0 and independent review. The implemented desktop export and import scope is recorded in the ScopeOfWork and §4.9; the remaining coverage limits are recorded in §1.4 and §5. Risk class:
 persistence, file writes and numerical meaning. Standard claim fence applies (claims taxonomy
 per DEC-081). Nothing here records or implies acceptance, issuance or release, which remain
 the owner's acts (F-PIP-3).
@@ -21,7 +27,7 @@ This design sits beside the import Design in DEL-17-04, for two reasons:
 - the release target names DEL-17-04 as the owner of both rows;
 - every decision here rests on the contracts of the writer and the importer.
 
-Two current texts place the desktop part elsewhere:
+At the time of drafting, two texts placed the desktop part elsewhere:
 
 - **DEL-17-04.** CLM-008 says the deliverable "shall not implement … GUI behavior". CLM-012
   says "A desktop MBF import action would belong to DEL-07-12 and is not part of this
@@ -2756,18 +2762,22 @@ Criterion 6 is not claimed.
 
 ### 8.1 For Agent 0
 
-**Ruled by Agent 0, 2026-10-28.** The table keeps the proposals; where a ruling differs, the
-ruling governs.
+**Ruled by Agent 0, 2026-10-28; A-3 amended by the owner, 2026-11-08.** The table keeps the
+original proposals; where a ruling or the owner's later amendment differs, it governs.
 
 - **A-1:** the locality is accepted. The §8.3 texts take one independent review on their exact
   Old/New, then Agent 0's confirmation. Slices 4 and 5 wait for them; slice 2 does not.
 - **A-2:** accepted. Slices 2 and 3 take numerical review. Their parity bar is the whole
   committed MBF corpus, byte for byte both ways, plus the authored cases. The writer is ported
   after the SIF fix lands.
-- **A-3:** this reading is the criterion's own, so it narrows nothing.
+- **A-3 (amended by the owner, 2026-11-08; option 3, "Family list amended", of import
+  Design §20.5.13):**
   - "Must family" means every family the reference system contains under criterion 1, plus
-    the cases and combinations it holds; each traces to its Must row. The RT-row list in the
-    table is a cross-check, not the definition.
+    the cases it holds; each traces to its Must row. Combinations, which combine solved
+    results, are outside criterion 6's families; RT-A4 coverage is judged elsewhere.
+    The RT-row list in the original proposal table is a cross-check, not the definition.
+    The other refusals in import Design §20.5.10 still stand, so criterion 6 remains unmet.
+    No reference-system round-trip claim is made.
   - The identity set is as proposed, sections included, so Q-2's format 4 is a requirement.
   - The project id is excluded because it identifies the store's project, not a model entity,
     and an import must not collide with it (§4.4).

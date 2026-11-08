@@ -1,19 +1,14 @@
 ---
-doc_id: OPS-PUBLIC-ISSUE-TEMPLATES
-doc_kind: governance.public_issue_templates
-status: draft
-created: 2026-07-10
-deliverable_id: DEL-01-03
-refs:
-  - rel: governed_by
-    to: OPS-CONTRACT
-  - rel: implements
-    to: OPS-IP-DATA-BOUNDARY
-  - rel: informed_by
-    to: OPS-CONTRIBUTING
+name: swbpipe-public-issue-templates
+description: Explain the public issue forms and their contribution boundaries.
+metadata:
+  kind: instruction
+  surface: reference
 ---
 
 # Public Issue Templates
+
+This document is governed by [CONTRACT.md](../../docs/CONTRACT.md); is informed by [CONTRIBUTING.md](../../CONTRIBUTING.md).
 
 This directory holds the SWBPIPE **public issue templates** named as a
 PRD §22.6 deliverable ("Public issue templates"; completion-plan row E6 in the retired

@@ -7,11 +7,11 @@ target needs a 0.9.0 member. Release target `docs/RELEASE_TARGET_v1.0.md` §4, c
 6, 7 and 17.
 
 This document specifies one invented piping system that four exit criteria test
-against. The owner placed it in DEL-09-01 through Agent 0 (2026-10-31, P-1), replacing
-DEL-17-04 `Work/desktop-mbf-export-import.md` §5 O-1's assignment to W-17. It is a
-specification and a ledger. The model document itself is generated
-(`fixtures/reference_system/generate_reference_system.py`), and its run sheet will be
-`reference-system-run-sheet.md` beside this document.
+against. Under the owner's allocation through Agent 0 (2026-10-31, P-1),
+DEL-09-01 owns the specification and ledger, replacing DEL-17-04
+`Work/desktop-mbf-export-import.md` §5 O-1's assignment to W-17.
+The model document is generated (`fixtures/reference_system/generate_reference_system.py`);
+its run sheet is `reference-system-run-sheet.md` beside this document.
 
 Every value here is invented for this fixture: geometry, sections, material, loads,
 supports and spectra. Section sizes are deliberately non-standard. Nothing is taken from

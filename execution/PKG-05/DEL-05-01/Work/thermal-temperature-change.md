@@ -43,7 +43,7 @@ because it would move existing results; any effect on
 `apps/desktop/native-smoke/expected.json` or other frozen references is the
 owner's to decide.
 
-## 4. As built (S2; candidate, not yet integrated)
+## 4. As built (S2)
 
 The condition route is built on the pressure-free solve (DEL-02-01 Work
 `model-document-0.9.0.md` §10): `operating_conditions::resolution` forms each

@@ -44,11 +44,11 @@ panel.
 - A run opens it: the panel appears when the session's `running` flag turns
   true. The session turns that flag on before the run's first record replaces
   the previous one, so the panel keeps the record held at the start and never
-  shows it, or its events, as the new run's (Codex review r1 of #1665). Until
+  shows it, or its events, as the new run's. Until
   the new job reports, the panel reads **Starting** ("The solve was requested;
   its job has not reported a state yet."), shows no job id and offers Cancel,
   on every run: also on a first run or after a model reset, when the record
-  held at the start names no job (`not_started`; Codex review r2 of #1665).
+  held at the start names no job (`not_started`).
   A record built over the previous record's events, such as a cancellation
   before the start receipt, lists only its own events.
 - It stays open after the terminal state, so a completion, cancellation,
@@ -95,12 +95,12 @@ job reports.
   panel opens on Analyze → Run, shows the running stage, and its Cancel sends
   exactly one `cancel_preview_mechanics_job` with the job's token. It then
   shows the cancelled state, and Close dismisses it.
-- The rerun regressions (Codex review r1 of #1665): in
+- The rerun regressions: in
   `SolveProgressPanel.test.tsx`, a rerun after a failed and after a completed
   job shows Starting with Cancel and none of the previous job; a pre-start
   cancellation lists only its own event; a later restored record is hidden.
-  In `App.solveProgress.test.tsx`, Codex's probe: after a failed run and
+  In `App.solveProgress.test.tsx`, after a failed run and
   Close, a second run whose start receipt is deferred shows Starting, no job
-  id and an enabled Cancel, then the new job once it reports. Review r2 adds
-  Starting with Cancel on a first run and after a model reset (unit tests,
-  and Codex's App probe of a first run whose start receipt is deferred).
+  id and an enabled Cancel, then the new job once it reports. Unit tests cover
+  Starting with Cancel on a first run and after a model reset; the App test
+  covers a first run whose start receipt is deferred.

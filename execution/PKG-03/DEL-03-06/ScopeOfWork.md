@@ -194,7 +194,7 @@ This Scope of Work defines `DEL-03-06` in service of project scope [SOW-010] and
 >
 > Future authorized work may add schema/API notes if the model is exposed through persistence services, import/export, adapters, GUI services, or reports.
 
-- **AC-001** — The contract preserves accepted expansion-joint requirements and boundaries, including supplied-data-only values, explicit units and provenance, protected-content controls, missing-value diagnostics, the DEC-045 solver mapping and unresolved movement/hardware taxonomy, and no invented defaults or professional approval.
+- **AC-001** — The contract preserves accepted expansion-joint requirements and boundaries, including supplied-data-only values, explicit units and provenance, protected-content controls, missing-value diagnostics, the objective-connector solver mapping under the T4 rulings and unresolved movement/hardware taxonomy, and no invented defaults or professional approval.
 
 ## Production and Verification Method — Praxeology
 

@@ -88,8 +88,3 @@ New residual finding:
 TP-VERIFY-017 closes the three TP-VERIFY-016 command/evidence gaps as bounded
 remediation evidence. It does not support a passing integrated
 release-readiness profile because of `TP-VERIFY-017-RESIDUAL-001`.
-
-Lifecycle state, candidate rows, blocker queues, dependency records,
-implementation evidence rows, release records, acceptance records, CI
-workflows, release automation, signing, attestation, professional-boundary
-decisions, code-compliance decisions, and release claims were not changed.

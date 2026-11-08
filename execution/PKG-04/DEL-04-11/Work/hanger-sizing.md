@@ -7,12 +7,18 @@ hanger table."). Agent 0 (HELP_HUMAN) placed the scope in this new deliverable t
 SCA-015 on 2026-10-31 (D-1), adopted the method outlined by the lane's implementation
 manager as the basis for this text (D-4), decided the hanger library format 1.1.0 (D-2)
 and decided that a variable spring is modelled with its cold (preset) load (D-3, §11).
-Nothing is built. This design makes no acceptance, issuance or lifecycle statement
+Implemented increments and remaining work are described in §13 and §14.
+This design makes no acceptance, issuance or lifecycle statement
 (F-PIP-3). SWBPIPE computes mechanics; it does not determine code compliance or the
 suitability of any hanger. Standard claim fence applies (claims taxonomy per DEC-081).
 
 **Labels.** **[decided]**: settled here, with the reason. **[open]**: listed in §14 with
 its owner.
+
+**Selection constraint.** Do not wake or resume the hanger implementation lane
+until the owner selects it. Only the owner can release this constraint.
+Constant-effort publication repairs and documentation reconciliation do not
+authorize hanger sizing, preload or a new hanger task.
 
 **Sources.** Every rule below is a mechanics or arithmetic statement written for this
 design. No supplier catalogue, supplier selection procedure or standards text is used.

@@ -1,3 +1,10 @@
+---
+name: swbpipe-deliverables
+description: Query deliverable declarations without inferring acceptance or suitability.
+metadata:
+  kind: instruction
+  surface: tool
+---
 # Deliverable queries
 
 Run from the selected Git repository with Python 3 and PyYAML. The repository

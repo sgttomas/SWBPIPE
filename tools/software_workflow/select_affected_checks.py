@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# Narrowing what a change runs (a new documentary path, a skipped job, a looser
+# rule) needs independent review, using the model set by current session
+# steering, before merge. Unknown paths keep full coverage; the selector's tests
+# and completeness check enforce the rest.
 from __future__ import annotations
 
 import argparse
@@ -13,7 +17,8 @@ def select_checks(profile: dict, paths: list[str]) -> dict:
     selected: set[str] = set(profile.get("always_checks", []))
     reasons: dict[str, list[str]] = {}
     for rule in profile.get("path_rules", []):
-        matched = [path for path in paths if matches(path, rule.get("paths", []))]
+        matched = [path for path in paths if matches(path, rule.get("paths", []))
+                   and not matches(path, rule.get("exclude_paths", []))]
         if matched:
             for check_id in rule.get("checks", []):
                 selected.add(check_id)

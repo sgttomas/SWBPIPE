@@ -4,24 +4,27 @@ This design admits model-authored load combinations on the exact pressure
 route (EX, `3.0.0/exact_pressure_v3`) for FR-SOL-009 (PRD ~518). The PRD
 defines combinations and ranges over primitive solved cases.
 
-Today EX refuses every combination by name (PP `pressure_runtime.rs` ~337-343;
-`exact_admission.rs` `ExactFamily::Combination`). The pressure-free route (PF)
-already evaluates combinations through `core/loads/load_case_algebra`. This is
-W-16 slice b in `docs/COMPLETENESS_MAP.md` §4.3.
+At the W-16 slice b design basis, EX refused every combination by name (PP
+`pressure_runtime.rs` ~337-343; `exact_admission.rs` `ExactFamily::Combination`).
+The pressure-free route (PF) already evaluated combinations through
+`core/loads/load_case_algebra`. This is W-16 slice b in `docs/COMPLETENESS_MAP.md`
+§4.3; the as-built notes below record its implementation.
 
-Paths are relative to `projects/chirality-piping/`. PP is
+Paths are relative to the repository root. PP is
 `core/product_physics/src`; RE is `core/reporting/result_export/src`.
 
 ## 1. Inputs
 
 The input is the model's existing `combinations`, in the closed records of
-#1573 (DEL-04-07 `Work/pressure-contract.md` ~122-167). There are three bases:
+#1573 (DEL-04-07 `Work/pressure-contract.md` ~122-167). At that design basis there are three bases:
 - `mechanics`: a linear combination over primitive load cases;
 - `result_state_subtraction`;
 - `range_envelope`: over primitive load cases, with its mode.
 
-Operands are primitive load-case ids, as they are today (PP `validation.rs`
-~1973-1989, ~2142-2176). A combination cannot be an operand.
+At the W-16 slice b design basis, operands were primitive load-case ids
+(PP `validation.rs` ~1973-1989, ~2142-2176); a combination could not be an
+operand. The current nested-operand contract is in
+`absolute-sum-srss-combinations.md` §2 and §10.
 
 Each basis is evaluated by the same `load_case_algebra` functions PF uses. The
 dimension helper (PP `lib.rs` ~14241-14248) gains Pa, the unit of pressure-family
@@ -179,6 +182,15 @@ case's pressure regions.
 
 ## 4. Gates (mechanics basis only)
 
+**Open diagnostic-precedence question.** Trace the promised ordering below
+against the current EX dispatch and certificate readers before claiming it
+is implemented. The pending choices are to reconcile code with the declared
+order (Agent 0 recommendation), or ask the owner to amend the diagnostic
+promise. No specific alternative order has been approved and no complete
+runtime precedence reproduction is retained. Next actor: Agent 0 obtains the
+bounded source/behavior comparison and presents any required wording choice;
+the normative order below remains unchanged.
+
 The gates apply to `mechanics` combinations only, as on PF (~799-819).
 Subtraction and envelopes compare states and may legitimately span different
 stiffness.
@@ -255,7 +267,7 @@ to correspond to one authorable pressure-region topology.
 
 ## 5. Standing and wording
 
-A combination has no numerical check of its own:
+At the W-16 slice b design basis, a combination had no numerical check of its own:
 - **Product text.** It says its rows are "derived from case results". It
   never says "certified" (DEL-04-01 `kd5-nonlinear-active-set.md` R5
   ~259-264; `docs/claims_registry.md` ~143-162).

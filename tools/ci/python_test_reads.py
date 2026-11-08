@@ -22,7 +22,11 @@ or matches one of its roots:
   which it may load or run, transitively, with each one's own roots: an imported helper may read
   the test's inputs, and a loaded file holds a guard's scanning code.
 
-The Python job checks out the whole tree, so every root is a path a selected test can read.
+The Python job checks out the whole tree except the declarative `execution/` records
+(`DECLARATIVE_ROOT`), so every other root is a path a selected test can read. A test that reads
+execution/ fails there for the missing file; the maintained boundary guard
+(`tools/validation/execution_boundary.py`) rejects such product readers before that, and a
+changed execution/ path never selects a Python test (`declarative`).
 """
 import ast
 from fnmatch import fnmatchcase
@@ -38,6 +42,8 @@ REPOSITORY_CHECK_TESTS = ('tools/software_workflow', 'tools/deliverables', 'tool
                           'tests/test_release_candidate_scan.py', 'tests/test_repository_history.py')
 # The selector's own tests name paths as selection inputs, not reads; `tools/ci/` changes select them.
 SELECTOR_TESTS = 'tests/test_ci_'
+# Declarative specifications: absent from the Python product job's checkout, read only by document checks.
+DECLARATIVE_ROOT = 'execution/'
 # A test or a file it loads may declare reads its code cannot show; each entry must stay a tracked path or
 # a pattern whose literal prefix is tracked (`declaration_problems`).
 DECLARED_READS = 'CI_READS'
@@ -50,7 +56,7 @@ TEMP_FIXTURES = {'tmp_path', 'tmpdir', 'tmp_path_factory', 'tmpdir_factory'}
 OUTSIDE_CALLS = {'mkdtemp', 'gettempdir', 'TemporaryDirectory', 'NamedTemporaryFile', 'mktemp', 'home', 'which',
                  'getenv', 'expanduser'}
 PATH_TYPES = {'Path', 'PurePath', 'PosixPath', 'PurePosixPath'}
-SAME_PATH_CALLS = {'resolve', 'absolute', 'realpath', 'as_posix', 'relative_to', 'fspath', 'normpath', 'abspath'}
+SAME_PATH_CALLS = {'resolve', 'absolute', 'expanduser', 'realpath', 'as_posix', 'relative_to', 'fspath', 'normpath', 'abspath'}
 SCAN_METHODS = {'glob', 'rglob', 'iterdir'}
 OS_SCANS = {'walk', 'listdir', 'scandir'}
 SUBPROCESS_CALLS = {'run', 'check_output', 'check_call', 'call', 'Popen'}
@@ -86,6 +92,11 @@ def maintained_tests(project):
     return tuple(sorted(local for local in paths if is_test(local) and (project / local).is_file()
                         and not local.startswith(SELECTOR_TESTS)
                         and not any(local == suite or local.startswith(suite + '/') for suite in REPOSITORY_CHECK_TESTS)))
+
+
+def declarative(path):
+    """A path under the declarative specification tree, which no product test may read."""
+    return path.startswith(DECLARATIVE_ROOT)
 
 
 def is_pattern(root):
@@ -822,8 +833,47 @@ class _Reader:
             parent = self.parents.get(node)
             if isinstance(parent, kinds) and self.paths(parent) is not None:
                 continue
+            if self._structural_base(node):
+                continue
             found |= {text for text in paths if text != self.local}
         return found
+
+    def _structural_base(self, node):
+        """An assigned path used only to construct descendants or configure Python imports.
+
+        Reading/scanning the directory, passing it to an unknown consumer, or
+        returning it keeps the conservative directory dependency.
+        """
+        assignment = self.parents.get(node)
+        if not isinstance(assignment, (ast.Assign, ast.AnnAssign)) or assignment.value is not node:
+            return False
+        targets = assignment.targets if isinstance(assignment, ast.Assign) else [assignment.target]
+        if len(targets) != 1 or not isinstance(targets[0], ast.Name):
+            return False
+        references = [ref for ref in ast.walk(self.tree)
+                      if isinstance(ref, ast.Name) and isinstance(ref.ctx, ast.Load)
+                      and ref.id == targets[0].id and any(value is node for value in self._lookup(ref))]
+        if not references:
+            return False
+        for ref in references:
+            parent = self.parents.get(ref)
+            if isinstance(parent, ast.BinOp) and isinstance(parent.op, ast.Div) and parent.left is ref:
+                descendants = self.paths(parent)
+                if descendants and all(text.endswith('.py') for text in descendants):
+                    continue
+            if isinstance(parent, ast.Attribute) and parent.value is ref and parent.attr in {'parent', 'parents'}:
+                continue
+            # sys.path.insert/append receives a directory; actual imported files
+            # are followed by _closure, not every sibling document in that directory.
+            if isinstance(parent, ast.Call) and _attr(parent.func) == 'str':
+                parent = self.parents.get(parent)
+            if isinstance(parent, ast.Call) and isinstance(parent.func, ast.Attribute) \
+                    and _attr(parent.func.value) == 'path' and isinstance(parent.func.value, ast.Attribute) \
+                    and isinstance(parent.func.value.value, ast.Name) and parent.func.value.value.id == 'sys' \
+                    and parent.func.attr in {'insert', 'append'}:
+                continue
+            return False
+        return True
 
     def scans(self):
         """Directory scans and git pathspecs as path texts, and whether the code does not show one of them."""
@@ -928,7 +978,11 @@ class _Reader:
         dirs = ['', _parent(self.local)]
         for node in ast.walk(self.tree):
             if isinstance(node, ast.Call) and _attr(node.func) in {'insert', 'append', 'syspath_prepend'} and node.args:
-                for text in self.paths(node.args[-1]) or ():
+                argument = node.args[-1]
+                if isinstance(argument, ast.Call) and isinstance(argument.func, ast.Name) \
+                        and argument.func.id == 'str' and len(argument.args) == 1:
+                    argument = argument.args[0]
+                for text in self.paths(argument) or ():
                     if text != OUTSIDE and SLOT not in text:
                         dirs.append(text.strip('/'))
         return dirs
@@ -961,7 +1015,28 @@ def _load(target):
 
 
 def _path_annotation(arg):
-    return arg.annotation is not None and 'Path' in ast.unparse(arg.annotation)
+    def scalar(node):
+        if isinstance(node, ast.Constant) and isinstance(node.value, str):
+            try:
+                return scalar(ast.parse(node.value, mode='eval').body)
+            except SyntaxError:
+                return False
+        if isinstance(node, (ast.Name, ast.Attribute)):
+            return _attr(node) in PATH_TYPES | {'PathLike', 'WindowsPath', 'PureWindowsPath', 'PurePosixPath'}
+        if isinstance(node, ast.BinOp) and isinstance(node.op, ast.BitOr):
+            return scalar(node.left) or scalar(node.right)
+        if isinstance(node, ast.Subscript):
+            name = _attr(node.value)
+            values = node.slice.elts if isinstance(node.slice, ast.Tuple) else [node.slice]
+            if name == 'PathLike':
+                return True
+            if name in {'Optional', 'Union'}:
+                return any(scalar(value) for value in values)
+            if name == 'Annotated':
+                return scalar(values[0])
+        return False
+
+    return scalar(arg.annotation)
 
 
 def _parametrize_values(names, values, name):
@@ -1171,6 +1246,7 @@ def test_reads(project):
 def reading_tests(project, changed):
     """{test: changed paths it reads} for the maintained tests a change reaches."""
     selected = {}
+    changed = [path for path in changed if not declarative(path)]
     for test, roots in test_reads(project).items():
         hits = [path for path in changed if any(root_matches(path, root) for root in roots)]
         if hits:

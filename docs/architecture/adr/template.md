@@ -1,3 +1,10 @@
+---
+name: swbpipe-architecture-adr-template
+description: Provide a template for architecture decisions and their authority.
+metadata:
+  kind: example
+  surface: reference
+---
 # ADR-NNNN: <short decision title>
 
 | Field | Value |

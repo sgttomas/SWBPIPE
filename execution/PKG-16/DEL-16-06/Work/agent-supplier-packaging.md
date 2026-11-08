@@ -283,7 +283,7 @@ Their inclusion in the final app distribution and completeness of binary
 dependency notices remain for independent redistribution scrutiny; this task
 makes no legal sufficiency determination.
 
-## Checks and reconciliation for manager
+## Checks and remaining limits
 
 `PYTHONDONTWRITEBYTECODE=1 python3 tools/agent_supplier_resource_test.py`:
 17 offline invented-data tests pass, including committed dual-architecture

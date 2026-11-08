@@ -1,17 +1,14 @@
 ---
-doc_id: OPS-RELEASE-NOTES-V0-1-0-DRAFT
-doc_kind: engineering.release_notes_draft
-status: draft
-created: 2026-10-22
-deliverable_id: DEL-10-04
-refs:
-  - rel: instance_of
-    to: OPS-RELEASE-NOTES-TEMPLATE
-  - rel: governed_by
-    to: OPS-RELEASE-QUALITY-GATES
+name: swbpipe-release-notes-v0-1-0-draft
+description: Preserve the historical v0.1.0 release-notes draft and its stated limits.
+metadata:
+  kind: historical-source
+  surface: reference
 ---
 
 # SWBPIPE 0.1.0 Release Notes (Draft)
+
+This document is an instance of [RELEASE_NOTES_TEMPLATE.md](RELEASE_NOTES_TEMPLATE.md); is governed by [RELEASE_QUALITY_GATES.md](RELEASE_QUALITY_GATES.md).
 
 This is a draft prepared from `docs/RELEASE_NOTES_TEMPLATE.md` ahead of a
 release candidate. It is not a release and authorizes none: release,

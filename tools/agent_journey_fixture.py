@@ -50,7 +50,7 @@ from tools import agent_journey_memory_monitor as memory_monitor  # noqa: E402
 PROJECT = Path(__file__).resolve().parents[1]
 FIXTURE = PROJECT / "fixtures" / "model_operations" / "agent_w9a_journey.json"
 REFERENCES = PROJECT / "validation" / "references" / "w9_benchmarks" / "references.json"
-PIN = PROJECT / "execution" / "PKG-16" / "DEL-16-06" / "Work" / "agent-witness-pin.json"
+PIN = PROJECT / "fixtures" / "embedded_agent" / "agent-witness-pin.json"
 DRIVER = PROJECT / "apps" / "desktop" / "native-smoke" / "agent-journey.js"
 STEPS = ["new blank", "provider and start", "turn 1", "apply", "turn 2", "observe", "stop"]
 TURNS = [

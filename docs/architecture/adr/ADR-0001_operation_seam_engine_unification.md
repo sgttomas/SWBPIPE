@@ -1,3 +1,10 @@
+---
+name: swbpipe-adr-0001
+description: Record the accepted operation-seam engine-unification decision.
+metadata:
+  kind: instruction
+  surface: requirements
+---
 # ADR-0001: Operation-seam engine unification — wasm32 `operation_applier` as the sole browser-mode engine
 
 | Field | Value |

@@ -1,15 +1,9 @@
 ---
-doc_id: OPS-THEORY-LOAD-COMBINATIONS
-doc_kind: theory.note
-status: draft
-created: 2026-11-02
-updated: 2026-11-02
-deliverable_id: DEL-05-02
-package_id: PKG-05
-subject_deliverable: DEL-05-02
-release_target_rows:
-  - RT-A4
-  - RT-V1
+name: swbpipe-theory-load-combinations
+description: Explain load-combination semantics and evidence boundaries.
+metadata:
+  kind: explanation
+  surface: reference
 ---
 
 # Load Combinations

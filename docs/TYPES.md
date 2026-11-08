@@ -1,20 +1,19 @@
 ---
+name: swbpipe-types
+description: Define SWBPIPE domain terms, identities and status semantics.
+metadata:
+  kind: instruction
+  surface: requirements
+---
 
 Pressure applicability follows the [current pressure contract](../execution/PKG-04/DEL-04-07/Work/pressure-contract.md).
 `legacy_pressure_v1` is retired, including zero-pressure documents. References
 to pressure quantities or validation coverage below are subject to that current
 boundary and do not establish implemented T4 capability.
 
-doc_id: OPS-TYPES
-doc_kind: governance.types
-status: draft
-created: 2026-04-30
-refs:
-  - rel: governed_by
-    to: OPS-CONTRACT
----
-
 # TYPES — OpenPipeStress Domain Vocabulary and Identity
+
+This document is governed by [CONTRACT.md](CONTRACT.md).
 
 ## 1. Project hierarchy
 
@@ -127,7 +126,7 @@ not establish engineering suitability.
 
 ## 8. Canonical domain object registry
 
-The canonical machine-readable domain model is `schemas/model.schema.yaml`. It describes the model document the desktop opens, edits and saves and the solver reads (`openpipestress.product_preview.model`, version 0.6.0; owner OD-4, 2026-10-23), with `$defs/DesktopDocument` as the desktop's open and save profile. That schema uses JSON Schema 2020-12, is written as strict JSON syntax in a `.yaml` path, and is intentionally code-neutral: it defines public object structure, identifiers, references and unit-bearing values, and refers to the result and report records, but it does not bundle protected standards data, proprietary catalog values, code-specific allowables, SIF/flexibility tables, or compliance rules. Its `Quantity` is `{value, unit}`. The headless physical-to-analytical transform's reference format, with its dimensioned quantities, is `schemas/physical_transform_model.schema.yaml`.
+The canonical machine-readable domain model is `schemas/model.schema.yaml`. It describes the model document the desktop opens, edits and saves and the solver reads (`openpipestress.product_preview.model`, currently version 0.9.0; the desktop-model canonicality decision is owner OD-4, 2026-10-23), with `$defs/DesktopDocument` as the desktop's open and save profile. That schema uses JSON Schema 2020-12, is written as strict JSON syntax in a `.yaml` path, and is intentionally code-neutral: it defines public object structure, identifiers, references and unit-bearing values, and refers to the result and report records, but it does not bundle protected standards data, proprietary catalog values, code-specific allowables, SIF/flexibility tables, or compliance rules. Its `Quantity` is `{value, unit}`. The headless physical-to-analytical transform's reference format, with its dimensioned quantities, is `schemas/physical_transform_model.schema.yaml`.
 
 PKG-02 owns the canonical semantic dimension vocabulary in
 `schemas/units.schema.yaml` `DimensionId` (also used by the transform's

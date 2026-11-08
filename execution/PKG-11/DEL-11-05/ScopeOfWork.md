@@ -215,7 +215,7 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 
 > ##### Purpose
 >
-> Current deliverable obligation: Create onboarding path for new contributors using package/deliverable decomposition and governance docs. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> See CLM-010 for the current deliverable obligation and the historical setup boundary.
 >
 >
 > This procedure defines how to produce and verify the contributor onboarding tutorial draft for DEL-11-05 inside the deliverable working folder.
@@ -224,7 +224,7 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 
 > ##### Prerequisites
 >
-> Current deliverable obligation: Create onboarding path for new contributors using package/deliverable decomposition and governance docs. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> See CLM-010 for the current deliverable obligation and the historical setup boundary.
 >
 >
 > - The contributor has read the assigned brief and confirmed the write scope is only this deliverable folder.
@@ -281,7 +281,7 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 
 > ##### Verification
 >
-> Current deliverable obligation: Create onboarding path for new contributors using package/deliverable decomposition and governance docs. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> See CLM-010 for the current deliverable obligation and the historical setup boundary.
 >
 >
 > The setup is valid when all required files exist, dependency schema validation passes, the semantic lens and lensing register exist, run records are present, no out-of-scope file is modified, and `_STATUS.md` is set to `SEMANTIC_READY` only after those checks pass.
@@ -402,7 +402,7 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 
 > ##### Conflict Table (for human ruling)
 >
-> Current deliverable obligation: Create onboarding path for new contributors using package/deliverable decomposition and governance docs. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> See CLM-010 for the current deliverable obligation and the historical setup boundary.
 >
 >
 > No source conflicts were detected during setup. If future repo-level onboarding asks this deliverable to edit `CONTRIBUTING` or `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` directly, that is a scope change from the original setup session and must be routed for human approval.

@@ -41,7 +41,7 @@ Return deterministic changed-state/result evidence for the accepted change and h
 
 ### CLM-005 — DEL-16-06-REQ-005
 
-Embed a stock Codex app-server client over private stdio using the SWBPIPE-owned catalog in `Work/agent-capability-catalog.json` and the session contract in `Work/embedded-agent-host.md`. Validate and bind calls to the live webview session; all agent changes enter the existing review queue and require the person's explicit action through the sole operation engine. Preserve original agent attribution, current-model basis, bounded reads and truthful rejected, withdrawn, applied or unknown outcomes. Built-in shell, file/patch and web capabilities must be disabled and their actual isolation checked for the selected supplier pin. No direct autonomy, professional acceptance, issuance or release is conferred.
+Embed a stock Codex app-server client over private stdio using the SWBPIPE-owned catalog in `apps/desktop/src-tauri/resources/agent-capability-catalog.json` and the session contract in `Work/embedded-agent-host.md`. Validate and bind calls to the live webview session; all agent changes enter the existing review queue and require the person's explicit action through the sole operation engine. Preserve original agent attribution, current-model basis, bounded reads and truthful rejected, withdrawn, applied or unknown outcomes. Built-in shell, file/patch and web capabilities must be disabled and their actual isolation checked for the selected supplier pin. No direct autonomy, professional acceptance, issuance or release is conferred.
 
 ## Completion and Reliance Basis — Epistemology
 

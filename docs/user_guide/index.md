@@ -1,11 +1,9 @@
 ---
-doc_id: OPS-USER-GUIDE-SKELETON
-doc_kind: documentation.user_guide
-status: draft
-created: 2026-05-09
-deliverable_id: DEL-11-01
-package_id: PKG-11
-scope_item: SOW-033
+name: swbpipe-user-guide
+description: Guide model authoring, analysis and review under the product boundaries.
+metadata:
+  kind: instruction
+  surface: reference
 ---
 
 # SWBPIPE User Guide

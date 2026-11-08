@@ -1,17 +1,14 @@
 ---
-doc_id: OPS-RELEASE-NOTES-TEMPLATE
-doc_kind: engineering.release_template
-status: draft
-created: 2026-05-04
-deliverable_id: DEL-10-04
-refs:
-  - rel: governed_by
-    to: OPS-PROFESSIONAL-BOUNDARY
-  - rel: governed_by
-    to: OPS-RELEASE-QUALITY-GATES
+name: swbpipe-release-notes-template
+description: Provide a template for release scope, verification evidence and limitations.
+metadata:
+  kind: example
+  surface: reference
 ---
 
 # Release Notes Template
+
+This document is governed by [PRD §21 professional boundaries](PRD.md#21-professional-boundary-requirements); is governed by [RELEASE_QUALITY_GATES.md](RELEASE_QUALITY_GATES.md).
 
 Use this template for release-candidate notes and public release notes. Replace
 bracketed placeholders before publication. Keep unresolved decisions as `TBD`

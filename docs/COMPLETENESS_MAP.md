@@ -1,3 +1,10 @@
+---
+name: swbpipe-completeness-map
+description: Summarize implementation coverage and remaining development gaps.
+metadata:
+  kind: explanation
+  surface: reference
+---
 # SWBPIPE completeness and reconciliation map
 
 **Basis:** `origin/main` at `8a8a8b2584` (2026-10-23). Folded in since: W-4
@@ -6,6 +13,10 @@ PRD §14.4 topology, FR-MOD-007 and FR-RULE-003. This is a replaceable
 current-state record for the owner and the work plan. Replace it when the
 basis moves materially; do not append to it. It replaces the map at
 `7a780551f0`; Git holds that version.
+
+Tables and observations retain their stated basis unless a dated reconciliation updates a
+named row. For the current v1.0 capability account and open work, use
+`docs/RELEASE_TARGET_v1.0.md`; the native probes below remain historical evidence.
 
 It answers three questions:
 - Which intended outcomes does the product deliver today?
@@ -181,7 +192,7 @@ root. "Desktop `lib.rs`" is `apps/desktop/src-tauri/src/lib.rs`;
 | FR-SOL-006 (515) | Must | P | EX applies `boundary_motion` (`exact_admission.rs:106`). PF maps a support-targeted `imposed_displacement` primitive into the same prescribed reduction in both modes (PP `imposed_motion.rs`; DEL-04-03 Design `pf-imposed-displacement.md`). Nozzle movement against `validation/references/w16_imposed_motion` with PF/EX parity (`tests/w16_imposed_motion.rs`); W9-C on both routes. EX refuses the primitive by name (`EXACT_IMPOSED_DISPLACEMENT_PRIMITIVE_UNSUPPORTED`) | DEL-04-03, DEL-04-07, DEL-05-01, DEL-05-05 | Owner (OD-6 row 2): two stages (`DEL-04-07 Work/pressure-contract.md`, "Imposed displacement on the pressure-free route"). Stage 1 is built (W-16 slice a). Stage 2 is open: PF refuses motion in a model with nonlinear supports (`IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS`). |
 | FR-SOL-007 (516) | Must | D | Straight pipes and realized bends publish twelve global end rows per member and case (`element_global_end_force_v1`, `element_global_end_moment_v1`) beside their `element_local` rows on PF and EX, each F = Rᵀ f from the published local end rows (PP `lib.rs:12350` `append_element_global_end_results`, called at `:6551`); the readers check them (`result_export/src/global_end_evidence.rs`); tests `core/product_physics/tests/global_end_actions_runtime.rs` (both routes and modes: rotation, nodal balance, bend ends, EX wall axial, PF combinations, readers) and `tests/test_global_end_verifier.py`. Connectors publish global end actions (`:4511`) | DEL-04-01 | Design `global-end-actions.md` (REQ-004, the transform). Source-recovery publications omit the rows by the named rule `global_end_rows_published`. The dormant retained route carries them as named not-covered rows, re-registered in DEL-04-08 §8.20. |
 | FR-SOL-008 (517) | Must | D | `core/loads/stress_recovery`; `tests/t4_u6_section_bases.rs:270` | DEL-05-03 | Pressure stresses exist where pressure exists (EX). |
-| FR-SOL-009 (518) | Must | P | `core/loads/load_case_algebra`; `preview_physics_runtime.rs:597,682,709` | DEL-05-02 | EX refuses every combination (`pressure_runtime.rs:337-343`; `exact_admission.rs:229`). |
+| FR-SOL-009 (518) | Must | P | `core/loads/load_case_algebra`; ordinary EX admission in `core/product_physics/src/exact_admission.rs` and combination integration in `core/product_physics/src/exact_combinations.rs` | DEL-05-02 | Reconciled at main `125322d5e` (2026-11-08): the earlier blanket EX refusal is superseded. See RT-A4 for the five combination kinds and nested combinations on ordinary PF/EX, remaining reference-system coverage and retained-route refusals. |
 | FR-SOL-010 (519) | Should | D | `core/solver/curved_bend`; DEC-070 | DEL-03-03, DEL-04-07 | |
 | FR-SOL-011 (520) | Should | P | SIF → intensified measure (`preview_physics.rs:321-347`); `BRANCH_TOPOLOGY_INVALID` (W-8) | DEL-03-04 | Branch flexibility is not assembled (PP `lib.rs:12861`). EX refuses tees (`exact_admission.rs:205`). |
 | FR-SOL-012 (521) | Should | P | As FR-SOL-004: rigid and semi-rigid behaviour by the user's scale, with user dimensions and source notes; component weight at the centre of gravity as a nodal weight force plus r × F moments, replacing the mapped member's distributed self-weight (`self_weight.rs`; W-15 slice b, #1608; R10 convention, owner 2026-10-24) | DEL-03-05 | The eccentric reducer offset remains (slice c). |

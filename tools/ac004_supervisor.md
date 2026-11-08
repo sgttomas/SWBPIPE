@@ -1,3 +1,10 @@
+---
+name: swbpipe-ac004-supervisor
+description: Use the bounded AC-004 supervisor within the actual host grant.
+metadata:
+  kind: instruction
+  surface: tool
+---
 # AC-004 deadline supervisor
 
 `ac004_supervisor.py` runs one AC-004 payload on the T3 host's exclusive lane under a

@@ -1,6 +1,6 @@
 # F1 modal analysis: governing design
 
-**Status.** This is DEL-04-09's governing design for F1, modal analysis (natural frequencies and mode shapes). Scope entered by SCA-013 (`execution/_ScopeChange/SCA-013_2026-10-27_MODAL_ANALYSIS/DECISION.md`). Nothing is built. The decisions below are Agent 0's (HELP_HUMAN) of 2026-10-27, made under the owner's delegation in `loop/LOOP_INIT.md` (#1662), amended by Agent 0's decisions of 2026-10-31 on the dynamics lane's plan for v1.0 (`docs/RELEASE_TARGET_v1.0.md` RT-A7, exit criterion 1): the exact route on its own mass basis (D-r), nonlinear supports linearized at a named solved case (D-s), snubbers in the modal basis when requested (D-t), and the published-fixture review record (D-u); and participation on the uniform-support-motion excitation (D-v), from the DEL-04-10 review. This design makes no acceptance, issuance or lifecycle statement (F-PIP-3). Standard claim fence applies (claims taxonomy per DEC-081).
+**Status.** This is DEL-04-09's governing design for F1, modal analysis (natural frequencies and mode shapes). Scope entered by SCA-013 (`execution/_ScopeChange/SCA-013_2026-10-27_MODAL_ANALYSIS/DECISION.md`). Internal slices are built; public admission and every UI remain disabled (§5.3.9). The governing decisions are Agent 0's (HELP_HUMAN), made under the owner's delegation in `loop/LOOP_INIT.md` on 2026-10-27 and amended on 2026-10-31 for the dynamics lane's v1.0 plan (`docs/RELEASE_TARGET_v1.0.md` RT-A7, exit criterion 1). They include: the exact route on its own mass basis (D-r), nonlinear supports linearized at a named solved case (D-s), snubbers in the modal basis when requested (D-t), and the published-fixture review record (D-u); and participation on the uniform-support-motion excitation (D-v), from the DEL-04-10 review. This design makes no acceptance, issuance or lifecycle statement (F-PIP-3). Standard claim fence applies (claims taxonomy per DEC-081).
 
 **Basis.** It was researched against main `0280fd4486`, together with the PF Timoshenko design `execution/PKG-05/DEL-05-03/Work/pf-timoshenko.md` (#1663, in review; not on main at that commit) and the feature survey `execution/_Coordination/PROPOSAL_2026-10-26_FEATURE_SURVEY.md` (#1657, open). Paths are relative to `projects/chirality-piping/` unless they start with `/`. "PP `lib.rs`" is `core/product_physics/src/lib.rs`.
 
@@ -11,6 +11,29 @@
 - **[open]**: listed in §9, with its owner.
 
 ---
+
+## Current assurance question and recovery
+
+REQ-005 says the separate readers rederive total/free-DOF mass "from the
+model", but its closing sentence scopes rederivation to the document's formed
+mass and shapes. The implemented payload check cannot detect a coherently
+wrong mass formation with matching totals. This is an unresolved assurance
+gap and an ambiguity in the requirement, not reader independence from the
+formation source.
+
+The options for the owner are to retain the stronger model-derived assurance
+and implement it (Agent 0's recommendation), or explicitly amend the promise
+to payload-derived checking and state its independence limit. No weaker
+wording has been adopted. Next actor: Agent 0 presents the source-grounded
+choice to the owner before treating REQ-005 as satisfied.
+
+Public admission remains disabled under §5.3.9. The revised normalization
+criterion distinguishes axis-aligned zero components from a skew physical
+vector constraint; AC-006's nonzero skew-residual witness is still unmet.
+The existing closure accounting below governs the next internal unit; neither
+the prose cleanup nor #164's three closed terms supplies the remaining proof.
+[Original composition-00832 AC-004 observation](https://github.com/sgttomas/SWBPIPE/tree/dc037b5495ccd6fa35fb04758edbcdb019021bba/modal)
+is retained for its historical source only. It authorizes no new witness run.
 
 ## 0. Scope
 

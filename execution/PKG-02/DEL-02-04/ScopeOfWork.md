@@ -368,7 +368,6 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 > - Future manifest/schema review record should identify the approved fields or explicit `TBD` placeholders for plugin identity/version, extension declarations, schema/envelope version, capability declarations, provenance/data-boundary declarations, diagnostics compatibility, and review/status metadata.
 > - Future canonicalization/hash verification record should identify the manifest or payload schema version, canonicalization basis, sample invented fixtures, expected hashes, and unresolved `TBD` items when JSON hashing is required.
 > - Future sandbox/privacy verification record should document rule-pack-facing sandbox tests, denied arbitrary-code/filesystem/network paths, capability-grant review evidence, and any approved exception for telemetry-facing or private-data exposure.
-> - `_run_records/TASK_RUN_*.md` records the TASK execution, sources consulted, outputs, QA checks, and warnings.
 > - `_STATUS.md` records the safe lifecycle update when the current state permits it.
 
 - **VER-001** — Validate the contracts and review source parity, extension-point and permission boundaries, no-bypass behavior, structured diagnostics, private-data controls, and absence of protected content or authority expansion.

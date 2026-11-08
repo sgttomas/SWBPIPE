@@ -169,11 +169,18 @@ give distinct tokens. For example, `combination:EQ/X` gives `combination:EQ~2FX`
 `combination:EQ-X`. An id of safe characters is its own token, so existing operation ids are
 unchanged. Target ids and payload values are never encoded.
 
-**Remaining limit.** The primitive-load operations join two tokens, the case's and the
-primitive's, with `-`, as before (`<case>-<primitive>-primitive`), and `-` is a safe
-character. Two different pairs can therefore still join to the same text. Changing that join
-would change every published primitive operation id: the e2e smoke and `SMOKE.md` record
-them. It is left as it was.
+**Open pair-collision choice (CLM-005).** The primitive-load operations join
+case and primitive tokens with `-`, which the encoder preserves. `(a-b, c)`
+and `(a, b-c)` both become `a-b-c-primitive`; magnitude/delete pairs have the
+same ambiguity. This is a source-derived finding, not a runtime reproduction.
+Changing the join changes published primitive operation IDs in the e2e smoke
+and `SMOKE.md`.
+
+The proposed resolution is reversible pair encoding and a collision regression
+while retaining CLM-005 (Agent 0 recommendation). Narrowing the distinct-ID
+promise is the alternative and needs an owner decision; none is recorded.
+Next actor: Agent 0 scopes the repair or presents a proposed narrowing to the
+owner. Individual-token reversibility above does not establish pair uniqueness.
 
 ## 6. Evidence
 

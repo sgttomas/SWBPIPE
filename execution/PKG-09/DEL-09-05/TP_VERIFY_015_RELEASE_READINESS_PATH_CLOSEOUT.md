@@ -41,9 +41,5 @@ The readiness script now derives the approved dependency graph from
 
 ## 5. Closeout
 
-- Lifecycle states were preserved.
-- No candidate rows, blocker queues, dependency registers, review findings,
-  production code, schemas, CI workflows, release records, acceptance records,
-  or professional-boundary decisions were changed.
 - Human-owned release governance remains open and blocks any release-gate
   acceptance claim.

@@ -1,23 +1,15 @@
 # Skewed restraints (R-6, R-7): build design, shared interface and first-implementation brief
 
-> **Status: candidate design, revision 3.**
-> - Revision 1 (`24f343662`) was reviewed independently (gpt-6-astra, medium) with no P0.
-> - Revision 2 (`fd9710a72`) applied that review. A focused confirmation closed most of it and
->   left four items.
-> - Revision 3 fixes those four:
->   - the attribution numerator and quotient are range-safe up to the published values (§7.2,
->     §10.5);
->   - S-K3's radius is taken about τ_b (§8.3);
->   - the restricted rescale w is used for the pivot and for Q on F (§5.1, §8.3);
->   - the Cholesky factor of D K′ D is D L D (§4.3).
->
-> A narrow independent confirmation of revision 3 closed every finding; only the signed-range
-> wording (absolute values) was corrected after it. Design and references only: no product
-> or kernel code is changed by it. It builds on the adopted kernel design (DEL-05-02 Work
-> `operating-case.md` §0 rows R-6, R-7 and "Skew kernel scheduled"; §2.1–§2.6; §6.2) and
-> does not reopen it. It changes numerical meaning when built, so it takes targeted references
-> (`validation/references/skew_restraints/`) and independent review before any implementation.
-> Nothing here records or implies acceptance, issuance or release (F-PIP-3).
+The design builds on the adopted kernel design (DEL-05-02 Work
+`operating-case.md` §0 rows R-6, R-7 and "Skew kernel scheduled"; §2.1–§2.6;
+§6.2). Its attribution numerator and quotient are range-safe up to the
+published values (§7.2, §10.5); S-K3's radius is taken about τ_b (§8.3); the
+restricted rescale w is used for the pivot and for Q on F (§5.1, §8.3); and
+the Cholesky factor of D K′ D is D L D (§4.3). The design changes numerical
+meaning when built, requiring targeted references
+(`validation/references/skew_restraints/`) and independent review before
+implementation. S-K1's as-built scope is recorded in §16; S-K2 to S-K5 remain
+designed.
 
 **Basis.** Code at main `e6579eef5`. Line numbers refer to that revision. Short names are as in
 `operating-case.md`: PP `core/product_physics/src`, FK `core/solver/frame_kernel/src`, LSUP

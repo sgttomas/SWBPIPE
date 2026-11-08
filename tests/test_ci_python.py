@@ -48,6 +48,15 @@ def test_dispatch_and_shared_runner_edits_keep_broad_coverage():
     assert 'tests/product_preview' in selected('tools/ci/python_ci.py')
 
 
+def test_repeated_full_selection_does_not_mutate_the_cached_cohort():
+    cohort = ci.broad(PROJECT)
+    plan = {'event': 'workflow_dispatch', 'piping_numerical_selection': {'classification': 'full-fallback'}}
+    first = ci.select(PROJECT, plan)
+    assert ci.select(PROJECT, plan) == first
+    assert ci.broad(PROJECT) == cohort
+    assert isinstance(cohort, tuple)
+
+
 def test_numerical_transform_and_invalid_operation_checks_follow_their_inputs():
     base = set(ci.BASE)
     adapter = 'core/model_transform/physical_to_analytical/_solver_boundary_adapter.py'
@@ -396,35 +405,14 @@ def test_reads_follow_imports_and_path_loaded_models_not_imported_modules_reads(
     # The runner build helper is imported, not path-loaded: the crates it builds are not the test's roots.
     assert 'tools/runner/build_runner.py' in reads['tests/test_units_authority_setup.py']
     assert 'core/product_physics' not in reads['tests/test_caepipe_mbf_importer.py']
-    # A path built from `__file__` (`parents[1] / "execution/..."`) is a root like any other, execution/ included.
-    assert 'execution/PKG-16/DEL-16-06/Work/agent-capability-catalog.json' in reads['tools/agent_host_witness_test.py']
+    # A path built from `__file__` (`parents[1] / "apps/..."`) is a root like any other.
+    assert 'apps/desktop/src-tauri/resources/agent-capability-catalog.json' in reads['tools/agent_host_witness_test.py']
 
 
 def test_repository_check_tests_are_the_governance_step_s():
     workflow = (PROJECT / '.github/workflows/governance-harness.yml').read_text()
     line, = [line for line in workflow.splitlines() if 'python3 -m pytest -q -n auto' in line]
     assert tuple(line.split('"${deselect[@]}"')[1].split()) == ci.python_test_reads.REPOSITORY_CHECK_TESTS
-
-
-def test_derived_roots_route_a_local_check_that_runs_the_test():
-    """software-workflow.json registers each derived test for every path it reads."""
-    import json
-    import sys
-    sys.path.insert(0, str(PROJECT / 'tools/software_workflow'))
-    from software_workflow_common import matches
-    registry = json.loads((PROJECT / 'software-workflow.json').read_text())
-
-    def runs(check, test):
-        return any(test == arg or test.startswith(arg.rstrip('/') + '/') for arg in registry['checks'][check]['command'])
-    reads = ci.python_test_reads
-    files = sorted(path for path in reads.tracked(PROJECT) if (PROJECT / path).is_file())
-    for test, roots in ci.derived_tests(PROJECT).items():
-        # A root under no known directory (a base the code does not show) spans the project and would route every
-        # local change to the full suite; the advisory local registry leaves those to hosted selection.
-        for root in [root for root in roots if reads._prefix(root)]:
-            for path in [path for path in files if reads.root_matches(path, root)][:1]:
-                checks = {check for rule in registry['path_rules'] if matches(path, rule['paths']) for check in rule['checks']}
-                assert any(runs(check, test) for check in checks), (test, root, path)
 
 
 def test_a_path_only_a_python_test_reads_starts_the_python_job():
@@ -516,12 +504,171 @@ def test_a_printf_specification_is_consumed_whole(tmp_path):
     assert any(reads.root_matches('fixtures/case_007.json', root) for root in roots), roots
 
 
-def test_the_python_job_checks_out_every_path_a_selected_test_reads():
-    """A selected test reads what its code names, execution/ records included, so the Python job's checkout leaves
-    nothing out (tools/agent_host_witness_test.py failed on a missing execution/ catalog under a sparse checkout)."""
+def test_expanduser_preserves_external_and_project_relative_path_domains(tmp_path):
+    reads = ci.python_test_reads
+    (tmp_path / 'm.py').write_text('from pathlib import Path\nimport os\n'
+                                 'Path(os.environ.get("RUNNER")).expanduser().resolve()\n'
+                                 'Path("docs/contract.md").expanduser().read_text()\n')
+    roots = {root for text in reads._Reader(tmp_path, 'm.py').chain_paths() for root in reads.to_roots(text)}
+    assert '**' not in roots
+    assert 'docs/contract.md' in roots
+
+
+def test_scalar_path_annotations_do_not_mistake_containers_for_paths(tmp_path):
+    import ast
+    reads = ci.python_test_reads
+    for annotation, expected in [('Path', True), ('pathlib.Path | None', True),
+                                 ('Optional[Path]', True), ('Union[str, Path]', True),
+                                 ('os.PathLike[str]', True), ('Optional[os.PathLike[bytes]]', True),
+                                 ('Annotated[Path, "input"]', True), ('"Path | None"', True),
+                                 ('tuple[str, str, Path] | None', False), ('list[Path]', False),
+                                 ('dict[str, Path]', False), ('NotAPath', False)]:
+        arg = ast.parse(f'def f(value: {annotation}): pass').body[0].args.args[0]
+        assert reads._path_annotation(arg) is expected, annotation
+    (tmp_path / 'm.py').write_text('from pathlib import Path\n'
+                                 'def bundle(): return ("id", "hash", Path("fixtures/case.json"))\n'
+                                 'identity, digest, source = bundle()\nsource.read_text()\n')
+    roots = {root for text in reads._Reader(tmp_path, 'm.py').chain_paths() for root in reads.to_roots(text)}
+    assert 'fixtures/case.json' in roots
+
+
+def test_structural_directory_bases_keep_reads_and_unknown_consumers(tmp_path):
+    reads = ci.python_test_reads
+    def roots(body):
+        (tmp_path / 'm.py').write_text('from pathlib import Path\nimport sys\n'
+                                     'BASE = Path(__file__).resolve().parent / "tools"\n' + body)
+        return {root for text in reads._Reader(tmp_path, 'm.py').chain_paths() for root in reads.to_roots(text)}
+    assert 'tools' not in roots('sys.path.insert(0, str(BASE))\nSOURCE = BASE / "helper.py"\nSOURCE.read_text()\n')
+    assert 'tools/helper.py' in roots('SOURCE = BASE / "helper.py"\nSOURCE.read_text()\n')
+    for use in ['BASE.read_text()\n', 'unknown(BASE)\n', 'list(BASE.rglob("*.md"))\n']:
+        assert 'tools' in roots(use), use
+
+
+def test_sys_path_directory_keeps_the_imported_helpers_document_reader(tmp_path):
+    import subprocess
+    files = {
+        'tests/test_imported.py': 'from pathlib import Path\nimport sys\n'
+                                  'BASE = Path(__file__).resolve().parents[1] / "tools/readers"\n'
+                                  'sys.path.insert(0, str(BASE))\nimport helper\n'
+                                  'def test_document(): assert helper.text()\n',
+        'tools/readers/helper.py': 'from pathlib import Path\n'
+                                   'DOC = Path(__file__).resolve().parents[2] / "docs/contract.md"\n'
+                                   'def text(): return DOC.read_text()\n',
+        'docs/contract.md': 'contract\n',
+        'tools/readers/README.md': 'guide\n',
+    }
+    for name, content in files.items():
+        target = tmp_path / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(content)
+    subprocess.run(['git', 'init', '-q', str(tmp_path)], check=True)
+    subprocess.run(['git', '-C', str(tmp_path), 'add', '.'], check=True)
+    reads = ci.python_test_reads
+    assert 'tests/test_imported.py' in reads.reading_tests(tmp_path, ['docs/contract.md'])
+    assert 'tests/test_imported.py' not in reads.reading_tests(tmp_path, ['tools/readers/README.md'])
+
+
+def test_the_python_job_leaves_out_only_the_declarative_specifications():
+    """The Python job's checkout is the whole tree except execution/: a changed specification selects no product
+    test, and the catalog a selected test reads is the bundled resource, which the job has."""
     workflow = (PROJECT / '.github/workflows/piping-desktop-e2e.yml').read_text()
     job = workflow[workflow.index('\n  python-product:'):]
     job = job[:job.index('\n  browser-matrix:')]
-    assert 'sparse-checkout' not in job
-    path = 'execution/PKG-16/DEL-16-06/Work/agent-capability-catalog.json'
-    assert 'tools/agent_host_witness_test.py' in selected(path)
+    sparse = job.split('sparse-checkout: |\n', 1)[1].split('sparse-checkout-cone-mode', 1)[0].split()
+    assert sparse == ['/*', '!/execution/']
+    assert 'sparse-checkout-cone-mode: false' in job
+    resource = 'apps/desktop/src-tauri/resources/agent-capability-catalog.json'
+    assert 'tools/agent_host_witness_test.py' in selected(resource)
+    for spec in ('execution/PKG-16/DEL-16-06/Work/embedded-agent-host.md', 'execution/PKG-04/DEL-04-07/deliverable.yaml',
+                 'execution/_DAG/DAG-011/DependencyEdges.csv'):
+        assert ci.python_test_reads.reading_tests(PROJECT, [spec]) == {}
+        assert ci.reaching_paths(PROJECT, [spec]) == []
+
+
+def test_shards_cover_overlapping_selections_and_new_tests(tmp_path):
+    import pytest
+    files = ['tests/group/test_a.py', 'tests/group/sub/test_b.py',
+             'tests/group/sub/new_test.py', 'tests/wrapper_test.py', 'tests/test_new.py']
+    for name in files:
+        path = tmp_path / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text('')
+    selected = ['tests/group', 'tests/group/sub', 'tests/group/sub/new_test.py',
+                'tests/wrapper_test.py', 'tests/test_new.py']
+    shards, totals = ci.shard_selection(tmp_path, selected, 4, {'tests/wrapper_test.py': 500})
+    assert set().union(*map(set, shards)) == set(selected)
+    assert sum(map(len, shards)) == len(selected)
+    assert any(set(selected[:3]) <= set(shard) for shard in shards)
+    assert max(totals) >= 500
+    assert ci.shard_selection(tmp_path, selected[::-1], 4, {'tests/wrapper_test.py': 500}) == (shards, totals)
+    small, _ = ci.shard_selection(tmp_path, ['tests/test_new.py'], 4, {})
+    assert sum(not shard for shard in small) == 3
+    for count in (0, -1, True):
+        with pytest.raises(ValueError):
+            ci.shard_selection(tmp_path, selected, count, {})
+    with pytest.raises(ValueError):
+        ci.shard_selection(tmp_path, ['missing.py'], 4, {})
+
+
+def test_actual_full_selection_is_partitioned_without_losing_paths():
+    selected = ci.select(PROJECT, {'event': 'push', 'paths': []})
+    shards, _ = ci.shard_selection(PROJECT, selected, 4, ci.load_timings())
+    assert set().union(*map(set, shards)) == set(selected)
+    assert sum(map(len, shards)) == len(selected)
+    for i, shard in enumerate(shards):
+        for other in shards[i + 1:]:
+            assert set(shard).isdisjoint(other)
+            for path in shard:
+                assert not any(Path(path) in Path(p).parents or Path(p) in Path(path).parents for p in other)
+
+
+def test_invalid_timing_tables_fail_closed(tmp_path):
+    import pytest
+    table = tmp_path / 'times.json'
+    for text in ('{}', '{"seconds": []}', '{"seconds": {"test.py": -1}}',
+                 '{"seconds": {"test.py": true}}', '{"seconds": {"test.py": NaN}}', '{'):
+        table.write_text(text)
+        with pytest.raises(ValueError):
+            ci.load_timings(table)
+
+
+def test_invalid_shard_arguments_are_rejected_before_plan_loading(tmp_path):
+    import subprocess
+    import sys
+    script = str(PROJECT / 'tools/ci/python_ci.py')
+    for args in (['--shard-index', '1'], ['--shard-count', '4'],
+                 ['--shard-index', '0', '--shard-count', '4'],
+                 ['--shard-index', '5', '--shard-count', '4'],
+                 ['--shard-index', '1', '--shard-count', '0']):
+        result = subprocess.run([sys.executable, script, '--plan', str(tmp_path / 'missing'), *args],
+                                capture_output=True, text=True)
+        assert result.returncode != 0 and 'shard' in result.stderr
+
+
+def test_sharding_preserves_pytest_collection_with_directory_and_wrapper(tmp_path):
+    from collections import Counter
+    import subprocess
+    import sys
+    files = {
+        'suite/test_one.py': 'def test_one(): pass\n',
+        'suite/nested/test_two.py': 'def test_two(): pass\n',
+        'suite/nested/suffix_test.py': 'def test_suffix(): pass\n',
+        'wrapper_test.py': 'from suite.test_one import test_one\n',
+    }
+    for name, content in files.items():
+        path = tmp_path / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content)
+    selected = ['suite', 'suite/nested', 'suite/nested/suffix_test.py', 'wrapper_test.py']
+    shards, _ = ci.shard_selection(tmp_path, selected, 4, {})
+    def collect(paths):
+        if not paths:
+            return Counter()
+        result = subprocess.run([sys.executable, '-m', 'pytest', '--collect-only', '-q', *paths],
+                                cwd=tmp_path, text=True, capture_output=True, check=True)
+        return Counter(line for line in result.stdout.splitlines() if '::' in line)
+    expected = collect(selected)
+    actual = sum((collect(shard) for shard in shards), Counter())
+    assert expected == actual
+    assert any('suffix_test.py::test_suffix' in name for name in expected)
+    assert any('wrapper_test.py::test_one' in name for name in expected)

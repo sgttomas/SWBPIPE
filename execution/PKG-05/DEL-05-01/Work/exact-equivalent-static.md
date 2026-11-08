@@ -1,14 +1,11 @@
 # Equivalent-static generation on the exact route
 
-This design admits a load case's `equivalent_static` generation on the exact
-pressure route (EX, `3.0.0/exact_pressure_v3`), for PRD §12.5 ("seismic
-static-equivalent load", "wind load") under DEC-068. Today EX refuses it by
-name (PP `pressure_runtime.rs` ~366-372; `ExactFamily::EquivalentStatic`),
-while the pressure-free route (PF) generates it
-(`append_equivalent_static_generated_loads`, PP `lib.rs` ~10192). It is W-16
-slice c in `docs/COMPLETENESS_MAP.md` §4.3. It ships in the same
-implementation as slice b (DEL-05-02 `Work/exact-combinations.md`), so the
-exact-route identity sentence changes once.
+The exact pressure route (EX, `3.0.0/exact_pressure_v3`) admits a load case's
+`equivalent_static` generation under DEC-068 for PRD §12.5 seismic and wind
+loads. The pressure-free route (PF) also generates these loads. Generation on
+load/reference-state documents is refused by name (§3). This is W-16 slice c
+in `docs/COMPLETENESS_MAP.md` §4.3; slice b is DEL-05-02
+`Work/exact-combinations.md`.
 
 Paths are relative to `projects/chirality-piping/`. PP is
 `core/product_physics/src`.

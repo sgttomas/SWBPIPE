@@ -2,7 +2,7 @@
 
 Serves RT-G2 and exit criterion 7. It closes gap G9 of the reference-system run sheet
 (DEL-09-01 `Work/reference-system-run-sheet.md` §6), where every queued single change was applied
-on its own. DEL-07-02 owns it (Agent 0, 2026-10-31), and DEL-16-03 was consulted on the acceptance
+on its own. DEL-07-02 owns the desktop behavior (Agent 0, 2026-10-31); DEL-16-03 describes its acceptance
 and receipt record. Desktop paths are relative to `apps/desktop/src/`.
 
 ## Behaviour

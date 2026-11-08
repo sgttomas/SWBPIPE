@@ -1,8 +1,9 @@
 ---
-doc_id: OPS-README
-doc_kind: governance.index
-status: current_index
-created: 2026-04-30
+name: swbpipe-overview
+description: Introduce SWBPIPE, its development status and documentation.
+metadata:
+  kind: explanation
+  surface: reference
 ---
 
 # SWBPIPE

@@ -2,9 +2,9 @@
 
 **Basis:** main `2d4b1bb4bb` (2026-10-26).
 
-**Status:** revision 2 of a design pass, PR #1649. It resolves Codex's design
-review r1 and applies Agent 0's rulings of 2026-10-26. Built in #1649 on the
-merge of main `b4b26cdd82` (#1630); §13 records what the build settled.
+**Implementation basis:** Built in #1649 on the merge of main `b4b26cdd82`
+(#1630); §13 records what the build settled. Section 0 records the rulings of
+2026-10-26.
 
 **Lineage:** it follows the 0.6.0 → 0.7.0 precedent of
 [`model-document-0.7.0.md`](model-document-0.7.0.md) §2 (W-13 S1b, #1564). The

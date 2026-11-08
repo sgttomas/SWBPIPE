@@ -30,9 +30,8 @@ chose the recommended option in all four choices:
 `swbpipe-<kind>[-<qualifier>].csv`, with no project or model identity. This
 design does not restate that rule.
 
-**Commitment text.** HELP_HUMAN decided the R14, AC-002 and VER-002 text under
-the owner's 2026-10-27 delegation, after three Codex wording rounds. No
-governed scope change is needed, because DEL-08-04 already owns RT-R6.
+**Commitment text.** HELP_HUMAN decided R14, AC-002 and VER-002 under the
+owner's 2026-10-27 delegation; they carry the adopted RT-R6 scope.
 
 ## 2. Tables
 
@@ -260,33 +259,28 @@ tree, the library, units and split into parts.
 
 1. **Docs.** This design and the ScopeOfWork text.
 2. **Serializer, guard and route.**
-   - The serializer and the formula guard.
-   - `DOTH-CSV-011` in the three catalogues.
-   - Checks:
+   - Checks for the serializer, formula guard and `DOTH-CSV-011` in the three
+     catalogues:
      - serializer tests: preamble and layout, units, identifiers, absent
        values, byte-order mark, CRLF, neutralization and determinism;
      - route-catalogue parity tests;
      - native-save tests: admission with explicit local-private intent, and
        rejection without it or for any other audience.
-   - Codex review, plus independent scrutiny for a persistence and permission
-     route (Root `AGENTS.md`).
 3. **Adapters and controls.**
-   - An adapter and an export control for every table in §2.
-   - Checks:
+   - Checks for the adapters and export controls for every table in §2:
      - per-table round-trip tests, comparing each parsed numeric field
        exactly with the table's conversion-function value in the displayed
        unit;
      - adapter tests for AC-001 and the R9/R12 boundary;
      - a guard test that lists every `<table` under `features/results` and
        `features/comparison`, and fails when one lacks CSV export.
-   - Built:
+   - Test coverage:
      - `csvTables.test.ts`: round trip and AC-001;
      - `csvTableCoverage.test.ts`: the guard;
      - `CsvExportControl.test.tsx`: the controls;
      - `reportQuantityDisplay.exact.test.ts`: the split is byte-identical;
      - `resultRowsCsv.test.tsx`: the `ResultsPanel` tables, one regression
        per conversion factor, with the panel's converter as the oracle.
-   - Codex review.
 4. **Streamed group CSV for a result held natively (C1, RT-U4).**
    - `resultGroupCsvStream.test.ts`: the parts equal `serializeCsvTable(resultGroupCsv(...))`
      byte for byte at page sizes 1 to 1,000, entered and converted units, one and mixed units,

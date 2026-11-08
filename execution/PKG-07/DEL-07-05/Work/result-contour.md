@@ -210,9 +210,7 @@ zero, overstating the result there. A gap shows only what the result states.
 For an unsigned quantity no such crossing is known, so the blend is kept, and
 the disclosure says it does not represent a signed result or its zero crossing.
 
-The rule was decided by the manager in review r1 and endorsed by Agent 0
-(2026-10-27). Review r2 added the end-convention conversion and the no-value
-interval for a sign that cannot be established.
+The rule was decided by the manager and endorsed by Agent 0 (2026-10-27).
 
 **One value per member** is the special case. Each member's value is the
 largest magnitude over all its rows, exactly as before this item. Its colour

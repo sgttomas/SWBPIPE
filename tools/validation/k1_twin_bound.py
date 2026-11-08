@@ -42,7 +42,7 @@ authored section, E, G, spring stiffness and gap clearance), never from either r
 family, the largest enclosure / S_f over every case and the a_f, r_f this justifies. It also reports the
 final states' active-set margins against the enclosure of their deciding quantity, and the coupled denominators.
 
-Run: python3 execution/PKG-04/DEL-04-07/Work/k1_twin_bound.py [--json]. Standard library only; no product code.
+Run: python3 tools/validation/k1_twin_bound.py [--json]. Standard library only; no product code.
 """
 from __future__ import annotations
 
@@ -55,7 +55,7 @@ from fractions import Fraction as F
 from itertools import product
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[4]
+ROOT = Path(__file__).resolve().parents[2]
 REF = ROOT / "validation/references/kd5_nonlinear"
 sys.dont_write_bytecode = True  # leave no cache beside the frozen reference
 _spec = importlib.util.spec_from_file_location("kd5_reference", REF / "reference.py")
