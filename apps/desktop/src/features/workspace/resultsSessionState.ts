@@ -1,3 +1,4 @@
+import type { ReportComposition } from "../report/reportComposition";
 import { currentSemanticContract } from "../results/resultReader";
 import { numericalResultStanding, type NumericalStanding } from "../results/resultStanding";
 import { numericalHealthHold, numericalHealthView, readNumericalHealth, type NumericalHealthHold } from "../results/numericalHealth";
@@ -167,6 +168,9 @@ export function useResultsSessionState() {
   const [solveProof, setSolveProof] = useState<SolveProofEvidence | null>(null);
   const [running, setRunning] = useState(false);
   const [solverMode, setSolverMode] = useState<PreviewSolverMode>("sparse_interactive");
+  const [reportComposition, setReportComposition] = useState<ReportComposition | null>(null);
+  const reportCompositionRef = useRef(reportComposition);
+  reportCompositionRef.current = reportComposition;
   const [reportPackagePrivateIntent, setReportPackagePrivateIntent] = useState(false);
   const [reportPackageBusy, setReportPackageBusy] = useState(false);
   const [reportPackageRedaction, setReportPackageRedaction] = useState<ControlledRouteExport | null>(null);
@@ -247,6 +251,7 @@ export function useResultsSessionState() {
     solveProof, setSolveProof,
     running, setRunning,
     solverMode, setSolverMode,
+    reportComposition, setReportComposition, reportCompositionRef,
     reportPackagePrivateIntent, setReportPackagePrivateIntent,
     reportPackageBusy, setReportPackageBusy,
     reportPackageRedaction, setReportPackageRedaction,

@@ -233,6 +233,7 @@ function AppSession() {
     solveProof,
     running,
     solverMode, setSolverMode,
+    reportComposition, setReportComposition,
     reportPackagePrivateIntent, setReportPackagePrivateIntent,
     reportPackageBusy,
     reportPackageRedaction,
@@ -913,6 +914,8 @@ function AppSession() {
                     projectSummary={projectSummary}
                     inputManifest={inputManifest}
                     ruleCheckRun={ruleCheckReportRun}
+                    reportComposition={reportComposition}
+                    onReportCompositionChange={setReportComposition}
                     packagePrivateIntent={reportPackagePrivateIntent}
                     packageBusy={reportPackageBusy}
                     packageRedaction={reportPackageRedaction}

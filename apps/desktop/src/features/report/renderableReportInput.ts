@@ -1,3 +1,4 @@
+import type { ReportComposition } from "./reportComposition";
 import { analysisResultHashScope } from "../results/analysisResultHashScope";
 import { documentCombinationIdentities, SUPPLEMENTAL_DIAGNOSTIC_LABEL, suppliedDiagnosticMessage } from "../results/suppliedDiagnostics";
 import type { NotNativeResult } from "../../services/nativeResult";
@@ -776,6 +777,7 @@ function userRuleChecks(run: SessionRuleCheckRun) {
 }
 
 type RenderableReportInputArgs = {
+  reportComposition?: ReportComposition | null;
   model: PreviewModel;
   result: MechanicsResult;
   analysisRun: AnalysisRunEnvelope;
@@ -851,11 +853,15 @@ async function renderableReportInput(
     ruleCheckRun = null,
     numericalHealth = null,
     exactAdmission = null,
-    libraryRefFindings = []
+    libraryRefFindings = [],
+    reportComposition = null
   }: RenderableReportInputArgs,
   userRelease: UserReleaseRecordValue | null
 ) {
   const minimal = userRelease !== null;
+  if (reportComposition && (minimal || renderContext.exportContext !== "local_private")) {
+    throw new Error("REPORT-COMPOSITION-CONTEXT-UNSUPPORTED: composition currently requires a local private report");
+  }
   const exact = isExactReportSource(result);
   // DEL-05-03 `pf-timoshenko.md` §4: a pressure-free Timoshenko source carries its
   // limitation 0 entry always, and its `pf_timoshenko` section when it took the admission
@@ -1089,6 +1095,7 @@ async function renderableReportInput(
   if (pfInputs) checkExactReportAdmission(exactAdmission, pfInputs);
 
   return {
+    ...(reportComposition ? { report_composition: reportComposition } : {}),
     report_title: `${model.project.name} — Calculation Report`,
     calculation_report: calculationReport,
     report_sections: reportSections,
