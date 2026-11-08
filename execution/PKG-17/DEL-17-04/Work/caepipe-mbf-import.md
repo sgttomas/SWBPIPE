@@ -5721,59 +5721,53 @@ Under every reading the rest of the reference system's refusals stand (§20.5.10
 
 #### 20.5.14 For Agent 0
 
-1. **The tiers and the matrix.** Tiers O-A and O-B stay proposed. §20.5.12 states each field's
-   prerequisites. On admitted evidence alone the smallest implementable subset writes no
-   operating case, and only its named refusals are implementable. What to request first, for
-   example the O-A constant-basis question, G-3 and G-8, is Agent 0's choice.
-2. **The sidecar.** `operating_map`, the O-A reference temperature and source-authenticated
-   import are an eligible proposal only (§20.5.7). Format 5 cannot carry an operating case. The
-   proposal is one source-bound format: folded into format 5 if it is adopted first, otherwise
-   format 6 superseding format 5. No store write and no format is adopted.
-3. **The downgrade without designation.** This design claims no protection against it (§20.5.7).
-   Two other policies are possible, each Agent 0's separate decision: requiring designation for
-   every bound import, which changes adopted format-4 behaviour and the implemented importer; and
-   O-6, which is not adopted. Whether a like question arises for a point-free Route 1 export
-   (§20.4.5) is not examined here, and §20.4 is not edited.
-4. **Criterion 6.** §20.5.13's options go to the owner.
-5. **G-9 and §9.4.** §9.4's claim is qualified as an unestablished dependency, with its history
-   kept. Implemented behaviour that rests on it is a separate reviewed repair if the opposite is
-   ever established, not a documentation edit. That behaviour is the writer's refusal reason, the
-   importer's empty region list on the expansion case and its code comment
-   (`importer.py:3779`). Whether to note the consultation in DEL-17-01
-   `Source_Basis_Register.md` is Agent 0's. The register is not edited here.
-6. **G-10.** The exact boundary-expansion proposal, the minimal facts and the draft CQ are in
-   §20.5.11. A boundary reading of the support-type rows comes first.
+Agent 0's paraphrased dispositions (a)–(g) govern this proposal:
+
+1. **The tiers and the matrix (a).** O-A and O-B remain PROPOSED, not adopted coverage.
+   §20.5.12 states each field's prerequisites. Admitted evidence justifies no operating
+   writer; only the named refusals are implementable, and the existing generic refusals
+   remain valid. Implementation and admission wait for the indispensable facts. What to
+   request first, including the O-A constant-basis question, G-3 and G-8, remains Agent 0's
+   choice.
+2. **The sidecar and one format (c).** `operating_map`, the O-A reference temperature and
+   source-authenticated import remain eligible proposals only (§20.5.7). Format 5 cannot
+   carry an operating case. The preference is one not-yet-adopted, source-bound format 5
+   incorporating the proved thermal and operating contract, with no format 6 while format 5
+   is unimplemented and unadopted. If format 5 ships first, a later extension needs an
+   explicit compatibility decision, with no silent expansion of the accepted set. No store
+   write or format is adopted. Independent persistence review precedes implementation.
+3. **The downgrade without designation (c).** This design claims no protection against it
+   (§20.5.7). Requiring designation for every bound import would change adopted format-4
+   behaviour and the implemented importer; that policy and O-6 remain separate Agent 0
+   decisions, and O-6 is not adopted. The format-4 downgrade limitation stays explicit;
+   provenance authenticity requires trusted selection. Whether a like question arises for a
+   point-free Route 1 export (§20.4.5) remains unexamined here; §20.4 is unchanged.
+4. **Criterion 6 (d).** The recommendation to the owner is option 1 of §20.5.13: keep the
+   criterion as written while missing evidence and coverage are pursued. This accepts
+   neither omissions nor a reduced family list. Sidecar ids, if carried, support identity
+   only, never mechanics. The owner alone accepts a limitation or amends the criterion.
+5. **G-9 and §9.4.** §9.4's claim remains qualified as an unestablished dependency, with its
+   history kept. If the opposite is established, the writer's refusal reason, the importer's
+   empty region list on the expansion case and its code comment (`importer.py:3779`) need a
+   separate reviewed implementation repair, not a documentation edit. Whether to record the
+   consultation in DEL-17-01 `Source_Basis_Register.md` remains Agent 0's choice; the register
+   is unchanged here.
+6. **G-10 (e).** The exact boundary-expansion proposal, minimal facts and draft CQ are in
+   §20.5.11. A boundary reading of the support-type rows comes first: a generic support-type
+   grant does not imply case-specific nonlinear solve state. The proposed `CAEPIPE-LOAD-CASES`
+   cell is an explicit boundary extension, pending focused IP/contract review and Agent 0's
+   adoption. No new content consultation now.
 7. **Reference-system dependencies outside this item.** These are weight form (Z vertical,
    `distributed_force` self-weight, component weights), the tee, the connector, the hanger,
    RS-SAM's boundary motion and third case, and RS-P180 (RT-K4). Each stays its own coverage
    tranche. None is assumed closed by this design.
-8. **Release limitations.** None is created or proposed here.
-
-**Agent 0's decisions on this section (2026-11-02, at `f340f782e`; paraphrase).**
-
-- **(a) Tiers.** O-A and O-B remain PROPOSED, not adopted coverage. The matrix shows that no
-  operating writer is currently justified; nothing is implemented or admitted until the
-  indispensable facts are established. The existing generic refusals remain valid.
-- **(b) No refusal-only implementation now.** The precise diagnostics of §20.5.12 fold into the
-  next substantive, eligible writer change, unless a current refusal actually misleads or loses
-  required data, which would be reported as a concrete defect.
-- **(c) One format.** The preference is one not-yet-adopted, source-bound format 5 that
-  incorporates the proved thermal and operating contract, with no format 6 while format 5 is
-  unimplemented and unadopted. No format is adopted. If format 5 ships first, a later extension
-  needs an explicit compatibility decision, with no silent expansion of the accepted set. The
-  format-4 downgrade limitation stays explicit, and no provenance authenticity is claimed
-  without trusted selection. An independent persistence review comes before implementation.
-- **(d) Criterion 6 stays as written.** The recommendation to the owner is option 1 of §20.5.13
-  while the missing evidence and coverage are pursued, not acceptance of the omissions or a
-  reduced family list. Sidecar ids, if carried, are identity support only, never mechanics. The
-  owner alone accepts a limitation or amends the criterion.
-- **(e) G-10.** A generic support-type grant does not imply case-specific nonlinear solve state.
-  The proposed `CAEPIPE-LOAD-CASES` cell is an explicit boundary extension, pending a focused
-  IP/contract review and Agent 0's adoption. No new content consultation now.
-- **(f) Next output.** One concise, owner-sendable question packet (not sent by an agent),
-  prioritising the constant-E selection, G-3 and the explicit OPTEMP field 2 and 3 encoding.
-- **(g) This section** may merge as a proposal-only design and evidence record. No code, format
-  or commitment is adopted by the merge.
+8. **Release limitations (g).** None is created or proposed. This section remains a
+   proposal-only design and evidence record; merging it adopts no code, format or commitment.
+9. **No refusal-only implementation now (b).** §20.5.12's precise diagnostics fold into the
+   next substantive, eligible writer change, unless a current refusal misleads or loses
+   required data; report that as a concrete defect.
+10. **Next output (f).** One concise, owner-sendable question packet, not sent by an agent,
+    prioritising constant-E selection, G-3 and the explicit OPTEMP field 2 and 3 encoding.
 
 - **DEL-17-04 `ScopeOfWork.md`:** REQ-012 to REQ-020, verification, acceptance, OUT-002,
   AC-002 and VER-002, TBD-17-04-005 to -009, and the two edited "parser" sentences, as
