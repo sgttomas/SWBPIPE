@@ -41,8 +41,9 @@
 //! **Finding F-CE (pre-S6, reported, not repaired here).** On this document
 //! RS-CE1 is consumed and its `constant_effort_support_applied_load` row states
 //! 9,000 N, but its `support_reaction_component_v2` rows are all 0.0 in every
-//! case and mode, with or without the nonlinear supports (all three cases are
-//! published `sensitive`). The published reactions therefore sum to the weight
+//! case and mode of the S6 model (`unresolved` gap cases). A separate ordinary
+//! no-nonlinear probe also shows zero in all three `sensitive` cases; its log
+//! does not identify the mode. The published reactions sum to the weight
 //! less 9,000 N, whereas the S7 limitation attributes a consumed constant-effort
 //! support's constant force as its signed support action, and the increment-3
 //! references expect that restatement. EQ-1 here uses the applied-load row.
@@ -394,7 +395,7 @@ fn the_released_full_reference_system_solves_through_the_s6_connecting_path() {
                 eprintln!("{label} {case} {support}: {state}, reaction {component} {value:e} N");
             }
             // DEC-049: the consumed record applies its constant force (the applied-load row). Its published
-            // support action row is reported, not asserted: on this sensitive standing it is 0.0, not the constant
+            // support action row is reported, not asserted: it is 0.0, not the constant
             // force S7 attributes (with and without the nonlinear supports; finding F-CE below).
             let applied = ce_applied(&envelope, case);
             assert_eq!(applied, 9000.0, "{label} {case}: RS-CE1's constant force is applied");

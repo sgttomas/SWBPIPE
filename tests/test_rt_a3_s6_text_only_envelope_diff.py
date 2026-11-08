@@ -21,13 +21,12 @@ Partition of the earlier stages' scope (`nl.ORDINARY`, `nl.RETAINED`) and of eve
 compared field by field (`ORDINARY`, `RETAINED`, with `READER_OUTCOMES`, `RV120` and `J7` by their own derivations);
 moved only by the table digests (`TABLE_ONLY`, byte for byte after the substitution); the schema manifest (each moved
 digest is its schema file's); left byte-identical (`UNMOVED`: they state no S6 text and bind no restated subject);
-or named pending (`DESKTOP_PENDING`, below). The load/reference-state schema is a contract change of S6, not a
+or desktop-written (`DESKTOP_CARRIERS`, below). The load/reference-state schema is a contract change of S6, not a
 carrier (tests/test_load_reference_schema.py).
 
-`DESKTOP_PENDING`: carriers whose writers are the desktop vitest suites, which cannot run in a checkout without the
-desktop's installed toolchain. Each still states the endpoint's texts and may differ from the endpoint only by the
-table digests (checked); its full comparison is a strict xfail, so a regenerated carrier fails here until it is moved
-into the compared scope. They are an explicit exception, not evidence.
+`DESKTOP_CARRIERS` identifies the maintained desktop writers. Their comparisons are mandatory. The native replay
+corpus is compared by request identity because its ordering is derived from request hashes; historical requests and
+their held bytes retain their recorded bindings. Native byte counts are checked against their exact source bytes.
 
 The endpoint is the working tree: the stage's carriers as committed on its branch. Freeze END at the stage's merge
 when a later stage regenerates these carriers.
@@ -40,7 +39,7 @@ import subprocess
 
 import pytest
 
-from tests.test_o4_text_only_envelope_diff import HASH, Obj, load, _embedded, _rt_a3_member_path
+from tests.test_o4_text_only_envelope_diff import HASH, Obj, Token, load, _embedded, _rt_a3_member_path
 from tests.test_rt_a3_reducer_text_only_envelope_diff import (
     INPUT_BINDINGS, check_j7_envelope_digests_only, check_rv120_output_digests, _rv120_at)
 from tests.test_rt_a3_reducer_2b_text_only_envelope_diff import _matches
@@ -127,19 +126,22 @@ J7 = nl.J7
 STATEMENTS = "fixtures/reports/exact_report_statements.json"
 _W11 = ce._W11
 _DS = "apps/desktop/src/test-support/desktop-shaped/desktop_shaped_pressure_plain_connected_"
-DESKTOP_PENDING = {
+REPLAY_REQUESTS = nl.REPLAY_REQUESTS
+REPLAY_OUTCOMES = "apps/desktop/src/test-support/native-replay/native_replay_outcomes.json"
+PERSISTENCE_REPLIES = "apps/desktop/src/test-support/native-replay/native_persistence_replies.json"
+DESKTOP_CARRIERS = {
     **{_W11 + f"pressure_2_{kind}.json": "W-11 exact-report request (exactReportBelowGate.test.tsx)"
        for kind in ("connector", "load_reference_states", "realized_bend", "straight")},
     "fixtures/reports/invented/user_release_exact/pressure_2_straight.json":
         "D-6 user-release vector (its desktop vitest writer)",
     **{f"{_DS}{mode}.{member}.json": f"desktop-shaped {member} (its desktop vitest writer)"
        for mode in ("dense", "sparse") for member in ("stress_neutral", "analysis_run")},
-    nl.REPLAY_REQUESTS: "C1 native replay corpus (its desktop vitest writer)",
+    REPLAY_REQUESTS: "C1 native replay corpus (its desktop vitest writer)",
 }
+DERIVED_CARRIERS = (ce.OVERLAY,)  # the W-11 writer's substitute hashes follow the restated genuine request
 # Moved only by the table digests: byte for byte equal to the endpoint after substituting the two table pairs.
 TABLE_ONLY = (
     "fixtures/results/base_reader_outcomes.json",
-    "apps/desktop/src/test-support/native-replay/native_replay_outcomes.json",
     "schemas/analysis_run.v0.3.schema.json",
     "schemas/stress_neutral_export.v0.3.schema.json",
 )
@@ -160,11 +162,11 @@ UNMOVED = tuple(sorted(
                         "fixtures/product_preview/pressure_source/o4/",
                         "fixtures/results/pressure_source_plain_n05_",
                         "apps/desktop/src/test-support/desktop-shaped/"))
-    or name in (ce.OVERLAY, _W11 + "pressure_source_1.json",
+    or name in (_W11 + "pressure_source_1.json",
                 "fixtures/reports/invented/user_release_exact/pressure_source_1.json")))
-UNMOVED = tuple(name for name in UNMOVED if name not in DESKTOP_PENDING)
+UNMOVED = tuple(name for name in UNMOVED if name not in DESKTOP_CARRIERS)
 ORDINARY = tuple(name for name in (*nl.ORDINARY, COMBINATION_CORPUS)
-                 if name not in DESKTOP_PENDING and name not in UNMOVED)
+                 if name not in DESKTOP_CARRIERS and name not in UNMOVED and name not in DERIVED_CARRIERS)
 RETAINED = nl.RETAINED
 REPORT_PATHS = ce.REPORT_PATHS
 OUTSIDE = nl.OUTSIDE
@@ -228,7 +230,8 @@ def compare(before, after, path=(), *, moves=None, allowed=None, rv120_output_ha
 
 def scope():
     """Every carrier whose moved digests verify_moves derives; the reader outcomes have check_reader_outcomes."""
-    return (*ORDINARY, *(name for name in RETAINED if name != READER_OUTCOMES))
+    return (*ORDINARY, *DERIVED_CARRIERS, *(name for name in DESKTOP_CARRIERS if name != REPLAY_REQUESTS),
+            *(name for name in RETAINED if name != READER_OUTCOMES))
 
 
 @cache
@@ -254,7 +257,55 @@ def recompute(read):
     content |= c
     content.update((canonical_sha256(b), canonical_sha256(a))
                    for b, a in zip(ce.parity_sources(base), ce.parity_sources(read)))
+    content.update(_report_record_pairs(read, seals | content))
     return ce._forward(seals, "seal"), ce._forward(content, "content")
+
+
+def _report_record_pairs(read, known):
+    """Re-materialize W-11's otherwise unstored AnalysisRun from its actual source/manifest with the maintained
+    builder. Verify its current seal, then independently reverse the authorized metadata and re-seal: the resulting
+    predecessor seal must equal the committed report reference. No new unmaterialized digest exception is admitted.
+    This check needs the current-head runner, explicitly bound by the ordinary pytest setup."""
+    from core.analysis_runs import build_analysis_run_v0_3
+    from tests.verifiers.canonical_json import canonical_sha256
+    reverse = ce._forward(((b, a) for a, b in {*TABLE_PAIRS, *known}), "report record reverse")
+    reverse.update({b: a for a, b in PAIRS.items()})
+
+    def restore(value):
+        if isinstance(value, dict):
+            return {k: restore(v) for k, v in value.items()}
+        if isinstance(value, list):
+            return list(map(restore, value))
+        return reverse.get(value, value) if isinstance(value, str) else value
+
+    subjects = []
+    for kind in ("connector", "load_reference_states", "realized_bend", "straight"):
+        name = _W11 + f"pressure_2_{kind}.json"
+        before, after = (json.loads(t) for t in (_at(BASE, name), read(name)))
+        subjects.append((before["request"], after["request"], after["input_manifest"], after["model"]))
+    genuine = json.loads(read(_W11 + "pressure_2_straight.json"))
+    subjects.append((ce.substitute(lambda n: _at(BASE, n)), ce.substitute(read),
+                     genuine["input_manifest"], genuine["model"]))
+    pairs = set()
+    for old_request, request, manifest, model in subjects:
+        manifest_hash = request["audit_manifest"]["input_manifest_hash"]
+        assert canonical_sha256(manifest) == manifest_hash["value"]
+        expected = ([{"object_type": "LoadCase", "ref": c["id"]} for c in model["load_cases"]]
+                    + [{"object_type": "Combination", "ref": c["id"]} for c in model.get("combinations", [])])
+        record = build_analysis_run_v0_3(
+            request["source_results"][0], input_manifest=manifest,
+            input_manifest_ref={"object_type": "InputManifest", "ref": manifest_hash["payload_ref"]},
+            input_manifest_hash=manifest_hash["value"], expected_basis_refs=expected, hash_fn=canonical_sha256)
+        claim = lambda r: r["report"]["calculation_report"]["audit_manifest_refs"][0]["checksum"]["value"]
+        checksum = next(h["value"] for h in record["analysis_run"]["hashes"] if h["payload_scope"] == "analysis_run_record")
+        assert checksum == claim(request)
+        restored = restore(record)
+        restored["analysis_run"]["hashes"] = [h for h in restored["analysis_run"]["hashes"]
+                                              if h["payload_scope"] != "analysis_run_record"]
+        old_checksum = canonical_sha256(restored)
+        assert old_checksum == claim(old_request)
+        pairs.add((old_checksum, checksum))
+    return pairs
 
 
 @cache
@@ -262,12 +313,12 @@ def recomputed():
     return recompute(current)
 
 
-def verify_moves(name, moves, *, seals, content):
+def verify_moves(name, moves, *, seals, content, allowed=None):
     """Every moved digest is bound to its subject: a table digest is a table pair; a seal or content digest equals the
     recomputation of the subject its old value identifies, with no fallback and no unmaterialized exception."""
     for path, before, after in moves:
         pair = (before.removeprefix("sha256:"), after.removeprefix("sha256:"))
-        kind = binding_kind(path)
+        kind = (allowed or binding_kind)(path)
         if kind == "table":
             assert pair in TABLE_PAIRS, path
         elif kind == "seal":
@@ -469,15 +520,7 @@ def test_the_statement_table_restates_back_to_the_endpoint():
     assert restated(edited) != before
 
 
-# ---------------------------------------------------------------- pending and completeness
-
-@pytest.mark.parametrize("name", sorted(DESKTOP_PENDING))
-def test_desktop_pending_carriers_moved_only_their_table_digests(name):
-    """A named pending carrier still states the endpoint's texts and is the endpoint's bytes or differs from them only
-    by the table digests (the repin): nothing else in it was hand-edited."""
-    before, after = _at(BASE, name), current(name)
-    assert _stale(after), f"{name}: regenerated; move it into the compared scope"
-    assert after in (before, _substitute_tables(before)), name
+# ---------------------------------------------------------------- desktop carriers and native replay
 
 
 def _stale(text):
@@ -485,15 +528,431 @@ def _stale(text):
     return _states_old(text) or any(old in text for old, _ in TABLE_PAIRS)
 
 
-@pytest.mark.xfail(strict=True, reason="desktop writers not run: no desktop toolchain in this checkout (named pending)")
-@pytest.mark.parametrize("name", sorted(DESKTOP_PENDING))
-def test_desktop_pending_carriers_restate_the_texts(name):
-    if name == nl.REPLAY_REQUESTS or name.endswith(".analysis_run.json"):
-        assert not _stale(current(name))
+@pytest.mark.parametrize("name", sorted(DESKTOP_CARRIERS))
+def test_desktop_carriers_restate_only_the_texts_and_derived_bindings(name):
+    if name == REPLAY_REQUESTS:
+        check_replay_requests()
         return
+    assert not _stale(current(name)), name
     _, moves = check(name)
     seals, content = recomputed()
     verify_moves(name, moves, seals=seals, content=content)
+
+
+def test_w11_substitute_overlay_preserves_its_edits_and_rebinds_only_derived_hashes():
+    before, after = (json.loads(t) for t in (_at(BASE, ce.OVERLAY), current(ce.OVERLAY)))
+    pointers = [r["pointer"] for r in after["replacements"]]
+    assert [r["pointer"] for r in before["replacements"]] == pointers
+
+    def allowed(path):
+        if len(path) >= 3 and path[0] == "replacements" and type(path[1]) is int and path[2] == "value":
+            return binding_kind((*ce._tokens(pointers[path[1]]), *path[3:]))
+        return binding_kind(path)
+
+    moves = []
+    compare(load(_at(BASE, ce.OVERLAY)), load(current(ce.OVERLAY)), moves=moves, allowed=allowed)
+    seals, content = recomputed()
+    verify_moves(ce.OVERLAY, moves, seals=seals, content=content, allowed=allowed)
+
+
+def _js_ordered(value):
+    """JSON.stringify for these persisted request objects: retain member order and use the independent ECMA number
+    formatter. Every predecessor key is checked as well as every current key, so no new serializer premise is hidden."""
+    from tests.verifiers.canonical_json import _string, ecma_number
+    if isinstance(value, dict):
+        return "{" + ",".join(_string(k) + ":" + _js_ordered(v) for k, v in value.items()) + "}"
+    if isinstance(value, list):
+        return "[" + ",".join(map(_js_ordered, value)) + "]"
+    if type(value) in (int, float):
+        return ecma_number(float(value))
+    return json.dumps(value, ensure_ascii=False, separators=(",", ":"))
+
+
+def _replay_key(request):
+    text = request["source_sha256"] + "\0" + request["command"] + "\0" + _js_ordered(request["args"])
+    if "recorded_table" in request:
+        text += "\0" + _js_ordered(request["recorded_table"])
+    return ce._sha(text)
+
+
+def check_replay_requests(read=current):
+    """Preserve every predecessor request and historical binding. Complete the pre-existing S-K1 presence lookup
+    beside each recorded intensified-kind lookup, on that same receiver. Only source metadata/derived keys change;
+    sorting by keys may reorder the index, never an authored/member/result array."""
+    before = json.loads(_at(BASE, REPLAY_REQUESTS))
+    after = json.loads(read(REPLAY_REQUESTS))
+    assert {k: v for k, v in before.items() if k not in {"sources", "requests"}} == {
+        k: v for k, v in after.items() if k not in {"sources", "requests"}}
+    seals, content = recomputed()
+    replacements = {**dict(TABLE_PAIRS), **seals, **content, **PAIRS}
+    actual = {r["key"]: r for r in after["requests"]}
+    assert len(actual) == len(after["requests"])
+    assert list(actual) == sorted(actual)
+    panel = "apps/desktop/src/features/results/NativeResultsPanel.tsx"
+    assert read(panel) == _at(BASE, panel)  # these paired lookups predate S6; no new product caller is introduced
+    for kind in ("PREVIEW_INTENSIFIED_KIND", "PREVIEW_ALONG_DIRECTION_KIND"):
+        assert _at(BASE, panel).count(f"useNativeKindPresence(result, {kind})") == 1
+    expected_sources, mapped, resolved, probes = {}, {}, {}, {}
+    for request in before["requests"]:
+        assert request["key"] == _replay_key(request)
+        historical = bool(request.get("recorded_table"))
+        subject = (request.get("source_path"), request["source_sha256"], historical)
+        if subject not in resolved:
+            if "source_path" in request:
+                old = _at(BASE, request["source_path"])
+                new = read(request["source_path"])
+            else:
+                old = before["sources"][request["source_sha256"]]
+                new = old
+                if not historical:
+                    for a, b in replacements.items():
+                        new = new.replace(a, b)
+                expected_sources[ce._sha(new)] = new
+            assert ce._sha(old) == request["source_sha256"]
+            if historical:
+                assert new == old
+            else:
+                assert not _states_old(new), request["key"]
+                if old != new:
+                    moves = []
+                    compare(load(old), load(new), moves=moves)
+                    verify_moves(REPLAY_REQUESTS, moves, seals=seals, content=content)
+            resolved[subject] = old, new
+        old, new = resolved[subject]
+        expected = {**request, "source_sha256": ce._sha(new)}
+        expected["key"] = _replay_key(expected)
+        assert expected["key"] in actual, (request["key"], expected["key"])
+        assert actual[expected["key"]] == expected, request["key"]
+        mapped[request["key"]] = (expected["key"], old, new)
+        if request["command"] == "lookup_preview_mechanics_job_rows" and request["args"] == {
+                "jobId": "$JOB", "kinds": ["preview_intensified_bending_stress"], "match": "first"}:
+            probe = {**expected, "args": {"jobId": "$JOB", "kinds": ["support_reaction_along_direction_v1"], "match": "first"}}
+            probe["key"] = _replay_key(probe)
+            assert actual.get(probe["key"]) == probe
+            probes[probe["key"]] = (probe, new)
+    assert len({v[0] for v in mapped.values()}) == len(before["requests"])
+    assert {v[0] for v in mapped.values()} | set(probes) == set(actual)
+    assert after["sources"] == expected_sources
+    nl.check_replay_history(after, read=read)
+    # This S6-old source is genuine recorded history in addition to the earlier guard's pre-S5 history.
+    history = "9f980d9a04e113fcb6221bf5ee4ac442220117384924671ecefd1c1aa97e268e"
+    carrier = ("fixtures/persistence/recorded_pre_rt_a4_pf/physics_retained_1/main_252bef969/"
+               "retained_precision_exact_successor_sparse_interactive.json")
+    table_path = "fixtures/results/recorded_pre_rt_a4/semantic_contract_v0_3_physics_retained_1.85c2678a.json"
+    assert json.loads(after["sources"][history]) == json.loads(read(carrier))["source"]
+    table = nl._record_binding(json.loads(read(carrier.removesuffix(".json") + ".analysis_run.json")))
+    assert table["sha256"] == ce._sha(read(table_path))
+    holding = [r for r in after["requests"] if r["source_sha256"] == history]
+    assert holding and all(r.get("recorded_table") == table and "source_path" not in r for r in holding)
+    return mapped, probes
+
+
+def _native_payload(text):
+    """The two maintained native wire formats have a u64 header length; summary planes are 8-byte aligned.
+    Preserve the remaining bytes exactly (numeric planes and detail text spool), including zero padding."""
+    import base64
+    raw = base64.b64decode(text, validate=True)
+    if raw[:8] not in (b"SWBSUMv1", b"SWBDETv1"):
+        return raw.decode("utf-8"), b"", b""
+    size = int.from_bytes(raw[8:16], "little")
+    end = 16 + size
+    assert end <= len(raw)
+    tail = (end + 7) // 8 * 8 if raw[:8] == b"SWBSUMv1" else end
+    assert raw[end:tail] == b"\0" * (tail - end)
+    return raw[16:end].decode("utf-8"), raw[tail:], raw[:8]
+
+
+def _full_native_record(header, request, source, current_source):
+    """The native preview transports a header, not the complete sealed record. Restore its documented row-scale
+    omissions with the maintained full builder on the same source/manifest. S6 leaves these source rows/diagnostics
+    and the table's row definitions unchanged; bind each restored reference to this endpoint's declared table.
+    Re-sealing must reproduce the native full-record claim, at both endpoints."""
+    from core.analysis_runs import build_analysis_run_v0_3
+    from tests.verifiers.canonical_json import canonical_sha256
+    assert source["results"] == current_source["results"]
+    assert source.get("diagnostics") == current_source.get("diagnostics")
+    args = request["args"]
+    evidence = args["inputManifest"]
+    manifest = json.loads(evidence["canonical_bytes"])
+    record = json.loads(json.dumps(header["record"]))
+    template = build_analysis_run_v0_3(
+        current_source, input_manifest=manifest, input_manifest_ref=evidence["manifest_ref"],
+        input_manifest_hash=evidence["manifest_sha256"], expected_basis_refs=record["analysis_run"]["load_basis_refs"],
+        rule_check_status=header.get("rule_check_status"), rule_pack_ref_exclusions=args.get("rulePackExclusions") or (),
+        hash_fn=canonical_sha256)
+    omitted = {"result_refs", "diagnostics", "contract_evidence", "source_block_recovery", "retained_precision"}
+    assert not omitted.intersection(record["analysis_run"])
+    for name in omitted.intersection(template["analysis_run"]):
+        record["analysis_run"][name] = template["analysis_run"][name]
+    binding = record["analysis_run"]["reproducibility"]["semantic_contract"]
+    for row in record["analysis_run"]["result_refs"]:
+        row["semantic_contract"].update(binding)
+    for name in ("contract_evidence", "source_block_recovery", "retained_precision"):
+        if name in record["analysis_run"]:
+            record["analysis_run"][name] = source[name]
+    projection = json.loads(json.dumps(record))
+    projection["analysis_run"]["hashes"] = [h for h in projection["analysis_run"]["hashes"]
+                                           if h["payload_scope"] != "analysis_run_record"]
+    claim = next(h["value"] for h in record["analysis_run"]["hashes"] if h["payload_scope"] == "analysis_run_record")
+    assert canonical_sha256(projection) == claim, "native full-record materialization"
+    return record
+
+
+def check_replay_outcomes(read=current):
+    mapped, probes = check_replay_requests(read)
+    before, after = (json.loads(t) for t in (_at(BASE, REPLAY_OUTCOMES), read(REPLAY_OUTCOMES)))
+    old = {o["key"]: o for o in before["outcomes"]}
+    new = {o["key"]: o for o in after["outcomes"]}
+    assert len(old) == len(mapped) and len(new) == len(after["outcomes"]) == len(mapped) + len(probes)
+    assert list(new) == sorted(new)
+    assert {k: v for k, v in before.items() if k != "outcomes"} == {
+        k: v for k, v in after.items() if k != "outcomes"}
+    seals, content = recomputed()
+    requests = {r["key"]: r for r in json.loads(read(REPLAY_REQUESTS))["requests"]}
+    for key, (changed_key, old_source, source) in mapped.items():
+        a, b = old[key], new[changed_key]
+        assert a["command"] == b["command"]
+        assert a["source_sha256"] == ce._sha(old_source)
+        assert b["source_sha256"] == ce._sha(source)
+        x, y = a["reply"], b["reply"]
+        assert set(x) == set(y) and x["ok"] == y["ok"]
+        if x == y:
+            continue
+        if x.get("body") == "raw":
+            assert y["body"] == "raw"
+            p, planes, magic = _native_payload(x["base64"])
+            q, changed_planes, changed_magic = _native_payload(y["base64"])
+            assert (planes, magic) == (changed_planes, changed_magic), f"native wire planes changed: {key}"
+        else:
+            assert x.get("body") == y.get("body")
+            p, q = json.dumps(x, ensure_ascii=False), json.dumps(y, ensure_ascii=False)
+        if requests[changed_key].get("recorded_table"):
+            # The held text and recorded-table receiver are immutable. The current dispatch and diagnostics
+            # presentation still name the current registry table (native_verdict.rs and diagnostics_presentation.rs).
+            # Exactly those two report bindings may follow the table; no historical result text/seal is restated.
+            def historical(left, right, path=()):
+                assert type(left) is type(right), path
+                if left == right:
+                    return
+                if isinstance(left, Obj):
+                    assert [k for k, _ in left] == [k for k, _ in right], path
+                    for (key, a), (_, b) in zip(left, right):
+                        historical(a, b, path + (key,))
+                elif isinstance(left, list):
+                    assert len(left) == len(right), path
+                    for i, (a, b) in enumerate(zip(left, right)):
+                        historical(a, b, path + (i,))
+                else:
+                    assert path in {("value", "binding", "sha256"),
+                                    ("diagnostics_presentation", "binding", "reader_table", "sha256")}, path
+                    assert (left, right) in TABLE_PAIRS, path
+            historical(load(p), load(q))
+            continue
+        moves = []
+        # A route header binds the registry table directly at binding.sha256.
+        value = x.get("value")
+        header = (a["command"] == "read_preview_mechanics_job_verdict" and x.get("body") == "json"
+                  and isinstance(value, dict) and isinstance(value.get("binding"), dict))
+        allowed = lambda path: ("table" if (header and path == ("value", "binding", "sha256"))
+                                or path == ("diagnostics_presentation", "binding", "reader_table", "sha256")
+                                else binding_kind(path))
+        left, right = load(p), load(q)
+        presentation = dict(left).get("diagnostics_presentation") if isinstance(left, Obj) else None
+        if isinstance(presentation, Obj):
+            old_binding = dict(dict(presentation)["binding"])
+            new_binding_tokens = dict(dict(right)["diagnostics_presentation"])["binding"]
+            new_binding = dict(new_binding_tokens)
+            # diagnostics_presentation.rs binds the held UTF-8 text, not a numerical result quantity.
+            for binding, source_text in ((old_binding, old_source), (new_binding, source)):
+                assert isinstance(binding["result_bytes"], Token) and int(binding["result_bytes"]) == len(source_text.encode())
+                assert binding["source_sha256"] == ce._sha(source_text)
+            for i, (field, _) in enumerate(new_binding_tokens):
+                if field in {"result_bytes", "source_sha256"}:
+                    new_binding_tokens[i] = (field, old_binding[field])
+        compare(left, right, moves=moves, allowed=allowed)
+        # Native AnalysisRun replies carry their own sealed record; independently derive that subject too.
+        own_seals, own_content = ce.derived_pairs(ce._plain(p), ce._plain(q))
+        if a["command"] == "read_preview_mechanics_job_analysis_run_preview" and p != q:
+            old_header, new_header = json.loads(p), json.loads(q)
+            if isinstance(old_header.get("record"), dict) and isinstance(new_header.get("record"), dict):
+                current_source = json.loads(source)
+                old_record = _full_native_record(old_header, requests[changed_key], json.loads(old_source), current_source)
+                new_record = _full_native_record(new_header, requests[changed_key], current_source, current_source)
+                extra_seals, extra_content = ce.derived_pairs(old_record, new_record)
+                own_seals |= extra_seals
+                own_content |= extra_content
+        verify_moves(REPLAY_OUTCOMES, moves, seals=ce._forward({*seals.items(), *own_seals}, "native seal"),
+                     content=ce._forward({*content.items(), *own_content}, "native content"), allowed=allowed)
+    for key, (request, source) in probes.items():
+        outcome = new[key]
+        assert outcome["command"] == request["command"] and outcome["source_sha256"] == ce._sha(source)
+        reply = outcome["reply"]
+        assert set(reply) == {"ok", "body", "base64"} and reply["ok"] is True and reply["body"] == "raw"
+        text, tail, magic = _native_payload(reply["base64"])
+        assert magic == b"SWBDETv1" and tail == b""
+        rows = json.loads(source)["results"]
+        assert not any(r.get("kind") == "support_reaction_along_direction_v1" for r in rows)
+        assert json.loads(text) == {
+            "document_kind": "swbpipe.desktop.result_detail_lookup", "version": 1,
+            "job_id": "restored-stored-result-1" if request.get("recorded_table") else "backend-solve-job-1",
+            "row_count": len(rows), "match": "first", "ids": [],
+            "kinds": [{"kind": "support_reaction_along_direction_v1", "row": None}], "ordinals": [], "lengths": []}
+
+
+def test_native_replay_replies_preserve_the_actual_commands_results():
+    check_replay_outcomes()
+
+
+def check_native_persistence(read=current):
+    """Five unchanged store scenarios. Derive transient/recorded seals and the persisted project hash from their
+    actual source and manifest; sizes follow the source's UTF-8 change. The small-store test keeps its same one-byte
+    boundary; no product limit or mechanical value is moved."""
+    from core.analysis_runs.compatibility import recorded_revision
+    from tests.verifiers.canonical_json import canonical_sha256
+    import re
+    before, after = (json.loads(t) for t in (_at(BASE, PERSISTENCE_REPLIES), read(PERSISTENCE_REPLIES)))
+    assert before["source_path"] == after["source_path"]
+    path = before["source_path"]
+    texts = [_at(BASE, path), read(path)]
+    delta = len(texts[1].encode()) - len(texts[0].encode())
+    # SaveRun's Stored writer normalizes JSON numbers and whitespace. Only the authorized ASCII statement moves,
+    # so that stored form changes by the same count; the predecessor transcript supplies the preserved size basis.
+    assert len(_js_ordered(json.loads(texts[1])).encode()) - len(_js_ordered(json.loads(texts[0])).encode()) == delta
+    documents, records = [before, after], []
+    pairs, ids = set(), {}
+
+    def claim(record, scope):
+        return next(h["value"] for h in record["analysis_run"]["hashes"] if h["payload_scope"] == scope)
+
+    def record_digest(record):
+        projection = json.loads(json.dumps(record))
+        projection["analysis_run"]["hashes"] = [h for h in projection["analysis_run"]["hashes"]
+                                               if h["payload_scope"] != "analysis_run_record"]
+        return canonical_sha256(projection)
+
+    for index, doc in enumerate(documents):
+        get = (lambda name: _at(BASE, name)) if index == 0 else read
+        requests = json.loads(get(REPLAY_REQUESTS))["requests"]
+        outcomes = {o["key"]: o for o in json.loads(get(REPLAY_OUTCOMES))["outcomes"]}
+        args = doc["scenarios"][0]["args"]
+        selected = [r for r in requests if r["command"] == "read_preview_mechanics_job_analysis_run_preview"
+                    and r.get("source_path") == path and r["args"].get("ruleCheckAggregate") is None
+                    and r["args"]["inputManifest"] == args["inputManifest"]]
+        assert len(selected) == 1
+        body, tail, magic = _native_payload(outcomes[selected[0]["key"]]["reply"]["base64"])
+        assert tail == magic == b""
+        record = _full_native_record(json.loads(body), selected[0], json.loads(texts[index]), json.loads(texts[1]))
+        assert record_digest(record) == claim(record, "analysis_run_record")
+        assert canonical_sha256(json.loads(texts[index])) == claim(record, "received_result")
+        assert args["expectedRecord"] == {"run_id": record["analysis_run"]["run_id"],
+                                          "record_sha256": claim(record, "analysis_run_record"),
+                                          "received_sha256": claim(record, "received_result")}
+        payload = {"model": args["model"], "editor_intents": args["editorIntents"], "proposal": args["proposal"],
+                   "selected_review_target": args["selectedReviewTarget"], "model_hash": args["modelHash"],
+                   "mechanics_result": json.loads(texts[index]), "analysis_run": record}
+        project_hash = canonical_sha256(payload)
+        assert doc["scenarios"][0]["reply"]["value"]["project_envelope_hash"]["value"] == "sha256:" + project_hash
+        records.append((record, project_hash))
+    for scope in ("analysis_run_record", "received_result"):
+        pairs.add((claim(records[0][0], scope), claim(records[1][0], scope)))
+    pairs.add((records[0][1], records[1][1]))
+    for i in (1, 2):
+        sums = []
+        for index, doc in enumerate(documents):
+            summary = doc["scenarios"][i]["reply"]["value"]["run"]
+            original = before["scenarios"][i]["reply"]["value"]["run"]
+            assert (summary["state_id"], summary["created_at"]) == (original["state_id"], original["created_at"])
+            manifest = json.loads(doc["scenarios"][0]["args"]["inputManifest"]["canonical_bytes"])
+            revised = recorded_revision(records[index][0], state_id=summary["state_id"], created_at=summary["created_at"],
+                                        input_manifest=manifest, hash_fn=canonical_sha256)
+            digest = record_digest(revised)
+            assert digest == summary["run_record_hash"] and summary["recording_id"] == "runrec:" + digest[:32]
+            sums.append(digest)
+        pairs.add(tuple(sums))
+        ids["runrec:" + sums[0][:32]] = "runrec:" + sums[1][:32]
+    counts = {("scenarios", i, "sqlite_length_limit") for i in (3, 4)} | {
+        ("scenarios", 0, "reply", "value", "result", "result_bytes"),
+        *(('scenarios', 3, 'reply', 'value', 'result', key) for key in ('result_bytes', 'row_bytes', 'limit_bytes')),
+        ("scenarios", 3, "reply", "value", "result", "refused", "bytes")}
+    hash_tails = (("expectedRecord", "received_sha256"), ("expectedRecord", "record_sha256"),
+                  ("project_envelope_hash", "value"), ("summary", "persisted_project_envelope_hash_ref"),
+                  ("request", "expected_base"), ("run", "run_record_hash"), ("run", "result_hash"))
+
+    def walk(a, b, p=()):
+        assert type(a) is type(b), p
+        if isinstance(a, dict):
+            assert list(a) == list(b), p
+            for k in a:
+                walk(a[k], b[k], p + (k,))
+        elif isinstance(a, list):
+            assert len(a) == len(b), p
+            for i, (x, y) in enumerate(zip(a, b)):
+                walk(x, y, p + (i,))
+        elif a != b:
+            if p in counts:
+                assert type(a) is int and b == a + delta, ("native persistence byte count", p)
+            elif type(a) is str and HASH.fullmatch(a) and HASH.fullmatch(b):
+                assert any(p[-len(t):] == t for t in hash_tails), p
+                assert (a.removeprefix("sha256:"), b.removeprefix("sha256:")) in pairs, ("native persistence hash", p)
+            elif p[-2:] == ("run", "recording_id"):
+                assert ids.get(a) == b, p
+            elif len(p) > 3 and p[2] == "reply" and p[-1] in {"message", "error"}:
+                expected = a
+                for old, new in ids.items():
+                    expected = expected.replace(old, new)
+                expected = re.sub(r"\b(result_bytes|row_bytes|limit_bytes)=(\d+)",
+                                  lambda m: f"{m[1]}={int(m[2]) + delta}", expected)
+                expected = re.sub(r"\b(row is |length limit of )(\d+)( bytes)",
+                                  lambda m: f"{m[1]}{int(m[2]) + delta}{m[3]}", expected)
+                assert expected == b, p
+            else:
+                raise AssertionError(p)
+
+    walk(before, after)
+    for doc in documents:
+        result = doc["scenarios"][3]["reply"]["value"]["result"]
+        assert result["row_bytes"] == result["refused"]["bytes"]
+        assert doc["scenarios"][3]["sqlite_length_limit"] == result["row_bytes"] - 1
+        assert doc["scenarios"][4]["sqlite_length_limit"] == result["row_bytes"] - 1
+
+
+def test_native_persistence_rebinds_only_derived_identities_and_source_byte_counts():
+    check_native_persistence()
+
+
+@pytest.mark.parametrize("mutation", ["missing_request", "forged_key", "rewritten_history"])
+def test_native_replay_refuses_lost_requests_forged_keys_and_resealed_history(mutation):
+    document = json.loads(current(REPLAY_REQUESTS))
+    if mutation == "missing_request":
+        document["requests"].pop()
+    elif mutation == "forged_key":
+        document["requests"][0]["key"] = "0" * 64
+    else:
+        sha = "9f980d9a04e113fcb6221bf5ee4ac442220117384924671ecefd1c1aa97e268e"
+        text = document["sources"].pop(sha)
+        changed = nl._bump_first_number(text, '"results"')
+        assert changed != text
+        new_sha = ce._sha(changed)
+        document["sources"][new_sha] = changed
+        for request in document["requests"]:
+            if request["source_sha256"] == sha:
+                request["source_sha256"] = new_sha
+                request["key"] = _replay_key(request)
+        document["requests"].sort(key=lambda r: r["key"])
+    with pytest.raises(AssertionError):
+        check_replay_requests(lambda name: json.dumps(document) if name == REPLAY_REQUESTS else current(name))
+
+
+def test_native_replay_refuses_an_edited_numeric_plane():
+    import base64
+    document = json.loads(current(REPLAY_OUTCOMES))
+    reply = next(o["reply"] for o in document["outcomes"] if o["reply"].get("body") == "raw"
+                 and base64.b64decode(o["reply"]["base64"]).startswith(b"SWBSUMv1"))
+    raw = bytearray(base64.b64decode(reply["base64"]))
+    raw[-1] ^= 1
+    reply["base64"] = base64.b64encode(raw).decode()
+    with pytest.raises(AssertionError, match="native wire planes changed"):
+        check_replay_outcomes(lambda name: json.dumps(document) if name == REPLAY_OUTCOMES else current(name))
 
 
 def _stating(rev):
@@ -513,22 +972,21 @@ def _changed():
 
 def test_every_json_file_is_in_exactly_one_part():
     """The partition is exact: every changed JSON file outside frozen references, design records and recorded runs is
-    compared, table-only, the manifest, pending or a named non-carrier; every earlier-stage carrier is compared,
-    pending or unmoved; every file stating an old text at the endpoint is compared or pending; and none states one now
-    except a named pending carrier."""
-    parts = [set(ORDINARY), set(RETAINED), {J7}, set(TABLE_ONLY), {SCHEMA_MANIFEST}, set(DESKTOP_PENDING),
-             set(NOT_CARRIERS), set(UNMOVED)]
+    compared, table-only, the manifest or a named non-carrier; every earlier-stage carrier is compared or unmoved;
+    every file stating an old text is compared, including the replay corpus's explicitly bound history."""
+    parts = [set(ORDINARY), set(RETAINED), {J7}, set(TABLE_ONLY), {SCHEMA_MANIFEST}, set(DESKTOP_CARRIERS), set(DERIVED_CARRIERS),
+             {REPLAY_OUTCOMES, PERSISTENCE_REPLIES}, set(NOT_CARRIERS), set(UNMOVED)]
     assert sum(map(len, parts)) == len(set().union(*parts)), "a file in two parts"
     changed = _changed()
     assert changed - set().union(*parts) == set(), sorted(changed - set().union(*parts))
     for name in UNMOVED:
         assert name not in changed and not _states_old(_at(BASE, name)), name
         assert not any(old in _at(BASE, name) for old, _ in TABLE_PAIRS), name
-    assert set(nl.ORDINARY) | set(nl.RETAINED) <= set(ORDINARY) | set(RETAINED) | set(DESKTOP_PENDING) | set(UNMOVED)
+    assert set(nl.ORDINARY) | set(nl.RETAINED) <= set(ORDINARY) | set(RETAINED) | set(DESKTOP_CARRIERS) | set(DERIVED_CARRIERS) | set(UNMOVED)
     at_base = _stating(BASE)
-    compared = set(ORDINARY) | set(RETAINED) | {STATEMENTS}
-    assert at_base <= compared | set(DESKTOP_PENDING), sorted(at_base - compared - set(DESKTOP_PENDING))
-    assert _stating(None) <= set(DESKTOP_PENDING), sorted(_stating(None) - set(DESKTOP_PENDING))
+    compared = set(ORDINARY) | set(RETAINED) | set(DESKTOP_CARRIERS) | {STATEMENTS}
+    assert at_base <= compared, sorted(at_base - compared)
+    assert _stating(None) <= {REPLAY_REQUESTS}, sorted(_stating(None) - {REPLAY_REQUESTS})
 
 
 # ---------------------------------------------------------------- the producer
@@ -592,8 +1050,7 @@ def test_a_digest_moves_only_at_a_binding_field_and_only_as_derived():
 
 
 def test_a_stale_or_table_only_regression_is_refused():
-    """A carrier left at the endpoint's bytes, a table-only carrier with any other byte moved, and a pending carrier
-    with a hand-edited text are each refused."""
+    """A stale ordinary or desktop carrier and an unrelated move in a table-only carrier are refused."""
     stale = "fixtures/results/pressure_load_state_connected_sparse.document.json"
     with pytest.raises(AssertionError):
         check(stale, _at(BASE, stale))
@@ -601,8 +1058,9 @@ def test_a_stale_or_table_only_regression_is_refused():
     after = current(name)
     assert _substitute_tables(_at(BASE, name)) == after
     assert _substitute_tables(_at(BASE, name)) != after.replace(TABLE_SHA256[1], "0" * 64, 1)
-    pending = sorted(DESKTOP_PENDING)[0]
-    assert _substitute_tables(_at(BASE, pending)) != current(pending).replace(NEEDLES[0], NEEDLES[0].upper(), 1)
+    desktop = _W11 + "pressure_2_straight.json"
+    with pytest.raises(AssertionError):
+        check(desktop, _substitute_tables(_at(BASE, desktop)))
 
 
 @pytest.mark.parametrize("name", [
