@@ -68,9 +68,9 @@ The Chirality Library (`sgttomas/chirality-library`), Chirality Root
 (`sgttomas/SWBPIPE`) each have one top-level Agent 0, working in its own T3 Code
 session. When work here needs another of these projects, such as a shared
 interface, a Library change a consumer will adopt, a defect found in the other
-project, or a shared release gate, this project's Agent 0 messages the
-cross-project coordinator session in T3 Code. The coordinator routes the work
-to the owning project.
+project, or a shared release gate, this project's Agent 0 messages that
+project's Agent 0 directly in T3 Code. Read the recipient's session first to confirm that it is
+that project's current Agent 0; a retired session is not a route.
 
 A message states what is needed, the revision and files it concerns, and
 whether it blocks the sender. The recipient decides and acts within its own
