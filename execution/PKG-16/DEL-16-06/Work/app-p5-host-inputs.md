@@ -44,6 +44,37 @@ description. The actual diff is bounded by the two revisions above, especially
 `embeddedAgentSession.ts`, `embeddedAgentM2.test.ts`,
 `features/model-tree/removalIntents.ts`, `nativeResult.ts` and `resultDetail.ts`.
 
+### Catalog offering and admission
+
+The selected catalog has no exposure or agreement fields; it does not classify
+any entry as non-exposed or unagreed, nor establish agreement by their absence.
+`catalog.rs::Catalog::load` checks the seven supported tools, effects, schemas
+and admitted operation tuples. `Catalog::declarations` emits all seven in
+`Tool::ALL` order, without an exposure filter. `protocol.rs::start_thread`
+supplies those declarations in `thread/start.params.dynamicTools`.
+
+The host ingress is `lib.rs::embedded_agent_host`, reached through
+`embeddedAgentSession.ts`'s native invoke. It bounds ingress and binds the
+actual main webview/origin; `live_host.rs` owns workspace/start authority,
+`live_runtime.rs` starts the supplier and `session_driver.rs` loads the catalog
+for the protocol. Supplier `item/tool/call` requests enter
+`protocol.rs::tool_call`: current thread/turn, unique identities, supported
+tool/no namespace, bounded schema-valid arguments, proposal tuples/cap and
+pending capacity. `dispatcher.rs` rechecks arguments, current basis and custody
+before execution. None of these decisions reads an exposure classification or
+routes through App's receiving projection. The bridge's `offered: Option<Claim>`
+is a one-use execution claim, not catalog exposure metadata.
+
+This establishes the source-selected offering and admission path, not the
+supplier's complete serialized Responses tool set. The corrected HC-1 capture
+has not run; historical captures had extra supplier tools. App's local
+`exposure.E != exposed` rejection therefore has no demonstrated applicability
+to this native ingress. No supplied host entry is locally withheld here solely
+on an exposure reading; an unsupported tool is a different refusal. Whether a
+later App integration calls its receiving projection must be established on
+that connecting route. This finding creates no additional P5 blocker or
+consumer change.
+
 ## Proposed input selection
 
 These are existing maintained inputs at the selected source, not generated run
@@ -53,7 +84,7 @@ again by any later authorized invocation.
 | Input | Selected source and purpose |
 | --- | --- |
 | Supplier | Stock ARM Codex 0.160.0; executable SHA-256 `112fae7a5a1223e673c8a1791d32338f37df8b527ff1159bb8adac6c4dbf1b4b`, recorded in `fixtures/embedded_agent/agent-witness-pin.json`. The retained bundle copy is present and its bytes match; it was only read. No acquisition or supplier re-signing is needed for this proposal. |
-| Production configuration | `embedded_agent/macos.rs::CONFIG_BODY` and `supplier_config`; HC-1 disables `features.goals` and `tools.experimental_request_user_input.enabled`. The recipe remains read-only/never, with built-in execution disabled and a one-shot relay capability. |
+| Production configuration | `embedded_agent/macos.rs::CONFIG_BODY` and `supplier_config`; HC-1 disables `features.goals` and `tools.experimental_request_user_input.enabled`. The recipe remains read-only/never, with built-in execution disabled and a fresh per-start relay capability. |
 | Protocol/instructions | `embedded_agent/protocol.rs`, `live_runtime.rs::INSTRUCTIONS`, and client version from `apps/desktop/src-tauri/Cargo.toml`. Capture follows the selected initialization/thread/two-turn shapes. |
 | Capture adapter | `tools/agent_supplier_capture.py`; original process/pump/cleanup from `tools/agent_host_witness.py::Native`; scripted exchange from `tools/agent_journey_fixture.py::Script`, `StubProvider`, `TURNS`. Capture uses the corrected source recipe, not the historical witness's different configuration. |
 | Synthetic exchange | `fixtures/model_operations/agent_w9a_journey.json` and `agent_w9a_capture_outcomes.json`; seven declared tools, two turns, six host calls and eight expected Responses bodies. Outcomes are invented fixture data, not current host execution. |
