@@ -2,17 +2,22 @@
 
 ## Unintegrated S6 and constant-effort work
 
-[S6, draft PR #166](https://github.com/sgttomas/SWBPIPE/pull/166), is retained at
-`codex/rt-a3-s6`, head `5b3f71fa5721546ffd93bb9c51b1ca4a56619b44`.
-Its PR describes the reviewed composition and remaining CE/S7/R3 and global
-nonlinear-reference limits. Read its actual current checks before integration;
-the old handoff's pending-check list is a dated observation. The seven-test
+[S6, draft PR #166](https://github.com/sgttomas/SWBPIPE/pull/166), is being
+reconciled with current main on `codex/rt-a3-s6`; its frozen pre-recovery head is
+`5b3f71fa5721546ffd93bb9c51b1ca4a56619b44`. Current disclosure-derived desktop
+oracles and their persistence consumers must agree with the S6 carriers before
+integration. The PR owns the actual candidate, check results and remaining
+qualification work, alongside the CE/S7/R3 and global nonlinear-reference limits.
+The seven-test
 AC-004 observation belongs to source `1a07aec6b732ffcf1b050626341780ff92888fbd`,
 not a later composition, and its one-attempt authorization is consumed.
 [Original packet and ten carrier observations](https://github.com/sgttomas/SWBPIPE/tree/dc037b5495ccd6fa35fb04758edbcdb019021bba/s6)
 are durably retained; generated trees and build caches do not substitute for
 them. The separate [constant-effort defect, candidate and readiness gaps](../../DEL-04-03/Work/constant-effort-publication.md)
-remain open. Neither branch establishes acceptance or release.
+remain open. S6 precedes the constant-effort repair: the latter was based on an
+older core and changes the same `solve_prepared_load_case` producer and this
+contract, so composing it first would change the qualified S6 source and its
+pricing pins. Neither branch establishes acceptance or release.
 
 ## Current pressure boundary
 

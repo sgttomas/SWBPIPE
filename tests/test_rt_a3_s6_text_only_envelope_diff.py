@@ -57,6 +57,10 @@ BASE = "394f4c62313679ccf24e67236d80371a0bf62af3"
 # obligations keep BASE; only the routing inventory and the partition's inherited files are attributed through it.
 S6_HEAD = "abc8bac62340a515d12d84392dd2ea105495aa2a"
 PREDECESSOR = "00d4820d15f01bcada536c97b2bc129efd64575a"
+# The original qualified composition remains a historical leg. Recovery merges the later main's
+# governance/resource changes; current routing is re-derived on that actual input, not the old inventory.
+QUALIFIED = "5b3f71fa5721546ffd93bb9c51b1ca4a56619b44"
+CURRENT_MAIN = "8b02f8b9ec07a02e7427fb07107cb41e6bc2a2e0"
 END = None  # the working tree
 
 
@@ -158,6 +162,17 @@ SCHEMA_MANIFEST = "tools/release/schema_manifest.json"
 ROUTING = "tools/hosted-ci-routing.json"
 SCHEMA_MOVES = ("schemas/analysis_run.v0.3.schema.json", "schemas/load_reference_state.schema.json",
                 "schemas/stress_neutral_export.v0.3.schema.json")
+# Current generated consumers, checked byte-for-byte by their maintained writer tests on the same source.
+# Their inputs remain under the S6 carrier checks; these are exact named derivations, not hex-hash exceptions.
+GENERATED_ORACLES = {
+    "apps/desktop/src/test-support/analysis-run-v03/analysis_run_v03_cases.json":
+        ("apps/desktop/src/test-support/analysisRunV03Cases.ts", "apps/desktop/src/services/analysisRunV03Parity.test.ts"),
+    "apps/desktop/src/test-support/analysis-run-v03/persistence_forms.json":
+        ("apps/desktop/src/test-support/persistenceFormsCases.ts", "apps/desktop/src/services/persistenceForms.test.ts"),
+    "apps/desktop/src/test-support/native-reopen/historical_reopen_cases.json":
+        ("apps/desktop/src/test-support/historicalReopenCases.ts", "apps/desktop/src/services/historicalReopenParity.test.ts"),
+}
+PROVENANCE_SCOPE = "tools/release/provenance_scope.json"
 NOT_CARRIERS = {
     ROUTING: "derived source-tree/read hashes and three exact source-scan additions (check_routing_inventory)",
     "schemas/load_reference_state.schema.json": "S6's support-law shape (tests/test_load_reference_schema.py)",
@@ -450,11 +465,12 @@ def check_reader_outcomes(before, after):
         inputs = _reader_inputs(rev)
         for key, (_, digest, readings) in entries.items():
             successful = {}
-            if key in inputs and b[key][1] != a[key][1]:
+            if key in inputs:
                 source, invocation = inputs[key]()
                 assert canonical_sha256([source, invocation]) == digest, (rev, key)
-                successful = _successful_reader_outcomes(source, readings)
-                derived += 1
+                if b[key][1] != a[key][1]:
+                    successful = _successful_reader_outcomes(source, readings)
+                    derived += 1
             for reading, (outcome, summary) in readings.items():
                 if not summary.startswith("pass"):
                     assert nl._refusal_digest(summary) == outcome, (rev, key, reading)
@@ -495,6 +511,29 @@ def check(name, after=None):
 
 
 # ---------------------------------------------------------------- per carrier
+
+@pytest.mark.parametrize("name", [
+    "fixtures/results/retained_precision_b2_parity_probes.json",
+    "fixtures/results/retained_precision_combination_successor_sparse_interactive.json",
+    "fixtures/results/retained_precision_combination_successor_dense_scrutiny.json",
+])
+def test_certificate_epoch_bridge_keeps_unchanged_probe_and_fixture_bytes(name):
+    """The certificate proof ends at BASE; these detached inputs remain exact through current S6.
+
+    The moved corpus and reader outcomes instead pass the per-carrier token/hash/summary checks below.
+    """
+    assert current(name) == _at(BASE, name), name
+
+
+@pytest.mark.parametrize("name", sorted(GENERATED_ORACLES))
+def test_generated_oracles_keep_the_qualified_writer_and_full_staleness_check(name):
+    """The required desktop suite derives each complete file with the same writer and byte-for-byte check.
+
+    The membership registration does not substitute for executing those checks on the current candidate.
+    """
+    for source in GENERATED_ORACLES[name]:
+        assert current(source) == _at(QUALIFIED, source), source
+
 
 @pytest.mark.parametrize("name", ORDINARY)
 def test_s6_ordinary_carriers_move_only_the_texts_and_derived_binding_hashes(name):
@@ -552,7 +591,7 @@ S6_SCANS = (("core/reporting/result_export/tests/retained_precision_carriers.rs"
 
 def check_routing_inventory(after=None):
     """Re-derive only the three changed Rust trees, seven source-read hashes and three scan additions on the accepted
-    predecessor's inventory (the final composition: S6's own derivation, applied to PREDECESSOR instead of BASE).
+    main's inventory (recovery composition: S6's own derivation applied to CURRENT_MAIN instead of BASE).
     Every source-scan rule, exclusion, caller, fixture enumeration and unrelated control retains its predecessor value.
     The exact scan contents are checked from the current filesystem, using the selector's declared boundaries."""
     import importlib.util
@@ -560,7 +599,7 @@ def check_routing_inventory(after=None):
     spec = importlib.util.spec_from_file_location("s6_routing_inventory", module_path)
     numerical = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(numerical)
-    expected = json.loads(_at(PREDECESSOR, ROUTING))
+    expected = json.loads(_at(CURRENT_MAIN, ROUTING))
     trees = expected["piping_runtime_reads"]["source_trees"]
     for manifest in S6_TREES:
         digest = numerical.rust_tree_digest(ROOT, Path(manifest))
@@ -609,7 +648,7 @@ def test_routing_composition_attributes_every_moved_value_to_its_lineage():
     """S6's reviewed routing change (BASE -> S6_HEAD) touches exactly the values its derivation names; the accepted
     predecessor's (BASE -> PREDECESSOR) values are kept where S6 does not touch them, S6's reviewed values where the
     predecessor does not, and only the two values both lineages touch are re-derived on the combined source."""
-    base, predecessor, s6, now = (_routing_leaves(rev) for rev in (BASE, PREDECESSOR, S6_HEAD, None))
+    base, predecessor, s6, now = (_routing_leaves(rev) for rev in (BASE, PREDECESSOR, S6_HEAD, QUALIFIED))
     moved = lambda doc: {k for k in base.keys() | doc.keys() if base.get(k) != doc.get(k)}  # noqa: E731
     by_predecessor, by_s6 = moved(predecessor), moved(s6)
     reads = ("piping_runtime_reads", "reads")
@@ -628,7 +667,8 @@ def test_routing_composition_attributes_every_moved_value_to_its_lineage():
                                       next(k for k in scan_moves if k[2] == S6_SCANS[0][0])}
 
 
-@pytest.mark.parametrize("mutation", ["tree_hash", "scan_exclusion", "caller", "predecessor_value", "predecessor_scan"])
+@pytest.mark.parametrize("mutation", ["tree_hash", "scan_exclusion", "caller", "predecessor_value", "predecessor_scan",
+                                     "main_fixture", "main_routing_rule"])
 def test_routing_inventory_refuses_unbound_hashes_weakened_scans_or_lost_callers(mutation):
     doc = json.loads(current(ROUTING))
     reads = doc["piping_runtime_reads"]
@@ -637,6 +677,13 @@ def test_routing_inventory_refuses_unbound_hashes_weakened_scans_or_lost_callers
         parity = "core/handoff/caepipe_mbf_engine/tests/parity.rs"
         assert reads["reads"][parity]["sha256"] != base["reads"][parity]["sha256"]
         reads["reads"][parity]["sha256"] = base["reads"][parity]["sha256"]
+    elif mutation == "main_fixture":
+        entries = [e for declaration in reads["reads"].values() for e in declaration["inputs"]
+                   if "fixtures/embedded_agent/agent-witness-pin.json" in e["files"]]
+        assert len(entries) == 1
+        entries[0]["files"].remove("fixtures/embedded_agent/agent-witness-pin.json")
+    elif mutation == "main_routing_rule":
+        doc["path_rules"].pop(0)
     elif mutation == "predecessor_scan":  # dropping the predecessor's support.rs from the shared complete scan
         entry = next(e for e in reads["reads"][S6_SCANS[0][0]]["inputs"] if e["anchor"] == S6_SCANS[0][1] and e.get("scan"))
         entry["files"].remove("core/solver/modal_eigen/src/support.rs")
@@ -1146,6 +1193,14 @@ def _diff_names(*revs):
 # composition keeps each byte-identical to the predecessor, so they are attributed to it rather than to this stage.
 INHERITED = frozenset({"fixtures/caepipe_mbf/invented/desktop_import/import_replies.json",
                        "fixtures/caepipe_mbf/invented/desktop_import/import_replies.provenance.json"})
+INHERITED_MAIN = frozenset({
+    "fixtures/embedded_agent/agent-witness-pin.json",
+    "software-workflow.json",
+    "tools/ci/python_ci_timings.json",
+    "tools/software_workflow/documentation-inputs.json",
+    "tools/software_workflow/fixtures/library_adoption_paths.json",
+    "tools/tools-test-routing.json",
+})
 
 
 def _inherited():
@@ -1157,7 +1212,15 @@ def _inherited():
 
 
 def _changed():
-    return _diff_names(BASE) - _inherited()
+    return _diff_names(BASE) - _inherited() - _inherited_main()
+
+
+def _inherited_main(read=current):
+    changed = _diff_names(PREDECESSOR, CURRENT_MAIN) - {ROUTING}
+    assert changed == INHERITED_MAIN, sorted(changed ^ INHERITED_MAIN)
+    for name in changed:
+        assert read(name) == _at(CURRENT_MAIN, name), name
+    return changed
 
 
 def test_the_inherited_files_are_the_predecessors_and_only_its():
@@ -1165,12 +1228,52 @@ def test_the_inherited_files_are_the_predecessors_and_only_its():
     assert _diff_names(BASE, PREDECESSOR) & _diff_names(BASE, S6_HEAD) == {ROUTING}
 
 
+def test_later_main_json_is_preserved_without_expanding_s6_carrier_exceptions():
+    assert _inherited_main() == INHERITED_MAIN
+
+
+@pytest.mark.parametrize("name", sorted(INHERITED_MAIN))
+def test_an_edited_main_json_input_is_refused(name):
+    with pytest.raises(AssertionError, match=name):
+        _inherited_main(lambda path: current(path) + " " if path == name else current(path))
+
+
+def check_provenance_scope(text=None):
+    text = current(PROVENANCE_SCOPE) if text is None else text
+    before, after = (json.loads(value) for value in (_at(BASE, PROVENANCE_SCOPE), text))
+    restored = json.loads(text)
+    assert len(before["members"]) == len(after["members"])
+    for old, new, original in zip(before["members"], after["members"], restored["members"], strict=True):
+        assert old["path"] == new["path"]
+        assert new["sha256"] == ce._sha(current(new["path"])), new["path"]
+        original["sha256"] = old["sha256"]
+    assert restored == before
+
+
+def test_provenance_scope_keeps_membership_and_labels_and_derives_only_carrier_hashes():
+    check_provenance_scope()
+
+
+@pytest.mark.parametrize("change", ["member", "label", "hash"])
+def test_an_undeclared_provenance_scope_change_is_refused(change):
+    document = json.loads(current(PROVENANCE_SCOPE))
+    if change == "member":
+        document["members"].pop()
+    elif change == "label":
+        document["members"][0]["labels"].append(["invented", "undeclared"])
+    else:
+        document["members"][0]["sha256"] = "0" * 64
+    with pytest.raises(AssertionError):
+        check_provenance_scope(json.dumps(document))
+
+
 def test_every_json_file_is_in_exactly_one_part():
     """The partition is exact: every changed JSON file outside frozen references, design records and recorded runs is
     compared, table-only, the manifest or a named non-carrier; every earlier-stage carrier is compared or unmoved;
     every file stating an old text is compared, including the replay corpus's explicitly bound history."""
     parts = [set(ORDINARY), set(RETAINED), {J7}, set(TABLE_ONLY), {SCHEMA_MANIFEST}, set(DESKTOP_CARRIERS), set(DERIVED_CARRIERS),
-             {REPLAY_OUTCOMES, PERSISTENCE_REPLIES}, set(NOT_CARRIERS), set(UNMOVED)]
+             {REPLAY_OUTCOMES, PERSISTENCE_REPLIES}, set(NOT_CARRIERS), set(UNMOVED), set(GENERATED_ORACLES),
+             {PROVENANCE_SCOPE}]
     assert sum(map(len, parts)) == len(set().union(*parts)), "a file in two parts"
     changed = _changed()
     assert changed - set().union(*parts) == set(), sorted(changed - set().union(*parts))
@@ -1279,6 +1382,22 @@ def test_a_numerical_mutation_is_refused(name):
         verify_moves(name, moves, seals=seals, content=content)
 
 
+@pytest.mark.parametrize("change", ["certificate", "adapter_count"])
+def test_undeclared_current_certificate_changes_are_refused(change):
+    from tests.retained_precision_corpus import _STORAGE
+
+    name = "fixtures/results/retained_precision_cases.json"
+    corpus = _STORAGE.expand(json.loads(current(name)))
+    check(name, json.dumps(corpus))
+    case = next(c for c in corpus["cases"] if c["id"] == "w1_member_combination_sparse_interactive")
+    if change == "certificate":
+        case["source"]["contract_evidence"]["combination_certificate"]["combinations"][0]["uncovered_row_count"] += 1
+    else:
+        case["source"]["retained_precision"]["body"]["product_attempts"][0]["adapter"]["counts"][4] += 1
+    with pytest.raises(AssertionError):
+        check(name, json.dumps(corpus))
+
+
 def test_a_leftover_reader_outcome_or_forged_digest_is_refused():
     with pytest.raises(AssertionError):
         check(READER_OUTCOMES, _at(BASE, READER_OUTCOMES))
@@ -1299,4 +1418,30 @@ def test_a_forged_successful_reader_outcome_hash_is_refused():
     assert entry[2]["bound"][1].startswith("pass")
     entry[2]["bound"][0] = "7" * 64
     with pytest.raises(AssertionError, match="successful outcome hash"):
+        check_reader_outcomes(_at(BASE, READER_OUTCOMES), json.dumps(document))
+
+
+def test_a_single_reader_outcome_rolled_back_to_the_predecessor_is_refused():
+    document = json.loads(current(READER_OUTCOMES))
+    key = "corpus:case:w1_member_route_e_baseline_sparse_interactive"
+    before = _at(BASE, READER_OUTCOMES)
+    original = next(e for e in json.loads(before)["entries"] if e[0] == key)
+    index = next(i for i, e in enumerate(document["entries"]) if e[0] == key)
+    assert document["entries"][index][1] != original[1]
+    document["entries"][index] = original
+    with pytest.raises(AssertionError, match=key):
+        check_reader_outcomes(before, json.dumps(document))
+
+
+@pytest.mark.parametrize("change", ["summary", "added_reading", "removed_entry"])
+def test_undeclared_current_reader_outcome_changes_are_refused(change):
+    document = json.loads(current(READER_OUTCOMES))
+    entry = next(e for e in document["entries"] if e[0] == "corpus:case:w1_member_route_e_baseline_sparse_interactive")
+    if change == "summary":
+        entry[2]["bound"][1] += " undeclared"
+    elif change == "added_reading":
+        entry[2]["undeclared"] = entry[2]["bound"]
+    else:
+        document["entries"].remove(entry)
+    with pytest.raises(AssertionError):
         check_reader_outcomes(_at(BASE, READER_OUTCOMES), json.dumps(document))
