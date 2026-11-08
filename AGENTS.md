@@ -37,7 +37,8 @@ session; a replacement starts only if that session is lost or the owner asks.
 Agent 0 sends periodic activity summaries and consults it at least before every
 PR merge, as `agents/AGENT_INTERLOCUTOR.md` describes. Its advice requires no
 sign-off and carries no veto; Agent 0 keeps its decisions and the owner keeps
-reserved choices. Sessions that do not select it have no consultation step.
+reserved choices. Its advice is not a required check. Sessions that do not
+select it have no consultation step.
 INTERLOCUTOR delegates nothing. If a matter is still unresolved after three
 rounds of debate, Agent 0 explains its view and proceeds within its authority;
 INTERLOCUTOR may raise pertinent consequences later. It may use a method only
