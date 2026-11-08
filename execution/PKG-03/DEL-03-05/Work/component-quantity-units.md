@@ -1,7 +1,7 @@
 # Component creation quantity units (G6)
 
 Serves RT-G2 and RT-G3. Agent 0 authorized G6 as the first follow-up authoring
-lever on 2026-10-31. The inspector and viewport creation forms previously used
+lever on 2026-10-31. Before G6, the inspector and viewport creation forms used
 one length unit for rigid-body length, both end sizes and the COG vector. The
 reference-system run sheet therefore needed six later end-size edits to preserve
 the fixture's entered units.
