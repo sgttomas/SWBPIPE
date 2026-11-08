@@ -101,7 +101,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-13/DEL-13-04/Procedure.md
+  evidence: execution/PKG-13/DEL-13-04/ScopeOfWork.md#clm-006--upstream-inputs
 - from: DEL-13-01
   condition: 'DEL-13-04 needs DEL-13-01 because the transform consumes design knowledge and provenance
     inputs.
@@ -114,7 +114,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-13/DEL-13-04/Procedure.md
+  evidence: execution/PKG-13/DEL-13-04/ScopeOfWork.md#clm-006--upstream-inputs
 - from: DEL-13-02
   condition: 'DEL-13-04 needs DEL-13-02 because the transform consumes constraint entities.
 
@@ -126,7 +126,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-13/DEL-13-04/Procedure.md
+  evidence: execution/PKG-13/DEL-13-04/ScopeOfWork.md#clm-006--upstream-inputs
 - from: DEL-13-03
   condition: 'DEL-13-04 needs DEL-13-03 because the transform consumes constraint validation context.
 
@@ -138,7 +138,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-13/DEL-13-04/Procedure.md
+  evidence: execution/PKG-13/DEL-13-04/ScopeOfWork.md#clm-006--upstream-inputs
 - from: DEL-04-01
   condition: 'DEL-13-04 needs DEL-04-01 because the analytical target is the 3D centerline/frame mechanics
     boundary.
@@ -151,7 +151,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-13/DEL-13-04/Specification.md
+  evidence: execution/PKG-13/DEL-13-04/ScopeOfWork.md#clm-006--upstream-inputs
 - from: DEL-04-03
   condition: 'DEL-13-04 needs DEL-04-03 because support/restraint semantics are required input surfaces
     for the transform contract.
@@ -164,7 +164,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-13/DEL-13-04/Procedure.md
+  evidence: execution/PKG-13/DEL-13-04/ScopeOfWork.md#clm-006--upstream-inputs
 - from: DEL-05-01
   condition: 'DEL-13-04 needs DEL-05-01 because primitive load semantics are required input surfaces for
     the transform contract.
@@ -177,7 +177,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-13/DEL-13-04/Procedure.md
+  evidence: execution/PKG-13/DEL-13-04/ScopeOfWork.md#clm-006--upstream-inputs
 - from: DEL-02-05
   condition: 'DEL-13-04 needs DEL-02-05 as predecessor evidence because derived analytical outputs diagnostics
     and traceability links require persistence round-trip and hash/no-bypass context before persisted
