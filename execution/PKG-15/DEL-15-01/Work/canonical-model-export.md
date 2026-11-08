@@ -35,7 +35,7 @@ implementation. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-0
     and `private_payload_embedded` stays `false`.
   - The zip/`.opsproj` form and the PKG-17 package-manifest roles stay with
     OI-015-OPEN.
-- **Design ruling, 2026-10-23.** The directory package applies DEC-028, and
+- **Design ruling (HELP_HUMAN), 2026-10-23.** The directory package applies DEC-028, and
   the schema's container stays TBD.
   - Whether it meets DEL-15-01 R12 and V-03 is established by its verification
     evidence (§4). Acceptance stays with the owner at validation, as for

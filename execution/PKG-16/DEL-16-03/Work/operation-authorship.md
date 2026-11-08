@@ -1,6 +1,6 @@
 # Operation authorship on agent and imported routes
 
-Implementation design for RT-E1, 2026-10-31.
+Implementation design for RT-E1, 2026-10-31; decided by Agent 0.
 
 ## Why authorship matters here
 
