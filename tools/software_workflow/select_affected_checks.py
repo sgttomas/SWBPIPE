@@ -13,7 +13,8 @@ def select_checks(profile: dict, paths: list[str]) -> dict:
     selected: set[str] = set(profile.get("always_checks", []))
     reasons: dict[str, list[str]] = {}
     for rule in profile.get("path_rules", []):
-        matched = [path for path in paths if matches(path, rule.get("paths", []))]
+        matched = [path for path in paths if matches(path, rule.get("paths", []))
+                   and not matches(path, rule.get("exclude_paths", []))]
         if matched:
             for check_id in rule.get("checks", []):
                 selected.add(check_id)

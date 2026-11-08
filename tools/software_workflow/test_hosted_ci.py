@@ -113,6 +113,47 @@ class HostedCITests(unittest.TestCase):
             self.assertEqual(select_paths(["AGENTS.md", "loop/LOOP_INIT.md", "execution/_Coordination/NOTICE.md"],
                                           PROFILE)["modes"], modes(**{'piping-python': 'full'}))
 
+    def test_tracked_paths_have_an_explicit_classification(self):
+        paths = hosted_ci.git(SOURCE_ROOT, 'ls-files', '-z').split('\0')
+        unknown = [p for p in paths if p and not any(hosted_ci.rule_matches(p, rule)
+                                                   for rule in PROFILE['path_rules'])]
+        self.assertEqual(unknown, [], 'Classify tracked inputs; do not weaken unknown-input fallback')
+
+    def test_documentation_surfaces_do_not_select_product_jobs_by_path(self):
+        paths = ['CONTRIBUTING.md', 'governance/MAINTAINERS.md',
+                 'governance/CONTRIBUTION_REVIEW_CHECKLIST.md',
+                 'governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md',
+                 '.github/ISSUE_TEMPLATE/README.md', 'tools/REGISTRY.md',
+                 'tools/ac004_supervisor.md', 'tools/deliverables/README.md',
+                 'tools/retained_pricing/README.md']
+        for path in paths:
+            with self.subTest(path=path):
+                selection = route_paths([path], PROFILE)
+                self.assertEqual(selection['checks'], ['records'])
+                self.assertEqual(selection['unmatched_paths'], [])
+                self.assertFalse(hosted_ci.shared_input(path))
+
+    def test_library_adoption_diff_does_not_fall_back_to_every_cargo_crate(self):
+        paths = json.loads((SOURCE_ROOT / 'tools/software_workflow/fixtures/library_adoption_paths.json').read_text())
+        selection = select_paths(paths, PROFILE, SOURCE_ROOT, frozenset(paths))
+        self.assertEqual(selection['unmatched_paths'], [])
+        self.assertEqual(selection['piping_numerical_selection']['fallback_reasons'], [])
+        self.assertEqual(selection['piping_numerical_selection']['manifests'], [])
+        self.assertEqual(selection['modes']['piping-numerical'], 'not-applicable')
+        self.assertEqual(selection['modes']['piping-desktop-rust'], 'not-applicable')
+        # The document readers retain their checks; a documentation suffix is not a blanket skip.
+        self.assertEqual(selection['modes']['piping-python'], 'full')
+        self.assertEqual(selection['modes']['piping-desktop'], 'full')
+
+    def test_unknown_numerical_input_still_requires_every_crate(self):
+        selection = select_paths(['core/solver/unclassified/input.bin'], PROFILE, SOURCE_ROOT)
+        self.assertEqual(selection['piping_numerical_selection']['classification'], 'full-fallback')
+        self.assertTrue(selection['piping_numerical_selection']['manifests'])
+        self.assertEqual(selection['modes']['piping-numerical'], 'full')
+        self.assertEqual(selection['modes']['piping-python'], 'full')
+        unknown = select_paths(['unknown-numerical-input.bin'], PROFILE, SOURCE_ROOT)
+        self.assertTrue(all(value == 'full' for value in unknown['modes'].values()))
+
 
 
 
