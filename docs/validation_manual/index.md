@@ -8,7 +8,7 @@ metadata:
 
 # Validation Manual
 
-This document is governed by `OPS-CONTRACT`; uses the strategy in `OPS-VALIDATION-STRATEGY`.
+This document is governed by `OPS-CONTRACT`; uses the strategy in `OPS-VALIDATION-STRATEGY`; implements `DEL-09-04`.
 
 ## 1. Authority Boundary
 

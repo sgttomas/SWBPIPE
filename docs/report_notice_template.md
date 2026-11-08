@@ -2,7 +2,7 @@
 name: swbpipe-report-notice-template
 description: Provide the engineering-responsibility and data-boundary report notice.
 metadata:
-  kind: example
+  kind: instruction
   surface: reference
 ---
 
