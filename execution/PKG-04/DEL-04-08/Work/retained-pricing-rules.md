@@ -10,7 +10,7 @@ SQ2's own route tables carry their written argument in each entry: the entries w
 
 **Evaluation.** A phase requires requested + moving + R, with R = 64 MiB (67,108,864 B). After its reserve ⌈TAV/20⌉ (TAV_W for W1–W5, TAV_X for X1–X3) it must fit ⌊0.9 M⌋ = 11,596,411,699 B. There are 80 evaluations: the eight phases in both native modes, for the merged tree and for each of the four points (seven phases and 70 evaluations before §8.14 added X3). A complete `run` establishes pricing completeness only. Qualification also needs the in-build atoms, all 80 evaluations, the reviewed inputs and layouts, and independent source and pricing scrutiny (§9). Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
-Sections 1 and 2 hold the shared machinery and premises. Sections 3 to 8 are arranged by the owner each rule bounds, and each rule states the routes (L, E) and phases (W1–W5, X1, X2) it applies to. Section 9 holds the memory-profile gates and registration, and section 10 the reproduction of registered revisions. The last table maps the section names cited elsewhere to their sections here.
+Sections 1 and 2 hold the shared machinery and premises. Sections 3 to 8 are arranged by the owner each rule bounds, and each rule states the routes (L, E) and phases (W1–W5, X1–X3) it applies to. Section 9 holds the memory-profile gates and registration, and section 10 the reproduction of registered revisions. The last table maps the section names cited elsewhere to their sections here.
 
 ## 1. Keys, carry and guards
 
