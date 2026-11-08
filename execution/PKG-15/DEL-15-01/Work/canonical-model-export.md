@@ -1,8 +1,7 @@
 # Canonical model export and handoff manifest (W-6)
 
 **Basis:** `origin/main` at `9d76659e02` (2026-10-23), after model document 0.7.0
-(DEL-02-01 Design `model-document-0.7.0.md`). This is revision 3, after two
-review rounds, each by an independent Claude reviewer and Codex. Design before
+(DEL-02-01 Design `model-document-0.7.0.md`). Design before
 implementation. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## 0. Rulings and requirements
@@ -36,8 +35,8 @@ implementation. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-0
     and `private_payload_embedded` stays `false`.
   - The zip/`.opsproj` form and the PKG-17 package-manifest roles stay with
     OI-015-OPEN.
-- **HELP_HUMAN, 2026-10-23: "accepted as the design."** The directory package
-  applies an existing ruling (DEC-028), and the schema's container stays TBD.
+- **Design ruling (HELP_HUMAN), 2026-10-23.** The directory package applies DEC-028, and
+  the schema's container stays TBD.
   - Whether it meets DEL-15-01 R12 and V-03 is established by its verification
     evidence (§4). Acceptance stays with the owner at validation, as for
     everything else.
@@ -117,7 +116,7 @@ on either route. It needs no solve and no result.
   The screening explicitly covers `provenance_record`, `rule_pack_refs[]` and the
   resolved `library_ref` dispositions. It does not rely on the generic payload
   projection, which passes those through unchanged.
-- **Rust repeats the content checks (implementation review, PR #1588).** The
+- **Rust repeats the content checks.** The
   evidence alone does not admit a save. The command re-establishes the
   conditions on the exact text it admits:
   - the webview shape check, ported to Rust (`model_document_shape.rs`) and
@@ -455,7 +454,6 @@ The vocabulary is not extended here.
 - **Native smoke:** gains Save Model Document… on the demo, then re-open with
   an equal hash. Any new `expected.json` observation goes to HELP_HUMAN as an
   exact change with its cause.
-- **Review:** an independent Claude reviewer and Codex on each slice.
 
 ## 5. Reconciliation
 
