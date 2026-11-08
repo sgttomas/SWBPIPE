@@ -5496,8 +5496,8 @@ RS-OPE's parts against this subset, from the fixture as authored (read, not edit
   - *Technical finding (Agent 0's decision 4; paraphrase).* Omitting RS-EXP's and RS-dSAM's
     mechanics and operand definitions is not cured by carrying their ids in a sidecar.
     Source-based restoration could support an identity round trip; it does not prove target
-    case or combination coverage. Both stay listed as omitted in the loss report. Whether that
-    meets criterion 6 is the owner's (§20.5.13).
+    case or combination coverage. Both stay listed as omitted in the loss report. The owner's
+    2026-11-08 family-list amendment is recorded in §20.5.13; the other refusals still stand.
 - **Supports.** RS-VS1 is a `variable_spring_hanger` (refused as a hanger). The nonlinear supports
   are pending in the fixture; when they land, an operating case with them stays refused (G-10).
 
@@ -5683,14 +5683,19 @@ reviewed implementation change of its own.
 
 #### 20.5.13 Criterion 6 reading: options for the owner
 
-Criterion 6 is reserved to the owner (Agent 0's decision 4, 2026-11-02; paraphrase). Agent 0 puts
-these options to the owner. None is presented as a decision, and this Design makes no local
-reading of "Must family" or of an accepted limitation.
+**Owner decision, 2026-11-08: option 3, "Family list amended".** The owner amended A-3 in
+`Work/desktop-mbf-export-import.md` §8.1; release target §4, criterion 6 records the governing
+family-list statement. RT-A4 coverage is judged elsewhere. The other refusals in §20.5.10
+still stand, so criterion 6 remains unmet. No reference-system round-trip claim is made.
+
+The options below retain the decision basis put to the owner under Agent 0's decision 4,
+2026-11-02 (paraphrase). Option 1's recommendation is superseded by the owner's choice;
+option 2 was not adopted, and no limitation is accepted here.
 
 - **The criterion (release target, exit criterion 6).** The desktop saves the reference system as
   MBF with no Must family omitted or unsupported in the loss report, and imports it back with
   the same entity identities.
-- **The current reading (A-3 in `Work/desktop-mbf-export-import.md`).** The Must families include the Must analysis
+- **The reading before the owner's 2026-11-08 amendment (A-3 in `Work/desktop-mbf-export-import.md`).** The Must families included the Must analysis
   families RT-A4, RT-A6 and RT-A9 that the model holds as cases or combinations. The identity set
   is nodes, pipes, components, supports, load cases, primitive loads, materials, pressure regions
   and sections; combinations are not in it. A-3 records that a family with no documented MBF
@@ -5742,10 +5747,12 @@ Agent 0's paraphrased dispositions (a)–(g) govern this proposal:
    decisions, and O-6 is not adopted. The format-4 downgrade limitation stays explicit;
    provenance authenticity requires trusted selection. Whether a like question arises for a
    point-free Route 1 export (§20.4.5) remains unexamined here; §20.4 is unchanged.
-4. **Criterion 6 (d).** The recommendation to the owner is option 1 of §20.5.13: keep the
-   criterion as written while missing evidence and coverage are pursued. This accepts
-   neither omissions nor a reduced family list. Sidecar ids, if carried, support identity
-   only, never mechanics. The owner alone accepts a limitation or amends the criterion.
+4. **Criterion 6 (d), historical recommendation of 2026-11-02, superseded 2026-11-08.**
+   Agent 0 recommended option 1 of §20.5.13: keep the criterion as written while missing
+   evidence and coverage were pursued, accepting neither omissions nor a reduced family
+   list. The owner subsequently chose option 3; §20.5.13 and A-3 record the amendment.
+   Sidecar ids, if carried, support identity only, never mechanics. The owner alone accepts
+   a limitation or amends the criterion; no limitation was accepted by this decision.
 5. **G-9 and §9.4.** §9.4's claim remains qualified as an unestablished dependency, with its
    history kept. If the opposite is established, the writer's refusal reason, the importer's
    empty region list on the expansion case and its code comment (`importer.py:3779`) need a

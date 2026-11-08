@@ -1,8 +1,11 @@
 # Criterion 6 and the reference system: a note for the owner
 
-**Status: a decision note for the owner. No choice is requested now.** It applies Agent 0's
-decision (d), 2026-11-02 (paraphrase), from `caepipe-mbf-import.md` §20.5.14, referred to below
-as "the Design". It changes no code, criterion, family list or limitation.
+**Status: owner decision recorded, 2026-11-08.** The owner chose option 3, "Family list
+amended", of `caepipe-mbf-import.md` §20.5.13 ("the Design"). A-3 in
+`desktop-mbf-export-import.md` §8.1 holds the amended definition; release target §4,
+criterion 6 holds its governing statement. The earlier option-1 recommendation under
+Agent 0's decision (d), 2026-11-02 (paraphrase), is superseded. No code or accepted
+limitation follows from this record.
 
 **The criterion** (`docs/RELEASE_TARGET_v1.0.md` §4, exit criterion 6, **MBF round trip**):
 
@@ -10,8 +13,10 @@ as "the Design". It changes no code, criterion, family list or limitation.
 >   or unsupported in the loss report.
 > - The desktop imports it back with the same entity identities.
 
-A-3 (`desktop-mbf-export-import.md` §8.1) reads "Must family" as every family the reference
-system holds under criterion 1, plus its cases and combinations. A family with no MBF record
+A-3's owner amendment excludes combinations, which combine solved results, from criterion 6's
+families; RT-A4 coverage is judged elsewhere. It does not change the writer's omission or
+refusal accounting. The other refusals in Design §20.5.10 still stand, so criterion 6 remains
+unmet. No reference-system round-trip claim is made. Any remaining family with no MBF record
 goes to criterion 3's limitations list, which only the owner accepts.
 
 ## Combinations that cannot be written today
@@ -50,21 +55,25 @@ Details are in Design §20.5.10, desktop §1.4 and DEL-09-01 §11.1.
 - **Hanger:** RS-VS1 is refused as a `hanger`. The families still pending in the fixture are
   refused once present.
 
-## Consequence and recommendation
+## Consequence of the owner decision
 
-Under option 1 of §20.5.13 (criterion 6 as written, with A-3's family list), **no full
-reference-system claim can be made today**. No route in the Design meets the criterion.
+The owner chose option 3 on 2026-11-08, rather than accepting the combinations as release
+limitations under option 2. Excluding combinations from criterion 6 does not resolve the other
+blocking families above. No route in the Design meets the amended criterion for the reference
+system; no full reference-system claim can be made.
 
-**Recommended: option 1, while the missing evidence and coverage are pursued.** First come the
-supplier questions in DEL-17-01 `Work/owner-supplier-questions-operating-OA.md`: three for
+## Earlier recommendation, superseded
+
+**Agent 0's 2026-11-02 basis recommended option 1 while missing evidence and coverage were
+pursued. The owner's 2026-11-08 choice of option 3 supersedes that recommendation.** The
+supplier questions remain in DEL-17-01 `Work/owner-supplier-questions-operating-OA.md`: three for
 O-A, then G-7, G-1, G-4, G-2 and G-5, with G-10 held. The coverage tranches of Design
-§20.5.14, item 7, follow. This is not acceptance of the omissions, and it is not a reduced
-family list. Sidecar ids support identity only and never carry mechanics. Source clarification
-could still open a path for RS-EXP: if admitted evidence established G-5, G-2 and G-10, the
-target's own case formation might carry its mechanics. No design proposes that today.
+§20.5.14, item 7, follow. Sidecar ids support identity only and never carry mechanics. The
+historical source question for RS-EXP remains separate: admitted evidence establishing G-5,
+G-2 and G-10 could support the target's own case formation, but no design proposes that today.
 
-## Not requested now
+## Reserved decisions
 
-**No scope choice is requested of the owner now.** Accepting a limitation (criterion 3; option 2)
-and amending the criterion or A-3's family list (option 3) are the owner's decisions alone. No
-agent makes or assumes either, and this note creates or proposes no release limitation.
+No further scope choice is requested by this note. Acceptance of any release limitation
+remains the owner's act; this amendment accepts none and creates or proposes no release
+limitation.

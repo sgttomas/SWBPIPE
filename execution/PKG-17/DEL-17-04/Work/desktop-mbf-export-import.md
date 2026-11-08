@@ -2756,18 +2756,22 @@ Criterion 6 is not claimed.
 
 ### 8.1 For Agent 0
 
-**Ruled by Agent 0, 2026-10-28.** The table keeps the proposals; where a ruling differs, the
-ruling governs.
+**Ruled by Agent 0, 2026-10-28; A-3 amended by the owner, 2026-11-08.** The table keeps the
+original proposals; where a ruling or the owner's later amendment differs, it governs.
 
 - **A-1:** the locality is accepted. The §8.3 texts take one independent review on their exact
   Old/New, then Agent 0's confirmation. Slices 4 and 5 wait for them; slice 2 does not.
 - **A-2:** accepted. Slices 2 and 3 take numerical review. Their parity bar is the whole
   committed MBF corpus, byte for byte both ways, plus the authored cases. The writer is ported
   after the SIF fix lands.
-- **A-3:** this reading is the criterion's own, so it narrows nothing.
+- **A-3 (amended by the owner, 2026-11-08; option 3, "Family list amended", of import
+  Design §20.5.13):**
   - "Must family" means every family the reference system contains under criterion 1, plus
-    the cases and combinations it holds; each traces to its Must row. The RT-row list in the
-    table is a cross-check, not the definition.
+    the cases it holds; each traces to its Must row. Combinations, which combine solved
+    results, are outside criterion 6's families; RT-A4 coverage is judged elsewhere.
+    The RT-row list in the original proposal table is a cross-check, not the definition.
+    The other refusals in import Design §20.5.10 still stand, so criterion 6 remains unmet.
+    No reference-system round-trip claim is made.
   - The identity set is as proposed, sections included, so Q-2's format 4 is a requirement.
   - The project id is excluded because it identifies the store's project, not a model entity,
     and an import must not collide with it (§4.4).
