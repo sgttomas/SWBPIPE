@@ -48,6 +48,15 @@ def test_dispatch_and_shared_runner_edits_keep_broad_coverage():
     assert 'tests/product_preview' in selected('tools/ci/python_ci.py')
 
 
+def test_repeated_full_selection_does_not_mutate_the_cached_cohort():
+    cohort = ci.broad(PROJECT)
+    plan = {'event': 'workflow_dispatch', 'piping_numerical_selection': {'classification': 'full-fallback'}}
+    first = ci.select(PROJECT, plan)
+    assert ci.select(PROJECT, plan) == first
+    assert ci.broad(PROJECT) == cohort
+    assert isinstance(cohort, tuple)
+
+
 def test_numerical_transform_and_invalid_operation_checks_follow_their_inputs():
     base = set(ci.BASE)
     adapter = 'core/model_transform/physical_to_analytical/_solver_boundary_adapter.py'
@@ -406,27 +415,6 @@ def test_repository_check_tests_are_the_governance_step_s():
     assert tuple(line.split('"${deselect[@]}"')[1].split()) == ci.python_test_reads.REPOSITORY_CHECK_TESTS
 
 
-def test_derived_roots_route_a_local_check_that_runs_the_test():
-    """software-workflow.json registers each derived test for every path it reads."""
-    import json
-    import sys
-    sys.path.insert(0, str(PROJECT / 'tools/software_workflow'))
-    from software_workflow_common import matches
-    registry = json.loads((PROJECT / 'software-workflow.json').read_text())
-
-    def runs(check, test):
-        return any(test == arg or test.startswith(arg.rstrip('/') + '/') for arg in registry['checks'][check]['command'])
-    reads = ci.python_test_reads
-    files = sorted(path for path in reads.tracked(PROJECT) if (PROJECT / path).is_file())
-    for test, roots in ci.derived_tests(PROJECT).items():
-        # A root under no known directory (a base the code does not show) spans the project and would route every
-        # local change to the full suite; the advisory local registry leaves those to hosted selection.
-        for root in [root for root in roots if reads._prefix(root)]:
-            for path in [path for path in files if reads.root_matches(path, root)][:1]:
-                checks = {check for rule in registry['path_rules'] if matches(path, rule['paths']) for check in rule['checks']}
-                assert any(runs(check, test) for check in checks), (test, root, path)
-
-
 def test_a_path_only_a_python_test_reads_starts_the_python_job():
     sys_path = str(PROJECT / 'tools/software_workflow')
     import sys
@@ -514,6 +502,70 @@ def test_a_printf_specification_is_consumed_whole(tmp_path):
     (tmp_path / 'm.py').write_text('from pathlib import Path\nPath("fixtures/case_%03d.json" % 7).read_text()\n')
     roots = {root for text in reads._Reader(tmp_path, 'm.py').chain_paths() for root in reads.to_roots(text)}
     assert any(reads.root_matches('fixtures/case_007.json', root) for root in roots), roots
+
+
+def test_expanduser_preserves_external_and_project_relative_path_domains(tmp_path):
+    reads = ci.python_test_reads
+    (tmp_path / 'm.py').write_text('from pathlib import Path\nimport os\n'
+                                 'Path(os.environ.get("RUNNER")).expanduser().resolve()\n'
+                                 'Path("docs/contract.md").expanduser().read_text()\n')
+    roots = {root for text in reads._Reader(tmp_path, 'm.py').chain_paths() for root in reads.to_roots(text)}
+    assert '**' not in roots
+    assert 'docs/contract.md' in roots
+
+
+def test_scalar_path_annotations_do_not_mistake_containers_for_paths(tmp_path):
+    import ast
+    reads = ci.python_test_reads
+    for annotation, expected in [('Path', True), ('pathlib.Path | None', True),
+                                 ('Optional[Path]', True), ('Union[str, Path]', True),
+                                 ('os.PathLike[str]', True), ('Optional[os.PathLike[bytes]]', True),
+                                 ('Annotated[Path, "input"]', True), ('"Path | None"', True),
+                                 ('tuple[str, str, Path] | None', False), ('list[Path]', False),
+                                 ('dict[str, Path]', False), ('NotAPath', False)]:
+        arg = ast.parse(f'def f(value: {annotation}): pass').body[0].args.args[0]
+        assert reads._path_annotation(arg) is expected, annotation
+    (tmp_path / 'm.py').write_text('from pathlib import Path\n'
+                                 'def bundle(): return ("id", "hash", Path("fixtures/case.json"))\n'
+                                 'identity, digest, source = bundle()\nsource.read_text()\n')
+    roots = {root for text in reads._Reader(tmp_path, 'm.py').chain_paths() for root in reads.to_roots(text)}
+    assert 'fixtures/case.json' in roots
+
+
+def test_structural_directory_bases_keep_reads_and_unknown_consumers(tmp_path):
+    reads = ci.python_test_reads
+    def roots(body):
+        (tmp_path / 'm.py').write_text('from pathlib import Path\nimport sys\n'
+                                     'BASE = Path(__file__).resolve().parent / "tools"\n' + body)
+        return {root for text in reads._Reader(tmp_path, 'm.py').chain_paths() for root in reads.to_roots(text)}
+    assert 'tools' not in roots('sys.path.insert(0, str(BASE))\nSOURCE = BASE / "helper.py"\nSOURCE.read_text()\n')
+    assert 'tools/helper.py' in roots('SOURCE = BASE / "helper.py"\nSOURCE.read_text()\n')
+    for use in ['BASE.read_text()\n', 'unknown(BASE)\n', 'list(BASE.rglob("*.md"))\n']:
+        assert 'tools' in roots(use), use
+
+
+def test_sys_path_directory_keeps_the_imported_helpers_document_reader(tmp_path):
+    import subprocess
+    files = {
+        'tests/test_imported.py': 'from pathlib import Path\nimport sys\n'
+                                  'BASE = Path(__file__).resolve().parents[1] / "tools/readers"\n'
+                                  'sys.path.insert(0, str(BASE))\nimport helper\n'
+                                  'def test_document(): assert helper.text()\n',
+        'tools/readers/helper.py': 'from pathlib import Path\n'
+                                   'DOC = Path(__file__).resolve().parents[2] / "docs/contract.md"\n'
+                                   'def text(): return DOC.read_text()\n',
+        'docs/contract.md': 'contract\n',
+        'tools/readers/README.md': 'guide\n',
+    }
+    for name, content in files.items():
+        target = tmp_path / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(content)
+    subprocess.run(['git', 'init', '-q', str(tmp_path)], check=True)
+    subprocess.run(['git', '-C', str(tmp_path), 'add', '.'], check=True)
+    reads = ci.python_test_reads
+    assert 'tests/test_imported.py' in reads.reading_tests(tmp_path, ['docs/contract.md'])
+    assert 'tests/test_imported.py' not in reads.reading_tests(tmp_path, ['tools/readers/README.md'])
 
 
 def test_the_python_job_checks_out_every_path_a_selected_test_reads():

@@ -140,10 +140,18 @@ def derived_tests(project):
     return {test: roots for test, roots in python_test_reads.test_reads(project).items() if test not in UNROUTED}
 
 
+@functools.lru_cache(maxsize=None)
 def broad(project):
     """The broad cohort, with every derived test no rule above names."""
-    named = named_tests(project)
-    return BROAD + sorted(test for test in derived_tests(project) if test not in named)
+    # Only tests actually covered by BROAD may be omitted. named_tests also
+    # includes helper consumers selected by other rules, which are not part of
+    # BROAD and must not disappear from a full run.
+    named = set()
+    for pattern in BROAD:
+        for path in project.glob(pattern):
+            files = path.rglob('*.py') if path.is_dir() else [path]
+            named.update(file.relative_to(project).as_posix() for file in files)
+    return tuple(BROAD + sorted(test for test in derived_tests(project) if test not in named))
 
 
 def helper_consumers(project, helper):
@@ -225,7 +233,7 @@ def select(project, plan, repository_checks_run=False):
     paths = plan.get('paths', [])
     derived = derived_tests(project)
     if plan.get('event') != 'pull_request' or not paths:
-        patterns = broad(project)
+        patterns = list(broad(project))
     else:
         patterns = list(BASE)
         for path in paths:

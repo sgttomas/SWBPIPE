@@ -26,6 +26,16 @@
   "path_rules": [
     {
       "paths": [
+        "CONTRIBUTING.md",
+        "governance/*.md",
+        ".github/ISSUE_TEMPLATE/*.md"
+      ],
+      "checks": [
+        "records"
+      ]
+    },
+    {
+      "paths": [
         ".github/**",
         "tools/software_workflow/**",
         "tools/ci/**",
@@ -38,6 +48,10 @@
         "piping-desktop-rust",
         "piping-numerical",
         "piping-python"
+      ],
+      "exclude_paths": [
+        ".github/ISSUE_TEMPLATE/*.md",
+        "tools/*.md"
       ]
     },
     {
@@ -150,6 +164,10 @@
       ],
       "checks": [
         "piping"
+      ],
+      "exclude_paths": [
+        ".github/ISSUE_TEMPLATE/*.md",
+        "tools/*.md"
       ]
     },
     {
@@ -174,6 +192,10 @@
       "checks": [
         "piping-numerical",
         "piping-python"
+      ],
+      "exclude_paths": [
+        ".github/ISSUE_TEMPLATE/*.md",
+        "tools/*.md"
       ]
     },
     {
@@ -195,6 +217,40 @@
       "checks": [
         "piping-desktop-rust",
         "piping-numerical"
+      ]
+    },
+    {
+      "paths": [
+        ".gitattributes",
+        ".gitignore",
+        "_harness/adapter.yaml",
+        "api/api_boundary_contract.yaml"
+      ],
+      "checks": [
+        "piping",
+        "piping-desktop",
+        "piping-desktop-rust",
+        "piping-numerical",
+        "piping-python"
+      ]
+    },
+    {
+      "paths": [
+        "requirements-dev.txt"
+      ],
+      "checks": [
+        "piping-python"
+      ]
+    },
+    {
+      "paths": [
+        "LICENSE",
+        "LICENSE.md",
+        "provenance/**",
+        "reference/migration/**"
+      ],
+      "checks": [
+        "records"
       ]
     }
   ],

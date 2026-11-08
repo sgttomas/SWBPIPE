@@ -7,6 +7,7 @@ from pathlib import Path
 from software_workflow_common import contained_path, matches
 from compare_structured import flatten
 from validate_change_scope import contained
+from select_affected_checks import select_checks
 
 
 def test_containment_and_globs(tmp_path: Path) -> None:
@@ -14,6 +15,18 @@ def test_containment_and_globs(tmp_path: Path) -> None:
     assert matches("src/a.ts", ["src/**/*.ts", "src/*.ts"])
     assert contained("src/a.ts", "src")
     assert not contained("scripts/a.ts", "src")
+
+
+def test_specific_document_rules_exclude_overlapping_source_rules():
+    profile = {
+        'checks': {'source': {}, 'documents': {}},
+        'path_rules': [
+            {'paths': ['tools/**'], 'exclude_paths': ['tools/*.md'], 'checks': ['source']},
+            {'paths': ['tools/*.md'], 'checks': ['documents']},
+        ],
+    }
+    assert select_checks(profile, ['tools/a/README.md'])['checks'] == ['documents']
+    assert select_checks(profile, ['tools/a/check.py'])['checks'] == ['source']
 
 
 def test_flatten_structured_values() -> None:
