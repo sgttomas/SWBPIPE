@@ -2,8 +2,7 @@
 
 This repository owns SWBPIPE. Enter through `loop/LOOP_INIT.md`; requirements,
 product/data boundaries, adopted work localities and verification are local.
-The conversation supplies the undertaking. Preserve commitments, numerical
-references, source meaning and unrelated work; initialization alone starts none.
+Preserve commitments, numerical references, source meaning and unrelated work.
 
 ## Shared roles and methods
 
