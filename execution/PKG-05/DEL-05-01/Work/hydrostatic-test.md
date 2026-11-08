@@ -38,6 +38,12 @@ to undertake H1; Agent 0 then establishes the actual source and remaining
 changed-proof/qualification obligations before any run. Main's Step 0 design
 below is not replaced by the unmerged candidate.
 
+This public H1 ref and its history remain in scope of the owner's
+D-20/DEC-058 private-term review. Retire the source branch once integrated or
+abandoned by the owner, after securing anything still consumed; the shared
+observation branch's retirement condition is in
+[the CE recovery account](../../../PKG-04/DEL-04-03/Work/constant-effort-publication.md).
+
 The existing model-document 0.9.0 member is optional, closed and unchanged:
 
 | Member of `load_cases[].test_condition` | Required value | Meaning |

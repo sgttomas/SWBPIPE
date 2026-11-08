@@ -26,6 +26,14 @@ reachable through `codex/recovery-observations-20261108`. Temporary PR drafts,
 generated deliverables reports and build caches are convenience outputs; source
 alone cannot replace a missing historical observation.
 
+The public CE and recovery-observation refs, including their histories and
+raw local-host paths, remain in scope of the owner's D-20/DEC-058 private-term
+review; publication supplies no scan signature. Retire the CE source branch
+once integrated or abandoned by the owner, after securing anything still
+consumed. Retire the shared observation branch only when its CE, S6, modal and
+H1 evidence consumers no longer need it and no protected-evidence or owner
+retention requirement applies.
+
 **Agent 0 recommendation:** settle CE/S6's predecessor and correct this wrong
 output before further modal composition. #166 recommends S6 then CE; determine
 the actual composition before choosing the sequence. This is a recommendation,
