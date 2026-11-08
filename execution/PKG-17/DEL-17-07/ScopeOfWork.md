@@ -402,7 +402,7 @@ This Scope of Work defines `DEL-17-07` in service of project scope [SOW-030, SOW
 > - checking that source-grounding gaps remain `TBD`, assumptions, or conflict-table entries;
 > - checking that no implementation code, schema files, protected standards data, proprietary examples, or professional/release/compatibility claims were introduced.
 >
-> Future implementation verification remains `TBD` and should be defined only after the PCF profile and writer tranche are sealed.
+> Profile-bound implementation acceptance verification remains `TBD` and should be defined only after the PCF profile and writer tranche are sealed. Existing reference-foundation checks are in `tests/test_pcf_export_package.py`; they do not establish acceptance against a selected PCF profile.
 >
 
 ### CLM-034 — Records
@@ -417,8 +417,7 @@ This Scope of Work defines `DEL-17-07` in service of project scope [SOW-030, SOW
 > - stable ID sidecar map;
 > - diagnostics;
 > - loss report;
-> - invented fixture provenance records;
-> - run records for TASK execution and validation.
+> - invented fixture provenance records.
 
 - **VER-001** — Validate the contract and review source parity, PCF source/profile gates, deterministic output, identity and unit treatment, every mapping and loss class, warning policy, retained version and mapping TBDs, fixture provenance, protected-content exclusions, and absence of compatibility, release, compliance, or professional-acceptance claims.
 

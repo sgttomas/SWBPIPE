@@ -548,7 +548,8 @@ classification. It never prints external-prover values outside the local run.
   (conversion), multiple thermal cases.
 - The desktop `.mbf` export now runs the native SI writer (DEL-17-04 slice 4b.2b, File >
   Export MBF…); the placeholder smoke text and its preview package are retired. The external-run
-  panel names that package only historically, as not available.
+  panel names that package only historically, as not available. Its external-run evidence
+  still needs to bind to an MBF written by the desktop native export before use as run input.
 - A wider correlation corpus (larger models, more load types) under the full licence.
 - The pilot's own bend case uses k = 1. Non-unit factors are exercised only by the benchmark's G2 set (§11.1).
 - CAEPIPE's pipe shear shape factor and default gravitational acceleration

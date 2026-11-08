@@ -24,7 +24,7 @@ On 2026-10-26 every `https://www.sstusa.com/...` path above answered
 are now published at `https://docs.sstcae.com/`, with the same page names: the
 user's manual at `https://docs.sstcae.com/users_manual/caepipe_user_s_manual.htm`
 and the technical reference at `https://docs.sstcae.com/tech_manual/index.htm`.
-Agent 0 made the live pages the primary basis on 2026-10-26; the Internet Archive
+The live pages are the primary basis selected on 2026-10-26; the Internet Archive
 captures of the old URLs are the fallback. Nothing private or vendor-installed is
 cited.
 
@@ -56,9 +56,7 @@ cited.
 
 ### Boundary change: `CAEPIPE-ANALYSIS` (G-2; adopted by Agent 0, 2026-11-02)
 
-**Adopted by Agent 0 on 2026-11-02** (paraphrase), after independent IP/contract review of the
-identical proposed text at `dfae224bd` (PR #85). The table above now carries the adopted
-boundary.
+The table above carries the boundary adopted on 2026-11-02.
 
 - **Old boundary cell:** analysis-option semantics only: number of thermal loads,
   gravitational acceleration and direction.

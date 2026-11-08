@@ -386,10 +386,8 @@ This Scope of Work defines `DEL-17-09` in service of project scope [SOW-030, SOW
 > - `Specification.md`
 > - `Guidance.md`
 > - `Procedure.md`
-> - `_STATUS.md` safe state update from `OPEN` to `INITIALIZED` when applicable
-> - `_run_records/TASK_RUN_*.md`
 >
-> Future target-admission runs should add records only under their own sealed write scope. Expected decision artifacts remain `TBD` unless a later brief names them; candidates include a target registry record, source-basis admission record, validation checklist record, and run record. `MEMORY.md` is intentionally not updated in this phase.
+> Future target-admission runs should add records only under their own sealed write scope. Expected decision artifacts remain `TBD` unless a later brief names them; candidates include a target registry record, source-basis admission record, validation checklist record, and run record.
 
 ### CLM-033 — D-41 R5 T2A canonicalization check (2026-07-12)
 

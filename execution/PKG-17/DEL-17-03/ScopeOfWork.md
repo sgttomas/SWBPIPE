@@ -177,6 +177,9 @@ This Scope of Work defines `DEL-17-03` in service of project scope [SOW-030, SOW
 >
 > 1. Read DEL-17-01 source basis and DEL-17-02 export contract.
 > 2. Maintain the native JSON package contract and bounded implementation foundation in sync.
+>
+> The remaining steps describe the historical population procedure, not current maintenance.
+>
 > 3. Generate `_SEMANTIC.md` with `semantic-matrix-build`.
 > 4. Generate `_SEMANTIC_LENSING.md` with `lens-register`.
 > 5. Apply warranted P3 enrichment through `four-documents P3_ONLY`.

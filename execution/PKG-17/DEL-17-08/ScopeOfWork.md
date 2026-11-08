@@ -325,15 +325,10 @@ This Scope of Work defines `DEL-17-08` in service of project scope [SOW-030, SOW
 > ###### Phase A document population
 >
 > 1. Read the deliverable-local truth set: `_CONTEXT.md`, `_STATUS.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, and `MEMORY.md`.
-> 2. Read AGENTS/TASK/ORCHESTRATOR/four-documents instructions.
-> 3. Read DEL-17-01 and DEL-17-02 four-document kits and DEL-17-01 source-basis records.
-> 4. Read project governance and technical references: `docs/CONTRACT.md`, `docs/IP_AND_DATA_BOUNDARY.md`, `docs/SPEC.md`, `docs/TYPES.md`, `schemas/model.schema.yaml`, and `plans/EXPORT_FORMAT_INTEROPERABILITY_PLAN.md`.
-> 5. Read the Khronos glTF 2.0 source slices for asset structure, coordinate/units convention, GLB container behavior, mesh primitive modes, nodes, extensions, and `extras` metadata.
-> 6. Populate the four documents at contract level only.
-> 7. Preserve `TBD` entries for unresolved geometry coverage, identity metadata placement, sidecar schema, filename/profile defaults, coordinate transform, fixture behavior, and viewer behavior.
-> 8. Do not update `MEMORY.md` in Phase A.
-> 9. Create or update the run record in `_run_records/`.
-> 10. If the four documents exist and `_STATUS.md` is `OPEN`, perform the safe status transition to `INITIALIZED`.
+> 2. Read DEL-17-01 and DEL-17-02 four-document kits and DEL-17-01 source-basis records.
+> 3. Read project governance and technical references: `docs/CONTRACT.md`, `docs/IP_AND_DATA_BOUNDARY.md`, `docs/SPEC.md`, `docs/TYPES.md`, `schemas/model.schema.yaml`, and `plans/EXPORT_FORMAT_INTEROPERABILITY_PLAN.md`.
+> 4. Read the Khronos glTF 2.0 source slices for asset structure, coordinate/units convention, GLB container behavior, mesh primitive modes, nodes, extensions, and `extras` metadata.
+> 5. Preserve `TBD` entries for unresolved geometry coverage, identity metadata placement, sidecar schema, filename/profile defaults, coordinate transform, fixture behavior, and viewer behavior.
 >
 
 ### CLM-029 — Future profile-development procedure
