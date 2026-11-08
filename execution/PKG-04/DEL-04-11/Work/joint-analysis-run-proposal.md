@@ -403,12 +403,13 @@ reader is added in both languages. It checks:
     It stays distinct from an unflagged 0. NaN and infinity are never substituted.
   - `mode:<i>` is run-local only, not a persistent physical identity. The concrete index
     and row spellings, and the signatures, are unknown.
-  - The global mass summary needs an explicit model or group basis, not mode 0 and not
-    a blanket all-rows mode (M-3). **This conflicts with modal §5.2 as written** ("Each
-    row carries `basis_ref {ref_type: "mode", …}`"). It is a governing-text change to
-    coordinate with the modal lane on adoption, not a statement of the current
-    contract. Modal §5.2's planned `modal` run kind in `analysis_run.v0.3` is likewise a
-    text to reconcile; O-8 leaves its compatibility open.
+  - For the current experimental family, global mass rows use the model basis
+    `{ref_type: "model", ref_id: "model"}` (modal §5.3.2). M-3 at the 2026-11-02
+    basis, modal 4cf32bfd4, called for an explicit model or group basis rather than
+    mode 0 or a blanket all-rows mode and identified a conflict with modal §5.2
+    as then written ("Each row carries `basis_ref {ref_type: "mode", …}`").
+    Modal §5.3.1 identifies the §5.2 envelope and run-kind additions as a superseded
+    proposal; joint-record adoption and O-8 recording policy remain open.
   - Rows are `ResultRef`-like: id, ordinal and canonical checksum. There is no LoadCase
     coercion.
   - RT-R2 views need their own family definition; storage alone gives no UI support.

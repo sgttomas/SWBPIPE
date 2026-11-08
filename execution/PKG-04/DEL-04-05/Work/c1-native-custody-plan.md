@@ -9,8 +9,8 @@ approved by SWBPIPE Agent 0 on 2026-10-31 on three conditions:
   for integration by Agent 0 on 2026-11-05; see slice 7, "Integration decision".)*
 - C1 keeps today's v0.3 persistence, with exact-length refusals by name.
 
-**Basis:** main at `e1a483b6c`. This is a working plan. Each slice lands as a commit on
-`claude/rt-perf-c1-custody`, and the C1 PR stays in draft until slice 7's measurement.
+**Basis:** main at `e1a483b6c`. The integration decision and remaining measurement limits
+are in slice 7.
 
 ## 1. Data flow, before and after
 
@@ -42,7 +42,7 @@ Each slice lists its files, its checks and the existing tests it moves.
 paints, so the switch needs the native preview to exist first. Record Run's and Save Project's
 connection to the job handle (the rest of slice 5) follows the switch.
 
-### Slice 1: native verdict (done; review fixes and rulings in §8)
+### Slice 1: native verdict
 
 **Files:**
 - `src-tauri/src/solve_jobs.rs`: the retained result becomes `Arc<HeldResult>`, so the bytes
@@ -99,7 +99,7 @@ connection to the job handle (the rest of slice 5) follows the switch.
   refuses (§4).
 - The webview is not switched in this slice.
 
-### Slice 2: S projection (implemented; independently reviewed, with tested repairs)
+### Slice 2: S projection
 
 **Files:**
 - `src-tauri/src/result_summary.rs` (the command, its admission and S's header),
@@ -206,7 +206,7 @@ pages; slice 4 switches those panels to it, without restoring a full-envelope fe
   outside the semantic tables' vocabulary (the tables have none); `source_result_refs` that is not
   an array; model ids that are not strings.
 
-### Slice 3: paged detail and batched semantics (implemented; independently reviewed, with tested repairs)
+### Slice 3: paged detail and batched semantics
 
 **Files:**
 - `src-tauri/src/result_detail.rs` (the index and the four commands) and `result_detail_tests.rs`.

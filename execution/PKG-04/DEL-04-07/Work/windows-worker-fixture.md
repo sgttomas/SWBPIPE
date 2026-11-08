@@ -108,9 +108,7 @@ allocator/channel deadlock; commit/working-set conflation or unreserved
 transition; lease release on kill request/EOF; process escape or inherited Job
 lifetime; hangs/leaks; swallowed child/test failures or empty selection;
 changed references/production policy; secret/write/provisioning overreach.
-Independent review uses at most three adversarial tooling rounds. Findings
-outside this model are recorded; a new kind inside it goes to Agent 0. No
-fixture result permits silently shortening the governing headroom wait.
+No fixture result permits silently shortening the governing headroom wait.
 
 ## Official API basis
 

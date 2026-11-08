@@ -16,7 +16,7 @@ pipes was not reported.
 
 ## Ruling
 
-Every finding here is a **warning**. Nothing new refuses:
+Every finding here is a **warning**. These checks do not refuse:
 - a model whose parts are each restrained is solvable, and is sometimes
   intended (two independent lines in one document);
 - coincident nodes may be intended (for example, two lines crossing without a
