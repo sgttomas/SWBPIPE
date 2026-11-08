@@ -1,24 +1,14 @@
 ---
-doc_id: OPS-SECURITY-TELEMETRY-POLICY
-doc_kind: security.telemetry_policy
-status: draft
-created: 2026-05-02
-deliverable_id: DEL-12-03
-package_id: PKG-12
-scope_items:
-  - SOW-037
-objectives:
-  - OBJ-010
-refs:
-  - rel: governed_by
-    to: OPS-CONTRACT
-  - rel: governed_by
-    to: OPS-IP-DATA-BOUNDARY
-  - rel: informed_by
-    to: OPS-SECURITY-THREAT-MODEL
+name: swbpipe-security-telemetry-policy
+description: Define telemetry defaults, permitted content and privacy boundaries.
+metadata:
+  kind: instruction
+  surface: requirements
 ---
 
 # Telemetry Policy
+
+This document is governed by [CONTRACT.md](../CONTRACT.md); is governed by [IP_AND_DATA_BOUNDARY.md](../IP_AND_DATA_BOUNDARY.md); is informed by [threat_model.md](threat_model.md).
 
 This policy defines OpenPipeStress telemetry posture for `DEL-12-03`. It is a
 privacy and product-boundary artifact, not a telemetry implementation, vendor

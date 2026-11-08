@@ -1,3 +1,10 @@
+---
+name: swbpipe-third-party-notices
+description: Record third-party licensing and notices for bundled components.
+metadata:
+  kind: explanation
+  surface: reference
+---
 # Third-party notices
 
 ## OpenAI Codex 0.160.0

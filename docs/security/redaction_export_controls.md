@@ -1,24 +1,14 @@
 ---
-doc_id: OPS-SECURITY-REDACTION-EXPORT-CONTROLS
-doc_kind: security.redaction_export_controls
-status: draft
-created: 2026-05-03
-deliverable_id: DEL-12-02
-package_id: PKG-12
-scope_items:
-  - SOW-040
-objectives:
-  - OBJ-010
-refs:
-  - rel: governed_by
-    to: OPS-CONTRACT
-  - rel: informed_by
-    to: OPS-SECURITY-LOCAL-FIRST-STORAGE-POLICY
-  - rel: informed_by
-    to: OPS-SECURITY-THREAT-MODEL
+name: swbpipe-security-redaction-export-controls
+description: Define redaction and export controls for private and protected data.
+metadata:
+  kind: instruction
+  surface: requirements
 ---
 
 # Redaction And Export Controls
+
+This document is governed by [CONTRACT.md](../CONTRACT.md); is informed by [local_first_storage_policy.md](local_first_storage_policy.md); is informed by [threat_model.md](threat_model.md).
 
 This document defines the `DEL-12-02` redaction and export-control behavior for
 public reports, public examples, shared model exports, downstream-tool exports,

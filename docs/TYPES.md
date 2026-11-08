@@ -1,11 +1,9 @@
 ---
-doc_id: OPS-TYPES
-doc_kind: governance.types
-status: draft
-created: 2026-04-30
-refs:
-  - rel: governed_by
-    to: OPS-CONTRACT
+name: swbpipe-types
+description: Define SWBPIPE domain terms, identities and status semantics.
+metadata:
+  kind: instruction
+  surface: requirements
 ---
 
 Pressure applicability follows the [current pressure contract](../execution/PKG-04/DEL-04-07/Work/pressure-contract.md).
@@ -14,6 +12,8 @@ to pressure quantities or validation coverage below are subject to that current
 boundary and do not establish implemented T4 capability.
 
 # TYPES — OpenPipeStress Domain Vocabulary and Identity
+
+This document is governed by [CONTRACT.md](CONTRACT.md).
 
 ## 1. Project hierarchy
 

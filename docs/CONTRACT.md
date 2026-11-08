@@ -1,16 +1,14 @@
 ---
-doc_id: OPS-CONTRACT
-doc_kind: governance.contract
-status: draft
-created: 2026-04-30
-refs:
-  - rel: depends_on
-    to: OPS-TYPES
-  - rel: informs
-    to: OPS-SPEC
+name: swbpipe-contract
+description: Define SWBPIPE product invariants and responsibility boundaries.
+metadata:
+  kind: instruction
+  surface: requirements
 ---
 
 # CONTRACT — OpenPipeStress Invariant Catalog
+
+This document depends on [TYPES.md](TYPES.md); informs [SPEC.md](SPEC.md).
 
 This document defines SWBPIPE product invariants. The repository's `AGENTS.md` and
 `LOOP_INIT.md` govern development; product safety, data and professional boundaries

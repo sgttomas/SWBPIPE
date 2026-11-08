@@ -1,3 +1,10 @@
+---
+name: swbpipe-completeness-map
+description: Summarize implementation coverage and remaining development gaps.
+metadata:
+  kind: explanation
+  surface: reference
+---
 # SWBPIPE completeness and reconciliation map
 
 **Basis:** `origin/main` at `8a8a8b2584` (2026-10-23). Folded in since: W-4

@@ -1,3 +1,10 @@
+---
+name: swbpipe-examples-rule-pack-notice
+description: Show the required notice for invented rule-pack examples.
+metadata:
+  kind: example
+  surface: reference
+---
 # Invented Rule-Pack Example Notice
 
 `examples/rule_packs/invented_demo.yaml` is software demonstration content only.

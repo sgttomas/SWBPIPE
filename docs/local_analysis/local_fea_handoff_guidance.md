@@ -1,12 +1,9 @@
 ---
-doc_id: DEL-10-03-LOCAL-FEA-HANDOFF-GUIDANCE
-doc_kind: API_CONTRACT.guidance
-status: draft
-created: 2026-05-03
-deliverable_id: DEL-10-03
-package_id: PKG-10
-scope_items: SOW-031,SOW-049
-objective: OBJ-009
+name: swbpipe-local-analysis-local-fea-handoff-guidance
+description: Define guidance labels for local external-analysis handoffs.
+metadata:
+  kind: instruction
+  surface: reference
 ---
 
 # Local FEA Handoff Guidance Labels

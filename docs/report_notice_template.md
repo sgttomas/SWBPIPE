@@ -1,17 +1,14 @@
 ---
-doc_id: OPS-REPORT-NOTICE-TEMPLATE
-doc_kind: report.notice_template
-status: draft
-created: 2026-05-01
-deliverable_id: DEL-01-04
-refs:
-  - rel: governed_by
-    to: OPS-PROFESSIONAL-BOUNDARY
-  - rel: governed_by
-    to: OPS-IP-DATA-BOUNDARY
+name: swbpipe-report-notice-template
+description: Provide the engineering-responsibility and data-boundary report notice.
+metadata:
+  kind: instruction
+  surface: reference
 ---
 
 # Report Notice Template
+
+This document is governed by [PRD §21 professional boundaries](PRD.md#21-professional-boundary-requirements); is governed by [IP_AND_DATA_BOUNDARY.md](IP_AND_DATA_BOUNDARY.md).
 
 This template defines baseline notice language for SWBPIPE-generated
 reports and public report-template examples. Report generators may format this

@@ -1,13 +1,9 @@
 ---
-doc_id: OPS-PLUGIN-BOUNDARY
-doc_kind: architecture.api_contract
-status: draft
-created: 2026-04-30
-deliverable_id: DEL-10-01
-package_id: PKG-10
-scope_item: SOW-030
-decomposition_revision: "0.7"
-scope_change_authority: SCA-004
+name: swbpipe-architecture-plugin-boundary
+description: Define the plugin boundary, access rules and unresolved interfaces.
+metadata:
+  kind: instruction
+  surface: requirements
 ---
 
 # Plugin Boundary

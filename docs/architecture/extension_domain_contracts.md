@@ -1,11 +1,9 @@
 ---
-doc_id: OPS-EXTENSION-DOMAIN-CONTRACTS
-doc_kind: architecture.domain_contract
-status: draft
-created: 2026-04-30
-deliverable_id: DEL-02-04
-package_id: PKG-02
-scope_item: SOW-038
+name: swbpipe-architecture-extension-domain-contracts
+description: Define extension-domain identities, contracts and unresolved interfaces.
+metadata:
+  kind: instruction
+  surface: requirements
 ---
 
 # Extension Domain Contracts

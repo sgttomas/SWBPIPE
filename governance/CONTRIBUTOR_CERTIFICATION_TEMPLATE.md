@@ -1,19 +1,14 @@
 ---
-doc_id: OPS-CONTRIBUTOR-CERTIFICATION-TEMPLATE
-doc_kind: governance.certification_template
-status: draft
-created: 2026-05-01
-deliverable_id: DEL-01-03
-refs:
-  - rel: governed_by
-    to: OPS-CONTRACT
-  - rel: implements
-    to: OPS-IP-DATA-BOUNDARY
-  - rel: used_by
-    to: OPS-CONTRIBUTING
+name: swbpipe-contributor-certification-template
+description: Record contribution provenance and review evidence within the existing intake policy.
+metadata:
+  kind: instruction
+  surface: reference
 ---
 
 # Contributor Certification Template
+
+This document is governed by [CONTRACT.md](../docs/CONTRACT.md); implements [IP_AND_DATA_BOUNDARY.md](../docs/IP_AND_DATA_BOUNDARY.md); is used by [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 This template records contributor source, rights, redistribution, and review
 evidence for public SWBPIPE contributions. It is project governance. It

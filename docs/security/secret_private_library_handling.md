@@ -1,25 +1,14 @@
 ---
-doc_id: OPS-SECURITY-SECRET-PRIVATE-LIBRARY-HANDLING
-doc_kind: security.secret_private_library_handling
-status: draft
-created: 2026-05-09
-deliverable_id: DEL-12-04
-package_id: PKG-12
-scope_items:
-  - SOW-040
-  - SOW-029
-objectives:
-  - OBJ-010
-refs:
-  - rel: governed_by
-    to: OPS-CONTRACT
-  - rel: informed_by
-    to: OPS-SECURITY-LOCAL-FIRST-STORAGE-POLICY
-  - rel: informed_by
-    to: OPS-SECURITY-REDACTION-EXPORT-CONTROLS
+name: swbpipe-security-secret-private-library-handling
+description: Define bounded handling of secrets and private library references.
+metadata:
+  kind: instruction
+  surface: requirements
 ---
 
 # Secret And Private-Library Handling
+
+This document is governed by [CONTRACT.md](../CONTRACT.md); is informed by [local_first_storage_policy.md](local_first_storage_policy.md); is informed by [redaction_export_controls.md](redaction_export_controls.md).
 
 This document defines the bounded `DEL-12-04` reference-handling behavior for
 private libraries, private path references, secret-like fields, and credential

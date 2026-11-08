@@ -1,3 +1,10 @@
+---
+name: swbpipe-standing
+description: Carry SWBPIPE work under its standing authority and boundaries.
+metadata:
+  kind: instruction
+  surface: standing
+---
 # SWBPIPE repository instructions
 
 This repository owns SWBPIPE. Enter through `loop/LOOP_INIT.md`; requirements,
@@ -7,14 +14,15 @@ Preserve commitments, numerical references, source meaning and unrelated work.
 ## Shared roles and methods
 
 Use the selected Chirality Library (the Library) edition: Chirality library
-2.1.0, tag `library-v2.1.0`, commit `c35b7bbc463f81c1fed566c744ea49d168d29eee`
+3.1.0, tag `library-v3.1.0`, commit `88ab3f4f5f8ec7f7e030279164dbd1a4aa38b514`
 of `https://github.com/sgttomas/chirality-library`. Read it from that commit in
 `/Users/ryan/dev/chirality-library` on this workspace
 (`git -C /Users/ryan/dev/chirality-library show <commit>:<path>`), from the
 release's source archive, or from an owner-selected copy of that edition
 elsewhere. That checkout's working tree is the selected source only while it is
 at that commit; do not read another revision as this edition. Changing the
-edition is a deliberate SWBPIPE change. Resolve shared `agents/` and
+edition is a deliberate SWBPIPE change. Record the resolved Library revision
+with results that depend on it. Resolve shared `agents/` and
 `workflows/` paths against the selected source. Tool-use
 instructions are repository content kept beside the tool they instruct, not
 harness skills. Load the active role's `agents/AGENT_<ROLE>.md` and other method bodies
@@ -22,16 +30,21 @@ only when needed. HELP_HUMAN retains purpose/alignment; HELPS_HUMANS designs;
 WORKING_ITEMS owns implementation/integration; TASK executes a bounded assignment
 and does not delegate. The owner-facing agent retains Agent 0 responsibilities.
 
-INTERLOCUTOR is optional per session and is not selected by default for any
-session or for this repository. Any of the first three roles may delegate it; it
-delegates nothing. In a session that selects it, Agent 0 gives it periodic
-summaries of the actual work and consults it at least before every PR merge.
-Its advice carries no sign-off or veto and is not a required check. If a matter
-is still unresolved after three rounds of debate, Agent 0 explains its view and
-proceeds within its authority, and INTERLOCUTOR may raise pertinent consequences
-later. Its ordinary advisory brief needs no method. It may use a method only
-where that method's roles list names it, and any tools or writes come only
-from its actual assignment and host authority.
+INTERLOCUTOR is opt-in per session and is not selected by default for any
+session or for this repository. When session steering selects it, Agent 0 starts
+one INTERLOCUTOR session and continues it by message for the life of the Agent 0
+session; a replacement starts only if that session is lost or the owner asks.
+Agent 0 sends periodic activity summaries and consults it at least before every
+PR merge, as `agents/AGENT_INTERLOCUTOR.md` describes. Its advice requires no
+sign-off and carries no veto; Agent 0 keeps its decisions and the owner keeps
+reserved choices. Its advice is not a required check. Sessions that do not
+select it have no consultation step.
+INTERLOCUTOR delegates nothing. If a matter is still unresolved after three
+rounds of debate, Agent 0 explains its view and proceeds within its authority;
+INTERLOCUTOR may raise pertinent consequences later. It may use a method only
+where that method's roles list names it. Its standing assignment is to advise
+that Agent 0 throughout the session; tools and permitted writes come from the
+actual assignment and host authority.
 
 Use `workflows/coordinated-knowledge-work/WORKFLOW.md` when coordinating related
 contributions, the library's `workflows/index.json` to select other methods, and
@@ -84,9 +97,14 @@ with `check`, `neighborhood`, `impact`, `touches` or `dag-diff`. Preserve unchan
 declarations and historical identities. Git records changes; do not manufacture
 acceptance, lifecycle advancement or a standing backlog from old records.
 
+Keep current findings and their reasons in `Work/`; keep the change's approval
+quotes and review/check narrative in the PR. Lead owner updates with the result
+or decision needed. Use plain prose with spaced identifiers in messages to
+delegates.
+
 Use focused checks for ordinary changes. Numerical meaning, persistence,
 permissions and destructive operations require targeted regression checks and
-independent scrutiny, with the proportionate-review rules in the local loop.
+independent scrutiny, under the [proportionate-review delegation](#standing-delegation-to-help_human).
 Never change a result merely to silence a failure. Reuse applicable evidence;
 state unavailable checks and unresolved inputs explicitly.
 
@@ -95,7 +113,67 @@ remain subject to the owner's authority and explicit local delegations.
 Repository settings, branch protections and required-check changes must be
 presented to the owner before changing them.
 
-### Standing Git grant
+When an owner instruction overrides a standing rule, note the exception in the
+PR and ask once whether the standing rule should change.
+
+## Standing delegation to HELP_HUMAN
+
+- **Wording.** HELP_HUMAN may edit acceptance-criterion wording that must
+  change only to describe consequences of decisions the owner has already made,
+  with every protected fact unchanged (owner, 2026-10-19). It may also replace
+  ScopeOfWork, Design and acceptance wording as it recommends, without asking
+  first, once an independent review has examined the exact old and new text and
+  HELP_HUMAN is clear in the matter (owner, 2026-10-23: "You can continue to
+  replace wording as you recommend without asking me any more so long as an
+  independent review has been done and you're clear in the matter."). The PR
+  quotes the old and new text and the review.
+- **Engineering judgment.** HELP_HUMAN resolves a matter of precision or detail
+  that cannot otherwise be resolved with a practical resolution within
+  normative engineering practice (owner, 2026-10-26: "units conversions that
+  are routinely done in engineering applications are permissible as a
+  solution." and "I will leave with you Agent 0, in your capacity of
+  HELP_HUMAN, with exercising engineering judgment where it can help resolve a
+  matter that is due to precision or details that can't be resolved except to
+  allow a practical resolution that is within normative engineering
+  practices."). The owner's basis is that the design, physics and numerical
+  methods are established, so such a resolution is not a degraded output. The
+  governing Design text records each resolution and its reason.
+- **Scope for the climb.** The goal is an app on par with or superior to
+  CAEPIPE and other industry applications in modelling and user interface
+  (owner, 2026-10-27: "At this point we're hill-climbing towards an app that
+  would be on par with or considered superior to CAEPIPE and other industry
+  standard applications in this domain, in terms of the modelling
+  characteristics and the user interface, so if there's a change or expansion
+  in scope that would clearly benefit that kind of hill climb then we want to do
+  it and you can decide under the extension of the same standing delegation
+  authorization. If it fixes a mistake, if it plugs an obvious gap, if it's
+  about making something more accurate, truthful, or capable without
+  considerable risks of any sort, you can take initiative and drive scope
+  towards a successful completion of the first publications ready version of
+  SWBPIPE."). HELP_HUMAN decides such scope changes, including commitment and
+  acceptance-criterion text, and may reverse earlier deferrals to v0.2 (owner,
+  2026-10-27: "Yes, decide them too"). It approves feature proposals and reports
+  what it adopted, deferred and why (owner, 2026-10-27: "I decide, you get a
+  summary"). The governing text records each decision and its reason.
+- **Proportionate review** (HELP_HUMAN's proposal, approved by the owner on
+  2026-10-28: "These are all good changes to bring about and I approve.").
+  Independent review rounds are for numerical meaning, persistence and
+  permissions; another change gets at most one review round. Verification
+  tooling (scanners, judges, guards) is reviewed against a threat model stated
+  in its brief, for at most three adversarial rounds: a finding outside the
+  model is recorded, not repaired, and a new kind of finding inside it goes to
+  Agent 0. Re-pricing registrations whose coefficients do not move may share
+  one D3 turn. Returns and briefs are as short as their content allows.
+
+Under every delegation, changed commitment text still gets an independent
+review, and a change of numerical meaning gets targeted regression checks and
+independent scrutiny. Scope beyond this delegation, release, acceptance and
+issuance, risk acceptance, holds, purchases, the native-smoke `expected.json`
+values and the reservations in `docs/RELEASE_TARGET_v1.0.md` §5 stay with the
+owner. The product and data boundaries (`docs/PRODUCT_BOUNDARIES.md`,
+`docs/IP_AND_DATA_BOUNDARY.md`) are unchanged.
+
+## Standing Git grant
 
 For `sgttomas/SWBPIPE` only, agents may commit, push, open, update and merge PRs
 within authorized work after the verification above and required checks pass on
@@ -103,22 +181,7 @@ the exact head. Explicit holds and reserved decisions apply. This grant excludes
 protection bypasses, history rewrites, force pushes, permission changes and
 releases. Use [Git conventions](#git-conventions) below.
 
-
-The owner selected this repository as the public home replacing RT-V8's sanitized
-export. Verified migration history may be pushed before scan signature (owner,
-2026-10-29: "Push now, sign before v1.0"). Before v1.0 release, the owner must
-complete and sign the D-20/DEC-058 scan, including the full private-term scan and
-finding dispositions. Unsigned rehearsal results, CI passes and merges supply
-no signature, clearance or release authority. The release target's reserved
-wording is updated by SWBPIPE Agent 0 under the owner's delegation.
-
-Keep credentials and private/proprietary engineering inputs out of Git. Preserve
-the local IP/data and professional boundaries. No supplier acquisition, sign-in,
-keychain use, signing or live qualification follows from a repository migration.
-
 ## Git conventions
-
-Prepare, review, or close out Git changes in the SWBPIPE repository using its branch, verification, merge, and authority conventions. Use only for SWBPIPE project work, not general Git tasks or other repositories.
 
 Apply these project conventions while using ordinary Git judgment and the authorization already present in the session. Authorized briefs and these repository conventions govern Git work here.
 
@@ -141,3 +204,26 @@ For implementation and closeout in this repository:
 - Match preflight to the actual candidate and affected CI entrypoints. Scope candidate checks to files being submitted, and run required range checks against the complete PR diff. Re-run affected checks after repairs; repeat broader suites only when the change or an unresolved concern warrants it.
 
 Do not invent approval-token syntax, add fresh approval gates, or infer authority beyond the user's request and the applicable owning-loop rules.
+
+## Local boundaries
+
+The owner selected this repository as the public home replacing RT-V8's sanitized
+export. Verified migration history may be pushed before scan signature (owner,
+2026-10-29: "Push now, sign before v1.0"). Before v1.0 release, the owner must
+complete and sign the D-20/DEC-058 scan, including the full private-term scan and
+finding dispositions. Unsigned rehearsal results, CI passes and merges supply
+no signature, clearance or release authority. The release target's reserved
+wording is updated by SWBPIPE Agent 0 under the owner's delegation.
+
+Keep credentials and private/proprietary engineering inputs out of Git. Preserve
+the local IP/data and professional boundaries. No supplier acquisition, sign-in,
+keychain use, signing or live qualification follows from a repository migration.
+
+- **F-PIP-3 (acceptance and issuance):** acceptance, issuance and release of any
+  deliverable, package or product baseline are the owner's acts. Agents do not
+  record, imply or derive acceptance, issuance or lifecycle standing from completed
+  work, checks, reviews or merges. A baseline the owner has issued or protected
+  changes only through a change the owner approves.
+- SWBPIPE does not proclaim code compliance. Benchmark agreement with CAEPIPE
+  is published as `docs/RELEASE_TARGET_v1.0.md` §3 provides; other evaluation
+  stays private (§1 records the owner's rulings).

@@ -1,15 +1,9 @@
 ---
-doc_id: OPS-THEORY-CENTERLINE-ANALYSIS
-doc_kind: theory.note
-status: draft
-created: 2026-05-03
-updated: 2026-06-07
-deliverable_id: DEL-11-03
-package_id: PKG-11
-scope_item: SOW-033
-objectives:
-  - OBJ-001
-  - OBJ-003
+name: swbpipe-theory-centerline-analysis
+description: Explain the centerline-analysis model and its engineering limits.
+metadata:
+  kind: explanation
+  surface: reference
 ---
 
 # Classical To Modern Centerline Analysis

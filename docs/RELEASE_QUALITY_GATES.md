@@ -1,18 +1,14 @@
 ---
-doc_id: OPS-RELEASE-QUALITY-GATES
-doc_kind: governance.release_quality_gates
-status: draft
-created: 2026-05-04
-refs:
-  - rel: governed_by
-    to: OPS-CONTRACT
-  - rel: strategy
-    to: OPS-VALIDATION-STRATEGY
-  - rel: implements
-    to: DEL-09-05
+name: swbpipe-release-quality-gates
+description: Define software-quality checks and evidence required for release.
+metadata:
+  kind: instruction
+  surface: requirements
 ---
 
 # Release Quality Gates
+
+This document is governed by [CONTRACT.md](CONTRACT.md); uses the strategy in [VALIDATION_STRATEGY.md](VALIDATION_STRATEGY.md); implements [DEL-09-05](../execution/PKG-09/DEL-09-05/ScopeOfWork.md).
 
 ## 1. Purpose
 

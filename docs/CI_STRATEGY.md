@@ -1,3 +1,10 @@
+---
+name: swbpipe-ci-strategy
+description: Select consequential CI checks and the required aggregate result.
+metadata:
+  kind: instruction
+  surface: reference
+---
 # Piping CI
 
 `harness` is the single required result. It calls the product workflows and
