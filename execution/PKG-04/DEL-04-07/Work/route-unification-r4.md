@@ -911,8 +911,8 @@ supports only and grant no held, lock, preload or device-reference behavior.
   RS-LO1 lifts. RS-EXP and RS-dSAM are published as their operands'
   differences. The published states are reported, not verified (no independent
   nonlinear full-system solution exists).
-- **Open.** D3 registration (§8.59 of DEL-04-08's retained-pricing rules,
-  proposed); the intended RS-FR1V `one_way` normal source (refused by
+- **Open.** D3 registration (§8.60 of DEL-04-08's retained-pricing rules,
+  proposed; drafted as §8.59); the intended RS-FR1V `one_way` normal source (refused by
   `NONLINEAR_FRICTION_NORMAL_SOURCE_INVALID`, S7) and RS-G1's qualification
   (R-3). Finding F-CE, which precedes S6: on this document the consumed RS-CE1's
   `support_reaction_component_v2` rows are 0.0 in every S6 case and mode while
@@ -969,6 +969,16 @@ supports only and grant no held, lock, preload or device-reference behavior.
   The changed routing JSON is explicitly covered by this comparison, rather than
   excluded from the guard's completeness assertion. The repairs require their
   affected checks and focused independent re-check before clearance.
+- **Final composition.** S6 is merged with the accepted predecessor `00d4820d1`
+  (#164: §8.59's modal support operations on the MBF import landing) as
+  `da0afeabb`. Carrier and history obligations keep main 394f4c623 as their
+  endpoint. Only the routing inventory and the partition are attributed through
+  the predecessor. S6's derivation is applied to the predecessor's inventory,
+  every moved value is attributed to its lineage, and only the PP tree digest and
+  RE's complete scan, which both lineages move, are re-derived. The predecessor's
+  two MBF desktop-import JSON files are byte-identical to it and attributed to
+  it. The combined source prices to S6's reviewed tree (DEL-04-08 §8.60, "Final
+  composition"). Fresh changed-proof scrutiny and AC-004 remain pending.
 
 ### 3.8 S7: friction with a one-way normal source, and k > 1 (M–L, both routes)
 

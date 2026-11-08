@@ -30,6 +30,11 @@ their held bytes retain their recorded bindings. Native byte counts are checked 
 
 The endpoint is the working tree: the stage's carriers as committed on its branch. Freeze END at the stage's merge
 when a later stage regenerates these carriers.
+
+Final composition: S6's reviewed head (S6_HEAD) is merged with the accepted predecessor (PREDECESSOR, #164). BASE stays
+the endpoint of every carrier and history obligation. The routing inventory applies S6's derivation to the
+predecessor's inventory and attributes each moved value to its lineage. The partition attributes to the predecessor
+only the files it changed, S6 did not, and the composition keeps byte-identical (INHERITED).
 """
 from functools import cache
 from pathlib import Path
@@ -48,6 +53,10 @@ from tests import test_rt_a3_nonlinear_text_only_envelope_diff as nl
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "394f4c62313679ccf24e67236d80371a0bf62af3"
+# The final composition merges S6's reviewed head into the accepted actual predecessor (#164). Carrier and history
+# obligations keep BASE; only the routing inventory and the partition's inherited files are attributed through it.
+S6_HEAD = "abc8bac62340a515d12d84392dd2ea105495aa2a"
+PREDECESSOR = "00d4820d15f01bcada536c97b2bc129efd64575a"
 END = None  # the working tree
 
 
@@ -527,8 +536,23 @@ def test_the_schema_manifest_moves_only_the_changed_schemas_digests():
         assert ce._sha(_at(BASE, path)) == b[path] and ce._sha(current(path)) == a[path], path
 
 
+S6_TREES = ("core/product_physics/Cargo.toml", "core/reporting/result_export/Cargo.toml",
+            "core/solver/nonlinear_integration/Cargo.toml")
+S6_READS = ("core/product_physics/src/source_receipt/pressure_source_context_tests.rs",
+            "core/product_physics/tests/load_reference_state_runtime.rs",
+            "core/product_physics/tests/pressure_source_join.rs",
+            "core/reporting/result_export/tests/load_reference_contract.rs",
+            "core/reporting/result_export/tests/retained_precision_contract.rs",
+            "core/reporting/result_export/tests/retained_precision_derivative_golden.rs",
+            "core/solver/nonlinear_integration/src/structural_adapter/k5_tests.rs")
+S6_SCANS = (("core/reporting/result_export/tests/retained_precision_carriers.rs", "../../.."),
+            ("core/solver/nonlinear_integration/src/s11k_tests.rs", "../../product_physics/src"),
+            ("core/solver/nonlinear_integration/src/structural_adapter/k5_tests.rs", "../../product_physics/src"))
+
+
 def check_routing_inventory(after=None):
-    """Re-derive only the three changed Rust trees, seven source-read hashes and three scan additions.
+    """Re-derive only the three changed Rust trees, seven source-read hashes and three scan additions on the accepted
+    predecessor's inventory (the final composition: S6's own derivation, applied to PREDECESSOR instead of BASE).
     Every source-scan rule, exclusion, caller, fixture enumeration and unrelated control retains its predecessor value.
     The exact scan contents are checked from the current filesystem, using the selector's declared boundaries."""
     import importlib.util
@@ -536,29 +560,19 @@ def check_routing_inventory(after=None):
     spec = importlib.util.spec_from_file_location("s6_routing_inventory", module_path)
     numerical = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(numerical)
-    expected = json.loads(_at(BASE, ROUTING))
+    expected = json.loads(_at(PREDECESSOR, ROUTING))
     trees = expected["piping_runtime_reads"]["source_trees"]
-    for manifest in ("core/product_physics/Cargo.toml", "core/reporting/result_export/Cargo.toml",
-                     "core/solver/nonlinear_integration/Cargo.toml"):
+    for manifest in S6_TREES:
         digest = numerical.rust_tree_digest(ROOT, Path(manifest))
         assert digest != trees[manifest]
         trees[manifest] = digest
     reads = expected["piping_runtime_reads"]["reads"]
-    for source in ("core/product_physics/src/source_receipt/pressure_source_context_tests.rs",
-                   "core/product_physics/tests/load_reference_state_runtime.rs",
-                   "core/product_physics/tests/pressure_source_join.rs",
-                   "core/reporting/result_export/tests/load_reference_contract.rs",
-                   "core/reporting/result_export/tests/retained_precision_contract.rs",
-                   "core/reporting/result_export/tests/retained_precision_derivative_golden.rs",
-                   "core/solver/nonlinear_integration/src/structural_adapter/k5_tests.rs"):
+    for source in S6_READS:
         digest = ce._sha(current(source))
         assert digest != reads[source]["sha256"]
         reads[source]["sha256"] = digest
     addition = "core/product_physics/src/rt_a3_s6_tests.rs"
-    for source, anchor in (
-            ("core/reporting/result_export/tests/retained_precision_carriers.rs", "../../.."),
-            ("core/solver/nonlinear_integration/src/s11k_tests.rs", "../../product_physics/src"),
-            ("core/solver/nonlinear_integration/src/structural_adapter/k5_tests.rs", "../../product_physics/src")):
+    for source, anchor in S6_SCANS:
         entry = next(e for e in reads[source]["inputs"] if e["anchor"] == anchor and e.get("scan"))
         scan = entry["scan"]
         assert entry["base"] == "manifest" and scan["suffix"] == ".rs"
@@ -578,11 +592,55 @@ def test_routing_inventory_derives_only_s6_source_bindings_and_scan_additions():
     check_routing_inventory()
 
 
-@pytest.mark.parametrize("mutation", ["tree_hash", "scan_exclusion", "caller"])
+def _routing_leaves(rev):
+    def walk(node, path):
+        if isinstance(node, dict):
+            for key, value in node.items():
+                yield from walk(value, path + (key,))
+        elif isinstance(node, list) and any(isinstance(v, (dict, list)) for v in node):
+            for index, value in enumerate(node):
+                yield from walk(value, path + (index,))
+        else:
+            yield path, node
+    return dict(walk(json.loads(_at(rev, ROUTING) if rev else current(ROUTING)), ()))
+
+
+def test_routing_composition_attributes_every_moved_value_to_its_lineage():
+    """S6's reviewed routing change (BASE -> S6_HEAD) touches exactly the values its derivation names; the accepted
+    predecessor's (BASE -> PREDECESSOR) values are kept where S6 does not touch them, S6's reviewed values where the
+    predecessor does not, and only the two values both lineages touch are re-derived on the combined source."""
+    base, predecessor, s6, now = (_routing_leaves(rev) for rev in (BASE, PREDECESSOR, S6_HEAD, None))
+    moved = lambda doc: {k for k in base.keys() | doc.keys() if base.get(k) != doc.get(k)}  # noqa: E731
+    by_predecessor, by_s6 = moved(predecessor), moved(s6)
+    reads = ("piping_runtime_reads", "reads")
+    derived = ({("piping_runtime_reads", "source_trees", m) for m in S6_TREES}
+               | {reads + (source, "sha256") for source in S6_READS})
+    scanned = {reads + (source, "inputs") for source, _ in S6_SCANS}
+    scan_moves = by_s6 - derived
+    assert derived <= by_s6 and len(scan_moves) == len(S6_SCANS)
+    assert {k[:4] for k in scan_moves} == scanned and all(k[-1] == "files" for k in scan_moves)
+    assert moved(now) == by_predecessor | by_s6
+    for key in by_predecessor - by_s6:
+        assert now[key] == predecessor[key], key
+    for key in by_s6 - by_predecessor:
+        assert now[key] == s6[key], key
+    assert by_predecessor & by_s6 == {("piping_runtime_reads", "source_trees", S6_TREES[0]),
+                                      next(k for k in scan_moves if k[2] == S6_SCANS[0][0])}
+
+
+@pytest.mark.parametrize("mutation", ["tree_hash", "scan_exclusion", "caller", "predecessor_value", "predecessor_scan"])
 def test_routing_inventory_refuses_unbound_hashes_weakened_scans_or_lost_callers(mutation):
     doc = json.loads(current(ROUTING))
     reads = doc["piping_runtime_reads"]
-    if mutation == "tree_hash":
+    base = json.loads(_at(BASE, ROUTING))["piping_runtime_reads"]
+    if mutation == "predecessor_value":  # the composition must keep the predecessor's moved value, not BASE's
+        parity = "core/handoff/caepipe_mbf_engine/tests/parity.rs"
+        assert reads["reads"][parity]["sha256"] != base["reads"][parity]["sha256"]
+        reads["reads"][parity]["sha256"] = base["reads"][parity]["sha256"]
+    elif mutation == "predecessor_scan":  # dropping the predecessor's support.rs from the shared complete scan
+        entry = next(e for e in reads["reads"][S6_SCANS[0][0]]["inputs"] if e["anchor"] == S6_SCANS[0][1] and e.get("scan"))
+        entry["files"].remove("core/solver/modal_eigen/src/support.rs")
+    elif mutation == "tree_hash":
         reads["source_trees"]["core/product_physics/Cargo.toml"] = "0" * 64
     elif mutation == "caller":
         reads["reads"]["core/product_physics/tests/pressure_source_join.rs"]["source_trees"].pop()
@@ -1078,10 +1136,33 @@ def _stating(rev):
     return found
 
 
-def _changed():
-    out = subprocess.run(["git", "diff", "--name-only", BASE, "--", "*.json", *OUTSIDE], cwd=ROOT, text=True,
+def _diff_names(*revs):
+    out = subprocess.run(["git", "diff", "--name-only", *revs, "--", "*.json", *OUTSIDE], cwd=ROOT, text=True,
                          capture_output=True, check=True).stdout
     return set(out.split())
+
+
+# JSON files the accepted predecessor (#164, the MBF import landing) changed from BASE. S6 changes none of them, and the
+# composition keeps each byte-identical to the predecessor, so they are attributed to it rather than to this stage.
+INHERITED = frozenset({"fixtures/caepipe_mbf/invented/desktop_import/import_replies.json",
+                       "fixtures/caepipe_mbf/invented/desktop_import/import_replies.provenance.json"})
+
+
+def _inherited():
+    by_predecessor = _diff_names(BASE, PREDECESSOR) - _diff_names(BASE, S6_HEAD)
+    assert by_predecessor == INHERITED, sorted(by_predecessor ^ INHERITED)
+    for name in by_predecessor:
+        assert current(name) == _at(PREDECESSOR, name), name
+    return by_predecessor
+
+
+def _changed():
+    return _diff_names(BASE) - _inherited()
+
+
+def test_the_inherited_files_are_the_predecessors_and_only_its():
+    assert _inherited() == INHERITED
+    assert _diff_names(BASE, PREDECESSOR) & _diff_names(BASE, S6_HEAD) == {ROUTING}
 
 
 def test_every_json_file_is_in_exactly_one_part():

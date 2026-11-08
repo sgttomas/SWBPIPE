@@ -6563,13 +6563,57 @@ concurrence, closure, deferral and release facts above remain historical facts, 
 
 ### 8.60 RT-A3 S6: nonlinear supports on load/reference-state documents and beside objective connectors on main's §8.58 tree (actual-source D3)
 
-**Status.** Final-composition proposal on accepted predecessor `00d4820d15f01bcada536c97b2bc129efd64575a` (#164), not yet qualified. The independently reviewed private proposal was `abc8bac62340a515d12d84392dd2ea105495aa2a` on declared `394f4c623`/§8.58. The original proposal derivation below remains its evidence; current-source composition, registration binding, changed-proof scrutiny and fresh AC-004 remain pending. Proposed registration for RT-A3 S6 (DEL-04-07 `Work/route-unification-r4.md` §3.7;
+**Status.** Final-composition proposal on accepted predecessor `00d4820d15f01bcada536c97b2bc129efd64575a` (#164), not yet qualified. The independently reviewed private proposal was `abc8bac62340a515d12d84392dd2ea105495aa2a` on declared `394f4c623`/§8.58. The original proposal derivation below remains its evidence. The composed source's pricing, registration binding and AC-004 inputs are re-derived under "Final composition" below; fresh changed-proof scrutiny of that composition and the AC-004 attempt remain pending. Proposed registration for RT-A3 S6 (DEL-04-07 `Work/route-unification-r4.md` §3.7;
 `codex/rt-a3-s6`). It is made under the owner's removal of explicit owner approval for coefficient movement;
 source-derived pricing, independent scrutiny and preservation of the registered state remain required. This records no
 acceptance and adopts nothing: the generated block, the two reviewed inputs and the law and challenge records below are
 a candidate for the independent pricing and preservation review. No numerical parameter, threshold, M, margin or
 reserve moves. **AC-004 is pending**: the witnessed binaries change and stack neutrality is not established (below,
 "Stack").
+
+**Final composition (`da0afeabb`, core `e8e83ae9f1b7dbf7a9984eee1fa8d7a7688cad87`).** The S6 proposal
+`abc8bac62` merged with the accepted predecessor `00d4820d1` (§8.59's modal support operations on the MBF import
+landing). The product merge was clean. Two texts conflicted: this file, where §8.59 is kept verbatim and S6 is renumbered
+§8.60, and the routing inventory's PP tree digest, derived by `numerical_ci.rust_tree_digest`. The priced lineages are
+disjoint. The predecessor changes PP `modal/eigen.rs`, `modal/integrity.rs`, `modal/resource.rs`, the test-only
+`modal/tests_resource.rs` and `modal_eigen`; S6 changes none of them, and the predecessor changes none of S6's priced
+files. `rules/o10_rules.py` carries both lineages' warrants as reviewed (§8.59's MODAL-FB/MODAL-ID pins beside S6's
+rules), and no pin or snapshot key is reset. S6's source and tool comments, and the block's basis line, still cite the
+pre-renumbering "§8.59" ("Section names cited elsewhere"). Their bytes are priced, pinned or compiled, so they are kept.
+
+- **Pricing.** The committed tool at `da0afeabb` exits 0, O-10 0/0, all four points complete, with no unmapped header
+  or unclassified argument. D and TAV equal S6's: L(3,0) 43,783 / 4,714,368,834, L(2,1) 39,373 / 4,103,401,544,
+  L(1,2) 35,239 / 3,578,739,796 and E 76,356 / 7,229,423,696. The merged tree equals S6's reviewed tree in
+  structure and all 1,602 coefficients; only its basis string differs. That tree was priced at `3e6fc1a65`, whose priced
+  source equals `abc8bac62`'s. Against main `394f4c623` (§8.58), and equally against §8.59's composed `f4e23a3ce`,
+  the merged tree has 1,586 coefficients equal, the same 16 higher at the same values (table below) and none lower.
+  `generate --check` with this section's basis line equals the committed block (1,713 lines), and `point-atoms --check`
+  equals the committed atoms (154 lines). Nothing is regenerated. The block, `REGISTERED_PROFILES` (inputs #8 and #11),
+  `PINNED_RECORD`, the challenge records, layouts, M, margin and reserve remain S6's reviewed values.
+- **Native atoms and laws.** The combined PP lib-test binary is built by the registered toolchain: rustc 1.97.1
+  `8bab26f4f`, debug, no flag variables, offline and locked, jobs 2 under the slot wrapper. Its `profile_` law tests
+  pass (9), and they check `PINNED_RECORD` in-build. Its 359 `I65_G5_ATOM` lines are byte-identical to S6's
+  candidate's. `eval` of the merged tree at those atoms is identical to S6's reviewed evaluation, so all 80
+  evaluations stand: every phase is +18,761 B, and W3 is the maximum at dense 8,870,363,838 B.
+- **Routing.** `tests/test_rt_a3_s6_text_only_envelope_diff.py` applies S6's own routing derivation to the
+  predecessor's inventory: three tree digests, seven read hashes and `rt_a3_s6_tests.rs` added to three existing scans. It also
+  attributes every moved value. The predecessor's five moved values are kept wherever S6 does not move them, and S6's
+  thirteen reviewed values wherever the predecessor does not. Only the two values both lineages move are re-derived on
+  the combined source: the PP tree digest and RE's complete Rust scan, which keeps `support.rs` and adds the S6 file.
+  The partition attributes the predecessor's two MBF desktop-import JSON files, which are byte-identical to it, to
+  the predecessor. The maintained runtime-read graph validates 47 manifests, all 45 bound tree digests and 1,807
+  resources.
+- **AC-004 inputs (prepared, not run).** Required: S6's and §8.59's changed PP sources both compile into the witnessed
+  binaries, and no witness has run on this source. The guarded build at `da0afeabb` gives the lib-test
+  `open_pipe_stress_product_physics-f31c71322c8cc2bc`, SHA-256
+  `8f2b649d4bc6ffd4933aeda986e7a1c2bf4f649315edb57dc721e6a67a7d0c73`, and the challenge
+  `retained_memory_challenge-0a8cb81bbc9e389a`, SHA-256
+  `bba69229159f741484fc0af9ea90ab897232bddab51ee850118bef4d239213a5`. The profile file is SHA-256
+  `24141f216cbb54285dacf7b1419d20867aec71a1ba20ccd7984135ab7ec80081`, and the lock `b7ebb02a…4f5653` is unchanged.
+  Their dep-info lists 379 and 3 local files, all tracked. Four are the predecessor's modal files and 45 are S6's;
+  none is changed by both, and no MBF/desktop-import resource appears. The harness, literal direct-supervisor command
+  and technical binding are in `/Users/ryan/dev/chirality-t3/scratch/rt-a3-s6-final/ac004/`, bound to the candidate
+  head. That scratch is not a permanent dependency. No witness is queued, run or cleared, and no GO exists.
 
 **Basis.** Main `394f4c623` (#157, docs only against `e8cfa72d5`). Its core tree prices as §8.58: the committed tool
 at that source exits 0, O-10 0/0, all four points complete; D (L(3,0) 43,783, L(2,1) 39,373, L(1,2) 35,239, E 76,356)
@@ -6695,7 +6739,7 @@ Two limits keep these bounds fail-closed rather than reachable at the census max
 
 ## 10. Reproducing a registered revision
 
-The current tool cohort combines S6's reviewed proposal with accepted modal §8.59 source. Final-composition replay and source binding for §8.60 are pending; no earlier source identity changes. S6's private `0c480a9e5` pricing is reproduced with its complete historical tool cohort.
+The current tool cohort combines S6's reviewed proposal with accepted modal §8.59 source. It reproduces §8.60's final composition `da0afeabb` (exit 0, O-10 0/0; `generate --check` with §8.60's basis line and `point-atoms --check` equal). No earlier source identity changes. S6's private `0c480a9e5` and `3e6fc1a65` pricing is reproduced with its complete historical tool cohort.
 
 Historical modal-cohort record:
 
@@ -6803,3 +6847,4 @@ Code, tools and other designs cite this text by these earlier section names and 
 | "DEL-04-09 O-4: the modal resource preflight P0 and the S1 wiring", "§8.58" (MODAL-FB and MODAL-ID's P0 rules) | §8.58 |
 | "DEL-04-09: bounded modal support operations" (isolated registration proposal) | §8.59 |
 | "RT-A3 S6: nonlinear supports on load/reference-state documents and beside objective connectors", "§8.60" (S6-ME, RTA3S6-L, W16-NS's S6 arms) | §8.60 |
+| "§8.59" where RT-A3 S6 is meant: S6's source, test and pricing-tool comments (RT-A3 S6 D3, S6-ME, RTA3S6-L, RTA3S6-VP, W16-NS, RT-A4 `resolve`), the S6 test docstrings, and the GENERATED PROFILE basis line "at 0c480a9e5 (§8.59)", all written before the final composition renumbered S6 | §8.60 (their bytes are kept: they are priced, pinned or compiled inputs) |
