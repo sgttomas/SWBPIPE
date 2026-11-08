@@ -5769,6 +5769,29 @@ Agent 0's paraphrased dispositions (a)–(g) govern this proposal:
 10. **Next output (f).** One concise, owner-sendable question packet, not sent by an agent,
     prioritising constant-E selection, G-3 and the explicit OPTEMP field 2 and 3 encoding.
 
+- **DEL-17-04 `ScopeOfWork.md`:** REQ-012 to REQ-020, verification, acceptance, OUT-002,
+  AC-002 and VER-002, TBD-17-04-005 to -009, and the two edited "parser" sentences, as
+  applied to that file.
+- **DEL-17-04 `deliverable.yaml`:** checks gain `tests/test_caepipe_mbf_importer.py`,
+  `tests/test_caepipe_mbf_round_trip.py` and `tests/test_caepipe_private_mbf_import.py`.
+  Code paths are unchanged.
+- **DEL-17-01:** the seven source rows (§2) and `CAEPIPE-LOCAL-AXES` in `Source_Basis_Register.md`, and
+  CQ-17-01-011 to -015 in `CAEPIPE_Question_Dossier.md`.
+- **DEL-17-05 Design §5:** the two private run-directory rows. In §10, "two-way
+  iteration" joins the remaining items.
+- **Writer and pilot tool (implemented):** `family` in `support_map` (§12); primitive
+  direction in `load_map` (§15); an explicit material `origin` in `material_map` (§7.4);
+  straight-pipe `y_reference` in `element_map` (§10.5); exact US-customary normalization
+  (§5.2); the schema-enum version check (§19); `mbf_sha256` in `id_map.json` (§15); and
+  sidecar format 4's `section_map` with PIPE records per library section (§15, both twins).
+  Format 4 changes no ScopeOfWork meaning (REQ-016 covers it) and no `deliverable.yaml`
+  check or path.
+- **Decomposition:** DEL-17-04's description in `execution/_Decomposition/SOFTWARE_DECOMP.md`
+  should include bounded MBF model import alongside export. Its ID, package home and
+  supporting scope mappings stay unchanged.
+
+<!-- BEGIN EXTENSION PD-1. Delimited, retained extension; deleting from here to END PD-1 leaves the rest of this Design unchanged. -->
+
 ## Appendix PD-1. Extension: two load conventions for unbound `VERSION 15.10` imports
 
 **Status.** Profile decision PD-1 is an ordinary, explicit and bounded design decision of
