@@ -88,6 +88,14 @@ EXEC_PROBES = {
         'for value in paths:\n    runpy.run_path(value)\n',
     "dictionary updated keys": 'import runpy\npaths = {}\npaths.update({"execution/PKG-01/payload.txt": "provenance"})\n'
         'for value in paths:\n    runpy.run_path(value)\n',
+    "dictionary get default": 'import runpy\npaths = {}\n'
+        'runpy.run_path(paths.get("entry", "execution/PKG-01/payload.txt"))\n',
+    "dictionary pop default": 'import runpy\npaths = {}\n'
+        'runpy.run_path(paths.pop("entry", "execution/PKG-01/payload.txt"))\n',
+    "dictionary get source default": 'from pathlib import Path\nsources = {}\n'
+        'exec(compile(sources.get("entry", Path("execution/PKG-01/payload.txt").read_text()), "payload", "exec"))\n',
+    "dictionary pop source default": 'from pathlib import Path\nsources = {}\n'
+        'exec(compile(sources.pop("entry", Path("execution/PKG-01/payload.txt").read_text()), "payload", "exec"))\n',
 }
 
 
@@ -155,16 +163,26 @@ def test_unfinished_local_analysis_fails_closed(tmp_path, monkeypatch):
 
 
 @pytest.mark.parametrize("mode", [None, "+x"])
+@pytest.mark.parametrize("suffix", ["", ".js", ".rs", ".py", ".sh", ".json"])
 @pytest.mark.parametrize("header,body", [
     ("#!/bin/sh", 'python3 execution/PKG-01/payload.txt'),
     ("#!/usr/bin/env python3", 'import runpy\nrunpy.run_path("execution/PKG-01/payload.txt")'),
     ("#!/usr/bin/env node", 'require("../execution/PKG-01/payload.txt")'),
 ])
-def test_extensionless_shebang_entrypoints_are_checked(tmp_path, mode, header, body):
+def test_shebang_entrypoints_are_checked_before_suffixes(tmp_path, mode, suffix, header, body):
     repo = Repo(tmp_path)
-    repo.write("tools/probe", header + "\n" + body + "\n", mode=mode)
-    repo.write(".github/workflows/ci.yml", 'jobs:\n  a:\n    steps:\n      - run: ./tools/probe\n')
-    assert ("exec", "tools/probe") in repo.findings()
+    path = "tools/probe" + suffix
+    repo.write(path, header + "\n" + body + "\n", mode=mode)
+    repo.write(".github/workflows/ci.yml", f'jobs:\n  a:\n    steps:\n      - run: ./{path}\n')
+    assert ("exec", path) in repo.findings()
+
+
+@pytest.mark.parametrize("method", ["get", "pop"])
+def test_dictionary_lookup_keys_do_not_taint_safe_defaults(tmp_path, method):
+    repo = Repo(tmp_path)
+    repo.write("tools/probe.py", 'import runpy\npaths = {}\n'
+               f'runpy.run_path(paths.{method}("execution/PKG-01/provenance.txt", "tools/safe.py"))\n')
+    assert repo.findings() == set()
 
 
 @pytest.mark.parametrize("text,mode", [

@@ -389,7 +389,13 @@ class PythonFile:
             if isinstance(node.func, ast.Attribute) and self.is_mapping(node.func.value):
                 if tail == "keys":
                     return self.keys_tainted(node.func.value)
-                if tail in {"get", "values", "pop"}:
+                if tail in {"get", "pop"}:
+                    # The lookup key is not a returned value, but a missing-key
+                    # default is. Keep that distinction for inert provenance maps.
+                    return self.values_tainted(node.func.value) or any(
+                        self.is_tainted(arg) for arg in
+                        [*node.args[1:], *(k.value for k in node.keywords if k.arg == "default")])
+                if tail == "values":
                     return self.values_tainted(node.func.value)
             if tail in BARRIERS or tail in {"exists", "is_file", "is_dir", "samefile"}:
                 return False
@@ -949,15 +955,23 @@ def check(root: Path = ROOT, fidelity: dict[str, str] = FIDELITY,
         if b"execution" not in data and not path.endswith(".py") and language != "python":
             continue
         text = data.decode("utf-8", "replace")
-        if path.endswith(".py") or language == "python":
+        # The interpreter controls executable content even when the filename has
+        # a conflicting suffix (for example a shell script named probe.js).
+        if language == "python":
+            python[path] = data
+        elif language == "javascript":
+            found.extend(js_findings(path, text, config=re.search(r"\.config\.|(^|/)vite|playwright", name) is not None))
+        elif language in {"shell", "powershell"}:
+            found.extend(script_findings(path, text, tops))
+        elif path.endswith(".py"):
             python[path] = data
         elif path.endswith(".rs"):
             found.extend(rust_findings(path, text))
-        elif path.endswith((".ts", ".tsx", ".js", ".mjs", ".cjs", ".mts", ".cts", ".jsx")) or language == "javascript":
+        elif path.endswith((".ts", ".tsx", ".js", ".mjs", ".cjs", ".mts", ".cts", ".jsx")):
             found.extend(js_findings(path, text, config=re.search(r"\.config\.|(^|/)vite|playwright", name) is not None))
-        elif path.endswith((".sh", ".bash", ".zsh", ".pth")) or name in {"Makefile", "justfile"} or language == "shell":
+        elif path.endswith((".sh", ".bash", ".zsh", ".pth")) or name in {"Makefile", "justfile"}:
             found.extend(script_findings(path, text, tops))
-        elif path.endswith((".ps1", ".psm1")) or language == "powershell":
+        elif path.endswith((".ps1", ".psm1")):
             found.extend(script_findings(path, text, tops))
         elif path.endswith((".bat", ".cmd")):
             found.extend(script_findings(path, text, tops, comment="REM "))
