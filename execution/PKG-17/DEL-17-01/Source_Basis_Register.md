@@ -24,7 +24,7 @@ On 2026-10-26 every `https://www.sstusa.com/...` path above answered
 are now published at `https://docs.sstcae.com/`, with the same page names: the
 user's manual at `https://docs.sstcae.com/users_manual/caepipe_user_s_manual.htm`
 and the technical reference at `https://docs.sstcae.com/tech_manual/index.htm`.
-The live pages are the primary basis selected on 2026-10-26; the Internet Archive
+Agent 0 made the live pages the primary basis on 2026-10-26; the Internet Archive
 captures of the old URLs are the fallback. Nothing private or vendor-installed is
 cited.
 
