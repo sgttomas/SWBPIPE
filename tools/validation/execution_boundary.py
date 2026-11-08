@@ -28,8 +28,9 @@ entrypoints:
   `cwd`/`pytest_paths` entries naming an execution path; extensionless executable/shebang entrypoints;
   and tracked symlinks resolving into it. Unrecognized executable interpreters fail classification.
 
-Practical limits (stated, not repaired): this is a bounded static check of tracked content, not a proof
-about arbitrary programs. It does not follow paths built from runtime input, environment values,
+Practical limits (stated, not repaired): classification fails closed only for the modeled patterns.
+This is a bounded static check of tracked content, not a proof about arbitrary programs.
+It does not follow paths built from runtime input, environment values,
 `chr()`/encoding tricks, `getattr` on computed names, non-constant format strings, values passed
 between modules other than imported module-level names, or untracked files. Rust, JS/TS and script
 checks are lexical (string literals with their line context, three lines for JS/TS). Product jobs also
@@ -122,6 +123,19 @@ def dotted_execution(text: str) -> bool:
 
 def declarative(path: str) -> bool:
     return path.startswith(DECLARATIVE_ROOT)
+
+
+def positional_arguments(arguments: list[ast.expr]) -> list[ast.expr]:
+    """Expand literal positional unpacking; retain unknown starred values conservatively."""
+    pending = list(reversed(arguments))
+    expanded = []
+    while pending:
+        argument = pending.pop()
+        if isinstance(argument, ast.Starred) and isinstance(argument.value, (ast.List, ast.Tuple)):
+            pending.extend(reversed(argument.value.elts))
+        else:
+            expanded.append(argument)
+    return expanded
 
 
 # ----------------------------------------------------------------------------------------------- Python
@@ -391,10 +405,14 @@ class PythonFile:
                     return self.keys_tainted(node.func.value)
                 if tail in {"get", "pop"}:
                     # The lookup key is not a returned value, but a missing-key
-                    # default is. Keep that distinction for inert provenance maps.
+                    # default is. Unpack literals before identifying the key. An
+                    # unknown leading unpack may contain both, so retain its taint.
+                    arguments = positional_arguments(node.args)
+                    defaults = (arguments[1:] if arguments and not isinstance(arguments[0], ast.Starred)
+                                else arguments)
                     return self.values_tainted(node.func.value) or any(
                         self.is_tainted(arg) for arg in
-                        [*node.args[1:], *(k.value for k in node.keywords if k.arg == "default")])
+                        [*defaults, *(k.value for k in node.keywords if k.arg == "default")])
                 if tail == "values":
                     return self.values_tainted(node.func.value)
             if tail in BARRIERS or tail in {"exists", "is_file", "is_dir", "samefile"}:
@@ -955,16 +973,17 @@ def check(root: Path = ROOT, fidelity: dict[str, str] = FIDELITY,
         if b"execution" not in data and not path.endswith(".py") and language != "python":
             continue
         text = data.decode("utf-8", "replace")
-        # The interpreter controls executable content even when the filename has
-        # a conflicting suffix (for example a shell script named probe.js).
-        if language == "python":
+        # A .py source may be launched explicitly with Python, which treats its
+        # shebang as a comment. Also inspect the shebang's interpreter: neither
+        # the suffix nor a conflicting header may suppress the other analysis.
+        if path.endswith(".py") or language == "python":
             python[path] = data
-        elif language == "javascript":
+        if language == "javascript":
             found.extend(js_findings(path, text, config=re.search(r"\.config\.|(^|/)vite|playwright", name) is not None))
         elif language in {"shell", "powershell"}:
             found.extend(script_findings(path, text, tops))
-        elif path.endswith(".py"):
-            python[path] = data
+        elif path.endswith(".py") or language == "python":
+            continue  # queued above for whole-corpus Python analysis
         elif path.endswith(".rs"):
             found.extend(rust_findings(path, text))
         elif path.endswith((".ts", ".tsx", ".js", ".mjs", ".cjs", ".mts", ".cts", ".jsx")):

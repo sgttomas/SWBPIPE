@@ -185,6 +185,44 @@ def test_dictionary_lookup_keys_do_not_taint_safe_defaults(tmp_path, method):
     assert repo.findings() == set()
 
 
+@pytest.mark.parametrize("method", ["get", "pop"])
+@pytest.mark.parametrize("arguments", [
+    '*("entry", DEFAULT)', '*["entry", DEFAULT]',
+    '*("entry", *(DEFAULT,))', '*(), "entry", *(DEFAULT,)',
+    '*arguments', '"entry", *(DEFAULT,)',
+])
+@pytest.mark.parametrize("source", [False, True])
+def test_unpacked_mapping_defaults_reaching_execution_are_rejected(tmp_path, method, arguments, source):
+    repo = Repo(tmp_path)
+    default = ('Path("execution/PKG-01/payload.txt").read_text()' if source
+               else '"execution/PKG-01/payload.txt"')
+    lookup = f'paths.{method}({arguments.replace("DEFAULT", default)})'
+    sink = f'exec(compile({lookup}, "payload", "exec"))' if source else f'runpy.run_path({lookup})'
+    probe = ('import runpy\nfrom pathlib import Path\npaths = {}\n'
+             f'arguments = ("entry", {default})\n{sink}\n')
+    repo.write("tools/probe.py", probe)
+    repo.write("tools/validation/test_execution_dag.py", probe)
+    assert {("exec", "tools/probe.py"), ("exec", "tools/validation/test_execution_dag.py")} <= repo.findings()
+
+
+@pytest.mark.parametrize("method", ["get", "pop"])
+def test_unpacked_dictionary_keys_do_not_taint_safe_defaults(tmp_path, method):
+    repo = Repo(tmp_path)
+    repo.write("tools/probe.py", 'import runpy\npaths = {}\n'
+               f'runpy.run_path(paths.{method}(*("execution/PKG-01/provenance.txt", "tools/safe.py")))\n')
+    assert repo.findings() == set()
+
+
+@pytest.mark.parametrize("mode", [None, "+x"])
+@pytest.mark.parametrize("header", ["#!/bin/sh", "#!/usr/bin/env node"])
+def test_explicit_python_launch_is_analyzed_despite_a_conflicting_shebang(tmp_path, mode, header):
+    repo = Repo(tmp_path)
+    repo.write("tools/probe.py", header + '\nimport runpy\nfrom pathlib import Path\n'
+               'runpy.run_path(Path(".") / ("exec" + "ution") / "PKG-01" / "payload.txt")\n', mode=mode)
+    repo.write(".github/workflows/ci.yml", 'jobs:\n  a:\n    steps:\n      - run: python3 tools/probe.py\n')
+    assert ("exec", "tools/probe.py") in repo.findings()
+
+
 @pytest.mark.parametrize("text,mode", [
     ("#!/usr/bin/env unsupported-interpreter\ncontent\n", None),
     ("unclassified executable content\n", "+x"),
