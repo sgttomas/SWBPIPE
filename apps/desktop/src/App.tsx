@@ -108,6 +108,7 @@ import { ProjectUnitsDialog } from "./features/project-units/ProjectUnitsDialog"
 import { ModelDocumentSaveDialog } from "./features/model-file/ModelDocumentSaveDialog";
 import { HandoffSaveDialog } from "./features/handoff/HandoffSaveDialog";
 import { MbfExportDialog } from "./features/caepipe-mbf/MbfExportDialog";
+import { MbfImportDialog } from "./features/caepipe-mbf/MbfImportDialog";
 import { ProjectValidationPanel } from "./features/project-validation/ProjectValidationPanel";
 import { ToolkitPalette, type PaletteShellCommand } from "./features/toolkit/ToolkitPalette";
 import { toolkitCapabilities } from "./features/toolkit/capabilityCatalog";
@@ -313,7 +314,8 @@ function AppSession() {
     modelDocumentSaveRequest,
     handoffSaveRequest,
     requestExportMbf,
-    mbfExportRequest
+    mbfExportRequest,
+    mbfImportRequest
   } = session.project;
   const { unsavedChangesPrompt, quitWhileBusyPrompt, autosave } = session.project;
   const {
@@ -422,7 +424,7 @@ function AppSession() {
       data-theme-preference={uiPreferences.theme}
       data-testid="desktop-preview-shell"
       // The replace prompt, the unsaved-changes prompt, the units dialog and the model-document save dialog are modal: the workspace takes no focus or input meanwhile.
-      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null || unsavedChangesPrompt !== null || quitWhileBusyPrompt !== null || modelDocumentSaveRequest !== null || handoffSaveRequest !== null || mbfExportRequest !== null || autosave.recoveryPrompt !== null}
+      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null || unsavedChangesPrompt !== null || quitWhileBusyPrompt !== null || modelDocumentSaveRequest !== null || handoffSaveRequest !== null || mbfExportRequest !== null || mbfImportRequest !== null || autosave.recoveryPrompt !== null}
       ref={workspaceShellRef}
       onFocusCapture={rememberShellFocus}
       onPointerDownCapture={rememberShellFocus}
@@ -1369,6 +1371,7 @@ function AppSession() {
       <ModelDocumentSaveDialog request={modelDocumentSaveRequest} />
       <HandoffSaveDialog request={handoffSaveRequest} />
       <MbfExportDialog request={mbfExportRequest} />
+      <MbfImportDialog request={mbfImportRequest} />
     </main>
     </CompactSelectScope>
     </WorkspaceSessionProvider>
@@ -1477,6 +1480,7 @@ function MenuBar({
         { kind: "command", id: "file.new-blank", label: "New Blank Project", disabled: projectBusy },
         { kind: "separator" },
         { kind: "command", id: "file.open-model", label: "Open Model Document…", disabled: projectBusy },
+        { kind: "command", id: "file.import-mbf", label: "Import MBF…", disabled: projectBusy },
         { kind: "command", id: "file.open-local", label: "Open Local Project…", disabled: projectBusy },
         { kind: "command", id: "file.list-local", label: "List Local Projects", disabled: projectBusy },
         { kind: "separator" },

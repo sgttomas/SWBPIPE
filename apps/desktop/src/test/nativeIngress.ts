@@ -74,7 +74,11 @@ export const INGRESS_COMMANDS: ReadonlySet<string> = new Set([
   "review_mbf_export",
   "save_mbf_export",
   // DEL-04-11 increment 3c part 2: hanger sizing (`cancel_hanger_sizing` is sent as JSON arguments).
-  "size_hangers"
+  "size_hangers",
+  // DEL-17-04 slice 5: Import MBF…'s starts (`cancel_mbf_import` is sent as JSON arguments).
+  "open_mbf_import",
+  "review_mbf_import",
+  "adopt_mbf_import"
 ]);
 
 type InvokeOptions = { headers?: Record<string, string> } | undefined;

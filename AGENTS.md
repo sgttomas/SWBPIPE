@@ -7,14 +7,32 @@ references, source meaning and unrelated work; initialization alone starts none.
 
 ## Shared roles and methods
 
-Use the selected Chirality Library (the Library), `/Users/ryan/dev/chirality-library` on this workspace
-or an owner-selected checkout of `https://github.com/sgttomas/chirality-library` elsewhere.
-Resolve shared `agents/` and `workflows/` paths against that library. Tool-use
+Use the selected Chirality Library (the Library) edition: Chirality library
+2.1.0, tag `library-v2.1.0`, commit `c35b7bbc463f81c1fed566c744ea49d168d29eee`
+of `https://github.com/sgttomas/chirality-library`. Read it from that commit in
+`/Users/ryan/dev/chirality-library` on this workspace
+(`git -C /Users/ryan/dev/chirality-library show <commit>:<path>`), from the
+release's source archive, or from an owner-selected copy of that edition
+elsewhere. That checkout's working tree is the selected source only while it is
+at that commit; do not read another revision as this edition. Changing the
+edition is a deliberate SWBPIPE change. Resolve shared `agents/` and
+`workflows/` paths against the selected source. Tool-use
 instructions are repository content kept beside the tool they instruct, not
 harness skills. Load the active role's `agents/AGENT_<ROLE>.md` and other method bodies
 only when needed. HELP_HUMAN retains purpose/alignment; HELPS_HUMANS designs;
 WORKING_ITEMS owns implementation/integration; TASK executes a bounded assignment
 and does not delegate. The owner-facing agent retains Agent 0 responsibilities.
+
+INTERLOCUTOR is optional per session and is not selected by default for any
+session or for this repository. Any of the first three roles may delegate it; it
+delegates nothing. In a session that selects it, Agent 0 gives it periodic
+summaries of the actual work and consults it at least before every PR merge.
+Its advice carries no sign-off or veto and is not a required check. If a matter
+is still unresolved after three rounds of debate, Agent 0 explains its view and
+proceeds within its authority, and INTERLOCUTOR may raise pertinent consequences
+later. Its ordinary advisory brief needs no method. It may use a method only
+where that method's roles list names it, and any tools or writes come only
+from its actual assignment and host authority.
 
 Use `workflows/coordinated-knowledge-work/WORKFLOW.md` when coordinating related
 contributions, the library's `workflows/index.json` to select other methods, and

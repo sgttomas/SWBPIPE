@@ -818,6 +818,9 @@ impl<'a> Importer<'a> {
                 provenance_record.insert("redistribution_status".into(), Value::Str(status));
             }
             let label = py_strip(&record.description).to_string();
+            if recorded {
+                self.recorded_material_origins += 1;
+            }
             materials.push(dict![
                 ("id", Value::str(swb_id.clone())),
                 ("label", Value::Str(if label.is_empty() { name.clone() } else { label })),

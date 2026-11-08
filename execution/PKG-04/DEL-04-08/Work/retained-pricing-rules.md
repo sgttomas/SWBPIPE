@@ -6380,9 +6380,190 @@ DEL-04-09's ScopeOfWork also requires the witnesses on the head of each change t
 Run evidence (the runs, compares, block checks, builds, test logs), the AC-004 copies and runner, and the window record are in
 `/Users/ryan/dev/chirality-t3/scratch/rt-dynamics-p0-d3/`; they are review input, not a permanent dependency.
 
-### 8.59 RT-A3 S6: nonlinear supports on load/reference-state documents and beside objective connectors on main's §8.58 tree (actual-source D3)
+### 8.59 DEL-04-09: bounded modal support operations (isolated registration proposal)
 
-**Status.** Proposed registration for RT-A3 S6 (DEL-04-07 `Work/route-unification-r4.md` §3.7;
+**Status: qualified proposal on actual main `00832d746`; exact-head CI, consultation and integration pending.** This records the source-bound preparation for the
+repository-owned operations closing `T3.filters`, `T7.assembly` and `T9.construction`. It is not an accepted D3
+registration, a resource-window authorization, or permission to merge. The accepted registration
+remains §8.58 until the selected candidate completes the remaining gates. No coefficient, threshold, resource value,
+numerical domain, public/native entry or admission criterion changes. The proposal preserves the across-family,
+approximately 3,000-DOF objective; the three other initial unbounded terms and the whole-invocation obligations stay
+open (DEL-04-09 §5.3.8). P0 continues to refuse every budgeted request.
+
+**Initial basis and reviewed source.** Main `394f4c62313679ccf24e67236d80371a0bf62af3` is the isolated proposal's
+basis. No unmerged S6/H1 source is assumed or imported. The implementation and
+capacity repair are `b1e2d1f97d9264ea80ac92cdae822aeeb73e3404`, core tree
+`d336acbf73a7ced993ded52c68c0f5ba85b232b3`. Independent numerical/resource scrutiny cleared the three support
+identities on that exact source, including the coupled T7 limb multiplicities and typed structural refusals. The
+pricing proposal and ordinary law build below are at `6e68d5868de039283c6dfda8ed5e701b742000d0`, with the same
+core tree. Later proposal documentation and CI metadata do not alter it. A different selected predecessor requires
+assessing the actual composition before these results can qualify the combined source; unselected lanes keep their
+named basis stable. The Library adoption #161 changes no product/core/pricing input on this basis.
+
+**Selected actual-predecessor composition.** After the real MBF production landing, main
+`00832d746912c26234325e85d0dd28f1914a2eea` was merged normally into the clean `04859e301` candidate as
+`f4e23a3cea9471b0a691cb601af16d0378e8cf98`. Main's core is `461de5a273cffb9a04da0fb2dd1ab2e4a51a7fcc`;
+the composed core is `a3633b180427fb672fdf8de79de07035e14e7c0e`. The modal/solver/pricing source is unchanged.
+All 35 adopted MBF PR files remain exact except the cohort JSON, which retains every adopted row and differs from
+actual main only in the modal PP digest and support-file inventory entry. No hand-merged derived value or new
+classification is used. The maintained full read graph validates 47 manifests, all 45 bound Rust-tree digests, and
+1,793 resources. The actual-main complete Rust scan has 565 files; the composed scan has 566, adding only support.rs.
+
+The selected PP test binaries' forward Cargo closure has 17 local crates, all unchanged in source and manifests.
+The new MBF/desktop-import resources belong to existing runtime source/corpus scans; none appears in the selected
+targets' compiler dep-info. A guarded current-head `--no-run` freshness check finds both artifacts fresh and their
+hashes identical to the old freeze. Thus no recompilation is needed from this landing; the whole-core change does
+require new external harness HEAD/CORE bindings. The registered compiler/profile/flags, thirteen inputs, profile and
+lock hashes, layouts and native atom values are unchanged. This is a checked build-input assessment, not transfer
+from the old whole-core hash alone.
+
+The full committed-tool pricing run at `f4e23a3ce` exits 0, O-10 0/0. Each point tree, call graph, text row and function
+multiplicity is byte-identical to the reviewed isolated proposal. Its structure and all 1,602 coefficients equal the
+registered tree, with no increase or decrease; `generate --check` and `point-atoms --check` still match 1,713 and
+154 lines. Actual main's priced dependency sources and pricing tool are identical to the original comparison basis,
+so that baseline evidence is reused with this explicit actual-source warrant. The unchanged numerical and pricing/
+carrier reviews and native law evidence carry across these preserved source relationships. Unchanged broad suites
+are not rerun merely because main moved.
+
+The outer prerequisite is the independently reviewed and integrated `tools/ac004_supervisor.py` from #163,
+merge `dc4e1aa9e`, SHA-256 `78fcdd6e19250e9e234caaabeb1376f4f3bf60c1e0ef2b8d3297794ca5355f87`.
+The literal inspected route invokes that tool directly, with no slot/exclusive nesting or queue timeout. It owns the
+four locks and owned pending marker; acquisition/drain waits are untimed, arming is no later than the successful last
+lock acquisition, and the 60 s outer budget includes containment and release. The 3 s teardown reserve stops a late
+payload at 57 s, with 1 s TERM grace inside that reserve. The frozen inner harness retains its separate 55 s checked
+target and seven exact processes, with all subprocesses in the inherited owned group. Supervisor receipt JSON is
+emitted after release to a separate trace file and combined stderr; inner stdout is separate. Empty-stderr claims
+from the legacy wrapper do not transfer. Tool availability grants no actual run or additional resource authority.
+
+**Priced reach and ownership.** The changed production PP files are `modal/eigen.rs`, `modal/integrity.rs` and
+`modal/resource.rs`; `modal/tests_resource.rs` is test-only. `modal_eigen` is outside the priced crates. The graph
+gains seven functions (six resource helpers and `modal_sturm_pencil_refusal`) and loses none: 5,864 to 5,871 nodes,
+28,052 to 28,077 edges. Every added edge leaves a modal node; none enters a retained root. At every point,
+`reachable_fns` stays 4,779 and every function multiplicity is equal. Positive text rows match each predecessor
+byte-for-byte: 1,912 at L(3,0), 2,165 at L(2,1), 2,199 at L(1,2), and 2,117 at E(3,0). The text inventory gains the support diagnostic's format and diagnostic rows, both at multiplicity zero; the
+Sturm construction-error format moves unchanged to its new helper (8,228 B, also zero). No retained heap owner,
+capacity, carrier or owner lifetime changes. The modal-only `ModalResourceDimensions` gains two u128 fields,
+`ModalAssemblySizes` is new, and kernel error enums gain the support-refusal variant; these are not retained owners.
+This reach argument does not assert stack neutrality or allocator/RSS bounds for modal admission.
+
+**Changed source warrants** (`rules/o10_rules.py`; proposed, not blind re-pins):
+
+- **MODAL-FB, `modal_sturm_count`.** Body SHA-256 `cbb35dc0…5233` becomes `330fda90…8f1a`. The changed call is
+  only the construction-error mapping to `modal_sturm_pencil_refusal`. The remaining `reported.max(1)` receiver is
+  still a usize from `completed.set.count`. Only certified_publication's private `FallbackError::max` candidate is
+  subtracted, exactly as before.
+- **MODAL-FB, `modal_resource_bound_dimensions`.** Body `d7e20683…d845` becomes `b05d4e74…f057`. The added
+  binding and fields select the assembly visit/traversal constants from `built.skew.is_some()`. The single `.min(`
+  remains `free.min(u128::from(budget.band_pair_allotment))`, on the same u128 `free`. The one private
+  `FallbackError::min` candidate, and no other target, remains subtracted. New support formulas add no `.min(` call.
+- **MODAL-ID, resource source.** Whole-file `9c5edf40…0fee` becomes `f85562f6…2c5c`. The 34 literal term ids
+  are unchanged. Five literal unbounded reasons become two, for the three still-unbounded identities; their maximum
+  remains 143 UTF-8 bytes. The overflow quantity bound remains 19 B, and all six existing resource argument audits
+  retain their byte bounds. This source pin still stops any edit for review.
+- **MODAL-ID, support refusal.** The new format uses the existing error-display bound (8,192 B) and a 31 B stage
+  bound, for a total format bound of 8,331 B. The current support Displays are at most 110 B for allocation refusal
+  and 109 B for capacity overflow (a structure name of at most 24 B and a usize decimal of at most 20 B). Its four
+  stages are literal arguments: dense solve, Sturm construction, re-formed assembly and formation difference. Exact
+  body pins cover their three caller functions, and a lexer-based PP name-use inventory, with their two direct
+  imports fixed, rejects additional callers, imports or aliases before the bound applies. Fixing the imports also
+  rejects a glob substitution compensating a new call in the same file while keeping its identifier count unchanged.
+  Comments, literals and test items do not invent callers. The new
+  diagnostic row's existing 2,048 B class covers the actual message (at most 249 B). No new byte class is invented.
+  The support format and moved Sturm format stay fully classed; separate `O10_MULT0_SITES` guards reject a positive
+  multiplicity or missing row. They are not sized zero. The two older test Debug sites keep their J3 zero-size guards.
+
+**Recalculation and native laws.** The committed predecessor tool's four-point run of `394f4c623` exits 0. The
+complete run of `6e68d5868` with its committed proposal tool also exits 0, O-10 0/0, all four points complete, zero
+unmapped headers and unclassified arguments. Every point tree is byte-identical to the predecessor's. The line map
+and premise pins match: 888 remaps, no unmapped key, 36 prunes and eight resolutions; no bound is silently dropped.
+The merged structure is equal, with 1,602 coefficients equal and none higher or lower. `generate --check` with
+§8.55's preserved basis matches 1,713 lines, and `point-atoms --check` matches 154 lines. Nothing is regenerated in
+the product sources; `REGISTERED_PROFILES`, `PINNED_RECORD`, all thirteen reviewed inputs, layouts and limits remain.
+
+The ordinary retained-law build ran with the maintained Cargo slot wrapper, jobs 2, its owned PP target, offline and
+locked, the four Rust flag variables unset: 85 tests passed, 71 ignored (including the witnesses). It prints the
+registered rustc 1.97.1 `8bab26f4f` / aarch64-apple-darwin / debug / opt-level 0 / unwind / empty-flags identity.
+`PINNED_RECORD` was checked, not skipped. It collects 359 unique profile/point atoms and 18 layout observations covering nine distinct reader types. Native
+evaluation of the merged tree and four points covers 80 phase/mode identities under the existing 12 GiB threshold,
+floor(0.9 M) margin and upward-rounded 5% TEXT reserve; minimum remaining headroom is 2,478,298,797 B. No historical
+atom listing is claimed: §8.58's retained-suite log captured no atom output; the current pinned record and actual
+layout/carrier assertions supply this build's evidence.
+
+**Initial cohort and source checks.** The PP Rust-tree digest changes `ec163599…7c2c6b4c7da` to
+`db9ec337…f3908168ca5cc8`. The existing complete Rust scan in `retained_precision_carriers.rs` now also reads
+`modal_eigen/src/support.rs` (562 to 563 files). Only those two derived metadata hunks are proposed in
+`tools/hosted-ci-routing.json`; the scanner source, criteria and exclusions are unchanged. The full runtime-read
+graph revalidates with 1,787 resources. DEL-04-09 Work and Scope reconcile the independent support verdict;
+§5.3.9 and the H1 contents-state refusal/legacy inspection basis remain unchanged. The 25 focused pricing checks
+cover changed receiver/source pins, literal-stage binding, new callers/aliases and zero/positive/missing-site controls.
+Eight affected guard checks were rerun after correcting basename-relative O-10 guard keys; the earlier failure and
+its targeted repair evidence are retained. The complete committed-tool run above supersedes that initial failed run.
+Exact-head full-suite, cohort/CI and fresh changed-proof review results belong to the candidate's review/PR return.
+
+**Review and remaining gates.** Independent review of `505a6cee5` cleared the source/pricing/carrier warrants and
+requested two governing-text corrections, applied at `04859e301`: distinct entry/limb symbols and exact per-point
+positive-row/layout-observation counts. The B7b regression's unrelated global guard-inventory assertion was scoped
+to its own guard/no-size/no-zero contract, and its targeted recheck passes. The actual composition above changes no
+modal algorithm, pricing rule or reviewed carrier relationship. The composed binding received fresh technical
+clearance and the separate App/resource/READY/brief-deferral/GO relay; its one AC-004 attempt passed below. Still
+required are exact-head CI, the mandatory publication-interlocutor consultation and integration. The old `04859`
+freeze is preserved, unqueued and superseded for real use by the actual-predecessor binding.
+Coefficient identity does not transfer §8.58's 7/7: stack neutrality is not established, and the changed kernel and
+PP sources compile into the witnessed binaries. No old-predecessor evidence is represented as combined-source
+qualification. Review input is the source, committed tests, and the single named packet
+`/Users/ryan/dev/chirality-t3/scratch/rt-dynamics-support-ops/provisional-d3/` and the selected composition packet
+`/Users/ryan/dev/chirality-t3/scratch/rt-dynamics-support-ops/composition-00832/`; scratch is not a permanent dependency.
+
+**AC-004 actual result: 7/7 at `8c26b7556`.** One invocation of the literal direct-supervisor command passed on
+clean head `8c26b75566a8f6666b5f4ea66d56b4c2ab8c2d87`, composed core
+`a3633b180427fb672fdf8de79de07035e14e7c0e`. The post-run factual-record commit changes no qualified core,
+algorithm, rule, profile, point or cohort input. The guarded freshness/17-crate and dep-info assessment above, rather
+than the old whole-core hash, supports reuse of the bit-identical binaries:
+
+- lib-test `open_pipe_stress_product_physics-79ebb5202e3b32c5`, SHA-256
+  `9d7b678d1da2f1e4d5cf16dc17350d292731fef9e22dcd50b89c360e296404ee`;
+- challenge `retained_memory_challenge-16fde700e6590c16`, SHA-256
+  `64eabef5215b60f01ce8d98bafdc7764adc650c91fafa4730859f8587896cffa`;
+- inner harness `bb36175836cb9c518474d9bd79238b534d2299b41e1097583c7991d6775a1f1f`, with only HEAD/CORE/doc
+  identities changed; literal direct command `fe0db5ce3c5de1afdb973cee8c8634ae5ad5e521101ebf71fdae51fffb53599b`;
+- the approved supervisor source hash above; profile
+  `c4df869d523c7e7626515ac25cc1a8b459e9c791cbd73735ccbdafd2d861996c` and lock
+  `b7ebb02aafa8cfe214c18bc64941381b33ab3f9295e0fc774ee0819e1e4f5653`.
+
+The frozen binaries/directory were 0555 and harness/supervisor/command 0444. Admission matched clean HEAD/CORE,
+all hashes, rustc 1.97.1 `8bab26f4f68e0e26f0bb7960be334d5b520ea452`, memguard and all four flag-variable
+absence states. `W1_MEMBER_CAP_OUT` was absent/removed and `CHECK_ONLY` unset. Each ordered process ran exactly
+one test with rc 0: sparse/dense W1 headroom 2.08/0.64 s, W2 deep 1.28/1.30 s, W-C2 2.45/2.43 s, then the
+challenge 4.92 s. Inner runner entry was `2026-11-07T23:50:13.806Z`, end `23:50:29.275Z`, with the separately
+checked 55 s condition satisfied at 15.469 s and unchanged post-run binary hashes.
+
+The supervisor receipt records queue start `2026-11-07T23:50:13Z`, untimed queue wait 0.022696 s, actual
+`armed_monotonic = 3488886.813778333` and `released_monotonic = 3488902.3136155`: 15.499837 s through
+containment, owned pending cleanup and all four descriptor releases, within 60 s. Outer rc/outcome was 0/success;
+payload argv hash `112d548c2912dc2ee92936c2786bdbbefa1053ac552ddf1047980247dc2bddfc`, payload exit 0,
+strays 0, containment verified with no error/overrun, sentry reaped before release. Targeted post-return checks found
+owned controller 1195, sentry/group 1197 and payload 1198 absent and no pending marker. Source, modes, profile,
+lock, harness, supervisor, command and both binary hashes still matched. Matching verified closure was sent to
+Agent 0, which independently verified the raw receipts and released App/S6 scheduling. No second attempt is planned.
+
+Raw `inner.stdout.json` (SHA-256 `ea3a3efbca4b2757c1e550c6f65772240f91a7f416472512e487c23e32307153`),
+`combined.stderr.log` and `supervisor.receipt.json` remain distinct in the one named raw packet,
+`/Users/ryan/dev/chirality-t3/scratch/rt-dynamics-support-ops/composition-00832/ac004/attempt-1/`.
+The supervisor receipt is `17074427f2febbc616237cfca9ce83e349e5cf81f290ba2a6dc13395ec87b853`; combined
+stderr equals its 1,652 bytes and is not empty. These are execution/closure results, not acceptance, completed
+registration, a new resource value, modal admission or release. All three remaining initial unbounded terms, the
+undetermined weights and the whole-invocation gaps remain open. No M03 work follows from this pass.
+
+**Later owner policy.** After this completed attempt, the owner removed routine App Agent 0 resource-reservation,
+deferral and normal-close coordination while locally served MacBook Pro LLMs are not in use. Ordinary App and
+SWBPIPE development proceed within the managed allocation, with existing wrappers, limits, technical checks and
+explicit unit scopes unchanged; do not query App availability or ask it to quit for routine work. Resume that
+coordination only when the owner advises that local LLM testing has resumed. The completed attempt's actual App
+concurrence, closure, deferral and release facts above remain historical facts, rather than future gates.
+
+### 8.60 RT-A3 S6: nonlinear supports on load/reference-state documents and beside objective connectors on main's §8.58 tree (actual-source D3)
+
+**Status.** Final-composition proposal on accepted predecessor `00d4820d15f01bcada536c97b2bc129efd64575a` (#164), not yet qualified. The independently reviewed private proposal was `abc8bac62340a515d12d84392dd2ea105495aa2a` on declared `394f4c623`/§8.58. The original proposal derivation below remains its evidence; current-source composition, registration binding, changed-proof scrutiny and fresh AC-004 remain pending. Proposed registration for RT-A3 S6 (DEL-04-07 `Work/route-unification-r4.md` §3.7;
 `codex/rt-a3-s6`). It is made under the owner's removal of explicit owner approval for coefficient movement;
 source-derived pricing, independent scrutiny and preservation of the registered state remain required. This records no
 acceptance and adopts nothing: the generated block, the two reviewed inputs and the law and challenge records below are
@@ -6514,7 +6695,13 @@ Two limits keep these bounds fail-closed rather than reachable at the census max
 
 ## 10. Reproducing a registered revision
 
-The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.59's priced source `0c480a9e5`; main `394f4c623`, §8.58's and §8.55's kept tree, is reproduced by its own tool cohort; §8.55's priced source `a96bd2966` and its registered head `98fda31a9` likewise; §8.54's priced source `bcb01f184` and its registered head `57fc00261` are reproduced by main `9e5c69797`'s tool cohort; §8.53's priced source `51966dcd8` and main `108766899` are reproduced by `108766899`'s tool cohort, with `tools/repository_history.py`; §8.52's priced source `687fafdca` and its basis `c008fe48e` are reproduced by `c008fe48e`'s tool cohort; §8.51's registered head `d44e5c538` is reproduced by its own tool cohort, with `tools/repository_history.py`; §8.50's priced source `cadd9b577` was bound before §8.51's re-pins; §8.49's priced source `293e8da85` and its registered successor `4a8287001` are reproduced by `4a8287001`'s tool cohort (equally `03a5cd3b1`'s, whose tool tree is the same); §8.48's priced source, the merged head `a0220a641`, is reproduced by main `aa794eb68`'s tool cohort; §8.47's `a47a9ebf8` is reproduced by `41cf15b95`'s tool cohort; §8.46's `fbd0931d5` and its registered successor `e8a59f1fd` are reproduced by `e8a59f1fd`'s tool cohort; §8.44's `e2dbc7b33` is reproduced by `01e05a486`'s tool cohort; main `6c3cb46d3` (§8.45), §8.42's `92a6f81ff`, §8.41's adopted source `4e1972698` and earlier mains are reproduced with their own tool cohorts); at an earlier revision a pin stops it (exit 4). §8.45's carried block (33 coefficients above the lexer's tree, none below) was reproduced by main `db3151708`'s complete tool cohort; §8.44 regenerates the block on the lexer, so `generate --check` of the committed tool's tree at `e2dbc7b33` with §8.44's basis line matches the registered block again. Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
+The current tool cohort combines S6's reviewed proposal with accepted modal §8.59 source. Final-composition replay and source binding for §8.60 are pending; no earlier source identity changes. S6's private `0c480a9e5` pricing is reproduced with its complete historical tool cohort.
+
+Historical modal-cohort record:
+
+The committed tool's source pins hold one current value each. For §8.59, this cohort reproduces the actual composed source `f4e23a3ce` (qualified at `8c26b7556`, same core), and `generate --check` uses the preserved §8.55 basis line. Earlier revisions need their complete historical tool cohort, including `tools/repository_history.py`, rather than a selective pin reset; no old source identity changes.
+
+For historical reference, the §8.55 cohort reproduced its then-current revision (§8.55's priced source `a96bd2966` and its registered head `98fda31a9`; §8.54's priced source `bcb01f184` and its registered head `57fc00261` are reproduced by main `9e5c69797`'s tool cohort; §8.53's priced source `51966dcd8` and main `108766899` are reproduced by `108766899`'s tool cohort, with `tools/repository_history.py`; §8.52's priced source `687fafdca` and its basis `c008fe48e` are reproduced by `c008fe48e`'s tool cohort; §8.51's registered head `d44e5c538` is reproduced by its own tool cohort, with `tools/repository_history.py`; §8.50's priced source `cadd9b577` was bound before §8.51's re-pins; §8.49's priced source `293e8da85` and its registered successor `4a8287001` are reproduced by `4a8287001`'s tool cohort (equally `03a5cd3b1`'s, whose tool tree is the same); §8.48's priced source, the merged head `a0220a641`, is reproduced by main `aa794eb68`'s tool cohort; §8.47's `a47a9ebf8` is reproduced by `41cf15b95`'s tool cohort; §8.46's `fbd0931d5` and its registered successor `e8a59f1fd` are reproduced by `e8a59f1fd`'s tool cohort; §8.44's `e2dbc7b33` is reproduced by `01e05a486`'s tool cohort; main `6c3cb46d3` (§8.45), §8.42's `92a6f81ff`, §8.41's adopted source `4e1972698` and earlier mains are reproduced with their own tool cohorts); at an earlier revision a pin stops it (exit 4). §8.45's carried block (33 coefficients above the lexer's tree, none below) was reproduced by main `db3151708`'s complete tool cohort; §8.44 regenerates the block on the lexer, so `generate --check` of the committed tool's tree at `e2dbc7b33` with §8.44's basis line matches the registered block again. Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
 
 The following are historical replay results, not procedures for the current tool. In their pre-W1 tool cohort, the replay restored the B7a/B7b source models (`base/b7a_*.py`, `lib/b7a_retired_carry.py`), `kd5_text_model.py`, `kd5_first_error_model.py`, `batch5_model.py`, the per-invocation pins in `o10_rules.py`, and C7's NumericCase pins in `prescribed_key_model.py`; source before batch 5 also used the original case consumer instead of the wrapper/helper pair.
 - **B7b at `837a04b770`.** With that historical cohort and its restored pins, the scratch tool priced `837a04b770` with exit 0, and `generate --check` of that tree matched the block committed at `e70c115764`. An earlier B7b revision stopped at a result_export pin (exit 4).
@@ -6614,4 +6801,5 @@ Code, tools and other designs cite this text by these earlier section names and 
 | "RT-A5 minuend_final: the held-status solve", "§8.54" (RTA5-PIN, RTA5-DZ, RTA5-FZ, RTA5-BN, RTA5-PC, RTA5-SZ, RTA5-L, RTA5-ID) | §8.54 |
 | "DEL-04-09: the selected A1, A2 and A3 modal parameter instance", "§8.57" | §8.57 |
 | "DEL-04-09 O-4: the modal resource preflight P0 and the S1 wiring", "§8.58" (MODAL-FB and MODAL-ID's P0 rules) | §8.58 |
-| "RT-A3 S6: nonlinear supports on load/reference-state documents and beside objective connectors", "§8.59" (S6-ME, RTA3S6-L, W16-NS's S6 arms) | §8.59 |
+| "DEL-04-09: bounded modal support operations" (isolated registration proposal) | §8.59 |
+| "RT-A3 S6: nonlinear supports on load/reference-state documents and beside objective connectors", "§8.60" (S6-ME, RTA3S6-L, W16-NS's S6 arms) | §8.60 |

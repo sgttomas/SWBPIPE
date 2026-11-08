@@ -38,13 +38,14 @@ use super::integrity::{
     MODAL_RESOURCE_BAND_ALLOTMENT_EXCEEDED, MODAL_RESOURCE_QL_ALLOTMENT_EXCEEDED,
 };
 use super::request::RequestInputs;
+use super::resource::modal_support_resource_refusal;
 use super::stiffness::ModalPencil;
 use crate::{diag, Diagnostic};
 use open_pipe_stress_modal_eigen::clusters::{reported_set, ExtractionBound, ReportedSet, StoppingBound};
 use open_pipe_stress_modal_eigen::dense::{solve_dense_pencil_with_allotments, DenseAllotments, DenseEigenSolution, DenseError, DenseOptions};
 use open_pipe_stress_modal_eigen::modal_quantities::{normalize_mode, ModalBasis, ModalQuantityError, NormalizedMode};
 use open_pipe_stress_modal_eigen::sturm::{
-    count_above_spectrum, count_in_gap, Gap, GapLower, Neighbour, ShiftPencil, SturmEvidence, SturmOutcome, SturmRefusal,
+    count_above_spectrum, count_in_gap, Gap, GapLower, Neighbour, ShiftPencil, SturmError, SturmEvidence, SturmOutcome, SturmRefusal,
 };
 
 /// The kernel's dense options from the validated parameters.
@@ -93,6 +94,7 @@ pub(crate) fn solve_modal_pencil_within(
                 vec!["model".into()],
             )]
         }
+        DenseError::SupportResource(support) => modal_support_resource_refusal("the dense eigensolve", &support),
         DenseError::PencilRangeUnsupported(range) => vec![modal_range_refusal(
             "pencil-range",
             pencil_range_text(&range, &pencil.labels),
@@ -109,6 +111,15 @@ pub(crate) fn solve_modal_pencil_within(
         )),
         other => eigensolve_refusal(format!("the dense eigensolve refused the pencil: {other}")),
     })
+}
+
+/// The Sturm pencil's construction refused: a support reservation by its
+/// `MODAL_RESOURCE_*` name, anything else as before.
+pub(crate) fn modal_sturm_pencil_refusal(error: SturmError) -> Vec<Diagnostic> {
+    match error {
+        SturmError::SupportResource(support) => modal_support_resource_refusal("the Sturm pencil's construction", &support),
+        error => eigensolve_refusal(format!("the Sturm pencil cannot be formed ({error})")),
+    }
 }
 
 /// The finite-mode census (module docs).
@@ -251,7 +262,7 @@ pub(crate) fn modal_sturm_count(
     params: &ModalIntegrityParameters,
 ) -> Result<SturmRecord, Vec<Diagnostic>> {
     let shift_pencil = ShiftPencil::from_entries(pencil.free_dofs.len(), &pencil.stiffness_entries, &pencil.mass_entries)
-        .map_err(|error| eigensolve_refusal(format!("the Sturm pencil cannot be formed ({error})")))?;
+        .map_err(modal_sturm_pencil_refusal)?;
     let parameters = params.modal_sturm_parameters();
     let neighbour = |i: usize| Neighbour { eigenvalue: eigenvalues[i], relative_error_estimate: cluster_estimates[i], vector: vectors[i] };
     let reported = completed.set.count;
