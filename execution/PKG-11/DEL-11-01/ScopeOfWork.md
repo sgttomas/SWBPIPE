@@ -100,7 +100,6 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 > ##### References
 >
 > - `AGENTS.md`
-> - `AGENTS.md`
 > - `docs/README.md`
 > - `docs/DIRECTIVE.md`
 > - `docs/CONTRACT.md`
@@ -299,7 +298,7 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 
 > ##### Considerations
 >
-> Current deliverable obligation: Create user guide structure for project setup, modeling, solving, rule checks, reports, and limitations. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> See CLM-006 for the current deliverable obligation and the historical setup boundary.
 >
 >
 > The user guide has to serve multiple audiences without making the product sound more mature or authoritative than the current evidence supports:

@@ -284,7 +284,7 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 > Current deliverable obligation: Draft and maintain threat model for private data, report sharing, plugins, imports, and supply chain. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
-> The eventual product artifact should be `docs/security/threat_model.md`; this run intentionally writes only deliverable-local setup content. A later implementation or documentation task may promote accepted content into product documentation after human review.
+> The setup run identified `docs/security/threat_model.md` as the eventual product artifact and wrote only deliverable-local setup content. It anticipated a later implementation or documentation task to promote accepted content into product documentation after human review.
 >
 > Required records for this setup run:
 >
