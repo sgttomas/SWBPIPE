@@ -14,7 +14,7 @@ Preserve commitments, numerical references, source meaning and unrelated work.
 ## Shared roles and methods
 
 Use the selected Chirality Library (the Library) edition: Chirality library
-3.0.0, tag `library-v3.0.0`, commit `5170575f3f4c1fc51386fa5cd38c7ef9ac048b20`
+3.1.0, tag `library-v3.1.0`, commit `88ab3f4f5f8ec7f7e030279164dbd1a4aa38b514`
 of `https://github.com/sgttomas/chirality-library`. Read it from that commit in
 `/Users/ryan/dev/chirality-library` on this workspace
 (`git -C /Users/ryan/dev/chirality-library show <commit>:<path>`), from the
@@ -97,6 +97,11 @@ with `check`, `neighborhood`, `impact`, `touches` or `dag-diff`. Preserve unchan
 declarations and historical identities. Git records changes; do not manufacture
 acceptance, lifecycle advancement or a standing backlog from old records.
 
+Keep current findings and their reasons in `Work/`; keep the change's approval
+quotes and review/check narrative in the PR. Lead owner updates with the result
+or decision needed. Use plain prose with spaced identifiers in messages to
+delegates.
+
 Use focused checks for ordinary changes. Numerical meaning, persistence,
 permissions and destructive operations require targeted regression checks and
 independent scrutiny, under the [proportionate-review delegation](#standing-delegation-to-help_human).
@@ -107,6 +112,9 @@ Commitments, risk acceptance, protected baselines, holds, issuance and release
 remain subject to the owner's authority and explicit local delegations.
 Repository settings, branch protections and required-check changes must be
 presented to the owner before changing them.
+
+When an owner instruction overrides a standing rule, note the exception in the
+PR and ask once whether the standing rule should change.
 
 ## Standing delegation to HELP_HUMAN
 
