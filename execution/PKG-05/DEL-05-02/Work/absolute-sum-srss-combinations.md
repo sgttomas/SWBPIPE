@@ -1,14 +1,10 @@
 # Absolute-sum and SRSS combinations, and combinations of combinations
 
 **Row:** RT-A4 (Must), serving exit criterion 1 ("three-axis static seismic
-with SRSS and absolute-sum combination") and RT-V1. **Basis:** main
-`8cab1b3e5` (2026-10-30). **Status:** revision 3, after Codex reviews r1 (on
-`bba44aac7`: one P1 and six P2s, marked "r1") and r2 (on `95b12033e`: F2-F5
-and F7 resolved; one P1 and seven P2s, marked "r2"; no objection to the OQ-1
-rule) and r3 (on `d48f93a23`: no P1; two P2s and a P3, marked "r3"); the
-algebra kernel (§3) is the first build slice. Risk class: numerical meaning
-and persistence, so every slice takes targeted regression checks and
-independent scrutiny (AGENTS.md, Work and verification).
+with SRSS and absolute-sum combination") and RT-V1. The design basis was main
+`8cab1b3e5` (2026-10-30). The algebra kernel is specified in §3 and the product
+wiring in §10. Numerical meaning and persistence require targeted regression
+checks and independent scrutiny (AGENTS.md, Work and verification).
 
 **Decisions applied** (SWBPIPE Agent 0, 2026-10-30, on the load-case plan):
 `absolute_sum` and `srss` join model document 0.9.0 before S1; a combination
@@ -21,7 +17,7 @@ LCA is `core/loads/load_case_algebra/src`, FK is `core/solver/frame_kernel/src`.
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). Nothing
 here records or implies acceptance, issuance or release.
 
-## 1. What exists
+## 1. What existed at the design basis
 
 - **Bases.** `combinations[].basis` is one of `mechanics` (terms with factors
   over load cases), `result_state_subtraction` (minuend minus subtrahend) and
