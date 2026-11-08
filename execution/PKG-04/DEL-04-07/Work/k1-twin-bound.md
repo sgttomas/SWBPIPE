@@ -7,7 +7,7 @@ element-formula source trace. Agent 0 chose option (a): each route keeps its est
 formation (EX's D-5 sequence, PF's own). K-1 is reworded below, and its assertion
 (`every_kd5_control_twin_is_within_the_k1_bound` in `core/product_physics/tests/rt_a3_nonlinear_k1_twins.rs`) is
 implemented and runs. The basis is computed by
-[`k1_twin_bound.py`](k1_twin_bound.py), run as `python3 execution/PKG-04/DEL-04-07/Work/k1_twin_bound.py`
+[`k1_twin_bound.py`](../../../../tools/validation/k1_twin_bound.py), run as `python3 tools/validation/k1_twin_bound.py`
 (standard library only, no product code, about a second).
 
 **Why K-1 needs amending.** EX forms each member's section constants by D-5's sequence and PF by its own. For

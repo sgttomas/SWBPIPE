@@ -121,6 +121,8 @@ code_paths:
 - fixtures/hanger/invented_hanger_catalogue_*.json
 - tests/verifiers/hanger_sizing_evidence.py
 - tests/test_hanger_sizing_*.py
+# The schema's fixed lists (held equal to the verifier's) against this design's quoted text: a document check.
+- tools/validation/test_hanger_sizing_design.py
 - core/runner/headless/tests/size_hangers_cli.rs
 - validation/references/hanger_sizing/**
 - apps/desktop/src/features/results/HangerSizing*

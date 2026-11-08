@@ -124,17 +124,14 @@ def test_admission_refuses_duplicate_keys_and_numbers_outside_the_profile():
     assert hs.admit('{"a": 9007199254740991, "b": -0.0}') == {"a": 9007199254740991, "b": 0.0}
 
 
-def test_the_verifiers_fixed_lists_are_the_schemas_and_the_designs():
+def test_the_verifiers_fixed_lists_are_the_schemas():
+    # The design text against these schema lists is a document check (tools/validation/test_hanger_sizing_design.py).
     defs = SCHEMA["$defs"]
     assert tuple(item["const"] for item in defs["Limitations"]["prefixItems"]) == hs.LIMITATIONS
     assert tuple(item["const"] for item in defs["BasisStatement"]["prefixItems"]) == hs.BASIS_STATEMENT
     assert set(defs["RefusalCode"]["enum"]) == hs.REFUSAL_CODES
     assert set(defs["LoadCategory"]["enum"]) == hs.LOAD_CATEGORIES
     assert set(defs["StateCode"]["enum"]) == hs.STATE_CODES
-    design = (ROOT / "execution/PKG-04/DEL-04-11/Work/hanger-sizing.md").read_text(encoding="utf-8")
-    assert all(code in design for code in hs.REFUSAL_CODES)
-    for text in (*hs.LIMITATIONS, *hs.BASIS_STATEMENT):
-        assert f'"{text}"' in design, text
 
 
 def runner():

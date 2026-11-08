@@ -104,6 +104,8 @@ quotes and review/check narrative in the PR. Lead owner updates with the result
 or decision needed. Use plain prose with spaced identifiers in messages to
 delegates.
 
+Code that runs (implementation, tests, generators, harnesses) lives outside `execution/`, in the project's code locations, and deliverables link to it; `Work/` may keep documentation-only examples that are never run.
+
 Use focused checks for ordinary changes. Numerical meaning, persistence,
 permissions and destructive operations require targeted regression checks and
 independent scrutiny, under the [proportionate-review delegation](#standing-delegation-to-help_human).

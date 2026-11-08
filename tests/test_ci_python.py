@@ -405,8 +405,8 @@ def test_reads_follow_imports_and_path_loaded_models_not_imported_modules_reads(
     # The runner build helper is imported, not path-loaded: the crates it builds are not the test's roots.
     assert 'tools/runner/build_runner.py' in reads['tests/test_units_authority_setup.py']
     assert 'core/product_physics' not in reads['tests/test_caepipe_mbf_importer.py']
-    # A path built from `__file__` (`parents[1] / "execution/..."`) is a root like any other, execution/ included.
-    assert 'execution/PKG-16/DEL-16-06/Work/agent-capability-catalog.json' in reads['tools/agent_host_witness_test.py']
+    # A path built from `__file__` (`parents[1] / "apps/..."`) is a root like any other.
+    assert 'apps/desktop/src-tauri/resources/agent-capability-catalog.json' in reads['tools/agent_host_witness_test.py']
 
 
 def test_repository_check_tests_are_the_governance_step_s():
@@ -568,15 +568,21 @@ def test_sys_path_directory_keeps_the_imported_helpers_document_reader(tmp_path)
     assert 'tests/test_imported.py' not in reads.reading_tests(tmp_path, ['tools/readers/README.md'])
 
 
-def test_the_python_job_checks_out_every_path_a_selected_test_reads():
-    """A selected test reads what its code names, execution/ records included, so the Python job's checkout leaves
-    nothing out (tools/agent_host_witness_test.py failed on a missing execution/ catalog under a sparse checkout)."""
+def test_the_python_job_leaves_out_only_the_declarative_specifications():
+    """The Python job's checkout is the whole tree except execution/: a changed specification selects no product
+    test, and the catalog a selected test reads is the bundled resource, which the job has."""
     workflow = (PROJECT / '.github/workflows/piping-desktop-e2e.yml').read_text()
     job = workflow[workflow.index('\n  python-product:'):]
     job = job[:job.index('\n  browser-matrix:')]
-    assert 'sparse-checkout' not in job
-    path = 'execution/PKG-16/DEL-16-06/Work/agent-capability-catalog.json'
-    assert 'tools/agent_host_witness_test.py' in selected(path)
+    sparse = job.split('sparse-checkout: |\n', 1)[1].split('sparse-checkout-cone-mode', 1)[0].split()
+    assert sparse == ['/*', '!/execution/']
+    assert 'sparse-checkout-cone-mode: false' in job
+    resource = 'apps/desktop/src-tauri/resources/agent-capability-catalog.json'
+    assert 'tools/agent_host_witness_test.py' in selected(resource)
+    for spec in ('execution/PKG-16/DEL-16-06/Work/embedded-agent-host.md', 'execution/PKG-04/DEL-04-07/deliverable.yaml',
+                 'execution/_DAG/DAG-011/DependencyEdges.csv'):
+        assert ci.python_test_reads.reading_tests(PROJECT, [spec]) == {}
+        assert ci.reaching_paths(PROJECT, [spec]) == []
 
 
 def test_shards_cover_overlapping_selections_and_new_tests(tmp_path):

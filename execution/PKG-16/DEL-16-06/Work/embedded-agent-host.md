@@ -62,7 +62,7 @@ Publication/release and broader UI design remain distinct owner acts.
 
 ## Catalog ownership
 
-[`agent-capability-catalog.json`](agent-capability-catalog.json) is SWBPIPE's
+[`agent-capability-catalog.json`](../../../../apps/desktop/src-tauri/resources/agent-capability-catalog.json) is SWBPIPE's
 implementation contract. Its origin is App commit
 `e1e3f4615b6f766b313c3492506f68254afd8a06`, path
 `execution/PKG-09/DEL-09-06/Design/SWBPIPE_CATALOG_PROPOSAL.json`, SHA-256
@@ -605,17 +605,21 @@ preservation of the model's original number lexemes upstream. Native operation
 decimal strings remain strings. The only dependency-feature change is enabling
 the existing `serde_json` dependency's `raw_value`; Cargo.lock is unchanged.
 
-`tools/agent_catalog_resource.py` generates
-`apps/desktop/src-tauri/resources/agent-capability-catalog.json` directly from
-the authoritative Work bytes; do not edit the product resource independently.
-The registered project check `agent-catalog-resource` uses `--check` to fail on
-absent, linked, oversized or differing input. Both project and Root selectors
-route its inputs. The Root software-workflow regression suite executes this
-registered command in the existing full-checkout Repository checks job. Sparse
-desktop builds and public source exports compile the product resource without
-requiring the excluded execution tree. No workflow file, required status or
-harness aggregate is changed. Equality establishes source correspondence, not
-catalog semantics or runtime conformance.
+`apps/desktop/src-tauri/resources/agent-capability-catalog.json` is the one
+runtime catalog; this design governs its requirements and is not a second copy.
+The registered project check `agent-catalog-resource`
+(`tools/agent_catalog_resource.py`) fails on an absent, linked or escaping,
+oversized or non-strict-JSON resource, and on bytes that differ from the
+host-witness pin (`CATALOG_SHA256` in `tools/agent_host_witness.py`), so a
+catalog edit moves its pin in the same reviewed change. Both project and Root
+selectors route its inputs, and the Repository checks job executes the
+registered command. Until 2026-11-08 this directory held the authoritative copy
+and the tool generated the resource from it; the two were byte-identical
+(SHA-256 `8e9a4b4e3eec027d092033ea5d95f1648030520e797c5a660ab387531f23be17`)
+when the bundled resource became canonical. Sparse desktop builds and public
+source exports compile the product resource without the excluded execution
+tree. The check establishes containment and pin correspondence, not catalog
+semantics or runtime conformance.
 
 `stdio_pump.rs` supplies an explicitly constructed portable stdio pump, with
 32-slot incoming/outgoing queues and separate reader/writer threads. The catalog

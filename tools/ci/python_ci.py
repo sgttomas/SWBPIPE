@@ -242,6 +242,8 @@ def select(project, plan, repository_checks_run=False):
                 patterns.extend(broad(project))
                 continue
             local = path[len(PREFIX):]
+            if python_test_reads.declarative(local):
+                continue  # declarative specifications: document checks, never a product test's input
             patterns.extend(helper_consumers(project, local))
             patterns.extend(test for test, roots in derived.items()
                             if local == test or any(python_test_reads.root_matches(local, root) for root in roots))
@@ -352,9 +354,9 @@ def reaching_paths(project, paths):
     reads = python_test_reads.test_reads(project)
     base_roots = {root for test in reads for root in reads[test]
                   if any(test == local or test.startswith(local + '/') for local in base)}
-    return [path for path in paths
-            if any(python_test_reads.root_matches(path, root) for root in base_roots)
-            or set(select(project, {'event': 'pull_request', 'paths': [path]})) - base]
+    return [path for path in paths if not python_test_reads.declarative(path)
+            and (any(python_test_reads.root_matches(path, root) for root in base_roots)
+                 or set(select(project, {'event': 'pull_request', 'paths': [path]})) - base)]
 
 
 def main():

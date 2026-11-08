@@ -150,7 +150,7 @@ code_paths:
 - tools/agent_catalog_resource.py
 - apps/desktop/src-tauri/resources/agent-capability-catalog.json
 - apps/desktop/src-tauri/src/embedded_agent/**
-- execution/PKG-16/DEL-16-06/Work/agent-capability-catalog.json
+- fixtures/embedded_agent/agent-witness-pin.json
 - apps/desktop/src/services/embeddedAgentBridge.ts
 - apps/desktop/src/services/operationService.ts
 - core/model_operations/operation_applier/**

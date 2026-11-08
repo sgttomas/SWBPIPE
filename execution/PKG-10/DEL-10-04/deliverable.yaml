@@ -115,6 +115,9 @@ code_paths:
 - tools/ci/**
 - tests/test_ci_*.py
 - tools/validation/validate_dependencies_schema.py
+# The document route and the execution/ boundary (Work/documentation-ci.md).
+- tools/software_workflow/documentation_ci.py
+- tools/validation/execution_boundary.py
 - fixtures/product_preview/demo_fixture_generation.json
 - fixtures/product_preview/preview_physics_fixture_generation.json
 - docs/BUILD_AND_RELEASE.md
@@ -134,6 +137,8 @@ checks:
 - tests/test_ci_python.py
 - tests/test_ci_numerical.py
 - tests/test_ci_apt_sources.py
+- tools/software_workflow/test_documentation_ci.py
+- tools/validation/test_execution_boundary.py
 - tests/test_release_packaging_script.py
 - tests/test_release_notarize_script.py
 - tests/test_release_signed_build_script.py
