@@ -182,6 +182,15 @@ case's pressure regions.
 
 ## 4. Gates (mechanics basis only)
 
+**Open diagnostic-precedence question.** Trace the promised ordering below
+against the current EX dispatch and certificate readers before claiming it
+is implemented. The pending choices are to reconcile code with the declared
+order (Agent 0 recommendation), or ask the owner to amend the diagnostic
+promise. No specific alternative order has been approved and no complete
+runtime precedence reproduction is retained. Next actor: Agent 0 obtains the
+bounded source/behavior comparison and presents any required wording choice;
+the normative order below remains unchanged.
+
 The gates apply to `mechanics` combinations only, as on PF (~799-819).
 Subtraction and envelopes compare states and may legitimately span different
 stiffness.

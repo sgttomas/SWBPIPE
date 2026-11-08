@@ -1,5 +1,19 @@
 # Pressure contract and T4 integration
 
+## Unintegrated S6 and constant-effort work
+
+[S6, draft PR #166](https://github.com/sgttomas/SWBPIPE/pull/166), is retained at
+`codex/rt-a3-s6`, head `5b3f71fa5721546ffd93bb9c51b1ca4a56619b44`.
+Its PR describes the reviewed composition and remaining CE/S7/R3 and global
+nonlinear-reference limits. Read its actual current checks before integration;
+the old handoff's pending-check list is a dated observation. The seven-test
+AC-004 observation belongs to source `1a07aec6b732ffcf1b050626341780ff92888fbd`,
+not a later composition, and its one-attempt authorization is consumed.
+[Original packet and ten carrier observations](https://github.com/sgttomas/SWBPIPE/tree/dc037b5495ccd6fa35fb04758edbcdb019021bba/s6)
+are durably retained; generated trees and build caches do not substitute for
+them. The separate [constant-effort defect, candidate and readiness gaps](../../DEL-04-03/Work/constant-effort-publication.md)
+remain open. Neither branch establishes acceptance or release.
+
 ## Current pressure boundary
 
 The owner retired `1.0.0/legacy_pressure_v1` product-wide in #1168. It is not accepted even for zero-pressure documents. The flawed computation, its historical bypass and dependent pressure oracles are removed. A pressure-free model is a document without a pressure contract. On 2026-10-10 the owner decided that each format keeps only its current version ("as you recommended, no-compatibility principle carries"), reversing the 2026-10-08 choice of model formats 0.1.0/0.2.0 as the pressure-free namespace: B7 defines one model format, 0.5.0 (designed in DEL-04-08 Design and accepted by HELP_HUMAN on 2026-10-10), that expresses models with or without pressure, and refuses every older version by name ([DEL-04-08 Design, b7-plan.md](../../DEL-04-08/Work/b7-plan.md)). B7 reached main in #1387: 0.5.0 became the only model version, a document without `pressure_contract` is pressure-free, and 0.1.0 to 0.4.0 are refused by name (`MODEL_SCHEMA_VERSION_RETIRED`, PP `model_format.rs`). Since T4-U4b/U5b, 0.6.0 is the only model version and 0.5.0 is refused by name too ([u4b-u5b-implementation.md](u4b-u5b-implementation.md) §1.1). Any pressure primitive in a non-exact document, including zero, requires re-authoring (`PRESSURE_MODEL_REAUTHOR_REQUIRED`); authoring uses `OP-PRESSURE-PRIMITIVE-RETIRED`.

@@ -12,6 +12,29 @@
 
 ---
 
+## Current assurance question and recovery
+
+REQ-005 says the separate readers rederive total/free-DOF mass "from the
+model", but its closing sentence scopes rederivation to the document's formed
+mass and shapes. The implemented payload check cannot detect a coherently
+wrong mass formation with matching totals. This is an unresolved assurance
+gap and an ambiguity in the requirement, not reader independence from the
+formation source.
+
+The options for the owner are to retain the stronger model-derived assurance
+and implement it (Agent 0's recommendation), or explicitly amend the promise
+to payload-derived checking and state its independence limit. No weaker
+wording has been adopted. Next actor: Agent 0 presents the source-grounded
+choice to the owner before treating REQ-005 as satisfied.
+
+Public admission remains disabled under §5.3.9. The revised normalization
+criterion distinguishes axis-aligned zero components from a skew physical
+vector constraint; AC-006's nonzero skew-residual witness is still unmet.
+The existing closure accounting below governs the next internal unit; neither
+the prose cleanup nor #164's three closed terms supplies the remaining proof.
+[Original composition-00832 AC-004 observation](https://github.com/sgttomas/SWBPIPE/tree/dc037b5495ccd6fa35fb04758edbcdb019021bba/modal)
+is retained for its historical source only. It authorizes no new witness run.
+
 ## 0. Scope
 
 - **[design]** FR-024 (dynamic analysis modules) was explicitly deferred by DEC-078 (D-12, owner 2026-07-15). DEC-078 required that "any future dynamics scope re-enters only through a new governed scope change with its own human decision packet" (`execution/_Decomposition/SOFTWARE_DECOMP.md`, DEC-078).

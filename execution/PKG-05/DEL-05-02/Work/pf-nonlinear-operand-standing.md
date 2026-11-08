@@ -188,6 +188,16 @@ model binding.
 
 ## 5. Later items
 
+**Pending notice decision.** The Sensitive recovery-guard-only case below
+can carry certified operand rows and an assessed derived-group bound, while
+the notice says "without their own numerical enclosure". Options are to
+qualify that notice to its actual certificate scope (Agent 0 recommendation),
+or have the owner explicitly choose a different standing/certificate policy.
+Do not discard a valid bound or imply all Sensitive rows are certified.
+No option is adopted here. Next actor: Agent 0 brings the exact notice and
+certificate cases to the operand-notice owner and the owner for resolution;
+§5's earlier qualification remains open.
+
 - The combination certificate (`combination-certificate.md`, RT-A3 §4) states a bound
   and verdict for the derived groups of a subtraction whose operands carry certified
   rows: confirmed, non-gap cases. Gap-bearing operands stay not assessed until G2

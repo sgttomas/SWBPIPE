@@ -43,3 +43,13 @@ its source digest; declarative `execution/` changes neither need nor stale it.
 Subsequent documentation edits then keep product verification until changed
 document readers have been audited and the inventory refreshed. This prevents
 a new runtime or test reader silently inheriting a prose-only exemption.
+
+## Remaining selection candidate
+
+`init/init-prompt.md` is a known over-selection: even optional metadata edits
+select product coverage. #185 fully compared it with Library 3.3.0 but deferred
+its optional upstream metadata solely to retain the document route. Agent 0
+may propose documentary classification as a separate change; narrowing needs
+independent review and affected routing/completeness checks. No narrowing is
+made here. Refreshing the reader inventory is optional for product PRs, not
+a product-delivery gate; a stale audit safely falls back to product CI.

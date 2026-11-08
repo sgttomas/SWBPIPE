@@ -18,6 +18,32 @@ release follows from this design. The release-target criteria are unchanged.
 
 ## 1. Stored input and current behavior
 
+**H1 selection constraint and recovery.** H1 is unselected. Until the owner
+selects it, do not compose, build, reprice, witness, open a PR or start a child
+for it. Only the owner can release this constraint. Recovery publication of
+its unchanged branch does not release it.
+
+Remote branch `codex/h1-contents-selfweight` retains exact head
+`e519b1a43db6e0b4b6440ea74be29e4461609d85`, declared basis `0df1ec32a`;
+`git fetch origin codex/h1-contents-selfweight` recovers it without a local
+worktree. Its connected contents candidate and provisional pricing proposal
+are unintegrated and unadopted. The proposal's priced source is
+`925fcf122e6716006bb05d25496a5cda7caa79dd`, not a newly qualified composition.
+[Original proposal and logs](https://github.com/sgttomas/SWBPIPE/tree/dc037b5495ccd6fa35fb04758edbcdb019021bba/h1)
+retain their incomplete outcomes. The separately named `h1-d3-inventory925/logs`
+directory is empty: its original audit-stop log is unavailable; later proposal
+logs do not recover that observation. Native caches and generated pricing
+trees are reproducible convenience outputs. Next actor: owner selects whether
+to undertake H1; Agent 0 then establishes the actual source and remaining
+changed-proof/qualification obligations before any run. Main's Step 0 design
+below is not replaced by the unmerged candidate.
+
+This public H1 ref and its history remain in scope of the owner's
+D-20/DEC-058 private-term review. Retire the source branch once integrated or
+abandoned by the owner, after securing anything still consumed; the shared
+observation branch's retirement condition is in
+[the CE recovery account](../../../PKG-04/DEL-04-03/Work/constant-effort-publication.md).
+
 The existing model-document 0.9.0 member is optional, closed and unchanged:
 
 | Member of `load_cases[].test_condition` | Required value | Meaning |

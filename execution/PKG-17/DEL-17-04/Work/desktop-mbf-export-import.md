@@ -1,5 +1,11 @@
 # Desktop MBF export and import (RT-R7, RT-R8)
 
+**Current verification limit.** RT-R8's "connected" status is source/test
+evidence. No current-source real App walkthrough has been performed in this
+work. The next selected integration check must exercise that actual App path;
+this note supplies neither a reference-system round trip nor criterion-6
+qualification. The remaining refusals in the import Design still stand.
+
 **Basis:** `main` at `153485db8c`. The SI writer `core/handoff/caepipe_mbf/si_writer.py`
 (#1652, profile `caepipe-mbf-si-pilot-1`), the importer `importer.py`, tranches 1–3 (#1670,
 #1685, #1697), the authored cases (#1702), and the import Design `caepipe-mbf-import.md`
