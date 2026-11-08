@@ -18,6 +18,7 @@ import { AutosaveSettingsControl } from "./AutosaveSettingsControl";
 import { AutosaveStatus } from "./AutosaveStatus";
 import { formatAutosaveTime } from "./autosaveRecovery";
 import { autosaveSlot, type AutosaveEntry, type AutosaveReadOutcome, type AutosaveSettingsRead, type AutosaveWriteOutcome } from "./autosaveService";
+import type { BackupSettingsOutcome, BackupWriteOutcome } from "./backupService";
 import { AUTOSAVE_OFF_NOTICE, useAutosave, type AutosaveDeps, type AutosaveSession } from "./useAutosave";
 
 const DEMO = demoModel as unknown as PreviewModel;
@@ -62,6 +63,8 @@ type NativeState = {
   projects: LocalProjectIndexEntry[];
   read: (fileName: string) => AutosaveReadOutcome;
   write: (args: Record<string, unknown>) => Promise<AutosaveWriteOutcome>;
+  configureBackup: (args: Record<string, unknown>) => Promise<BackupSettingsOutcome>;
+  backup: (args: Record<string, unknown>) => Promise<BackupWriteOutcome>;
 };
 
 function written(millis = WRITTEN): AutosaveWriteOutcome {
@@ -76,10 +79,17 @@ function native(overrides: Partial<NativeState> = {}): NativeState {
     projects: [],
     read: () => ({ outcome: "read", ...entry(DEMO_SLOT, WRITTEN, DEMO_HASH), byte_count: DEMO_TEXT.length, document: structuredClone(DEMO) }),
     write: () => Promise.resolve(written()),
+    configureBackup: (args) => Promise.resolve({ outcome: "saved", settings: {
+      ...state.settings.settings, backup_folder: args.enabled ? "/invented-local-backups" : null,
+      backup_keep: args.backupKeep as number | null
+    } }),
+    backup: () => Promise.resolve({ outcome: "disabled" }),
     ...overrides
   };
   invokeMock.mockImplementation((command: string, args: Record<string, unknown> = {}) => {
     switch (command) {
+      case "configure_project_backup": return state.configureBackup(args);
+      case "write_project_backup": return state.backup(args);
       case "get_autosave_settings": return Promise.resolve(state.settings);
       case "set_autosave_settings": {
         const settings = { ...state.settings.settings, autosave_minutes: args.autosaveMinutes as number };
@@ -469,5 +479,71 @@ describe("the recovery offer", () => {
     fireEvent.click(screen.getByTestId("autosave-recovery-discard"));
     fireEvent.click(await screen.findByTestId("autosave-discard-confirm"));
     await waitFor(() => expect(calls("discard_project_autosave")).toHaveLength(1));
+  });
+});
+
+
+describe("opt-in backups", () => {
+  it("requires private-copy intent, defaults to All, and sends no folder path or model", async () => {
+    native();
+    const view = mount();
+    const button = await screen.findByTestId("backup-enable");
+    await waitFor(() => expect(screen.getByTestId("autosave-interval")).toHaveValue("5"));
+    expect(button).toBeDisabled();
+    expect(screen.getByLabelText("Backups to keep")).toHaveValue("all");
+    fireEvent.click(screen.getByLabelText("I intend to copy private project models to the local folder I choose."));
+    fireEvent.click(button);
+    await waitFor(() => expect(calls("configure_project_backup").map(([, args]) => args)).toEqual([
+      { enabled: true, backupKeep: null, explicitLocalPrivateIntent: true }
+    ]));
+    await waitFor(() => expect(screen.getByTestId("backup-folder")).toHaveTextContent("/invented-local-backups"));
+    expect(view.holds).toEqual({ taken: 1, released: 1 });
+    expect(calls("write_project_backup")).toHaveLength(0);
+    fireEvent.click(screen.getByTestId("backup-disable"));
+    await waitFor(() => expect(screen.getByTestId("backup-folder")).toHaveTextContent("Backups are off."));
+    expect(calls("configure_project_backup")[1][1]).toEqual({ enabled: false, backupKeep: null, explicitLocalPrivateIntent: false });
+  });
+
+  it("canceling the native chooser preserves settings and never starts a backup", async () => {
+    native({ configureBackup: async () => ({ outcome: "cancelled" }) });
+    const view = mount();
+    await waitFor(() => expect(view.session().settings).not.toBeNull());
+    await act(async () => { await view.session().configureBackup(true, 3, true); });
+    expect(view.session().settings?.backup_folder).toBeNull();
+    expect(view.holds).toEqual({ taken: 1, released: 1 });
+    expect(calls("write_project_backup")).toHaveLength(0);
+  });
+
+  it("checks native settings on save even when this window shows backups off, and reports refusal separately", async () => {
+    native({ backup: async () => ({ outcome: "refused", diagnostics: [{ code: "BACKUP-FULL", path: "", message: "No space left." }] }) });
+    const view = mount();
+    await waitFor(() => expect(view.session().settings).not.toBeNull());
+    await act(async () => { await view.session().backupProjectSaved(DEMO.project.id, DEMO_HASH, () => true); });
+    expect(calls("write_project_backup").map(([, args]) => args)).toEqual([{ projectId: DEMO.project.id, expectedModelHash: DEMO_HASH }]);
+    expect(screen.getByTestId("backup-status")).toHaveTextContent("Saved. Backup not written: BACKUP-FULL: No space left.");
+    expect(calls("save_local_project")).toHaveLength(0);
+  });
+
+  it("a stale session cannot inherit the pending backup's completion status", async () => {
+    let finish!: (value: BackupWriteOutcome) => void;
+    native({ backup: () => new Promise((resolve) => { finish = resolve; }) });
+    const view = mount();
+    await waitFor(() => expect(view.session().settings).not.toBeNull());
+    let current = true;
+    let pending!: Promise<void>;
+    act(() => { pending = view.session().backupProjectSaved(DEMO.project.id, DEMO_HASH, () => current); });
+    current = false;
+    await act(async () => { finish({ outcome: "refused", diagnostics: [{ code: "BACKUP-STALE", path: "", message: "Kept." }] }); await pending; });
+    expect(screen.queryByTestId("backup-status")).toBeNull();
+  });
+
+  it("changing the retention choice alone neither saves settings nor deletes files", async () => {
+    native();
+    mount();
+    await waitFor(() => expect(screen.getByTestId("autosave-interval")).toHaveValue("5"));
+    fireEvent.change(screen.getByLabelText("Backups to keep"), { target: { value: "3" } });
+    expect(calls("configure_project_backup")).toHaveLength(0);
+    expect(calls("write_project_backup")).toHaveLength(0);
+    expect(calls("discard_project_autosave")).toHaveLength(0);
   });
 });

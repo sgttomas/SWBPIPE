@@ -1,3 +1,4 @@
+import { BackupSettingsControl } from "./BackupSettingsControl";
 import { AUTOSAVE_MINUTE_CHOICES } from "./autosaveService";
 import { AUTOSAVE_DESKTOP_ONLY, AUTOSAVE_OFF_NOTICE, type AutosaveSession } from "./useAutosave";
 
@@ -8,7 +9,7 @@ import { AUTOSAVE_DESKTOP_ONLY, AUTOSAVE_OFF_NOTICE, type AutosaveSession } from
  * 2026-10-28, item (a)). Recover autosave… offers every autosave not proven
  * to be its stored project's model (Design §3). In the browser preview there are no native settings,
  * so the control is disabled and says so. */
-export function AutosaveSettingsControl({ autosave }: { autosave: Pick<AutosaveSession, "settings" | "settingBusy" | "chooseInterval" | "recoverAutosave"> }) {
+export function AutosaveSettingsControl({ autosave }: { autosave: Pick<AutosaveSession, "settings" | "settingBusy" | "chooseInterval" | "recoverAutosave" | "configureBackup"> }) {
   const { settings } = autosave;
   const off = settings?.autosave_minutes === 0;
   return (
@@ -37,6 +38,7 @@ export function AutosaveSettingsControl({ autosave }: { autosave: Pick<AutosaveS
       <p className="shell-autosave-detail" id="autosave-setting-detail">
         Autosave writes only while there are unsaved edits. Autosaves stay on this computer. Saving the project removes only the autosaves that match the saved model.
       </p>
+      <BackupSettingsControl autosave={autosave} />
     </>
   );
 }

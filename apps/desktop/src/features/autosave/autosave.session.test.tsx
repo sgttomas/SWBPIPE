@@ -14,6 +14,7 @@ import { App } from "../../App";
 import { computeModelHash } from "../../services/hashService";
 import type { LocalProjectEnvelope, PreviewModel } from "../../types";
 import { formatAutosaveTime } from "./autosaveRecovery";
+import type { BackupWriteOutcome } from "./backupService";
 import { autosaveSlot, type AutosaveEntry } from "./autosaveService";
 
 afterEach(() => {
@@ -52,9 +53,14 @@ let savedModel: PreviewModel | null = null;
 
 /** The native commands the flows reach; `listings` are returned in turn by
  * `list_project_autosaves` (the last one thereafter). */
-function nativeCommands(listings: Listing[]) {
+type SaveHooks = {
+  backup?: (args: Record<string, unknown>) => Promise<BackupWriteOutcome>;
+  save?: (request: LocalProjectEnvelope) => Promise<LocalProjectEnvelope>;
+};
+function nativeCommands(listings: Listing[], hooks: SaveHooks = {}) {
   invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
     switch (command) {
+      case "write_project_backup": return hooks.backup?.(args!) ?? Promise.resolve({ outcome: "disabled" });
       case "sync_native_shell_state": return Promise.resolve(null);
       case "list_model_states": return Promise.resolve([]);
       case "find_local_project": return Promise.resolve(null);
@@ -73,7 +79,11 @@ function nativeCommands(listings: Listing[]) {
       case "resolve_close_request": return Promise.resolve(null);
       case "save_local_project":
         savedModel = (args!.request as { model: PreviewModel }).model;
-        return Promise.resolve(envelope((args!.request as { model: PreviewModel }).model, "Saved current project model snapshot without external file copies."));
+        if (hooks.save) return hooks.save(args!.request as LocalProjectEnvelope);
+        return Promise.resolve({
+          ...envelope(savedModel, "Saved current project model snapshot without external file copies."),
+          ...args!.request as LocalProjectEnvelope
+        });
       default: return Promise.reject(new Error(`Unexpected command ${command}`));
     }
   });
@@ -100,11 +110,11 @@ async function applyNodeEdit() {
 
 /** The bundled demo with one unsaved edit, then the desktop runtime, whose
  * autosave starts at the session's next render. */
-async function editedNativeSession(listings: Listing[]) {
+async function editedNativeSession(listings: Listing[], hooks: SaveHooks = {}) {
   await renderApp();
   await applyNodeEdit();
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-  nativeCommands(listings);
+  nativeCommands(listings, hooks);
   fireEvent.click(screen.getByTestId("issues-drawer-toggle"));
 }
 
@@ -174,5 +184,44 @@ describe("Save Local Project", () => {
     act(() => { window.dispatchEvent(new CustomEvent("openpipestress-native-menu-command", { detail: "file.save-local" })); });
     await waitFor(() => expect(called("save_local_project")).toHaveLength(1));
     await waitFor(() => expect(called("discard_project_autosave").map(([, args]) => args)).toEqual([{ fileName: same!.file_name }]));
+  });
+});
+
+
+describe("Save Local Project to backup connecting path", () => {
+  it("finishes the verified save while its backup is pending; a backup refusal keeps the saved basis", async () => {
+    let finish!: (reply: BackupWriteOutcome) => void;
+    await editedNativeSession([[]], { backup: () => new Promise((resolve) => { finish = resolve; }) });
+    act(() => { window.dispatchEvent(new CustomEvent("openpipestress-native-menu-command", { detail: "file.save-local" })); });
+    await waitFor(() => expect(called("write_project_backup")).toHaveLength(1));
+    expect(called("write_project_backup")[0][1]).toEqual({ projectId: savedModel!.project.id, expectedModelHash: (await computeModelHash(savedModel!))!.value });
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Saved current project model snapshot"));
+    await waitFor(() => expect(screen.queryByTestId("project-edited")).toBeNull());
+    expect(called("save_local_project")).toHaveLength(1);
+    await act(async () => { finish({ outcome: "refused", diagnostics: [{ code: "BACKUP-NO-SPACE", path: "", message: "Folder is full." }] }); });
+    expect(await screen.findByTestId("backup-status")).toHaveTextContent("Saved. Backup not written: BACKUP-NO-SPACE: Folder is full.");
+    expect(projectMessage()).toHaveTextContent("Saved current project model snapshot");
+    expect(screen.queryByTestId("project-edited")).toBeNull();
+    expect(called("save_local_project")).toHaveLength(1);
+  });
+
+  it("never requests a backup for a refused save", async () => {
+    await editedNativeSession([[]], { save: async () => { throw new Error("PROJECT-STORE-UNAVAILABLE"); } });
+    act(() => { window.dispatchEvent(new CustomEvent("openpipestress-native-menu-command", { detail: "file.save-local" })); });
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Save failed:"));
+    expect(called("write_project_backup")).toHaveLength(0);
+    expect(screen.getByTestId("project-edited")).toHaveTextContent("Edited");
+  });
+
+  it("never requests a backup for an unverified save response", async () => {
+    await editedNativeSession([[]], { save: async (request) => ({
+      ...envelope(request.model, "Unverified invented response"),
+      ...request, model_hash: { ...request.model_hash!, value: "sha256:" + "0".repeat(64) }
+    }) });
+    act(() => { window.dispatchEvent(new CustomEvent("openpipestress-native-menu-command", { detail: "file.save-local" })); });
+    await waitFor(() => expect(called("save_local_project")).toHaveLength(1));
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Unverified invented response"));
+    expect(called("write_project_backup")).toHaveLength(0);
+    expect(screen.getByTestId("project-edited")).toHaveTextContent("Edited");
   });
 });

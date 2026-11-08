@@ -32,7 +32,7 @@ sibling directory of the store file `openpipestress-projects.sqlite3`. Its
 bytes are exactly the session's model document as unchecked RFC 8785 (JCS)
 canonical text, with no trailing newline: the W-6a bytes that Save Model
 Document and a saved model state hold. The file's SHA-256 is therefore the
-session's model hash. It is a model document of the current version (0.8.0),
+session's model hash. It is a model document of the current version (0.9.0),
 admitted by the open path's own checks (§5), so it re-opens through Open Model
 Document unchanged. No new model-document member is added (§7).
 
@@ -47,8 +47,7 @@ record. No file is replaced in place, except when one writer rewrites a
 record that fails to verify under the same name.
 
 **What it never touches.** An autosave does not open the store. It never writes
-the stored project's row, its envelope hash or revision, its model states
-(store v12) or its recorded runs (store v13). It never overwrites the user's
+the stored project's row, its envelope hash or revision, its model states or its recorded runs (current store v14). It never overwrites the user's
 saved project or any file the user saved. A failed autosave leaves the store
 and the previous record exactly as they were.
 
@@ -183,7 +182,11 @@ its code, and offers Discard only.
 **What.** Once Save Local Project has landed, and only when backups are on,
 the desktop asks the native side to write a backup. The backup is the stored
 project's model document read back from the store, which is the last saved
-version, not the session's copy. It is read as the recovery export reads it
+version, not the session's copy. The save-success hook sends the verified saved
+project id and full model hash; the native worker refuses if the store has moved
+to another model. It runs independently of autosave cleanup and the save result.
+A completion for a superseded save or project session publishes no status in the
+newer session. It is read as the recovery export reads it
 (`stored_model_document_export`: store opened read-only and not migrated, a
 metered read, the 64 MiB cap, each member once). Its SHA-256 must equal the
 stored row's model hash value. It is screened for dispositions as the export
@@ -227,7 +230,7 @@ or rolls back a save.
 ## 5. Integrity
 
 - **Content.** Each record and each backup is the canonical text of a current
-  (0.8.0) model document with its SHA-256. Before writing, the native side
+  (0.9.0) model document with its SHA-256. Before writing, the native side
   applies the cap (`MAX_MODEL_DOCUMENT_BYTES`), parses the text, requires it to
   be its own JCS form and requires its SHA-256 to equal the claim
   (`AUTOSAVE-HASH-MISMATCH`). It then applies the open path's checks
@@ -316,8 +319,8 @@ Slice 2 adds these native commands under the DEL-04-07 ingress rules
 | `write_project_autosave` | `{canonicalText, claimedModelHash}`, a model | `command_ingress::admit(…, ArgsDecoding::Moved)`: envelope(raw) + M + 4 KiB, held until return. Within it (`PoolReadMemory` seeded with the lease): the text's parse (`parse_bytes`), its canonical copy (`is_jcs_text`), a fixed 64 KiB read-back block and the response's exact length. |
 | `read_project_autosave` | `{fileName}` | `admit_within` the history commands' 256 KiB. The file's load (`loaded_text_bytes(len)`) is reserved before it is read, then its parse, its canonical copy and the response (`respond_metered`). |
 | `list_project_autosaves`, `discard_project_autosave` | none, or `{fileName}` | `admit_within` 256 KiB. The listing is at most 1,024 names; more are counted, not listed. |
-| `write_project_backup` | `{projectId}` | `admit_within` 256 KiB. The stored text's read as the recovery export's (`StoreLibraryReads`, 1.5 MiB before the store opens), the screening and the read-back block. |
-| `get_autosave_settings`, `set_autosave_settings`, `choose_backup_folder` | scalars | `admit_within` 4 KiB. |
+| `write_project_backup` | `{projectId, expectedModelHash}` | `admit_within` 256 KiB. The stored text's read as the recovery export's (`StoreLibraryReads`, 1.5 MiB before the store opens), the screening and the read-back block. |
+| `get_autosave_settings`, `set_autosave_settings`, `configure_project_backup` | scalars | `admit_within` 4 KiB. |
 
 The slice-1 functions take `&dyn ReadMemory` and reserve these terms
 themselves: the parse, the canonical copy, the read-back block, the file's

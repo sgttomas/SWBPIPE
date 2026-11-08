@@ -19,6 +19,7 @@
 //   Nothing is applied automatically; Open goes through the session's
 //   unsaved-changes guard and adopts the record as Open Model Document does.
 import { useEffect, useRef, useState } from "react";
+import { configureProjectBackup, writeProjectBackup } from "./backupService";
 import type { MutableRefObject } from "react";
 import { canonicalJsonString } from "../../services/hashService";
 import { nativeFailureText } from "../../services/nativeIngress";
@@ -106,6 +107,9 @@ export function useAutosave(deps: AutosaveDeps) {
   const depsRef = useRef(deps);
   depsRef.current = deps;
   const [settings, setSettings] = useState<AutosaveSettings | null>(null);
+  const [backupStatusLine, setBackupStatusLine] = useState<string | null>(null);
+  const settingsInFlight = useRef(false);
+  const backupSequence = useRef(0);
   const [statusLine, setStatusLine] = useState<string | null>(null);
   const [recoveryPrompt, setRecoveryPrompt] = useState<AutosaveRecoveryPromptState | null>(null);
   const [settingBusy, setSettingBusy] = useState(false);
@@ -175,7 +179,8 @@ export function useAutosave(deps: AutosaveDeps) {
 
   /** The interval control: 0 is off. */
   async function chooseInterval(next: number): Promise<void> {
-    if (!depsRef.current.native || settingBusy) return;
+    if (!depsRef.current.native || settingsInFlight.current || depsRef.current.projectSessionBusy()) return;
+    settingsInFlight.current = true;
     setSettingBusy(true);
     try {
       const outcome = await setAutosaveSettings(next);
@@ -190,7 +195,63 @@ export function useAutosave(deps: AutosaveDeps) {
     } catch (error) {
       if (mounted.current) setStatusLine(`Autosave setting not changed: ${nativeFailureText(error)}`);
     } finally {
+      settingsInFlight.current = false;
       if (mounted.current) setSettingBusy(false);
+    }
+  }
+
+  /** The explicit local-private choice is made before the native folder chooser.
+   * The shared modal hold prevents project replacement or quit during it. */
+  async function configureBackup(enabled: boolean, keep: number | null, intent: boolean): Promise<void> {
+    const current = depsRef.current;
+    if (!current.native || settingsInFlight.current || current.projectSessionBusy()) return;
+    settingsInFlight.current = true;
+    ++backupSequence.current;
+    setSettingBusy(true);
+    const release = current.holdModal();
+    try {
+      const outcome = await configureProjectBackup(enabled, keep, intent);
+      if (!mounted.current) return;
+      if (outcome.outcome === "saved") {
+        setSettings(outcome.settings);
+        setBackupStatusLine(outcome.settings.backup_folder
+          ? "Backups are on after Save Local Project. Existing copies are unchanged."
+          : "Backups are off. Existing copies are kept.");
+      } else if (outcome.outcome === "refused") {
+        setBackupStatusLine(`Backup settings not changed: ${diagnosticsText(outcome.diagnostics)}`);
+      }
+    } catch (error) {
+      if (mounted.current) setBackupStatusLine(`Backup settings not changed: ${nativeFailureText(error)}`);
+    } finally {
+      release();
+      settingsInFlight.current = false;
+      if (mounted.current) setSettingBusy(false);
+    }
+  }
+
+  /** Independent of autosave cleanup and never awaited by the successful save.
+   * Native settings are authoritative even if this window's settings are stale.
+   * A later session/save cannot inherit the completion's status. */
+  async function backupProjectSaved(projectId: string, savedHash: string, isCurrent: () => boolean): Promise<void> {
+    if (!depsRef.current.native) return;
+    const sequence = ++backupSequence.current;
+    if (mounted.current && isCurrent()) setBackupStatusLine(null);
+    const publish = (message: string) => {
+      if (mounted.current && sequence === backupSequence.current && isCurrent()) setBackupStatusLine(message);
+    };
+    try {
+      const outcome = await writeProjectBackup(projectId, savedHash);
+      if (outcome.outcome === "written") {
+        publish(`Saved. Backup written: ${outcome.file_name}.${outcome.warnings.length ? ` ${diagnosticsText(outcome.warnings)}` : ""}`);
+      } else if (outcome.outcome === "unchanged") {
+        publish(`Saved. Backup already holds this model: ${outcome.file_name}.`);
+      } else if (outcome.outcome === "refused") {
+        publish(`Saved. Backup not written: ${diagnosticsText(outcome.diagnostics)}`);
+      } else {
+        publish("Saved. Backups are off.");
+      }
+    } catch (error) {
+      publish(`Saved. Backup not written: ${nativeFailureText(error)}`);
     }
   }
 
@@ -370,8 +431,11 @@ export function useAutosave(deps: AutosaveDeps) {
     offNotice: settings?.autosave_minutes === 0 ? AUTOSAVE_OFF_NOTICE : null,
     settingBusy,
     statusLine,
+    backupStatusLine,
     recoveryPrompt,
     chooseInterval,
+    configureBackup,
+    backupProjectSaved,
     afterProjectSaved,
     afterStoredProjectOpened,
     recoverAutosave
