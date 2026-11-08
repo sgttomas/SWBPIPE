@@ -4,6 +4,9 @@ description: Carry SWBPIPE work under its standing authority and boundaries.
 metadata:
   kind: instruction
   surface: standing
+  upstream:
+    source: workflows/project-setup/resources/project-entry.md
+    edition: library-v3.3.0
 ---
 # SWBPIPE repository instructions
 
@@ -14,7 +17,7 @@ Preserve commitments, numerical references, source meaning and unrelated work.
 ## Shared roles and methods
 
 Use the selected Chirality Library (the Library) edition: Chirality library
-3.1.0, tag `library-v3.1.0`, commit `88ab3f4f5f8ec7f7e030279164dbd1a4aa38b514`
+3.3.0, tag `library-v3.3.0`, commit `ec3ee2d1b398eba1fb3227ccf93e2569df95bacd`
 of `https://github.com/sgttomas/chirality-library`. Read it from that commit in
 `/Users/ryan/dev/chirality-library` on this workspace
 (`git -C /Users/ryan/dev/chirality-library show <commit>:<path>`), from the
@@ -94,10 +97,26 @@ Use local `execution/PKG-nn/DEL-nn-nn/ScopeOfWork.md`, `Work/` and
 `deliverable.yaml`; reconcile changed implementation meaning and dependency
 conditions in the same change. Use `python3 -m tools.deliverables --project .`
 with `check`, `neighborhood`, `impact`, `touches` or `dag-diff`. Preserve unchanged
-declarations and historical identities. Git records changes; do not manufacture
-acceptance, lifecycle advancement or a standing backlog from old records.
+declarations and historical identities.
 
 `Work/` holds the current account: findings with their reasons, working artifacts and outputs. Revise it in place rather than appending history; never rewrite fidelity copies, frozen snapshots or accepted evidence. How the work went (approval quotes, review rounds, retries, run IDs, check results) belongs in the PR description, which states what changed, why, what was checked and what remains open. Cite SHAs or hashes only where they pin something a result relies on. State a fact once and link to it.
+
+- **What the repository keeps.** Produce the work and the minimum information
+  needed to review, use or recover it. A record needs a concrete consumer,
+  acceptance requirement or recovery need. Decisions edit the text they govern,
+  not append registers. No routine receipts, notices, run records or handoff
+  chains; never hand-maintain derived progress or lifecycle state or manufacture
+  acceptance, lifecycle advancement or standing from old records. Preserve
+  unrelated work and accepted historical evidence. Keep one replaceable recovery
+  note only where continuity needs it. Roles and methods come from repository
+  files, never host-side agent definitions or harness configuration. Session
+  routes are ephemeral: find current sessions by listing T3 threads. Agents save
+  no memories; durable knowledge lives in Chirality. Scratch holds evidence,
+  outputs and logs, never instructions. Once work is integrated or abandoned,
+  each contributor deletes its scratch, worktrees, branches and build output
+  unless an open review, named consumer or recovery need still uses them, or the
+  owner asks to keep them. Before removal, check for wanted uncommitted work;
+  remove worktrees with `git worktree remove` so Git's records stay consistent.
 
 Lead owner updates with the result
 or decision needed. Use plain prose with spaced identifiers in messages to
@@ -189,13 +208,11 @@ releases. Use [Git conventions](#git-conventions) below.
 Apply these project conventions while using ordinary Git judgment and the authorization already present in the session. Authorized briefs and these repository conventions govern Git work here.
 
 - Treat `main` as SWBPIPE's integration branch. Name task branches with a prefix that identifies the authoring agent, such as `codex/` or `claude/`, unless the user or an applicable owning-loop rule specifies otherwise. Integrate a PR with a merge commit (no fast-forward) unless the PR or its owning loop chooses otherwise.
-- Preserve unrelated work and accepted historical evidence. For ordinary changes, use the Git diff/commit and one concise review or PR record identifying the checked revision, results, and remaining limits. Keep additional records only for a concrete consumer, acceptance requirement or recovery need; do not duplicate Git history in chains of source copies, hash manifests, and closeout reports.
 - Use a separate worktree when the user requests isolation or when concurrent sessions make isolation proportionate, such as overlapping writes to governance surfaces, risky refactors, or tool interference. Do not require a worktree for every change. High-risk overlap paths here include `AGENTS.md`, `loop/`, governance documents under `docs/`, accepted snapshots, generated derivative packages, and shared control roots such as `execution/_Coordination/`; warn when two lanes overlap on them.
 - Close authorized work through a PR under [SWBPIPE AGENTS.md's standing Git grant](#standing-git-grant). No separate commit, push, PR or merge approval is needed when its conditions hold. Use the configured authenticated identity and retain truthful authorship; agent review is not personal owner review.
 - Verify in proportion to consequence and confirm required checks pass on the exact head. Obtain independent scrutiny where the grant requires it. Clear blocking findings and reassess affected checks after candidate changes; a passing rerun does not establish that a known defect was repaired. Verify the source HEAD when merging.
 - Git integration, human acceptance and product release remain distinct. Explicit holds and reserved decisions apply. The grant is limited to `sgttomas/SWBPIPE`; it does not authorize protection bypasses, history rewrites, force pushes, permission changes or releases.
-- Update affected live consumers and references in the change itself; no downstream notice or receipt chain is required.
-- Delete after merge. Once a PR merges, or its work is abandoned, its owner removes what the work created: worktrees (with `git worktree remove`, so Git's records stay consistent), local branches, build output such as Cargo target directories, and scratch. Reviewers and TASKs remove their own when they return. Before removing a worktree, check it holds no uncommitted work that is still wanted. Keep only what an open review, a named consumer or a recovery need still uses, and anything the owner has asked to keep. Build output from parallel lanes fills a disk within days, so this step is not optional.
+- Update affected live consumers and references in the change itself.
 
 For implementation and closeout in this repository:
 
