@@ -81,7 +81,7 @@ This candidate defines `DEL-13-01` in service of project scope [SOW-067] and pac
 >
 > | Construction item | Status |
 > |---|---|
-> | `schemas/design_knowledge.schema.json` | Implemented at repo root as a strict JSON-syntax JSON Schema 2020-12 contract for user-supplied design knowledge records. Evidence: `RUN_2026-05-04_IMPLEMENTATION.md`; `MEMORY.md`; `schemas/design_knowledge.schema.json`. |
+> | `schemas/design_knowledge.schema.json` | Implemented at repo root as a strict JSON-syntax JSON Schema 2020-12 contract for user-supplied design knowledge records. The maintained contract is `schemas/design_knowledge.schema.json`; its focused check is `tests/test_design_knowledge_schema.py`. |
 > | Schema identifier, `$id`, `$schema`, and versioning fields | Implemented. `$schema` is `https://json-schema.org/draft/2020-12/schema`, `$id` is `https://openpipestress.org/schemas/design_knowledge.schema.json`, and `schema_version` is required with a semantic-version pattern. |
 > | Design knowledge record taxonomy | Implemented structurally through `EndpointRecord`, `LineDataRecord`, `RoutingCorridorRecord`, `ZoneRecord`, `EquipmentInterfaceRecord`, `RequirementRecord`, and `MetadataRecord`; downstream GUI behavior and constraint execution remain deferred. |
 > | Provenance model fields | Implemented through required `Provenance` fields: `source_name`, `source_location`, `source_license`, `contributor`, `contributor_certification`, `redistribution_status`, `review_status`, and `privacy_classification`, plus source-note and assumption records. |
@@ -123,7 +123,7 @@ This candidate defines `DEL-13-01` in service of project scope [SOW-067] and pac
 >
 > This deliverable excludes owner standards, protected code data, final engineering acceptance logic, automatic professional approval, and hidden/default engineering values. Source: `execution/_Decomposition/SOFTWARE_DECOMP.md` PKG-13 exclusions; `docs/CONTRACT.md`; `docs/IP_AND_DATA_BOUNDARY.md`.
 >
-> Implementation evidence now exists for `schemas/design_knowledge.schema.json` and `tests/test_design_knowledge_schema.py`; see `RUN_2026-05-04_IMPLEMENTATION.md` and `MEMORY.md`. This specification records the implemented schema/test contract without implying lifecycle promotion, release readiness, runtime persistence/API integration, GUI behavior, constraint validation, transform consumption, public fixture policy closure, or professional/code-compliance authority. Unsupported downstream behavior remains `TBD`.
+> The implemented contract is [design_knowledge.schema.json](../../../schemas/design_knowledge.schema.json), checked by [test_design_knowledge_schema.py](../../../tests/test_design_knowledge_schema.py). This specification records the implemented schema/test contract without implying lifecycle promotion, release readiness, runtime persistence/API integration, GUI behavior, constraint validation, transform consumption, public fixture policy closure, or professional/code-compliance authority. Unsupported downstream behavior remains `TBD`.
 >
 
 ### CLM-009 — Requirements
@@ -196,8 +196,6 @@ This candidate defines `DEL-13-01` in service of project scope [SOW-067] and pac
 >
 > - `schemas/design_knowledge.schema.json`
 > - `tests/test_design_knowledge_schema.py`
-> - `RUN_2026-05-04_IMPLEMENTATION.md`
-> - `MEMORY.md`
 >
 > Deferred items remain `TBD`: GUI authoring behavior, constraint records and validation, physical-to-analytical transform consumption, runtime persistence/API integration, and public example/fixture generation policy closure.
 
@@ -229,7 +227,7 @@ This candidate defines `DEL-13-01` in service of project scope [SOW-067] and pac
 > | Approved dependency mirror | Present as `_DEPENDENCIES.md` and `Dependencies.csv`; preserve all approved graph rows with their recorded statuses through `execution/_DAG/_LATEST.md`. |
 > | Decomposition basis | `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see the project decision register). |
 > | Applicable invariants | `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/SPEC.md`, and `docs/IP_AND_DATA_BOUNDARY.md`. |
-> | Implementation evidence | Present in `RUN_2026-05-04_IMPLEMENTATION.md`, `MEMORY.md`, `schemas/design_knowledge.schema.json`, and `tests/test_design_knowledge_schema.py`. |
+> | Implementation evidence | Maintained in `schemas/design_knowledge.schema.json` and `tests/test_design_knowledge_schema.py`. |
 > | Product schema artifact | Present at repo root: `schemas/design_knowledge.schema.json`. |
 >
 
@@ -305,7 +303,6 @@ This candidate defines `DEL-13-01` in service of project scope [SOW-067] and pac
 > | `Dependencies.csv` | Approved local dependency mirror (current authority: `execution/_DAG/_LATEST.md`; earlier graph IDs are provenance)/evidence surface; not independently regenerated in conflict with the project rule. |
 > | `schemas/design_knowledge.schema.json` | Implemented JSON Schema 2020-12 design knowledge contract at repo root. |
 > | `tests/test_design_knowledge_schema.py` | Focused stdlib structural validation for the implemented schema. |
-> | `RUN_2026-05-04_IMPLEMENTATION.md` | Deliverable-local implementation evidence note. |
 
 - **VER-001** — Validate the candidate schema and claim map; confirm parity and source/status hashes; run the focused design-knowledge schema test and applicable protected-content and dependency checks; and independently review source grounding and authority boundaries.
 
@@ -329,7 +326,7 @@ This candidate defines `DEL-13-01` in service of project scope [SOW-067] and pac
 >
 > | Principle | Guidance | Source |
 > |---|---|---|
-> | Schema first | Treat the implemented `schemas/design_knowledge.schema.json` as the contract surface for design knowledge records; runtime behavior and adjacent deliverable consumption remain deferred where not implemented. | `_CONTEXT.md` Anticipated Artifacts; `_CONTEXT.md` Architecture Basis Injection; `RUN_2026-05-04_IMPLEMENTATION.md`; `MEMORY.md` |
+> | Schema first | Treat the implemented `schemas/design_knowledge.schema.json` as the contract surface for design knowledge records; runtime behavior and adjacent deliverable consumption remain deferred where not implemented. | `_CONTEXT.md` Anticipated Artifacts; `_CONTEXT.md` Architecture Basis Injection; `schemas/design_knowledge.schema.json`; `tests/test_design_knowledge_schema.py` |
 > | User-supplied by default | Design knowledge values are user/project supplied unless explicitly invented or otherwise cleared for public redistribution. | `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-067; `docs/IP_AND_DATA_BOUNDARY.md` |
 > | Provenance is part of the record | Source notes, source status, review status, redistribution status, and assumptions should be close to the data they qualify. | `docs/IP_AND_DATA_BOUNDARY.md` section 4; `_CONTEXT.md` Description |
 > | No silent defaults | Missing design knowledge, missing units, or unresolved assumptions should surface as findings/TBD records. | `docs/CONTRACT.md` OPS-K-DATA-2; `docs/SPEC.md` sections 4 and 4.4 |
