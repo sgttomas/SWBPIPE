@@ -117,19 +117,12 @@ stays open and does not block App's independent J2 continuation.
 
 ## Bounded decisions prepared, not granted
 
-**First useful observation:** one supplier-only envelope capture under
-[`agent-d4-capture-proposal.md`](agent-d4-capture-proposal.md), HC-1. Existing
-preparation authorizes no actual attempt; both earlier grants are consumed.
-The proposed command is `python3 tools/agent_supplier_capture.py --supplier
-<verified-retained-supplier> --output <fresh-private-output>` through the
-ordinary host slot wrapper with memguard. The concrete retained executable
-locator and fresh output are supplied in the PR's owner-decision request.
-Select a clean committed checkout with these input bytes, one attempt, at most
-five minutes including cleanup, seven tools/two turns/six calls/eight bodies,
-existing frame/body/aggregate caps, no credential, model, desktop or oMLX.
-Unexpected tools, refusal, timeout or unconfirmed cleanup stop without retry
-or guard relaxation. Retain only admitted raw nonsecret bodies and the bounded
-failure/cleanup facts the adapter specifies. No capture was run here.
+**First useful observation:** the supplier-only envelope capture defined in
+[`agent-d4-capture-proposal.md`](agent-d4-capture-proposal.md), HC-1. Both
+earlier grants are consumed; no attempt is authorized. The governing proposal
+holds the attempt bounds, isolation, caps and stop/cleanup requirements. The
+concrete retained executable locator and fresh output are supplied in the
+PR's owner-decision preparation.
 
 After a successful authorized capture, recount its actual serialized input
 through the selected provider conversion and strict tokenizer/template path,
@@ -154,10 +147,9 @@ own requirements; a successful live W9-A would not complete criterion 17.
 HC-1 is integrated source and the person-start route exists; qualification of
 that changed configuration is the unfinished work. The achievable order is:
 
-1. Finish this checked offline input/coverage return alongside CE/S6. SWBPIPE
-   Agent 0 presents the bounded supplier-only capture decision above; the
-   owner's new capture authorization controls whether the first actual
-   observation can occur. No CE/S6 completion is required merely to decide it.
+1. The owner's new supplier-only capture authorization controls whether the
+   first actual observation can occur. The bounded proposal above is ready
+   for that decision independently of CE/S6 completion.
 2. If authorized, make that one capture and inspect its actual outcome. Only a
    successful, complete packet permits the provider-equivalent recount and
    context/output reconciliation; refusal returns a finding without retry.
