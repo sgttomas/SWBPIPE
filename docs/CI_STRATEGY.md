@@ -12,6 +12,30 @@ fails if any selected verification fails, is cancelled or never runs. Unselected
 product jobs are explicitly skipped. Selection uses the complete PR diff;
 missing diff information conservatively selects coverage.
 
+Human documentation has a short verification route. The first job checks the
+complete PR diff at the exact candidate. In-place, regular UTF-8 Markdown edits
+under `docs/`, `loop/` or `execution/`, or to root `README.md`/`AGENTS.md`, run
+the dependency-structure, changed-content credential and conflict checks,
+plus the document-content checks named in
+`tools/software_workflow/documentation_ci.py`. They do not start product
+builds, numerical tests or the broad Python cohort. Those source tests cannot
+establish the correctness of a prose edit. Authority, numerical meaning and
+commitment wording still require their ordinary independent review.
+
+Markdown used as a runtime asset or verification input keeps its owning route.
+This includes embedded-agent resources, notices/licences, the claims registry
+read by desktop tests, and preserved scope-change source assets. The document
+consumer inventory is maintained alongside the classifier: a new content
+reader must add its focused check or reserve its input for product coverage.
+Additions, deletions, renames, type/mode changes, mixed code/document changes,
+unreadable input, missing diff information and manual dispatch retain product
+verification. Python's conservative source-read derivation is unchanged on
+that route. The short route targets less than two minutes from hosted run
+start to required `harness` completion; hosted queue delay is reported
+separately. Classification or document-check failure, cancellation or missing
+output fails `harness`; skipped product jobs are permitted only after a
+successful documentation classification and verification job.
+
 `piping-windows-core.yml` supplies supplemental RT-V7 feasibility evidence on
 `windows-2025` with Rust 1.97.1 and `x86_64-pc-windows-msvc`. It runs the existing
 frame-kernel, curved-bend (including frozen formation bits), sparse-direct and

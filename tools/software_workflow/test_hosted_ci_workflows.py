@@ -27,7 +27,10 @@ def test_every_pr_reaches_single_required_aggregate_and_reusable_products():
     assert 'push' not in root['on']  # no duplicate post-merge product run
     jobs = root['jobs']
     assert jobs['harness']['if'] == 'always()'
-    assert set(jobs['harness']['needs']) == {'repository-checks', 'piping'}
+    assert set(jobs['harness']['needs']) == {'changes', 'repository-checks', 'piping'}
+    for name in ('repository-checks', 'piping'):
+        assert jobs[name]['needs'] == 'changes'
+        assert jobs[name]['if'] == "needs.changes.outputs.mode == 'product'"
     for job, name in [('piping', 'piping-desktop-e2e.yml')]:
         config = workflow(name)
         assert 'workflow_call' in config['on']
@@ -41,9 +44,10 @@ def test_every_pr_reaches_single_required_aggregate_and_reusable_products():
 def test_single_required_result_fails_for_any_unsuccessful_child(tmp_path):
     import os
     import subprocess
-    step = workflow('governance-harness.yml')['jobs']['harness']['steps'][0]
+    step = workflow('governance-harness.yml')['jobs']['harness']['steps'][-1]
     for state in ['success', 'failure', 'cancelled', 'skipped']:
         results = {name: {'result': 'success'} for name in ['repository-checks', 'piping']}
+        results['changes'] = {'result': 'success', 'outputs': {'mode': 'product'}}
         results['piping']['result'] = state
         process = subprocess.run(['bash', '-c', step['run']], env={**os.environ, 'RESULTS': json.dumps(results)}, capture_output=True)
         assert (process.returncode == 0) == (state == 'success')
