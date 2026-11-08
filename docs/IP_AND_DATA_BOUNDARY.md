@@ -8,7 +8,7 @@ metadata:
 
 # IP and Data Boundary Policy
 
-This document is governed by `OPS-CONTRACT`.
+This document is governed by [CONTRACT.md](CONTRACT.md).
 
 > **Registry:** This document is the policy depth behind the `BS-IP` boundary
 > statement in `docs/claims_registry.md` (D-48 / `DEC-081`).

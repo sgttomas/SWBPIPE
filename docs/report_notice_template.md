@@ -8,7 +8,7 @@ metadata:
 
 # Report Notice Template
 
-This document is governed by `OPS-PROFESSIONAL-BOUNDARY`; is governed by `OPS-IP-DATA-BOUNDARY`.
+This document is governed by [PRD §21 professional boundaries](PRD.md#21-professional-boundary-requirements); is governed by [IP_AND_DATA_BOUNDARY.md](IP_AND_DATA_BOUNDARY.md).
 
 This template defines baseline notice language for SWBPIPE-generated
 reports and public report-template examples. Report generators may format this

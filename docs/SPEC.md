@@ -12,7 +12,7 @@ boundary and do not establish implemented T4 capability.
 
 # SPEC — OpenPipeStress Technical and Agentic Implementation Specification
 
-This document depends on `OPS-CONTRACT`; depends on `OPS-TYPES`; implements `OPS-PRD`.
+This document depends on [CONTRACT.md](CONTRACT.md); depends on [TYPES.md](TYPES.md); implements [PRD.md](PRD.md).
 
 ## 1. Architectural overview
 

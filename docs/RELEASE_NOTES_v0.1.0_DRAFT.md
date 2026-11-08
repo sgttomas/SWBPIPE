@@ -8,7 +8,7 @@ metadata:
 
 # SWBPIPE 0.1.0 Release Notes (Draft)
 
-This document is an instance of `OPS-RELEASE-NOTES-TEMPLATE`; is governed by `OPS-RELEASE-QUALITY-GATES`.
+This document is an instance of [RELEASE_NOTES_TEMPLATE.md](RELEASE_NOTES_TEMPLATE.md); is governed by [RELEASE_QUALITY_GATES.md](RELEASE_QUALITY_GATES.md).
 
 This is a draft prepared from `docs/RELEASE_NOTES_TEMPLATE.md` ahead of a
 release candidate. It is not a release and authorizes none: release,

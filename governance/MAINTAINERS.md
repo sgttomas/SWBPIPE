@@ -1,16 +1,14 @@
 ---
-doc_id: OPS-MAINTAINERS
-doc_kind: governance.maintainer_policy
-status: draft
-created: 2026-04-30
-refs:
-  - rel: governed_by
-    to: OPS-CONTRACT
-  - rel: informed_by
-    to: OPS-DIRECTIVE
+name: swbpipe-maintainers
+description: Define maintainer responsibilities and owner-reserved authority.
+metadata:
+  kind: instruction
+  surface: reference
 ---
 
 # MAINTAINERS - SWBPIPE Governance Baseline
+
+This document is informed by [historical Directive (retired)](https://github.com/sgttomas/SWBPIPE/blob/a1b5cdc73f1807a28ccc485ef24f0628ec7edf2f/docs/DIRECTIVE.md).
 
 This file defines the current maintainer policy for SWBPIPE. It is a governance artifact, not a legal opinion, professional engineering approval, certification, sealing, or code-compliance claim.
 

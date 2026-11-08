@@ -8,7 +8,7 @@ metadata:
 
 # Release Notes Template
 
-This document is governed by `OPS-PROFESSIONAL-BOUNDARY`; is governed by `OPS-RELEASE-QUALITY-GATES`.
+This document is governed by [PRD §21 professional boundaries](PRD.md#21-professional-boundary-requirements); is governed by [RELEASE_QUALITY_GATES.md](RELEASE_QUALITY_GATES.md).
 
 Use this template for release-candidate notes and public release notes. Replace
 bracketed placeholders before publication. Keep unresolved decisions as `TBD`

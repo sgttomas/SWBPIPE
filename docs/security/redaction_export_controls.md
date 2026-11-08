@@ -8,7 +8,7 @@ metadata:
 
 # Redaction And Export Controls
 
-This document is governed by `OPS-CONTRACT`; is informed by `OPS-SECURITY-LOCAL-FIRST-STORAGE-POLICY`; is informed by `OPS-SECURITY-THREAT-MODEL`.
+This document is governed by [CONTRACT.md](../CONTRACT.md); is informed by [local_first_storage_policy.md](local_first_storage_policy.md); is informed by [threat_model.md](threat_model.md).
 
 This document defines the `DEL-12-02` redaction and export-control behavior for
 public reports, public examples, shared model exports, downstream-tool exports,

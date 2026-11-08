@@ -8,7 +8,7 @@ metadata:
 
 # Secret And Private-Library Handling
 
-This document is governed by `OPS-CONTRACT`; is informed by `OPS-SECURITY-LOCAL-FIRST-STORAGE-POLICY`; is informed by `OPS-SECURITY-REDACTION-EXPORT-CONTROLS`.
+This document is governed by [CONTRACT.md](../CONTRACT.md); is informed by [local_first_storage_policy.md](local_first_storage_policy.md); is informed by [redaction_export_controls.md](redaction_export_controls.md).
 
 This document defines the bounded `DEL-12-04` reference-handling behavior for
 private libraries, private path references, secret-like fields, and credential

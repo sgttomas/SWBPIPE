@@ -8,7 +8,7 @@ metadata:
 
 # CONTRACT — OpenPipeStress Invariant Catalog
 
-This document depends on `OPS-TYPES`; informs `OPS-SPEC`.
+This document depends on [TYPES.md](TYPES.md); informs [SPEC.md](SPEC.md).
 
 This document defines SWBPIPE product invariants. The repository's `AGENTS.md` and
 `LOOP_INIT.md` govern development; product safety, data and professional boundaries

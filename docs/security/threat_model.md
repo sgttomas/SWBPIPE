@@ -8,7 +8,7 @@ metadata:
 
 # Security Threat Model
 
-This document is governed by `OPS-CONTRACT`; is governed by `OPS-IP-DATA-BOUNDARY`; is informed by `OPS-PROFESSIONAL-BOUNDARY`.
+This document is governed by [CONTRACT.md](../CONTRACT.md); is governed by [IP_AND_DATA_BOUNDARY.md](../IP_AND_DATA_BOUNDARY.md); is informed by [PRD §21 professional boundaries](../PRD.md#21-professional-boundary-requirements).
 
 This threat model records OpenPipeStress security and privacy risks for private
 data, report sharing, plugins, imports, local-first storage boundaries,

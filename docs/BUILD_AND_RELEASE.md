@@ -8,7 +8,7 @@ metadata:
 
 # Build And Release Guide
 
-This document is governed by `OPS-CONTRACT`; is governed by `OPS-RELEASE-QUALITY-GATES`; implements `SOW-032`.
+This document is governed by [CONTRACT.md](CONTRACT.md); is governed by [RELEASE_QUALITY_GATES.md](RELEASE_QUALITY_GATES.md); implements [SOW-032](../execution/_Decomposition/SOFTWARE_DECOMP.md).
 
 ## 1. Purpose
 

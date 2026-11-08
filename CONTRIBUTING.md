@@ -1,16 +1,9 @@
 ---
-doc_id: OPS-CONTRIBUTING
-doc_kind: governance.contributor_workflow
-status: draft
-created: 2026-05-01
-deliverable_id: DEL-01-03
-refs:
-  - rel: governed_by
-    to: OPS-CONTRACT
-  - rel: implements
-    to: OPS-IP-DATA-BOUNDARY
-  - rel: uses_template
-    to: OPS-CONTRIBUTOR-CERTIFICATION-TEMPLATE
+name: swbpipe-contributing
+description: Guide contributions under the existing intake and data boundaries.
+metadata:
+  kind: instruction
+  surface: reference
 ---
 
 # Contributing to SWBPIPE

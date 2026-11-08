@@ -12,7 +12,7 @@ boundary and do not establish implemented T4 capability.
 
 # Verification and Validation Strategy
 
-This document is governed by `OPS-CONTRACT`; implements `SOW-026`; implements `SOW-027`.
+This document is governed by [CONTRACT.md](CONTRACT.md); implements [SOW-026](../execution/_Decomposition/SOFTWARE_DECOMP.md); implements [SOW-027](../execution/_Decomposition/SOFTWARE_DECOMP.md).
 
 ## 1. Principle
 

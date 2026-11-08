@@ -8,7 +8,7 @@ metadata:
 
 # Local-First Storage Policy
 
-This document is governed by `OPS-CONTRACT`; is governed by `OPS-IP-DATA-BOUNDARY`; is informed by `OPS-SECURITY-THREAT-MODEL`; is aligned with `OPS-SECURITY-TELEMETRY-POLICY`.
+This document is governed by [CONTRACT.md](../CONTRACT.md); is governed by [IP_AND_DATA_BOUNDARY.md](../IP_AND_DATA_BOUNDARY.md); is informed by [threat_model.md](threat_model.md); is aligned with [telemetry_policy.md](telemetry_policy.md).
 
 This policy defines SWBPIPE local-first storage and private path posture
 for `DEL-12-01`. It is a privacy and product-boundary artifact, not a

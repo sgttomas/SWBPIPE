@@ -13,7 +13,7 @@ boundary and do not establish implemented T4 capability.
 
 # TYPES — OpenPipeStress Domain Vocabulary and Identity
 
-This document is governed by `OPS-CONTRACT`.
+This document is governed by [CONTRACT.md](CONTRACT.md).
 
 ## 1. Project hierarchy
 

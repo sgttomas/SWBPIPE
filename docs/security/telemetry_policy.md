@@ -8,7 +8,7 @@ metadata:
 
 # Telemetry Policy
 
-This document is governed by `OPS-CONTRACT`; is governed by `OPS-IP-DATA-BOUNDARY`; is informed by `OPS-SECURITY-THREAT-MODEL`.
+This document is governed by [CONTRACT.md](../CONTRACT.md); is governed by [IP_AND_DATA_BOUNDARY.md](../IP_AND_DATA_BOUNDARY.md); is informed by [threat_model.md](threat_model.md).
 
 This policy defines OpenPipeStress telemetry posture for `DEL-12-03`. It is a
 privacy and product-boundary artifact, not a telemetry implementation, vendor

@@ -8,7 +8,7 @@ metadata:
 
 # Release Quality Gates
 
-This document is governed by `OPS-CONTRACT`; uses the strategy in `OPS-VALIDATION-STRATEGY`; implements `DEL-09-05`.
+This document is governed by [CONTRACT.md](CONTRACT.md); uses the strategy in [VALIDATION_STRATEGY.md](VALIDATION_STRATEGY.md); implements [DEL-09-05](../execution/PKG-09/DEL-09-05/ScopeOfWork.md).
 
 ## 1. Purpose
 

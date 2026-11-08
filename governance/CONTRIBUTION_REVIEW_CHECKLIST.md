@@ -1,20 +1,14 @@
 ---
-doc_id: OPS-CONTRIBUTION-REVIEW-CHECKLIST
-doc_kind: governance.review_checklist
-status: draft
-created: 2026-05-01
-refs:
-  - rel: governed_by
-    to: OPS-CONTRACT
-  - rel: implements
-    to: OPS-IP-DATA-BOUNDARY
-  - rel: informs
-    to: OPS-MAINTAINERS
-  - rel: uses_template
-    to: OPS-CONTRIBUTOR-CERTIFICATION-TEMPLATE
+name: swbpipe-contribution-review-checklist
+description: Check contribution rights, protected content and review evidence.
+metadata:
+  kind: instruction
+  surface: reference
 ---
 
 # Contribution Review Checklist
+
+This document is governed by [CONTRACT.md](../docs/CONTRACT.md); implements [IP_AND_DATA_BOUNDARY.md](../docs/IP_AND_DATA_BOUNDARY.md); informs [MAINTAINERS.md](MAINTAINERS.md).
 
 This checklist is a project-governance intake record for public repository contributions. It is not legal advice, professional engineering approval, certification, sealing, standards-body endorsement, or a code-compliance claim.
 
