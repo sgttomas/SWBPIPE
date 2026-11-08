@@ -13,6 +13,14 @@ def git(root, *args):
     return subprocess.check_output(["git", "-C", str(root), *args], text=True).strip()
 
 
+def audit(root):
+    inventory = root / docs.INVENTORY
+    inventory.parent.mkdir(parents=True, exist_ok=True)
+    inventory.write_text(json.dumps({"schema": "swbpipe-documentation-inputs/v1",
+                                     "source_digest": docs.source_digest(root, None)}))
+    git(root, "add", docs.INVENTORY)
+
+
 @pytest.fixture
 def repo(tmp_path):
     git(tmp_path, "init", "-q")
@@ -26,12 +34,15 @@ def repo(tmp_path):
         file.parent.mkdir(parents=True, exist_ok=True)
         file.write_text("before\n")
     git(tmp_path, "add", ".")
+    audit(tmp_path)
     git(tmp_path, "commit", "-qm", "base")
     return tmp_path, git(tmp_path, "rev-parse", "HEAD")
 
 
-def commit(root):
+def commit(root, refresh=True):
     git(root, "add", "-A")
+    if refresh:
+        audit(root)
     git(root, "commit", "-qm", "candidate")
     return git(root, "rev-parse", "HEAD")
 
@@ -97,6 +108,38 @@ def test_failed_document_consumer_cannot_pass(monkeypatch, repo):
     monkeypatch.setitem(docs.DOCUMENT_TESTS, "docs/note.md", ["-c", "raise SystemExit(1)"])
     with pytest.raises(subprocess.CalledProcessError):
         docs.verify(root, docs.plan(root, "pull_request", base, head))
+
+
+@pytest.mark.parametrize("change", ["new-reader", "changed-reader", "config", "new-markdown", "missing-audit", "invalid-audit"])
+def test_future_or_unaudited_readers_cannot_silently_enter_documentation_route(repo, change):
+    root, _ = repo
+    if change == "new-reader":
+        (root / "core/reader.py").write_text("from pathlib import Path\nprint(Path('docs/note.md').read_text())\n")
+    elif change == "changed-reader":
+        (root / "core/code.py").write_text("from pathlib import Path\nprint(Path('docs/note.md').read_text())\n")
+    elif change == "config":
+        (root / "core/readers.json").write_text('{"input": "docs/note.md"}')
+    elif change == "new-markdown":
+        (root / "docs/new-input.md").write_text("a new input to an existing directory scan\n")
+    elif change == "missing-audit":
+        (root / docs.INVENTORY).unlink()
+    else:
+        (root / docs.INVENTORY).write_text("invalid")
+    # This source change is already on the PR base. Checking only the PR diff
+    # would miss that its new reader was never included in the content audit.
+    base = commit(root, refresh=False)
+    (root / "docs/note.md").write_text("subsequent prose change\n")
+    selected = docs.plan(root, "pull_request", base, commit(root, refresh=False))
+    assert selected["mode"] == "product"
+    assert "audit" in selected["reason"]
+
+
+def test_inventory_is_bound_to_the_committed_source_not_worktree_edits(repo):
+    root, base = repo
+    (root / "docs/note.md").write_text("prose\n")
+    head = commit(root)
+    (root / "core/code.py").write_text("unrelated local work\n")
+    assert docs.plan(root, "pull_request", base, head)["mode"] == "documentation"
 
 
 @pytest.mark.parametrize("mode", ["documentation", "product"])

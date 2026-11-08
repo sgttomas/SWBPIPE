@@ -8,6 +8,7 @@ are not plain prose merely because their names end in .md.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path, PurePosixPath
@@ -17,6 +18,7 @@ import sys
 from hosted_ci import changed_paths, git, text_at
 
 ROOT = Path(__file__).resolve().parents[2]
+INVENTORY = "tools/software_workflow/documentation-inputs.json"
 # Keep source-bound resources and verification inputs on their owning route.
 # In particular, embedded-agent assets under apps/ are never human docs here.
 DOCUMENT_ROOTS = ("docs/", "loop/", "execution/")
@@ -35,7 +37,40 @@ DOCUMENT_TESTS = {
     "docs/architecture/plugin_boundary.md": ["tests/test_api_boundary_contract.py"],
     "docs/local_analysis/local_fea_handoff_guidance.md": ["tests/test_local_fea_handoff_contract.py"],
     "execution/PKG-04/DEL-04-11/Work/hanger-sizing.md": ["-m", "pytest", "--noconftest", "-q", "tests/test_hanger_sizing_evidence.py::test_the_verifiers_fixed_lists_are_the_schemas_and_the_designs"],
+    "execution/PKG-09/DEL-09-01/Work/reference-system.md": ["-m", "pytest", "--noconftest", "-q", "tools/validation/test_reference_system_ledger.py"],
+    "execution/_DAG/_LATEST.md": ["-m", "pytest", "--noconftest", "-q", "tests/test_release_readiness_script.py::test_latest_dag_dependency_edges_uses_approved_graph_pointer"],
 }
+
+
+def source_digest(root: Path, ref: str | None) -> str:
+    """Bind the reader audit to all non-Markdown bytes and every tracked path/mode.
+
+    Read object identities, not file contents or protected evidence. A new,
+    removed or changed reader/config/fixture invalidates the audit. Markdown
+    existence/mode also matters: a new file can enter an existing dynamic scan.
+    Only in-place Markdown content may vary without refreshing the audit.
+    """
+    args = ["ls-tree", "-rz", ref] if ref else ["ls-files", "--stage", "-z"]
+    raw = subprocess.check_output(["git", "-C", str(root), *args])
+    records = []
+    for entry in filter(None, raw.split(b"\0")):
+        info, path = entry.split(b"\t", 1)
+        mode, oid, kind = info.split() if not ref else (info.split()[0], info.split()[2], info.split()[1])
+        if path.decode() == INVENTORY:
+            continue
+        if not ref and kind != b"0":
+            raise ValueError("Unmerged index cannot establish a documentation-input audit")
+        records.append(mode + b" " + (b"markdown" if path.endswith(b".md") else oid) + b"\t" + path + b"\0")
+    return hashlib.sha256(b"".join(sorted(records))).hexdigest()
+
+
+def audited_sources(root: Path, ref: str) -> bool:
+    try:
+        inventory = json.loads(git(root, "show", f"{ref}:{INVENTORY}"))
+        return (inventory.get("schema") == "swbpipe-documentation-inputs/v1"
+                and inventory.get("source_digest") == source_digest(root, ref))
+    except (subprocess.CalledProcessError, UnicodeError, ValueError, AttributeError):
+        return False
 
 
 def prose_path(path: str) -> bool:
@@ -66,6 +101,9 @@ def plan(root: Path, event: str, base: str, head: str) -> dict:
             if not text_at(root, previous, path) or not text_at(root, resolved, path):
                 result["reason"] = f"{path}: not UTF-8 Markdown text"
                 return result
+        if not audited_sources(root, resolved):
+            result["reason"] = "Document-reader audit is absent or stale; product verification required"
+            return result
     except (subprocess.CalledProcessError, UnicodeError, ValueError):
         return result
     result.update(mode="documentation", reason="Complete diff changes human prose only")
@@ -104,9 +142,14 @@ def main() -> int:
     select.add_argument("--head", required=True)
     select.add_argument("--output", required=True)
     commands.add_parser("aggregate")
+    commands.add_parser("refresh-audit", help="After reviewing document-content readers, bind the inventory to staged source inputs")
     check = commands.add_parser("verify")
     check.add_argument("--plan", required=True)
     args = parser.parse_args()
+    if args.command == "refresh-audit":
+        inventory = {"schema": "swbpipe-documentation-inputs/v1", "source_digest": source_digest(ROOT, None)}
+        (ROOT / INVENTORY).write_text(json.dumps(inventory, indent=2) + "\n")
+        return 0
     if args.command == "aggregate":
         if not require_results(json.loads(os.environ["RESULTS"])):
             print("Selected verification did not succeed.", file=sys.stderr)

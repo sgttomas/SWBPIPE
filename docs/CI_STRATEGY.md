@@ -27,12 +27,20 @@ This includes embedded-agent resources, notices/licences, the claims registry
 read by desktop tests, and preserved scope-change source assets. The document
 consumer inventory is maintained alongside the classifier: a new content
 reader must add its focused check or reserve its input for product coverage.
+The inventory is bound to all non-Markdown source/configuration/fixture bytes
+and every tracked path and mode. A source change or a newly introduced document
+invalidates it, so subsequent prose PRs fall back to product verification until
+the reader inventory is reviewed and refreshed. After reviewing changed readers,
+stage the source changes, run
+`python3 tools/software_workflow/documentation_ci.py refresh-audit`, and stage
+`tools/software_workflow/documentation-inputs.json`. This is an audit of document
+inputs, not a re-pin of any protected product or numerical baseline.
 Additions, deletions, renames, type/mode changes, mixed code/document changes,
 unreadable input, missing diff information and manual dispatch retain product
 verification. Python's conservative source-read derivation is unchanged on
 that route. The short route targets less than two minutes from hosted run
-start to required `harness` completion; hosted queue delay is reported
-separately. Classification or document-check failure, cancellation or missing
+event to required `harness` completion, including setup and runner queueing.
+Classification or document-check failure, cancellation or missing
 output fails `harness`; skipped product jobs are permitted only after a
 successful documentation classification and verification job.
 
