@@ -56,9 +56,7 @@ cited.
 
 ### Boundary change: `CAEPIPE-ANALYSIS` (G-2; adopted by Agent 0, 2026-11-02)
 
-**Adopted by Agent 0 on 2026-11-02** (paraphrase), after independent IP/contract review of the
-identical proposed text at `dfae224bd` (PR #85). The table above now carries the adopted
-boundary.
+The table above carries the boundary adopted on 2026-11-02.
 
 - **Old boundary cell:** analysis-option semantics only: number of thermal loads,
   gravitational acceleration and direction.

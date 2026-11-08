@@ -355,6 +355,8 @@ This Scope of Work defines `DEL-17-02` in service of project scope [SOW-030, SOW
 
 ### CLM-029 — Population Procedure
 
+> Historical population procedure: these steps describe the bounded population run, not current maintenance. Downstream consumption is described in CLM-030 and CLM-031.
+
 > ##### Population Procedure
 >
 > 1. Confirm DAG-006 is the approved active graph authority.

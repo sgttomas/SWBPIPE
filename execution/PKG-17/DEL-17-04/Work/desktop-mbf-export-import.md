@@ -9,7 +9,7 @@ and RT-R8 (Must) and exit criterion 6. File names follow DEL-07-01 `Work/export-
 Slice 5's design (§4, §4.8, 2026-11-07) reads source on `main` at `b06e1da32`. Its implementation (§4.9) is on the
 slice-5 PR, from `main` at `394f4c623`.
 
-This is a design before implementation, drafted for Agent 0 and independent review. Risk class:
+This design was drafted before implementation for Agent 0 and independent review. The implemented desktop export and import scope is recorded in the ScopeOfWork and §4.9; the remaining coverage limits are recorded in §1.4 and §5. Risk class:
 persistence, file writes and numerical meaning. Standard claim fence applies (claims taxonomy
 per DEC-081). Nothing here records or implies acceptance, issuance or release, which remain
 the owner's acts (F-PIP-3).
@@ -21,7 +21,7 @@ This design sits beside the import Design in DEL-17-04, for two reasons:
 - the release target names DEL-17-04 as the owner of both rows;
 - every decision here rests on the contracts of the writer and the importer.
 
-Two current texts place the desktop part elsewhere:
+At the time of drafting, two texts placed the desktop part elsewhere:
 
 - **DEL-17-04.** CLM-008 says the deliverable "shall not implement … GUI behavior". CLM-012
   says "A desktop MBF import action would belong to DEL-07-12 and is not part of this
