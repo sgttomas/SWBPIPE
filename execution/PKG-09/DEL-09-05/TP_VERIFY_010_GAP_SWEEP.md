@@ -91,7 +91,6 @@ Allowed vocabulary used by the register:
 - No release readiness, release publication, engineering-beta label, waiver, or human acceptance is claimed.
 - No professional adequacy, certification, sealing, authentication, endorsement, official code compliance, or project-specific engineering approval is claimed.
 - No review findings are resolved or dispositioned.
-- No lifecycle state, dependency file, candidate row, blocker queue, aggregate DAG, production code, schema, test, CI workflow, release record, or acceptance record is edited by this tranche.
 - No protected standards text, copied standards tables, code-derived formulas, material allowables, SIF/flexibility tables, protected dimensional tables, proprietary commercial data, private project data, or private rule-pack content is introduced.
 - Nonlinear support evidence remains `NOT_APPLICABLE` for scoped straight-pipe/load/stress axial-effect records unless future release routing touches nonlinear supports.
 

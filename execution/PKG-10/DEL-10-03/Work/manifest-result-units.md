@@ -10,14 +10,14 @@ The desktop handoff builder is `buildLocalFeaHandoffPacket` in
 `apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx`. It refers
 to result rows and preserves their units. It carries no stress values.
 
-**Before this change**
+**Historical observation at the 2026-10-26 change**
 - `stress_unit` and `force_unit` came from the project keys.
 - In the bundled demo, the handoff referenced the governing summary maximum
   `result:elastic-maximum:10:load:L-100:10:pipe:P-100` (Pa) and
   `result:stress:pipe-P-120:end-j:torsional-shear` (MPa), and declared
   `stress_unit: MPa`. The label disagreed with the referenced governing row.
 
-**Since then (Agent 0's B-c, 2026-10-26)**
+**Result-unit behavior**
 - Each of `stress_unit` and `force_unit` is the unit of the rows it labels.
   - The governing row decides, which for stress is the summary maximum.
   - With no governing row, the candidates' shared unit is used.

@@ -203,7 +203,7 @@ tracing it; Windows alone does not justify a new one. SWBPIPE retains model,
 engineering, acceptance and protected-write semantics; App retains its own
 agent execution/credential semantics.
 
-## Increment, declarations and next assignments
+## Supplemental CI and remaining work
 
 The supplemental `piping-windows-core.yml` runs existing core tests on native
 x64 Windows with explicit MSVC target and pinned Rust, then checks the engineering
@@ -211,23 +211,13 @@ facade. It has no secret access, publication, guest provisioning or desktop
 runtime claim. It is outside the required `harness`; selected existing checks
 remain required. A green result cannot qualify memory, persistence or native UI.
 
-Neighborhood queries for DEL-10-04, DEL-07-11, DEL-04-07, DEL-04-08 and
-DEL-02-05 reported no structural errors; `impact DEL-10-04` includes the shell,
-solver/memory, GUI and report/interop consumers. The graph reports relevance,
-not fulfilled dependencies. DEL-10-04's existing macOS release baseline and
-Windows evidence-gated condition remain true. DEL-07-11 shell dispatch/security,
-DEL-04-07 admission/custody, DEL-04-08 qualification, DEL-02-05 recovery,
-DEL-08-01 publication, DEL-15-01 model-save and DEL-07-06 native UX obligations
-are unchanged. Their ScopeOfWork and needs conditions are left unchanged; this
-candidate design and supplemental CI do not satisfy the remaining Windows
-conditions. DEL-10-04's existing project-relative code/check pointers are unchanged; the
-Root workflow is referenced through `docs/CI_STRATEGY.md`. RT-V7 distinguishes
+This design and supplemental CI do not satisfy the remaining Windows conditions
+for shell dispatch/security (DEL-07-11), admission/custody (DEL-04-07),
+qualification (DEL-04-08), recovery (DEL-02-05), publication (DEL-08-01),
+model save (DEL-15-01), and native UX (DEL-07-06). RT-V7 distinguishes
 authorized parallel development from release qualification: Windows remains
-Later, with the immediate post-v1.0 revisit and the macOS Apple Silicon-only
-release baseline under DEC-057 preserved. No Must condition or macOS exit
-criterion changes. The owner authorized proceeding with this orchestration
-(“Proceed accordingly.”); the independently reviewed row wording is adopted
-under HELP_HUMAN's §5 Later-row delegation.
+Later, with an immediate post-v1.0 revisit. DEC-057 retains the macOS Apple
+Silicon-only release baseline; the Must conditions and macOS exit criteria apply.
 
 Planning estimates below are engineering work days for bounded implementation
 and focused repair, **not elapsed delivery promises**, and exclude owner release

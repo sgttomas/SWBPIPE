@@ -57,8 +57,3 @@ surface, but the integrated release-readiness profile is not passing. The
 blocking current gaps are the missing/import-incomplete calculation-witness
 tool module, the DEL-12-04 security wording gate failure, and the direct
 coordination pytest command-surface mismatch.
-
-Lifecycle states were preserved. No candidate rows, blocker queues, dependency
-registers, implementation evidence rows, production code, schemas, CI workflows,
-release records, acceptance records, human dispositions, professional-boundary
-decisions, or code-compliance decisions were changed.

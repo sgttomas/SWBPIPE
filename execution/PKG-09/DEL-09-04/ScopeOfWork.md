@@ -95,7 +95,6 @@ This Scope of Work defines `DEL-09-04` in service of project scope [SOW-027] and
 > ##### References
 >
 > - `AGENTS.md`
-> - `AGENTS.md`
 > - `docs/DIRECTIVE.md`
 > - `docs/CONTRACT.md`
 > - `docs/TYPES.md`
