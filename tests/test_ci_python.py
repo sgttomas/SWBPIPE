@@ -577,3 +577,92 @@ def test_the_python_job_checks_out_every_path_a_selected_test_reads():
     assert 'sparse-checkout' not in job
     path = 'execution/PKG-16/DEL-16-06/Work/agent-capability-catalog.json'
     assert 'tools/agent_host_witness_test.py' in selected(path)
+
+
+def test_shards_cover_overlapping_selections_and_new_tests(tmp_path):
+    import pytest
+    files = ['tests/group/test_a.py', 'tests/group/sub/test_b.py',
+             'tests/group/sub/new_test.py', 'tests/wrapper_test.py', 'tests/test_new.py']
+    for name in files:
+        path = tmp_path / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text('')
+    selected = ['tests/group', 'tests/group/sub', 'tests/group/sub/new_test.py',
+                'tests/wrapper_test.py', 'tests/test_new.py']
+    shards, totals = ci.shard_selection(tmp_path, selected, 4, {'tests/wrapper_test.py': 500})
+    assert set().union(*map(set, shards)) == set(selected)
+    assert sum(map(len, shards)) == len(selected)
+    assert any(set(selected[:3]) <= set(shard) for shard in shards)
+    assert max(totals) >= 500
+    assert ci.shard_selection(tmp_path, selected[::-1], 4, {'tests/wrapper_test.py': 500}) == (shards, totals)
+    small, _ = ci.shard_selection(tmp_path, ['tests/test_new.py'], 4, {})
+    assert sum(not shard for shard in small) == 3
+    for count in (0, -1, True):
+        with pytest.raises(ValueError):
+            ci.shard_selection(tmp_path, selected, count, {})
+    with pytest.raises(ValueError):
+        ci.shard_selection(tmp_path, ['missing.py'], 4, {})
+
+
+def test_actual_full_selection_is_partitioned_without_losing_paths():
+    selected = ci.select(PROJECT, {'event': 'push', 'paths': []})
+    shards, _ = ci.shard_selection(PROJECT, selected, 4, ci.load_timings())
+    assert set().union(*map(set, shards)) == set(selected)
+    assert sum(map(len, shards)) == len(selected)
+    for i, shard in enumerate(shards):
+        for other in shards[i + 1:]:
+            assert set(shard).isdisjoint(other)
+            for path in shard:
+                assert not any(Path(path) in Path(p).parents or Path(p) in Path(path).parents for p in other)
+
+
+def test_invalid_timing_tables_fail_closed(tmp_path):
+    import pytest
+    table = tmp_path / 'times.json'
+    for text in ('{}', '{"seconds": []}', '{"seconds": {"test.py": -1}}',
+                 '{"seconds": {"test.py": true}}', '{"seconds": {"test.py": NaN}}', '{'):
+        table.write_text(text)
+        with pytest.raises(ValueError):
+            ci.load_timings(table)
+
+
+def test_invalid_shard_arguments_are_rejected_before_plan_loading(tmp_path):
+    import subprocess
+    import sys
+    script = str(PROJECT / 'tools/ci/python_ci.py')
+    for args in (['--shard-index', '1'], ['--shard-count', '4'],
+                 ['--shard-index', '0', '--shard-count', '4'],
+                 ['--shard-index', '5', '--shard-count', '4'],
+                 ['--shard-index', '1', '--shard-count', '0']):
+        result = subprocess.run([sys.executable, script, '--plan', str(tmp_path / 'missing'), *args],
+                                capture_output=True, text=True)
+        assert result.returncode != 0 and 'shard' in result.stderr
+
+
+def test_sharding_preserves_pytest_collection_with_directory_and_wrapper(tmp_path):
+    from collections import Counter
+    import subprocess
+    import sys
+    files = {
+        'suite/test_one.py': 'def test_one(): pass\n',
+        'suite/nested/test_two.py': 'def test_two(): pass\n',
+        'suite/nested/suffix_test.py': 'def test_suffix(): pass\n',
+        'wrapper_test.py': 'from suite.test_one import test_one\n',
+    }
+    for name, content in files.items():
+        path = tmp_path / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content)
+    selected = ['suite', 'suite/nested', 'suite/nested/suffix_test.py', 'wrapper_test.py']
+    shards, _ = ci.shard_selection(tmp_path, selected, 4, {})
+    def collect(paths):
+        if not paths:
+            return Counter()
+        result = subprocess.run([sys.executable, '-m', 'pytest', '--collect-only', '-q', *paths],
+                                cwd=tmp_path, text=True, capture_output=True, check=True)
+        return Counter(line for line in result.stdout.splitlines() if '::' in line)
+    expected = collect(selected)
+    actual = sum((collect(shard) for shard in shards), Counter())
+    assert expected == actual
+    assert any('suffix_test.py::test_suffix' in name for name in expected)
+    assert any('wrapper_test.py::test_one' in name for name in expected)
