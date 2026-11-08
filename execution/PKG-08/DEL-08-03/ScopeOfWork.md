@@ -284,9 +284,9 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 >    - Confirm status language distinguishes mechanics solve, user rule check, and human review.
 >
 > 7. Record evidence.
->    - List changed report-section files and tests.
->    - Record validation commands/results.
->    - Record warnings, `TBD` fields, and open dependencies.
+>    - Keep required deliverable verification evidence in its designated artifact.
+>    - In the PR, list changed report-section files and tests and account for validation commands/results.
+>    - Keep current warnings, `TBD` fields, and open dependencies where successors use them.
 >
 
 ### CLM-021 — Verification

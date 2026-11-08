@@ -249,8 +249,6 @@ No ScopeOfWork or PRD text changes. The indicator implements PRD FR-SOL-015 and 
   - a green result (the milestone model);
   - a red generic-route result (a sensitive invented fixture);
   - an eligible pressure-source result whose ordinary case is sensitive (`n05`). The open path is unchanged: no new job and no new solve.
-- **Review.** Dual review on the final head (independent Claude and Codex), because the conditioning text carries numerical meaning.
-
 ## 8. Unchanged
 
 - The engine, the persisted result formats, every threshold, every reader verdict and all output admission.

@@ -137,9 +137,6 @@ This Scope of Work defines `DEL-08-02` in service of project scope [SOW-039] and
 
 > ##### Standards
 >
-> Current deliverable obligation: implement canonical input manifest, model hash, solver version stamp, and rule-pack checksum capture. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
 > | Standard or basis | Applicability | Status |
 > |---|---|---|
 > | Canonical JSON / JCS-compatible canonicalization | JSON payload hash basis for model and manifest payloads. | Required by decomposition/register basis; exact library/API TBD. |

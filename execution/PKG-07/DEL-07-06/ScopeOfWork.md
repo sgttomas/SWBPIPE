@@ -228,7 +228,7 @@ Current observed usability limit: The accepted bounded UI foundation observed th
 
 > Current criterion: D-68 (`execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md`) adopts WCAG 2.2 AA criteria for touched desktop controls. Independent usability remains held; this is neither a conformance result nor a target selection for generated report/export files. Historical PDU fields and results remain bound to their original source revision.
 
-- **AC-001** — The contract preserves the accessibility and engineering-review baseline, keeps the measurable contrast/readability target explicitly human-owned and TBD, separates diagnostic classes, and preserves units and provenance. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+- **AC-001** — The contract preserves the accessibility and engineering-review baseline, applies the human-selected WCAG 2.2 AA measurable contrast/readability criteria to controls touched by the professional modelling workspace foundation tranche, retains unresolved targets outside that tranche, separates diagnostic classes, and preserves units and provenance. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Production and Verification Method — Praxeology
 
