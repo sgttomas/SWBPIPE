@@ -62,6 +62,10 @@ Publication/release and broader UI design remain distinct owner acts.
 
 ## Catalog ownership
 
+App P5's current source/input comparison and remaining joined-witness needs are
+in [app-p5-host-inputs.md](app-p5-host-inputs.md); that preparation supplies no
+capture, activation or receiving-adoption authority.
+
 [`agent-capability-catalog.json`](../../../../apps/desktop/src-tauri/resources/agent-capability-catalog.json) is SWBPIPE's
 implementation contract. Its origin is App commit
 `e1e3f4615b6f766b313c3492506f68254afd8a06`, path
