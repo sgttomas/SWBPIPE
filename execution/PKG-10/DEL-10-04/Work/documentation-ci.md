@@ -16,8 +16,14 @@ product route. The required `harness` validates classification and every
 selected job; a cancelled, missing or failed selection cannot produce success.
 
 The owner requested documentation-only CI below two minutes on 2026-11-08.
-Hosted run time is measured through `harness`; runner queue delay is reported
-separately. The clock target does not supply authority to omit an actual
+Elapsed time is measured from the event through `harness`, including runner
+queueing and setup. The clock target does not supply authority to omit an actual
 content consumer. New document-content readers must enter the inventory as a
 focused check or as inputs that retain product verification. No dependency,
 release, signing, engineering acceptance or product qualification changes.
+
+The reader inventory is source-bound. Any non-Markdown source/configuration
+change, or any change to tracked paths/modes, invalidates its source digest.
+Subsequent documentation edits then keep product verification until changed
+document readers have been audited and the inventory refreshed. This prevents
+a new runtime or test reader silently inheriting a prose-only exemption.
