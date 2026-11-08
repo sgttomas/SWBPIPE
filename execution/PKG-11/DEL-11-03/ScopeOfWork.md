@@ -140,7 +140,7 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 
 > ##### Scope
 >
-> Current deliverable obligation: Draft theory notes explaining the classical flexibility lineage and modern 3D frame implementation without copying protected standards. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> See CLM-005 for the current deliverable obligation and the historical setup boundary.
 >
 >
 > This specification governs only the deliverable-local setup for `DEL-11-03` and the future production contract for `docs/theory/centerline_analysis.md`. It does not authorize edits outside the deliverable folder in this setup run.
@@ -263,7 +263,7 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 
 > ##### Documentation
 >
-> Current deliverable obligation: Draft theory notes explaining the classical flexibility lineage and modern 3D frame implementation without copying protected standards. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> See CLM-005 for the current deliverable obligation and the historical setup boundary.
 >
 >
 > Required setup outputs for this run:
@@ -292,7 +292,7 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 
 > ##### Purpose
 >
-> Current deliverable obligation: Draft theory notes explaining the classical flexibility lineage and modern 3D frame implementation without copying protected standards. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> See CLM-005 for the current deliverable obligation and the historical setup boundary.
 >
 >
 > Execute and review the deliverable-local setup workflow for the theory notes without editing the final documentation target or introducing protected engineering content.

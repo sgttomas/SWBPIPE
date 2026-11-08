@@ -119,7 +119,7 @@ This Scope of Work defines `DEL-11-04` in service of project scope [SOW-033] and
 
 > ##### Scope
 >
-> Current deliverable obligation: Create invented-data example models for mechanics-only and fake-rule-pack demonstrations. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> See CLM-006 for the current deliverable obligation and the historical setup boundary.
 >
 >
 > This deliverable specifies setup constraints for invented educational example models that can later support mechanics-only demonstrations and fake-rule-pack demonstrations. The examples are documentation and testing aids, not engineering templates.
@@ -213,7 +213,7 @@ This Scope of Work defines `DEL-11-04` in service of project scope [SOW-033] and
 
 > ##### Purpose
 >
-> Current deliverable obligation: Create invented-data example models for mechanics-only and fake-rule-pack demonstrations. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> See CLM-006 for the current deliverable obligation and the historical setup boundary.
 >
 >
 > Define the setup-time procedure and future production checks for invented educational examples without creating external example files, tutorials, source code, schemas, protected data, or issued artifacts in this session.
@@ -235,7 +235,7 @@ This Scope of Work defines `DEL-11-04` in service of project scope [SOW-033] and
 
 > ##### Steps
 >
-> Current deliverable obligation: Create invented-data example models for mechanics-only and fake-rule-pack demonstrations. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> See CLM-006 for the current deliverable obligation and the historical setup boundary.
 >
 >
 > 1. Confirm the deliverable identity and scope match `DEL-11-04`, `PKG-11`, and SOW-033.
@@ -323,7 +323,7 @@ This Scope of Work defines `DEL-11-04` in service of project scope [SOW-033] and
 
 > ##### Example Concepts
 >
-> Current deliverable obligation: Create invented-data example models for mechanics-only and fake-rule-pack demonstrations. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> See CLM-006 for the current deliverable obligation and the historical setup boundary.
 >
 >
 > Future work may define non-file concepts such as:
