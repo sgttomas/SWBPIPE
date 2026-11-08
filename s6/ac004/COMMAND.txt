@@ -1,0 +1,6 @@
+# PREPARATION ONLY: NOT QUEUED / NOT RUN. Await fresh technical clearance and GO from Agent 0.
+# Direct approved supervisor; no slot/exclusive wrapper nesting and no timeout around the untimed queue.
+cd /tmp && env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u CARGO_BUILD_RUSTFLAGS -u RUSTDOCFLAGS -u W1_MEMBER_CAP_OUT -u CHECK_ONLY \
+  /Users/ryan/.local/share/mise/installs/python/3.13/bin/python3 -I /Users/ryan/dev/chirality-t3/scratch/rt-a3-s6-final/ac004/supervisor/ac004_supervisor.py --guard-dir /Users/ryan/dev/chirality-t3/guard --budget 60 --reserve 3 --term-grace 1 --trace-file /Users/ryan/dev/chirality-t3/scratch/rt-a3-s6-final/ac004/attempt-1/supervisor.receipt.json -- /Users/ryan/.local/share/mise/installs/python/3.13/bin/python3 -I /Users/ryan/dev/chirality-t3/scratch/rt-a3-s6-final/ac004/harness.py \
+  > /Users/ryan/dev/chirality-t3/scratch/rt-a3-s6-final/ac004/attempt-1/inner.stdout.json \
+  2> /Users/ryan/dev/chirality-t3/scratch/rt-a3-s6-final/ac004/attempt-1/combined.stderr.log

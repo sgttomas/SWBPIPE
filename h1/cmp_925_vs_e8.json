@@ -1,0 +1,22 @@
+{
+ "identical": false,
+ "identical_but_basis": true,
+ "structure_equal": true,
+ "a_le_b": true,
+ "a_ge_b": true,
+ "coefficients_equal": 1602,
+ "higher_in_a": 0,
+ "lower_in_a": 0,
+ "check": {
+  "sparse": [
+   8593926538,
+   8593926538
+  ],
+  "dense": [
+   8653057882,
+   8653057882
+  ]
+ },
+ "higher": [],
+ "lower": []
+}

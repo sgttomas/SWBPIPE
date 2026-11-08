@@ -1,0 +1,34 @@
+{
+ "runner_entry": "2026-11-08T02:16:13.901+00:00",
+ "deadline_s": 55.0,
+ "results": [],
+ "admission_check": {
+  "head": "1a07aec6b732ffcf1b050626341780ff92888fbd",
+  "core": "e8e83ae9f1b7dbf7a9984eee1fa8d7a7688cad87",
+  "clean_whole_worktree": true,
+  "hashes": {
+   "/Users/ryan/dev/chirality-t3/scratch/rt-a3-s6-final/ac004/bin/open_pipe_stress_product_physics-f31c71322c8cc2bc": "8f2b649d4bc6ffd4933aeda986e7a1c2bf4f649315edb57dc721e6a67a7d0c73",
+   "/Users/ryan/dev/chirality-t3/scratch/rt-a3-s6-final/ac004/bin/retained_memory_challenge-0a8cb81bbc9e389a": "bba69229159f741484fc0af9ea90ab897232bddab51ee850118bef4d239213a5",
+   "/Users/ryan/dev/chirality-t3/swbpipe-rt-a3-s6-final/core/product_physics/src/retained_memory.rs": "24141f216cbb54285dacf7b1419d20867aec71a1ba20ccd7984135ab7ec80081",
+   "/Users/ryan/dev/chirality-t3/swbpipe-rt-a3-s6-final/core/product_physics/Cargo.lock": "b7ebb02aafa8cfe214c18bc64941381b33ab3f9295e0fc774ee0819e1e4f5653"
+  },
+  "flags_present": {
+   "RUSTFLAGS": false,
+   "CARGO_ENCODED_RUSTFLAGS": false,
+   "CARGO_BUILD_RUSTFLAGS": false,
+   "RUSTDOCFLAGS": false
+  },
+  "rustc": [
+   "commit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452",
+   "release: 1.97.1"
+  ],
+  "memguard_live": true,
+  "copies_read_only": true,
+  "w1_member_cap_out_inherited": false,
+  "check_only": "1"
+ },
+ "admission_seconds": 0.292,
+ "admission_verified": "2026-11-08T02:16:14.193+00:00",
+ "check_only_no_test_run": true,
+ "end": "2026-11-08T02:16:14.193+00:00"
+}

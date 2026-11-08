@@ -1,0 +1,132 @@
+{
+ "runner_entry": "2026-11-07T23:50:13.806+00:00",
+ "deadline_s": 55.0,
+ "results": [
+  {
+   "test": "retained_memory::witness_tests::witness_headroom_w1_at_one_mebibyte::sparse",
+   "binary": "open_pipe_stress_product_physics-79ebb5202e3b32c5",
+   "rc": 0,
+   "executed_passed": 1,
+   "executed_failed": 0,
+   "summary": [
+    "test retained_memory::witness_tests::witness_headroom_w1_at_one_mebibyte::sparse ... ok",
+    "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1245 filtered out; finished in 0.67s"
+   ],
+   "outcome": "pass",
+   "seconds": 2.08
+  },
+  {
+   "test": "retained_memory::witness_tests::witness_headroom_w1_at_one_mebibyte::dense",
+   "binary": "open_pipe_stress_product_physics-79ebb5202e3b32c5",
+   "rc": 0,
+   "executed_passed": 1,
+   "executed_failed": 0,
+   "summary": [
+    "test retained_memory::witness_tests::witness_headroom_w1_at_one_mebibyte::dense ... ok",
+    "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1245 filtered out; finished in 0.63s"
+   ],
+   "outcome": "pass",
+   "seconds": 0.64
+  },
+  {
+   "test": "retained_memory::witness_tests::witness_w2_deep_milestone_publishes::sparse",
+   "binary": "open_pipe_stress_product_physics-79ebb5202e3b32c5",
+   "rc": 0,
+   "executed_passed": 1,
+   "executed_failed": 0,
+   "summary": [
+    "test retained_memory::witness_tests::witness_w2_deep_milestone_publishes::sparse ... ok",
+    "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1245 filtered out; finished in 1.27s"
+   ],
+   "outcome": "pass",
+   "seconds": 1.28
+  },
+  {
+   "test": "retained_memory::witness_tests::witness_w2_deep_milestone_publishes::dense",
+   "binary": "open_pipe_stress_product_physics-79ebb5202e3b32c5",
+   "rc": 0,
+   "executed_passed": 1,
+   "executed_failed": 0,
+   "summary": [
+    "test retained_memory::witness_tests::witness_w2_deep_milestone_publishes::dense ... ok",
+    "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1245 filtered out; finished in 1.30s"
+   ],
+   "outcome": "pass",
+   "seconds": 1.3
+  },
+  {
+   "test": "retained_memory::witness_tests::witness_w_c2_publishes::sparse",
+   "binary": "open_pipe_stress_product_physics-79ebb5202e3b32c5",
+   "rc": 0,
+   "executed_passed": 1,
+   "executed_failed": 0,
+   "summary": [
+    "test retained_memory::witness_tests::witness_w_c2_publishes::sparse ... ok",
+    "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1245 filtered out; finished in 2.45s"
+   ],
+   "outcome": "pass",
+   "seconds": 2.45
+  },
+  {
+   "test": "retained_memory::witness_tests::witness_w_c2_publishes::dense",
+   "binary": "open_pipe_stress_product_physics-79ebb5202e3b32c5",
+   "rc": 0,
+   "executed_passed": 1,
+   "executed_failed": 0,
+   "summary": [
+    "test retained_memory::witness_tests::witness_w_c2_publishes::dense ... ok",
+    "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1245 filtered out; finished in 2.42s"
+   ],
+   "outcome": "pass",
+   "seconds": 2.43
+  },
+  {
+   "test": "retained_direct_peak_is_within_the_profiles_bounds",
+   "binary": "retained_memory_challenge-16fde700e6590c16",
+   "rc": 0,
+   "executed_passed": 1,
+   "executed_failed": 0,
+   "summary": [
+    "test retained_direct_peak_is_within_the_profiles_bounds ... ok",
+    "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 43 filtered out; finished in 3.72s"
+   ],
+   "outcome": "pass",
+   "seconds": 4.92
+  }
+ ],
+ "admission_check": {
+  "head": "8c26b75566a8f6666b5f4ea66d56b4c2ab8c2d87",
+  "core": "a3633b180427fb672fdf8de79de07035e14e7c0e",
+  "clean_whole_worktree": true,
+  "hashes": {
+   "/Users/ryan/dev/chirality-t3/scratch/rt-dynamics-support-ops/ac004-04859/bin/open_pipe_stress_product_physics-79ebb5202e3b32c5": "9d7b678d1da2f1e4d5cf16dc17350d292731fef9e22dcd50b89c360e296404ee",
+   "/Users/ryan/dev/chirality-t3/scratch/rt-dynamics-support-ops/ac004-04859/bin/retained_memory_challenge-16fde700e6590c16": "64eabef5215b60f01ce8d98bafdc7764adc650c91fafa4730859f8587896cffa",
+   "/Users/ryan/dev/chirality-t3/swbpipe-rt-dynamics-support/core/product_physics/src/retained_memory.rs": "c4df869d523c7e7626515ac25cc1a8b459e9c791cbd73735ccbdafd2d861996c",
+   "/Users/ryan/dev/chirality-t3/swbpipe-rt-dynamics-support/core/product_physics/Cargo.lock": "b7ebb02aafa8cfe214c18bc64941381b33ab3f9295e0fc774ee0819e1e4f5653"
+  },
+  "flags_present": {
+   "RUSTFLAGS": false,
+   "CARGO_ENCODED_RUSTFLAGS": false,
+   "CARGO_BUILD_RUSTFLAGS": false,
+   "RUSTDOCFLAGS": false
+  },
+  "rustc": [
+   "commit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452",
+   "release: 1.97.1"
+  ],
+  "memguard_live": true,
+  "copies_read_only": true,
+  "w1_member_cap_out_inherited": false,
+  "check_only": null
+ },
+ "admission_seconds": 0.281,
+ "admission_verified": "2026-11-07T23:50:14.086+00:00",
+ "post_run_hashes": {
+  "/Users/ryan/dev/chirality-t3/scratch/rt-dynamics-support-ops/ac004-04859/bin/open_pipe_stress_product_physics-79ebb5202e3b32c5": "9d7b678d1da2f1e4d5cf16dc17350d292731fef9e22dcd50b89c360e296404ee",
+  "/Users/ryan/dev/chirality-t3/scratch/rt-dynamics-support-ops/ac004-04859/bin/retained_memory_challenge-16fde700e6590c16": "64eabef5215b60f01ce8d98bafdc7764adc650c91fafa4730859f8587896cffa"
+ },
+ "post_run_hashes_unchanged": true,
+ "harness_seconds": 15.469,
+ "within_deadline": true,
+ "end": "2026-11-07T23:50:29.275+00:00"
+}

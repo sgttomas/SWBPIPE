@@ -1,0 +1,1230 @@
+{
+ "rev": "925fcf122e6716006bb05d25496a5cda7caa79dd",
+ "basis": "2243be380b",
+ "resolved_basis": "51eb3bcb31279d1e4e99dcd08312e9455773665e",
+ "b7a_retired_carry": {
+  "source_fingerprint_scope": "full files",
+  "source_fingerprints": {
+   "core/product_physics/src/source_receipt/rows.rs": "539e1cbd60a0de35959e30b38076adcd6bae5451decaafc403970af1be1a26a4",
+   "core/product_physics/src/source_receipt.rs": "9ee47bc14c5fd2885010f16a9de396f0085335481de75d1df1af2bc6eba241c5"
+  },
+  "adapter_sha256": "52e70cb9e6188578066c1f1759c4af1aaa68e17a76ab608c970e3b90f4a766b1",
+  "base_preimages": {
+   "text_args.g4.json": "4e98a6a134e5b91aacfce4086fd0ed0d37611442b1a1d4715caa3c8c9b60cab9",
+   "sens.py": "3fd76cdaec54c4675b0df5e4f3e6563d381cc66f98103e020a143c561121c408"
+  },
+  "prepared_files": {
+   "text_args.g4.json": "1eb767cf92540f8e66d6eee8c969e043f1ff792969b63dfc7eeadb1e6a2a7834",
+   "sens.py": "f6e077daefef58ca5daa51fa9654355c95d59c0508e63a4c9dd87394cab3c53a"
+  },
+  "retired": [
+   {
+    "file": "text_args.g4.json",
+    "family": "id_audit",
+    "key": "core/product_physics/src/source_receipt/rows.rs:390",
+    "rule": {
+     "primary[&s.functional_indices[c]].id": {
+      "bytes": 1024,
+      "source": "RES"
+     }
+    },
+    "why": "B4/D1 retirement removes the non-composite support-resultant input-id clone."
+   },
+   {
+    "file": "text_args.g4.json",
+    "family": "id_audit",
+    "key": "core/product_physics/src/source_receipt/rows.rs:396",
+    "rule": {
+     "stable_suffix(&s.support_id)": {
+      "bytes": 128,
+      "source": "IN128"
+     }
+    },
+    "why": "B4/D1 retirement removes the non-composite support-resultant ID format."
+   },
+   {
+    "file": "text_args.g4.json",
+    "family": "id_audit",
+    "key": "core/product_physics/src/source_receipt/rows.rs:518",
+    "rule": {
+     "row.id": {
+      "bytes": 1024,
+      "source": "RES"
+     }
+    },
+    "why": "B4/D1 retirement removes stress-summary stress_ids and its row-ID clone."
+   },
+   {
+    "file": "text_args.g4.json",
+    "family": "id_audit",
+    "key": "core/product_physics/src/source_receipt/rows.rs:529",
+    "rule": {
+     "primary[&function].id": {
+      "bytes": 1024,
+      "source": "RES"
+     }
+    },
+    "why": "B4/D1 retirement removes the non-composite stress primary-ID vector; composite inputs remain empty."
+   },
+   {
+    "file": "sens.py",
+    "family": "ZW",
+    "key": "source_receipt.rs:634:exact",
+    "why": "B4/D1 retirement deletes the preview SourceBlocks constructor; the two live composite finalizers retain their zero-sensitivity tokens."
+   },
+   {
+    "file": "sens.py",
+    "family": "ZW",
+    "key": "source_receipt.rs:836:finalize",
+    "why": "B4/D1 retirement deletes the preview SourceBlocks constructor; the two live composite finalizers retain their zero-sensitivity tokens."
+   }
+  ]
+ },
+ "b7a_positive_domain": {
+  "full_raw_source_fingerprints": {
+   "core/product_physics/src/lib.rs": "fc58bd265cf557a333d37e89a27e6e196ffdfdd2883446c92830be00b0a5586b",
+   "core/product_physics/src/certified_loads.rs": "da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73",
+   "core/product_physics/src/retained_product.rs": "7f8ac0d3654432e08e419619fe04a391c2776e7a7dfe01cbca067e52e68c505f",
+   "core/product_physics/src/retained_wire.rs": "1e1e60a02279771574f84df2b45628622936774a879a092842faa1e2f5f0f937",
+   "core/product_physics/src/certified_publication.rs": "54ae0639313c3e5785c9e65f1a9574b535bc3dbe94b49a5788b7f976f935c57a",
+   "core/solver/frame_kernel/src/load_ledger.rs": "8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f",
+   "core/solver/frame_kernel/src/structural/formation_check.rs": "96b35424bd76fd7733b781241dd328aca91556372876df2a053cbdf2c7377e10",
+   "core/solver/frame_kernel/src/structural/certified_recovery.rs": "ef58e6c2ec74bad85b991c344a2127a78145af2a22d8656bbeb699ad097c1e49",
+   "core/loads/primitive_loads/src/lib.rs": "2273116392aa15f020000e1fe7815a2127fcc0548095a2f12dd034d0f7e37802",
+   "core/solver/straight_pipe/src/lib.rs": "9a4cb59ab52b6f4340fbd74bab9c83847b89691835d0e043a4971b261df452f7",
+   "core/product_physics/src/preview_physics.rs": "19a3134e33454831a961efbf822428650fc23df84ed4d9da07c548c3c607c4c4",
+   "core/reporting/result_export/src/retained_precision.rs": "09f8dbd4d0ebf066d669a6708236a897fa7f577e2a32ade7ea3bb1960da72200",
+   "core/product_physics/src/model_format.rs": "e97d154f8feccad08214eb7ada9006a332dbd8255fa89040f9250c5538d25791",
+   "core/product_physics/src/pressure_runtime.rs": "76630dd7ee61ab8c4824768974491341cdad9b54c196c55ab958b83fb58027c1",
+   "core/product_physics/src/source_receipt.rs": "9ee47bc14c5fd2885010f16a9de396f0085335481de75d1df1af2bc6eba241c5",
+   "core/product_physics/src/exact_admission.rs": "87c301c15eb973d0483e2e56225b602b5434cfa4b66a38a64b4bad7ce55d6b1a",
+   "core/product_physics/src/case_state/mod.rs": "633b46de9fb4fdd5d213efbba1405e65afbc291ad8f9848096596fce27b06fab",
+   "core/solver/nonlinear_integration/src/structural_adapter.rs": "72c93deecae3a0a377a02b08d91ab99d18a44d80d9ddb662b1cf1becd782b093",
+   "core/solver/frame_kernel/src/lib.rs": "d127f6296bdce4c1eec91863e9f1e246a87b8e3c828b0ef41684d944b31e102d",
+   "core/reporting/result_export/src/semantic_contract.rs": "0ae698a0e1d32c7915a1e6d461c7c4e9c36a2c8c34f8faa9cf1a55d447fc5327",
+   "core/reporting/result_export/src/physics_source.rs": "a6d0389c3acda1b6eda0c58c419e5f6f28004a711459bea8f6e7735af0121a9d"
+  },
+  "admission_caps_sha256": "e6759d84e480f0480f381933d4d36d9891f103158c35874fc7dd4acae7d9e71d",
+  "family_clauses_sha256": "4deeb3d3495fe1a4fcc25131edfa513ff8df55215d113162d4f81cf275de01bd",
+  "admission_prefix_sha256": "ae99b6a04b897fe15104e0b33d12de9ec6ef5827663f6c437a807c49226934a7",
+  "admission_late_sha256": {
+   "law_order": "b0f9eae8c2d716f14cfda1ff895a65d7833b086383ec34154b501daa1ac344a3",
+   "admit": "67334c60ce1a606b5cd73e2715474cfc40150a11def9143752993af4c79904c8",
+   "admission": "7627646ef640f23a095bab2f355c7576e1ff79baeb2a9ea44be4550765f60003"
+  },
+  "formation_leaf_seam": true,
+  "model_sha256": "b1853a8c7b1bb12d332cf608ab10ede19df87af3c5f3217287dee4896e99a0f3",
+  "formed_terms_per_input": 12,
+  "manifest_operand_words": 26,
+  "basis_material_count": 4,
+  "named_basis_count": 3,
+  "reader_static_owners": [
+   [
+    "core/reporting/result_export/src/semantic_contract.rs:preview_physics_timoshenko_contract",
+    "fixtures/results/semantic_contract_v0_3_preview_physics_timoshenko_1.json"
+   ],
+   [
+    "core/reporting/result_export/src/physics_source.rs:schema",
+    "schemas/physics_source_recovery.schema.json"
+   ],
+   [
+    "core/reporting/result_export/src/retained_precision.rs:schema",
+    "schemas/retained_precision_mp_v2.schema.json"
+   ],
+   [
+    "core/reporting/result_export/src/retained_precision.rs:definition",
+    "fixtures/results/retained_precision_prepared_ordinary_v1.json"
+   ],
+   [
+    "core/reporting/result_export/src/retained_precision.rs:table",
+    "fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json"
+   ],
+   [
+    "core/reporting/result_export/src/semantic_contract.rs:preview_physics_contract",
+    "fixtures/results/semantic_contract_v0_3_preview_physics_2.json"
+   ],
+   [
+    "core/reporting/result_export/src/retained_precision.rs:combination_definition",
+    "fixtures/results/retained_precision_prepared_combination_v1.json"
+   ],
+   [
+    "core/reporting/result_export/src/retained_precision.rs:exact_definition",
+    "fixtures/results/retained_precision_prepared_exact_v1.json"
+   ],
+   [
+    "core/reporting/result_export/src/semantic_contract.rs:physics_retained_contract",
+    "fixtures/results/semantic_contract_v0_3_physics_retained_1.json"
+   ],
+   [
+    "core/reporting/result_export/src/semantic_contract.rs:preview_physics_retained_contract",
+    "fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json"
+   ],
+   [
+    "core/reporting/result_export/src/retained_precision.rs:exact_table",
+    "fixtures/results/semantic_contract_v0_3_physics_retained_1.json"
+   ],
+   [
+    "core/reporting/result_export/src/semantic_contract.rs:pressure_source_contract",
+    "fixtures/results/semantic_contract_v0_3_pressure_source_1.json"
+   ],
+   [
+    "core/reporting/result_export/src/semantic_contract.rs:pressure_rows_contract",
+    "fixtures/results/semantic_contract_v0_3_pressure_2.json"
+   ],
+   [
+    "core/reporting/result_export/src/load_reference.rs:transport_schema",
+    "schemas/load_reference_state.schema.json"
+   ]
+  ],
+  "resident_json_inputs": [
+   "fixtures/results/semantic_contract_v0_3_preview_physics_timoshenko_1.json",
+   "schemas/physics_source_recovery.schema.json",
+   "schemas/retained_precision_mp_v2.schema.json",
+   "fixtures/results/retained_precision_prepared_ordinary_v1.json",
+   "fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+   "fixtures/results/semantic_contract_v0_3_preview_physics_2.json",
+   "fixtures/results/retained_precision_prepared_combination_v1.json",
+   "fixtures/results/retained_precision_prepared_exact_v1.json",
+   "fixtures/results/semantic_contract_v0_3_physics_retained_1.json",
+   "fixtures/results/semantic_contract_v0_3_pressure_source_1.json",
+   "fixtures/results/semantic_contract_v0_3_pressure_2.json",
+   "schemas/load_reference_state.schema.json"
+  ],
+  "base_loop_sha256": "cd0273bc94e521142cc56121171055f9020c167b97caa8efe7fa6ac36c69ba4c",
+  "input_text_rules_sha256": "1eb767cf92540f8e66d6eee8c969e043f1ff792969b63dfc7eeadb1e6a2a7834",
+  "prepared_files": {
+   "loop_bounds.g4.json": "f7f1556ac464e792c80698a8696984f7bea76d1b22de7963167aedee1c1b7438",
+   "text_args.g4.json": "78e4162028fa12247e30e1d39083c72692354c9e00717a4713cefa356807940d"
+  },
+  "alterations": [
+   {
+    "family": "loops",
+    "index": 116,
+    "before": {
+     "re": "^for\\ \\(mi,\\ mb\\)\\ in\\ list\\(\\&b\\[\"\\ \"\\]\\)\\.iter\\(\\)\\.enumerate\\(\\)$",
+     "bound": "1",
+     "why": "I104 SQ B1 re-checked, kept (1): RS reader (:747 g3, :3616 g8): body.material_bases: the producer emits one material basis (D1.5's one default basis) whose case_indices name every case (retained_wire.rs material_basis). Was: G4 (T17 precommit reader at b1f80234dc): a receipt body array other than builds: cases, sources, material_bases, calls, groups, ordinary_attempts, product_attempts and legacy_source_work each hold <= 1 entry in D1 (one case, no combinations, one native call and run; retained_wire.rs one_case/one_run, finish)"
+    },
+    "after": {
+     "re": "^for\\ \\(mi,\\ mb\\)\\ in\\ list\\(\\&b\\[\"\\ \"\\]\\)\\.iter\\(\\)\\.enumerate\\(\\)$",
+     "bound": "cases",
+     "why": "B7a stage 1: one material basis per distinct requested selector"
+    }
+   },
+   {
+    "family": "loops",
+    "index": 218,
+    "before": {
+     "re": "^for term in force_terms$|^for force in force_terms \\.iter\\(\\) \\.filter",
+     "bound": "l",
+     "why": "G4 (R-1, newly reached on the repaired graph): force terms: one per nodal load primitive <= l (D1.7)"
+    },
+    "after": {
+     "re": "^for term in force_terms$|^for force in force_terms \\.iter\\(\\) \\.filter",
+     "bound": "12*l",
+     "why": "B7a stage 1: at most twelve formed terms per admitted full-span uniform input"
+    }
+   },
+   {
+    "family": "loops",
+    "index": 313,
+    "before": {
+     "re": "span\\.start_fraction|uniform_intensities",
+     "bound": "0",
+     "why": "D1.7: no element (distributed) loads, so no load spans (PP lib.rs:9999-10015 at b1f80234dc). G4 (RV84 S-2): bare `intensity` removed (it matched the 3-accumulator zip)"
+    },
+    "after": {
+     "re": "span\\.start_fraction|uniform_intensities",
+     "bound": "l",
+     "why": "B7a stage 1: at most one full-span uniform contribution per admitted input"
+    }
+   },
+   {
+    "family": "fn_zero",
+    "index": 19,
+    "before": {
+     "fn": "lib.rs:10631:add_uniform_element_loads",
+     "why": "D1.7: iterates load_application.element_uniform_loads (lib.rs:3223-3226), empty for nodal-only loads; every text site is inside that loop"
+    },
+    "why": "already-admitted full-span uniform loads execute this owner"
+   },
+   {
+    "family": "edge_zero",
+    "index": 0,
+    "before": {
+     "caller": "formation_guard.rs:297:load_row_finding",
+     "callee": "formation_guard.rs:216:decide_row",
+     "why": "D1.7 nodal-only loads: every formation slot is None, so load_row_finding returns at its has_formation_records() check (formation_guard.rs:303-305; FK load_ledger.rs:307-309; I54 correction ADDENDUM)"
+    },
+    "why": "already-admitted full-span uniform loads execute this owner"
+   },
+   {
+    "family": "id_audit",
+    "key": "core/solver/frame_kernel/src/structural/retained/adaptive.rs:5082",
+    "after": "core/solver/frame_kernel/src/structural/retained/adaptive.rs:5229",
+    "why": "same source clone in the extracted batch body; full audit retained"
+   },
+   {
+    "family": "id_audit",
+    "key": "core/product_physics/src/lib.rs:10230",
+    "field": "basis_record",
+    "bytes": 2914
+   },
+   {
+    "family": "join_rules",
+    "before": {
+     "re": "^provenance_records$",
+     "bytes": "8*(128+200)+8*3",
+     "why": "composite_text provenance_join"
+    },
+    "after": {
+     "re": "^provenance_records$",
+     "bytes": "2701",
+     "why": "B7a named point: four 673-byte records plus three 3-byte separators"
+    }
+   },
+   {
+    "family": "lex_site_size",
+    "key": "retained_product.rs:3775",
+    "class": 2914
+   },
+   {
+    "family": "args_first",
+    "rule": {
+     "re": "^(basis_record|metadata\\.basis|basis_label)$",
+     "max": 2914,
+     "why": "B7a named point aggregate record: 85+128+4*(161+4*128)+9 bytes"
+    }
+   }
+  ]
+ },
+ "b7a_formed_ownership": {
+  "full_raw_source_fingerprints": {
+   "core/product_physics/src/lib.rs": "fc58bd265cf557a333d37e89a27e6e196ffdfdd2883446c92830be00b0a5586b",
+   "core/product_physics/src/certified_loads.rs": "da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73",
+   "core/product_physics/src/retained_product.rs": "7f8ac0d3654432e08e419619fe04a391c2776e7a7dfe01cbca067e52e68c505f",
+   "core/product_physics/src/retained_wire.rs": "1e1e60a02279771574f84df2b45628622936774a879a092842faa1e2f5f0f937",
+   "core/product_physics/src/certified_publication.rs": "54ae0639313c3e5785c9e65f1a9574b535bc3dbe94b49a5788b7f976f935c57a",
+   "core/solver/frame_kernel/src/load_ledger.rs": "8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f",
+   "core/solver/frame_kernel/src/structural/formation_check.rs": "96b35424bd76fd7733b781241dd328aca91556372876df2a053cbdf2c7377e10",
+   "core/solver/frame_kernel/src/structural/certified_recovery.rs": "ef58e6c2ec74bad85b991c344a2127a78145af2a22d8656bbeb699ad097c1e49",
+   "core/loads/primitive_loads/src/lib.rs": "2273116392aa15f020000e1fe7815a2127fcc0548095a2f12dd034d0f7e37802",
+   "core/solver/straight_pipe/src/lib.rs": "9a4cb59ab52b6f4340fbd74bab9c83847b89691835d0e043a4971b261df452f7",
+   "core/product_physics/src/preview_physics.rs": "19a3134e33454831a961efbf822428650fc23df84ed4d9da07c548c3c607c4c4",
+   "core/reporting/result_export/src/retained_precision.rs": "09f8dbd4d0ebf066d669a6708236a897fa7f577e2a32ade7ea3bb1960da72200",
+   "core/product_physics/src/model_format.rs": "e97d154f8feccad08214eb7ada9006a332dbd8255fa89040f9250c5538d25791",
+   "core/product_physics/src/pressure_runtime.rs": "76630dd7ee61ab8c4824768974491341cdad9b54c196c55ab958b83fb58027c1",
+   "core/product_physics/src/source_receipt.rs": "9ee47bc14c5fd2885010f16a9de396f0085335481de75d1df1af2bc6eba241c5",
+   "core/product_physics/src/exact_admission.rs": "87c301c15eb973d0483e2e56225b602b5434cfa4b66a38a64b4bad7ce55d6b1a",
+   "core/product_physics/src/case_state/mod.rs": "633b46de9fb4fdd5d213efbba1405e65afbc291ad8f9848096596fce27b06fab",
+   "core/solver/nonlinear_integration/src/structural_adapter.rs": "72c93deecae3a0a377a02b08d91ab99d18a44d80d9ddb662b1cf1becd782b093",
+   "core/solver/frame_kernel/src/lib.rs": "d127f6296bdce4c1eec91863e9f1e246a87b8e3c828b0ef41684d944b31e102d",
+   "core/reporting/result_export/src/semantic_contract.rs": "0ae698a0e1d32c7915a1e6d461c7c4e9c36a2c8c34f8faa9cf1a55d447fc5327",
+   "core/reporting/result_export/src/physics_source.rs": "a6d0389c3acda1b6eda0c58c419e5f6f28004a711459bea8f6e7735af0121a9d"
+  },
+  "admission_caps_sha256": "e6759d84e480f0480f381933d4d36d9891f103158c35874fc7dd4acae7d9e71d",
+  "family_clauses_sha256": "4deeb3d3495fe1a4fcc25131edfa513ff8df55215d113162d4f81cf275de01bd",
+  "admission_prefix_sha256": "ae99b6a04b897fe15104e0b33d12de9ec6ef5827663f6c437a807c49226934a7",
+  "admission_late_sha256": {
+   "law_order": "b0f9eae8c2d716f14cfda1ff895a65d7833b086383ec34154b501daa1ac344a3",
+   "admit": "67334c60ce1a606b5cd73e2715474cfc40150a11def9143752993af4c79904c8",
+   "admission": "7627646ef640f23a095bab2f355c7576e1ff79baeb2a9ea44be4550765f60003"
+  },
+  "formation_leaf_seam": true,
+  "model_sha256": "b1853a8c7b1bb12d332cf608ab10ede19df87af3c5f3217287dee4896e99a0f3",
+  "formed_terms_per_input": 12,
+  "manifest_operand_words": 26,
+  "basis_material_count": 4,
+  "named_basis_count": 3,
+  "reader_static_owners": [
+   [
+    "core/reporting/result_export/src/semantic_contract.rs:preview_physics_timoshenko_contract",
+    "fixtures/results/semantic_contract_v0_3_preview_physics_timoshenko_1.json"
+   ],
+   [
+    "core/reporting/result_export/src/physics_source.rs:schema",
+    "schemas/physics_source_recovery.schema.json"
+   ],
+   [
+    "core/reporting/result_export/src/retained_precision.rs:schema",
+    "schemas/retained_precision_mp_v2.schema.json"
+   ],
+   [
+    "core/reporting/result_export/src/retained_precision.rs:definition",
+    "fixtures/results/retained_precision_prepared_ordinary_v1.json"
+   ],
+   [
+    "core/reporting/result_export/src/retained_precision.rs:table",
+    "fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json"
+   ],
+   [
+    "core/reporting/result_export/src/semantic_contract.rs:preview_physics_contract",
+    "fixtures/results/semantic_contract_v0_3_preview_physics_2.json"
+   ],
+   [
+    "core/reporting/result_export/src/retained_precision.rs:combination_definition",
+    "fixtures/results/retained_precision_prepared_combination_v1.json"
+   ],
+   [
+    "core/reporting/result_export/src/retained_precision.rs:exact_definition",
+    "fixtures/results/retained_precision_prepared_exact_v1.json"
+   ],
+   [
+    "core/reporting/result_export/src/semantic_contract.rs:physics_retained_contract",
+    "fixtures/results/semantic_contract_v0_3_physics_retained_1.json"
+   ],
+   [
+    "core/reporting/result_export/src/semantic_contract.rs:preview_physics_retained_contract",
+    "fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json"
+   ],
+   [
+    "core/reporting/result_export/src/retained_precision.rs:exact_table",
+    "fixtures/results/semantic_contract_v0_3_physics_retained_1.json"
+   ],
+   [
+    "core/reporting/result_export/src/semantic_contract.rs:pressure_source_contract",
+    "fixtures/results/semantic_contract_v0_3_pressure_source_1.json"
+   ],
+   [
+    "core/reporting/result_export/src/semantic_contract.rs:pressure_rows_contract",
+    "fixtures/results/semantic_contract_v0_3_pressure_2.json"
+   ],
+   [
+    "core/reporting/result_export/src/load_reference.rs:transport_schema",
+    "schemas/load_reference_state.schema.json"
+   ]
+  ],
+  "resident_json_inputs": [
+   "fixtures/results/semantic_contract_v0_3_preview_physics_timoshenko_1.json",
+   "schemas/physics_source_recovery.schema.json",
+   "schemas/retained_precision_mp_v2.schema.json",
+   "fixtures/results/retained_precision_prepared_ordinary_v1.json",
+   "fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+   "fixtures/results/semantic_contract_v0_3_preview_physics_2.json",
+   "fixtures/results/retained_precision_prepared_combination_v1.json",
+   "fixtures/results/retained_precision_prepared_exact_v1.json",
+   "fixtures/results/semantic_contract_v0_3_physics_retained_1.json",
+   "fixtures/results/semantic_contract_v0_3_pressure_source_1.json",
+   "fixtures/results/semantic_contract_v0_3_pressure_2.json",
+   "schemas/load_reference_state.schema.json"
+  ],
+  "formation_raw_fingerprints": {
+   "core/product_physics/src/formation_guard.rs": "ac8e4c8a84e29b42020133ab36ad73ff74d1ad298cbb2591348503315a83a27b",
+   "core/product_physics/src/self_weight.rs": "9e7bf2e067dcd164877d343a0a1c4c896185f748ef8bab7204718bf5c8248a44",
+   "core/product_physics/src/source_receipt/source.rs": "384140db918da65d5e76dd601cd0a2068ae2a098379b41c6907069cf99ced419",
+   "core/solver/frame_kernel/src/structural.rs": "aa0080f73bd4b2e7b5e47a330afaab8a808e10ad55aa040ab61d52dc039755b7",
+   "core/product_physics/src/source_recovery.rs": "49aa5d3e4343a0d0b13ae4e8e0d5e1e5bf25dca592ab43a34cbec3f3eee1f5ef",
+   "core/solver/frame_kernel/src/structural/sparse.rs": "446e2e67b2edd27d43cea086c2ca079af3f77f6bc67ae47156f1f4418b933683"
+  },
+  "formation_model_sha256": "eec6c16ffd4e566fa6770d0fded11a83cb672a875958ed283a0fdd610355723c",
+  "owned_first_error_sources": {
+   "formation_guard_sources": {
+    "full_raw_source_fingerprints": {
+     "core/product_physics/src/lib.rs": "fc58bd265cf557a333d37e89a27e6e196ffdfdd2883446c92830be00b0a5586b",
+     "core/product_physics/src/certified_loads.rs": "da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73",
+     "core/product_physics/src/retained_product.rs": "7f8ac0d3654432e08e419619fe04a391c2776e7a7dfe01cbca067e52e68c505f",
+     "core/product_physics/src/retained_wire.rs": "1e1e60a02279771574f84df2b45628622936774a879a092842faa1e2f5f0f937",
+     "core/product_physics/src/certified_publication.rs": "54ae0639313c3e5785c9e65f1a9574b535bc3dbe94b49a5788b7f976f935c57a",
+     "core/solver/frame_kernel/src/load_ledger.rs": "8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f",
+     "core/solver/frame_kernel/src/structural/formation_check.rs": "96b35424bd76fd7733b781241dd328aca91556372876df2a053cbdf2c7377e10",
+     "core/solver/frame_kernel/src/structural/certified_recovery.rs": "ef58e6c2ec74bad85b991c344a2127a78145af2a22d8656bbeb699ad097c1e49",
+     "core/loads/primitive_loads/src/lib.rs": "2273116392aa15f020000e1fe7815a2127fcc0548095a2f12dd034d0f7e37802",
+     "core/solver/straight_pipe/src/lib.rs": "9a4cb59ab52b6f4340fbd74bab9c83847b89691835d0e043a4971b261df452f7",
+     "core/product_physics/src/preview_physics.rs": "19a3134e33454831a961efbf822428650fc23df84ed4d9da07c548c3c607c4c4",
+     "core/reporting/result_export/src/retained_precision.rs": "09f8dbd4d0ebf066d669a6708236a897fa7f577e2a32ade7ea3bb1960da72200",
+     "core/product_physics/src/model_format.rs": "e97d154f8feccad08214eb7ada9006a332dbd8255fa89040f9250c5538d25791",
+     "core/product_physics/src/pressure_runtime.rs": "76630dd7ee61ab8c4824768974491341cdad9b54c196c55ab958b83fb58027c1",
+     "core/product_physics/src/source_receipt.rs": "9ee47bc14c5fd2885010f16a9de396f0085335481de75d1df1af2bc6eba241c5",
+     "core/product_physics/src/exact_admission.rs": "87c301c15eb973d0483e2e56225b602b5434cfa4b66a38a64b4bad7ce55d6b1a",
+     "core/product_physics/src/case_state/mod.rs": "633b46de9fb4fdd5d213efbba1405e65afbc291ad8f9848096596fce27b06fab",
+     "core/solver/nonlinear_integration/src/structural_adapter.rs": "72c93deecae3a0a377a02b08d91ab99d18a44d80d9ddb662b1cf1becd782b093",
+     "core/solver/frame_kernel/src/lib.rs": "d127f6296bdce4c1eec91863e9f1e246a87b8e3c828b0ef41684d944b31e102d",
+     "core/reporting/result_export/src/semantic_contract.rs": "0ae698a0e1d32c7915a1e6d461c7c4e9c36a2c8c34f8faa9cf1a55d447fc5327",
+     "core/reporting/result_export/src/physics_source.rs": "a6d0389c3acda1b6eda0c58c419e5f6f28004a711459bea8f6e7735af0121a9d"
+    },
+    "admission_caps_sha256": "e6759d84e480f0480f381933d4d36d9891f103158c35874fc7dd4acae7d9e71d",
+    "family_clauses_sha256": "4deeb3d3495fe1a4fcc25131edfa513ff8df55215d113162d4f81cf275de01bd",
+    "admission_prefix_sha256": "ae99b6a04b897fe15104e0b33d12de9ec6ef5827663f6c437a807c49226934a7",
+    "admission_late_sha256": {
+     "law_order": "b0f9eae8c2d716f14cfda1ff895a65d7833b086383ec34154b501daa1ac344a3",
+     "admit": "67334c60ce1a606b5cd73e2715474cfc40150a11def9143752993af4c79904c8",
+     "admission": "7627646ef640f23a095bab2f355c7576e1ff79baeb2a9ea44be4550765f60003"
+    },
+    "formation_leaf_seam": true,
+    "model_sha256": "b1853a8c7b1bb12d332cf608ab10ede19df87af3c5f3217287dee4896e99a0f3",
+    "formed_terms_per_input": 12,
+    "manifest_operand_words": 26,
+    "basis_material_count": 4,
+    "named_basis_count": 3,
+    "reader_static_owners": [
+     [
+      "core/reporting/result_export/src/semantic_contract.rs:preview_physics_timoshenko_contract",
+      "fixtures/results/semantic_contract_v0_3_preview_physics_timoshenko_1.json"
+     ],
+     [
+      "core/reporting/result_export/src/physics_source.rs:schema",
+      "schemas/physics_source_recovery.schema.json"
+     ],
+     [
+      "core/reporting/result_export/src/retained_precision.rs:schema",
+      "schemas/retained_precision_mp_v2.schema.json"
+     ],
+     [
+      "core/reporting/result_export/src/retained_precision.rs:definition",
+      "fixtures/results/retained_precision_prepared_ordinary_v1.json"
+     ],
+     [
+      "core/reporting/result_export/src/retained_precision.rs:table",
+      "fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json"
+     ],
+     [
+      "core/reporting/result_export/src/semantic_contract.rs:preview_physics_contract",
+      "fixtures/results/semantic_contract_v0_3_preview_physics_2.json"
+     ],
+     [
+      "core/reporting/result_export/src/retained_precision.rs:combination_definition",
+      "fixtures/results/retained_precision_prepared_combination_v1.json"
+     ],
+     [
+      "core/reporting/result_export/src/retained_precision.rs:exact_definition",
+      "fixtures/results/retained_precision_prepared_exact_v1.json"
+     ],
+     [
+      "core/reporting/result_export/src/semantic_contract.rs:physics_retained_contract",
+      "fixtures/results/semantic_contract_v0_3_physics_retained_1.json"
+     ],
+     [
+      "core/reporting/result_export/src/semantic_contract.rs:preview_physics_retained_contract",
+      "fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json"
+     ],
+     [
+      "core/reporting/result_export/src/retained_precision.rs:exact_table",
+      "fixtures/results/semantic_contract_v0_3_physics_retained_1.json"
+     ],
+     [
+      "core/reporting/result_export/src/semantic_contract.rs:pressure_source_contract",
+      "fixtures/results/semantic_contract_v0_3_pressure_source_1.json"
+     ],
+     [
+      "core/reporting/result_export/src/semantic_contract.rs:pressure_rows_contract",
+      "fixtures/results/semantic_contract_v0_3_pressure_2.json"
+     ],
+     [
+      "core/reporting/result_export/src/load_reference.rs:transport_schema",
+      "schemas/load_reference_state.schema.json"
+     ]
+    ],
+    "resident_json_inputs": [
+     "fixtures/results/semantic_contract_v0_3_preview_physics_timoshenko_1.json",
+     "schemas/physics_source_recovery.schema.json",
+     "schemas/retained_precision_mp_v2.schema.json",
+     "fixtures/results/retained_precision_prepared_ordinary_v1.json",
+     "fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
+     "fixtures/results/semantic_contract_v0_3_preview_physics_2.json",
+     "fixtures/results/retained_precision_prepared_combination_v1.json",
+     "fixtures/results/retained_precision_prepared_exact_v1.json",
+     "fixtures/results/semantic_contract_v0_3_physics_retained_1.json",
+     "fixtures/results/semantic_contract_v0_3_pressure_source_1.json",
+     "fixtures/results/semantic_contract_v0_3_pressure_2.json",
+     "schemas/load_reference_state.schema.json"
+    ],
+    "formation_raw_fingerprints": {
+     "core/product_physics/src/formation_guard.rs": "ac8e4c8a84e29b42020133ab36ad73ff74d1ad298cbb2591348503315a83a27b",
+     "core/product_physics/src/self_weight.rs": "9e7bf2e067dcd164877d343a0a1c4c896185f748ef8bab7204718bf5c8248a44",
+     "core/product_physics/src/source_receipt/source.rs": "384140db918da65d5e76dd601cd0a2068ae2a098379b41c6907069cf99ced419",
+     "core/solver/frame_kernel/src/structural.rs": "aa0080f73bd4b2e7b5e47a330afaab8a808e10ad55aa040ab61d52dc039755b7",
+     "core/product_physics/src/source_recovery.rs": "49aa5d3e4343a0d0b13ae4e8e0d5e1e5bf25dca592ab43a34cbec3f3eee1f5ef",
+     "core/solver/frame_kernel/src/structural/sparse.rs": "446e2e67b2edd27d43cea086c2ca079af3f77f6bc67ae47156f1f4418b933683"
+    },
+    "formation_model_sha256": "eec6c16ffd4e566fa6770d0fded11a83cb672a875958ed283a0fdd610355723c"
+   },
+   "owned_error_source_fingerprints": {
+    "core/solver/frame_kernel/src/exact_sum.rs": "3a847f8dbaa74768603c4d9693b538f1f63c2d172026ed7ab400aea3b4800f67",
+    "core/solver/curved_bend/src/lib.rs": "6166e6c27247955ccabfbb8a51bbd5ebe6589bbc49b5a62b096ef0c0b8798a1c"
+   },
+   "model_sha256": "efbb8fd16da66f638685fce736b453b0d06526a511ff28ff4a602d1b81cdaef9"
+  },
+  "input_files": {
+   "loop_bounds.g4.json": "f7f1556ac464e792c80698a8696984f7bea76d1b22de7963167aedee1c1b7438",
+   "text_args.g4.json": "78e4162028fa12247e30e1d39083c72692354c9e00717a4713cefa356807940d"
+  },
+  "alterations": [
+   {
+    "family": "loops",
+    "index": 211,
+    "before": {
+     "re": "^iter:terms\\.iter\\(\\)\\.map$",
+     "bound": "l",
+     "why": "G4 (R-1, newly reached): structural.rs:1098 row_sources: the force terms of one row <= l"
+    },
+    "after": {
+     "re": "^iter:terms\\.iter\\(\\)\\.map$",
+     "bound": "12*l",
+     "why": "B7a q<=12*l positive force-term upper; input-count owners retain l. Was: G4 (R-1, newly reached): structural.rs:1098 row_sources: the force terms of one row <= l"
+    }
+   },
+   {
+    "family": "loops",
+    "index": 225,
+    "before": {
+     "re": "^for t in &d\\.terms$",
+     "bound": "144*m+s+l",
+     "why": "G4 (R-1, newly reached on the repaired graph): terms of one descriptor <= contributions + springs + force terms"
+    },
+    "after": {
+     "re": "^for t in &d\\.terms$",
+     "bound": "144*m+s+12*l",
+     "why": "B7a q<=12*l positive force-term upper; input-count owners retain l. Was: G4 (R-1, newly reached on the repaired graph): terms of one descriptor <= contributions + springs + force terms"
+    }
+   },
+   {
+    "family": "loops",
+    "index": 265,
+    "before": {
+     "re": "^for \\(i, t\\) in d\\.terms\\.iter\\(\\)\\.enumerate\\(\\)$",
+     "bound": "144*m+s+l",
+     "why": "terms of one descriptor <= contributions + springs + force terms"
+    },
+    "after": {
+     "re": "^for \\(i, t\\) in d\\.terms\\.iter\\(\\)\\.enumerate\\(\\)$",
+     "bound": "144*m+s+12*l",
+     "why": "B7a q<=12*l positive force-term upper; input-count owners retain l. Was: terms of one descriptor <= contributions + springs + force terms"
+    }
+   },
+   {
+    "family": "loops",
+    "index": 276,
+    "before": {
+     "re": "^for &index in indices$|^for \\(index, term\\) in self\\.terms\\.iter\\(\\)\\.enumerate\\(\\)$|^iter:self \\.terms \\.iter\\(\\)\\.map$",
+     "bound": "l",
+     "why": "load ledger terms and per-DOF index lists <= l nodal terms"
+    },
+    "after": {
+     "re": "^for &index in indices$|^for \\(index, term\\) in self\\.terms\\.iter\\(\\)\\.enumerate\\(\\)$|^iter:self \\.terms \\.iter\\(\\)\\.map$",
+     "bound": "12*l",
+     "why": "B7a q<=12*l positive force-term upper; input-count owners retain l. Was: load ledger terms and per-DOF index lists <= l nodal terms"
+    }
+   },
+   {
+    "family": "loops",
+    "index": 222,
+    "before": {
+     "re": "^iter:\" \":forces\\.iter\\(\\)\\.map$",
+     "bound": "l",
+     "why": "G4 (R-1, newly reached on the repaired graph): source.rs:376 commitment force_terms: <= l nodal force terms"
+    },
+    "after": {
+     "re": "^iter:\" \":forces\\.iter\\(\\)\\.map$",
+     "bound": "12*l",
+     "why": "B7a q<=12*l positive force-term upper; input-count owners retain l. Was: G4 (R-1, newly reached on the repaired graph): source.rs:376 commitment force_terms: <= l nodal force terms"
+    }
+   },
+   {
+    "family": "loops",
+    "index": 226,
+    "before": {
+     "re": "^for product in &row\\.offset$",
+     "bound": "144*m+s+l",
+     "why": "G4 (R-1, newly reached on the repaired graph): source_recovery.rs:1412 append_scaled_products: offset products of one row <= the descriptor bound"
+    },
+    "after": {
+     "re": "^for product in &row\\.offset$",
+     "bound": "144*m+s+12*l",
+     "why": "B7a q<=12*l positive force-term upper; input-count owners retain l. Was: G4 (R-1, newly reached on the repaired graph): source_recovery.rs:1412 append_scaled_products: offset products of one row <= the descriptor bound"
+    }
+   },
+   {
+    "family": "loops",
+    "index": 219,
+    "before": {
+     "re": "^for &component in scaled_intended$",
+     "bound": "l",
+     "why": "G4 (R-1, newly reached on the repaired graph): load_ledger.rs:595 add_defect: the scaled intended components of one DOF row <= its force terms <= l"
+    },
+    "after": {
+     "re": "^for &component in scaled_intended$",
+     "bound": "max(l,80)",
+     "why": "B7a q<=12*l positive force-term upper; input-count owners retain l. Was: G4 (R-1, newly reached on the repaired graph): load_ledger.rs:595 add_defect: the scaled intended components of one DOF row <= its force terms <= l"
+    }
+   },
+   {
+    "family": "loops",
+    "index": 256,
+    "before": {
+     "re": "old\\.loads\\(\\)|^for f in forces$",
+     "bound": "l",
+     "why": "nodal loads/forces <= l"
+    },
+    "after": [
+     {
+      "re": "old\\.loads\\(\\)",
+      "bound": "l",
+      "why": "B7a: PrimitiveSource.loads is the authored nodal input vector; unchanged input-count bound"
+     },
+     {
+      "re": "^for f in forces$",
+      "bound": "12*l",
+      "why": "B7a: emitted AssembledForce terms have q<=12*l; source constructor is guarded"
+     }
+    ]
+   },
+   {
+    "family": "site_zero",
+    "key": "formation_guard.rs:315",
+    "before": "after load_row_finding's has_formation_records() early return (formation_guard.rs:303-305); D1.7 nodal-only loads carry no formation records"
+   },
+   {
+    "family": "site_zero",
+    "key": "formation_guard.rs:320",
+    "before": "same early return"
+   },
+   {
+    "family": "site_zero",
+    "key": "self_weight.rs:814",
+    "before": "D1.7: the deterministic-identity format! is only in the Element-target arm (self_weight.rs:811-821); every D1 load has a Node target"
+   },
+   {
+    "family": "site_total",
+    "key": "load_ledger.rs:133",
+    "before": "5*cases*l*2*128",
+    "after": "5*cases*(12*l)*2*128"
+   },
+   {
+    "family": "site_total",
+    "key": "load_ledger.rs:408",
+    "before": "4*cases*l*2*128",
+    "after": "4*cases*(12*l)*2*128"
+   },
+   {
+    "family": "site_total",
+    "key": "load_ledger.rs:670",
+    "before": "5*cases*l*2*128",
+    "after": "10*cases*(12*l)*2*128"
+   },
+   {
+    "family": "site_from",
+    "key": "structural.rs:1103",
+    "before": {
+     "from": [
+      "structural.rs:1041:audit_load_fidelity",
+      "structural/sparse.rs:1815:audit_sparse_load_fidelity"
+     ],
+     "per": "2*l",
+     "why": "G4 (R-1, newly reached): row_sources clones one source id per force term of a row; over one audit call, every nodal force term sits on one DOF row, and each row calls at most unaudited_row and audit_load_row (structural.rs:1037-1180), so <= 2l clones per audit call"
+    },
+    "after": {
+     "from": [
+      "structural.rs:1041:audit_load_fidelity",
+      "structural/sparse.rs:1815:audit_sparse_load_fidelity"
+     ],
+     "per": "24*l",
+     "why": "B7a: both audited callers retain their complete2*q source-copy upper before row-local dedup; String128/capacity2 remain. Was: G4 (R-1, newly reached): row_sources clones one source id per force term of a row; over one audit call, every nodal force term sits on one DOF row, and each row calls at most unaudited_row and audit_load_row (structural.rs:1037-1180), so <= 2l clones per audit call"
+    }
+   },
+   {
+    "family": "site_aggregate",
+    "key": "lib.rs:1273",
+    "before": {
+     "absorbs": "report \\.rows",
+     "bytes": "N*(46+2*20+7+5+8)+l*(2+6*128+2+2)+2*N",
+     "why": "per call: the unaudited-row strings over all N rows; sum over rows of each row's sources Debug <= all l identified sources once (each nodal force term sits on one DOF row), so the sources part is l*(str Debug 6*128+2 plus separator) in total, not per row"
+    },
+    "after": {
+     "absorbs": "report \\.rows",
+     "bytes": "N*(46+2*20+7+5+8)+(12*l)*(2+10*128+2+2)+2*N",
+     "why": "B7a: <=q source entries across all DOF rows, with independent10-byte Debug escape upper; every fixed scalar/row/bracket term stays. Was: per call: the unaudited-row strings over all N rows; sum over rows of each row's sources Debug <= all l identified sources once (each nodal force term sits on one DOF row), so the sources part is l*(str Debug 6*128+2 plus separator) in total, not per row"
+    }
+   },
+   {
+    "family": "site_aggregate",
+    "key": "lib.rs:1277",
+    "before": {
+     "absorbs": "report \\.rows",
+     "bytes": "N*(165+2*20+2*16+2*24+20+24+8)+l*(2+6*128+2+2)+2*N",
+     "why": "per call: as lib.rs:1266 for the audited-row template (two {:016x}, three {:?} f64, one usize); sources over all rows <= l"
+    },
+    "after": {
+     "absorbs": "report \\.rows",
+     "bytes": "N*(165+2*20+2*16+2*24+20+24+8)+(12*l)*(2+10*128+2+2)+2*N",
+     "why": "B7a: <=q source entries across all DOF rows, with independent10-byte Debug escape upper; every fixed scalar/row/bracket term stays. Was: per call: as lib.rs:1266 for the audited-row template (two {:016x}, three {:?} f64, one usize); sources over all rows <= l"
+    }
+   },
+   {
+    "family": "join_rules",
+    "before": {
+     "re": "^rows$",
+     "bytes": "N*(165+2*20+2*16+2*24+20+24+8+2)+l*(2+6*128+2+2)",
+     "why": "lib.rs:1290: the load-fidelity row strings (lib.rs:1266/1270) over N rows with all sources once"
+    },
+    "after": {
+     "re": "^rows$",
+     "bytes": "N*(165+2*20+2*16+2*24+20+24+8+2)+(12*l)*(2+10*128+2+2)+2*N",
+     "why": "B7a: complete row-string join with q aggregate source occurrences; fixed allowances and independent row brackets remain"
+    }
+   }
+  ],
+  "requested_site_totals": {
+   "formation_guard.rs:239": "2*cases*N*59",
+   "formation_guard.rs:241": "2*cases*(87*N+(2*N+(10*128+4)*(12*l)))",
+   "formation_guard.rs:251": "2*cases*(321*N+(2*N+(10*128+4)*(12*l)))",
+   "formation_guard.rs:322": "2*cases*(N*(600+2+321)+(2*N+(10*128+4)*(12*l)))"
+  },
+  "prepared_files": {
+   "loop_bounds.g4.json": "20a525c80e45b0ce5863ff413873d10f4fb9b81666a312b035d139ead0bfd7eb",
+   "text_args.g4.json": "e4eb6a11ffc191fcf67996e38a8926df90617f8a50e3fe5bdd557b44f1ad078f"
+  }
+ },
+ "linemap": {
+  "remapped": 888,
+  "unmapped": [],
+  "resolutions_used": [
+   [
+    "loop_bounds.g4.json/edge_zero[36]/callee",
+    "lib.rs:675:orientation",
+    {
+     "as": "deleted",
+     "why": "FK lib.rs at the basis defines fn orientation in impl FrameElement (604) and impl UserStiffnessElement (675); a601e3706d (T4-U3) deletes UserStiffnessElement with its impl, so where the count falls to 1 the definition left is FrameElement's and this key's is the one gone (DEL-04-08 retained-pricing-rules.md, section A)"
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/product_physics/src/preview_physics.rs:1093/key",
+    "core/product_physics/src/preview_physics.rs:1093",
+    {
+     "as": "deleted",
+     "fn": "imposed_displacement_refusal",
+     "why": "W-16 slice a (retained-pricing-rules.md \u00a78.23): the pressure-free route maps a support-targeted primitive into the prescribed boundary (imposed_motion.rs), so preview_physics.rs's pre-parse refusal fn imposed_displacement_refusal (basis 1080-1129: the offending tuple's three to_string()s at 1093-1095, the diagnostic id and message format!s at 1119 and 1122) and its one call in lib.rs's value dispatch are deleted with IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL; these ID-audit sites no longer exist"
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/product_physics/src/preview_physics.rs:1094/key",
+    "core/product_physics/src/preview_physics.rs:1094",
+    {
+     "as": "deleted",
+     "fn": "imposed_displacement_refusal",
+     "why": "W-16 slice a (retained-pricing-rules.md \u00a78.23): the pressure-free route maps a support-targeted primitive into the prescribed boundary (imposed_motion.rs), so preview_physics.rs's pre-parse refusal fn imposed_displacement_refusal (basis 1080-1129: the offending tuple's three to_string()s at 1093-1095, the diagnostic id and message format!s at 1119 and 1122) and its one call in lib.rs's value dispatch are deleted with IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL; these ID-audit sites no longer exist"
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/product_physics/src/preview_physics.rs:1095/key",
+    "core/product_physics/src/preview_physics.rs:1095",
+    {
+     "as": "deleted",
+     "fn": "imposed_displacement_refusal",
+     "why": "W-16 slice a (retained-pricing-rules.md \u00a78.23): the pressure-free route maps a support-targeted primitive into the prescribed boundary (imposed_motion.rs), so preview_physics.rs's pre-parse refusal fn imposed_displacement_refusal (basis 1080-1129: the offending tuple's three to_string()s at 1093-1095, the diagnostic id and message format!s at 1119 and 1122) and its one call in lib.rs's value dispatch are deleted with IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL; these ID-audit sites no longer exist"
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/product_physics/src/preview_physics.rs:1119/key",
+    "core/product_physics/src/preview_physics.rs:1119",
+    {
+     "as": "deleted",
+     "fn": "imposed_displacement_refusal",
+     "why": "W-16 slice a (retained-pricing-rules.md \u00a78.23): the pressure-free route maps a support-targeted primitive into the prescribed boundary (imposed_motion.rs), so preview_physics.rs's pre-parse refusal fn imposed_displacement_refusal (basis 1080-1129: the offending tuple's three to_string()s at 1093-1095, the diagnostic id and message format!s at 1119 and 1122) and its one call in lib.rs's value dispatch are deleted with IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL; these ID-audit sites no longer exist"
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/product_physics/src/preview_physics.rs:1122/key",
+    "core/product_physics/src/preview_physics.rs:1122",
+    {
+     "as": "deleted",
+     "fn": "imposed_displacement_refusal",
+     "why": "W-16 slice a (retained-pricing-rules.md \u00a78.23): the pressure-free route maps a support-targeted primitive into the prescribed boundary (imposed_motion.rs), so preview_physics.rs's pre-parse refusal fn imposed_displacement_refusal (basis 1080-1129: the offending tuple's three to_string()s at 1093-1095, the diagnostic id and message format!s at 1119 and 1122) and its one call in lib.rs's value dispatch are deleted with IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL; these ID-audit sites no longer exist"
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/reporting/result_export/src/load_reference_source.rs:47/key",
+    "core/reporting/result_export/src/load_reference_source.rs:47",
+    {
+     "as": "deleted",
+     "fn": "code",
+     "why": "B7b (A4/A5, 54018fe688): load_reference_source.rs is reduced to the current 16-line pre-pass (validate_pressure_source_evidence); the v2-era readers and their private fn code (the format! of SOURCE_LOAD_REFERENCE_{name}) are deleted with the load-reference-source-1 table, so this ID-audit site no longer exists (DEL-04-08 retained-pricing-rules.md, B7b)"
+    }
+   ],
+   [
+    "premise_pins.json/pins[1]/key",
+    "core/reporting/result_export/src/retained_precision.rs:5860",
+    {
+     "as": "text",
+     "text": "crate::combination_certificate::retained_base_read(|| crate::semantic_contract::for_source(&projected)).map_err(base_error)?;",
+     "fn": "gates_after_g0",
+     "why": "RT-A3 \u00a74 (retained-pricing-rules.md \u00a78.53; DEL-05-02 Work combination-certificate.md \u00a72) wraps G7's one base read in the retained read context: the call is still the retained reader's one semantic_contract::for_source on the projection, now inside combination_certificate::retained_base_read's closure (a thread-local flag set and restored around it); the line moved from validate to gates_after_g0 by an earlier refactor and was carried by offset until this rewrite"
+    }
+   ]
+  ],
+  "pruned": [
+   [
+    "callgraph_rules.g4.json/rules[65]",
+    {
+     "caller": "core/product_physics/src/retained_wire.rs:1695:typed_trace",
+     "name": "typed_trace",
+     "targets": [
+      "core/product_physics/src/retained_product.rs:6978:typed_trace"
+     ],
+     "added": "G4 (R-1 adjudication at b1f80234dc)",
+     "evidence": "retained_wire.rs:1485-1497 (U3): the SelectedCandidate impl for PrivatePreparedCandidate delegates with the path call `rp::PrivatePreparedCandidate::typed_trace(self)`; an inherent method takes precedence over the trait method in path resolution, so the target is the inherent PrivatePreparedCandidate::typed_trace, not this impl itself"
+    }
+   ],
+   [
+    "callgraph_rules.g4.json/rules[64]",
+    {
+     "caller": "core/product_physics/src/retained_wire.rs:1694:certificate",
+     "name": "certificate",
+     "targets": [
+      "core/product_physics/src/retained_product.rs:6067:certificate"
+     ],
+     "added": "G4 (R-1 adjudication at b1f80234dc)",
+     "evidence": "retained_wire.rs:1485-1497 (U3): the SelectedCandidate impl for PrivatePreparedCandidate delegates with the path call `rp::PrivatePreparedCandidate::certificate(self)`; an inherent method takes precedence over the trait method in path resolution, so the target is the inherent PrivatePreparedCandidate::certificate, not this impl itself"
+    }
+   ],
+   [
+    "callgraph_rules.g4.json/rules[63]",
+    {
+     "caller": "core/product_physics/src/retained_wire.rs:1693:capture",
+     "name": "capture",
+     "targets": [
+      "core/product_physics/src/retained_product.rs:6068:capture"
+     ],
+     "added": "G4 (R-1 adjudication at b1f80234dc)",
+     "evidence": "retained_wire.rs:1485-1497 (U3): the SelectedCandidate impl for PrivatePreparedCandidate delegates with the path call `rp::PrivatePreparedCandidate::capture(self)`; an inherent method takes precedence over the trait method in path resolution, so the target is the inherent PrivatePreparedCandidate::capture, not this impl itself"
+    }
+   ],
+   [
+    "loop_bounds.g4.json/edge_zero[57]",
+    {
+     "caller": "semantic_contract.rs:709:for_source",
+     "callee": "semantic_contract.rs:533:forbid_load_reference_evidence",
+     "why": "G4 (T17): the precommit reader validates project(successor), whose producer.semantic_contract_id is set to the literal preview-physics-1 id (retained_precision.rs:4243-4245), so for_source takes only the PREVIEW_PHYSICS_ID arm (semantic_contract.rs:344-370)"
+    }
+   ],
+   [
+    "loop_bounds.g4.json/edge_zero[56]",
+    {
+     "caller": "semantic_contract.rs:709:for_source",
+     "callee": "source_blocks.rs:669:validate",
+     "why": "G4 (T17): the precommit reader validates project(successor), whose producer.semantic_contract_id is set to the literal preview-physics-1 id (retained_precision.rs:4243-4245), so for_source takes only the PREVIEW_PHYSICS_ID arm (semantic_contract.rs:344-370)"
+    }
+   ],
+   [
+    "loop_bounds.g4.json/edge_zero[54]",
+    {
+     "caller": "semantic_contract.rs:709:for_source",
+     "callee": "physics_evidence.rs:319:validate_physics_evidence",
+     "why": "G4 (T17): the precommit reader validates project(successor), whose producer.semantic_contract_id is set to the literal preview-physics-1 id (retained_precision.rs:4243-4245), so for_source takes only the PREVIEW_PHYSICS_ID arm (semantic_contract.rs:344-370)"
+    }
+   ],
+   [
+    "loop_bounds.g4.json/edge_zero[53]",
+    {
+     "caller": "semantic_contract.rs:709:for_source",
+     "callee": "load_reference_source.rs:73:validate_load_reference_source_evidence",
+     "why": "G4 (T17): the precommit reader validates project(successor), whose producer.semantic_contract_id is set to the literal preview-physics-1 id (retained_precision.rs:4243-4245), so for_source takes only the PREVIEW_PHYSICS_ID arm (semantic_contract.rs:344-370)"
+    }
+   ],
+   [
+    "loop_bounds.g4.json/edge_zero[52]",
+    {
+     "caller": "semantic_contract.rs:709:for_source",
+     "callee": "load_reference.rs:349:validate_load_reference_evidence",
+     "why": "G4 (T17): the precommit reader validates project(successor), whose producer.semantic_contract_id is set to the literal preview-physics-1 id (retained_precision.rs:4243-4245), so for_source takes only the PREVIEW_PHYSICS_ID arm (semantic_contract.rs:344-370)"
+    }
+   ],
+   [
+    "loop_bounds.g4.json/edge_zero[36]",
+    {
+     "caller": "pressure_runtime.rs:727:build_pressure_case_with_members",
+     "callee": "lib.rs:675:orientation",
+     "why": "G4 (RV83 R-2 follow-through): build_pressure_case_with_members returns None at pressure_runtime.rs:436-438 when !is_exact(model) (D1.3), after validate_profile/has_blocking/is_exact and before this callee"
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/product_physics/src/lib.rs:3850/key",
+    {
+     "stable_suffix(load_case_id)": {
+      "bytes": 128,
+      "source": "IN128"
+     }
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/product_physics/src/lib.rs:3856/key",
+    {
+     "load_case_id": {
+      "bytes": 128,
+      "source": "IN128"
+     }
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/product_physics/src/lib.rs:3865/key",
+    {
+     "load_case_id": {
+      "bytes": 128,
+      "source": "IN128"
+     }
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/product_physics/src/lib.rs:4993/key",
+    {
+     "support.id": {
+      "bytes": 128,
+      "source": "IN128"
+     }
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/product_physics/src/lib.rs:5508/key",
+    {
+     "pipe.element_id": {
+      "bytes": 128,
+      "source": "IN128"
+     }
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/product_physics/src/lib.rs:5509/key",
+    {
+     "load_case.id": {
+      "bytes": 128,
+      "source": "IN128"
+     },
+     "pipe.element_id": {
+      "bytes": 128,
+      "source": "IN128"
+     }
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/product_physics/src/lib.rs:5562/key",
+    {
+     "pipe.element_id": {
+      "bytes": 128,
+      "source": "IN128"
+     }
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/product_physics/src/lib.rs:5563/key",
+    {
+     "load_case.id": {
+      "bytes": 128,
+      "source": "IN128"
+     },
+     "pipe.element_id": {
+      "bytes": 128,
+      "source": "IN128"
+     },
+     "stable_suffix(&pipe.element_id)": {
+      "bytes": 128,
+      "source": "IN128"
+     }
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/product_physics/src/lib.rs:6382/key",
+    {
+     "stable_suffix(load_case_id)": {
+      "bytes": 128,
+      "source": "IN128"
+     }
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/product_physics/src/lib.rs:6385/key",
+    {
+     "load_case_id": {
+      "bytes": 128,
+      "source": "IN128"
+     }
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/product_physics/src/lib.rs:6388/key",
+    {
+     "load_case_id": {
+      "bytes": 128,
+      "source": "IN128"
+     }
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/product_physics/src/lib.rs:6395/key",
+    {
+     "stable_suffix(load_case_id)": {
+      "bytes": 128,
+      "source": "IN128"
+     }
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/product_physics/src/lib.rs:6398/key",
+    {
+     "direct_system.dimension": {
+      "bytes": 128,
+      "source": "NUM"
+     }
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/product_physics/src/lib.rs:6403/key",
+    {
+     "load_case_id": {
+      "bytes": 128,
+      "source": "IN128"
+     }
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/product_physics/src/lib.rs:6416/key",
+    {
+     "stable_suffix(load_case_id)": {
+      "bytes": 128,
+      "source": "IN128"
+     }
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/product_physics/src/lib.rs:6419/key",
+    {
+     "load_case_id": {
+      "bytes": 128,
+      "source": "IN128"
+     }
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/product_physics/src/lib.rs:6422/key",
+    {
+     "load_case_id": {
+      "bytes": 128,
+      "source": "IN128"
+     }
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/product_physics/src/preview_physics.rs:1093/key",
+    {
+     "case_id": {
+      "bytes": 128,
+      "source": "IN128"
+     }
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/product_physics/src/preview_physics.rs:1094/key",
+    {
+     "load.get(\"\").and_then(|v|v.as_str()).unwrap_or(\"\")": {
+      "bytes": 128,
+      "source": "IN128"
+     }
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/product_physics/src/preview_physics.rs:1095/key",
+    {
+     "load.pointer(\"\").and_then(|v|v.as_str()).unwrap_or(\"\")": {
+      "bytes": 128,
+      "source": "IN128"
+     }
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/product_physics/src/preview_physics.rs:1119/key",
+    {
+     "identity(&[&case_id,&load_id])": {
+      "bytes": 600,
+      "source": "COMP"
+     }
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/product_physics/src/preview_physics.rs:1122/key",
+    {
+     "case_id": {
+      "bytes": 128,
+      "source": "IN128"
+     },
+     "load_id": {
+      "bytes": 128,
+      "source": "IN128"
+     },
+     "support_id": {
+      "bytes": 128,
+      "source": "IN128"
+     }
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/product_physics/src/retained_product.rs:483/key",
+    {
+     "diagnostic_ref": {
+      "bytes": 2330,
+      "source": "DIAG"
+     }
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/product_physics/src/source_receipt.rs:673/key",
+    {
+     "input.load_case.id": {
+      "bytes": 128,
+      "source": "IN128"
+     }
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/product_physics/src/source_receipt/rows.rs:544/key",
+    {
+     "stable_suffix(&m.member_id)": {
+      "bytes": 128,
+      "source": "IN128"
+     }
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/reporting/result_export/src/load_reference_source.rs:47/key",
+    {
+     "name": {
+      "bytes": 128,
+      "source": "STATIC"
+     }
+    }
+   ],
+   [
+    "text_args.g4.json/id_audit/core/reporting/result_export/src/retained_precision.rs:790/key",
+    {
+     "source": {
+      "bytes": 128,
+      "source": "STATIC"
+     }
+    }
+   ]
+  ]
+ },
+ "premise_pins": {
+  "pins": 2,
+  "bad": []
+ },
+ "off_build": [
+  "core/product_physics/src/w1_census_driver.rs",
+  "core/solver/frame_kernel/src/structural/retained/product_certificate/census_probe.rs"
+ ],
+ "points": {
+  "L_30": {
+   "error": "no result (job rc 1; logs/L_30.log)"
+  },
+  "L_21": {
+   "error": "no result (job rc 1; logs/L_21.log)"
+  },
+  "L_12": {
+   "error": "no result (job rc 1; logs/L_12.log)"
+  },
+  "E_30": {
+   "error": "no result (job rc 1; logs/E_30.log)"
+  }
+ },
+ "o10_check": {
+  "L": "not run (an incomplete point)",
+  "E": "not run (an incomplete point)"
+ }
+}

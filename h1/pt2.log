@@ -1,0 +1,40 @@
+........................................................................ [ 36%]
+..................................................FF.................... [ 72%]
+........................................................                 [100%]
+=================================== FAILURES ===================================
+________ test_the_lineage_edge_and_key_site_are_zero_on_both_routes[L] _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10ab5d160>
+route = 'L'
+
+    @pytest.mark.parametrize("route", ["L", "E"])
+    def test_the_lineage_edge_and_key_site_are_zero_on_both_routes(monkeypatch, route):
+        d = decisions(monkeypatch, route=route)
+        edges = [(a, b) for a, b, why in d["O10_EDGE_ZERO"] if "W15B-NS" in why]
+>       assert [(str(a).split(":")[-1], str(b).split(":")[-1]) for a, b in edges] == [("inspect_applied_self_weight", "generation_basis")]
+E       AssertionError: assert [('inspect_ap...', 'case_id')] == [('inspect_ap...ation_basis')]
+E         
+E         Left contains 2 more items, first extra item: ('inspect_applied_self_weight', 'of_case_in_place')
+E         Use -v to get more diff
+
+tools/retained_pricing/tests/test_w15b_component_weight.py:38: AssertionError
+________ test_the_lineage_edge_and_key_site_are_zero_on_both_routes[E] _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10b949080>
+route = 'E'
+
+    @pytest.mark.parametrize("route", ["L", "E"])
+    def test_the_lineage_edge_and_key_site_are_zero_on_both_routes(monkeypatch, route):
+        d = decisions(monkeypatch, route=route)
+        edges = [(a, b) for a, b, why in d["O10_EDGE_ZERO"] if "W15B-NS" in why]
+>       assert [(str(a).split(":")[-1], str(b).split(":")[-1]) for a, b in edges] == [("inspect_applied_self_weight", "generation_basis")]
+E       AssertionError: assert [('inspect_ap...', 'case_id')] == [('inspect_ap...ation_basis')]
+E         
+E         Left contains 2 more items, first extra item: ('inspect_applied_self_weight', 'of_case_in_place')
+E         Use -v to get more diff
+
+tools/retained_pricing/tests/test_w15b_component_weight.py:38: AssertionError
+=========================== short test summary info ============================
+FAILED tools/retained_pricing/tests/test_w15b_component_weight.py::test_the_lineage_edge_and_key_site_are_zero_on_both_routes[L]
+FAILED tools/retained_pricing/tests/test_w15b_component_weight.py::test_the_lineage_edge_and_key_site_are_zero_on_both_routes[E]
+2 failed, 198 passed in 633.80s (0:10:33)

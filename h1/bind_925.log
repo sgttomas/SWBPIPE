@@ -1,0 +1,5 @@
+{"L_30": {"error": "no result (job rc 1; logs/L_30.log)"}}
+{"L_21": {"error": "no result (job rc 1; logs/L_21.log)"}}
+{"L_12": {"error": "no result (job rc 1; logs/L_12.log)"}}
+{"E_30": {"error": "no result (job rc 1; logs/E_30.log)"}}
+{"rev": "925fcf122e", "incomplete": ["E_30", "L_12", "L_21", "L_30"], "o10_check": {"L": "not run (an incomplete point)", "E": "not run (an incomplete point)"}, "merge": null, "code": 5}

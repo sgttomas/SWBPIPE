@@ -1,0 +1,30 @@
+{
+  "outer_rc": 0,
+  "outcome": "success",
+  "seven_inner_passes": 7,
+  "inner_seconds": 15.916,
+  "armed_to_release_seconds": 15.948267,
+  "containment_verified": true,
+  "owned_group_members_after_return": [],
+  "owned_pids_absent": [
+    85605,
+    85607,
+    85608
+  ],
+  "owned_pending_absent": true,
+  "acquired_lock_marks": [
+    "cargo_job.lock_acquired",
+    "cargo_job.slot2.lock_acquired",
+    "cargo_job.slot3.lock_acquired",
+    "cargo_job.slot4.lock_acquired"
+  ],
+  "sentry_reaped_before_release": true,
+  "all_four_descriptors_closed_before_released_mark": "approved supervisor release() closes fds until empty before mark(released); success trace and controller absence confirm",
+  "source_and_frozen_binary_post_hashes_unchanged": true,
+  "stderr_equals_receipt_bytes": true,
+  "raw_paths": {
+    "supervisor.receipt.json": "/Users/ryan/dev/chirality-t3/scratch/rt-a3-s6-final/ac004/attempt-1/supervisor.receipt.json",
+    "inner.stdout.json": "/Users/ryan/dev/chirality-t3/scratch/rt-a3-s6-final/ac004/attempt-1/inner.stdout.json",
+    "combined.stderr.log": "/Users/ryan/dev/chirality-t3/scratch/rt-a3-s6-final/ac004/attempt-1/combined.stderr.log"
+  }
+}

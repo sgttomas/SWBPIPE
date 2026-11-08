@@ -1,0 +1,233 @@
+warning: unused variable: `x`
+   --> /Users/ryan/dev/chirality-t3/scratch/swbpipe-rt-s3-ce-publication/core/solver/frame_kernel/src/shear.rs:216:10
+    |
+216 |     let (x, t) = moduli_ratio_terms(e, g)?;
+    |          ^ help: if this is intentional, prefix it with an underscore: `_x`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_frame_kernel` (lib) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_frame_kernel` to apply 1 suggestion)
+warning: methods `add` and `signum` are never used
+   --> /Users/ryan/dev/chirality-t3/scratch/swbpipe-rt-s3-ce-publication/core/reporting/result_export/src/exact_combination_evidence.rs:257:8
+    |
+210 | impl ExactProducts {
+    | ------------------ methods in this implementation
+...
+257 |     fn add(&mut self, x: f64) {
+    |        ^^^
+...
+270 |     fn signum(&self) -> i8 {
+    |        ^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+   Compiling open_pipe_stress_product_physics v0.2.0 (/Users/ryan/dev/chirality-t3/scratch/swbpipe-rt-s3-ce-publication/core/product_physics)
+warning: unused doc comment
+   --> src/skew.rs:329:1
+    |
+329 | / /// Astra N5 (test only): each skew solve's lifted displacement and its lifted member bound,
+330 | | /// the inputs of the published `certify_displacement` rows.
+    | |_-----------------------------------------------------------^
+    |   |
+    |   rustdoc does not generate documentation for macro invocations
+    |
+    = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+    = note: `#[warn(unused_doc_comments)]` (part of `#[warn(unused)]`) on by default
+
+warning: unnecessary parentheses around function argument
+    --> src/retained_memory.rs:2288:27
+     |
+2288 | ...er((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), m...
+     |       ^                                                                                                                          ^
+     |
+     = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+help: remove these parentheses
+     |
+2288 -         (btree_node_upper((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), max_usize(4, fkr::KIND_ALIGN), 0, 1)) as u64, // Node(TrackerKey,()) (TrackerSet.holding: BTreeSet<(RuleTest, u32, Kind)>)
+2288 +         (btree_node_upper(up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN)), max_usize(4, fkr::KIND_ALIGN), 0, 1)) as u64, // Node(TrackerKey,()) (TrackerSet.holding: BTreeSet<(RuleTest, u32, Kind)>)
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/retained_memory.rs:2289:27
+     |
+2289 | ...er((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), m...
+     |       ^                                                                                                                          ^
+     |
+help: remove these parentheses
+     |
+2289 -         (btree_node_upper((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), max_usize(4, fkr::KIND_ALIGN), fkr::TRACKER, fkr::TRACKER_ALIGN)) as u64, // Node(TrackerKey,Tracker) (TrackerSet.trackers: BTreeMap<(RuleTest, u32, Kind), BoundedExtremeTracker>; RuleTest (private, fieldless) <= 1 byte)
+2289 +         (btree_node_upper(up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN)), max_usize(4, fkr::KIND_ALIGN), fkr::TRACKER, fkr::TRACKER_ALIGN)) as u64, // Node(TrackerKey,Tracker) (TrackerSet.trackers: BTreeMap<(RuleTest, u32, Kind), BoundedExtremeTracker>; RuleTest (private, fieldless) <= 1 byte)
+     |
+
+warning: unused import: `open_pipe_stress_frame_kernel::structural::retained_resource as fkr`
+    --> src/retained_memory_law_tests.rs:1881:9
+     |
+1881 |     use open_pipe_stress_frame_kernel::structural::retained_resource as fkr;
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+   --> src/source_recovery.rs:141:9
+    |
+140 | pub(super) struct SpringAction {
+    |                   ------------ fields in this struct
+141 |     pub support_id: String,
+    |         ^^^^^^^^^^
+142 |     pub global_dof: usize,
+    |         ^^^^^^^^^^
+143 |     pub value: f64,
+    |         ^^^^^
+144 |     pub functional_index: usize,
+    |         ^^^^^^^^^^^^^^^^
+    |
+    = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: multiple fields are never read
+   --> src/source_recovery.rs:166:9
+    |
+165 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+166 |     pub dofs: usize,
+    |         ^^^^
+167 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+168 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+171 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+172 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+173 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+174 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+175 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+178 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+179 |     pub max_relative_projection_error: f64,
+180 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `case_id` is never read
+  --> src/corrected_displacement_tests.rs:23:9
+   |
+22 | pub(crate) struct DisplacementPublication {
+   |                   ----------------------- field in this struct
+23 |     pub case_id: String,
+   |         ^^^^^^^
+   |
+   = note: `DisplacementPublication` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/silent_drop_unit_tests.rs:373:13
+    |
+371 |     pub struct MaterialInputAtMain {
+    |                ------------------- fields in this struct
+372 |         #[serde(default)]
+373 |         pub constitutive_basis: Option<String>,
+    |             ^^^^^^^^^^^^^^^^^^
+374 |         #[serde(default)]
+375 |         pub poisson_ratio: Option<Quantity>,
+    |             ^^^^^^^^^^^^^
+376 |         pub id: String,
+    |             ^^
+377 |         pub elastic_modulus: Quantity,
+    |             ^^^^^^^^^^^^^^^
+378 |         #[serde(default)]
+379 |         pub shear_modulus: Option<Quantity>,
+    |             ^^^^^^^^^^^^^
+380 |         #[serde(default)]
+381 |         pub thermal_expansion_coefficient: Option<Quantity>,
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+382 |         #[serde(default)]
+383 |         pub temperature_points: Vec<MaterialTemperaturePointInputAtMain>,
+    |             ^^^^^^^^^^^^^^^^^^
+384 |         #[serde(default)]
+385 |         pub provenance: Option<String>,
+    |             ^^^^^^^^^^
+    |
+    = note: `MaterialInputAtMain` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/silent_drop_unit_tests.rs:391:13
+    |
+389 |     pub struct MaterialTemperaturePointInputAtMain {
+    |                ----------------------------------- fields in this struct
+390 |         #[serde(default)]
+391 |         pub poisson_ratio: Option<Quantity>,
+    |             ^^^^^^^^^^^^^
+392 |         pub id: String,
+    |             ^^
+393 |         #[serde(default)]
+394 |         pub temperature: Option<Quantity>,
+    |             ^^^^^^^^^^^
+395 |         #[serde(default)]
+396 |         pub elastic_modulus: Option<Quantity>,
+    |             ^^^^^^^^^^^^^^^
+397 |         #[serde(default)]
+398 |         pub shear_modulus: Option<Quantity>,
+    |             ^^^^^^^^^^^^^
+399 |         #[serde(default)]
+400 |         pub thermal_expansion_coefficient: Option<Quantity>,
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+401 |         #[serde(default)]
+402 |         pub provenance: Option<String>,
+    |             ^^^^^^^^^^
+    |
+    = note: `MaterialTemperaturePointInputAtMain` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: function `success__t12_t15` should have a snake case name
+    --> src/retained_memory.rs:3187:25
+     |
+3187 |     pub(crate) const fn success__t12_t15(v: &[u64; ATOMS]) -> Option<u64> {
+     |                         ^^^^^^^^^^^^^^^^ help: convert the identifier to snake case: `success_t12_t15`
+     |
+     = note: `#[warn(non_snake_case)]` (part of `#[warn(nonstandard_style)]`) on by default
+
+warning: function `success__t16` should have a snake case name
+    --> src/retained_memory.rs:3191:25
+     |
+3191 |     pub(crate) const fn success__t16(v: &[u64; ATOMS]) -> Option<u64> {
+     |                         ^^^^^^^^^^^^ help: convert the identifier to snake case: `success_t16`
+
+warning: function `success__t17` should have a snake case name
+    --> src/retained_memory.rs:3195:25
+     |
+3195 |     pub(crate) const fn success__t17(v: &[u64; ATOMS]) -> Option<u64> {
+     |                         ^^^^^^^^^^^^ help: convert the identifier to snake case: `success_t17`
+
+warning: function `success__t25` should have a snake case name
+    --> src/retained_memory.rs:3199:25
+     |
+3199 |     pub(crate) const fn success__t25(v: &[u64; ATOMS]) -> Option<u64> {
+     |                         ^^^^^^^^^^^^ help: convert the identifier to snake case: `success_t25`
+
+warning: `open_pipe_stress_product_physics` (lib test) generated 13 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics --tests` to apply 3 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 28.49s
+     Running unittests src/lib.rs (targets/swbpipe-rt-s3-ce-publication/debug/deps/open_pipe_stress_product_physics-62b27dca07d2bb20)
+
+running 13 tests
+test exact_admission::tests::only_the_connector_the_realized_bend_the_rigid_family_the_branch_constant_effort_nonlinear_equivalent_static_and_combinations_are_admitted_and_each_v3_refusal_names_its_family ... ok
+test modal::tests_eigen::a_constant_effort_support_adds_no_stiffness_and_no_mass ... ok
+test preview_physics::tests::constant_effort_gate_withholds_a_factor_sum_it_cannot_evaluate ... ok
+test source_receipt::tests::constant_effort_supports_never_enter_a_plan ... ok
+test tests::constant_effort_applies_in_every_solved_load_case ... ok
+test tests::constant_effort_coexists_with_nonlinear_supports_and_nonlinear_field_precedence ... ok
+test tests::constant_effort_consumption_matches_superposition_identity ... ok
+test tests::constant_effort_direction_follows_declared_translational_dof_positive_axis ... ok
+test tests::constant_effort_missing_or_nonpositive_load_keeps_existing_blocking_and_no_defaults ... ok
+test tests::constant_effort_non_consuming_shapes_warn_without_force_or_blocking ... ok
+test tests::constant_effort_support_actions_restate_consumption_with_and_without_certification ... ok
+test tests::constant_effort_user_limit_comparison_warns_from_user_data_only ... ok
+test tests::models_without_constant_effort_supports_are_untouched_by_the_consumption_path ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 1231 filtered out; finished in 0.89s
+

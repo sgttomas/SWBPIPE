@@ -1,0 +1,267 @@
+   Compiling open_pipe_stress_correct_norm v0.1.0 (/Users/ryan/.t3/worktrees/swbpipe/t3-86902ce5/core/numerics/correct_norm)
+   Compiling proc-macro2 v1.0.106
+   Compiling version_check v0.9.5
+   Compiling quote v1.0.45
+   Compiling unicode-ident v1.0.24
+   Compiling serde_core v1.0.228
+   Compiling typenum v1.20.1
+   Compiling libc v0.2.189
+   Compiling zmij v1.0.21
+   Compiling serde v1.0.228
+   Compiling serde_json v1.0.149
+   Compiling memchr v2.8.0
+   Compiling itoa v1.0.18
+   Compiling cfg-if v1.0.5
+   Compiling ryu v1.0.23
+   Compiling open_pipe_stress_units v0.1.0 (/Users/ryan/.t3/worktrees/swbpipe/t3-86902ce5/core/units)
+   Compiling open_pipe_stress_product_physics v0.2.0 (/Users/ryan/.t3/worktrees/swbpipe/t3-86902ce5/core/product_physics)
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (/Users/ryan/.t3/worktrees/swbpipe/t3-86902ce5/core/solver/frame_kernel)
+   Compiling generic-array v0.14.7
+   Compiling syn v2.0.117
+   Compiling cpufeatures v0.2.17
+   Compiling serde_derive v1.0.228
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+warning: unused variable: `x`
+   --> /Users/ryan/.t3/worktrees/swbpipe/t3-86902ce5/core/solver/frame_kernel/src/shear.rs:216:10
+    |
+216 |     let (x, t) = moduli_ratio_terms(e, g)?;
+    |          ^ help: if this is intentional, prefix it with an underscore: `_x`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+   Compiling open_pipe_stress_canonical_json v0.1.0 (/Users/ryan/.t3/worktrees/swbpipe/t3-86902ce5/core/serialization/canonical_json)
+   Compiling open_pipe_stress_linear_supports v0.1.0 (/Users/ryan/.t3/worktrees/swbpipe/t3-86902ce5/core/solver/linear_supports)
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (/Users/ryan/.t3/worktrees/swbpipe/t3-86902ce5/core/solver/sparse_direct)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (/Users/ryan/.t3/worktrees/swbpipe/t3-86902ce5/core/solver/curved_bend)
+   Compiling open_pipe_stress_straight_pipe v0.1.0 (/Users/ryan/.t3/worktrees/swbpipe/t3-86902ce5/core/solver/straight_pipe)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (/Users/ryan/.t3/worktrees/swbpipe/t3-86902ce5/core/loads/primitive_loads)
+   Compiling open_pipe_stress_modal_eigen v0.1.0 (/Users/ryan/.t3/worktrees/swbpipe/t3-86902ce5/core/solver/modal_eigen)
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (/Users/ryan/.t3/worktrees/swbpipe/t3-86902ce5/core/solver/diagnostics)
+   Compiling open_pipe_stress_load_case_algebra v0.1.0 (/Users/ryan/.t3/worktrees/swbpipe/t3-86902ce5/core/loads/load_case_algebra)
+   Compiling open_pipe_stress_stress_recovery v0.1.0 (/Users/ryan/.t3/worktrees/swbpipe/t3-86902ce5/core/loads/stress_recovery)
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (/Users/ryan/.t3/worktrees/swbpipe/t3-86902ce5/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_result_export v0.1.0 (/Users/ryan/.t3/worktrees/swbpipe/t3-86902ce5/core/reporting/result_export)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (/Users/ryan/.t3/worktrees/swbpipe/t3-86902ce5/core/solver/nonlinear_integration)
+warning: `open_pipe_stress_frame_kernel` (lib) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_frame_kernel` to apply 1 suggestion)
+warning: methods `add` and `signum` are never used
+   --> /Users/ryan/.t3/worktrees/swbpipe/t3-86902ce5/core/reporting/result_export/src/exact_combination_evidence.rs:257:8
+    |
+210 | impl ExactProducts {
+    | ------------------ methods in this implementation
+...
+257 |     fn add(&mut self, x: f64) {
+    |        ^^^
+...
+270 |     fn signum(&self) -> i8 {
+    |        ^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+warning: unused doc comment
+   --> src/skew.rs:329:1
+    |
+329 | / /// Astra N5 (test only): each skew solve's lifted displacement and its lifted member bound,
+330 | | /// the inputs of the published `certify_displacement` rows.
+    | |_-----------------------------------------------------------^
+    |   |
+    |   rustdoc does not generate documentation for macro invocations
+    |
+    = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+    = note: `#[warn(unused_doc_comments)]` (part of `#[warn(unused)]`) on by default
+
+warning: unnecessary parentheses around function argument
+    --> src/retained_memory.rs:2288:27
+     |
+2288 | ...er((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), m...
+     |       ^                                                                                                                          ^
+     |
+     = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+help: remove these parentheses
+     |
+2288 -         (btree_node_upper((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), max_usize(4, fkr::KIND_ALIGN), 0, 1)) as u64, // Node(TrackerKey,()) (TrackerSet.holding: BTreeSet<(RuleTest, u32, Kind)>)
+2288 +         (btree_node_upper(up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN)), max_usize(4, fkr::KIND_ALIGN), 0, 1)) as u64, // Node(TrackerKey,()) (TrackerSet.holding: BTreeSet<(RuleTest, u32, Kind)>)
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/retained_memory.rs:2289:27
+     |
+2289 | ...er((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), m...
+     |       ^                                                                                                                          ^
+     |
+help: remove these parentheses
+     |
+2289 -         (btree_node_upper((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), max_usize(4, fkr::KIND_ALIGN), fkr::TRACKER, fkr::TRACKER_ALIGN)) as u64, // Node(TrackerKey,Tracker) (TrackerSet.trackers: BTreeMap<(RuleTest, u32, Kind), BoundedExtremeTracker>; RuleTest (private, fieldless) <= 1 byte)
+2289 +         (btree_node_upper(up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN)), max_usize(4, fkr::KIND_ALIGN), fkr::TRACKER, fkr::TRACKER_ALIGN)) as u64, // Node(TrackerKey,Tracker) (TrackerSet.trackers: BTreeMap<(RuleTest, u32, Kind), BoundedExtremeTracker>; RuleTest (private, fieldless) <= 1 byte)
+     |
+
+warning: unused import: `open_pipe_stress_frame_kernel::structural::retained_resource as fkr`
+    --> src/retained_memory_law_tests.rs:1881:9
+     |
+1881 |     use open_pipe_stress_frame_kernel::structural::retained_resource as fkr;
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+   --> src/source_recovery.rs:141:9
+    |
+140 | pub(super) struct SpringAction {
+    |                   ------------ fields in this struct
+141 |     pub support_id: String,
+    |         ^^^^^^^^^^
+142 |     pub global_dof: usize,
+    |         ^^^^^^^^^^
+143 |     pub value: f64,
+    |         ^^^^^
+144 |     pub functional_index: usize,
+    |         ^^^^^^^^^^^^^^^^
+    |
+    = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: multiple fields are never read
+   --> src/source_recovery.rs:166:9
+    |
+165 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+166 |     pub dofs: usize,
+    |         ^^^^
+167 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+168 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+171 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+172 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+173 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+174 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+175 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+178 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+179 |     pub max_relative_projection_error: f64,
+180 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `case_id` is never read
+  --> src/corrected_displacement_tests.rs:23:9
+   |
+22 | pub(crate) struct DisplacementPublication {
+   |                   ----------------------- field in this struct
+23 |     pub case_id: String,
+   |         ^^^^^^^
+   |
+   = note: `DisplacementPublication` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/silent_drop_unit_tests.rs:373:13
+    |
+371 |     pub struct MaterialInputAtMain {
+    |                ------------------- fields in this struct
+372 |         #[serde(default)]
+373 |         pub constitutive_basis: Option<String>,
+    |             ^^^^^^^^^^^^^^^^^^
+374 |         #[serde(default)]
+375 |         pub poisson_ratio: Option<Quantity>,
+    |             ^^^^^^^^^^^^^
+376 |         pub id: String,
+    |             ^^
+377 |         pub elastic_modulus: Quantity,
+    |             ^^^^^^^^^^^^^^^
+378 |         #[serde(default)]
+379 |         pub shear_modulus: Option<Quantity>,
+    |             ^^^^^^^^^^^^^
+380 |         #[serde(default)]
+381 |         pub thermal_expansion_coefficient: Option<Quantity>,
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+382 |         #[serde(default)]
+383 |         pub temperature_points: Vec<MaterialTemperaturePointInputAtMain>,
+    |             ^^^^^^^^^^^^^^^^^^
+384 |         #[serde(default)]
+385 |         pub provenance: Option<String>,
+    |             ^^^^^^^^^^
+    |
+    = note: `MaterialInputAtMain` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/silent_drop_unit_tests.rs:391:13
+    |
+389 |     pub struct MaterialTemperaturePointInputAtMain {
+    |                ----------------------------------- fields in this struct
+390 |         #[serde(default)]
+391 |         pub poisson_ratio: Option<Quantity>,
+    |             ^^^^^^^^^^^^^
+392 |         pub id: String,
+    |             ^^
+393 |         #[serde(default)]
+394 |         pub temperature: Option<Quantity>,
+    |             ^^^^^^^^^^^
+395 |         #[serde(default)]
+396 |         pub elastic_modulus: Option<Quantity>,
+    |             ^^^^^^^^^^^^^^^
+397 |         #[serde(default)]
+398 |         pub shear_modulus: Option<Quantity>,
+    |             ^^^^^^^^^^^^^
+399 |         #[serde(default)]
+400 |         pub thermal_expansion_coefficient: Option<Quantity>,
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+401 |         #[serde(default)]
+402 |         pub provenance: Option<String>,
+    |             ^^^^^^^^^^
+    |
+    = note: `MaterialTemperaturePointInputAtMain` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: function `success__t12_t15` should have a snake case name
+    --> src/retained_memory.rs:3187:25
+     |
+3187 |     pub(crate) const fn success__t12_t15(v: &[u64; ATOMS]) -> Option<u64> {
+     |                         ^^^^^^^^^^^^^^^^ help: convert the identifier to snake case: `success_t12_t15`
+     |
+     = note: `#[warn(non_snake_case)]` (part of `#[warn(nonstandard_style)]`) on by default
+
+warning: function `success__t16` should have a snake case name
+    --> src/retained_memory.rs:3191:25
+     |
+3191 |     pub(crate) const fn success__t16(v: &[u64; ATOMS]) -> Option<u64> {
+     |                         ^^^^^^^^^^^^ help: convert the identifier to snake case: `success_t16`
+
+warning: function `success__t17` should have a snake case name
+    --> src/retained_memory.rs:3195:25
+     |
+3195 |     pub(crate) const fn success__t17(v: &[u64; ATOMS]) -> Option<u64> {
+     |                         ^^^^^^^^^^^^ help: convert the identifier to snake case: `success_t17`
+
+warning: function `success__t25` should have a snake case name
+    --> src/retained_memory.rs:3199:25
+     |
+3199 |     pub(crate) const fn success__t25(v: &[u64; ATOMS]) -> Option<u64> {
+     |                         ^^^^^^^^^^^^ help: convert the identifier to snake case: `success_t25`
+
+warning: `open_pipe_stress_product_physics` (lib test) generated 13 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics --tests` to apply 3 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 40.33s
+     Running unittests src/lib.rs (/Users/ryan/dev/chirality-t3/scratch/h1-d3-provisional-925p1/target_law/debug/deps/open_pipe_stress_product_physics-71497b79150cb5ea)
+
+running 9 tests
+test retained_memory::law_tests::profile_point_atoms_in_build ... ok
+test retained_memory::law_tests::profile_transcribes_the_python_chain_exactly ... ok
+test retained_memory::law_tests::profile_batch5_carriers_bind_actual_layouts_and_all_case_owners ... ok
+test retained_memory::law_tests::profile_in_build_record ... ok
+test retained_memory::law_tests::retained_profile_states_the_qualified_facts ... ok
+test retained_memory::law_tests::profile_laws_hold_in_this_build ... ok
+test retained_memory::law_tests::the_registered_profile_is_the_only_permit_source ... ok
+test pressure_runtime::tests::profile_dispatch_requires_explicit_regions_and_refuses_legacy_pressure ... ok
+test source_receipt::load_state_tests::joined_publication_uses_its_own_semantics_profile_policy_and_case_record ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 1234 filtered out; finished in 0.12s
+

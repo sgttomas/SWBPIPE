@@ -1,0 +1,216 @@
+warning: unused variable: `x`
+   --> /Users/ryan/dev/chirality-t3/scratch/swbpipe-rt-s3-ce-publication/core/solver/frame_kernel/src/shear.rs:216:10
+    |
+216 |     let (x, t) = moduli_ratio_terms(e, g)?;
+    |          ^ help: if this is intentional, prefix it with an underscore: `_x`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_frame_kernel` (lib) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_frame_kernel` to apply 1 suggestion)
+warning: methods `add` and `signum` are never used
+   --> /Users/ryan/dev/chirality-t3/scratch/swbpipe-rt-s3-ce-publication/core/reporting/result_export/src/exact_combination_evidence.rs:257:8
+    |
+210 | impl ExactProducts {
+    | ------------------ methods in this implementation
+...
+257 |     fn add(&mut self, x: f64) {
+    |        ^^^
+...
+270 |     fn signum(&self) -> i8 {
+    |        ^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+warning: unnecessary parentheses around function argument
+    --> src/retained_memory.rs:2288:27
+     |
+2288 | ...er((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), m...
+     |       ^                                                                                                                          ^
+     |
+     = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+help: remove these parentheses
+     |
+2288 -         (btree_node_upper((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), max_usize(4, fkr::KIND_ALIGN), 0, 1)) as u64, // Node(TrackerKey,()) (TrackerSet.holding: BTreeSet<(RuleTest, u32, Kind)>)
+2288 +         (btree_node_upper(up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN)), max_usize(4, fkr::KIND_ALIGN), 0, 1)) as u64, // Node(TrackerKey,()) (TrackerSet.holding: BTreeSet<(RuleTest, u32, Kind)>)
+     |
+
+warning: unnecessary parentheses around function argument
+    --> src/retained_memory.rs:2289:27
+     |
+2289 | ...er((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), m...
+     |       ^                                                                                                                          ^
+     |
+help: remove these parentheses
+     |
+2289 -         (btree_node_upper((up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN))), max_usize(4, fkr::KIND_ALIGN), fkr::TRACKER, fkr::TRACKER_ALIGN)) as u64, // Node(TrackerKey,Tracker) (TrackerSet.trackers: BTreeMap<(RuleTest, u32, Kind), BoundedExtremeTracker>; RuleTest (private, fieldless) <= 1 byte)
+2289 +         (btree_node_upper(up(1, max_usize(4, fkr::KIND_ALIGN)) + up(4, max_usize(4, fkr::KIND_ALIGN)) + up(fkr::KIND, max_usize(4, fkr::KIND_ALIGN)), max_usize(4, fkr::KIND_ALIGN), fkr::TRACKER, fkr::TRACKER_ALIGN)) as u64, // Node(TrackerKey,Tracker) (TrackerSet.trackers: BTreeMap<(RuleTest, u32, Kind), BoundedExtremeTracker>; RuleTest (private, fieldless) <= 1 byte)
+     |
+
+warning: function `formation_entity_bodies` is never used
+    --> src/lib.rs:1634:4
+     |
+1634 | fn formation_entity_bodies(
+     |    ^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `solve_load_case` is never used
+    --> src/lib.rs:5311:4
+     |
+5311 | fn solve_load_case(
+     |    ^^^^^^^^^^^^^^^
+
+warning: function `action_class` is never used
+   --> src/formation_guard.rs:386:4
+    |
+386 | fn action_class(kind: &str, unit: &str) -> Option<(bool, f64)> {
+    |    ^^^^^^^^^^^^
+
+warning: function `action_scales` is never used
+   --> src/formation_guard.rs:430:15
+    |
+430 | pub(crate) fn action_scales(
+    |               ^^^^^^^^^^^^^
+
+warning: function `member_group_fires` is never used
+   --> src/formation_guard.rs:486:15
+    |
+486 | pub(crate) fn member_group_fires(q: f64, q_hat: f64, bound: f64, s_star: f64) -> bool {
+    |               ^^^^^^^^^^^^^^^^^^
+
+warning: field `stage` is never read
+  --> src/source_recovery.rs:69:9
+   |
+68 | pub(super) struct RecoveryFailure {
+   |                   --------------- field in this struct
+69 |     pub stage: &'static str,
+   |         ^^^^^
+   |
+   = note: `RecoveryFailure` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+   --> src/source_recovery.rs:141:9
+    |
+140 | pub(super) struct SpringAction {
+    |                   ------------ fields in this struct
+141 |     pub support_id: String,
+    |         ^^^^^^^^^^
+142 |     pub global_dof: usize,
+    |         ^^^^^^^^^^
+143 |     pub value: f64,
+    |         ^^^^^
+144 |     pub functional_index: usize,
+    |         ^^^^^^^^^^^^^^^^
+    |
+    = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/source_recovery.rs:166:9
+    |
+165 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+166 |     pub dofs: usize,
+    |         ^^^^
+167 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+168 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+169 |     pub blocks: usize,
+    |         ^^^^^^
+170 |     pub largest_block: usize,
+    |         ^^^^^^^^^^^^^
+171 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+172 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+173 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+174 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+175 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+176 |     pub functional_count: usize,
+    |         ^^^^^^^^^^^^^^^^
+177 |     pub dof_projection_count: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^
+178 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+179 |     pub max_relative_projection_error: f64,
+180 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: methods `policy_name`, `case_evidence_domain`, and `profile_id` are never used
+  --> src/source_receipt.rs:90:19
+   |
+81 | impl CompositeSourceContext {
+   | --------------------------- methods in this implementation
+...
+90 |     pub(super) fn policy_name(self) -> &'static str { self.receipt_policy().name() }
+   |                   ^^^^^^^^^^^
+91 |     pub(super) fn case_evidence_domain(self) -> &'static str { self.receipt_policy().case_evidence_domain() }
+   |                   ^^^^^^^^^^^^^^^^^^^^
+...
+96 |     pub(super) const fn profile_id(self) -> &'static str { exact_admission::PRESSURE_PROFILE_ID }
+   |                         ^^^^^^^^^^
+
+warning: function `success__t12_t15` should have a snake case name
+    --> src/retained_memory.rs:3187:25
+     |
+3187 |     pub(crate) const fn success__t12_t15(v: &[u64; ATOMS]) -> Option<u64> {
+     |                         ^^^^^^^^^^^^^^^^ help: convert the identifier to snake case: `success_t12_t15`
+     |
+     = note: `#[warn(non_snake_case)]` (part of `#[warn(nonstandard_style)]`) on by default
+
+warning: function `success__t16` should have a snake case name
+    --> src/retained_memory.rs:3191:25
+     |
+3191 |     pub(crate) const fn success__t16(v: &[u64; ATOMS]) -> Option<u64> {
+     |                         ^^^^^^^^^^^^ help: convert the identifier to snake case: `success_t16`
+
+warning: function `success__t17` should have a snake case name
+    --> src/retained_memory.rs:3195:25
+     |
+3195 |     pub(crate) const fn success__t17(v: &[u64; ATOMS]) -> Option<u64> {
+     |                         ^^^^^^^^^^^^ help: convert the identifier to snake case: `success_t17`
+
+warning: function `success__t25` should have a snake case name
+    --> src/retained_memory.rs:3199:25
+     |
+3199 |     pub(crate) const fn success__t25(v: &[u64; ATOMS]) -> Option<u64> {
+     |                         ^^^^^^^^^^^^ help: convert the identifier to snake case: `success_t25`
+
+warning: `open_pipe_stress_product_physics` (lib) generated 15 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics` to apply 2 suggestions)
+   Compiling open_pipe_stress_product_physics v0.2.0 (/Users/ryan/dev/chirality-t3/scratch/swbpipe-rt-s3-ce-publication/core/product_physics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.81s
+     Running tests/rt_s3_ce_main_probe.rs (targets/swbpipe-rt-s3-ce-publication/debug/deps/rt_s3_ce_main_probe-ab8300238f8b8d17)
+
+running 1 test
+basis=00832d746 mode=SparseInteractive mechanics="MECHANICS_SOLVED" producer="openpipestress.result_semantics/0.3.0/pressure-2"
+SparseInteractive codes=[Object {"code": String("NUMERICAL_INTEGRITY_SENSITIVE"), "id": String("diagnostic:numerical-integrity:load:RS-SUS")}, Object {"code": String("NUMERICAL_INTEGRITY_SENSITIVE"), "id": String("diagnostic:numerical-integrity:load:RS-OPE")}, Object {"code": String("NUMERICAL_INTEGRITY_SENSITIVE"), "id": String("diagnostic:numerical-integrity:load:RS-SAM")}] reader={"ok":true}
+SparseInteractive load:RS-SUS applied=9000N Fz=0N count=1 integrity=[]
+SparseInteractive load:RS-OPE applied=9000N Fz=0N count=1 integrity=[]
+SparseInteractive load:RS-SAM applied=9000N Fz=0N count=1 integrity=[]
+basis=00832d746 mode=DenseScrutiny mechanics="MECHANICS_SOLVED" producer="openpipestress.result_semantics/0.3.0/pressure-2"
+DenseScrutiny codes=[Object {"code": String("NUMERICAL_INTEGRITY_SENSITIVE"), "id": String("diagnostic:numerical-integrity:load:RS-SUS")}, Object {"code": String("NUMERICAL_INTEGRITY_SENSITIVE"), "id": String("diagnostic:numerical-integrity:load:RS-OPE")}, Object {"code": String("NUMERICAL_INTEGRITY_SENSITIVE"), "id": String("diagnostic:numerical-integrity:load:RS-SAM")}] reader={"ok":true}
+DenseScrutiny load:RS-SUS applied=9000N Fz=0N count=1 integrity=[]
+DenseScrutiny load:RS-OPE applied=9000N Fz=0N count=1 integrity=[]
+DenseScrutiny load:RS-SAM applied=9000N Fz=0N count=1 integrity=[]
+
+thread 'diagnose_ce_publication_on_main_00832' (511630009) panicked at tests/rt_s3_ce_main_probe.rs:539:9:
+assertion `left == right` failed: SparseInteractive load:RS-SUS: consumed CE support-on-pipe force
+  left: 0.0
+ right: 9000.0
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test diagnose_ce_publication_on_main_00832 ... FAILED
+
+failures:
+
+failures:
+    diagnose_ce_publication_on_main_00832
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3 filtered out; finished in 22.59s
+
+error: test failed, to rerun pass `--test rt_s3_ce_main_probe`

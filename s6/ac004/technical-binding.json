@@ -1,0 +1,168 @@
+{
+ "status": "technical preparation complete; NOT queued, NOT run; awaiting fresh changed-proof scrutiny, technical clearance and Agent 0 GO",
+ "head": "1a07aec6b732ffcf1b050626341780ff92888fbd",
+ "core": "e8e83ae9f1b7dbf7a9984eee1fa8d7a7688cad87",
+ "composition": {
+  "merge": "da0afeabbb309ec486a6532e469e362d8039f88c",
+  "s6_reviewed_head": "abc8bac62340a515d12d84392dd2ea105495aa2a",
+  "accepted_predecessor": "00d4820d15f01bcada536c97b2bc129efd64575a",
+  "declared_s6_basis": "394f4c62313679ccf24e67236d80371a0bf62af3"
+ },
+ "build": {
+  "initial": {
+   "head": "da0afeabbb309ec486a6532e469e362d8039f88c",
+   "core": "e8e83ae9f1b7dbf7a9984eee1fa8d7a7688cad87",
+   "returncode": 0,
+   "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--locked",
+    "--no-run",
+    "--lib",
+    "--test",
+    "retained_memory_challenge",
+    "--message-format=json-render-diagnostics"
+   ],
+   "cwd": "/Users/ryan/dev/chirality-t3/swbpipe-rt-a3-s6-final/core/product_physics",
+   "target_dir": "/Users/ryan/dev/chirality-t3/swbpipe-rt-a3-s6-final/core/product_physics/target",
+   "jobs": "2",
+   "outer_wrapper": "/Users/ryan/dev/chirality-t3/tools/t3_slot.sh",
+   "receipt": "/Users/ryan/dev/chirality-t3/scratch/rt-a3-s6-final/ac004/build-receipt.json"
+  },
+  "freshness_at_head": {
+   "returncode": 0,
+   "all_fresh": true,
+   "same_sha256_as_initial": true,
+   "receipt": "/Users/ryan/dev/chirality-t3/scratch/rt-a3-s6-final/ac004/freshness-receipt.json",
+   "delta_since_initial": "one commit: one test, three docs; core tree unchanged"
+  },
+  "test_execution_authorized_or_performed": false
+ },
+ "binaries": {
+  "open_pipe_stress_product_physics": {
+   "source": "/Users/ryan/dev/chirality-t3/swbpipe-rt-a3-s6-final/core/product_physics/target/debug/deps/open_pipe_stress_product_physics-f31c71322c8cc2bc",
+   "copy": "/Users/ryan/dev/chirality-t3/scratch/rt-a3-s6-final/ac004/bin/open_pipe_stress_product_physics-f31c71322c8cc2bc",
+   "sha256": "8f2b649d4bc6ffd4933aeda986e7a1c2bf4f649315edb57dc721e6a67a7d0c73",
+   "mode": "0o555"
+  },
+  "retained_memory_challenge": {
+   "source": "/Users/ryan/dev/chirality-t3/swbpipe-rt-a3-s6-final/core/product_physics/target/debug/deps/retained_memory_challenge-0a8cb81bbc9e389a",
+   "copy": "/Users/ryan/dev/chirality-t3/scratch/rt-a3-s6-final/ac004/bin/retained_memory_challenge-0a8cb81bbc9e389a",
+   "sha256": "bba69229159f741484fc0af9ea90ab897232bddab51ee850118bef4d239213a5",
+   "mode": "0o555"
+  }
+ },
+ "binary_directory": {
+  "path": "/Users/ryan/dev/chirality-t3/scratch/rt-a3-s6-final/ac004/bin",
+  "mode": "0o555"
+ },
+ "dep_info": {
+  "retained_memory_challenge": {
+   "dep_info": "/Users/ryan/dev/chirality-t3/swbpipe-rt-a3-s6-final/core/product_physics/target/debug/deps/retained_memory_challenge-0a8cb81bbc9e389a.d",
+   "dep_info_sha256": "be150babd53c7a5ac38a68f6baa0d503f8aadc754081314bb6f10011448e6e41",
+   "local_files": 3,
+   "untracked": [],
+   "changed_by_predecessor_since_394": [],
+   "changed_by_both": [],
+   "changed_by_s6_since_394": 1
+  },
+  "open_pipe_stress_product_physics": {
+   "dep_info": "/Users/ryan/dev/chirality-t3/swbpipe-rt-a3-s6-final/core/product_physics/target/debug/deps/open_pipe_stress_product_physics-f31c71322c8cc2bc.d",
+   "dep_info_sha256": "82ceacf03e64244c1a5c14561939c6d6db61b49d3cdeec2419e50ced1d83fae2",
+   "local_files": 379,
+   "untracked": [],
+   "changed_by_predecessor_since_394": [
+    "core/product_physics/src/modal/eigen.rs",
+    "core/product_physics/src/modal/integrity.rs",
+    "core/product_physics/src/modal/resource.rs",
+    "core/product_physics/src/modal/tests_resource.rs"
+   ],
+   "changed_by_both": [],
+   "changed_by_s6_since_394": 45
+  }
+ },
+ "profile_sha256": "24141f216cbb54285dacf7b1419d20867aec71a1ba20ccd7984135ab7ec80081",
+ "lock_sha256": "b7ebb02aafa8cfe214c18bc64941381b33ab3f9295e0fc774ee0819e1e4f5653",
+ "compiler": {
+  "binary": "rustc",
+  "commit-hash": "8bab26f4f68e0e26f0bb7960be334d5b520ea452",
+  "commit-date": "2026-07-14",
+  "host": "aarch64-apple-darwin",
+  "release": "1.97.1",
+  "LLVM version": "22.1.6"
+ },
+ "flags_present": {
+  "RUSTFLAGS": false,
+  "CARGO_ENCODED_RUSTFLAGS": false,
+  "CARGO_BUILD_RUSTFLAGS": false,
+  "RUSTDOCFLAGS": false
+ },
+ "harness": {
+  "path": "/Users/ryan/dev/chirality-t3/scratch/rt-a3-s6-final/ac004/harness.py",
+  "sha256": "ddb1e66c679e8c9cd5a332a9c0019e7bbebbf8238421ab54c67b9e9f67a7040c",
+  "mode": "0o444",
+  "derived_from": "/Users/ryan/dev/chirality-t3/scratch/rt-dynamics-support-ops/composition-00832/ac004/harness.py (executed 7/7 at 8c26b7556)",
+  "derived_from_sha256": "bb36175836cb9c518474d9bd79238b534d2299b41e1097583c7991d6775a1f1f",
+  "diff": "/Users/ryan/dev/chirality-t3/scratch/rt-a3-s6-final/ac004/harness-vs-modal-8c26.diff",
+  "changes": "REPO, COPIES, binary names, expected hashes (two binaries, profile), HEAD, CORE and docstring label only",
+  "execution_AST_equal_modulo_string_constants": true,
+  "internal_checked_target_s": 55
+ },
+ "supervisor": {
+  "path": "/Users/ryan/dev/chirality-t3/scratch/rt-a3-s6-final/ac004/supervisor/ac004_supervisor.py",
+  "sha256": "78fcdd6e19250e9e234caaabeb1376f4f3bf60c1e0ef2b8d3297794ca5355f87",
+  "mode": "0o444",
+  "directory_mode": "0o555",
+  "from": "git blob tools/ac004_supervisor.py at head",
+  "equals_approved_dc4e1aa9_sha256": true,
+  "guide_sha256": "1e8561f59838ce99b429f7f50914fa4f55aa5cd2b10ea988abe2f0f55c04e4ff",
+  "executions": 0
+ },
+ "command": {
+  "path": "/Users/ryan/dev/chirality-t3/scratch/rt-a3-s6-final/ac004/COMMAND.txt",
+  "sha256": "4448a3bf33bf8ef37823e2163276229530bb16a0b298945449e6ac9123064417",
+  "mode": "0o444",
+  "cwd": "/tmp",
+  "payload_argv": [
+   "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+   "-I",
+   "/Users/ryan/dev/chirality-t3/scratch/rt-a3-s6-final/ac004/harness.py"
+  ],
+  "payload_argv_sha256": "4645bc7fa460b11b87cf6cd4cba5ecf07319b4b4bbbd35d25377d4beb322e15c",
+  "outputs": {
+   "inner_stdout": "/Users/ryan/dev/chirality-t3/scratch/rt-a3-s6-final/ac004/attempt-1/inner.stdout.json",
+   "combined_stderr": "/Users/ryan/dev/chirality-t3/scratch/rt-a3-s6-final/ac004/attempt-1/combined.stderr.log",
+   "supervisor_receipt": "/Users/ryan/dev/chirality-t3/scratch/rt-a3-s6-final/ac004/attempt-1/supervisor.receipt.json"
+  },
+  "attempt_dir_empty": true,
+  "no_wrapper_nesting": true,
+  "no_queue_timeout": true,
+  "syntax_check_only": true
+ },
+ "timing": {
+  "budget_s": 60,
+  "reserve_s": 3,
+  "term_grace_s": 1,
+  "payload_stop_s_after_armed": 57,
+  "inner_separate_checked_target_s": 55
+ },
+ "standalone_admission": {
+  "path": "/Users/ryan/dev/chirality-t3/scratch/rt-a3-s6-final/ac004/standalone-admission.json",
+  "sha256": "7ad42c0e9aceb1624b3446372a9980490f378c9d81d7237c37f2467f705e4182",
+  "check_only": true,
+  "tests_run": 0,
+  "admission_verified": true
+ },
+ "tests": [
+  "retained_memory::witness_tests::witness_headroom_w1_at_one_mebibyte::{sparse,dense}",
+  "retained_memory::witness_tests::witness_w2_deep_milestone_publishes::{sparse,dense}",
+  "retained_memory::witness_tests::witness_w_c2_publishes::{sparse,dense}",
+  "retained_memory_challenge::retained_direct_peak_is_within_the_profiles_bounds"
+ ],
+ "not_established": [
+  "stack neutrality (frames not re-measured on the combined binary)",
+  "any witness outcome",
+  "qualification, registration, acceptance or merge"
+ ]
+}

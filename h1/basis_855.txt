@@ -1,0 +1,1 @@
+, re-run as S-K1 (skewed restraint directions, R-6/R-7) on main 6cb1c3dc3 (§8.54's registered tree) at a96bd2966 (§8.55): the maximum over routes L (C_eq <= 3, worst shape c = 3, z = 0) and E (c = 3), under SQ2 rules; text at l <= 128.

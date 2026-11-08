@@ -1,0 +1,53 @@
+{
+ "returncode": 0,
+ "head": "da0afeabbb309ec486a6532e469e362d8039f88c",
+ "core": "e8e83ae9f1b7dbf7a9984eee1fa8d7a7688cad87",
+ "artifacts": [
+  {
+   "target": "retained_memory_challenge",
+   "kind": [
+    "test"
+   ],
+   "executable": "/Users/ryan/dev/chirality-t3/swbpipe-rt-a3-s6-final/core/product_physics/target/debug/deps/retained_memory_challenge-0a8cb81bbc9e389a",
+   "sha256": "bba69229159f741484fc0af9ea90ab897232bddab51ee850118bef4d239213a5",
+   "profile": {
+    "opt_level": "0",
+    "debuginfo": 2,
+    "debug_assertions": true,
+    "overflow_checks": true,
+    "test": true
+   },
+   "features": [],
+   "fresh": false,
+   "dep_info": "/Users/ryan/dev/chirality-t3/swbpipe-rt-a3-s6-final/core/product_physics/target/debug/deps/retained_memory_challenge-0a8cb81bbc9e389a.d",
+   "dep_info_local_files": 1,
+   "dep_info_outside_core": []
+  },
+  {
+   "target": "open_pipe_stress_product_physics",
+   "kind": [
+    "lib"
+   ],
+   "executable": "/Users/ryan/dev/chirality-t3/swbpipe-rt-a3-s6-final/core/product_physics/target/debug/deps/open_pipe_stress_product_physics-f31c71322c8cc2bc",
+   "sha256": "8f2b649d4bc6ffd4933aeda986e7a1c2bf4f649315edb57dc721e6a67a7d0c73",
+   "profile": {
+    "opt_level": "0",
+    "debuginfo": 2,
+    "debug_assertions": true,
+    "overflow_checks": true,
+    "test": true
+   },
+   "features": [],
+   "fresh": false,
+   "dep_info": "/Users/ryan/dev/chirality-t3/swbpipe-rt-a3-s6-final/core/product_physics/target/debug/deps/open_pipe_stress_product_physics-f31c71322c8cc2bc.d",
+   "dep_info_local_files": 1,
+   "dep_info_outside_core": []
+  }
+ ],
+ "flags_present": {
+  "RUSTFLAGS": false,
+  "CARGO_ENCODED_RUSTFLAGS": false,
+  "CARGO_BUILD_RUSTFLAGS": false,
+  "RUSTDOCFLAGS": false
+ }
+}

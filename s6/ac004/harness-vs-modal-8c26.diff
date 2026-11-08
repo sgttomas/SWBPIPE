@@ -1,0 +1,28 @@
+1c1
+< """DEL-04-09 modal support on main00832 §8.59 proposal AC-004 window harness: admission identity check, then seven prebuilt processes once each.
+---
+> """RT-A3 S6 final composition (da0afeabb on #164) §8.60 proposal AC-004 window harness: admission identity check, then seven prebuilt processes once each.
+13,16c13,16
+< REPO = '/Users/ryan/dev/chirality-t3/swbpipe-rt-dynamics-support'
+< COPIES = '/Users/ryan/dev/chirality-t3/scratch/rt-dynamics-support-ops/ac004-04859/bin/'
+< LIB = COPIES + 'open_pipe_stress_product_physics-79ebb5202e3b32c5'
+< CHAL = COPIES + 'retained_memory_challenge-16fde700e6590c16'
+---
+> REPO = '/Users/ryan/dev/chirality-t3/swbpipe-rt-a3-s6-final'
+> COPIES = '/Users/ryan/dev/chirality-t3/scratch/rt-a3-s6-final/ac004/bin/'
+> LIB = COPIES + 'open_pipe_stress_product_physics-f31c71322c8cc2bc'
+> CHAL = COPIES + 'retained_memory_challenge-0a8cb81bbc9e389a'
+18,20c18,20
+<     LIB: "9d7b678d1da2f1e4d5cf16dc17350d292731fef9e22dcd50b89c360e296404ee",
+<     CHAL: "64eabef5215b60f01ce8d98bafdc7764adc650c91fafa4730859f8587896cffa",
+<     REPO + "/core/product_physics/src/retained_memory.rs": "c4df869d523c7e7626515ac25cc1a8b459e9c791cbd73735ccbdafd2d861996c",
+---
+>     LIB: "8f2b649d4bc6ffd4933aeda986e7a1c2bf4f649315edb57dc721e6a67a7d0c73",
+>     CHAL: "bba69229159f741484fc0af9ea90ab897232bddab51ee850118bef4d239213a5",
+>     REPO + "/core/product_physics/src/retained_memory.rs": "24141f216cbb54285dacf7b1419d20867aec71a1ba20ccd7984135ab7ec80081",
+23,24c23,24
+< HEAD = '8c26b75566a8f6666b5f4ea66d56b4c2ab8c2d87'
+< CORE = 'a3633b180427fb672fdf8de79de07035e14e7c0e'
+---
+> HEAD = '1a07aec6b732ffcf1b050626341780ff92888fbd'
+> CORE = 'e8e83ae9f1b7dbf7a9984eee1fa8d7a7688cad87'

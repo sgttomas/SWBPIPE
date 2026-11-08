@@ -1,0 +1,103 @@
+{
+  "label": "build",
+  "before": {
+    "head": "da0afeabbb309ec486a6532e469e362d8039f88c",
+    "core": "e8e83ae9f1b7dbf7a9984eee1fa8d7a7688cad87",
+    "status": "",
+    "flags_present": {
+      "RUSTFLAGS": false,
+      "CARGO_ENCODED_RUSTFLAGS": false,
+      "CARGO_BUILD_RUSTFLAGS": false,
+      "RUSTDOCFLAGS": false
+    },
+    "profile_sha256": "24141f216cbb54285dacf7b1419d20867aec71a1ba20ccd7984135ab7ec80081",
+    "lock_sha256": "b7ebb02aafa8cfe214c18bc64941381b33ab3f9295e0fc774ee0819e1e4f5653"
+  },
+  "compiler": {
+    "binary": "rustc",
+    "commit-hash": "8bab26f4f68e0e26f0bb7960be334d5b520ea452",
+    "commit-date": "2026-07-14",
+    "host": "aarch64-apple-darwin",
+    "release": "1.97.1",
+    "LLVM version": "22.1.6"
+  },
+  "compiler_verbose": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: aarch64-apple-darwin\nrelease: 1.97.1\nLLVM version: 22.1.6",
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--locked",
+    "--no-run",
+    "--lib",
+    "--test",
+    "retained_memory_challenge",
+    "--message-format=json-render-diagnostics"
+  ],
+  "cwd": "/Users/ryan/dev/chirality-t3/swbpipe-rt-a3-s6-final/core/product_physics",
+  "outer_wrapper": "/Users/ryan/dev/chirality-t3/tools/t3_slot.sh",
+  "target_dir": "/Users/ryan/dev/chirality-t3/swbpipe-rt-a3-s6-final/core/product_physics/target",
+  "jobs": "2",
+  "flag_presence": {
+    "RUSTFLAGS": false,
+    "CARGO_ENCODED_RUSTFLAGS": false,
+    "CARGO_BUILD_RUSTFLAGS": false,
+    "RUSTDOCFLAGS": false
+  },
+  "test_execution_authorized_or_performed": false,
+  "returncode": 0,
+  "artifacts": [
+    {
+      "target": "retained_memory_challenge",
+      "kind": [
+        "test"
+      ],
+      "executable": "/Users/ryan/dev/chirality-t3/swbpipe-rt-a3-s6-final/core/product_physics/target/debug/deps/retained_memory_challenge-0a8cb81bbc9e389a",
+      "sha256": "bba69229159f741484fc0af9ea90ab897232bddab51ee850118bef4d239213a5",
+      "profile": {
+        "opt_level": "0",
+        "debuginfo": 2,
+        "debug_assertions": true,
+        "overflow_checks": true,
+        "test": true
+      },
+      "features": [],
+      "fresh": false,
+      "dep_info": "/Users/ryan/dev/chirality-t3/swbpipe-rt-a3-s6-final/core/product_physics/target/debug/deps/retained_memory_challenge-0a8cb81bbc9e389a.d",
+      "dep_info_local_files": 1,
+      "dep_info_outside_core": []
+    },
+    {
+      "target": "open_pipe_stress_product_physics",
+      "kind": [
+        "lib"
+      ],
+      "executable": "/Users/ryan/dev/chirality-t3/swbpipe-rt-a3-s6-final/core/product_physics/target/debug/deps/open_pipe_stress_product_physics-f31c71322c8cc2bc",
+      "sha256": "8f2b649d4bc6ffd4933aeda986e7a1c2bf4f649315edb57dc721e6a67a7d0c73",
+      "profile": {
+        "opt_level": "0",
+        "debuginfo": 2,
+        "debug_assertions": true,
+        "overflow_checks": true,
+        "test": true
+      },
+      "features": [],
+      "fresh": false,
+      "dep_info": "/Users/ryan/dev/chirality-t3/swbpipe-rt-a3-s6-final/core/product_physics/target/debug/deps/open_pipe_stress_product_physics-f31c71322c8cc2bc.d",
+      "dep_info_local_files": 1,
+      "dep_info_outside_core": []
+    }
+  ],
+  "after": {
+    "head": "da0afeabbb309ec486a6532e469e362d8039f88c",
+    "core": "e8e83ae9f1b7dbf7a9984eee1fa8d7a7688cad87",
+    "status": "",
+    "flags_present": {
+      "RUSTFLAGS": false,
+      "CARGO_ENCODED_RUSTFLAGS": false,
+      "CARGO_BUILD_RUSTFLAGS": false,
+      "RUSTDOCFLAGS": false
+    },
+    "profile_sha256": "24141f216cbb54285dacf7b1419d20867aec71a1ba20ccd7984135ab7ec80081",
+    "lock_sha256": "b7ebb02aafa8cfe214c18bc64941381b33ab3f9295e0fc774ee0819e1e4f5653"
+  }
+}

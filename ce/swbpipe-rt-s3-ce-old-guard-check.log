@@ -1,0 +1,116 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+____________ test_the_two_hanger_references_are_classified_in128[L] ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1070fa2c0>
+route = 'L'
+
+    @pytest.mark.parametrize("route", ["L", "E"])
+    def test_the_two_hanger_references_are_classified_in128(monkeypatch, route):
+>       d = decisions(monkeypatch, route=route)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tools/retained_pricing/tests/test_844_rt_a3_ce.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/retained_pricing/tests/test_844_rt_a3_ce.py:22: in decisions
+    return runpy.run_path(str(PRICING / f"rules/sq2_decisions_{route}.py"))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen runpy>:294: in run_path
+    ???
+<frozen runpy>:98: in _run_module_code
+    ???
+<frozen runpy>:88: in _run_code
+    ???
+tools/retained_pricing/rules/sq2_decisions_L.py:6: in <module>
+    globals().update({k: v for k, v in runpy.run_path(os.path.join(os.path.dirname(os.path.abspath(__file__)), "sq2_decisions_common.py")).items() if k.isupper() or k in ("rs", "rs_any")})
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen runpy>:294: in run_path
+    ???
+<frozen runpy>:98: in _run_module_code
+    ???
+<frozen runpy>:88: in _run_code
+    ???
+tools/retained_pricing/rules/sq2_decisions_common.py:472: in <module>
+    exec(open(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "o10_rules.py")).read())
+<string>:536: in <module>
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+snapshot = '/Users/ryan/dev/chirality-t3/scratch/swbpipe-rt-s3-ce-publication'
+
+    def inspect(snapshot):
+        bodies = {}
+        for file, digest in PRODUCTION_PINS.items():
+            with open(os.path.join(snapshot, file), encoding="utf-8") as stream:
+                source = stream.read().split("#[cfg(test)]", 1)[0]
+            if hashlib.sha256(source.encode()).hexdigest() != digest:
+                raise ValueError(f"KD5 source/slot inventory pin changed: {file}; re-review owned layouts and caller/workspace unions")
+        for file, functions in PINS.items():
+            with open(os.path.join(snapshot, file), encoding="utf-8") as stream:
+                source = stream.read()
+            for name, digest in functions.items():
+                body = function_body(source, name)
+                if hashlib.sha256(body.encode()).hexdigest() != digest:
+>                   raise ValueError(f"KD5T2: source pin changed: {file}:{name}; re-review the producer/consumer inventory")
+E                   ValueError: KD5T2: source pin changed: core/product_physics/src/lib.rs:solve_prepared_load_case; re-review the producer/consumer inventory
+
+tools/retained_pricing/base/kd5_text_model.py:107: ValueError
+____________ test_the_two_hanger_references_are_classified_in128[E] ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1070f9f30>
+route = 'E'
+
+    @pytest.mark.parametrize("route", ["L", "E"])
+    def test_the_two_hanger_references_are_classified_in128(monkeypatch, route):
+>       d = decisions(monkeypatch, route=route)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tools/retained_pricing/tests/test_844_rt_a3_ce.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/retained_pricing/tests/test_844_rt_a3_ce.py:22: in decisions
+    return runpy.run_path(str(PRICING / f"rules/sq2_decisions_{route}.py"))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen runpy>:294: in run_path
+    ???
+<frozen runpy>:98: in _run_module_code
+    ???
+<frozen runpy>:88: in _run_code
+    ???
+tools/retained_pricing/rules/sq2_decisions_E.py:8: in <module>
+    globals().update({k: v for k, v in runpy.run_path(os.path.join(H, "sq2_decisions_common.py")).items() if k.isupper() or k in ("rs", "rs_any", "rs_line", "Resolved")})
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen runpy>:294: in run_path
+    ???
+<frozen runpy>:98: in _run_module_code
+    ???
+<frozen runpy>:88: in _run_code
+    ???
+tools/retained_pricing/rules/sq2_decisions_common.py:472: in <module>
+    exec(open(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "o10_rules.py")).read())
+<string>:536: in <module>
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+snapshot = '/Users/ryan/dev/chirality-t3/scratch/swbpipe-rt-s3-ce-publication'
+
+    def inspect(snapshot):
+        bodies = {}
+        for file, digest in PRODUCTION_PINS.items():
+            with open(os.path.join(snapshot, file), encoding="utf-8") as stream:
+                source = stream.read().split("#[cfg(test)]", 1)[0]
+            if hashlib.sha256(source.encode()).hexdigest() != digest:
+                raise ValueError(f"KD5 source/slot inventory pin changed: {file}; re-review owned layouts and caller/workspace unions")
+        for file, functions in PINS.items():
+            with open(os.path.join(snapshot, file), encoding="utf-8") as stream:
+                source = stream.read()
+            for name, digest in functions.items():
+                body = function_body(source, name)
+                if hashlib.sha256(body.encode()).hexdigest() != digest:
+>                   raise ValueError(f"KD5T2: source pin changed: {file}:{name}; re-review the producer/consumer inventory")
+E                   ValueError: KD5T2: source pin changed: core/product_physics/src/lib.rs:solve_prepared_load_case; re-review the producer/consumer inventory
+
+tools/retained_pricing/base/kd5_text_model.py:107: ValueError
+=========================== short test summary info ============================
+FAILED tools/retained_pricing/tests/test_844_rt_a3_ce.py::test_the_two_hanger_references_are_classified_in128[L]
+FAILED tools/retained_pricing/tests/test_844_rt_a3_ce.py::test_the_two_hanger_references_are_classified_in128[E]
+2 failed in 2.13s
