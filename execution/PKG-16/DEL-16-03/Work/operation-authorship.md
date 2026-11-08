@@ -1,7 +1,6 @@
 # Operation authorship on agent and imported routes
 
-Status: implementation design for RT-E1, 2026-10-31. Decided by Agent 0, who
-placed DEL-16-03's offline intake with the RT-E1 implementation manager.
+Implementation design for RT-E1, 2026-10-31.
 
 ## Why authorship matters here
 
