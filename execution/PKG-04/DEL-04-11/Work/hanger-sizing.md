@@ -15,6 +15,11 @@ suitability of any hanger. Standard claim fence applies (claims taxonomy per DEC
 **Labels.** **[decided]**: settled here, with the reason. **[open]**: listed in §14 with
 its owner.
 
+**Selection constraint.** Do not wake or resume the hanger implementation lane
+until the owner selects it. Only the owner can release this constraint.
+Constant-effort publication repairs and documentation reconciliation do not
+authorize hanger sizing, preload or a new hanger task.
+
 **Sources.** Every rule below is a mechanics or arithmetic statement written for this
 design. No supplier catalogue, supplier selection procedure or standards text is used.
 Load variation, travel allowance and the selection rule are inputs the user supplies;

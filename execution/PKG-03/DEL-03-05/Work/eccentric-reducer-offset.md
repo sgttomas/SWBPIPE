@@ -28,6 +28,21 @@ benchmark is a candidate reference, and no output here is engineering approval.
 Paths are relative to `projects/chirality-piping/`. PP is
 `core/product_physics/src`.
 
+## Open coverage and account questions
+
+§7.6 describes scale 1 and 1000, while the inspected W15C-R/O generator rows
+in `validation/references/w15c_eccentric_reducer/generators/w15c_reference.py`
+and the maintained `core/product_physics/tests/common/w15c_bench.rs` coverage
+exercise scale 1000. Scale-1 R/O coverage is not established by that account.
+Next actor: Agent 0 scopes the missing coverage or reconciles the claim
+against actual evidence; no reference value or criterion changes here.
+
+Separately, historical split linear/rotational-stiffness TBDs must not be read
+as the implemented mechanism: `rigid-component-stiffness-scaling.md` and the
+current ScopeOfWork describe uniform DEC-045 scaling and optional split values
+that are checked but not applied. Any remaining account reconciliation must
+preserve that distinction, not silently substitute one capability for another.
+
 ## 1. What it is
 
 An eccentric reducer joins two pipes of different size. The centerlines at its
