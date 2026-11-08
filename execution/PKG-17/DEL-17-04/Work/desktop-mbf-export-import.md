@@ -2118,7 +2118,8 @@ Criterion 6 is not claimed: reference-family coverage, C6-2 and Route 1 stay ope
 
 ## 5. The round-trip check
 
-**In CI, with invented data only.**
+**The planned complete-family check in CI, with invented data only.** The supported-subset connecting
+candidate is narrower and is described in §5.1; it does not establish this complete-family check.
 
 - **Fixture.** `fixtures/caepipe_mbf/invented/coverage/coverage_model.json`, with its
   invented-provenance sidecar. It holds one instance of every family the writer covers, and
@@ -2157,6 +2158,51 @@ source (today valves, reducers, flanges, rigid elements and nozzles; Q-3) are au
 fixture and expected in the loss report until their sources exist. The fixture is named here
 and in RT-R7/R8's status column; the release target's criterion text is the owner's and is
 not edited.
+
+### 5.1 Supported-subset connecting candidate (slice 6)
+
+The maintained input is `fixtures/caepipe_mbf/invented/desktop_export/export_model.json`: an invented bent run,
+two library sections, anchors, a linear spring, one sustained force and one thermal case. Its pressure-region
+set is empty. This is the existing supported subset, not the criterion-1 reference system or a new family
+mapping. Its exact settings are the `degc-default` case of `review_cases.json`; `export_digests.json` and
+`desktop_import/import_replies.json` bind the source, saved MBF, identity file and declaration bytes. The raw
+import replies and their public provenance companion remain the native generator's output (§4.9.2).
+
+`apps/desktop/src/App.mbfRoundTrip.test.tsx` joins the mounted App's actions in one session: ordinary Open
+loads that selected source; File > Export MBF… reviews it and explicitly saves; closing export retires it;
+File > Import MBF… reviews and adopts the matching bound or unbound reply. The test host checks the submitted
+canonical model, model hash, exact settings and pair digests together, rather than returning an unrelated
+import after an arbitrary export. Unbound import requires the per-material declaration and its new review.
+The candidate reaches the maintained Open validator once by reference. Opening export again reads the
+committed session model and compares its whole document with the native candidate. The negative cohorts
+check whole-model preservation after a stale Adopt and after Open's unsaved-changes guard cancels an import
+of the earlier saved pair; cancellation sends no Adopt and retires the source once.
+
+This is **mocked native transport coverage**. Export review and import payloads come from the maintained native
+producers; the save receipt is a stub with their exact pair sizes and digests. The App test writes no MBF and
+opens no native chooser. `mbf_import_tests.rs` separately connects actual export review/save task 3, the file
+transaction and read-back, and task-5 open/review/adopt on those saved bytes, bound and unbound. Its generator
+`the_dialogs_import_replies_are_the_native_replies` compares the complete captured reply strings with the
+maintained fixture and checks the exact input/provenance bindings. Component passes and this mocked App
+cohort cannot establish that a launched desktop app performed that native round trip.
+
+The focused execution packet is the desktop Vitest cohort `src/App.mbfRoundTrip.test.tsx` and the native
+`mbf_import::tests` cohort, including the reply producer above, from the same selected candidate source and
+its committed fixtures. Local native execution and the App's wasm-dependent tests await a usable, scheduled
+host route; no other lane's binaries supply qualification. Hosted CI can establish its own built-source
+results. Exact executions, checks and source revisions belong in the PR.
+
+The remaining actual App witness uses this invented input and those settings, saves through the native
+chooser, imports that written pair bound, and repeats without the identity file with each material explicitly
+designated. It must record the actual selected build/input bytes, complete export/import reviews and output
+ceilings, saved-pair bindings, adopted model and identity comparison, and Open guard/session-retirement
+behavior. A native test process plus mocked App replay does not supply that witness. App launch/capture
+requires separate authority; this candidate does not claim C6-2, full reference-family coverage or criterion 6.
+The unsupported-family refusals and metadata/provenance dispositions remain those of the import Design,
+including §20.5.10; combinations remain outside criterion 6 under §8.1's owner amendment.
+
+This test-only connection changes neither DEL-17-04 nor DEL-07-12's ScopeOfWork or dependency conditions.
+The existing GUI/native split and Open-consumer boundary remain in force.
 
 ## 6. Slices
 
