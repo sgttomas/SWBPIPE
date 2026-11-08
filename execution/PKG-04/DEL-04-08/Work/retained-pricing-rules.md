@@ -6561,15 +6561,18 @@ explicit unit scopes unchanged; do not query App availability or ask it to quit 
 coordination only when the owner advises that local LLM testing has resumed. The completed attempt's actual App
 concurrence, closure, deferral and release facts above remain historical facts, rather than future gates.
 
-### 8.60 RT-A3 S6: nonlinear supports on load/reference-state documents and beside objective connectors on main's §8.58 tree (actual-source D3)
+### 8.60 RT-A3 S6: nonlinear supports on load/reference-state documents and beside objective connectors on the adopted modal §8.59 predecessor (actual-source D3)
 
-**Status.** Final-composition proposal on accepted predecessor `00d4820d15f01bcada536c97b2bc129efd64575a` (#164), not yet qualified. The independently reviewed private proposal was `abc8bac62340a515d12d84392dd2ea105495aa2a` on declared `394f4c623`/§8.58. The original proposal derivation below remains its evidence. The composed source's pricing, registration binding and AC-004 inputs are re-derived under "Final composition" below; fresh changed-proof scrutiny of that composition and the AC-004 attempt remain pending. Proposed registration for RT-A3 S6 (DEL-04-07 `Work/route-unification-r4.md` §3.7;
-`codex/rt-a3-s6`). It is made under the owner's removal of explicit owner approval for coefficient movement;
-source-derived pricing, independent scrutiny and preservation of the registered state remain required. This records no
-acceptance and adopts nothing: the generated block, the two reviewed inputs and the law and challenge records below are
-a candidate for the independent pricing and preservation review. No numerical parameter, threshold, M, margin or
-reserve moves. **AC-004 is pending**: the witnessed binaries change and stack neutrality is not established (below,
-"Stack").
+**Status.** Source, numerical, pricing and preservation scrutiny are complete for the final-composition candidate
+`1a07aec6b732ffcf1b050626341780ff92888fbd` on accepted predecessor
+`00d4820d15f01bcada536c97b2bc129efd64575a` (#164). The one newly authorized current-source AC-004 attempt passed,
+with verified closure (below). Exact-head hosted checks, publication consultation and integration remain pending.
+The independently reviewed private proposal was `abc8bac62340a515d12d84392dd2ea105495aa2a` on declared
+`394f4c623`/§8.58; its original derivation below remains the evidence for the unchanged conservative pricing delta.
+This registration candidate for RT-A3 S6 (DEL-04-07 `Work/route-unification-r4.md` §3.7) records no acceptance,
+release or public admission. No numerical parameter, threshold, M, margin or reserve moves. The full workflow still
+requires the separate CE publication repair, S7's intended friction-normal source and R-3 gap qualification; the
+connecting-path evidence supplies no independent global nonlinear solution or state-accuracy qualification.
 
 **Final composition (`da0afeabb`, core `e8e83ae9f1b7dbf7a9984eee1fa8d7a7688cad87`).** The S6 proposal
 `abc8bac62` merged with the accepted predecessor `00d4820d1` (§8.59's modal support operations on the MBF import
@@ -6603,8 +6606,7 @@ pre-renumbering "§8.59" ("Section names cited elsewhere"). Their bytes are pric
   The partition attributes the predecessor's two MBF desktop-import JSON files, which are byte-identical to it, to
   the predecessor. The maintained runtime-read graph validates 47 manifests, all 45 bound tree digests and 1,807
   resources.
-- **AC-004 inputs (prepared, not run).** Required: S6's and §8.59's changed PP sources both compile into the witnessed
-  binaries, and no witness has run on this source. The guarded build at `da0afeabb` gives the lib-test
+- **AC-004 artifacts.** S6's and §8.59's changed PP sources both compile into the witnessed binaries. The guarded build at `da0afeabb` gives the lib-test
   `open_pipe_stress_product_physics-f31c71322c8cc2bc`, SHA-256
   `8f2b649d4bc6ffd4933aeda986e7a1c2bf4f649315edb57dc721e6a67a7d0c73`, and the challenge
   `retained_memory_challenge-0a8cb81bbc9e389a`, SHA-256
@@ -6613,7 +6615,41 @@ pre-renumbering "§8.59" ("Section names cited elsewhere"). Their bytes are pric
   Their dep-info lists 379 and 3 local files, all tracked. Four are the predecessor's modal files and 45 are S6's;
   none is changed by both, and no MBF/desktop-import resource appears. The harness, literal direct-supervisor command
   and technical binding are in `/Users/ryan/dev/chirality-t3/scratch/rt-a3-s6-final/ac004/`, bound to the candidate
-  head. That scratch is not a permanent dependency. No witness is queued, run or cleared, and no GO exists.
+  head. That scratch is not a permanent dependency. The technical packet was independently scrutinized before the single
+  attempt recorded below; its one-attempt GO is consumed, with no continuing resource hold or retry authority.
+
+
+**Current-source AC-004 result (2026-11-08).** Independent changed-proof scrutiny cleared exact `1a07aec6b`
+and the frozen technical packet before Agent 0 granted one attempt. Immediately before execution, both clean source
+checkouts, head/core, source and read-only artifact hashes, compiler/profile/lock, command/harness/supervisor bindings
+and empty destinations matched. A separate admission-only check executed zero tests and acquired no locks. The exact
+bound command then ran once, without builds, added tests or retry, through the approved direct supervisor (60 s from
+arming through release, 3 s reserve, 1 s TERM grace, separate 55 s inner target; untimed queue).
+
+| Exact once-only test | Result | Harness process time |
+|---|---|---:|
+| W1 headroom, sparse | 1 passed, 0 failed | 2.54 s |
+| W1 headroom, dense | 1 passed, 0 failed | 0.64 s |
+| W2 deep milestone, sparse | 1 passed, 0 failed | 1.26 s |
+| W2 deep milestone, dense | 1 passed, 0 failed | 1.27 s |
+| W_C2 publication, sparse | 1 passed, 0 failed | 2.40 s |
+| W_C2 publication, dense | 1 passed, 0 failed | 2.39 s |
+| `retained_direct_peak_is_within_the_profiles_bounds` | 1 passed, 0 failed | 5.16 s |
+
+Outer rc/outcome was **0/success**, payload rc 0 and strays 0. The harness took **15.916 s ≤ 55 s**;
+armed `3498673.264125375` to released `3498689.2123925` was **15.948267 s ≤ 60 s**. Source and both immutable
+binary post-hashes matched the bindings above. Containment was verified with no error or overrun; the owned pending
+marker was removed, the sentry reaped and all four acquired lock descriptors closed before the release mark.
+Post-return kernel membership was empty and the controller, sentry and payload identities were absent. Agent 0
+independently parsed the raw receipt and inner JSON and confirmed the ordered seven results and closure.
+
+The separate raw files are `supervisor.receipt.json`, `inner.stdout.json` and `combined.stderr.log` in
+`/Users/ryan/dev/chirality-t3/scratch/rt-a3-s6-final/ac004/attempt-1/`. Their SHA-256 values are
+`3900cdec9ba21bd808b8fa2965495330c8a601be44bdfc41ff7ea7fd084aa9e8` (receipt),
+`b81e4d13b5e2b91b144a233246f72403531faa13518e64dedd3f3fa05a33a6cb` (inner JSON), and the receipt's hash again
+(stderr, 1,654 bytes, byte-identical to the raw receipt). The named witness qualification applies to this exact
+compiled source; it does not assert stack-frame neutrality, acceptance, release or completion of other workflows.
+The qualification record adds no compiled input; later documentation alone does not require another attempt.
 
 **Basis.** Main `394f4c623` (#157, docs only against `e8cfa72d5`). Its core tree prices as §8.58: the committed tool
 at that source exits 0, O-10 0/0, all four points complete; D (L(3,0) 43,783, L(2,1) 39,373, L(1,2) 35,239, E 76,356)
@@ -6709,12 +6745,14 @@ evaluations fit the unchanged M, margin and reserve policy (the law tests check 
   8,596,971,246, 7,670,667,044, 8,585,504,689, 7,318,122,079, 6,991,411,955]. Challenge `W1_PHASE_BYTES`
   [6,450,393,241, 6,509,524,585], `MAX_PHASE_BYTES` [8,744,123,630, 8,803,254,974].
 
-**Stack.** Coefficient identity is not claimed and stack neutrality is not established from source. On D1 the case
+**Initial isolated stack inspection.** Coefficient identity with the predecessor is not claimed and stack neutrality
+is not established from source. The static frame observations below belong to the original isolated proposal; the
+combined artifacts passed the named current-source witnesses above. On D1 the case
 solve gains the 72 B `CaseMotionEvidence` temporary and the `base_motion` reference; `solve_prepared_load_case`'s
 static frame on the candidate's debug lib-test binary is 0x2c000 + 0x7c0 + 0x30 = 182,256 B
 (`run_linear_static_preview_observed_inner` 0x10000 + 0xd30 + 0x20, `solve_load_case_observed` 0x390 + 0x40,
 `capture_nonlinear_state_evidence` 0x290 + 0x20). No main binary was built in this pass, so no frame delta is stated:
-AC-004's witnesses are required on the registered candidate's binaries.
+the current-source AC-004 result above supplies the named witness evidence on the combined candidate's binaries.
 
 ## 9. Memory-profile gates and registration
 

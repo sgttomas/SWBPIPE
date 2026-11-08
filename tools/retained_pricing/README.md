@@ -566,6 +566,8 @@ W16-NS's arms (and excludes `CaseMotionEvidence::resolve`, the modal state case'
 `CombinationExpression::resolve` by its impl, since lib.rs now has two `fn resolve`. Against main `394f4c623` (the kept
 §8.58 tree) 16 coefficients rise and none fall (O_base +256 B, STATICS +779 B, +17 Node, +78 Value, TAV +2,718 B);
 every native phase rises +18,761 B. The regenerated block, reviewed inputs #8 and #11 and the law and challenge records
-are a proposal for independent review; AC-004 is pending. S6 was drafted as §8.59; its source and tool comments
+have cleared numerical/pricing/preservation scrutiny on the final composition; its one current-source AC-004 attempt
+passed all seven once-only tests with verified closure at `1a07aec6b`. Exact-head hosted checks, publication
+consultation and integration remain pending. S6 was drafted as §8.59; its source and tool comments
 still cite that number, which now means §8.60 (the modal support operations are §8.59). On the final composition
 with §8.59's predecessor (`da0afeabb`) the tool prices S6's tree unchanged. See the governing rules' §8.60.

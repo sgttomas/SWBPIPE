@@ -911,8 +911,12 @@ supports only and grant no held, lock, preload or device-reference behavior.
   RS-LO1 lifts. RS-EXP and RS-dSAM are published as their operands'
   differences. The published states are reported, not verified (no independent
   nonlinear full-system solution exists).
-- **Open.** D3 registration (§8.60 of DEL-04-08's retained-pricing rules,
-  proposed; drafted as §8.59); the intended RS-FR1V `one_way` normal source (refused by
+- **Qualification and open limits.** Final-composition source/pricing/preservation scrutiny is clear at
+  `1a07aec6b` on accepted main `00d4820d1`; its newly authorized AC-004 attempt passed all seven exact tests once,
+  with unchanged post-hashes and verified containment, cleanup and release (15.916 s inner; 15.948267 s outer).
+  §8.60 of DEL-04-08's retained-pricing rules records the result; exact-head hosted checks, publication consultation
+  and integration remain pending. The original private entry was drafted as §8.59. This does not complete the full
+  reference/report workflow: the intended RS-FR1V `one_way` normal source (refused by
   `NONLINEAR_FRICTION_NORMAL_SOURCE_INVALID`, S7) and RS-G1's qualification
   (R-3). Finding F-CE, which precedes S6: on this document the consumed RS-CE1's
   `support_reaction_component_v2` rows are 0.0 in every S6 case and mode while
