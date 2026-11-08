@@ -1,11 +1,9 @@
 ---
-doc_id: OPS-CODE-NEUTRAL-ANALYSIS-BOUNDARY
-doc_kind: architecture.data_model
-status: draft
-created: 2026-04-30
-deliverable_id: DEL-02-03
-package_id: PKG-02
-scope_item: SOW-002
+name: swbpipe-architecture-code-neutral-analysis-boundary
+description: Define code-neutral mechanics, rule-check and human-acceptance boundaries.
+metadata:
+  kind: instruction
+  surface: requirements
 ---
 
 # Code-Neutral Analysis Boundary

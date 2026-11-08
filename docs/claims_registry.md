@@ -1,3 +1,10 @@
+---
+name: swbpipe-claims-registry
+description: Govern the boundary statements used in public software claims.
+metadata:
+  kind: instruction
+  surface: reference
+---
 # Claims Registry — Governed Boundary-Statement Vocabulary
 
 **Authority:** D-48 Option O-A, ruled 2026-07-16 and codified as `DEC-081`

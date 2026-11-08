@@ -1,24 +1,14 @@
 ---
-doc_id: OPS-SECURITY-THREAT-MODEL
-doc_kind: security.threat_model
-status: draft
-created: 2026-05-02
-deliverable_id: DEL-12-05
-package_id: PKG-12
-scope_items:
-  - SOW-040
-objectives:
-  - OBJ-010
-refs:
-  - rel: governed_by
-    to: OPS-CONTRACT
-  - rel: governed_by
-    to: OPS-IP-DATA-BOUNDARY
-  - rel: informed_by
-    to: OPS-PROFESSIONAL-BOUNDARY
+name: swbpipe-security-threat-model
+description: Describe security assets, threats, trust boundaries and unresolved risks.
+metadata:
+  kind: explanation
+  surface: reference
 ---
 
 # Security Threat Model
+
+This document is governed by `OPS-CONTRACT`; is governed by `OPS-IP-DATA-BOUNDARY`; is informed by `OPS-PROFESSIONAL-BOUNDARY`.
 
 This threat model records OpenPipeStress security and privacy risks for private
 data, report sharing, plugins, imports, local-first storage boundaries,

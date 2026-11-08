@@ -1,11 +1,9 @@
 ---
-doc_id: OPS-DEVELOPER-GUIDE
-doc_kind: documentation.developer_guide
-status: draft
-created: 2026-05-03
-deliverable_id: DEL-11-02
-package_id: PKG-11
-scope_item: SOW-033
+name: swbpipe-developer-guide
+description: Guide SWBPIPE development, architecture and verification.
+metadata:
+  kind: instruction
+  surface: reference
 ---
 
 # SWBPIPE Developer Guide

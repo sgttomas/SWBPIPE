@@ -1,19 +1,14 @@
 ---
-doc_id: OPS-VALIDATION-MANUAL-SKELETON
-doc_kind: governance.validation_manual
-status: draft
-created: 2026-05-04
-updated: 2026-10-23
-refs:
-  - rel: governed_by
-    to: OPS-CONTRACT
-  - rel: strategy
-    to: OPS-VALIDATION-STRATEGY
-  - rel: implements
-    to: DEL-09-04
+name: swbpipe-validation-manual
+description: Organize software verification evidence and its validation limits.
+metadata:
+  kind: explanation
+  surface: reference
 ---
 
 # Validation Manual
+
+This document is governed by `OPS-CONTRACT`; uses the strategy in `OPS-VALIDATION-STRATEGY`.
 
 ## 1. Authority Boundary
 

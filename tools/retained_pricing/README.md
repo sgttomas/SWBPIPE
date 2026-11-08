@@ -1,3 +1,10 @@
+---
+name: swbpipe-retained-pricing
+description: Derive and compare retained-route source pricing and bound profiles.
+metadata:
+  kind: instruction
+  surface: tool
+---
 # Retained pricing
 
 This tool prices the retained route's memory at a revision and generates the GENERATED PROFILE block in `core/product_physics/src/retained_memory.rs`. Registration separately binds the actual build, reviewed inputs, layouts and selected threshold.

@@ -1,15 +1,9 @@
 ---
-doc_id: OPS-VALIDATION-MANUAL-HEADLESS-RUNNER-REPRODUCTION
-doc_kind: governance.validation_manual_section
-status: draft_evidence
-created: 2026-07-05
-refs:
-  - rel: implements
-    to: DEL-09-04
-  - rel: exercises
-    to: DEL-10-05
-  - rel: decision_basis
-    to: DEC-065
+name: swbpipe-validation-manual-headless-runner-reproduction
+description: Reproduce supported headless runner paths while preserving historical procedures.
+metadata:
+  kind: instruction
+  surface: reference
 ---
 
 # Headless Runner Reproduction Slice

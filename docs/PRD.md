@@ -1,3 +1,10 @@
+---
+name: swbpipe-prd
+description: Define SWBPIPE product requirements, scope and owner-reserved decisions.
+metadata:
+  kind: instruction
+  surface: requirements
+---
 # Product Requirements Document: SWBPIPE
 
 **Product name:** SWBPIPE  

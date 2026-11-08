@@ -1,24 +1,18 @@
 ---
-
+name: swbpipe-spec
+description: Specify SWBPIPE technical interfaces and implementation contracts.
+metadata:
+  kind: instruction
+  surface: requirements
+---
 Pressure applicability follows the [current pressure contract](../execution/PKG-04/DEL-04-07/Work/pressure-contract.md).
 `legacy_pressure_v1` is retired, including zero-pressure documents. References
 to pressure quantities or validation coverage below are subject to that current
 boundary and do not establish implemented T4 capability.
 
-doc_id: OPS-SPEC
-doc_kind: governance.technical_spec
-status: draft
-created: 2026-04-30
-refs:
-  - rel: depends_on
-    to: OPS-CONTRACT
-  - rel: depends_on
-    to: OPS-TYPES
-  - rel: implements
-    to: OPS-PRD
----
-
 # SPEC — OpenPipeStress Technical and Agentic Implementation Specification
+
+This document depends on `OPS-CONTRACT`; depends on `OPS-TYPES`; implements `OPS-PRD`.
 
 ## 1. Architectural overview
 

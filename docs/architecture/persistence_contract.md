@@ -1,13 +1,9 @@
 ---
-doc_id: OPS-PERSISTENCE-CONTRACT
-doc_kind: architecture.data_model
-status: draft
-created: 2026-04-30
-deliverable_id: DEL-02-05
-package_id: PKG-02
-scope_items:
-  - SOW-050
-  - SOW-041
+name: swbpipe-architecture-persistence-contract
+description: Define project persistence, interchange and storage boundaries.
+metadata:
+  kind: instruction
+  surface: requirements
 ---
 
 # Project Persistence Contract

@@ -1,15 +1,9 @@
 ---
-doc_id: OPS-THEORY-HANGER-SIZING
-doc_kind: theory.note
-status: draft
-created: 2026-11-02
-updated: 2026-11-02
-deliverable_id: DEL-11-03
-package_id: PKG-11
-subject_deliverable: DEL-04-11
-release_target_rows:
-  - RT-A11
-  - RT-V4
+name: swbpipe-theory-hanger-sizing
+description: Explain hanger-sizing mechanics, evidence and current limits.
+metadata:
+  kind: explanation
+  surface: reference
 ---
 
 # Hanger Sizing

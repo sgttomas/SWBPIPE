@@ -1,19 +1,14 @@
 ---
-doc_id: OPS-BUILD-AND-RELEASE
-doc_kind: engineering.release_build_guide
-status: draft
-created: 2026-05-04
-deliverable_id: DEL-10-04
-refs:
-  - rel: governed_by
-    to: OPS-CONTRACT
-  - rel: governed_by
-    to: OPS-RELEASE-QUALITY-GATES
-  - rel: implements
-    to: SOW-032
+name: swbpipe-build-and-release
+description: Guide local builds, packaging and release checks.
+metadata:
+  kind: instruction
+  surface: reference
 ---
 
 # Build And Release Guide
+
+This document is governed by `OPS-CONTRACT`; is governed by `OPS-RELEASE-QUALITY-GATES`; implements `SOW-032`.
 
 ## 1. Purpose
 

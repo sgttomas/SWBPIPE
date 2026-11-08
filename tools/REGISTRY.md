@@ -1,3 +1,10 @@
+---
+name: swbpipe-registry
+description: Locate maintained repository tools and their instruction sources.
+metadata:
+  kind: explanation
+  surface: tool
+---
 # Tool Registry
 
 | Name | Category | Language | Purpose | Inputs | Outputs |

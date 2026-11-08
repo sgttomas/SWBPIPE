@@ -1,3 +1,10 @@
+---
+name: swbpipe-docs
+description: Map product documentation and its authority boundaries.
+metadata:
+  kind: explanation
+  surface: reference
+---
 # SWBPIPE documentation
 
 [Chirality thesis](https://github.com/sgttomas/chirality-library/blob/main/docs/thesis/README.md) develops the reasons for this engineering

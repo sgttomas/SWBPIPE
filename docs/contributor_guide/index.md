@@ -1,3 +1,10 @@
+---
+name: swbpipe-contributor-guide
+description: Guide contributions under project authority and data boundaries.
+metadata:
+  kind: instruction
+  surface: reference
+---
 # SWBPIPE Contributor Guide
 
 External contribution intake remains closed until the owner activates it with

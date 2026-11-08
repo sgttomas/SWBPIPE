@@ -1,3 +1,10 @@
+---
+name: swbpipe-release-target-v1-0
+description: Set the v1.0 capability target, verification criteria and reserved decisions.
+metadata:
+  kind: instruction
+  surface: requirements
+---
 # SWBPIPE v1.0 (publication-ready): release target
 
 **Status:** PRD companion (`docs/PRD.md` §24 V1). It is the target for the

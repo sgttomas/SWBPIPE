@@ -1,3 +1,10 @@
+---
+name: swbpipe-release-limitations-v1-0
+description: Record v1.0 refusals and their owner acceptance status.
+metadata:
+  kind: instruction
+  surface: requirements
+---
 # SWBPIPE v1.0 release limitations
 
 **Status:** companion to `docs/RELEASE_TARGET_v1.0.md`, for exit criterion 3:

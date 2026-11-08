@@ -1,3 +1,10 @@
+---
+name: swbpipe-architecture-adr
+description: Locate architecture decisions and explain their authority states.
+metadata:
+  kind: instruction
+  surface: reference
+---
 # Architecture Decision Records — Index
 
 This is the ADR surface anticipated by deliverable **DEL-00-01 — Architecture
