@@ -6382,7 +6382,7 @@ Run evidence (the runs, compares, block checks, builds, test logs), the AC-004 c
 
 ### 8.59 DEL-04-09: bounded modal support operations (isolated registration proposal)
 
-**Status: selected technical preparation, unadopted proposal on actual main `00832d746`.** This records the source-bound preparation for the
+**Status: qualified proposal on actual main `00832d746`; exact-head CI, consultation and integration pending.** This records the source-bound preparation for the
 repository-owned operations closing `T3.filters`, `T7.assembly` and `T9.construction`. It is not an accepted D3
 registration, a resource-window authorization, or permission to merge. The accepted registration
 remains §8.58 until the selected candidate completes the remaining gates. No coefficient, threshold, resource value,
@@ -6433,7 +6433,7 @@ lock acquisition, and the 60 s outer budget includes containment and release. Th
 payload at 57 s, with 1 s TERM grace inside that reserve. The frozen inner harness retains its separate 55 s checked
 target and seven exact processes, with all subprocesses in the inherited owned group. Supervisor receipt JSON is
 emitted after release to a separate trace file and combined stderr; inner stdout is separate. Empty-stderr claims
-from the legacy wrapper do not transfer. This tool binding grants no actual use, App concurrence or resource hold.
+from the legacy wrapper do not transfer. Tool availability grants no actual run or additional resource authority.
 
 **Priced reach and ownership.** The changed production PP files are `modal/eigen.rs`, `modal/integrity.rs` and
 `modal/resource.rs`; `modal/tests_resource.rs` is test-only. `modal_eigen` is outside the priced crates. The graph
@@ -6504,15 +6504,62 @@ Exact-head full-suite, cohort/CI and fresh changed-proof review results belong t
 requested two governing-text corrections, applied at `04859e301`: distinct entry/limb symbols and exact per-point
 positive-row/layout-observation counts. The B7b regression's unrelated global guard-inventory assertion was scoped
 to its own guard/no-size/no-zero contract, and its targeted recheck passes. The actual composition above changes no
-modal algorithm, pricing rule or reviewed carrier relationship. Still required are fresh technical inspection of the
-composed binding, App/resource/READY/brief-deferral/GO relay, AC-004, exact-head CI, and the mandatory publication
-interlocutor consultation before merge. The old `04859` freeze is preserved but superseded for real use by the
-actual-predecessor binding. No actual seven-process attempt has been queued or invoked.
+modal algorithm, pricing rule or reviewed carrier relationship. The composed binding received fresh technical
+clearance and the separate App/resource/READY/brief-deferral/GO relay; its one AC-004 attempt passed below. Still
+required are exact-head CI, the mandatory publication-interlocutor consultation and integration. The old `04859`
+freeze is preserved, unqueued and superseded for real use by the actual-predecessor binding.
 Coefficient identity does not transfer §8.58's 7/7: stack neutrality is not established, and the changed kernel and
 PP sources compile into the witnessed binaries. No old-predecessor evidence is represented as combined-source
 qualification. Review input is the source, committed tests, and the single named packet
 `/Users/ryan/dev/chirality-t3/scratch/rt-dynamics-support-ops/provisional-d3/` and the selected composition packet
 `/Users/ryan/dev/chirality-t3/scratch/rt-dynamics-support-ops/composition-00832/`; scratch is not a permanent dependency.
+
+**AC-004 actual result: 7/7 at `8c26b7556`.** One invocation of the literal direct-supervisor command passed on
+clean head `8c26b75566a8f6666b5f4ea66d56b4c2ab8c2d87`, composed core
+`a3633b180427fb672fdf8de79de07035e14e7c0e`. The post-run factual-record commit changes no qualified core,
+algorithm, rule, profile, point or cohort input. The guarded freshness/17-crate and dep-info assessment above, rather
+than the old whole-core hash, supports reuse of the bit-identical binaries:
+
+- lib-test `open_pipe_stress_product_physics-79ebb5202e3b32c5`, SHA-256
+  `9d7b678d1da2f1e4d5cf16dc17350d292731fef9e22dcd50b89c360e296404ee`;
+- challenge `retained_memory_challenge-16fde700e6590c16`, SHA-256
+  `64eabef5215b60f01ce8d98bafdc7764adc650c91fafa4730859f8587896cffa`;
+- inner harness `bb36175836cb9c518474d9bd79238b534d2299b41e1097583c7991d6775a1f1f`, with only HEAD/CORE/doc
+  identities changed; literal direct command `fe0db5ce3c5de1afdb973cee8c8634ae5ad5e521101ebf71fdae51fffb53599b`;
+- the approved supervisor source hash above; profile
+  `c4df869d523c7e7626515ac25cc1a8b459e9c791cbd73735ccbdafd2d861996c` and lock
+  `b7ebb02aafa8cfe214c18bc64941381b33ab3f9295e0fc774ee0819e1e4f5653`.
+
+The frozen binaries/directory were 0555 and harness/supervisor/command 0444. Admission matched clean HEAD/CORE,
+all hashes, rustc 1.97.1 `8bab26f4f68e0e26f0bb7960be334d5b520ea452`, memguard and all four flag-variable
+absence states. `W1_MEMBER_CAP_OUT` was absent/removed and `CHECK_ONLY` unset. Each ordered process ran exactly
+one test with rc 0: sparse/dense W1 headroom 2.08/0.64 s, W2 deep 1.28/1.30 s, W-C2 2.45/2.43 s, then the
+challenge 4.92 s. Inner runner entry was `2026-11-07T23:50:13.806Z`, end `23:50:29.275Z`, with the separately
+checked 55 s condition satisfied at 15.469 s and unchanged post-run binary hashes.
+
+The supervisor receipt records queue start `2026-11-07T23:50:13Z`, untimed queue wait 0.022696 s, actual
+`armed_monotonic = 3488886.813778333` and `released_monotonic = 3488902.3136155`: 15.499837 s through
+containment, owned pending cleanup and all four descriptor releases, within 60 s. Outer rc/outcome was 0/success;
+payload argv hash `112d548c2912dc2ee92936c2786bdbbefa1053ac552ddf1047980247dc2bddfc`, payload exit 0,
+strays 0, containment verified with no error/overrun, sentry reaped before release. Targeted post-return checks found
+owned controller 1195, sentry/group 1197 and payload 1198 absent and no pending marker. Source, modes, profile,
+lock, harness, supervisor, command and both binary hashes still matched. Matching verified closure was sent to
+Agent 0, which independently verified the raw receipts and released App/S6 scheduling. No second attempt is planned.
+
+Raw `inner.stdout.json` (SHA-256 `ea3a3efbca4b2757c1e550c6f65772240f91a7f416472512e487c23e32307153`),
+`combined.stderr.log` and `supervisor.receipt.json` remain distinct in the one named raw packet,
+`/Users/ryan/dev/chirality-t3/scratch/rt-dynamics-support-ops/composition-00832/ac004/attempt-1/`.
+The supervisor receipt is `17074427f2febbc616237cfca9ce83e349e5cf81f290ba2a6dc13395ec87b853`; combined
+stderr equals its 1,652 bytes and is not empty. These are execution/closure results, not acceptance, completed
+registration, a new resource value, modal admission or release. All three remaining initial unbounded terms, the
+undetermined weights and the whole-invocation gaps remain open. No M03 work follows from this pass.
+
+**Later owner policy.** After this completed attempt, the owner removed routine App Agent 0 resource-reservation,
+deferral and normal-close coordination while locally served MacBook Pro LLMs are not in use. Ordinary App and
+SWBPIPE development proceed within the managed allocation, with existing wrappers, limits, technical checks and
+explicit unit scopes unchanged; do not query App availability or ask it to quit for routine work. Resume that
+coordination only when the owner advises that local LLM testing has resumed. The completed attempt's actual App
+concurrence, closure, deferral and release facts above remain historical facts, rather than future gates.
 
 ## 9. Memory-profile gates and registration
 
@@ -6537,7 +6584,9 @@ Two limits keep these bounds fail-closed rather than reachable at the census max
 
 ## 10. Reproducing a registered revision
 
-The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.55's priced source `a96bd2966` and its registered head `98fda31a9`; §8.54's priced source `bcb01f184` and its registered head `57fc00261` are reproduced by main `9e5c69797`'s tool cohort; §8.53's priced source `51966dcd8` and main `108766899` are reproduced by `108766899`'s tool cohort, with `tools/repository_history.py`; §8.52's priced source `687fafdca` and its basis `c008fe48e` are reproduced by `c008fe48e`'s tool cohort; §8.51's registered head `d44e5c538` is reproduced by its own tool cohort, with `tools/repository_history.py`; §8.50's priced source `cadd9b577` was bound before §8.51's re-pins; §8.49's priced source `293e8da85` and its registered successor `4a8287001` are reproduced by `4a8287001`'s tool cohort (equally `03a5cd3b1`'s, whose tool tree is the same); §8.48's priced source, the merged head `a0220a641`, is reproduced by main `aa794eb68`'s tool cohort; §8.47's `a47a9ebf8` is reproduced by `41cf15b95`'s tool cohort; §8.46's `fbd0931d5` and its registered successor `e8a59f1fd` are reproduced by `e8a59f1fd`'s tool cohort; §8.44's `e2dbc7b33` is reproduced by `01e05a486`'s tool cohort; main `6c3cb46d3` (§8.45), §8.42's `92a6f81ff`, §8.41's adopted source `4e1972698` and earlier mains are reproduced with their own tool cohorts); at an earlier revision a pin stops it (exit 4). §8.45's carried block (33 coefficients above the lexer's tree, none below) was reproduced by main `db3151708`'s complete tool cohort; §8.44 regenerates the block on the lexer, so `generate --check` of the committed tool's tree at `e2dbc7b33` with §8.44's basis line matches the registered block again. Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
+The committed tool's source pins hold one current value each. For §8.59, this cohort reproduces the actual composed source `f4e23a3ce` (qualified at `8c26b7556`, same core), and `generate --check` uses the preserved §8.55 basis line. Earlier revisions need their complete historical tool cohort, including `tools/repository_history.py`, rather than a selective pin reset; no old source identity changes.
+
+For historical reference, the §8.55 cohort reproduced its then-current revision (§8.55's priced source `a96bd2966` and its registered head `98fda31a9`; §8.54's priced source `bcb01f184` and its registered head `57fc00261` are reproduced by main `9e5c69797`'s tool cohort; §8.53's priced source `51966dcd8` and main `108766899` are reproduced by `108766899`'s tool cohort, with `tools/repository_history.py`; §8.52's priced source `687fafdca` and its basis `c008fe48e` are reproduced by `c008fe48e`'s tool cohort; §8.51's registered head `d44e5c538` is reproduced by its own tool cohort, with `tools/repository_history.py`; §8.50's priced source `cadd9b577` was bound before §8.51's re-pins; §8.49's priced source `293e8da85` and its registered successor `4a8287001` are reproduced by `4a8287001`'s tool cohort (equally `03a5cd3b1`'s, whose tool tree is the same); §8.48's priced source, the merged head `a0220a641`, is reproduced by main `aa794eb68`'s tool cohort; §8.47's `a47a9ebf8` is reproduced by `41cf15b95`'s tool cohort; §8.46's `fbd0931d5` and its registered successor `e8a59f1fd` are reproduced by `e8a59f1fd`'s tool cohort; §8.44's `e2dbc7b33` is reproduced by `01e05a486`'s tool cohort; main `6c3cb46d3` (§8.45), §8.42's `92a6f81ff`, §8.41's adopted source `4e1972698` and earlier mains are reproduced with their own tool cohorts); at an earlier revision a pin stops it (exit 4). §8.45's carried block (33 coefficients above the lexer's tree, none below) was reproduced by main `db3151708`'s complete tool cohort; §8.44 regenerates the block on the lexer, so `generate --check` of the committed tool's tree at `e2dbc7b33` with §8.44's basis line matches the registered block again. Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
 
 The following are historical replay results, not procedures for the current tool. In their pre-W1 tool cohort, the replay restored the B7a/B7b source models (`base/b7a_*.py`, `lib/b7a_retired_carry.py`), `kd5_text_model.py`, `kd5_first_error_model.py`, `batch5_model.py`, the per-invocation pins in `o10_rules.py`, and C7's NumericCase pins in `prescribed_key_model.py`; source before batch 5 also used the original case consumer instead of the wrapper/helper pair.
 - **B7b at `837a04b770`.** With that historical cohort and its restored pins, the scratch tool priced `837a04b770` with exit 0, and `generate --check` of that tree matched the block committed at `e70c115764`. An earlier B7b revision stopped at a result_export pin (exit 4).
