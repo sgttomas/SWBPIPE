@@ -42,7 +42,7 @@ def edit(snap, path, old, new):
 
 U128, U64 = 39, 20
 ENTRY = 19 + 3 + (11 + 143)   # `{id} ({why})`: a 19 B id, ` ()`, `unbounded: ` and the longest reason
-# In rule order: resource.rs's six sites, then tests_resource.rs's three.
+# In rule order: resource.rs's six sites, tests_resource.rs's three, then the provisional support diagnostic.
 EXPECTED_ARGS = [
     {"overflow.0": 19},
     {'term.modal_resource_unbounded_reason().unwrap_or("noboundatP0")': 143},
@@ -54,6 +54,7 @@ EXPECTED_ARGS = [
     {"total": U128},
     {"ql_rotations": U64},
     {"hard_rejected": 5, "retained": 5},
+    {"error": 8192, "stage": 31},
 ]
 
 

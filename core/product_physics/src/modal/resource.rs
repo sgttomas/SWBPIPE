@@ -34,11 +34,28 @@
 //! - `MODAL_RESOURCE_ARITHMETIC_OVERFLOW`: a count, a product or a sum
 //!   overflows u128. Nothing wraps or saturates.
 //!
-//! **The capability boundary today.** T2's integrity work and T3's
-//! binary-search filters are unbounded and occur in every request, so
-//! **P0 refuses every budgeted request**, naming the unbounded terms. That is the approved weight-or-refuse boundary,
-//! stated plainly: P0 admits nothing until those terms are bounded. A
-//! request without a budget is unaffected.
+//! **The support operations' reservation refusals** are not P0's: a
+//! structural vector of `T3.filters`, `T7.assembly` or `T9.construction`
+//! (modal_eigen `support`) whose requested capacity overflows the
+//! addressable size refuses `MODAL_RESOURCE_ARITHMETIC_OVERFLOW`, and one
+//! the allocator refuses `MODAL_RESOURCE_ALLOCATION_REFUSED`, each typed by
+//! the kernel (`SupportResourceError` inside `DenseError`,
+//! `ReformationFailure`, `FormationError` and `SturmError`) and mapped by
+//! [`modal_support_resource_refusal`] through the dense solve, the
+//! re-formation and the Sturm construction (`diagnostic:modal:resource:
+//! support`). They are resource refusals: never a numerical, mass-census
+//! or budget-comparison refusal.
+//!
+//! **The capability boundary today.** T2's integrity work is unbounded and
+//! occurs in every request (and T1's integrity and confirmation work in
+//! every request with a state solve), so **P0 refuses every budgeted
+//! request**, naming the unbounded terms. That is the approved
+//! weight-or-refuse boundary, stated plainly: P0 admits nothing until those
+//! terms are bounded. A request without a budget is unaffected.
+//! `T3.filters`, `T7.assembly` and `T9.construction` are bounded (below):
+//! their std binary searches, sorts and maps were replaced by
+//! repository-owned operations (modal_eigen `support`) whose step counts
+//! are derived from source.
 //!
 //! **Dimensions** (§5.3.8's symbols; each an upper bound from source):
 //! - N, the nodes, and n_g = 6N.
@@ -62,7 +79,7 @@
 //!   only at S2b, which is not built, so it is recorded and not used.
 //! - D_K = Σ_K d_e², D_M = Σ_M d_e², E: from the re-formation's element
 //!   sizes (`reform_element_stiffness`/`_mass`, modal_eigen
-//!   `reformation/mod.rs:263`, `:357`): 12 × 12 for straights, arcs,
+//!   `reformation/mod.rs:286`, `:380`): 12 × 12 for straights, arcs,
 //!   connectors and tie rods; an arc's mass two 6 × 6 lumps; a body 6 × 6;
 //!   an axis spring 1 × 1; a skewed spring 3 × 3. Over every built pipe,
 //!   arc, connector, tie rod and spring, and one body per mass-bearing pipe
@@ -76,6 +93,21 @@
 //!   A call is at most 8 parts (`add_product4_within`, four factors), so
 //!   Q = 8μ parts per element entry; a re-formed position per element entry
 //!   is at most μ.
+//! - ν, the assembly's position visits per element entry, and θ, its
+//!   traversal steps per element entry (modal_eigen `reformation`
+//!   `for_each_position`): without a restraint basis every element is plain,
+//!   at most d(d + 1)/2 ≤ d² visits and 1 + d + d(d + 1)/2 ≤ 3d² steps, so
+//!   ν = 1 and θ = 3; with one an element may be mixed, at most 9d² visits
+//!   (≤ 3 coordinates per DOF) and 1 + d + d² + 3d² + 9d² ≤ 15d² steps, so
+//!   ν = 9 and θ = 15.
+//! - F̄ = P = n̄(n̄ + 1)/2 entries in each formed list (`stiffness.rs`): K's
+//!   list is one entry per stored column c ≤ r of each free row r of a
+//!   compressed matrix whose rows are sorted and deduplicated (frame_kernel
+//!   `structural/sparse.rs`), mapped by the injective free numbering; M's
+//!   is one entry per stored (row ≤ col) DOF pair of the upper node blocks
+//!   (keyed (i, j), i ≤ j), or with a restraint basis one per pair of the
+//!   blocks' coordinates (each node pair once): each a distinct lower
+//!   position, so at most P each, and L̄ = 2P together.
 //!
 //! **L̄, the limb span of every `ExactSum`** (modal_eigen `exact.rs`). An
 //! add of a part p at scale σ touches the three limbs from ⌊(e(p) + σ −
@@ -94,9 +126,9 @@
 //!   with a factor: q_a, q_b, the word, λ, x). B_lo = 5·(−1126) − 52 =
 //!   −5682; B_hi = 5·1024 = 5120.
 //! - *Level 2* (`add_terms_product`: the terms of a level-1 sum times at
-//!   most two binary64 factors; `reformation/mod.rs:1233`,
+//!   most two binary64 factors; `reformation/mod.rs:1510`,
 //!   `orthogonality.rs:176`; the formation difference adds level-1 terms
-//!   directly, `reformation/mod.rs:1018`): a term is an integer limb below
+//!   directly, `reformation/mod.rs:1279`): a term is an integer limb below
 //!   2³² at 2^(32(low₁ + k)), so B_lo = 32·low₁ − 2·1126 − 52 and B_hi =
 //!   32·(top₁ + 1) + 2·1024. No level-2 sum's terms are multiplied again.
 //! - *Adds:* every add is a part of a call counted in a term here (≤ 8 parts
@@ -149,7 +181,7 @@
 //! - `T3.kernel`: kernel steps of `solve_dense_pencil_with_allotments`
 //!   (modal_eigen `dense.rs:358`), item by item in
 //!   [`modal_resource_kernel_steps`] (S1). Band recovery is T4; the
-//!   binary-search filters are `T3.filters`.
+//!   massive-DOF complements are `T3.filters`.
 //!   - **The unit.** A kernel step is at most 64 operations. Operations are
 //!     counted literally: every read of a named value (a variable,
 //!     parameter, field or element), every arithmetic operation (+, −, ×, ÷,
@@ -222,11 +254,24 @@
 //!   - R enters as R̄(2n + 5). The iterations are at most the rotations (each
 //!     sweep has at least one rotation). Each iteration is 3 steps plus its
 //!     shift loop (≤ n), and each rotation 2 steps plus its row update (n).
-//! - `T3.filters`: **unbounded.** The kernel's and the census's massive-DOF
-//!   filters call std `slice::binary_search` (`dense.rs:423`, `:976`). Its
-//!   comparison count is a property of std's algorithm, and no toolchain is
-//!   pinned in the repository nor its source installed (rustc 1.97.1 stable,
-//!   no `rust-src`), so no source path and version can be cited (S1).
+//! - `T3.filters` = 2(n + 2) support steps (S1; 0 at n = 0, refused before
+//!   the filters). The kernel's and the census's massive-DOF lists are
+//!   `support::ascending_complement` of the structurally massless DOFs, n + 2
+//!   steps each (one per index, the call, and the list's checked
+//!   reservation; a body is at most 9 operations), where they were std
+//!   `slice::binary_search` filters. A *support step* is `T3.kernel`'s step
+//!   (at most 64 operations, counted literally) under the same premises; an
+//!   `ExactSum` call is one operation in it (its limb work is the `.limbs`
+//!   terms). A *reservation* (modal_eigen `support`'s module docs) is one
+//!   support step: the checked byte size, the `try_reserve_exact` request
+//!   (an allocator call, charged in no term) and the typed refusal, with
+//!   the caller's `?`; each function's own `?` on a refusal is within its
+//!   call step, and a refusal ends the call, so a refused call does at most
+//!   its counted steps. The kernel's `map_err` and `?` on the census's
+//!   result and the census's `?` and `Ok` wrapping of its returns
+//!   (`dense.rs:615`, `:959`–`:1003`; at most six operations in one
+//!   solve) lie within the straight-line row's margin above (≈ 412
+//!   operations charged as 768).
 //! - T4, band recovery (`dense.rs:759`–`:880`; S1): `T4.scaling` = 2n² + n
 //!   WideDd entry steps when p̄ > 0; `T4.visits` = 4p̄n² exact-product calls
 //!   (2n² in `recover_band_mode`, 2n² in `formed_pair_errors`);
@@ -243,24 +288,76 @@
 //!   `modal_quantities.rs:591`, `:625`); `T6.limbs` =
 //!   n̄_r·(4(n² + 3n)·(5L̄+16) + 4·(12L̄+32)).
 //! - T7 (S2): `T7.elements` = E element re-formations (fixed-size p128 work
-//!   each); `T7.assembly`: **unbounded** (the formation maps are
-//!   `BTreeMap`s and the formation difference binary-searches the formed
-//!   list: std containers whose step constants are not repository source);
-//!   `T7.limbs` = (5L̄+16)·(Q(D_K + D_M) + n(n + 1) + L̄·μ(D_K + D_M)) plus
-//!   (12L̄+32)·(2μ(D_K + D_M) + n(n + 1)).
+//!   each); `T7.assembly` = [`modal_resource_assembly_steps`] support steps,
+//!   every step of the re-formed pencil's assembly and of the formation
+//!   difference other than the element re-formations and the limb work:
+//!   the two matrices are each assembled twice (`ReformedPencil::new_*` and
+//!   `formation_difference`). Per matrix X, with D_X its element squares,
+//!   v_X ≤ ν·D_X position visits, u_X ≤ min(v_X, P) re-formed positions and
+//!   F_X ≤ P formed entries (modal_eigen `reformation`, each count stated
+//!   there):
+//!   - each assembly, 3t + 12v + 4n + 11 with t ≤ θ·D_X traversal steps
+//!     (three traversals and the checked visit count's call, two stable
+//!     counting sorts with their two reservations each, the slots, and the
+//!     keys', slots' and entries' reservations), where it was a `BTreeMap`;
+//!   - the pencil's range check, 5 per position (`to_dd` with at most five
+//!     scaling iterations each way, the level-1 span, and `check_entry`:
+//!     at most 230 operations), and on a refusal the element search, at
+//!     most 7·D_X;
+//!   - `formed_lower`, 9F + 4n + 9 (two stable counting sorts where it was
+//!     `sort_unstable_by_key`, and the checked and sorted lists'
+//!     reservations);
+//!   - `difference`, 27F + 50u + u·L̄ + 14n + 7: the accumulators, the two
+//!     merge walks (where it binary-searched), one step per term added (at
+//!     most L̄ terms per read), and `scaled_norm`'s WideDd arithmetic at 24
+//!     steps per entry (literally about 1,253 operations: two `from_dd`, two
+//!     `mul`, `abs` and two `add`) and 7 per row (`to_normal_or_zero` with
+//!     at most six scaling iterations: about 265), and four reservations
+//!     (the accumulators, the off-pattern list, each norm's rows);
+//!   - once, K's diagonals by a merge walk, n + F_K, and their scaling at 16
+//!     steps each (`Dd::div` and `Dd::sqrt`: about 632 operations), with
+//!     the scaling's reservation and fill 1 + n, and 4 for the calls.
+//!
+//!   So `T7.assembly` = Σ_X (6t_X + 24v_X + 7D_X + 36F_X + (55 + L̄)u_X +
+//!   26n + 38) + 18n + F_K + 5, charged at t_X = θD_X, v_X = νD_X, u_X =
+//!   min(νD_X, P) and F_X = P:
+//!   (6θ + 24ν + 7)(D_K + D_M) + (55 + L̄)(min(νD_K, P) + min(νD_M, P)) +
+//!   73P + 70n + 81. The operation figures above are literal counts under
+//!   the step convention, rounded up to whole steps with a margin; they
+//!   are a numerical-resource claim for independent review.
+//!   `T7.limbs` follows those same consumers, not a single assembly:
+//!   - `new_on_coordinates` assembles each matrix and reads each sum once
+//!     for its range check;
+//!   - `formation_difference` assembles each matrix again, reads each sum
+//!     once for matching/absent entries and once for its re-formed norm;
+//!   - every formed entry receives its value and is read for the difference
+//!     norm; matching sums contribute at most L̄ parts each.
+//!   Thus the insertions are bounded by 2Q(D_K + D_M) + n(n + 1) +
+//!   L̄·μ(D_K + D_M), and reads by 3μ(D_K + D_M) + n(n + 1).
+//!   Each insertion costs at most 5L̄+16 limb operations and each read
+//!   12L̄+32. Element re-formation itself is still once per operand:
+//!   the assembly traversals reuse already formed entries, so `T7.elements`
+//!   does not acquire a second element-reformation charge.
 //! - T8, residuals of every computed pair (S2b): `T8.insertions` =
 //!   n̄_c·μ(D_K + 2D_M) calls (K̂x, λM̂x, exact M̂x); `T8.generalized_mass` =
 //!   n̄_c·n·L̄ calls; `T8.rows` = n̄_c(2n + 1) WideDd row steps; `T8.limbs` =
 //!   n̄_c·((5L̄+16)·(Q(D_K + 2D_M) + 4nL̄) + (12L̄+32)·(2n + 1)).
 //! - T9, Sturm evidence at the dense profile, P = n(n + 1)/2 (S2):
-//!   `T9.construction`: **unbounded** (`ShiftPencil::from_entries` sorts up
-//!   to 2P merged records, `sturm.rs:571`, and `reverse_cuthill_mckee` sorts
-//!   every adjacency list twice, `sparse_direct/src/lib.rs:549`, `:555`: std
-//!   sorts, documented only as O(m log m). The traversals alone are
-//!   bounded: per component of m vertices, `bfs_reachable`, the first
-//!   `bfs_eccentricity`, at most m − 1 accepted further ones (the
-//!   eccentricity strictly grows and is at most m − 1) and one unsuccessful
-//!   one, so m + 2 traversals, n + 2C ≤ 3n over C components); `T9.factorization` =
+//!   `T9.construction` = [`modal_resource_construction_steps`] support steps
+//!   for `ShiftPencil::from_entries` (modal_eigen `sturm`), once per
+//!   request: 13L + 9n + 5P + 24 for L ≤ L̄ = 2P input entries (the checks,
+//!   three stable counting sorts where it was a std `sort_by_key`, the
+//!   union pattern, the scaling and row sums, and their twelve
+//!   reservations' steps) and the reverse Cuthill–McKee order
+//!   (`support::reverse_cuthill_mckee_lower`, repository-owned where it
+//!   was `sparse_direct`'s, whose two std sorts per adjacency list had no
+//!   source constant): 15n + 8q + 14 + (n + 3)(5n + 2q) + 3n(n + 1) with
+//!   q ≤ P − n off-diagonal positions (eleven of its steps reservations). The traversals are counted with their
+//!   sizes: per component of m nodes and h half-edges, at most m + 2
+//!   pseudo-peripheral traversals (reachability, the first candidate, at
+//!   most m − 1 accepted since the eccentricity strictly grows below m, and
+//!   one refused) and the final one, each at most 3m + h + 2 steps, and the
+//!   least-node scans at most (m + 1)(m + 2); `T9.factorization` =
 //!   s·(n(n − 1)(n − 2)/6 + n²) LDLᵀ steps (`factorize_ldlt`,
 //!   `sparse_direct/src/lib.rs:408`: per row of width w ≤ i,
 //!   w(w − 1)/2 + 2w + 1); `T9.passes` = s·(29P + 98n + 70) steps (the
@@ -276,13 +373,29 @@
 //! **Not charged here:** T11, the projection (it runs in the document path
 //! after `run_modal_dense`, and its count needs B_doc, still proposed), and
 //! work outside §5.3.8's table (K's formation, the mass assembly, the
-//! pencil's n² fill, the outcome's per-mode O(n_g) publication). **Memory**
-//! is an open item: the option-(c) ledger's rows still carry O(·) terms and
-//! approximate constants, so no memory check is made.
+//! pencil's n² fill, the outcome's per-mode O(n_g) publication, and
+//! modal_eigen `ModalBasis::new`'s duplicate-DOF check, which is a std
+//! `BTreeSet` and so has no source constant either). **Memory** is an open
+//! item: the option-(c) ledger's rows still carry O(·) terms and
+//! approximate constants, so no memory check is made. The support
+//! operations' structural vectors are stated where they are defined
+//! (modal_eigen `support`, `reformation`, `sturm`): each is requested once,
+//! fallibly, at an element count computed with checked arithmetic, and
+//! makes no further request; an overflow or an allocator refusal refuses by
+//! name (above). The stated capacities are requested sizes, not allocator
+//! rounding or resident memory. The structural vectors are freed when their
+//! call returns, except its result: the union pattern, the scaling and row
+//! sums and the order kept by the Sturm pencil. Distinct from them, the
+//! `ExactSum` limbs, the reads' scratch and term lists, the re-formed
+//! pencil's element lists and its retained stage workspace keep their
+//! existing growth by std's infallible allocation (a failure there still
+//! aborts; the limb allotment bounds the limbs). Their lifetimes and the
+//! retained workspace are the open ledger's.
 use super::integrity::{ModalIntegrityParameters, MODAL_RESOURCE_ARITHMETIC_OVERFLOW, MODAL_RESOURCE_PREFLIGHT_EXCEEDED};
 use super::prepare::Prepared;
 use crate::{diag, Diagnostic, DOF_PER_NODE};
 use open_pipe_stress_modal_eigen::dense::DenseAllotments;
+use open_pipe_stress_modal_eigen::SupportResourceError;
 use open_pipe_stress_nonlinear_supports::NonlinearSupportBehavior;
 use std::collections::BTreeSet;
 
@@ -445,9 +558,6 @@ impl ModalResourceTerm {
                 Some("the static dense path's M03 integrity work (preparation, audits, residual records, condition estimate) is not bounded from source in this slice")
             }
             T::T1Confirmation => Some("the confirmation evaluations have no source bound, and their A_conf counter is a held NI seam"),
-            T::T3Filters => Some("the massive-DOF filters use std slice::binary_search, whose comparison count has no pinned toolchain source in the repository"),
-            T::T7Assembly => Some("the formation maps are std BTreeMaps and the formation difference binary-searches; their step constants are not repository source"),
-            T::T9Construction => Some("the Sturm pencil and the RCM order use std sorts, documented only as O(m log m), with no constant from repository source"),
             _ => None,
         }
     }
@@ -575,12 +685,21 @@ pub(crate) struct ModalResourceDimensions {
     /// μ, exact-product calls per element entry (1, or 36 with a
     /// restraint basis).
     pub(crate) coordinate_multiplier: u128,
+    /// ν, the assembly's position visits per element entry (1, or 9 with a
+    /// restraint basis).
+    pub(crate) assembly_visits_per_square: u128,
+    /// θ, the assembly's traversal steps per element entry (3, or 15 with a
+    /// restraint basis).
+    pub(crate) assembly_steps_per_square: u128,
     /// T1's dimensions; `None` without nonlinear supports (no state solve).
     pub(crate) state: Option<ModalStateDimensions>,
 }
 
 /// μ with a restraint basis (module docs).
 const MODAL_RESOURCE_SKEW_PRODUCTS: u128 = 36;
+/// ν and θ without and with a restraint basis (module docs).
+const MODAL_RESOURCE_PLAIN_ASSEMBLY: (u128, u128) = (1, 3);
+const MODAL_RESOURCE_SKEW_ASSEMBLY: (u128, u128) = (9, 15);
 
 /// A resource overflow: the quantity that overflowed u128.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -616,8 +735,8 @@ fn modal_resource_ceil_log2(x: u128) -> u128 {
 /// T3's kernel steps at order n with R rotations: each body of the module
 /// docs' ledger, times its iterations (n_m, n_0, the positive and the kept
 /// rows each ≤ n), times its steps. Every item is monotone in n. The
-/// massive-DOF filters (`dense.rs:423`, `:976`) are `T3.filters` and are
-/// not counted here. The total is
+/// massive-DOF complements (`dense.rs:424`, `:969`) are `T3.filters` and
+/// are not counted here. The total is
 /// 5·n(n+1)/2 + 2·Σ_i Σ_{j≤i} j + 37·n(n−1)/2 + 3n·n(n−1)/2
 /// + 3·Σ_{t<n} t² + 21n² + 148n + 23 + R(2n + 5).
 pub(crate) fn modal_resource_kernel_steps(n: u128, rotations: u128) -> Result<u128, ModalResourceOverflow> {
@@ -713,6 +832,107 @@ pub(crate) fn modal_resource_kernel_steps(n: u128, rotations: u128) -> Result<u1
     )
 }
 
+/// `T3.filters` (module docs): the two massive-DOF complements, n + 2
+/// support steps each (one per index, the call and the reservation); 0 at
+/// n = 0, which the kernel refuses first.
+pub(crate) fn modal_resource_filter_steps(n: u128) -> Result<u128, ModalResourceOverflow> {
+    if n == 0 {
+        return Ok(0);
+    }
+    modal_resource_mul(2, modal_resource_add(n, 2, "T3.filters")?, "T3.filters")
+}
+
+/// The sizes `T7.assembly` is counted from (module docs), per matrix [K, M]:
+/// P0 fills them with bounds, a test with a run's actual sizes.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct ModalAssemblySizes {
+    /// n, the pencil order.
+    pub(crate) order: u128,
+    /// D_X, the element squares.
+    pub(crate) squares: [u128; 2],
+    /// t_X, the traversal steps of one assembly.
+    pub(crate) traversal: [u128; 2],
+    /// v_X, the position visits of one assembly.
+    pub(crate) visits: [u128; 2],
+    /// u_X, the distinct re-formed positions.
+    pub(crate) positions: [u128; 2],
+    /// F_X, the formed entries.
+    pub(crate) formed: [u128; 2],
+    /// L̄, the most terms a read gives.
+    pub(crate) limbs: u128,
+}
+
+/// `T7.assembly` in support steps (module docs):
+/// Σ_X (6t_X + 24v_X + 7D_X + 36F_X + (55 + L̄)u_X + 26n + 38) + 18n + F_K + 5.
+pub(crate) fn modal_resource_assembly_steps(sizes: &ModalAssemblySizes) -> Result<u128, ModalResourceOverflow> {
+    let q = "T7.assembly";
+    let p = |f: &[u128]| modal_resource_product(f, q);
+    let n = sizes.order;
+    let per_read = modal_resource_add(55, sizes.limbs, q)?;
+    let matrix = |x: usize| -> Result<u128, ModalResourceOverflow> {
+        modal_resource_total(
+            &[
+                p(&[6, sizes.traversal[x]])?,
+                p(&[24, sizes.visits[x]])?,
+                p(&[7, sizes.squares[x]])?,
+                p(&[36, sizes.formed[x]])?,
+                p(&[per_read, sizes.positions[x]])?,
+                p(&[26, n])?,
+                38,
+            ],
+            q,
+        )
+    };
+    modal_resource_total(&[matrix(0)?, matrix(1)?, p(&[18, n])?, sizes.formed[0], 5], q)
+}
+
+/// `T7.assembly`'s sizes at P0's bounds (module docs): t = θD, v = νD,
+/// u = min(νD, P), F = P.
+pub(crate) fn modal_resource_assembly_bounds(dims: &ModalResourceDimensions) -> Result<ModalAssemblySizes, ModalResourceOverflow> {
+    let q = "T7.assembly";
+    let n = dims.free;
+    let positions = modal_resource_mul(n, modal_resource_add(n, 1, q)?, q)? / 2;
+    let squares = [dims.stiffness_squares, dims.mass_squares];
+    let mut traversal = [0; 2];
+    let mut visits = [0; 2];
+    for x in 0..2 {
+        traversal[x] = modal_resource_mul(dims.assembly_steps_per_square, squares[x], q)?;
+        visits[x] = modal_resource_mul(dims.assembly_visits_per_square, squares[x], q)?;
+    }
+    Ok(ModalAssemblySizes {
+        order: n,
+        squares,
+        traversal,
+        visits,
+        // min(νD, P), without a `min` call (§8.58's MODAL-FB name link).
+        positions: visits.map(|v| if v < positions { v } else { positions }),
+        formed: [positions; 2],
+        limbs: dims.limbs,
+    })
+}
+
+/// The reverse Cuthill–McKee order's support steps (module docs) on n nodes
+/// with q off-diagonal positions: 15n + 8q + 14 + (n + 3)(5n + 2q) +
+/// 3n(n + 1).
+pub(crate) fn modal_resource_rcm_steps(n: u128, q: u128) -> Result<u128, ModalResourceOverflow> {
+    let t = "T9.construction";
+    let p = |f: &[u128]| modal_resource_product(f, t);
+    let traversals = p(&[modal_resource_add(n, 3, t)?, modal_resource_add(p(&[5, n])?, p(&[2, q])?, t)?])?;
+    let scans = p(&[3, n, modal_resource_add(n, 1, t)?])?;
+    modal_resource_total(&[p(&[15, n])?, p(&[8, q])?, 14, traversals, scans], t)
+}
+
+/// `T9.construction` in support steps (module docs): `from_entries` on L
+/// input entries with at most P union positions before and after its
+/// retain (P ≥ n, the diagonals), 13L + 9n + 5P + 24, and the order on
+/// q = P − n off-diagonal positions.
+pub(crate) fn modal_resource_construction_steps(n: u128, entries: u128, positions: u128) -> Result<u128, ModalResourceOverflow> {
+    let t = "T9.construction";
+    let p = |f: &[u128]| modal_resource_product(f, t);
+    let off_diagonal = positions.checked_sub(n).ok_or(ModalResourceOverflow(t))?;
+    modal_resource_total(&[p(&[13, entries])?, p(&[9, n])?, p(&[5, positions])?, 24, modal_resource_rcm_steps(n, off_diagonal)?], t)
+}
+
 /// The count c_t of every term (module docs) from `dims`; `None` for a term
 /// with no bound.
 pub(crate) fn modal_resource_term_counts(
@@ -748,6 +968,7 @@ pub(crate) fn modal_resource_term_counts(
     set(T::T2Factor, screen);
     set(T::T2Entries, entries);
     set(T::T3Kernel, modal_resource_kernel_steps(n, dims.ql_rotations)?);
+    set(T::T3Filters, modal_resource_filter_steps(n)?);
     set(T::T4Scaling, if b > 0 { t(&[p(&[2, n2], "T4.scaling")?, n], "T4.scaling")? } else { 0 });
     set(T::T4Visits, p(&[4, b, n2], "T4.visits")?);
     set(T::T4Insertions, p(&[4, b, n2], "T4.insertions")?);
@@ -761,13 +982,14 @@ pub(crate) fn modal_resource_term_counts(
     let mode_limbs = t(&[p(&[4, mode_calls, part], "T6.limbs")?, p(&[4, read], "T6.limbs")?], "T6.limbs")?;
     set(T::T6Limbs, p(&[r, mode_limbs], "T6.limbs")?);
     set(T::T7Elements, dims.element_operands);
+    set(T::T7Assembly, modal_resource_assembly_steps(&modal_resource_assembly_bounds(dims)?)?);
     let formed = p(&[n, n + 1], "n(n + 1)")?;
     let reformed_positions = p(&[mu, element_entries], "μ(D_K + D_M)")?;
     let assembly_parts = t(
-        &[p(&[q8, element_entries], "Q(D_K + D_M)")?, formed, p(&[l, reformed_positions], "L·μ(D_K + D_M)")?],
+        &[p(&[2, q8, element_entries], "2Q(D_K + D_M)")?, formed, p(&[l, reformed_positions], "L·μ(D_K + D_M)")?],
         "T7.limbs",
     )?;
-    let assembly_reads = t(&[p(&[2, reformed_positions], "2μ(D_K + D_M)")?, formed], "T7.limbs")?;
+    let assembly_reads = t(&[p(&[3, reformed_positions], "3μ(D_K + D_M)")?, formed], "T7.limbs")?;
     set(T::T7Limbs, t(&[p(&[part, assembly_parts], "T7.limbs")?, p(&[read, assembly_reads], "T7.limbs")?], "T7.limbs")?);
     set(T::T8Insertions, p(&[c, mu, pair_entries], "T8.insertions")?);
     set(T::T8GeneralizedMass, p(&[c, n, l], "T8.generalized_mass")?);
@@ -776,6 +998,7 @@ pub(crate) fn modal_resource_term_counts(
     let pair_parts = t(&[p(&[q8, pair_entries], "Q(D_K + 2D_M)")?, p(&[4, n, l], "4nL")?], "T8.limbs")?;
     let pair_limbs = t(&[p(&[part, pair_parts], "T8.limbs")?, p(&[read, pair_rows], "T8.limbs")?], "T8.limbs")?;
     set(T::T8Limbs, p(&[c, pair_limbs], "T8.limbs")?);
+    set(T::T9Construction, modal_resource_construction_steps(n, p(&[2, positions], "L")?, positions)?);
     set(T::T9Factorization, p(&[s, t(&[p(&[n, n.saturating_sub(1), n.saturating_sub(2)], "T9.factorization")? / 6, n2], "T9.factorization")?], "T9.factorization")?);
     set(T::T9Passes, p(&[s, t(&[p(&[29, positions], "29P")?, p(&[98, n], "98n")?, 70], "T9.passes")?], "T9.passes")?);
     set(T::T9Neighbours, p(&[2, t(&[positions, p(&[3, n], "3n")?], "T9.neighbours")?], "T9.neighbours")?);
@@ -838,6 +1061,7 @@ pub(crate) fn modal_resource_bound_dimensions(
         let solves = modal_resource_add(modal_resource_mul(iterations, per, "S_T1")?, 1, "S_T1")?;
         Some(ModalStateDimensions { solves, friction, iterations })
     };
+    let assembly = if built.skew.is_some() { MODAL_RESOURCE_SKEW_ASSEMBLY } else { MODAL_RESOURCE_PLAIN_ASSEMBLY };
     Ok(ModalResourceDimensions {
         global,
         free,
@@ -851,6 +1075,8 @@ pub(crate) fn modal_resource_bound_dimensions(
         mass_squares,
         element_operands,
         coordinate_multiplier: if built.skew.is_some() { MODAL_RESOURCE_SKEW_PRODUCTS } else { 1 },
+        assembly_visits_per_square: assembly.0,
+        assembly_steps_per_square: assembly.1,
         state,
     })
 }
@@ -884,6 +1110,21 @@ fn modal_resource_overflow_refusal(overflow: ModalResourceOverflow) -> Vec<Diagn
 
 fn modal_preflight_refusal(message: String, terms: Vec<String>) -> Vec<Diagnostic> {
     vec![diag("diagnostic:modal:resource:preflight", MODAL_RESOURCE_PREFLIGHT_EXCEEDED, "blocking", message, terms)]
+}
+
+/// A support reservation's refusal (module docs) in `stage`, by the
+/// kernel's own name: `MODAL_RESOURCE_ARITHMETIC_OVERFLOW` for a capacity
+/// that overflows, `MODAL_RESOURCE_ALLOCATION_REFUSED` for an allocator
+/// refusal. A resource refusal with no partial result, never a numerical
+/// one.
+pub(crate) fn modal_support_resource_refusal(stage: &str, error: &SupportResourceError) -> Vec<Diagnostic> {
+    vec![diag(
+        "diagnostic:modal:resource:support",
+        error.code(),
+        "blocking",
+        format!("{error}; {stage} is refused before that structure exists, with no partial result (a resource refusal, not a numerical one)"),
+        vec!["model".into()],
+    )]
 }
 
 /// P0 (module docs): the bounds, the counts and the budget check, or the

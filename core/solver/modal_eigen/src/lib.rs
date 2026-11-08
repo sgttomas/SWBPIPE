@@ -29,6 +29,10 @@ pub mod norm_estimate;
 pub mod orthogonality;
 pub mod reformation;
 pub mod sturm;
+mod support;
 mod workspace;
 
 pub use matrix::{MatrixError, SymmetricMatrix};
+/// The support operations' typed reservation refusal (design §5.3.8; carried
+/// by `DenseError`, `ReformationFailure`, `FormationError` and `SturmError`).
+pub use support::SupportResourceError;
