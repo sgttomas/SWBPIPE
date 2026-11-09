@@ -216,6 +216,11 @@ pub(crate) struct ModalOutcome {
     pub(crate) no_translation_threshold: f64,
     /// The request's a (m/s², normalized), when given.
     pub(crate) weight_to_mass_acceleration: Option<f64>,
+    /// The subjects this run read from the model (Design §5.3.2, the subject
+    /// census), in the order it read them: each mass-bearing member as
+    /// `straight_member` or `arc` and each component body (by component id),
+    /// as the formed mass holds them, then every support record.
+    pub(crate) subjects: Vec<(&'static str, String)>,
 }
 
 /// The stored nonzero upper entries of the formed global mass, in node-block
@@ -528,6 +533,13 @@ pub(crate) fn run_modal_dense_with_budget(
         bounding_box_diagonal: diagonal,
         no_translation_threshold: params.no_translation_threshold,
         weight_to_mass_acceleration: prepared.inputs.weight_to_mass_acceleration,
+        subjects: mass
+            .members
+            .iter()
+            .map(|m| (if matches!(m.kind, MemberKind::Straight(_)) { "straight_member" } else { "arc" }, m.pipe.clone()))
+            .chain(mass.bodies.iter().map(|b| ("component_body", b.component_id.clone())))
+            .chain(prepared.model.supports.iter().map(|s| ("support", s.id.clone())))
+            .collect(),
     })
 }
 
