@@ -3,6 +3,7 @@
 // `desktop-mbf-export-import.md` §5.1), macOS.
 //
 //   node apps/desktop/native-smoke/mbf-journey.mjs [--skip-build] [--discard]
+//   node apps/desktop/native-smoke/mbf-journey.mjs --judge <evidence directory>
 //
 // Builds and binds the `native-smoke` app exactly as `run.mjs` does (engine stamps, frontend, cargo with the
 // `native-smoke` feature, the binding record, the per-worktree build lock and a private launch copy), then
@@ -20,7 +21,8 @@
 // `fixtures/caepipe_mbf/invented/desktop_import/import_replies.json`, its bound and unbound adopted model hashes
 // (RFC 8785 JCS SHA-256 of the saved model documents), and the review's identity rows. It writes `summary.json`
 // with the app's identity, engine stamps, source revision and every file digest, and keeps that evidence unless
-// `--discard` is given and every check passed. This witnesses the supported subset only: no reference-system,
+// `--discard` is given and every check passed. `--judge` re-judges a kept evidence directory with no build or launch
+// (its `summary.json` keeps the run's app identity, engine stamps and revision; the result is `summary-judged.json`). This witnesses the supported subset only: no reference-system,
 // criterion-6 or C6-5 claim follows from it, and the OS chooser presentation itself is substituted.
 //
 // Run it under a host slot (`t3_slot.sh`); it takes the worktree build lock itself, like `run.mjs`.
@@ -40,6 +42,12 @@ const desktop = path.resolve(here, "..");
 const project = path.resolve(desktop, "..", "..");
 const tauriDir = path.join(desktop, "src-tauri");
 const args = new Set(process.argv.slice(2));
+const judgeAt = process.argv.indexOf("--judge");
+const judgeDir = judgeAt > 1 ? process.argv[judgeAt + 1] : null;
+if (judgeAt > 1 && !judgeDir) {
+  console.error("mbf journey: --judge needs the evidence directory");
+  process.exit(2);
+}
 const PHASE_TIMEOUT_MS = 20 * 60 * 1000;
 const TAURI_CONF = JSON.parse(readFileSync(path.join(tauriDir, "tauri.conf.json"), "utf8"));
 const SMOKE_TAURI_CONFIG = JSON.stringify({ app: { windows: TAURI_CONF.app.windows.map((window) => ({ ...window, backgroundThrottling: "disabled" })) } });
@@ -79,8 +87,12 @@ async function run(command, commandArgs, cwd, env = {}) {
 
 // ---------------------------------------------------------------- build and bind (as run.mjs)
 
+let buildLock = null;
+let engines = null;
+let app = null;
+let binary = null;
+if (!judgeDir) {
 const skipBuild = args.has("--skip-build");
-let buildLock;
 try {
   buildLock = acquireBuildLock({ purpose: "mbf journey" });
 } catch (error) {
@@ -111,12 +123,11 @@ if (staleEngines.length > 0) {
     }
   }
 }
-const engines = Object.fromEntries(engineStates().map((engine) => [engine.name, engine.hash]));
+engines = Object.fromEntries(engineStates().map((engine) => [engine.name, engine.hash]));
 const APP_BUILD = {
   command: ["cargo", "build", "--locked", "--offline", "--manifest-path", path.join(tauriDir, "Cargo.toml"), "--message-format=json-render-diagnostics", "--features", "native-smoke,tauri/custom-protocol"],
   tauri_config: SMOKE_TAURI_CONFIG
 };
-let app;
 try {
   app = await prepareSmokeApp({
     projectRoot: project,
@@ -156,8 +167,9 @@ try {
 }
 process.on("exit", () => { if (!buildLock.kept()) launchCopy.remove(); });
 delete process.env[BUILD_LOCK_TOKEN_ENV];
-const binary = launchCopy.executable;
+binary = launchCopy.executable;
 console.log(`mbf journey: launching ${binary}, a private copy of ${app.binary} (${app.identity.sha256})`);
+}
 
 // ---------------------------------------------------------------- inputs and launches
 
@@ -167,15 +179,17 @@ const sourceBytes = readFileSync(path.join(project, SOURCE_FIXTURE));
 const source = JSON.parse(sourceBytes.toString("utf8"));
 const declaration = JSON.parse(replies.inputs.declaration_json);
 
-const root = mkdtempSync(path.join(os.tmpdir(), "swbpipe-mbf-journey-"));
+const root = judgeDir ? path.resolve(judgeDir) : mkdtempSync(path.join(os.tmpdir(), "swbpipe-mbf-journey-"));
 const home = path.join(root, "home");
 const models = path.join(root, "models");
 const pairDir = path.join(root, "pair");
 const movedDir = path.join(root, "moved");
 const savedDir = path.join(root, "saved-model-documents");
-for (const dir of [home, path.join(home, "Downloads"), models, pairDir, movedDir, savedDir]) mkdirSync(dir, { recursive: true });
 const sourcePath = path.join(models, path.basename(SOURCE_FIXTURE));
-copyFileSync(path.join(project, SOURCE_FIXTURE), sourcePath);
+if (!judgeDir) {
+  for (const dir of [home, path.join(home, "Downloads"), models, pairDir, movedDir, savedDir]) mkdirSync(dir, { recursive: true });
+  copyFileSync(path.join(project, SOURCE_FIXTURE), sourcePath);
+}
 const pair = { mbf: path.join(pairDir, MBF_NAME), ids: path.join(pairDir, IDS_NAME) };
 const movedMbf = path.join(movedDir, MBF_NAME);
 const saved = {
@@ -186,6 +200,7 @@ const saved = {
 
 function launch(plan) {
   const report = path.join(root, `report-${plan.phase}.json`);
+  if (judgeDir) return Promise.resolve(existsSync(report) ? JSON.parse(readFileSync(report, "utf8")) : { ok: false, error: "no report in the evidence" });
   console.log(`\n== phase ${plan.phase} (HOME=${home})`);
   if (JSON.stringify(fileIdentity(binary)) !== JSON.stringify(app.identity)) {
     console.error(`mbf journey: ${binary} changed since it was checked; not launched`);
@@ -213,9 +228,16 @@ function check(name, ok, detail) {
   checks.push({ name, ok: Boolean(ok), detail });
   console.log(`${ok ? "PASS" : "FAIL"}  ${name}${detail === undefined ? "" : `  [${typeof detail === "string" ? detail : JSON.stringify(detail)}]`}`);
 }
-// "node: 5 (5 restored, 0 formed)" rows, as the dialog prints each class of the review's identity block.
-const identityRows = (review) => review.identity.classes.map((row) =>
-  `${row.class}: ${row.count} (${row.restored} restored, ${row.formed_from_mbf_names} formed)`);
+// "load case: 2 (2 restored, 0 formed)" rows, as the dialog prints each class of the review's identity block with
+// at least one id (MbfImportDialog: underscores read as spaces; empty classes are not listed).
+const identityRows = (review) => review.identity.classes.filter((row) => row.count > 0).map((row) =>
+  `${row.class.replace(/_/g, " ")}: ${row.count} (${row.restored} restored, ${row.formed_from_mbf_names} formed)`);
+// The native reply's adopted document, by the same RFC 8785 hash as a saved file (the reply's `modelSha256` hashes
+// the worker's model bytes, whose number spelling differs from RFC 8785 text).
+const adoptedSha = (name) => {
+  const { document } = reply(name);
+  return sha(Buffer.from(canonical(typeof document === "string" ? JSON.parse(document) : document), "utf8"));
+};
 
 check("inputs: the source fixture is the replies fixture's selected source", sha(sourceBytes) === replies.inputs.source_model_file_sha256, sha(sourceBytes));
 
@@ -242,7 +264,7 @@ check("bound import: the review is complete", /complete/i.test(bound.import?.com
 check("bound import: every loss entry is listed, the source-completeness notice included", bound.import?.loss?.length === boundReview.loss_entries.length
   && boundReview.loss_entries.every((entry) => bound.import.loss.some((item) => item.includes(entry.code))), bound.import?.loss);
 check("bound adopt: the session holds the unsaved import", /Not saved as a local project yet/.test(bound.adopted?.message ?? ""), bound.adopted);
-check("bound adopt: the adopted model is the native bound import's", documentSha(saved.bound) === reply("bound-adopt").modelSha256, documentSha(saved.bound));
+check("bound adopt: the adopted model is the native bound import's", documentSha(saved.bound) === adoptedSha("bound-adopt"), documentSha(saved.bound));
 check("guard: the edit applied and the session is edited", /1 applied/.test(bound.guard?.edit?.summary ?? "") && /Edited/.test(bound.guard?.edit?.edited ?? ""), bound.guard?.edit);
 check("guard: Adopt over unsaved edits asks first; cancelling opens nothing and keeps the edits",
   bound.guard?.prompt && /Not opened/.test(bound.guard.message ?? "") && bound.guard.dialog_closed && /Edited/.test(bound.guard.edited_after ?? ""), bound.guard);
@@ -251,14 +273,14 @@ try { guardModel = JSON.parse(readFileSync(saved.guard, "utf8")); } catch { guar
 check("guard: the kept session is the adopted import with node:A's y edited", guardModel
   && guardModel.nodes?.find((node) => node.id === "node:A")?.position?.y === 0.5 && documentSha(saved.guard) !== documentSha(saved.bound), guardModel?.nodes?.find((node) => node.id === "node:A"));
 
-copyFileSync(pair.mbf, movedMbf);
+if (!judgeDir) copyFileSync(pair.mbf, movedMbf);
 const unbound = await launch({ phase: "unbound", moved_mbf: movedMbf, adopted_document: saved.unbound });
 check("unbound: the journey completed", unbound.ok, unbound.error);
 const unboundReview = reply("unbound-declared").review;
 check("unbound import: Adopt waits for the material declaration", unbound.import?.adopt_disabled === true, unbound.import);
 check("unbound import: one declaration per undeclared material", JSON.stringify(unbound.declared) === JSON.stringify(Object.keys(declaration).map((name) => `Source of ${name}`)), unbound.declared);
 check("unbound import: every identity class is formed from MBF names", identityRows(unboundReview).every((row) => unbound.declared_review?.identity?.includes(row)), unbound.declared_review?.identity);
-check("unbound adopt: the adopted model is the native declared unbound import's", documentSha(saved.unbound) === reply("unbound-adopt").modelSha256, documentSha(saved.unbound));
+check("unbound adopt: the adopted model is the native declared unbound import's", documentSha(saved.unbound) === adoptedSha("unbound-adopt"), documentSha(saved.unbound));
 
 let revision = null;
 let dirty = null;
@@ -267,12 +289,14 @@ try {
   dirty = execFileSync("git", ["-C", project, "status", "--porcelain"], { encoding: "utf8" }).trim().split("\n").filter(Boolean);
 } catch { /* recorded as unknown */ }
 const failed = checks.filter((item) => !item.ok);
-writeFileSync(path.join(root, "summary.json"), JSON.stringify({
+const recorded = judgeDir ? JSON.parse(readFileSync(path.join(root, "summary.json"), "utf8")) : null;
+writeFileSync(path.join(root, judgeDir ? "summary-judged.json" : "summary.json"), JSON.stringify({
   witness: "supported-subset MBF round trip in the launched native-smoke app; chooser presentation substituted",
-  source_revision: revision,
-  uncommitted: dirty,
-  app: { binary: app.binary, identity: app.identity },
-  engines,
+  source_revision: recorded ? recorded.source_revision : revision,
+  uncommitted: recorded ? recorded.uncommitted : dirty,
+  ...(recorded ? { judged_at_revision: revision, judged_uncommitted: dirty } : {}),
+  app: recorded ? recorded.app : { binary: app.binary, identity: app.identity },
+  engines: recorded ? recorded.engines : engines,
   inputs: { [SOURCE_FIXTURE]: sha(sourceBytes), [REPLIES_FIXTURE]: fileSha(path.join(project, REPLIES_FIXTURE)) },
   outputs: {
     mbf: fileSha(pair.mbf), identity_file: fileSha(pair.ids),
@@ -282,6 +306,6 @@ writeFileSync(path.join(root, "summary.json"), JSON.stringify({
   reports: { bound, unbound }
 }, null, 2));
 console.log(`\nmbf journey: ${checks.length - failed.length}/${checks.length} checks passed; evidence in ${root}`);
-if (args.has("--discard") && failed.length === 0) rmSync(root, { recursive: true, force: true });
-buildLock.release();
+if (!judgeDir && args.has("--discard") && failed.length === 0) rmSync(root, { recursive: true, force: true });
+buildLock?.release();
 await exitAfterSignals(failed.length === 0 ? 0 : 1);
