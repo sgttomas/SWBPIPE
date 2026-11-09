@@ -289,7 +289,8 @@ fn objective_arc(
 /// The element carries user-entered in-plane and out-of-plane bending
 /// flexibility factors. Factors equal to 1 reproduce the plain
 /// Euler-Bernoulli curved beam (bending, torsion, and axial strain energy;
-/// shear deformation excluded, consistent with the frame kernel).
+/// shear deformation excluded). Transverse shear is an explicit opt-in via
+/// `with_transverse_shear_area`; the original constructor leaves it absent.
 ///
 /// The element is defined by (x_i, x_j, R, y_reference) and the section
 /// constants (T4-U1): its geometry depends on the nodes only through
@@ -315,6 +316,9 @@ pub struct CurvedBendMacroElement {
     pub in_plane_flexibility_factor: f64,
     /// User-entered out-of-plane bending flexibility factor (opaque number).
     pub out_of_plane_flexibility_factor: f64,
+    /// Optional energy-matched shear area A_s. None retains the original
+    /// Euler–Bernoulli arc; bending flexibility factors never scale shear.
+    pub transverse_shear_area: Option<f64>,
 }
 
 impl CurvedBendMacroElement {
@@ -363,10 +367,21 @@ impl CurvedBendMacroElement {
             torsion_constant,
             in_plane_flexibility_factor,
             out_of_plane_flexibility_factor,
+            transverse_shear_area: None,
         };
         element.geometry()?;
         element.orientation()?;
         Ok(element)
+    }
+
+    /// Add transverse-shear energy V_r²/(2GA_s) + V_z²/(2GA_s).
+    ///
+    /// The area is an explicit constitutive input; this kernel does not
+    /// choose a shear coefficient or alter the bending flexibility factors.
+    pub fn with_transverse_shear_area(mut self, area: f64) -> Result<Self, CurvedBendError> {
+        validate_positive_finite("transverse_shear_area", area)?;
+        self.transverse_shear_area = Some(area);
+        Ok(self)
     }
 
     /// The node difference d = x_j − x_i (binary64).
@@ -459,6 +474,16 @@ impl CurvedBendMacroElement {
         f[3][3] = r * (k_out * cos_sq / bending + sin_sq / torsion);
         f[3][4] = r * (k_out * sin_cos / bending - sin_cos / torsion);
         f[4][4] = r * (k_out * sin_sq / bending + cos_sq / torsion);
+        // EDF R3.08.01 §8's unit-load energy integral, with the source
+        // axes mapped to the initial radial/tangent/normal frame. V_r and
+        // V_z are independent action families: there is no Fx–Fz coupling.
+        if let Some(area) = self.transverse_shear_area {
+            let shear = self.shear_modulus * area;
+            f[0][0] += r * cos_sq / shear;
+            f[0][1] += r * sin_cos / shear;
+            f[1][1] += r * sin_sq / shear;
+            f[2][2] += r * phi / shear;
+        }
         for row in 0..DOF_PER_NODE {
             for col in 0..row {
                 f[row][col] = f[col][row];
@@ -766,11 +791,34 @@ impl CurvedBendMacroElement {
         geometry: &ArcGeometry,
         intensity_local: [f64; 3],
     ) -> [f64; DOF_PER_NODE] {
-        if geometry.half_angle().use_series() {
+        let mut deflection = if geometry.half_angle().use_series() {
             self.tip_deflection_by_series(geometry, intensity_local)
         } else {
             self.tip_deflection_by_gram(geometry, intensity_local)
+        };
+        if let Some(area) = self.transverse_shear_area {
+            let half = geometry.half_angle();
+            // ∫(φ−θ){cos²θ, sinθ cosθ, sin²θ} dθ. Reuse the
+            // existing stable load series below its established switch.
+            let (acc, asc, ass) = if half.use_series() {
+                let n = half.load_integrals_series();
+                (n.acc, n.asc, n.ass)
+            } else {
+                let sin = half.sin();
+                let phi = half.phi;
+                (
+                    0.25 * (phi * phi + sin * sin),
+                    0.25 * half.phi_minus_sin_cos(),
+                    0.25 * (phi * phi - sin * sin),
+                )
+            };
+            let scale = geometry.radius * geometry.radius / (self.shear_modulus * area);
+            let [wx, wy, wz] = intensity_local;
+            deflection[0] += scale * (wx * acc + wy * asc);
+            deflection[1] += scale * (wx * asc + wy * ass);
+            deflection[2] += scale * wz * (0.5 * half.phi * half.phi);
         }
+        deflection
     }
 
     // The deflection from the Gram closed forms (used for s ≥ 1/2).
@@ -1269,6 +1317,9 @@ mod platform_bits_tests;
 
 #[cfg(test)]
 mod s11k_tests;
+
+#[cfg(test)]
+mod transverse_shear_tests;
 
 #[cfg(test)]
 mod short_arc_tests;

@@ -132,9 +132,13 @@ re-formation therefore come from one energy.
   component enters once and the torsion and bending terms are untouched.
 - **Pressure and thermal loads.** `FreeStrainCurved` and
   `PressureFreeStrainCurved` are K·u_free with u_free = ε·d. That is a
-  stress-free homothety of the arc, so it involves no constitutive term. Under
-  v2 they read the v2 K through `CurvedFormation` and stay self-equilibrated.
-  No shear term enters pressure.
+  stress-free homothety of the arc. The free displacement, eigenstrain and
+  equilibrium pressure operands acquire no additional shear source. The
+  equivalent loads do depend on the constitutive stiffness: under v2 they
+  read the shear-dependent K through `CurvedFormation`, so equivalent loads
+  and restrained responses can change while remaining self-equilibrated.
+  The implementation must verify this same-K homothety and both free-strain
+  certificate paths, not assume unchanged pressure or thermal nodal loads.
 - **κ_E is a straight-annulus approximation.** The energy coefficient is the
   straight prismatic Saint-Venant value. This candidate applies that section
   coefficient along the curved centreline, as a one-dimensional constitutive
@@ -162,9 +166,15 @@ stress is claimed.
   do not cancel.
 - **Expected behaviour.** The oracle's sweep crosses s = ½ on both sides and
   runs from φ ≈ 2e-8 to π − 6.3e-4. Its values are exact to more than 30
-  digits, so a kernel test can measure relative error directly. Binary64
-  agreement should be a few ulp of the largest entry. The consumer test sets
-  the tolerance.
+  digits. Each resolvable nonzero shear flexibility and load integral is
+  compared relative to that quantity, including the smallest yy terms;
+  largest-entry normalization would permit those terms to vanish. Structural
+  zeros use explicit absolute bounds. Isolate shear using negligible other
+  compliances rather than subtracting rounded total flexibilities, because
+  that subtraction can erase a valid increment. Total stiffness comparisons
+  use row scales together with a condition-aware inverse residual, and load
+  checks use force/moment scales appropriate to their units. These total-matrix
+  checks supplement, rather than replace, the term-relative sweep checks.
 
 ## 5. Minimal implementation boundary
 
@@ -181,15 +191,16 @@ reserved until Agent 0 reviews its actual diff.
      returns `Self`.
    - The only struct literal is `new`'s `Self { … }`. Every other
      construction site, in tests, PP, NI and the benchmarks, calls `new`.
-   - `flexibility_of`: only when the value is `Some`, append the shear term
-     inside the existing bracket, last. That is f₀₀ += cos_sq/GA_s,
-     f₀₁ += sin_cos/GA_s, f₁₁ += sin_sq/GA_s and f₂₂ += φ/GA_s, each inside the
-     `r * (…)`, with GA_s = G·A_s. `None` executes the current expressions
-     unchanged.
-   - `tip_deflection_by_series`: add a shear family per row: row 0
-     r(w_x·acc + w_y·asc), row 1 r(w_x·asc + w_y·ass), row 2 r·w_z·φ²/2, rows
-     3–5 zero. It is divided by GA_s and appended last.
-   - `tip_deflection_by_gram`: add **two** families, never one.
+   - `flexibility_of`: only when the value is `Some`, append
+     f₀₀ += R·cos_sq/GA_s, f₀₁ += R·sin_cos/GA_s,
+     f₁₁ += R·sin_sq/GA_s and f₂₂ += Rφ/GA_s, with GA_s = G·A_s.
+     `None` executes the current expressions unchanged.
+   - `tip_deflection_under_uniform_load` appends the shear translation after
+     either existing EB evaluation branch: R²/GA_s times row 0
+     (w_x·acc + w_y·asc), row 1 (w_x·asc + w_y·ass), row 2 w_z·φ²/2,
+     rows 3–5 zero. It uses the existing load series below the switch and
+     the closed forms above it. No shear arithmetic executes for `None`.
+   - In Gram re-formation and certification, use **two** shear families:
      - V_r: unit Fx = [0, 1, 0], Fy = [0, 0, 1]; load
        [0, Rφw_x, Rφw_y, 0, −Rw_x, −Rw_y].
      - V_z: unit Fz = [1, 0, 0]; load [Rφw_z, 0, 0, −Rw_z, 0, 0].
@@ -335,6 +346,10 @@ These were checked against the code, not estimated.
     the global stiffness (`global_stiffness_v2`), and the S1T/S1P invariance.
   - FK `curved_matrix` v2 enclosing the kernel's K. `certify_curved_uniform_load`
     enclosing the kernel's v2 load vector.
+  - Homothety with unchanged ε·d and shear-dependent K: free expansion
+    leaves K·u − p zero, and restrained equivalent loads change consistently.
+    Exercise `FreeStrainCurved` and `PressureFreeStrainCurved` certification
+    with `Some` and `None`, including source/operand binding.
   - `curved_binding` unchanged for `None` and distinct for `Some`.
   - The NI source copy, scaled and unscaled.
 - **Step B tests.** Modal v2 refusal, v1 arc disclosure unchanged, v2 straight
