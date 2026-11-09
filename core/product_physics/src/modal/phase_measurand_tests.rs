@@ -25,7 +25,7 @@
 //! `callgraph_g5.py`, `loopscan.py`'s test-file rule and the line map); its
 //! only declaration is a `#[cfg(test)]` module item in `modal.rs`, which the
 //! scanners blank. No format site, call or loop enters a priced inventory.
-use super::document::{modal_doc_solved, modal_result_document};
+use super::document::{modal_doc_solved, modal_doc_subject_census, modal_result_document};
 use super::eigen::{
     complete_reported_set, modal_basis, modal_extraction_bound, modal_sturm_count, normalize_modal_shape, solve_modal_pencil,
     CompletedSet, FiniteCensus, SturmRecord,
@@ -310,7 +310,8 @@ fn the_phase_replay_is_the_product_path() {
     // product entry's document byte for byte.
     let request = with(sec_a_cantilever(2), json!({"mode_count": 4}));
     let outcome = run_modal_dense(&modal(request.clone()), &params).unwrap();
-    let binding = refused_binding(&request, &params);
+    let mut binding = refused_binding(&request, &params);
+    binding["subject_census"] = modal_doc_subject_census(&outcome);
     assert_eq!(modal_doc_solved(&outcome, &binding, MEASURAND_LABEL), modal_result_document(&request, &params, MEASURAND_LABEL));
 }
 
@@ -449,7 +450,8 @@ fn o4_phase_measurand_sec_a_cantilever() {
             assert_eq!(&entry, bits, "the entry pass and the replay computed different eigenvalues");
         }
         let started = Instant::now();
-        let binding = refused_binding(&request, &params);
+        let mut binding = refused_binding(&request, &params);
+        binding["subject_census"] = modal_doc_subject_census(&outcome);
         let binding_time = started.elapsed();
         let started = Instant::now();
         let document = modal_doc_solved(&outcome, &binding, MEASURAND_LABEL);

@@ -104,6 +104,14 @@
     },
     "request_sha256": "e987c97e769a10d1df1870ec2e4e8a0540c2117846aad96eab253d3f265edee8",
     "state_case": null,
+    "subject_census": {
+      "arcs": 1,
+      "component_bodies": 0,
+      "nonlinear_supports": 0,
+      "straight_members": 2,
+      "subjects_sha256": "91034a61f654eca72ccf40c3d450b96ea9c5f7d51a55fb6ddff10bc2918a0569",
+      "supports": 2
+    },
     "undeclared_members": []
   },
   "canonical_profile": "openpipestress_jcs_ijson_v1",
