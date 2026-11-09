@@ -3994,7 +3994,7 @@ export function useWorkspaceSession() {
     if (!userReleaseDialogOpenRef.current) return;
     userReleaseDialogOpenRef.current = false;
     setUserReleaseRequest(null);
-  }, [projectSessionGeneration, model, currentSolvedResult, inputManifest, analysisRun, reportComposition]);
+  }, [projectSessionGeneration, uiModelRevision, model, currentSolvedResult, inputManifest, analysisRun, reportComposition]);
 
   /** The one save the dialog's confirmation starts, on route `DREP-PACKAGE-USER-RELEASE-010`.
    * Its status and evidence use the package's status line; nothing outlives the save. */
@@ -4037,7 +4037,9 @@ export function useWorkspaceSession() {
       setReportPackageRedaction(null);
       setReportPackageRoute({ route: "redaction_blocked", diagnostic: formatPackageSaveError(error) });
     } finally {
-      if (isCurrent()) {
+      // Released whenever this save still holds the busy mark, even when its basis moved on (a
+      // rule-check record landing mid-save retires it without invalidating the package state).
+      if (reportPackageBusyGenerationRef.current === generation) {
         reportPackageBusyGenerationRef.current = null;
         setReportPackageBusy(false);
       }

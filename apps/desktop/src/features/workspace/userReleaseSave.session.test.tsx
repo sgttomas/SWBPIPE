@@ -13,6 +13,7 @@ import { getLocalStorageCapability } from "../../services/projectService";
 import { loadDesignKnowledge, resetSessionResultCustodyForTests } from "../../services/previewService";
 import { canonicalSha256Hex } from "../../services/hashService";
 import { useWorkspaceSession } from "./workspaceSession";
+import type { SessionRuleCheckRun } from "../report/renderableReportInput";
 
 afterEach(() => {
   cleanup();
@@ -26,8 +27,8 @@ afterEach(() => {
 const RECEIPT = { outcome: "saved", code: "REPORT-PACKAGE-SAVED", user_release_recorded: true, user_release_model_document_sha256: "c".repeat(64) };
 
 let sequence = 0;
-async function solvedSession() {
-  const { model, bytes } = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" });
+async function solvedSession(profile: "preview" | "pressure" = "preview") {
+  const { model, bytes } = nativeMechanicsReplayPair("sparse_interactive", { profile });
   const storage = await getLocalStorageCapability(), knowledge = await loadDesignKnowledge();
   const transport = createSolveJobTransport((request) => {
     if (!isDeepStrictEqual({ model: request.model, mode: request.mode }, { model, mode: "sparse_interactive" })) throw new Error("REPLAY_REQUEST_MISMATCH");
@@ -44,6 +45,7 @@ async function solvedSession() {
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
   const rendered = renderHook(() => useWorkspaceSession());
   await waitFor(() => expect(rendered.result.current.model.model).not.toBeNull());
+  if (profile === "pressure") await waitFor(() => expect(rendered.result.current.model.modelHash).not.toBeNull());
   await act(async () => { await rendered.result.current.results.handleRun(); });
   await waitFor(() => expect(rendered.result.current.results.solveJob.state).toBe("completed"));
   return rendered;
@@ -92,5 +94,46 @@ describe("Save Shareable Report Package… through the session (W-18b)", () => {
     expect(hook.current.results.userReleaseRequest).toBeNull();
     expect(saveCalls()).toHaveLength(0);
     expect(hook.current.results.reportPackageRoute).toBeNull();
+  });
+
+  it("a confirmed save whose basis moves on during its preparation sends nothing and releases the package controls", async () => {
+    // The pressure replay profile holds the native reply of the rule-check record update.
+    const { result: hook } = await solvedSession("pressure");
+    await act(async () => { await hook.current.results.requestSaveShareableReportPackage(); });
+    const request = hook.current.results.userReleaseRequest!;
+    expect(request.refusal).toBeNull();
+    // Hold the rule-check record's native read and every read of the save, so the record lands
+    // while the save is preparing.
+    const passThrough = invokeMock.getMockImplementation()!;
+    let releaseRecord!: () => void, releaseSave!: () => void;
+    const recordHeld = new Promise<void>((resolve) => { releaseRecord = resolve; });
+    const saveHeld = new Promise<void>((resolve) => { releaseSave = resolve; });
+    invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
+      if (command === "read_preview_mechanics_job_analysis_run_preview") await recordHeld;
+      else if (command !== "sync_native_shell_state") await saveHeld;
+      return passThrough(command, args, options);
+    });
+    const run: SessionRuleCheckRun = {
+      rulePackDocument: { metadata: { rule_pack_id: "invented-test-only", name: "Invented test pack" } },
+      result: { document_kind: "openpipestress.rule_check.run", rule_pack_id: "invented-test-only", grammar_version: "1.0.0", aggregate_status: "USER_RULE_CHECKED", checks: [], professional_boundary_notice: "notice" }
+    };
+    const current = hook.current;
+    let recorded!: Promise<void>;
+    act(() => {
+      recorded = current.results.handleRuleCheckAggregate("USER_RULE_CHECKED", {
+        projectSessionGeneration: current.model.projectSessionGeneration,
+        modelRevision: current.model.uiModelRevision,
+        result: current.results.currentSolvedResult,
+        inputManifest: current.results.inputManifest
+      }, run);
+    });
+    await act(async () => { request.save({ userReleasedAt: "2026-11-09T00:00:00Z" }); });
+    expect(hook.current.results.reportPackageBusy).toBe(true);
+    const runBefore = hook.current.results.analysisRun;
+    await act(async () => { releaseRecord(); await recorded; });
+    expect(hook.current.results.analysisRun === runBefore, "the rule-check record replaced the run").toBe(false);
+    await act(async () => { releaseSave(); });
+    await waitFor(() => expect(hook.current.results.reportPackageBusy).toBe(false));
+    expect(saveCalls()).toHaveLength(0);
   });
 });
