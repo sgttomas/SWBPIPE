@@ -41,7 +41,8 @@
 //!
 //! **Self-check.** When the model-mass pass formed its members, its member and
 //! body list is this pass's. A difference is a defect of this reader, never a
-//! verdict on the document, so it panics.
+//! verdict on the document, so it leaves the evidence relation unresolved
+//! (never passed, failed or a panic).
 use super::model_mass::{Derived, MM_ARC, MM_GEOMETRY_ONLY, MM_MODEL_KEYS, MM_PIPE_KEYS, MM_RIGID_FAMILY, MM_SCHEMA_VERSION};
 use super::{modal_reader_sha256, mr_at, mr_count, mr_hex, mr_object, Parsed, DIRECTIONS, R};
 use open_pipe_stress_units::{canonical_unit, convert_for_dimension, unit_by_symbol, Dimension};
