@@ -1,18 +1,18 @@
 {
-  "description": "DEL-04-09 I3a (Design §5.3): the modal result reader corpus. Each entry applies its operations to a committed modal fixture (replace, add, scale, scale_rows, withhold, remove_rows with renumbering), or raw `text_operations` on its committed text (for what a parsed value cannot carry: duplicate members, non-JSON numbers), reseals every row checksum and table digest when `reseal` is true, supplies the request when named (after its own operations), and states the standing it targets (`intent`) and, for the adversarial entries, a phrase its difference must contain (`difference_contains`); every entry is read through each reader's checked text entry. `expected` is the verdict both readers must return: tests/test_modal_evidence.py and core/reporting/modal_result/tests/corpus.rs. With the bound request, `mass` and `participation` also hold the document to the mass the request's model implies (DEL-04-09 Design, selected mass assurance); without it, after a failed binding, or on a partition from reported nonlinear states, those standings are scoped, never passed. Entries that pin payload semantics on invented values the bound model contradicts are read without the request. The `model:` entries scale a restrained rotational diagonal, which no payload relation reads (T_k and the centre use translational columns, m_i the free block and p_k the free rows): resealed with the request fixed they stay payload-coherent, and only the model-derived formation comparison rejects them.",
+  "description": "DEL-04-09 I3a (Design §5.3): the modal result reader corpus. Each entry applies its operations to a committed modal fixture (replace, add, scale, scale_rows, withhold, remove_rows with renumbering), or raw `text_operations` on its committed text (for what a parsed value cannot carry: duplicate members, non-JSON numbers), reseals every row checksum and table digest when `reseal` is true, supplies the request when named (after its own operations), and states the standing it targets (`intent`) and, for the adversarial entries, a phrase its difference must contain (`difference_contains`); every entry is read through each reader's checked text entry. `expected` is the verdict both readers must return: tests/test_modal_evidence.py and core/reporting/modal_result/tests/corpus.rs. With the bound request, `mass` and `participation` also hold the document to the mass the request's model implies (DEL-04-09 Design, selected mass assurance); without it, after a failed binding, or on a partition from reported nonlinear states, those standings are scoped, never passed. Entries that pin payload semantics on invented values the bound model contradicts are read without the request. The `model:` entries scale a restrained rotational diagonal, which no payload relation reads (T_k and the centre use translational columns, m_i the free block and p_k the free rows): resealed with the request fixed they stay payload-coherent, and only the model-derived formation comparison rejects them. The `census:` entries forge the subject census's tables with a valid-looking census record (each resealed): a missing, extra, duplicated or substituted straight member, arc, component body or nonlinear support, a body relabelled as an arc, a forged digest and forged support counts. With the bound request each fails evidence as `model-derived` (a duplicated support row fails closure on its row id); its `_payload_only` twin, read without the request, stays scoped and never passes; two entries contradict the tables without the request. A census re-derived from the bound request closes the evidence scope, so a linear document read with its request can be `consistent`.",
   "entries": [
     {
       "document": "modal_ex_n05.json",
       "expected": {
         "binding": "passed",
         "closure": "passed",
-        "decision": "consistent_with_scoped_unsupported",
+        "decision": "consistent",
         "health": "checks_passed",
         "refusal_codes": [],
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -33,13 +33,13 @@
       "expected": {
         "binding": "passed",
         "closure": "passed",
-        "decision": "consistent_with_scoped_unsupported",
+        "decision": "consistent",
         "health": "checks_passed",
         "refusal_codes": [],
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -60,13 +60,13 @@
       "expected": {
         "binding": "passed",
         "closure": "passed",
-        "decision": "consistent_with_scoped_unsupported",
+        "decision": "consistent",
         "health": "checks_passed",
         "refusal_codes": [],
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -141,13 +141,13 @@
       "expected": {
         "binding": "passed",
         "closure": "passed",
-        "decision": "consistent_with_scoped_unsupported",
+        "decision": "consistent",
         "health": "checks_passed",
         "refusal_codes": [],
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -168,13 +168,13 @@
       "expected": {
         "binding": "passed",
         "closure": "passed",
-        "decision": "consistent_with_scoped_unsupported",
+        "decision": "consistent",
         "health": "checks_passed",
         "refusal_codes": [],
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -195,13 +195,13 @@
       "expected": {
         "binding": "passed",
         "closure": "passed",
-        "decision": "consistent_with_scoped_unsupported",
+        "decision": "consistent",
         "health": "checks_passed",
         "refusal_codes": [],
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -222,13 +222,13 @@
       "expected": {
         "binding": "passed",
         "closure": "passed",
-        "decision": "consistent_with_scoped_unsupported",
+        "decision": "consistent",
         "health": "checks_passed",
         "refusal_codes": [],
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -249,13 +249,13 @@
       "expected": {
         "binding": "passed",
         "closure": "passed",
-        "decision": "consistent_with_scoped_unsupported",
+        "decision": "consistent",
         "health": "sensitive",
         "refusal_codes": [],
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -367,7 +367,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "failed",
           "normalization": "passed",
           "participation": "failed",
@@ -400,7 +400,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "failed",
           "normalization": "passed",
           "participation": "failed",
@@ -433,7 +433,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "failed",
           "normalization": "passed",
           "participation": "passed",
@@ -467,7 +467,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "unresolved",
           "normalization": "passed",
           "participation": "failed",
@@ -500,7 +500,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "failed",
           "participation": "failed",
@@ -537,7 +537,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "failed",
           "participation": "passed",
@@ -570,7 +570,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "failed",
           "participation": "failed",
@@ -603,7 +603,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "failed",
           "participation": "passed",
@@ -636,7 +636,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "failed",
           "participation": "passed",
@@ -669,7 +669,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "failed",
@@ -702,7 +702,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "failed",
@@ -735,7 +735,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "failed",
@@ -768,7 +768,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "failed",
@@ -801,7 +801,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "failed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -834,7 +834,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "failed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -867,7 +867,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "failed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -900,7 +900,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "failed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -933,7 +933,7 @@
         "relations": {
           "clusters": "failed",
           "counts": "failed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -966,7 +966,7 @@
         "relations": {
           "clusters": "failed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -999,7 +999,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -1032,7 +1032,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -1065,7 +1065,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -1146,7 +1146,7 @@
         {
           "op": "replace",
           "path": "/tables/identity/rows/0/relative/value",
-          "value": 1e-06
+          "value": 1e-6
         }
       ],
       "request": "modal_component_body.request.json",
@@ -1164,7 +1164,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -1202,7 +1202,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -1240,7 +1240,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -1273,7 +1273,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -1551,7 +1551,7 @@
         {
           "op": "replace",
           "path": "/binding/integrity_parameters/residual_threshold",
-          "value": 1e-09
+          "value": 1e-9
         }
       ],
       "request": "modal_component_body.request.json",
@@ -1668,7 +1668,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "scoped_unsupported",
           "normalization": "passed",
           "participation": "scoped_unsupported",
@@ -1700,7 +1700,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "scoped_unsupported",
           "participation": "scoped_unsupported",
@@ -1815,7 +1815,7 @@
         {
           "op": "replace",
           "path": "/binding/integrity_parameters/cluster_tolerance",
-          "value": 1e-07
+          "value": 1e-7
         }
       ],
       "request": "modal_refused_no_bound.request.json",
@@ -1834,7 +1834,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "failed",
@@ -1873,7 +1873,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "failed",
@@ -1912,7 +1912,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "failed",
@@ -1951,7 +1951,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "failed",
@@ -1990,7 +1990,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "scoped_unsupported",
           "normalization": "passed",
           "participation": "failed",
@@ -2033,7 +2033,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -2097,7 +2097,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -2151,7 +2151,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -2190,7 +2190,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -2229,7 +2229,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -2399,7 +2399,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "failed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -2448,7 +2448,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "failed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -2772,7 +2772,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "failed",
           "normalization": "passed",
           "participation": "failed",
@@ -2806,7 +2806,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "failed",
           "participation": "passed",
@@ -2942,7 +2942,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -2981,7 +2981,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -3020,7 +3020,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -3059,7 +3059,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -3098,7 +3098,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -3137,7 +3137,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -3176,7 +3176,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -3333,7 +3333,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "failed",
           "normalization": "passed",
           "participation": "failed",
@@ -3410,7 +3410,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "unresolved",
           "normalization": "passed",
           "participation": "failed",
@@ -3449,7 +3449,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "failed",
           "normalization": "passed",
           "participation": "failed",
@@ -3488,9 +3488,9 @@
           "clusters": "passed",
           "counts": "passed",
           "evidence": "scoped_unsupported",
-          "mass": "passed",
+          "mass": "scoped_unsupported",
           "normalization": "passed",
-          "participation": "passed",
+          "participation": "scoped_unsupported",
           "standing": "passed",
           "sturm": "passed",
           "units": "passed"
@@ -3527,7 +3527,7 @@
           }
         }
       ],
-      "request": "modal_component_body.request.json",
+      "request": null,
       "request_operations": [],
       "reseal": true
     },
@@ -3618,7 +3618,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -3657,7 +3657,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "failed",
           "normalization": "passed",
           "participation": "failed",
@@ -3701,7 +3701,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "failed",
           "normalization": "passed",
           "participation": "failed",
@@ -3804,7 +3804,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "failed",
           "normalization": "passed",
           "participation": "failed",
@@ -3877,7 +3877,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -4119,7 +4119,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "failed",
           "normalization": "passed",
           "participation": "passed",
@@ -4158,7 +4158,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "failed",
@@ -5817,7 +5817,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "failed",
           "normalization": "scoped_unsupported",
           "participation": "failed",
@@ -6363,7 +6363,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "failed",
           "normalization": "scoped_unsupported",
           "participation": "failed",
@@ -6909,7 +6909,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "failed",
           "normalization": "scoped_unsupported",
           "participation": "failed",
@@ -10889,7 +10889,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -10928,7 +10928,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -10978,7 +10978,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -10999,7 +10999,7 @@
             "undefined_reason": null,
             "unit": "unit:one",
             "unit_status": "catalog",
-            "value": 2.2279141184340134e-06
+            "value": 2.2279141184340134e-6
           }
         }
       ],
@@ -11019,7 +11019,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -11067,7 +11067,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -11106,7 +11106,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -11140,7 +11140,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "passed",
           "normalization": "passed",
           "participation": "passed",
@@ -11263,8 +11263,8 @@
       "reseal": true
     },
     {
-      "document": "modal_component_body.json",
       "difference_contains": "model-derived",
+      "document": "modal_component_body.json",
       "expected": {
         "binding": "passed",
         "closure": "passed",
@@ -11274,7 +11274,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "failed",
           "normalization": "passed",
           "participation": "passed",
@@ -11297,8 +11297,8 @@
       "reseal": true
     },
     {
-      "document": "modal_arc.json",
       "difference_contains": "model-derived",
+      "document": "modal_arc.json",
       "expected": {
         "binding": "passed",
         "closure": "passed",
@@ -11308,7 +11308,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "failed",
           "normalization": "passed",
           "participation": "passed",
@@ -11331,8 +11331,8 @@
       "reseal": true
     },
     {
-      "document": "modal_ex_n05.json",
       "difference_contains": "model-derived",
+      "document": "modal_ex_n05.json",
       "expected": {
         "binding": "passed",
         "closure": "passed",
@@ -11342,7 +11342,7 @@
         "relations": {
           "clusters": "passed",
           "counts": "passed",
-          "evidence": "scoped_unsupported",
+          "evidence": "passed",
           "mass": "failed",
           "normalization": "passed",
           "participation": "passed",
@@ -11361,6 +11361,1853 @@
         }
       ],
       "request": "modal_ex_n05.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "model-derived",
+      "document": "modal_component_body.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "failed",
+          "mass": "passed",
+          "normalization": "passed",
+          "participation": "passed",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "passed"
+        }
+      },
+      "id": "census:substituted_straight_member",
+      "intent": "evidence",
+      "operations": [
+        {
+          "field": "member_ref",
+          "op": "set_rows",
+          "table": "discretization",
+          "value": "pipe:p9",
+          "where": {
+            "member_ref": "pipe:p1"
+          }
+        },
+        {
+          "field": "row_id",
+          "op": "set_rows",
+          "table": "discretization",
+          "value": "member:pipe:p9",
+          "where": {
+            "row_id": "member:pipe:p1"
+          }
+        },
+        {
+          "field": "subject",
+          "op": "set_rows",
+          "table": "identity",
+          "value": "pipe:p9",
+          "where": {
+            "subject": "pipe:p1"
+          }
+        }
+      ],
+      "request": "modal_component_body.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "document": "modal_component_body.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "consistent_with_scoped_unsupported",
+        "health": "checks_passed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "scoped_unsupported",
+          "normalization": "passed",
+          "participation": "scoped_unsupported",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "passed"
+        }
+      },
+      "id": "census:substituted_straight_member_payload_only",
+      "intent": "scoped",
+      "operations": [
+        {
+          "field": "member_ref",
+          "op": "set_rows",
+          "table": "discretization",
+          "value": "pipe:p9",
+          "where": {
+            "member_ref": "pipe:p1"
+          }
+        },
+        {
+          "field": "row_id",
+          "op": "set_rows",
+          "table": "discretization",
+          "value": "member:pipe:p9",
+          "where": {
+            "row_id": "member:pipe:p1"
+          }
+        },
+        {
+          "field": "subject",
+          "op": "set_rows",
+          "table": "identity",
+          "value": "pipe:p9",
+          "where": {
+            "subject": "pipe:p1"
+          }
+        }
+      ],
+      "request": null,
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "model-derived",
+      "document": "modal_arc.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "failed",
+          "mass": "passed",
+          "normalization": "passed",
+          "participation": "passed",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "passed"
+        }
+      },
+      "id": "census:substituted_arc",
+      "intent": "evidence",
+      "operations": [
+        {
+          "field": "subject",
+          "op": "set_rows",
+          "table": "identity",
+          "value": "pipe:x-y",
+          "where": {
+            "subject": "pipe:b-c"
+          }
+        }
+      ],
+      "request": "modal_arc.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "document": "modal_arc.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "consistent_with_scoped_unsupported",
+        "health": "checks_passed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "scoped_unsupported",
+          "normalization": "passed",
+          "participation": "scoped_unsupported",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "passed"
+        }
+      },
+      "id": "census:substituted_arc_payload_only",
+      "intent": "scoped",
+      "operations": [
+        {
+          "field": "subject",
+          "op": "set_rows",
+          "table": "identity",
+          "value": "pipe:x-y",
+          "where": {
+            "subject": "pipe:b-c"
+          }
+        }
+      ],
+      "request": null,
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "model-derived",
+      "document": "modal_component_body.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "failed",
+          "mass": "passed",
+          "normalization": "passed",
+          "participation": "passed",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "passed"
+        }
+      },
+      "id": "census:substituted_component_body",
+      "intent": "evidence",
+      "operations": [
+        {
+          "field": "subject",
+          "op": "set_rows",
+          "table": "identity",
+          "value": "component:gate",
+          "where": {
+            "subject": "component:valve"
+          }
+        }
+      ],
+      "request": "modal_component_body.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "document": "modal_component_body.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "consistent_with_scoped_unsupported",
+        "health": "checks_passed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "scoped_unsupported",
+          "normalization": "passed",
+          "participation": "scoped_unsupported",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "passed"
+        }
+      },
+      "id": "census:substituted_component_body_payload_only",
+      "intent": "scoped",
+      "operations": [
+        {
+          "field": "subject",
+          "op": "set_rows",
+          "table": "identity",
+          "value": "component:gate",
+          "where": {
+            "subject": "component:valve"
+          }
+        }
+      ],
+      "request": null,
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "model-derived",
+      "document": "modal_component_body.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "failed",
+          "mass": "passed",
+          "normalization": "passed",
+          "participation": "passed",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "passed"
+        }
+      },
+      "id": "census:body_relabelled_as_arc",
+      "intent": "evidence",
+      "operations": [
+        {
+          "field": "subject_kind",
+          "op": "set_rows",
+          "table": "identity",
+          "value": "member",
+          "where": {
+            "subject_kind": "component_body"
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/binding/subject_census",
+          "value": {
+            "arcs": 1,
+            "component_bodies": 0,
+            "nonlinear_supports": 0,
+            "straight_members": 1,
+            "subjects_sha256": "64ebf63579375744072223965f0daa9e7e19303181b2e176212efe3c609a76b6",
+            "supports": 1
+          }
+        }
+      ],
+      "request": "modal_component_body.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "document": "modal_component_body.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "consistent_with_scoped_unsupported",
+        "health": "checks_passed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "scoped_unsupported",
+          "normalization": "passed",
+          "participation": "scoped_unsupported",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "passed"
+        }
+      },
+      "id": "census:body_relabelled_as_arc_payload_only",
+      "intent": "scoped",
+      "operations": [
+        {
+          "field": "subject_kind",
+          "op": "set_rows",
+          "table": "identity",
+          "value": "member",
+          "where": {
+            "subject_kind": "component_body"
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/binding/subject_census",
+          "value": {
+            "arcs": 1,
+            "component_bodies": 0,
+            "nonlinear_supports": 0,
+            "straight_members": 1,
+            "subjects_sha256": "64ebf63579375744072223965f0daa9e7e19303181b2e176212efe3c609a76b6",
+            "supports": 1
+          }
+        }
+      ],
+      "request": null,
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "model-derived",
+      "document": "modal_arc.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "failed",
+          "mass": "passed",
+          "normalization": "passed",
+          "participation": "passed",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "passed"
+        }
+      },
+      "id": "census:missing_arc",
+      "intent": "evidence",
+      "operations": [
+        {
+          "op": "remove_rows",
+          "renumber_prefix": "identity:",
+          "table": "identity",
+          "where": {
+            "subject": "pipe:b-c"
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/binding/subject_census",
+          "value": {
+            "arcs": 0,
+            "component_bodies": 0,
+            "nonlinear_supports": 0,
+            "straight_members": 2,
+            "subjects_sha256": "91034a61f654eca72ccf40c3d450b96ea9c5f7d51a55fb6ddff10bc2918a0569",
+            "supports": 2
+          }
+        }
+      ],
+      "request": "modal_arc.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "document": "modal_arc.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "consistent_with_scoped_unsupported",
+        "health": "checks_passed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "scoped_unsupported",
+          "normalization": "passed",
+          "participation": "scoped_unsupported",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "passed"
+        }
+      },
+      "id": "census:missing_arc_payload_only",
+      "intent": "scoped",
+      "operations": [
+        {
+          "op": "remove_rows",
+          "renumber_prefix": "identity:",
+          "table": "identity",
+          "where": {
+            "subject": "pipe:b-c"
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/binding/subject_census",
+          "value": {
+            "arcs": 0,
+            "component_bodies": 0,
+            "nonlinear_supports": 0,
+            "straight_members": 2,
+            "subjects_sha256": "91034a61f654eca72ccf40c3d450b96ea9c5f7d51a55fb6ddff10bc2918a0569",
+            "supports": 2
+          }
+        }
+      ],
+      "request": null,
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "model-derived",
+      "document": "modal_arc.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "failed",
+          "mass": "passed",
+          "normalization": "passed",
+          "participation": "passed",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "passed"
+        }
+      },
+      "id": "census:extra_arc",
+      "intent": "evidence",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/tables/identity/rows",
+          "value": [
+            {
+              "axis": "x",
+              "checksum": "bf8cf418f61a3b1f2e0573abe934956dc130dea13c93a64d097da2d24d216753",
+              "comparison": "nodal",
+              "ordinal": 0,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 0.0
+              },
+              "row_id": "identity:0",
+              "subject": "pipe:a-b",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "x",
+              "checksum": "319d3cdd33afda01a9f166f0401c071d682f3c20b7d4554c8d5563ddecc8bb27",
+              "comparison": "resultant",
+              "ordinal": 1,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 2.228765352972875e-16
+              },
+              "row_id": "identity:1",
+              "subject": "pipe:b-c",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "x",
+              "checksum": "319d3cdd33afda01a9f166f0401c071d682f3c20b7d4554c8d5563ddecc8bb27",
+              "comparison": "resultant",
+              "ordinal": 2,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 2.228765352972875e-16
+              },
+              "row_id": "identity:2",
+              "subject": "pipe:b-x",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "x",
+              "checksum": "226ffcde719b4d9970c04d95ad294343d3ccd28831aed9cec74472ab88363560",
+              "comparison": "nodal",
+              "ordinal": 3,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 7.370392483657943e-17
+              },
+              "row_id": "identity:3",
+              "subject": "pipe:c-d",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "x",
+              "checksum": "56916f168fbca450657b2e88be1fdada34d06292c5e6cb11c323b58e8465571c",
+              "comparison": "resultant",
+              "ordinal": 4,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 3.6579364038247474e-17
+              },
+              "row_id": "identity:4",
+              "subject": "model",
+              "subject_kind": "model"
+            },
+            {
+              "axis": "y",
+              "checksum": "d71626d385bd55e386d614de85887f3ebaa58157ae864bab6ed0a528265e605f",
+              "comparison": "nodal",
+              "ordinal": 5,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 7.370392483657943e-17
+              },
+              "row_id": "identity:5",
+              "subject": "pipe:a-b",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "y",
+              "checksum": "7b2da18960adefca4a46d927563b59e8499005cdd9674d7fc5dad8fdc8e9fdd6",
+              "comparison": "resultant",
+              "ordinal": 6,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 2.228765352972875e-16
+              },
+              "row_id": "identity:6",
+              "subject": "pipe:b-c",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "y",
+              "checksum": "7b2da18960adefca4a46d927563b59e8499005cdd9674d7fc5dad8fdc8e9fdd6",
+              "comparison": "resultant",
+              "ordinal": 7,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 2.228765352972875e-16
+              },
+              "row_id": "identity:7",
+              "subject": "pipe:b-x",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "y",
+              "checksum": "624517f698ed36ef3c3ab0e3b2075aae08a79c8d5dde1175af3b7719483442c1",
+              "comparison": "nodal",
+              "ordinal": 8,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 0.0
+              },
+              "row_id": "identity:8",
+              "subject": "pipe:c-d",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "y",
+              "checksum": "911d3014f9798198308f09cc83cd692ccdc61cae26e2cef7a9fb661348c68b85",
+              "comparison": "resultant",
+              "ordinal": 9,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 3.6579364038247474e-17
+              },
+              "row_id": "identity:9",
+              "subject": "model",
+              "subject_kind": "model"
+            },
+            {
+              "axis": "z",
+              "checksum": "6bbb6db6d06750634aa22d0665e3b3f5f910908649420cb296b4b4140bec8a37",
+              "comparison": "nodal",
+              "ordinal": 10,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 7.370392483657943e-17
+              },
+              "row_id": "identity:10",
+              "subject": "pipe:a-b",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "z",
+              "checksum": "c74358ef9482f18c8a19a4a0c265b8d6c88a1fe27ce97b7cbfc47f8952218109",
+              "comparison": "resultant",
+              "ordinal": 11,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 1.1089088203621943e-16
+              },
+              "row_id": "identity:11",
+              "subject": "pipe:b-c",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "z",
+              "checksum": "c74358ef9482f18c8a19a4a0c265b8d6c88a1fe27ce97b7cbfc47f8952218109",
+              "comparison": "resultant",
+              "ordinal": 12,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 1.1089088203621943e-16
+              },
+              "row_id": "identity:12",
+              "subject": "pipe:b-x",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "z",
+              "checksum": "20085cf137b36dc9ed1b649ec216ef0fa7d96ca24d7d5cd7cbcbf6b62d09012f",
+              "comparison": "nodal",
+              "ordinal": 13,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 7.370392483657943e-17
+              },
+              "row_id": "identity:13",
+              "subject": "pipe:c-d",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "z",
+              "checksum": "b46ab0331c923e3596f55f52f25b59e0b6feffec86327844f381cf26ddb92ebd",
+              "comparison": "resultant",
+              "ordinal": 14,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 3.066620377649225e-17
+              },
+              "row_id": "identity:14",
+              "subject": "model",
+              "subject_kind": "model"
+            }
+          ]
+        },
+        {
+          "op": "replace",
+          "path": "/binding/subject_census",
+          "value": {
+            "arcs": 2,
+            "component_bodies": 0,
+            "nonlinear_supports": 0,
+            "straight_members": 2,
+            "subjects_sha256": "91034a61f654eca72ccf40c3d450b96ea9c5f7d51a55fb6ddff10bc2918a0569",
+            "supports": 2
+          }
+        }
+      ],
+      "request": "modal_arc.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "document": "modal_arc.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "consistent_with_scoped_unsupported",
+        "health": "checks_passed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "scoped_unsupported",
+          "normalization": "passed",
+          "participation": "scoped_unsupported",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "passed"
+        }
+      },
+      "id": "census:extra_arc_payload_only",
+      "intent": "scoped",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/tables/identity/rows",
+          "value": [
+            {
+              "axis": "x",
+              "checksum": "bf8cf418f61a3b1f2e0573abe934956dc130dea13c93a64d097da2d24d216753",
+              "comparison": "nodal",
+              "ordinal": 0,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 0.0
+              },
+              "row_id": "identity:0",
+              "subject": "pipe:a-b",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "x",
+              "checksum": "319d3cdd33afda01a9f166f0401c071d682f3c20b7d4554c8d5563ddecc8bb27",
+              "comparison": "resultant",
+              "ordinal": 1,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 2.228765352972875e-16
+              },
+              "row_id": "identity:1",
+              "subject": "pipe:b-c",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "x",
+              "checksum": "319d3cdd33afda01a9f166f0401c071d682f3c20b7d4554c8d5563ddecc8bb27",
+              "comparison": "resultant",
+              "ordinal": 2,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 2.228765352972875e-16
+              },
+              "row_id": "identity:2",
+              "subject": "pipe:b-x",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "x",
+              "checksum": "226ffcde719b4d9970c04d95ad294343d3ccd28831aed9cec74472ab88363560",
+              "comparison": "nodal",
+              "ordinal": 3,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 7.370392483657943e-17
+              },
+              "row_id": "identity:3",
+              "subject": "pipe:c-d",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "x",
+              "checksum": "56916f168fbca450657b2e88be1fdada34d06292c5e6cb11c323b58e8465571c",
+              "comparison": "resultant",
+              "ordinal": 4,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 3.6579364038247474e-17
+              },
+              "row_id": "identity:4",
+              "subject": "model",
+              "subject_kind": "model"
+            },
+            {
+              "axis": "y",
+              "checksum": "d71626d385bd55e386d614de85887f3ebaa58157ae864bab6ed0a528265e605f",
+              "comparison": "nodal",
+              "ordinal": 5,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 7.370392483657943e-17
+              },
+              "row_id": "identity:5",
+              "subject": "pipe:a-b",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "y",
+              "checksum": "7b2da18960adefca4a46d927563b59e8499005cdd9674d7fc5dad8fdc8e9fdd6",
+              "comparison": "resultant",
+              "ordinal": 6,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 2.228765352972875e-16
+              },
+              "row_id": "identity:6",
+              "subject": "pipe:b-c",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "y",
+              "checksum": "7b2da18960adefca4a46d927563b59e8499005cdd9674d7fc5dad8fdc8e9fdd6",
+              "comparison": "resultant",
+              "ordinal": 7,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 2.228765352972875e-16
+              },
+              "row_id": "identity:7",
+              "subject": "pipe:b-x",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "y",
+              "checksum": "624517f698ed36ef3c3ab0e3b2075aae08a79c8d5dde1175af3b7719483442c1",
+              "comparison": "nodal",
+              "ordinal": 8,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 0.0
+              },
+              "row_id": "identity:8",
+              "subject": "pipe:c-d",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "y",
+              "checksum": "911d3014f9798198308f09cc83cd692ccdc61cae26e2cef7a9fb661348c68b85",
+              "comparison": "resultant",
+              "ordinal": 9,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 3.6579364038247474e-17
+              },
+              "row_id": "identity:9",
+              "subject": "model",
+              "subject_kind": "model"
+            },
+            {
+              "axis": "z",
+              "checksum": "6bbb6db6d06750634aa22d0665e3b3f5f910908649420cb296b4b4140bec8a37",
+              "comparison": "nodal",
+              "ordinal": 10,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 7.370392483657943e-17
+              },
+              "row_id": "identity:10",
+              "subject": "pipe:a-b",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "z",
+              "checksum": "c74358ef9482f18c8a19a4a0c265b8d6c88a1fe27ce97b7cbfc47f8952218109",
+              "comparison": "resultant",
+              "ordinal": 11,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 1.1089088203621943e-16
+              },
+              "row_id": "identity:11",
+              "subject": "pipe:b-c",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "z",
+              "checksum": "c74358ef9482f18c8a19a4a0c265b8d6c88a1fe27ce97b7cbfc47f8952218109",
+              "comparison": "resultant",
+              "ordinal": 12,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 1.1089088203621943e-16
+              },
+              "row_id": "identity:12",
+              "subject": "pipe:b-x",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "z",
+              "checksum": "20085cf137b36dc9ed1b649ec216ef0fa7d96ca24d7d5cd7cbcbf6b62d09012f",
+              "comparison": "nodal",
+              "ordinal": 13,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 7.370392483657943e-17
+              },
+              "row_id": "identity:13",
+              "subject": "pipe:c-d",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "z",
+              "checksum": "b46ab0331c923e3596f55f52f25b59e0b6feffec86327844f381cf26ddb92ebd",
+              "comparison": "resultant",
+              "ordinal": 14,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 3.066620377649225e-17
+              },
+              "row_id": "identity:14",
+              "subject": "model",
+              "subject_kind": "model"
+            }
+          ]
+        },
+        {
+          "op": "replace",
+          "path": "/binding/subject_census",
+          "value": {
+            "arcs": 2,
+            "component_bodies": 0,
+            "nonlinear_supports": 0,
+            "straight_members": 2,
+            "subjects_sha256": "91034a61f654eca72ccf40c3d450b96ea9c5f7d51a55fb6ddff10bc2918a0569",
+            "supports": 2
+          }
+        }
+      ],
+      "request": null,
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "model-derived",
+      "document": "modal_state_one_way_pressed.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "failed",
+          "mass": "failed",
+          "normalization": "passed",
+          "participation": "scoped_unsupported",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "passed"
+        }
+      },
+      "id": "census:substituted_nonlinear_support",
+      "intent": "evidence",
+      "operations": [
+        {
+          "field": "support_id",
+          "op": "set_rows",
+          "table": "supports",
+          "value": "support:NL-V",
+          "where": {
+            "support_id": "support:NL-U"
+          }
+        },
+        {
+          "field": "row_id",
+          "op": "set_rows",
+          "table": "supports",
+          "value": "support:support:NL-V",
+          "where": {
+            "row_id": "support:support:NL-U"
+          }
+        }
+      ],
+      "request": "modal_state_one_way_pressed.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "document": "modal_state_one_way_pressed.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "consistent_with_scoped_unsupported",
+        "health": "checks_passed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "scoped_unsupported",
+          "normalization": "passed",
+          "participation": "scoped_unsupported",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "passed"
+        }
+      },
+      "id": "census:substituted_nonlinear_support_payload_only",
+      "intent": "scoped",
+      "operations": [
+        {
+          "field": "support_id",
+          "op": "set_rows",
+          "table": "supports",
+          "value": "support:NL-V",
+          "where": {
+            "support_id": "support:NL-U"
+          }
+        },
+        {
+          "field": "row_id",
+          "op": "set_rows",
+          "table": "supports",
+          "value": "support:support:NL-V",
+          "where": {
+            "row_id": "support:support:NL-U"
+          }
+        }
+      ],
+      "request": null,
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "model-derived",
+      "document": "modal_arc.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "failed",
+          "mass": "passed",
+          "normalization": "passed",
+          "participation": "passed",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "passed"
+        }
+      },
+      "id": "census:forged_digest",
+      "intent": "evidence",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/binding/subject_census",
+          "value": {
+            "arcs": 1,
+            "component_bodies": 0,
+            "nonlinear_supports": 0,
+            "straight_members": 2,
+            "subjects_sha256": "ccdd35168ab474fa5764a526cfb83621351e23682c5075b2e18d56bddf96aa30",
+            "supports": 2
+          }
+        }
+      ],
+      "request": "modal_arc.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "document": "modal_arc.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "consistent_with_scoped_unsupported",
+        "health": "checks_passed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "scoped_unsupported",
+          "normalization": "passed",
+          "participation": "scoped_unsupported",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "passed"
+        }
+      },
+      "id": "census:forged_digest_payload_only",
+      "intent": "scoped",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/binding/subject_census",
+          "value": {
+            "arcs": 1,
+            "component_bodies": 0,
+            "nonlinear_supports": 0,
+            "straight_members": 2,
+            "subjects_sha256": "ccdd35168ab474fa5764a526cfb83621351e23682c5075b2e18d56bddf96aa30",
+            "supports": 2
+          }
+        }
+      ],
+      "request": null,
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "model-derived",
+      "document": "modal_arc.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "failed",
+          "mass": "passed",
+          "normalization": "passed",
+          "participation": "passed",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "passed"
+        }
+      },
+      "id": "census:forged_support_count",
+      "intent": "evidence",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/binding/subject_census",
+          "value": {
+            "arcs": 1,
+            "component_bodies": 0,
+            "nonlinear_supports": 0,
+            "straight_members": 2,
+            "subjects_sha256": "91034a61f654eca72ccf40c3d450b96ea9c5f7d51a55fb6ddff10bc2918a0569",
+            "supports": 3
+          }
+        }
+      ],
+      "request": "modal_arc.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "document": "modal_arc.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "consistent_with_scoped_unsupported",
+        "health": "checks_passed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "scoped_unsupported",
+          "normalization": "passed",
+          "participation": "scoped_unsupported",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "passed"
+        }
+      },
+      "id": "census:forged_support_count_payload_only",
+      "intent": "scoped",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/binding/subject_census",
+          "value": {
+            "arcs": 1,
+            "component_bodies": 0,
+            "nonlinear_supports": 0,
+            "straight_members": 2,
+            "subjects_sha256": "91034a61f654eca72ccf40c3d450b96ea9c5f7d51a55fb6ddff10bc2918a0569",
+            "supports": 3
+          }
+        }
+      ],
+      "request": null,
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "model-derived",
+      "document": "modal_state_one_way_pressed.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "failed",
+          "mass": "scoped_unsupported",
+          "normalization": "passed",
+          "participation": "scoped_unsupported",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "passed"
+        }
+      },
+      "id": "census:support_omitted",
+      "intent": "evidence",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/binding/subject_census",
+          "value": {
+            "arcs": 0,
+            "component_bodies": 0,
+            "nonlinear_supports": 1,
+            "straight_members": 2,
+            "subjects_sha256": "aea2718d7e901071da1d949244fccf8aa49006e079ed35f6cdfb914f1542a252",
+            "supports": 1
+          }
+        }
+      ],
+      "request": "modal_state_one_way_pressed.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "document": "modal_state_one_way_pressed.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "consistent_with_scoped_unsupported",
+        "health": "checks_passed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "scoped_unsupported",
+          "mass": "scoped_unsupported",
+          "normalization": "passed",
+          "participation": "scoped_unsupported",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "passed"
+        }
+      },
+      "id": "census:support_omitted_payload_only",
+      "intent": "scoped",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/binding/subject_census",
+          "value": {
+            "arcs": 0,
+            "component_bodies": 0,
+            "nonlinear_supports": 1,
+            "straight_members": 2,
+            "subjects_sha256": "aea2718d7e901071da1d949244fccf8aa49006e079ed35f6cdfb914f1542a252",
+            "supports": 1
+          }
+        }
+      ],
+      "request": null,
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "not unique",
+      "document": "modal_state_one_way_pressed.json",
+      "expected": {
+        "binding": "not_checked",
+        "closure": "failed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "not_checked",
+          "counts": "not_checked",
+          "evidence": "not_checked",
+          "mass": "not_checked",
+          "normalization": "not_checked",
+          "participation": "not_checked",
+          "standing": "not_checked",
+          "sturm": "not_checked",
+          "units": "not_checked"
+        }
+      },
+      "id": "census:duplicate_nonlinear_support",
+      "intent": "closure",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/tables/supports/rows",
+          "value": [
+            {
+              "behavior": "one_way",
+              "checksum": "8be95b24df7dfeb58095e69da544e76b060bd36451480394e9d8a27d23230d74",
+              "dof_ref": "dof:node:C:uz",
+              "ordinal": 0,
+              "row_id": "support:support:NL-U",
+              "state": "active",
+              "support_id": "support:NL-U",
+              "treatment": "restrained"
+            },
+            {
+              "behavior": "one_way",
+              "checksum": "8be95b24df7dfeb58095e69da544e76b060bd36451480394e9d8a27d23230d74",
+              "dof_ref": "dof:node:C:uz",
+              "ordinal": 1,
+              "row_id": "support:support:NL-U",
+              "state": "active",
+              "support_id": "support:NL-U",
+              "treatment": "restrained"
+            }
+          ]
+        },
+        {
+          "op": "replace",
+          "path": "/binding/subject_census",
+          "value": {
+            "arcs": 0,
+            "component_bodies": 0,
+            "nonlinear_supports": 2,
+            "straight_members": 2,
+            "subjects_sha256": "aea2718d7e901071da1d949244fccf8aa49006e079ed35f6cdfb914f1542a252",
+            "supports": 2
+          }
+        }
+      ],
+      "request": "modal_state_one_way_pressed.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "identity",
+      "document": "modal_arc.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "failed",
+          "mass": "passed",
+          "normalization": "passed",
+          "participation": "passed",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "passed"
+        }
+      },
+      "id": "census:duplicate_arc",
+      "intent": "evidence",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/tables/identity/rows",
+          "value": [
+            {
+              "axis": "x",
+              "checksum": "bf8cf418f61a3b1f2e0573abe934956dc130dea13c93a64d097da2d24d216753",
+              "comparison": "nodal",
+              "ordinal": 0,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 0.0
+              },
+              "row_id": "identity:0",
+              "subject": "pipe:a-b",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "x",
+              "checksum": "319d3cdd33afda01a9f166f0401c071d682f3c20b7d4554c8d5563ddecc8bb27",
+              "comparison": "resultant",
+              "ordinal": 1,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 2.228765352972875e-16
+              },
+              "row_id": "identity:1",
+              "subject": "pipe:b-c",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "x",
+              "checksum": "319d3cdd33afda01a9f166f0401c071d682f3c20b7d4554c8d5563ddecc8bb27",
+              "comparison": "resultant",
+              "ordinal": 2,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 2.228765352972875e-16
+              },
+              "row_id": "identity:2",
+              "subject": "pipe:b-c",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "x",
+              "checksum": "226ffcde719b4d9970c04d95ad294343d3ccd28831aed9cec74472ab88363560",
+              "comparison": "nodal",
+              "ordinal": 3,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 7.370392483657943e-17
+              },
+              "row_id": "identity:3",
+              "subject": "pipe:c-d",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "x",
+              "checksum": "56916f168fbca450657b2e88be1fdada34d06292c5e6cb11c323b58e8465571c",
+              "comparison": "resultant",
+              "ordinal": 4,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 3.6579364038247474e-17
+              },
+              "row_id": "identity:4",
+              "subject": "model",
+              "subject_kind": "model"
+            },
+            {
+              "axis": "y",
+              "checksum": "d71626d385bd55e386d614de85887f3ebaa58157ae864bab6ed0a528265e605f",
+              "comparison": "nodal",
+              "ordinal": 5,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 7.370392483657943e-17
+              },
+              "row_id": "identity:5",
+              "subject": "pipe:a-b",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "y",
+              "checksum": "7b2da18960adefca4a46d927563b59e8499005cdd9674d7fc5dad8fdc8e9fdd6",
+              "comparison": "resultant",
+              "ordinal": 6,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 2.228765352972875e-16
+              },
+              "row_id": "identity:6",
+              "subject": "pipe:b-c",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "y",
+              "checksum": "7b2da18960adefca4a46d927563b59e8499005cdd9674d7fc5dad8fdc8e9fdd6",
+              "comparison": "resultant",
+              "ordinal": 7,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 2.228765352972875e-16
+              },
+              "row_id": "identity:7",
+              "subject": "pipe:b-c",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "y",
+              "checksum": "624517f698ed36ef3c3ab0e3b2075aae08a79c8d5dde1175af3b7719483442c1",
+              "comparison": "nodal",
+              "ordinal": 8,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 0.0
+              },
+              "row_id": "identity:8",
+              "subject": "pipe:c-d",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "y",
+              "checksum": "911d3014f9798198308f09cc83cd692ccdc61cae26e2cef7a9fb661348c68b85",
+              "comparison": "resultant",
+              "ordinal": 9,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 3.6579364038247474e-17
+              },
+              "row_id": "identity:9",
+              "subject": "model",
+              "subject_kind": "model"
+            },
+            {
+              "axis": "z",
+              "checksum": "6bbb6db6d06750634aa22d0665e3b3f5f910908649420cb296b4b4140bec8a37",
+              "comparison": "nodal",
+              "ordinal": 10,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 7.370392483657943e-17
+              },
+              "row_id": "identity:10",
+              "subject": "pipe:a-b",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "z",
+              "checksum": "c74358ef9482f18c8a19a4a0c265b8d6c88a1fe27ce97b7cbfc47f8952218109",
+              "comparison": "resultant",
+              "ordinal": 11,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 1.1089088203621943e-16
+              },
+              "row_id": "identity:11",
+              "subject": "pipe:b-c",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "z",
+              "checksum": "c74358ef9482f18c8a19a4a0c265b8d6c88a1fe27ce97b7cbfc47f8952218109",
+              "comparison": "resultant",
+              "ordinal": 12,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 1.1089088203621943e-16
+              },
+              "row_id": "identity:12",
+              "subject": "pipe:b-c",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "z",
+              "checksum": "20085cf137b36dc9ed1b649ec216ef0fa7d96ca24d7d5cd7cbcbf6b62d09012f",
+              "comparison": "nodal",
+              "ordinal": 13,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 7.370392483657943e-17
+              },
+              "row_id": "identity:13",
+              "subject": "pipe:c-d",
+              "subject_kind": "member"
+            },
+            {
+              "axis": "z",
+              "checksum": "b46ab0331c923e3596f55f52f25b59e0b6feffec86327844f381cf26ddb92ebd",
+              "comparison": "resultant",
+              "ordinal": 14,
+              "relative": {
+                "below_normal": false,
+                "kind": "identity_relative_discrepancy",
+                "undefined_reason": null,
+                "unit": "unit:one",
+                "unit_status": "catalog",
+                "value": 3.066620377649225e-17
+              },
+              "row_id": "identity:14",
+              "subject": "model",
+              "subject_kind": "model"
+            }
+          ]
+        },
+        {
+          "op": "replace",
+          "path": "/binding/subject_census",
+          "value": {
+            "arcs": 2,
+            "component_bodies": 0,
+            "nonlinear_supports": 0,
+            "straight_members": 2,
+            "subjects_sha256": "91034a61f654eca72ccf40c3d450b96ea9c5f7d51a55fb6ddff10bc2918a0569",
+            "supports": 2
+          }
+        }
+      ],
+      "request": "modal_arc.request.json",
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "subject census",
+      "document": "modal_arc.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "failed",
+          "mass": "scoped_unsupported",
+          "normalization": "passed",
+          "participation": "scoped_unsupported",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "passed"
+        }
+      },
+      "id": "census:count_contradicts_tables",
+      "intent": "evidence",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/binding/subject_census",
+          "value": {
+            "arcs": 1,
+            "component_bodies": 0,
+            "nonlinear_supports": 0,
+            "straight_members": 3,
+            "subjects_sha256": "91034a61f654eca72ccf40c3d450b96ea9c5f7d51a55fb6ddff10bc2918a0569",
+            "supports": 2
+          }
+        }
+      ],
+      "request": null,
+      "request_operations": [],
+      "reseal": true
+    },
+    {
+      "difference_contains": "subject census",
+      "document": "modal_state_one_way_pressed.json",
+      "expected": {
+        "binding": "passed",
+        "closure": "passed",
+        "decision": "rejected",
+        "health": "not_assessed",
+        "refusal_codes": [],
+        "relations": {
+          "clusters": "passed",
+          "counts": "passed",
+          "evidence": "failed",
+          "mass": "scoped_unsupported",
+          "normalization": "passed",
+          "participation": "scoped_unsupported",
+          "standing": "passed",
+          "sturm": "passed",
+          "units": "passed"
+        }
+      },
+      "id": "census:nonlinear_exceeds_supports",
+      "intent": "evidence",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/binding/subject_census",
+          "value": {
+            "arcs": 0,
+            "component_bodies": 0,
+            "nonlinear_supports": 1,
+            "straight_members": 2,
+            "subjects_sha256": "aea2718d7e901071da1d949244fccf8aa49006e079ed35f6cdfb914f1542a252",
+            "supports": 0
+          }
+        }
+      ],
+      "request": null,
       "request_operations": [],
       "reseal": true
     }

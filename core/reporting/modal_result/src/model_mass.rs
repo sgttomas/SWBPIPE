@@ -61,25 +61,25 @@ use serde_json::{Map, Value};
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 /// The model document version this reader's basis covers.
-const MM_SCHEMA_VERSION: &str = "0.9.0";
+pub(super) const MM_SCHEMA_VERSION: &str = "0.9.0";
 /// The model's declared top-level members (`PreviewModel`'s wire); none of
 /// them carries mass except as read below. Any other member is outside this
 /// reader's basis and is scoped, never ignored.
-const MM_MODEL_KEYS: [&str; 24] = [
+pub(super) const MM_MODEL_KEYS: [&str; 24] = [
     "pressure_contract", "schema_version", "document_kind", "project", "analysis_status", "nodes", "pipe_segments", "sections",
     "supports", "components", "materials", "load_cases", "combinations", "reference_configurations", "model_settings",
     "condition_sets", "spectra", "data_boundary", "diagnostics", "lines", "unresolved_assumptions", "constraints",
     "equipment_interfaces", "rule_pack_refs",
 ];
-const MM_PIPE_KEYS: [&str; 12] =
+pub(super) const MM_PIPE_KEYS: [&str; 12] =
     ["id", "from", "to", "section", "section_ref", "condition_set_ref", "material", "y_reference", "provenance", "label", "tags", "notes"];
 const MM_SECTION_KEYS: [&str; 8] = [
     "outside_diameter", "wall_thickness", "mill_tolerance", "corrosion_allowance", "material_density", "contents_density",
     "insulation_thickness", "insulation_density",
 ];
-const MM_RIGID_FAMILY: [&str; 5] = ["valve", "flange", "reducer", "rigid", "specialty"];
-const MM_GEOMETRY_ONLY: &str = "mechanics_geometry_only";
-const MM_ARC: &str = "curved_bend_macro_element";
+pub(super) const MM_RIGID_FAMILY: [&str; 5] = ["valve", "flange", "reducer", "rigid", "specialty"];
+pub(super) const MM_GEOMETRY_ONLY: &str = "mechanics_geometry_only";
+pub(super) const MM_ARC: &str = "curved_bend_macro_element";
 const MM_TIMOSHENKO: &str = "timoshenko_annulus_energy_v1";
 /// The component-weight primitives' method (§2.3 item 5): their recorded
 /// acceleration agreement is not re-derived here.
@@ -619,6 +619,9 @@ pub(super) struct Formed {
     /// other comparison is still made.
     open: Vec<((usize, usize), &'static str)>,
     positions: Vec<[f64; 3]>,
+    /// The formed members as (kind, id): `straight_member` or `arc` by pipe id,
+    /// `component_body` by component id (the census pass's self-check).
+    pub(super) subjects: Vec<(&'static str, String)>,
 }
 
 /// The model-derived basis, or why it is not available.
@@ -1153,7 +1156,15 @@ fn mm_form(p: &Parsed, request: &Value) -> S<Formed> {
     }
     order.sort_unstable();
     open.sort_unstable();
-    Ok(Formed { ndof, entries, order, restrained, conditional, scope, open, positions })
+    let subjects = members
+        .iter()
+        .map(|m| match &m.kind {
+            Kind::Straight => ("straight_member", m.id.clone()),
+            Kind::Arc { .. } => ("arc", m.id.clone()),
+            Kind::Body { component, .. } => ("component_body", component.clone()),
+        })
+        .collect();
+    Ok(Formed { ndof, entries, order, restrained, conditional, scope, open, positions, subjects })
 }
 
 /// The reported nonlinear states against the bound model (Design §1.3 as
