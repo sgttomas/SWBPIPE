@@ -880,9 +880,15 @@ restored and browser-preview results):
     the parity corpus. That corpus removes the 42 search-row keys and re-derives the 28 project
     replies (`REDERIVED_AT_V14`), each first checked to differ from its pinned digest only in the
     v14 summary members. No stored column's digest moved.
+    S6's disclosure restatement re-derives the 28 explicitly enumerated `preview:pressure` keys in
+    `REDERIVED_AT_S6`: held result text and its hashes, recorded revisions and recording IDs, saved
+    record/result/envelope bindings, and the replies carrying them. These are current regression
+    bindings; the other 574 values, key membership and earlier re-derived groups remain unchanged.
+    The original pre-change evidence retains its historical basis.
   Evidence: `p1_stored_bytes_hashes_and_replies_are_the_pre_change_implementations` (every stored
   column and reply of Record Run, Create/Save, the recorded-run read, the reopen and the re-save on
-  every persistence case, against digests generated at `c8865f384`), the `p1_*` and `p2_*` tests in
+  every persistence case, against digests generated at `c8865f384` with the explicitly listed current
+  regression rederivations), the `p1_*` and `p2_*` tests in
   `analysis_runs_tests.rs` and `native_persistence_tests.rs` (hash and stream parity with the
   checked path and the parse; tampering with each identity column and the record bytes after the
   INSERT, missing labels, failures between rows and a refused finish, each rolling back every row;

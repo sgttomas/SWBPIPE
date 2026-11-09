@@ -61,7 +61,9 @@ PINS = {'checked': 'f6462ce3e9b91123fc8c424e4e932ca6ae2e06773c3c8ea4ca9a233ea006
 # RT-A3 §4 D3 (§8.53): solve_prepared_load_case sets LoadCaseSolve.certificate_operand to None at its early returns
 # and, with a combination and a formed member bound, to combination_certificate::operand's value (no Result, no
 # early return); its consumption of the fallback attempts and every first-return alternative are unchanged.
-LIB_PINS = {'solve_load_case_observed': 'cb2a9686a9e5a42373c5c0f10b545cabfcc60ffe4d6a1515bdb19790ffd98b2a', 'solve_prepared_load_case': 'b71598a00a79be55cdd5f2b4751e53bb3b69daa73d15d74353e1ba5fe431d095', 'exact_straight_summary_extrema': '1c15fd171ea49543bb3c7372e93a79545dfb63d5f877a5c232b423ec4ebd4ce0'}
+# RT-A3 S6 D3 (§8.59): solve_prepared_load_case's consumption of the fallback attempts and every first-return
+# alternative are unchanged (the motion arms, base map and capture argument only).
+LIB_PINS = {'solve_load_case_observed': 'cb2a9686a9e5a42373c5c0f10b545cabfcc60ffe4d6a1515bdb19790ffd98b2a', 'solve_prepared_load_case': 'c6d77195d0533f25745736b634a4e05a786211d103d19376c47b2587f4515dd7', 'exact_straight_summary_extrema': '1c15fd171ea49543bb3c7372e93a79545dfb63d5f877a5c232b423ec4ebd4ce0'}
 PRIVATE = ("checked", "exact", "rounded", "accumulate", "add", "mul", "divided", "exact_scaled", "divided_scaled", "min", "max", "active_length")
 ENTRY = ("summary_row", "stress_mpa", "maximum_summary_mpa", "fallback_section_errors", "fallback_circular_maximum")
 PRIVATE_ROOTS = ("fallback_circular_maximum", "summary_row", "stress_mpa", "maximum_summary_mpa")

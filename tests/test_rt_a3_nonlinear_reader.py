@@ -547,3 +547,105 @@ def test_every_reference_envelope_validates_against_the_pressure_2_result_schema
     envelope = solve(doc, "sparse_interactive")
     assert gate(envelope, "flat") == {"withheld": True, "reason": GATE_CODE}
     _validate(schema, envelope)
+
+
+def test_s6_sliding_friction_judges_the_bound_relative_motion():
+    """Exact scalar equilibrium: k*u = 64 + 16; R opposes u-g while R*u > 0.
+
+    This is a subsystem/model-reader witness, not a new global solve. The
+    public producer regression is in PP's rt_a3_s6_tests module.
+    """
+    from fractions import Fraction
+
+    stiffness, external, normal, mu = Fraction(2**20), Fraction(64), Fraction(32), Fraction(1, 2)
+    reaction, ground = mu * normal, Fraction(1, 2**10)
+    displacement = (external + reaction) / stiffness
+    assert stiffness * displacement == external + reaction
+    assert reaction * (displacement - ground) < 0 < reaction * displacement
+    case, support, node = "case:relative-slip", "support:friction", "node:tip"
+    rows = []
+
+    def row(kind, value, unit, entity=nse.LOOP_ENTITY, component="", basis=""):
+        rows.append({"kind": kind, "value": float(value), "unit": unit, "entity_ref": entity,
+                     "basis_ref": {"ref_type": "load_case", "ref_id": case},
+                     "metadata": {"location": "ux", "component": component, "basis": basis}})
+
+    loop = "dense_scrutiny_active_set_loop; support_classes=friction"
+    state = "dense_scrutiny_active_set_loop; final_state=sliding"
+    for kind, value, unit in [(nse.ITERATIONS, 2, "count"), (nse.RESIDUAL, 0, "count"),
+                              (nse.CONVERGED, 1, "flag")]:
+        row(kind, value, unit, basis=loop)
+    for kind, value, unit in [(nse.STATE, 3, "state_code"), (nse.DISPLACEMENT, 1000 * displacement, "mm"),
+                              (nse.RELATIVE, 1000 * (displacement - ground), "mm"),
+                              (nse.REACTION, reaction, "N"), (nse.NORMAL_INPUT, normal, "N")]:
+        row(kind, value, unit, support, basis=state)
+    row(nse.NODAL[0], 1000 * displacement, "mm", node)
+    for component in nse.COMPONENTS:
+        row(nse.COMPONENT, reaction if component == "Fx" else 0,
+            "N" if component.startswith("F") else "N*m", support, component)
+    row(nse.FORCE_MAGNITUDE, reaction, "N", support, "force_magnitude")
+    row(nse.MOMENT_MAGNITUDE, 0, "N*m", support, "moment_magnitude")
+    source = {
+        "status": {"mechanics": "MECHANICS_SOLVED"}, "results": rows,
+        "diagnostics": [
+            {"code": nse.STATE_REVIEW, "affected_refs": [support, case],
+             "message": f"nonlinear support {support} ended in sliding state for load case {case}; dense_scrutiny preview loop evidence only"},
+            {"id": "diagnostic:relative-slip", "code": nse.PASSED, "affected_refs": [case], "message": nse.CONFIRMED}],
+        "numerical_quality": {"cases": [{
+            **dict(zip(("structural_status", "solve_quality", "model_matrix_fidelity", "accuracy_evidence"),
+                       nse.STANDING_QUALITY[nse.PASSED])),
+            "basis_ref": {"ref_type": "load_case", "ref_id": case}, "evidence_refs": ["diagnostic:relative-slip"]}]},
+        "contract_evidence": {"exact_cases": [{"load_case_id": case}], "load_reference_states": [{
+            "load_case_id": case, "support_components": [{"law_kind": "nonlinear_ground", "support_id": support,
+                "dof": "UX", "prescribed_value": float(ground)}]}]},
+    }
+    model = {"supports": [{"id": support, "node": node, "nonlinear": {"behavior": "friction", "dof": "UX",
+              "friction_coefficient": {"value": float(mu), "unit": "1"},
+              "normal_reaction": {"value": float(normal), "unit": "N"}}}]}
+    nse.check(source)
+    nse.model_checks(source, model)
+    forged = deepcopy(source)
+    for item in forged["results"]:
+        if item["entity_ref"] == support and (item["kind"] == nse.REACTION
+                or (item["kind"] == nse.COMPONENT and item["metadata"]["component"] == "Fx")):
+            item["value"] = -float(reaction)
+    with pytest.raises(ValueError, match="^SOURCE_PHYSICS_NONLINEAR_SLIP$"):
+        nse.check(forged)
+
+
+def test_s6_reference_rejects_hash_mismatching_w16_oracle_bytes():
+    """Equivalent JSON whitespace must not bypass the frozen input binding."""
+    import runpy
+    from unittest.mock import patch
+
+    generator = ROOT / "validation/references/rt_a3_s6/generators/rt_a3_s6_reference.py"
+    oracle = ROOT / "validation/references/w16_nonlinear_motion/references.json"
+    original = Path.read_bytes
+
+    def altered(path):
+        data = original(path)
+        return data + b"\n" if path == oracle else data
+
+    with patch.object(Path, "read_bytes", altered):
+        with pytest.raises(Exception, match="^W16 references.json does not match its SHA256SUMS binding$") as caught:
+            runpy.run_path(str(generator), run_name="s6_oracle_binding_negative")
+    assert type(caught.value).__name__ == "Fail"
+
+
+def test_s6_reference_rejects_line_ending_changes_in_w16_requests():
+    import runpy
+    from unittest.mock import patch
+
+    generator = ROOT / "validation/references/rt_a3_s6/generators/rt_a3_s6_reference.py"
+    request = ROOT / "validation/references/w16_nonlinear_motion/requests/a1.json"
+    original = Path.read_bytes
+
+    def altered(path):
+        data = original(path)
+        return data.replace(b"\n", b"\r\n") if path == request else data
+
+    assert json.loads(altered(request)) == json.loads(original(request))
+    with patch.object(Path, "read_bytes", altered):
+        namespace = runpy.run_path(str(generator), run_name="s6_request_binding_negative")
+        with pytest.raises(namespace["Fail"], match="request bound by its SHA256SUMS"):
+            namespace["w16_request"]("a1")

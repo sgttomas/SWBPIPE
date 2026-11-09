@@ -34,8 +34,11 @@ consumed. Retire the shared observation branch only when its CE, S6, modal and
 H1 evidence consumers no longer need it and no protected-evidence or owner
 retention requirement applies.
 
-**Agent 0 recommendation:** settle CE/S6's predecessor and correct this wrong
-output before further modal composition. #166 recommends S6 then CE; determine
-the actual composition before choosing the sequence. This is a recommendation,
-not an owner-selected undertaking. The separate
+**Publication sequence:** the resumed owner-directed composition proceeds S6
+first, then the constant-effort wrong-output repair before further modal
+composition. The comparison supports that order: this older candidate changes
+the same `solve_prepared_load_case` producer and DEL-04-07 pressure contract;
+composing it first would perturb S6's qualified core and pricing pins. The CE
+branch remains unchanged and unstarted here until Agent 0 gives its actual
+S6 integration/composition instruction. The separate
 [hanger hold](../../DEL-04-11/Work/hanger-sizing.md) is unaffected.

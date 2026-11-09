@@ -1469,9 +1469,11 @@ fn k5_semidefinite_connectors_are_unqualified_and_the_hinge_is_not_passed() {
     }
 }
 
-/// S5: the nonlinear loop refuses a connector (fail closed until T5).
+/// R-4 §3.7 S6 (formerly S5's refusal): the nonlinear loop assembles the
+/// connector beside the frames; its converged state satisfies the original
+/// equations of the frames-plus-connector stiffness on every free DOF.
 #[test]
-fn k5_nonlinear_loop_refuses_connectors() {
+fn k5_nonlinear_loop_assembles_connectors() {
     let m = connected_line(PD, 0.0);
     let input = NonlinearFrameSolveInput {
         base_prescribed: Vec::new(),
@@ -1495,10 +1497,19 @@ fn k5_nonlinear_loop_refuses_connectors() {
         )
         .unwrap(),
     };
+    let mut stiffness = crate::assemble_global_stiffness_with_connectors(m.node_count, &m.frames, &m.connectors).unwrap();
+    for &(dof, k) in &m.springs {
+        stiffness[dof][dof] += k;
+    }
+    let f = m.force();
+    let scale = f.iter().fold(0.0_f64, |a, v| a.max(v.abs()));
     for mode in MODES {
-        assert!(matches!(
-            solve_active_set_frame_with_mode_and_springs(&input, mode, &m.springs),
-            Err(NonlinearIntegrationError::InvalidInput { .. })
-        ));
+        let solved = solve_active_set_frame_with_mode_and_springs(&input, mode, &m.springs).unwrap();
+        assert!(solved.converged, "{mode:?}");
+        assert!(solved.displacements.iter().any(|u| *u != 0.0), "{mode:?}");
+        for dof in (0..f.len()).filter(|d| !input.base_restrained_dofs.contains(d)) {
+            let residual = stiffness[dof].iter().zip(&solved.displacements).map(|(k, u)| k * u).sum::<f64>() - f[dof];
+            assert!(residual.abs() <= 1e-9 * scale, "{mode:?}: DOF {dof} residual {residual:e}");
+        }
     }
 }

@@ -913,10 +913,10 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "16eeb49cb298c6d3634594bbd9ebf6bf86be8f114e2e524dbd624e401e31a729",
         "fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2",
         "8d48e3d97bc4f69bf9b0da58db7538b0661cf52d05f771dc126be2c3cca8c163",
-        "320dc3f1f75944af8b66da1287e6f8ee5e1fcd5fe005752f2c90bf8c89a9c894",
+        "f17bd9d57ee8d1cef4b465715e4edbf030faa5aa4f5282ad7927c25e3f6668d3",
         "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9",
         "612bb8167b89bc582f14dc1c29e56b6fab15197234b55a69d6e5fb416259f341",
-        "21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765b5faa7d6bb90",
+        "c5fe09a2dc82068f46ce8dd0b5873071af1ec13e62c9bacf0a009570d7e5d2ad",
         "8a0abaeac93729b5d6ee6c922f2a60f0caf9332948622bb8b5896747ce41442d",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
@@ -2232,9 +2232,13 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // preview-physics-retained-1 table's held-status gates, kind and policy, two static owners; and the in-build
 // s(PreparedCaseResult) 1,912 -> 1,920 B, LoadCaseSolve's held_status_source, two per case at three cases,
 // +48 B): +33,008 B in every phase and mode, from maintained eval at the same 328 in-build atoms, without R.
+// §8.59 (proposed): RT-A3 S6 (S6-ME, O_base +256 B; the restated pressure-2 table and load-reference schema,
+// STATICS[1] +779 B, +17 Node(String,Value) and +78 s(Value); the restated identity and load-state motion and
+// history limitations, TAV_W and TAV_X +2,718 B): +18,761 B in every phase and mode, from maintained eval at the
+// unchanged in-build atoms (they reproduce §8.58's record exactly), without R.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_450_374_480, 6_792_369_041, 8_744_104_869, 8_537_821_141, 7_611_516_939, 8_526_354_584, 7_258_971_974, 6_932_261_850],
-    [6_509_505_824, 6_851_500_385, 8_803_236_213, 8_596_952_485, 7_670_648_283, 8_585_485_928, 7_318_103_318, 6_991_393_194],
+    [6_450_393_241, 6_792_387_802, 8_744_123_630, 8_537_839_902, 7_611_535_700, 8_526_373_345, 7_258_990_735, 6_932_280_611],
+    [6_509_524_585, 6_851_519_146, 8_803_254_974, 8_596_971_246, 7_670_667_044, 8_585_504_689, 7_318_122_079, 6_991_411_955],
 ];
 
 #[test]

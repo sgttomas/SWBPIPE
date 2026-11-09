@@ -8,7 +8,7 @@
     },
     {
       "path": "schemas/analysis_run.v0.3.schema.json",
-      "sha256": "a22d977afb59a05d2d206397a5cce93c632da9bf2dd6a56e76ec41f3b70fbb58"
+      "sha256": "d4d301722e9a77714df0d9dcd11022ab51abd0ea63b9ac4e58269dd7c36e96cc"
     },
     {
       "path": "schemas/caepipe_external_run.schema.json",
@@ -52,7 +52,7 @@
     },
     {
       "path": "schemas/load_reference_state.schema.json",
-      "sha256": "5415d8f6d8856dba3470ab46423ba54d253e14a49680031d877a333b6d5d00a0"
+      "sha256": "b95947ea4b62406ea050ba46e8b7d32d3fe8cc9d4f4892f53ab0c9f6df1189b9"
     },
     {
       "path": "schemas/model_operation.schema.json",
@@ -100,7 +100,7 @@
     },
     {
       "path": "schemas/stress_neutral_export.v0.3.schema.json",
-      "sha256": "c6667247a777154f4b79f01607097658cc414ba1ac25eddb60f095c9041db039"
+      "sha256": "993bd5c32a0610172200cab94465a1ea6f36d94c3735a1276ad4d925dbdf614c"
     },
     {
       "path": "schemas/target_mapping.schema.json",

@@ -33,7 +33,7 @@ CONTRACT = "openpipestress.load_reference_state/1.0.0"
 RECORD_PROFILE = "resolved_straight_load_state_v1"
 PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
 # T4-U6 (D-5, DEL-05-03 section-bases-and-timoshenko.md §2.4): the per-basis stress signatures (106).
-PRESSURE_SHA = "21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765b5faa7d6bb90"
+PRESSURE_SHA = "c5fe09a2dc82068f46ce8dd0b5873071af1ec13e62c9bacf0a009570d7e5d2ad"
 PRESSURE_PROFILE = "exact_pressure_v3"
 PRESSURE_SOURCE_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
 PREVIEW_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
@@ -596,6 +596,40 @@ def test_raw_evidence_enum_and_constant_mutations_are_rejected(mutation):
          "reason": "not listed in analysis_state.load_sources"}]
     elif mutation == "connector": evidence["connector"] = [{}]
     elif mutation == "string_number": member["selected_E_pa"] = str(member["selected_E_pa"])
+    evidence_rejected(evidence)
+
+
+def _support_component(law, source, dof="UX", unit="m"):
+    return {"support_id": "support:root", "node_id": "node:root", "dof": dof, "global_dof": 0, "law_kind": law,
+            "prescribed_value": 0.001, "unit": unit, "meaning": "absolute_reference_displacement",
+            "physical_state_source": source}
+
+
+@pytest.mark.parametrize(("law", "source", "classification"), (
+    ("rigid_prescribed", "support_state.boundary_motion", "prescribed_boundary"),
+    ("nonlinear_ground", "support_state.boundary_motion", "nonlinear_ground_motion"),
+    ("spring_base", "support_state.base_motion", "spring_base_motion"),
+))
+def test_s6_support_laws_and_their_contributions_have_a_shape(law, source, classification):
+    """R-4 §3.7 S6: the producer publishes each resolved motion's law with its required source (the RE reader's
+    `support_law_classification`); the closed shape admits exactly those three pairs and their classifications."""
+    evidence, state = _first_state()
+    state["support_components"] = [_support_component(law, source)]
+    support = next(c for c in state["contributions"] if c["owner_kind"] == "support_state") if any(
+        c["owner_kind"] == "support_state" for c in state["contributions"]) else None
+    if support is None:
+        state["contributions"].append({"source_id": "support_state:support:root:UX", "owner_kind": "support_state",
+                                       "classification": classification, "value": 0.001})
+    else:
+        support["classification"] = classification
+    evidence_accepted(evidence)
+    for bad_source in {"support_state.boundary_motion", "support_state.base_motion"} - {source}:
+        state["support_components"] = [_support_component(law, bad_source)]
+        evidence_rejected(evidence)
+    state["support_components"] = [_support_component(law, source, dof="RZ", unit="m")]
+    evidence_rejected(evidence)
+    state["support_components"] = [_support_component(law, source)]
+    next(c for c in state["contributions"] if c["owner_kind"] == "support_state")["classification"] = "spring_base"
     evidence_rejected(evidence)
 
 

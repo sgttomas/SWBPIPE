@@ -230,12 +230,12 @@
   {
    "id": "preview:pressure",
    "js_text": {
-    "sha256": "ea603e07de931c444ca510b209ebc51cc03c1ad4181f30f01fb0d0f1f798b99c",
-    "length": 254717
+    "sha256": "57c70c096fd094fd7d9a31c53b630d31a370768b09e8d474a88c9d9a0698befe",
+    "length": 254705
    },
    "stringify_text": {
-    "sha256": "9612edd4a2067471422a12d891d2ce1eb0f96b4a569b94742c5051ca6f52b6d5",
-    "length": 254713
+    "sha256": "ed0987b7be70c7b49ef9129583d50272b48638a17a971ae2a99e8783e214488f",
+    "length": 254701
    },
    "save": {
     "editor_intents": [
@@ -269,7 +269,7 @@
      "payload_scope": "project_envelope_payload",
      "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
      "payload_ref": "project:exact-pressure-connected-fixture",
-     "value": "sha256:430698d238da3f00c4c875befdff9e6bcdd22ea1405505571c1d345b99971223",
+     "value": "sha256:7abdc22db53e7dd121ffdc53d10c34bafe611f66093cbe6ae094f23cdb6fc42f",
      "hash_status": "computed_local_preview"
     },
     "model_only_envelope_hash": {
