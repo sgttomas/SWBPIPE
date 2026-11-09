@@ -12,26 +12,202 @@
 
 ---
 
-## Current assurance question and recovery
+## Selected mass assurance: next modal unit after CE
 
-REQ-005 says the separate readers rederive total/free-DOF mass "from the
-model", but its closing sentence scopes rederivation to the document's formed
-mass and shapes. The implemented payload check cannot detect a coherently
-wrong mass formation with matching totals. This is an unresolved assurance
-gap and an ambiguity in the requirement, not reader independence from the
-formation source.
+**Selected rationale.** Retain REQ-005's model-derived mass assurance. Checking
+totals and participation against a supplied M cannot detect a coherently wrong
+M with matching totals; the independent model path must check the formation
+as well. This serves RT-A7, RT-A8's uniform-support-motion/missing-mass basis
+and the reference-system publication goal. Source implementation and preparation
+may proceed in parallel with CE; the actual integrated S6, then CE/main
+predecessor must be normally merged before final numerical/commitment review
+and integration. CE keeps integration priority, with no resource-priority
+change. WORKING_ITEMS owns this next modal unit after CE; this source design
+supplies neither numerical-review clearance nor admission.
 
-The options for the owner are to retain the stronger model-derived assurance
-and implement it (Agent 0's recommendation), or explicitly amend the promise
-to payload-derived checking and state its independence limit. No weaker
-wording has been adopted. Next actor: Agent 0 presents the source-grounded
-choice to the owner before treating REQ-005 as satisfied.
+**Source basis.** Traced at `a5eabb649ca748c07522b634ca792bc72f0e1b80`:
+`ScopeOfWork.md` REQ-001/REQ-005/REQ-006; `core/product_physics/src/modal/`
+(`prepare`, `context`, `mass`, `weight_basis`, `stiffness`, `skew_pencil`,
+`outcome`, `document`); product `self_weight.rs` (`stable_mass_per_length`,
+`component_weights`), `rigid_component.rs` and `joint.rs`; kernel
+`core/solver/modal_eigen/src/reformation/mass.rs`;
+Rust `core/reporting/modal_result/src/lib.rs`
+(`mr_binding`, `mr_mass`, `mr_participation`) and Python
+`tests/verifiers/modal_evidence.py`.
+The readers currently bind hashes/options to an optional supplied request and
+rederive relations from the payload only. A model hash binds bytes; it does not
+establish the mass implied by those bytes.
+
+### Implementation boundary
+
+- **Inputs and independence.** Each reader independently interprets the exact
+  supplied request's model, materials and options after binding succeeds:
+  model units, shared-section binding, route, node order/geometry, component
+  mapping and named state context. Follow preparation's
+  material precedence (nonempty request materials, otherwise model materials)
+  and the authored-to-lowered case binding; do not trust a producer-authored
+  mass recipe or normalized leaves as an independent source. Reuse checked
+  canonical JSON, SHA-256 and the unit catalog/conversions; do not call/import
+  product preparation, self-weight/eligibility, mass, kernel mass re-formation
+  or the other reader. Rust remains a leaf, without a product/solver dependency;
+  Python retains its producer-import independence check. A shared formula
+  specification is the contract, not shared mass-executing code.
+- **Family and section basis.** Independently enumerate pipes except objective
+  connectors' replaced spans. Tee legs, geometry-only bends and annotation-only
+  expansion joints retain pipe mass; realized arcs use their actual radius,
+  orientation and two rigid half-arcs (§2.4), not chord mass. For an eligible
+  rigid-family body (valve, flange, reducer, rigid or specialty), replace its
+  mapped member's distributed mass by W/a at the component node and global
+  CoG offset. Reproduce the eligibility/fallback
+  distinction of `component_weights`: mapping conflicts/range failures block;
+  `not_solver_consumed` or an unmet weight/CoG/consumption condition retains
+  pipe mass with the existing disclosure where applicable. Do not silently add
+  body and pipe mass. Objective connectors, tie rods and supports are massless.
+  PF metal and bore use t − c_m; EX metal uses t and its contents bore uses
+  (t − c_m) − c_a, with explicit c_a. Independently form metal, contents and
+  insulation contributions from authored densities and source areas (§2.1).
+  Missing required density or half an insulation pair is not a zero default.
+  Form j̄ and ī = j̄/2 from metal and insulation only; contents contribute to
+  translations, not section torsional/rotary inertia (D-e). Bodies use the
+  required positive request a, including the existing applied-weight
+  acceleration agreement/range premises; intrinsic CoG inertia stays zero
+  because it is unentered. No concentrated-mass or W-17 field is introduced.
+- **Quantities.** Independently form the full symmetric global M, including
+  all straight consistent/Rayleigh terms, arc first/second moments, body
+  offset translation–rotation coupling and rotary blocks (§2.2–§2.4). Compare
+  the union of expected and published entries, including missing/extra entries
+  and zeros, in physical DOF order; checking scalar totals alone is insufficient.
+  Derive T_k = R_kᵀM R_k on all DOFs, the mass centre from its first moments,
+  and the free-DOF mass R_f,kᵀM_ff R_f,k. Recompute m_i = φ_iᵀM_ffφ_i and
+  p_k = (M R_k)_f, then Γ, m_eff, fractions and cumulative fractions from this
+  independently derived mass and the published shapes, alongside the existing
+  payload relations. Retain restrained-point coupling in p_k (D-v).
+  Category contributions are internal cross-checks; modal-1 publishes three
+  directional total/free rows and a centre, not a category table. CLM-001's
+  category-publication wording remains unmet; no format change closes it here.
+- **Restraints and state.** Independently reconstruct axis restraints, imposed
+  motion's restrained DOFs (motion values do not enter M), springs' free DOFs
+  and the requested dynamic-only snubber choice. For a nonlinear case, bind
+  every reported support to the model and named case, check its state-to-
+  treatment rule (§1.3), and derive the augmented partition from those states.
+  The current payload does not independently establish that these are the
+  converged, confirmed states of the static solve. Report that dependency
+  explicitly; a conditional partition check is not independent state
+  qualification or unconditional model-derived free-mass assurance. Do not
+  run a second static solve. Global M remains independently checkable where
+  its section basis resolves. Mass follows named-state contents when the
+  shared contents consumer lands; at this source, condition contents are
+  refused, never substituted with section contents. Reconcile against the
+  integrated S6/CE head before final review; neither integration alone
+  establishes gap qualification or modal admission. Modal-1 0.1.0 refuses skew
+  records before solved projection (`MODAL_DOCUMENT_SKEW_RESTRAINT_UNSUPPORTED`).
+  Keep that refusal: its internal reduced pencil uses Q̃ᵀM Q̃ and kept-subspace
+  mass, which the global-coordinate document cannot describe.
+
+### Verdict, verification and delivery seams
+
+Use the existing mass/participation standings to make the model-derived check
+mandatory, preserving the payload checks. No request, withheld payload or an
+uncovered model/state basis is **scoped unsupported**, explicitly naming the
+missing input or coverage; it cannot pass mandatory mass assurance or yield
+`fully_validated`. A binding mismatch, a solved result in an explicitly refused
+producer domain, missing/duplicate subject, or established mass contradiction
+**fails**. A comparison undecidable on sound rounding/profile bounds is
+**unresolved**, never passed; evaluate decidable contradictions even beside
+unavailable operands. Refused documents retain `refusal_consistent` as a check
+of the refusal record, not proof of the refusal's engineering cause. Preserve
+all current numerical thresholds and per-value flags. Derive the new formation
+comparison's roundoff coverage from its actual arithmetic; do not reuse the
+self-weight identity tolerance for matrix entries, assume exact equality after
+independent evaluation, or select a new acceptance value here. An uncovered
+rounding case remains unresolved pending review.
+
+The targeted threat is coherent producer mass-formation error on the bound
+discrete inputs, including errors invisible to a·M·R_k. Maintained Rust/Python
+mutations must leave the authored request fixed while resealing payload rows
+and updating all dependent mass/participation values: wrong route/wall/bore or
+density, omitted insulation/contents, omitted/double-counted/remapped body or
+arc, wrong CoG/node/orientation, dropped restrained coupling, wrong restraint
+partition, and rotary/Rayleigh/torsional changes that preserve M R_k. Both
+readers must reject an established model contradiction even when old payload
+relations pass. Include intact PF/EX, straight/tee/arc/body, alternate units
+and section references, both normalization cases, named-state/refusal and
+missing-input/rounding controls. Use maintained `f1_modal` mass references as
+independent controls without changing frozen values. This verifies entered
+model mass, not omitted real-world equipment/contents, the discretization
+error R3, physical correctness, K, residual/re-formation evidence or eigenpairs.
+
+WORKING_ITEMS owns the reader implementations in
+`core/reporting/modal_result/src/` and `tests/verifiers/`, with regressions in
+`core/reporting/modal_result/tests/`, `tests/test_modal_evidence.py` and
+`fixtures/results/`; `modal/tests_document.rs` binds unchanged producer bytes.
+Consult product `prepare/context/state`, `mass/weight_basis`, `stiffness/
+skew_pencil` and `outcome/document` as the input/formation/projection seams,
+not independent authorities. No producer algorithm, model/result schema,
+reference or admission change is authorized by this design. If required
+state/format evidence is absent, return the explicit coverage gap to Agent 0
+before expanding those seams. Reader work/allocations and input normalization
+join the existing projection/reader resource and format limits; use bounded
+input counts and fail before unbudgeted work. Reassess affected retained pricing
+and actual-source D3 if priced source, dependencies or a retained consumer moves;
+no values or budget weights are selected here. Wiring into native custody,
+recording/store policy, subject-census publication and common-M Bessel evidence
+remain separate open work. Targeted numerical regressions and exact old/new
+independent scrutiny are required for the final scoped unit before integration.
+
+**Implemented.** `core/reporting/modal_result/src/model_mass.rs` and
+`tests/verifiers/modal_model_mass.py` (with `modal_model_mass_interval.py`)
+implement this boundary independently; REQ-005's closing sentence states the
+contract. Each derived quantity is an enclosure: the Design formula on the
+authored binary64 inputs, widened by the producer's arithmetic. The one stated
+premise is the kernel's double-word path (`dd.rs`; Joldes, Muller and Popescu
+2017 for add/mul, the kernel's own bound for division, square root and series):
+under 2⁻¹⁰⁰ per operation and under 2¹⁰ operations per contribution, so a value
+accumulated from n contributions errs by at most 2⁻⁹⁰·(n + 1)·Σ(1 + κ)·|scale|,
+each scale the absolute term sum of the producer's formation (for a member, of
+its frame rotation, so an entry cancelling to zero keeps its allowance) and
+κ = |y|/|y⊥| for a member frame. Where the readers sum turned blocks rather
+than the producer's local ones, the scale bounds the local absolute sums through
+the norms a rotation keeps (Σ|S_local| ≤ 2·Σ|S|, Σ|J_local| ≤ 3·Σ|J|). The
+premise holds only inside two limits, beyond which an entry is outside the
+rounding model and unresolved: (n + 1)·max(1 + κ) below 2³⁷, where the allowance
+would reach binary64 resolution, and no nonzero double-word intermediate of the
+element below the kernel's low-word floor 2⁻⁹⁶⁹ (`LOCAL_ENTRY_MIN`). Such an
+entry leaves undecidable only what uses it; every other entry, total, the centre
+and the participation quantities that do not use it are still compared. The
+mass centre's path (`node_centroid`, `nodal_resultant`, the division by T_k) is
+also plain double word, but its products are not compared one by one, so
+instead of the floor it takes the arithmetic's underflow term: under gradual
+underflow each binary64 operation errs by at most 2⁻¹⁰⁷⁵ more, absolutely, and
+a subnormal sum is exact, so one double-word operation errs by its relative
+bound plus under 2⁻¹⁰⁶⁴·max(1, 1/|divisor|). The participation path is the
+kernel's extended-exponent `WideDd` and does not underflow. A present null
+direction is refused as the producer refuses it. A
+published value outside its enclosure fails; a flagged or outside-profile value
+meeting it is unresolved. No threshold is selected or changed. A solved
+document bound to a model the producer refuses (snubber, gap support, skew, a
+support direction its admission refuses, condition contents on the state case,
+Timoshenko, a body outside §2.3 item 6's range premise in the producer's
+evaluation order) fails; an exactly axis-aligned direction is lowered to its
+axis as the producer lowers it, rotational tokens included. The readers' boundaries are not identical: Rust's binary64 interval
+arithmetic is wider than Python's exact rationals near a bound, and Rust scopes
+an objective connector on the PF route where Python follows the producer's
+mass selection (`replaced_span_ids`, exact route only). Neither re-derives the
+component-weight acceleration agreement (§2.3 item 5) or the bend angle.
+The shared corpus (`fixtures/results/modal_corpus.json`) carries
+fixed-request wrong-M entries (`model:`) that only the formation comparison
+rejects; entries pinning payload semantics on invented values, the sum-order
+boundaries, the feasibility oracle and the producer edges are read without the
+request, and with it the reader is never weaker than the oracle.
 
 Public admission remains disabled under §5.3.9. The revised normalization
 criterion distinguishes axis-aligned zero components from a skew physical
 vector constraint; AC-006's nonzero skew-residual witness is still unmet.
-The existing closure accounting below governs the next internal unit; neither
-the prose cleanup nor #164's three closed terms supplies the remaining proof.
+The existing 14-group first-view frontier and six-term resource trace (3/6
+closed) remain unchanged; this mass correction closes none of them. Resource,
+recording, subject-census and Bessel gaps, R3, gap qualification and all holds
+remain. H1, hanger/preload and the dormant Windows guest stay held. Neither
+this design nor #164's three closed terms supplies the remaining proof.
 [Original composition-00832 AC-004 observation](https://github.com/sgttomas/SWBPIPE/tree/dc037b5495ccd6fa35fb04758edbcdb019021bba/modal)
 is retained for its historical source only. It authorizes no new witness run.
 
@@ -110,7 +286,7 @@ on the free degrees of freedom of the linear model, on the pressure-free (PF) ro
   - **Admission (D2).** The state admits only when the evidence is present and bound to the state case, its mode is the requested `dense_scrutiny`, it converged, its qualification is `Qualified` (the converged-but-unqualified inspectable gap state is refused), its standing is `Confirmed` (a failed confirmation attempt or an absent one is refused) and the solve published no blocking diagnostic. Any other outcome refuses `MODAL_STATE_CASE_UNAVAILABLE` with the specific reason (not converged, missing evidence with the blocking codes, case or mode mismatch, inspectable unqualified gap, not established with the case's own sentence, blocking codes), carrying every static diagnostic of the solve. Admission reads the typed evidence and diagnostic codes and severities, never message text. **Limitation, stated:** the static path confirms no gap state (`confirm && passed && !gap`), and on every gap model tested its qualification takes the inspectable branch, so **every model with a gap support is refused for now**. Admitting gaps needs a static qualification and confirmation of gap states, not a modal change. Gap admission is **required** by release-target criterion 1 (RT-A2, RT-A7), not an accepted limitation: it depends on **RT-A3 R-3** (exact gap qualification, replacing `StrictGapEvidence::Unsupported` so `product_selected_state_is_qualified` holds without the inspection fallback, and a gap-capable `confirm_converged_state` so the product drops `!gap`), owned by RT-A3 and ordered by Agent 0 after RT-A3 increments 3 and 4 and R-4's prerequisites (P, the sparse nonlinear loop; the §4 certificate) (DEL-04-07 `route-unification-r4.md`). R-3 fills this seam; it adds no parallel one. The owner's option to accept a gap limitation is open and untaken; until R-3 lands the gap path stays unqualified and refused here. A load/reference-state case with a nonlinear support also needs **RT-A3 S6** (nonlinear supports on load/reference-state documents, with connectors).
   - **The linearization.** Exactly one final state per built nonlinear support, by support id; a missing, duplicate or unexpected id refuses. Only the table's pairs are admitted: one-way, lift-off and gap active (rigid) or inactive (free); friction sticking (rigid), sliding (free, force frozen) or inactive (free, no force; O-14 (b), released by Agent 0, 2026-11-02). Any other pair refuses by name (`StatePairInvalid`): sticking or sliding of a one-way, lift-off or gap support, and friction active, which the classifier never returns. The DOF is the built support's (node index × 6 + DOF index). A rigid state adds its DOF to the restrained set with no imposed or gap value; a DOF a linear support already restrains stays restrained and is recorded (the static loop refuses an active support on a base-restrained DOF, so this is reached only with constructed states). The pencil (§3.2, as built) is then formed on that augmented restrained set; I2b-1's dense path and every §3.4 check run unchanged on it.
   - **The outcome** names the case, the mode, each support's state and its modal treatment (`Restrained`, `AlreadyRestrained`, `Free`, `FreeFrozenFriction`), the augmented restrained set, the state solve's non-blocking static diagnostics, and the disclosures: the linearization at the named case's confirmed states (R12), the rigid-or-free rule, the friction normal as its own support, the frozen friction of each sliding support, the free tangent of each inactive friction support and each already-restrained DOF.
-  - **Load/reference-state documents.** The resolved case is threaded to the solve as the static entry threads it, but a load/reference-state document with a nonlinear support is not reachable yet: such documents are on the exact route, whose admission refuses nonlinear supports (`exact_admission`), and modal carries that refusal with no bypass.
+  - **Load/reference-state documents.** The resolved case is threaded to the solve as the static entry threads it. Since RT-A3 S6 the exact route's admission no longer refuses nonlinear supports on these documents (`exact_admission`); whether such a case's state admits follows D2's evidence rules above, with no modal bypass.
   - **Tests** (`modal/tests_state.rs`): each mapping (one-way active and inactive, lift-off, friction sticking and sliding with a guide normal and with an explicit normal, and friction inactive) gives eigenvalues equal bit for bit to a hand-built linear twin with the same restraints. Friction inactive is a genuinely solved state: an explicit normal of 0 N (cases `load:SLIDE`, `load:STICK` of K-D5 F-1 explicit, and `load:SLIDE-POS`, `load:STICK` of F-1 with its guide S-N kept) and of −70 N (`load:SLIDE`) each solves converged, `Qualified` and `Confirmed` through `run_modal_dense`, with the tangent free and the guide restrained where present (`friction_whose_normal_does_not_bear_is_free_confirmed_and_matches_its_linear_twin`). A derived normal that does not bear (F-1 under a tangential load only, so S-N's reaction is zero) converges `Qualified` but `NotEstablished` ("friction normal not established") and is refused (`friction_whose_derived_normal_does_not_bear_stays_refused`); the refusals of a non-converged case, a failed confirmation (weakly active and at-capacity states), every gap model, and, on constructed values, missing evidence, a duplicate, an unexpected id, a mismatched case or mode, an absent confirmation, an inspectable gap, a blocking diagnostic and each invalid pair; the evidence equal to the case's own state rows in both modes; and source scans that every blocked construction sets `None` and that the state module reads no message.
 - **[decided]** M's sparsity pattern is the union of the element patterns with K's. A rigid-body node block couples translation and rotation inside one node's 6×6 block, which K's pattern may not fill. The ordering and profile are therefore formed over the union pattern before reverse Cuthill–McKee (`core/solver/sparse_direct/src/lib.rs:505`), so that no M entry falls outside K's profile.
 
@@ -619,6 +795,10 @@ The generator re-derives every formula and root below; they are stated from memo
 `binding` captures the request exactly: `request_sha256`, `model_sha256`, `materials_sha256` (with whether `materials` was authored), every request option verbatim (`mode_count`, `frequency_cutoff`, `state_case`, `modulus_basis_ref`, `modulus_basis_temperature`, `weight_to_mass_acceleration`, `include_dynamic_only_restraints`), any undeclared member's name, the state case (`case_id`, `case_index`, the SHA-256 of its authored case object) and the full integrity-parameter set with its SHA-256. The run id derives from the request and parameter hashes.
 
 #### 5.3.4 The readers
+
+The inventory below describes the built payload checks. The selected
+model-derived mass correction above is built beside them; it does not close
+the full-reader condition.
 
 **Corrected after independent review (2026-11-04).** The governed entry reads the **original text**, admitted first by the checked profile `openpipestress_jcs_ijson_v1` (duplicate members, NaN and Infinity, unsafe integers and integral values beyond 2⁵³ − 1 refuse the closure), so a duplicate `public_engineering_result` cannot collapse in a map. A **below-normal flag is a claim held to the payload**: a flagged m_i, Γ_k or m_eff,ik whose payload-derived value is normal, beyond its rounding allowance, fails; a flagged fraction or m_eff is held to the other published side of m_eff = fraction·T_k; only a withheld payload scopes the flags. 
 
@@ -1676,7 +1856,7 @@ The weights rise with n (w_b64 from 0.0925 to 0.1579 over 240–960), so **no we
 | O-4 memory budget: ρ, B₀ and the ceiling | proposed form above | the ledger; the observed brackets at 480 / 960 / 1,920 | ρ (1 proposed), the allowance for allocator rounding and library layout, and the ceiling beyond the provisional 6 GiB; Agent 0 | the stated allowance (outside repository source); A_conf and the K-D5 buffers for state cases |
 | Projection limits: R_max, B_max, any in-memory multiple | structure approved; no limits | #59's custody limit (64 MiB displayable); the projection estimates | the limits; Agent 0 with I3b | #59 merging; I3b |
 | B_doc | proposed | 1,691 fixture rows and 10 headers within the bound | an independent check of its four items; then Agent 0's adoption | that check |
-| The full reader's scope (§5.3.9 item 4) | open | §5.3.4 | acceptance and wiring into the verdict path; Agent 0 | I3b |
+| The full reader's scope (§5.3.9 item 4) | model-derived mass assurance selected; implementation and review open | §5.3.4 and “Selected mass assurance: next modal unit after CE” | correction, scope review and verdict-path wiring; Agent 0 | S6, then CE integration for the mass unit; I3b for wiring |
 | Recording policy, O-8 (§5.3.9 item 5) | open | none | task record, store and version; Agent 0 with DEL-00-06 | the decision |
 | D3 (§5.3.9 item 6) | **registered:** DEL-04-08 §8.52 merged with I3a (PR #113, `08bfdfdaf`; coefficient-equal, AC-004 recorded in that PR) | §8.52 | none for I3a. The production instance's own D3 is §8.57 (coefficient-equal; AC-004 7/7 at `089a5698f`), registered when PR #131 merges; later priced changes (the O-4 guard stages) take their own D3: P0 and S1's is §8.58 (coefficient-equal; AC-004 7/7 at `ef009fa0b`), registered when PR #155 merges | — |
 | Independent numerical review of I3a (§5.3.9 item 6) | open; a separate obligation from D3 | the reviews of the slices so far (PR #33 and the I3a rounds) | an independent numerical review of the I3a result family and readers; Agent 0 to commission | its scheduling |
@@ -1852,7 +2032,7 @@ Public engineering-result admission and every UI stay **disabled**. They remain 
 1. **Production parameters:** one complete instance, which needs **A1, A2 and A3 all closed** (§5.3.7): A1's approved criteria, A2's adopted criteria (κ_c, κ_s, τ_o, δ_c, and τ_r = 2⁻³⁰, 2026-11-04), and A3's criteria (τ_μ = 2⁻⁵³, c_μ = 1, κ_μ = 10, c_f = 64, 2026-11-05). All three are selected. The instance may now be implemented as a bounded explicit constructor with no `Default`, reviewed with its source, regression and D3 under DEC-026 (O-6, D-TOL). Selecting the parameters enables nothing: admission still waits for every other item here. Until the instance is reviewed, every document carries a labelled test-local set.
 2. **Units:** the mass-coupling family is adopted (`mass_length_per_rotation`, §5.3.5; D-01 engineering extension 2026-11-04), the equilibrated-basis list is closed and empty, and λ is not published (Agent 0, 2026-11-04). The two D·M·D magnitudes are `time_squared` (option (a)), so units pass for current documents. Units passing closes none of the other conditions here.
 3. **Resources:** O-4 measured in stages (§5.3.8: stage 1's small points first, any larger stage proposed from its measured phase costs and separately authorized), then D-k's work guard, the dense modal path's counted memory peak and the projection's own size guard built from reviewed measurements. Stage 1 alone closes none of them.
-4. **The full reader's scope:** Agent 0's acceptance that the reader re-derives what the payload allows and not K, the re-formation or the eigen-solve, and the reader wired into the verdict path that a native consumer uses.
+4. **The full reader's scope:** the selected model-derived mass correction above, its exact-text and numerical review, Agent 0's scope review and the reader wired into the verdict path that a native consumer uses. The built payload checks alone do not satisfy REQ-005's model-derived mass promise. K, the re-formation and the eigen-solve remain outside reader rederivation; state/format coverage limits remain explicit.
 5. **Recording policy:** O-8 (task record, store, version) decided; until then documents are transient.
 6. **D3:** I3a's priced change registered (DEL-04-08), and an independent numerical review of I3a. The pricing preparation at `372a16aa5` stopped (exit 5, every point incomplete) at 8 arguments with no class, all at I3a sites in `modal/document.rs` and `modal/tests_document.rs`. The O-4 measurand and the A2 and A3 observation tests add none (§5.3.8). **The D3 is proposed at DEL-04-08 `retained-pricing-rules.md` §8.52**, on PF1b's §8.51 head with #109 (priced source `687fafdca`). It adds MODAL-ID classifications for those arguments and corrects three by-name classes below the DOF-id and mode-ref bounds. It re-pins B7a's `UNITS_SHA` for the two unit-catalog dimensions. All 1,602 coefficients are equal, so §8.51's block is kept. It merged with I3a in PR #113 (`08bfdfdaf`), with AC-004 run on its binary and recorded in that PR. The independent numerical review of I3a remains open and is separate from the D3. The production instance (PR #131) takes its own D3, **proposed at DEL-04-08 §8.57** on main's §8.56 tree (priced source `11e9a1429`): the constructor is unreached and adds no loop, text site or class, all 1,602 coefficients are equal, and no pin moves. AC-004 is required, because the witnessed binaries change; it ran once and passed 7/7 at `089a5698f` (§8.57). This is pricing registration only: it admits nothing.
 7. **Bessel (temporary capability limit, not an accepted release limitation):** under Agent 0's interim contract (§5.3.4), Bessel passes only where the readers establish it, and is otherwise unresolved, which confers no `fully_validated` status. Closing it needs option B, common assembled-M Gram evidence, or another justified common-M bound, reviewed by Agent 0.
