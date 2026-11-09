@@ -431,21 +431,10 @@ fn each_family_not_yet_admitted_is_refused_by_name_on_v3() {
                 (document, vec![id], name)
             })
             .collect::<Vec<_>>();
-        // RT-A3 increment 3 admits the constant-effort support and increment 4
-        // the nonlinear support on a plain document (see the tests below); on
-        // a load/reference-state document (S6) the nonlinear support remains
-        // the refused support family.
-        let supports = match base {
-            Base::X0 => vec![],
-            Base::Y0 => vec![(gap(base), "nonlinear support")],
-        };
-        for (support, name) in supports {
-            let id = support["id"].as_str().unwrap().to_string();
-            let mut document = base.current();
-            push(&mut document, "supports", support);
-            declare_support_state(&mut document, &id);
-            cases.push((document, vec![id], name));
-        }
+        // RT-A3 increment 3 admits the constant-effort support, increment 4
+        // the nonlinear support on a plain document and S6 (R-4 §3.7) on a
+        // load/reference-state document (see the tests below): no support
+        // family remains refused at the seam.
         // W-16 slice b admits load combinations (see the test below); W-16 slice c
         // admits equivalent-static generation (see the test after it).
         for (document, refs, name) in cases {
@@ -496,14 +485,16 @@ fn a_constant_effort_support_is_admitted_at_the_seam() {
 }
 
 /// RT-A3 increment 4 (R-4 §3.5 S5; DEL-04-07 `pressure-contract.md`,
-/// "Nonlinear supports on EX (RT-A3 increment 4)"): the seam admits a
-/// nonlinear support on the plain document, which solves through the shared
-/// active-set loop (an open gap here, R1's unqualified standing); on the
-/// load/reference-state document (S6) the family keeps its refusal, code and
-/// text unchanged. The frozen references bind the numbers
-/// (`rt_a3_nonlinear_references.rs`).
+/// "Nonlinear supports on EX (RT-A3 increment 4)") and S6 (R-4 §3.7): the seam
+/// admits a nonlinear support on the plain document and on the
+/// load/reference-state document, which solve through the shared active-set
+/// loop (an open gap here, R1's unqualified standing). On the
+/// load/reference-state base the fixture gap shares its DOF with a rigid
+/// restraint, which the S6 family refusal used to mask: the shared
+/// validation now names that defect instead. The frozen references bind the
+/// numbers (`rt_a3_nonlinear_references.rs`, `validation/references/rt_a3_s6/`).
 #[test]
-fn a_nonlinear_support_is_admitted_on_plain_documents_and_refused_on_load_state_documents() {
+fn a_nonlinear_support_is_admitted_on_plain_and_load_state_documents() {
     for base in [Base::X0, Base::Y0] {
         let support = gap(base);
         let id = support["id"].as_str().unwrap().to_string();
@@ -511,22 +502,20 @@ fn a_nonlinear_support_is_admitted_on_plain_documents_and_refused_on_load_state_
         push(&mut document, "supports", support);
         declare_support_state(&mut document, &id);
         for envelope in run_all(&document) {
-            match base {
-                Base::X0 => {
-                    assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{:#?}", envelope["diagnostics"]);
-                    assert!(!has_code(&envelope, FAMILY), "{:#?}", envelope["diagnostics"]);
-                    for case in base.cases() {
-                        assert!(diagnostics(&envelope).iter().any(|d| d["code"] == "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED"
-                            && d["affected_refs"] == json!([case])), "{case}");
-                        assert!(envelope["results"].as_array().unwrap().iter().any(|r| r["kind"] == "nonlinear_support_active_set_state_code"
-                            && r["entity_ref"] == id.as_str() && r["basis_ref"]["ref_id"] == case), "{case}");
-                    }
-                }
-                Base::Y0 => {
-                    assert_v3_blocked(&envelope, base);
-                    assert_eq!(finding(&envelope, FAMILY, &[&id])["message"],
-                        "nonlinear support is not yet admitted under 3.0.0/exact_pressure_v3; the exact route refuses it rather than analyse it as straight pipe");
-                }
+            if matches!(base, Base::Y0) {
+                assert_v3_blocked(&envelope, base);
+                assert!(!has_code(&envelope, FAMILY), "{:#?}", envelope["diagnostics"]);
+                assert!(diagnostics(&envelope).iter().any(|d| d["code"] == "SUPPORT_LINEAR_NONLINEAR_DOF_CONFLICT"
+                    && d["affected_refs"].as_array().unwrap().iter().any(|r| r == id.as_str())), "{:#?}", envelope["diagnostics"]);
+                continue;
+            }
+            assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{base:?}: {:#?}", envelope["diagnostics"]);
+            assert!(!has_code(&envelope, FAMILY), "{base:?}: {:#?}", envelope["diagnostics"]);
+            for case in base.cases() {
+                assert!(diagnostics(&envelope).iter().any(|d| d["code"] == "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED"
+                    && d["affected_refs"] == json!([case])), "{base:?} {case}");
+                assert!(envelope["results"].as_array().unwrap().iter().any(|r| r["kind"] == "nonlinear_support_active_set_state_code"
+                    && r["entity_ref"] == id.as_str() && r["basis_ref"]["ref_id"] == case), "{base:?} {case}");
             }
         }
     }

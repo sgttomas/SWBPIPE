@@ -3310,15 +3310,39 @@ if fnkey("case_prescribed", _W16_IM):
                     "                    refuse(diagnostics, case, load, TARGET_INVALID,")
     # W-16 stage 2 (§8.29): `before` precedes the spring-base map (case_spring_ground), which pushes a refusal only after
     # its let-else on a spring target; the motion maps follow, and the early return tests every push since `before`.
-    _w16_solve_a = ("    let before = diagnostics.len();\n    let spring_ground = match load_state {\n"
-                    "        Some(_) => vec![0.0; spring_entries.len()],\n"
+    # RT-A3 S6 (§8.59): a resolved case's spring bases (`load_state_spring_ground`), moved grounds (its own
+    # `ground_motion`) and base prescribed map replace the zero vector and empty list, each reached only with a load
+    # state (D1.5 refuses `analysis_state`); the pressure-free arms, and `before`'s place, are unchanged.
+    _w16_solve_a = ("    let before = diagnostics.len();\n"
+                    "    // R-4 §3.7 S6: a resolved case's active spring bases (`base_motion`) take\n"
+                    "    // the same per-spring map and the same formed loads.\n"
+                    "    let spring_ground = match load_state {\n"
+                    "        Some(state) => load_state_spring_ground(state, spring_entries, &load_case.id, diagnostics),\n"
                     "        None => imposed_motion::case_spring_ground(model, load_case, spring_entries, diagnostics),\n    };\n")
     _w16_solve = ("    let pf_motion = match load_state {\n        Some(_) => None,\n"
                   "        None => imposed_motion::case_prescribed(model, load_case, restrained_dofs, diagnostics),\n    };\n"
-                  "    // W-16 stage 2 (R-b): the case's moved nonlinear grounds, by support id.\n"
-                  "    let ground_motion = match load_state {\n        Some(_) => Vec::new(),\n"
+                  "    // W-16 stage 2 (R-b): the case's moved nonlinear grounds, by support id;\n"
+                  "    // R-4 §3.7 S6: a resolved case's from its own `boundary_motion`.\n"
+                  "    let ground_motion = match load_state {\n        Some(state) => state.ground_motion.clone(),\n"
                   "        None => imposed_motion::case_ground_motion(model, load_case),\n    };\n"
+                  "    // R-4 §3.7 S6 (W-16 R-a/R-d): the loop's base prescribed values are the\n"
+                  "    // same map the linear partition prescribes, the resolved case's or the\n"
+                  "    // pressure-free case's.\n"
+                  "    let base_motion = load_state.map(|state| &state.prescribed).or(pf_motion.as_ref());\n"
                   "    if has_blocking(&diagnostics[before..]) {\n")
+    # RT-A3 S6 (§8.59, W16-NS): `CaseMotionEvidence::resolve` restates the three resolvers for the modal state case's
+    # binding (modal/state.rs `solve_modal_state_case`, its one caller; the modal module is reached from no retained
+    # root, §8.43). The lib.rs call counts below exclude that body and require exactly that caller.
+    _W16_LIB_CALLS = _text_of(_LIB)
+    _w16_resolve = _re.search(r"\n    fn resolve\(\n        model: &PreviewModel,.*?\n    \}\n", _W16_LIB_CALLS, _re.S)
+    _w16_resolve_ok = (_w16_resolve is not None and len(_re.findall(r"\bCaseMotionEvidence::resolve\(", _production(PP_ + "modal/state.rs")
+                                                                  if fnkey("solve_modal_state_case", PP_ + "modal/state.rs") else "")) == 1
+                       and len(_re.findall(r"\bCaseMotionEvidence::resolve\(", _re.sub(r"//[^\n]*", "", _production(_LIB)))) == 0
+                       and all(_w16_resolve.group(0).count(_c) == 1 for _c in (
+                           "imposed_motion::case_prescribed(", "imposed_motion::case_ground_motion(",
+                           "imposed_motion::case_spring_ground(")))
+    if _w16_resolve is not None:
+        _W16_LIB_CALLS = _W16_LIB_CALLS.replace(_w16_resolve.group(0), "\n")
     _W16_TA = _fn_text("target_acting", _W16_IM)
     _W16_SG = _fn_text("case_spring_ground", _W16_IM)
     _W16_GM = _fn_text("case_ground_motion", _W16_IM)
@@ -3357,8 +3381,9 @@ if fnkey("case_prescribed", _W16_IM):
         and _W16_SG.index("refuse(") > _W16_SG.index("target_acting(model, load) else { continue };"),
         _W16_GM.count("Some((record, _, Acting::Nonlinear)) => Some((record.id.clone(), load.magnitude.value)),") == 1
         and _W16_GM.count("_ => None,") == 1,
-        _text_of(_LIB).count("imposed_motion::case_spring_ground(") == 1 and _text_of(_LIB).count("imposed_motion::case_ground_motion(") == 1,
-        _text_of(_LIB).count("imposed_motion::case_prescribed(") == 1,
+        _w16_resolve_ok and _W16_LIB_CALLS.count("imposed_motion::case_spring_ground(") == 1
+        and _W16_LIB_CALLS.count("imposed_motion::case_ground_motion(") == 1,
+        _W16_LIB_CALLS.count("imposed_motion::case_prescribed(") == 1,
         _text_of(_LIB).count("imposed_motion::validate(&model, &mut diagnostics)") == 1,
         # SKW-IM (§8.55, R-6/R-7 S-K1): validate_pressure_free refuses a displacement imposed on a skewed record
         # (IMPOSED_DISPLACEMENT_SKEW_SUPPORT_UNSUPPORTED), one refusal after its support-target let-else, so behind
@@ -3696,7 +3721,9 @@ if fnkey("exact_equivalent_static_record", _LIB):
         (fnkey("physical_source_built", PP_ + "source_receipt/composite.rs"), fnkey("build_load_case_primitive_loads", _LIB),
          _W16C_ES + " (the companion binding re-forms the record only under `case.equivalent_static.is_some()`)"),
     ] + ([] if _W16C_VP.count(_W16C_S6_TEXT) == 1 else [
-        # Before RT-A3 increment 4 the only call is the conditional one, and the whole edge is zero (§8.27).
+        # Before RT-A3 increment 4 the only call is the conditional one, and the whole edge is zero (§8.27). RT-A3 S6
+        # (§8.59, RTA3S6-VP below) deletes the S6 context and its verdict function: the only call is again the one
+        # inside `case.equivalent_static.is_some()` (W16C-ES's count and order checks above), so the zero returns.
         (fnkey("validate_profile", PP_ + "pressure_runtime.rs"), fnkey("carries_fields", PP_ + "case_state/mod.rs"),
          _W16C_ES + " (validate_profile's load/reference-state refusal is inside `case.equivalent_static.is_some()`)"),
     ]) + [
@@ -3738,6 +3765,25 @@ if fnkey("exact_equivalent_static_record", _LIB):
             fnkey("carries_fields", PP_ + "case_state/mod.rs"), "1",
             O10 + "RTA3NL-S6: the S6 context's one unconditional call per validate_profile call; the case loop's call is "
             "inside `case.equivalent_static.is_some()`, refused on every retained branch (D1.5, W16C-ES)")]
+# RTA3S6-VP (RT-A3 S6, §8.59; replaces RTA3NL-S6's per-call charge on S6 source): validate_profile no longer forms the
+# S6 context; every support family, the nonlinear one included, is judged by exact_admission::admission, and
+# nonlinear_support_admission is deleted. Its one carries_fields call is the case loop's, inside
+# `case.equivalent_static.is_some()` (0 on D1 by D1.5, W16C-ES), so the edge validate_profile -> carries_fields is zero
+# again. Guard (S6 source): no S6 context, no verdict function, the table's arm admits the family, and exactly one
+# carries_fields call, after the equivalent-static test; an unconditional call anywhere else stops the run.
+if fnkey("load_state_spring_ground", _LIB) and fnkey("validate_profile", PP_ + "pressure_runtime.rs"):
+    _s6_vp = _fn_text("validate_profile", PP_ + "pressure_runtime.rs")
+    _s6_ea = _re.sub(r"//[^\n]*", "", _production(PP_ + "exact_admission.rs"))
+    _rta3s6_vp = (
+        "s6_context" not in _s6_vp and "nonlinear_support_admission" not in _s6_vp,
+        "fn nonlinear_support_admission" not in _s6_ea,
+        _s6_ea.count("(ExactContract::PressureV3, ExactFamily::NonlinearSupport) => Admission::Admitted,") == 1,
+        _s6_vp.count("if let Admission::Refused { code, message } = exact_admission::admission(contract, family) {") == 1,
+        _s6_vp.count("carries_fields(") == 1
+        and _s6_vp.index("carries_fields(") > _s6_vp.index("        if case.equivalent_static.is_some() {\n"),
+    )
+    if not all(_rta3s6_vp):
+        raise SystemExit(f"RTA3S6-VP: validate_profile's admission or carries_fields call changed; re-review §8.59: {_rta3s6_vp}")
 # W16BC-BN: the call graph links a call by its name; these callers name a different function (a method, a binding or
 # a function of their own module) that shares a name with a private function of exact_combinations.rs or
 # exact_combination_evidence.rs. A private module-level function or method is visible only inside its module, so none
@@ -4590,7 +4636,7 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
     # I2b-2 (#97) deletes prepare_modal's interim nonlinear-support refusal (state.rs's same-run solve replaces it), so
     # its audit applies only where the state module is absent (there site() requires the refusal); a head with the
     # state module that kept the refusal would report its argument unclassified.
-    if not fnkey("solve_modal_state_case", _MODAL + "state.rs"):
+    if not fnkey("solve_modal_state_case", PP_ + "modal/state.rs"):
         O10_ID_AUDIT += [
             (site("prepare_modal", _MODAL + "prepare.rs", '"the model has nonlinear supports ({}); their linearization', full=True, row="format!("),
              {'nonlinear.join(",")': _M_EMPTY}),
@@ -4748,7 +4794,7 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
             # No audit: modal_parameter_refusals' `{:?}` of sturm_gap_log_positions and sturm_whole_spectrum_offsets
             # (Vec<f64>, caller-supplied, with no length cap in the source or D1); the run reports them unclassified.
         ]
-    if fnkey("solve_modal_state_case", _MODAL + "state.rs"):
+    if fnkey("solve_modal_state_case", PP_ + "modal/state.rs"):
         # I2b-2 (#97): the state case's same-run solve (modal/state.rs; tests_state.rs is the #[cfg(test)] module) and
         # lib.rs's decision-B seam.
         _ST = _MODAL + "state.rs"
@@ -4801,7 +4847,9 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
         _case = _fn_text("solve_prepared_load_case", _LIB)
         _lib_text = _text_of(_LIB)
         if (_modal_hashlib.sha256(_seam.encode()).hexdigest()
-                != "7fb71ea14f4d8c5d7f51bd487e9b8b59933c8f79476b23d729c47153a8e2ca71"
+                # RT-A3 S6 D3 (§8.59): the capture takes the loop's consumed motion as an argument (S6-ME, priced positively); its
+                # first statement is unchanged and it still returns None there on D1.
+                != "fcf41d780af7a74c4e0b913a9a3d4e358fabadc149fa04403ea7498a27be46ae"
                 or not _re.search(r"\) -> Option<Box<NonlinearStateEvidence>> \{\n    let solve = solve\.filter\(\|solve\| solve\.converged\)\?;\n", _seam)
                 or not _re.search(r"\{\n    if built\.nonlinear_supports\.is_empty\(\) \{\n        return None;\n    \}\n", _loop)
                 or _case.count("capture_nonlinear_state_evidence(\n        &load_case.id,\n        solver_mode,\n"
@@ -5035,7 +5083,15 @@ if fnkey("solved_state_plus_increments", _A4_PLAN):
     _A4_IR = _fn_text("interim_reasons", _A4_DM)
     _A4_LIBP = _re.sub(r"//[^\n]*", "", _text_of(_LIB))
     _A4_EV = _fn_text("evaluate_values", _LIB)
-    _A4_RV = _fn_text("resolve", _LIB)
+    # RT-A3 S6 (§8.59): lib.rs gains a second `fn resolve` (`CaseMotionEvidence::resolve`), so the combination
+    # expression's is read by its own impl block and exact signature (one each), not by the bare name.
+    _a4_lines = _text_of(_LIB).split("\n")
+    _a4_impl = [i for i, l in enumerate(_a4_lines) if l == "impl<'a> CombinationExpression<'a> {"]
+    _a4_sig = [i for i in range(_a4_impl[0], len(_a4_lines)) if _a4_lines[i] == "    fn resolve(combination: &'a PreviewCombination) -> Option<Self> {"][:1] if len(_a4_impl) == 1 else []
+    if len(_a4_impl) != 1 or len(_a4_sig) != 1 or _text_of(_LIB).count("fn resolve(combination: &'a PreviewCombination)") != 1:
+        raise SystemExit("RT-A4: CombinationExpression::resolve is not one definition in its impl; re-review (§8.46, §8.59)")
+    _a4_end = next(i for i in range(_a4_sig[0] + 1, len(_a4_lines)) if _re.match(r"\s{0,4}(pub(\([a-z]+\))?\s+)?(const\s+)?fn\s|\}$", _a4_lines[i]))
+    _A4_RV = "\n".join(_a4_lines[_a4_sig[0]:_a4_end])
     # RT-A4-D14 (guard): D1.4's member clause, as the zeros below read it.
     _a4_d14 = (
         _A4_FAMILY.count("            || matches!(combination.basis.as_str(), \"absolute_sum\" | \"srss\")\n"
@@ -5948,7 +6004,9 @@ if fnkey("solve_held_combinations", _H_PP) and fnkey("check", _H_RE):
         and _fn_text("solve_prepared_load_case", _LIB).count("nonlinear_frame_input(") == 1
         and _fn_text("solve_prepared_load_case", _LIB).count(
             "held_status::CaseRole::Own(Some(invocation)) if held_status::wanted(model, &load_case.id) => {\n"
-            "            nonlinear_frame_input(built, restrained_dofs, pf_motion.as_ref(), &ground_motion, &force).ok().and_then(|input| {") == 1
+            # RT-A3 S6 (§8.59): the arm passes the loop's base map (`base_motion`, the pressure-free map or a resolved
+            # case's), still only inside the `wanted` arm.
+            "            nonlinear_frame_input(built, restrained_dofs, base_motion, &ground_motion, &force).ok().and_then(|input| {") == 1
         and _h_lib.count("held_status::CaseRole::Held(request),") == 1
         and _h_lib.index("held_status::CaseRole::Held(request),") > _h_lib.index("held_status::solve_held_combinations(")
         and len(_re.findall(r"CaseRole::Held\(", _h_lib)) == 2 and _h_lib.count("if let held_status::CaseRole::Held(request) = role {") == 1
@@ -6379,3 +6437,30 @@ if _os.path.exists(_os.path.join(_SNAP, _SKW_PP)):
         raise SystemExit("SKW-PC: support_record's groups or support's along rows changed; re-review §8.55")
     EDGE_PER_CALL = list(EDGE_PER_CALL) + [(fnkey("support_record", _SKW_CP), fnkey("group", _SKW_CP), "2",
         O10 + "SKW-PC: the support force and moment groups; the along-direction group only with an along row (SKW-D1)")]
+
+# ---- RT-A3 S6 (DEL-04-07 Work/route-unification-r4.md §3.7; retained-pricing-rules.md §8.59): nonlinear supports on
+# load/reference-state documents and beside objective connectors. D1.5 refuses every `analysis_state` (no resolved
+# case: `load_state` is None in every retained case solve), D1.6 every nonlinear support and D1.4 every component, so
+# S6's resolved-case motion paths are unreached on D1; its one D1 owner (the loop's consumed motion, built as the
+# capture's argument) is priced positively in w16_owners_model (S6-ME).
+if fnkey("load_state_spring_ground", _LIB):
+    _S6_SG = _fn_text("load_state_spring_ground", _LIB)
+    _S6_SOLVE = _fn_text("solve_prepared_load_case", _LIB)
+    # RTA3S6-L (guard): load_state_spring_ground is called only from the case solve's `Some(state)` arm (and from
+    # CaseMotionEvidence::resolve's, reached only from the modal state case); its loop runs over the resolved case's
+    # spring bases, and `state` exists only for a load/reference-state case (D1.5).
+    if (_S6_SOLVE.count("Some(state) => load_state_spring_ground(state, spring_entries, &load_case.id, diagnostics),") != 1
+            or len(_re.findall(r"\bload_state_spring_ground\(", _re.sub(r"//[^\n]*", "", _production(_LIB)))) != 3
+            or _S6_SG.count("for (support_id, dof, value) in &state.spring_base {") != 1
+            or _W16_FAMILY.count("if !matches!(case.analysis_state, Authored::Absent) {\n            return refuse(C::Case, F::AnalysisState);") != 1):
+        raise SystemExit("RTA3S6-L: the resolved case's spring-base loop, its callers or D1.5 changed; re-review §8.59")
+    O10_LOOPS_LAST += [
+        ("for (support_id, dof, value) in &state.spring_base", "0",
+         O10 + "RTA3S6-L: a resolved case's spring bases; D1.5 refuses every analysis_state, so no retained case has a "
+         "load state and load_state_spring_ground is never called on D1", ["lib.rs:load_state_spring_ground"]),
+        # S6-ME's moved-ground vector is collected over the case's moved nonlinear grounds: none on D1 (D1.6 refuses every
+        # nonlinear support, D1.7 every support target, D1.5 every load state), so the map runs zero times.
+        ("iter:ground_motion: ground.iter().map", "0",
+         O10 + "RTA3S6-L: CaseMotionEvidence's moved grounds; ground_motion is empty on D1 (D1.5, D1.6, D1.7)",
+         ["lib.rs:new"]),
+    ]

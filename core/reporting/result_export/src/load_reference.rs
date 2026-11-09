@@ -49,7 +49,7 @@ pub const EIGENLOAD: &str =
     "axial E_member*A_s*total_eigenstrain assembled once and removed once in recovery";
 /// Frozen `schemas/load_reference_state.schema.json` (relayed by the manager).
 pub const TRANSPORT_SCHEMA_SHA256: &str =
-    "5415d8f6d8856dba3470ab46423ba54d253e14a49680031d877a333b6d5d00a0";
+    "b95947ea4b62406ea050ba46e8b7d32d3fe8cc9d4f4892f53ab0c9f6df1189b9";
 const TRANSPORT_SCHEMA_BYTES: &str =
     include_str!("../../../../schemas/load_reference_state.schema.json");
 
@@ -859,7 +859,8 @@ fn validate_record(
         );
         let c = find(&id).ok_or_else(|| code("SUPPORT_CONTRIBUTION_COVERAGE"))?;
         require(
-            num_eq(&c["value"], &component["prescribed_value"]),
+            num_eq(&c["value"], &component["prescribed_value"])
+                && support_law_classification(component).is_some_and(|k| c["classification"] == k),
             "SUPPORT_CONTRIBUTION_BINDING",
         )?;
     }
@@ -1097,10 +1098,12 @@ fn validate_support_component(component: &Value) -> Check {
         .ok_or_else(|| code("SUPPORT_COMPONENT_DOF"))?;
     let global = index(&component["global_dof"])?;
     require(global % 6 == dof as u64, "SUPPORT_COMPONENT_DOF")?;
+    // R-4 §3.7 S6: a rigid restraint's prescribed value and an active
+    // nonlinear support's moved ground come from `boundary_motion`, an active
+    // spring's moved base from `base_motion`.
     require(
-        component["law_kind"] == "rigid_prescribed"
-            && component["meaning"] == "absolute_reference_displacement"
-            && component["physical_state_source"] == "support_state.boundary_motion",
+        support_law_classification(component).is_some()
+            && component["meaning"] == "absolute_reference_displacement",
         "SUPPORT_COMPONENT_LAW",
     )?;
     require(
@@ -1111,17 +1114,34 @@ fn validate_support_component(component: &Value) -> Check {
     Ok(())
 }
 
+/// R-4 §3.7 S6: a support component's law, its required source and the
+/// classification of its contribution; `None` for any other pair.
+fn support_law_classification(component: &Value) -> Option<&'static str> {
+    match (component["law_kind"].as_str()?, component["physical_state_source"].as_str()?) {
+        ("rigid_prescribed", "support_state.boundary_motion") => Some("prescribed_boundary"),
+        ("nonlinear_ground", "support_state.boundary_motion") => Some("nonlinear_ground_motion"),
+        ("spring_base", "support_state.base_motion") => Some("spring_base_motion"),
+        _ => None,
+    }
+}
+
+const SUPPORT_CLASSIFICATIONS: &[&str] = &["prescribed_boundary", "nonlinear_ground_motion", "spring_base_motion"];
+
 fn validate_contribution(contribution: &Value) -> Check {
     let (shape, classification) = match contribution["owner_kind"].as_str() {
         Some("stored_primitive") => (STORED_KEYS, "ordinary_applied"),
         Some("resolved_member_state") => (MEMBER_STATE_KEYS, "eigenstrain"),
-        Some("support_state") => (SUPPORT_STATE_KEYS, "prescribed_boundary"),
+        Some("support_state") => (SUPPORT_STATE_KEYS, ""),
         Some("pressure_region") => (PRESSURE_REGION_KEYS, "pressure_eigen_and_closure"),
         _ => return Err(code("CONTRIBUTION_KIND")),
     };
     require(keys(contribution, shape), "CONTRIBUTION_SHAPE")?;
     require(
-        contribution["classification"] == classification,
+        if classification.is_empty() {
+            SUPPORT_CLASSIFICATIONS.iter().any(|c| contribution["classification"] == *c)
+        } else {
+            contribution["classification"] == classification
+        },
         "CONTRIBUTION_CLASSIFICATION",
     )?;
     text(&contribution["source_id"])?;

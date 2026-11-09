@@ -87,18 +87,20 @@ const CLASSES: [(&str, [usize; 5]); 2] = [
 /// RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only).
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
+/// RT-A3 S6 (§8.59): S1's nonlinear clause restated; PP `EXACT_PINNED`'s S6 re-pin (restating it to main 394f4c623's
+/// and resealing with the Python 07e rule reproduces main's document and receipt).
 const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-        "418d74b398604cc98ee328a004175494b04f48998f819a5243d84ae1bbb70bfc",
-        "4105eac05a90ef4d3432d695f7c339ff50630965f4967fd83837d6192e07848e",
+        "dcd8b13a7b62212eb933289da2a271cfdc47ae7930bf1985b9a6d20ecd3120a0",
+        "9b88b65706bc9972eef15cb0b79bd1bcc4cde51477a83d574717044e0b399319",
     ),
     (
         "dense_scrutiny",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-        "0424d9d1015988e91ece8d223a6067fefdf150501ecefe5c06b1b54618d13bc2",
-        "5d1873121399be8dc0f310287a00b257197ccb0f9551a1edb726ec1fe7b30bc9",
+        "a8959bc8489b6c012c843f887c5cb7752ef31daed4d4585e72d630616087a3eb",
+        "65009c8e43461834882a7164780f1f0b77f9336edfcdd079dcde3d82df33f80d",
     ),
 ];
 /// The committed exact goldens' file sha256.
@@ -110,8 +112,10 @@ const EXACT_GOLDEN_SHA256: [(&str, &str); 2] = [
     // RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only) (was e15c27cd.../e0c14d0e...).
     // RT-A3 increment 3: the identity and the support-attribution limitation (S7) restated; the exact successors
     // they derive from are proven by reseal-to-base (DEL-04-08 §8.44).
-    ("sparse_interactive", "4e0e0cb856b4945871ba3522bd6e2f9e48bffdbe6ee76e0571dfeec175c17a75"),
-    ("dense_scrutiny", "f75a417e05331c58c19632b3d3f80ca2fd9e9c22c974a4fc5605bba17490b4f3"),
+    // RT-A3 S6 (§8.59): S1's nonlinear clause restated in the exact successors they derive from (proven by
+    // reseal-to-base); only that text and the digests binding it moved (was 4e0e0cb8.../f75a417e...).
+    ("sparse_interactive", "6f9433392dc92c4f6d66c12b37a227af146206e5eae6dad40f9b1642f610803e"),
+    ("dense_scrutiny", "c39d21a8f179e396d557916e58413abfd8f61b9774d5a1a67b3942e71c9f9354"),
 ];
 /// The m3x successors' validated class counts (relative, absolute, input-derived,
 /// non-quantity, not-covered). T4-U6 (D-5 §2.5): each of the member's 21

@@ -101,7 +101,8 @@ REDUCED_PINS = {
     # or lifetime changes, and the L5 texts are unchanged.
     # Operating-case slice 1b (§8.51, merge of 41142f4a3): lib.rs's three 1b items are folded onto existing lines and
     # preview_physics.rs adds the declared arms; no reduction's owner or lifetime changes, the L5 texts are unchanged.
-    "core/product_physics/src/lib.rs": "fc58bd265cf557a333d37e89a27e6e196ffdfdd2883446c92830be00b0a5586b",
+    # RT-A3 S6 D3 (§8.59): lib.rs re-read: no reduction's owner or lifetime changes; L5 texts unchanged.
+    "core/product_physics/src/lib.rs": "d193d408df925ea70e77c93fd65dbbe88b9780a4353017c8ce8934f6032c6737",
     "core/product_physics/src/retained_wire.rs": "1e1e60a02279771574f84df2b45628622936774a879a092842faa1e2f5f0f937",
     "core/product_physics/src/certified_publication.rs": "54ae0639313c3e5785c9e65f1a9574b535bc3dbe94b49a5788b7f976f935c57a",
     "core/product_physics/src/certified_loads.rs": "da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73",

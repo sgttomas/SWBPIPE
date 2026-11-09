@@ -22,7 +22,7 @@ from pathlib import Path
 from collections.abc import Mapping
 from typing import Any
 
-TRANSPORT_SCHEMA_SHA256 = "5415d8f6d8856dba3470ab46423ba54d253e14a49680031d877a333b6d5d00a0"
+TRANSPORT_SCHEMA_SHA256 = "b95947ea4b62406ea050ba46e8b7d32d3fe8cc9d4f4892f53ab0c9f6df1189b9"
 TRANSPORT_SCHEMA_PATH = Path(__file__).resolve().parents[2] / "schemas" / "load_reference_state.schema.json"
 
 RECORD_CONTRACT = "openpipestress.load_reference_state/1.0.0"
@@ -479,7 +479,9 @@ def _validate_record(record: Mapping[str, Any], cases: list[tuple[str, Mapping[s
         contribution = find(source_id)
         if contribution is None:
             raise _fail("SUPPORT_CONTRIBUTION_COVERAGE")
-        _require(_num_eq(_get(contribution, "value"), component["prescribed_value"]), "SUPPORT_CONTRIBUTION_BINDING")
+        _require(_num_eq(_get(contribution, "value"), component["prescribed_value"])
+                 and _support_law_classification(component) is not None
+                 and _eq(_get(contribution, "classification"), _support_law_classification(component)), "SUPPORT_CONTRIBUTION_BINDING")
     expected_regions: set[str] = set()
     for region in pressure:
         if _eq(_get(region, "load_case_id"), case_id):
@@ -622,6 +624,22 @@ def _validate_member(member: Any) -> None:
     _require(fitted, "FIT_BINDING")
 
 
+# R-4 §3.7 S6: a support component's (law, source) pair and its contribution
+# classification (Rust ``load_reference::support_law_classification``).
+SUPPORT_LAWS = {
+    ("rigid_prescribed", "support_state.boundary_motion"): "prescribed_boundary",
+    ("nonlinear_ground", "support_state.boundary_motion"): "nonlinear_ground_motion",
+    ("spring_base", "support_state.base_motion"): "spring_base_motion",
+}
+
+
+def _support_law_classification(component: Any) -> str | None:
+    law, source = component.get("law_kind"), component.get("physical_state_source")
+    if not (isinstance(law, str) and isinstance(source, str)):
+        return None
+    return SUPPORT_LAWS.get((law, source))
+
+
 def _validate_support_component(component: Any) -> None:
     _require(_keys(component, SUPPORT_KEYS), "SUPPORT_COMPONENT_SHAPE")
     _text(component["support_id"])
@@ -632,7 +650,7 @@ def _validate_support_component(component: Any) -> None:
     position = DOFS.index(dof)
     global_dof = _index(component["global_dof"])
     _require(global_dof % 6 == position, "SUPPORT_COMPONENT_DOF")
-    _require(_eq(component["law_kind"], "rigid_prescribed") and _eq(component["meaning"], "absolute_reference_displacement") and _eq(component["physical_state_source"], "support_state.boundary_motion"), "SUPPORT_COMPONENT_LAW")
+    _require(_support_law_classification(component) is not None and _eq(component["meaning"], "absolute_reference_displacement"), "SUPPORT_COMPONENT_LAW")
     _require(_eq(component["unit"], "m" if position < 3 else "rad"), "SUPPORT_COMPONENT_UNIT")
     _number(component["prescribed_value"])
 
@@ -649,7 +667,10 @@ def _validate_contribution(contribution: Any) -> None:
         raise _fail("CONTRIBUTION_KIND")
     shape, classification = shapes[kind]
     _require(_keys(contribution, shape), "CONTRIBUTION_SHAPE")
-    _require(_eq(contribution["classification"], classification), "CONTRIBUTION_CLASSIFICATION")
+    if kind == "support_state":
+        _require(any(_eq(contribution["classification"], c) for c in SUPPORT_LAWS.values()), "CONTRIBUTION_CLASSIFICATION")
+    else:
+        _require(_eq(contribution["classification"], classification), "CONTRIBUTION_CLASSIFICATION")
     _text(contribution["source_id"])
     if kind == "stored_primitive":
         factor = _as_f64(contribution["factor"])

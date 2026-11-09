@@ -128,11 +128,13 @@ def _bits(value: float) -> bytes:
 
 class _Support:
     def __init__(self, sid: str, dof: int, state: str, displacement: float, reaction: float,
-                 normal: tuple[bool, float] | None, source: tuple[str, int] | None):
+                 normal: tuple[bool, float] | None, source: tuple[str, int] | None, relative: float | None = None):
         self.id, self.dof, self.state = sid, dof, state
-        # The deciding displacement in the row's unit (mm or rad).
+        # The published final displacement in the row's unit (mm or rad).
         self.displacement, self.reaction = displacement, reaction
         self.normal, self.source = normal, source
+        # R-4 §3.7 S6: the bound relative displacement from a moved ground.
+        self.relative = relative
 
 
 class _Case:
@@ -188,10 +190,21 @@ def _read_case(source: Mapping, case: str) -> _Case:
     loop_basis = _basis(iterations)
     mode = loop_basis.split("_active_set_loop", 1)[0] if "_active_set_loop" in loop_basis else None
     _require(bool(mode) and " " not in mode, "LOOP")
-    # No case moves a nonlinear support's ground on S5 (the Rust module docs).
     for row in nonlinear:
-        _require(_kind(row) != RELATIVE, "RELATIVE_DISPLACEMENT")
         _require(_kind(row) in PER_SUPPORT or _get(row, "entity_ref") == LOOP_ENTITY, "ROWS")
+    # R-4 §3.7 S6: the moved grounds the case's load/reference-state record
+    # states (the Rust module docs), as (support id, DOF token, value in m or rad).
+    grounds: list[tuple[str, str, float]] = []
+    for record in _items(_get(source, "contract_evidence", "load_reference_states")):
+        if _get(record, "load_case_id") != case:
+            continue
+        for component in _items(_get(record, "support_components")):
+            if _get(component, "law_kind") != "nonlinear_ground":
+                continue
+            gid, gdof, g = _text(_get(component, "support_id")), _text(_get(component, "dof")), _get(component, "prescribed_value")
+            _require(gid is not None and gdof is not None and isinstance(g, (int, float)) and not isinstance(g, bool),
+                     "RELATIVE_DISPLACEMENT")
+            grounds.append((gid, gdof, float(g)))
     supports: list[_Support] = []
     for row in (r for r in nonlinear if _kind(r) == STATE):
         sid = _text(_get(row, "entity_ref"))
@@ -220,6 +233,23 @@ def _read_case(source: Mapping, case: str) -> _Case:
         # Some node's published row (association, not ownership; Rust module docs).
         _require(any(_kind(r) == NODAL[dof] and _get(r, "unit") == length and _bits(_value(r)) == _bits(_value(displacement[0]))
                      for r in in_case), "DISPLACEMENT")
+        # R-4 §3.7 S6: the relative row exists exactly for a moved ground.
+        relatives = mine(RELATIVE)
+        ground = next((x for x in grounds if x[0] == sid), None)
+        relative = None
+        if ground is None:
+            _require(not relatives, "RELATIVE_DISPLACEMENT")
+        else:
+            _require(len(relatives) == 1 and ground[1].upper() == DOFS[dof].upper(), "RELATIVE_DISPLACEMENT")
+            rel = relatives[0]
+            _require(stated(rel) and _get(rel, "unit") == length, "RELATIVE_DISPLACEMENT")
+            d, v, g = _value(displacement[0]), _value(rel), ground[2]
+            if dof < 3:
+                scale = max([abs(1000.0 * g)] + [abs(_value(r)) for r in in_case if _kind(r) in NODAL[:3]])
+                _require(abs(v - (d - 1000.0 * g)) <= RELATIVE_TOLERANCE * scale, "RELATIVE_DISPLACEMENT")
+            else:
+                _require(_bits(v) == _bits(d - g), "RELATIVE_DISPLACEMENT")
+            relative = v
         normal = source_ref = None
         if normals:
             n = normals[0]
@@ -232,10 +262,11 @@ def _read_case(source: Mapping, case: str) -> _Case:
                 _require(named is not None and at is not None, "NORMAL")
                 source_ref = (named, at)
             normal = (derived, _value(n))
-        supports.append(_Support(sid, dof, state, _value(displacement[0]), _value(reaction[0]), normal, source_ref))
+        supports.append(_Support(sid, dof, state, _value(displacement[0]), _value(reaction[0]), normal, source_ref, relative))
     for row in nonlinear:
         if _kind(row) in PER_SUPPORT:
             _require(any(_get(row, "entity_ref") == s.id for s in supports), "ROWS")
+    _require(all(any(s.id == gid for s in supports) for gid, _, _ in grounds), "RELATIVE_DISPLACEMENT")
     _require(bool(supports), "ROWS")
 
     def action(entity: str, kind: str, component: str) -> float | None:
@@ -277,7 +308,8 @@ def _read_case(source: Mapping, case: str) -> _Case:
         else:
             derived, n = s.normal
             if s.state == "sliding":
-                _require(s.displacement != 0.0 and s.reaction * s.displacement <= 0.0, "SLIP")
+                slip = s.relative if s.relative is not None else s.displacement
+                _require(slip != 0.0 and s.reaction * slip <= 0.0, "SLIP")
             if s.state == "inactive":
                 _require(n == 0.0 if derived else n <= 0.0, "FRICTION_NORMAL")
     integrity = [d for d in diagnostics if isinstance(_get(d, "code"), str) and _get(d, "code").startswith(INTEGRITY)
@@ -444,7 +476,7 @@ def model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
                 bound = s.normal is None
             _require(bound, "MODEL_NORMAL")
             force_scale, motion_scale = _scales(source, case.id, s.dof < 3)
-            r, delta = s.reaction, s.displacement
+            r, delta = s.reaction, (s.relative if s.relative is not None else s.displacement)
             if item.behavior == "friction":
                 n = s.normal[1] if s.normal is not None else 0.0
                 mu_n = item.mu * n

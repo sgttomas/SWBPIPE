@@ -5,8 +5,10 @@ once per validate_profile call, before the support loop, so an admitted plain EX
 support) evaluates carries_fields: the edge is charged at one call per validate_profile call (the case loop's
 equivalent-static call stays 0 by D1.5). RTA3NL-RD bounds the nonlinear reader's two D1-empty loops at 0 (D1.6 refuses
 every nonlinear support, so no `nonlinear_support_*` row is published), RTA3NL-ID bounds a support state at 8 B, and
-RTA3NL-PP re-keys `problem`'s parents after validate_profile by +11. Each mutation below stops the run or breaks the
-premise. These are source warrants, not runtime allocation observations.
+RTA3NL-PP re-keys `problem`'s parents after validate_profile by +11. RT-A3 S6 (§8.59) deletes the S6 context, so
+on the current source the edge is zero again (RTA3S6-VP) and the parents move -10; the increment-4 charge is history.
+Each mutation below stops the run or breaks the premise. These are source warrants, not runtime allocation
+observations.
 """
 from pathlib import Path
 import runpy
@@ -49,52 +51,37 @@ def edges(d, family):
 
 
 @pytest.mark.parametrize("route", ["L", "E"])
-def test_the_s6_call_is_charged_once_per_call_not_zeroed(monkeypatch, route):
-    """The review's counterexample: carries_fields runs for every admitted exact D1 model."""
+def test_the_s6_context_is_gone_and_the_edge_is_zero_again(monkeypatch, route):
+    """RT-A3 S6 (§8.59, RTA3S6-VP) deletes the S6 context: validate_profile's only carries_fields call is the case
+    loop's, inside `case.equivalent_static.is_some()` (0 on D1, W16C-ES), so RTA3NL-S6's per-call charge no longer
+    applies and the edge is zero again."""
     d = decisions(monkeypatch, route=route)
-    assert EDGE not in edges(d, "O10_EDGE_ZERO")
-    per_call = [e for e in d["EDGE_PER_CALL"] if (str(e[0]).split("/src/")[-1], str(e[1]).split("/src/")[-1]) == EDGE]
-    assert len(per_call) == 1 and per_call[0][2] == "1" and "RTA3NL-S6" in per_call[0][3]
+    assert EDGE in edges(d, "O10_EDGE_ZERO")
+    assert not [e for e in d["EDGE_PER_CALL"] if (str(e[0]).split("/src/")[-1], str(e[1]).split("/src/")[-1]) == EDGE]
 
 
-def test_the_s6_statement_is_outside_every_loop_of_validate_profile():
-    """The premise of the count 1: the statement sits in the exact-contract arm (every exact document takes it), after
-    the reducer-region refusals and before the support loop; carries_fields is the first of two calls."""
+def test_validate_profile_calls_carries_fields_only_behind_equivalent_static():
     text = (SOURCE / PR).read_text(encoding="utf-8")
     body = text[text.index("pub(crate) fn validate_profile("):]
     body = body[:body.index("\n}\n")]
-    arm = body.index("    if let Some(contract) = contract {\n")
-    at = body.index(S6 + "        for support in &model.supports {\n")
-    between = body[arm:at]
-    assert between.count("{") - between.count("}") == 1   # only the arm itself is open
-    assert body.count("carries_fields(") == 2 and arm < at < body.index("carries_fields(") < body.rindex(
-        "        if case.equivalent_static.is_some() {\n") < body.rindex("carries_fields(")
+    assert S6 not in body and "nonlinear_support_admission" not in body
+    assert body.count("carries_fields(") == 1
+    assert body.index("        if case.equivalent_static.is_some() {\n") < body.index("carries_fields(")
 
 
 @pytest.mark.parametrize("old, new", [
-    # The S6 context formed per support (a loop around the call): the count 1 no longer holds.
-    (S6 + "        for support in &model.supports {\n",
-     "        for support in &model.supports {\n" + S6.replace("        ", "            ", 1)),
-    # A third call of carries_fields in validate_profile.
-    ("        for support in &model.supports {\n            if let Some(family) = support_family(support) {\n"
-     "                let verdict",
+    # The S6 context restored verbatim before the support loop: an unconditional call again.
+    ("        for support in &model.supports {\n            if let Some(family) = support_family(support) {\n",
+     S6 + "        for support in &model.supports {\n            if let Some(family) = support_family(support) {\n"),
+    # Another unconditional call of carries_fields in validate_profile.
+    ("        for support in &model.supports {\n            if let Some(family) = support_family(support) {\n",
      "        let _again = super::case_state::carries_fields(model);\n"
-     "        for support in &model.supports {\n            if let Some(family) = support_family(support) {\n"
-     "                let verdict"),
+     "        for support in &model.supports {\n            if let Some(family) = support_family(support) {\n"),
 ])
-def test_a_moved_or_repeated_s6_call_stops(tmp_path, monkeypatch, old, new):
+def test_a_restored_or_added_carries_fields_call_stops(tmp_path, monkeypatch, old, new):
     snap = copy_core(tmp_path)
     edit(snap, PR, old, new)
-    with pytest.raises(SystemExit, match="RTA3NL-S6|W16C-ES"):
-        decisions(monkeypatch, snapshot=snap)
-
-
-def test_a_carries_fields_with_an_owner_stops(tmp_path, monkeypatch):
-    """The charged closure is allocation-free only while carries_fields is the four-test predicate."""
-    snap = copy_core(tmp_path)
-    edit(snap, CS, "        || !model.request_material_expansion_laws.is_empty()\n",
-         "        || !format!(\"{}\", model.request_material_expansion_laws.len()).is_empty()\n")
-    with pytest.raises(SystemExit, match="RTA3NL-S6"):
+    with pytest.raises(SystemExit, match="RTA3NL-S6|W16C-ES|RTA3S6-VP"):
         decisions(monkeypatch, snapshot=snap)
 
 
@@ -139,7 +126,8 @@ def test_the_scoped_problem_parents_follow_their_functions():
     text = (SOURCE / PR).read_text(encoding="utf-8").splitlines()
     keys = [p.split("pressure_runtime.rs:")[-1] for p in scoped.PROBLEM_PARENTS]
     assert keys[:2] == ["187:exact_member_recovery", "211:validate_profile"]
-    assert "532:refuse_compensated_shared_terminals" in keys and "1970:collinear_run" in keys
+    # RT-A3 S6 (§8.59): -10 after validate_profile, whose S6 context is gone.
+    assert "522:refuse_compensated_shared_terminals" in keys and "1960:collinear_run" in keys
     for key in keys:
         line, name = key.split(":")
         assert text[int(line) - 1].lstrip().startswith(("fn " + name, "pub(crate) fn " + name)), key

@@ -72,7 +72,7 @@ fn restraints_rigid(support: &PreviewSupport) -> bool {
 /// A constant-effort record has no base on any DOF and is refused as a
 /// target before classification.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-enum Acting {
+pub(crate) enum Acting {
     /// The record's nonlinear DOF: a primitive moves its ground (R-b).
     Nonlinear,
     /// The stiffness axis of a spring or variable spring hanger record,
@@ -96,11 +96,11 @@ enum Base {
     SupportDof,
 }
 
-fn is_spring_family(support: &PreviewSupport) -> bool {
+pub(crate) fn is_spring_family(support: &PreviewSupport) -> bool {
     support.family.as_deref() == Some("spring") || is_variable_spring_hanger(support)
 }
 
-fn acting(support: &PreviewSupport, dof: FrameDof) -> Acting {
+pub(crate) fn acting(support: &PreviewSupport, dof: FrameDof) -> Acting {
     let spring_axis = || {
         support_stiffness_input(support)
             .and_then(|input| parse_dof(&input.dof).ok())
@@ -128,7 +128,7 @@ fn target_acting<'m>(model: &'m PreviewModel, load: &PreviewPrimitiveLoad) -> Op
 }
 
 /// The nonlinear DOF a record acts on, when its token parses.
-fn nonlinear_dof(support: &PreviewSupport) -> Option<FrameDof> {
+pub(crate) fn nonlinear_dof(support: &PreviewSupport) -> Option<FrameDof> {
     support.nonlinear.as_ref().and_then(|nonlinear| parse_dof(&nonlinear.dof).ok())
 }
 
@@ -155,6 +155,28 @@ fn gap_closure_exact(support: &PreviewSupport, load: &PreviewPrimitiveLoad) -> O
         return None;
     }
     Some(exact_gap_closing_position(clearance.value, sigma, ground.value).is_some())
+}
+
+/// R-4 §3.7 S6: [`gap_closure_exact`] for a ground already normalized by the
+/// load/reference-state resolver (m), with the clearance normalized by the
+/// solve's own path; `None` for a non-gap record or an unnormalizable
+/// clearance, which generic validation refuses.
+pub(crate) fn normalized_gap_closure_exact(support: &PreviewSupport, ground: f64) -> Option<bool> {
+    let nonlinear = support.nonlinear.as_ref()?;
+    if nonlinear.behavior != "gap" {
+        return None;
+    }
+    let sigma = match parse_gap_direction(nonlinear.closes_when.as_deref()?).ok()? {
+        GapDirection::PositiveDisplacement => 1.0,
+        GapDirection::NegativeDisplacement => -1.0,
+    };
+    let mut scratch = Vec::new();
+    let mut clearance = nonlinear.gap.clone()?;
+    normalize_quantity(&mut clearance, Dimension::Length, "", Vec::new(), &mut scratch);
+    if !scratch.is_empty() || !clearance.value.is_finite() || !ground.is_finite() {
+        return None;
+    }
+    Some(exact_gap_closing_position(clearance.value, sigma, ground).is_some())
 }
 
 fn restrains(support: &PreviewSupport, dof: FrameDof) -> usize {
