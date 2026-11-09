@@ -101,7 +101,18 @@ async function inventedRecord(session: Awaited<ReturnType<typeof solvedSession>>
   };
 }
 
-const MODES: { mode: PreviewSolverMode; reason: string }[] = [
+/** Slice C4: a closed composition C that selects among the bound rows (largest stresses,
+ * support loads, displacement extremes) on every case. */
+const COMPOSITION = {
+  composition_version: "1.0.0",
+  sections: [
+    { section_id: "result_stresses", cases: "all", view: { kind: "largest", limit: 3 } },
+    { section_id: "result_support_loads", cases: "all", view: { kind: "all" } },
+    { section_id: "result_displacements", cases: "all", view: { kind: "extremes" } }
+  ]
+} as const;
+
+const MODES: { mode: PreviewSolverMode; reason: string; composition?: typeof COMPOSITION }[] = [
   {
     mode: "sparse_interactive",
     reason: "user_release_display_rule: the connected preview-physics-2 sparse solve, whose rows include values stored in Pa and values with more than six significant digits; sparse settings"
@@ -109,22 +120,29 @@ const MODES: { mode: PreviewSolverMode; reason: string }[] = [
   {
     mode: "dense_scrutiny",
     reason: "the connected preview-physics-2 dense solve; dense settings (sparse_evidence_lane false)"
+  },
+  {
+    mode: "sparse_interactive",
+    reason: "user_release_composed: the connected preview-physics-2 sparse solve with a closed composition C (slice C4), copied into the derived request",
+    composition: COMPOSITION
   }
 ];
 
-async function vector({ mode, reason }: (typeof MODES)[number]) {
+async function vector({ mode, reason, composition }: (typeof MODES)[number]) {
   const session = await solvedSession(mode);
   const { model, result, inputManifest, analysisRun, pair } = session;
   // The record binds the result document's identity, known before the report is built.
   const probe = await assembleUserReleasedReportPackageRequest({ model, result, analysisRun, inputManifest, userRelease: {} });
   const userRelease = await inventedRecord(session, probe.result_documents[0].result_envelope as Json);
-  const request = await assembleUserReleasedReportPackageRequest({ model, result, analysisRun, inputManifest, userRelease });
+  const reportComposition = composition ? structuredClone(composition) as never : null;
+  const request = await assembleUserReleasedReportPackageRequest({ model, result, analysisRun, inputManifest, userRelease, reportComposition });
   const { report, audit_manifest, result_documents, source_results, ...topLevel } = request;
   const document = result_documents[0] as Json;
   expect(source_results).toEqual([result]);
   return {
-    name: `connected_${mode}`,
+    name: composition ? `composed_${mode}` : `connected_${mode}`,
     reason,
+    ...(composition ? { report_composition: composition } : {}),
     model_fixture: pair.provenance.model_fixture_ref,
     source_fixture: pair.provenance.source_fixture_ref,
     solver_mode: mode,
@@ -152,7 +170,7 @@ async function vectorsDocument() {
     schema_version: "1.0.0",
     generator: GENERATOR,
     description:
-      "Invented data. W-18b derivation vectors (DEL-08-01 Design report-user-release.md section 2.6): for each vector, the inputs M (model_fixture), S (source_fixture, the producer's bytes), m (solver_mode), I (input_manifest), R (run_record, the solve's own transient record), H (software) and U (user_release, an invented record), and the expected request the desktop builders assemble: its canonical SHA-256, its result document's canonical SHA-256 and derivative hash, and in full its top-level members, audit manifest and minimal renderer input. The Rust derivation (report_package::user_release::derive) must give the same. Unit transport replay of committed producer bytes; not a native UI qualification, not engineering output, and no user release is recorded.",
+      "Invented data. W-18b derivation vectors (DEL-08-01 Design report-user-release.md section 2.6): for each vector, the inputs M (model_fixture), S (source_fixture, the producer's bytes), m (solver_mode), I (input_manifest), R (run_record, the solve's own transient record), H (software), U (user_release, an invented record) and, on a composed vector, C (report_composition, slice C4), and the expected request the desktop builders assemble: its canonical SHA-256, its result document's canonical SHA-256 and derivative hash, and in full its top-level members, audit manifest and minimal renderer input. The Rust derivation (report_package::user_release::derive) must give the same. Unit transport replay of committed producer bytes; not a native UI qualification, not engineering output, and no user release is recorded.",
     vectors
   };
 }

@@ -482,8 +482,10 @@ close it and discard the selection. Exact proposed wording:
 >
 > - It covers only this report: model "{project name}" (SHA-256
 >   {first 12 hex}…), run {run id}.
-> - It carries the model summary, the load cases and this solve's results. It
->   carries no rule-pack reference, user-rule outcome or run comparison.
+> - It carries the model summary, the load cases and this solve's results in
+>   the report sections you chose; every result row is still listed with its
+>   checksum. It carries no rule-pack reference, user-rule outcome or run
+>   comparison.
 > - It needs a pressure-free result solved in this session. An exact-route
 >   result, and a model with a library or rule-pack reference, cannot be
 >   shared this way.
@@ -1180,7 +1182,11 @@ the bound basis and requires canonical equality. A new module,
     The webview mirror is `reportQuantityDisplay.ts`, held equal by
     `report_quantity_display_parity.json`. The minimal input adds no
     numerical-health row. The C1-C3 metadata remains fully derived from S;
-    user-released composition itself is refused until C4 extends this derivation;
+  - `report_composition` (slice C4), only when the request carries one: the
+    request's own composition C, admitted only as a closed composition with no
+    form refusal and copied in its typed form
+    ([report-section-composer.md](report-section-composer.md) §4.4), so the
+    whole-request equality binds C and C selects only among the derived rows;
   - `report_context`:
     - export context `user_released_report`;
     - `generated_at` null;

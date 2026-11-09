@@ -816,7 +816,9 @@ export type UserReleaseRecordValue = Record<string, unknown>;
  * support provenance entry, the library references and library-store findings, every
  * provenance diagnostic, rule-pack references and user-rule outcomes; its persistence
  * reference is `TBD`. D-6 exact sources require the recorded W-11 admission and
- * retain their exact sections and limitations. The Rust mirror is
+ * retain their exact sections and limitations. A session composition (slice C4) is carried
+ * as `report_composition`; it selects among the bound rows, and the native derivation copies
+ * the same closed composition (`derived_composition`). The Rust mirror is
  * `report_package::user_release::minimal_renderer_input`, held equal by
  * `fixtures/reports/invented/user_release_derivation_vectors.json`. */
 export async function userReleasedRenderableReportInput({
@@ -825,7 +827,8 @@ export async function userReleasedRenderableReportInput({
   analysisRun,
   inputManifest,
   userRelease,
-  exactAdmission = null
+  exactAdmission = null,
+  reportComposition = null
 }: {
   model: PreviewModel;
   result: MechanicsResult;
@@ -833,9 +836,10 @@ export async function userReleasedRenderableReportInput({
   inputManifest: CurrentSessionInputManifestEvidence;
   userRelease: UserReleaseRecordValue;
   exactAdmission?: ExactReportAdmission | null;
+  reportComposition?: ReportComposition | null;
 }) {
   return renderableReportInput(
-    { model, result, analysisRun, projectSummary: null, inputManifest, exactAdmission, renderContext: { exportContext: "local_private", generatedAt: null } },
+    { model, result, analysisRun, projectSummary: null, inputManifest, exactAdmission, reportComposition, renderContext: { exportContext: "local_private", generatedAt: null } },
     userRelease
   );
 }
@@ -859,8 +863,10 @@ async function renderableReportInput(
   userRelease: UserReleaseRecordValue | null
 ) {
   const minimal = userRelease !== null;
-  if (reportComposition && (minimal || renderContext.exportContext !== "local_private")) {
-    throw new Error("REPORT-COMPOSITION-CONTEXT-NOT-ADMITTED: composition currently requires a local private report");
+  // Slice C4: the user-released input carries a composition; the wrapper contexts other
+  // than local private do not.
+  if (reportComposition && !minimal && renderContext.exportContext !== "local_private") {
+    throw new Error("REPORT-COMPOSITION-CONTEXT-NOT-ADMITTED: composition requires a local private or user-released report");
   }
   const exact = isExactReportSource(result);
   // DEL-05-03 `pf-timoshenko.md` §4: a pressure-free Timoshenko source carries its
