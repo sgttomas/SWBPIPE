@@ -170,6 +170,15 @@ export function RenderedReportPanel({
     setRenderError(null);
     setRendering(false);
   }
+  function onCompositionChange(value: ReportComposition | null) {
+    renderGeneration.current += 1;
+    changeComposition(value);
+    setRenderState(null);
+    setRedactionState(null);
+    setPrintRequested(false);
+    setRenderError(null);
+    setRendering(false);
+  }
   const unitBasis = result ? buildUnitDisplaySummary(model, result) : null;
   const unitBasisText = unitBasis
     ? [
@@ -242,7 +251,7 @@ export function RenderedReportPanel({
         <FileCheck size={16} />
         Rendered Report (FR-016)
       </div>
-      <ReportComposer composition={reportComposition} result={result} onChange={changeComposition} />
+      <ReportComposer composition={reportComposition} result={result} onChange={onCompositionChange} />
       {reportComposition && !localPrivateIntent ? <p role="status">Select local private rendering to render this composition. User-released packages keep the full report until composed user-release is implemented.</p> : null}
       <div className="report-actions">
         <LoadReferenceOutputGate result={result} testIdPrefix="rendered-report">

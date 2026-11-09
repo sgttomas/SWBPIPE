@@ -8,8 +8,8 @@ import { optionalReportComposition, DEFAULT_REPORT_COMPOSITION_SECTION, type Rep
 afterEach(cleanup);
 
 const result = { results: [
-  { basis_ref: { ref_type: "load_case", ref_id: "a" } },
-  { basis_ref: { ref_type: "load_case", ref_id: "b" } }
+  { id: "a", kind: "global_nodal_displacement_x", value: 1, unit: "m", entity_ref: "node:1", basis_ref: { ref_type: "load_case", ref_id: "a" } },
+  { id: "b", kind: "pipe_lame_hoop_stress_v2", value: 2, unit: "Pa", entity_ref: "pipe:1", basis_ref: { ref_type: "load_case", ref_id: "b" } }
 ] } as MechanicsResult;
 
 function Composer() {
@@ -26,6 +26,7 @@ describe("session report composer", () => {
     expect(current()).toBeNull();
     fireEvent.click(screen.getByRole("checkbox", { name: "All result rows" }));
     expect(current()?.sections).toEqual([]);
+    expect(screen.getByText("Result rows shown: 0 of 2.")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Reset report sections" }));
     expect(current()).toBeNull();
   });

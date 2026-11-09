@@ -236,6 +236,26 @@ fn a_mutation_of_each_member_is_refused_naming_its_pointer() {
         .ends_with("/source_results/0/results/0/metadata/invented_annotation"));
 }
 
+#[test]
+fn user_release_keeps_full_row_metadata_and_refuses_composition_until_c4() {
+    let case = &cases()[0];
+    let derived = case.derived();
+    let manifest = &case.vector["input_manifest"];
+    for (field, forged) in [
+        ("kind", json!("forged")), ("entity_ref", json!("node:forged")),
+        ("value_text", json!("999")), ("unit", json!("forged"))
+    ] {
+        let mut request = derived.request.clone();
+        request["report"]["result_rows"][0][field] = forged;
+        let refusal = check_matches_derivation(&derived, manifest, &request).unwrap_err();
+        assert!(refusal.contains(&format!("/report/result_rows/0/{field}")), "{refusal}");
+    }
+    let mut request = derived.request.clone();
+    request["report"]["report_composition"] = json!({"composition_version": "1.0.0", "sections": []});
+    let refusal = check_matches_derivation(&derived, manifest, &request).unwrap_err();
+    assert!(refusal.contains("/report/report_composition"), "{refusal}");
+}
+
 /// `user_release_display_rule` (§6): the vector whose S has rows stored in
 /// `Pa` and rows with more than six significant digits. The derived rows show
 /// six significant digits and `MPa`, `conversion_performed` is true, and the

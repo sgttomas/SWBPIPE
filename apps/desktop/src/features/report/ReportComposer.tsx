@@ -1,9 +1,10 @@
 import type { MechanicsResult } from "../../types";
 import {
-  DEFAULT_REPORT_COMPOSITION_SECTION, optionalReportComposition,
+  composeReportRows, DEFAULT_REPORT_COMPOSITION_SECTION, optionalReportComposition,
   REPORT_COMPOSITION_CATALOGUE,
   type ReportComposition, type ReportCompositionSection
 } from "./reportComposition";
+import { reportResultRows } from "./reportResultRows";
 
 export function ReportComposer({ composition, result, onChange }: {
   composition: ReportComposition | null;
@@ -16,6 +17,14 @@ export function ReportComposer({ composition, result, onChange }: {
   // Keep stale choices visible after a re-solve; the renderer refuses unknown cases.
   const chosenCases = sections.flatMap((section) => section.cases === "all" ? [] : section.cases);
   const caseOptions = [...new Set([...cases, ...chosenCases])];
+  let summary: string | null = null;
+  let refusal: string | null = null;
+  if (result && composition) {
+    try {
+      const selected = composeReportRows(reportResultRows(result), composition);
+      summary = `Result rows shown: ${selected.shown} of ${selected.bound_rows}.`;
+    } catch (error) { refusal = error instanceof Error ? error.message : String(error); }
+  }
   function update(index: number, value: Partial<ReportCompositionSection>) {
     onChange(optionalReportComposition(sections.map((section, i) => i === index ? { ...section, ...value } : section)));
   }
@@ -39,6 +48,8 @@ export function ReportComposer({ composition, result, onChange }: {
           }} />{entry.title}
       </label>)}
     </div>
+    {summary ? <p role="status">{summary}</p> : null}
+    {refusal ? <p role="alert">{refusal}</p> : null}
     <ol>{sections.map((section, index) => {
       const entry = REPORT_COMPOSITION_CATALOGUE.find((item) => item.id === section.section_id)!;
       return <li key={section.section_id}>

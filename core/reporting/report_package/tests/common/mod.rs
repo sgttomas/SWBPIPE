@@ -90,11 +90,16 @@ pub fn fixture_report_input() -> RenderableReportInput {
             case_ref: "load_case:invented-weight".to_string(),
             quantity_display: "12.5 MPa".to_string(),
             source_ref: "result_envelope:invented-result".to_string(),
+            kind: None,
+            entity_ref: None,
+            value_text: None,
+            unit: None,
         }],
         report_context: None,
         user_rule_checks: None,
         exact_route: None,
         library_references: None,
+        report_composition: None,
     }
 }
 

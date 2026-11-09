@@ -355,6 +355,12 @@ code_paths:
 # Object form: the shared positional-struct check of the native render, the save and the shared producer.
 - core/reporting/report_renderer/src/object_form.rs
 # Readability slice (Design exact-route-report-sections.md §3.7): the report's display rule.
+# RT-R4 C1-C3: closed result subsection composition; complete source rows remain bound.
+- core/reporting/report_renderer/src/composer.rs
+- apps/desktop/src/features/report/reportComposition.ts
+- apps/desktop/src/features/report/ReportComposer.tsx
+- fixtures/reports/invented/report_composition_families.json
+- fixtures/reports/invented/report_composition_vectors.json
 - apps/desktop/src/features/report/reportQuantityDisplay.ts
 - core/reporting/report_package/src/quantity_display.rs
 - fixtures/reports/invented/report_quantity_display_parity.json
@@ -441,3 +447,6 @@ checks:
 - tests/test_headless_runner_contract.py
 # D-6 / RT-R5: both exact identities, fail-closed source binding and reader round trip.
 - apps/desktop/src/features/report/userReleaseExact.parity.test.ts
+- core/reporting/report_renderer/tests/composition.rs
+- apps/desktop/src/features/report/ReportComposer.test.tsx
+- apps/desktop/src/features/report/reportComposition.parity.test.ts

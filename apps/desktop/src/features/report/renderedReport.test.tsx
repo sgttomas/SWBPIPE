@@ -1133,6 +1133,22 @@ describe("pending render work is owned by the panel instance and its source (W-3
     return { release: () => release(), builderSpy };
   }
 
+  it("never sends a retired composition to IPC after the user changes sections during preparation", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockResolvedValue(unblockedOutcome());
+    const { release, builderSpy } = await pendingPreparation();
+    renderPanel();
+    fireEvent.click(screen.getByTestId("rendered-report-local-private-intent"));
+    fireEvent.click(screen.getByTestId("rendered-report-render"));
+    await waitFor(() => expect(builderSpy).toHaveBeenCalled());
+    fireEvent.click(screen.getByRole("checkbox", { name: "Stresses" }));
+    release();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(invokeMock).not.toHaveBeenCalledWith("render_calculation_report", expect.anything());
+    expect(screen.queryByTestId("rendered-report-preview")).not.toBeInTheDocument();
+    builderSpy.mockRestore();
+  });
+
   it("never sends a private render to IPC after the panel unmounts during preparation", async () => {
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     invokeMock.mockResolvedValue(unblockedOutcome());

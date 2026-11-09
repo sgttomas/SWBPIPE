@@ -16,6 +16,25 @@ fn rust_report_rows_match_the_shared_parity_vectors() {
     assert_eq!(Value::Array(rows), vectors["expected_rows"]);
 }
 
+/// The composer's bound members (DEL-08-01 Design `report-section-composer.md`
+/// §2.6): an absent `entity_ref` is null, and `value_text` is the canonical
+/// text before the display rule (a Pa value keeps its stored text and unit).
+#[test]
+fn rust_report_rows_carry_the_bound_members() {
+    let rows = expected_report_result_rows(&serde_json::json!({"results": [
+        {"id": "p", "kind": "pipe_lame_hoop_stress_v2", "value": 1234567.5, "unit": "Pa"},
+        {"id": "z", "kind": "global_nodal_displacement_x", "value": -0.0, "unit": "mm", "entity_ref": "node:N-1"}
+    ]}))
+    .unwrap();
+    assert_eq!(rows[0]["quantity_display"], "1.23457 MPa");
+    assert_eq!(rows[0]["value_text"], "1234567.5");
+    assert_eq!(rows[0]["unit"], "Pa");
+    assert_eq!(rows[0]["entity_ref"], Value::Null);
+    assert_eq!(rows[1]["value_text"], "0");
+    assert_eq!(rows[1]["entity_ref"], "node:N-1");
+    assert_eq!(rows[1]["kind"], "global_nodal_displacement_x");
+}
+
 /// Magnitudes in Rust's large exponent range are integer-valued above 2^53 - 1
 /// and fail `guard_json` before a row is formed.
 #[test]
@@ -36,6 +55,8 @@ fn rust_report_rows_refuse_malformed_sources() {
         serde_json::json!({"results": [{"id": "a", "kind": "k", "unit": "u"}]}),
         serde_json::json!({"results": [{"id": "a", "kind": "k", "value": 1, "unit": "u", "metadata": {}}]}),
         serde_json::json!({"results": [{"id": "a", "kind": "k", "value": 1, "unit": "u", "basis_ref": {"ref_type": "t"}}]}),
+        // The composer's bound entity is a string or absent.
+        serde_json::json!({"results": [{"id": "a", "kind": "k", "value": 1, "unit": "u", "entity_ref": 7}]}),
     ] {
         let error = expected_report_result_rows(&source).unwrap_err();
         assert!(error.starts_with("REPORT-PACKAGE-REPORT-ROWS-MISMATCH"), "{error}");

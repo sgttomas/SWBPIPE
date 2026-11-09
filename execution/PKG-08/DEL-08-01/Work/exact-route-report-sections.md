@@ -120,6 +120,10 @@ every route. Standard claim fence applies (claims taxonomy per DEC-081).
    (`report_package/src/bindings.rs:103-140`, checked at item 6, `:448-452`)
    against shared vectors (`fixtures/reports/invented/report_result_rows_parity.json`).
    A label suffix changes both sides and the vectors together (§3.4).
+   The current complete metadata projection is defined by
+   [report-package-current-results.md](report-package-current-results.md) §2.3
+   item 6. Composition never filters the input rows before this re-derivation;
+   native custody and complete-row equality apply before renderer selection.
 7. **Standing has no registered display form.** `numericalResultStanding`
    returns `{status, eligible, findings}` (`results/resultStanding.ts:26`). The
    session shows the label "integrity checked"

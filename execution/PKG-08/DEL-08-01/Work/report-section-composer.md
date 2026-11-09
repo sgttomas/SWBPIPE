@@ -106,9 +106,9 @@ Every value shown is a bound row or a projection of the bound model:
 | Id | Parent | Content | Options | Slice |
 |---|---|---|---|---|
 | `result_rows_all` | Results | Today's flat table (the default) | cases | C2 |
-| `result_displacements` | Results | Translation and rotation rows | cases; view `all` or `extremes` (per case and component, the largest magnitude) | C2 |
+| `result_displacements` | Results | Translation and rotation rows | cases; view `all` or `extremes` (per case and component, the largest magnitude, grouped by case, label and display unit) | C2 |
 | `result_forces_moments` | Results | Element force and moment rows | cases | C2 |
-| `result_stresses` | Results | Stress rows, with their section-basis suffix on an exact result | cases; view `all` or `largest` (by magnitude, with a limit of 1-1000) | C2 |
+| `result_stresses` | Results | Stress rows, with their section-basis suffix on an exact result | cases; view `all` or `largest` (by magnitude, with a limit of 1-1000 within each display unit) | C2 |
 | `result_support_loads` | Results | Support reaction rows, grouped by support, then case | cases | C2 |
 | `result_other_rows` | Results | Every row of a kind outside the family table, for example the `spring_hanger_user_input_review` rows | cases | C2 |
 | `load_combinations` | Load Cases | Combinations as authored: id, label, method, terms and factors | none | C5 |
@@ -118,7 +118,8 @@ Every value shown is a bound row or a projection of the bound model:
 | `input_loads` | Model Input Summary | Applied loads per case, as entered | none | C5 |
 
 **Families.** A closed table maps each row `kind` to one family, so the
-families partition the rows. It is a committed fixture,
+families partition the rows. The table is derived from the `family` column of
+the current semantic-contract fixtures and checked against those fixtures. It is a committed fixture,
 `fixtures/reports/invented/report_composition_families.json`, which both the
 TypeScript and the Rust code read. A kind not in the table falls to
 `result_other_rows`, so no row can be lost by classification.
@@ -144,7 +145,8 @@ TypeScript and the Rust code read. A kind not in the table falls to
                     "view": { "kind": "largest", "limit": 25 } } ] }
   ```
 - **Inclusion.** A listed section is included and an unlisted one is omitted.
-  Each id is listed at most once, and only composable ids may be listed.
+  Each id is listed at most once, and only composable ids may be listed. An
+  empty list is permitted.
 - **Order.** Within each parent, the list order. Parents keep the governed order.
 - **Cases.** The value is `"all"` or a non-empty list of `case_ref` values, as
   the rows carry them (`<basis type>:<basis id>`). A row whose `case_ref` is
@@ -182,11 +184,15 @@ refuses the package.
 | `REPORT-COMPOSITION-VERSION-UNSUPPORTED` | `composition_version` other than `1.0.0` |
 | `REPORT-COMPOSITION-SECTION-UNKNOWN` | an id outside the composable catalogue, governed kinds included |
 | `REPORT-COMPOSITION-SECTION-DUPLICATE` | an id listed twice |
-| `REPORT-COMPOSITION-OPTION-INVALID` | an option the section does not take, a limit outside 1-1000, or an empty case list |
+| `REPORT-COMPOSITION-OPTION-INVALID` | an option the section does not take, a limit outside 1-1000, an empty or duplicate case list, or an explicit `TBD` case (`TBD` appears only under all cases) |
+| `REPORT-COMPOSITION-ROW-FIELDS-INVALID` | partial bound metadata or unreadable stored number text |
+| `REPORT-COMPOSITION-CONTEXT-NOT-ADMITTED` | a composition outside the explicit local-private context |
 | `REPORT-COMPOSITION-CASE-UNKNOWN` | a `case_ref` that no bound row carries (names it) |
 | `REPORT-COMPOSITION-ROWS-OVERLAP` | `result_rows_all` together with any family section |
 
-A family section with no rows under its cases renders the statement "No result
+An empty section list omits every optional subsection and shows zero bound
+result rows; the governed content remains. There is no required optional
+subsection. A family section with no rows under its cases renders the statement "No result
 rows of this kind for the selected cases." It is not a refusal.
 
 ### 2.6 Binding to one exact result
@@ -203,18 +209,23 @@ rows of this kind for the selected cases." It is not a refusal.
   per-row checksums and, on an exact result, the standing line are the
   report's own, as today.
 - **Row contract.** Selection needs each row's kind, entity and value. The
-  five-field projection gains three fields:
+  five display fields gain four bound metadata fields:
   - `kind`, the source `kind`;
   - `entity_ref`, the source `entity_ref` or `null`;
-  - `value_text`, the canonical number text the display rule starts from.
+  - `value_text`, the canonical stored number text the display rule starts from;
+  - `unit`, the stored unit, so Pa and MPa rows can be ranked in the same
+    display unit using the exact step.
 
   Both helpers and `report_result_rows_parity.json` change together (W-18
   §2.3 item 6), so every boundary binds the new fields. The renderer prints
   them only in composed sections, so K2 holds.
+- **Disclosure lines.** Existing numerical-health lines carry none of the bound
+  metadata. They always render separately and are never selected, ranked or
+  counted as bound result rows. A partial metadata set is refused.
 - **Disclosure.** When composed, the Results section states "Result rows shown:
   n of N." Each composed subsection states its cases and view. The Audit
-  Manifest section gains a "Report Composition" table: every catalogue id,
-  `included` or `omitted`, its options, and the SHA-256 of the composition's
+  Manifest section gains a "Report Composition" table: every implemented result-subsection catalogue id,
+  `included` or `omitted`, its list position and options, and the SHA-256 of the composition's
   RFC 8785 bytes. Every row stays listed with its checksum in "Referenced
   result export", so omitting a row from view never removes it from the binding.
 - **Stale results.** The composition carries no result identity. It is applied
@@ -381,6 +392,17 @@ in this design is superseded and is not an adoption action.
   user-release remains available under D-6; this is not a new owner decision.
 - C5 must bind projections of the current model before model-input subsections
   enter the catalogue. Current identity/load-case tables are retained.
+
+A refused composition is not applied: the existing full result table renders
+under the blocked banner, and export stays blocked. Family, unit and support
+case groups follow first source appearance; equal magnitudes retain source order.
+
+The four-field row contract also affects existing exact-package requests,
+user-release derivation vectors and the headless del1005 input. Their maintained
+writers must regenerate them from the actual integrated predecessor before final
+review. The existing full-row checks intentionally refuse stale five-field
+requests; changing expectations by hand would not establish binding or default
+output compatibility.
 
 ScopeOfWork and deliverable dependency conditions remain unchanged: this unit
 implements the existing commitment without changing the required supplier

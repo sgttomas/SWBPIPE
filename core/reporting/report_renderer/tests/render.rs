@@ -116,11 +116,16 @@ fn fixture_input() -> RenderableReportInput {
             case_ref: "load_case:invented-weight".to_string(),
             quantity_display: "12.5 MPa".to_string(),
             source_ref: "result_envelope:invented-result".to_string(),
+            kind: None,
+            entity_ref: None,
+            value_text: None,
+            unit: None,
         }],
         report_context: None,
         user_rule_checks: None,
         exact_route: None,
         library_references: None,
+        report_composition: None,
     }
 }
 
@@ -1859,5 +1864,240 @@ fn user_release_texts_pass_the_claims_check() {
     assert!(LITANY.iter().filter(|term| folded.contains(*term)).count() < 3, "{notice}");
     for word in ["issued", "approved", "accepted", "certified", "released version", "release of swbpipe"] {
         assert!(!folded.contains(word), "{word}");
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Report composition (DEL-08-01 Design `report-section-composer.md`, slice C2).
+
+const COMPOSITION_VECTORS: &str = include_str!("../../../../fixtures/reports/invented/report_composition_vectors.json");
+
+/// The composer vectors' rows, under a local-private context, with
+/// `composition` (a JSON value) when given.
+fn composed_input(composition: Option<serde_json::Value>) -> RenderableReportInput {
+    let vectors: serde_json::Value = serde_json::from_str(COMPOSITION_VECTORS).unwrap();
+    let mut input = fixture_input();
+    input.report_context = Some(invented_report_context(ReportExportContext::LocalPrivate));
+    input.result_rows = serde_json::from_value(vectors["rows"].clone()).unwrap();
+    input.report_composition = composition.map(|value| serde_json::from_value(value).unwrap());
+    input
+}
+
+fn composition_of(sections: &[(&str, serde_json::Value)]) -> serde_json::Value {
+    serde_json::json!({
+        "composition_version": "1.0.0",
+        "sections": sections.iter().map(|(id, view)| serde_json::json!({"section_id": id, "cases": "all", "view": view})).collect::<Vec<_>>(),
+    })
+}
+
+/// K2: without a composition, rows carrying the bound members render the
+/// bytes of the same rows without them, so the members change no existing
+/// output; and the pinned fixtures keep their hashes.
+#[test]
+fn bound_row_members_without_a_composition_change_no_byte() {
+    let with_members = composed_input(None);
+    let mut without = with_members.clone();
+    for row in &mut without.result_rows {
+        row.kind = None;
+        row.entity_ref = None;
+        row.value_text = None;
+        row.unit = None;
+    }
+    let (left, right) = (render_calculation_report(&with_members), render_calculation_report(&without));
+    assert!(!left.export_blocked, "{:?}", left.blocking_reasons);
+    assert_eq!(left.html, right.html);
+    assert!(!left.html.contains("Result rows shown"));
+    assert!(!left.html.contains("Report Composition"));
+    assert!(!left.html.contains("node:N-1"), "the entity is printed only in composed sections");
+    // An absent composition serializes to nothing; null decodes to absent.
+    let json = serde_json::to_value(&with_members).unwrap();
+    assert!(json.get("report_composition").is_none());
+    assert!(json["result_rows"][16].get("kind").is_none());
+    let mut nulls = json.clone();
+    nulls["report_composition"] = serde_json::Value::Null;
+    let back: RenderableReportInput = serde_json::from_value(nulls).unwrap();
+    assert_eq!(render_calculation_report(&back).html, left.html);
+    assert_eq!(render_calculation_report(&fixture_input()).sha256_hex, BASE_HTML_SHA256);
+}
+
+/// K1: every governed section, the frame and the notice render under every
+/// admitted subset of the catalogue, in two orders, unblocked.
+#[test]
+fn every_composition_keeps_the_frame_and_the_governed_sections() {
+    use open_pipe_stress_report_renderer::composer::{CATALOGUE, RESULT_ROWS_ALL};
+    let families: Vec<&str> = CATALOGUE.iter().map(|entry| entry.id).filter(|id| *id != RESULT_ROWS_ALL).collect();
+    let mut compositions: Vec<Vec<&str>> = vec![vec![RESULT_ROWS_ALL]];
+    for mask in 0u32..(1 << families.len()) {
+        let subset: Vec<&str> = families.iter().enumerate().filter(|(bit, _)| mask & (1 << bit) != 0).map(|(_, id)| *id).collect();
+        let mut reversed = subset.clone();
+        reversed.reverse();
+        compositions.push(subset);
+        compositions.push(reversed);
+    }
+    for ids in compositions {
+        let sections: Vec<(&str, serde_json::Value)> = ids.iter().map(|id| (*id, serde_json::json!({"kind": "all"}))).collect();
+        let outcome = render_calculation_report(&composed_input(Some(composition_of(&sections))));
+        assert!(!outcome.export_blocked, "{ids:?}: {:?}", outcome.blocking_reasons);
+        for heading in [
+            "<h2>Model Input Summary</h2>",
+            "<h2>Load Cases</h2>",
+            "<h2>Results</h2>",
+            "<h2>Warnings, Assumptions, And Provenance</h2>",
+            "<h2>Audit Manifest</h2>",
+            "<h2>Rule Pack References</h2>",
+            "<h2>Limitations</h2>",
+            "<h2>Professional Boundary And Human Review</h2>",
+            "<h3>Software, Solver And Run</h3>",
+            "<h3>Human Review Record</h3>",
+            "<h3>Report Composition</h3>",
+            "Referenced result export",
+            "Model hash",
+            "LOCAL PRIVATE REPORT",
+            "SWBPIPE is decision-support software for piping design, flexibility, and stress-analysis workflows.",
+            "derived views",
+            // The disclosure line is shown under every composition.
+            "Numerical health: invented disclosure line",
+        ] {
+            assert!(outcome.html.contains(heading), "{ids:?}: {heading}");
+        }
+        // Governed sections keep their order.
+        let at = |text: &str| outcome.html.find(text).unwrap();
+        assert!(at("<h2>Load Cases</h2>") < at("<h2>Results</h2>") && at("<h2>Results</h2>") < at("<h2>Warnings, Assumptions"));
+        assert!(at("<h2>Limitations</h2>") < at("<h2>Professional Boundary"));
+    }
+}
+
+/// K3/K4: the coverage line, the subsection statements, list order, the
+/// composition table and digest; the same input renders the same bytes.
+#[test]
+fn a_composed_report_states_its_composition_and_coverage() {
+    use open_pipe_stress_report_renderer::composer::composition_sha256;
+    let composition = composition_of(&[
+        ("result_stresses", serde_json::json!({"kind": "largest", "limit": 2})),
+        ("result_support_loads", serde_json::json!({"kind": "all"})),
+    ]);
+    let input = composed_input(Some(composition));
+    let first = render_calculation_report(&input);
+    let second = render_calculation_report(&input);
+    assert!(!first.export_blocked, "{:?}", first.blocking_reasons);
+    assert_eq!(first.html, second.html);
+    let html = &first.html;
+    assert!(html.contains("<p>Result rows shown: 7 of 18.</p>"), "3 stresses and 4 support loads of 18 bound rows");
+    assert!(html.contains("Cases: all cases. View: largest 2 by magnitude within each display unit."));
+    assert!(html.contains("Cases: all cases. View: all rows, grouped by support, then case."));
+    assert!(html.find("<h3>Stresses</h3>").unwrap() < html.find("<h3>Support loads</h3>").unwrap());
+    // Exact ranking: the 1.234574 MPa rows, not the 1.2345675 MPa row that displays alike.
+    assert!(html.contains("result:r06") && html.contains("result:r07") && html.contains("result:r18"));
+    let stresses = &html[html.find("<h3>Stresses</h3>").unwrap()..html.find("<h3>Support loads</h3>").unwrap()];
+    assert!(!stresses.contains("result:r05") && !stresses.contains("result:r08"));
+    assert!(stresses.contains("<th>Entity</th>"));
+    // Every row is still listed with its checksum under Referenced result export.
+    assert!(html.contains("Referenced result export"));
+    let audit = &html[html.find("<h3>Report Composition</h3>").unwrap()..];
+    for row in [
+        "<td>result_rows_all</td><td>omitted</td>",
+        "<td>result_stresses</td><td>included, position 1</td><td>all cases</td>",
+        "<td>result_support_loads</td><td>included, position 2</td>",
+        "<td>result_other_rows</td><td>omitted</td>",
+    ] {
+        assert!(audit.contains(row), "{row}");
+    }
+    assert!(audit.contains(&composition_sha256(input.report_composition.as_ref().unwrap())));
+    // The flat table is not emitted when composed.
+    assert!(!html.contains("<th>Result</th><th>Case</th><th>Value</th><th>Source</th>"));
+    assert!(html.contains("<th>Disclosure</th><th>Case</th><th>Value</th><th>Source</th>"));
+}
+
+/// K5: a refused composition blocks export with its code, and the rows are
+/// shown uncomposed; nothing is silently accepted.
+#[test]
+fn a_refused_composition_blocks_export_and_is_not_applied() {
+    let vectors: serde_json::Value = serde_json::from_str(COMPOSITION_VECTORS).unwrap();
+    let plain = render_calculation_report(&composed_input(None));
+    for vector in vectors["refusal_vectors"].as_array().unwrap() {
+        let name = vector["name"].as_str().unwrap();
+        let outcome = render_calculation_report(&composed_input(Some(vector["composition"].clone())));
+        assert!(outcome.export_blocked, "{name}");
+        for code in vector["codes"].as_array().unwrap() {
+            let prefix = format!("report composition: {}", code.as_str().unwrap());
+            assert!(outcome.blocking_reasons.iter().any(|reason| reason.starts_with(&prefix)), "{name}: {:?}", outcome.blocking_reasons);
+        }
+        assert!(!outcome.html.contains("Result rows shown"), "{name}");
+        assert!(!outcome.html.contains("<h3>Report Composition</h3>"), "{name}");
+        // The uncomposed table, under the blocked banner.
+        assert!(outcome.html.contains("blocked-banner"), "{name}");
+        let table_at = |html: &str| html[html.find("<h2>Results</h2>").unwrap()..html.find("<h2>Warnings").unwrap()].to_string();
+        assert_eq!(table_at(&outcome.html), table_at(&plain.html), "{name}");
+    }
+    // A partial bound row refuses only under a composition.
+    let mut partial = composed_input(Some(composition_of(&[("result_rows_all", serde_json::json!({"kind": "all"}))])));
+    partial.result_rows[0].value_text = None;
+    let outcome = render_calculation_report(&partial);
+    assert!(outcome.blocking_reasons.iter().any(|reason| reason.starts_with("report composition: REPORT-COMPOSITION-ROW-FIELDS-INVALID")));
+    partial.report_composition = None;
+    assert!(!render_calculation_report(&partial).export_blocked);
+}
+
+/// Slice C4 is not built: a user-released report refuses any composition.
+#[test]
+fn a_user_released_report_refuses_a_composition() {
+    let mut input = user_released_with(private_record(sections::ReviewStatus::Pending, sections::RedistributionStatus::PrivateOnly));
+    assert!(!render_calculation_report(&input).export_blocked);
+    let vectors: serde_json::Value = serde_json::from_str(COMPOSITION_VECTORS).unwrap();
+    input.result_rows = serde_json::from_value(vectors["rows"].clone()).unwrap();
+    input.report_composition = Some(serde_json::from_value(composition_of(&[("result_stresses", serde_json::json!({"kind": "all"}))])).unwrap());
+    let outcome = render_calculation_report(&input);
+    assert!(outcome.export_blocked);
+    assert_eq!(
+        outcome.blocking_reasons.iter().filter(|reason| reason.starts_with("report composition:")).collect::<Vec<_>>(),
+        ["report composition: REPORT-COMPOSITION-CONTEXT-NOT-ADMITTED: composition currently requires a local private report"]
+    );
+    assert!(!outcome.html.contains("Result rows shown"));
+}
+
+/// The composition decodes as a closed object through the renderer's
+/// value-free decode, and a positional composition is found by the shared
+/// object-form check.
+#[test]
+fn the_composition_is_decoded_closed_and_in_object_form() {
+    use open_pipe_stress_report_renderer::decode_renderable_report_input;
+    use open_pipe_stress_report_renderer::object_form::report_positional_struct_path;
+    let composition = composition_of(&[("result_stresses", serde_json::json!({"kind": "largest", "limit": 3}))]);
+    let base = serde_json::to_value(composed_input(Some(composition))).unwrap();
+    assert!(decode_renderable_report_input(base.clone()).is_ok());
+    assert_eq!(report_positional_struct_path(&base), None);
+    let mut extra = base.clone();
+    extra["report_composition"]["sections"][0]["view"]["heading"] = serde_json::json!("x");
+    let error = decode_renderable_report_input(extra).unwrap_err();
+    assert_eq!(error, "RENDER-INPUT-INVALID: unknown field at report_composition");
+    for (pointer, path) in [
+        ("/report_composition", "report_composition"),
+        ("/report_composition/sections/0", "report_composition.sections[0]"),
+        ("/report_composition/sections/0/view", "report_composition.sections[0].view"),
+    ] {
+        let mut positional = base.clone();
+        let target = positional.pointer_mut(pointer).unwrap();
+        let members: Vec<serde_json::Value> = target.as_object().unwrap().values().cloned().collect();
+        let names: Vec<String> = target.as_object().unwrap().keys().cloned().collect();
+        // Positional order is declaration order.
+        let order: &[&str] = match path {
+            "report_composition" => &["composition_version", "sections"],
+            "report_composition.sections[0]" => &["section_id", "cases", "view"],
+            _ => &["kind", "limit"],
+        };
+        let by_name: std::collections::BTreeMap<String, serde_json::Value> = names.into_iter().zip(members).collect();
+        *target = serde_json::Value::Array(order.iter().map(|name| by_name[*name].clone()).collect());
+        assert_eq!(report_positional_struct_path(&positional).as_deref(), Some(path), "{pointer}");
+    }
+}
+
+#[test]
+fn composed_reports_require_an_explicit_local_private_context() {
+    let mut input = composed_input(Some(composition_of(&[("result_rows_all", serde_json::json!({"kind": "all"}))])));
+    for context in [None, Some(invented_report_context(ReportExportContext::PublicReport))] {
+        input.report_context = context;
+        let rendered = render_calculation_report(&input);
+        assert!(rendered.export_blocked);
+        assert!(rendered.blocking_reasons.iter().any(|reason| reason.contains("REPORT-COMPOSITION-CONTEXT-NOT-ADMITTED")));
     }
 }

@@ -158,6 +158,30 @@ fn current_result_packages_assemble_read_back_and_are_deterministic() {
 }
 
 #[test]
+fn composed_local_private_packages_keep_every_row_bound() {
+    let mut request = desktop();
+    request["report"]["report_composition"] = json!({"composition_version": "1.0.0", "sections": [
+        {"section_id": "result_displacements", "cases": "all", "view": {"kind": "extremes"}}
+    ]});
+    let first = unblocked(&request);
+    assert_eq!(first.container_bytes, unblocked(&request).container_bytes);
+    assert!(!read_report_package_container(&first.container_bytes).unwrap().export_blocked);
+    let html = std::str::from_utf8(member(&first, ROLE_REPORT_HTML)).unwrap();
+    assert!(html.contains("Result rows shown:"));
+    assert!(html.contains("Report Composition"));
+    for (field, forged) in [
+        ("kind", json!("forged")), ("entity_ref", json!("node:forged")),
+        ("value_text", json!("999")), ("unit", json!("forged"))
+    ] {
+        let mut changed = request.clone();
+        changed["report"]["result_rows"][0][field] = forged;
+        refused(&changed, REPORT_ROWS_MISMATCH, field);
+    }
+    request["report"]["result_rows"].as_array_mut().unwrap().pop();
+    refused(&request, REPORT_ROWS_MISMATCH, "a hidden source row was removed");
+}
+
+#[test]
 fn the_desktop_basis_carries_the_received_current_origin() {
     let request = desktop();
     assert_eq!(request["export_profile_id"], DESKTOP_PROFILE);

@@ -1451,6 +1451,41 @@ mod direct_native {
         assert_eq!(code, ROWS_MISMATCH, "{message}");
     }
 
+    /// Composition selects only after native custody and complete row re-derivation.
+    /// Removing a row hidden by the selection, or forging any selection metadata,
+    /// refuses at the same native/producer boundaries as an uncomposed request.
+    #[test]
+    fn composed_exact_reports_keep_full_row_custody() {
+        let w = witness(STRAIGHT);
+        let live = live(&w);
+        let composition = json!({"composition_version": "1.0.0", "sections": [
+            {"section_id": "result_stresses", "cases": "all", "view": {"kind": "largest", "limit": 1}}
+        ]});
+        let mut args = genuine_render_args(&w, &live.job);
+        args["input"]["report_composition"] = composition.clone();
+        let rendered = production_render_on(&live, &args).expect("bound composed render");
+        assert_eq!(rendered["export_blocked"], json!(false), "{}", rendered["blocking_reasons"]);
+        assert!(rendered["html"].as_str().unwrap().contains("Result rows shown:"));
+        assert!(rendered["html"].as_str().unwrap().contains("Report Composition"));
+        let mut request = bound(&w.request, &live.job);
+        request["report"]["report_composition"] = composition;
+        let _admitted = save_admitted(&live, save_args(&request, &w, &w.model, Some(&w.result), Some(&w.intake)), "composed exact package");
+        for (field, forged) in [
+            ("kind", json!("invented_other_kind")), ("entity_ref", json!("support:forged")),
+            ("value_text", json!("999")), ("unit", json!("forged_unit"))
+        ] {
+            let mut forged_args = args.clone();
+            forged_args["input"]["result_rows"][0][field] = forged.clone();
+            assert_eq!(refusal_text(production_render_on(&live, &forged_args)), format!("{SECTIONS_MISMATCH}: result_rows"), "{field}");
+            let mut forged_request = request.clone();
+            forged_request["report"]["result_rows"][0][field] = forged;
+            let (code, message) = save_code(&live, save_args(&forged_request, &w, &w.model, Some(&w.result), Some(&w.intake)));
+            assert_eq!(code, ROWS_MISMATCH, "{field}: {message}");
+        }
+        args["input"]["result_rows"].as_array_mut().unwrap().pop();
+        assert_eq!(refusal_text(production_render_on(&live, &args)), format!("{SECTIONS_MISMATCH}: result_rows"));
+    }
+
     #[test]
     fn the_genuine_render_input_renders_through_the_production_root() {
         let w = witness(STRAIGHT);

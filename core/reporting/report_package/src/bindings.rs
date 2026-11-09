@@ -33,6 +33,7 @@ use crate::quantity_display::{display_quantity, source_displays_scaled_value, QU
 use crate::user_release::{self, ProducerEntry, USER_RELEASED_CONTEXT, USER_RELEASED_DESKTOP_PROFILE};
 use crate::wire::{LinkedSolverIdentity, ReportPackageRequest};
 use open_pipe_stress_audit_manifest as audit;
+use open_pipe_stress_canonical_json::canonical_number;
 use open_pipe_stress_result_export::derivative::{digest, guard_json, validate_document};
 use open_pipe_stress_result_export::semantic_contract::for_source;
 use serde_json::{json, Value};
@@ -136,10 +137,16 @@ fn section_basis_suffix(id: &str, metadata: &Value) -> Result<&'static str, Stri
 }
 
 /// The report-row contract (§2.3 item 6): one row per source row, in order,
-/// with the desktop's five-field projection
-/// (`apps/desktop/src/features/report/reportResultRows.ts`). The value text is
-/// the report's display rule ([`display_quantity`]) over the ECMAScript
-/// Number-to-String form (`canonical_number`), after `guard_json`. Parity
+/// with the desktop's projection
+/// (`apps/desktop/src/features/report/reportResultRows.ts`). The displayed
+/// value is the report's display rule ([`display_quantity`]) over the
+/// ECMAScript Number-to-String form (`canonical_number`), after `guard_json`.
+/// The four bound members the composer reads (DEL-08-01 Design
+/// `report-section-composer.md` §2.6) follow the five displayed ones: the
+/// source `kind`; its `entity_ref`, or null when the row has none; the
+/// value's canonical text (`value_text`); and the stored `unit`, so a value
+/// stored in Pa is compared exactly in MPa. Every boundary that requires the
+/// rows equal this projection binds them. Parity
 /// vectors: `fixtures/reports/invented/report_result_rows_parity.json` and
 /// `fixtures/reports/invented/report_quantity_display_parity.json`.
 pub fn expected_report_result_rows(source: &Value) -> Result<Vec<Value>, String> {
@@ -153,9 +160,14 @@ pub fn expected_report_result_rows(source: &Value) -> Result<Vec<Value>, String>
                 row[key].as_str().ok_or_else(|| format!("{REPORT_ROWS_MISMATCH}: a source row has no string {key}"))
             };
             let (id, kind, unit) = (field("id")?, field("kind")?, field("unit")?);
-            let quantity = match &row["value"] {
-                Value::Number(number) => display_quantity(number, unit),
+            let (quantity, value_text) = match &row["value"] {
+                Value::Number(number) => (display_quantity(number, unit), canonical_number(number)),
                 _ => return Err(format!("{REPORT_ROWS_MISMATCH}: source row {id} has no numeric value")),
+            };
+            let entity_ref = match row.get("entity_ref") {
+                None | Some(Value::Null) => Value::Null,
+                Some(Value::String(entity)) => Value::String(entity.clone()),
+                Some(_) => return Err(format!("{REPORT_ROWS_MISMATCH}: source row {id} has a malformed entity_ref")),
             };
             let label = match row.get("metadata") {
                 None | Some(Value::Null) => kind.to_string(),
@@ -177,6 +189,10 @@ pub fn expected_report_result_rows(source: &Value) -> Result<Vec<Value>, String>
                 "case_ref": case_ref,
                 "quantity_display": quantity,
                 "source_ref": format!("result:{id}"),
+                "kind": kind,
+                "entity_ref": entity_ref,
+                "value_text": value_text,
+                "unit": unit,
             }))
         })
         .collect()

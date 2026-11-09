@@ -28,11 +28,17 @@ export type ReportResultRow = {
   case_ref: string;
   quantity_display: string;
   source_ref: string;
+  /** Bound source metadata used only by the composition selector. */
+  kind?: string;
+  entity_ref?: string | null;
+  value_text?: string;
+  unit?: string;
 };
 
 /** The report-row contract (DEL-08-01 Design `report-package-current-results.md`
- * §2.3 item 6): one row per source row, in order, with this five-field
- * projection. The report package's Rust producer derives the same rows
+ * §2.3 item 6): one row per source row, in order. The five display fields
+ * retain their existing bytes; kind, entity_ref, canonical value_text and stored
+ * unit bind the metadata used by the composer. The report package's Rust producer derives the same rows
  * (`report_package::bindings::expected_report_result_rows`) and requires them
  * equal; both are checked against the shared vectors
  * `fixtures/reports/invented/report_result_rows_parity.json`. A change here
@@ -50,6 +56,10 @@ export function reportResultRows(result: Pick<MechanicsResult, "results">): Repo
     label: item.metadata ? `${item.kind} (${item.metadata.component})${sectionBasisSuffix(item.id, item.metadata)}` : item.kind,
     case_ref: item.basis_ref ? `${item.basis_ref.ref_type}:${item.basis_ref.ref_id}` : "TBD",
     quantity_display: displayQuantity(item.value, item.unit),
-    source_ref: `result:${item.id}`
+    source_ref: `result:${item.id}`,
+    kind: item.kind,
+    entity_ref: item.entity_ref ?? null,
+    value_text: String(item.value),
+    unit: item.unit
   }));
 }

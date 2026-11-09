@@ -104,6 +104,31 @@ async function recordRuleCheck(state: () => WorkspaceSession, aggregate: RuleChe
 const saveCalls = () => invokeMock.mock.calls.filter(([command]) => command === "save_report_package");
 
 describe("Save Report Package… through the session (W-18 (b2))", () => {
+  it("retires a pending package build when composition changes, retaining the session selection", async () => {
+    const { result: hook } = await solvedSession();
+    const gate = deferred<void>();
+    const real = requestModule.buildReportPackageRequest;
+    const builder = vi.spyOn(requestModule, "buildReportPackageRequest").mockImplementation(async (input) => {
+      const request = await real(input);
+      await gate.promise;
+      return request;
+    });
+    const composition = { composition_version: "1.0.0" as const, sections: [
+      { section_id: "result_stresses" as const, cases: "all" as const, view: { kind: "largest" as const, limit: 1 } }
+    ] };
+    act(() => hook.current.results.setReportComposition(composition));
+    let saving!: Promise<void>;
+    act(() => { saving = hook.current.results.handleSaveReportPackage(); });
+    await waitFor(() => expect(builder).toHaveBeenCalled());
+    expect(builder.mock.calls[0][0].reportComposition).toBe(composition);
+    const replacement = { ...composition, sections: [] };
+    act(() => hook.current.results.setReportComposition(replacement));
+    await act(async () => { gate.resolve(); await saving; });
+    expect(saveCalls()).toHaveLength(0);
+    expect(hook.current.results.reportPackageRoute).toBeNull();
+    expect(hook.current.results.reportComposition).toBe(replacement);
+  });
+
   it("sends the request, model and input-manifest canonical texts with screening bound to the request text", async () => {
     const { result: hook, model } = await solvedSession();
     await act(async () => { await hook.current.results.handleSaveReportPackage(); });
