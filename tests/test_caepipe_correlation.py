@@ -6,6 +6,7 @@ Every number here is synthetic or invented; nothing is CAEPIPE output.
 
 from __future__ import annotations
 
+import base64
 import dataclasses
 import hashlib
 import json
@@ -1199,6 +1200,15 @@ def _hex(text: str) -> str:
     return (text.encode("latin-1") + b"\x00").hex().upper()
 
 
+def _literal_payload(command: str) -> dict | None:
+    """The key, name, action and data of a literal-value step (`harness._literal_value_command`), else None."""
+    if not command.startswith("powershell ") or " -EncodedCommand " not in command:
+        return None
+    script = base64.b64decode(command.rsplit(" ", 1)[1]).decode("utf-16-le")
+    encoded = re.search(r"FromBase64String\('([A-Za-z0-9+/=]*)'\)", script)[1]
+    return json.loads(base64.b64decode(encoded).decode("utf-8"))
+
+
 class FakeGuest:
     """An invented guest: a registry answering `reg query /s`, the owned-process id file and `tasklist`.
 
@@ -1215,6 +1225,7 @@ class FakeGuest:
         self.owned: list[int] = []      # ids the guest script recorded
         self.running: list[int] = []    # ids of the tool's image still listed
         self.writes: list[str] = []
+        self.literal_writes: list[dict] = []  # decoded registry-API writes of the literal value
         self.commands: list[str] = []
         self.empty_keys: set[str] = {INVENTED_KEY + "\\Empty sub"}  # a subkey with no values
         self.pid_text: str | None = None       # replaces the owned-process record when set
@@ -1262,7 +1273,8 @@ class FakeGuest:
         def run(argv, **kwargs):
             command = argv[6]
             self.commands.append(command)
-            kind = ("readback" if command.startswith("reg query ") and (" /v " in command
+            literal = _literal_payload(command)
+            kind = ("readback" if literal and literal["action"] == "read" else "write" if literal else "readback" if command.startswith("reg query ") and (" /v " in command
                                                                        or command.startswith('reg query "HKEY_'))
                     else "query" if command.startswith("reg query ") else "write" if command.startswith(("reg add", "reg delete"))
                     else "tasklist" if command == "tasklist /FO CSV /NH" else None)
@@ -1289,6 +1301,8 @@ class FakeGuest:
                 not_found = subprocess.CompletedProcess(argv, 1, "", "ERROR: The system was unable to find the "
                                                                      "specified registry key or value.")
                 one = re.fullmatch(r'reg query "([^"]+)" /v "([^"]+)"', command)
+                if literal:  # the registry-API read prints the value as `reg query` does; only REG_BINARY is read
+                    one = SimpleNamespace(groups=lambda: ("HKEY_CURRENT_USER\\" + literal["key"], literal["name"]))
                 override = self.readback.get(self.counts["readback"], "none")
                 if override == "unreadable":
                     return subprocess.CompletedProcess(argv, 2, "garbled", "")
@@ -1312,7 +1326,7 @@ class FakeGuest:
             if command.startswith("reg query "):
                 self.foreign += self.foreign_on_query.get(self.counts["query"], [])
                 return subprocess.CompletedProcess(argv, 0, self.query(), "")
-            if command.startswith(("reg add", "reg delete")):
+            if kind == "write":
                 self.writes.append(command)
                 if self.counts["write"] in self.write_results:
                     code, out, err = self.write_results[self.counts["write"]]
@@ -1325,6 +1339,17 @@ class FakeGuest:
                     self.commands.pop()
                     self.timeouts.pop()
                     return subprocess.CompletedProcess(argv, code, out, err)
+                if literal:  # the registry API: the name and data exactly as passed, never parsed from command words
+                    target = ("HKEY_CURRENT_USER\\" + literal["key"], literal["name"])
+                    self.literal_writes.append(literal)
+                    if literal["action"] == "delete" and target not in self.values:
+                        return subprocess.CompletedProcess(argv, 1, "", "ERROR: The system was unable to find the "
+                                                                        "specified registry key or value.")
+                    if self.apply_writes and literal["action"] == "set":
+                        self.values[target] = ("REG_BINARY", literal["data"])
+                    if self.apply_writes and literal["action"] == "delete":
+                        del self.values[target]
+                    return subprocess.CompletedProcess(argv, 0, "The operation completed successfully.", "")
                 add = re.fullmatch(r'reg add "([^"]+)" /v "([^"]+)" /t (REG_\w+) /d "([^"]*)" /f', command)
                 delete = re.fullmatch(r'reg delete "([^"]+)" /v "([^"]+)" /f', command)
                 add_key = re.fullmatch(r'reg add "([^"]+)" /f', command)
@@ -2564,6 +2589,221 @@ def test_restore_recorded_settings_goes_through_the_restore_routine(tmp_path):
         found = guest.values.get((key, name))
         assert (None if found is None else {"type": found[0], "data": found[1]}) == entry["before"]
     assert [step["name"] for step in result["steps"]][:2] == ["precondition_process_list", "settings_current"]
+
+
+# The literal recent-files value (Design §5): the configured executable's folder with one trailing backslash.
+RECENT = INVENTED_KEY + "\\Recent list"
+LITERAL = "C:\\Invented\\"  # fake_config's guest_executable is C:\\Invented\\tool.exe
+
+
+def _literal_solve(change: Callable[[FakeGuest], None]):
+    def solve(guest_, argv, config):
+        change(guest_)
+        return solved(guest_, argv, config)
+    return solve
+
+
+def _created(guest_: FakeGuest) -> None:
+    guest_.values[(RECENT, LITERAL)] = ("REG_BINARY", _hex("C:\\invented-work\\cx-g\\model.mod"))
+
+
+def test_literal_recent_value_is_derived_from_the_configured_executable_only(tmp_path):
+    config = dataclasses.replace(fake_config(tmp_path), settings_guard=KEY_GUARD)
+    assert harness._literal_recent_value(config) == (harness._registry_key_id(RECENT), LITERAL)
+    nested = dataclasses.replace(config, guest_executable="C:\\Tools (x)\\Invented-1.0\\tool.exe")
+    assert harness._literal_recent_value(nested)[1] == "C:\\Tools (x)\\Invented-1.0\\"
+    for executable in ("C:\\tool.exe", "C:\\Invented\\", "C:\\Invented\\..\\tool.exe", "C:\\Inv&ented\\tool.exe"):
+        assert harness._literal_recent_value(dataclasses.replace(config, guest_executable=executable)) is None
+    no_recent = dataclasses.replace(config, settings_guard=dataclasses.replace(KEY_GUARD, recent_files_subkey=None))
+    assert harness._literal_recent_value(no_recent) is None
+    assert harness._literal_recent_value(dataclasses.replace(config, settings_guard=None)) is None
+
+
+def test_restore_plan_admits_only_the_exact_literal_value_and_writes_it_through_the_registry_api(tmp_path):
+    root = harness._registry_key_id(INVENTED_GUARD.key)
+    literal = (harness._registry_key_id(RECENT), LITERAL)
+
+    def snapshot(*values):
+        found = {(harness._registry_key_id(key), name): (key, kind, data) for key, name, kind, data in values}
+        return {"keys": {harness._registry_key_id(key): key for key in (INVENTED_KEY, RECENT,
+                                                                        INVENTED_KEY + "\\Options")},
+                "values": found}
+
+    base = (RECENT, "N", "REG_BINARY", "01000000")
+    old, new = ("REG_BINARY", "0A0B"), ("REG_BINARY", "0C0D")
+    cases = {  # how the literal changed -> (before, after, action)
+        "created": (snapshot(base), snapshot(base, (RECENT, LITERAL, *new)), "delete"),
+        "changed": (snapshot(base, (RECENT, LITERAL, *old)), snapshot(base, (RECENT, LITERAL, *new)), "set"),
+        "removed": (snapshot(base, (RECENT, LITERAL, *old)), snapshot(base), "set"),
+    }
+    for how, (before, after, action) in cases.items():
+        plan = harness._restore_plan(before, after, root, whole_key=True, literal=literal)
+        assert [(entry["action"], entry["target"]) for entry in plan] == [(action, (RECENT, LITERAL))], how
+        entry = plan[0]
+        for command in (entry["command"], entry["readback_command"]):  # never reg.exe, never the name as words
+            assert command.startswith("powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass "
+                                      "-EncodedCommand ") and LITERAL not in command and "reg " not in command
+        sent = _literal_payload(entry["command"])
+        assert sent == {"key": RECENT[len("HKEY_CURRENT_USER\\"):], "name": LITERAL, "action": action,
+                        "data": old[1] if action == "set" else None}, how
+        assert _literal_payload(entry["readback_command"])["action"] == "read"
+        # Without the literal admitted, the same difference is refused before any write.
+        with pytest.raises(ValueError, match="exactly"):
+            harness._restore_plan(before, after, root, whole_key=True)
+    # Neighbouring names, the same name in another subkey and a non-binary value stay refused.
+    for key, name, kind, data in ((RECENT, "C:\\Invented", "REG_BINARY", "01"),
+                                  (RECENT, "C:\\Invented\\\\", "REG_BINARY", "01"),
+                                  (RECENT, "c:\\invented\\", "REG_BINARY", "01"),
+                                  (RECENT, "C:\\Other\\", "REG_BINARY", "01"),
+                                  (RECENT, "C:\\Invented\\tool.exe", "REG_BINARY", "01"),
+                                  (INVENTED_KEY + "\\Options", LITERAL, "REG_BINARY", "01")):
+        for before, after in ((snapshot(base), snapshot(base, (key, name, kind, data))),
+                              (snapshot(base, (key, name, kind, data)), snapshot(base))):
+            with pytest.raises(ValueError, match="exactly"):
+                harness._restore_plan(before, after, root, whole_key=True, literal=literal)
+    # Every present reading of the literal must be REG_BINARY: created, restored over, or restored as another type.
+    for before, after in ((snapshot(base), snapshot(base, (RECENT, LITERAL, "REG_SZ", "x"))),
+                          (snapshot(base), snapshot(base, (RECENT, LITERAL, "REG_DWORD", "0x1"))),
+                          (snapshot(base, (RECENT, LITERAL, *old)), snapshot(base, (RECENT, LITERAL, "REG_SZ", "x"))),
+                          (snapshot(base, (RECENT, LITERAL, "REG_SZ", "x")), snapshot(base, (RECENT, LITERAL, *new))),
+                          (snapshot(base, (RECENT, LITERAL, "REG_SZ", "x")), snapshot(base))):
+        with pytest.raises(ValueError, match="exactly"):
+            harness._restore_plan(before, after, root, whole_key=True, literal=literal)
+    # The same holds when the recent-files subkey itself appeared (it would go as a whole subkey).
+    without_recent = {"keys": {k: v for k, v in snapshot(base)["keys"].items() if k != literal[0]}, "values": {}}
+    for kind, data in (("REG_SZ", "x"), ("REG_DWORD", "0x1"), ("REG_MULTI_SZ", "x")):
+        with pytest.raises(ValueError, match="exactly"):
+            harness._restore_plan(without_recent, snapshot(base, (RECENT, LITERAL, kind, data)), root,
+                                  whole_key=True, literal=literal)
+    appeared = harness._restore_plan(without_recent, snapshot(base, (RECENT, LITERAL, *new)), root, whole_key=True,
+                                     literal=literal)
+    assert [entry["action"] for entry in appeared] == ["delete_key"]  # binary: the subkey goes as a whole
+    # As before this change, a subkey that appeared goes as a whole whatever its values are named: no value name
+    # enters that command, and nothing is written value by value.
+    odd = harness._restore_plan(without_recent, snapshot(base, (RECENT, "C:\\Other\\", "REG_BINARY", "01")), root,
+                                whole_key=True, literal=literal)
+    assert [(entry["action"], entry["command"]) for entry in odd] == [("delete_key", f'reg delete "{RECENT}" /f')]
+    # Both the write and its read-back command are bounded: the longest data whose set command fits is admitted
+    # only when its read-back fits too; a value too long for one guest command is refused while the plan is made.
+    for size in range(1, 4200):
+        try:
+            harness._literal_value_command(RECENT, LITERAL, "set", "AB" * size)
+        except ValueError:
+            break
+    assert harness._literal_value_command(RECENT, LITERAL, "set", "AB" * (size - 1))
+    plan = harness._restore_plan(snapshot(base, (RECENT, LITERAL, "REG_BINARY", "AB" * (size - 1))),
+                                 snapshot(base, (RECENT, LITERAL, *new)), root, whole_key=True, literal=literal)
+    assert all(len(command) <= harness.LITERAL_COMMAND_LIMIT
+               for command in (plan[0]["command"], plan[0]["readback_command"]))
+    with pytest.raises(ValueError, match="too long"):
+        harness._restore_plan(snapshot(base, (RECENT, LITERAL, "REG_BINARY", "AB" * 4096)),
+                              snapshot(base, (RECENT, LITERAL, *new)), root, whole_key=True, literal=literal)
+
+
+@pytest.mark.parametrize("guard", [KEY_GUARD, RESTORING_GUARD], ids=["key", "recent_files"])
+@pytest.mark.parametrize("how", ["created", "changed", "removed"])
+def test_settings_guard_restores_the_literal_value_and_verifies_the_whole_key(tmp_path, guard, how):
+    guest = FakeGuest()
+    if how != "created":
+        guest.values[(RECENT, LITERAL)] = ("REG_BINARY", _hex("C:\\earlier\\model.mod"))
+    before = dict(guest.values)
+    change = {"created": _created, "changed": _created,
+              "removed": lambda guest_: guest_.values.pop((RECENT, LITERAL))}[how]
+    record_ = guarded(tmp_path, guest, _literal_solve(lambda guest_: (guest_.open_model("C:\\work\\a.mod"),
+                                                                      change(guest_))), guard=guard)
+    result = record_["settings_guard"]
+    assert result["status"] in ("settings_restored", "recent_files_restored") and guest.values == before
+    assert [(item["action"], item["name"]) for item in guest.literal_writes] == \
+        [("delete" if how == "created" else "set", LITERAL)]
+    assert all(entry["completed"] for entry in result["write_log"])
+    assert any(entry["value"] == f"{RECENT}\\{LITERAL}" for entry in result["write_log"])
+    # Every other write still goes through reg with allow-listed names; the literal never appears as a word.
+    assert all(LITERAL not in command for command in guest.writes)
+    assert guest.counts["query"] == 3  # before, after, and the whole-key verification
+
+
+def test_settings_guard_still_refuses_a_neighbouring_name_beside_the_literal(tmp_path):
+    guest = FakeGuest()
+
+    def change(guest_):
+        _created(guest_)
+        guest_.values[(RECENT, "C:\\Other\\")] = ("REG_BINARY", "01")
+
+    record_ = guarded(tmp_path, guest, _literal_solve(change), guard=KEY_GUARD)
+    result = record_["settings_guard"]
+    assert result["status"] == "settings_restore_failed" and "nothing was written" in result["reason"]
+    assert guest.writes == [] and guest.literal_writes == []
+    assert any(entry["value"].endswith("\\" + LITERAL) for entry in result["changed_values"])
+
+
+@pytest.mark.parametrize("readback", ["unchanged", "applied"])
+def test_settings_restore_settles_an_unknown_literal_write_by_reading_it_back(tmp_path, readback):
+    guest = FakeGuest()
+    before = dict(guest.values)
+    guest.write_results[1] = TRANSPORT
+    if readback == "applied":
+        guest.applied_anyway.add(1)
+    record_ = guarded(tmp_path, guest, _literal_solve(_created), guard=KEY_GUARD)
+    result = record_["settings_guard"]
+    assert result["status"] == "settings_restored" and guest.values == before
+    entry = result["write_log"][0]
+    assert entry["value"] == f"{RECENT}\\{LITERAL}"
+    if readback == "unchanged":
+        assert entry["attempts"] == 2 and entry["readback"] == "unchanged"
+        assert [item["outcome"] for item in entry["attempt_log"]] == ["unknown", "completed"]
+    else:
+        assert entry["readback"] == "target" and entry["attempt_log"][0]["outcome"] == "completed (read back)"
+    readbacks = [command for command in guest.commands if (_literal_payload(command) or {}).get("action") == "read"]
+    assert len(readbacks) == 1 and _literal_payload(readbacks[0])["name"] == LITERAL
+
+
+@pytest.mark.parametrize("found", [("REG_BINARY", "FF"), "unreadable"])
+def test_settings_restore_stops_when_the_literal_reads_back_as_neither_value(tmp_path, found):
+    guest = FakeGuest()
+    guest.write_results[1] = TRANSPORT
+    guest.readback[1] = found
+    with pytest.raises(harness.RestoreWriteFailed) as raised:
+        guarded(tmp_path, guest, _literal_solve(_created), guard=KEY_GUARD)
+    result = raised.value.settings_guard
+    assert result["status"] == "settings_restore_failed"
+    assert len(guest.writes) == 1 and guest.literal_writes == []  # never applied, never issued again
+    entry = result["write_log"][0]
+    assert entry["readback"] == ("unreadable" if found == "unreadable" else "third_value")
+    assert entry["outcome"] == "unknown" and not entry["completed"] and entry["attempts"] == 1
+
+
+def test_restore_recorded_settings_restores_a_surrogate_19_value_record_with_the_literal(tmp_path):
+    guest = FakeGuest()
+    options = INVENTED_KEY + "\\Options"
+    for number in range(1, 16):
+        guest.values[(options, f"Setting {number:02d}")] = ("REG_BINARY", f"{number:02X}")
+    baseline = dict(guest.values)
+
+    def change(guest_):  # 17 values changed and 2 added, one of them the literal
+        for number in range(1, 16):
+            guest_.values[(options, f"Setting {number:02d}")] = ("REG_BINARY", f"{number + 0x80:02X}")
+        guest_.open_model("C:\\invented-work\\cx-g\\model.mod")  # 1 and N changed, 3 added (2 shifts)
+        guest_.values[(RECENT, "2")] = baseline[(RECENT, "2")]
+        _created(guest_)
+
+    record_ = guarded(tmp_path, guest, _literal_solve(change), guard=INVENTED_GUARD)  # detect only
+    recorded = [entry for entry in record_["settings_guard"]["changed_values"] if "value" in entry]
+    assert len(recorded) == 19 and sum(entry["before"] is None for entry in recorded) == 2
+    second = tmp_path / "second"
+    second.mkdir()
+    config = dataclasses.replace(fake_config(second), settings_guard=KEY_GUARD)
+    # A recorded value that no longer has its recorded after-state: nothing is written, the literal included.
+    kept = guest.values[(RECENT, LITERAL)]
+    guest.values[(RECENT, LITERAL)] = ("REG_BINARY", "FF")
+    stopped = harness.restore_recorded_settings(config, recorded, runner=guest.runner(solved, config))
+    assert stopped["status"] == "changed_since_record" and guest.writes == [] and guest.literal_writes == []
+    assert [item["value"] for item in stopped["values"]] == [f"{RECENT}\\{LITERAL}"]
+    guest.values[(RECENT, LITERAL)] = kept
+    result = harness.restore_recorded_settings(config, recorded, runner=guest.runner(solved, config))
+    assert result["status"] == "settings_restored" and guest.values == baseline
+    assert len(result["write_log"]) == 19 and {item["status"] for item in result["values"]} == \
+        {"restored_and_verified"}
+    assert [(item["action"], item["name"]) for item in guest.literal_writes] == [("delete", LITERAL)]
 
 
 def test_pilot_authored_dir_allows_the_gui_fallback_only_with_the_whole_key_restore(tmp_path, monkeypatch):
