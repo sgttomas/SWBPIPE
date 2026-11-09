@@ -72,27 +72,37 @@ pub(super) fn member(
         )
     }
 }
-/// The current straight pressure model's wall increment is 2nu*pAi;
-/// its effective increment is (2nu-1)*pAi. Coefficients are formed at p,
-/// with Ai on the pressure bore (D-5).
+/// The straight pressure model's wall increment is kappa*pAi and its
+/// effective increment (kappa-1)*pAi: kappa = 2nu when the case includes
+/// pressure elongation, kappa = 1 when it does not (RT-L2, DEL-04-07
+/// `pressure-elongation.md` §4.3), where S = N_m is the recovery itself.
+/// Coefficients are formed at p, with Ai on the pressure bore (D-5).
 pub(super) fn pressure_adjustment(
     recovery: &CertifiedMemberRecovery,
     state: &pressure_runtime::ExactPressurePipeState,
     wall: bool,
 ) -> Result<CertifiedMemberRecovery, RecoveryFailure> {
+    if !state.elongation_included && !wall {
+        return Ok(recovery.clone());
+    }
     let fluid = certified_pressure_area_product(
         state.pressure.pressure_pa(),
         state.sections.outside_diameter_m(),
         state.sections.pressure_wall_m(),
     )?;
-    let two_nu = CertifiedValue::exact(2.0)?
-        .product(CertifiedValue::exact(state.material.poisson_ratio())?)?;
-    let coefficient = if wall {
-        two_nu
+    // Not included: the wall increment is pAi itself (kappa = 1).
+    let increment = if state.elongation_included {
+        let two_nu = CertifiedValue::exact(2.0)?
+            .product(CertifiedValue::exact(state.material.poisson_ratio())?)?;
+        let coefficient = if wall {
+            two_nu
+        } else {
+            two_nu.add(CertifiedValue::exact(-1.0)?)?
+        };
+        fluid.product(coefficient)?
     } else {
-        two_nu.add(CertifiedValue::exact(-1.0)?)?
+        fluid
     };
-    let increment = fluid.product(coefficient)?;
     let mut out = recovery.clone();
     out.ends[0] = out.ends[0].add_value(increment.product(CertifiedValue::exact(-1.0)?)?)?;
     out.ends[6] = out.ends[6].add_value(increment)?;
@@ -636,6 +646,10 @@ pub(super) fn straight_stress_spans(
                 state.sections.outside_diameter_m(),
                 state.sections.pressure_wall_m(),
             )?;
+            // RT-L2: the wall increment kappa*pAi (kappa = 2nu included, 1 not).
+            if !state.elongation_included {
+                return Ok(fluid);
+            }
             let coefficient = CertifiedValue::exact(2.0)?
                 .product(CertifiedValue::exact(state.material.poisson_ratio())?)?;
             fluid.product(coefficient)
@@ -1047,14 +1061,21 @@ pub(super) fn fallback_circular_maximum(
         }
         let fluid = FallbackError::exact(state.pressure.pressure_pa())?
             .mul(FallbackError::exact_scaled(ai)?)?;
-        let coefficient = FallbackError::exact(2.0)?
-            .mul(FallbackError::exact(state.material.poisson_ratio())?)?;
+        // RT-L2: kappa*pAi with kappa = 2nu when the case includes pressure
+        // elongation; pAi itself (kappa = 1) when it does not.
+        let increment = if state.elongation_included {
+            let coefficient = FallbackError::exact(2.0)?
+                .mul(FallbackError::exact(state.material.poisson_ratio())?)?;
+            fluid.mul(coefficient)?
+        } else {
+            fluid
+        };
         // DIRECT order: mechanical E4 -> wall FMA -> Scaled area division.
         // One extra whole-constituent RN allowance bounds exponent alignment
         // (<=2*min_subnormal*S) alongside the mul/add/FMA rounding. Exact
         // power normalization contributes no rounding. The source area is
         // its actual dyadic; a normal getter is never presumed exact.
-        let wall = fluid.mul(coefficient)?.add(rows[0])?.rounded()?;
+        let wall = increment.add(rows[0])?.rounded()?;
         sample[0] = wall.divided_scaled(area)?;
         // GENERIC order: endpoint FMA -> wall publication -> E4 -> A div.
         // The extra post-wall E4 allowance is explicitly charged against the
@@ -1286,10 +1307,11 @@ mod fallback_transport_tests {
             material,
             arc: None,
             eigenload_pair: [0.0, 0.0],
+            elongation_included: true,
         };
         let nominal = pressure_exact::SectionBasis::Nominal;
         let membrane = |mechanical: f64| {
-            let forces = sections.recover_wall_effective(mechanical, material, pressure).unwrap();
+            let forces = sections.recover_wall_effective(mechanical, material, pressure, true).unwrap();
             sections.membrane(nominal, forces).unwrap()
         };
         let area = annulus.wall_area_m2();

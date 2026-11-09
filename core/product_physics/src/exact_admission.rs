@@ -144,6 +144,7 @@ pub(crate) fn pressure_v3_formulation_basis_with_source(
     load_state: bool,
     connectors: bool,
     selected: bool,
+    elongation_named: bool,
 ) -> FormulationBasis {
     // Whole static strings: neither identity nor limitations are substituted at
     // run time. D-5/D-6 (DEL-05-03 Design `section-bases-and-timoshenko.md`
@@ -164,6 +165,11 @@ pub(crate) fn pressure_v3_formulation_basis_with_source(
         identity.to_string(),
         "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed.".to_string(),
         "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.".to_string(),
+        // RT-L2 (DEL-04-07 `pressure-elongation.md` §5): immediately after the D-3
+        // sentence, exactly one of two fixed statements says whether any load case
+        // includes pressure elongation.
+        if elongation_named { PRESSURE_ELONGATION_INCLUDED_LIMITATION } else { PRESSURE_ELONGATION_NOT_INCLUDED_LIMITATION }
+            .to_string(),
         "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.".to_string(),
         "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.".to_string(),
         "Signed support actions are attributed only for admitted linear restraints, springs and nonlinear supports and, as its constant force, for a consumed constant-effort support; ambiguous coincident rigid attribution is refused.".to_string(),
@@ -184,6 +190,13 @@ pub(crate) fn pressure_v3_formulation_basis_with_source(
     }
     FormulationBasis { profile_id: PRESSURE_PROFILE_ID.to_string(), limitations }
 }
+
+/// RT-L2 (`pressure-elongation.md` §5): the statement of a model whose settings name
+/// no load case that includes pressure elongation (the default).
+pub(crate) const PRESSURE_ELONGATION_NOT_INCLUDED_LIMITATION: &str = "Pressure elongation is not included in any load case: the closed-end free pressure strain is omitted; pressure thrust at unbalanced locations is applied.";
+/// RT-L2 (`pressure-elongation.md` §5): the statement of a model whose settings name
+/// the operating load cases that include pressure elongation.
+pub(crate) const PRESSURE_ELONGATION_INCLUDED_LIMITATION: &str = "Pressure elongation is included only in the operating load cases the model settings name, as the closed-end free strain (1 − 2ν)·p·A_i/(E·A_s), with A_i on the pressure bore and A_s the nominal section area; it is not a thin-wall mean-diameter form.";
 
 /// W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md` §3): a case's
 /// `equivalent_static` on a load/reference-state document. Generated loads

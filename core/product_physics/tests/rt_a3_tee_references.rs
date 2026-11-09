@@ -112,7 +112,9 @@ fn document(material: &Value, case: &Value) -> Value {
             "elastic_modulus": quantity(e, "Pa"), "poisson_ratio": quantity(0.3, "1"), "provenance": PROVENANCE}],
         "supports": supports, "components": components,
         "load_cases": [{"id": CASE, "primitive_loads": loads, "pressure_regions": regions, "provenance": PROVENANCE}],
-        "combinations": []},
+        "combinations": [],
+        // RT-L2: the references are today's mechanics, pressure elongation included.
+        "model_settings": {"pressure_elongation": {"operating_load_cases": [CASE]}}},
         "materials": []})
 }
 
@@ -418,4 +420,27 @@ fn the_readers_admit_two_tees_on_one_end_and_refuse_a_forged_source_reference() 
         }
         assert_ne!(verdict(&forged, &document["model"]), json!({"ok": true}), "{mode:?}");
     }
+}
+
+#[path = "common/pressure_elongation.rs"]
+mod pressure_elongation;
+
+/// RT-L2 (DEL-04-07 `pressure-elongation.md` §4.3): with pressure elongation not
+/// included, each tee and junction case is the unbalanced-thrust model: a closed
+/// junction carries no pressure load, a compensated terminal its member's
+/// uncancelled cap p·A_i, and every member's N_w exceeds the p = 0 value by p·A_i.
+#[test]
+fn not_included_tees_and_junctions_carry_only_the_unbalanced_thrust() {
+    let references = references();
+    let material = &references["material"];
+    let mut checked = 0;
+    for case in references["cases"].as_array().unwrap().iter().filter(|c| c["status"] == "case") {
+        let document = pressure_elongation::without_elongation(&document(material, case));
+        for mode in MODES {
+            let off = pressure_elongation::assert_off_is_the_unbalanced_thrust(&document, mode, &format!("{} {mode:?}", case["id"]));
+            pressure_elongation::assert_case_token(&off, CASE, "not_included");
+        }
+        checked += 1;
+    }
+    assert_eq!(checked, 10);
 }

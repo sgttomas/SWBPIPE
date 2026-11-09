@@ -255,7 +255,7 @@ fn unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane() {
     // enclosure is unclamped and narrow enough for its midpoint to decide.
     let wall = state
         .sections
-        .recover_wall_effective(0.0, state.material, state.pressure)
+        .recover_wall_effective(0.0, state.material, state.pressure, state.elongation_included)
         .unwrap()
         .wall_n;
     assert!(wall > 0.0 && wall < f64::MIN_POSITIVE, "{wall:e}");
