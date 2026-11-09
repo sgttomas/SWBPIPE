@@ -104,15 +104,20 @@ function operands(combination: JsonObject, pointer: string): ModelInputCell {
   return joined(combination, pointer, "operand_ids", ", ");
 }
 
-/** A load's target: `"<type>:<node or pipe>"`; null when it names neither a node nor a pipe. */
+/** A load's target: `"<type>:<node, pipe or support>"`, followed by `" <dof>"` when the target
+ * names one; null when it names none of the three. */
 function target(load: JsonObject, pointer: string): ModelInputCell {
   const at = `${pointer}/target`;
   const value = optionalObject(load.target, at);
   if (!value) return null;
   const kind = member(value, at, "type");
-  const node = member(value, at, "node");
-  const named = node === null ? member(value, at, "pipe") : node;
-  return kind !== null && named !== null ? `${kind}:${named}` : null;
+  let named: ModelInputCell = null;
+  for (const key of ["node", "pipe", "support"]) {
+    named = member(value, at, key);
+    if (named !== null) break;
+  }
+  const dof = member(value, at, "dof");
+  return kind !== null && named !== null ? `${kind}:${named}${dof !== null ? ` ${dof}` : ""}` : null;
 }
 
 function nested(object: JsonObject, at: string, key: string) {

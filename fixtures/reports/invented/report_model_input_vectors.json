@@ -617,7 +617,7 @@
   },
   {
    "name": "support_target",
-   "reason": "a primitive load on a support target, which names neither a node nor a pipe (null target)",
+   "reason": "a primitive load on a support target, shown as its type, support and DOF",
    "model_fixture": "fixtures/results/combination_certificate_corpus.json",
    "model_pointer": "/documents/3/model",
    "expected": {
@@ -746,7 +746,7 @@
       "case_id": "case:O-LIFT",
       "load_id": "case:O-LIFT-S",
       "category": "imposed_displacement",
-      "target": null,
+      "target": "support:support:ANCHOR UZ",
       "direction": "UZ",
       "magnitude": "0.001953125 m"
      },
@@ -762,7 +762,7 @@
       "case_id": "case:O-ACT",
       "load_id": "case:O-ACT-S",
       "category": "imposed_displacement",
-      "target": null,
+      "target": "support:support:ANCHOR UZ",
       "direction": "UZ",
       "magnitude": "0.00048828125 m"
      }

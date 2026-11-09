@@ -265,7 +265,7 @@ line and `result_rows_all`'s overlap rule are unchanged.
   | `input_geometry` | `nodes`: id, label, x, y, z (stored numbers; the model's `project.units.length` names their unit). `pipes`: id, label, from, to, material, outside diameter, wall thickness, section_ref. `components`: id, label, kind |
   | `input_materials_sections` | `materials`: id, label, elastic modulus, shear modulus, Poisson ratio, thermal expansion coefficient. `sections`: id, name, section type, outside diameter, wall thickness |
   | `input_supports` | id, label, node, family, restraints (joined by `", "`), stiffness (`"<dof>: <quantity>"`), nonlinear behaviour |
-  | `input_loads` | One row per primitive load, cases in model order: case id, load id, category, target (`"<type>:<node or pipe>"`), direction, magnitude |
+  | `input_loads` | One row per primitive load, cases in model order: case id, load id, category, target (`"<type>:<node, pipe or support>"`, then `" <dof>"` when the target names one), direction, magnitude |
 
 - **Disclosure.** Each table states that it lists values as entered in their
   stored units, unconverted, and that provenance text and notes are not

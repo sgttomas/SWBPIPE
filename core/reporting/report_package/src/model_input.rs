@@ -278,18 +278,26 @@ fn input_supports(model: &Value) -> Result<Value, String> {
     Ok(Value::Array(rows))
 }
 
-/// A load's target (§2.7): `"<type>:<node or pipe>"`; null when the target
-/// names neither a node nor a pipe.
+/// A load's target (§2.7): `"<type>:<node, pipe or support>"`, followed by
+/// `" <dof>"` when the target names one; null when the target names none of
+/// the three.
 fn target(load: &Value, pointer: &str) -> Result<Value, String> {
     let at = format!("{pointer}/target");
     let Some(target) = optional_object(load.get("target"), &at)? else { return Ok(Value::Null) };
     let kind = member(target, &at, "type")?;
-    let named = match member(target, &at, "node")? {
-        Value::Null => member(target, &at, "pipe")?,
-        node => node,
-    };
+    let mut named = Value::Null;
+    for key in ["node", "pipe", "support"] {
+        named = member(target, &at, key)?;
+        if !named.is_null() {
+            break;
+        }
+    }
+    let dof = member(target, &at, "dof")?;
     Ok(match (kind, named) {
-        (Value::String(kind), Value::String(named)) => Value::String(format!("{kind}:{named}")),
+        (Value::String(kind), Value::String(named)) => Value::String(match dof {
+            Value::String(dof) => format!("{kind}:{named} {dof}"),
+            _ => format!("{kind}:{named}"),
+        }),
         _ => Value::Null,
     })
 }
@@ -422,7 +430,7 @@ mod tests {
         let operands: Vec<&Value> = tables["load_combinations"].as_array().unwrap().iter().map(|row| &row["operands"]).collect();
         assert_eq!(operands, [&json!("1 \u{00d7} a; -0.5 \u{00d7} c0"), &json!("a \u{2212} b"), &json!("a, b"), &Value::Null]);
         let targets: Vec<&Value> = tables["input_loads"].as_array().unwrap().iter().map(|row| &row["target"]).collect();
-        assert_eq!(targets, [&json!("node:node:2"), &json!("element:pipe:1"), &Value::Null]);
+        assert_eq!(targets, [&json!("node:node:2"), &json!("element:pipe:1"), &json!("support:support:1 UZ")]);
         assert_eq!(tables["input_loads"][1]["magnitude"], json!("-2.5 N/m"));
         assert!(tables.get("input_materials_sections").is_none());
         assert_eq!(model_input_tables(&model, Some(&listing(&["result_rows_all"]))).unwrap(), None);

@@ -56,7 +56,7 @@ const MODELS = [
   },
   {
     name: "support_target",
-    reason: "a primitive load on a support target, which names neither a node nor a pipe (null target)",
+    reason: "a primitive load on a support target, shown as its type, support and DOF",
     fixture: "fixtures/results/combination_certificate_corpus.json",
     pointer: "/documents/3/model"
   }
@@ -99,7 +99,7 @@ describe("the model-input projection P(M, C) (§2.7)", () => {
     const bases = new Set(tables.flatMap((table) => table.load_combinations!.map((row) => row.basis)));
     expect([...bases].sort()).toEqual(["absolute_sum", "mechanics", "range_envelope", "result_state_subtraction", "srss"]);
     expect(new Set(tables.flatMap((table) => table.input_loads!.map((row) => row.category))).size).toBeGreaterThanOrEqual(4);
-    expect(tables.some((table) => table.input_loads!.some((row) => row.target === null))).toBe(true);
+    expect(tables.some((table) => table.input_loads!.some((row) => /^support:\S+ \S+$/.test(String(row.target))))).toBe(true);
     for (const key of ["pipes", "components", "nodes"] as const) expect(tables.some((table) => table.input_geometry![key].length > 0)).toBe(true);
     expect(tables.some((table) => table.input_materials_sections!.sections.length > 0)).toBe(true);
     expect(tables.some((table) => table.input_supports!.some((row) => row.stiffness !== null))).toBe(true);
