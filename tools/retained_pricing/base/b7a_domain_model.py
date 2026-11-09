@@ -528,6 +528,7 @@ def text_decisions(snapshot, resolved):
     re_ = "core/reporting/result_export/src/"
     inp = {"bytes": 128, "source": "IN128"}
     static = {"bytes": 64, "source": "STATIC"}
+    # RT-S3 CE: Mapper carries the 19 unchanged post-branch lib.rs audit sites +6; classes stay.
     audits = [
 
         # B7b: snapshot keys follow B7b's unchanged lines (B7a 10627.. +5).
@@ -562,26 +563,26 @@ def text_decisions(snapshot, resolved):
         # RT-A3 §4 D3 (§8.53): every lib.rs key below moved with unchanged text (+2 after the certificate's module
         # lines, +11 after the LoadCaseSolve field, +22 after the early-return fields, +27 after the operand map,
         # take and publish); retained_precision.rs +1 (G4's comment line), unchanged text.
-        (pp + "lib.rs:12465", {"load_case_id": inp}),
-        (pp + "lib.rs:12479", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:12486", {"load.load_id": inp, "bend.pipe_id": inp}),
-        (pp + "lib.rs:12491", {"load.load_id": inp}),
-        (pp + "lib.rs:12492", {"bend.pipe_id": inp}),
-        (pp + "lib.rs:12493", {"bend.component_id": inp}),
-        (pp + "lib.rs:12494", {"load_case_id": inp}),
-        (pp + "lib.rs:12553", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:12560", {"load.load_id": inp, "bend.pipe_id": inp}),
-        (pp + "lib.rs:12565", {"load.load_id": inp}),
-        (pp + "lib.rs:12566", {"bend.pipe_id": inp}),
-        (pp + "lib.rs:12567", {"bend.component_id": inp}),
-        (pp + "lib.rs:12568", {"load_case_id": inp}),
-        (pp + "lib.rs:12607", {"stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:12614", {"load.load_id": inp, "load_case_id": inp}),
+        (pp + "lib.rs:12471", {"load_case_id": inp}),
+        (pp + "lib.rs:12485", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:12492", {"load.load_id": inp, "bend.pipe_id": inp}),
+        (pp + "lib.rs:12497", {"load.load_id": inp}),
+        (pp + "lib.rs:12498", {"bend.pipe_id": inp}),
+        (pp + "lib.rs:12499", {"bend.component_id": inp}),
+        (pp + "lib.rs:12500", {"load_case_id": inp}),
+        (pp + "lib.rs:12559", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:12566", {"load.load_id": inp, "bend.pipe_id": inp}),
+        (pp + "lib.rs:12571", {"load.load_id": inp}),
+        (pp + "lib.rs:12572", {"bend.pipe_id": inp}),
+        (pp + "lib.rs:12573", {"bend.component_id": inp}),
+        (pp + "lib.rs:12574", {"load_case_id": inp}),
+        (pp + "lib.rs:12613", {"stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:12620", {"load.load_id": inp, "load_case_id": inp}),
         # W-16 slice c (§8.27): certified_loads' two generated-id prefix formats move into lib.rs'
         # is_generated_equivalent_static_load (the kind arm and the any-kind arm) with the same input id; both are
         # reached only from an admitted equivalent-static case (W16C-ES: none on D1).
-        (pp + "lib.rs:11028", {"load_case.id": inp}),
-        (pp + "lib.rs:11029", {"load_case.id": inp}),
+        (pp + "lib.rs:11034", {"load_case.id": inp}),
+        (pp + "lib.rs:11035", {"load_case.id": inp}),
         (pp + 'retained_product.rs:4773', {"stable_suffix(id)": inp}),
         (pp + 'retained_product.rs:4774', {"id": inp}),
         (pp + 'retained_product.rs:4782', {"id": inp, "id.len()": inp, "component": static}),
@@ -593,8 +594,8 @@ def text_decisions(snapshot, resolved):
         (pp + 'retained_product.rs:4851', {"ordinary.model_ref": inp}),
         (pp + "lib.rs:1426", {"semantic_contract_id": static}),
         (pp + "lib.rs:3765", {"context.semantic_id()": static}),
-        (pp + "lib.rs:6407", {"support.id": inp}),
-        (pp + "lib.rs:7156", {"pipe.element_id": inp}),
+        (pp + "lib.rs:6413", {"support.id": inp}),
+        (pp + "lib.rs:7162", {"pipe.element_id": inp}),
         (pp + "model_format.rs:30", {"version": static}),  # model document 0.8.0 (§8.26): +2 (the module comment), same text
         # ccb19ba0bf: +17 lines (section_allowances), same text.
         # W1 G8 scope: +6 lines before these unchanged requested-mode bodies.
