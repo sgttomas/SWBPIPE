@@ -68,10 +68,12 @@ LN = {
     # RT-A3 §4 D3 (§8.53): all four lib.rs sites +27, unchanged text (the certificate's module lines, LoadCaseSolve
     # field, operand map, take, publish call, seven early-return `certificate_operand: None` lines and the operand's
     # formation precede them).
-    'unit_message': 10709, # lib.rs `message.into()` (9162) [9159]
-    'suffix': 15755,      # lib.rs `id.replace(':', "-")` (13614) [13619]
-    'diag_fn': 15704,     # lib.rs fn diag (13563) [13568]
-    'suffix_fn': 15754,   # lib.rs fn stable_suffix (13613) [13618]
+    # RT-A3 S6 D3 (§8.59): +16 (unit_message: the S6 formulation-basis bindings and the case solve's motion lines
+    # precede it) and +52 (the three helpers: load_state_spring_ground precedes them), unchanged text.
+    'unit_message': 10725, # lib.rs `message.into()` (9162) [9159]
+    'suffix': 15807,      # lib.rs `id.replace(':', "-")` (13614) [13619]
+    'diag_fn': 15756,     # lib.rs fn diag (13563) [13568]
+    'suffix_fn': 15806,   # lib.rs fn stable_suffix (13613) [13618]
     # Model document 0.9.0 D3 (§8.36): physics_source.rs's require moves +23 with unchanged text (model_uses_conditions
     # and the three condition-set, spectrum and set-reference predicates precede it); the new details are at most 24 B
     # (ACTUAL_CONDITION_SET_REF), so the longest stays ACTUAL_MATERIAL_DUPLICATE_TEMPERATURE's 37 B and 40 holds.
@@ -152,11 +154,13 @@ PROBLEM_PARENTS = [PR + x for x in (   # B7a: 188, 234, 531, 545, 618, 1091, 133
     # validate_profile's region branch); the later parents move +49 with unchanged text.
     # RT-A3 increment 4 D3 (§8.49, RTA3NL-PP): validate_profile's S6 context and its verdict match add 11 lines inside
     # validate_profile (its 30 `problem` calls unchanged); every later parent moves +11 with byte-identical text.
-    '187:exact_member_recovery', '211:validate_profile', '532:refuse_compensated_shared_terminals',
+    # RT-A3 S6 D3 (§8.59): validate_profile drops the S6 context and its verdict match (the table judges every family;
+    # its 30 `problem` calls unchanged); every later parent moves -10 with byte-identical text.
+    '187:exact_member_recovery', '211:validate_profile', '522:refuse_compensated_shared_terminals',
     # RT-A3 increment 1 D3 (§8.33): junction_closure_warnings, its per-case helper and their own `warn` helper (no call
     # of `problem`) precede check_suffixes; the later parents move +88 with unchanged text.
-    '657:check_suffixes', '671:normalize_region_units', '744:assemble_pressure_case', '1228:add_joint_terms',
-    '1478:finish_source_groups', '1626:traverse_region', '1893:refuse_reducers_outside_step', '1970:collinear_run')]
+    '647:check_suffixes', '661:normalize_region_units', '734:assemble_pressure_case', '1218:add_joint_terms',
+    '1468:finish_source_groups', '1616:traverse_region', '1883:refuse_reducers_outside_step', '1960:collinear_run')]
 # RT-A3 reducer 2a (§8.38): the new problem parent is inside the loop over reducers_in_regions.
 # D1.4 admits no components and D1.5 has empty E regions, so that classifier returns an empty Vec
 # (no push/table initialization), the loop has no iteration and problem receives no new message/ref owner.

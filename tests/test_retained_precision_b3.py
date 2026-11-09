@@ -671,8 +671,10 @@ B3B_PASSES = {
 # and 3bb19d83.../aeb67070....
 # Model 0.9.0 re-pin (S1; DEL-02-01 Design model-document-0.9.0.md §3.6): read from the regenerated producer bytes on the
 # registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-EXACT_PINNED = {"sparse_interactive": ("418d74b398604cc98ee328a004175494b04f48998f819a5243d84ae1bbb70bfc", "4105eac05a90ef4d3432d695f7c339ff50630965f4967fd83837d6192e07848e"),
-                "dense_scrutiny": ("0424d9d1015988e91ece8d223a6067fefdf150501ecefe5c06b1b54618d13bc2", "5d1873121399be8dc0f310287a00b257197ccb0f9551a1edb726ec1fe7b30bc9")}
+# RT-A3 S6 (§8.59): S1's nonlinear clause restated; PP EXACT_PINNED's S6 re-pin (reseal-to-base proven); it replaced
+# 418d74b3.../4105eac0... and 0424d9d1.../5d187312....
+EXACT_PINNED = {"sparse_interactive": ("dcd8b13a7b62212eb933289da2a271cfdc47ae7930bf1985b9a6d20ecd3120a0", "9b88b65706bc9972eef15cb0b79bd1bcc4cde51477a83d574717044e0b399319"),
+                "dense_scrutiny": ("a8959bc8489b6c012c843f887c5cb7752ef31daed4d4585e72d630616087a3eb", "65009c8e43461834882a7164780f1f0b77f9336edfcdd079dcde3d82df33f80d")}
 KINDS = ("synthetic", "producer")
 
 

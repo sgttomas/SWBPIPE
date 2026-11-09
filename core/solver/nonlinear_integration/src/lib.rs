@@ -248,8 +248,11 @@ impl CurvedBendStiffnessElement {
 pub struct NonlinearFrameSolveInput {
     pub node_count: usize,
     pub elements: Vec<FrameElement>,
-    /// T4-U3 (S5): objective connectors are not assembled by this loop;
-    /// `validate_input` refuses a non-empty list (fail closed until T5).
+    /// R-4 §3.7 S6: objective connectors (with their tie rods) are assembled
+    /// beside the frame elements in every linearized iteration, as the
+    /// confirmation re-forms them. Each is a validated kernel object; its
+    /// node indices are checked by the assembly. Their reference loads and
+    /// joint pressure terms belong to the caller's force ledger.
     pub connectors: Vec<open_pipe_stress_frame_kernel::connector::ObjectiveConnector>,
     pub curved_bend_elements: Vec<CurvedBendStiffnessElement>,
     pub force: DenseVector,
@@ -1369,7 +1372,7 @@ pub fn assembled_loop_assumptions() -> Vec<String> {
         "Friction support normal reactions are either explicit input evidence or derived from the same linearized iterate through a named support-normal DOF supplied by the caller.".to_string(),
         "A friction support remains sliding only when its current post-force contact, motion, applied-force, and reported-force evidence is admissible; an inconsistent trial returns to the exact sticking candidate on the next iteration.".to_string(),
         "A support classified sliding applies a bounded +/- mu*N tangential force opposing the observed motion, using the current iterate's normal-reaction evidence; a sliding state seeded before any solved iterate has one explicit nonconvergent warm-start iteration so the bounded force is tried without treating the seed as physical history.".to_string(),
-        "Objective connectors are not assembled by this loop; a model containing one is refused (T5).".to_string(),
+        "Objective connectors and their tie rods are assembled beside frame elements in every linearized iteration; their reference loads and joint pressure terms are fixed terms of the caller's force.".to_string(),
         "Explicit curved-bend macro-element global stiffness slots supplied by the caller are assembled beside frame elements in every linearized iteration.".to_string(),
     ]
 }
@@ -1429,10 +1432,20 @@ fn validate_input(input: &NonlinearFrameSolveInput) -> Result<(), NonlinearInteg
             detail: "node_count must be positive".to_string(),
         });
     }
-    if !input.connectors.is_empty() {
-        return Err(NonlinearIntegrationError::InvalidInput {
-            detail: "objective connectors are not assembled by the nonlinear loop; a model containing one is refused".to_string(),
-        });
+    // R-4 §3.7 S6: each connector is a validated kernel object (its law,
+    // definiteness and tie rods are checked at construction); its nodes must
+    // lie in the model, which the assembly also checks.
+    for (index, connector) in input.connectors.iter().enumerate() {
+        for node in [connector.node_i().index, connector.node_j().index] {
+            if node >= input.node_count {
+                return Err(NonlinearIntegrationError::InvalidInput {
+                    detail: format!(
+                        "objective connector {index} names node index {node}, outside the model's {} node(s)",
+                        input.node_count
+                    ),
+                });
+            }
+        }
     }
     let expected_dofs = input.node_count * DOF_PER_NODE;
     if input.force.len() != expected_dofs {
@@ -4098,6 +4111,52 @@ mod tests {
         assert!((solved.displacements[6] - 0.15).abs() < 1e-10);
     }
     // CONTACT_RECOVERY_FROZEN_END
+
+    /// R-4 §3.7 S6: the loop assembles an objective connector beside the
+    /// frame (the blanket refusal is lifted), and a connector naming a node
+    /// outside the model is refused by name at the execution boundary.
+    #[test]
+    fn s6_connectors_are_assembled_and_an_out_of_range_connector_is_refused() {
+        use open_pipe_stress_frame_kernel::connector::{ConnectorAttachment, ObjectiveConnector, ScaledWorkMatrix};
+        let identity = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]];
+        let mut upper = [0.0; 21];
+        for (index, value) in [0, 6, 11, 15, 18, 20].into_iter().zip([50.0, 50.0, 50.0, 5.0, 5.0, 5.0]) {
+            upper[index] = value;
+        }
+        let connector = |j: usize, x: f64| {
+            ObjectiveConnector::new(
+                FrameNode::new(1, [1.0, 0.0, 0.0]).unwrap(),
+                FrameNode::new(j, [x, 0.0, 0.0]).unwrap(),
+                ConnectorAttachment::global([0.0; 3]),
+                ConnectorAttachment::global([0.0; 3]),
+                identity,
+                ScaledWorkMatrix { upper_triangle: upper, translation_scale: 1.0 },
+                [0.0; 6],
+            )
+            .unwrap()
+        };
+        let mut outside = two_node_axial_problem(vec![], vec![], 4);
+        outside.connectors = vec![connector(2, 2.0)];
+        match solve_active_set_frame(&outside) {
+            Err(NonlinearIntegrationError::InvalidInput { detail }) => {
+                assert!(detail.contains("objective connector 0 names node index 2"), "{detail}")
+            }
+            other => panic!("{other:?}"),
+        }
+        // Node 2 held: the bar (EA/L = 100) and the connector's axial 50 N/m
+        // share the 10 N load at node 1, u = 10/150.
+        let mut held = two_node_axial_problem(vec![], vec![], 4);
+        held.node_count = 3;
+        held.force.resize(3 * DOF_PER_NODE, 0.0);
+        held.base_restrained_dofs.extend(2 * DOF_PER_NODE..3 * DOF_PER_NODE);
+        held.connectors = vec![connector(2, 2.0)];
+        for mode in [LinearSolveMode::SparseInteractive, LinearSolveMode::DenseScrutiny] {
+            let solved = solve_active_set_frame_with_mode_and_springs(&held, mode, &[]).unwrap();
+            assert!(solved.converged);
+            let u = solved.displacements[node_dof_index(1, FrameDof::Ux)];
+            assert!((u - 10.0 / 150.0).abs() <= 1e-12, "{mode:?}: {u}");
+        }
+    }
 
     fn two_node_axial_problem(
         nonlinear_supports: Vec<NonlinearSupport>,

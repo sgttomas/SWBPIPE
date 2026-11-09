@@ -1634,7 +1634,7 @@ class TestW16cLimitationExceptionIsItsOneSentence:
         """W-16 slice c's exception admits the restated sentence only as a whole formulation-basis limitation: the
         added sentence planted in another limitation of a moved carrier fails at that file."""
         name = next(n for n in W7_ENVELOPES if n in W16C_MOVED and n.endswith(".raw.json"))
-        text = (PROJECT / name).read_text()
+        text = w15c_base_text(name)
         assert W16C_LIMITATION_NEW in text
         added = W16C_LIMITATION_NEW[len(W16C_LIMITATION_OLD):]
         history = "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented."

@@ -68,7 +68,9 @@ use b1_sq_inputs as inputs;
 // §8.54 (RT-A5 minuend_final): +33,008 B (STATICS, the retained table's held-status gates; LoadCaseSolve's held source).
 // §8.55 (S-K1 skewed restraint directions): +17,872 B (STATICS and the InvalidInput arm +16,856 B; BuiltModel.skew,
 // MemberBoundInputs.lift_radius and CaseRecord.along_directions in the in-build atoms +1,016 B).
-const W1_PHASE_BYTES: [u64; 2] = [6_450_374_480, 6_509_505_824];
+// §8.59 (RT-A3 S6, proposed): +18,761 B (S6-ME in O_base; the restated tables and schema in STATICS; the
+// restated identity and load-state limitations in TAV_W and TAV_X).
+const W1_PHASE_BYTES: [u64; 2] = [6_450_393_241, 6_509_524_585];
 /// The profile's in-build maximum over every phase (E_mov,max, without R; W3 in both modes),
 /// the bound once a run has done W1 work (a registered build, G6). W-8 topology warnings D3 at
 /// 34e96d6b17 (retained-pricing-rules.md §8.16): +219,136 B in both modes from the pre-0.4
@@ -102,7 +104,8 @@ const W1_PHASE_BYTES: [u64; 2] = [6_450_374_480, 6_509_505_824];
 // §8.53 (RT-A3 P and the §4 certificate): +947 B (W3 stays the maximum; W1-W5 +947 B, X1-X3 +839 B).
 // §8.54 (RT-A5 minuend_final): +33,008 B (W3 stays the maximum; every phase +33,008 B).
 // §8.55 (S-K1 skewed restraint directions): +17,872 B (W3 stays the maximum; every phase +17,872 B).
-const MAX_PHASE_BYTES: [u64; 2] = [8_744_104_869, 8_803_236_213];
+// §8.59 (RT-A3 S6, proposed): +18,761 B (W3 stays the maximum; every phase +18,761 B).
+const MAX_PHASE_BYTES: [u64; 2] = [8_744_123_630, 8_803_254_974];
 /// The abort cap: above E_mov,max + R at M and within T3's host allowance (PLAN_v2 §3.5).
 const CAP_BYTES: usize = 16 << 30;
 /// The N1 notice's fixed text (lib.rs `RETAINED_UNAVAILABLE_NOTICE`), as the base publication shows it.

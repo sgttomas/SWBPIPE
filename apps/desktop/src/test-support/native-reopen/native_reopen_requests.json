@@ -47,6 +47,16 @@
    }
   },
   {
+   "command": "lookup_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$HANDLE",
+    "kinds": [
+     "support_reaction_along_direction_v1"
+    ],
+    "match": "first"
+   }
+  },
+  {
    "command": "query_preview_mechanics_job_navigator",
    "args": {
     "jobId": "$HANDLE",
@@ -66,12 +76,12 @@
     "expectedSource": {
      "kind": "saved_project_run",
      "project_id": "project:exact-pressure-connected-fixture",
-     "record_sha256": "ffd9feb37ebd1f4ac2a2a3a51ab7e0da0c467d0f856f8373073c16e5a4e6119f",
+     "record_sha256": "fccb38e7c57aff3f10d991e254882d1a0a6f42643691db38ba415f058c535d8e",
      "recording_id": null,
-     "result_sha256": "9b32b2a24a90356392bd0af5f3dd76a333ee843c75b5162a40362188ad591204"
+     "result_sha256": "1d7d0a444cc2a7bdef93997427f5c8194d7763ce2c11c411a2a5ab46b19cbf96"
     },
     "envelopeBasis": {
-     "payload_sha256": "sha256:48ec9398b12ea687a5df3971cdd49e4db33820d331bde5f71a9f74fc036940c5",
+     "payload_sha256": "sha256:4804643be71c8097ccfdf96a1d792f999b8efc3ce6cad349b7034d9869281aee",
      "evidence": {
       "algorithm": "sha256",
       "canonicalization": "rfc8785_jcs",
@@ -79,7 +89,7 @@
       "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
       "payload_ref": "project:exact-pressure-connected-fixture",
       "payload_scope": "project_envelope_payload",
-      "value": "sha256:48ec9398b12ea687a5df3971cdd49e4db33820d331bde5f71a9f74fc036940c5"
+      "value": "sha256:4804643be71c8097ccfdf96a1d792f999b8efc3ce6cad349b7034d9869281aee"
      }
     },
     "mode": "save",
@@ -342,7 +352,7 @@
     "proposal": null,
     "selectedReviewTarget": null,
     "confirmedRevision": null,
-    "expectedBase": "sha256:48ec9398b12ea687a5df3971cdd49e4db33820d331bde5f71a9f74fc036940c5"
+    "expectedBase": "sha256:4804643be71c8097ccfdf96a1d792f999b8efc3ce6cad349b7034d9869281aee"
    }
   },
   {
@@ -401,16 +411,6 @@
      48,
      49
     ]
-   }
-  },
-  {
-   "command": "lookup_preview_mechanics_job_rows",
-   "args": {
-    "jobId": "$HANDLE",
-    "kinds": [
-     "support_reaction_along_direction_v1"
-    ],
-    "match": "first"
    }
   }
  ]

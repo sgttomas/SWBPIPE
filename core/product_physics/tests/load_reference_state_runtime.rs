@@ -2951,7 +2951,10 @@ fn negative_additional_wire_rules_block() {
     let mut base_motion = two_bar_model(false, false);
     state_mut(&mut base_motion, 0)["support_states"][2]["base_motion"] =
         json!([motion("UX", root_ux, "m")]);
-    blocked(&base_motion, "base_motion_not_implemented");
+    // R-4 §3.7 S6 admits base motion only on an active spring's axis; on a
+    // rigid anchor it stays refused (LOAD_STATE_BASE_MOTION_UNSUPPORTED).
+    let codes = blocked(&base_motion, "base_motion_on_rigid_anchor");
+    assert!(codes.iter().any(|c| c == "LOAD_STATE_BASE_MOTION_UNSUPPORTED"), "{codes:?}");
 
     let mut missing_member = two_bar_model(false, false);
     missing_member["model"]["reference_configurations"][0]["member_references"]

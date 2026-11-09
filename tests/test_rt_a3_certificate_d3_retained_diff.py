@@ -20,6 +20,11 @@ this regeneration only these may change:
   input moved, and only for an input derived from a regenerated base.
 
 The legacy W-CB3 successors stay byte for byte as `..._pre_certificate.json` (BASE's fixture bytes).
+
+The after-leg is fixed at S6's predecessor, END. S6 subsequently restates disclosure text and its binding hashes;
+test_rt_a3_s6_text_only_envelope_diff checks END through the current corpus, probes, fixture documents and reader
+outcomes, including exact numerical tokens and reader summaries. The certificate's original before basis and
+allowed changes remain unchanged here.
 """
 from copy import deepcopy
 from functools import cache
@@ -29,12 +34,13 @@ import subprocess
 
 import pytest
 
-from tests.retained_precision_corpus import _STORAGE, load_corpus
+from tests.retained_precision_corpus import _STORAGE
 from tests.test_retained_precision_contract import apply_mutation
 from tests.verifiers import retained_precision as rp
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "dcb3fe0dca796837b6da1df16d046ebe749f017d"
+END = "394f4c62313679ccf24e67236d80371a0bf62af3"
 PREFIX = "diagnostic:combination-certificate:"
 # AdapterEvent order (retained_product.rs): SourceVisit, RowVisit, MapWrite, ValidationEntry, IdentityByteRead,
 # KeyProbe, AllocationRequest, LibraryBoundary, RequestedCopyBytes, RustCapacityBytes. The member's key sorts first
@@ -62,8 +68,8 @@ def _corpus_at(rev):
 
 
 @cache
-def _corpus_now():
-    return load_corpus()
+def _corpus_end():
+    return _corpus_at(END)
 
 
 def tokens(value):
@@ -130,7 +136,7 @@ def _check_successor(label, live, base, invocation, hooked=False):
 
 def test_the_regenerated_corpus_cases_are_exactly_the_declared_ones():
     before = {c["id"]: c for c in _corpus_at(BASE)["cases"]}
-    after = {c["id"]: c for c in _corpus_now()["cases"]}
+    after = {c["id"]: c for c in _corpus_end()["cases"]}
     assert set(before) == set(after)
     moved = {k for k in before if tokens(before[k]["source"]) != tokens(after[k]["source"])}
     assert moved == MOVED_CASES
@@ -150,7 +156,7 @@ def test_the_regenerated_corpus_cases_are_exactly_the_declared_ones():
 @pytest.mark.parametrize("case", sorted(MOVED_CASES))
 def test_a_regenerated_corpus_case_reseals_to_its_base(case):
     before = next(c for c in _corpus_at(BASE)["cases"] if c["id"] == case)
-    after = next(c for c in _corpus_now()["cases"] if c["id"] == case)
+    after = next(c for c in _corpus_end()["cases"] if c["id"] == case)
     assert tokens(after["invocation"]) == tokens(before["invocation"])
     _check_successor(case, after["source"], before["source"], after["invocation"], hooked=case in HOOKED)
 
@@ -158,7 +164,7 @@ def test_a_regenerated_corpus_case_reseals_to_its_base(case):
 @pytest.mark.parametrize("mode", MODES)
 def test_the_w_cb3_fixture_documents_reseal_to_their_base_and_keep_the_legacy_bytes(mode):
     before = json.loads(_bytes_at(BASE, FIXTURES[mode]))
-    after = json.loads((ROOT / FIXTURES[mode]).read_bytes())
+    after = json.loads(_bytes_at(END, FIXTURES[mode]))
     assert tokens({k: v for k, v in after.items() if k != "source"}) == tokens({k: v for k, v in before.items() if k != "source"})
     _check_successor(mode, after["source"], before["source"], after["invocation"])
     legacy = ROOT / FIXTURES[mode].replace(".json", "_pre_certificate.json")
@@ -200,7 +206,7 @@ def _remapped_only(before_edits, after_edits, old_base, new_base):
 
 
 def test_the_corpus_entries_on_regenerated_bases_are_remapped_only():
-    before, after = _corpus_at(BASE), _corpus_now()
+    before, after = _corpus_at(BASE), _corpus_end()
     sources_before = {c["id"]: c["source"] for c in before["cases"]}
     sources_after = {c["id"]: c["source"] for c in after["cases"]}
     for kind in ("mutations", "must_pass"):
@@ -214,10 +220,10 @@ def test_the_corpus_entries_on_regenerated_bases_are_remapped_only():
 
 
 def test_the_b2_parity_probes_are_remapped_only():
-    before, after = json.loads(_bytes_at(BASE, PROBES)), json.loads((ROOT / PROBES).read_bytes())
+    before, after = json.loads(_bytes_at(BASE, PROBES)), json.loads(_bytes_at(END, PROBES))
     assert tokens({k: v for k, v in after.items() if k != "shapes"}) == tokens({k: v for k, v in before.items() if k != "shapes"})
     sources_before = {c["id"]: c["source"] for c in _corpus_at(BASE)["cases"]}
-    sources_after = {c["id"]: c["source"] for c in _corpus_now()["cases"]}
+    sources_after = {c["id"]: c["source"] for c in _corpus_end()["cases"]}
     for sb, sa in zip(before["shapes"], after["shapes"], strict=True):
         assert tokens({k: v for k, v in sa.items() if k != "edits"}) == tokens({k: v for k, v in sb.items() if k != "edits"}), sa["name"]
         if sb["base"] not in MOVED_CASES:
@@ -237,11 +243,11 @@ def _entries(text):
 
 
 def test_the_native_reader_outcomes_move_only_with_a_regenerated_input():
-    before, after = _entries(_bytes_at(BASE, OUTCOMES).decode()), _entries((ROOT / OUTCOMES).read_text())
+    before, after = _entries(_bytes_at(BASE, OUTCOMES).decode()), _entries(_bytes_at(END, OUTCOMES).decode())
     assert set(before) == set(after)
-    corpus = _corpus_now()
+    corpus = _corpus_end()
     base_of = {e["id"]: e["base"] for kind in ("mutations", "must_pass") for e in corpus[kind]}
-    probes = {s["name"]: s["base"] for s in json.loads((ROOT / PROBES).read_bytes())["shapes"]}
+    probes = {s["name"]: s["base"] for s in json.loads(_bytes_at(END, PROBES))["shapes"]}
 
     def derived(key):
         kind, _, rest = key.partition(":")
@@ -265,7 +271,7 @@ def test_the_native_reader_outcomes_move_only_with_a_regenerated_input():
 
 def test_a_numerical_change_or_an_undeclared_count_is_refused():
     base = next(c for c in _corpus_at(BASE)["cases"] if c["id"] == "w_cb5_sparse_interactive")["source"]
-    live = next(c for c in _corpus_now()["cases"] if c["id"] == "w_cb5_sparse_interactive")["source"]
+    live = next(c for c in _corpus_end()["cases"] if c["id"] == "w_cb5_sparse_interactive")["source"]
     numeric = deepcopy(live)
     row = next(r for r in numeric["results"] if isinstance(r.get("value"), float) and r["value"] != 0.0)
     row["value"] = row["value"] * (1 + 2 ** -52)
