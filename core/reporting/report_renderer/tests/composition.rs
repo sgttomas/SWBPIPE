@@ -309,17 +309,56 @@ fn the_composition_is_closed_at_every_depth() {
 }
 
 #[test]
-fn the_catalogue_is_the_six_result_sections() {
-    let ids: Vec<&str> = CATALOGUE.iter().map(|entry| entry.id).collect();
+fn the_catalogue_is_the_six_result_sections_then_the_five_model_input_sections() {
+    let entries: Vec<(&str, &str)> = CATALOGUE.iter().map(|entry| (entry.id, entry.parent)).collect();
     assert_eq!(
-        ids,
+        entries,
         [
-            "result_rows_all",
-            "result_displacements",
-            "result_forces_moments",
-            "result_stresses",
-            "result_support_loads",
-            "result_other_rows"
+            ("result_rows_all", "results"),
+            ("result_displacements", "results"),
+            ("result_forces_moments", "results"),
+            ("result_stresses", "results"),
+            ("result_support_loads", "results"),
+            ("result_other_rows", "results"),
+            ("load_combinations", "load_cases"),
+            ("input_geometry", "model_input_summary"),
+            ("input_materials_sections", "model_input_summary"),
+            ("input_supports", "model_input_summary"),
+            ("input_loads", "model_input_summary"),
         ]
     );
+}
+
+/// Slice C5 (§2.7): a model-input section takes all cases and the `all` view
+/// only, shows no result row and is never an overlap with `result_rows_all`.
+#[test]
+fn model_input_sections_take_only_all_cases_and_the_all_view() {
+    use open_pipe_stress_report_renderer::composer::form_refusals;
+    use open_pipe_stress_report_renderer::model_input::MODEL_INPUT_SECTIONS;
+    let vectors = vectors();
+    let rows = rows(&vectors);
+    for id in MODEL_INPUT_SECTIONS {
+        let admitted = composition(&serde_json::json!({"composition_version": "1.0.0", "sections": [
+            {"section_id": "result_rows_all", "cases": "all", "view": {"kind": "all"}},
+            {"section_id": id, "cases": "all", "view": {"kind": "all"}}
+        ]}));
+        assert!(form_refusals(&admitted).is_empty(), "{id}");
+        let composed = compose(&rows, &admitted).unwrap();
+        assert!(composed.sections[1].rows.is_empty(), "{id}");
+        assert_eq!(composed.shown_rows(), composed.bound_rows, "{id}");
+        for (cases, view) in [
+            (serde_json::json!(["load_case:A"]), serde_json::json!({"kind": "all"})),
+            (serde_json::json!([]), serde_json::json!({"kind": "all"})),
+            (serde_json::json!("all"), serde_json::json!({"kind": "extremes"})),
+            (serde_json::json!("all"), serde_json::json!({"kind": "largest", "limit": 5})),
+            (serde_json::json!("all"), serde_json::json!({"kind": "all", "limit": 5})),
+        ] {
+            let refused = composition(&serde_json::json!({"composition_version": "1.0.0", "sections": [
+                {"section_id": id, "cases": cases, "view": view}
+            ]}));
+            let refusals = form_refusals(&refused);
+            assert_eq!(codes(&refusals), ["REPORT-COMPOSITION-OPTION-INVALID"], "{id} {cases} {view}: {refusals:?}");
+            assert_eq!(codes(&compose(&rows, &refused).unwrap_err()), ["REPORT-COMPOSITION-OPTION-INVALID"], "{id}");
+        }
+    }
 }

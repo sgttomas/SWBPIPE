@@ -40,6 +40,7 @@ use sha2::{Digest, Sha256};
 
 pub mod composer;
 pub mod exact_statements;
+pub mod model_input;
 pub mod object_form;
 
 /// Fixed render order: mirrors the required-section contract of
@@ -475,6 +476,12 @@ pub struct RenderableReportInput {
     /// the input renders byte-identically to an input without the member.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub report_composition: Option<composer::ReportComposition>,
+    /// The model-input tables `P(M, C)` (DEL-08-01 Design
+    /// `report-section-composer.md` §2.7): present only when the composition
+    /// lists a model-input section. Absent, the input renders byte-identically
+    /// to an input without the member.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model_input_tables: Option<model_input::ModelInputTables>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -1032,10 +1039,11 @@ pub fn assemble_report_sections(input: &RenderableReportInput) -> Vec<AssembledS
                     "Input manifest".to_string(),
                     reference_text(&summary.input_manifest_ref),
                 ]);
-                (
-                    "Model Input Summary",
-                    vec![table(&["Item", "Reference"], rows)],
-                )
+                let mut blocks = vec![table(&["Item", "Reference"], rows)];
+                if let Some((_, composed)) = &composition {
+                    blocks.extend(composer::model_input_blocks(key, composed, input.model_input_tables.as_ref()));
+                }
+                ("Model Input Summary", blocks)
             }
             "load_cases" => {
                 let rows = calc
@@ -1050,10 +1058,11 @@ pub fn assemble_report_sections(input: &RenderableReportInput) -> Vec<AssembledS
                         ]
                     })
                     .collect();
-                (
-                    "Load Cases",
-                    vec![table(&["Load case", "Label", "Basis", "Source"], rows)],
-                )
+                let mut blocks = vec![table(&["Load case", "Label", "Basis", "Source"], rows)];
+                if let Some((_, composed)) = &composition {
+                    blocks.extend(composer::model_input_blocks(key, composed, input.model_input_tables.as_ref()));
+                }
+                ("Load Cases", blocks)
             }
             "results" => {
                 let mut blocks = Vec::new();
@@ -2229,6 +2238,7 @@ pub fn decode_renderable_report_input_as(value: serde_json::Value, code: &str, r
                 "exact_route",
                 "library_references",
                 "report_composition",
+                "model_input_tables",
             ],
             4,
         )
@@ -2268,6 +2278,7 @@ pub fn decode_renderable_report_input_as(value: serde_json::Value, code: &str, r
         exact_route: optional(&mut fields, "exact_route").map_err(at)?,
         library_references: optional(&mut fields, "library_references").map_err(at)?,
         report_composition: optional(&mut fields, "report_composition").map_err(at)?,
+        model_input_tables: optional(&mut fields, "model_input_tables").map_err(at)?,
     })
 }
 

@@ -442,6 +442,59 @@
    "shown": 6
   },
   {
+   "name": "model-input sections show no result row and do not overlap all rows",
+   "composition": {
+    "composition_version": "1.0.0",
+    "sections": [
+     {
+      "section_id": "load_combinations",
+      "cases": "all",
+      "view": {
+       "kind": "all"
+      }
+     },
+     {
+      "section_id": "result_rows_all",
+      "cases": [
+       "load_case:B"
+      ],
+      "view": {
+       "kind": "all"
+      }
+     },
+     {
+      "section_id": "input_loads",
+      "cases": "all",
+      "view": {
+       "kind": "all"
+      }
+     }
+    ]
+   },
+   "expected_sections": [
+    {
+     "section_id": "load_combinations",
+     "row_ids": []
+    },
+    {
+     "section_id": "result_rows_all",
+     "row_ids": [
+      "row:r02",
+      "row:r03",
+      "row:r07",
+      "row:r12",
+      "row:r13",
+      "row:r18"
+     ]
+    },
+    {
+     "section_id": "input_loads",
+     "row_ids": []
+    }
+   ],
+   "shown": 6
+  },
+  {
    "name": "list order is display order; an empty family section is not a refusal",
    "composition": {
     "composition_version": "1.0.0",
@@ -531,7 +584,7 @@
     "composition_version": "1.0.0",
     "sections": [
      {
-      "section_id": "input_geometry",
+      "section_id": "input_weight_cog",
       "cases": "all",
       "view": {
        "kind": "all"
@@ -579,6 +632,45 @@
       "cases": "all",
       "view": {
        "kind": "extremes"
+      }
+     }
+    ]
+   },
+   "codes": [
+    "REPORT-COMPOSITION-OPTION-INVALID"
+   ]
+  },
+  {
+   "name": "a model-input section with listed cases",
+   "composition": {
+    "composition_version": "1.0.0",
+    "sections": [
+     {
+      "section_id": "input_loads",
+      "cases": [
+       "load_case:A"
+      ],
+      "view": {
+       "kind": "all"
+      }
+     }
+    ]
+   },
+   "codes": [
+    "REPORT-COMPOSITION-OPTION-INVALID"
+   ]
+  },
+  {
+   "name": "a model-input section with another view",
+   "composition": {
+    "composition_version": "1.0.0",
+    "sections": [
+     {
+      "section_id": "load_combinations",
+      "cases": "all",
+      "view": {
+       "kind": "largest",
+       "limit": 5
       }
      }
     ]

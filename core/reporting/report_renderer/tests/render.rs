@@ -126,6 +126,7 @@ fn fixture_input() -> RenderableReportInput {
         exact_route: None,
         library_references: None,
         report_composition: None,
+        model_input_tables: None,
     }
 }
 
@@ -1925,7 +1926,9 @@ fn bound_row_members_without_a_composition_change_no_byte() {
 #[test]
 fn every_composition_keeps_the_frame_and_the_governed_sections() {
     use open_pipe_stress_report_renderer::composer::{CATALOGUE, RESULT_ROWS_ALL};
-    let families: Vec<&str> = CATALOGUE.iter().map(|entry| entry.id).filter(|id| *id != RESULT_ROWS_ALL).collect();
+    // The result subsections; the model-input subsections (slice C5) are
+    // covered by `every_model_input_composition_keeps_the_governed_sections`.
+    let families: Vec<&str> = CATALOGUE.iter().filter(|entry| entry.parent == "results").map(|entry| entry.id).filter(|id| *id != RESULT_ROWS_ALL).collect();
     let mut compositions: Vec<Vec<&str>> = vec![vec![RESULT_ROWS_ALL]];
     for mask in 0u32..(1 << families.len()) {
         let subset: Vec<&str> = families.iter().enumerate().filter(|(bit, _)| mask & (1 << bit) != 0).map(|(_, id)| *id).collect();
@@ -2154,4 +2157,214 @@ fn composed_reports_require_an_explicit_local_private_context() {
         assert!(rendered.export_blocked);
         assert!(rendered.blocking_reasons.iter().any(|reason| reason.contains("REPORT-COMPOSITION-CONTEXT-NOT-ADMITTED")));
     }
+}
+
+// ---------------------------------------------------------------------------
+// Model-input sections (DEL-08-01 Design `report-section-composer.md` §2.7,
+// slice C5).
+
+/// Invented model-input tables, with the members of `ids` only.
+fn invented_model_input_tables(ids: &[&str]) -> serde_json::Value {
+    let all = serde_json::json!({
+        "load_combinations": [
+            {"id": "combination:MI-C1", "label": "Invented sum", "basis": "mechanics", "operands": "1 × load_case:MI-A; 1.5 × load_case:MI-B", "mode": null},
+            {"id": "combination:MI-C2", "label": null, "basis": "range_envelope", "operands": "load_case:MI-A, load_case:MI-B", "mode": "max_abs"}
+        ],
+        "input_geometry": {
+            "nodes": [
+                {"id": "node:MI-1", "label": null, "x": "0", "y": "1.5", "z": "-2"},
+                {"id": "node:MI-2", "label": "MI tip", "x": "3", "y": "1.5", "z": "-2"}
+            ],
+            "pipes": [
+                {"id": "pipe:MI-1", "label": "MI span", "from": "node:MI-1", "to": "node:MI-2", "material": "material:MI", "outside_diameter": "0.1683 m", "wall_thickness": "0.00711 m", "section_ref": null}
+            ],
+            "components": []
+        },
+        "input_materials_sections": {
+            "materials": [
+                {"id": "material:MI", "label": "MI steel", "elastic_modulus": "200000000000 Pa", "shear_modulus": null, "poisson_ratio": "0.3 1", "thermal_expansion_coefficient": null}
+            ],
+            "sections": [
+                {"id": "section:MI", "name": "MI section", "section_type": "pipe", "outside_diameter": "0.1683 m", "wall_thickness": null}
+            ]
+        },
+        "input_supports": [
+            {"id": "support:MI-1", "label": "MI anchor", "node": "node:MI-1", "family": "anchor", "restraints": "UX, UY, UZ, RX, RY, RZ", "stiffness": null, "nonlinear_behavior": null},
+            {"id": "support:MI-2", "label": null, "node": "node:MI-2", "family": null, "restraints": "UY", "stiffness": "UY: 1000000 N/m", "nonlinear_behavior": "one_way"}
+        ],
+        "input_loads": [
+            {"case_id": "load_case:MI-A", "load_id": "load:MI-1", "category": "concentrated_force", "target": "node:node:MI-2", "direction": "global_y", "magnitude": "-1000 N"}
+        ]
+    });
+    let all = all.as_object().unwrap();
+    serde_json::Value::Object(ids.iter().map(|id| (id.to_string(), all[*id].clone())).collect())
+}
+
+/// `result_rows_all`, then `ids`, each with all cases and the `all` view; with
+/// their tables.
+fn model_input_input(ids: &[&str], context: ReportExportContext) -> RenderableReportInput {
+    let mut sections = vec![("result_rows_all", serde_json::json!({"kind": "all"}))];
+    sections.extend(ids.iter().map(|id| (*id, serde_json::json!({"kind": "all"}))));
+    let mut input = composed_input(Some(composition_of(&sections)));
+    if context == ReportExportContext::UserReleasedReport {
+        input.report_context = Some(invented_report_context(ReportExportContext::UserReleasedReport));
+        input.report_context.as_mut().unwrap().user_release = Some(invented_user_release_record());
+    }
+    input.model_input_tables = Some(serde_json::from_value(invented_model_input_tables(ids)).unwrap());
+    input
+}
+
+/// K1 for slice C5: every subset of the model-input sections, in two orders,
+/// under the local-private and the user-released context, keeps the frame,
+/// every governed section and the notices; each table is a subsection of its
+/// governed parent, in list order, with its disclosure statements, and the
+/// result rows are unchanged.
+#[test]
+fn every_model_input_composition_keeps_the_governed_sections() {
+    use open_pipe_stress_report_renderer::composer::catalogue_entry;
+    use open_pipe_stress_report_renderer::model_input::{MODEL_INPUT_SECTIONS, VALUES_AS_ENTERED_TEXT};
+    use open_pipe_stress_report_renderer::user_release_notice_text;
+    for context in [ReportExportContext::LocalPrivate, ReportExportContext::UserReleasedReport] {
+        for mask in 0u32..(1 << MODEL_INPUT_SECTIONS.len()) {
+            let subset: Vec<&str> = MODEL_INPUT_SECTIONS.iter().enumerate().filter(|(bit, _)| mask & (1 << bit) != 0).map(|(_, id)| *id).collect();
+            let mut reversed = subset.clone();
+            reversed.reverse();
+            for ids in [subset, reversed] {
+                let mut input = model_input_input(&ids, context);
+                if ids.is_empty() {
+                    // §2.7: with no model-input id listed, the member is absent.
+                    input.model_input_tables = None;
+                }
+                let outcome = render_calculation_report(&input);
+                assert!(!outcome.export_blocked, "{context:?} {ids:?}: {:?}", outcome.blocking_reasons);
+                let html = &outcome.html;
+                for heading in [
+                    "<h2>Model Input Summary</h2>",
+                    "<h2>Load Cases</h2>",
+                    "<h2>Results</h2>",
+                    "<h2>Warnings, Assumptions, And Provenance</h2>",
+                    "<h2>Audit Manifest</h2>",
+                    "<h2>Rule Pack References</h2>",
+                    "<h2>Limitations</h2>",
+                    "<h2>Professional Boundary And Human Review</h2>",
+                    "<h3>Software, Solver And Run</h3>",
+                    "<h3>Human Review Record</h3>",
+                    "<h3>Report Composition</h3>",
+                    "Referenced result export",
+                    "Model hash",
+                    "SWBPIPE is decision-support software for piping design, flexibility, and stress-analysis workflows.",
+                    "derived views",
+                    "Numerical health: invented disclosure line",
+                    "<p>Result rows shown: 18 of 18.</p>",
+                ] {
+                    assert!(html.contains(heading), "{context:?} {ids:?}: {heading}");
+                }
+                match context {
+                    ReportExportContext::LocalPrivate => assert!(html.contains("LOCAL PRIVATE REPORT")),
+                    _ => assert!(html.contains(&escape_html(&user_release_notice_text(&input).unwrap()))),
+                }
+                let at = |text: &str| html.find(text).unwrap();
+                let (summary, load_cases, results) = (at("<h2>Model Input Summary</h2>"), at("<h2>Load Cases</h2>"), at("<h2>Results</h2>"));
+                assert!(summary < load_cases && load_cases < results);
+                let mut last_in_summary = summary;
+                for id in &ids {
+                    let entry = catalogue_entry(id).unwrap();
+                    let place = at(&format!("<h3>{}</h3>", entry.title));
+                    if entry.parent == "load_cases" {
+                        assert!(load_cases < place && place < results, "{id}");
+                    } else {
+                        assert!(summary < place && place < load_cases, "{id}");
+                        assert!(last_in_summary < place, "{ids:?}: list order within the parent");
+                        last_in_summary = place;
+                    }
+                    let audit = &html[at("<h3>Report Composition</h3>")..];
+                    assert!(audit.contains(&format!("<td>{id}</td><td>included, position ")), "{id}");
+                }
+                assert_eq!(html.matches(&escape_html(VALUES_AS_ENTERED_TEXT)).count(), ids.len(), "{ids:?}");
+                for id in MODEL_INPUT_SECTIONS.iter().filter(|id| !ids.contains(id)) {
+                    assert!(!html.contains(&format!("<h3>{}</h3>", catalogue_entry(id).unwrap().title)), "{id}");
+                }
+            }
+        }
+    }
+    // The cells, the null dash and the section statements.
+    let all = render_calculation_report(&model_input_input(&MODEL_INPUT_SECTIONS, ReportExportContext::LocalPrivate)).html;
+    for text in [
+        "<td>combination:MI-C1</td><td>Invented sum</td><td>mechanics</td><td>1 × load_case:MI-A; 1.5 × load_case:MI-B</td><td>\u{2014}</td>",
+        "<td>node:MI-1</td><td>\u{2014}</td><td>0</td><td>1.5</td><td>-2</td>",
+        "<td>support:MI-2</td><td>\u{2014}</td><td>node:MI-2</td><td>\u{2014}</td><td>UY</td><td>UY: 1000000 N/m</td><td>one_way</td>",
+        "<td>load_case:MI-A</td><td>load:MI-1</td><td>concentrated_force</td>",
+        "<p>None entered in the model.</p>",
+        "Node coordinates x, y and z are stored numbers",
+        "Hanger details and nonlinear details other than the behaviour are not listed.",
+        "Pressure regions, equivalent-static inputs and analysis states are not listed.",
+        "<td>input_loads</td><td>included, position 6</td><td>all cases</td><td>all entries, as entered, in model order</td>",
+    ] {
+        assert!(all.contains(text), "{text}");
+    }
+}
+
+/// The renderer refuses a listed model-input id without its table, a table
+/// whose id is not listed, a tables member (even empty) under a composition
+/// that lists no model-input id, and tables without a composition, and applies
+/// no such composition.
+#[test]
+fn model_input_tables_and_their_listing_go_together() {
+    let unbound = |outcome: &open_pipe_stress_report_renderer::RenderOutcome| {
+        outcome.export_blocked
+            && outcome.blocking_reasons.iter().any(|reason| reason.starts_with("report composition: REPORT-COMPOSITION-MODEL-INPUT-UNBOUND"))
+            && !outcome.html.contains("<h3>Report Composition</h3>")
+    };
+    let mut listed_without = model_input_input(&["input_loads", "input_geometry"], ReportExportContext::LocalPrivate);
+    listed_without.model_input_tables = Some(serde_json::from_value(invented_model_input_tables(&["input_loads"])).unwrap());
+    assert!(unbound(&render_calculation_report(&listed_without)));
+    let mut table_without = model_input_input(&["input_loads"], ReportExportContext::LocalPrivate);
+    table_without.model_input_tables = Some(serde_json::from_value(invented_model_input_tables(&["input_loads", "input_supports"])).unwrap());
+    assert!(unbound(&render_calculation_report(&table_without)));
+    // An empty tables member under a composition that lists no model-input id.
+    let mut empty_without = model_input_input(&[], ReportExportContext::LocalPrivate);
+    empty_without.model_input_tables = Some(serde_json::from_value(serde_json::json!({})).unwrap());
+    assert!(unbound(&render_calculation_report(&empty_without)));
+    let mut no_composition = model_input_input(&["input_loads"], ReportExportContext::LocalPrivate);
+    no_composition.report_composition = None;
+    let outcome = render_calculation_report(&no_composition);
+    assert!(unbound(&outcome), "{:?}", outcome.blocking_reasons);
+    assert!(!outcome.html.contains("<h3>Applied loads</h3>"));
+    // Under a refused composition no table is shown.
+    let mut refused = model_input_input(&["input_loads"], ReportExportContext::LocalPrivate);
+    refused.report_composition.as_mut().unwrap().sections.push(serde_json::from_value(serde_json::json!({"section_id": "result_stresses", "cases": "all", "view": {"kind": "all"}})).unwrap());
+    let outcome = render_calculation_report(&refused);
+    assert!(outcome.export_blocked && !outcome.html.contains("<h3>Applied loads</h3>"));
+}
+
+/// The tables decode closed through the value-free decode (every cell
+/// present, a string or null, no other member) and a positional row is found
+/// by the shared object-form check.
+#[test]
+fn model_input_tables_are_decoded_closed_and_in_object_form() {
+    use open_pipe_stress_report_renderer::decode_renderable_report_input;
+    use open_pipe_stress_report_renderer::object_form::report_positional_struct_path;
+    let base = serde_json::to_value(model_input_input(&["input_geometry", "input_supports"], ReportExportContext::LocalPrivate)).unwrap();
+    assert!(decode_renderable_report_input(base.clone()).is_ok());
+    assert_eq!(report_positional_struct_path(&base), None);
+    for (edit, kind) in [
+        (("/model_input_tables/input_supports/0", "extra", serde_json::json!("x")), "unknown field"),
+        (("/model_input_tables/input_geometry/nodes/0", "x", serde_json::json!(0)), "invalid type"),
+        (("/model_input_tables", "result_rows", serde_json::json!([])), "unknown field"),
+    ] {
+        let mut value = base.clone();
+        let (pointer, key, member) = edit;
+        value.pointer_mut(pointer).unwrap()[key] = member;
+        assert_eq!(decode_renderable_report_input(value).unwrap_err(), format!("RENDER-INPUT-INVALID: {kind} at model_input_tables"));
+    }
+    let mut missing = base.clone();
+    missing.pointer_mut("/model_input_tables/input_supports/0").unwrap().as_object_mut().unwrap().remove("stiffness");
+    assert_eq!(decode_renderable_report_input(missing).unwrap_err(), "RENDER-INPUT-INVALID: missing field at model_input_tables");
+    let mut positional = base.clone();
+    let row = positional.pointer_mut("/model_input_tables/input_geometry/components").unwrap();
+    *row = serde_json::json!([["component:MI", null, "tee"]]);
+    assert_eq!(report_positional_struct_path(&positional).as_deref(), Some("model_input_tables.input_geometry.components[0]"));
+    // Without the member the input serializes and renders as before.
+    let plain = composed_input(None);
+    assert!(serde_json::to_value(&plain).unwrap().get("model_input_tables").is_none());
 }
