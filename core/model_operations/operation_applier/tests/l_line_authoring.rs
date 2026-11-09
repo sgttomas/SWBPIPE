@@ -144,6 +144,9 @@ fn authored(material_op: bool) -> Value {
     model = apply(&model, &structured("update_load", "Load", "case:u2", "pressure_regions", None, &regions));
     let profile = json!({"schema_version": current_model::CURRENT_MODEL_VERSION, "pressure_contract": current_model::current_contract()});
     model = apply(&model, &structured("set_field", "Model", "project:t4-u2-l-line-authoring", "pressure_profile", Some(&json!({"schema_version": current_model::CURRENT_MODEL_VERSION})), &profile));
+    // Pressure elongation (DEL-04-07 `pressure-elongation.md`): the operating case is named, as today's mechanics.
+    let elongation = canonical_json(&json!({"operating_load_cases": ["case:u2"]}));
+    model = apply(&model, &intent("modify", "set_model_setting", "Project", "project:t4-u2-l-line-authoring", "model_settings.pressure_elongation", "not_present", &elongation, "none", "dimensionless"));
     for load in reference["load_cases"][0]["primitive_loads"].as_array().unwrap() {
         let (unit, dimension) = (load["magnitude"]["unit"].as_str().unwrap(), load["dimension"].as_str().unwrap());
         model = apply(&model, &intent("create", "create_primitive_load", "Load", "case:u2", "primitive_loads", "not_present", &load.to_string(), unit, dimension));
@@ -190,6 +193,7 @@ fn the_l_line_is_authored_from_its_corner_and_solves_under_pressure_1_in_both_mo
     let mut reference = i7_l_line();
     current_model::reauthor_model(&mut reference);
     reference["project"]["id"] = model["project"]["id"].clone();
+    reference["model_settings"] = json!({"pressure_elongation": {"operating_load_cases": ["case:u2"]}});
     for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
         let authored_result = solve(&restored, mode);
         assert_eq!(authored_result["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}: {}", authored_result["diagnostics"]);
