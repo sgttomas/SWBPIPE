@@ -12,32 +12,74 @@ use open_pipe_stress_modal_result::{
 };
 use serde_json::{json, Value};
 
-macro_rules! pair {
-    ($name:literal) => {
-        (
-            $name,
-            include_str!(concat!("../../../../fixtures/results/", $name, ".json")),
-            include_str!(concat!("../../../../fixtures/results/", $name, ".request.json")),
-        )
-    };
-}
-
 /// The solved fixtures whose bound models carry no nonlinear support.
 const LINEAR: [(&str, &str, &str); 8] = [
-    pair!("modal_component_body"),
-    pair!("modal_arc"),
-    pair!("modal_ex_n05"),
-    pair!("modal_cantilever_whole_spectrum"),
-    pair!("modal_cantilever_cluster_extension"),
-    pair!("modal_cantilever_below_cutoff"),
-    pair!("modal_cantilever_subnormal_cutoff"),
-    pair!("modal_cantilever_sensitive"),
+    (
+        "modal_component_body",
+        include_str!("../../../../fixtures/results/modal_component_body.json"),
+        include_str!("../../../../fixtures/results/modal_component_body.request.json"),
+    ),
+    (
+        "modal_arc",
+        include_str!("../../../../fixtures/results/modal_arc.json"),
+        include_str!("../../../../fixtures/results/modal_arc.request.json"),
+    ),
+    (
+        "modal_ex_n05",
+        include_str!("../../../../fixtures/results/modal_ex_n05.json"),
+        include_str!("../../../../fixtures/results/modal_ex_n05.request.json"),
+    ),
+    (
+        "modal_cantilever_whole_spectrum",
+        include_str!("../../../../fixtures/results/modal_cantilever_whole_spectrum.json"),
+        include_str!("../../../../fixtures/results/modal_cantilever_whole_spectrum.request.json"),
+    ),
+    (
+        "modal_cantilever_cluster_extension",
+        include_str!("../../../../fixtures/results/modal_cantilever_cluster_extension.json"),
+        include_str!("../../../../fixtures/results/modal_cantilever_cluster_extension.request.json"),
+    ),
+    (
+        "modal_cantilever_below_cutoff",
+        include_str!("../../../../fixtures/results/modal_cantilever_below_cutoff.json"),
+        include_str!("../../../../fixtures/results/modal_cantilever_below_cutoff.request.json"),
+    ),
+    (
+        "modal_cantilever_subnormal_cutoff",
+        include_str!("../../../../fixtures/results/modal_cantilever_subnormal_cutoff.json"),
+        include_str!("../../../../fixtures/results/modal_cantilever_subnormal_cutoff.request.json"),
+    ),
+    (
+        "modal_cantilever_sensitive",
+        include_str!("../../../../fixtures/results/modal_cantilever_sensitive.json"),
+        include_str!("../../../../fixtures/results/modal_cantilever_sensitive.request.json"),
+    ),
 ];
 /// The solved fixtures linearized at a reported nonlinear state.
-const STATES: [(&str, &str, &str); 2] = [pair!("modal_state_one_way_pressed"), pair!("modal_state_friction_sliding")];
-const BODY: (&str, &str, &str) = pair!("modal_component_body");
-const ARC: (&str, &str, &str) = pair!("modal_arc");
-const CANTILEVER: (&str, &str, &str) = pair!("modal_cantilever_whole_spectrum");
+const STATES: [(&str, &str, &str); 2] = [(
+        "modal_state_one_way_pressed",
+        include_str!("../../../../fixtures/results/modal_state_one_way_pressed.json"),
+        include_str!("../../../../fixtures/results/modal_state_one_way_pressed.request.json"),
+    ), (
+        "modal_state_friction_sliding",
+        include_str!("../../../../fixtures/results/modal_state_friction_sliding.json"),
+        include_str!("../../../../fixtures/results/modal_state_friction_sliding.request.json"),
+    )];
+const BODY: (&str, &str, &str) = (
+        "modal_component_body",
+        include_str!("../../../../fixtures/results/modal_component_body.json"),
+        include_str!("../../../../fixtures/results/modal_component_body.request.json"),
+    );
+const ARC: (&str, &str, &str) = (
+        "modal_arc",
+        include_str!("../../../../fixtures/results/modal_arc.json"),
+        include_str!("../../../../fixtures/results/modal_arc.request.json"),
+    );
+const CANTILEVER: (&str, &str, &str) = (
+        "modal_cantilever_whole_spectrum",
+        include_str!("../../../../fixtures/results/modal_cantilever_whole_spectrum.json"),
+        include_str!("../../../../fixtures/results/modal_cantilever_whole_spectrum.request.json"),
+    );
 
 fn load(fixture: (&str, &str, &str)) -> (Value, Value) {
     (serde_json::from_str(fixture.1).unwrap(), serde_json::from_str(fixture.2).unwrap())
