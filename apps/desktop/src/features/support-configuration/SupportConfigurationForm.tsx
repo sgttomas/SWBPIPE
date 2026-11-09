@@ -5,7 +5,8 @@ import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 import { EngineFeedback, useEngineCheckedQueue } from "../condition-sets/engineCheckedQueue";
 import { DIRECTION_AXES, EMPTY_DIRECTION_TEXT, parseDirectionEntry, STORED_DIRECTION_NOTE, storedDirectionText, type DirectionText } from "./supportDirection";
 const DOFS = ["UX", "UY", "UZ", "RX", "RY", "RZ"];
-const FAMILIES = [
+/** Product labels for the stored support family enums (also shown by the property inspector). */
+export const FAMILIES = [
   { value: "anchor", label: "Anchor" },
   { value: "guide", label: "Guide" },
   { value: "line_stop", label: "Line stop" },

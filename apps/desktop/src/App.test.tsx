@@ -9149,7 +9149,7 @@ describe("SWBPIPE desktop preview", () => {
       "Blank Local Model",
     );
     const inspector = screen.getByLabelText("Property inspector");
-    expect(within(inspector).getByText("Project ID")).toBeInTheDocument();
+    expect(within(within(inspector).getByTestId("inspector-overview")).getByText("Project ID")).toBeInTheDocument();
     expect(inspector.textContent).toContain("project:blank-local-");
     expect(inspector.textContent).toContain("MODEL_INCOMPLETE");
 

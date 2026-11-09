@@ -8,7 +8,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
 import type { ProjectUnitKey } from "../../services/projectService";
@@ -173,7 +173,7 @@ describe("entity editors on a document missing a project unit key", () => {
       mount(document, selection);
       expect(byId("property-inspector")).toBeInTheDocument();
       // The node's Properties name the missing unit rather than showing one.
-      if (selection.type === "node") expect(screen.getByText("3.2, 0, 0 (Missing project unit: length)")).toBeInTheDocument();
+      if (selection.type === "node") expect(within(byId("inspector-overview")).getByText("3.2, 0, 0 (Missing project unit: length)")).toBeInTheDocument();
       cleanup();
     }
   });

@@ -1,0 +1,64 @@
+/* Model tree and property inspector: component-scoped presentation on the shared
+   tokens (tokens.css). Layout primitives, row geometry and the shell stay in styles.css. */
+
+/* A row's context follows its ID on the same single line; the global row style
+   truncates that line, so the ID stays readable and the context gives way. */
+.tree-row .tree-row-context {
+  color: var(--ui-muted);
+}
+
+.tree-group-row .tree-group-count {
+  margin-left: var(--space-3);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--ui-divider);
+  border-radius: 9px;
+  color: var(--ui-muted);
+  font-size: var(--type-size-caption);
+  font-weight: var(--type-weight-regular);
+  font-variant-numeric: tabular-nums;
+  line-height: 14px;
+}
+
+/* Overview: the selected entity's identity, connections, size and material,
+   compact and aligned above the editing sections. */
+.inspector .inspector-overview {
+  gap: var(--space-2);
+  margin: 0 0 var(--space-6);
+  padding: var(--space-4) 0 var(--space-5);
+  border-bottom: 1px solid var(--ui-divider);
+  overflow: visible;
+}
+
+.inspector .inspector-overview div {
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: baseline;
+}
+
+.inspector .inspector-overview dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+
+/* A resolved reference or a known enum: its readable name, then the exact stored
+   value on its own caption line. */
+.inspector .property-reference-name,
+.inspector .property-enum-label {
+  color: var(--ui-text);
+}
+
+.inspector .property-reference-id,
+.inspector .property-enum-value {
+  display: block;
+  color: var(--ui-muted);
+  font-size: var(--type-size-caption);
+  line-height: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.inspector .property-reference-missing {
+  color: var(--ui-warning-text);
+  font-size: var(--type-size-caption);
+  line-height: 14px;
+}
