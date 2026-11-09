@@ -326,7 +326,12 @@ impl SettingsRecordRead {
     }
 
     fn shown(&self) -> AutosaveSettingsRead {
-        AutosaveSettingsRead { settings: self.record.shown(), source: self.source, status: self.status.clone() }
+        let status = self.status.clone().or_else(|| {
+            (self.record.backup_folder_in_force().is_some() && self.record.backup_keep.is_some()).then(|| diagnostic(
+                "BACKUP-ROTATION-UNAVAILABLE", "", "The stored finite backup retention is unavailable. It was kept unchanged; choose All explicitly to enable nondeleting backups.",
+            ))
+        });
+        AutosaveSettingsRead { settings: self.record.shown(), source: self.source, status }
     }
 
     /// The record a change starts from: the file's when it was read, else the
@@ -479,6 +484,9 @@ pub(crate) fn update_settings_at(
         Err(refusal) => return AutosaveSettingsWriteOutcome::Refused { diagnostics: vec![refusal] },
     };
     let current = read_settings_record(&data, memory);
+    if let Some(status) = current.get().status.as_ref().filter(|status| status.code == stored_read::STORE_READ_MEMORY_UNAVAILABLE) {
+        return AutosaveSettingsWriteOutcome::Refused { diagnostics: vec![status.clone()] };
+    }
     let base = current.get().base();
     drop(current);
     let record = match change(base) {
@@ -529,7 +537,7 @@ pub(crate) fn seeded_memory<'a>(registry: &'a SolveJobRegistry, lease: &Lease) -
 
 /// Runs `work` on a blocking worker with the command's memory, seeded from
 /// its lease, and serializes the response within that memory.
-pub(crate) async fn on_worker<T: Serialize + Send + 'static>(
+async fn on_worker<T: Serialize + Send + 'static>(
     app: AppHandle,
     command: &'static str,
     lease: Lease,

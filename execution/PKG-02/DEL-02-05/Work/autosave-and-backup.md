@@ -47,7 +47,8 @@ record. No file is replaced in place, except when one writer rewrites a
 record that fails to verify under the same name.
 
 **What it never touches.** An autosave does not open the store. It never writes
-the stored project's row, its envelope hash or revision, its model states or its recorded runs (current store v14). It never overwrites the user's
+the stored project's row, its envelope hash or revision, its model states or
+its recorded runs (current store v14). It never overwrites the user's
 saved project or any file the user saved. A failed autosave leaves the store
 and the previous record exactly as they were.
 
@@ -123,7 +124,8 @@ not changed. The autosave and backup settings are a native settings file,
 
 ```json
 {"document_kind": "swbpipe.desktop.autosave_settings", "version": 1,
- "autosave_minutes": 5, "backup_folder": null, "backup_keep": null}
+ "autosave_minutes": 5, "backup_folder": null, "backup_keep": null,
+ "backup_local_private_intent": false}
 ```
 
 `autosave_minutes` is 1 to 30, or 0 for off. A missing file reads as the
@@ -135,6 +137,17 @@ because the backup folder is a filesystem path that only the native folder
 chooser produces. No native command takes a write path from the webview
 (every existing save path comes from a native chooser), and the settings keep
 it so. The interval lives in the same record, so one place governs both.
+
+Backup changes and interval changes preserve each other's settings under
+`autosave-settings.lock`. Backup configuration first takes `swbpipe-backup.lock`,
+then the settings lock; interval changes take only the settings lock. A backup
+holds the backup lock from its settings read through its last effect. An
+acknowledged Disable therefore precedes every later backup's authorization.
+A legacy folder without recorded intent stays unused and is shown as off.
+Existing finite `backup_keep` values stay readable and are not rewritten on read
+or interval changes; they produce `BACKUP-ROTATION-UNAVAILABLE` instead of a
+backup. Disable preserves that value; explicitly enabling All replaces it with
+null. Settings-read refusals remain refusals rather than becoming an off state.
 
 The timer is one webview interval. At most one autosave is in flight, and a
 tick that finds one running is skipped. A refused autosave shows a status line
@@ -177,59 +190,76 @@ the record verified (§5) and adopts it as Open Model Document adopts a file
 automatically. A record that fails verification is shown as unreadable, with
 its code, and offers Discard only.
 
-## 4. Backup of the last saved version
+## 4. Nondeleting backup of the last saved version
 
-**What.** Once Save Local Project has landed, and only when backups are on,
-the desktop asks the native side to write a backup. The backup is the stored
-project's model document read back from the store, which is the last saved
-version, not the session's copy. The save-success hook sends the verified saved
-project id and full model hash; the native worker refuses if the store has moved
-to another model. It runs independently of autosave cleanup and the save result.
-A completion for a superseded save or project session publishes no status in the
-newer session. It is read as the recovery export reads it
-(`stored_model_document_export`: store opened read-only and not migrated, a
-metered read, the 64 MiB cap, each member once). Its SHA-256 must equal the
-stored row's model hash value. It is screened for dispositions as the export
-is: `protected_suspected`, `quarantined` and `rejected` refuse the backup with
-`PROTECTED_CONTENT_BLOCKED`. A backup copies private data to a user folder, so
-it needs the explicit local-private intent. That intent is recorded when the
-user turns backups on and chooses the folder.
+Agent 0 selected a bounded nondeleting unit. Automatic rotation remains
+unfinished: checking an entry before a name-based removal does not establish
+that only the verified file is removed under concurrent interference. No
+weaker deletion promise or residual-risk acceptance is inferred. This unit
+does not complete RT-U3's remaining rotation or release-volume qualification.
 
-**Folder.** It is chosen through the native folder chooser
-(`blocking_pick_folder`), which starts in the documents folder, and kept in the
-settings file. Each backup checks that the folder still exists, is a directory
-and is not a symlink, which is the atomic writer's own parent check.
+**Stored source.** After a verified Save Local Project response, the session
+starts an independent native request with the saved project id and full model
+hash. The store is opened read-only without migration (current store v14).
+Its compact stored model text is strictly parsed once per member, canonicalized
+as RFC 8785, checked against the stored hash and expected saved hash, and
+required to name the explicit project id. Current model 0.9.0/open checks and
+native disposition screening apply, including referenced libraries. A stale
+store model or protected/quarantined/rejected disposition refuses the backup.
+Only canonical model bytes are copied; queued batches, proposal/review context
+and solve results are excluded. Backup completion never delays, rolls back or
+changes the successful save. Superseded saves/sessions publish no backup status.
 
-**Name.** `<stem>.<slot, first 8 hex>.<UTC yyyymmddThhmmssZ>.<model hash, first 12 hex>.swbpipe-backup.json`.
-`stem` is Save Model Document's suggested stem
-(`suggested_model_document_file_name`). The slot part keeps two project ids
-that share a stem apart. The file is an ordinary model document, so it opens
-with Open Model Document.
+**Opt-in and folder.** The Appearance control offers All only and requires
+explicit private-copy intent before the native folder chooser. Before enabling,
+read-only `fgetattrlist` on the held folder queries `ATTR_VOL_CAPABILITIES`
+(with `ATTR_VOL_INFO`); both the validity and capability bits for
+`VOL_CAP_INT_CLONE` must be present in `VOL_CAPABILITIES_INTERFACES`.
+Unsupported/unknown results refuse without probe files or settings changes.
+This selects macOS volumes reporting clone support, not a filesystem-name
+whitelist; actual clone-capable same-filesystem volume qualification remains
+open. Other platforms refuse this route. Each backup repeats capability and
+actual write/durability checks; the enable-time result is no future guarantee.
+The folder's final component must not be a symlink. Each operation reopens the
+configured path and holds its resulting directory handle; it does not claim
+that external software cannot replace that folder between operations.
 
-**Write.** It uses the atomic writer under its own format (temporary prefix
-`.swbpipe-backup-`), then reads the file back and checks its hash (§5). If the
-newest backup of the project in that folder already holds the same hash,
-nothing is written (`unchanged`).
+**Identity and publication.** The name remains
+`<stem>.<slot8>.<UTC yyyymmddThhmmssZ>.<hash12>.swbpipe-backup.json`.
+The stem is derived from project id. Short slot/hash parts only filter names;
+full expected hash verification establishes an unchanged copy. A collision is
+never overwritten. A new temporary regular file is created exclusively with
+mode 0600, written and synced. macOS `fclonefileat` clones its still-held source
+FD to one absent destination entry relative to the held folder FD. The source
+name is never resolved again. No named-source rename/link or direct-write
+fallback is permitted. Unsupported/unknown capability, unsupported clone or
+cross-filesystem refusal remains explicit.
 
-**Rotation.** "Keep the newest N backups of each project" is the user's
-choice: All (the default), 3, 5, 10, 20 or 50. With All, nothing is ever
-deleted. With N set, and only after a new backup has been written and read
-back, the project's backups in that folder beyond the newest N are deleted, by
-the timestamp in their names. Only names that parse as that project's backup
-pattern, regular files and the folder itself are considered: no recursion, no
-symlinks, no other file. Lowering N deletes nothing at once; the next backup
-applies it. The setting's text says exactly this. A deletion that fails is a
-warning naming the file and never fails the backup.
+**Verification and durable result.** Final reads open one component relative
+to that folder, without following links; inspected/opened identity, type, size,
+mode 0600 and full expected hash must agree. Observed same-size mutation and
+name changes during read-back refuse verification. Final-file sync and bounded
+folder sync must complete, followed by a contained hash recheck, before
+`written`/`unchanged` reports verified success. An existing same-hash copy also
+needs these durability checks. These checks do not prevent later external
+mutation; advisory locks do not enforce same-user custody.
 
-**Refusal.** A missing, unwritable or full folder, a read-back mismatch, a
-screening refusal or a memory refusal refuses the backup by name. The save
-already landed and is unchanged. The status line reads
-`Saved. Backup not written: <code>: <message>`. A backup never blocks, delays
-or rolls back a save.
+**No deletion and truthful failures.** No backup-copy path removes any file,
+including temporary, partial, failed or unverified copies. Storage grows; the
+control says this before enabling. A known refusal before final creation says
+so and names any retained temporary file. A created but unverified final copy,
+an existing copy whose durability cannot be verified, and an unknown publication
+outcome have distinct diagnostics. Transport/worker failure is an unknown
+outcome, never proof that no copy exists. Every older and unrelated entry stays
+untouched. Automatic rotation requires a separately selected interference model
+and supported promise before implementation.
 
 ## 5. Integrity
 
-- **Content.** Each record and each backup is the canonical text of a current
+This section describes autosave records. Backup publication and its nondeleting
+failure handling are in §4; they do not use the shared atomic writer.
+
+- **Content.** Each autosave record is the canonical text of a current
   (0.9.0) model document with its SHA-256. Before writing, the native side
   applies the cap (`MAX_MODEL_DOCUMENT_BYTES`), parses the text, requires it to
   be its own JCS form and requires its SHA-256 to equal the claim
@@ -319,8 +349,9 @@ Slice 2 adds these native commands under the DEL-04-07 ingress rules
 | `write_project_autosave` | `{canonicalText, claimedModelHash}`, a model | `command_ingress::admit(…, ArgsDecoding::Moved)`: envelope(raw) + M + 4 KiB, held until return. Within it (`PoolReadMemory` seeded with the lease): the text's parse (`parse_bytes`), its canonical copy (`is_jcs_text`), a fixed 64 KiB read-back block and the response's exact length. |
 | `read_project_autosave` | `{fileName}` | `admit_within` the history commands' 256 KiB. The file's load (`loaded_text_bytes(len)`) is reserved before it is read, then its parse, its canonical copy and the response (`respond_metered`). |
 | `list_project_autosaves`, `discard_project_autosave` | none, or `{fileName}` | `admit_within` 256 KiB. The listing is at most 1,024 names; more are counted, not listed. |
-| `write_project_backup` | `{projectId, expectedModelHash}` | `admit_within` 256 KiB. The stored text's read as the recovery export's (`StoreLibraryReads`, 1.5 MiB before the store opens), the screening and the read-back block. |
-| `get_autosave_settings`, `set_autosave_settings`, `configure_project_backup` | scalars | `admit_within` 4 KiB. |
+| `write_project_backup` | `{projectId, expectedModelHash}` | `admit_within` 256 KiB. Before effects, a fixed completion reservation covers `exact_text_bytes(MAX_RESPONSE_BYTES) + 2 × MAX_RESPONSE_BYTES` for bounded diagnostics, their copies and serialization. Initial command/SQLite memory (1.5 MiB) precedes store open; model load/parse/canonicalization and referenced-library screening are metered. Read-back plus bounded name scan reserves 64 KiB + 4 KiB. The completion reservation stays through IPC construction; no response admission follows publication. |
+| `get_autosave_settings`, `set_autosave_settings` | scalars | `admit_within` 4 KiB; existing autosave accounting. |
+| `configure_project_backup` | `{enabled, backupKeep, explicitLocalPrivateIntent}`; enabling requires null keep (All) | `admit_within` 4 KiB, plus the same preadmitted completion cover before chooser/settings effects. |
 
 The slice-1 functions take `&dyn ReadMemory` and reserve these terms
 themselves: the parse, the canonical copy, the read-back block, the file's
@@ -354,6 +385,6 @@ counting-allocator tests the other model-sized commands use.
 |---|---|---|---|
 | 1 | This design. `autosave.rs`: slot and name, the per-slot locked write transaction with read-back, durability-gated pruning of strictly older records, a bounded listing and a contained, verified read. The writer's I/O seam, including its directory sync, shared at crate visibility. | Rust: exact bytes and hash; `unchanged`; injected disk full (ENOSPC) at write; real permission denied (read-only directory); injected interrupted rename; crash-before-rename temp ignored; read-back mismatch removes only the new file; store file untouched in every case; tampered and renamed records refused on read; non-current and malformed documents refused; pruning removes only the slot's own strictly older records. Two writers on one slot always leave a valid record; a write waits for its slot's lock and another slot does not; a failed directory sync keeps older records; creating the directory syncs its parent; an `unchanged` record that does not verify is rewritten; a listing beyond its limit is bounded and reserved; a symlinked directory, a record swapped for a symlink and a record that grows are refused; the capped read never reads past its cap. A failed parent sync keeps older records on a later write too; a same-time retry whose check cannot be reserved keeps the only record; a read-back that cannot be reserved keeps new and older records; a corrupt record of the same name is replaced; a writer started between read-back and prune waits (forced by a hook) and a record survives; a lock file that is not a regular file is refused. | Independent review of the module (persistence) before slice 2 builds on it. |
 | 2 | Commands of §6 for autosave and settings; the desktop timer, status lines, recovery offer and discard; discard after a landed save. Required (Agent 0, 2026-10-28): (a) turning autosave off shows a one-line notice that a crash can lose unsaved work; (b) recovery compares the autosave with the stored document and says which is newer before it offers Open, Keep for later or Discard, never silently preferring either. | Rust (`autosave_commands_tests.rs`): each command admitted under its §6 rule (the write with its whole body, leased envelope + M + 4 KiB; the record commands within 256 KiB; the settings commands within 4 KiB); each command's named arguments; the write runs in memory seeded with its lease, and its counting-allocator peak is within what it held; a record listed, read verified and discarded in the app data directory; a discard never follows or removes a symlink; the settings default (5 minutes, on) and the file's exact text; each bad settings file (not JSON, not an object, another kind, an unknown member, a folder that is not a path, too large, a directory, a symlink, version 2, no version, 7, 31, -1, 2.5, "5" or no minutes, keep 4) reads as the default with a status naming it and is not rewritten; a settings read that cannot be reserved reads as the default; setting the interval writes the file atomically and refuses values that are not choices. Vitest (`features/autosave`): on by default every 5 minutes and writes the canonical text on that interval; (a) the off notice, and no writes while off; (a) the off notice stays while off through later status lines (Keep for later, a write landing after autosave was turned off); a settings file that could not be used shows its status line; writes only while edited, only on the interval, never while the session is busy; one in flight; the refusal line and a retry at the next tick; after a landed save, only that project's records holding the saved model's hash are discarded, and a record with another hash (kept for later, or written by another window just before or after the save) is kept; the offer shown only for a newer record whose model differs; (b) which is newer by this Mac's clock, both directions, and the same-second and no-stored cases; a differing record the clock calls older (a clock set back) is stated as kept at start and offered by Recover autosave…, which also says when there is nothing to recover; what the record is, what it replaces and that the stored project stays unchanged; never applied by itself (Keep for later focused, modal hold taken and released, focus returned); Open hands the record to the session's open; Discard asks once more; an unreadable record offers Discard only; the pairing rule. Session (`autosave.session.test.tsx`): Open autosave goes through the unsaved-changes guard (Cancel keeps the edits; Discard edits adopts the record, read verified again, with no stored base); Save Local Project discards the project's autosave holding the saved model once it lands, and keeps one with another hash. A quit while the recovery offer is open closes nothing: the offer takes the shared modal hold, which the close guard (#1717) refuses on. | Independent review. Native smoke stays with the owner. |
-| 3 | Backup: folder chooser, settings, write after a landed save, rotation, refusal display. | Rust: backup equals the stored text and hash; rotation with All deletes nothing; N deletes only that project's pattern, never symlinks or other files; missing, read-only and full folder refusals; screening refusal. Vitest: settings, refusal line after a landed save. | Independent review (rotation deletes files). |
+| 3 | Nondeleting backup: native folder capability preflight, explicit intent/All, stored canonical model after a verified save, FD-source absent-target clone, verification/durability and truthful retained-output diagnostics. Rotation remains unfinished. | Maintained `backup_tests.rs`: capability validity/refusal without probes; legacy intent/finite settings; Disable ordering/read-memory refusal; stored hash/identity/duplicate/screening refusal; completion admission and allocator peak; actual macOS clone/open path; source-name substitution; EEXIST/unsupported clone without fallback; partial/final/temp preservation; source/final mutation; final-name/symlink swaps; source/final/folder durability failure. Frontend tests cover opt-in, All-only/legacy finite state, save/backup independence, unverified/unknown outcomes and stale sessions. These tests and volume qualification require the released lane window. | Final independent persistence/permissions and exact changed-text review after the actual S6/CE predecessor, plus guarded targeted execution. |
 
 Each test must fail without its wiring. The slice-1 evidence is in its PR.

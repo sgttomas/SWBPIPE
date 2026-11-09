@@ -1,8 +1,6 @@
 import { invokeWithIngress } from "../../services/nativeIngress";
 import type { AutosaveDiagnostic, AutosaveSettings } from "./autosaveService";
 
-export const BACKUP_KEEP_CHOICES = [3, 5, 10, 20, 50] as const;
-
 export type BackupSettingsOutcome =
   | { outcome: "saved"; settings: AutosaveSettings }
   | { outcome: "cancelled" }
@@ -10,7 +8,8 @@ export type BackupSettingsOutcome =
 
 export type BackupWriteOutcome =
   | { outcome: "written"; file_name: string; model_hash: string; durability: string; warnings: AutosaveDiagnostic[] }
-  | { outcome: "unchanged"; file_name: string; model_hash: string }
+  | { outcome: "unchanged"; file_name: string; model_hash: string; warnings: AutosaveDiagnostic[] }
+  | { outcome: "unverified"; file_name: string; model_hash: string; creation: "created" | "existing" | "unknown"; diagnostics: AutosaveDiagnostic[] }
   | { outcome: "disabled" }
   | { outcome: "refused"; diagnostics: AutosaveDiagnostic[] };
 

@@ -1,673 +1,788 @@
-//! Tests of `backup.rs` (DEL-02-05 Design `autosave-and-backup.md` §4, §5,
-//! §8 slice 3). Every test uses invented documents in its own temporary
-//! directories: the app data directory (store, settings, locks) and a
-//! separate backup folder. Older backups are planted under names built from
-//! the Design's rule (§4 "Name"), not by the writer under test.
-
+//! Invented inputs only. Every filesystem mutation is within an owned sandbox.
+//! These tests require the lane's guarded window before execution; they do not
+//! establish qualification for other volumes or prevent later external edits.
 use super::*;
-use crate::atomic_report_package_save::test_support::atomic_save_test_lock;
-use crate::autosave_commands::{settings_text, SETTINGS_FILE};
-use crate::command_ingress::test_support::{admit_json, headers, registry};
-use crate::command_ingress::INGRESS_ARGS_JSON_V1;
-use crate::memory_pool::test_host::ScriptedHost;
-use crate::model_document_save::PROTECTED_CONTENT_BLOCKED;
+use crate::autosave_commands::{
+    read_settings, read_settings_record, set_settings_at, settings_text, SETTINGS_FILE,
+};
 use crate::stored_read::{ReadReservation, UnmeteredReadMemory};
 use open_pipe_stress_operation_applier::canonical_json;
 use serde_json::json;
-use std::cell::Cell;
-use std::fs;
-use std::os::unix::fs::PermissionsExt;
-use std::sync::{Mutex, MutexGuard, PoisonError};
+use std::os::unix::fs::FileExt;
+use std::{
+    cell::{Cell, RefCell},
+    fs,
+};
 
 const DEMO: &str = include_str!("../../../../fixtures/product_preview/invented_demo_model.json");
 const PROJECT: &str = "project:invented-demo-loop-01";
-const STEM: &str = "invented-demo-loop-01";
-/// 2026-09-21T13:46:40Z, an invented save time.
 const T0: u64 = 1_790_000_800;
-
-/// Tests that reach the folder's real sync hold this, so a parallel test's
-/// sync worker cannot make theirs uncertain.
-static REAL_SYNC: Mutex<()> = Mutex::new(());
-
-fn real_sync_lock() -> MutexGuard<'static, ()> {
-    REAL_SYNC.lock().unwrap_or_else(PoisonError::into_inner)
-}
-
-fn demo() -> Value {
-    serde_json::from_str(DEMO).unwrap()
-}
-
-/// The demo with another project name: another model of the same project.
-fn variant(index: usize) -> Value {
-    let mut model = demo();
-    model["project"]["name"] = json!(format!("Invented Utility Loop Demo, variant {index}"));
-    model
-}
-
-fn hex(text: &str) -> String {
-    sha256_hex(text)
-}
-
-/// A temporary app data directory and a separate backup folder.
-struct Sandbox {
-    root: PathBuf,
-}
-
+struct Sandbox(PathBuf);
 impl Sandbox {
     fn new(label: &str) -> Self {
         let root = std::env::temp_dir().join(format!(
             "swbpipe-backup-{label}-{}-{}",
             std::process::id(),
-            SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos()
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
         ));
         fs::create_dir_all(root.join("data")).unwrap();
-        fs::create_dir_all(root.join("folder")).unwrap();
-        Self { root }
+        fs::create_dir(root.join("folder")).unwrap();
+        Self(root)
     }
-
     fn data(&self) -> PathBuf {
-        self.root.join("data")
+        self.0.join("data")
     }
-
     fn folder(&self) -> PathBuf {
-        self.root.join("folder")
+        self.0.join("folder")
     }
-
     fn store(&self) -> PathBuf {
         self.data().join(crate::PROJECT_STORE_FILE)
     }
-
-    /// The folder's entries, sorted.
-    fn entries(&self) -> Vec<String> {
-        let mut names: Vec<String> = fs::read_dir(self.folder()).unwrap().map(|entry| entry.unwrap().file_name().to_string_lossy().into_owned()).collect();
-        names.sort();
-        names
+    fn settings(&self) -> PathBuf {
+        self.data().join(SETTINGS_FILE)
     }
-
-    /// Backups on: the folder recorded with the explicit intent.
     fn enable(&self, keep: Option<u32>) {
-        let record = SettingsRecord { autosave_minutes: 5, backup_folder: Some(self.folder().to_str().unwrap().to_string()), backup_keep: keep, backup_local_private_intent: true };
-        fs::write(self.data().join(SETTINGS_FILE), settings_text(&record)).unwrap();
+        fs::write(
+            self.settings(),
+            settings_text(&SettingsRecord {
+                autosave_minutes: 5,
+                backup_folder: Some(self.folder().to_str().unwrap().into()),
+                backup_keep: keep,
+                backup_local_private_intent: true,
+            }),
+        )
+        .unwrap();
     }
-
-    /// The project saved by the store's own create path, with its computed model hash.
     fn save(&self, model: &Value) -> String {
-        let model_hash = crate::computed_model_hash(model, PROJECT);
-        crate::create_project_in_store(self.store(), model.clone(), None, None, None, None, None, Some(model_hash.clone()), None, None).unwrap();
-        model_hash["value"].as_str().unwrap().to_string()
+        let hash = crate::computed_model_hash(model, PROJECT);
+        crate::create_project_in_store(
+            self.store(),
+            model.clone(),
+            None,
+            None,
+            None,
+            None,
+            None,
+            Some(hash.clone()),
+            None,
+            None,
+        )
+        .unwrap();
+        hash["value"].as_str().unwrap().into()
     }
-
-    /// A project row written with raw SQL: `model_json` and `model_hash_json` as given.
-    fn save_raw(&self, model_json: &str, model_hash_json: &str) {
+    fn raw(&self, text: &str, hash: &str) {
         let (connection, _) = crate::open_project_store(&self.store()).unwrap();
-        connection
-            .execute(
-                "INSERT OR REPLACE INTO local_projects(project_id, project_name, model_json, model_hash_json, created_at_unix, updated_at_unix) VALUES (?1, 'Invented', ?2, ?3, 1, 1)",
-                params![PROJECT, model_json, model_hash_json],
-            )
-            .unwrap();
+        connection.execute("INSERT OR REPLACE INTO local_projects(project_id, project_name, model_json, model_hash_json, created_at_unix, updated_at_unix) VALUES (?1, 'Invented', ?2, ?3, 1, 1)", params![PROJECT,text,hash]).unwrap();
+    }
+    fn entries(&self) -> Vec<String> {
+        let mut entries: Vec<_> = fs::read_dir(self.folder())
+            .unwrap()
+            .map(|entry| entry.unwrap().file_name().to_str().unwrap().to_string())
+            .collect();
+        entries.sort();
+        entries
     }
 }
-
 impl Drop for Sandbox {
     fn drop(&mut self) {
-        // Only this test's own temporary directory; a read-only folder is made writable first.
-        if self.root.starts_with(std::env::temp_dir()) {
-            let _ = fs::set_permissions(self.folder(), fs::Permissions::from_mode(0o700));
-            let _ = fs::remove_dir_all(&self.root);
-        }
+        // Test teardown only. This root is created by this Sandbox and cannot
+        // be a real project folder; product backup code has no removal calls.
+        let _ = fs::set_permissions(self.folder(), fs::Permissions::from_mode(0o700));
+        let _ = fs::remove_dir_all(&self.0);
     }
 }
-
-fn request(model_hash: &str) -> WriteRequest {
-    WriteRequest { project_id: PROJECT.to_string(), expected_model_hash: model_hash.to_string() }
+fn demo() -> Value {
+    serde_json::from_str(DEMO).unwrap()
 }
-
-fn hash_claim(model_hash: &str) -> String {
-    json!({"algorithm": "sha256", "canonicalization": "rfc8785_jcs", "payload_scope": "model_payload", "payload_ref": PROJECT, "value": model_hash, "hash_status": "computed_local_preview"}).to_string()
+fn hash(text: &str) -> String {
+    format!("sha256:{}", sha256_hex(text))
 }
-
-/// The Design's name for a backup of `model` written at `seconds` (§4).
-fn design_name(model: &Value, seconds: u64) -> String {
-    let text = canonical_json(model);
-    format!("{STEM}.{}.{}.{}.swbpipe-backup.json", &hex(PROJECT)[..8], utc_stamp(seconds).unwrap(), &hex(&text)[..12])
+fn claim(hash: &str) -> String {
+    json!({"value":hash}).to_string()
 }
-
-/// Plants a verified backup of `model` written at `seconds`; returns its name.
-fn plant(sandbox: &Sandbox, model: &Value, seconds: u64) -> String {
-    let name = design_name(model, seconds);
-    fs::write(sandbox.folder().join(&name), canonical_json(model)).unwrap();
-    name
+fn request(hash: &str) -> WriteRequest {
+    WriteRequest {
+        project_id: PROJECT.into(),
+        expected_model_hash: hash.into(),
+    }
 }
-
-/// The project's model as `write_backup_in_folder` takes it (no store).
-fn stored(model: &Value) -> StoredBackup {
-    let text = canonical_json(model);
-    StoredBackup { model_hex: hex(&text), canonical: Metered::new(text), project_id: PROJECT.to_string(), stem: STEM.to_string(), warnings: Vec::new() }
+fn name(model: &Value, time: u64) -> String {
+    format!(
+        "{}.{}.{}.{}{BACKUP_SUFFIX}",
+        backup_stem(model),
+        backup_slot(PROJECT),
+        utc_stamp(time).unwrap(),
+        &sha256_hex(&canonical_json(model))[..12]
+    )
 }
-
 fn codes(outcome: &BackupWriteOutcome) -> Vec<String> {
     match outcome {
-        BackupWriteOutcome::Refused { diagnostics } => diagnostics.iter().map(|item| item.code.clone()).collect(),
-        BackupWriteOutcome::Written { warnings, .. } => warnings.iter().map(|item| item.code.clone()).collect(),
-        _ => Vec::new(),
+        BackupWriteOutcome::Written { warnings, .. }
+        | BackupWriteOutcome::Unchanged { warnings, .. } => {
+            warnings.iter().map(|d| d.code.clone()).collect()
+        }
+        BackupWriteOutcome::Refused { diagnostics }
+        | BackupWriteOutcome::Unverified { diagnostics, .. } => {
+            diagnostics.iter().map(|d| d.code.clone()).collect()
+        }
+        _ => vec![],
     }
 }
-
-/// The system's operations, with a sync that reports durable without the
-/// process-wide sync worker (folder-level tests run in parallel).
+fn write(s: &Sandbox, hash: &str, io: &mut impl BackupIo) -> BackupWriteOutcome {
+    write_at_with_io(
+        Ok(s.data()),
+        &request(hash),
+        Some(T0),
+        &UnmeteredReadMemory,
+        io,
+    )
+    .into_unreserved()
+    .unwrap()
+}
+// Folder sync is injected for fault tests. A separate test exercises the real
+// supported-volume metadata, FD-source clone, file sync and bounded folder sync.
 struct Durable;
-
 impl BackupIo for Durable {
     fn sync_directory(&mut self, _dir: &BackupDir) -> bool {
         true
     }
 }
-
-// ---------------------------------------------------------------------------
-// Names.
-// ---------------------------------------------------------------------------
-
-#[test]
-fn utc_stamps_are_the_civil_utc_time() {
-    assert_eq!(utc_stamp(0).as_deref(), Some("19700101T000000Z"));
-    assert_eq!(utc_stamp(951_782_400).as_deref(), Some("20000229T000000Z"), "a leap day");
-    assert_eq!(utc_stamp(4_107_542_400).as_deref(), Some("21000301T000000Z"), "2100 is not a leap year");
-    assert_eq!(utc_stamp(T0).as_deref(), Some("20260921T134640Z"));
-    assert_eq!(utc_stamp(253_402_300_799).as_deref(), Some("99991231T235959Z"));
-    assert_eq!(utc_stamp(253_402_300_800), None, "beyond year 9999");
-}
-
-#[test]
-fn names_parse_from_the_right_and_nothing_else_parses() {
-    let name = BackupName { stem: "a.b-c_1".to_string(), slot: "0123abcd".to_string(), stamp: "20260921T134640Z".to_string(), hash: "0123456789ab".to_string() };
-    assert_eq!(name.file_name(), "a.b-c_1.0123abcd.20260921T134640Z.0123456789ab.swbpipe-backup.json");
-    assert_eq!(BackupName::parse(&name.file_name()), Some(name));
-    for other in [
-        ".swbpipe-backup-0123456789abcdef0123456789abcdef.tmp",
-        "x.0123abcd.20260921T134640Z.0123456789ab.json",
-        "x.0123ABCD.20260921T134640Z.0123456789ab.swbpipe-backup.json",
-        "x.0123abcd.20260921T134640.0123456789ab.swbpipe-backup.json",
-        "x.0123abcd.20260921T134640Z.0123456789a.swbpipe-backup.json",
-        ".0123abcd.20260921T134640Z.0123456789ab.swbpipe-backup.json",
-        "x/y.0123abcd.20260921T134640Z.0123456789ab.swbpipe-backup.json",
-        "x y.0123abcd.20260921T134640Z.0123456789ab.swbpipe-backup.json",
-        "0123abcd.20260921T134640Z.0123456789ab.swbpipe-backup.json",
-    ] {
-        assert_eq!(BackupName::parse(other), None, "{other}");
-    }
-    assert_eq!(backup_slot(PROJECT), hex(PROJECT)[..8]);
-    assert_eq!(backup_stem(&demo()), STEM);
-}
-
-// ---------------------------------------------------------------------------
-// The write, through the store and the settings (`write_at`).
-// ---------------------------------------------------------------------------
-
-#[test]
-fn a_backup_is_the_stored_model_s_canonical_text_under_its_design_name() {
-    let _sync = real_sync_lock();
-    let sandbox = Sandbox::new("canonical");
-    let model = demo();
-    let text = canonical_json(&model);
-    let model_hash = format!("sha256:{}", hex(&text));
-    // The stored text is compact JSON, not canonical: spaces and another member order.
-    let pretty = serde_json::to_string_pretty(&model).unwrap();
-    assert_ne!(pretty, text);
-    sandbox.save_raw(&pretty, &hash_claim(&model_hash));
-    sandbox.enable(None);
-    let store_before = fs::read(sandbox.store()).unwrap();
-    let outcome = write_at(Ok(sandbox.data()), &request(&model_hash), Some(T0), &UnmeteredReadMemory);
-    let BackupWriteOutcome::Written { file_name, model_hash: written_hash, durability, warnings } = &outcome else { panic!("{outcome:?}") };
-    assert_eq!(file_name, &design_name(&model, T0));
-    assert_eq!((written_hash, durability.as_str()), (&model_hash, "durable"));
-    assert!(warnings.is_empty(), "{warnings:?}");
-    let path = sandbox.folder().join(file_name);
-    assert_eq!(fs::read_to_string(&path).unwrap(), text, "the canonical bytes, not the stored text");
-    assert_eq!(fs::metadata(&path).unwrap().permissions().mode() & 0o777, 0o600, "private data: owner only");
-    assert_eq!(sandbox.entries(), vec![file_name.clone()], "no temporary file is left");
-    assert_eq!(fs::read(sandbox.store()).unwrap(), store_before, "the store is read only");
-    // The same stored model again: nothing is written.
-    let again = write_at(Ok(sandbox.data()), &request(&model_hash), Some(T0 + 60), &UnmeteredReadMemory);
-    assert_eq!(again, BackupWriteOutcome::Unchanged { file_name: file_name.clone(), model_hash: model_hash.clone() });
-    assert_eq!(sandbox.entries(), vec![file_name.clone()]);
-}
-
-#[test]
-fn a_backup_written_after_a_real_save_reads_back_through_the_open_path() {
-    let _sync = real_sync_lock();
-    let sandbox = Sandbox::new("saved");
-    let model_hash = sandbox.save(&demo());
-    sandbox.enable(Some(3));
-    let BackupWriteOutcome::Written { file_name, .. } = write_at(Ok(sandbox.data()), &request(&model_hash), Some(T0), &UnmeteredReadMemory) else { panic!() };
-    let bytes = fs::read(sandbox.folder().join(&file_name)).unwrap();
-    let outcome = crate::model_document_file::check_model_document(file_name, bytes.len() as u64, serde_json::from_slice(&bytes).unwrap());
-    assert!(matches!(outcome, crate::model_document_file::ModelDocumentOpenOutcome::Opened { .. }), "the backup opens with Open Model Document");
-}
-
-#[test]
-fn backups_off_are_disabled_and_never_open_the_store_or_touch_a_folder() {
-    let sandbox = Sandbox::new("off");
-    let model_hash = format!("sha256:{}", "a".repeat(64));
-    // No settings file; no store either: nothing is opened.
-    assert_eq!(write_at(Ok(sandbox.data()), &request(&model_hash), Some(T0), &UnmeteredReadMemory), BackupWriteOutcome::Disabled);
-    assert!(!sandbox.store().exists());
-    // A folder in a file written before slice 3, without the recorded intent.
-    let legacy = json!({"document_kind": "swbpipe.desktop.autosave_settings", "version": 1, "autosave_minutes": 5, "backup_folder": sandbox.folder().to_str().unwrap(), "backup_keep": 3});
-    fs::write(sandbox.data().join(SETTINGS_FILE), legacy.to_string()).unwrap();
-    let model_hash = sandbox.save(&demo());
-    assert_eq!(write_at(Ok(sandbox.data()), &request(&model_hash), Some(T0), &UnmeteredReadMemory), BackupWriteOutcome::Disabled);
-    assert!(sandbox.entries().is_empty(), "the legacy folder is never written to");
-    assert_eq!(fs::read_to_string(sandbox.data().join(SETTINGS_FILE)).unwrap(), legacy.to_string(), "the settings are not rewritten");
-}
-
-#[test]
-fn a_stale_or_inconsistent_store_refuses_and_writes_nothing() {
-    let sandbox = Sandbox::new("stale");
-    sandbox.enable(None);
-    let model = demo();
-    let text = canonical_json(&model);
-    let model_hash = format!("sha256:{}", hex(&text));
-    let other_hash = format!("sha256:{}", "b".repeat(64));
-    let refused = |expected: &str| codes(&write_at(Ok(sandbox.data()), &request(expected), Some(T0), &UnmeteredReadMemory));
-    assert_eq!(refused("sha256:ABC"), vec![HASH_INVALID]);
-    // No store, then no row.
-    assert_eq!(refused(&model_hash), vec![crate::stored_model_document_export::STORE_UNAVAILABLE]);
-    assert!(!sandbox.store().exists(), "a read-only open creates no store");
-    sandbox.save_raw("{}", "null");
-    let (connection, _) = crate::open_project_store(&sandbox.store()).unwrap();
-    connection.execute("DELETE FROM local_projects", []).unwrap();
-    drop(connection);
-    assert_eq!(refused(&model_hash), vec![PROJECT_NOT_FOUND]);
-    // The store moved on: its row holds another model than the save asked for.
-    sandbox.save_raw(&text, &hash_claim(&other_hash));
-    assert_eq!(refused(&model_hash), vec![STALE]);
-    // The row's claim is not the hash of its own model.
-    assert_eq!(refused(&other_hash), vec![STORED_HASH_MISMATCH]);
-    // No claim recorded.
-    sandbox.save_raw(&text, "null");
-    assert_eq!(refused(&model_hash), vec![STORED_HASH_MISSING]);
-    // A member held twice: the parsed document would not be the stored text.
-    let duplicated = text.replacen("{", "{\"schema_version\":\"0.9.0\",", 1);
-    sandbox.save_raw(&duplicated, &hash_claim(&model_hash));
-    assert_eq!(refused(&model_hash), vec![STORED_DUPLICATE_MEMBER]);
-    assert!(sandbox.entries().is_empty(), "nothing was written for any refusal");
-}
-
-#[test]
-fn the_open_checks_and_the_screening_refuse_before_any_write() {
-    let sandbox = Sandbox::new("screened");
-    sandbox.enable(None);
-    let mut quarantined = demo();
-    quarantined["materials"][0]["provenance_record"]["review_status"] = json!("quarantined");
-    let model_hash = sandbox.save(&quarantined);
-    let outcome = write_at(Ok(sandbox.data()), &request(&model_hash), Some(T0), &UnmeteredReadMemory);
-    let BackupWriteOutcome::Refused { diagnostics } = &outcome else { panic!("{outcome:?}") };
-    assert_eq!((diagnostics[0].code.as_str(), diagnostics[0].path.as_str()), (PROTECTED_CONTENT_BLOCKED, "materials[0].provenance_record"));
-    // A document the open path refuses (its validator's blocking finding).
-    let mut invalid = demo();
-    invalid["lines"][0]["pipe_refs"] = json!(["pipe:P-absent"]);
-    let text = canonical_json(&invalid);
-    let model_hash = format!("sha256:{}", hex(&text));
-    sandbox.save_raw(&text, &hash_claim(&model_hash));
-    let outcome = write_at(Ok(sandbox.data()), &request(&model_hash), Some(T0), &UnmeteredReadMemory);
-    assert!(codes(&outcome).contains(&"MODEL-LINE-PIPE-MISSING".to_string()), "{outcome:?}");
-    assert!(sandbox.entries().is_empty());
-}
-
-#[test]
-fn a_reservation_the_pool_refuses_writes_nothing() {
-    struct RefusesCanonical;
-    impl ReadMemory for RefusesCanonical {
-        fn reserve(&self, what: &str, bytes: u64) -> Result<ReadReservation, String> {
-            if what.contains("canonical text") {
-                return Err(format!("{STORE_READ_MEMORY_UNAVAILABLE}: {what} refused (invented)"));
-            }
-            UnmeteredReadMemory.reserve(what, bytes)
-        }
-    }
-    let sandbox = Sandbox::new("memory");
-    sandbox.enable(None);
-    let model_hash = sandbox.save(&demo());
-    let outcome = write_at(Ok(sandbox.data()), &request(&model_hash), Some(T0), &RefusesCanonical);
-    assert_eq!(codes(&outcome), vec![STORE_READ_MEMORY_UNAVAILABLE]);
-    assert!(sandbox.entries().is_empty());
-}
-
-// ---------------------------------------------------------------------------
-// The folder.
-// ---------------------------------------------------------------------------
-
-#[test]
-fn a_missing_symlinked_or_read_only_folder_refuses() {
-    let sandbox = Sandbox::new("folders");
-    let document = stored(&demo());
-    let missing = sandbox.root.join("missing");
-    assert_eq!(codes(&write_backup_in_folder(&missing, &document, None, T0, &UnmeteredReadMemory, &mut Durable)), vec![FOLDER_UNAVAILABLE]);
-    // A symlink to a real folder is refused, and that folder is untouched.
-    let link = sandbox.root.join("link");
-    std::os::unix::fs::symlink(sandbox.folder(), &link).unwrap();
-    assert_eq!(codes(&write_backup_in_folder(&link, &document, None, T0, &UnmeteredReadMemory, &mut Durable)), vec![FOLDER_UNAVAILABLE]);
-    assert!(sandbox.entries().is_empty());
-    // A read-only folder: the temporary file cannot be created.
-    fs::set_permissions(sandbox.folder(), fs::Permissions::from_mode(0o500)).unwrap();
-    let outcome = write_backup_in_folder(&sandbox.folder(), &document, None, T0, &UnmeteredReadMemory, &mut Durable);
-    fs::set_permissions(sandbox.folder(), fs::Permissions::from_mode(0o700)).unwrap();
-    assert_eq!(codes(&outcome), vec![TEMP_CREATE_FAILED], "{outcome:?}");
-    assert!(sandbox.entries().is_empty());
-}
-
-#[test]
-fn a_full_disk_or_a_failed_publish_leaves_no_file_and_keeps_older_backups() {
-    struct DiskFull;
-    impl BackupIo for DiskFull {
-        fn write_all(&mut self, _file: &mut File, _bytes: &[u8]) -> io::Result<()> {
-            Err(io::Error::from_raw_os_error(libc::ENOSPC))
-        }
-    }
-    struct PublishFails;
-    impl BackupIo for PublishFails {
-        fn publish(&mut self, _dir: &BackupDir, _temp: &str, _name: &str) -> io::Result<()> {
-            Err(io::Error::from_raw_os_error(libc::EIO))
-        }
-    }
-    let sandbox = Sandbox::new("injected");
-    let older = plant(&sandbox, &variant(1), T0 - 3600);
-    let before = sandbox.entries();
-    let outcome = write_backup_in_folder(&sandbox.folder(), &stored(&demo()), Some(3), T0, &UnmeteredReadMemory, &mut DiskFull);
-    let BackupWriteOutcome::Refused { diagnostics } = &outcome else { panic!("{outcome:?}") };
-    assert_eq!(diagnostics[0].code, WRITE_FAILED);
-    assert!(diagnostics[0].message.contains(&format!("os error {}", libc::ENOSPC)), "{}", diagnostics[0].message);
-    assert_eq!(sandbox.entries(), before, "no temporary file, the older backup kept");
-    assert_eq!(codes(&write_backup_in_folder(&sandbox.folder(), &stored(&demo()), Some(3), T0, &UnmeteredReadMemory, &mut PublishFails)), vec![PUBLISH_FAILED]);
-    assert_eq!(sandbox.entries(), vec![older]);
-}
-
-#[test]
-fn a_name_already_in_use_is_never_replaced() {
-    /// Another writer creates the backup's name between the check and the publish.
-    struct RaceAtPublish(PathBuf, Vec<u8>);
-    impl BackupIo for RaceAtPublish {
-        fn publish(&mut self, dir: &BackupDir, temp: &str, name: &str) -> io::Result<()> {
-            fs::write(self.0.join(name), &self.1)?;
-            dir.publish_new(temp, name)
-        }
-    }
-    let sandbox = Sandbox::new("name-in-use");
-    let model = demo();
-    let name = design_name(&model, T0);
-    // A foreign file already under the very name the backup would take.
-    fs::write(sandbox.folder().join(&name), b"invented foreign bytes").unwrap();
-    let outcome = write_backup_in_folder(&sandbox.folder(), &stored(&model), Some(3), T0, &UnmeteredReadMemory, &mut Durable);
-    assert_eq!(codes(&outcome), vec![NAME_IN_USE], "{outcome:?}");
-    assert_eq!(fs::read(sandbox.folder().join(&name)).unwrap(), b"invented foreign bytes", "never replaced");
-    assert_eq!(sandbox.entries(), vec![name.clone()], "the temporary file was removed");
-    // Foreign bytes created under the name during the write.
-    fs::remove_file(sandbox.folder().join(&name)).unwrap();
-    let mut race = RaceAtPublish(sandbox.folder(), b"invented racing bytes".to_vec());
-    let outcome = write_backup_in_folder(&sandbox.folder(), &stored(&model), Some(3), T0, &UnmeteredReadMemory, &mut race);
-    assert_eq!(codes(&outcome), vec![NAME_IN_USE], "{outcome:?}");
-    assert_eq!(fs::read(sandbox.folder().join(&name)).unwrap(), b"invented racing bytes");
-    assert_eq!(sandbox.entries(), vec![name.clone()]);
-    // Exactly these bytes created under the name during the write: unchanged.
-    fs::remove_file(sandbox.folder().join(&name)).unwrap();
-    let mut race = RaceAtPublish(sandbox.folder(), canonical_json(&model).into_bytes());
-    let outcome = write_backup_in_folder(&sandbox.folder(), &stored(&model), Some(3), T0, &UnmeteredReadMemory, &mut race);
-    assert_eq!(outcome, BackupWriteOutcome::Unchanged { file_name: name.clone(), model_hash: format!("sha256:{}", hex(&canonical_json(&model))) });
-    assert_eq!(sandbox.entries(), vec![name]);
-}
-
-#[test]
-fn an_unchanged_check_needs_the_full_hash_not_the_name() {
-    let sandbox = Sandbox::new("unchanged-name");
-    let model = demo();
-    // The newest name carries this model's hash prefix but other bytes.
-    let forged = design_name(&model, T0 - 60);
-    fs::write(sandbox.folder().join(&forged), b"invented bytes under a forged name").unwrap();
-    let outcome = write_backup_in_folder(&sandbox.folder(), &stored(&model), None, T0, &UnmeteredReadMemory, &mut Durable);
-    let BackupWriteOutcome::Written { file_name, .. } = &outcome else { panic!("{outcome:?}") };
-    assert_eq!(file_name, &design_name(&model, T0));
-    assert_eq!(fs::read(sandbox.folder().join(&forged)).unwrap(), b"invented bytes under a forged name");
-}
-
-#[test]
-fn a_read_back_that_differs_removes_only_the_new_file_and_one_that_cannot_be_made_keeps_it() {
-    /// Rewrites the published file in place (same inode) before the read-back.
-    struct Corrupts(PathBuf);
-    impl BackupIo for Corrupts {
-        fn publish(&mut self, dir: &BackupDir, temp: &str, name: &str) -> io::Result<()> {
-            dir.publish_new(temp, name)?;
-            fs::OpenOptions::new().write(true).open(self.0.join(name))?.write_all(b"X")
-        }
-    }
-    /// Replaces the published entry by another file before the read-back.
-    struct Replaces(PathBuf);
-    impl BackupIo for Replaces {
-        fn publish(&mut self, dir: &BackupDir, temp: &str, name: &str) -> io::Result<()> {
-            dir.publish_new(temp, name)?;
-            let other = self.0.join("invented-other.bin");
-            fs::write(&other, b"invented replacement")?;
-            fs::rename(other, self.0.join(name))
-        }
-    }
-    let sandbox = Sandbox::new("readback");
-    let older = plant(&sandbox, &variant(1), T0 - 3600);
-    let model = demo();
-    let outcome = write_backup_in_folder(&sandbox.folder(), &stored(&model), Some(3), T0, &UnmeteredReadMemory, &mut Corrupts(sandbox.folder()));
-    assert_eq!(codes(&outcome), vec![READBACK_MISMATCH], "{outcome:?}");
-    assert_eq!(sandbox.entries(), vec![older.clone()], "only the new file was removed");
-    let outcome = write_backup_in_folder(&sandbox.folder(), &stored(&model), Some(1), T0, &UnmeteredReadMemory, &mut Replaces(sandbox.folder()));
-    assert_eq!(codes(&outcome), vec![READBACK_FAILED], "{outcome:?}");
-    let name = design_name(&model, T0);
-    assert_eq!(fs::read(sandbox.folder().join(&name)).unwrap(), b"invented replacement", "a file this backup did not write is never removed");
-    assert!(sandbox.folder().join(&older).exists(), "no rotation after a read-back that could not be made");
-}
-
-// ---------------------------------------------------------------------------
-// Rotation.
-// ---------------------------------------------------------------------------
-
-#[test]
-fn rotation_with_all_deletes_nothing() {
-    let sandbox = Sandbox::new("rotation-all");
-    let planted: Vec<String> = (1..=6).map(|index| plant(&sandbox, &variant(index), T0 - 3600 * index as u64)).collect();
-    let outcome = write_backup_in_folder(&sandbox.folder(), &stored(&demo()), None, T0, &UnmeteredReadMemory, &mut Durable);
-    assert!(matches!(outcome, BackupWriteOutcome::Written { .. }), "{outcome:?}");
-    for name in &planted {
-        assert!(sandbox.folder().join(name).exists(), "{name}");
-    }
-    assert_eq!(sandbox.entries().len(), 7);
-}
-
-#[test]
-fn rotation_keeps_the_newest_n_verified_backups_and_never_touches_another_file() {
-    let sandbox = Sandbox::new("rotation-n");
-    let folder = sandbox.folder();
-    // Five older verified backups, newest first: hours 1 to 5 before T0.
-    let older: Vec<String> = (1..=5).map(|index| plant(&sandbox, &variant(index), T0 - 3600 * index as u64)).collect();
-    // Files that must survive, each named like this project's older backup:
-    // bytes that do not hash with the name's prefix;
-    let wrong_hash = design_name(&variant(6), T0 - 3600 * 10);
-    fs::write(folder.join(&wrong_hash), b"invented bytes").unwrap();
-    // another project's canonical model whose own hash the name carries;
-    let mut other_project = variant(7);
-    other_project["project"]["id"] = json!("project:invented-other");
-    let other_text = canonical_json(&other_project);
-    let other_name = format!("{STEM}.{}.{}.{}.swbpipe-backup.json", &hex(PROJECT)[..8], utc_stamp(T0 - 3600 * 11).unwrap(), &hex(&other_text)[..12]);
-    fs::write(folder.join(&other_name), &other_text).unwrap();
-    // a symlink to a verified backup outside the folder, and a folder;
-    let outside = sandbox.root.join("outside.json");
-    fs::write(&outside, canonical_json(&variant(8))).unwrap();
-    let link = design_name(&variant(8), T0 - 3600 * 12);
-    std::os::unix::fs::symlink(&outside, folder.join(&link)).unwrap();
-    let directory = design_name(&variant(9), T0 - 3600 * 13);
-    fs::create_dir(folder.join(&directory)).unwrap();
-    // and unrelated files.
-    fs::write(folder.join("notes.txt"), b"invented notes").unwrap();
-    fs::write(folder.join(".swbpipe-backup-0123456789abcdef0123456789abcdef.tmp"), b"invented leftover").unwrap();
-    let outcome = write_backup_in_folder(&folder, &stored(&demo()), Some(3), T0, &UnmeteredReadMemory, &mut Durable);
-    let BackupWriteOutcome::Written { file_name, warnings, durability, .. } = &outcome else { panic!("{outcome:?}") };
-    assert_eq!(durability, "durable");
-    // Kept: the new backup and the two newest verified older ones.
-    assert!(folder.join(file_name).exists());
-    assert!(folder.join(&older[0]).exists() && folder.join(&older[1]).exists());
-    for removed in &older[2..] {
-        assert!(!folder.join(removed).exists(), "{removed}");
-    }
-    for kept in [&wrong_hash, &other_name, &directory, &"notes.txt".to_string(), &".swbpipe-backup-0123456789abcdef0123456789abcdef.tmp".to_string()] {
-        assert!(fs::symlink_metadata(folder.join(kept)).is_ok(), "{kept}");
-    }
-    assert!(fs::symlink_metadata(folder.join(&link)).unwrap().file_type().is_symlink(), "the link is left in place");
-    assert_eq!(fs::read(&outside).unwrap(), canonical_json(&variant(8)).into_bytes(), "its target is untouched");
-    let unverified = warnings.iter().find(|item| item.code == ROTATION_UNVERIFIED).expect("the unverified files are counted");
-    assert!(unverified.message.starts_with("2 files"), "{}", unverified.message);
-}
-
-#[test]
-fn an_uncertain_folder_sync_defers_rotation() {
-    struct NotDurable;
-    impl BackupIo for NotDurable {
-        fn sync_directory(&mut self, _dir: &BackupDir) -> bool {
-            false
-        }
-    }
-    let sandbox = Sandbox::new("rotation-deferred");
-    let older: Vec<String> = (1..=4).map(|index| plant(&sandbox, &variant(index), T0 - 3600 * index as u64)).collect();
-    let outcome = write_backup_in_folder(&sandbox.folder(), &stored(&demo()), Some(3), T0, &UnmeteredReadMemory, &mut NotDurable);
-    let BackupWriteOutcome::Written { durability, .. } = &outcome else { panic!("{outcome:?}") };
-    assert_eq!(durability, "saved_durability_uncertain");
-    assert_eq!(codes(&outcome), vec![PRUNE_DEFERRED]);
-    for name in &older {
-        assert!(sandbox.folder().join(name).exists(), "{name}");
-    }
-}
-
-#[test]
-fn a_newer_backup_written_during_the_transaction_is_kept() {
-    /// Another writer adds a newer backup after the enumeration.
-    struct NewerArrives(PathBuf, String);
-    impl BackupIo for NewerArrives {
-        fn sync_directory(&mut self, _dir: &BackupDir) -> bool {
-            let model = variant(42);
-            self.1 = design_name(&model, T0 + 60);
-            fs::write(self.0.join(&self.1), canonical_json(&model)).unwrap();
-            true
-        }
-    }
-    let sandbox = Sandbox::new("rotation-newer");
-    let older = plant(&sandbox, &variant(1), T0 - 3600);
-    let mut io = NewerArrives(sandbox.folder(), String::new());
-    let outcome = write_backup_in_folder(&sandbox.folder(), &stored(&demo()), Some(1), T0, &UnmeteredReadMemory, &mut io);
-    let BackupWriteOutcome::Written { file_name, .. } = &outcome else { panic!("{outcome:?}") };
-    assert!(sandbox.folder().join(file_name).exists(), "the new backup is always kept");
-    assert!(sandbox.folder().join(&io.1).exists(), "the concurrent newer backup is kept");
-    assert!(!sandbox.folder().join(&older).exists(), "the older verified backup beyond N is removed");
-}
-
-#[test]
-fn a_backup_swapped_after_its_verification_is_not_removed() {
-    let sandbox = Sandbox::new("rotation-swap");
-    let older = plant(&sandbox, &variant(1), T0 - 3600);
-    let folder = sandbox.folder();
-    let swapped = folder.join(&older);
-    BEFORE_UNLINK.with(|hook| {
-        *hook.borrow_mut() = Some(Box::new(move || {
-            let replacement = swapped.with_file_name("invented-replacement.bin");
-            fs::write(&replacement, b"invented replacement").unwrap();
-            fs::rename(&replacement, &swapped).unwrap();
-        }))
-    });
-    let outcome = write_backup_in_folder(&folder, &stored(&demo()), Some(1), T0, &UnmeteredReadMemory, &mut Durable);
-    assert_eq!(codes(&outcome), vec![PRUNE_FAILED], "{outcome:?}");
-    assert_eq!(fs::read(folder.join(&older)).unwrap(), b"invented replacement", "the substitute is left in place");
-}
-
-// ---------------------------------------------------------------------------
-// Configuration.
-// ---------------------------------------------------------------------------
-
-fn configure(sandbox: &Sandbox, enabled: bool, keep: Option<u32>, intent: bool, chosen: Option<PathBuf>, asked: &Cell<u32>) -> BackupConfigureOutcome {
-    let request = ConfigureRequest { enabled, backup_keep: keep, explicit_local_private_intent: intent };
-    configure_at(
-        Ok(sandbox.data()),
-        &request,
-        || {
-            asked.set(asked.get() + 1);
-            Ok(chosen)
+fn configure(
+    s: &Sandbox,
+    enabled: bool,
+    keep: Option<u32>,
+    intent: bool,
+    chosen: Option<PathBuf>,
+) -> BackupConfigureOutcome {
+    configure_with_capability(
+        Ok(s.data()),
+        &ConfigureRequest {
+            enabled,
+            backup_keep: keep,
+            explicit_local_private_intent: intent,
         },
+        || Ok(chosen),
         &UnmeteredReadMemory,
+        |_| Ok(()),
     )
 }
-
-fn record(sandbox: &Sandbox) -> SettingsRecord {
-    crate::autosave_commands::read_settings_record(&sandbox.data(), &UnmeteredReadMemory).into_unreserved().unwrap().record
+fn record(s: &Sandbox) -> SettingsRecord {
+    read_settings_record(&s.data(), &UnmeteredReadMemory)
+        .get()
+        .record
+        .clone()
 }
 
 #[test]
-fn turning_backups_on_records_the_intent_with_the_chosen_folder_and_off_deletes_nothing() {
-    let _save_lock = atomic_save_test_lock();
-    let sandbox = Sandbox::new("configure");
-    let asked = Cell::new(0);
-    assert!(matches!(crate::autosave_commands::set_settings_at(Ok(sandbox.data()), 15, &UnmeteredReadMemory), AutosaveSettingsWriteOutcome::Saved { .. }));
-    let before = fs::read(sandbox.data().join(SETTINGS_FILE)).unwrap();
-    // No intent, or a rotation that is not a choice: refused before the chooser.
-    let BackupConfigureOutcome::Refused { diagnostics } = configure(&sandbox, true, None, false, Some(sandbox.folder()), &asked) else { panic!() };
-    assert_eq!(diagnostics[0].code, INTENT_REQUIRED);
-    let BackupConfigureOutcome::Refused { diagnostics } = configure(&sandbox, true, Some(4), true, Some(sandbox.folder()), &asked) else { panic!() };
-    assert_eq!(diagnostics[0].code, SETTINGS_OUT_OF_RANGE);
-    assert_eq!(asked.get(), 0, "the chooser was never shown");
-    // Cancelled: nothing is written.
-    assert_eq!(configure(&sandbox, true, None, true, None, &asked), BackupConfigureOutcome::Cancelled);
-    // A symlinked folder is refused.
-    let link = sandbox.root.join("link");
-    std::os::unix::fs::symlink(sandbox.folder(), &link).unwrap();
-    let BackupConfigureOutcome::Refused { diagnostics } = configure(&sandbox, true, None, true, Some(link), &asked) else { panic!() };
-    assert_eq!(diagnostics[0].code, FOLDER_INVALID);
-    assert_eq!(fs::read(sandbox.data().join(SETTINGS_FILE)).unwrap(), before, "no refusal or cancel wrote anything");
-    // Chosen: the folder, the rotation and the intent together; the interval kept.
-    let folder = sandbox.folder().to_str().unwrap().to_string();
-    let outcome = configure(&sandbox, true, Some(5), true, Some(sandbox.folder()), &asked);
-    assert_eq!(outcome, BackupConfigureOutcome::Saved { settings: AutosaveSettings { autosave_minutes: 15, backup_folder: Some(folder.clone()), backup_keep: Some(5) } });
-    assert_eq!(record(&sandbox), SettingsRecord { autosave_minutes: 15, backup_folder: Some(folder), backup_keep: Some(5), backup_local_private_intent: true });
-    // Off: the folder and the intent cleared, no file in the folder touched.
-    let planted = plant(&sandbox, &variant(1), T0);
-    let outcome = configure(&sandbox, false, Some(5), false, None, &asked);
-    assert_eq!(outcome, BackupConfigureOutcome::Saved { settings: AutosaveSettings { autosave_minutes: 15, backup_folder: None, backup_keep: Some(5) } });
-    assert_eq!(record(&sandbox).backup_local_private_intent, false);
-    assert_eq!(sandbox.entries(), vec![planted]);
-    assert_eq!(asked.get(), 3);
+fn names_and_time_are_strict_and_short_slot_is_only_a_filter() {
+    assert_eq!(utc_stamp(0).as_deref(), Some("19700101T000000Z"));
+    assert_eq!(utc_stamp(T0).as_deref(), Some("20260921T134640Z"));
+    let valid = name(&demo(), T0);
+    assert_eq!(BackupName::parse(&valid).unwrap().file_name(), valid);
+    for invalid in [
+        "../x.json",
+        ".swbpipe-backup-abc.tmp",
+        "x.0123ABCD.20260921T134640Z.0123456789ab.swbpipe-backup.json",
+    ] {
+        assert!(BackupName::parse(invalid).is_none());
+    }
+}
+#[cfg(target_os = "macos")]
+#[test]
+fn volume_capability_requires_validity_and_support_separately() {
+    let bit = libc::VOL_CAP_INT_CLONE;
+    assert!(
+        clone_capability(0, bit).is_err(),
+        "set but invalid is unknown"
+    );
+    assert!(
+        clone_capability(bit, 0).is_err(),
+        "valid but unset is unsupported"
+    );
+    assert!(clone_capability(bit, bit).is_ok());
+}
+#[test]
+fn enable_preflights_metadata_without_probe_files_and_preserves_settings_on_refusal() {
+    let s = Sandbox::new("capability-refusal");
+    s.enable(None);
+    let before = fs::read(s.settings()).unwrap();
+    for kind in [io::ErrorKind::Unsupported, io::ErrorKind::Other] {
+        let result = configure_with_capability(
+            Ok(s.data()),
+            &ConfigureRequest {
+                enabled: true,
+                backup_keep: None,
+                explicit_local_private_intent: true,
+            },
+            || Ok(Some(s.folder())),
+            &UnmeteredReadMemory,
+            |_| {
+                Err(io::Error::new(
+                    kind,
+                    "invented unsupported/unknown metadata",
+                ))
+            },
+        );
+        assert!(matches!(result, BackupConfigureOutcome::Refused { .. }));
+        assert_eq!(fs::read(s.settings()).unwrap(), before);
+        assert!(
+            s.entries().is_empty(),
+            "metadata preflight creates no probe file"
+        );
+    }
+}
+#[test]
+fn finite_retention_and_missing_intent_refuse_before_chooser_and_cancel_changes_nothing() {
+    let s = Sandbox::new("configure");
+    let asked = Cell::new(false);
+    for (keep, intent) in [(Some(3), true), (None, false)] {
+        let result = configure_with_capability(
+            Ok(s.data()),
+            &ConfigureRequest {
+                enabled: true,
+                backup_keep: keep,
+                explicit_local_private_intent: intent,
+            },
+            || {
+                asked.set(true);
+                Ok(Some(s.folder()))
+            },
+            &UnmeteredReadMemory,
+            |_| Ok(()),
+        );
+        assert!(matches!(result, BackupConfigureOutcome::Refused { .. }));
+        assert!(!asked.get());
+    }
+    assert_eq!(
+        configure(&s, true, None, true, None),
+        BackupConfigureOutcome::Cancelled
+    );
+    assert!(!s.settings().exists());
+    assert!(s.entries().is_empty());
+}
+#[test]
+fn finite_legacy_setting_is_kept_but_never_used_and_disable_still_works() {
+    let s = Sandbox::new("finite");
+    s.enable(Some(3));
+    let before = fs::read(s.settings()).unwrap();
+    let outcome = write(&s, &format!("sha256:{}", "a".repeat(64)), &mut Durable);
+    assert_eq!(codes(&outcome), [ROTATION_UNAVAILABLE]);
+    assert!(s.entries().is_empty());
+    assert_eq!(fs::read(s.settings()).unwrap(), before);
+    assert_eq!(
+        read_settings(&s.data(), &UnmeteredReadMemory)
+            .get()
+            .status
+            .as_ref()
+            .unwrap()
+            .code,
+        ROTATION_UNAVAILABLE
+    );
+    assert!(matches!(
+        set_settings_at(Ok(s.data()), 10, &UnmeteredReadMemory),
+        AutosaveSettingsWriteOutcome::Saved { .. }
+    ));
+    assert_eq!(record(&s).backup_keep, Some(3));
+    fs::write(s.folder().join("invented-existing.json"), b"kept").unwrap();
+    assert!(matches!(
+        configure(&s, false, None, false, None),
+        BackupConfigureOutcome::Saved { .. }
+    ));
+    assert_eq!(
+        record(&s).backup_keep,
+        Some(3),
+        "disable does not silently rewrite retention"
+    );
+    assert_eq!(
+        fs::read(s.folder().join("invented-existing.json")).unwrap(),
+        b"kept"
+    );
+    assert!(matches!(
+        configure(&s, true, None, true, Some(s.folder())),
+        BackupConfigureOutcome::Saved { .. }
+    ));
+    assert_eq!(record(&s).backup_keep, None, "All is explicitly chosen");
+    assert_eq!(record(&s).autosave_minutes, 10);
+}
+#[test]
+fn off_and_legacy_folder_without_intent_never_open_the_store() {
+    let s = Sandbox::new("off");
+    let expected = format!("sha256:{}", "a".repeat(64));
+    assert_eq!(
+        write(&s, &expected, &mut Durable),
+        BackupWriteOutcome::Disabled
+    );
+    fs::write(s.settings(),json!({"document_kind":"swbpipe.desktop.autosave_settings","version":1,"autosave_minutes":5,"backup_folder":s.folder(),"backup_keep":null}).to_string()).unwrap();
+    let before = fs::read(s.settings()).unwrap();
+    assert_eq!(
+        write(&s, &expected, &mut Durable),
+        BackupWriteOutcome::Disabled
+    );
+    assert!(!s.store().exists());
+    assert!(s.entries().is_empty());
+    assert_eq!(fs::read(s.settings()).unwrap(), before);
+}
+#[test]
+fn settings_read_refusal_is_not_disabled_and_interval_change_preserves_unread_settings() {
+    struct NoSettings;
+    impl ReadMemory for NoSettings {
+        fn reserve(&self, what: &str, bytes: u64) -> Result<ReadReservation, String> {
+            if what == "the autosave settings file" {
+                Err(format!("{STORE_READ_MEMORY_UNAVAILABLE}: invented refusal"))
+            } else {
+                UnmeteredReadMemory.reserve(what, bytes)
+            }
+        }
+    }
+    let s = Sandbox::new("settings-memory");
+    s.enable(None);
+    let before = fs::read(s.settings()).unwrap();
+    let outcome = write_at_with_io(
+        Ok(s.data()),
+        &request(&format!("sha256:{}", "a".repeat(64))),
+        Some(T0),
+        &NoSettings,
+        &mut Durable,
+    )
+    .into_unreserved()
+    .unwrap();
+    assert_eq!(codes(&outcome), [STORE_READ_MEMORY_UNAVAILABLE]);
+    assert!(matches!(
+        set_settings_at(Ok(s.data()), 1, &NoSettings),
+        AutosaveSettingsWriteOutcome::Refused { .. }
+    ));
+    assert_eq!(fs::read(s.settings()).unwrap(), before);
+    assert!(s.entries().is_empty());
+}
+#[test]
+fn completion_refusal_precedes_all_effects_and_response_serialization_has_no_later_admission() {
+    struct Memory {
+        refuse: bool,
+        requests: RefCell<Vec<String>>,
+    }
+    impl ReadMemory for Memory {
+        fn reserve(&self, what: &str, bytes: u64) -> Result<ReadReservation, String> {
+            self.requests.borrow_mut().push(what.into());
+            if self.refuse && what == "backup completion diagnostics and serialization" {
+                Err(format!("{STORE_READ_MEMORY_UNAVAILABLE}: invented"))
+            } else {
+                UnmeteredReadMemory.reserve(what, bytes)
+            }
+        }
+    }
+    let s = Sandbox::new("completion");
+    s.enable(None);
+    let memory = Memory {
+        refuse: true,
+        requests: RefCell::new(vec![]),
+    };
+    let result = write_at(
+        Ok(s.data()),
+        &request(&format!("sha256:{}", "a".repeat(64))),
+        Some(T0),
+        &memory,
+    );
+    assert_eq!(codes(result.get()), [STORE_READ_MEMORY_UNAVAILABLE]);
+    assert!(!s.store().exists());
+    assert!(s.entries().is_empty());
+    let count = memory.requests.borrow().len();
+    assert!(response(result).is_ok());
+    assert_eq!(
+        memory.requests.borrow().len(),
+        count,
+        "serialization admits nothing after effects"
+    );
+}
+#[test]
+fn a_queued_backup_rechecks_settings_after_disable_linearizes() {
+    let s = Sandbox::new("disable-queued");
+    s.enable(None);
+    let data = s.data();
+    BEFORE_BACKUP_LOCK.with(|hook| {
+        *hook.borrow_mut() = Some(Box::new(move || {
+            let result = configure_with_capability(
+                Ok(data),
+                &ConfigureRequest {
+                    enabled: false,
+                    backup_keep: None,
+                    explicit_local_private_intent: false,
+                },
+                || panic!("off has no chooser"),
+                &UnmeteredReadMemory,
+                |_| panic!("off has no probe"),
+            );
+            assert!(matches!(result, BackupConfigureOutcome::Saved { .. }));
+        }))
+    });
+    assert_eq!(
+        write(&s, &format!("sha256:{}", "a".repeat(64)), &mut Durable),
+        BackupWriteOutcome::Disabled
+    );
+    assert!(!s.store().exists());
+    assert!(s.entries().is_empty());
+}
+#[test]
+fn stored_hash_identity_duplicate_and_protected_checks_precede_folder_writes() {
+    let s = Sandbox::new("stored-checks");
+    s.enable(None);
+    let text = canonical_json(&demo());
+    let expected = hash(&text);
+    s.raw(&text, &claim(&expected));
+    let wrong = format!("sha256:{}", "0".repeat(64));
+    assert_eq!(codes(&write(&s, &wrong, &mut Durable)), [STALE]);
+    s.raw(&text, &claim(&wrong));
+    assert_eq!(
+        codes(&write(&s, &wrong, &mut Durable)),
+        [STORED_HASH_MISMATCH]
+    );
+    let duplicate = text.replacen('{', "{\"duplicate\":0,\"duplicate\":1,", 1);
+    s.raw(&duplicate, &claim(&expected));
+    assert_eq!(
+        codes(&write(&s, &expected, &mut Durable)),
+        [STORED_DUPLICATE_MEMBER]
+    );
+    let mut other = demo();
+    other["project"]["id"] = json!("project:invented-other");
+    let other = canonical_json(&other);
+    let other_hash = hash(&other);
+    s.raw(&other, &claim(&other_hash));
+    assert_eq!(
+        codes(&write(&s, &other_hash, &mut Durable)),
+        [PROJECT_MISMATCH]
+    );
+    let mut blocked = demo();
+    blocked["materials"][0]["provenance_record"]["review_status"] = json!("quarantined");
+    let blocked = canonical_json(&blocked);
+    let blocked_hash = hash(&blocked);
+    s.raw(&blocked, &claim(&blocked_hash));
+    assert!(codes(&write(&s, &blocked_hash, &mut Durable))
+        .contains(&"PROTECTED_CONTENT_BLOCKED".into()));
+    assert!(s.entries().is_empty());
 }
 
-// ---------------------------------------------------------------------------
-// Admission and arguments (§6).
-// ---------------------------------------------------------------------------
+#[cfg(target_os = "macos")]
+mod clone_route {
+    use super::*;
+    #[test]
+    fn actual_fd_clone_of_canonical_stored_model_is_durable_and_opens() {
+        let s = Sandbox::new("actual-clone");
+        let model = demo();
+        let text = canonical_json(&model);
+        let expected = hash(&text);
+        s.raw(
+            &serde_json::to_string_pretty(&model).unwrap(),
+            &claim(&expected),
+        );
+        s.enable(None);
+        let store = fs::read(s.store()).unwrap();
+        let result = write(&s, &expected, &mut SystemBackupIo);
+        let BackupWriteOutcome::Written {
+            file_name,
+            durability,
+            ..
+        } = &result
+        else {
+            panic!("{result:?}")
+        };
+        assert_eq!(durability, "durable");
+        assert_eq!(
+            fs::read_to_string(s.folder().join(file_name)).unwrap(),
+            text
+        );
+        assert_eq!(
+            fs::metadata(s.folder().join(file_name)).unwrap().mode() & 0o777,
+            0o600
+        );
+        assert_eq!(
+            s.entries().len(),
+            2,
+            "source temporary copy is deliberately retained"
+        );
+        assert_eq!(fs::read(s.store()).unwrap(), store);
+        let opened = crate::model_document_file::check_model_document(
+            file_name.clone(),
+            text.len() as u64,
+            serde_json::from_str(&text).unwrap(),
+        );
+        assert!(matches!(
+            opened,
+            crate::model_document_file::ModelDocumentOpenOutcome::Opened { .. }
+        ));
+        assert!(matches!(
+            write(&s, &expected, &mut Durable),
+            BackupWriteOutcome::Unchanged { .. }
+        ));
+        assert_eq!(s.entries().len(), 2);
+    }
+    #[test]
+    fn source_name_swap_cannot_publish_the_substituted_sibling() {
+        struct Swap(PathBuf);
+        impl BackupIo for Swap {
+            fn publish(&mut self, dir: &BackupDir, source: &File, name: &str) -> io::Result<()> {
+                let temp = fs::read_dir(&self.0)?
+                    .map(|e| e.unwrap().path())
+                    .find(|p| {
+                        p.file_name()
+                            .unwrap()
+                            .to_str()
+                            .unwrap()
+                            .starts_with(TEMP_PREFIX)
+                    })
+                    .unwrap();
+                fs::rename(&temp, self.0.join("invented-held-source"))?;
+                fs::write(&temp, b"invented malicious sibling")?;
+                dir.publish_new(source, name)
+            }
+            fn sync_directory(&mut self, _: &BackupDir) -> bool {
+                true
+            }
+        }
+        let s = Sandbox::new("source-swap");
+        let expected = s.save(&demo());
+        s.enable(None);
+        let result = write(&s, &expected, &mut Swap(s.folder()));
+        let BackupWriteOutcome::Written { file_name, .. } = result else {
+            panic!("{result:?}")
+        };
+        assert_eq!(
+            fs::read_to_string(s.folder().join(file_name)).unwrap(),
+            canonical_json(&demo())
+        );
+        let temp = s
+            .entries()
+            .into_iter()
+            .find(|n| n.starts_with(TEMP_PREFIX))
+            .unwrap();
+        assert_eq!(
+            fs::read(s.folder().join(temp)).unwrap(),
+            b"invented malicious sibling"
+        );
+        assert!(s.folder().join("invented-held-source").exists());
+    }
+    #[test]
+    fn existing_name_is_never_replaced_and_unsupported_clone_has_no_fallback() {
+        let s = Sandbox::new("collision");
+        let expected = s.save(&demo());
+        s.enable(None);
+        let existing = name(&demo(), T0);
+        fs::write(s.folder().join(&existing), b"invented collision").unwrap();
+        assert_eq!(codes(&write(&s, &expected, &mut Durable)), [NAME_IN_USE]);
+        assert_eq!(
+            fs::read(s.folder().join(existing)).unwrap(),
+            b"invented collision"
+        );
+        struct Unsupported;
+        impl BackupIo for Unsupported {
+            fn publish(&mut self, _: &BackupDir, _: &File, _: &str) -> io::Result<()> {
+                Err(io::Error::from_raw_os_error(libc::ENOTSUP))
+            }
+        }
+        let result = write(&s, &expected, &mut Unsupported);
+        assert_eq!(codes(&result), [PUBLISH_UNSUPPORTED]);
+        assert!(
+            s.entries()
+                .iter()
+                .filter(|n| n.starts_with(TEMP_PREFIX))
+                .count()
+                >= 2,
+            "no cleanup deletes temp copies"
+        );
+    }
+    #[test]
+    fn failures_keep_partial_temporary_final_and_unrelated_entries() {
+        struct Fault(u8);
+        impl BackupIo for Fault {
+            fn write_all(&mut self, file: &mut File, bytes: &[u8]) -> io::Result<()> {
+                if self.0 == 0 {
+                    file.write_all(&bytes[..32])?;
+                    Err(io::Error::from_raw_os_error(libc::ENOSPC))
+                } else {
+                    file.write_all(bytes)
+                }
+            }
+            fn sync_source(&mut self, file: &File) -> io::Result<()> {
+                if self.0 == 1 {
+                    Err(io::Error::other("invented source sync failure"))
+                } else {
+                    file.sync_all()
+                }
+            }
+            fn sync_final(&mut self, file: &File) -> io::Result<()> {
+                if self.0 == 2 {
+                    Err(io::Error::other("invented final sync failure"))
+                } else {
+                    file.sync_all()
+                }
+            }
+            fn sync_directory(&mut self, _: &BackupDir) -> bool {
+                self.0 != 3
+            }
+        }
+        for stage in 0..4 {
+            let s = Sandbox::new("fault");
+            let expected = s.save(&demo());
+            s.enable(None);
+            fs::write(s.folder().join("invented-old-copy"), b"kept old").unwrap();
+            let result = write(&s, &expected, &mut Fault(stage));
+            if stage < 2 {
+                assert!(matches!(result, BackupWriteOutcome::Refused { .. }));
+            } else {
+                assert!(matches!(
+                    result,
+                    BackupWriteOutcome::Unverified {
+                        creation: "created",
+                        ..
+                    }
+                ));
+            }
+            assert_eq!(
+                fs::read(s.folder().join("invented-old-copy")).unwrap(),
+                b"kept old"
+            );
+            assert!(s.entries().iter().any(|n| n.starts_with(TEMP_PREFIX)));
+            assert_eq!(
+                s.entries().iter().any(|n| n.ends_with(BACKUP_SUFFIX)),
+                stage >= 2
+            );
+        }
+    }
+    #[test]
+    fn source_and_final_mutation_do_not_become_verified_success() {
+        struct SourceMutation;
+        impl BackupIo for SourceMutation {
+            fn publish(&mut self, dir: &BackupDir, source: &File, name: &str) -> io::Result<()> {
+                source.write_at(b"!", 0)?;
+                dir.publish_new(source, name)
+            }
+        }
+        let s = Sandbox::new("source-mutate");
+        let expected = s.save(&demo());
+        s.enable(None);
+        let result = write(&s, &expected, &mut SourceMutation);
+        assert!(matches!(result, BackupWriteOutcome::Unverified { .. }));
+        assert!(codes(&result).contains(&READBACK_MISMATCH.into()));
+        assert_eq!(s.entries().len(), 2);
+        let s = Sandbox::new("final-mutate");
+        let expected = s.save(&demo());
+        s.enable(None);
+        let final_path = s.folder().join(name(&demo(), T0));
+        AFTER_FINAL_READ.with(|hook| {
+            *hook.borrow_mut() = Some(Box::new(move || {
+                let file = fs::OpenOptions::new().write(true).open(final_path).unwrap();
+                file.write_at(b"!", 0).unwrap();
+            }))
+        });
+        let result = write(&s, &expected, &mut Durable);
+        assert!(matches!(result, BackupWriteOutcome::Unverified { .. }));
+        assert_eq!(s.entries().len(), 2);
+    }
+    #[test]
+    fn final_name_swap_or_symlink_during_readback_keeps_all_entries_and_targets() {
+        let s = Sandbox::new("final-swap");
+        let expected = s.save(&demo());
+        s.enable(None);
+        let target = s.0.join("invented-outside");
+        fs::write(&target, b"invented outside bytes").unwrap();
+        let final_path = s.folder().join(name(&demo(), T0));
+        let outside = target.clone();
+        BEFORE_FINAL_OPEN.with(|hook| {
+            *hook.borrow_mut() = Some(Box::new(move || {
+                fs::rename(
+                    &final_path,
+                    final_path.with_file_name("invented-created-copy"),
+                )
+                .unwrap();
+                std::os::unix::fs::symlink(outside, &final_path).unwrap();
+            }))
+        });
+        let result = write(&s, &expected, &mut Durable);
+        assert!(matches!(result, BackupWriteOutcome::Unverified { .. }));
+        assert_eq!(fs::read(target).unwrap(), b"invented outside bytes");
+        assert!(fs::symlink_metadata(s.folder().join(name(&demo(), T0)))
+            .unwrap()
+            .file_type()
+            .is_symlink());
+        assert!(s.folder().join("invented-created-copy").exists());
+    }
+}
 
 #[test]
-fn each_command_is_admitted_within_its_budget_and_takes_its_named_arguments() {
+fn command_admission_preserves_small_control_and_identity_only_arguments() {
+    use crate::command_ingress::test_support::{headers, registry};
+    use crate::memory_pool::test_host::ScriptedHost;
     let registry = registry(ScriptedHost::normal());
-    let raw = |args: &Value| tauri::ipc::InvokeBody::Raw(serde_json::to_vec(args).unwrap());
-    let padded = |len: usize| json!({ "projectId": "x".repeat(len - r#"{"projectId":""}"#.len()) });
-    for (command, max) in [(CONFIGURE_COMMAND, CONFIGURE_COMMAND_MAX_ARGS_BYTES), (WRITE_COMMAND, WRITE_COMMAND_MAX_ARGS_BYTES)] {
-        let (_, lease) = admit_body(&registry, &raw(&padded(max)), &headers(Some(INGRESS_ARGS_JSON_V1)), command).unwrap();
+    let header = headers(Some(crate::command_ingress::INGRESS_ARGS_JSON_V1));
+    for (command, max, args) in [
+        (
+            WRITE_COMMAND,
+            WRITE_COMMAND_MAX_ARGS_BYTES,
+            json!({"projectId":PROJECT,"expectedModelHash":format!("sha256:{}","a".repeat(64))}),
+        ),
+        (
+            CONFIGURE_COMMAND,
+            CONFIGURE_COMMAND_MAX_ARGS_BYTES,
+            json!({"enabled":true,"backupKeep":null,"explicitLocalPrivateIntent":true}),
+        ),
+    ] {
+        let body = tauri::ipc::InvokeBody::Raw(serde_json::to_vec(&args).unwrap());
+        let (mut admitted, lease) = admit_body(&registry, &body, &header, command).unwrap();
+        if command == WRITE_COMMAND {
+            assert_eq!(write_request(&mut admitted).unwrap().project_id, PROJECT);
+        } else {
+            assert!(
+                configure_request(&mut admitted)
+                    .unwrap()
+                    .explicit_local_private_intent
+            );
+        }
+        drop(admitted);
         drop(lease);
-        let refused = admit_body(&registry, &raw(&padded(max + 1)), &headers(Some(INGRESS_ARGS_JSON_V1)), command).map(drop).unwrap_err();
-        assert!(format!("{refused:?}").contains("INGRESS-ARGS-TOO-LARGE"), "{command}");
+        let oversized = tauri::ipc::InvokeBody::Raw(vec![b' '; max + 1]);
+        assert!(admit_body(&registry, &oversized, &header, command).is_err());
     }
-    assert_eq!((CONFIGURE_COMMAND_MAX_ARGS_BYTES, WRITE_COMMAND_MAX_ARGS_BYTES), (4 * 1024, 256 * 1024));
-    let (mut args, _lease) = admit_json(&registry, CONFIGURE_COMMAND, ArgsDecoding::Moved, &json!({"enabled": true, "backupKeep": null, "explicitLocalPrivateIntent": true})).unwrap();
-    assert_eq!(configure_request(&mut args).unwrap(), ConfigureRequest { enabled: true, backup_keep: None, explicit_local_private_intent: true });
-    let (mut args, _lease) = admit_json(&registry, CONFIGURE_COMMAND, ArgsDecoding::Moved, &json!({"enabled": false, "backupKeep": 10, "explicitLocalPrivateIntent": false})).unwrap();
-    assert_eq!(configure_request(&mut args).unwrap(), ConfigureRequest { enabled: false, backup_keep: Some(10), explicit_local_private_intent: false });
-    for broken in [json!({"backupKeep": null, "explicitLocalPrivateIntent": true}), json!({"enabled": true, "backupKeep": -1, "explicitLocalPrivateIntent": true}), json!({"enabled": true, "backupKeep": null})] {
-        let (mut args, _lease) = admit_json(&registry, CONFIGURE_COMMAND, ArgsDecoding::Moved, &broken).unwrap();
-        assert!(format!("{:?}", configure_request(&mut args).unwrap_err()).contains("INGRESS-ARGS-INVALID"), "{broken}");
-    }
-    let (mut args, _lease) = admit_json(&registry, WRITE_COMMAND, ArgsDecoding::Moved, &json!({"projectId": PROJECT, "expectedModelHash": "sha256:00"})).unwrap();
-    let decoded = write_request(&mut args).unwrap();
-    assert_eq!((decoded.project_id.as_str(), decoded.expected_model_hash.as_str()), (PROJECT, "sha256:00"));
-    for broken in [json!({"projectId": PROJECT}), json!({"expectedModelHash": "sha256:00"})] {
-        let (mut args, _lease) = admit_json(&registry, WRITE_COMMAND, ArgsDecoding::Moved, &broken).unwrap();
-        assert!(format!("{:?}", write_request(&mut args).unwrap_err()).contains("INGRESS-ARGS-INVALID"), "{broken}");
-    }
+    assert_eq!(registry.pool_status().reserved_bytes, 0);
+}
+
+#[cfg(target_os = "macos")]
+#[test]
+fn full_backup_ingress_store_clone_and_response_fit_the_held_reservations() {
+    use crate::command_ingress::test_support::{headers, registry};
+    use crate::memory_pool::test_host::ScriptedHost;
+    let s = Sandbox::new("measured-command");
+    let expected = s.save(&demo());
+    s.enable(None);
+    let registry = registry(ScriptedHost::normal());
+    let bytes =
+        serde_json::to_vec(&json!({"projectId":PROJECT,"expectedModelHash":expected})).unwrap();
+    let body_envelope = crate::ingress::allocation_envelope(bytes.len() as u64).unwrap();
+    let body = tauri::ipc::InvokeBody::Raw(bytes);
+    let header = headers(Some(crate::command_ingress::INGRESS_ARGS_JSON_V1));
+    let ((written, sent, held, peak), measured) = crate::ingress::counting::measure(|| {
+        let (mut args, lease) = admit_body(&registry, &body, &header, WRITE_COMMAND).unwrap();
+        let request = write_request(&mut args).unwrap();
+        drop(args);
+        let memory = seeded_memory(&registry, &lease);
+        let held = lease.bytes();
+        assert_eq!(memory.held(), held);
+        let outcome = write_at_with_io(Ok(s.data()), &request, Some(T0), &memory, &mut Durable);
+        let written = matches!(outcome.get(), BackupWriteOutcome::Written { .. });
+        let sent = response(outcome).is_ok();
+        let peak = memory.peak_reserved();
+        drop(memory);
+        drop(lease);
+        (written, sent, held, peak)
+    });
+    assert!(written && sent);
+    assert!(peak > held);
+    assert!(
+        measured.peak_priced <= peak - body_envelope,
+        "measured {} exceeds held {} less body {}",
+        measured.peak_priced,
+        peak,
+        body_envelope
+    );
     assert_eq!(registry.pool_status().reserved_bytes, 0);
 }

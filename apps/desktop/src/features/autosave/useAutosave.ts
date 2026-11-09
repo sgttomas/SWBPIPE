@@ -244,14 +244,16 @@ export function useAutosave(deps: AutosaveDeps) {
       if (outcome.outcome === "written") {
         publish(`Saved. Backup written: ${outcome.file_name}.${outcome.warnings.length ? ` ${diagnosticsText(outcome.warnings)}` : ""}`);
       } else if (outcome.outcome === "unchanged") {
-        publish(`Saved. Backup already holds this model: ${outcome.file_name}.`);
+        publish(`Saved. Backup already holds this model: ${outcome.file_name}.${outcome.warnings.length ? ` ${diagnosticsText(outcome.warnings)}` : ""}`);
+      } else if (outcome.outcome === "unverified") {
+        publish(`Saved. Backup copy ${outcome.creation === "unknown" ? "outcome unknown" : "not verified"}: ${outcome.file_name}. ${diagnosticsText(outcome.diagnostics)}`);
       } else if (outcome.outcome === "refused") {
         publish(`Saved. Backup not written: ${diagnosticsText(outcome.diagnostics)}`);
       } else {
         publish("Saved. Backups are off.");
       }
     } catch (error) {
-      publish(`Saved. Backup not written: ${nativeFailureText(error)}`);
+      publish(`Saved. Backup outcome unknown: ${nativeFailureText(error)}`);
     }
   }
 

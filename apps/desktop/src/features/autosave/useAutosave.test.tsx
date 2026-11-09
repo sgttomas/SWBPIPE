@@ -490,8 +490,9 @@ describe("opt-in backups", () => {
     const button = await screen.findByTestId("backup-enable");
     await waitFor(() => expect(screen.getByTestId("autosave-interval")).toHaveValue("5"));
     expect(button).toBeDisabled();
-    expect(screen.getByLabelText("Backups to keep")).toHaveValue("all");
-    fireEvent.click(screen.getByLabelText("I intend to copy private project models to the local folder I choose."));
+    expect(screen.getByText("Retention: All — delete nothing. Automatic rotation is unavailable.")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Backups to keep")).toBeNull();
+    fireEvent.click(screen.getByLabelText("I intend to copy private project models to the local folder I choose and keep all copies."));
     fireEvent.click(button);
     await waitFor(() => expect(calls("configure_project_backup").map(([, args]) => args)).toEqual([
       { enabled: true, backupKeep: null, explicitLocalPrivateIntent: true }
@@ -508,7 +509,7 @@ describe("opt-in backups", () => {
     native({ configureBackup: async () => ({ outcome: "cancelled" }) });
     const view = mount();
     await waitFor(() => expect(view.session().settings).not.toBeNull());
-    await act(async () => { await view.session().configureBackup(true, 3, true); });
+    await act(async () => { await view.session().configureBackup(true, null, true); });
     expect(view.session().settings?.backup_folder).toBeNull();
     expect(view.holds).toEqual({ taken: 1, released: 1 });
     expect(calls("write_project_backup")).toHaveLength(0);
@@ -537,11 +538,22 @@ describe("opt-in backups", () => {
     expect(screen.queryByTestId("backup-status")).toBeNull();
   });
 
-  it("changing the retention choice alone neither saves settings nor deletes files", async () => {
-    native();
+  it("reports a created unverified copy distinctly and treats a lost response as unknown", async () => {
+    const state = native({ backup: async () => ({ outcome: "unverified", file_name: "invented.swbpipe-backup.json", model_hash: DEMO_HASH, creation: "created", diagnostics: [{ code: "BACKUP-DURABILITY-UNVERIFIED", path: "", message: "Copy kept; sync failed." }] }) });
+    const view = mount();
+    await waitFor(() => expect(view.session().settings).not.toBeNull());
+    await act(async () => { await view.session().backupProjectSaved(DEMO.project.id, DEMO_HASH, () => true); });
+    expect(screen.getByTestId("backup-status")).toHaveTextContent("Saved. Backup copy not verified: invented.swbpipe-backup.json");
+    state.backup = async () => { throw new Error("invented IPC response loss"); };
+    await act(async () => { await view.session().backupProjectSaved(DEMO.project.id, DEMO_HASH, () => true); });
+    expect(screen.getByTestId("backup-status")).toHaveTextContent("Saved. Backup outcome unknown:");
+  });
+
+  it("preserves and explains a preexisting finite preference without treating it as active retention", async () => {
+    native({ settings: { settings: { autosave_minutes: 5, backup_folder: "/invented-local-backups", backup_keep: 3 }, source: "file", status: null } });
     mount();
-    await waitFor(() => expect(screen.getByTestId("autosave-interval")).toHaveValue("5"));
-    fireEvent.change(screen.getByLabelText("Backups to keep"), { target: { value: "3" } });
+    expect(await screen.findByTestId("backup-retention-unavailable")).toHaveTextContent("saved limit of 3 is unavailable and remains unchanged");
+    expect(screen.queryByLabelText("Backups to keep")).toBeNull();
     expect(calls("configure_project_backup")).toHaveLength(0);
     expect(calls("write_project_backup")).toHaveLength(0);
     expect(calls("discard_project_autosave")).toHaveLength(0);
