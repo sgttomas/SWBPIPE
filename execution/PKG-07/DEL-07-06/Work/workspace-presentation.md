@@ -55,9 +55,12 @@ light and dark themes, comfortable and compact density, at 1440 × 900 and 1100 
   toolbar's groups are separated, the project name is the heading, and Run is the one primary
   command.
 - **Canvas header.** The canvas commands wrapped inside a fixed 43 px scroll box, so their third
-  row showed cut in half or as empty boxes. They now sit in one row that scrolls sideways. Every
-  command stays reachable by Tab and by scrolling. Canvas identity labels had a fixed 58 px width
-  and showed `N-1…`. They now size to their identifier, up to 120 px.
+  row showed cut in half or as empty boxes. They now sit in one row that scrolls sideways. An
+  opened disclosure such as Deformation lays its statement and controls out in that row, so the
+  row grows to show them, up to 320 px or 45% of the window height, and beyond that scrolls
+  vertically. Every command and statement stays reachable by Tab and by scrolling. Canvas
+  identity labels had a fixed 58 px width and showed `N-1…`. They now size to their identifier,
+  up to 120 px.
 - **Truthful state colour.** The stage rail drew every caption, including Historical, in the
   failure colour. Each caption now takes the colour of its kind (failed, stale or historical) from
   the existing rail tokens.

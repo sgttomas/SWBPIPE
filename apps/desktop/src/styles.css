@@ -4763,12 +4763,11 @@ body { min-width: 760px; min-height: 540px; }
 }
 .app-shell .shell-surfaces legend, .app-shell .shell-page-sections legend { padding: 0 var(--space-2); color: var(--text-secondary); font-weight: var(--type-weight-semibold); }
 
-/* A field written inline after its label text keeps a gap from it. Labels laid out as grid or flex
-   (the inspector, the appearance popover) set their own gap and reset this margin below. */
-.app-shell .shell-surfaces label > :is(select, input:not([type="checkbox"]):not([type="radio"]), textarea),
-.app-shell .shell-page-sections label > :is(select, input:not([type="checkbox"]):not([type="radio"]), textarea) { margin-inline: var(--space-3) var(--space-2); }
-.app-shell .shell-surfaces label > input:is([type="checkbox"], [type="radio"]),
-.app-shell .shell-page-sections label > input:is([type="checkbox"], [type="radio"]) { margin-inline: 0 var(--space-3); }
+/* A field written inline after its label text keeps a gap from it. These defaults carry no
+   specificity, so any component's own margin wins; labels laid out as grid or flex (the inspector,
+   the canvas, the appearance popover) set their own gap and reset this margin below. */
+:where(.app-shell .shell-surfaces, .app-shell .shell-page-sections) :where(label > :is(select, input:not([type="checkbox"]):not([type="radio"]), textarea)) { margin-inline: var(--space-3) var(--space-2); }
+:where(.app-shell .shell-surfaces, .app-shell .shell-page-sections) :where(label > input:is([type="checkbox"], [type="radio"])) { margin-inline: 0 var(--space-3); }
 
 .app-shell .inspector label > *, .app-shell .property-inspector label > *, .app-shell .viewport-shell label > *,
 .app-shell .shell-appearance-popover label > * { margin-inline: 0; }
@@ -4788,13 +4787,16 @@ body { min-width: 760px; min-height: 540px; }
 .app-shell .shell-toolbar .shell-run { min-width: 64px; font-weight: var(--type-weight-semibold); }
 
 /* Canvas header: one row that scrolls sideways instead of a fixed box whose later rows are cut
-   in half. Every control stays reachable by Tab and by scrolling; groups are separated. */
-.app-shell .viewport-toolbar { grid-template-rows: 32px 24px; height: auto; align-content: center; }
+   in half. Every control stays reachable by Tab and by scrolling; groups are separated. An opened
+   disclosure (Deformation) lays its content out in the row, so the row grows to show it, up to a
+   bound past which it scrolls vertically; it never clips what the disclosure states. */
+.app-shell .viewport-toolbar { grid-template-rows: minmax(32px, auto) 24px; height: auto; align-content: center; }
 .app-shell .viewport-toolbar-controls {
-  flex-wrap: nowrap; align-items: center; gap: var(--space-4); overflow-x: auto; overflow-y: hidden; padding-block: var(--space-1);
+  flex-wrap: nowrap; align-items: flex-start; gap: var(--space-4); overflow: auto; max-height: min(320px, 45vh); padding-block: var(--space-1);
 }
+/* Each group keeps its own width: the row scrolls instead, so a group never overflows onto the next. */
+.app-shell .viewport-toolbar-controls > * { max-width: none; }
 .app-shell .viewport-toolbar-controls > * + * { padding-inline-start: var(--space-4); border-inline-start: 1px solid var(--ui-divider); }
-.app-shell .viewport-toolbar-controls > .viewport-deformation-status { align-self: center; }
 .app-shell .viewport-toolbar button, .app-shell .viewport-toolbar select {
   min-height: 24px; height: 24px; padding: 0 var(--space-3); font-size: var(--type-size-caption);
 }
