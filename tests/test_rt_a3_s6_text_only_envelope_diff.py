@@ -389,9 +389,9 @@ def _reader_inputs(rev):
     out = {f"corpus:case:{c['id']}": (lambda c=c: [c["source"], c["invocation"]]) for c in corpus["cases"]}
     for kind, member in (("mutation", "mutations"), ("must_pass", "must_pass")):
         for e in corpus[member]:
-            out[f"corpus:{kind}:{e['id']}"] = lambda e=e: list(apply_entry(cases[e["base"]], e))
+            out[f"corpus:{kind}:{e['id']}"] = lambda e=e: list(apply_entry(cases[e["base"]], e, rust_test_generator=True))
     for s in json.loads(read("fixtures/results/retained_precision_b2_parity_probes.json"))["shapes"]:
-        out[f"b2_parity:{s['name']}"] = lambda s=s: list(apply_entry(cases[s["base"]], s))
+        out[f"b2_parity:{s['name']}"] = lambda s=s: list(apply_entry(cases[s["base"]], s, rust_test_generator=True))
     from tests import test_retained_precision_b3 as rv
     for s in json.loads(read(RV120))["shapes"]:
         out[f"rv120:{s['name']}"] = ((lambda s=s: list(rv.rv120_input(s))) if rev is None
@@ -1419,6 +1419,30 @@ def test_a_forged_successful_reader_outcome_hash_is_refused():
     entry[2]["bound"][0] = "7" * 64
     with pytest.raises(AssertionError, match="successful outcome hash"):
         check_reader_outcomes(_at(BASE, READER_OUTCOMES), json.dumps(document))
+
+
+@pytest.mark.parametrize("rev", [BASE, None], ids=["394f", "current"])
+def test_rust_test_generator_malformed_owner_materialization_keeps_the_frozen_input_digest(rev):
+    from tests.retained_precision_corpus import _STORAGE
+    from tests.test_retained_precision_contract import apply_entry
+    from tests.verifiers.canonical_json import canonical_sha256
+
+    read = current if rev is None else lambda name: _at(rev, name)
+    corpus = _STORAGE.expand(json.loads(read("fixtures/results/retained_precision_cases.json")))
+    entry = next(e for e in corpus["mutations"] if e["id"] == "f_src_owner_kind_combination")
+    base = next(c for c in corpus["cases"] if c["id"] == entry["base"])
+    python = list(apply_entry(base, entry))
+    assert python == list(apply_entry(base, entry, rust_test_generator=False))
+    assert "operands" not in python[0]["retained_precision"]["body"]["sources"][1]
+    assert canonical_sha256(python) == "0442dabe940f00bed3352f6fc430043b0398340c7097818a9c24c5086181fca1"
+    generated = _reader_inputs(rev)["corpus:mutation:f_src_owner_kind_combination"]()
+    assert generated[0]["retained_precision"]["body"]["sources"][1]["operands"] is None
+    digest = canonical_sha256(generated)
+    assert digest == "460ddc6c74b273c03453c95b1b10116be78c6f22edbfb4475e6f44192159ab8f"
+    recorded = next(e for e in json.loads(read(READER_OUTCOMES))["entries"]
+                    if e[0] == "corpus:mutation:f_src_owner_kind_combination")
+    assert recorded[1] == digest
+    assert "operands" not in base["source"]["retained_precision"]["body"]["sources"][1]
 
 
 def test_a_single_reader_outcome_rolled_back_to_the_predecessor_is_refused():
