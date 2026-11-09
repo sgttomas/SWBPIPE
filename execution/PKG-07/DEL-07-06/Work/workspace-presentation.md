@@ -96,9 +96,10 @@ beyond presentation:
 - The load-cases summary shows raw state tokens (`unit posture=…; saved_project_mutated=false`).
   Plain wording needs that panel's owner to confirm the meaning.
 - Forms that write their own labels instead of using the shared fields keep the inline layout until
-  their owners adopt the form classes. Examples are the condition-set form and the pressure
-  profile's shear-model choice. A label that holds more than its text and one control, such as a
-  condition-set exposure choice with its not-used marker, needs its own arrangement first.
+  they adopt the form classes. The condition-set form's id, label, provenance and added-weight
+  direction and the pressure profile's shear-model choice have adopted them. A label that holds more
+  than its text and one control, such as a condition-set exposure choice with its not-used marker,
+  needs its own arrangement first. The condition-set quantities keep their own inline value and unit.
 - A sticky action row (queue and apply kept in view in a long form) is not adopted. No action row
   in this lane's scope could take it without risking cover over the form's last controls.
 - The results standing line is now scannable but still long on routes with many limitations. A

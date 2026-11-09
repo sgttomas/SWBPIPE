@@ -129,7 +129,7 @@ export function PressureAuthoringPanel(props: RichFormProps & { loadCaseId?: str
     <p>Pressure is uniform within each region. Structural line loads act as entered; a contents-density value does not imply hydrostatic pressure head or a coupled static-fluid pressure and weight state.</p>
     <fieldset disabled={state.busy}>
       <TextField label="Pressure profile" value={profile} choices={[PRESSURE_V3.mode]} onChange={setProfile} />
-      <label>Shear model
+      <label className="form-field">Shear model
         <select aria-label="Shear model" value={shearModel} onChange={e => { const value = e.target.value; if (isShearModel(value)) setShearChoice(value); }}>
           {SHEAR_MODEL_CHOICES.map(choice => <option key={choice.value} value={choice.value}>{choice.label}</option>)}
         </select>
