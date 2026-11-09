@@ -108,6 +108,10 @@ export function useAutosave(deps: AutosaveDeps) {
   depsRef.current = deps;
   const [settings, setSettings] = useState<AutosaveSettings | null>(null);
   const [backupStatusLine, setBackupStatusLine] = useState<string | null>(null);
+  /** A backup configuration whose native outcome is unknown (its response was
+   * lost): it may have committed, so Turn backups off stays available until a
+   * later definite outcome. */
+  const [backupSettingsUncertain, setBackupSettingsUncertain] = useState(false);
   const settingsInFlight = useRef(false);
   const backupSequence = useRef(0);
   const [statusLine, setStatusLine] = useState<string | null>(null);
@@ -214,6 +218,7 @@ export function useAutosave(deps: AutosaveDeps) {
       if (!mounted.current) return;
       if (outcome.outcome === "saved") {
         setSettings(outcome.settings);
+        setBackupSettingsUncertain(false);
         setBackupStatusLine(outcome.settings.backup_folder
           ? "Backups are on after Save Local Project. Existing copies are unchanged."
           : "Backups are off. Existing copies are kept.");
@@ -221,7 +226,26 @@ export function useAutosave(deps: AutosaveDeps) {
         setBackupStatusLine(`Backup settings not changed: ${diagnosticsText(outcome.diagnostics)}`);
       }
     } catch (error) {
-      if (mounted.current) setBackupStatusLine(`Backup settings not changed: ${nativeFailureText(error)}`);
+      // The request may have committed natively before its response was lost.
+      // Refresh the authoritative settings, but keep the state uncertain: a
+      // read cannot prove a still-running change will not land after it.
+      if (!mounted.current) return;
+      setBackupSettingsUncertain(true);
+      let shown = "The current backup setting could not be read back";
+      try {
+        const read = await getAutosaveSettings();
+        if (mounted.current && typeof read?.settings?.autosave_minutes === "number" && !read.status) {
+          setSettings(read.settings);
+          shown = read.settings.backup_folder
+            ? `The saved settings now show backups on, to ${read.settings.backup_folder}`
+            : "The saved settings now show backups off";
+        }
+      } catch {
+        // The unknown outcome below is reported either way.
+      }
+      if (mounted.current) {
+        setBackupStatusLine(`Backup settings outcome unknown (${nativeFailureText(error)}). ${shown}. Turn backups off remains available.`);
+      }
     } finally {
       release();
       settingsInFlight.current = false;
@@ -434,6 +458,7 @@ export function useAutosave(deps: AutosaveDeps) {
     settingBusy,
     statusLine,
     backupStatusLine,
+    backupSettingsUncertain,
     recoveryPrompt,
     chooseInterval,
     configureBackup,

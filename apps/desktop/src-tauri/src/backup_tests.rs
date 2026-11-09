@@ -687,6 +687,60 @@ mod clone_route {
         assert_eq!(s.entries().len(), 2);
     }
     #[test]
+    fn same_content_replacement_or_rewrite_during_sync_is_not_durable_success() {
+        // Interference during the folder sync: (a) the synced file is renamed
+        // away and an unsynced mode-0600 file with identical bytes takes its
+        // name; (b) the synced file is rewritten in place with identical bytes.
+        struct Interfere(PathBuf, bool);
+        impl BackupIo for Interfere {
+            fn sync_directory(&mut self, _: &BackupDir) -> bool {
+                let bytes = fs::read(&self.0).unwrap();
+                if self.1 {
+                    fs::rename(&self.0, self.0.with_file_name("invented-synced-copy")).unwrap();
+                    fs::write(&self.0, &bytes).unwrap();
+                    fs::set_permissions(&self.0, fs::Permissions::from_mode(0o600)).unwrap();
+                } else {
+                    std::thread::sleep(std::time::Duration::from_millis(20));
+                    fs::OpenOptions::new()
+                        .write(true)
+                        .open(&self.0)
+                        .unwrap()
+                        .write_all_at(&bytes, 0)
+                        .unwrap();
+                }
+                true
+            }
+        }
+        for replace in [true, false] {
+            let s = Sandbox::new("sync-interference");
+            let expected = s.save(&demo());
+            s.enable(None);
+            let final_path = s.folder().join(name(&demo(), T0));
+            let result = write(&s, &expected, &mut Interfere(final_path.clone(), replace));
+            assert!(
+                matches!(
+                    result,
+                    BackupWriteOutcome::Unverified {
+                        creation: "created",
+                        ..
+                    }
+                ),
+                "{result:?}"
+            );
+            assert_eq!(codes(&result), [READBACK_FAILED]);
+            assert_eq!(
+                fs::read_to_string(&final_path).unwrap(),
+                canonical_json(&demo())
+            );
+            assert_eq!(
+                s.folder().join("invented-synced-copy").exists(),
+                replace,
+                "the synced copy is kept, never removed"
+            );
+            assert!(s.entries().iter().any(|n| n.starts_with(TEMP_PREFIX)));
+        }
+    }
+    #[test]
     fn final_name_swap_or_symlink_during_readback_keeps_all_entries_and_targets() {
         let s = Sandbox::new("final-swap");
         let expected = s.save(&demo());

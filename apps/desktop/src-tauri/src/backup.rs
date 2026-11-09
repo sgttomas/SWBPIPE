@@ -901,9 +901,29 @@ fn verified_completion(
             ),
         ),
     };
+    // The synced inode, its size and its change times. The post-sync read must
+    // find this same unchanged file under the name: identical bytes in another
+    // inode, or a rewrite in place, were not what this backup synced.
+    let identity = |file: &File| {
+        file.metadata().map(|m| {
+            (
+                m.dev(),
+                m.ino(),
+                m.len(),
+                m.mtime(),
+                m.mtime_nsec(),
+                m.ctime(),
+                m.ctime_nsec(),
+            )
+        })
+    };
     let file = match dir.read_verified(file_name, &stored.model_hex, block) {
         Ok(file) => file,
         Err((code, detail)) => return unverified(code, detail),
+    };
+    let synced = match identity(&file) {
+        Ok(synced) => synced,
+        Err(error) => return unverified(READBACK_FAILED, error.to_string()),
     };
     if let Err(error) = io_ops.sync_final(&file) {
         return unverified(
@@ -919,8 +939,15 @@ fn verified_completion(
     }
     // Re-read after durability operations. This detects observed interference;
     // it is not a promise against later external mutation.
-    if let Err((code, detail)) = dir.read_verified(file_name, &stored.model_hex, block) {
-        return unverified(code, detail);
+    let reread = match dir.read_verified(file_name, &stored.model_hex, block) {
+        Ok(reread) => reread,
+        Err((code, detail)) => return unverified(code, detail),
+    };
+    if !matches!(identity(&reread), Ok(now) if now == synced) {
+        return unverified(
+            READBACK_FAILED,
+            "the name no longer refers to the synced, unchanged copy".into(),
+        );
     }
     let mut warnings = stored.warnings.clone();
     if let Some(temp) = temp {

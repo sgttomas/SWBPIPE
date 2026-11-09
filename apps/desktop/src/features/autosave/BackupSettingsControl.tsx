@@ -7,16 +7,18 @@ const BACKUP_INTENT_REQUIRED = "Check the private-copy statement above to choose
 const BACKUP_ALREADY_OFF = "Backups are already off.";
 
 export function BackupSettingsControl({ autosave }: {
-  autosave: Pick<AutosaveSession, "settings" | "settingBusy" | "configureBackup">;
+  autosave: Pick<AutosaveSession, "settings" | "settingBusy" | "backupSettingsUncertain" | "configureBackup">;
 }) {
-  const { settings, settingBusy } = autosave;
+  const { settings, settingBusy, backupSettingsUncertain } = autosave;
+  // An unknown configuration outcome may have enabled backups: Disable stays available.
+  const mayBeOn = Boolean(settings?.backup_folder) || backupSettingsUncertain;
   const [intent, setIntent] = useState(false);
   const disabled = !settings || settingBusy;
   const finite = settings?.backup_keep != null;
   // A disabled control states why (dead-control audit TP-APP-R2-UXSHELL-001).
   const blocked = !settings ? BACKUP_DESKTOP_ONLY : settingBusy ? BACKUP_SETTING_BUSY : null;
   const enableReason = blocked ?? (intent ? undefined : BACKUP_INTENT_REQUIRED);
-  const disableReason = blocked ?? (settings?.backup_folder ? undefined : BACKUP_ALREADY_OFF);
+  const disableReason = blocked ?? (mayBeOn ? undefined : BACKUP_ALREADY_OFF);
   return (
     <fieldset disabled={disabled} aria-describedby="backup-setting-detail">
       <legend>Backups after Save Local Project</legend>
@@ -31,7 +33,7 @@ export function BackupSettingsControl({ autosave }: {
       <button type="button" data-testid="backup-enable" disabled={disabled || !intent} title={enableReason} onClick={() => { void autosave.configureBackup(true, null, intent); }}>
         Choose folder and enable All backups…
       </button>
-      <button type="button" data-testid="backup-disable" disabled={disabled || !settings?.backup_folder} title={disableReason} onClick={() => { void autosave.configureBackup(false, null, false); }}>
+      <button type="button" data-testid="backup-disable" disabled={disabled || !mayBeOn} title={disableReason} onClick={() => { void autosave.configureBackup(false, null, false); }}>
         Turn backups off
       </button>
       <p>Turning backups off keeps every copy. A backup failure leaves your saved project unchanged.</p>

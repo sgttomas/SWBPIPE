@@ -509,6 +509,53 @@ describe("opt-in backups", () => {
     expect(calls("configure_project_backup")[1][1]).toEqual({ enabled: false, backupKeep: null, explicitLocalPrivateIntent: false });
   });
 
+  it("an Enable that commits but loses its response is an unknown outcome; settings refresh and Disable stays available", async () => {
+    const state = native({
+      configureBackup: async (args) => {
+        // Native commits the change, then the response is lost in transport.
+        state.settings = { settings: { ...state.settings.settings, backup_folder: args.enabled ? "/invented-local-backups" : null }, source: "file", status: null };
+        throw new Error("invented lost IPC response");
+      }
+    });
+    mount();
+    await waitFor(() => expect(screen.getByTestId("autosave-interval")).toHaveValue("5"));
+    fireEvent.click(screen.getByLabelText("I intend to copy private project models to the local folder I choose and keep all copies."));
+    fireEvent.click(screen.getByTestId("backup-enable"));
+    await waitFor(() => expect(screen.getByTestId("backup-status")).toHaveTextContent("Backup settings outcome unknown"));
+    expect(screen.getByTestId("backup-status")).not.toHaveTextContent("not changed");
+    expect(screen.getByTestId("backup-status")).toHaveTextContent("The saved settings now show backups on, to /invented-local-backups. Turn backups off remains available.");
+    expect(screen.getByTestId("backup-folder")).toHaveTextContent("/invented-local-backups");
+    expect(screen.getByTestId("backup-disable")).toBeEnabled();
+  });
+
+  it("while a lost configuration response leaves the outcome unknown, Disable stays available even if the refresh shows off", async () => {
+    let lose = true;
+    const state = native({
+      configureBackup: async (args) => {
+        if (lose) { lose = false; throw new Error("invented lost IPC response"); }
+        state.settings = { settings: { ...state.settings.settings, backup_folder: args.enabled ? "/invented-local-backups" : null }, source: "file", status: null };
+        return { outcome: "saved", settings: state.settings.settings };
+      }
+    });
+    mount();
+    await waitFor(() => expect(screen.getByTestId("autosave-interval")).toHaveValue("5"));
+    fireEvent.click(screen.getByLabelText("I intend to copy private project models to the local folder I choose and keep all copies."));
+    fireEvent.click(screen.getByTestId("backup-enable"));
+    await waitFor(() => expect(screen.getByTestId("backup-status")).toHaveTextContent("Backup settings outcome unknown (Error: invented lost IPC response). The saved settings now show backups off. Turn backups off remains available."));
+    const disable = screen.getByTestId("backup-disable");
+    await waitFor(() => expect(disable).toBeEnabled());
+    expect(disable).not.toHaveAttribute("title");
+    fireEvent.click(disable);
+    await waitFor(() => expect(screen.getByTestId("backup-status")).toHaveTextContent("Backups are off. Existing copies are kept."));
+    expect(calls("configure_project_backup").map(([, args]) => args)).toEqual([
+      { enabled: true, backupKeep: null, explicitLocalPrivateIntent: true },
+      { enabled: false, backupKeep: null, explicitLocalPrivateIntent: false }
+    ]);
+    // A definite outcome ends the uncertainty.
+    await waitFor(() => expect(screen.getByTestId("backup-disable")).toBeDisabled());
+    expect(screen.getByTestId("backup-disable")).toHaveAttribute("title", "Backups are already off.");
+  });
+
   it("canceling the native chooser preserves settings and never starts a backup", async () => {
     native({ configureBackup: async () => ({ outcome: "cancelled" }) });
     const view = mount();

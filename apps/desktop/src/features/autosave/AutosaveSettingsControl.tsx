@@ -9,7 +9,7 @@ import { AUTOSAVE_DESKTOP_ONLY, AUTOSAVE_OFF_NOTICE, type AutosaveSession } from
  * 2026-10-28, item (a)). Recover autosave… offers every autosave not proven
  * to be its stored project's model (Design §3). In the browser preview there are no native settings,
  * so the control is disabled and says so. */
-export function AutosaveSettingsControl({ autosave }: { autosave: Pick<AutosaveSession, "settings" | "settingBusy" | "chooseInterval" | "recoverAutosave" | "configureBackup"> }) {
+export function AutosaveSettingsControl({ autosave }: { autosave: Pick<AutosaveSession, "settings" | "settingBusy" | "backupSettingsUncertain" | "chooseInterval" | "recoverAutosave" | "configureBackup"> }) {
   const { settings } = autosave;
   const off = settings?.autosave_minutes === 0;
   return (
