@@ -520,6 +520,11 @@ mod tests {
         let forces = g.recover_wall_effective(1.0e5, m, p, true).unwrap();
         close(forces.wall_n, 1.0e5 + 0.6 * 1.0e7 * g.pressure_bore_area_m2());
         close(forces.effective_n, 1.0e5 - 0.4 * 1.0e7 * g.pressure_bore_area_m2());
+        // RT-L2: not included, kappa = 1 is the arc's form, N_w = N_m + pAi and S = N_m exactly.
+        let off = g.recover_wall_effective(1.0e5, m, p, false).unwrap();
+        let arc = g.recover_arc_wall_effective(1.0e5, p).unwrap();
+        assert_eq!((off.wall_n.to_bits(), off.effective_n.to_bits()), (arc.wall_n.to_bits(), 1.0e5f64.to_bits()));
+        close(off.wall_n, 1.0e5 + 1.0e7 * g.pressure_bore_area_m2());
         let (nominal, reduced) = (g.membrane(SectionBasis::Nominal, forces).unwrap(), g.membrane(SectionBasis::Reduced, forces).unwrap());
         close(nominal, forces.wall_n / g.nominal().wall_area_m2());
         close(reduced, forces.wall_n / g.reduced().wall_area_m2());

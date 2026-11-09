@@ -1295,6 +1295,17 @@ mod fallback_transport_tests {
 
     #[test]
     fn pressure_fallback_uses_actual_scaled_membrane_and_preserves_affine_loads() {
+        pressure_fallback_case(true);
+    }
+
+    /// RT-L2: not included, the fallback's wall increment is pAi (kappa = 1), the
+    /// same law as the binary64 recovery it encloses.
+    #[test]
+    fn the_not_included_pressure_fallback_uses_kappa_one() {
+        pressure_fallback_case(false);
+    }
+
+    fn pressure_fallback_case(included: bool) {
         // Zero mill tolerance and allowance: the bases and the bore coincide.
         let sections = pressure_exact::ExactSectionBases::derive(0.2, 0.01, 0.0, 0.0).unwrap();
         let annulus = sections.nominal();
@@ -1307,11 +1318,11 @@ mod fallback_transport_tests {
             material,
             arc: None,
             eigenload_pair: [0.0, 0.0],
-            elongation_included: true,
+            elongation_included: included,
         };
         let nominal = pressure_exact::SectionBasis::Nominal;
         let membrane = |mechanical: f64| {
-            let forces = sections.recover_wall_effective(mechanical, material, pressure, true).unwrap();
+            let forces = sections.recover_wall_effective(mechanical, material, pressure, included).unwrap();
             sections.membrane(nominal, forces).unwrap()
         };
         let area = annulus.wall_area_m2();
@@ -1342,13 +1353,14 @@ mod fallback_transport_tests {
         let maximum =
             fallback_circular_maximum(&[span], &ends, &[load], 2.0, &section, Some((&state, nominal)))
                 .unwrap();
-        // Exact held-area reference: max sigma=(1/8+512Ai)/As, attained
+        // Exact held-area reference: max sigma=(1/8+kappa*1024*Ai)/As (kappa = 2nu =
+        // 1/2 included, 1 not), attained
         // at x=0 because q=1/32 makes N decrease along this two-metre span.
         let mut proof = ExactAccumulator::new();
         proof.add_product(maximum.upper_bound, area).unwrap();
         proof.add(-0.125).unwrap();
         proof
-            .add_product(-512.0, annulus.internal_area_m2())
+            .add_product(if included { -512.0 } else { -1024.0 }, annulus.internal_area_m2())
             .unwrap();
         assert!(proof.signum() >= 0);
         assert!(maximum.upper_bound - maximum.value_lower <= 1e-12 + 1e-12 * maximum.value_lower);
