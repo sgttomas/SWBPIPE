@@ -2669,7 +2669,27 @@ def test_restore_plan_admits_only_the_exact_literal_value_and_writes_it_through_
                           (snapshot(base, (RECENT, LITERAL, "REG_SZ", "x")), snapshot(base))):
         with pytest.raises(ValueError, match="exactly"):
             harness._restore_plan(before, after, root, whole_key=True, literal=literal)
-    # A value too long for one guest command is refused while the plan is made.
+    # The same holds when the recent-files subkey itself appeared (it would go as a whole subkey).
+    without_recent = {"keys": {k: v for k, v in snapshot(base)["keys"].items() if k != literal[0]}, "values": {}}
+    for kind, data in (("REG_SZ", "x"), ("REG_DWORD", "0x1"), ("REG_MULTI_SZ", "x")):
+        with pytest.raises(ValueError, match="exactly"):
+            harness._restore_plan(without_recent, snapshot(base, (RECENT, LITERAL, kind, data)), root,
+                                  whole_key=True, literal=literal)
+    appeared = harness._restore_plan(without_recent, snapshot(base, (RECENT, LITERAL, *new)), root, whole_key=True,
+                                     literal=literal)
+    assert [entry["action"] for entry in appeared] == ["delete_key"]  # binary: the subkey goes as a whole
+    # Both the write and its read-back command are bounded: the longest data whose set command fits is admitted
+    # only when its read-back fits too; a value too long for one guest command is refused while the plan is made.
+    for size in range(1, 4200):
+        try:
+            harness._literal_value_command(RECENT, LITERAL, "set", "AB" * size)
+        except ValueError:
+            break
+    assert harness._literal_value_command(RECENT, LITERAL, "set", "AB" * (size - 1))
+    plan = harness._restore_plan(snapshot(base, (RECENT, LITERAL, "REG_BINARY", "AB" * (size - 1))),
+                                 snapshot(base, (RECENT, LITERAL, *new)), root, whole_key=True, literal=literal)
+    assert all(len(command) <= harness.LITERAL_COMMAND_LIMIT
+               for command in (plan[0]["command"], plan[0]["readback_command"]))
     with pytest.raises(ValueError, match="too long"):
         harness._restore_plan(snapshot(base, (RECENT, LITERAL, "REG_BINARY", "AB" * 4096)),
                               snapshot(base, (RECENT, LITERAL, *new)), root, whole_key=True, literal=literal)

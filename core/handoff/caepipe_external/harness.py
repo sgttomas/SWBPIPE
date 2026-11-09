@@ -1045,6 +1045,13 @@ def _restore_plan(before: Mapping[str, Mapping], after: Mapping[str, Mapping], s
         if not inside(item[0]):
             raise ValueError(f"{(before['values'].get(item) or after['values'][item])[0]}\\{item[1]} lies outside "
                              "the restore scope")
+    # The literal value, wherever it differs (a subkey that appeared included), must be REG_BINARY in every reading
+    # that has it; otherwise the whole restore is refused before any write.
+    if literal in differing_values:
+        for reading in (before, after):
+            found = reading["values"].get(literal)
+            if found is not None and found[1] != "REG_BINARY":
+                raise ValueError(f"{found[0]}\\{literal[1]} ({found[1]}) cannot be written back exactly")
     added = sorted((key for key in after["keys"] if key not in before["keys"]), key=lambda key: -key.count("\\"))
     removed = sorted((key for key in before["keys"] if key not in after["keys"]), key=lambda key: key.count("\\"))
 
