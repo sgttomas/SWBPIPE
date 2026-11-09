@@ -278,13 +278,14 @@ pub(crate) const PROC_MACRO_PACKAGES: [&str; 0] = [];
 /// `allow(warnings)` and the lint groups do
 /// not lift a `deny(unsafe_code)` (no rustc group holds `unsafe_code`;
 /// checked on Rust 1.97.1), so they need no rule.
-pub(crate) const SHELL_UNSAFE_MODULES: [(&str, &str, &str); 13] = [
+pub(crate) const SHELL_UNSAFE_MODULES: [(&str, &str, &str); 14] = [
     ("src-tauri/src/embedded_agent/mod.rs", "process_scope", "SDK kqueue/kevent observation of the original retained Child only, no tracking or signal authority"),
     ("src-tauri/src/embedded_agent/mod.rs", "keychain_native", "generic provider credential SecItem calls and SDK-public constants, no-UI exact-item queries"),
     // HELP_HUMAN's ruling on #1709's autosave (code review r9 follow-up at
     // #1682): pinned as the eleventh; its test module `tests`
     // (`autosave_tests.rs`) is declared inside it and inherits the allow.
     ("src-tauri/src/lib.rs", "autosave", "autosave's directory-descriptor system calls (openat, fstatat, unlinkat) and its tests' mkfifo"),
+    ("src-tauri/src/lib.rs", "backup", "nondeleting backup FD-source clone, read-only volume capability metadata and contained descriptor operations"),
     ("src-tauri/src/lib.rs", "handoff_package", "the handoff package's file-descriptor and atomic-publish system calls"),
     ("src-tauri/src/lib.rs", "handoff_package_publish", "the handoff publish's directory-descriptor system calls"),
     ("src-tauri/src/lib.rs", "host_memory", "the host memory sysctls and mach_host_self"),
@@ -599,8 +600,10 @@ const ENTRY_RULES: [(&str, &str, Entry); 6] = [
 /// twin by the input's `recorded_binding` member (were e4ca5430…/b000ef8e…;
 /// reviewed: no `mod`, no `$parameter ::`, no scanned name; `rv::` was
 /// already named; still one `Reader` literal each).
+/// RT-U3 adds only the two ordinary backup handler entries; the prior
+/// 5d3090f6… digest was reproduced before deriving this candidate pin.
 const MACRO_DEFINITIONS: [(&str, &str, &str); 3] = [
-    ("src-tauri/src/lib.rs", "app_invoke_handler", "5d3090f63e0386e5770233280bf809538352315044abbe0f815700f8f9807a4b"),
+    ("src-tauri/src/lib.rs", "app_invoke_handler", "d01b1ab888fab29d6b718456460154140a243891f0f39f52b48676ec08f9cf1b"),
     ("headless/src/reader_binding.rs", "base", "d80e766036e0f651522ebfe11ebc6ba1fc32ec2b9c2b3702e0b978eb86558cb2"),
     ("headless/src/reader_binding.rs", "transport", "057aa56311a7531f094632a3fe9f2d781b9364ab4865add6c7d257403732169a"),
 ];

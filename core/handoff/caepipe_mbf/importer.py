@@ -27,7 +27,7 @@ From the project root:
 from __future__ import annotations
 
 import argparse
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 import decimal
 from fractions import Fraction
 import hashlib
@@ -254,6 +254,24 @@ _ROW_KEY = re.compile(r"([FTL])(\d+)(\*?)\Z")
 _KEYWORD_LIKE = re.compile(r"[A-Z][A-Z0-9]{2,}\Z")
 
 
+@dataclass
+class IdentityRecoveryFacts:
+    """The importer's identity-recovery accounting (DEL-17-04 Design `desktop-mbf-export-import.md` §5.3), counted
+    at the emissions that report it: Rust `IdentityRecoveryFacts`. Fixed-size producer facts for the bounded review,
+    not part of to_dict(), the report, the model or the id map. Neither count establishes that the original source
+    was completely represented; the exchange never establishes that.
+
+    known_missing_ids: original source ids the import names as not preserved (MBF-IMPORT-ID-UNRECOVERABLE), each
+    counted once: today each bound load_map entry the MBF sums with others. The formed group
+    (MBF-IMPORT-IDENTITIES-MERGED) is not an original id and is not counted.
+    unrecovered_fields: fields and references the import reports as not recovered, each counted once: a bend
+    component's .node (MBF-IMPORT-REFERENCE-UNRECOVERABLE), a legacy support's .family (MBF-IMPORT-FIELD-UNRECOVERABLE)
+    and a restored thermal entry's .direction (MBF-IMPORT-DIRECTION-UNRECOVERABLE)."""
+
+    known_missing_ids: int = 0
+    unrecovered_fields: int = 0
+
+
 @dataclass(frozen=True)
 class MbfImportResult:
     status: str
@@ -265,6 +283,8 @@ class MbfImportResult:
     id_map: dict[str, Any] = field(default_factory=dict)
     source: dict[str, Any] = field(default_factory=dict)
     summary: dict[str, Any] = field(default_factory=dict)
+    # The importer's identity-recovery counts, carried on refused results too (not part of to_dict()).
+    identity_recovery: IdentityRecoveryFacts = field(default_factory=IdentityRecoveryFacts)
 
     def to_dict(self) -> dict[str, Any]:
         """The import report; it carries no model values from refused or omitted records."""
@@ -1377,6 +1397,8 @@ class _Importer:
         self.used_conventions: set[tuple[str, str]] = set()
         self.thermal_load_count: Fraction | None = None
         self.unconfirmed: list[str] = []
+        # Counted at the emissions that report an original id not preserved or a field/reference not recovered.
+        self.identity_recovery = IdentityRecoveryFacts()
 
     # -- reporting -------------------------------------------------------
     def refuse(self, code: str, line: int, location: str, message: str) -> None:
@@ -1430,6 +1452,7 @@ class _Importer:
             id_map={} if refused else id_map,
             source=source,
             summary=self.summary,
+            identity_recovery=replace(self.identity_recovery),
         )
 
     # -- run -------------------------------------------------------------
@@ -3306,9 +3329,11 @@ class _Importer:
                 if self.rebound:
                     self.unconfirmed.append(component_id)
             if self.bound:
-                self.listed("approximated", "MBF-IMPORT-ID-UNRECOVERABLE", element.line, f"bend {n}",
+                # The component id is restored; its original .node choice is the reference not recovered.
+                self.listed("approximated", "MBF-IMPORT-REFERENCE-UNRECOVERABLE", element.line, f"{component_id}.node",
                             f"the sidecar does not record which tangent node bend {n}'s component names; the "
                             f"importer uses the near tangent node {n}A")
+                self.identity_recovery.unrecovered_fields += 1
         claim(component_id, f"CAEPIPE bend {n}", element.line)
         id_map["bend_map"][str(n)] = component_id
         component: dict[str, Any] = {
@@ -3595,8 +3620,10 @@ class _Importer:
                     # An unauthored family is recorded as the solve's inference and restored as absent.
                     family = entry.get("family") if entry.get("family_authored", True) else None
                     if "family" not in entry:
-                        self.listed("approximated", "MBF-IMPORT-ID-UNRECOVERABLE", line, f"support_map[{swb_id}]",
+                        # The support id is restored; its .family is the field not recovered.
+                        self.listed("approximated", "MBF-IMPORT-FIELD-UNRECOVERABLE", line, f"{swb_id}.family",
                                     f"the sidecar entry for {swb_id} carries no family, which is not recoverable")
+                        self.identity_recovery.unrecovered_fields += 1
                     label = ("spring" if family == SPRING_FAMILY else "anchor" if family == "anchor" else "restraint")
                     entries.append((swb_id, [dof for dof in DOFS if dof in entry["restrained"]], family, label, line))
                     kind = "anchor" if record["anchor"] else "restraint"
@@ -3730,6 +3757,9 @@ class _Importer:
                 key = (case_id, item["category"], target_kind, target_id, item["axis"])
                 found = [option for option in (key, (*key[:4], "*")) if option in restorable]
                 match = restorable[found[0]] if found else None
+                # The first item to match a sidecar group counts its original ids and unrecovered fields; a later item
+                # matching the same group repeats the report but not the count.
+                fresh = bool(found) and found[0] not in matched
                 matched.update(found[:1])
                 if self.bound and match is None:
                     self.refuse("MBF-IMPORT-SIDECAR-CONFLICT", item["line"], formed,
@@ -3744,13 +3774,14 @@ class _Importer:
                                     f"the sidecar records the direction {recorded} for {formed}, but the MBF gives "
                                     f"{item['direction']}")
                 if self.bound and match is not None and item["category"] == "thermal":
-                    direction = self.thermal_direction(match[3], formed, item["line"])
+                    direction = self.thermal_direction(match[3], formed, item["line"], fresh)
                 if self.bound and match is not None and match[1] == 1:
                     load_id = match[0]
                 elif self.bound and match is not None:  # many-to-one (REQ-016): reported by name, entry by entry
                     keys = [map_key for map_key, _ in match[3]]
                     named = ", ".join(f"load_map[{key}]" for key in keys)
-                    self.listed("approximated", "MBF-IMPORT-ID-UNRECOVERABLE", item["line"],
+                    # The formed group merges the originals; it is not itself an original id lost.
+                    self.listed("approximated", "MBF-IMPORT-IDENTITIES-MERGED", item["line"],
                                 f"load_map[{case_id}/{formed}]",
                                 f"the MBF holds {named} summed as one primitive; no single sidecar id is its own, so "
                                 f"it keeps its formed id {formed}")
@@ -3758,6 +3789,8 @@ class _Importer:
                         self.listed("approximated", "MBF-IMPORT-ID-UNRECOVERABLE", item["line"], f"load_map[{map_key}]",
                                     f"load_map[{map_key}] is one of the {len(keys)} primitives the MBF sums into "
                                     f"{formed}; its id is not recoverable")
+                        if fresh:
+                            self.identity_recovery.known_missing_ids += 1
                 # Restored and formed primitive ids are unique across cases, or the import is refused by name: two
                 # primitives under one id would overwrite each other here and the solve refuses them (DUPLICATE_ID).
                 what = f"the primitive {formed} of case {case_id}"
@@ -4337,10 +4370,11 @@ class _Importer:
                 self.refuse("MBF-IMPORT-SIDECAR-CONFLICT", record["line"], f"{where}.elements",
                             f"the sidecar's elements of {name} are not the file's, in layout order")
 
-    def thermal_direction(self, entries: list[tuple[str, Any]], formed: str, line: int) -> str:
+    def thermal_direction(self, entries: list[tuple[str, Any]], formed: str, line: int, count: bool) -> str:
         """The direction a restored thermal primitive keeps (the MBF carries none): the one its sidecar entries
         record, which must name one axis when the MBF sums several (summing across directions is not meaningful),
-        else refused by name; an entry without one (legacy) is reported, and the import's global_x stands."""
+        else refused by name; an entry without one (legacy) is reported, and the import's global_x stands. `count`:
+        the first item matching these entries, which counts each unrecovered direction once."""
         recorded = [(key, direction) for key, direction in entries if direction is not None]
         axes = {_DIRECTION_AXIS[direction] for _, direction in recorded}
         if len(axes) > 1:
@@ -4355,6 +4389,8 @@ class _Importer:
             if direction is None:
                 self.listed("approximated", "MBF-IMPORT-DIRECTION-UNRECOVERABLE", line, f"load_map[{key}].direction",
                             f"load_map[{key}] records no direction; {formed} takes {effective}, {why}")
+                if count:
+                    self.identity_recovery.unrecovered_fields += 1
         return effective
 
     def restorable_primitives(self, cases: Mapping[str, str]) -> dict[tuple, tuple[str, int, Any]]:
@@ -4372,7 +4408,8 @@ class _Importer:
     def report_unrecoverable(self) -> None:
         if not self.bound:
             return
-        self.listed("approximated", "MBF-IMPORT-ID-UNRECOVERABLE", 0, "unexported members",
+        # A general limitation, not a known lost id: the exchange cannot establish which uncarried members existed.
+        self.listed("approximated", "MBF-IMPORT-SOURCE-COMPLETENESS-UNESTABLISHED", 0, "unexported members",
                     "members the writer does not export (labels, provenance, combinations, lines, unresolved "
                     "assumptions, constraints, equipment interfaces, rule-pack references, model settings) are not "
                     "recoverable from the MBF")
