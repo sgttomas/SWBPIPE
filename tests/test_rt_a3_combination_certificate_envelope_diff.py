@@ -71,14 +71,14 @@ END = "268c8289f00ec77abec80ae9cb18234a8b476c37"
 CERTIFICATE = "combination_certificate"
 DIAGNOSTIC = "diagnostic:combination-certificate:"
 TABLES = {
-    "fixtures/results/semantic_contract_v0_3_pressure_3.json": (
+    "fixtures/results/semantic_contract_v0_3_pressure_2.json": (
         "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645",
         "21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765b5faa7d6bb90"),
     "fixtures/results/semantic_contract_v0_3_physics_retained_1.json": (
         "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691",
         "320dc3f1f75944af8b66da1287e6f8ee5e1fcd5fe005752f2c90bf8c89a9c894"),
 }
-TABLE_SHA256 = TABLES["fixtures/results/semantic_contract_v0_3_pressure_3.json"]
+TABLE_SHA256 = TABLES["fixtures/results/semantic_contract_v0_3_pressure_2.json"]
 TABLE_PAIRS = frozenset(TABLES.values())
 # The restated table texts (DEL-05-02 Work `combination-certificate.md` §1; the table's limitation 6 tail and
 # combination_policy.standing).
@@ -389,8 +389,8 @@ def test_generation_records_move_only_source_and_output_digests(name):
 def test_the_table_texts_and_digests_are_the_table_files():
     for name, (old, new) in TABLES.items():
         assert _sha(_at(BASE, name)) == old and _sha(current(name)) == new, name
-    table = json.loads(current("fixtures/results/semantic_contract_v0_3_pressure_3.json"))
-    base = json.loads(_at(BASE, "fixtures/results/semantic_contract_v0_3_pressure_3.json"))
+    table = json.loads(current("fixtures/results/semantic_contract_v0_3_pressure_2.json"))
+    base = json.loads(_at(BASE, "fixtures/results/semantic_contract_v0_3_pressure_2.json"))
     assert base["combination_policy"]["standing"] == OLD_STANDING and table["combination_policy"]["standing"] == NEW_STANDING
     changed = [(b, a) for b, a in zip(base["supported_profile_limitations"], table["supported_profile_limitations"]) if b != a]
     assert len(changed) == 1 and changed[0][0].endswith(OLD_LIMITATION_TAIL)

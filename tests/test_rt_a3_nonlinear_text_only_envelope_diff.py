@@ -94,14 +94,14 @@ NEEDLES = (CE_TAIL + ". Pressure regions meeting",
 # pressure-2 table digest at the endpoint and now (admitted-families and combinations limitations); and
 # physics-retained-1, which inherits it. Both are recomputed from the table files (test below).
 TABLES = {
-    "fixtures/results/semantic_contract_v0_3_pressure_3.json": (
+    "fixtures/results/semantic_contract_v0_3_pressure_2.json": (
         "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6",
         "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645"),
     "fixtures/results/semantic_contract_v0_3_physics_retained_1.json": (
         "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034",
         "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691"),
 }
-TABLE_SHA256 = TABLES["fixtures/results/semantic_contract_v0_3_pressure_3.json"]
+TABLE_SHA256 = TABLES["fixtures/results/semantic_contract_v0_3_pressure_2.json"]
 TABLE_PAIRS = frozenset(TABLES.values())
 
 CE2 = "fixtures/results/rt_a3_ce2_withheld_sparse.json"
