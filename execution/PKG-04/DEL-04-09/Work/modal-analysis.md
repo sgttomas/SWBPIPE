@@ -18,10 +18,12 @@
 totals and participation against a supplied M cannot detect a coherently wrong
 M with matching totals; the independent model path must check the formation
 as well. This serves RT-A7, RT-A8's uniform-support-motion/missing-mass basis
-and the reference-system publication goal. Implementation and composition wait
-for S6 PR #166, then CE PR #193, to integrate, with no resource-priority change.
-Agent 0 assigns the implementation to WORKING_ITEMS after that sequence; this
-source design supplies neither numerical-review clearance nor admission.
+and the reference-system publication goal. Source implementation and preparation
+may proceed in parallel with CE; the actual integrated S6, then CE/main
+predecessor must be normally merged before final numerical/commitment review
+and integration. CE keeps integration priority, with no resource-priority
+change. WORKING_ITEMS owns this next modal unit after CE; this source design
+supplies neither numerical-review clearance nor admission.
 
 **Source basis.** Traced at `a5eabb649ca748c07522b634ca792bc72f0e1b80`:
 `ScopeOfWork.md` REQ-001/REQ-005/REQ-006; `core/product_physics/src/modal/`
@@ -96,7 +98,7 @@ establish the mass implied by those bytes.
   its section basis resolves. Mass follows named-state contents when the
   shared contents consumer lands; at this source, condition contents are
   refused, never substituted with section contents. Reconcile against the
-  integrated S6/CE head before implementation; neither integration alone
+  integrated S6/CE head before final review; neither integration alone
   establishes gap qualification or modal admission. Modal-1 0.1.0 refuses skew
   records before solved projection (`MODAL_DOCUMENT_SKEW_RESTRAINT_UNSUPPORTED`).
   Keep that refusal: its internal reduced pencil uses Q̃ᵀM Q̃ and kept-subspace
@@ -153,13 +155,29 @@ recording/store policy, subject-census publication and common-M Bessel evidence
 remain separate open work. Targeted numerical regressions and exact old/new
 independent scrutiny are required for the final scoped unit before integration.
 
-**Proposed REQ-005 clarification for that review; ScopeOfWork and needs stay
-unchanged in this scope-only change.** Its model-derived mass bullet already
-requires the correction. Replace only the contradictory closing sentence:
-
-> **Old:** They do not re-run the eigen-solve, and they re-derive from the document's own payload (its formed mass and published shapes); a withheld payload is scoped unsupported, never reconstructed from a digest (Design §5.3.4).
-
-> **New:** They do not re-run the eigen-solve. With the bound request supplied, each independently derives the model's mass and restraint basis within its stated coverage, compares the formed mass and total/free-DOF masses, and recomputes mass-dependent modal quantities from that mass and the published shapes; the document's payload relations are also checked. Missing inputs, withheld payload or uncovered basis are scoped unsupported, and undecidable rounding comparisons are unresolved, never passed or reconstructed from a digest. A partition derived from reported nonlinear states remains conditional on their qualification (Design §5.3.4 and “Selected mass assurance: next modal unit after CE”).
+**Implemented.** `core/reporting/modal_result/src/model_mass.rs` and
+`tests/verifiers/modal_model_mass.py` (with `modal_model_mass_interval.py`)
+implement this boundary independently; REQ-005's closing sentence states the
+contract. Each derived quantity is an enclosure: the Design formula on the
+authored binary64 inputs, widened by the producer's arithmetic. The one stated
+premise is the kernel's double-word path (`dd.rs`; Joldes, Muller and Popescu
+2017 for add/mul, the kernel's own bound for division, square root and series):
+under 2⁻¹⁰⁰ per operation and under 2¹⁰ operations per contribution, so a value
+accumulated from n contributions errs by at most 2⁻⁹⁰·(n + 1)·Σ(1 + κ)·|scale|,
+κ = |y|/|y⊥| for a member frame. A published value outside its enclosure fails;
+a flagged or outside-profile value meeting it is unresolved. No threshold is
+selected or changed. A solved document bound to a model the producer refuses
+(snubber, skew, condition contents on the state case, Timoshenko, gap supports)
+fails. The readers' boundaries are not identical: Rust's binary64 interval
+arithmetic is wider than Python's exact rationals near a bound, and Rust scopes
+an objective connector on the PF route where Python follows the producer's
+mass selection (`replaced_span_ids`, exact route only). Neither re-derives the
+component-weight acceleration agreement (§2.3 item 5) or the bend angle.
+The shared corpus (`fixtures/results/modal_corpus.json`) carries
+fixed-request wrong-M entries (`model:`) that only the formation comparison
+rejects; entries pinning payload semantics on invented values, the sum-order
+boundaries, the feasibility oracle and the producer edges are read without the
+request, and with it the reader is never weaker than the oracle.
 
 Public admission remains disabled under §5.3.9. The revised normalization
 criterion distinguishes axis-aligned zero components from a skew physical

@@ -245,10 +245,17 @@ def test_the_python_reader_agrees_with_the_oracle():
     cases = json.loads(CASES.read_text(encoding="utf-8"))["cases"]
     failures = []
     for case in cases:
-        request = load(case["request"])
-        verdict = me.read_text(entry_text(case), request)
-        for problem in reader_disagreements(case, verdict):
+        text = entry_text(case)
+        # The oracle decides the payload's own feasibility: compared without the request.
+        for problem in reader_disagreements(case, me.read_text(text, None)):
             failures.append(f"{case['id']}: {problem}")
+        # With the bound request the model-derived mass is held as well: never weaker than the
+        # oracle (an infeasible family still fails), though it may fail what the payload admits.
+        bound = me.read_text(text, load(case["request"]))
+        for family, truth in case["oracle"].items():
+            status = bound["relations"][family]["status"]
+            if truth == "infeasible" and not (status == "failed" or (status == "unresolved" and case["unresolved_allowed"])):
+                failures.append(f"{case['id']}: {family}: oracle infeasible, reader with the request {status}")
     assert not failures, f"{len(failures)} disagreements:\n" + "\n".join(failures[:60])
     infeasible = sum(1 for c in cases if "infeasible" in c["oracle"].values())
     assert 0 < infeasible < len(cases), "the cases reach both verdicts"
@@ -262,7 +269,9 @@ def test_the_producers_edges_are_accepted_by_the_python_reader_and_the_oracle():
     assert len(entries) >= 3
     for entry in entries:
         text = entry_text(entry)
-        verdict = me.read_text(text, load(entry["request"]))
+        # Invented values at the payload's arithmetic edges, not the bound model's mass: read
+        # without the request (the payload domain).
+        verdict = me.read_text(text, None)
         assert verdict["decision"] != "rejected", (entry["id"], verdict)
         assert verdict["validation"]["status"] == "not_fully_validated", entry["id"]
         assert all(v == "feasible" for v in oracle.verdict(json.loads(text)).values()), entry["id"]
