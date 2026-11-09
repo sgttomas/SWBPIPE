@@ -155,7 +155,7 @@ fn phys_r4(pressurized: bool) -> Value {
             "magnitude": {"value": tip, "unit": "N*m"}, "provenance": PROV}),
         );
     }
-    json!({"model": {
+    let mut request = json!({"model": {
         "schema_version": "0.9.0", "document_kind": "openpipestress.product_preview.model",
         "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"},
         "project": {"id": "project:section-oracle", "units": {"length": "m", "force": "N", "angle": "rad",
@@ -176,7 +176,12 @@ fn phys_r4(pressurized: bool) -> Value {
         "supports": supports, "components": [],
         "load_cases": [{"id": "case:source-section", "primitive_loads": loads, "pressure_regions": regions,
             "provenance": PROV}], "combinations": []
-    }, "materials": []})
+    }, "materials": []});
+    if pressurized {
+        // The public fixture is today's mechanics: its case includes pressure elongation (RT-L2 §7).
+        request["model"]["model_settings"] = json!({"pressure_elongation": {"operating_load_cases": ["case:source-section"]}});
+    }
+    request
 }
 
 /// A skew chain of five 1 m members (x, 0.125x, -0.0625x), anchored at N0,

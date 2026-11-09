@@ -118,6 +118,8 @@ fn line(combinations: Value) -> Value {
     let regions_c = json!([region("region:m1", "pipe:m1", ["node:a", "node:b"]), region("region:m2", "pipe:m2", ["node:b", "node:c"])]);
     json!({"model": {"schema_version": "0.9.0", "document_kind": "openpipestress.product_preview.model",
         "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"},
+        // The references are today's mechanics: every pressurised case includes pressure elongation (RT-L2 §7).
+        "model_settings": {"pressure_elongation": {"operating_load_cases": ["case:A", "case:B", "case:C"]}},
         "project": {"id": "project:w16b", "units": {"length": "m", "force": "N", "angle": "rad", "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
         "nodes": [node("node:a", 0.0), node("node:b", l1), node("node:c", l1 + l2)],

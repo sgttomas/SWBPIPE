@@ -26,6 +26,8 @@ use std::sync::OnceLock;
 mod current_model;
 #[path = "common/t4_u5b.rs"]
 mod t4_u5b;
+#[path = "common/pressure_elongation.rs"]
+mod pressure_elongation;
 
 const FIXTURE: &str = include_str!("../../../fixtures/reports/exact_route_limitations.json");
 const WRITE_ENV: &str = "OPENPIPESTRESS_WRITE_EXACT_ROUTE_LIMITATIONS";
@@ -301,7 +303,7 @@ fn produced_lists() -> &'static [CoverageList] {
     LISTS.get_or_init(|| {
         producer_inputs()
             .into_iter()
-            .flat_map(|(shape, request)| [(shape, false, request.clone()), (shape, true, with_elongation(request))])
+            .flat_map(|(shape, request)| [(shape, false, pressure_elongation::without_elongation(&request)), (shape, true, with_elongation(request))])
             .map(|((id, load_state, connectors, bends), elongation, request)| {
                 let envelope = run(request);
                 assert_eq!(
@@ -602,7 +604,8 @@ const WITNESS_INPUTS: [(&str, &str, &str); 2] = [
 fn exact_report_witness_inputs_are_current() {
     let requests = [
         ("pressure_2_connector", t4_u5b::request("AS-F", &t4_u5b::oracle()["cases"]["AS-F"]), (PRESSURE_3.to_string(), false, true, false)),
-        ("pressure_2_realized_bend", i7("U2-L-ANCH-PTW-K2", "0.3.0"), (PRESSURE_3.to_string(), false, false, true)),
+        // The arc corpus's input, its pressurised case including pressure elongation (RT-L2 §7).
+        ("pressure_2_realized_bend", pressure_elongation::with_elongation_if_pressurised(&i7("U2-L-ANCH-PTW-K2", "0.3.0")), (PRESSURE_3.to_string(), false, false, true)),
     ];
     let target = std::env::var(WITNESS_INPUTS_ENV).ok();
     for ((name, request, shape), (committed_name, committed_request, committed_raw)) in requests.into_iter().zip(WITNESS_INPUTS) {

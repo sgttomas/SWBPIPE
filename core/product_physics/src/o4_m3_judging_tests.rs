@@ -72,7 +72,17 @@ const J2_FROZEN_MODEL_VERSION: &str = "0.6.0";
 fn j2_as_frozen(path: &str, text: &str) -> String {
     let current = format!("\"schema_version\": \"{}\"", crate::MODEL_SCHEMA_VERSION);
     assert_eq!(text.matches(&current).count(), 1, "{path}: one current model version token");
-    text.replace(&current, &format!("\"schema_version\": \"{J2_FROZEN_MODEL_VERSION}\""))
+    let text = text.replace(&current, &format!("\"schema_version\": \"{J2_FROZEN_MODEL_VERSION}\""));
+    // RT-L2 (DEL-04-07 `pressure-elongation.md` §7): a pressurised J2 request now states
+    // `model_settings.pressure_elongation` naming every pressurised case (today's mechanics); the
+    // frozen bytes predate the member, so its block is removed before hashing.
+    const SETTING: &str = "\n    \"model_settings\": {\n      \"pressure_elongation\": {\n        \"operating_load_cases\": [\n";
+    const SETTING_END: &str = "        ]\n      }\n    },";
+    let Some(start) = text.find(SETTING) else { return text };
+    let end = start + text[start..].find(SETTING_END).expect("the setting block ends") + SETTING_END.len();
+    let block: Value = serde_json::from_str(&format!("{{{}}}", &text[start..end - 1])).expect("the setting block parses");
+    assert_eq!(block["model_settings"].as_object().map(|s| s.len()), Some(1), "{path}: the setting is the only model setting");
+    format!("{}{}", &text[..start], &text[end..])
 }
 
 /// The frozen files, each bound by the unit's SHA256SUMS; `cases_sha256` binds each oracle to its cases.

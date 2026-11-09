@@ -379,6 +379,13 @@
       "provenance": "invented T4-U4b arc stress reference input; not library, component or code-rule data"
     }
   ],
+  "model_settings": {
+    "pressure_elongation": {
+      "operating_load_cases": [
+        "case:u4b"
+      ]
+    }
+  },
   "nodes": [
     {
       "id": "node:A",
@@ -583,12 +590,5 @@
         "RZ"
       ]
     }
-  ],
-  "model_settings": {
-    "pressure_elongation": {
-      "operating_load_cases": [
-        "case:u4b"
-      ]
-    }
-  }
+  ]
 }
