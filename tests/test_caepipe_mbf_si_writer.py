@@ -1568,7 +1568,9 @@ def test_format_6_records_the_tangent_node_each_bend_component_names():
     assert near.sidecar("0" * 64)["sidecar_sha256"] != far.sidecar("0" * 64)["sidecar_sha256"]
 
 
-@pytest.mark.parametrize("limit", [-1, 2 ** 53 + 1, 1.5, True, "20"])
+# Integer limits only: these calls are harvested as writer parity vectors and replayed through the Rust port. The
+# Python-only type guards (a float, a bool, a string) are in test_caepipe_mbf_si_writer_python_types.py.
+@pytest.mark.parametrize("limit", [-1, 2 ** 53 + 1])
 def test_a_row_limit_format_6_cannot_record_is_refused(limit):
     assert_refused(render_caepipe_mbf_si(cantilever(), title="ROWS", max_layout_rows=limit), "MBF-SI-INPUT-INVALID",
                    "max_layout_rows", "from 0 to 2^53")

@@ -384,7 +384,10 @@ fn identical_inputs_give_identical_reviews_and_every_bound_input_changes_them() 
 
 #[test]
 fn status_and_counts_come_before_truncation_and_a_truncated_review_blocks() {
+    // A format-4 identity file keeps one unrecovered reference (the bend's node), so a non-zero fact is shown to
+    // survive truncation; format 6's recovery of that reference has its own test.
     let (text, sidecar) = written_pair();
+    let sidecar = as_format_4(&sidecar);
     let result = import(&text, Some(&sidecar), None, "invented.mbf");
     let full = review_of(&result, &text, Some(&sidecar), None, MBF_REVIEW_MAX_BYTES, true).review;
     assert!(full.summary.complete && full.summary.adoptable);

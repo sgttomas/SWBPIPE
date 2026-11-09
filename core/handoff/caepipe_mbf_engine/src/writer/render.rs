@@ -864,7 +864,7 @@ impl<'m> Writer<'m> {
             (
                 "export_settings",
                 dict![
-                    ("title", Value::Str(title(&text(&self.title)?))),
+                    ("title", Value::Str(title(&super::text(&self.title)?))),
                     ("reference_temperature", reference),
                     ("max_layout_rows", self.max_layout_rows.map(Value::int).unwrap_or(Value::Null)),
                     ("piping_code", self.piping_code.clone()),
