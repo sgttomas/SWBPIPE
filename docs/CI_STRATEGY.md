@@ -12,6 +12,12 @@ fails if any selected verification fails, is cancelled or never runs. Unselected
 product jobs are explicitly skipped. Selection uses the complete PR diff;
 missing diff information conservatively selects coverage.
 
+The merge queue (`merge_group`) verifies its temporary merge commit exactly as
+a pull request with the queue's base and that commit as head: the same
+checkout, complete-diff selection, document route and aggregate. Queue runs
+neither cancel nor are cancelled by other runs, do not reuse or record
+verified results, and, like pull requests, do not run the broad browser matrix.
+
 Documents have a short verification route. The first job checks the complete
 PR diff at the exact candidate. Two kinds of change take it:
 
