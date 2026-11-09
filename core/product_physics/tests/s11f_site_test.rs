@@ -846,6 +846,8 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("CB/lib.rs", "multiply6", 1, "stiffness formation"),
     ("CB/lib.rs", "multiply6_transpose_right", 1, "stiffness formation"),
     ("CB/lib.rs", "flexibility_scale", 1, "max fold of the flexibility diagonal (one exact power-of-two scale)"),
+    ("CB/lib.rs", "flexibility_of", 4, "opt-in curved transverse-shear compliance (stiffness formation)"),
+    ("CB/lib.rs", "tip_deflection_under_uniform_load", 3, "opt-in curved transverse-shear tip deflection (one source's consistent equivalent, section 2.2)"),
     ("CB/lib.rs", "arc_section_resultant_terms", 0, "E11"),
     ("load_case_algebra/lib.rs", "evaluate_linear_combination", 1, "E13: the fold is kept only as today's non-finite value"),
 ];

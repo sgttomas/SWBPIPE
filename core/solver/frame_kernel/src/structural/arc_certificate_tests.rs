@@ -33,6 +33,7 @@ fn formation(args: &[f64]) -> (CurvedFormation, [f64; 3]) {
             torsion_constant: args[14],
             in_plane_flexibility_factor: args[15],
             out_of_plane_flexibility_factor: args[16],
+            shear_area: None,
         },
         [args[17], args[18], args[19]],
     )
@@ -58,6 +59,7 @@ fn t15_body(k: f64) -> CurvedFormation {
         torsion_constant: 2.0 * inertia,
         in_plane_flexibility_factor: k,
         out_of_plane_flexibility_factor: k,
+        shear_area: None,
     }
 }
 

@@ -42,6 +42,7 @@ fn bend_of(args: &[f64]) -> CurvedFormation {
         torsion_constant: args[14],
         in_plane_flexibility_factor: args[15],
         out_of_plane_flexibility_factor: args[16],
+        shear_area: None,
     }
 }
 

@@ -12642,6 +12642,7 @@ fn curved_formation_of(bend: &CurvedBendMacroBuild) -> CurvedFormation {
         torsion_constant: m.torsion_constant,
         in_plane_flexibility_factor: m.in_plane_flexibility_factor,
         out_of_plane_flexibility_factor: m.out_of_plane_flexibility_factor,
+        shear_area: m.transverse_shear_area,
     }
 }
 

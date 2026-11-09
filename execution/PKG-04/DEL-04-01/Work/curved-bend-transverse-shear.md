@@ -179,8 +179,9 @@ stress is claimed.
 ## 5. Minimal implementation boundary
 
 This boundary was audited at `5f2946ef12`. Step A, the kernel and
-certification, is the next authorized slice. Step B, product admission, is
-reserved until Agent 0 reviews its actual diff.
+certification, is implemented on branch `codex/bend-transverse-shear`; no
+product path sets the shear area yet. Step B, product admission, is reserved
+until Agent 0 reviews its actual diff.
 
 ### Step A: kernel and certification (DEL-04-01; FK structural)
 
@@ -315,12 +316,20 @@ These were checked against the code, not estimated.
   [DEL-04-08 `retained-pricing-rules.md`](../../DEL-04-08/Work/retained-pricing-rules.md))
   pins the phase totals in the qualified build.
   - Adding `Option<f64>` (16 B) moves the record only if a curved variant is
-    `LoadFormula`'s largest. That depends on the compiler's layout, so it must
-    be measured.
-  - Step A's first build on `t3_cargo` prints `size_of::<LoadFormula>()` (FK
-    `tests/tie_rod_element.rs` `sizes`) at base and candidate.
-  - If it moves, the record is re-derived under the pricing rules as its own
-    §8 entry, never edited to pass.
+    `LoadFormula`'s largest. Measured with FK `tests/tie_rod_element.rs`
+    `sizes`: `size_of::<LoadFormula>()` is 752 B at base and with Step A,
+    because `ConnectorReference` (`ObjectiveConnector`, 712 B) is the largest
+    variant. The record does not move.
+  - A later change that does move it is re-derived under the pricing rules as
+    its own §8 entry, never edited to pass.
+  - **Source pins.** The retained-pricing tool binds Step A's files by text:
+    `base/b7a_returning_errors.py` pins the whole of `curved_bend/src/lib.rs`
+    and `base/b7a_domain_model.py`'s `LEAF_SEAM` pins the
+    `impl CurvedLeaves for CurvedFormation` block that Step A extends. Their
+    restatement is a D3 pricing turn under the pricing rules, with independent
+    review. On the retained route the shear area is always `None`, so no owner,
+    error path or TEXT site is reached; the D3 must confirm that against the
+    tool, not assume it.
   - New Display text in error arms is priced as well (§8.30's precedent), so
     Step B's diagnostics need the same accounting.
 - **Witnesses.** The KD5 member bound, the formation closure, the retained
@@ -351,7 +360,10 @@ These were checked against the code, not estimated.
     Exercise `FreeStrainCurved` and `PressureFreeStrainCurved` certification
     with `Some` and `None`, including source/operand binding.
   - `curved_binding` unchanged for `None` and distinct for `Some`.
-  - The NI source copy, scaled and unscaled.
+  - The NI source copy, scaled and unscaled, and K-D5 still passing the
+    sheared E1 and E6 elbows on every selected branch.
+  - The S11 accumulation-site tables (FK `s11_site_table`, PP
+    `s11f_site_test`) list the kernel's seven new formation accumulations.
 - **Step B tests.** Modal v2 refusal, v1 arc disclosure unchanged, v2 straight
   members bit-equal to v1, A_s blocking by name, and the MBF export behaviour
   of §5.

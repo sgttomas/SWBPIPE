@@ -50,6 +50,10 @@ pub struct CurvedFormation {
     pub torsion_constant: f64,
     pub in_plane_flexibility_factor: f64,
     pub out_of_plane_flexibility_factor: f64,
+    /// Transverse shear area A_s of the explicit curved-shear opt-in
+    /// (`CurvedBendMacroElement::with_transverse_shear_area`); `None` is the
+    /// Euler–Bernoulli arc. The bending flexibility factors never scale it.
+    pub shear_area: Option<f64>,
 }
 
 /// Stable source-enumerated identity of one summand of a formed ledger term.
@@ -1420,6 +1424,9 @@ fn curved_binding(out: &mut Vec<u64>, f: &CurvedFormation) {
             f.out_of_plane_flexibility_factor,
         ],
     );
+    if let Some(shear_area) = f.shear_area {
+        out.extend([TIMOSHENKO_BINDING_TAG, shear_area.to_bits()]);
+    }
 }
 fn mass_binding(out: &mut Vec<u64>, m: &MassPrimitive) {
     bits(
@@ -3166,6 +3173,8 @@ pub(super) trait CurvedLeaves {
     fn torsion_constant(&self) -> Result<Wide2, WideError>;
     fn in_plane_flexibility_factor(&self) -> Result<Wide2, WideError>;
     fn out_of_plane_flexibility_factor(&self) -> Result<Wide2, WideError>;
+    /// A_s of the curved-shear opt-in, `None` for the Euler–Bernoulli arc.
+    fn shear_area(&self) -> Option<Result<Wide2, WideError>>;
 }
 impl CurvedLeaves for CurvedFormation {
     fn elastic_modulus(&self) -> Result<Wide2, WideError> {
@@ -3188,6 +3197,9 @@ impl CurvedLeaves for CurvedFormation {
     }
     fn out_of_plane_flexibility_factor(&self) -> Result<Wide2, WideError> {
         lift(self.out_of_plane_flexibility_factor)
+    }
+    fn shear_area(&self) -> Option<Result<Wide2, WideError>> {
+        self.shear_area.map(lift)
     }
 }
 
@@ -3229,6 +3241,12 @@ pub(super) fn curved_matrix_with<S: CurvedLeaves>(
     let axial = a.mul(&em, &leaves.area()?)?;
     let fin = leaves.in_plane_flexibility_factor()?;
     let fout = leaves.out_of_plane_flexibility_factor()?;
+    // Curved shear (V_r and V_z energies) only for the opt-in; the
+    // Euler–Bernoulli arc executes none of its operations.
+    let shear = match leaves.shear_area() {
+        None => None,
+        Some(shear_area) => Some(a.mul(&leaves.shear_modulus()?, &shear_area?)?),
+    };
     let mut flexibility = [[Wide2::ZERO; 6]; 6];
     for row in 0..6 {
         for col in row..6 {
@@ -3244,7 +3262,15 @@ pub(super) fn curved_matrix_with<S: CurvedLeaves>(
             let t_a = a.div(&q_a, &axial)?;
             let s = a.add(&t_in, &t_out)?;
             let s = a.add(&s, &t_t)?;
-            let s = a.add(&s, &t_a)?;
+            let mut s = a.add(&s, &t_a)?;
+            if let Some(gas) = &shear {
+                let q_r = quad(a, &gram, &cases[row][4], &cases[col][4])?;
+                let q_z = quad(a, &gram, &cases[row][5], &cases[col][5])?;
+                let t_r = a.div(&q_r, gas)?;
+                let t_z = a.div(&q_z, gas)?;
+                s = a.add(&s, &t_r)?;
+                s = a.add(&s, &t_z)?;
+            }
             let v = a.mul(&radius, &s)?;
             flexibility[row][col] = v;
             flexibility[col][row] = v;
@@ -3307,13 +3333,15 @@ pub(super) fn curved_matrix_with<S: CurvedLeaves>(
 }
 
 /// The product's `unit_load_actions` series (in-plane, out-of-plane,
-/// torsion, axial) for the six unit loads at node j, from R, sin φ and cos φ.
+/// torsion, axial) for the six unit loads at node j, from R, sin φ and cos φ,
+/// then the two curved-shear families: V_r (from F_x, F_y) and V_z (from
+/// F_z), kept separate so no false F_x–F_z coupling arises.
 fn unit_load_actions(
     a: &mut WideArith,
     radius: &Wide2,
     sin: &Wide2,
     cos: &Wide2,
-) -> Result<[[Vec3; 4]; 6], WideError> {
+) -> Result<[[Vec3; 6]; 6], WideError> {
     let z = Wide2::ZERO;
     let one = Wide2::ONE;
     let r = *radius;
@@ -3321,12 +3349,12 @@ fn unit_load_actions(
     let rc = a.mul(&r, cos)?;
     let zero3 = [z, z, z];
     Ok([
-        [[rs.neg(), z, r], zero3, zero3, [z, z, one.neg()]],
-        [[rc, r.neg(), z], zero3, zero3, [z, one, z]],
-        [zero3, [z, rs, rc.neg()], [r, rc.neg(), rs.neg()], zero3],
-        [zero3, [z, one, z], [z, z, one.neg()], zero3],
-        [zero3, [z, z, one], [z, one, z], zero3],
-        [[one, z, z], zero3, zero3, zero3],
+        [[rs.neg(), z, r], zero3, zero3, [z, z, one.neg()], [z, one, z], zero3],
+        [[rc, r.neg(), z], zero3, zero3, [z, one, z], [z, z, one], zero3],
+        [zero3, [z, rs, rc.neg()], [r, rc.neg(), rs.neg()], zero3, zero3, [one, z, z]],
+        [zero3, [z, one, z], [z, z, one.neg()], zero3, zero3, zero3],
+        [zero3, [z, z, one], [z, one, z], zero3, zero3, zero3],
+        [[one, z, z], zero3, zero3, zero3, zero3, zero3],
     ])
 }
 
@@ -3419,6 +3447,9 @@ mod tests;
 #[cfg(test)]
 #[path = "formation_check_timoshenko_tests.rs"]
 mod timoshenko_tests;
+#[cfg(test)]
+#[path = "formation_check_curved_shear_tests.rs"]
+mod curved_shear_tests;
 #[cfg(test)]
 #[path = "tie_rod_kd5_tests.rs"]
 mod tie_rod_tests;

@@ -2311,6 +2311,7 @@ fn formation_source<'a>(
                 torsion_constant: m.torsion_constant,
                 in_plane_flexibility_factor: m.in_plane_flexibility_factor,
                 out_of_plane_flexibility_factor: m.out_of_plane_flexibility_factor,
+                shear_area: m.transverse_shear_area,
             }),
             None => source
                 .unavailable
@@ -2464,6 +2465,7 @@ fn force_scaled_formation_source<'a>(
                 torsion_constant: m.torsion_constant,
                 in_plane_flexibility_factor: m.in_plane_flexibility_factor,
                 out_of_plane_flexibility_factor: m.out_of_plane_flexibility_factor,
+                shear_area: m.transverse_shear_area,
             }),
             Err(_) => source
                 .unavailable

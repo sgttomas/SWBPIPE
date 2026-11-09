@@ -1513,3 +1513,71 @@ fn k5_nonlinear_loop_assembles_connectors() {
         }
     }
 }
+
+/// Curved-bend transverse shear (DEL-04-01 Work
+/// `curved-bend-transverse-shear.md` §5 Step A item 5): `model` with every
+/// bend re-built with the opt-in shear area `a_s`.
+fn with_curved_shear(model: &Model, a_s: f64) -> Model {
+    let mut sheared = model.clone();
+    sheared.slots.clear();
+    sheared.macros.clear();
+    for m in &model.macros {
+        let e = m.clone().with_transverse_shear_area(a_s).unwrap();
+        let id = format!("bend-{}", sheared.slots.len());
+        sheared
+            .slots
+            .push(CurvedBendStiffnessElement::from_macro_element(id, &e).unwrap());
+        sheared.macros.push(e);
+    }
+    sheared
+}
+
+/// Step A item 5: K-D5's formation source matches each sheared slot to its
+/// sheared macro element and copies A_s unscaled, at 2^0 and 2^b (E and G
+/// times 2^b, as for the Euler–Bernoulli arc). The Euler–Bernoulli macros do
+/// not match the sheared slots (fail closed, never re-formed without
+/// shear), and the realistic elbows E1 and E6 still pass every selected
+/// branch with the shear-dependent K.
+#[test]
+fn k5_curved_shear_sources_copy_the_shear_area_and_the_elbows_still_pass() {
+    for (name, eb) in kd5_curved() {
+        let a_s = 0.5 * E1.section.a;
+        let model = with_curved_shear(&eb, a_s);
+        for b in [0, 2, -40] {
+            let e = model.dense_evidence_at(scale(b));
+            let source = force_scaled_formation_source(&e.formation, &model.macros, e.force_scale);
+            assert!(source.unavailable.is_empty(), "{name} b={b}: {:?}", source.unavailable);
+            assert_eq!(source.curved.len(), model.macros.len(), "{name} b={b}");
+            for (arc, m) in source.curved.iter().zip(&model.macros) {
+                assert_eq!(arc.shear_area, Some(a_s), "{name} b={b}");
+                assert_eq!(arc.area, m.area, "{name} b={b}");
+                assert_eq!(arc.elastic_modulus, m.elastic_modulus * 2f64.powi(b), "{name} b={b}");
+                assert_eq!(arc.shear_modulus, m.shear_modulus * 2f64.powi(b), "{name} b={b}");
+            }
+            let stale = force_scaled_formation_source(&e.formation, &eb.macros, e.force_scale);
+            assert_eq!(stale.unavailable.len(), model.macros.len(), "{name} b={b}");
+            assert!(stale
+                .unavailable
+                .iter()
+                .all(|u| u.starts_with("curved_bend_source_unmatched:")));
+        }
+        if !matches!(name, "E1" | "E6") {
+            continue;
+        }
+        for mode in MODES {
+            let reference = selected(&eb, mode, 0, &eb.macros);
+            for b in [0, 2] {
+                for (branch, result) in selected(&model, mode, b, &model.macros).into_iter().enumerate() {
+                    let solution = result.unwrap();
+                    assert_eq!(solution.formation_check, None, "{name} {mode:?} b={b} branch {branch}");
+                    assert_eq!(
+                        solution.report.quality,
+                        open_pipe_stress_frame_kernel::structural::SolveQuality::Passed
+                    );
+                    let eb_u = &reference[branch].as_ref().unwrap().displacements;
+                    assert_ne!(bits(&solution.displacements), bits(eb_u), "{name}: shear must move u");
+                }
+            }
+        }
+    }
+}

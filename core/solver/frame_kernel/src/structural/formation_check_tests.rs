@@ -209,6 +209,7 @@ fn kd5_reformed_elements_have_the_rigid_body_null_space() {
         torsion_constant: e.section.torsion_constant,
         in_plane_flexibility_factor: 5.0,
         out_of_plane_flexibility_factor: 5.0,
+        shear_area: None,
     };
     let before = arith.work().rounded_operations();
     let curved = curved_matrix(&mut arith, &bend).unwrap();
@@ -419,6 +420,7 @@ fn kd5_curved_arctangent_domain_errors_fail_closed() {
         torsion_constant: 5.4e-5,
         in_plane_flexibility_factor: 1.0,
         out_of_plane_flexibility_factor: 1.0,
+        shear_area: None,
     };
     for (label, b) in [
         ("at_pi", bend([1.0, 0.0, 0.0], [-1.0, 0.0, 0.0], 1.0)),
@@ -653,6 +655,7 @@ fn kd5_long_nearly_straight_bend_at_the_floor_does_not_demote() {
             torsion_constant: 5.401968567847658e-05,
             in_plane_flexibility_factor: 1.0,
             out_of_plane_flexibility_factor: 1.0,
+            shear_area: None,
         };
         let k: Vec<Vec<f64>> = frozen.iter().map(|row| row.to_vec()).collect();
         let mut force = [0.0; 12];
@@ -743,6 +746,7 @@ fn kd5_k2_formula_chord_system_demotes_against_the_actual_chord() {
             torsion_constant: 5.401968567847658e-05,
             in_plane_flexibility_factor: 1.0,
             out_of_plane_flexibility_factor: 1.0, // K2 element
+            shear_area: None,
         };
         let springs = vec![(3, 1e6), (4, 1e6), (5, 1e6)];
         let mut k: Vec<Vec<f64>> = frozen.iter().map(|row| row.to_vec()).collect();
@@ -1463,6 +1467,7 @@ fn quarter_arc() -> CurvedFormation {
         torsion_constant: 2.0,
         in_plane_flexibility_factor: 1.0,
         out_of_plane_flexibility_factor: 1.0,
+        shear_area: None,
     }
 }
 #[test]

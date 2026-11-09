@@ -89,6 +89,8 @@ pub struct BendOperands {
     pub torsion_constant: WideOperand,
     pub in_plane_flexibility_factor: WideOperand,
     pub out_of_plane_flexibility_factor: WideOperand,
+    /// A_s of the curved-shear opt-in, `None` for the Euler–Bernoulli arc.
+    pub shear_area: Option<WideOperand>,
 }
 
 /// A re-formed 12×12 element matrix, node i's six DOFs then node j's, in
@@ -167,6 +169,7 @@ struct LiftedCurved {
     torsion_constant: Wide2,
     in_plane: Wide2,
     out_of_plane: Wide2,
+    shear_area: Option<Wide2>,
 }
 impl CurvedLeaves for LiftedCurved {
     fn elastic_modulus(&self) -> Result<Wide2, WideError> {
@@ -189,6 +192,9 @@ impl CurvedLeaves for LiftedCurved {
     }
     fn out_of_plane_flexibility_factor(&self) -> Result<Wide2, WideError> {
         Ok(self.out_of_plane)
+    }
+    fn shear_area(&self) -> Option<Result<Wide2, WideError>> {
+        self.shear_area.map(Ok)
     }
 }
 
@@ -228,6 +234,10 @@ pub fn reform_bend(operands: &BendOperands) -> Result<ReformedElement, WideError
         torsion_constant: operands.torsion_constant.lift(&mut a)?,
         in_plane: operands.in_plane_flexibility_factor.lift(&mut a)?,
         out_of_plane: operands.out_of_plane_flexibility_factor.lift(&mut a)?,
+        shear_area: match operands.shear_area {
+            Some(value) => Some(value.lift(&mut a)?),
+            None => None,
+        },
     };
     // The geometry carrier: only the nodes, R and y are read from it; the
     // section fields are never read (the leaves above supply them).
@@ -245,6 +255,7 @@ pub fn reform_bend(operands: &BendOperands) -> Result<ReformedElement, WideError
         torsion_constant: 0.0,
         in_plane_flexibility_factor: 0.0,
         out_of_plane_flexibility_factor: 0.0,
+        shear_area: None,
     };
     let k = curved_matrix_with(&mut a, &geometry, &leaves)?;
     ReformedElement::from_element(&k)

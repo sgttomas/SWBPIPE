@@ -72,6 +72,7 @@ fn skew_bend() -> CurvedFormation {
         torsion_constant: 5.8e-5,
         in_plane_flexibility_factor: 3.7,
         out_of_plane_flexibility_factor: 2.9,
+        shear_area: None,
     }
 }
 
@@ -88,6 +89,7 @@ fn bend_operands(e: &CurvedFormation) -> BendOperands {
         torsion_constant: WideOperand::from_f64(e.torsion_constant),
         in_plane_flexibility_factor: WideOperand::from_f64(e.in_plane_flexibility_factor),
         out_of_plane_flexibility_factor: WideOperand::from_f64(e.out_of_plane_flexibility_factor),
+        shear_area: e.shear_area.map(WideOperand::from_f64),
     }
 }
 

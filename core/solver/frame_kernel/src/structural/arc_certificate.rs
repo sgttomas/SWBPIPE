@@ -503,8 +503,9 @@ fn invert_verified(
 // ---------------------------------------------------------------------------
 
 /// Internal actions of one unit load: in-plane moment, out-of-plane moment,
-/// torsion and axial force over {1, cos θ, sin θ}.
-type Actions = [[Ball; 3]; 4];
+/// torsion, axial force, then the curved-shear families V_r and V_z, over
+/// {1, cos θ, sin θ}. The shear families enter only for the opt-in.
+type Actions = [[Ball; 3]; 6];
 
 /// Steps (1)–(4) of the normative order without the intensity: the chord,
 /// the stable half-angle forms, φ and the arc's centre-frame axes. Shared by
@@ -623,12 +624,12 @@ fn arc_flexibility(
     let rc = b.mul(radius, cos)?;
     let z3 = [zero; 3];
     let cases: [Actions; 6] = [
-        [[rs.neg(), zero, radius], z3, z3, [zero, zero, one.neg()]],
-        [[rc, radius.neg(), zero], z3, z3, [zero, one, zero]],
-        [z3, [zero, rs, rc.neg()], [radius, rc.neg(), rs.neg()], z3],
-        [z3, [zero, one, zero], [zero, zero, one.neg()], z3],
-        [z3, [zero, zero, one], [zero, one, zero], z3],
-        [[one, zero, zero], z3, z3, z3],
+        [[rs.neg(), zero, radius], z3, z3, [zero, zero, one.neg()], [zero, one, zero], z3],
+        [[rc, radius.neg(), zero], z3, z3, [zero, one, zero], [zero, zero, one], z3],
+        [z3, [zero, rs, rc.neg()], [radius, rc.neg(), rs.neg()], z3, z3, [one, zero, zero]],
+        [z3, [zero, one, zero], [zero, zero, one.neg()], z3, z3, z3],
+        [z3, [zero, zero, one], [zero, one, zero], z3, z3, z3],
+        [[one, zero, zero], z3, z3, z3, z3, z3],
     ];
     let half_phi = b.half(phi)?;
     let s2_half = b.half(sin2)?;
@@ -652,6 +653,13 @@ fn arc_flexibility(
     let ea = b.mul(em, area)?;
     let k_in = b.lift(bend.in_plane_flexibility_factor)?;
     let k_out = b.lift(bend.out_of_plane_flexibility_factor)?;
+    let gas = match bend.shear_area {
+        None => None,
+        Some(shear_area) => {
+            let shear_area = b.lift(shear_area)?;
+            Some(b.mul(gm, shear_area)?)
+        }
+    };
     let rigidity = Rigidity {
         radius,
         k_in,
@@ -659,15 +667,16 @@ fn arc_flexibility(
         ei,
         gj,
         ea,
+        gas,
     };
     let mut f = [[Ball::ZERO; 6]; 6];
     for r in 0..6 {
         for k in r..6 {
-            let mut q4 = [zero; 4];
-            for j in 0..4 {
-                q4[j] = b.quad(&gram, &cases[r][j], &cases[k][j])?;
+            let mut q = [zero; 6];
+            for j in 0..rigidity.families() {
+                q[j] = b.quad(&gram, &cases[r][j], &cases[k][j])?;
             }
-            let v = rigidity.energy(b, q4)?;
+            let v = rigidity.energy(b, q)?;
             f[r][k] = v;
             f[k][r] = v;
         }
@@ -801,16 +810,28 @@ pub(super) fn curved_uniform_load_balls(
     let rwy_phi = b.mul(rwy, phi)?;
     let rwx_phi = b.mul(rwx, phi)?;
     let ld_ax = [zero, rwy_phi, rwx_phi.neg(), zero, rwy.neg(), rwx];
-    let loads = [ld_ip, ld_op, ld_t, ld_ax];
+    // The curved-shear load actions R(φ − θ)(w_x cos θ + w_y sin θ) and
+    // R(φ − θ)w_z, formed only for the opt-in.
+    let (ld_vr, ld_vz) = if rigidity.gas.is_some() {
+        let rwz = b.mul(radius, wz)?;
+        let rwz_phi = b.mul(rwz, phi)?;
+        (
+            [zero, rwx_phi, rwy_phi, zero, rwx.neg(), rwy.neg()],
+            [rwz_phi, zero, zero, rwz.neg(), zero, zero],
+        )
+    } else {
+        ([zero; 6], [zero; 6])
+    };
+    let loads = [ld_ip, ld_op, ld_t, ld_ax, ld_vr, ld_vz];
 
     // (6) δ (F is the shared prefix's).
     let mut delta = [zero; 6];
     for r in 0..6 {
-        let mut q4 = [zero; 4];
-        for j in 0..4 {
-            q4[j] = b.quad(&egram, &cases[r][j], &loads[j])?;
+        let mut q = [zero; 6];
+        for j in 0..rigidity.families() {
+            q[j] = b.quad(&egram, &cases[r][j], &loads[j])?;
         }
-        delta[r] = rigidity.energy(&mut b, q4)?;
+        delta[r] = rigidity.energy(&mut b, q)?;
     }
 
     // (7) The verified inverse.
@@ -1317,11 +1338,23 @@ struct Rigidity {
     ei: Ball,
     gj: Ball,
     ea: Ball,
+    /// G·A_s of the curved-shear opt-in; `None` for the Euler–Bernoulli arc.
+    gas: Option<Ball>,
 }
 
 impl Rigidity {
-    /// R·((((k_in q_in)/EI + (k_out q_out)/EI) + q_t/GJ) + q_a/EA).
-    fn energy(&self, b: &mut Balls, q: [Ball; 4]) -> Result<Ball, Failure> {
+    /// The action families that carry energy: four, or six with shear.
+    fn families(&self) -> usize {
+        if self.gas.is_some() {
+            6
+        } else {
+            4
+        }
+    }
+
+    /// R·((((k_in q_in)/EI + (k_out q_out)/EI) + q_t/GJ) + q_a/EA), then
+    /// + q_r/GA_s + q_z/GA_s inside the bracket for the curved-shear opt-in.
+    fn energy(&self, b: &mut Balls, q: [Ball; 6]) -> Result<Ball, Failure> {
         let in_plane = b.mul(self.k_in, q[0])?;
         let in_plane = b.div(in_plane, self.ei, "EI")?;
         let out_of_plane = b.mul(self.k_out, q[1])?;
@@ -1330,7 +1363,13 @@ impl Rigidity {
         let torsion = b.div(q[2], self.gj, "GJ")?;
         let t = b.add(t, torsion)?;
         let axial = b.div(q[3], self.ea, "EA")?;
-        let t = b.add(t, axial)?;
+        let mut t = b.add(t, axial)?;
+        if let Some(gas) = self.gas {
+            let radial = b.div(q[4], gas, "GAs")?;
+            t = b.add(t, radial)?;
+            let normal = b.div(q[5], gas, "GAs")?;
+            t = b.add(t, normal)?;
+        }
         b.mul(self.radius, t)
     }
 }

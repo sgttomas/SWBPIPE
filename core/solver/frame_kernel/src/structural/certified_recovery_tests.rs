@@ -401,6 +401,7 @@ fn arc_recovery_uses_the_intended_matrix_and_equilibrium_sections() {
         torsion_constant: 6.0,
         in_plane_flexibility_factor: 1.0,
         out_of_plane_flexibility_factor: 1.0,
+        shear_area: None,
     };
     let span = FrameElement::new(
         FrameNode::new(0, arc.coordinates_i).unwrap(),
@@ -520,7 +521,7 @@ fn u4a_actual_end_axis_balls_enclose_all_inexact_frozen_axes() {
     for chunk in lines.chunks_exact(20) {
         assert!(chunk[0].starts_with("case "));
         let args=chunk[1].strip_prefix("args ").unwrap().split_whitespace().map(hex).collect::<Vec<_>>();
-        let arc=CurvedFormation {node_i:0,node_j:1,coordinates_i:args[..3].try_into().unwrap(),coordinates_j:args[3..6].try_into().unwrap(),radius:args[6],y_reference:args[7..10].try_into().unwrap(),elastic_modulus:8.0,shear_modulus:4.0,area:2.0,second_moment:3.0,torsion_constant:6.0,in_plane_flexibility_factor:1.0,out_of_plane_flexibility_factor:1.0};
+        let arc=CurvedFormation {node_i:0,node_j:1,coordinates_i:args[..3].try_into().unwrap(),coordinates_j:args[3..6].try_into().unwrap(),radius:args[6],y_reference:args[7..10].try_into().unwrap(),elastic_modulus:8.0,shear_modulus:4.0,area:2.0,second_moment:3.0,torsion_constant:6.0,in_plane_flexibility_factor:1.0,out_of_plane_flexibility_factor:1.0,shear_area:None};
         let mut b=Balls::new().unwrap();let axes=arc_end_axes(&mut b,&arc).unwrap();let mut separated=false;
         // Independent512bit circle construction from exact authored binary64
         // operands, with no Ball or arc_end_axes coefficient in the reference.
@@ -851,6 +852,7 @@ mod independent_loaded_arc {
             torsion_constant: args[14],
             in_plane_flexibility_factor: args[15],
             out_of_plane_flexibility_factor: args[16],
+            shear_area: None,
         };
         let intensity = [args[17], args[18], args[19]];
         let span = FrameElement::new(

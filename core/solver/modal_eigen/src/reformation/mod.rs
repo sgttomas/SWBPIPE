@@ -323,6 +323,7 @@ pub fn reform_element_stiffness(
                 out_of_plane_flexibility_factor: WideOperand::from_f64(
                     a.out_of_plane_flexibility_factor,
                 ),
+                shear_area: None,
             })
             .map_err(ReformationFailure::Stiffness)?;
             from_reformed(node_dofs(a.node_i, a.node_j), &k).map(Some)
