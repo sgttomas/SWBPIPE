@@ -1330,6 +1330,15 @@ uses the same mechanics as the export review (§3.9.5).
     Sections no pipe references are omitted. Formats 3, 2 and the legacy format keep their
     handling (no library is restored), and the self-digest is unchanged. Design: import
     Design §15 **Format 4: section identities**.
+  - **Bend component nodes (format 6, implemented).** The writer records sidecar format 6
+    for every export: format 4 plus each bend entry's `node`, the tangent node the source
+    component named, and a declared `derivation` (the source document's digest and the export
+    settings). A bound format-6 import restores that node when it is one of the bend's two
+    tangent nodes and refuses any other (`MBF-IMPORT-SIDECAR-CONFLICT`); it emits no
+    `MBF-IMPORT-REFERENCE-UNRECOVERABLE` for the bend. The node and the derivation are held at
+    the identity file's source-free trust level, unverified against any source. Formats 2 to 4
+    keep the near node and the notice. Design: import Design §15 **Format 6: derivation and
+    bend nodes**.
 - **What it does not restore:**
   - **The project.** The import forms `project:mbf-<12 hex>`, so an import is a new unsaved
     document, not the original project. The project id is outside the identity set because it
@@ -1352,8 +1361,10 @@ uses the same mechanics as the export review (§3.9.5).
   so.
 - **Supported engine subset only.** The desktop passes the engine's `ImportOptions` with a sidecar, a material
   provenance declaration and the source label only. It passes no pressure closure, no rebinding (slice 7), no shear
-  model and no source document. A sidecar format the engine does not read, format 5 included (import Design §20.4),
-  is the engine's `MBF-IMPORT-SIDECAR-INVALID`. Nothing here adds a format-5 or designated-source route, a Route 1
+  model and no source document. The engine reads sidecar formats 2, 3, 4 and 6; the writer writes format 6, the
+  ordinary route's format, which binds no designated source (import Design §15 **Format 6**). A sidecar format the
+  engine does not read, the held Route 1 format 5 included (import Design §20.4.5), is the engine's
+  `MBF-IMPORT-SIDECAR-INVALID`. Nothing here adds a format-5 or designated-source route, a Route 1
   input, an unsupported-family exemption or a value change. Supplier Route 1 stays held.
 
 ### 4.6 Refusals
@@ -2240,8 +2251,12 @@ Review format 1 counted this warning, bend references and legacy support fields 
 Thus the maintained bound fixture's old count of 2 conflated one unrecovered reference and general uncertainty.
 The format-2 correction in §5.3 separates those facts and preserves every notice.
 
-`assemble.rs::bend_component` restores the component id but uses the near tangent node. The identity file
-records the bend's identity and geometry, not which endpoint the source component named. The near/far source
+`assemble.rs::bend_component` restores the component id. For identity-file formats 2 to 4 it uses the near
+tangent node: those formats record the bend's identity and geometry, not which endpoint the source component
+named, and the rest of this paragraph describes them. Format 6 records the endpoint (`bend.node`), and a bound
+format-6 import restores it within the bend's two tangent nodes (import Design §15 **Format 6**); the near/far
+regressions now write identical MBF bytes but distinct format-6 identity files, each restoring its own endpoint
+without the notice, and keep the format-4 behaviour below as a downgrade case. The near/far source
 regressions in both twins write identical MBF/identity bytes for opposite source choices, restore the same
 component id, warn on both, choose the near node, and demonstrate the far reference lost. Matching nine output
 inventories cannot recover that choice. The corresponding support-family and summed-load regressions distinguish
@@ -2251,7 +2266,8 @@ The identity file's self-digest checks its own consistency and the MBF digest bi
 Regeneration checks reproducibility of the represented values and mappings, with summed originals set aside
 by name (§14 of the import design). Neither proves authorship or original completeness: a consistently edited
 id, or removal of one contributor to a sum, cannot establish the original inventory. The identity file carries
-no original-model digest, complete original inventory or export loss report. `source_label` labels the import;
+no complete original inventory or export loss report. Formats 2 to 4 carry no original-model digest; format 6
+declares one (`derivation.source_model_sha256`), which the import neither verifies nor uses. `source_label` labels the import;
 material origin and per-material declarations establish permitted material provenance only (§7.4). Rebinding
 is explicit and unconfirmed; the desktop offers no rebinding or source-completeness declaration.
 
@@ -2261,7 +2277,8 @@ information the file cannot recover." App regressions retain the warning entries
 Their native transport is mocked; native/App execution evidence remains separate (§5.1).
 
 A later C6-5 capability must recover the original reference choice and establish a comparison against the exact
-designated original source with explicit completeness. This correction does not select its mechanism. A-3,
+designated original source with explicit completeness. Format 6 recovers the reference choice only at the
+identity file's source-free trust; the comparison against a designated source remains open. This correction does not select its mechanism. A-3,
 C6-5, source-designation requirements and the actual App witness remain unchanged and open.
 
 ### 5.3 Selected report taxonomy and bounded review format 2
@@ -2273,7 +2290,7 @@ information or weakening C6-5/A-3. It introduces no source carrier, sidecar/mode
 |---|---|---|
 | `MBF-IMPORT-ID-UNRECOVERABLE` for each original summed `load_map[case/id]` | Same code and exact named original entry | That original load id is absent from the adopted model; count each original once |
 | Same code for the formed summed-load group | `MBF-IMPORT-IDENTITIES-MERGED`, same group and named contributors | The formed group is not an additional lost original id |
-| Same code at `bend n` | `MBF-IMPORT-REFERENCE-UNRECOVERABLE`, `{component_id}.node` | Original endpoint choice is unrecorded; near node is used; component id survives |
+| Same code at `bend n` | `MBF-IMPORT-REFERENCE-UNRECOVERABLE`, `{component_id}.node` (identity-file formats 2 to 4; none for format 6, which records the node) | Original endpoint choice is unrecorded; near node is used; component id survives |
 | Same code at legacy `support_map[id]` | `MBF-IMPORT-FIELD-UNRECOVERABLE`, `{support_id}.family` | Original family cannot be recovered; support id survives |
 | Same code at `unexported members` | `MBF-IMPORT-SOURCE-COMPLETENESS-UNESTABLISHED`, same subject | The exchange cannot establish which uncarried original members existed or recover them |
 
@@ -2285,7 +2302,9 @@ The existing matched-load-group tracking counts each original once even if malfo
 notices before refusal. The facts add no serialized per-entity inventory and do not alter model/id-map bytes.
 
 §4.3 defines the format-2 identity members. The maintained bound example changes from format 1's conflated 2 to
-0 known lost ids, 1 unrecovered reference and completeness not established, with both notices retained. Two summed
+0 known lost ids, 1 unrecovered reference and completeness not established, with both notices retained. With
+the writer's identity-file format 6 it has 0 unrecovered fields and keeps the completeness notice; its format-4
+downgrade keeps 1. Two summed
 source loads count as 2 lost ids, excluding the group and generic notices. Unbound zero counts likewise leave
 source completeness unestablished. **Zero never establishes completeness, reference equality or C6-5.**
 
