@@ -2499,6 +2499,8 @@
               "apps/desktop/src-tauri/src/autosave_commands.rs",
               "apps/desktop/src-tauri/src/autosave_commands_tests.rs",
               "apps/desktop/src-tauri/src/autosave_tests.rs",
+              "apps/desktop/src-tauri/src/backup.rs",
+              "apps/desktop/src-tauri/src/backup_tests.rs",
               "apps/desktop/src-tauri/src/close_guard.rs",
               "apps/desktop/src-tauri/src/command_ingress.rs",
               "apps/desktop/src-tauri/src/diagnostics_presentation.rs",

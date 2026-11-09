@@ -3,7 +3,7 @@ import type { AutosaveSession } from "./useAutosave";
 /** The autosave lines in the toolbar: the notice of item (a), shown for as
  * long as autosave is off (from the settings, so no later status replaces
  * it; Codex r1 P2 on #1718), and the latest status line. */
-export function AutosaveStatus({ autosave }: { autosave: Pick<AutosaveSession, "offNotice" | "statusLine"> }) {
+export function AutosaveStatus({ autosave }: { autosave: Pick<AutosaveSession, "offNotice" | "statusLine" | "backupStatusLine"> }) {
   return (
     <>
       {autosave.offNotice ? (
@@ -11,6 +11,9 @@ export function AutosaveStatus({ autosave }: { autosave: Pick<AutosaveSession, "
       ) : null}
       {autosave.statusLine ? (
         <p className="shell-autosave-status" data-testid="autosave-status" role="status" title={autosave.statusLine}>{autosave.statusLine}</p>
+      ) : null}
+      {autosave.backupStatusLine ? (
+        <p className="shell-autosave-status" data-testid="backup-status" role="status" title={autosave.backupStatusLine}>{autosave.backupStatusLine}</p>
       ) : null}
     </>
   );
