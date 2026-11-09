@@ -45,7 +45,7 @@ export type AutosaveDiscardOutcome =
 export type AutosaveSettings = {
   /** 0 is off. */
   autosave_minutes: number;
-  /** Slice 3 (backups); null until then. */
+  /** Native-chosen local folder; null while backups are off. */
   backup_folder: string | null;
   backup_keep: number | null;
 };

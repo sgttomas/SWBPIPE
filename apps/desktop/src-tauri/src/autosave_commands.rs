@@ -16,9 +16,16 @@
 //! written by the same atomic writer. A missing file reads as the default (on,
 //! every 5 minutes); an unreadable, unknown-version or out-of-range file reads
 //! as the default with a status naming it, and is rewritten only when the user
-//! changes a setting. `backup_folder` and `backup_keep` are carried and are
-//! null until backups exist (slice 3). No command here takes a path from the
-//! webview: every path is the app's own local data directory.
+//! changes a setting. Every change is one read-modify-write under the
+//! settings lock (`autosave-settings.lock`, slice 1's `flock` lock), so a
+//! change of the interval keeps the backup members another window wrote, and
+//! the reverse. Backups (slice 3, `backup.rs`) are on only when the file
+//! records the backup folder the native chooser gave together with
+//! `backup_local_private_intent: true`, which only `configure_project_backup`
+//! writes; a folder without it (a file written before slice 3) is kept in the
+//! file, never written to, and shown as off. No command here takes a path from
+//! the webview: every path is the app's own local data directory or the native
+//! folder chooser's.
 //!
 //! This module holds no `unsafe` code: every system call it needs is in
 //! `autosave.rs` or the standard library.
@@ -86,7 +93,7 @@ pub(crate) fn admit_body(
 
 /// The app's local data directory: the store file's directory, which holds
 /// `autosave/` and the settings file.
-fn data_directory(app: &AppHandle) -> Result<PathBuf, String> {
+pub(crate) fn data_directory(app: &AppHandle) -> Result<PathBuf, String> {
     app.path().app_local_data_dir().map_err(|error| error.to_string())
 }
 
@@ -221,7 +228,9 @@ pub(crate) const SETTINGS_FORMAT: AtomicSaveFormat = AtomicSaveFormat {
     log_label: "autosave settings",
 };
 
-/// The settings, in the file's member order.
+/// The settings as a response shows them. `backup_folder` is the folder
+/// backups are written to, present only while backups are on (the file
+/// records the folder and the explicit local-private intent); otherwise null.
 #[derive(Debug, Clone, Serialize, PartialEq, Eq)]
 pub(crate) struct AutosaveSettings {
     pub(crate) autosave_minutes: u32,
@@ -230,8 +239,41 @@ pub(crate) struct AutosaveSettings {
 }
 
 impl AutosaveSettings {
+    #[cfg(test)]
     pub(crate) fn default_settings() -> Self {
-        Self { autosave_minutes: DEFAULT_AUTOSAVE_MINUTES, backup_folder: None, backup_keep: None }
+        SettingsRecord::default_record().shown()
+    }
+}
+
+/// The settings file's record, in the file's member order.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct SettingsRecord {
+    pub(crate) autosave_minutes: u32,
+    pub(crate) backup_folder: Option<String>,
+    pub(crate) backup_keep: Option<u32>,
+    /// The user's explicit choice to copy private project data to
+    /// `backup_folder`, recorded when they chose it (slice 3). Absent from a
+    /// file written before slice 3, which reads as false.
+    pub(crate) backup_local_private_intent: bool,
+}
+
+impl SettingsRecord {
+    pub(crate) fn default_record() -> Self {
+        Self { autosave_minutes: DEFAULT_AUTOSAVE_MINUTES, backup_folder: None, backup_keep: None, backup_local_private_intent: false }
+    }
+
+    /// The folder backups are written to: only a folder recorded with the
+    /// explicit local-private intent. A folder without it is never used.
+    pub(crate) fn backup_folder_in_force(&self) -> Option<&str> {
+        self.backup_folder.as_deref().filter(|_| self.backup_local_private_intent)
+    }
+
+    pub(crate) fn shown(&self) -> AutosaveSettings {
+        AutosaveSettings {
+            autosave_minutes: self.autosave_minutes,
+            backup_folder: self.backup_folder_in_force().map(str::to_string),
+            backup_keep: self.backup_keep,
+        }
     }
 }
 
@@ -242,16 +284,18 @@ struct SettingsFile<'a> {
     autosave_minutes: u32,
     backup_folder: &'a Option<String>,
     backup_keep: Option<u32>,
+    backup_local_private_intent: bool,
 }
 
-/// The settings file's exact text for `settings`.
-pub(crate) fn settings_text(settings: &AutosaveSettings) -> String {
+/// The settings file's exact text for `record`.
+pub(crate) fn settings_text(record: &SettingsRecord) -> String {
     serde_json::to_string(&SettingsFile {
         document_kind: SETTINGS_KIND,
         version: SETTINGS_VERSION,
-        autosave_minutes: settings.autosave_minutes,
-        backup_folder: &settings.backup_folder,
-        backup_keep: settings.backup_keep,
+        autosave_minutes: record.autosave_minutes,
+        backup_folder: &record.backup_folder,
+        backup_keep: record.backup_keep,
+        backup_local_private_intent: record.backup_local_private_intent,
     })
     .unwrap_or_default()
 }
@@ -267,13 +311,37 @@ pub(crate) struct AutosaveSettingsRead {
     pub(crate) status: Option<DispositionDiagnostic>,
 }
 
-impl AutosaveSettingsRead {
+/// The record a settings read found (native callers: the settings writers
+/// and the backup), with its source and status as [`AutosaveSettingsRead`].
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) struct SettingsRecordRead {
+    pub(crate) record: SettingsRecord,
+    pub(crate) source: &'static str,
+    pub(crate) status: Option<DispositionDiagnostic>,
+}
+
+impl SettingsRecordRead {
     fn defaulted(status: Option<DispositionDiagnostic>) -> Self {
-        Self { settings: AutosaveSettings::default_settings(), source: "default", status }
+        Self { record: SettingsRecord::default_record(), source: "default", status }
+    }
+
+    fn shown(&self) -> AutosaveSettingsRead {
+        let status = self.status.clone().or_else(|| {
+            (self.record.backup_folder_in_force().is_some() && self.record.backup_keep.is_some()).then(|| diagnostic(
+                "BACKUP-ROTATION-UNAVAILABLE", "", "The stored finite backup retention is unavailable. It was kept unchanged; choose All explicitly to enable nondeleting backups.",
+            ))
+        });
+        AutosaveSettingsRead { settings: self.record.shown(), source: self.source, status }
+    }
+
+    /// The record a change starts from: the file's when it was read, else the
+    /// default (an unusable file is replaced whole by the change).
+    fn base(&self) -> SettingsRecord {
+        if self.source == "file" { self.record.clone() } else { SettingsRecord::default_record() }
     }
 }
 
-const SETTINGS_MEMBERS: [&str; 5] = ["document_kind", "version", "autosave_minutes", "backup_folder", "backup_keep"];
+const SETTINGS_MEMBERS: [&str; 6] = ["document_kind", "version", "autosave_minutes", "backup_folder", "backup_keep", "backup_local_private_intent"];
 
 fn fallback(code: &str, detail: impl std::fmt::Display) -> DispositionDiagnostic {
     diagnostic(
@@ -284,7 +352,7 @@ fn fallback(code: &str, detail: impl std::fmt::Display) -> DispositionDiagnostic
 }
 
 /// The settings a file's bytes hold, or the reason they are not used.
-pub(crate) fn settings_from_bytes(bytes: &[u8]) -> Result<AutosaveSettings, DispositionDiagnostic> {
+pub(crate) fn settings_from_bytes(bytes: &[u8]) -> Result<SettingsRecord, DispositionDiagnostic> {
     let value: Value = serde_json::from_slice(bytes).map_err(|error| fallback(SETTINGS_UNREADABLE, format_args!("is not JSON ({})", stored_read::json_error(&error))))?;
     let Value::Object(members) = value else {
         return Err(fallback(SETTINGS_UNREADABLE, "is not a JSON object"));
@@ -323,17 +391,29 @@ pub(crate) fn settings_from_bytes(bytes: &[u8]) -> Result<AutosaveSettings, Disp
                 .ok_or_else(|| fallback(SETTINGS_OUT_OF_RANGE, format_args!("sets backup_keep to {}, not null (all), 3, 5, 10, 20 or 50", stored_read::shown(&keep.to_string()))))?,
         ),
     };
-    Ok(AutosaveSettings { autosave_minutes, backup_folder, backup_keep })
+    // Absent in a file written before slice 3: no intent was recorded.
+    let backup_local_private_intent = match members.get("backup_local_private_intent") {
+        None => false,
+        Some(Value::Bool(intent)) => *intent,
+        Some(_) => return Err(fallback(SETTINGS_UNREADABLE, "has a backup_local_private_intent that is not true or false")),
+    };
+    Ok(SettingsRecord { autosave_minutes, backup_folder, backup_keep, backup_local_private_intent })
 }
 
-/// Reads the settings file in `data` (§2). It must be a regular file (a
-/// symlink is not followed) of at most [`MAX_SETTINGS_FILE_BYTES`], read with
-/// a hard cap; its load is reserved in `memory` first.
+/// Reads the settings file in `data` (§2), as a response shows it.
 pub(crate) fn read_settings(data: &Path, memory: &dyn ReadMemory) -> Metered<AutosaveSettingsRead> {
-    let unreadable = |detail: String| Metered::new(AutosaveSettingsRead::defaulted(Some(fallback(SETTINGS_UNREADABLE, detail))));
+    read_settings_record(data, memory).map(|read| read.shown())
+}
+
+/// Reads the settings file's record in `data` (§2). It must be a regular file
+/// (a symlink is not followed) of at most [`MAX_SETTINGS_FILE_BYTES`], read
+/// with a hard cap; its load is reserved in `memory` first. Nothing is
+/// written: a file that is not used is rewritten only by a change.
+pub(crate) fn read_settings_record(data: &Path, memory: &dyn ReadMemory) -> Metered<SettingsRecordRead> {
+    let unreadable = |detail: String| Metered::new(SettingsRecordRead::defaulted(Some(fallback(SETTINGS_UNREADABLE, detail))));
     let path = data.join(SETTINGS_FILE);
     match fs::symlink_metadata(&path) {
-        Err(error) if error.kind() == io::ErrorKind::NotFound => return Metered::new(AutosaveSettingsRead::defaulted(None)),
+        Err(error) if error.kind() == io::ErrorKind::NotFound => return Metered::new(SettingsRecordRead::defaulted(None)),
         Err(error) => return unreadable(format!("could not be inspected ({error})")),
         Ok(metadata) if !metadata.file_type().is_file() => return unreadable("is not a regular file".to_string()),
         Ok(metadata) if metadata.len() > MAX_SETTINGS_FILE_BYTES => {
@@ -343,11 +423,11 @@ pub(crate) fn read_settings(data: &Path, memory: &dyn ReadMemory) -> Metered<Aut
     }
     let reservation = match memory.reserve("the autosave settings file", loaded_text_bytes(MAX_SETTINGS_FILE_BYTES + 1)) {
         Ok(reservation) => reservation,
-        Err(message) => return Metered::new(AutosaveSettingsRead::defaulted(Some(diagnostic(stored_read::STORE_READ_MEMORY_UNAVAILABLE, "", message)))),
+        Err(message) => return Metered::new(SettingsRecordRead::defaulted(Some(diagnostic(stored_read::STORE_READ_MEMORY_UNAVAILABLE, "", message)))),
     };
     let file = match fs::OpenOptions::new().read(true).custom_flags(libc::O_NOFOLLOW | libc::O_NONBLOCK).open(&path) {
         Ok(file) => file,
-        Err(error) if error.kind() == io::ErrorKind::NotFound => return Metered::new(AutosaveSettingsRead::defaulted(None)),
+        Err(error) if error.kind() == io::ErrorKind::NotFound => return Metered::new(SettingsRecordRead::defaulted(None)),
         Err(error) => return unreadable(format!("could not be opened ({error})")),
     };
     if !file.metadata().is_ok_and(|metadata| metadata.is_file()) {
@@ -361,8 +441,8 @@ pub(crate) fn read_settings(data: &Path, memory: &dyn ReadMemory) -> Metered<Aut
         return unreadable(format!("grew beyond the {MAX_SETTINGS_FILE_BYTES} bytes a settings file may be"));
     }
     let read = match settings_from_bytes(&bytes) {
-        Ok(settings) => AutosaveSettingsRead { settings, source: "file", status: None },
-        Err(status) => AutosaveSettingsRead::defaulted(Some(status)),
+        Ok(record) => SettingsRecordRead { record, source: "file", status: None },
+        Err(status) => SettingsRecordRead::defaulted(Some(status)),
     };
     Metered::new(read).holding(reservation)
 }
@@ -370,7 +450,52 @@ pub(crate) fn read_settings(data: &Path, memory: &dyn ReadMemory) -> Metered<Aut
 pub(crate) fn get_settings_at(data: Result<PathBuf, String>, memory: &dyn ReadMemory) -> Metered<AutosaveSettingsRead> {
     match data {
         Ok(data) => read_settings(&data, memory),
-        Err(error) => Metered::new(AutosaveSettingsRead::defaulted(Some(fallback(SETTINGS_UNREADABLE, format_args!("could not be located ({error})"))))),
+        Err(error) => Metered::new(SettingsRecordRead::defaulted(Some(fallback(SETTINGS_UNREADABLE, format_args!("could not be located ({error})")))).shown()),
+    }
+}
+
+/// The settings lock's name in the app's local data directory
+/// (`autosave-settings.lock`, never removed): slice 1's `flock` lock, which
+/// excludes threads, windows and processes alike.
+pub(crate) const SETTINGS_LOCK_SLOT: &str = "autosave-settings";
+
+/// One change of the settings: under the settings lock, the record in force
+/// is read (the default when the file is missing or unusable), `change`
+/// returns the record to write (or a refusal, and nothing is written), and the
+/// atomic writer writes it. The data directory is created if absent, as the
+/// store's is. Each writer changes only its own members of the record it read
+/// under the lock, so concurrent changes of the interval and of the backup
+/// never undo each other.
+pub(crate) fn update_settings_at(
+    data: Result<PathBuf, String>,
+    memory: &dyn ReadMemory,
+    change: impl FnOnce(SettingsRecord) -> Result<SettingsRecord, Vec<DispositionDiagnostic>>,
+) -> AutosaveSettingsWriteOutcome {
+    let data = match data.and_then(|data| fs::create_dir_all(&data).map(|()| data).map_err(|error| error.to_string())) {
+        Ok(data) => data,
+        Err(error) => {
+            return AutosaveSettingsWriteOutcome::Refused {
+                diagnostics: refused_one(autosave::DIRECTORY_UNAVAILABLE, format!("The app's local data directory is unavailable: {error}. Nothing was written.")),
+            }
+        }
+    };
+    let _lock = match autosave::lock_slot_at(&data, SETTINGS_LOCK_SLOT, autosave::LOCK_WAIT) {
+        Ok(lock) => lock,
+        Err(refusal) => return AutosaveSettingsWriteOutcome::Refused { diagnostics: vec![refusal] },
+    };
+    let current = read_settings_record(&data, memory);
+    if let Some(status) = current.get().status.as_ref().filter(|status| status.code == stored_read::STORE_READ_MEMORY_UNAVAILABLE) {
+        return AutosaveSettingsWriteOutcome::Refused { diagnostics: vec![status.clone()] };
+    }
+    let base = current.get().base();
+    drop(current);
+    let record = match change(base) {
+        Ok(record) => record,
+        Err(diagnostics) => return AutosaveSettingsWriteOutcome::Refused { diagnostics },
+    };
+    match atomic_save_bytes_as(&SETTINGS_FORMAT, &data.join(SETTINGS_FILE), settings_text(&record).as_bytes()) {
+        Ok(_) => AutosaveSettingsWriteOutcome::Saved { settings: record.shown() },
+        Err(error) => AutosaveSettingsWriteOutcome::Refused { diagnostics: vec![writer_diagnostic(error)] },
     }
 }
 
@@ -387,30 +512,17 @@ pub(crate) enum AutosaveSettingsWriteOutcome {
 }
 
 /// Sets the interval (0 is off) and writes the settings file with the atomic
-/// writer. A value that is not a choice is refused and nothing is written. The
-/// backup members are kept as a readable file holds them, and are otherwise null.
+/// writer, under the settings lock ([`update_settings_at`]). A value that is
+/// not a choice is refused and nothing is written. The backup members (folder,
+/// rotation and intent) are kept as a readable file holds them, and are
+/// otherwise the default (off).
 pub(crate) fn set_settings_at(data: Result<PathBuf, String>, autosave_minutes: u32, memory: &dyn ReadMemory) -> AutosaveSettingsWriteOutcome {
     if !AUTOSAVE_MINUTE_CHOICES.contains(&autosave_minutes) {
         return AutosaveSettingsWriteOutcome::Refused {
             diagnostics: refused_one(SETTINGS_OUT_OF_RANGE, format!("Autosave every {autosave_minutes} minutes is not a choice (0 for off, 1, 2, 5, 10, 15 or 30); nothing was written.")),
         };
     }
-    let data = match data.and_then(|data| fs::create_dir_all(&data).map(|()| data).map_err(|error| error.to_string())) {
-        Ok(data) => data,
-        Err(error) => {
-            return AutosaveSettingsWriteOutcome::Refused {
-                diagnostics: refused_one(autosave::DIRECTORY_UNAVAILABLE, format!("The app's local data directory is unavailable: {error}. Nothing was written.")),
-            }
-        }
-    };
-    let current = read_settings(&data, memory);
-    let mut settings = if current.get().source == "file" { current.get().settings.clone() } else { AutosaveSettings::default_settings() };
-    drop(current);
-    settings.autosave_minutes = autosave_minutes;
-    match atomic_save_bytes_as(&SETTINGS_FORMAT, &data.join(SETTINGS_FILE), settings_text(&settings).as_bytes()) {
-        Ok(_) => AutosaveSettingsWriteOutcome::Saved { settings },
-        Err(error) => AutosaveSettingsWriteOutcome::Refused { diagnostics: vec![writer_diagnostic(error)] },
-    }
+    update_settings_at(data, memory, |record| Ok(SettingsRecord { autosave_minutes, ..record }))
 }
 
 // ---------------------------------------------------------------------------

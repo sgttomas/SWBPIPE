@@ -28,8 +28,9 @@ carrier (tests/test_load_reference_schema.py).
 corpus is compared by request identity because its ordering is derived from request hashes; historical requests and
 their held bytes retain their recorded bindings. Native byte counts are checked against their exact source bytes.
 
-The endpoint is the working tree: the stage's carriers as committed on its branch. Freeze END at the stage's merge
-when a later stage regenerates these carriers.
+The endpoint is END, frozen at the stage's actual merge (b24b9a566, #166): a completed proof of that commit's tracked
+files. Every carrier, history, scan and routing comparison reads END; later stages are governed by their own guards
+and the maintained live resolver (tests/test_ce_publication_routing.py live contract).
 
 Final composition: S6's reviewed head (S6_HEAD) is merged with the accepted predecessor (PREDECESSOR, #164). BASE stays
 the endpoint of every carrier and history obligation. The routing inventory applies S6's derivation to the
@@ -61,7 +62,7 @@ PREDECESSOR = "00d4820d15f01bcada536c97b2bc129efd64575a"
 # governance/resource changes; current routing is re-derived on that actual input, not the old inventory.
 QUALIFIED = "5b3f71fa5721546ffd93bb9c51b1ca4a56619b44"
 CURRENT_MAIN = "8b02f8b9ec07a02e7427fb07107cb41e6bc2a2e0"
-END = None  # the working tree
+END = "b24b9a5669f573a62d23eaafe7e12503fe29e195"  # S6's actual merge; None would read the working tree
 
 
 @cache
@@ -602,20 +603,16 @@ def check_routing_inventory(after=None):
     """Re-derive only the three changed Rust trees, seven source-read hashes and three scan additions on the accepted
     main's inventory (recovery composition: S6's own derivation applied to CURRENT_MAIN instead of BASE).
     Every source-scan rule, exclusion, caller, fixture enumeration and unrelated control retains its predecessor value.
-    The exact scan contents are checked from the current filesystem, using the selector's declared boundaries."""
-    from tests.test_ce_publication_routing import checked_s6_stage_routing
-    # Validate CE's complete raw overlay on integrated S6 before restoring its
-    # one reader leaf for this S6-stage derivation. The live PP tree stays live.
-    actual_overlay = checked_s6_stage_routing(json.loads(current(ROUTING) if after is None else after))
-    import importlib.util
-    module_path = ROOT / "tools/ci/numerical_ci.py"
-    spec = importlib.util.spec_from_file_location("s6_routing_inventory", module_path)
-    numerical = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(numerical)
+    The exact scan contents are END's tracked files, using the selector's declared boundaries; tree digests are the
+    maintained algorithm over END's blobs. CE's two leaves on this inventory are CE's own frozen proof."""
+    import posixpath
+    from pathlib import PurePosixPath
+    from tests.test_ce_publication_routing import historical_rust_tree_digest, stage_files
+    assert END is not None, "the routing proof is frozen at S6's merge"
     expected = json.loads(_at(CURRENT_MAIN, ROUTING))
     trees = expected["piping_runtime_reads"]["source_trees"]
     for manifest in S6_TREES:
-        digest = numerical.rust_tree_digest(ROOT, Path(manifest))
+        digest = historical_rust_tree_digest(END, manifest)
         assert digest != trees[manifest]
         trees[manifest] = digest
     reads = expected["piping_runtime_reads"]["reads"]
@@ -628,16 +625,20 @@ def check_routing_inventory(after=None):
         entry = next(e for e in reads[source]["inputs"] if e["anchor"] == anchor and e.get("scan"))
         scan = entry["scan"]
         assert entry["base"] == "manifest" and scan["suffix"] == ".rs"
-        crate = next(p for p in (ROOT / source).parents if (p / "Cargo.toml").is_file())
-        boundary = (crate / anchor).resolve()
+        tracked = set(stage_files(END, ""))
+        crate = next(p for p in PurePosixPath(source).parents if (p / "Cargo.toml").as_posix() in tracked)
+        boundary = posixpath.normpath((crate / anchor).as_posix())
+        prefix = "" if boundary == "." else boundary
         excluded = set(scan.get("exclude", []))
-        actual = {p.relative_to(ROOT).as_posix() for p in boundary.rglob("*")
-                  if p.is_file() and p.suffix == scan["suffix"]
-                  and not excluded.intersection(p.relative_to(boundary).parts)
-                  and (not scan.get("hidden") or not any(part.startswith(".") for part in p.relative_to(boundary).parts))}
+        actual = set()
+        for name in stage_files(END, prefix):
+            parts = Path(name[len(prefix) + 1:] if prefix else name).parts
+            if (Path(name).suffix == scan["suffix"] and not excluded.intersection(parts)
+                    and (not scan.get("hidden") or not any(part.startswith(".") for part in parts))):
+                actual.add(name)
         assert actual - set(entry["files"]) == {addition} and not set(entry["files"]) - actual
         entry["files"] = sorted(actual)
-    assert expected == actual_overlay, "routing inventory changed outside its derivation"
+    assert expected == json.loads(current(ROUTING) if after is None else after), "routing inventory changed outside its derivation"
 
 
 def test_routing_inventory_derives_only_s6_source_bindings_and_scan_additions():
@@ -1225,7 +1226,7 @@ def _inherited():
 
 
 def _changed():
-    return _diff_names(BASE) - _inherited() - _inherited_main()
+    return _diff_names(BASE, *([END] if END else [])) - _inherited() - _inherited_main()
 
 
 def _inherited_main(read=current):
@@ -1297,7 +1298,7 @@ def test_every_json_file_is_in_exactly_one_part():
     at_base = _stating(BASE)
     compared = set(ORDINARY) | set(RETAINED) | set(DESKTOP_CARRIERS) | {STATEMENTS}
     assert at_base <= compared, sorted(at_base - compared)
-    assert _stating(None) <= {REPLAY_REQUESTS}, sorted(_stating(None) - {REPLAY_REQUESTS})
+    assert _stating(END) <= {REPLAY_REQUESTS}, sorted(_stating(END) - {REPLAY_REQUESTS})
 
 
 # ---------------------------------------------------------------- the producer
