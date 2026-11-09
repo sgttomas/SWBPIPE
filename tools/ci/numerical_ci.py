@@ -12,6 +12,10 @@ import sys
 import time
 import tomllib
 
+# These tools scan the repository (crates, tests and selection patterns), so a test that imports them reads
+# any path: declare the whole tree rather than an incomplete list.
+CI_READS = ("**",)
+
 
 def load_module(name, path):
     spec = importlib.util.spec_from_file_location(name, path)
