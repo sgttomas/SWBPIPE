@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 import { deflateSync } from "node:zlib";
 import { createContext, runInContext } from "node:vm";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
-import { loadFixture, validateCandidateOracleBinding, validatedPriorBoxBaseline, persistBoxPostcondition, boxCallbackMatchesSnapshot, expectedBoxInspectorHeading, pairedWinnerCueWitness, winnerCuePairs, validateWinnerCuePlan, cueActionBindingsStable, cueCameraGeometryMatches, cueCaptureHasNoDrift, pointCaptureMatchesMarker, captureWinnerCue, installInstrumentation, CUE_GEOMETRY_SOURCE_SHA256, CUE_SOURCE_SHA256 } from "./benchmark-harness";
+import { loadFixture, validateCandidateOracleBinding, validatedPriorBoxBaseline, persistBoxPostcondition, boxCallbackMatchesSnapshot, expectedBoxInspectorHeading, expectedTypedIdentity, pairedWinnerCueWitness, winnerCuePairs, validateWinnerCuePlan, cueActionBindingsStable, cueCameraGeometryMatches, cueCaptureHasNoDrift, pointCaptureMatchesMarker, captureWinnerCue, installInstrumentation, CUE_GEOMETRY_SOURCE_SHA256, CUE_SOURCE_SHA256 } from "./benchmark-harness";
 import { expect, test } from "@playwright/test";
 import { bindSameTraceDurationBasis, sameTracePresentedGap, constructOrbitEvidence, conservativePresentedGap, expectedModelIdentity, frozenTreeExpectation, selectedEpochEvidence,
   segmentObserverRequirements, FULL_COHORT_RECIPE } from "./full-cohort-controller";
@@ -159,6 +159,11 @@ test("stopped box rejection persists exact fields before throwing and never over
   const model = { project: { id: "p", name: "Project" }, pipe_segments: [{ id: "b", label: "Pipe B" }] };
   expect(expectedBoxInspectorHeading(model, [], null, "p")).toBe("Project — project: p");
   expect(expectedBoxInspectorHeading(model, [b], b, "p")).toBe("Pipe B — pipe: b");
+  // An id that begins with its own kind states it once; a prefixless or other-kind id keeps the explicit kind.
+  expect(expectedTypedIdentity({ type: "pipe", id: "pipe:P-110" })).toBe("pipe:P-110");
+  expect(expectedTypedIdentity({ type: "node", id: "n/1" })).toBe("node: n/1");
+  expect(expectedTypedIdentity({ type: "node", id: "pipe:X" })).toBe("node: pipe:X");
+  expect(expectedTypedIdentity({ type: "pipe", id: "pipeline:X" })).toBe("pipe: pipeline:X");
   expect(expectedBoxInspectorHeading(model, [a, b], b, "p")).toBe("2 selected items");
   for (const [i, [refs, primary]] of [[[], null], [[project], project], [[a, b], b]].entries()) {
     const file = testInfo.outputPath(`valid-${i}.json`);
