@@ -329,6 +329,45 @@ route in a lane-specific window. Until then this is an explicit qualification
 condition. C1-C3 change no pricing coefficient, limit or reservation. A measured
 need to change those surfaces goes to Agent 0.
 
+The four metadata members are emitted for every ordinary result row, including
+inputs without a composition and the native user-release derivation. Therefore
+the resource assessment includes serialized IPC/request text, the raw argument
+decode, temporary object-form typed copies, source re-derivation, the producer's
+full-row comparison and typed conversion, and HTML/PDF/container assembly.
+The report's initial object-form check deserializes a temporary typed copy
+before exact-route lease growth (`report_renderer/src/object_form.rs`,
+`report_render_exact.rs`). Comparing a command's peak only with its final grown
+lease does not establish that this earlier copy fits the initial lease.
+
+The targeted native resource checks cover:
+
+- `object_form_tests::the_object_form_check_is_priced_within_the_existing_leases`:
+  default, full-family and ranked pressure-free render/package requests from
+  raw IPC, retaining response serialization on the render path;
+- `report_render_exact_tests::the_genuine_exact_render_and_save_stay_within_their_leases`:
+  the same variants for every maintained exact witness shape, with the
+  pre-growth object-form copy checked against the initial ingress lease
+  separately from the full command's final reservation;
+- `user_release_save_tests::default_user_release_metadata_fits_raw_ingress_and_derivation_leases`:
+  default pressure-free and both admitted exact user-release routes, including
+  raw IPC decoding and native derivation/package assembly. Composition remains
+  refused on user-release routes until C4.
+
+These checks are source-prepared and unrun. They use the current maintained
+request/vector inputs after their writers regenerate them; no old binary or
+manually augmented qualification fixture supplies an implicit input.
+
+Request/input hashes and emitted-document hashes are different evidence.
+`report_package/tests/common` checks otherwise identical requests with and
+without the four metadata members: canonical request and renderer-input hashes
+must differ, while default HTML/PDF bytes and their hashes must match. The
+comparison strips metadata only for direct renderer testing; the source-bound
+producer still refuses incomplete rows. The tests exercise local-private and
+user-release derivations. They do not establish that every package/member,
+derivative, provenance pin or historical evidence hash stays unchanged. Each
+writer/output has its own hash domain and applicable checks; a protected-output
+or pin authority conflict is returned to Agent 0 before any change to it.
+
 The reporting crates retain their unsafe-code prohibition.
 
 ## 6. Slices

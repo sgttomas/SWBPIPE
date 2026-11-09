@@ -158,6 +158,13 @@ fn current_result_packages_assemble_read_back_and_are_deterministic() {
 }
 
 #[test]
+fn default_row_metadata_changes_request_hashes_while_preserving_document_bytes() {
+    for request in [runner(), desktop()] {
+        common::assert_default_metadata_hash_and_emission_contract(&request);
+    }
+}
+
+#[test]
 fn composed_local_private_packages_keep_every_row_bound() {
     let mut request = desktop();
     request["report"]["report_composition"] = json!({"composition_version": "1.0.0", "sections": [

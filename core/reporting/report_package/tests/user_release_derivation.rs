@@ -9,6 +9,8 @@
 //! route calls the derivation yet; nothing here records a user release.
 //! Standard claim fence applies (claims taxonomy per DEC-081).
 
+mod common;
+
 use open_pipe_stress_report_package::bindings::{check_report_result_refs, expected_report_result_rows, BINDING_MISMATCH};
 use open_pipe_stress_report_package::user_release::{
     check_matches_derivation, derive, derive_input_manifest, first_difference, SoftwareIdentity, UserReleaseBasis, UserReleaseDerivation,
@@ -149,6 +151,13 @@ fn derivation_vectors_match_the_desktop_builders() {
             "{name}: the solve's diagnostics only"
         );
         assert_eq!(request["report"]["result_rows"], json!(expected_report_result_rows(&case.source).unwrap()));
+    }
+}
+
+#[test]
+fn default_user_release_metadata_changes_derived_request_hashes_only_at_the_input_boundary() {
+    for case in cases() {
+        common::assert_default_metadata_hash_and_emission_contract(&case.derived().request);
     }
 }
 
@@ -354,6 +363,7 @@ fn d6_exact_derivation_vectors_match_typescript() {
         let basis = UserReleaseBasis { model: &v["model"], source: &v["source"], solver_mode: "sparse_interactive", run_record: &v["run_record"], software: &software, record: &record };
         let binding = &v["request"]["report"]["exact_route"]["admission"];
         let derived = open_pipe_stress_report_package::user_release::derive_exact(&basis, binding["native_job_id"].as_str().unwrap(), binding["received_bytes_sha256"].as_str().unwrap()).unwrap();
+        common::assert_default_metadata_hash_and_emission_contract(&derived.request);
         if let Some(pointer) = first_difference(&v["request"]["result_documents"], &derived.request["result_documents"]) {
             panic!("{} document {pointer}: TS {:?}, Rust {:?}", v["shape"], v["request"]["result_documents"].pointer(&pointer), derived.request["result_documents"].pointer(&pointer));
         }

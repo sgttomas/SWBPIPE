@@ -13,6 +13,36 @@ use serde_json::{json, Value};
 pub const FIXTURE: &str =
     include_str!("../../../../../fixtures/reports/invented/calculation_report_fixture.json");
 
+/// Separate request-hash changes from default document-byte compatibility.
+/// The stripped request is a renderer-only comparison: it must never be sent
+/// to a source-bound producer, which correctly requires all nine row fields.
+pub fn assert_default_metadata_hash_and_emission_contract(request: &Value) {
+    use open_pipe_stress_pdf_emitter::emit_calculation_report_pdf;
+    use open_pipe_stress_report_renderer::{decode_renderable_report_input, render_calculation_report};
+    use open_pipe_stress_result_export::derivative::digest;
+    assert!(request["report"].get("report_composition").is_none());
+    let mut stripped = request.clone();
+    let rows = stripped["report"]["result_rows"].as_array_mut().unwrap();
+    assert!(!rows.is_empty());
+    for row in rows {
+        for field in ["kind", "entity_ref", "value_text", "unit"] {
+            assert!(row.as_object_mut().unwrap().remove(field).is_some(), "missing {field}");
+        }
+    }
+    assert_ne!(digest(request).unwrap(), digest(&stripped).unwrap(), "the request's canonical hash changes");
+    assert_ne!(digest(&request["report"]).unwrap(), digest(&stripped["report"]).unwrap(), "the renderer input hash changes");
+    let current = decode_renderable_report_input(request["report"].clone()).unwrap();
+    let legacy = decode_renderable_report_input(stripped["report"].clone()).unwrap();
+    let (html, legacy_html) = (render_calculation_report(&current), render_calculation_report(&legacy));
+    assert!(!html.export_blocked && !legacy_html.export_blocked, "{:?} {:?}", html.blocking_reasons, legacy_html.blocking_reasons);
+    assert_eq!(html.html, legacy_html.html);
+    assert_eq!(html.sha256_hex, legacy_html.sha256_hex);
+    let (pdf, legacy_pdf) = (emit_calculation_report_pdf(&current), emit_calculation_report_pdf(&legacy));
+    assert!(!pdf.export_blocked && !legacy_pdf.export_blocked);
+    assert_eq!(pdf.pdf_bytes, legacy_pdf.pdf_bytes);
+    assert_eq!(pdf.sha256_hex, legacy_pdf.sha256_hex);
+}
+
 // ---------------------------------------------------------------------------
 // Invented fixtures.
 // ---------------------------------------------------------------------------

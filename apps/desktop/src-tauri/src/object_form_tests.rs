@@ -203,43 +203,59 @@ fn a_positional_request_or_typed_member_refuses_the_save() {
 /// body's envelope. Measured provisions for this input, not proven bounds.
 #[test]
 fn the_object_form_check_is_priced_within_the_existing_leases() {
-    let request = request();
-    // The render.
-    let raw = serde_json::to_vec(&json!({"input": request["report"]})).unwrap();
-    let envelope = crate::ingress::allocation_envelope(raw.len() as u64).unwrap();
-    let body = InvokeBody::Raw(raw);
-    let registry = registry(ScriptedHost::normal());
-    let ((outcome, lease_bytes), measured) = measure(|| {
-        let (mut decoded, mut lease) =
-            admit_body(&registry, &body, &headers(Some(INGRESS_ARGS_JSON_V1)), "render_calculation_report", ArgsDecoding::Moved).unwrap();
-        let outcome = respond(crate::render_calculation_report_args(&mut decoded, &registry, &mut lease)).map(response_text);
-        drop(decoded);
-        (outcome, lease.bytes())
-    });
-    assert!(outcome.is_ok());
-    assert!(measured.peak_priced <= lease_bytes - envelope, "render: priced peak {} exceeds its lease {}", measured.peak_priced, lease_bytes - envelope);
-    let (_, check) = measure(|| report_positional_struct_path(&request["report"]));
-    eprintln!("pressure-free render: priced peak {} lease {}; the check alone {}", measured.peak_priced, lease_bytes - envelope, check.peak_priced);
-    // The save, to its admission.
-    let model = model();
-    let args = save_request(&request, &model);
-    let raw = serde_json::to_vec(&args_body(&args)).unwrap();
-    let envelope = crate::ingress::allocation_envelope(raw.len() as u64).unwrap();
-    let body = InvokeBody::Raw(raw);
-    let ((admitted, lease_bytes), measured) = measure(|| {
-        let (mut decoded, mut lease) =
-            admit_body(&registry, &body, &headers(Some(INGRESS_ARGS_JSON_V1)), "save_report_package", ArgsDecoding::Moved).unwrap();
-        let request = save_report_package_args(&mut decoded).unwrap();
-        drop(decoded);
-        let growth = crate::report_package_save::parse_lease_bytes(&request.request_text, &request.model_text, &request.input_manifest_text).unwrap();
-        lease.grow_to(lease.bytes() + growth).unwrap();
-        let admitted = admit_report_package(request, &software(), &mut no_store).map(|admitted| !admitted.package.export_blocked);
-        (admitted, lease.bytes())
-    });
-    assert_eq!(admitted.ok(), Some(true));
-    assert!(measured.peak_priced <= lease_bytes - envelope, "save: priced peak {} exceeds its lease {}", measured.peak_priced, lease_bytes - envelope);
-    let (_, check) = measure(|| open_pipe_stress_report_package::wire::request_positional_struct_path(&request));
-    eprintln!("pressure-free save: priced peak {} lease {}; the check alone {}", measured.peak_priced, lease_bytes - envelope, check.peak_priced);
+    let full = json!({"composition_version": "1.0.0", "sections": [
+        {"section_id": "result_displacements", "cases": "all", "view": {"kind": "all"}},
+        {"section_id": "result_forces_moments", "cases": "all", "view": {"kind": "all"}},
+        {"section_id": "result_stresses", "cases": "all", "view": {"kind": "all"}},
+        {"section_id": "result_support_loads", "cases": "all", "view": {"kind": "all"}},
+        {"section_id": "result_other_rows", "cases": "all", "view": {"kind": "all"}}
+    ]});
+    let ranked = json!({"composition_version": "1.0.0", "sections": [
+        {"section_id": "result_displacements", "cases": "all", "view": {"kind": "extremes"}},
+        {"section_id": "result_stresses", "cases": "all", "view": {"kind": "largest", "limit": 25}}
+    ]});
+    for (variant, composition) in [("default", None), ("full", Some(full)), ("ranked", Some(ranked))] {
+        let mut request = request();
+        if let Some(composition) = composition {
+            request["report"]["report_composition"] = composition;
+        }
+        // The render.
+        let raw = serde_json::to_vec(&json!({"input": request["report"]})).unwrap();
+        let envelope = crate::ingress::allocation_envelope(raw.len() as u64).unwrap();
+        let body = InvokeBody::Raw(raw);
+        let registry = registry(ScriptedHost::normal());
+        let ((outcome, lease_bytes), measured) = measure(|| {
+            let (mut decoded, mut lease) =
+                admit_body(&registry, &body, &headers(Some(INGRESS_ARGS_JSON_V1)), "render_calculation_report", ArgsDecoding::Moved).unwrap();
+            let outcome = respond(crate::render_calculation_report_args(&mut decoded, &registry, &mut lease)).map(response_text);
+            drop(decoded);
+            (outcome, lease.bytes())
+        });
+        assert!(outcome.is_ok());
+        assert!(measured.peak_priced <= lease_bytes - envelope, "{variant} render: priced peak {} exceeds its lease {}", measured.peak_priced, lease_bytes - envelope);
+        let (_, check) = measure(|| report_positional_struct_path(&request["report"]));
+        eprintln!("{variant} pressure-free render: priced peak {} lease {}; the check alone {}", measured.peak_priced, lease_bytes - envelope, check.peak_priced);
+        // The save, to its admission.
+        let model = model();
+        let args = save_request(&request, &model);
+        let raw = serde_json::to_vec(&args_body(&args)).unwrap();
+        let envelope = crate::ingress::allocation_envelope(raw.len() as u64).unwrap();
+        let body = InvokeBody::Raw(raw);
+        let ((admitted, lease_bytes), measured) = measure(|| {
+            let (mut decoded, mut lease) =
+                admit_body(&registry, &body, &headers(Some(INGRESS_ARGS_JSON_V1)), "save_report_package", ArgsDecoding::Moved).unwrap();
+            let request = save_report_package_args(&mut decoded).unwrap();
+            drop(decoded);
+            let growth = crate::report_package_save::parse_lease_bytes(&request.request_text, &request.model_text, &request.input_manifest_text).unwrap();
+            lease.grow_to(lease.bytes() + growth).unwrap();
+            let admitted = admit_report_package(request, &software(), &mut no_store).map(|admitted| !admitted.package.export_blocked);
+            (admitted, lease.bytes())
+        });
+        assert_eq!(admitted.ok(), Some(true));
+        assert!(measured.peak_priced <= lease_bytes - envelope, "{variant} save: priced peak {} exceeds its lease {}", measured.peak_priced, lease_bytes - envelope);
+        let (_, check) = measure(|| open_pipe_stress_report_package::wire::request_positional_struct_path(&request));
+        eprintln!("{variant} pressure-free save: priced peak {} lease {}; the check alone {}", measured.peak_priced, lease_bytes - envelope, check.peak_priced);
+    }
 }
 
 /// The report-package save's normal path on the pressure-free witness, through

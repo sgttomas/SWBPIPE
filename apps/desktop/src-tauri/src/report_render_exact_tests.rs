@@ -2020,52 +2020,88 @@ mod direct_native {
     /// provisions for these witness inputs, not proven bounds (§3.6).
     #[test]
     fn the_genuine_exact_render_and_save_stay_within_their_leases() {
-        let w = witness(STRAIGHT);
-        let live = live(&w);
-        let raw = serde_json::to_vec(&genuine_render_args(&w, &live.job)).unwrap();
-        let envelope = crate::ingress::allocation_envelope(raw.len() as u64).unwrap();
-        let body = InvokeBody::Raw(raw);
-        let headers = headers(Some(INGRESS_ARGS_JSON_V1));
-        let ((response, lease_bytes), measured) = measure(|| {
-            let (mut decoded, mut lease) = admit_body(&live.registry, &body, &headers, "render_calculation_report", ArgsDecoding::Moved).unwrap();
-            let response = respond(crate::render_calculation_report_args(&mut decoded, &live.registry, &mut lease)).map(response_text);
-            drop(decoded);
-            (response, lease.bytes())
-        });
-        let response = response.expect("the genuine input renders");
-        assert!(response.contains("\"export_blocked\":false"));
-        assert!(measured.peak_priced <= lease_bytes - envelope, "render: priced peak {} exceeds its lease {}", measured.peak_priced, lease_bytes - envelope);
-        eprintln!("exact render: text {} priced peak {} lease {}", w.result.len(), measured.peak_priced, lease_bytes - envelope);
+        for (shape, text) in SHAPES {
+            let full = json!({"composition_version": "1.0.0", "sections": [
+                {"section_id": "result_displacements", "cases": "all", "view": {"kind": "all"}},
+                {"section_id": "result_forces_moments", "cases": "all", "view": {"kind": "all"}},
+                {"section_id": "result_stresses", "cases": "all", "view": {"kind": "all"}},
+                {"section_id": "result_support_loads", "cases": "all", "view": {"kind": "all"}},
+                {"section_id": "result_other_rows", "cases": "all", "view": {"kind": "all"}}
+            ]});
+            let ranked = json!({"composition_version": "1.0.0", "sections": [
+                {"section_id": "result_displacements", "cases": "all", "view": {"kind": "extremes"}},
+                {"section_id": "result_stresses", "cases": "all", "view": {"kind": "largest", "limit": 25}}
+            ]});
+            for (variant, composition) in [("default", None), ("full", Some(full)), ("ranked", Some(ranked))] {
+                let w = witness(text);
+                let live = live(&w);
+                let mut render_args = genuine_render_args(&w, &live.job);
+                if let Some(composition) = &composition {
+                    render_args["input"]["report_composition"] = composition.clone();
+                }
+                let raw = serde_json::to_vec(&render_args).unwrap();
+                let envelope = crate::ingress::allocation_envelope(raw.len() as u64).unwrap();
+                let body = InvokeBody::Raw(raw);
+                let headers = headers(Some(INGRESS_ARGS_JSON_V1));
+                // The object-form decoder copies the enriched rows before exact-route
+                // lease growth. Check that stage against the initial lease, independently
+                // of the later command peak and its larger final reservation.
+                let (initial_lease_bytes, early) = measure(|| {
+                    let (mut decoded, lease) = admit_body(&live.registry, &body, &headers, "render_calculation_report", ArgsDecoding::Moved).unwrap();
+                    let input = decoded.value("input").unwrap();
+                    crate::report_render_exact::check_object_form(&input).unwrap();
+                    drop(input);
+                    drop(decoded);
+                    lease.bytes()
+                });
+                assert!(early.peak_priced <= initial_lease_bytes - envelope,
+                    "{shape} {variant} pre-growth copy: priced peak {} exceeds initial lease {}", early.peak_priced, initial_lease_bytes - envelope);
+                let ((response, lease_bytes), measured) = measure(|| {
+                    let (mut decoded, mut lease) = admit_body(&live.registry, &body, &headers, "render_calculation_report", ArgsDecoding::Moved).unwrap();
+                    let response = respond(crate::render_calculation_report_args(&mut decoded, &live.registry, &mut lease)).map(response_text);
+                    drop(decoded);
+                    (response, lease.bytes())
+                });
+                let response = response.expect("the genuine input renders");
+                assert!(response.contains("\"export_blocked\":false"));
+                assert!(measured.peak_priced <= lease_bytes - envelope, "{shape} {variant} render: priced peak {} exceeds its lease {}", measured.peak_priced, lease_bytes - envelope);
+                eprintln!("{shape} {variant} exact render: text {} priced peak {} lease {}", w.result.len(), measured.peak_priced, lease_bytes - envelope);
 
-        let args = save_args(&bound(&w.request, &live.job), &w, &w.model, Some(&w.result), Some(&w.intake));
-        let mut raw_body = crate::report_package_save::test_support::args_body(&args);
-        raw_body["exactResultText"] = json!(w.result);
-        raw_body["exactIntakeText"] = json!(w.intake);
-        let raw = serde_json::to_vec(&raw_body).unwrap();
-        let envelope = crate::ingress::allocation_envelope(raw.len() as u64).unwrap();
-        let body = InvokeBody::Raw(raw);
-        let custody = |job: &str| live.registry.custody_binding(job);
-        let ((blocked, lease_bytes), measured) = measure(|| {
-            let (mut decoded, mut lease) = admit_body(&live.registry, &body, &headers, "save_report_package", ArgsDecoding::Moved).unwrap();
-            let request = crate::report_package_save::save_report_package_args(&mut decoded).unwrap();
-            drop(decoded);
-            let growth = parse_lease_bytes_with_exact(
-                &request.request_text,
-                &request.model_text,
-                &request.input_manifest_text,
-                request.exact_result_text.as_deref(),
-                request.exact_intake_text.as_deref(),
-            )
-            .unwrap();
-            lease.grow_to(lease.bytes() + growth).unwrap();
-            let admitted = admit_report_package_in(request, &software(), &mut no_store, &custody)
-                .unwrap_or_else(|error| panic!("the genuine save is admitted: {} {}", error.code, error.message));
-            let blocked = admitted.package.export_blocked;
-            drop(admitted);
-            (blocked, lease.bytes())
-        });
-        assert!(!blocked, "the assembled package is unblocked");
-        assert!(measured.peak_priced <= lease_bytes - envelope, "save: priced peak {} exceeds its lease {}", measured.peak_priced, lease_bytes - envelope);
-        eprintln!("exact save: priced peak {} lease {}", measured.peak_priced, lease_bytes - envelope);
+                let mut request = bound(&w.request, &live.job);
+                if let Some(composition) = &composition {
+                    request["report"]["report_composition"] = composition.clone();
+                }
+                let args = save_args(&request, &w, &w.model, Some(&w.result), Some(&w.intake));
+                let mut raw_body = crate::report_package_save::test_support::args_body(&args);
+                raw_body["exactResultText"] = json!(w.result);
+                raw_body["exactIntakeText"] = json!(w.intake);
+                let raw = serde_json::to_vec(&raw_body).unwrap();
+                let envelope = crate::ingress::allocation_envelope(raw.len() as u64).unwrap();
+                let body = InvokeBody::Raw(raw);
+                let custody = |job: &str| live.registry.custody_binding(job);
+                let ((blocked, lease_bytes), measured) = measure(|| {
+                    let (mut decoded, mut lease) = admit_body(&live.registry, &body, &headers, "save_report_package", ArgsDecoding::Moved).unwrap();
+                    let request = crate::report_package_save::save_report_package_args(&mut decoded).unwrap();
+                    drop(decoded);
+                    let growth = parse_lease_bytes_with_exact(
+                        &request.request_text,
+                        &request.model_text,
+                        &request.input_manifest_text,
+                        request.exact_result_text.as_deref(),
+                        request.exact_intake_text.as_deref(),
+                    )
+                    .unwrap();
+                    lease.grow_to(lease.bytes() + growth).unwrap();
+                    let admitted = admit_report_package_in(request, &software(), &mut no_store, &custody)
+                        .unwrap_or_else(|error| panic!("the genuine save is admitted: {} {}", error.code, error.message));
+                    let blocked = admitted.package.export_blocked;
+                    drop(admitted);
+                    (blocked, lease.bytes())
+                });
+                assert!(!blocked, "the assembled package is unblocked");
+                assert!(measured.peak_priced <= lease_bytes - envelope, "{shape} {variant} save: priced peak {} exceeds its lease {}", measured.peak_priced, lease_bytes - envelope);
+                eprintln!("{shape} {variant} exact save: priced peak {} lease {}", measured.peak_priced, lease_bytes - envelope);
+            }
+        }
     }
 }
