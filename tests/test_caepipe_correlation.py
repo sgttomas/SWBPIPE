@@ -3288,3 +3288,113 @@ def test_a_later_unbound_run_removes_the_earlier_export_and_records_why(tmp_path
     stored = json.loads((out / "run_record.json").read_text(encoding="utf-8"))
     assert stored["mbf_export"]["route"] == "not_bound" and stored["mbf_export"]["solved_mbf_sha256"] == other
     assert stored["route"] == "csv_from_batch"  # the solve record itself is kept
+
+
+# Failed-write diagnostics: a failed or unknown write keeps its stderr text, capped, in the records; nothing else
+# does, and no check, attempt or outcome changes.
+LONG_STDERR = "Failed to exec: PrlJob_invented " + "é€😀" * 400  # well over the cap, multi-byte throughout
+
+
+def _bounded(entry: dict, full: str) -> None:
+    kept = entry["stderr_text"]
+    assert len(kept.encode("utf-8")) <= harness.FAILED_WRITE_STDERR_CAP_BYTES and full.startswith(kept)
+    assert entry["stderr_truncated"] is (len(full.encode("utf-8")) > harness.FAILED_WRITE_STDERR_CAP_BYTES)
+
+
+def test_failed_write_stderr_is_capped_at_a_character_boundary_and_kept_only_for_writes_that_did_not_complete():
+    cap = harness.FAILED_WRITE_STDERR_CAP_BYTES
+    exact = "x" * cap
+    assert harness._failed_write_stderr({"mutating": True, "outcome": "unknown", "stderr": exact}) == \
+        {"stderr_text": exact, "stderr_truncated": False}
+    cut = harness._failed_write_stderr({"mutating": True, "outcome": "failed", "stderr": "x" * (cap - 1) + "é"})
+    assert cut == {"stderr_text": "x" * (cap - 1), "stderr_truncated": True}  # never half a character
+    assert harness._failed_write_stderr({"mutating": True, "exit_status": "TimeoutExpired", "stderr": b"t\xc3\xa9"}) \
+        == {"stderr_text": "té", "stderr_truncated": False}  # no outcome: the write never returned
+    for item in ({"mutating": True, "outcome": "completed", "stderr": "e"}, {"name": "read", "stderr": "e"}):
+        assert harness._failed_write_stderr(item) == {}
+
+
+def test_round_trip_records_keep_capped_stderr_of_unknown_writes_only(tmp_path):
+    guest = FakeGuest()
+    guest.write_results[2] = TRANSPORT
+    guest.write_results[3] = (255, "", LONG_STDERR)  # attempt 2 of the same value, after an unchanged read-back
+    with pytest.raises(harness.RestoreWriteFailed) as raised:
+        guarded(tmp_path, guest, _open_model, guard=RESTORING_GUARD)
+    attached = raised.value.settings_guard
+    out = tmp_path / "exchange" / "cases" / "cx-g" / "caepipe_out"
+    record_ = json.loads((out / "run_record.json").read_text(encoding="utf-8"))
+    on_file = json.loads((out / harness.GUARD_RESULT_FILE).read_text(encoding="utf-8"))
+    # Attempts and outcomes as before: two attempts, both unknown, three writes in all.
+    entry = attached["write_log"][1]
+    assert entry["attempts"] == 2 and [item["outcome"] for item in entry["attempt_log"]] == ["unknown", "unknown"]
+    assert len(guest.writes) == 3
+    steps = {step["name"]: step for step in record_["steps"]}
+    first, second = steps["settings_restore_2"], steps["settings_restore_2_attempt_2"]
+    assert first["stderr_text"] == TRANSPORT[2] and first["stderr_truncated"] is False
+    assert first["stderr_chars"] == len(TRANSPORT[2]) and second["stderr_chars"] == len(LONG_STDERR)
+    _bounded(second, LONG_STDERR)
+    assert second["stderr_truncated"] is True
+    for step in record_["steps"]:
+        assert "stdout" not in step and "stderr" not in step
+        if step["name"] not in (first["name"], second["name"]):
+            assert "stderr_text" not in step and "stderr_truncated" not in step
+    for guard in (attached, record_["settings_guard"], on_file):
+        kept = guard["failed_write_stderr"]
+        assert [item["step"] for item in kept] == ["settings_restore_2", "settings_restore_2_attempt_2"]
+        assert [item["outcome"] for item in kept] == ["unknown", "unknown"]
+        assert kept[0]["stderr_text"] == TRANSPORT[2]
+        _bounded(kept[1], LONG_STDERR)
+
+
+def test_a_settled_write_keeps_its_first_attempts_stderr_in_a_successful_guard_result(tmp_path):
+    guest = FakeGuest()
+    guest.write_results[2] = TRANSPORT
+    guard = guarded(tmp_path, guest, _open_model, guard=RESTORING_GUARD)["settings_guard"]
+    assert guard["status"] == "recent_files_restored" and len(guest.writes) == 5
+    assert [(item["step"], item["stderr_text"]) for item in guard["failed_write_stderr"]] == \
+        [("settings_restore_2", TRANSPORT[2])]
+
+
+def _recorded_for_restore(tmp_path) -> tuple[FakeGuest, HarnessConfig, list]:
+    guest = FakeGuest()
+
+    def value_changes(guest_, argv, config):
+        guest_.open_model("C:\\work\\case.mod")
+        guest_.values[(INVENTED_KEY + "\\Options", "Use something")] = ("REG_BINARY", "00")
+        return solved(guest_, argv, config)
+
+    record_ = guarded(tmp_path, guest, value_changes, guard=INVENTED_GUARD)
+    recorded = [entry for entry in record_["settings_guard"]["changed_values"] if "value" in entry]
+    second = tmp_path / "second"
+    second.mkdir()
+    return guest, dataclasses.replace(fake_config(second), settings_guard=KEY_GUARD), recorded
+
+
+@pytest.mark.parametrize("how", ["failed", "exception"])
+def test_restore_recorded_settings_attaches_capped_stderr_of_the_failed_write(tmp_path, how):
+    guest, config, recorded = _recorded_for_restore(tmp_path)
+    if how == "failed":
+        guest.write_results[1] = (1, "", LONG_STDERR)
+        expected = harness.RestoreWriteFailed
+    else:
+        guest.faults[("write", 1)] = subprocess.TimeoutExpired(["invented"], 20, stderr=LONG_STDERR.encode("utf-8"))
+        guest.readback[1] = ("REG_BINARY", "DEAD")  # settled as neither value: the timeout stands
+        expected = subprocess.TimeoutExpired
+    with pytest.raises(expected) as raised:
+        harness.restore_recorded_settings(config, recorded, runner=guest.runner(solved, config))
+    result = raised.value.settings_guard
+    assert result["status"] == "settings_restore_failed" and len(guest.writes) == 1
+    failed = [step for step in result["steps"] if "stderr_text" in step]
+    assert [step["name"] for step in failed] == ["settings_restore_1"]
+    _bounded(failed[0], LONG_STDERR)
+    assert all("stdout" not in step and "stderr" not in step for step in result["steps"])
+    assert [item["step"] for item in result["failed_write_stderr"]] == ["settings_restore_1"]
+    _bounded(result["failed_write_stderr"][0], LONG_STDERR)
+
+
+def test_live_guard_result_carries_failed_write_stderr_for_an_interruption():
+    note = {"step": "settings_restore_1", "exit_status": 255, "outcome": "unknown", "stderr_chars": 3,
+            "stderr_text": "abc", "stderr_truncated": False}
+    state = {"restore_entered": True, "write_log": [{"completed": False}], "failed_write_stderr": [note]}
+    assert harness._live_guard_result({"guard_state": state})["failed_write_stderr"] == [note]
+    assert "failed_write_stderr" not in harness._live_guard_result({"guard_state": {"restore_entered": True}})
