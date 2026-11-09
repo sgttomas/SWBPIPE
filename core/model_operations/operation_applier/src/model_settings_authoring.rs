@@ -42,6 +42,16 @@
 //!   clear removes the member as for the tolerance. Nothing writes the default
 //!   unless the user sets it.
 //!
+//! - **Pressure elongation** (model document 0.9.0; DEL-04-07 Design
+//!   `pressure-elongation.md` §3.1, §3.3): set takes `after` the JSON text of the
+//!   whole record `{"operating_load_cases": [id, ...]}`, unit `none` and dimension
+//!   `dimensionless`, and writes the record with the ids in the order given; a
+//!   text that is not that closed record of strings is `OP-MODEL-SETTING-SHAPE-INVALID`.
+//!   It is judged by product_physics' `model_settings::pressure_elongation_refusals`
+//!   (the first refusal is given): `MODEL-SETTING-PRESSURE-ELONGATION-WITHOUT-PRESSURE-CONTRACT`,
+//!   `-CASES-INVALID` (empty or duplicated), `-CASE-UNKNOWN`. Clear removes the member,
+//!   which switches pressure elongation off; nothing writes an empty record.
+//!
 //! Each operation's inverse is the other one, built from the diff row's
 //! `before`; the desktop undoes through its session checkpoint, which restores
 //! the prior document exactly.
@@ -81,7 +91,8 @@ pub(crate) fn resolve(model: &Value, intent: &Value) -> Result<GeometryEdit, Geo
     let unit = text_at(intent, "/change/unit");
     let dimension = text_at(intent, "/change/dimension");
     let refs = [target_ref.to_string()];
-    let settings_list = format!("`{}` and `{}`", ms::NODE_PROXIMITY_TOLERANCE_PATH, ms::SHEAR_MODEL_PATH);
+    let settings_list =
+        format!("`{}`, `{}` and `{}`", ms::NODE_PROXIMITY_TOLERANCE_PATH, ms::SHEAR_MODEL_PATH, ms::PRESSURE_ELONGATION_PATH);
 
     if object_type != "Project" {
         return Err(refusal(
@@ -93,6 +104,7 @@ pub(crate) fn resolve(model: &Value, intent: &Value) -> Result<GeometryEdit, Geo
     let (setting, member) = match field_path {
         ms::NODE_PROXIMITY_TOLERANCE_PATH => (ms::NODE_PROXIMITY_TOLERANCE_PATH, "node_proximity_tolerance"),
         ms::SHEAR_MODEL_PATH => (ms::SHEAR_MODEL_PATH, "shear_model"),
+        ms::PRESSURE_ELONGATION_PATH => (ms::PRESSURE_ELONGATION_PATH, "pressure_elongation"),
         _ => {
             return Err(refusal(
                 "OP-MODEL-SETTING-UNKNOWN",
@@ -173,6 +185,51 @@ pub(crate) fn resolve(model: &Value, intent: &Value) -> Result<GeometryEdit, Geo
             .expect("checked object")
             .insert(member.into(), next);
         (next_text, "none".to_string(), "dimensionless".to_string())
+    } else if change_kind == SET && member == "pressure_elongation" {
+        if unit != "none" || dimension != "dimensionless" {
+            return Err(refusal(
+                "OP-MODEL-SETTING-SHAPE-INVALID",
+                format!("`{setting}` is a record: unit none and dimension dimensionless."),
+                &refs,
+            ));
+        }
+        let shape_invalid = || {
+            refusal(
+                "OP-MODEL-SETTING-SHAPE-INVALID",
+                format!("`{setting}` takes the JSON text of a record {{\"operating_load_cases\": [load-case id, ...]}} and nothing else."),
+                &refs,
+            )
+        };
+        let next: Value = serde_json::from_str(after).map_err(|_| shape_invalid())?;
+        let decoded: ms::PressureElongationSetting = serde_json::from_value(next.clone()).map_err(|_| shape_invalid())?;
+        let has_contract = model.get("pressure_contract").is_some_and(|contract| !contract.is_null());
+        let load_case_ids: std::collections::HashSet<&str> = model
+            .get("load_cases")
+            .and_then(Value::as_array)
+            .map(|cases| cases.iter().filter_map(|case| case.get("id").and_then(Value::as_str)).collect())
+            .unwrap_or_default();
+        let refusals = ms::pressure_elongation_refusals(
+            decoded.operating_load_cases.iter().map(String::as_str),
+            has_contract,
+            &load_case_ids,
+        );
+        if let Some(error) = refusals.into_iter().next() {
+            return Err(refusal(error.code, error.message, &refs));
+        }
+        let next_text = canonical_json(&next);
+        if current.map(canonical_json).as_deref() == Some(next_text.as_str()) {
+            return Err(refusal(
+                "OP-MODEL-SETTING-UNCHANGED",
+                format!("`{setting}` already names these operating load cases; nothing to apply."),
+                &refs,
+            ));
+        }
+        root.entry("model_settings")
+            .or_insert_with(|| Value::Object(Map::new()))
+            .as_object_mut()
+            .expect("checked object")
+            .insert(member.into(), next);
+        (next_text, "none".to_string(), "dimensionless".to_string())
     } else if change_kind == SET {
         if dimension != "length" {
             return Err(refusal(
@@ -228,7 +285,11 @@ pub(crate) fn resolve(model: &Value, intent: &Value) -> Result<GeometryEdit, Geo
             ));
         }
         if current.is_none() {
-            let default = if member == "shear_model" { "Euler–Bernoulli" } else { "the 5 mm default" };
+            let default = match member {
+                "shear_model" => "Euler–Bernoulli",
+                "pressure_elongation" => "pressure elongation is off",
+                _ => "the 5 mm default",
+            };
             return Err(refusal(
                 "OP-MODEL-SETTING-UNCHANGED",
                 format!("`{setting}` is not set ({default} applies); nothing to clear."),

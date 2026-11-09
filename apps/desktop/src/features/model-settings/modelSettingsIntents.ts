@@ -11,12 +11,19 @@
 // entered number text, `unit` its length unit, dimension `length`. Clear:
 // `clear_model_setting`, `after` `not_present`, unit `none`, dimension
 // `dimensionless`.
+//
+// Pressure elongation (model document 0.9.0; DEL-04-07 Design pressure-elongation.md §3):
+// field_path `model_settings.pressure_elongation`. Set: `after` the canonical JSON of the
+// whole record `{"operating_load_cases": [...]}`, unit `none`, dimension `dimensionless`.
+// Clear (switching off): as for the other settings. The desktop never writes an empty record.
 import type { EditorOperationIntent, PreviewModel, QuantityValue } from "../../types";
 
 export const NODE_PROXIMITY_TOLERANCE_PATH = "model_settings.node_proximity_tolerance";
 /** Model document 0.8.0: the pressure-free document's beam theory; absent means Euler–Bernoulli. */
 export const SHEAR_MODEL_PATH = "model_settings.shear_model";
-export type SettingPath = typeof NODE_PROXIMITY_TOLERANCE_PATH | typeof SHEAR_MODEL_PATH;
+/** Model document 0.9.0: the operating load cases that include pressure elongation; absent means off. */
+export const PRESSURE_ELONGATION_PATH = "model_settings.pressure_elongation";
+export type SettingPath = typeof NODE_PROXIMITY_TOLERANCE_PATH | typeof SHEAR_MODEL_PATH | typeof PRESSURE_ELONGATION_PATH;
 /** The default the product applies when the setting is absent (never written). */
 export const DEFAULT_NODE_PROXIMITY_TOLERANCE: Readonly<QuantityValue> = Object.freeze({ value: 5, unit: "mm" });
 
@@ -65,9 +72,7 @@ function intent(
       after,
       unit,
       dimension,
-      source_note: path === SHEAR_MODEL_PATH
-        ? "User-selected beam theory of a pressure-free document; the operation engine judges it."
-        : "User-entered node-proximity tolerance for the near-duplicate node warning; it changes no solved value."
+      source_note: SOURCE_NOTES[path]
     },
     validation: {
       schema_validation: "not_run",
@@ -93,6 +98,12 @@ function intent(
     rationale: `${label}; requires validation and review before application.`
   };
 }
+
+const SOURCE_NOTES: Record<SettingPath, string> = {
+  [NODE_PROXIMITY_TOLERANCE_PATH]: "User-entered node-proximity tolerance for the near-duplicate node warning; it changes no solved value.",
+  [SHEAR_MODEL_PATH]: "User-selected beam theory of a pressure-free document; the operation engine judges it.",
+  [PRESSURE_ELONGATION_PATH]: "User-named operating load cases that include pressure elongation; the operation engine judges them."
+};
 
 async function currentBefore(canonicalize: Canonicalize, model: PreviewModel): Promise<string> {
   const authored = authoredNodeProximityTolerance(model);
@@ -135,4 +146,42 @@ export async function setShearModelIntent(canonicalize: Canonicalize, model: Pre
 /** Clear the shear model, so Euler–Bernoulli applies: the member is removed. */
 export async function clearShearModelIntent(canonicalize: Canonicalize, model: PreviewModel): Promise<EditorOperationIntent> {
   return intent(model, "clear_model_setting", await shearBefore(canonicalize, model), "not_present", "none", "dimensionless", "Clear shear model", SHEAR_MODEL_PATH);
+}
+
+/** The authored operating load cases that include pressure elongation, or null when it is off. */
+export function authoredPressureElongationCases(model: PreviewModel): string[] | null {
+  return model.model_settings?.pressure_elongation?.operating_load_cases ?? null;
+}
+
+/** The load cases a fresh "on" preselects: those whose `kind`, trimmed, is "operating" in any case. */
+export function operatingKindLoadCaseIds(model: PreviewModel): string[] {
+  return (model.load_cases ?? [])
+    .filter((loadCase) => typeof loadCase.kind === "string" && loadCase.kind.trim().toLowerCase() === "operating")
+    .map((loadCase) => loadCase.id);
+}
+
+/** The load cases with pressure regions that the authored setting does not name (none while it is off). */
+export function pressurisedCasesNotIncluded(model: PreviewModel): PreviewModel["load_cases"] {
+  const included = authoredPressureElongationCases(model);
+  if (included === null) return [];
+  return (model.load_cases ?? []).filter((loadCase) => (loadCase.pressure_regions?.length ?? 0) > 0 && !included.includes(loadCase.id));
+}
+
+async function pressureElongationBefore(canonicalize: Canonicalize, model: PreviewModel): Promise<string> {
+  const authored = model.model_settings?.pressure_elongation;
+  return authored === undefined ? "not_present" : canonicalize(authored);
+}
+
+/** Switch pressure elongation on in `caseIds` (in the order given; at least one, which the
+ * control enforces and the engine refuses by name otherwise). */
+export async function setPressureElongationIntent(canonicalize: Canonicalize, model: PreviewModel, caseIds: string[]): Promise<EditorOperationIntent> {
+  const before = await pressureElongationBefore(canonicalize, model);
+  const after = await canonicalize({ operating_load_cases: caseIds });
+  return intent(model, "set_model_setting", before, after, "none", "dimensionless", "Set pressure elongation operating load cases", PRESSURE_ELONGATION_PATH);
+}
+
+/** Switch pressure elongation off: the member is removed. */
+export async function clearPressureElongationIntent(canonicalize: Canonicalize, model: PreviewModel): Promise<EditorOperationIntent> {
+  const before = await pressureElongationBefore(canonicalize, model);
+  return intent(model, "clear_model_setting", before, "not_present", "none", "dimensionless", "Switch pressure elongation off", PRESSURE_ELONGATION_PATH);
 }

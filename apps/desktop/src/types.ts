@@ -612,11 +612,21 @@ export type ConditionUse = {
  * tolerance, a length quantity; absent means 5 mm. `shear_model` (model document 0.8.0) is the
  * pressure-free document's beam theory, absent meaning Euler–Bernoulli, or
  * `timoshenko_annulus_energy_v1` (DEL-05-03 Design `pf-timoshenko.md`); it is refused beside a
- * pressure contract.
+ * pressure contract. `pressure_elongation` (model document 0.9.0; DEL-04-07 Design
+ * `pressure-elongation.md` §3.1) names the operating load cases of a pressure document in
+ * which pressure elongation applies; absent means off in every case, and the desktop never
+ * writes an empty record.
  * The desktop never writes a default. */
 export type ModelSettings = {
   node_proximity_tolerance?: QuantityValue;
   shear_model?: string;
+  pressure_elongation?: PressureElongationSetting;
+};
+
+/** `model_settings.pressure_elongation`: a closed record; `operating_load_cases` is required,
+ * non-empty, and holds unique ids of the document's own load cases. */
+export type PressureElongationSetting = {
+  operating_load_cases: string[];
 };
 
 export type Diagnostic = {
