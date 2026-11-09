@@ -545,6 +545,22 @@ fn the_bound_covers_adversarial_texts() {
     // Deep nesting: 127 arrays; 127 objects, each with 40 keys before the next.
     let deep_arrays = format!("{}{}", "[".repeat(127), "]".repeat(127));
     tally.check("127 nested arrays", &deep_arrays, None);
+
+    // Review regression: refusal codes live from closure through binding.
+    // 1,100 resealed refusal rows with 1,025-byte codes, and a request of
+    // 1,024 strings of 129 `\u0001` escapes (a large binding-phase hash).
+    let mut refused: Value = serde_json::from_str(fixture("modal_refused_no_bound.json")).unwrap();
+    let row = refused["refusals"]["rows"][0].clone();
+    refused["refusals"]["rows"] = Value::Array((0..1100).map(|i| {
+        let mut row = row.clone();
+        row["row_id"] = json!(format!("refusal:{i}"));
+        row["ordinal"] = json!(i);
+        row["code"] = json!("A".repeat(1025));
+        row
+    }).collect());
+    reseal(&mut refused);
+    let escapes = format!("[{}]", vec![format!("\"{}\"", "\\u0001".repeat(129)); 1024].join(","));
+    tally.check("1,100 long refusal codes beside an escaped request", &serde_json::to_string(&refused).unwrap(), Some(&escapes));
     let mut deep = String::new();
     for level in 0..127 {
         deep.push('{');

@@ -61,8 +61,10 @@
 //!   integer to its digits, any other number to at most 26 bytes.
 //! - P2, the reader's own parse (`serde_json::from_str`): [`mr_parse`] without
 //!   key copies, followed by the read:
-//! - READ = PARSED + max(CLOSURE, BINDING, DERIVE, RELATIONS) + RESULT, the
-//!   read of the parsed document (`read_modal_result`), solved or refused:
+//! - READ = PARSED + CODES + max(CLOSURE, BINDING, DERIVE, RELATIONS) + RESULT,
+//!   the read of the parsed document (`read_modal_result`), solved or refused.
+//!   CODES ([`refusal_codes_bytes`]), a refused document's codes, are formed in
+//!   closure and returned in the verdict, so they are summed, never maxed:
 //!   - PARSED ([`parsed_bytes`]): every vector `mr_closure` keeps in `Parsed`,
 //!     per table row count, at the pinned element sizes. No string of the
 //!     document is copied: ids, kinds, reasons and paths are borrowed or
@@ -1063,9 +1065,6 @@ fn closure_bytes(d: &Doc) -> B {
         };
         mr_hash_text(&sub)
     };
-    // A refused document's codes (each a diagnostic code), and the
-    // difference's `replace` copy.
-    let codes = mr_vec(r[T_REFUSALS], STRING_BYTES).saturating_add(r[T_REFUSALS].saturating_mul(mr_envelope(d.largest_refusal)));
     maps.saturating_add(mr_vec(largest_table, STR_BYTES))
         .saturating_add(row_hash.max(digest))
         .saturating_add(transient_strings(d.quoted))
@@ -1073,7 +1072,15 @@ fn closure_bytes(d: &Doc) -> B {
         // refusal row, which may quote any of its strings.
         .saturating_add(mr_message(MESSAGE_LITERAL + 2 * d.longest))
         .saturating_add(closure_difference(d.longest))
-        .saturating_add(codes)
+}
+
+/// CODES: a refused document's codes (each a diagnostic code). Closure forms
+/// them and the verdict returns them (`lib.rs` `refusal_codes`), so they stay
+/// live through binding, the derivation and the relations: summed beside
+/// PARSED and RESULT, never maxed with a phase.
+fn refusal_codes_bytes(d: &Doc) -> B {
+    let n = d.rows[T_REFUSALS];
+    mr_vec(n, STRING_BYTES).saturating_add(n.saturating_mul(mr_envelope(d.largest_refusal)))
 }
 
 /// FORMED and DERIVE (`model_mass::mm_form`): what `Formed` keeps, and the
@@ -1321,7 +1328,9 @@ pub fn modal_reader_working_terms(document_text: &str, request_text: Option<&str
     let relations = formed.saturating_add(relations_bytes(&d, &q, with_request));
     // The verdict's own vectors and the binding's difference and `not_checked`.
     let result = mr_envelope(9 * STANDING_BYTES) + mr_vec(2, STRING_BYTES) + 64 + mr_difference(0);
+    let codes = refusal_codes_bytes(&d);
     let read = parsed
+        .saturating_add(codes)
         .saturating_add(closure.max(binding).max(derive).max(relations))
         .saturating_add(result);
     let document = p1.max(p2).max(whole.tree.saturating_add(read));
@@ -1334,6 +1343,7 @@ pub fn modal_reader_working_terms(document_text: &str, request_text: Option<&str
         ("p1_checked_profile", p1),
         ("p2_parse", p2),
         ("parsed", parsed),
+        ("refusal_codes", codes),
         ("closure", closure),
         ("binding", binding),
         ("formed", formed),
