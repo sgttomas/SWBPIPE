@@ -4802,6 +4802,11 @@ body { min-width: 760px; min-height: 540px; }
 }
 .app-shell .viewport-display-toggles, .app-shell .viewport-selection-tools, .app-shell .viewport-geometry-tools { flex-wrap: nowrap; gap: var(--space-1); }
 
+/* Canvas status strip: when the strip overflows in a narrow pane, the selection echo (also in the
+   status bar and in its own title) is the one item that yields width, so the Show all command after
+   it is never left partly past the strip's edge, where focus would not scroll it into view. */
+.app-shell .viewport-toolbar-status-strip > .viewport-toolbar-selection-status { flex-shrink: 1; }
+
 /* Status bar: the selection's type is a quiet label and its id is set as an identifier. */
 .app-shell .shell-status-selection .shell-status-selection-type { color: var(--text-secondary); }
 .app-shell .shell-status-selection .shell-status-selection-id { color: var(--ui-text); font-family: var(--font-mono); font-size: var(--type-size-caption); }
