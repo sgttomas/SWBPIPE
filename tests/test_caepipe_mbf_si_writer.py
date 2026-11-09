@@ -224,7 +224,15 @@ def test_without_a_piping_code_every_pilot_mbf_is_unchanged_and_a_code_changes_o
         assert "\r\nOPTIONS\r\nHGRA,SI\r\nOPTEMP\r\n" in default.text
         chosen = render_caepipe_mbf_si(case["model"], **arguments, piping_code="B311-80")
         assert chosen.text.replace("HGRA,B311-80,SI\r\nOPCODE\r\n0,0,0\r\n", "HGRA,SI\r\n") == default.text
-        assert chosen.sidecar("x") == default.sidecar("x")
+        # The code changes the bytes, so format 6 records it (derivation.export_settings.piping_code); nothing else
+        # in the sidecar changes.
+        without = lambda sidecar: {key: value for key, value in sidecar.items()  # noqa: E731
+                                   if key not in ("derivation", "sidecar_sha256")}
+        assert without(chosen.sidecar("x")) == without(default.sidecar("x"))
+        assert chosen.sidecar("x")["derivation"]["export_settings"]["piping_code"] == "B311-80"
+        assert default.sidecar("x")["derivation"]["export_settings"]["piping_code"] is None
+        assert ({**chosen.sidecar("x")["derivation"]["export_settings"], "piping_code": None}
+                == default.sidecar("x")["derivation"]["export_settings"])
 
 
 def test_a_non_b31_piping_code_is_written_without_opcode():
@@ -1429,7 +1437,7 @@ def test_library_sections_get_their_own_pipe_records_and_section_map_entries():
     assert {pipe_id: entry["section"] for pipe_id, entry in result.element_map.items()} == {
         "S1": "P1", "BEND": "P1", "S2": "P2", "S3": "P3"}
     sidecar = result.sidecar("0" * 64)
-    assert sidecar["sidecar_format"] == 4
+    assert sidecar["sidecar_format"] == 6  # format 4's section_map, carried by format 6
     assert sidecar["section_map"] == {"P1": {"swbpipe_section": "section:A"}, "P2": {"swbpipe_section": "section:B"},
                                       "P3": {"swbpipe_section": None}}
     entities = {item["entity"]: item for item in result.loss_report}
@@ -1490,3 +1498,147 @@ def test_an_integer_library_value_equal_to_the_inline_float_binds():
         for section in model["sections"]:
             section["properties"] = {"outside_diameter": q(168, "mm"), "wall_thickness": q(7, "mm")}
     assert _with_section(change).status == "written"
+
+
+# --- sidecar format 6: derivation and bend nodes (Design §15, Format 6) ----------------------------------------------
+def _canonical_sha256(document) -> str:
+    """The SHA-256 of the RFC 8785 text of `document`, by the tests' own independent implementation."""
+    if str(ROOT / "tests") not in sys.path:
+        sys.path.insert(0, str(ROOT / "tests"))
+    import caepipe_mbf_canonical as canon
+    return hashlib.sha256(canon.jcs(document).encode("utf-8")).hexdigest()
+
+
+def _derivation(result: MbfSiResult) -> dict:
+    assert result.status == "written", result.diagnostics
+    sidecar = result.sidecar(hashlib.sha256(result.text.encode("ascii")).hexdigest())
+    assert sidecar["sidecar_format"] == 6
+    return sidecar["derivation"]
+
+
+def test_format_6_records_the_source_model_digest_and_every_export_setting():
+    # The writer records format 6 for every export: the SHA-256 of the canonical model document it read, and every
+    # writer input outside it that can change the bytes, as it used them. The model is not changed by being read.
+    model = cantilever()
+    before = deepcopy(model)
+    derivation = _derivation(render_caepipe_mbf_si(model, title="INVENTED CANTILEVER", reference_temperature_c=35.5))
+    assert model == before
+    assert derivation == {"source_model_sha256": _canonical_sha256(model), "export_settings": {
+        "title": "INVENTED CANTILEVER", "reference_temperature": {"value": 35.5, "unit": "degC"},
+        "max_layout_rows": 20, "piping_code": None}}
+    # Key order is not content; any change of the document, exported or not, changes the digest.
+    reordered = {key: model[key] for key in reversed(list(model))}
+    assert _derivation(render_caepipe_mbf_si(reordered, title="X"))["source_model_sha256"] == _canonical_sha256(model)
+    renamed = deepcopy(model)
+    renamed["project"]["name"] = "another invented name"
+    other = _derivation(render_caepipe_mbf_si(renamed, title="X"))["source_model_sha256"]
+    assert other == _canonical_sha256(renamed) != _canonical_sha256(model)
+    # Fahrenheit: the argument and its unit, not the Celsius value it prints (OPTEMP 35).
+    fahrenheit = render_caepipe_mbf_si(model, title="F", reference_temperature_f=95.0)
+    assert "\r\nOPTEMP\r\n35\r\n" in fahrenheit.text
+    assert _derivation(fahrenheit)["export_settings"]["reference_temperature"] == {"value": 95.0, "unit": "degF"}
+    # The row limit changes no byte (only a warning), and is recorded as given, or null.
+    texts = set()
+    for limit in (None, 7, 0):
+        result = render_caepipe_mbf_si(model, title="ROWS", max_layout_rows=limit)
+        texts.add(result.text)
+        assert _derivation(result)["export_settings"]["max_layout_rows"] == limit
+    assert len(texts) == 1
+    # A piping code changes the bytes and is recorded; the printed title line is recorded, as the MBF prints it.
+    coded = render_caepipe_mbf_si(model, title="  a,b  ", piping_code="ASME")
+    assert coded.text != render_caepipe_mbf_si(model, title="  a,b  ").text
+    assert coded.text.startswith("ab\r\n")
+    assert _derivation(coded)["export_settings"] == {
+        "title": "ab", "reference_temperature": {"value": 20.0, "unit": "degC"}, "max_layout_rows": 20,
+        "piping_code": "ASME"}
+    assert _derivation(render_caepipe_mbf_si(model, title=""))["export_settings"]["title"] == "SWBPIPE model"
+
+
+def test_format_6_records_the_tangent_node_each_bend_component_names():
+    # Near and far source choices give one MBF text and two identity files.
+    near = render_caepipe_mbf_si(bent_l(), title="L")
+    far_model = bent_l()
+    far_model["components"][0]["node"] = "T2"
+    far = render_caepipe_mbf_si(far_model, title="L")
+    assert near.text == far.text
+    for result, node_id in ((near, "T1"), (far, "T2")):
+        sidecar = result.sidecar("0" * 64)
+        assert sidecar["element_map"]["BEND"]["bend"] == {"component": "bend-1", "node": node_id}
+        assert result.element_map["BEND"]["bend"]["node"] == node_id
+    assert near.sidecar("0" * 64)["sidecar_sha256"] != far.sidecar("0" * 64)["sidecar_sha256"]
+
+
+@pytest.mark.parametrize("limit", [-1, 2 ** 53 + 1, 1.5, True, "20"])
+def test_a_row_limit_format_6_cannot_record_is_refused(limit):
+    assert_refused(render_caepipe_mbf_si(cantilever(), title="ROWS", max_layout_rows=limit), "MBF-SI-INPUT-INVALID",
+                   "max_layout_rows", "from 0 to 2^53")
+
+
+def test_a_model_document_without_a_canonical_form_is_refused_by_path():
+    # Format 6 digests the canonical model document: a value with no RFC 8785 form, even in a member the MBF does not
+    # carry, leaves no digest to record, so nothing is written.
+    model = cantilever()
+    model["project"]["revision"] = 2 ** 53 + 1
+    assert_refused(render_caepipe_mbf_si(model, title="X"), "MBF-SI-INPUT-INVALID", "model",
+                   "project.revision is an integer that is not exactly a binary64 number",
+                   "derivation.source_model_sha256")
+
+
+def _pin(name: str):
+    """One model per A-3 identity-set class with an entity the writer does not carry (DEL-17-04 desktop design §1.3):
+    (model, the entity's id, the loss entry (code, entity) that must name it, or None where the writer refuses the
+    export instead, with the refusal (code, entity))."""
+    model = cantilever()
+    if name == "nodes":
+        model["nodes"].append(node("FREE", 9.0, 9.0))
+        return model, "FREE", ("MBF-SI-NODE-NOT-EXPORTED", "node:FREE"), None
+    if name == "pipes":  # a pipe that closes a loop is never dropped: the export is refused by name
+        model["nodes"].append(node("N2", 3.0, 3.0))
+        model["pipe_segments"] += [pipe("S2", "N1", "N2", 0.1683, 0.00711, "m"),
+                                   pipe("S3", "N2", "N0", 0.1683, 0.00711, "m")]
+        return model, "S3", None, ("MBF-SI-TOPOLOGY-UNSUPPORTED", "pipe:S3")
+    if name == "components":  # a component the writer cannot write is refused by name
+        model["components"] = [{"id": "valve-1", "kind": "rigid", "node": "N1",
+                                "mechanics_interface": {"solver_consumption": "rigid_element"}}]
+        return model, "valve-1", None, ("MBF-SI-COMPONENT-UNSUPPORTED", "component:valve-1")
+    if name == "supports":
+        model["supports"].append({"id": "SEMPTY", "node": "N1", "restraints": []})
+        return model, "SEMPTY", ("MBF-SI-SUPPORT-EMPTY", "support:SEMPTY"), None
+    if name == "load cases":
+        model["load_cases"].append({"id": "case:empty", "primitive_loads": []})
+        return model, "case:empty", ("MBF-SI-LOAD-CASE-EMPTY", "load_case:case:empty"), None
+    if name == "primitive loads":  # a zero primitive has no MBF record: the preflight refuses the export
+        model["load_cases"][0]["primitive_loads"].append(force("zero", "N1", "global_z", 0.0))
+        return model, "zero", None, ("MBF-SI-PREFLIGHT-REFUSED", "load_map")
+    if name == "materials":
+        model["materials"].append({**deepcopy(model["materials"][0]), "id": "mat:UNUSED"})
+        return model, "mat:UNUSED", ("MBF-SI-FIELD-NOT-EXPORTED", "model.materials"), None
+    if name == "pressure regions":
+        model = pressurized_l()
+        for case in model["load_cases"]:
+            for region in case.get("pressure_regions") or []:
+                region["pressure"]["value"] = 0.0
+        return model, "region:L", ("MBF-SI-PRESSURE-REGION-ZERO", "load_case:case:p/region:region:L"), None
+    assert name == "sections"
+    return sectioned_bent_l(), "section:unused", ("MBF-SI-FIELD-NOT-EXPORTED", "model.sections"), None
+
+
+@pytest.mark.parametrize("name", ["nodes", "pipes", "components", "supports", "load cases", "primitive loads",
+                                  "materials", "pressure regions", "sections"])
+def test_the_loss_report_names_every_identity_set_entity_the_export_does_not_carry(name):
+    # Pin control (A-3's nine classes): an entity of the identity set that the export does not carry is either named
+    # in the loss report (and absent from the identity file), or the export is refused by name. None is dropped
+    # silently. The test fails on a silent drop; it does not repair one.
+    model, identity, listed, refusal = _pin(name)
+    result = render_caepipe_mbf_si(model, title="PIN")
+    if refusal is not None:
+        assert result.status == "refused" and result.text is None, result.diagnostics
+        assert refusal in {(item["code"], item["entity"]) for item in result.loss_report}, result.loss_report
+        return
+    assert result.status == "written", result.diagnostics
+    entries = [item for item in result.loss_report if (item["code"], item["entity"]) == listed]
+    assert entries and all(item["category"] == "omitted" for item in entries), result.loss_report
+    assert any(identity in item["entity"] or identity in item["reason"] for item in entries), entries
+    sidecar = result.sidecar(hashlib.sha256(result.text.encode("ascii")).hexdigest())
+    carried = json.dumps({key: value for key, value in sidecar.items() if key != "derivation"})
+    assert f'"{identity}"' not in carried, name

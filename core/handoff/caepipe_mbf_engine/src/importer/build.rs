@@ -414,7 +414,8 @@ impl<'a> Importer<'a> {
             .map(|items| items.iter().filter_map(|item| item.as_str().map(String::from)).collect())
             .unwrap_or_default();
         let regenerated = regenerator.regenerate(model, &self.sha, &derived, reference).map_err(Stop::Fail)?;
-        let sidecar = self.sidecar.clone().expect("bound sidecar");
+        let mut sidecar = self.sidecar.clone().expect("bound sidecar");
+        let format6 = self.sidecar_format == Some(crate::sidecar::SIDECAR_FORMAT);
         let regenerated = match regenerated {
             Regenerated::Refused(codes) => {
                 let mut codes = codes;
@@ -438,19 +439,43 @@ impl<'a> Importer<'a> {
                         "regenerated sidecar",
                     ))));
                 }
-                // Compared in the given format: format 3 is 4 without section_map (its import binds no library
-                // section, so the writer keys records by OD and wall as the writer of format 3 did), and format 2
-                // is 3 without the self-digest.
+                // Compared in the given format: format 4 is 6 without derivation and bend nodes (its import restores
+                // the near tangent node, so a regenerated node is not compared), format 3 is 4 without section_map
+                // (its import binds no library section, so the writer keys records by OD and wall as the writer of
+                // format 3 did), and format 2 is 3 without the self-digest.
                 let format = sidecar.get_or_null("sidecar_format").clone();
                 if let Some(dict) = value.as_dict_mut() {
                     dict.insert("sidecar_format".into(), format);
-                    if self.sidecar_format != Some(crate::sidecar::SIDECAR_FORMAT) {
+                    // Formats 2 to 4 have no `derivation` (removed from the regenerated sidecar, as section_map is
+                    // for formats 2 and 3). A format-6 `derivation` is excluded from the comparison on both sides,
+                    // explicitly and only here: it records the source document the writer read and the writer's
+                    // settings, and the restored model is not that document (its project, labels, provenance and
+                    // every member the writer does not export differ) and the regeneration has no export settings,
+                    // so no derivation can be regenerated from it. It is held as recorded, at the sidecar's
+                    // source-free trust level, for a later check against a designated source (Design §15, Format 6).
+                    // Each format-6 bend's `node` is compared: it regenerates from the restored component.
+                    dict.remove(&"derivation".to_string());
+                    if !format6 {
+                        if let Some(elements) = dict.get_mut(&"element_map".to_string()).and_then(Value::as_dict_mut) {
+                            for entry in elements.values_mut() {
+                                if let Some(bend) = entry.as_dict_mut().and_then(|entry| entry.get_mut(&"bend".to_string())).and_then(Value::as_dict_mut) {
+                                    bend.remove(&"node".to_string());
+                                }
+                            }
+                        }
+                    }
+                    if !self.sidecar_format.is_some_and(|number| crate::sidecar::SECTION_FORMATS.contains(&number)) {
                         dict.remove(&"section_map".to_string());
                     }
                 }
                 value
             }
         };
+        if format6 {
+            if let Some(dict) = sidecar.as_dict_mut() {
+                dict.remove(&"derivation".to_string());
+            }
+        }
         if let Some((path, given, again)) = sidecar_difference(&sidecar, &regenerated, &summed_entries(id_map))? {
             let message = format!(
                 "the bound sidecar is not the writer's record of the model it yields: at {path} it has {given}, and \

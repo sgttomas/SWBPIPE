@@ -12,11 +12,17 @@ use sha2::{Digest, Sha256};
 
 pub const KEYED_MAPS: [&str; 7] =
     ["node_map", "element_map", "support_map", "load_case_map", "material_map", "section_map", "load_map"];
-/// The current writer's format: 4, which is 3 with `section_map` (Design §15, Format 4: section identities).
-pub const SIDECAR_FORMAT: i64 = 4;
-pub const SIDECAR_FORMATS: [i64; 3] = [2, 3, SIDECAR_FORMAT];
+/// The current writer's format: 6, which is 4 (3 with `section_map`, Design §15, Format 4: section identities) plus
+/// `derivation` and each bend entry's `node` (Format 6). Format 5 is the held Route 1 design (§20.4.5): never written,
+/// and refused as any format this importer does not read.
+pub const SIDECAR_FORMAT: i64 = 6;
+pub const SIDECAR_FORMATS: [i64; 4] = [2, 3, 4, SIDECAR_FORMAT];
 /// The formats that carry the self-digest and may record springs.
-pub const DIGESTED_FORMATS: [i64; 2] = [3, SIDECAR_FORMAT];
+pub const DIGESTED_FORMATS: [i64; 3] = [3, 4, SIDECAR_FORMAT];
+/// The formats with `section_map` of library section ids.
+pub const SECTION_FORMATS: [i64; 2] = [4, SIDECAR_FORMAT];
+/// The units a format-6 `derivation.export_settings.reference_temperature` names.
+pub const REFERENCE_TEMPERATURE_UNITS: [&str; 2] = ["degC", "degF"];
 pub const SIDECAR_DIGEST_KEY: &str = "sidecar_sha256";
 pub const DOFS: [&str; 6] = ["UX", "UY", "UZ", "RX", "RY", "RZ"];
 pub const RIGID_FAMILIES: [&str; 4] = ["anchor", "guide", "line_stop", "vertical_support"];
@@ -161,6 +167,17 @@ fn jcs_walk(value: &Value, path: &str, out: &mut String) -> Result<(), Result<No
     Ok(())
 }
 
+/// si_writer `model_canonical_bytes`: the RFC 8785 bytes of the whole model document, by the same serialisation as
+/// [`sidecar_canonical_bytes`] with nothing removed (format 6's `derivation.source_model_sha256`, Design §15).
+pub fn model_canonical_bytes(model: &Value) -> Result<Vec<u8>, Result<NotCanonical, PyError>> {
+    if model.as_dict().is_none() {
+        return Err(Ok(NotCanonical { path: "model".into(), reason: "must be an object".into() }));
+    }
+    let mut out = String::new();
+    jcs_walk(model, "", &mut out)?;
+    Ok(out.into_bytes())
+}
+
 /// si_writer `sidecar_canonical_bytes`.
 pub fn sidecar_canonical_bytes(sidecar: &Value) -> Result<Vec<u8>, Result<NotCanonical, PyError>> {
     let Some(dict) = sidecar.as_dict() else {
@@ -239,6 +256,16 @@ enum F {
     Vector,
     Bend,
     BendComponent,
+    /// Format 6: a bend's component and the tangent node it names.
+    BendIdentity,
+    /// Format 6: the top-level `derivation`.
+    Derivation,
+    ExportSettings,
+    ReferenceTemperature,
+    /// A title line as the writer prints it (`_title(value) == value`).
+    TitleLine,
+    /// A row limit: null or a non-negative integer no larger than 2^53.
+    CountOrNull,
     Element,
     Support,
     Material,
@@ -372,6 +399,36 @@ impl SidecarParser {
                 &[],
             ),
             F::BendComponent => self.record(value, path, &[("component", F::Text)], &[]),
+            F::BendIdentity => self.record(value, path, &[("component", F::Text), ("node", F::Text)], &[]),
+            // Format 6 (Design §15): the SHA-256 of the canonical model document the writer read, and the export
+            // settings the writer used.
+            F::Derivation => self.record(value, path, &[("source_model_sha256", F::Digest), ("export_settings", F::ExportSettings)], &[]),
+            F::ExportSettings => self.record(
+                value,
+                path,
+                &[
+                    ("title", F::TitleLine),
+                    ("reference_temperature", F::ReferenceTemperature),
+                    ("max_layout_rows", F::CountOrNull),
+                    ("piping_code", choice_null(&crate::importer::PIPING_CODE_OPTIONS)),
+                ],
+                &[],
+            ),
+            F::ReferenceTemperature => {
+                self.record(value, path, &[("value", F::Number), ("unit", choice(&REFERENCE_TEMPERATURE_UNITS))], &[])
+            }
+            F::TitleLine => match value {
+                Value::Str(text) if crate::writer::title(text) == *text => value.clone(),
+                Value::Str(_) => self.fail(
+                    path,
+                    "must be a title line as the writer prints it (printable ASCII without commas, trimmed, 1 to 70 characters)",
+                ),
+                _ => self.fail(path, "must be a string"),
+            },
+            F::CountOrNull => match value {
+                Value::Null => Value::Null,
+                _ => self.parse_field(&F::Count, value, path),
+            },
             F::Element => self.element(value, path),
             F::Support => self.support(value, path),
             F::Material => {
@@ -460,7 +517,7 @@ impl SidecarParser {
             }
             F::Format => match value {
                 Value::Int(number) if SIDECAR_FORMATS.iter().any(|format| &BigInt::from(*format) == number) => value.clone(),
-                _ => self.fail(path, "must be 2 or 3 or 4, a format this importer reads (or absent, for a legacy sidecar)"),
+                _ => self.fail(path, "must be 2 or 3 or 4 or 6, a format this importer reads (or absent, for a legacy sidecar)"),
             },
             F::Items(item, length, nonempty) => {
                 let Some(items) = value.as_list() else { return self.fail(path, "must be a list") };
@@ -495,7 +552,8 @@ impl SidecarParser {
         if self.current {
             let mut fields = vec![("from", F::Text), ("to", F::Text), ("reversed", F::Flag)];
             if has_bend {
-                fields.push(("bend", F::BendComponent));
+                // Format 6 also records the tangent node the bend's source component names.
+                fields.push(("bend", if self.format_number == Some(SIDECAR_FORMAT) { F::BendIdentity } else { F::BendComponent }));
             } else {
                 fields.push(("y_reference", F::Vector));
                 fields.push(("y_reference_authored", F::Flag));
@@ -632,7 +690,7 @@ impl SidecarParser {
         if !self.current {
             return self.fail(
                 path,
-                "is not a field main's tranche-1 writer records; a sidecar with pressure has sidecar_format 2 or 3 or 4",
+                "is not a field main's tranche-1 writer records; a sidecar with pressure has sidecar_format 2 or 3 or 4 or 6",
             );
         }
         let entry = self.record(
@@ -687,8 +745,11 @@ impl SidecarParser {
             if self.format_number.is_some_and(|number| DIGESTED_FORMATS.contains(&number)) {
                 fields.push((SIDECAR_DIGEST_KEY, F::Digest));
             }
-            if self.format_number == Some(SIDECAR_FORMAT) {
+            if self.format_number.is_some_and(|number| SECTION_FORMATS.contains(&number)) {
                 fields.push(("section_map", F::Mapping(Box::new(F::SectionIdentity))));
+            }
+            if self.format_number == Some(SIDECAR_FORMAT) {
+                fields.push(("derivation", F::Derivation));
             }
             self.record(sidecar, "", &fields, &[])
         } else {
@@ -707,6 +768,8 @@ impl SidecarParser {
             out.insert(name.to_string(), parsed.get(name).cloned().unwrap_or_else(|| Value::Dict(Dict::new())));
         }
         out.insert("mbf_sha256".into(), parsed.get("mbf_sha256").cloned().unwrap_or(Value::Null));
+        // format 6 only; null otherwise
+        out.insert("derivation".into(), parsed.get("derivation").cloned().unwrap_or(Value::Null));
         let state = parsed.get("pressure_map").cloned();
         let pressure = match state {
             None => Value::Null,
@@ -764,7 +827,7 @@ impl SidecarParser {
                 names.insert(name, swb_id.clone());
             }
         }
-        if self.format_number == Some(SIDECAR_FORMAT) {
+        if self.format_number.is_some_and(|number| SECTION_FORMATS.contains(&number)) {
             let mut sections: crate::value::OMap<String, String> = crate::value::OMap::new();
             for (name, entry) in out.get("section_map").and_then(Value::as_dict).into_iter().flat_map(|map| map.iter()) {
                 let Some(swb_id) = entry.get("swbpipe_section").and_then(Value::as_str) else { continue };

@@ -187,10 +187,16 @@ _TITLE_MAX = 70
 _DESCRIPTION_MAX = 30
 # The writer sidecar's format (Design §15). Format 2 records the effective value of every field, never null or another
 # sentinel for a default to fill; format 3 is format 2 with its self-digest `sidecar_sha256`; format 4 is format 3
-# with `section_map`, each PIPE record's library section id or null (Format 4: section identities). A sidecar without
-# `sidecar_format` is a legacy one, from main's tranche-1 writer.
-SIDECAR_FORMAT = 4
+# with `section_map`, each PIPE record's library section id or null (Format 4: section identities). Format 6, which
+# this writer records for every export, is format 4 plus the top-level `derivation` (the SHA-256 of the canonical model
+# document the writer read and every non-model writer input that can change the bytes) and each bend entry's `node`,
+# the tangent node its source component names (Format 6: derivation and bend nodes). Format 5 is the held Route 1
+# design (§20.4.5): never written, and refused by the importer. A sidecar without `sidecar_format` is a legacy one,
+# from main's tranche-1 writer.
+SIDECAR_FORMAT = 6
 SIDECAR_DIGEST_KEY = "sidecar_sha256"
+# The units a format-6 `derivation.export_settings.reference_temperature` names: the argument the writer used.
+REFERENCE_TEMPERATURE_UNITS = ("degC", "degF")
 _MAX_NODES = 9999  # node numbers 10, 20, ... stay below 99999
 
 
@@ -210,6 +216,9 @@ class MbfSiResult:
     layout_row_count: int = 0
     loss_report: list[dict[str, Any]] = field(default_factory=list)
     assumptions: list[str] = field(default_factory=list)
+    # Format 6's `derivation` (Design §15): the source model digest and the export settings; empty when refused. Not
+    # part of to_dict().
+    derivation: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -231,17 +240,18 @@ class MbfSiResult:
         }
 
     def sidecar(self, mbf_sha256: str) -> dict[str, Any]:
-        """The writer sidecar of the written text whose SHA-256 is `mbf_sha256` (Design §15), format 4: what a bound
+        """The writer sidecar of the written text whose SHA-256 is `mbf_sha256` (Design §15), format 6: what a bound
         import restores and the MBF does not carry, each field with its effective value. What the MBF determines
         (layout order, record names, numbers, bend geometry, section values) is not repeated in it; `section_map`
-        holds each PIPE record's library section id, or null. Its `sidecar_sha256` is the self-digest of the rest
-        (sidecar_self_digest)."""
+        holds each PIPE record's library section id, or null; each bend entry names its component and the tangent
+        node that component names; `derivation` records the source model's digest and the export settings. Its
+        `sidecar_sha256` is the self-digest of the rest (sidecar_self_digest)."""
         record = self.to_dict()
 
         def element(entry: Mapping[str, Any]) -> dict[str, Any]:
             kept = {key: entry[key] for key in ("from", "to", "reversed")}
             if "bend" in entry:
-                return {**kept, "bend": {"component": entry["bend"]["component"]}}
+                return {**kept, "bend": {"component": entry["bend"]["component"], "node": entry["bend"]["node"]}}
             return {**kept, "y_reference": entry["y_reference"], "y_reference_authored": entry["y_reference_authored"]}
 
         pressure = record["pressure_map"]
@@ -261,6 +271,8 @@ class MbfSiResult:
             "pressure_map": {"contract": pressure["contract"], "shear_model": pressure["shear_model"],
                              "regions": [{name: region[name] for name in ("id", "members", "terminals")}
                                          for region in pressure["regions"]]},
+            "derivation": {"source_model_sha256": self.derivation["source_model_sha256"],
+                           "export_settings": json.loads(json.dumps(self.derivation["export_settings"]))},
             "mbf_sha256": mbf_sha256,
         }
         return {**body, SIDECAR_DIGEST_KEY: sidecar_self_digest(body)}
@@ -288,6 +300,22 @@ def sidecar_canonical_bytes(sidecar: Mapping[str, Any]) -> bytes:
     then `true`, `false`, `null`; the whole in UTF-8, no BOM and no final newline. A value with no such form (a
     non-finite number, an integer that is not exactly a binary64, a lone surrogate, a key that is not a string, or
     anything but a JSON value) raises SidecarNotCanonical naming its path."""
+    if type(sidecar) is not dict:
+        raise SidecarNotCanonical("sidecar", "must be an object")
+    return _jcs({key: value for key, value in sidecar.items() if key != SIDECAR_DIGEST_KEY})
+
+
+def model_canonical_bytes(model: Any) -> bytes:
+    """The RFC 8785 (JCS) canonical bytes of the whole model document `model`, by the same serialisation as
+    sidecar_canonical_bytes (nothing removed): what format 6's `derivation.source_model_sha256` digests (Design §15).
+    A value with no canonical form raises SidecarNotCanonical naming its path in the document."""
+    if type(model) is not dict:
+        raise SidecarNotCanonical("model", "must be an object")
+    return _jcs(model)
+
+
+def _jcs(document: dict[str, Any]) -> bytes:
+    """RFC 8785 serialisation of the JSON object `document` (sidecar_canonical_bytes), in UTF-8."""
     def child(path: str, key: str) -> str:
         return f"{path}[{key}]" if path in _KEYED_MAPS else (f"{path}.{key}" if path else key)
 
@@ -328,9 +356,7 @@ def sidecar_canonical_bytes(sidecar: Mapping[str, Any]) -> bytes:
                                   for key in ordered) + "}"
         raise SidecarNotCanonical(path or "sidecar", f"is a {type(value).__name__}, not a JSON value")
 
-    if type(sidecar) is not dict:
-        raise SidecarNotCanonical("sidecar", "must be an object")
-    return walk({key: value for key, value in sidecar.items() if key != SIDECAR_DIGEST_KEY}, "").encode("utf-8")
+    return walk(document, "").encode("utf-8")
 
 
 def sidecar_self_digest(sidecar: Mapping[str, Any]) -> str:
@@ -607,6 +633,11 @@ class _Writer:
                       f"reference temperature must be a finite number (got {self.t_ref!r})")
             return self.refused()
         self.t_ref = float(self.t_ref)
+        # Format 6 records the row limit (derivation.export_settings): an integer exact in binary64, or None.
+        limit = self.max_layout_rows
+        if limit is not None and not (type(limit) is int and 0 <= limit <= 2 ** 53):
+            self.invalid("max_layout_rows", f"max_layout_rows must be None or an integer from 0 to 2^53 (got {limit!r})")
+            return self.refused()
         self.check_piping_code()
         self.check_document()
         self.check_project_units()
@@ -986,8 +1017,8 @@ class _Writer:
         if not _is_vector(pipe["y_reference"]):
             self.invalid(entity, f"pipe:{pipe_id} needs a numeric y_reference to fix the bend plane")
             return
-        self.bends[pipe_id] = {"component": component.get("id"), "entity": entity, "radius": radius, "k": factor,
-                               "angle": angle, "sifs": sifs}
+        self.bends[pipe_id] = {"component": component.get("id"), "node": component.get("node"), "entity": entity,
+                               "radius": radius, "k": factor, "angle": angle, "sifs": sifs}
 
     def resolve_bends(self) -> None:
         """Place each bend at the tangent intersection (TI) of its adjacent straights, or refuse it by name."""
@@ -1770,6 +1801,7 @@ class _Writer:
                 bend = self.bends[row["bend"]]
                 element_map[row["bend"]]["bend"] = {
                     "component": bend["component"],
+                    "node": bend["node"],  # the tangent node the component names (format 6)
                     "radius_mm": bend["radius"],
                     "angle_deg": math.degrees(bend["theta"]),
                     "flexibility_factor": bend["k"],
@@ -1912,6 +1944,21 @@ class _Writer:
                  "provenance": region["provenance"], "pressure_bar": self.pipe_pressure[region["member_pipe_ids"][0]]}
                 for region in self.regions]}
         self.add_assumptions(temperatures)
+        # Format 6's derivation (Design §15): the SHA-256 of the canonical model document this writer read, and every
+        # writer input outside it that can change the written bytes, as the writer used it: the printed title line
+        # (_title reproduces itself), the reference temperature argument in its own unit, the row limit (it adds only
+        # a warning) and the piping code. No Route 1 input (§20.4.5) is recorded.
+        try:
+            source_model_sha256 = hashlib.sha256(model_canonical_bytes(self.model)).hexdigest()
+        except SidecarNotCanonical as error:
+            self.invalid("model", f"the model document's {error.path} {error.reason}, so it has no canonical form "
+                         "for the sidecar's derivation.source_model_sha256")
+            return self.refused()
+        reference = ({"value": float(self.t_ref_f), "unit": "degF"} if self.t_ref_f is not None
+                     else {"value": self.t_ref, "unit": "degC"})
+        derivation = {"source_model_sha256": source_model_sha256,
+                      "export_settings": {"title": _title(self.title), "reference_temperature": reference,
+                                          "max_layout_rows": self.max_layout_rows, "piping_code": self.piping_code}}
         result = MbfSiResult(
             status="written",
             text=text,
@@ -1927,6 +1974,7 @@ class _Writer:
             layout_row_count=layout_row_count,
             loss_report=self.loss,
             assumptions=self.assumptions,
+            derivation=derivation,
         )
         try:  # the self-digest covers canonical JSON content only (Design §15)
             result.sidecar("0" * 64)

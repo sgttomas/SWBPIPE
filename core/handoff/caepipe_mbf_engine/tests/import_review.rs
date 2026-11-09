@@ -198,7 +198,7 @@ fn bound_and_unbound_imports_pin_the_identity_counts() {
     let (text, sidecar) = written_pair();
     let bound = import(&text, Some(&sidecar), None, "invented.mbf");
     let bound_value = parsed(&review_of(&bound, &text, Some(&sidecar), None, MBF_REVIEW_MAX_BYTES, true).review);
-    assert_recovery(&bound_value, 0, 1);
+    assert_recovery(&bound_value, 0, 0); // format 6 records the bend component's node (Design §15, Format 6)
     assert_taxonomy(&bound, &bound_value);
     assert_eq!(bound_value.get_or_null("binding").get_or_null("state").as_str(), Some("bound"));
     assert_eq!(bound_value.get_or_null("identity").get_or_null("basis").as_str(), Some("restored_from_identity_file"));
@@ -265,11 +265,28 @@ fn a_legacy_missing_family_is_reported_without_losing_the_support_id() {
     assert_taxonomy(&result, &review);
 }
 
+/// The writer's format-6 identity file as format 4 recorded it: without `derivation` and each bend entry's `node`.
+fn as_format_4(sidecar: &[u8]) -> Vec<u8> {
+    let mut value = mbf::parse_sidecar_json(sidecar).unwrap();
+    let dict = value.as_dict_mut().unwrap();
+    dict.remove(&"derivation".to_string());
+    dict.insert("sidecar_format".into(), Value::int(4));
+    for entry in dict.get_mut(&"element_map".to_string()).unwrap().as_dict_mut().unwrap().values_mut() {
+        if let Some(bend) = entry.as_dict_mut().unwrap().get_mut(&"bend".to_string()).and_then(Value::as_dict_mut) {
+            bend.remove(&"node".to_string());
+        }
+    }
+    let digest = mbf::sidecar_self_digest(&value).unwrap();
+    value.as_dict_mut().unwrap().insert("sidecar_sha256".into(), Value::str(digest));
+    mbf::canonical_bytes(&value).unwrap()
+}
+
 #[test]
-fn opposite_source_bend_nodes_emit_the_same_pair_but_lose_the_far_reference() {
+fn opposite_source_bend_nodes_emit_the_same_mbf_and_format_6_recovers_each_reference() {
     let original = mbf::parse_sidecar_json(EXPORT_MODEL.as_bytes()).unwrap();
     let settings = mbf::export_settings_from_json(br#"{"title":"Invented MBF export","referenceTemperature":{"value":20,"unit":"degC"},"maxLayoutRows":null}"#).unwrap();
-    let mut pairs = Vec::new();
+    let mut texts = Vec::new();
+    let mut sidecars = Vec::new();
     for endpoint in ["node:T1", "node:T2"] {
         let mut model = original.clone();
         let Value::List(components) = model.as_dict_mut().unwrap().get_mut(&"components".to_string()).unwrap() else { panic!("components list") };
@@ -278,24 +295,34 @@ fn opposite_source_bend_nodes_emit_the_same_pair_but_lose_the_far_reference() {
         assert_eq!(written.status, "written", "{:?}", written.diagnostics);
         let bytes = written.text.clone().unwrap().into_bytes();
         let sidecar = written.sidecar_bytes(&common::sha(&bytes)).unwrap();
+        // Format 6 (the writer's): the bend entry names the source component's node, and the bound import restores it.
         let result = import(&bytes, Some(&sidecar), None, "invented.mbf");
         assert_eq!(result.status, "imported", "{:?}", result.diagnostics);
-        let adopted = result.model.as_ref().unwrap();
-        let component = &adopted.get_or_null("components").as_list().unwrap()[0];
+        let component = &result.model.as_ref().unwrap().get_or_null("components").as_list().unwrap()[0];
         assert_eq!(component.get_or_null("id").as_str(), Some("component:bend-1"));
+        assert_eq!(component.get_or_null("node").as_str(), Some(endpoint));
+        assert!(!result.loss_report.iter().any(|entry| entry.get_or_null("code").as_str() == Some("MBF-IMPORT-REFERENCE-UNRECOVERABLE")));
+        let reviewed = parsed(&review_of(&result, &bytes, Some(&sidecar), None, MBF_REVIEW_MAX_BYTES, true).review);
+        assert!(class_counts(&reviewed).contains(&("bend".into(), 1, 1, 0)));
+        assert_recovery(&reviewed, 0, 0);
+        assert_taxonomy(&result, &reviewed);
+        // Format 4 does not record the node: the near node and the notice, as before.
+        let old = as_format_4(&sidecar);
+        let result = import(&bytes, Some(&old), None, "invented.mbf");
+        assert_eq!(result.status, "imported", "{:?}", result.diagnostics);
+        let component = &result.model.as_ref().unwrap().get_or_null("components").as_list().unwrap()[0];
         assert_eq!(component.get_or_null("node").as_str(), Some("node:T1"));
-        if endpoint == "node:T2" {
-            assert_ne!(component.get_or_null("node").as_str(), Some(endpoint), "the original far-node reference is lost");
-        }
         assert!(result.loss_report.iter().any(|entry| entry.get_or_null("code").as_str() == Some("MBF-IMPORT-REFERENCE-UNRECOVERABLE")
             && entry.get_or_null("location").as_str() == Some("component:bend-1.node") && entry.get_or_null("category").as_str() == Some("approximated")));
-        let reviewed = parsed(&review_of(&result, &bytes, Some(&sidecar), None, MBF_REVIEW_MAX_BYTES, true).review);
+        let reviewed = parsed(&review_of(&result, &bytes, Some(&old), None, MBF_REVIEW_MAX_BYTES, true).review);
         assert!(class_counts(&reviewed).contains(&("bend".into(), 1, 1, 0)), "restoring the component id does not recover its original node reference");
         assert_recovery(&reviewed, 0, 1);
         assert_taxonomy(&result, &reviewed);
-        pairs.push((bytes, sidecar));
+        texts.push(bytes);
+        sidecars.push(sidecar);
     }
-    assert_eq!(pairs[0], pairs[1], "neither saved member distinguishes the original endpoint choice");
+    assert_eq!(texts[0], texts[1], "the MBF does not distinguish the original endpoint choice");
+    assert_ne!(sidecars[0], sidecars[1], "the format-6 identity file does");
 }
 
 #[test]
