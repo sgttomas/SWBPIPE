@@ -358,8 +358,8 @@ fn gate_reason(
         return None;
     }
     // absolute-sum-srss §5.2, as on PF: in a model with nonlinear supports a mechanics
-    // combination is withheld unless decision OQ-1's predicate admits it. EX refuses
-    // nonlinear supports today (RT-A3 increment 4 makes this reachable).
+    // combination is withheld unless decision OQ-1's predicate admits it. Plain EX
+    // admits nonlinear supports; S6 extends their connector and load-state reachability.
     if basis == "mechanics" && has_nonlinear_support(model) && !plan.solved_state_plus_increments(combination) {
         return gated(NONLINEAR);
     }

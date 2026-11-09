@@ -137,6 +137,8 @@ code_paths:
 - core/solver/linear_supports/**
 - tools/validation/validate_dependencies_schema.py
 - core/product_physics/src/imposed_motion.rs
+# RT-S3: DEC-049 support-action publication in DEL-04-07's product adapter; no support-law transfer.
+- core/product_physics/src/lib.rs
 # W-16 stage 2 (Design pf-nonlinear-imposed-motion.md): the motion's boundary
 # in the nonlinear loop and the K-D5 intended-map check.
 - core/solver/nonlinear_integration/src/lib.rs
@@ -148,6 +150,9 @@ code_paths:
 - core/solver/frame_kernel/src/restraint_basis.rs
 - core/product_physics/src/skew.rs
 checks:
+- core/product_physics/tests/rt_a3_constant_effort_references.rs
+- core/product_physics/tests/rt_a3_reducer_2b_reference_system.rs
+- core/product_physics/tests/support_reactions_runtime.rs
 - core/solver/linear_supports/src/lib.rs
 - core/product_physics/tests/w16_imposed_motion.rs
 - core/product_physics/src/w16_nonlinear_motion_tests.rs

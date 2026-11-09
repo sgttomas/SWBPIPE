@@ -70,10 +70,11 @@ LN = {
     # formation precede them).
     # RT-A3 S6 D3 (§8.59): +16 (unit_message: the S6 formulation-basis bindings and the case solve's motion lines
     # precede it) and +52 (the three helpers: load_state_spring_ground precedes them), unchanged text.
-    'unit_message': 10725, # lib.rs `message.into()` (9162) [9159]
-    'suffix': 15807,      # lib.rs `id.replace(':', "-")` (13614) [13619]
-    'diag_fn': 15756,     # lib.rs fn diag (13563) [13568]
-    'suffix_fn': 15806,   # lib.rs fn stable_suffix (13613) [13618]
+    # RT-S3 CE: maintained Mapper carries all four unchanged lib.rs sites +6; classes and audit values stay.
+    'unit_message': 10731, # lib.rs `message.into()` (9162) [9159]
+    'suffix': 15813,      # lib.rs `id.replace(':', "-")` (13614) [13619]
+    'diag_fn': 15762,     # lib.rs fn diag (13563) [13568]
+    'suffix_fn': 15812,   # lib.rs fn stable_suffix (13613) [13618]
     # Model document 0.9.0 D3 (§8.36): physics_source.rs's require moves +23 with unchanged text (model_uses_conditions
     # and the three condition-set, spectrum and set-reference predicates precede it); the new details are at most 24 B
     # (ACTUAL_CONDITION_SET_REF), so the longest stays ACTUAL_MATERIAL_DUPLICATE_TEMPERATURE's 37 B and 40 holds.

@@ -52,17 +52,26 @@ def repinned_tool(tmp_path, original, mutated):
     shutil.copytree(PRICING, tool, ignore=shutil.ignore_patterns("tests", "__pycache__"))
     kd5 = runpy.run_path(str(PRICING / "base/kd5_text_model.py"))
     o4 = runpy.run_path(str(PRICING / "base/o4_owners_model.py"))
+    ce = runpy.run_path(str(PRICING / "base/ce_fallback_model.py"))
+    # RT-S3 CE fallback (§8.61, CEF-PJ): some lib.rs pins compare the file, and the case-solve body, without the
+    # reviewed CE delta. The mutants leave that delta exactly at its anchors, so the projected pins move as well.
+    projected = (ce["s6_text"](original), ce["s6_text"](mutated))
+    assert projected[0] is not original and projected[1] is not mutated, "CE delta not at its reviewed anchors"
     pairs = {}
-    for a, b in ((original, mutated), (original.split("#[cfg(test)]", 1)[0], mutated.split("#[cfg(test)]", 1)[0])):
-        pairs[hashlib.sha256(a.encode()).hexdigest()] = hashlib.sha256(b.encode()).hexdigest()
+    for full in ((original, mutated), projected):
+        for a, b in (full, (full[0].split("#[cfg(test)]", 1)[0], full[1].split("#[cfg(test)]", 1)[0])):
+            pairs[hashlib.sha256(a.encode()).hexdigest()] = hashlib.sha256(b.encode()).hexdigest()
     for name in set(re.findall(r"fn\s+([A-Za-z_]\w*)", original)):
         for extract in (lambda s, n: kd5["_indented_function"](s, n)[0], o4["_body"], kd5["function_body"]):
             try:
                 a, b = extract(original, name), extract(mutated, name)
             except BaseException:
                 continue
-            if a and b and a != b:
-                pairs[hashlib.sha256(a.encode()).hexdigest()] = hashlib.sha256(b.encode()).hexdigest()
+            if not (a and b):
+                continue
+            for x, y in ((a, b), (ce["s6_body"](original, a), ce["s6_body"](mutated, b))):
+                if x != y:
+                    pairs[hashlib.sha256(x.encode()).hexdigest()] = hashlib.sha256(y.encode()).hexdigest()
     for path in tool.rglob("*.py"):
         text = path.read_text(encoding="utf-8")
         moved = text
