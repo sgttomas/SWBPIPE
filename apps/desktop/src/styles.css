@@ -3178,26 +3178,45 @@ fieldset.viewport-intent-controls {
   cursor: not-allowed;
 }
 
+/* The dense table primitive (DEL-07-06 Work, tables): body-size cells with tabular figures, a
+   quiet caption-size header on the sunken surface, hairline rows with the alternate-row tint and
+   a hover wash. Density sets cell padding only. Element selectors keep component tables in
+   charge of their own columns. */
 table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: var(--type-size-body);
+  line-height: var(--type-lineHeight-body);
+  font-variant-numeric: tabular-nums;
 }
 
 th,
 td {
-  padding: 8px 6px;
-  border-bottom: 1px solid #dfe4e1;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-hairline);
   text-align: left;
   vertical-align: top;
   overflow-wrap: anywhere;
 }
 
 th {
-  color: #59645f;
-  font-size: 11px;
+  color: var(--text-secondary);
+  background: var(--surface-header);
+  font-size: var(--type-size-caption);
+  line-height: var(--type-lineHeight-caption);
+  font-weight: var(--type-weight-semibold);
+  letter-spacing: 0.04em;
   text-transform: uppercase;
+  vertical-align: bottom;
+  border-bottom-color: var(--border-strong);
+  overflow-wrap: normal;
+  word-break: keep-all;
 }
+
+tbody tr:nth-child(even) { background-color: var(--surface-rowAlt); }
+tbody tr:hover { background-image: linear-gradient(var(--hover-wash), var(--hover-wash)); }
+:where(.app-shell[data-density="compact"]) th,
+:where(.app-shell[data-density="compact"]) td { padding: var(--space-2) var(--space-3); }
 
 .muted {
   margin: 0;
@@ -4785,6 +4804,22 @@ body { min-width: 760px; min-height: 540px; }
 .app-shell .shell-status-selection .shell-status-selection-type { color: var(--text-secondary); }
 .app-shell .shell-status-selection .shell-status-selection-id { color: var(--ui-text); font-family: var(--font-mono); font-size: var(--type-size-caption); }
 
-/* Results commands (Inspect bundled reference, Key results) are ordinary commands, not full-width
-   bars: they keep their own width at the head of the results column. */
-.app-shell [data-testid="workspace-section-results"] > button { grid-column: 1 / -1; justify-self: start; }
+/* Results actions (Inspect bundled reference, Key results) are ordinary commands in one group at
+   the head of the results column, not full-width bars. */
+.app-shell .results-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: var(--space-4); }
+
+/* A results standing line: its headline, then each published limitation on its own line, then the
+   closing sentence. Every word stays visible (DEL-07-05: the standing line states each route's
+   limitations); the layout only makes a long basis scannable before the tables. */
+.app-shell .result-standing {
+  max-width: 110ch; margin-block: var(--space-4); padding: var(--space-3) var(--space-5);
+  border-inline-start: var(--border-width-selectionBar) solid var(--border-strong); background: var(--surface-sunken); color: var(--ui-text);
+}
+.app-shell .result-standing-lead, .app-shell .result-standing-close { display: block; font-weight: var(--type-weight-semibold); }
+.app-shell .result-standing-lead { margin-bottom: var(--space-2); }
+.app-shell .result-standing-close { margin-top: var(--space-2); }
+.app-shell .result-standing-limitation { display: list-item; list-style: disc outside; margin-inline-start: 1.25em; padding-block: 1px; color: var(--text-secondary); }
+
+/* A value stays on one line with its unit; ids may still wrap at their separators. */
+.app-shell .results-panel .result-value-cell { white-space: nowrap; overflow-wrap: normal; }
+.app-shell .results-panel .dual-unit-cell { overflow-wrap: break-word; }
