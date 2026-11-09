@@ -2195,13 +2195,10 @@ thermal primitives. This is an independent comparison of this fixed input, not a
 `tests/caepipe_mbf_canonical.py`. Retirement after Adopt or a refusal leaves later Review and Adopt unable to
 recover the retired source, including after the files are restored to their chosen state.
 
-**Identity-report limitation.** The committed bound review still reports `identity.unrecoverable: 2`, with
-`MBF-IMPORT-ID-UNRECOVERABLE` entries for `bend 20` and `unexported members` in category `approximated`, even though
-the nine restored identity-class inventories match. The latter entry is emitted for every bound import by
-`importer/finish.rs::report_unrecoverable`; the former is the bend reporting in `importer/assemble.rs`.
-The report is preserved. Matching inventories does not satisfy C6-5's separate requirement that the report list
-no unrecoverable identity. This candidate neither resolves that requirement/report conflict nor changes the
-metadata disposition to hide it.
+**Identity-report limitation.** Matching inventories does not establish C6-5's separate requirement that the
+report list no unrecoverable identity. The report also includes missing-field and information-loss notices;
+§5.2 diagnoses their source semantics and the proposed next scope. This candidate preserves the report and
+does not resolve the requirement/report conflict by changing metadata disposition.
 
 The focused execution packet is the desktop Vitest cohort `src/App.mbfRoundTrip.test.tsx` and the native
 `mbf_import::tests` cohort, including the reply producer above, from the same selected candidate source and
@@ -2220,6 +2217,93 @@ including §20.5.10; combinations remain outside criterion 6 under §8.1's owner
 
 This test-only connection changes neither DEL-17-04 nor DEL-07-12's ScopeOfWork or dependency conditions.
 The existing GUI/native split and Open-consumer boundary remain in force.
+
+### 5.2 Identity-report diagnosis and proposed next scope
+
+**Source diagnosis only, against the slice-6 candidate `2877f833a`; no production/report/criterion/fixture
+change is selected here.** The consumer is Agent 0's decision on the reporting follow-up. These findings use
+source and the committed invented transcript, not a new engine or App execution.
+
+- **Generic notice.** Python `importer.py::report_unrecoverable` and Rust
+  `importer/finish.rs::report_unrecoverable` emit one warning/loss entry on every bound import:
+  `MBF-IMPORT-ID-UNRECOVERABLE`, category `approximated`, location `unexported members`. No source-member
+  presence test or original id inventory is consulted. It lists labels, provenance, combinations, lines,
+  unresolved assumptions, constraints, equipment interfaces, rule-pack references and model settings as
+  content the exchange cannot reconstruct. It is a general information-loss limitation, not evidence that
+  any particular original entity id existed and was lost. The current fixture has labels/provenance and an
+  empty `combinations`; the other listed top-level members are absent. Export's field sweep reports actual
+  non-empty source fields, but that loss report is not part of the saved identity file.
+- **Bend notice.** Python `importer.py::bend_component` and Rust
+  `importer/assemble.rs::bend_component` restore `component:bend-1` from the sidecar's
+  `element_map[pipe:BEND].bend.component`, then assign its `.node` to the near tangent `node:T1` (MBF `20A`).
+  The warning at `bend 20` concerns the original `components[id=component:bend-1].node` reference, not a
+  missing component or node id. `read_bend` in both writers admits either endpoint of `pipe:BEND`, including
+  `node:T2` (`20B`), while `MbfSiResult.sidecar` / `WriterResult::sidecar_checked` retain only the bend's
+  component id. The source endpoint choice is not retained in the render record either. `from`, `to` and
+  `reversed` describe pipe orientation, not the component's node choice. The near/far variants therefore
+  cannot be distinguished from this exchange by that field. Import Design §11 explicitly selects near and
+  excludes far-node source models from canonical equality; the existing `writer-bent-l-reversed` exclusion
+  in `test_caepipe_mbf_round_trip.py` records it. The warning must not disappear just because the chosen
+  near-node fixture happens to match.
+- **Known losses versus unknown completeness.** A comparison of the committed source and bound-adopt reply
+  finds no missing original ids in the nine A-3 classes and finds `.node == node:T1` on both bend components.
+  Their labels/provenance and project state are not the original values; `project.id` changes intentionally
+  and is outside A-3. An arbitrary import has no original source model with which to make that comparison.
+  Missing labels are field information loss; the absent source endpoint choice is an unresolved reference;
+  neither proves a missing component id. In contrast, the summed-load branch names actual source
+  `load_map[<case>/<id>]` entries whose ids are replaced by one formed id. The legacy support branch names a
+  missing `.family` field while restoring the support id. All use the same diagnostic code today.
+- **Accounting.** `import_review.rs::identity_counts` derives class counts from the *result's* id map:
+  support entries expand their lists; a summed load is formed rather than restored; pressure regions count
+  map entries. Independently, `Header::push` sets `identity.unrecoverable` to the number of loss entries with
+  that diagnostic code. It is a notice count, not a distinct lost-id count: a sum of N original primitives
+  contributes N named-source notices plus one formed-group notice, while the generic and bend notices each
+  contribute one. The selected bound review reports 2; the declared unbound review reports 0 while forming
+  its ids. Review `completeness: complete` means the bounded review omitted no list entries, not that the
+  original model is completely represented. §4.3's older wording that the unrecoverable list is also computed
+  from the id map does not describe this implementation; §4.9.1 records its actual fields.
+- **Trust and designation.** Import Design §§14–15 and both implementations verify the selected MBF digest,
+  the sidecar self-digest where present, strict shape, map/file agreement and regeneration consistency. They
+  establish consistency with the imported model, not authorship or original-source completeness. A consistent
+  id edit, or removal of one of two entries contributing to a sum, cannot establish the original inventory.
+  No original model digest, original inventory or export loss report is retained in the identity file.
+  `source_label` labels the import; it is not designation of an original model. Material `origin` and the
+  per-material `material_provenance` declaration establish the permitted material source under §7.4 only.
+  They neither restore the bend reference nor certify identity completeness. Rebinding is explicit and
+  unconfirmed; the desktop offers neither rebinding nor a source-completeness declaration.
+
+**Recommendation for Agent 0 to scope:** retain both notices, the current counter and every fixture byte. A
+narrow truthful correction is explanatory wording, not suppression or reclassification to make C6-5 pass:
+
+- In §4.3, propose replacing “the unrecoverable list, all computed from the id map” with “class counts computed
+  from the id map; unrecoverable notices counted from the loss report, which includes missing fields and
+  general information-loss limitations and does not establish original-source completeness”. This is a
+  proposed correction to the implementation description, not a change to C6-5 or A-3.
+- The current dialog's identity section says “Identity file applied; each class lists restored and formed
+  ids.” or “Ids formed from node numbers.” Propose keeping that text and appending: “These counts describe
+  this import. They do not establish that every original source identity was preserved. The loss report also
+  includes fields and other information the file cannot recover.” This changes no native/report field,
+  model, mapping, source designation, permission or adoption rule. The existing counter is not displayed by
+  this dialog; renaming a displayed counter would not repair the actual surface.
+
+**Regression proposal before implementation:** use the unchanged bound and unbound replies in the App to
+check that matching restored counts, and zero unbound notices, still show that caveat and preserve all loss
+entries/adoption rules. For the source limitation, a focused Python/Rust parity case should compare two
+otherwise identical invented source models with the bend component at opposite endpoints: equal MBF and
+identity-file bytes, same restored component id, near-node import, the notice on both, and a mismatching
+original `.node` in the far-node case. The maintained summed-primitives case should continue naming every
+original lost load id and its formed group; the legacy missing-family case should continue naming its
+field. These regressions protect meaning rather than asserting a green C6-5. Execution awaits the authorized
+route and scope; none was run for this diagnosis.
+
+Deleting/reclassifying notices or changing the counter could clarify a future report taxonomy, but would
+require coordinated Python/Rust/report-consumer and generated-fixture changes and would still leave original
+completeness unestablished. It is not the recommended next repair. Recovering the original bend reference
+requires additional source input or a separately designed carrier for that reference. Establishing original
+identity completeness requires a comparison with the exact designated pre-export source (as the bounded
+test can do), or a separately designed source-bound inventory with explicit coverage/omissions; hashes and
+material declarations alone cannot supply it. Neither new capability is authorized by this diagnosis, and
+neither is inferred from nine matching result inventories. C6-5 and the actual App witness remain open.
 
 ## 6. Slices
 
