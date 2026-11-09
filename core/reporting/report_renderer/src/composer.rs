@@ -589,7 +589,7 @@ fn select(
             // the first such row in source order on a tie. Groups in order of
             // first appearance.
             let mut groups: Vec<((&str, &str, &str), &BoundRow<'_>)> = Vec::new();
-            let mut positions = BTreeMap::new();
+            let mut positions: BTreeMap<(&str, &str, &str), usize> = BTreeMap::new();
             for row in selected {
                 let key = (row.case_ref, row.label, row.display_unit);
                 if let Some(&position) = positions.get(&key) {

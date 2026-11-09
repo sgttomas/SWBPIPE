@@ -1518,12 +1518,22 @@ mod direct_native {
         let (code, message) = save_code(&live, save_args(&variant, &w, &w.model, Some(&w.result), Some(&w.intake)));
         assert_eq!(code, SOURCE_NOT_DELIVERED, "{message}");
         assert!(message.contains("/request/source_results/0"), "{message}");
-        // The substitute's row differs from the genuine row by a relative 1e-6, so at
-        // the report's six significant digits (§3.7) both display the same rows; the
-        // render refuses it by the rows' full-precision checksums (Codex review
-        // round 1 of #1655), not by the displayed rows.
-        assert_eq!(variant["report"]["result_rows"], genuine["report"]["result_rows"], "the displayed rows coincide");
+        // Display rounding still collides, while the nine-field contract now binds
+        // canonical value_text and refuses the coherent substitute earlier.
+        let (changed_rows, genuine_rows) = (variant["report"]["result_rows"].as_array().unwrap(), genuine["report"]["result_rows"].as_array().unwrap());
+        assert_ne!(changed_rows, genuine_rows, "the complete bound rows differ");
+        assert_eq!(changed_rows.len(), genuine_rows.len());
+        for (changed, original) in changed_rows.iter().zip(genuine_rows) {
+            for key in ["row_id", "label", "case_ref", "quantity_display", "source_ref"] {
+                assert_eq!(changed[key], original[key], "the display projection still coincides: {key}");
+            }
+        }
         let manifest = canonical_json(&w.manifest);
+        let refused = refusal_text(production_render_on(&live, &render_args(&variant["report"], Some(&w.result), Some(&w.intake), Some(&manifest))));
+        assert_eq!(refused, format!("{SECTIONS_MISMATCH}: result_rows"));
+        // Keep genuine complete rows to isolate the independent checksum binding
+        // tested in Codex review round 1 of #1655. Forged references still refuse.
+        variant["report"]["result_rows"] = genuine["report"]["result_rows"].clone();
         let refused = refusal_text(production_render_on(&live, &render_args(&variant["report"], Some(&w.result), Some(&w.intake), Some(&manifest))));
         assert_eq!(refused, format!("{SECTIONS_MISMATCH}: result_export_refs"));
         // The same variant with the genuine received-result checksum as well (Codex's
