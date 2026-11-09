@@ -358,11 +358,13 @@ fn the_readers_semantic_table_is_the_committed_table() {
 }
 
 /// Every committed fixture, with its request: closure and binding pass, no
-/// relation fails, a solved document's units pass and it is consistent only
-/// up to the stated scope (the subject census), never fully validated; a
-/// refused one is refusal-consistent.
+/// relation fails and a solved document's units pass. A linear one is then
+/// consistent and fully validated, its subject census re-derived from the
+/// bound request; a linearized state case stays consistent only up to the
+/// qualification of its reported support states; a refused one is
+/// refusal-consistent.
 #[test]
-fn every_committed_fixture_reads_consistent_up_to_its_scope() {
+fn every_committed_fixture_reads_validated_up_to_its_scope() {
     let names = ["ex_n05", "arc", "component_body", "state_one_way_pressed", "state_friction_sliding", "cantilever_whole_spectrum",
         "cantilever_cluster_extension", "cantilever_below_cutoff", "cantilever_subnormal_cutoff", "cantilever_sensitive", "refused_unseparated", "refused_no_bound"];
     for name in names {
@@ -376,17 +378,22 @@ fn every_committed_fixture_reads_consistent_up_to_its_scope() {
             assert_eq!(verdict.decision, "refusal_consistent", "{name}");
             assert!(!verdict.refusal_codes.is_empty());
         } else {
-            assert!(["consistent_with_scoped_unsupported", "consistent_with_unresolved"].contains(&verdict.decision), "{name}: {json:#}");
-            assert_eq!(verdict.modal_validation(), "not_fully_validated", "{name}");
-            // Every value has its catalog unit (Design §5.3.5); units passing closes no other
-            // mandatory relation, so the census (evidence) still leaves validation unmet.
+            // Every value has its catalog unit (Design §5.3.5).
             assert_eq!(verdict.relations[8].status, ModalReadStatus::Passed, "{name}: {json:#}");
             assert!(verdict.relations[8].scope.is_empty(), "{name}");
-            // A linearized state case's partition comes from the reported support states, whose
-            // qualification no payload establishes: the model-derived mass and participation stay
-            // scoped (Design, selected mass assurance).
-            let unmet = if name.starts_with("state_") { json!(["mass", "participation", "evidence"]) } else { json!(["evidence"]) };
-            assert_eq!(json["validation"]["unmet"], unmet, "{name}: {json:#}");
+            if name.starts_with("state_") {
+                // A linearized state case's partition comes from the reported support states, whose
+                // qualification no payload establishes: the model-derived mass, participation and the
+                // evidence formed on that partition stay scoped (Design, selected mass assurance).
+                assert_eq!(verdict.decision, "consistent_with_scoped_unsupported", "{name}: {json:#}");
+                assert_eq!(json["validation"]["unmet"], json!(["mass", "participation", "evidence"]), "{name}: {json:#}");
+                assert_eq!(verdict.modal_validation(), "not_fully_validated", "{name}");
+            } else {
+                // The subject census re-derived from the bound request closes the last scope.
+                assert_eq!(verdict.decision, "consistent", "{name}: {json:#}");
+                assert_eq!(json["validation"]["unmet"], json!([]), "{name}: {json:#}");
+                assert_eq!(verdict.modal_validation(), "fully_validated", "{name}");
+            }
             let expected = if name == "cantilever_sensitive" { "sensitive" } else { "checks_passed" };
             assert_eq!(verdict.health, expected, "{name}");
         }

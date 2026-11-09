@@ -21,7 +21,9 @@
 //!   the cluster error estimates;
 //! - `sturm`: the count against the reported set, the placement in its gap,
 //!   each candidate's decision against its premises and the parameters;
-//! - `evidence`: e_λ = η·κ_λ, the census and the identity discrepancies;
+//! - `evidence`: e_λ = η·κ_λ, the census, the identity discrepancies and
+//!   the subject census (`census`) against the identity, discretization and
+//!   supports tables;
 //! - `standing`: the Sensitive standing re-derived from η, τ_r and τ_o;
 //! - `units`: every value's unit against modal-1, and every
 //!   `equilibrated_basis` value's kind against modal-1's closed list.
@@ -30,7 +32,10 @@
 //! to the mass the request's model implies (`model_mass`): the full global M
 //! entry by entry, T_k, the free-DOF mass, the mass centre, m_i, Γ, m_eff and
 //! the fractions from the published shapes. Without it, or beyond that
-//! derivation's basis, both standings are scoped unsupported by name.
+//! derivation's basis, both standings are scoped unsupported by name. With
+//! it, `evidence` also re-derives the subject list from the model and holds
+//! the census's counts, its digest and every table's subjects to it; without
+//! it, the identities are not re-derived and `evidence` stays scoped.
 //!
 //! Each standing is passed, failed (with the first difference), scoped
 //! unsupported (with its scope) or not checked. A withheld authoritative
@@ -60,6 +65,7 @@ use serde_json::{json, Map, Value};
 use sha2::{Digest, Sha256};
 use std::collections::{HashMap, HashSet};
 
+mod census;
 mod model_mass;
 
 pub const MODAL_RESULT_FAMILY: &str = "openpipestress.modal_result";
@@ -76,7 +82,7 @@ pub const MODAL_RESULT_LIMITATIONS: [&str; 2] = [
 /// Why public engineering-result admission stays disabled (Design §5.3).
 pub const MODAL_RESULT_ADMISSION_CONDITIONS: [&str; 6] = [
     "production integrity parameters are not pinned (O-6, D-TOL): every document is formed with a labelled test-local set",
-    "a document is fully validated only when every mandatory relation passes: an unresolved Bessel relation (interim contract) and the missing subject census leave it unmet, whatever the units",
+    "a document is fully validated only when every mandatory relation passes: an unresolved Bessel relation (interim contract), a subject census not re-derived from the bound request, or a partition from reported nonlinear support states leaves it unmet, whatever the units",
     "the dense work budget is unmeasured and no work guard is applied (O-4)",
     "no native, worker or custody path forms, stores or transports the document",
     "no published piping benchmark is compared (FR-SOL-016 partial; O-3 held)",
@@ -576,7 +582,8 @@ pub fn read_modal_result(doc: &Value, supplied: ModalSupplied<'_>) -> ModalReadV
     let (binding, not_checked) = mr_binding(doc, supplied);
     // The model-derived mass (module docs), from the supplied request only
     // when it is the bound one.
-    let model = model_mass::mm_derive(&parsed, supplied.request, binding.status != ModalReadStatus::Failed);
+    let bound = binding.status != ModalReadStatus::Failed;
+    let model = model_mass::mm_derive(&parsed, supplied.request, bound);
     let relations = vec![
         ModalReadStanding::mr_of(mr_mass(&parsed).and_then(|items| model_mass::mm_mass_relation(&parsed, &model, items))),
         ModalReadStanding::mr_of(mr_normalization(&parsed)),
@@ -584,7 +591,7 @@ pub fn read_modal_result(doc: &Value, supplied: ModalSupplied<'_>) -> ModalReadV
         ModalReadStanding::mr_of(mr_counts(&parsed)),
         ModalReadStanding::mr_of(mr_clusters(&parsed)),
         ModalReadStanding::mr_of(mr_sturm(&parsed)),
-        ModalReadStanding::mr_of(mr_evidence(&parsed)),
+        ModalReadStanding::mr_of(mr_evidence(&parsed).and_then(|items| census::cs_relation(&parsed, supplied.request, bound, &model, items))),
         ModalReadStanding::mr_of(mr_standing(&parsed)),
         ModalReadStanding::mr_of(mr_units(&parsed)),
     ];
@@ -639,14 +646,17 @@ fn mr_identity(doc: &Value) -> R<()> {
     mr_text(&run["run_id"], "/run/run_id")?;
     mr_const(&run["mode_id_scope"], "/run/mode_id_scope", "run_local")?;
     mr_const(&run["solver_path"], "/run/solver_path", "dense_scrutiny")?;
-    mr_binding_closure(&doc["binding"])
+    mr_binding_closure(&doc["binding"], doc["status"] != "refused")
 }
 
-fn mr_binding_closure(binding: &Value) -> R<()> {
+/// The binding's shape; `solved` is whether the document is read as solved
+/// (its subject census is then an object, else null).
+fn mr_binding_closure(binding: &Value, solved: bool) -> R<()> {
     let b = mr_object(binding, "/binding", &[
         "request_sha256", "model_sha256", "materials_sha256", "materials_member", "options", "undeclared_members", "state_case",
-        "integrity_parameters_sha256", "integrity_parameters",
+        "integrity_parameters_sha256", "integrity_parameters", "subject_census",
     ])?;
+    census::cs_shape(&b["subject_census"], solved)?;
     mr_hex(&b["request_sha256"], "/binding/request_sha256")?;
     if !b["model_sha256"].is_null() {
         mr_hex(&b["model_sha256"], "/binding/model_sha256")?;
@@ -1234,6 +1244,8 @@ struct Parsed {
     identity: Vec<IdentityRow>,
     /// The straight members of the discretization table, in row order.
     members: Vec<String>,
+    /// The binding's subject census.
+    census: census::Census,
     /// The state case's linearization: `None` without a state case.
     linearized: Option<bool>,
     restrained_refs: Vec<usize>,
@@ -1291,6 +1303,7 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
     mr_const(&doc["status"], "/status", "solved")?;
     let mut unitized = Vec::new();
     let params = doc["binding"]["integrity_parameters"].as_object().cloned().unwrap_or_default();
+    let census = census::cs_shape(&doc["binding"]["subject_census"], true)?.ok_or("/binding/subject_census: not an object")?;
 
     // Tables first: the headers refer into them.
     let tables = mr_object(&doc["tables"], "/tables", &TABLES)?;
@@ -1815,6 +1828,7 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
         candidates,
         identity,
         members,
+        census,
         linearized: linearized_state,
         restrained_refs,
         supports,
@@ -2867,8 +2881,14 @@ fn mr_evidence(p: &Parsed) -> R<Vec<String>> {
             return Err(format!("computed mode {}: e_λ = {e:e} is not η·κ_λ = {product:e}", i + 1));
         }
     }
-    scope.extend(mr_identity_coverage(p)?);
+    mr_identity_coverage(p)?;
     mr_state_coverage(p)?;
+    if p.linearized == Some(true) {
+        // The supports table's states, and the partition the identity rows are
+        // formed on, are reported: no payload qualifies them (as for the
+        // model-derived mass and participation).
+        scope.push("supports: the reported nonlinear support states are conditional on their qualification as the static solve's converged, confirmed states, which no payload establishes".to_string());
+    }
     if !p.disclosures.iter().any(|(text, source)| source == "modal" && text.starts_with("numerical integrity does not establish physical correctness")) {
         return Err("disclosures: the fixed numerical-integrity disclosure is missing".into());
     }
@@ -2926,10 +2946,9 @@ fn mr_evidence(p: &Parsed) -> R<Vec<String>> {
 /// straight member of the discretization table (and no other nodal row),
 /// `resultant` rows for other subjects (arcs, bodies) and the aggregate (kind
 /// `model`) last and once; the same (kind, subject) list along every axis. The
-/// kind keeps a member named `model` apart from the aggregate. The document
-/// carries no census of mass-bearing subjects, so coverage holds for what is
-/// listed only: that limit is scoped.
-fn mr_identity_coverage(p: &Parsed) -> R<Vec<String>> {
+/// kind keeps a member named `model` apart from the aggregate. Whether the
+/// listed subjects are the model's is the subject census's (`census`).
+fn mr_identity_coverage(p: &Parsed) -> R<()> {
     let mut per_axis: [Vec<(&str, &str, &str)>; 3] = Default::default();
     let mut last_axis = 0;
     for (i, row) in p.identity.iter().enumerate() {
@@ -2972,7 +2991,7 @@ fn mr_identity_coverage(p: &Parsed) -> R<Vec<String>> {
             return Err(format!("identity: the subjects along {axis} are not those along x"));
         }
     }
-    Ok(vec!["identity: coverage is established for the listed straight members and the aggregate only; the document carries no census of mass-bearing members, arcs or component bodies, so a subject absent from every axis (and, for a straight member, from the discretization table too) is not detectable".to_string()])
+    Ok(())
 }
 
 /// The nonlinear states against the partition: a linearized state case lists

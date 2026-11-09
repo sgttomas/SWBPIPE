@@ -403,6 +403,28 @@ fn modal_doc_binding(request: &Value, params: &ModalIntegrityParameters, state_c
         "state_case": state,
         "integrity_parameters_sha256": modal_doc_sha256(&parameters),
         "integrity_parameters": parameters,
+        // Formed only by a solved run (`modal_doc_subject_census`).
+        "subject_census": null,
+    })
+}
+
+/// The subject census (Design §5.3.2): the counts of the subjects the run read
+/// from the model and the SHA-256 of their canonical list, `[{kind, id}]`
+/// sorted by kind then id. `nonlinear_supports` counts the supports table's
+/// rows (the linearized state case's nonlinear supports). Formed by the solved
+/// branch of `modal_result_document` into the binding it projects with.
+pub(super) fn modal_doc_subject_census(outcome: &ModalOutcome) -> Value {
+    let count = |kind: &str| outcome.subjects.iter().filter(|(k, _)| *k == kind).count();
+    let mut subjects: Vec<(&str, &str)> = outcome.subjects.iter().map(|(k, id)| (*k, id.as_str())).collect();
+    subjects.sort_unstable();
+    let list: Vec<Value> = subjects.iter().map(|(kind, id)| json!({"kind": kind, "id": id})).collect();
+    json!({
+        "straight_members": count("straight_member"),
+        "arcs": count("arc"),
+        "component_bodies": count("component_body"),
+        "supports": count("support"),
+        "nonlinear_supports": outcome.nonlinear_state.as_ref().map_or(0, |s| s.supports.len()),
+        "subjects_sha256": modal_doc_sha256(&Value::Array(list)),
     })
 }
 
@@ -458,7 +480,7 @@ pub(crate) fn modal_result_document(request: &Value, params: &ModalIntegrityPara
         }
         Ok(outcome) => {
             let state = outcome.state_case.as_ref().map(|case| (case.case_index, case.case_id.as_str()));
-            let binding = modal_doc_binding(request, params, state);
+            let mut binding = modal_doc_binding(request, params, state);
             // R-6/R-7 S-K1 (§11.3 C8): a model with a restraint basis has a reduced pencil;
             // modal-1 0.1.0 cannot state it, so it is refused by name before the solved
             // projection (whose text is unchanged).
@@ -472,6 +494,7 @@ pub(crate) fn modal_result_document(request: &Value, params: &ModalIntegrityPara
                 );
                 return modal_doc_refused(&binding, label, &[diagnostic]);
             }
+            binding["subject_census"] = modal_doc_subject_census(&outcome);
             modal_doc_solved(&outcome, &binding, label)
         }
     }

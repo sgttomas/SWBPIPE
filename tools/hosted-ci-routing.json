@@ -2800,6 +2800,7 @@
               "core/product_physics/src/w1_successor_census_tests.rs",
               "core/product_physics/src/w1e_census_tests.rs",
               "core/reporting/audit_manifest/src/lib.rs",
+              "core/reporting/modal_result/src/census.rs",
               "core/reporting/modal_result/src/lib.rs",
               "core/reporting/modal_result/src/model_mass.rs",
               "core/reporting/pdf_emitter/src/lib.rs",
