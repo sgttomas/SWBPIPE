@@ -22,7 +22,8 @@
 // (RFC 8785 JCS SHA-256 of the saved model documents), and the review's identity rows. It writes `summary.json`
 // with the app's identity, engine stamps, source revision and every file digest, and keeps that evidence unless
 // `--discard` is given and every check passed. `--judge` re-judges a kept evidence directory with no build or launch
-// (its `summary.json` keeps the run's app identity, engine stamps and revision; the result is `summary-judged.json`). This witnesses the supported subset only: no reference-system,
+// (its `summary.json` keeps the run's app identity, engine stamps and revision; the result is `summary-judged.json`); it
+// refuses unless today's source and replies fixtures hash as the run recorded them. This witnesses the supported subset only: no reference-system,
 // criterion-6 or C6-5 claim follows from it, and the OS chooser presentation itself is substituted.
 //
 // Run it under a host slot (`t3_slot.sh`); it takes the worktree build lock itself, like `run.mjs`.
@@ -173,6 +174,16 @@ console.log(`mbf journey: launching ${binary}, a private copy of ${app.binary} (
 
 // ---------------------------------------------------------------- inputs and launches
 
+// A re-judge interprets the kept evidence only against the exact inputs the run recorded.
+const recorded = judgeDir ? JSON.parse(readFileSync(path.join(path.resolve(judgeDir), "summary.json"), "utf8")) : null;
+if (recorded) {
+  const now = { [SOURCE_FIXTURE]: fileSha(path.join(project, SOURCE_FIXTURE)), [REPLIES_FIXTURE]: fileSha(path.join(project, REPLIES_FIXTURE)) };
+  const differs = Object.keys(now).filter((name) => recorded.inputs?.[name] !== now[name]);
+  if (differs.length > 0) {
+    console.error(`mbf journey: not judged: ${differs.join(", ")} differ from the inputs the run recorded (${JSON.stringify(recorded.inputs)}); check out the run's revision ${recorded.source_revision} to re-judge it`);
+    process.exit(2);
+  }
+}
 const replies = JSON.parse(readFileSync(path.join(project, REPLIES_FIXTURE), "utf8"));
 const reply = (name) => JSON.parse(replies.replies[name]);
 const sourceBytes = readFileSync(path.join(project, SOURCE_FIXTURE));
@@ -289,7 +300,6 @@ try {
   dirty = execFileSync("git", ["-C", project, "status", "--porcelain"], { encoding: "utf8" }).trim().split("\n").filter(Boolean);
 } catch { /* recorded as unknown */ }
 const failed = checks.filter((item) => !item.ok);
-const recorded = judgeDir ? JSON.parse(readFileSync(path.join(root, "summary.json"), "utf8")) : null;
 writeFileSync(path.join(root, judgeDir ? "summary-judged.json" : "summary.json"), JSON.stringify({
   witness: "supported-subset MBF round trip in the launched native-smoke app; chooser presentation substituted",
   source_revision: recorded ? recorded.source_revision : revision,
