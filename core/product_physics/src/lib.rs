@@ -20855,6 +20855,12 @@ mod tests {
             vec!["UY".to_string(), "invalid".repeat(256)],
         ];
         for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+            U4A_FORCE_BINARY64.with(|flag| flag.set(true));
+            let baseline = run_linear_static_preview_with_mode(
+                cantilever_constant_effort_request(&[], false, Some(-350.0)), mode,
+            );
+            U4A_FORCE_BINARY64.with(|flag| flag.set(false));
+            assert_eq!(baseline.status.mechanics, "MECHANICS_SOLVED", "{mode:?}");
             for restraints in &shapes {
                 let mut request = cantilever_constant_effort_request(&[], true, Some(-350.0));
                 request.model.supports[1].restraints = restraints.clone();
@@ -20862,11 +20868,35 @@ mod tests {
                 let result = run_linear_static_preview_with_mode(request, mode);
                 U4A_FORCE_BINARY64.with(|flag| flag.set(false));
                 assert_eq!(result.status.mechanics, "MECHANICS_SOLVED", "{mode:?}");
-                assert!(result.diagnostics.iter().any(|d| d.code == "SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED"));
+                let warnings: Vec<_> = result.diagnostics.iter()
+                    .filter(|d| d.code == "SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED").collect();
+                assert_eq!(warnings.len(), 1, "{mode:?} {restraints:?}");
+                assert_eq!(warnings[0].severity, "warning");
                 assert!(!result.results.iter().any(|r| r.kind == "constant_effort_support_applied_load"));
-                let rows: Vec<_> = result.results.iter().filter(|r| r.entity_ref == "support:CE-110" && r.kind == "support_reaction_component_v2").collect();
-                assert_eq!(rows.len(), 6, "{mode:?}");
-                assert!(rows.iter().all(|r| r.value.to_bits() == 0.0_f64.to_bits()), "{mode:?}");
+                // PF rendering withholds every non-consuming CE shape, including
+                // empty restraints; it does not publish six invented zero actions.
+                assert!(!result.results.iter().any(|r| r.entity_ref == "support:CE-110"
+                    && (r.kind.starts_with("support_reaction_") || r.kind == "reaction_resultant")));
+                let evidence = result.contract_evidence.as_ref().unwrap();
+                let cases = evidence["preview_cases"].as_array().unwrap();
+                assert_eq!(cases.len(), 1);
+                let attribution = &cases[0]["support_attribution"];
+                assert_eq!(attribution["withheld"], serde_json::json!([
+                    {"support_id": "support:CE-110", "reason": "CONSTANT_EFFORT_NOT_CONSUMED"}
+                ]));
+                assert!(!attribution["attributed_support_ids"].as_array().unwrap()
+                    .iter().any(|id| id == "support:CE-110"));
+                assert!(result.diagnostics.iter().any(|d| d.code == "CONSTANT_EFFORT_NOT_CONSUMED"
+                    && d.affected_refs == vec!["support:CE-110".to_string()]));
+                assert!(result.results.iter().any(|r| r.entity_ref == "support:CE-110"
+                    && r.kind == "constant_effort_user_input_review"));
+                // No load or restraint entered the solve: compare every remaining
+                // row, including the anchor actions, units, frame and other metadata.
+                let mechanics = |envelope: &MechanicsEnvelope| envelope.results.iter()
+                    .filter(|r| r.entity_ref != "support:CE-110")
+                    .map(|r| (r.id.clone(), serde_json::to_value(r).unwrap()))
+                    .collect::<BTreeMap<_, _>>();
+                assert_eq!(mechanics(&result), mechanics(&baseline), "{mode:?} {restraints:?}");
             }
         }
     }
