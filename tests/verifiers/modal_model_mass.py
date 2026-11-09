@@ -58,8 +58,14 @@ condition contents on the state case, gap supports, mapping
 conflicts and the like) make a solved document a contradiction (`RefusedDomain`).
 A basis this reader does not cover (`Uncovered`) is scoped unsupported by name. This
 verifies the entered model mass only: not omitted real-world masses, discretization
-(R3), K, the eigenpairs, the state qualification, the subject census, Bessel or the
-recording and resource conditions.
+(R3), K, the eigenpairs, the state qualification, Bessel or the recording and
+resource conditions.
+
+**The subject census** (Design §5.3.2, `census`) is a separate structural pass over the
+same model: which members, arcs, component bodies and supports the run reads, by the
+subject rule stated there. It reads no numerical enclosure, so an unresolved or
+out-of-model mass quantity never drops a subject; a mass refusal stays the mass
+relation's failure and never changes the list.
 
 **Resources.** The work is linear in the model's members and in the document's mass
 entries, and proportional to modes × entries for participation; every list it walks
@@ -592,6 +598,9 @@ class ModelMass:
         self.entries: dict[tuple[int, int], list] = {}
         self.categories = {"metal": ZERO, "contents": ZERO, "insulation": ZERO, "component_bodies": ZERO}
         self.bodies: list[str] = []
+        # The component id of each body, by the member it replaces (for the subject
+        # census's self-check only; no arithmetic reads it).
+        self.body_components: dict[str, str] = {}
         self.arcs: list[str] = []
         self.straights: list[str] = []
         self.fallbacks: list[str] = []
@@ -925,6 +934,7 @@ def _component_bodies(model, components, pipes, selected, curved, replaced, requ
         if node not in node_index:
             raise RefusedDomain(f"component {component['id']} names no node")
         bodies[pipe_ref] = (node_index[node], weight, cog)
+        out.body_components[pipe_ref] = component["id"]
     return bodies
 
 
@@ -1139,6 +1149,162 @@ def _state(request, model, index, out):
         raise RefusedDomain(f"state case `{case_id}` uses condition contents (LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED); "
                             "they are refused, never replaced by section contents")
     out.state_case = case_id
+
+
+# --- the subject census (Design §5.3.2) ---------------------------------------------------------
+
+class Census:
+    """The subjects a bound request's model gives a run, each list in model order: the
+    straight members and arcs by pipe id, the component bodies by component id, every
+    support record by id, and the nonlinear supports (those the supports table lists)."""
+
+    def __init__(self):
+        self.straights: list[str] = []
+        self.arcs: list[str] = []
+        self.bodies: list[str] = []
+        self.supports: list[str] = []
+        self.nonlinear: list[str] = []
+
+    def subjects(self) -> list[dict]:
+        """The census list: `{kind, id}` sorted by (kind, id) in code-point order."""
+        pairs = ([("straight_member", i) for i in self.straights] + [("arc", i) for i in self.arcs]
+                 + [("component_body", i) for i in self.bodies] + [("support", i) for i in self.supports])
+        return [{"kind": kind, "id": subject} for kind, subject in sorted(pairs)]
+
+
+def _cog_entered(component) -> bool:
+    """An entered centre of gravity: a finite length vector. One whose nonzero component
+    normalizes to zero is entered (its range refusal is the mass relation's)."""
+    try:
+        return _cog(component, f"component {component['id']}") is not None
+    except RefusedDomain:
+        return True
+
+
+def census(request: Any) -> Census:
+    """The subject rule of Design §5.3.2, from the bound request's model alone and from
+    its structure only (no quantity is enclosed, so no subject is ever dropped because
+    a mass value is unresolved or outside the rounding model):
+
+    1. the members are the `pipe_segments` (ids unique) less the spans the exact
+       contract's objective connectors replace;
+    2. a member whose distributed mass a rigid-family body replaces (self-weight's
+       eligibility: the mapping, `mechanics_geometry_only`, the node at an end of the
+       span, a finite positive weight and an entered centre of gravity) is the
+       `component_body` of that component id, and is not listed as a member;
+    3. any other member is an `arc` when a curved-bend component realizes it, else a
+       `straight_member`;
+    4. every `model.supports` record is a `support`; those with a present, non-null
+       `nonlinear` member are the nonlinear supports.
+
+    Raises `RefusedDomain` or `Uncovered` for a structure it cannot decide."""
+    request = _obj(request, "request")
+    model = _obj(request.get("model"), "request/model")
+    out = Census()
+    if model.get("schema_version") != MODEL_VERSION:
+        raise RefusedDomain(f"model schema_version: only {MODEL_VERSION} is read")
+    exact_route = "pressure_contract" in model
+    if exact_route:
+        contract = _obj(model["pressure_contract"], "pressure_contract")
+        if contract.get("version") != "3.0.0" or contract.get("mode") != "exact_pressure_v3":
+            raise RefusedDomain("pressure_contract: only 3.0.0 exact_pressure_v3 is admitted")
+    pipes: dict[str, dict] = {}
+    for i, pipe in enumerate(_list(model.get("pipe_segments"), "pipe_segments")):
+        pipe = _obj(pipe, f"pipe_segments/{i}")
+        pipe_id = _text(pipe.get("id"), f"pipe_segments/{i}/id")
+        if pipe_id in pipes:
+            raise RefusedDomain(f"pipe `{pipe_id}` is duplicated")
+        pipes[pipe_id] = pipe
+    components = _list(model.get("components", []), "components")
+    seen = set()
+    for i, component in enumerate(components):
+        component = _obj(component, f"components/{i}")
+        component_id = _text(component.get("id"), f"components/{i}/id")
+        if component_id in seen:
+            raise RefusedDomain(f"component `{component_id}` is duplicated")
+        seen.add(component_id)
+
+    # 1. The exact contract's replaced spans are no members.
+    replaced: set[str] = set()
+    if exact_route:
+        for component in components:
+            if component.get("kind") != "expansion_joint" or component.get("objective_connector") is None:
+                continue
+            connector = _obj(component["objective_connector"], f"component {component['id']} objective_connector")
+            topology = connector.get("topology")
+            span = topology.get("span_ref") if isinstance(topology, dict) else None
+            if not isinstance(span, str) or span not in pipes:
+                raise RefusedDomain(f"objective connector {component['id']}: replaces_span names no pipe of the model")
+            if span in replaced:
+                raise RefusedDomain(f"objective connector {component['id']}: pipe {span} is already replaced")
+            replaced.add(span)
+    members = [pipe_id for pipe_id in pipes if pipe_id not in replaced]
+
+    # 3. The realized arcs.
+    curved: set[str] = set()
+    for component in components:
+        if component.get("kind") not in BEND_KINDS or _consumption(component, GEOMETRY_ONLY) != CURVED_BEND:
+            continue
+        geometry = component.get("geometry")
+        pipe_ref = _nonblank(geometry.get("bend_pipe_ref")) if isinstance(geometry, dict) else None
+        if pipe_ref is None:
+            raise RefusedDomain(f"bend {component['id']}: the curved-bend macro-element needs geometry.bend_pipe_ref")
+        if pipe_ref in curved:
+            raise Uncovered(f"pipe {pipe_ref} is named by two curved-bend components")
+        if pipe_ref in replaced:
+            raise RefusedDomain(f"pipe {pipe_ref} is a realized curved span and a connector's replaced span")
+        curved.add(pipe_ref)
+
+    # 2. The component bodies, by self-weight's eligibility.
+    rigid = [c for c in components if c.get("kind") in RIGID_FAMILY]
+    mapped: dict[str, list[str]] = {}
+    for component in rigid:
+        geometry = component.get("geometry")
+        pipe_ref = _nonblank(geometry.get("rigid_pipe_ref")) if isinstance(geometry, dict) else None
+        if pipe_ref is None or pipe_ref not in pipes:
+            continue
+        mapped.setdefault(pipe_ref, []).append(component["id"])
+        if pipe_ref in curved or pipe_ref in replaced:
+            raise RefusedDomain(f"component {component['id']} maps {pipe_ref}, a realized curved or replaced span (mapping conflict)")
+    for member, ids in mapped.items():
+        if len(ids) > 1:
+            raise RefusedDomain(f"member {member} is mapped by more than one rigid-family component ({', '.join(ids)})")
+    body_of: dict[str, str] = {}
+    for component in rigid:
+        pipe_ref = _nonblank(component["geometry"].get("rigid_pipe_ref")) if isinstance(component.get("geometry"), dict) else None
+        if pipe_ref is None or pipe_ref not in pipes or pipe_ref in replaced:
+            continue
+        pipe = pipes[pipe_ref]
+        node = component.get("node")
+        if (_consumption(component) == GEOMETRY_ONLY and node in (pipe.get("from"), pipe.get("to"))
+                and _weight(component) is not None and _cog_entered(component)):
+            body_of[pipe_ref] = component["id"]
+    for pipe_id in members:
+        if pipe_id in body_of:
+            out.bodies.append(body_of[pipe_id])
+        elif pipe_id in curved:
+            out.arcs.append(pipe_id)
+        else:
+            out.straights.append(pipe_id)
+
+    # 4. Every support record; the nonlinear ones are the supports table's.
+    for i, support in enumerate(_list(model.get("supports"), "supports")):
+        support = _obj(support, f"supports/{i}")
+        support_id = _text(support.get("id"), f"supports/{i}/id")
+        out.supports.append(support_id)
+        if support.get("nonlinear") is not None:
+            out.nonlinear.append(support_id)
+    return out
+
+
+def census_self_check(model: ModelMass, subjects: Census) -> None:
+    """The mass pass's formed members and bodies against the census pass's (a reader
+    self-check: a disagreement is this reader's defect, never a document verdict)."""
+    formed = (sorted(model.straights), sorted(model.arcs), sorted(model.body_components[p] for p in model.bodies))
+    listed = (sorted(subjects.straights), sorted(subjects.arcs), sorted(subjects.bodies))
+    for kind, a, b in zip(("straight members", "arcs", "component bodies"), formed, listed):
+        if a != b:
+            raise ReaderSelfCheck(f"the mass pass formed {kind} {a}, the subject census lists {b}")
 
 
 # --- comparison --------------------------------------------------------------------------------
