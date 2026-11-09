@@ -79,8 +79,9 @@ fn class_counts(value: &Value) -> Vec<(String, i64, i64, i64)> {
 
 // Facts are independent of listed-entry truncation and never establish source completeness.
 fn assert_recovery(review: &Value, ids: i64, fields: i64) {
-    assert_eq!(mbf::value::small_int(review.get_or_null("format")), Some(2));
+    assert_eq!(mbf::value::small_int(review.get_or_null("format")), Some(3));
     let identity = review.get_or_null("identity");
+    assert!(identity.get("designation").is_some_and(Value::is_null), "no designation without Designate");
     assert_eq!(mbf::value::small_int(identity.get_or_null("unrecoverable")), Some(ids));
     assert_eq!(mbf::value::small_int(identity.get_or_null("unrecovered_fields")), Some(fields));
     assert_eq!(identity.get_or_null("source_completeness").as_str(), Some("not_established"));
@@ -162,7 +163,7 @@ fn the_fixed_leading_members_are_byte_exact() {
     let reviewed = review_of(&result, &text, Some(&sidecar), None, MBF_REVIEW_MAX_BYTES, true);
     let model_bytes = result.model_bytes().unwrap().unwrap();
     let prefix = format!(
-        "{{\"document_kind\":\"swbpipe.mbf_import_review\",\"format\":2,\"status\":\"imported\",\"adoptable\":true,\"model_sha256\":\"{}\",\"model_bytes\":{},",
+        "{{\"document_kind\":\"swbpipe.mbf_import_review\",\"format\":3,\"status\":\"imported\",\"adoptable\":true,\"model_sha256\":\"{}\",\"model_bytes\":{},",
         reviewed.model_sha.as_ref().unwrap(),
         model_bytes.len()
     );
@@ -173,7 +174,7 @@ fn the_fixed_leading_members_are_byte_exact() {
     assert_eq!(refused.status, "refused");
     let reviewed = review_of(&refused, &text, None, None, MBF_REVIEW_MAX_BYTES, true);
     assert!(reviewed.review.text.starts_with(
-        "{\"document_kind\":\"swbpipe.mbf_import_review\",\"format\":2,\"status\":\"refused\",\"adoptable\":false,\"model_sha256\":null,\"model_bytes\":0,"
+        "{\"document_kind\":\"swbpipe.mbf_import_review\",\"format\":3,\"status\":\"refused\",\"adoptable\":false,\"model_sha256\":null,\"model_bytes\":0,"
     ));
     assert_eq!(reviewed.review.summary.blocking_codes(), vec![NOT_ADOPTABLE]);
 }

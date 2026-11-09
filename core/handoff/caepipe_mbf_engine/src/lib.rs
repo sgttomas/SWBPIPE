@@ -29,6 +29,7 @@
 
 mod correctly_rounded;
 mod decimal90;
+mod designation;
 mod export_review;
 mod export_settings;
 mod identity_inventory;
@@ -53,8 +54,9 @@ pub use export_review::{
 pub use export_settings::{
     export_settings_from_json, ExportSettingsError, EXPORT_SETTINGS_INVALID, MAX_EXPORT_SETTINGS_JSON_BYTES, MAX_EXPORT_TITLE_BYTES,
 };
+pub use designation::{designation, evaluate_designated_source, ReviewDesignation, SourceEvaluation, DESIGNATION_REASONS};
 pub use import_review::{
-    import_review, ImportReview, ImportReviewSource, ImportReviewSummary, ReviewDocumentCheck, ReviewModel, ReviewedIdentityFile, ASSUMPTION_UNAVAILABLE,
+    import_review, import_review_designated, ImportReview, ImportReviewSource, ImportReviewSummary, ReviewDocumentCheck, ReviewModel, ReviewedIdentityFile, ASSUMPTION_UNAVAILABLE,
     IDENTITY_MAPS, IMPORT_REVIEW_DOCUMENT_KIND, IMPORT_REVIEW_FORMAT, IMPORT_REVIEW_TRUNCATED, MODEL_TOO_LARGE, NOT_ADOPTABLE,
 };
 pub use identity_inventory::{compare_inventories, identity_inventory, ClassInventory, IdentityInventory, InventoryComparison, INVENTORY_CLASSES};

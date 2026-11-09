@@ -22,6 +22,8 @@
     "replies": [
       "bound-open",
       "bound-adopt",
+      "bound-designate",
+      "bound-designated-adopt",
       "unbound-open",
       "unbound-declared",
       "unbound-adopt"
@@ -31,6 +33,7 @@
   "generation_and_binding": [
     "The source_model_file_sha256 identifies the entire maintained invented source file; export_settings_json is the exact project-authored export setting text used by both the fixture writer and native command flow.",
     "Sandbox::native_pair calls actual native export review/save task 3 and its file transaction. The capture generator reads the saved MBF and adjacent identity file, checks them byte for byte against the maintained invented writer pair and its export_digests.json degc-default bindings, then records both SHA-256 values.",
+    "For the bound Designate reply the designated model document is the maintained invented source file itself, written byte for byte (its digest is source_model_file_sha256); the designated Adopt reply adopts that designated review.",
     "Native import task 5 opens that actual saved pair for bound replies. The test deliberately removes only that identity file before the unbound replies; declaration_json records the exact serialized per-name project-invented declaration supplied to review and Adopt.",
     "Response callback strings are retained verbatim, without parsing and re-serializing them for storage. The native generator compares the complete maintained fixture byte for byte, and checks source, review and model bindings. The App test setup JSON-parses the response strings unchanged.",
     "File names and protocol constants are project-authored test parameters; hashes, units, identities, assumptions, diagnostics and imported records are derived by the identified native code from these covered invented inputs. No temporary host path is captured."

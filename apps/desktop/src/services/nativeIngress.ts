@@ -91,7 +91,9 @@ export const NATIVE_INGRESS_COMMANDS = [
   // retirement `cancel_mbf_import` is sent as JSON arguments instead).
   "open_mbf_import",
   "review_mbf_import",
-  "adopt_mbf_import"
+  "adopt_mbf_import",
+  // DEL-17-04 §5.4: Import MBF…'s Designate original source… (through `mbfImportCancel.ts`, as the other starts).
+  "designate_mbf_import_source"
 ] as const;
 export type NativeIngressCommand = (typeof NATIVE_INGRESS_COMMANDS)[number];
 

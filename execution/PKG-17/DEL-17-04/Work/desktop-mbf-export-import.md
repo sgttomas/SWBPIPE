@@ -1247,11 +1247,11 @@ One engine function, `import_review(result, source, declaration_sha256, document
 inside the worker. It lives in `core/handoff/caepipe_mbf_engine/src/import_review.rs`, beside `export_review.rs`, and
 uses the same mechanics as the export review (§3.9.5).
 
-- **Format.** ASCII JSON, `swbpipe.mbf_import_review`, format 2. The whole review is at most R = 1 MiB after escaping
+- **Format.** ASCII JSON, `swbpipe.mbf_import_review`, format 3 (format 2 with the designation members, §5.4). The whole review is at most R = 1 MiB after escaping
   (`MBF_REVIEW_MAX_BYTES`, reused, not raised). A string longer than the per-field bound (`REVIEW_FIELD_MAX_BYTES`,
   512 bytes) is carried as `{prefix, bytes, sha256}`, formed in place.
 - **Fixed leading members**, in this order and byte form, so the host can check them without parsing:
-  `{"document_kind":"swbpipe.mbf_import_review","format":2,"status":"<imported|refused>","adoptable":<true|false>,
+  `{"document_kind":"swbpipe.mbf_import_review","format":3,"status":"<imported|refused>","adoptable":<true|false>,
   "model_sha256":<"hex"|null>,"model_bytes":<n>,`.
 - **Status first.** The importer's status, `adoptable` and the blocking state are computed over the full result
   before any bound applies. Overflow never makes a refused import adoptable.
@@ -1270,11 +1270,13 @@ uses the same mechanics as the export review (§3.9.5).
   `unsupported`, `tbd`).
 - **Target options.** Their names, marked "Recorded, not applied" (REQ-015).
 - **Identity.** Per class of A-3's identity set: the restored count and the count formed from MBF names, computed
-  from the id map. In review format 2, `identity.unrecoverable` counts known original ids not preserved,
+  from the id map. Since review format 2, `identity.unrecoverable` counts known original ids not preserved,
   each once, from fixed-size producer facts. A formed merged group is not another lost original id.
   `identity.unrecovered_fields` separately counts reported unrecovered fields/reference choices, including
-  legacy direction loss. `identity.source_completeness` is `"not_established"` on every current route.
-  Neither zero nor matching class counts establishes original completeness, reference equality or C6-5.
+  legacy direction loss. `identity.source_completeness` is `"not_established"` unless the review states a designated
+  source whose every check passed (§5.4), when it is `"established_for_identity_set"`; `identity.designation` is null
+  except in a review Designate formed. Neither zero nor matching class counts establishes original completeness,
+  reference equality or C6-5.
   Every warning/loss entry remains (§5.3). An unbound import says "ids formed from node numbers". The implementation
   names the id-map members it reads and pins them in a test with one bound and one unbound fixture (§4.8.9).
 - **Units.** The file's unit mode and angle option, and the project units the document receives, as the import
@@ -1384,16 +1386,17 @@ Every refusal leaves the session unchanged. The dialog shows each code with a pr
 
 ### 4.7 Native commands
 
-Four commands are registered in `app_invoke_handler!`. None takes a path or file bytes.
+Five commands are registered in `app_invoke_handler!`. None takes a path or file bytes.
 
 | Command | Arguments | Reply |
 |---|---|---|
 | `open_mbf_import` | `{expectedEpoch, requestSequence}`, an `args-json-v1` raw body of at most 4 KiB | `{outcome: "cancelled"}`; `{outcome: "reviewed", sourceId, fileName, reviewSha256, review}`; or `{outcome: "refused", fileName, diagnostics}` |
 | `review_mbf_import` | `{expectedEpoch, requestSequence, sourceId, declaration}`, raw body of at most 1 MiB | `reviewed` or `refused`, as above |
 | `adopt_mbf_import` | `{expectedEpoch, requestSequence, sourceId, declaration, reviewSha256}`, raw body of at most 1 MiB | `{outcome: "opened", file_name, byte_count, schema_status, document, warnings: [], reviewSha256, modelSha256}`, the `NativeModelDocumentOutcome` shape `checkNativeOutcome` takes; or `{outcome: "refused", file_name, diagnostics}` |
+| `designate_mbf_import_source` | `{expectedEpoch, requestSequence, sourceId, declaration, reviewSha256}`, raw body of at most 1 MiB; `reviewSha256` is the review shown (the base review Y) | `{outcome: "cancelled"}`; `{outcome: "designated", sourceId, fileName, baseReviewSha256, reviewSha256, review}` (§5.4); or `{outcome: "refused", fileName, diagnostics}` |
 | `cancel_mbf_import` | `{retirementId: {page, sequence}}`, as Tauri's JSON arguments or as a raw body (§4.8.6) | `{cancelled, epoch, retirement_id}`, with `duplicate` or `exhausted` only when true |
 
-- **Arguments.** The starts (`open`, `review`, `adopt`) are raw-body only, admitted in C1's form as the export's are
+- **Arguments.** The starts (`open`, `review`, `adopt`, `designate`) are raw-body only, admitted in C1's form as the export's are
   (§3.7, "Admission"). An unknown member is refused `MBF-IMPORT-ARGS-INVALID` before anything else is read from the
   arguments. `declaration` is `null` or the object of §4.6. `sourceId` is a positive integer.
   `requestSequence` is a positive safe integer: the host rejects duplicates/older dispatches within the current
@@ -1429,13 +1432,17 @@ on `main` at `b06e1da32`. Counts and bounds are from reading source. §4.8.9 pla
 
   It is separate from the export's `MbfRuns`. An import retirement never cancels an export run, and an export
   retirement never cancels an import run. Neither touches the performance reset.
-- **The source record.** One `Source { id, entry_epoch, file_name, mbf: Pinned, identity: IdentityFile }`.
+- **The source record.** One `Source { id, entry_epoch, file_name, mbf: Pinned, identity: IdentityFile, designation:
+  Option<Designation> }`.
   - `Pinned { path, handle, identity, size, sha256 }`. `path` is the chooser's path and is never sent to the
     webview. `handle` is the open file. `identity` is the device and inode on Unix, or elsewhere the size and both
     times, each present (§3.6 step 8's rule). `size` and `sha256` are as read at selection.
   - `IdentityFile` is `Absent { expected_path }` or `Present(Pinned)`, where `expected_path` is the derived
     `<stem>.swbpipe-ids.json` (A-5).
-  - Its size is fixed: two paths of the platform's length, two file descriptors, two digests and a few integers. It
+  - `Designation { base, designated, source_sha256, adoptable }` is the designation record of §5.4: two 64-byte hex
+    review digests, one 32-byte file digest and a flag. It names a review; it holds no file bytes, model or review.
+  - Its size is fixed: two paths of the platform's length, two file descriptors, three digests, the designation
+    record and a few integers. It
     is not charged to the pool, as the export's 64 page tokens are not. There is at most one source per process, so
     the native registry is bounded.
 - **Source id.** A `u64` taken from `next_source_id`, starting at 1 and advanced by `checked_add`. Overflow makes
@@ -1457,7 +1464,7 @@ on `main` at `b06e1da32`. Counts and bounds are from reading source. §4.8.9 pla
 - **Install.** The source is installed under the state lock only if the run is not cancelled and `entry_epoch` is
   still the current epoch. Installing replaces the previous source and drops its handles. Otherwise the new handles
   are dropped and the reply is `MBF-IMPORT-CANCELLED`.
-- **Re-read** (each `review_mbf_import` and `adopt_mbf_import`).
+- **Re-read** (each `review_mbf_import`, `designate_mbf_import_source` and `adopt_mbf_import`).
   1. Under the lock, the request's `sourceId` must equal the current source's id, and the source's `entry_epoch`
      must equal the current epoch. Otherwise the run refuses `MBF-IMPORT-SOURCE-RETIRED`. The run duplicates the
      handles (`try_clone`) and copies the record, then leaves the lock. It reads by position (`read_at` on Unix,
@@ -2277,11 +2284,11 @@ information the file cannot recover." App regressions retain the warning entries
 Their native transport is mocked; native/App execution evidence remains separate (§5.1).
 
 A later C6-5 capability must recover the original reference choice and establish a comparison against the exact
-designated original source with explicit completeness. Format 6 recovers the reference choice only at the
-identity file's source-free trust; the comparison against a designated source remains open. This correction does not select its mechanism. A-3,
-C6-5, source-designation requirements and the actual App witness remain unchanged and open.
+designated original source with explicit completeness. Format 6 recovers the reference choice at the identity
+file's source-free trust; §5.4's designation compares a format-6 pair against an exactly designated source for the
+identity set. A-3, C6-5 and criterion 6 remain open beyond what §5.4 states.
 
-### 5.3 Selected report taxonomy and bounded review format 2
+### 5.3 Selected report taxonomy and bounded review formats 2 and 3
 
 The source implementation corrects misleading recovery accounting without deleting notices, recovering absent
 information or weakening C6-5/A-3. It introduces no source carrier, sidecar/model format, mapping or permission.
@@ -2309,8 +2316,9 @@ source loads count as 2 lost ids, excluding the group and generic notices. Unbou
 source completeness unestablished. **Zero never establishes completeness, reference equality or C6-5.**
 
 **Reader compatibility.** `IMPORT_REVIEW_FORMAT`, the TypeScript `MbfImportReviewPayload` and native fixed-prefix
-validation select review format 2 together. MBFI1 worker framing is unchanged. Native Review and Adopt reject
-format-1 payloads even when rehashed; the desktop rejects prior/unknown versions before interpreting identity
+validation select the review format together: format 3 since §5.4, which adds `identity.designation` and the second
+`source_completeness` value to format 2. MBFI1 worker framing is unchanged for Review and Adopt; Designate's adds
+one line (§5.4). Native Review, Designate and Adopt reject earlier-format payloads even when rehashed; the desktop rejects prior/unknown versions before interpreting identity
 metrics or rendering the review. A prior-format review digest is stale for current Adopt. No compatibility
 fallback or grandfathering is provided. There is no maintained format-1 reader to keep using the old meaning.
 The full source census found no established external receiving consumer or separate bounded-review JSON Schema.
@@ -2344,6 +2352,113 @@ direction semantics, two summed original ids, notice preservation, full/truncate
 stale/personal Adopt and session retirement. Maintained regeneration and targeted native/App checks support
 this component connection. Final independent persistence/permission and exact old/new wording scrutiny on the
 integrated predecessor remains required; these checks supply no launched App witness.
+
+### 5.4 Designated original source (identity-set completeness)
+
+**What it establishes.** For a bound format-6 pair, Designate original source… compares the import with a model
+document the user explicitly designates. The review states `established_for_identity_set` only when every check
+below passes in a complete review. That means the designated document is exactly the document this MBF pair was
+written from, and the import has the same ids in each of A-3's nine identity classes. It concerns ids only: no
+whole-model equivalence, values or reference-system coverage, and every loss entry still applies. No C6-6 promise
+follows.
+
+**Choosing the source.** The native model-document chooser (Open Model Document…'s) is the only route. The designated
+file is never located by digest lookup, filter, preselection or a file beside the MBF. Saved states as sources are
+later work. The file is acquired by Open's rules (§4.8.2 "Selection": regular, not a symlink, `O_NOFOLLOW |
+O_NONBLOCK`, identity checked, at most 64 MiB), read once by position into the command's request buffer with the
+end-of-file check, and hashed while read. Its handle is then dropped. The host keeps no byte of it: it supplies
+verification only, with no store, record or retention effect beyond the digest in the designation record.
+
+**The checks** (`core/handoff/caepipe_mbf_engine/src/designation.rs`), in phases whose working values are released
+before the next phase (a lifetime reduction, not a fixed peak formula):
+
+1. The identity file, read by the engine's strict reader, must be format 6 with a readable `derivation`; its
+   settings are the writer's arguments (title, reference temperature in its recorded unit, row limit, piping code).
+   Otherwise `identity_file_absent` or `identity_file_not_format_6`. The parsed file is disposed.
+2. The designated file, read by the reader the export worker reads model text with, must have a canonical form whose
+   SHA-256 is the derivation's `source_model_sha256`; otherwise `source_not_a_model_document` or
+   `source_digest_differs`, and it is not rendered. It is then rendered by the same writer with the derivation's
+   settings. The rendered MBF and identity file must be the chosen files' bytes exactly; otherwise `rerender_refused`,
+   `rerender_mbf_differs` or `rerender_identity_file_differs`. Its identity inventory (per class: count, duplicate
+   flag and the SHA-256 of its sorted, length-prefixed keys; primitive loads and pressure regions keyed by their
+   case) is kept. The document and the rendering are disposed. Sorting needs working storage proportional to each
+   class.
+3. After the import of the same request: the import must be bound to a format-6 identity file declaring the same
+   source digest (`import_not_bound_format_6`). Its inventory, read from the candidate model, must equal the
+   source's class by class, with no duplicate and no entry without a string id on either side
+   (`identity_set_differs`, with `differing_classes`, or `identity_inventory_malformed`). The import must report no
+   unpreserved id and no unrecovered field or reference (`identities_not_preserved`, `fields_not_recovered`).
+4. The review is formed. A truncated review adds `review_truncated` and never states an established outcome.
+
+**Review format 3.** `identity.designation` is null, or `{file_name, sha256, bytes, outcome, reasons,
+differing_classes}`; the reasons are fixed codes in a fixed order. `identity.source_completeness` is
+`established_for_identity_set` only when `outcome` is. The header's fixed width is the longer of its complete and
+truncated forms. Without a designation the text is format 2's with `"designation":null` and the new format digit,
+byte for byte otherwise.
+
+**Task 5 in `designate` mode (3).** The request adds, after the identity file, the designated file's name (1 B to
+1 KiB) and bytes (at most 64 MiB), each length-prefixed. Modes 1 and 2 carry neither, and a mode-3 request without
+them is refused. The worker evaluates phases 1 and 2 before the import, then imports exactly as Review does. It
+forms the ordinary review Y for the same inputs, digests it and drops it. It then forms X, the same review stating
+the designation. The envelope carries X and, after X's digest, Y's digest on its own line. It carries no model, and
+its result limit is Review's (R + 4 KiB; the 65-byte line is within the header allowance). No coefficient changes.
+
+**The command.** `designate_mbf_import_source` takes the review shown as `reviewSha256` and the exact current
+declaration through the same bounded path as Review and Adopt (§4.6, H3), with the closed member set of §4.7. It
+runs as a re-read (§4.8.2) with the designated file read into the same request.
+- **Admission.** The run uses Review's admission and supervision law over the full request length (pair, name,
+  designated file, declaration, framing), computed with checked arithmetic. Overflow refuses
+  `MBF-IMPORT-MEMORY-UNAVAILABLE`. The bound holds H4 (the request's allocation envelope), H5 (the maximum grant)
+  and H6 (the review result share). It is taken, and the grant waited for, before the request buffer is made, as for
+  every task-5 run (§4.8.4).
+- **Base check.** The worker's recomputed Y must be the review shown, or the run refuses `MBF-IMPORT-REVIEW-STALE`.
+  A designation is therefore formed only over the pair, declaration and review the user saw.
+- **Replies and refusals.** The chooser's cancel replies `cancelled`. The designated file's selection refusals are
+  Open's codes at the path `source`.
+
+**The designation record.** On success the reply carries X with `baseReviewSha256` Y. The fixed record `{base Y,
+designated X, designated file's SHA-256, X adoptable}` is published to the source only as the reply is handed off. In
+one critical section (the import state, then the run: registration's and retirement's lock order), it requires that
+the run is still the run in progress and not cancelled, and that the source is the same id in the current epoch.
+Otherwise nothing is published and the reply is the cancellation. The record is retired by:
+- every start other than Adopt: a Review, an Open, or another Designate, including one whose chooser is cancelled
+  or which fails;
+- a retirement or a new source, which drop the source.
+The webview can neither synthesize nor reuse it.
+
+**Adopt of X.** Adopt re-forms Y over the exact pair under the declaration it is given (the ordinary re-read). If the
+requested digest is Y, Adopt proceeds as before. Otherwise the current record must name exactly that Y as its base
+and the requested digest as X, or Adopt refuses `MBF-IMPORT-REVIEW-STALE`; an X that was not adoptable refuses
+`MBF-IMPORT-NOT-ADOPTABLE`. The model comes from the pair, and the reply's `reviewSha256` is X. The designated file is
+not re-read: it verified the pair once, and the pair is what Adopt re-reads and adopts.
+
+**The dialog.** "Designate original source…" is offered for the current review. The reply is shown only when its base
+is the review shown. Any other outcome (cancel, refusal, failure, a reply for another base) leaves the ordinary review
+in force; if a designation was shown, the ordinary review is formed again before Adopt is offered. A declaration
+change reviews again, which retires the designation.
+
+**Checks.** Engine (`tests/designation.rs`):
+- the exact source, reformatted, is established;
+- a changed source is not rendered;
+- non-documents, an absent or format-4 identity file, a derivation that does not reproduce the pair, and an unbound
+  import are each named;
+- substitution, a duplicate, a missing id and a malformed entry are detected class by class;
+- a truncated review never states an established outcome.
+
+Native (`mbf_import_tests.rs`):
+- Adopt of X over its base;
+- a forged X, X under another declaration, and X after a later review are stale;
+- a stale base, a cancelled chooser, a failed designation and a retirement publish nothing;
+- oversized, folder and symlink sources are refused by Open's rules;
+- a retirement at reply admission wins, and publication needs the current run and source;
+- the request framing, checked length and envelope base line.
+
+The native transcript adds the bound Designate and designated Adopt replies (the maintained source file as the
+designated document), and App tests replay them (`App.mbfImportDialog.test.tsx`).
+
+**Limits.** Only format-6 pairs of the supported subset can be established, through the explicit model-document
+chooser. Formats 2 to 4, unbound and rebound imports state the reason they cannot be. Saved states as sources, the
+launched-App witness of Designate, and criterion 6's reference-system coverage remain open.
 
 ## 6. Slices
 
