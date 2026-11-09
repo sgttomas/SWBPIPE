@@ -603,7 +603,8 @@ def _refused(edit, name="component_body", phrase=""):
 
 
 def test_a_solved_document_in_a_refused_domain_fails():
-    _refused(lambda m: m["supports"][0].__setitem__("direction", {"x": 1, "y": 1, "z": 0}), phrase="skew")
+    _refused(lambda m: m["supports"].append({"id": "sk", "node": "c", "family": "line_stop", "restraints": ["UY"],
+                                             "direction": {"x": 1, "y": 1, "z": 0}}), phrase="skew")
     _refused(lambda m: m["supports"].append({"id": "sn", "node": "c", "family": "snubber", "restraints": ["UY"]}), phrase="snubber")
     _refused(lambda m: m.__setitem__("model_settings", {"shear_model": "timoshenko_annulus_energy_v1"}), phrase="Timoshenko")
     _refused(_section_edit("material_density", None), phrase="material density")
@@ -742,17 +743,26 @@ def test_an_axis_aligned_direction_is_lowered_as_the_producer_lowers_it():
     """Review of ea6165a2d, finding 2 (`lower_axis_aligned_directions`): a record with an
     exactly axis-aligned direction has each DOF token on another axis set to that axis's
     translation. The anchor split into five restraints and a line stop authored UY along
-    +x restores the complete anchor, so the unchanged document still passes."""
+    +x restores the complete anchor, so the unchanged document still passes. A direction
+    record the producer refuses before lowering (`supports_findings`) fails instead."""
     doc, request = fixture("component_body")
 
-    def split(model):
-        model["supports"][0]["restraints"] = ["UY", "UZ", "RX", "RY", "RZ"]
-        model["supports"].append({"id": "ls", "node": "a", "family": "anchor", "restraints": ["UY"],
-                                  "direction": {"x": 1, "y": 0, "z": 0}})
+    def split(**line_stop):
+        def edit(model):
+            model["supports"][0]["restraints"] = ["UY", "UZ", "RX", "RY", "RZ"]
+            model["supports"].append({"id": "ls", "node": "a", "family": "line_stop", "restraints": ["UY"],
+                                      "direction": {"x": 1, "y": 0, "z": 0}, **line_stop})
+        return edit
 
-    changed = _mutate(request, split)
+    changed = _mutate(request, split())
     verdict = me.read(rebind(doc, changed), changed)
     assert relation(verdict, "mass")["status"] == "passed", relation(verdict, "mass")
+    for variant, phrase in (({"family": "anchor"}, "SUPPORT_DIRECTION_RECORD_UNSUPPORTED"),
+                            ({"restraints": ["RY"]}, "SUPPORT_DIRECTION_ROTATIONAL_UNSUPPORTED"),
+                            ({"direction": {"x": 0, "y": 0, "z": 0}}, "SUPPORT_DIRECTION_ZERO"),
+                            ({"stiffness": {"dof": "UZ", "value": {"unit": "N/m", "value": 1e6}}},
+                             "SUPPORT_DIRECTION_RECORD_UNSUPPORTED")):
+        _refused(split(**variant), phrase=phrase)
 
 
 def test_a_body_whose_spatial_product_underflows_is_refused():
@@ -761,3 +771,55 @@ def test_a_body_whose_spatial_product_underflows_is_refused():
     (1e-200, 0, 0) do that, so a solved document bound to it is a contradiction."""
     _refused(_component_edit(["geometry", "center_of_gravity"], {"unit": "m", "x": 1e-200, "y": 0, "z": 0}),
              phrase="MODAL_COMPONENT_MASS_OUT_OF_RANGE")
+
+
+def test_a_body_whose_double_word_low_word_may_underflow_is_unresolved():
+    """Review of 3599a206b, finding 1: W = 2.3195656276910255e-308, a = 1 and a centre of
+    gravity (250575.49268495973, 2.116592064317826, 0) pass the producer's range premise,
+    but its double-word m·r_a has a subnormal low word, so `component_mass` publishes
+    M[rx, ry] = -1.2302189740973076e-302, outside the relative premise's enclosure. Below
+    2^-969 the body's entries are outside the rounding model: unresolved, never failed.
+    Every other comparison is still made, so a wrong pipe entry beside them fails."""
+    doc, request = fixture("component_body")
+    changed = _mutate(request, _component_edit(["geometry", "weight"], {"unit": "N", "value": 2.3195656276910255e-308}))
+    changed = _mutate(changed, _component_edit(["geometry", "center_of_gravity"],
+                                               {"unit": "m", "x": 250575.49268495973, "y": 2.116592064317826, "z": 0}))
+    changed["weight_to_mass_acceleration"] = {"unit": "m/s^2", "value": 1.0}
+    bound = rebind(doc, changed)
+    bound["basis"]["weight_to_mass_acceleration"]["value"] = 1.0
+    bound["binding"]["options"]["weight_to_mass_acceleration"]["value"] = 1.0
+    produced = formed(changed)
+    rx_ry = (15, 16)  # node c, the body's node
+    assert produced[rx_ry] != -1.2302189740973076e-302
+    produced[rx_ry] = -1.2302189740973076e-302  # what the producer publishes there
+    published = coherent(bound, produced)
+    assert_payload_consistent(published)
+    verdict = me.read(published, changed)
+    assert verdict["binding"]["status"] == "passed", verdict["binding"]
+    mass = relation(verdict, "mass")
+    assert mass["status"] == "unresolved", mass
+    assert any("(15, 16)" in item and "2^-969" in item for item in model_texts(mass)), model_texts(mass)
+
+    wrong = dict(produced)
+    rotary = (3, 3)  # node a's rx diagonal, a pipe entry outside the body's block
+    wrong[rotary] *= 1.25
+    assert_model_rejects(coherent(bound, wrong), changed)
+
+
+def test_a_frame_conditioning_at_binary64_resolution_is_unresolved_never_passed():
+    """Review of 3599a206b, finding 2: y = (9e15, 1e-7, 0) on the whole-spectrum cantilever
+    gives κ ≈ 9e22, where the premise's allowance 2^-90·(n + 1)·(1 + κ) reaches binary64
+    resolution, so it would pass M scaled by 1.0001 (the producer's block for that y is
+    identical to y = (0, 1, 0)'s). Such an entry is outside the rounding model."""
+    doc, request = fixture("cantilever_whole_spectrum")
+
+    def tilted(model):
+        for pipe in model["pipe_segments"]:
+            pipe["y_reference"] = {"x": 9e15, "y": 1e-7, "z": 0}
+
+    changed = _mutate(request, tilted)
+    wrong = coherent(rebind(doc, changed), {k: v * 1.0001 for k, v in formed(changed).items()})
+    assert_payload_consistent(wrong)
+    verdict = me.read(wrong, changed)
+    for name in ("mass", "participation"):
+        assert relation(verdict, name)["status"] == "unresolved", relation(verdict, name)

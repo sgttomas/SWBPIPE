@@ -97,6 +97,12 @@ fn mm_dd_path() -> f64 {
     2f64.powi(-90)
 }
 
+/// 2³⁷ = 2⁻⁵³/2⁻⁹⁰: where the premise's allowance reaches binary64 resolution.
+const MM_DD_RESOLUTION_LIMIT: f64 = 137438953472.0;
+/// 2⁻⁹⁶⁹: below it a double word's low word is no longer normal (the kernel's
+/// arc guard, `LOCAL_ENTRY_MIN`), so the relative premise does not hold.
+const MM_DD_LOW_WORD_FLOOR: f64 = 2.004168360008973e-292;
+
 // ---------------------------------------------------------------------------
 // Outward-rounded intervals.
 
@@ -138,6 +144,14 @@ impl Iv {
     }
     fn is_zero(&self) -> bool {
         self.lo == 0.0 && self.hi == 0.0
+    }
+    /// The least magnitude in the interval.
+    fn mig(&self) -> f64 {
+        if self.lo <= 0.0 && 0.0 <= self.hi {
+            0.0
+        } else {
+            self.lo.abs().min(self.hi.abs())
+        }
     }
     fn finite(&self) -> bool {
         self.lo.is_finite() && self.hi.is_finite()
@@ -568,6 +582,11 @@ struct Acc {
     v: Iv,
     scale: f64,
     n: usize,
+    /// The largest 1 + κ of the entry's contributions.
+    cond: f64,
+    /// Whether a contribution left the rounding model (an intermediate that
+    /// may lie below the low-word floor).
+    floor: bool,
 }
 
 /// The derived model mass and partition.
@@ -585,6 +604,10 @@ pub(super) struct Formed {
     conditional: Option<String>,
     /// Coverage left open by this derivation, scoped by name.
     scope: Vec<String>,
+    /// The entries outside the rounding model, ascending, with the reason: each
+    /// is enclosed by the whole line, so what uses it is unresolved and every
+    /// other comparison is still made.
+    open: Vec<((usize, usize), &'static str)>,
     positions: Vec<[f64; 3]>,
 }
 
@@ -959,19 +982,56 @@ fn mm_form(p: &Parsed, request: &Value) -> S<Formed> {
             return mm_fail(format!("support {id} is a snubber, which this source refuses on every solve (SNUBBER_DYNAMIC_ONLY_UNSUPPORTED)"));
         }
         let direction = support.get("direction").filter(|d| !d.is_null());
-        // An exactly axis-aligned direction is lowered as the producer does
-        // (`lower_axis_aligned_directions`): each DOF token on another axis becomes
-        // the direction's translation token.
+        // The producer's admission of a direction record (`supports_findings`), which it
+        // applies before lowering; then an exactly axis-aligned direction is lowered as the
+        // producer does (`lower_axis_aligned_directions`): each DOF token on another axis
+        // becomes the direction's translation token.
         let mut lowered_axis = None;
         if let Some(direction) = direction {
-            let components: Option<Vec<f64>> = direction.as_object().map(|o| ["x", "y", "z"].iter().filter_map(|k| o.get(*k).and_then(Value::as_f64)).collect());
-            match components {
-                Some(c) if c.len() == 3 && c.iter().filter(|x| **x != 0.0).count() > 1 => {
-                    return mm_fail(format!("support {id} is skewed, which modal-1 refuses before projection (MODAL_DOCUMENT_SKEW_RESTRAINT_UNSUPPORTED)"));
-                }
-                Some(c) if c.len() == 3 => lowered_axis = c.iter().position(|x| *x != 0.0),
-                _ => return mm_scope(format!("support {id}: its direction is outside this reader's partition basis")),
+            let refused = |reason: &str| Stop::Fail(format!("support {id}: its direction {reason}, which the producer refuses"));
+            let components: Option<Vec<f64>> = direction
+                .as_object()
+                .map(|o| ["x", "y", "z"].iter().filter_map(|k| o.get(*k).and_then(Value::as_f64)).filter(|x| x.is_finite()).collect());
+            let Some(c) = components.filter(|c| c.len() == 3) else {
+                return Err(refused("is not three finite numbers (SUPPORT_DIRECTION_INVALID)"));
+            };
+            if c.iter().all(|x| *x == 0.0) {
+                return Err(refused("is zero (SUPPORT_DIRECTION_ZERO)"));
             }
+            if !matches!(family, Some("line_stop" | "spring" | "snubber")) {
+                return Err(refused("is on a family other than line_stop, spring or snubber (SUPPORT_DIRECTION_RECORD_UNSUPPORTED)"));
+            }
+            if support.get("nonlinear").is_some_and(|v| !v.is_null()) {
+                return Err(refused("is beside a nonlinear member (SUPPORT_DIRECTION_RECORD_UNSUPPORTED)"));
+            }
+            let stiffness = support
+                .get("stiffness")
+                .filter(|s| !s.is_null())
+                .or_else(|| support.get("hanger").and_then(|h| h.get("stiffness")).filter(|s| !s.is_null()));
+            let mut tokens: Vec<Option<&str>> =
+                support.get("restraints").and_then(Value::as_array).into_iter().flatten().map(Value::as_str).collect();
+            if let Some(stiffness) = stiffness {
+                tokens.push(stiffness.get("dof").and_then(Value::as_str));
+            }
+            let mut dofs: Vec<usize> = Vec::new();
+            for token in tokens {
+                let Some(dof) = token.and_then(mm_dof) else {
+                    return Err(refused("is on a record naming a token that is not a DOF (SUPPORT_DIRECTION_RECORD_UNSUPPORTED)"));
+                };
+                if !dofs.contains(&dof) {
+                    dofs.push(dof);
+                }
+            }
+            let [dof] = dofs.as_slice() else {
+                return Err(refused("is on a record acting on other than exactly one DOF (SUPPORT_DIRECTION_RECORD_UNSUPPORTED)"));
+            };
+            if *dof >= 3 {
+                return Err(refused("is on a rotational DOF (SUPPORT_DIRECTION_ROTATIONAL_UNSUPPORTED)"));
+            }
+            if c.iter().filter(|x| **x != 0.0).count() > 1 {
+                return mm_fail(format!("support {id} is skewed, which modal-1 refuses before projection (MODAL_DOCUMENT_SKEW_RESTRAINT_UNSUPPORTED)"));
+            }
+            lowered_axis = c.iter().position(|x| *x != 0.0);
         }
         let restraints = mm_list(support.get("restraints"), &format!("support {id} restraints"))?;
         let has_stiffness = support.get("stiffness").is_some_and(|s| !s.is_null())
@@ -1057,13 +1117,32 @@ fn mm_form(p: &Parsed, request: &Value) -> S<Formed> {
     entries.try_reserve(acc.len()).map_err(|_| Stop::Scope("mass entries: allocation refused".to_string()))?;
     let mut order = Vec::new();
     order.try_reserve(acc.len()).map_err(|_| Stop::Scope("mass entries: allocation refused".to_string()))?;
+    let mut open = Vec::new();
     for (key, a) in acc {
+        // Once 2⁻⁹⁰·(n + 1)·(1 + κ) reaches one binary64 unit roundoff of the entry's scale,
+        // the double-word premise no longer sits below binary64 resolution; an
+        // intermediate below the low-word floor is outside it. Either leaves this entry,
+        // and only this entry, unresolved.
+        let reason = if a.floor {
+            Some("a double-word intermediate of its element may be below 2⁻⁹⁶⁹, where the low word is subnormal")
+        } else if (a.n as f64 + 1.0) * a.cond >= MM_DD_RESOLUTION_LIMIT {
+            Some("its frame conditioning puts the double-word premise at binary64 resolution")
+        } else {
+            None
+        };
+        if let Some(reason) = reason {
+            open.push((key, reason));
+            entries.insert(key, Iv::WILD);
+            order.push(key);
+            continue;
+        }
         let allowance = mm_up(path * (a.n as f64 + 1.0) * a.scale);
         entries.insert(key, a.v.widen(if a.v.is_zero() && a.scale == 0.0 { 0.0 } else { allowance }));
         order.push(key);
     }
     order.sort_unstable();
-    Ok(Formed { ndof, entries, order, restrained, conditional, scope, positions })
+    open.sort_unstable();
+    Ok(Formed { ndof, entries, order, restrained, conditional, scope, open, positions })
 }
 
 /// The reported nonlinear states against the bound model (Design §1.3 as
@@ -1109,14 +1188,32 @@ fn mm_states(p: &Parsed, nonlinear: &[(&str, &str, usize)], restrained: &mut [bo
     Ok("the free-DOF partition follows the reported nonlinear states, which no payload qualifies as the converged, confirmed states of the static solve: the free-DOF mass and the participation are conditional on them".to_string())
 }
 
-fn mm_add(acc: &mut HashMap<(usize, usize), Acc>, r: usize, c: usize, v: Iv, scale: f64) {
+fn mm_add(acc: &mut HashMap<(usize, usize), Acc>, r: usize, c: usize, v: Iv, scale: f64, cond: f64) {
     if r > c {
         return;
     }
-    let entry = acc.entry((r, c)).or_insert(Acc { v: Iv::ZERO, scale: 0.0, n: 0 });
+    let entry = acc.entry((r, c)).or_insert(Acc { v: Iv::ZERO, scale: 0.0, n: 0, cond: 1.0, floor: false });
     entry.v = entry.v.add(v);
     entry.scale = mm_up(entry.scale + scale);
     entry.n += 1;
+    entry.cond = entry.cond.max(cond);
+}
+
+/// Whether a nonzero double-word intermediate may lie below the kernel's
+/// low-word floor 2⁻⁹⁶⁹ (`LOCAL_ENTRY_MIN`), outside the relative premise.
+fn mm_below(x: Iv) -> bool {
+    !x.is_zero() && x.mig() < MM_DD_LOW_WORD_FLOOR
+}
+
+/// Marks every entry of the node-pair blocks an element formed as outside the
+/// rounding model.
+fn mm_mark_floor(acc: &mut HashMap<(usize, usize), Acc>, pairs: &[(usize, usize)]) {
+    for (key, entry) in acc.iter_mut() {
+        let (a, b) = (key.0 / 6, key.1 / 6);
+        if pairs.iter().any(|&(p, q)| (a, b) == (p, q) || (a, b) == (q, p)) {
+            entry.floor = true;
+        }
+    }
 }
 
 fn mm_skew(e: &[Iv; 3]) -> [[Iv; 3]; 3] {
@@ -1184,17 +1281,21 @@ fn mm_straight(acc: &mut HashMap<(usize, usize), Acc>, member: &Member, position
         _ => l2,
     };
     let mut h = [[Iv::ZERO; 4]; 4];
+    let mut floor = mm_below(l) || mm_below(translation) || mm_below(rotary);
     for r in 0..4 {
         for c in 0..4 {
             let (cm, pm) = mass_plane[r][c];
             let (cr, pr) = rotary_plane[r][c];
-            h[r][c] = translation.mul(Iv::pt(cm)).mul(power(pm)).add(rotary.mul(Iv::pt(cr)).mul(power(pr)));
+            let (bending, turning) = (translation.mul(Iv::pt(cm)).mul(power(pm)), rotary.mul(Iv::pt(cr)).mul(power(pr)));
+            floor |= mm_below(bending) || mm_below(turning);
+            h[r][c] = bending.add(turning);
         }
     }
     let third = |x: Iv| x.mul(l).div(Iv::pt(3.0));
     let sixth = |x: Iv| x.mul(l).div(Iv::pt(6.0));
     let axial = [[third(s.mbar), sixth(s.mbar)], [sixth(s.mbar), third(s.mbar)]];
     let torsion = [[third(s.jbar), sixth(s.jbar)], [sixth(s.jbar), third(s.jbar)]];
+    floor |= axial.iter().chain(torsion.iter()).flatten().any(|&x| mm_below(x));
     let skew = mm_skew(&e);
     let nodes = [member.from, member.to];
     for a in 0..2 {
@@ -1217,13 +1318,16 @@ fn mm_straight(acc: &mut HashMap<(usize, usize), Acc>, member: &Member, position
                     // [e]×ᵀ(r, c) = [e]×(c, r).
                     let ut = coupling.mul(skew[c][r]);
                     let tu = coupling_t.mul(skew[r][c]);
-                    mm_add(acc, na + r, nb + c, uu, uu_scale);
-                    mm_add(acc, na + 3 + r, nb + 3 + c, tt, tt_scale);
-                    mm_add(acc, na + r, nb + 3 + c, ut, ut_scale);
-                    mm_add(acc, na + 3 + r, nb + c, tu, tu_scale);
+                    mm_add(acc, na + r, nb + c, uu, uu_scale, kappa);
+                    mm_add(acc, na + 3 + r, nb + 3 + c, tt, tt_scale, kappa);
+                    mm_add(acc, na + r, nb + 3 + c, ut, ut_scale, kappa);
+                    mm_add(acc, na + 3 + r, nb + c, tu, tu_scale, kappa);
                 }
             }
         }
+    }
+    if floor {
+        mm_mark_floor(acc, &[(nodes[0], nodes[0]), (nodes[0], nodes[1]), (nodes[1], nodes[1])]);
     }
     Ok(())
 }
@@ -1233,20 +1337,23 @@ fn mm_lump(acc: &mut HashMap<(usize, usize), Acc>, node: usize, m: Iv, first: [I
     let n = 6 * node;
     let skew = mm_skew(&first);
     let m_scale = mm_up(kappa * m.mag());
-    let s_scale = mm_up(kappa * (first[0].mag() + first[1].mag() + first[2].mag()));
+    // The producer turns the local S and J with its frame; their absolute sums bound each
+    // turned entry's terms, and the global sums bound them through the norms a rotation
+    // keeps: Σ|S_local| ≤ √3‖S‖ ≤ 2·Σ|S|, Σ|J_local| ≤ 3‖J‖_F ≤ 3·Σ|J|.
+    let s_scale = mm_up(kappa * 2.0 * (first[0].mag() + first[1].mag() + first[2].mag()));
     let mut j_scale = 0.0f64;
     for row in &second {
         for x in row {
             j_scale = mm_up(j_scale + x.mag());
         }
     }
-    let j_scale = mm_up(kappa * j_scale);
+    let j_scale = mm_up(kappa * 3.0 * j_scale);
     for r in 0..3 {
-        mm_add(acc, n + r, n + r, m, m_scale);
+        mm_add(acc, n + r, n + r, m, m_scale, kappa);
         for c in 0..3 {
-            mm_add(acc, n + r, n + 3 + c, skew[r][c].neg(), s_scale);
-            mm_add(acc, n + 3 + r, n + c, skew[r][c], s_scale);
-            mm_add(acc, n + 3 + r, n + 3 + c, second[r][c], j_scale);
+            mm_add(acc, n + r, n + 3 + c, skew[r][c].neg(), s_scale, kappa);
+            mm_add(acc, n + 3 + r, n + c, skew[r][c], s_scale, kappa);
+            mm_add(acc, n + 3 + r, n + 3 + c, second[r][c], j_scale, kappa);
         }
     }
 }
@@ -1316,6 +1423,8 @@ fn mm_arc(acc: &mut HashMap<(usize, usize), Acc>, member: &Member, positions: &[
     let j_nn = centre.mul(a_tt).add(section.mul(alpha.add(a_tt)));
     let j_tn = centre.mul(a_tn).neg().add(section.mul(c_tn));
     let j_bb = centre.mul(f1.mul(Iv::pt(2.0))).add(section.mul(alpha));
+    // The producer forms the half-lump's local entries in double word.
+    let floor = [mass, first_t, first_n, j_tt, j_nn, j_tn, j_bb].into_iter().any(mm_below);
     for (node, sign) in [(member.from, 1.0), (member.to, -1.0)] {
         let mut t = [Iv::ZERO; 3];
         let mut n = [Iv::ZERO; 3];
@@ -1338,6 +1447,9 @@ fn mm_arc(acc: &mut HashMap<(usize, usize), Acc>, member: &Member, positions: &[
         }
         mm_lump(acc, node, mass, first, second, kappa);
     }
+    if floor {
+        mm_mark_floor(acc, &[(member.from, member.from), (member.to, member.to)]);
+    }
     Ok(())
 }
 
@@ -1359,7 +1471,14 @@ fn mm_body(acc: &mut HashMap<(usize, usize), Acc>, node: usize, m: Iv, r: [f64; 
     if !first.iter().all(Iv::finite) || !second.iter().flatten().all(Iv::finite) {
         return Err(Stop::Open(format!("component {component}: its body block is outside the binary64 range")));
     }
+    // The producer forms m, m·r_a and (m·r_a)·r_b in double word (`component_mass`); one
+    // that may be nonzero below the low-word floor is outside the relative premise.
+    let mut products = (0..9).map(|k| first[k / 3].mul(rv[k % 3]));
+    let floor = mm_below(m) || first.iter().copied().any(mm_below) || products.any(mm_below);
     mm_lump(acc, node, m, first, second, 1.0);
+    if floor {
+        mm_mark_floor(acc, &[(node, node)]);
+    }
     Ok(())
 }
 
@@ -1495,6 +1614,10 @@ pub(super) fn mm_mass_relation(p: &Parsed, d: &Derived, mut items: Vec<String>) 
     }
     if let Some(reason) = &f.conditional {
         items.push(reason.clone());
+    }
+    for ((r, c), reason) in &f.open {
+        items.push(format!("{MR_UNRESOLVED}entry mass:{}|{}: {reason}, outside the rounding model; it and what sums it are undecidable",
+            mm_label(p, *r), mm_label(p, *c)));
     }
     // Every entry of the full upper M: the union of the derived and the
     // published positions, an absent one being an exact 0.

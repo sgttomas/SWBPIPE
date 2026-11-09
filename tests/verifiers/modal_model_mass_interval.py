@@ -49,6 +49,20 @@ PROFILE_FLOOR = Fraction(1 << 53)             # magnitudes the checked profile c
 DD_RELATIVE = Fraction(1, 1 << 90)
 
 
+# Below 2^-969 a double word's low word (about 2^-53 of it) is no longer normal, so the
+# relative premise above fails (the kernel's own arc guard, `LOCAL_ENTRY_MIN`, is this
+# floor). And once 2^-90·(n + 1)·(1 + κ) reaches one binary64 unit roundoff 2^-53 of a
+# value's scale, the premise no longer sits below binary64 resolution. Either way the
+# value is outside the rounding model: unresolved, never passed.
+DD_LOW_WORD_FLOOR = Fraction(1, 1 << 969)
+DD_RESOLUTION_LIMIT = 1 << 37
+
+
+def below_floor(x: "Iv") -> bool:
+    """Whether a nonzero double-word intermediate may be below the low-word floor."""
+    return not (x.lo == 0 and x.hi == 0) and x.mig() < DD_LOW_WORD_FLOOR
+
+
 def dd_bound(count: int, scale: Fraction) -> Fraction:
     """The double-word error allowance of a value accumulated from `count`
     contributions whose absolute (κ-weighted) scales sum to `scale`."""

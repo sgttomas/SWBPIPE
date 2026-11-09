@@ -37,6 +37,7 @@ const LINEAR: [(&str, &str, &str); 8] = [
 const STATES: [(&str, &str, &str); 2] = [pair!("modal_state_one_way_pressed"), pair!("modal_state_friction_sliding")];
 const BODY: (&str, &str, &str) = pair!("modal_component_body");
 const ARC: (&str, &str, &str) = pair!("modal_arc");
+const CANTILEVER: (&str, &str, &str) = pair!("modal_cantilever_whole_spectrum");
 
 fn load(fixture: (&str, &str, &str)) -> (Value, Value) {
     (serde_json::from_str(fixture.1).unwrap(), serde_json::from_str(fixture.2).unwrap())
@@ -414,15 +415,95 @@ fn a_rebound_model_with_the_same_mass_passes() {
     let r = request_case(BODY, "matching shared section", |r| shared_section(r, 0.2));
     assert_eq!(r.mass.status, ModalReadStatus::Passed, "{:?}", r.mass);
     assert_eq!(r.participation.status, ModalReadStatus::Passed, "{:?}", r.participation);
-    // Review of ea6165a2d, finding 2: an exactly axis-aligned direction is lowered as the
-    // producer lowers it (`lower_axis_aligned_directions`), each DOF token on another axis
-    // becoming that axis's translation: a line stop authored UY along +x restores the
-    // anchor's UX.
-    let r = request_case(BODY, "anchor split into a line stop along +x", |r| {
+    // Review of ea6165a2d, finding 2: an admitted, exactly axis-aligned direction is
+    // lowered as the producer lowers it (`lower_axis_aligned_directions`), each DOF token
+    // on another axis becoming that axis's translation: a line stop authored UY along +x
+    // restores the anchor's UX.
+    fn split(r: &mut Value, line_stop: Value) {
         r["model"]["supports"][0]["restraints"] = json!(["UY", "UZ", "RX", "RY", "RZ"]);
-        r["model"]["supports"].as_array_mut().unwrap().push(json!({"id": "ls", "node": "a", "family": "anchor",
-            "restraints": ["UY"], "direction": {"x": 1, "y": 0, "z": 0}}));
-    });
+        let mut record = json!({"id": "ls", "node": "a", "family": "line_stop", "restraints": ["UY"], "direction": {"x": 1, "y": 0, "z": 0}});
+        for (k, v) in line_stop.as_object().unwrap() {
+            record[k] = v.clone();
+        }
+        r["model"]["supports"].as_array_mut().unwrap().push(record);
+    }
+    let r = request_case(BODY, "anchor split into a line stop along +x", |r| split(r, json!({})));
     assert_eq!(r.mass.status, ModalReadStatus::Passed, "{:?}", r.mass);
     assert_eq!(r.participation.status, ModalReadStatus::Passed, "{:?}", r.participation);
+    // Review of 3599a206b, finding 3: a direction record the producer refuses before
+    // lowering (`supports_findings`) is a contradiction.
+    for (variant, needle) in [
+        (json!({"family": "anchor"}), "SUPPORT_DIRECTION_RECORD_UNSUPPORTED"),
+        (json!({"restraints": ["RY"]}), "SUPPORT_DIRECTION_ROTATIONAL_UNSUPPORTED"),
+        (json!({"direction": {"x": 0, "y": 0, "z": 0}}), "SUPPORT_DIRECTION_ZERO"),
+        (json!({"stiffness": {"dof": "UZ", "value": {"unit": "N/m", "value": 1e6}}}), "SUPPORT_DIRECTION_RECORD_UNSUPPORTED"),
+    ] {
+        let r = request_case(BODY, needle, |r| split(r, variant.clone()));
+        assert_failed(&r.mass, needle, needle);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Outside the rounding model (review of 3599a206b): undecidable entries are
+// unresolved one by one, and every other comparison is still made.
+
+#[test]
+fn a_body_whose_double_word_low_word_may_underflow_is_unresolved_beside_decided_entries() {
+    // W = 2.3195656276910255e-308 N, a = 1 m/s² and this centre of gravity pass the
+    // producer's range premise, but its double-word m·r_a has a subnormal low word
+    // (it publishes M[rx, ry] = −1.2302189740973076e-302 at node c). The body's block
+    // is outside the relative premise: unresolved, never failed. The fixture's block is
+    // the original body's, which an absolute underflow allowance might decide; the reader
+    // adopts no such allowance, so the block stays undecidable.
+    let tiny_body = |request: &mut Value| {
+        for component in request["model"]["components"].as_array_mut().unwrap() {
+            if component["geometry"].get("weight").is_some() {
+                component["geometry"]["weight"] = json!({"unit": "N", "value": 2.3195656276910255e-308});
+                component["geometry"]["center_of_gravity"] =
+                    json!({"unit": "m", "x": 250575.49268495973, "y": 2.116592064317826, "z": 0});
+            }
+        }
+        request["weight_to_mass_acceleration"] = json!({"unit": "m/s^2", "value": 1.0});
+    };
+    let bind = |doc: &mut Value, request: &Value| {
+        rebind(doc, request);
+        doc["basis"]["weight_to_mass_acceleration"]["value"] = json!(1.0);
+        doc["binding"]["options"]["weight_to_mass_acceleration"]["value"] = json!(1.0);
+    };
+    let (mut doc, mut request) = load(BODY);
+    tiny_body(&mut request);
+    bind(&mut doc, &request);
+    let r = read(&doc, Some(&request));
+    assert_eq!(r.binding.status, ModalReadStatus::Passed, "{:?}", r.binding);
+    assert_eq!(r.mass.status, ModalReadStatus::Unresolved, "{:?}", r.mass);
+    assert!(r.mass.unresolved.iter().any(|s| s.contains("entry mass:dof:c:rx|dof:c:ry") && s.contains("2⁻⁹⁶⁹")), "{:?}", r.mass);
+
+    // A wrong pipe entry outside the body's block still fails beside it.
+    let (mut wrong, _) = load(BODY);
+    coherent_entry(&mut wrong, "dof:a:rx", "dof:a:rx", 1.25);
+    reseal(&mut wrong);
+    bind(&mut wrong, &request);
+    let r = read(&wrong, Some(&request));
+    assert_eq!(r.binding.status, ModalReadStatus::Passed, "{:?}", r.binding);
+    assert_failed(&r.mass, "entry mass:dof:a:rx|dof:a:rx", "a wrong pipe entry beside an undecidable body");
+}
+
+#[test]
+fn a_frame_conditioning_at_binary64_resolution_is_unresolved_never_passed() {
+    // y = (9e15, 1e-7, 0) gives κ ≈ 9e22, where 2⁻⁹⁰·(n + 1)·(1 + κ) reaches binary64
+    // resolution: the producer's block for it is that of y = (0, 1, 0), and the allowance
+    // would pass an entry ×1.0001. Such an entry is outside the rounding model.
+    let (mut doc, mut request) = load(CANTILEVER);
+    for pipe in request["model"]["pipe_segments"].as_array_mut().unwrap() {
+        pipe["y_reference"] = json!({"x": 9e15, "y": 1e-7, "z": 0});
+    }
+    coherent_entry(&mut doc, "dof:n2:rx", "dof:n2:rx", 1.0001);
+    reseal(&mut doc);
+    let alone = read(&doc, None);
+    assert_ne!(alone.mass.status, ModalReadStatus::Failed, "payload alone {:?}", alone.mass);
+    rebind(&mut doc, &request);
+    let r = read(&doc, Some(&request));
+    assert_eq!(r.binding.status, ModalReadStatus::Passed, "{:?}", r.binding);
+    assert_eq!(r.mass.status, ModalReadStatus::Unresolved, "{:?}", r.mass);
+    assert!(r.mass.unresolved.iter().any(|s| s.contains("entry mass:dof:n2:rx|dof:n2:rx") && s.contains("binary64 resolution")), "{:?}", r.mass);
 }

@@ -76,7 +76,7 @@ from typing import Any
 
 from tests.verifiers import units
 from tests.verifiers.modal_model_mass_interval import (
-    DD_RELATIVE, dd_bound, LARGEST, NORMAL_MIN, ONE, PROFILE_FLOOR, U, ZERO, Iv, OutsideModel, Undecidable, asin_and_cos, binary64,
+    DD_RELATIVE, DD_RESOLUTION_LIMIT, below_floor, dd_bound, LARGEST, NORMAL_MIN, ONE, PROFILE_FLOOR, U, ZERO, Iv, OutsideModel, Undecidable, asin_and_cos, binary64,
     exact, pi, published_image, relative, scaled, sqrt,
 )
 
@@ -320,7 +320,7 @@ class Accumulator:
         self.entries: dict[tuple[int, int], list] = {}
 
     def add(self, a: int, b: int, exact_term: Iv, envelope_term: Iv, conditioning: Fraction = Fraction(1),
-            scale: Fraction | None = None):
+            scale: Fraction | None = None, outside: str | None = None):
         """`scale` is the absolute term sum of the producer's formation of this
         contribution (default: the term's own magnitude, exact where no frame rotation
         or cancellation intervenes, as for a body's products)."""
@@ -329,12 +329,14 @@ class Accumulator:
         scale = conditioning * (envelope_term.mag() if scale is None else scale)
         held = self.entries.get((a, b))
         if held is None:
-            self.entries[(a, b)] = [exact_term, envelope_term, scale, 1]
+            self.entries[(a, b)] = [exact_term, envelope_term, scale, 1, conditioning, outside]
         else:
             held[0] = held[0] + exact_term
             held[1] = held[1] + envelope_term
             held[2] += scale
             held[3] += 1
+            held[4] = max(held[4], conditioning)
+            held[5] = held[5] or outside
 
 
 def _cross(e):
@@ -358,7 +360,7 @@ def _coefficient(entry, length: Iv) -> Iv:
     return Iv(entry)
 
 
-def _straight_blocks(xi, xj, mbar: Iv, ibar: Iv, jbar: Iv, geometry):
+def _straight_blocks(xi, xj, mbar: Iv, ibar: Iv, jbar: Iv, geometry, floors: list):
     """The 12×12 consistent mass of Design §2.2 in global axes, frame-free (a circular
     section's mass does not depend on the member's y/z orientation): transverse
     displacement d = (I − eeᵀ)u and slope s = θ × e = −[e]×θ (so that along +x the planes
@@ -375,6 +377,8 @@ def _straight_blocks(xi, xj, mbar: Iv, ibar: Iv, jbar: Iv, geometry):
     cross = _cross(e)
     transverse = mbar * length / Iv(420)
     rotary = ibar / (Iv(30) * length)
+    floors.extend(f"straight member {what}" for what, x in (("m̄L/420", transverse), ("ī/(30L)", rotary), ("L", length))
+                  if below_floor(x))
     out: dict[tuple[int, int], Iv] = {}
     scales: dict[tuple[int, int], Fraction] = {}
 
@@ -386,7 +390,9 @@ def _straight_blocks(xi, xj, mbar: Iv, ibar: Iv, jbar: Iv, geometry):
 
     for g in range(4):
         for h in range(4):
-            coef = transverse * _coefficient(HERMITE[g][h], length) + rotary * _coefficient(RAYLEIGH[g][h], length)
+            parts = (transverse * _coefficient(HERMITE[g][h], length), rotary * _coefficient(RAYLEIGH[g][h], length))
+            floors.extend("straight member plane coefficient" for part in parts if below_floor(part))
+            coef = parts[0] + parts[1]
             node_g, node_h = g // 2, h // 2
             slope_g, slope_h = g % 2 == 1, h % 2 == 1
             for a in range(3):
@@ -412,6 +418,8 @@ def _straight_blocks(xi, xj, mbar: Iv, ibar: Iv, jbar: Iv, geometry):
                     for offset, q in ((0, mbar), (3, jbar)):
                         r, c = 6 * node_g + offset + a, 6 * node_h + offset + b
                         if r <= c:
+                            if below_floor(q * length * factor):
+                                floors.append("straight member axial or torsional coefficient")
                             put(r, c, q * length * factor * axis[a][b], (q * length * factor).mag())
     return out, scales
 
@@ -461,17 +469,32 @@ def _rigid_block(mass: Iv, first: list, second: list):
     return out
 
 
-def _body_block(mass: Iv, cog) -> dict:
+def _floor_reason(floors: list, owner: str) -> str | None:
+    """The premise breach carried by every entry an element contributes to, or None.
+
+    A nonzero double-word intermediate that may lie below the kernel's low-word floor
+    (2^-969, `LOCAL_ENTRY_MIN`) leaves the relative rounding premise; the element's
+    entries become undecidable, while every other entry is still compared."""
+    if not floors:
+        return None
+    return (f"{owner}: a double-word intermediate ({floors[0]}) may lie below the low-word floor 2^-969, "
+            "outside the rounding model")
+
+
+def _body_block(mass: Iv, cog, floors: list) -> dict:
     """A point mass at the centre of gravity r from its node (Design §2.2, §2.3):
     [[m·I, −m[r]×], [m[r]×, m(|r|²I − rrᵀ)]]; its own inertia is unentered, so zero."""
     r = [Iv(v) for v in cog]
     first = [mass * r[a] for a in range(3)]
+    # The producer forms m, m·r_a and (m·r_a)·r_b in double word (`component_mass`).
+    if any(below_floor(x) for x in [mass, *first, *(first[a] * r[b] for a in range(3) for b in range(3))]):
+        floors.append("component body")
     squared = r[0].square() + r[1].square() + r[2].square()
     second = [[(mass * squared if a == b else ZERO) - mass * r[a] * r[b] for b in range(3)] for a in range(3)]
     return _rigid_block(mass, first, second)
 
 
-def _arc_lumps(xi, xj, radius, y, mbar: Iv, ibar: Iv, jbar: Iv, trig):
+def _arc_lumps(xi, xj, radius, y, mbar: Iv, ibar: Iv, jbar: Iv, trig, floors: list):
     """Design §2.4: two rigid half-arcs (half-angle α, mass m̄Rα each) about their end
     nodes, with first moment ∫m̄ρ ds and second moment ∫m̄(|ρ|²I − ρρᵀ) ds + ∫(j̄ttᵀ +
     ī(I − ttᵀ)) ds. In the half's own frame (e1 radial outward at the node, e2 the
@@ -505,6 +528,11 @@ def _arc_lumps(xi, xj, radius, y, mbar: Iv, ibar: Iv, jbar: Iv, trig):
                 section = R * (jbar * tt[a][b] + ibar * ((alpha if a == b else ZERO) - tt[a][b]))
                 local[a][b] = jc[a][b] + section
                 local[b][a] = local[a][b]
+        for x in [mass, *local_first, *(local[p][q] for p in range(3) for q in range(3)),
+                  *(tt[p][q] for p in range(3) for q in range(p, 3)),
+                  *(jc[p][q] for p in range(3) for q in range(p, 3))]:
+            if below_floor(x):
+                floors.append("arc half-lump local entry")
         first = [frame[0][k] * local_first[0] + frame[1][k] * local_first[1] for k in range(3)]
         second = [[None] * 3 for _ in range(3)]
         for a in range(3):
@@ -574,6 +602,10 @@ class ModelMass:
         held = self.entries.get(key)
         if held is None:
             return ZERO
+        if held[5]:
+            raise OutsideModel(f"mass entry {key}: {held[5]}")
+        if (held[3] + 1) * held[4] >= DD_RESOLUTION_LIMIT:
+            raise OutsideModel(f"mass entry {key}: the frame conditioning puts the double-word premise at binary64 resolution")
         return binary64(held[1].widen(dd_bound(held[3], held[2])), f"mass entry {key}")
 
     def exact_entry(self, key) -> Iv:
@@ -732,23 +764,28 @@ def derive(request: Any) -> ModelMass:
         if pipe_id in curved:
             radius = _arc_admission(curved[pipe_id], pipe_id, pipes, xi, xj, y)
             geometry = _arc_trig(xi, xj, radius, y, f"bend {curved[pipe_id]['id']}")
-            pair = []
+            pair, floors = [], []
             for qs in ((section.mass[0], section.bending[0], section.polar[0]), (section.mass[1], section.bending[1], section.polar[1])):
-                pair.append(_arc_lumps(xi, xj, radius, y, *qs, geometry))
+                pair.append(_arc_lumps(xi, xj, radius, y, *qs, geometry, floors))
+            outside = _floor_reason(floors, f"pipe {pipe_id}")
             for side, node in ((0, i), (1, j)):
                 block, _ = pair[0][side]
                 envelope, scales = pair[1][side]
                 for (r, c), value in block.items():
-                    accumulator.add(6 * node + r, 6 * node + c, value, envelope[(r, c)], conditioning, scales[(r, c)])
+                    accumulator.add(6 * node + r, 6 * node + c, value, envelope[(r, c)], conditioning, scales[(r, c)],
+                                    outside)
             arc_length = Iv(2) * Iv(radius) * geometry[0]
             out.arcs.append(pipe_id)
         else:
             geometry = _straight_geometry(xi, xj)
-            blocks = [_straight_blocks(xi, xj, section.mass[k], section.bending[k], section.polar[k], geometry) for k in (0, 1)]
+            floors = []
+            blocks = [_straight_blocks(xi, xj, section.mass[k], section.bending[k], section.polar[k], geometry, floors)
+                      for k in (0, 1)]
+            outside = _floor_reason(floors, f"pipe {pipe_id}")
             nodes = (i, j)
             for (r, c), value in blocks[0][0].items():
                 accumulator.add(6 * nodes[r // 6] + r % 6, 6 * nodes[c // 6] + c % 6, value, blocks[1][0][(r, c)],
-                                conditioning, blocks[1][1][(r, c)])
+                                conditioning, blocks[1][1][(r, c)], outside)
             arc_length = geometry[0]
             out.straights.append(pipe_id)
         for name, pair in (("metal", section.metal), ("contents", section.contents), ("insulation", section.insulation)):
@@ -758,14 +795,16 @@ def derive(request: Any) -> ModelMass:
         _body_range(weight, acceleration, cog, pipe_id)
         mass_x = Iv(weight) / Iv(acceleration)            # W/a, Design §2.3
         mass_e = binary64(mass_x, f"component body on {pipe_id}")  # the producer's fl(W/a)
-        exact_block, envelope_block = (_body_block(m, cog) for m in (mass_x, mass_e))
+        floors = []
+        exact_block, envelope_block = (_body_block(m, cog, floors) for m in (mass_x, mass_e))
+        outside = _floor_reason(floors, f"the component body on {pipe_id}")
         for (r, c), value in exact_block.items():
-            accumulator.add(6 * node + r, 6 * node + c, value, envelope_block[(r, c)])
+            accumulator.add(6 * node + r, 6 * node + c, value, envelope_block[(r, c)], outside=outside)
         out.categories["component_bodies"] = out.categories["component_bodies"] + mass_x
         out.bodies.append(pipe_id)
     out.entries = accumulator.entries
     # The envelope must hold the Design value entry by entry (a reader self-check).
-    for key, (x, e, _, _) in out.entries.items():
+    for key, (x, e, *_) in out.entries.items():
         if not e.contains_interval(x):
             raise ReaderSelfCheck(f"mass entry {key}: the envelope does not hold the Design value")
 
@@ -979,9 +1018,52 @@ def _arc_admission(component, pipe_id, pipes, xi, xj, y) -> float:
     return radius
 
 
-# The axis of each DOF token the producer recognises (`dof_axis`), translations and rotations.
+# The axis of each DOF token the producer recognises (`dof_axis`), translations and rotations,
+# and the (translation, axis) DOF it names.
 _TOKEN_AXIS = {token: axis for axis, letter in enumerate("XYZ") for kind in "UR"
                for token in (kind + letter, kind + letter.lower(), kind.lower() + letter.lower())}
+_TOKEN_DOF = {token: (token[0] in "Uu", axis) for token, axis in _TOKEN_AXIS.items()}
+
+
+def _direction_axis(support, support_id, restraints):
+    """The producer's admission of a `direction` record (`supports_findings`), then its
+    axis: None when absent. Refused, as the producer refuses it before lowering: a
+    direction that is not three finite numbers or is zero; on a family other than
+    line_stop, spring or snubber; beside a nonlinear member; on a record whose
+    restraints and stiffness do not name exactly one DOF, or name a rotational one.
+    A skewed direction is admitted statically but refused by modal-1."""
+    direction = support.get("direction")
+    if direction is None:
+        return None
+
+    def refused(reason):
+        return RefusedDomain(f"support {support_id}: its direction {reason}, which the producer refuses")
+
+    d = [direction.get(axis) for axis in "xyz"] if isinstance(direction, dict) else None
+    if d is None or not all(type(v) in (int, float) and math.isfinite(v) for v in d):
+        raise refused("is not three finite numbers (SUPPORT_DIRECTION_INVALID)")
+    if all(v == 0 for v in d):
+        raise refused("is zero (SUPPORT_DIRECTION_ZERO)")
+    if support.get("family") not in ("line_stop", "spring", "snubber"):
+        raise refused("is on a family other than line_stop, spring or snubber (SUPPORT_DIRECTION_RECORD_UNSUPPORTED)")
+    if support.get("nonlinear") is not None:
+        raise refused("is beside a nonlinear member (SUPPORT_DIRECTION_RECORD_UNSUPPORTED)")
+    hanger = support.get("hanger")
+    stiffness = support.get("stiffness") or (hanger.get("stiffness") if isinstance(hanger, dict) else None)
+    tokens = list(restraints) + ([stiffness.get("dof")] if isinstance(stiffness, dict) else [])
+    dofs = []
+    for token in tokens:
+        if token not in _TOKEN_DOF:
+            raise refused("is on a record naming a token that is not a DOF (SUPPORT_DIRECTION_RECORD_UNSUPPORTED)")
+        if _TOKEN_DOF[token] not in dofs:
+            dofs.append(_TOKEN_DOF[token])
+    if len(dofs) != 1:
+        raise refused("is on a record acting on other than exactly one DOF (SUPPORT_DIRECTION_RECORD_UNSUPPORTED)")
+    if not dofs[0][0]:
+        raise refused("is on a rotational DOF (SUPPORT_DIRECTION_ROTATIONAL_UNSUPPORTED)")
+    if sum(1 for v in d if v != 0) > 1:
+        raise RefusedDomain(f"support {support_id}: modal-1 refuses skew records (MODAL_DOCUMENT_SKEW_RESTRAINT_UNSUPPORTED)")
+    return next(k for k in range(3) if d[k] != 0)
 
 
 def _partition(model, index, out):
@@ -997,19 +1079,14 @@ def _partition(model, index, out):
         family = support.get("family")
         if family == "snubber":
             raise RefusedDomain(f"support {support_id}: a snubber is refused on this source (SNUBBER_DYNAMIC_ONLY_UNSUPPORTED)")
-        direction = support.get("direction")
         restraints_authored = _list(support.get("restraints"), f"support {support_id} restraints")
-        if isinstance(direction, dict):
-            d = [direction.get(axis) for axis in "xyz"]
-            if all(type(v) in (int, float) for v in d) and sum(1 for v in d if v != 0) > 1:
-                raise RefusedDomain(f"support {support_id}: modal-1 refuses skew records (MODAL_DOCUMENT_SKEW_RESTRAINT_UNSUPPORTED)")
-            if all(type(v) in (int, float) for v in d) and sum(1 for v in d if v != 0) == 1:
-                # An exactly axis-aligned direction is lowered as the producer does
-                # (`lower_axis_aligned_directions`): each DOF token on another axis
-                # becomes the direction's translation token.
-                axis = next(k for k in range(3) if d[k] != 0)
-                restraints_authored = ["U" + "XYZ"[axis] if _TOKEN_AXIS.get(t, axis) != axis else t
-                                       for t in restraints_authored]
+        axis = _direction_axis(support, support_id, restraints_authored)
+        if axis is not None:
+            # An admitted, exactly axis-aligned direction is lowered as the producer does
+            # (`lower_axis_aligned_directions`): each DOF token on another axis becomes
+            # the direction's translation token.
+            restraints_authored = ["U" + "XYZ"[axis] if _TOKEN_AXIS.get(t, axis) != axis else t
+                                   for t in restraints_authored]
         hanger = support.get("hanger")
         hanger_type = hanger.get("hanger_type") if isinstance(hanger, dict) else None
         hanger_type = hanger_type.strip() if isinstance(hanger_type, str) and hanger_type.strip() else (
@@ -1247,15 +1324,20 @@ def mass_items(model: ModelMass, view) -> list[str]:
                                         "but the document publishes no entry (0)")
                 continue
             _guarded(items, what, lambda: _judge(what, vo, expected, signed=key[0] != key[1]))
-    if outside:
-        items.append(UNRESOLVED + "the totals, the free-DOF masses and the centre need every entry inside the rounding model")
-        return items
     free = _free_list(view)
-    for name, derived, published in (("T", _totals(rounded), view.totals), ("free-DOF mass", _totals(rounded, free), view.free_totals)):
+    open_keys = [key for key, _ in outside]
+    for name, derived, published, scope in (("T", _totals(rounded), view.totals, None),
+                                            ("free-DOF mass", _totals(rounded, free), view.free_totals, free)):
         for k in range(3):
             what = f"{name} {DIRECTIONS[k]} against the model"
+            if any(a % 6 == k and b % 6 == k and (scope is None or (scope[a] and scope[b])) for a, b in open_keys):
+                items.append(UNRESOLVED + f"{what}: an entry it sums is outside the rounding model")
+                continue
             _guarded(items, what, lambda: _judge(what, published[k], derived[k]))
-    _guarded(items, "the mass centre", lambda: _centre(model, view, rounded, n_dofs, items))
+    if any(a % 6 < 3 or b % 6 < 3 for a, b in open_keys):
+        items.append(UNRESOLVED + "the mass centre: an entry of a translational column is outside the rounding model")
+    else:
+        _guarded(items, "the mass centre", lambda: _centre(model, view, rounded, n_dofs, items))
     # The category totals are an internal cross-check of this reader: in real arithmetic
     # T_k = metal + contents + insulation + bodies, whatever the direction.
     categories = model.categories["metal"] + model.categories["contents"] + model.categories["insulation"] + \
@@ -1338,10 +1420,16 @@ def participation_items(model: ModelMass, view) -> list[str]:
     if view.shapes is None:
         return items + ["shapes withheld: m_i, Γ, m_eff and the fractions are not recomputed from the model"]
     rounded, outside = _rounded(model)
-    if outside:
-        return items + [UNRESOLVED + f"mass entry {key}: {error}; the participation quantities are not recomputed"
-                        for key, error in outside]
     free = _free_list(view)
+    # An entry outside the rounding model leaves the participation quantities undecidable
+    # only where they use it: m_i the free block, p_k the free rows' translational
+    # columns, and the fractions T_k.
+    used = [(key, error) for key, error in outside
+            if (free[key[0]] and free[key[1]]) or (free[key[0]] and key[1] % 6 < 3)
+            or (free[key[1]] and key[0] % 6 < 3) or (key[0] % 6 == key[1] % 6 < 3)]
+    if used:
+        return items + [UNRESOLVED + f"mass entry {key}: {error}; the participation quantities are not recomputed"
+                        for key, error in used]
     n_dofs = 6 * len(model.node_ids)
     rows, mags = _full_row_sums(rounded, n_dofs)
     try:

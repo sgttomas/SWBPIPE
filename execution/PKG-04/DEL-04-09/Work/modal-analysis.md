@@ -166,13 +166,25 @@ under 2⁻¹⁰⁰ per operation and under 2¹⁰ operations per contribution, s
 accumulated from n contributions errs by at most 2⁻⁹⁰·(n + 1)·Σ(1 + κ)·|scale|,
 each scale the absolute term sum of the producer's formation (for a member, of
 its frame rotation, so an entry cancelling to zero keeps its allowance) and
-κ = |y|/|y⊥| for a member frame. A published value outside its enclosure fails;
-a flagged or outside-profile value meeting it is unresolved. No threshold is
-selected or changed. A solved document bound to a model the producer refuses
-(snubber, gap support, skew, condition contents on the state case, Timoshenko, a
-body outside §2.3 item 6's range premise in the producer's evaluation order)
-fails; an exactly axis-aligned direction is lowered to its axis as the producer
-lowers it. The readers' boundaries are not identical: Rust's binary64 interval
+κ = |y|/|y⊥| for a member frame. Where the readers sum turned blocks rather
+than the producer's local ones, the scale bounds the local absolute sums through
+the norms a rotation keeps (Σ|S_local| ≤ 2·Σ|S|, Σ|J_local| ≤ 3·Σ|J|). The
+premise holds only inside two limits, beyond which an entry is outside the
+rounding model and unresolved: (n + 1)·max(1 + κ) below 2³⁷, where the allowance
+would reach binary64 resolution, and no nonzero double-word intermediate of the
+element below the kernel's low-word floor 2⁻⁹⁶⁹ (`LOCAL_ENTRY_MIN`). Such an
+entry leaves undecidable only what uses it; every other entry, total, the centre
+and the participation quantities that do not use it are still compared. The
+floor is checked on the mass formation's products; the centre's and the
+participation's double-word products (arm by row sum, φᵀp_k squared, m·T_k) are
+covered by the relative premise alone, which is a stated limit. A
+published value outside its enclosure fails; a flagged or outside-profile value
+meeting it is unresolved. No threshold is selected or changed. A solved
+document bound to a model the producer refuses (snubber, gap support, skew, a
+support direction its admission refuses, condition contents on the state case,
+Timoshenko, a body outside §2.3 item 6's range premise in the producer's
+evaluation order) fails; an exactly axis-aligned direction is lowered to its
+axis as the producer lowers it, rotational tokens included. The readers' boundaries are not identical: Rust's binary64 interval
 arithmetic is wider than Python's exact rationals near a bound, and Rust scopes
 an objective connector on the PF route where Python follows the producer's
 mass selection (`replaced_span_ids`, exact route only). Neither re-derives the
