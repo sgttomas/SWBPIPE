@@ -170,9 +170,10 @@ def models() -> dict[str, tuple[dict, str, float]]:
 MODELS = models()
 # Reversible subset (§18.2): written, no MBF-SI-SHEAR-MODULUS-NOT-EXPORTED, printed values valid, distinct keys kept.
 REVERSIBLE = sorted(MODELS)
-# Excluded by name, with the reason: the component names the far tangent node, which the sidecar does not carry
-# (the importer reports MBF-IMPORT-REFERENCE-UNRECOVERABLE for every bound bend component's .node).
-EXCLUDED = {"writer-bent-l-reversed": (reversed_bend(), "component node is the far tangent node; not in the sidecar")}
+# Excluded by name, with the reason: none. Sidecar format 6 records the tangent node each bend component names, so
+# the reversed bend, whose component names the far tangent node and which formats 2 to 4 cannot carry, is restored
+# (test_every_excluded_loss_and_model_is_listed).
+EXCLUDED: dict[str, tuple[dict, str]] = {}
 # Byte-reproducible subset (§18.2): bound sidecar, identical writer settings, no formatting collision.
 BYTE_REPRODUCIBLE = sorted(MODELS)
 SOLVE_THRESHOLD_FACTOR = 1e3  # ASSUMPTION (Design §18.1(d)): provisional, not a derived bound
@@ -268,12 +269,17 @@ def test_bound_import_equals_the_source_within_the_derived_bounds(trips, name):
 
 def test_every_excluded_loss_and_model_is_listed():
     assert len(canon.EXCLUDED_LOSSES) == 9
-    assert set(EXCLUDED) == {"writer-bent-l-reversed"}
-    trip = Trip("writer-bent-l-reversed", *([EXCLUDED["writer-bent-l-reversed"][0], "REVERSED L", 20.0]))
+    assert EXCLUDED == {}
+    # Formerly excluded: the component names the far tangent node. Format 6 records it, and the bound import
+    # restores it, so the model compares equal; the same pair downgraded to format 4 still loses that reference.
+    trip = Trip("writer-bent-l-reversed", reversed_bend(), "REVERSED L", 20.0)
     reference = trip.reference()
-    failures = canon.compare(reference, trip.imported(trip.bound, oriented=True), trip.limits(reference)).failures
-    assert [item for item in failures if "'node')" in item]  # the far-node component is why it is excluded
-    assert all("'node')" in item for item in failures)
+    assert canon.compare(reference, trip.imported(trip.bound, oriented=True), trip.limits(reference)).failures == []
+    four = import_caepipe_mbf(trip.data, sidecar=as_format(trip.sidecar, 4), material_provenance=INVENTED,
+                              source_label="format 4")
+    assert four.status == "imported", four.diagnostics
+    failures = canon.compare(reference, trip.imported(four, oriented=True), trip.limits(reference)).failures
+    assert failures and all("'node')" in item for item in failures)
 
 
 # --- (a') unbound imports ----------------------------------------------------------------------------
@@ -346,8 +352,10 @@ def test_bound_import_restores_the_sidecar_identities_and_reports_the_rest(trips
                 component["geometry"]["bend_pipe_ref"] for component in source.get("components") or []}:
             restored = next(item for item in imported["pipe_segments"] if item["id"] == pipe["id"])
             assert restored["y_reference"] == {axis: float(pipe["y_reference"][axis]) for axis in "xyz"}
-    for component in imported["components"]:  # the component's tangent node is not in the sidecar
-        assert ("MBF-IMPORT-REFERENCE-UNRECOVERABLE", f"{component['id']}.node") in notices
+    sources = {component["id"]: component for component in source.get("components") or []}
+    for component in imported["components"]:  # format 6 carries the tangent node the component names
+        assert component["node"] == sources[component["id"]]["node"]
+        assert ("MBF-IMPORT-REFERENCE-UNRECOVERABLE", f"{component['id']}.node") not in notices
     assert notices.count((COMPLETENESS, "unexported members")) == 1 and "not export" in text(COMPLETENESS)
     # Only original summed load ids are reported lost; each counts once, and the formed groups and the field,
     # reference and general notices are not lost ids.
@@ -392,7 +400,7 @@ def test_summed_primitives_are_many_to_one_and_reported():
     assert groups(trip.bound) == {"case:tip/load:concentrated_force:N1:global_y": ["case:tip/tip", "case:tip/tip2"]}
     assert set_aside(trip.bound) == reported(trip.bound) == differing_entries(trip.sidecar, trip.bound)
     assert regeneration_difference(trip.sidecar, trip.bound) is None
-    found = sidecar_difference(trip.sidecar, regenerated_from(trip.bound))  # with no identity set aside
+    found = sidecar_difference(comparable(trip.sidecar), regenerated_from(trip.bound))  # no identity set aside
     assert found is not None and found[0] in reported(trip.bound)
     original_ids = {load["id"] for load in model["load_cases"][0]["primitive_loads"]}
     assert original_ids == {"tip", "tip2"}
@@ -410,38 +418,106 @@ def test_summed_primitives_are_many_to_one_and_reported():
     assert trip.bound.identity_recovery == Facts(known_missing_ids=2, unrecovered_fields=0)
 
 
-def test_bend_endpoint_choice_is_lost_even_when_all_entity_ids_are_restored():
-    # The exchange cannot distinguish source component.node choices. This proves the reason to retain the
-    # existing notice; it does not turn matching component/node inventories into a completeness assertion.
+def test_format_6_restores_each_bend_endpoint_choice_and_format_4_keeps_the_old_notice():
+    # Near and far source choices of the bend component's node give different format-6 pairs (the MBF bytes are the
+    # same; the identity file's bend.node and derivation differ), and each bound import restores its own choice, with
+    # no MBF-IMPORT-REFERENCE-UNRECOVERABLE and no unrecovered field; source completeness stays unestablished. It is
+    # restored as the consistent pair declares it, not independently verified. The same pairs downgraded to format 4
+    # carry no endpoint: they import exactly as before, near node and notice included.
     original = json.loads((ROOT / "fixtures/caepipe_mbf/invented/desktop_export/export_model.json").read_text())
-    pairs = []
-    imported = []
+    texts, sidecars = [], []
     for endpoint in ("node:T1", "node:T2"):
         model = deepcopy(original)
         model["components"][0]["node"] = endpoint
         written = render_caepipe_mbf_si(model, title="Invented MBF export", reference_temperature_c=20.0)
         assert written.status == "written", written.diagnostics
         data = written.text.encode("utf-8")
-        sidecar = importer_module.canonical_bytes(written.sidecar(hashlib.sha256(data).hexdigest()))
-        pairs.append((data, sidecar))
-        result = import_as_given(data, sidecar=sidecar, source_label="invented.mbf")
+        sidecar = written.sidecar(hashlib.sha256(data).hexdigest())
+        (bend,) = [entry["bend"] for entry in sidecar["element_map"].values() if "bend" in entry]
+        assert bend == {"component": "component:bend-1", "node": endpoint}
+        texts.append(data)
+        sidecars.append(importer_module.canonical_bytes(sidecar))
+        result = import_as_given(data, sidecar=sidecars[-1], source_label="invented.mbf")
         assert result.status == "imported", result.diagnostics
-        component = result.model["components"][0]
-        assert component["id"] == model["components"][0]["id"] == "component:bend-1"
-        assert component["node"] == "node:T1"
-        # The component id survives; its .node reference is reported not recovered, with the same reason, on
-        # both endpoints, and no original id is reported lost. Source completeness stays unestablished.
-        assert identity_notices(result) == [("MBF-IMPORT-REFERENCE-UNRECOVERABLE", "component:bend-1.node"),
-                                            (COMPLETENESS, "unexported members")]
-        (notice,) = [item for item in result.loss_report if item["code"] == "MBF-IMPORT-REFERENCE-UNRECOVERABLE"]
+        (component,) = result.model["components"]
+        assert (component["id"], component["node"]) == ("component:bend-1", endpoint)
+        assert identity_notices(result) == [(COMPLETENESS, "unexported members")]
+        assert result.identity_recovery == Facts(known_missing_ids=0, unrecovered_fields=0)
+        assert regeneration_difference(sidecar, result) is None
+        # Format 4: the old behaviour, unchanged.
+        four = import_as_given(data, sidecar=as_format(sidecar, 4), source_label="invented.mbf")
+        assert four.status == "imported", four.diagnostics
+        assert four.model["components"][0]["node"] == "node:T1"
+        assert identity_notices(four) == [("MBF-IMPORT-REFERENCE-UNRECOVERABLE", "component:bend-1.node"),
+                                          (COMPLETENESS, "unexported members")]
+        (notice,) = [item for item in four.loss_report if item["code"] == "MBF-IMPORT-REFERENCE-UNRECOVERABLE"]
         assert notice["reason"] == ("the sidecar does not record which tangent node bend 20's component names; the "
                                     "importer uses the near tangent node 20A")
-        assert result.identity_recovery == Facts(known_missing_ids=0, unrecovered_fields=1)
-        assert {node["id"] for node in result.model["nodes"]} == {node["id"] for node in model["nodes"]}
-        imported.append(component)
-    assert pairs[0] == pairs[1], "neither saved member carries the original endpoint choice"
-    assert imported[0]["node"] == original["components"][0]["node"]
-    assert imported[1]["node"] != "node:T2", "the far-node source reference is demonstrably lost"
+        assert four.identity_recovery == Facts(known_missing_ids=0, unrecovered_fields=1)
+        assert four.derivation is None
+    assert texts[0] == texts[1], "the MBF bytes do not carry the endpoint choice"
+    assert sidecars[0] != sidecars[1], "the format-6 identity file does"
+
+
+def two_bend_u() -> dict:
+    """Invented horizontal U in one run: test_caepipe_mbf_si_writer.bent_l's L (bend-1 at T1-T2) continued 2.5 m along
+    Z to a second 90 degree bend, R = 0.25 m (bend-2 at T3-T4, named by T3), and 3.75 m back along -X."""
+    model = writer_tests.bent_l()
+    node, pipe = writer_tests.node, writer_tests.pipe
+    model["nodes"] = [node("A", 0.0), node("T1", 3.75), node("T2", 4.0, 0.0, 0.25), node("T3", 4.0, 0.0, 2.75),
+                      node("T4", 3.75, 0.0, 3.0), node("B", 0.0, 0.0, 3.0)]
+    model["pipe_segments"] = [pipe(pipe_id, start, end, 0.1683, 0.00711, "m") for pipe_id, start, end in (
+        ("S1", "A", "T1"), ("BEND", "T1", "T2"), ("S2", "T2", "T3"), ("BEND2", "T3", "T4"), ("S3", "T4", "B"))]
+    for item, y_reference in zip(model["pipe_segments"], ((0.0, 1.0, 0.0), (1.0, 0.0, -1.0), (0.0, 1.0, 0.0),
+                                                          (1.0, 0.0, 1.0), (0.0, 1.0, 0.0))):
+        item["y_reference"] = dict(zip("xyz", y_reference))
+    model["components"].append({"id": "bend-2", "kind": "bend", "node": "T3",
+                                "geometry": {"bend_pipe_ref": "BEND2", "bend_radius": writer_tests.q(250.0, "mm")},
+                                "modifiers": {"flexibility_factor_user_value": writer_tests.q(1.0, "none")},
+                                "mechanics_interface": {"solver_consumption": "curved_bend_macro_element"}})
+    model["load_cases"][0]["primitive_loads"] = [
+        {"id": f"t:{item['id']}", "category": "thermal", "target": {"type": "element", "pipe": item["id"]},
+         "direction": "global_x", "magnitude": writer_tests.q(100.0, "degC"), "dimension": "temperature_interval"}
+        for item in model["pipe_segments"]]
+    return model
+
+
+def test_a_bend_node_that_is_not_that_bends_tangent_node_is_refused_by_path():
+    # Bound format 6: bend.node must be one of that bend's two tangent node ids. Another node of the model, a node
+    # absent from node_map and the other bend's tangent node are each refused (MBF-IMPORT-SIDECAR-CONFLICT at
+    # element_map[<pipe id>].bend.node), with the self-digest recomputed (a deliberate editor); the regeneration
+    # identity alone refuses each too. Swapping to the bend's own other tangent node is a consistent edit: it imports
+    # as stated, the far node restored, and regenerates as given (Design §14).
+    model = two_bend_u()
+    data, sidecar = bound_parts(model)
+    base = import_caepipe_mbf(data, sidecar=sidecar, material_provenance=INVENTED, source_label="base")
+    assert base.status == "imported", base.diagnostics
+    bends = {pipe_id: entry for pipe_id, entry in sidecar["element_map"].items() if "bend" in entry}
+    assert set(bends) == {"BEND", "BEND2"}
+    tangents = {pipe_id: {entry["from"], entry["to"]} for pipe_id, entry in bends.items()}
+    names = {name: swb_id for swb_id, name in sidecar["node_map"].items()}
+    own = {pipe_id: {names[name] for name in found} for pipe_id, found in tangents.items()}
+    assert bends["BEND"]["bend"]["node"] in own["BEND"]
+    other_tangent = sorted(own["BEND2"])[0]
+    elsewhere = next(swb_id for swb_id in sidecar["node_map"] if swb_id not in own["BEND"] | own["BEND2"])
+    for node in (elsewhere, "node:absent", other_tangent):
+        assert node not in own["BEND"]
+        changed = deepcopy(sidecar)
+        changed["element_map"]["BEND"]["bend"]["node"] = node
+        result = import_caepipe_mbf(data, sidecar=changed, material_provenance=INVENTED, source_label=node)
+        assert refusals(result) == {("MBF-IMPORT-SIDECAR-CONFLICT", "element_map[BEND].bend.node")}, node
+        assert result.status == "refused" and result.derivation is None
+        assert regeneration_difference(changed, base) is not None, node
+        stale = import_as_given(data, sidecar=changed, material_provenance=INVENTED, source_label=node)
+        assert refusals(stale) == {("MBF-IMPORT-SIDECAR-DIGEST-MISMATCH", "sidecar_sha256")}
+    (swapped,) = own["BEND"] - {bends["BEND"]["bend"]["node"]}
+    changed = deepcopy(sidecar)
+    changed["element_map"]["BEND"]["bend"]["node"] = swapped
+    result = import_caepipe_mbf(data, sidecar=changed, material_provenance=INVENTED, source_label="swapped")
+    assert result.status == "imported", result.diagnostics
+    assert next(item for item in result.model["components"] if item["id"] == "bend-1")["node"] == swapped
+    assert regeneration_difference(changed, result) is None
+    assert regeneration_difference(changed, base) is not None  # the identity alone, against the unedited import
 
 
 def test_a_merged_anchor_split_the_solve_refuses_is_not_restored(monkeypatch):
@@ -893,12 +969,49 @@ def refusals(result) -> set[tuple[str, str]]:
     return {(item["code"], item["location"]) for item in result.diagnostics if item["severity"] == "error"}
 
 
-def regenerated_from(result) -> dict:
-    """What the writer regenerates from the imported model of `result` (and its record of derived orientations)."""
+def comparable(sidecar: dict) -> dict:
+    """`sidecar` as the regeneration identity compares it: a format-6 sidecar without its `derivation`, which no
+    regeneration from the restored model reproduces and the identity excludes (Design §14, §15 Format 6)."""
+    if isinstance(sidecar, dict) and sidecar.get("sidecar_format") == SIDECAR_FORMAT:
+        return {key: value for key, value in sidecar.items() if key != "derivation"}
+    return sidecar
+
+
+def regenerated_from(result, like: dict | None = None) -> dict:
+    """What the writer regenerates from the imported model of `result` (and its record of derived orientations), as
+    the regeneration identity compares it (comparable): without `derivation`. Given `like`, a sidecar of an earlier
+    format, in that format, as the importer compares it: format 4 without bend nodes, formats 2 and 3 also without
+    section_map."""
     regenerated, errors = regenerate_caepipe_sidecar(result.model, mbf_sha256="0" * 64,
                                                      derived_y_reference=result.id_map["y_reference_derived"])
     assert regenerated is not None, errors
+    regenerated = {key: value for key, value in regenerated.items() if key != "derivation"}
+    number = like.get("sidecar_format") if isinstance(like, dict) else SIDECAR_FORMAT
+    if number != SIDECAR_FORMAT:
+        regenerated["sidecar_format"] = number
+        for entry in regenerated["element_map"].values():
+            if "bend" in entry:
+                entry["bend"] = {key: value for key, value in entry["bend"].items() if key != "node"}
+        if number not in (4, SIDECAR_FORMAT):
+            regenerated.pop("section_map", None)
     return regenerated
+
+
+def as_format(sidecar: dict, number: int) -> dict:
+    """The writer's format-6 `sidecar` as an earlier writer recorded it, a deliberate editor's downgrade: format 4
+    without `derivation` and each bend entry's `node`; format 3 also without `section_map`; format 2 also without
+    the self-digest. The self-digest of formats 3 and 4 is recomputed."""
+    copy = deepcopy(sidecar)
+    copy.pop("derivation")
+    for entry in copy["element_map"].values():
+        if "bend" in entry:
+            entry["bend"].pop("node")
+    copy["sidecar_format"] = number
+    if number < 4:
+        copy.pop("section_map")
+    if number == 2:
+        copy.pop("sidecar_sha256")
+    return canon.redigested(copy)
 
 
 def groups(result) -> dict[str, list[str]]:
@@ -922,13 +1035,13 @@ def set_aside(result) -> set[str]:
 def regeneration_difference(sidecar: dict, result) -> tuple[str, str, str] | None:
     """The regeneration identity alone (Design §14): `sidecar` against what the writer regenerates from the imported
     model of `result`, the summed primitives' identities aside; None when they are equal."""
-    return sidecar_difference(sidecar, regenerated_from(result), summed=groups(result))
+    return sidecar_difference(comparable(sidecar), regenerated_from(result, like=sidecar), summed=groups(result))
 
 
 def differing_entries(sidecar: dict, result) -> set[str]:
     """Every load_map entry at which `sidecar` and the regeneration from `result` differ, with nothing excluded;
     every other part of the two must be equal."""
-    given, again = canonical_sidecar(sidecar), canonical_sidecar(regenerated_from(result))
+    given, again = canonical_sidecar(comparable(sidecar)), canonical_sidecar(regenerated_from(result, like=sidecar))
     assert {key: value for key, value in given.items() if key != "load_map"} == {
         key: value for key, value in again.items() if key != "load_map"}
     return {f"load_map[{key}]" for key in set(given["load_map"]) | set(again["load_map"])
@@ -1682,6 +1795,14 @@ def sidecar_replacements(sidecar: dict, data: bytes) -> list[tuple[str, dict, st
         if "bend" in entry:
             at(f"element_map[{swb_id}].bend.component", "imported",
                lambda s, k=swb_id: s["element_map"][k]["bend"].update(component="component:other"))
+            if "node" in entry["bend"]:  # format 6: the bend's other tangent node is a consistent edit (Design §14);
+                # any other node is refused (MBF-IMPORT-SIDECAR-CONFLICT)
+                names = {name: node for node, name in sidecar["node_map"].items()}
+                (other,) = {names[entry["from"]], names[entry["to"]]} - {entry["bend"]["node"]}
+                at(f"element_map[{swb_id}].bend.node", "imported",
+                   lambda s, k=swb_id, v=other: s["element_map"][k]["bend"].update(node=v))
+                at(f"element_map[{swb_id}].bend.node", "refused",
+                   lambda s, k=swb_id: s["element_map"][k]["bend"].update(node="node:other"))
             continue
         flipped = {axis: -value + 0.0 for axis, value in entry["y_reference"].items()}
         at(f"element_map[{swb_id}].y_reference", "imported" if entry["y_reference_authored"] else "refused",
@@ -1696,7 +1817,7 @@ def sidecar_replacements(sidecar: dict, data: bytes) -> list[tuple[str, dict, st
         at(f"support_map[{swb_id}].restrained", "refused",
            lambda s, k=swb_id, v=other: s["support_map"][k].update(restrained=v))
         # A spring (format 3) and a rigid support each read as the other kind: the MBF's springs and rigid DOFs differ.
-        if sidecar.get("sidecar_format") in (3, 4) and len(entry["restrained"]) == 1:
+        if sidecar.get("sidecar_format") in (3, 4, SIDECAR_FORMAT) and len(entry["restrained"]) == 1:
             at(f"support_map[{swb_id}].family", "refused", lambda s, k=swb_id, v=entry["family"]: s["support_map"][
                 k].update(family="line_stop" if v == "spring" else "spring", family_authored=True))
         inferred = "anchor" if len(entry["restrained"]) == 6 else "guide"
@@ -1756,9 +1877,29 @@ def sidecar_replacements(sidecar: dict, data: bytes) -> list[tuple[str, dict, st
                                                  else "transfers_to_wall"))
             at(f"pressure_map.regions[{index}].terminals[{end}].provenance", "imported",
                lambda s, t=terminal: t(s).update(provenance="another invented provenance"))
+    if "derivation" in sidecar:  # format 6: held as recorded (no regeneration reproduces it, Design §15 Format 6)
+        settings = sidecar["derivation"]["export_settings"]
+        for name, value in (("title", "ANOTHER TITLE"), ("max_layout_rows", 7 if settings["max_layout_rows"] != 7
+                                                                              else None),
+                            ("piping_code", "ASME" if settings["piping_code"] != "ASME" else None)):
+            at(f"derivation.export_settings.{name}", "imported",
+               lambda s, k=name, v=value: s["derivation"]["export_settings"].update({k: v}))
+        at("derivation.export_settings.reference_temperature", "imported",
+           lambda s: s["derivation"]["export_settings"].update(reference_temperature={"value": 68.0, "unit": "degF"}))
+        at("derivation.source_model_sha256", "imported", lambda s: s["derivation"].update(source_model_sha256="1" * 64))
+        at("derivation.export_settings.title", "refused",  # not a title the writer prints
+           lambda s: s["derivation"]["export_settings"].update(title=" padded "))
+        at("derivation.export_settings.piping_code", "refused",
+           lambda s: s["derivation"]["export_settings"].update(piping_code="B31.3"))
+        at("derivation.export_settings.reference_temperature.unit", "refused",
+           lambda s: s["derivation"]["export_settings"]["reference_temperature"].update(unit="K"))
+        at("derivation.source_model_sha256", "refused", lambda s: s["derivation"].update(source_model_sha256="A" * 64))
+        at("derivation.source_model_sha256", "refused", lambda s: s["derivation"].update(source_model_sha256="a" * 63))
     at("mbf_sha256", "unbound", lambda s: s.update(mbf_sha256="0" * 64))
     at("sidecar_format", "refused", lambda s: s.update(sidecar_format=3))  # format 3 has no section_map
     at("sidecar_format", "refused", lambda s: s.update(sidecar_format=2))  # format 2 has no self-digest field
+    at("sidecar_format", "refused", lambda s: s.update(sidecar_format=4))  # format 4 has no derivation
+    at("sidecar_format", "refused", lambda s: s.update(sidecar_format=5))  # the held Route 1 format is not read
     return found
 
 
@@ -1875,7 +2016,7 @@ def test_every_mutated_sidecar_is_refused_by_name_or_restores_the_same_model(bas
         given = import_as_given(data, sidecar=sidecar, material_provenance=INVENTED, pressure_closure=CLOSURE,
                                 source_label="stale")
         assert given.status == "refused", label
-        if sidecar.get("sidecar_format") in (3, SIDECAR_FORMAT) and canon.redigested(sidecar) != sidecar:
+        if sidecar.get("sidecar_format") in (3, 4, SIDECAR_FORMAT) and canon.redigested(sidecar) != sidecar:
             assert refusals(given) == {("MBF-IMPORT-SIDECAR-DIGEST-MISMATCH", "sidecar_sha256")}, label
             outcomes["stale"] += 1
         else:
@@ -1889,6 +2030,9 @@ def test_every_mutated_sidecar_is_refused_by_name_or_restores_the_same_model(bas
     # pipes would then merge with a null record of the same OD and wall, which the writer writes as one.
     consistent |= {f"section_map/{name}/swbpipe_section: string for null"
                    for name, entry in base["section_map"].items() if entry["swbpipe_section"] is None}
+    # Format 6's row limit and piping code may be null, and its derivation is held as recorded, never regenerated
+    # (Design §15, Format 6): a null row limit is a consistent edit.
+    consistent |= {"derivation/export_settings/max_layout_rows: null for number"}
     for label, sidecar in mutations:
         stale(sidecar, label)
         imported = run(sidecar, "mutated")
@@ -1905,8 +2049,9 @@ def test_every_mutated_sidecar_is_refused_by_name_or_restores_the_same_model(bas
             assert errors and all(code.startswith("MBF-IMPORT-") for code in errors), label
             # The identity alone refuses it too; a mutated digest is the parser's (it decides the route, and the
             # identity, which compares everything else, excludes it), and a mutated self-digest the self-digest's.
-            assert label.startswith(("mbf_sha256", "sidecar_sha256")) or sidecar_difference(
-                sidecar, regenerated, summed=summed) is not None, label
+            # Format 6's derivation is the parser's and the self-digest's alone: the identity excludes it.
+            assert label.startswith(("mbf_sha256", "sidecar_sha256", "derivation")) or sidecar_difference(
+                comparable(sidecar), regenerated, summed=summed) is not None, label
             outcomes["refused"] += 1
         elif imported.source["binding"] == "unbound":
             assert label.startswith("mbf_sha256") and imported.model == unbound.model, label
@@ -1943,12 +2088,22 @@ def test_every_mutated_sidecar_is_refused_by_name_or_restores_the_same_model(bas
         if expected == "refused":
             assert imported.status == "refused" and errors, label
             assert all(code.startswith("MBF-IMPORT-") for code in errors), label
-            assert sidecar_difference(sidecar, regenerated, summed=summed) is not None, label
+            assert label.startswith("derivation") or sidecar_difference(
+                comparable(sidecar), regenerated, summed=summed) is not None, label
         elif expected == "unbound":
             assert imported.source["binding"] == "unbound", label
         else:
             assert imported.status == "imported", (label, errors)
             assert regeneration_difference(sidecar, imported) is None, label
+            if label.startswith("derivation"):  # exposed as recorded, at the sidecar's trust level
+                recorded = sidecar["derivation"]
+                assert imported.derivation.source_model_sha256 == recorded["source_model_sha256"], label
+                settings = recorded["export_settings"]
+                assert (imported.derivation.export_settings.title, imported.derivation.export_settings.max_layout_rows,
+                        imported.derivation.export_settings.piping_code,
+                        imported.derivation.export_settings.reference_temperature_unit) == (
+                    settings["title"], settings["max_layout_rows"], settings["piping_code"],
+                    settings["reference_temperature"]["unit"]), label
     assert {expected for _, _, expected in replaced} >= {"refused", "imported"}
     assert outcomes["stale"] > (len(mutations) + len(replaced)) // 2, outcomes
 
@@ -2335,7 +2490,7 @@ def test_a_straight_recorded_as_a_bend_is_refused_on_both_routes():
     def change(sidecar):
         entry = sidecar["element_map"]["S1"]
         sidecar["element_map"]["S1"] = {"from": entry["from"], "to": entry["to"], "reversed": entry["reversed"],
-                                        "bend": {"component": "b"}}
+                                        "bend": {"component": "b", "node": "A"}}
     for options in ({}, {"rebind_by_node_number": True}):
         result, alone, _ = guarded(writer_tests.bent_l(), change, "straight as bend", **options)
         assert refusals(result) == {("MBF-IMPORT-SIDECAR-CONFLICT", "element_map[S1].bend")}, options
@@ -2747,13 +2902,13 @@ def test_the_self_digest_is_the_sha256_of_the_hand_derived_canonical_form():
 
 
 def test_every_writer_sidecar_carries_its_self_digest_and_imports_verified(trips):
-    # The writer's sidecar of every comparison model is format 4, its self-digest the test's own RFC 8785 digest of
+    # The writer's sidecar of every comparison model is format 6, its self-digest the test's own RFC 8785 digest of
     # it, and it imports as given, verified. Written as JSON in another layout and read back, it is the same content
     # and imports the same model. With its members reordered it has the same self-digest: JSON leaves an object's
     # members unordered, and the canonical form sorts them, so a reorder is not an edit.
     for name in REVERSIBLE:
         trip = trips[name]
-        assert trip.sidecar["sidecar_format"] == SIDECAR_FORMAT == 4, name
+        assert trip.sidecar["sidecar_format"] == SIDECAR_FORMAT == 6, name
         assert trip.sidecar["sidecar_sha256"] == canon.self_digest(trip.sidecar), name
         assert sidecar_self_digest(reordered(trip.sidecar)) == trip.sidecar["sidecar_sha256"], name
         assert trip.bound.status == "imported" and trip.bound.source["sidecar_self_digest"] == "verified", name
@@ -2804,13 +2959,13 @@ def test_a_malformed_or_removed_self_digest_is_refused_and_a_deliberate_downgrad
                                  source_label="malformed")
         assert refusals(result) == {("MBF-IMPORT-SIDECAR-INVALID", "sidecar_sha256")}, value
     removed = {key: value for key, value in sidecar.items() if key != "sidecar_sha256"}
-    for options in ({}, {"rebind_by_node_number": True}):  # format 4 without its digest is not read as format 2
+    for options in ({}, {"rebind_by_node_number": True}):  # format 6 without its digest is not read as format 2
         result = import_as_given(data, sidecar=removed, material_provenance=INVENTED, source_label="removed",
                                  **options)
         assert refusals(result) == {("MBF-IMPORT-SIDECAR-INVALID", "sidecar_sha256")}, options
         assert any("not read as an older format" in item["message"] for item in result.diagnostics)
     # Format 2 has no self-digest field (and, like format 3, no section_map), and a legacy sidecar none either.
-    without_sections = {key: value for key, value in sidecar.items() if key != "section_map"}
+    without_sections = {key: value for key, value in as_format(sidecar, 3).items() if key != "sidecar_format"}
     result = import_as_given(data, sidecar={**without_sections, "sidecar_format": 2}, material_provenance=INVENTED,
                              source_label="kept")
     assert refusals(result) == {("MBF-IMPORT-SIDECAR-INVALID", "sidecar_sha256")}
@@ -2826,15 +2981,18 @@ def test_a_malformed_or_removed_self_digest_is_refused_and_a_deliberate_downgrad
     # A deliberate editor can drop the digest and claim format 2: the self-digest cannot stop that, and the import
     # says the sidecar carries none. The parser, the agreement rule and the regeneration identity still govern
     # meaning: an unchanged downgrade imports the same model, and an MBF-determined edit with it is still refused.
-    downgraded = {key: value for key, value in removed.items() if key != "section_map"} | {"sidecar_format": 2}
+    downgraded = as_format(sidecar, 2)
     result = import_as_given(data, sidecar=downgraded, material_provenance=INVENTED, source_label="downgraded")
     base = import_as_given(data, sidecar=sidecar, material_provenance=INVENTED, source_label="base")
     assert result.status == "imported" and result.model_bytes() == base.model_bytes()
-    # Format 3 is format 4 without section_map: this model binds no library section, so it imports the same model.
-    as_three = canon.redigested({**without_sections, "sidecar_format": 3})
-    three = import_as_given(data, sidecar=as_three, material_provenance=INVENTED, source_label="format 3")
-    assert three.status == "imported" and three.model_bytes() == base.model_bytes(), three.diagnostics
-    assert three.source["sidecar_self_digest"] == "verified"
+    # Format 3 is format 4 without section_map, and format 4 is format 6 without derivation and bend nodes: this model
+    # has no bend and binds no library section, so each imports the same model, and neither exposes a derivation.
+    for number in (3, 4):
+        older = import_as_given(data, sidecar=as_format(sidecar, number), material_provenance=INVENTED,
+                                source_label=f"format {number}")
+        assert older.status == "imported" and older.model_bytes() == base.model_bytes(), older.diagnostics
+        assert older.source["sidecar_self_digest"] == "verified" and older.derivation is None
+    assert base.derivation is not None and result.derivation is None
     assert result.source["sidecar_self_digest"] == "absent"
     assert ("MBF-IMPORT-SIDECAR-NO-SELF-DIGEST", "info") in {(item["code"], item["severity"])
                                                             for item in result.diagnostics}

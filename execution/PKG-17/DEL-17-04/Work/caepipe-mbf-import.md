@@ -1122,10 +1122,12 @@ reference *Bend*; *Node*). The inverse:
      For M and L it is the same rule. The writer refuses differing properties within one
      row, so this is its inverse.
 5. **Component** `component:bend-n`:
-   - `kind: bend`, `node: node:nA`. The sidecar does not record which tangent node the
-     source component named, so a bound import also uses the near tangent node and reports
-     the component node as `MBF-IMPORT-REFERENCE-UNRECOVERABLE` at `{component_id}.node`; a source model whose component
-     names the far node is excluded from canonical equality by name (§18.1);
+   - `kind: bend`, `node: node:nA`. A sidecar of format 2, 3 or 4 does not record which tangent node the
+     source component named, so a bound import of one also uses the near tangent node and reports
+     the component node as `MBF-IMPORT-REFERENCE-UNRECOVERABLE` at `{component_id}.node`. A bound
+     format-6 import takes the node the sidecar's `bend.node` names, which must be one of the bend's
+     two tangent nodes (§15 **Format 6**), so a source model whose component names the far node
+     round-trips;
    - `geometry.bend_pipe_ref`, `geometry.bend_radius` {R, `in`|`mm`} and
      `bend_geometry_source_reference` (MBF hash and line);
    - `mechanics_interface.solver_consumption: curved_bend_macro_element`;
@@ -1245,7 +1247,7 @@ front of this guard. It catches an accidental or partial edit. It does not repla
 or bear on authorship.
 
 **The regeneration identity** is the exact-digest route's guard of record. After assembly,
-a bound import of a format-2, format-3 or format-4 sidecar has the writer regenerate the sidecar from the imported
+a bound import of a format-2, format-3, format-4 or format-6 sidecar has the writer regenerate the sidecar from the imported
 model (`regenerate_caepipe_sidecar`). No MBF is written and the writer's export preflight
 is not run.
 
@@ -1261,7 +1263,8 @@ Each is an integral float beyond 2⁵³ − 1, which the solve's checked-JSON re
 guard map), so the export is refused. The one input beyond the model is the import's record of which straights'
 `y_reference` it derived (`id_map` `y_reference_derived`), so a derived orientation
 regenerates as derived. The two sidecars are compared without the digests (`mbf_sha256`
-and the self-digest `sidecar_sha256`), in the given sidecar's format, with key order
+and the self-digest `sidecar_sha256`) and, for format 6 only, without `derivation`, which no
+regeneration from the imported model can reproduce (§15 **Format 6**), in the given sidecar's format, with key order
 immaterial, every number as a binary64 (1 and 1.0 are one value) and each load direction
 as the axis it names (`global_y`, `GLOBAL_Y`, `UY` and `uy` alike). A difference is refused
 as `MBF-IMPORT-SIDECAR-NOT-REPRODUCED`, naming the first differing JSON path in sorted key
@@ -1290,7 +1293,8 @@ MBF-determined field it retains (§15).
 **Consistent edits.** The digest binds only the MBF, and the MBF has no carrier for the
 sidecar (TBD-17-01-003, TBD-17-04-003; O-6). The self-digest binds the sidecar only to
 itself, and an editor can recompute it (§15). Some values pass from the model to the sidecar
-unchanged: ids (format 4's section ids included), `reversed`, an authored `y_reference` or
+unchanged: ids (format 4's section ids included), a format-6 bend's `node` (within the bend's
+two tangent nodes), `reversed`, an authored `y_reference` or
 `family`, a recorded `origin`, a thermal direction, the shear model of a contract, region ids,
 and closure transfers with their provenance. Such a value regenerates as the sidecar gives it, so an edit of one imports
 as stated. Removing one of two primitives the MBF sums is such an edit too: the other then
@@ -1397,8 +1401,10 @@ digest in `mbf_render.json` beside a legacy sidecar. For that layout only, the f
 takes the companion's digest (*Loading*, below).
 
 **Sidecar format** (independent review VER-002 r10 to r12). The current writer records
-`sidecar_format` = 4: format 3 plus `section_map` (**Format 4: section identities**, below).
-Format 3 is format 2 with its self-digest (below). A format-2 sidecar
+`sidecar_format` = 6: format 4 plus the top-level `derivation` and each bend entry's `node`
+(**Format 6: derivation and bend nodes**, below). Format 4 is format 3 plus `section_map`
+(**Format 4: section identities**, below). Format 5 is the held Route 1 format (§20.4.5); it
+is not written and is refused. Format 3 is format 2 with its self-digest (below). A format-2 sidecar
 holds what a bound import restores and the MBF does
 not carry, every field with its effective value; it never uses null, or another sentinel, as
 a value a default then fills, and it does not repeat what the MBF determines (layout order,
@@ -1424,8 +1430,8 @@ record names, material and section numbers, bend geometry, CAEPIPE kinds and nam
   effective `shear_model` (the contract's, or the route's `euler_bernoulli` without a
   contract) and `regions` (each `id`, `members`, two `terminals`; none without a contract).
 
-The parser refuses a format-2, format-3 or format-4 sidecar missing any field, with null in any (but a
-format-4 record's null library section), or with a field
+The parser refuses a format-2, format-3, format-4 or format-6 sidecar missing any field, with null in any (but a
+format-4 or format-6 record's null library section and format 6's null `max_layout_rows` and `piping_code`), or with a field
 outside this list, by JSON path (`MBF-IMPORT-SIDECAR-INVALID`). Each recorded value the MBF
 or a derivation also determines must agree with it, or the import is refused
 (`MBF-IMPORT-SIDECAR-CONFLICT`, or `-INVALID` for the parser's own checks): the CAEPIPE
@@ -1446,7 +1452,7 @@ straight (`MBF-IMPORT-SIDECAR-CONFLICT` at `element_map[<id>].bend`, on both rou
 r13).
 
 **The self-digest** (Agent 0, under the owner's delegation, after tranche 2). A format-3
-sidecar is a format-2 sidecar plus one field, `sidecar_sha256`; format 4 carries it too. Its value is the lowercase
+sidecar is a format-2 sidecar plus one field, `sidecar_sha256`; formats 4 and 6 carry it too. Its value is the lowercase
 hex SHA-256 of the sidecar's canonical serialisation, taken without that field.
 
 *Why a new format and not an optional field in format 2.* With a new format number, each
@@ -1501,8 +1507,8 @@ supplied. Nothing is added, merged or normalised before the check.
   to parse. There is one exception, which applies only to legacy sidecars, the format that
   relied on it: a legacy sidecar (no `sidecar_format`) without `mbf_sha256` takes the digest
   of the `mbf_render.json` beside it, and that companion is parsed strictly too. A format-2,
-  format-3 or format-4 sidecar always recorded its own `mbf_sha256` and never takes the
-  companion's. Deleting it is a partial edit: formats 3 and 4 refuse it by the self-digest,
+  format-3, format-4 or format-6 sidecar always recorded its own `mbf_sha256` and never takes the
+  companion's. Deleting it is a partial edit: formats 3, 4 and 6 refuse it by the self-digest,
   and format 2 by the parser.
 - **Sweep.** These steps changed content before the check, and each is now closed:
   - the companion backfill, which applied to any sidecar without `mbf_sha256`;
@@ -1518,7 +1524,7 @@ supplied. Nothing is added, merged or normalised before the check.
 *Import.* The self-digest is checked before the parser or any route reads the sidecar. The
 check runs on every route: the exact-digest route, the explicit rebind, and the route that
 leaves a sidecar of another MBF unapplied. A sidecar claims a self-digest when
-`sidecar_format` is the integer 3 or 4. Such a sidecar is refused, and nothing of it is
+`sidecar_format` is the integer 3, 4 or 6. Such a sidecar is refused, and nothing of it is
 applied, in three cases:
 
 - **Digest missing.** Refused as `MBF-IMPORT-SIDECAR-INVALID` at `sidecar_sha256`. A removed
@@ -1532,7 +1538,7 @@ A verified import reports `source.sidecar_self_digest` = `verified`. Two kinds o
 carry no self-digest: a format-2 sidecar, written before the self-digest existed, and a
 legacy sidecar. Each imports exactly as before, and the import says so by name
 (`MBF-IMPORT-SIDECAR-NO-SELF-DIGEST`, info; `source.sidecar_self_digest` = `absent`).
-Only formats 3 and 4 have `sidecar_sha256`: a format-2 or legacy sidecar that carries it is
+Only formats 3, 4 and 6 have `sidecar_sha256`: a format-2 or legacy sidecar that carries it is
 refused by path. The writer's preflight (§9.4) re-imports the writer's own output with its
 self-digest.
 
@@ -1706,6 +1712,110 @@ source admission and is a separate increment):
 The reference system's sections (DEL-09-01 §4.2) state a non-zero mill tolerance,
 corrosion allowance and insulation, so the writer still refuses them after this change.
 
+**Format 6: derivation and bend nodes** (Agent 0, under the owner's delegation; desktop design
+§4.4, §5.2, §5.3). Implemented in both twins, the Python and the Rust engine crate. The writer
+records format 6 for every export. Format 6 is format 4 plus exactly two additions; every field
+is required, and the field lists stay closed:
+
+```json
+{
+  "derivation": {
+    "source_model_sha256": "<64 lowercase hex digits>",
+    "export_settings": {
+      "title": "<the printed title line>",
+      "reference_temperature": {"value": 20.0, "unit": "degC"},
+      "max_layout_rows": null,
+      "piping_code": null
+    }
+  },
+  "element_map": {
+    "<bend pipe id>": {"from": "...", "to": "...", "reversed": false,
+                       "bend": {"component": "<component id>", "node": "<node id>"}}
+  }
+}
+```
+
+*`derivation`* records what the writer derived the file and the identity file from, as the
+writer used it:
+
+- `source_model_sha256`: the SHA-256, as 64 lowercase hex digits, of the RFC 8785 canonical
+  bytes (**The self-digest**, *Canonical serialisation*) of the whole model document the
+  writer read (`si_writer.model_canonical_bytes`). Members the MBF does not carry (the
+  project, labels, provenance, combinations) change it; key order and number spelling do not.
+  A document with no canonical form (for example an integer that is not exactly a binary64)
+  is refused by the writer as `MBF-SI-INPUT-INVALID` at `model`, naming the path.
+- `export_settings`: every writer input outside the model document that can change the
+  written bytes, as verified against both writers' arguments, and nothing else:
+  - `title`: the title line as printed (trimmed printable ASCII without commas, 1 to 70
+    characters; `REGENERATED` for a regeneration);
+  - `reference_temperature`: the argument the writer used, `value` with `unit` `degC`
+    (`reference_temperature_c`) or `degF` (`reference_temperature_f`), not OPTEMP's printed
+    Celsius value;
+  - `max_layout_rows`: null or the integer limit, 0 to 2⁵³. It changes no byte, only whether
+    the row-limit warning is given; it is recorded so that the settings are the writer's
+    complete argument list. The writer refuses any other value as `MBF-SI-INPUT-INVALID` at
+    `max_layout_rows`;
+  - `piping_code`: null or the OPTIONS piping-code token the writer accepted
+    (`PIPING_CODE_OPTIONS`), which changes OPTIONS and, for a B31 code, OPCODE.
+
+  The Rust writer's `preflight_disabled` test knob and its internal regeneration flag change
+  no byte and are not recorded. No Route 1 input is recorded (no render profile, selection
+  semantics, material points or reference state). The digest is defined as format 5's
+  `source_model_sha256` is (§20.4.5), but format 6 is not format 5 and binds no designated
+  source. §20.5.7 named "format 6" for a possible source-bound successor of format 5; that
+  proposal is not adopted, and any such format now takes another number.
+
+*`bend.node`*: the node id the source bend component's `node` names. The writer records it
+as given; its export rules already require it to be one of the bend's two tangent nodes.
+
+*Parsing.* Format 6 is parsed as format 4, plus `derivation` (an object with exactly the two
+members above, `export_settings` with exactly its four, and `reference_temperature` with
+exactly `value`, a finite number, and `unit`, `degC` or `degF`) and `bend.node` (a non-empty
+id). Each missing, extra, null (where null is not listed), mistyped or out-of-vocabulary value
+is `MBF-IMPORT-SIDECAR-INVALID` at its JSON path, such as
+`derivation.export_settings.reference_temperature.unit` or `element_map[<id>].bend.node`. The
+digest must be 64 lowercase hex digits; the title a line the writer prints unchanged;
+`max_layout_rows` null or an integer from 0 to 2⁵³, never a bool or float; `piping_code`
+null or one of the writer's tokens. Every format-4 check, the self-digest included, applies
+unchanged. The readable formats are 2, 3, 4 and 6; those with a self-digest are 3, 4 and 6.
+`sidecar_format` 5 is refused by path, as any format this importer does not read.
+
+*Bound import.* A bound format-6 import gives each bend component the node `bend.node` names.
+It must be one of that bend's two tangent node ids as this import assigns them (from
+`node_map`). Any other value, including another node of the model, another bend's tangent
+node or an id absent from `node_map`, is `MBF-IMPORT-SIDECAR-CONFLICT` at
+`element_map[<pipe id>].bend.node`, naming both tangent nodes. A format-6 import emits no
+`MBF-IMPORT-REFERENCE-UNRECOVERABLE` for the bend and counts no unrecovered field for it
+(desktop design §5.3); `MBF-IMPORT-SOURCE-COMPLETENESS-UNESTABLISHED` and every other notice
+stay. Formats 2 to 4 import exactly as before: the near tangent node, with the notice. The
+rebind route does not apply `bend.node` and keeps the near node (**Unbound**, below), and an
+unbound import uses no format-6 value.
+
+*Trust.* The node and the derivation are held at the sidecar's source-free trust level. The
+node is checked only for being one of the bend's tangent nodes; nothing establishes that it is
+the node the source document named, and it is never described as independently verified. The
+derivation is not compared with the MBF (its title, OPTEMP or OPTIONS), not verified against
+any document, and not used by the import. A bound format-6 import exposes it as declared
+(`MbfImportResult.derivation`; Rust `ImportResult::derivation`: the digest and the four
+settings, no per-entity inventory, not part of `to_dict()`) for a later check against a
+designated source document. It is None for formats 2 to 4, a legacy sidecar, the rebind
+route, a sidecar of another MBF, an unbound import and a refused import. Neither addition
+establishes source completeness.
+
+*Regeneration identity* (§14). `bend.node` regenerates from the restored component and is
+compared. A node changed to the bend's other tangent node is therefore a consistent edit and
+imports as stated; the identity alone, given the unedited import's regeneration, refuses it at
+`element_map[<pipe id>].bend.node`. `derivation` is excluded from the comparison on both
+sides, explicitly and only for format 6: the restored model is not the document the writer
+read, and the regeneration has no export settings, so no derivation is reproducible. Format 4
+is compared without the regenerated bend nodes and derivation. An edit of the derivation that
+the parser admits (another digest, title, temperature, limit or code) therefore imports and is
+exposed as edited; the self-digest detects it only when left stale.
+
+*Unchanged.* The MBF bytes are unchanged for every model; only the identity file differs. A
+source model whose bend component names the far tangent node no longer needs an exclusion from
+§18.2's comparison: a bound format-6 import restores it.
+
 **Legacy sidecars.** A sidecar without `sidecar_format` is legacy: written by main's
 tranche-1 writer (`si_writer.py` up to 42a86df92f) through `run_pilot.py`. That writer
 recorded the seven maps other than `pressure_map` and the digest. Its element entries carry
@@ -1764,7 +1874,8 @@ the identities, and the splits, that it explicitly preserves:
 - nodes, from `node_map` inverted, which must be one-to-one;
 - pipes and their from/to orientation, from `element_map` and its `reversed` flag;
 - supports, their ids and DOF sets, and the split of a merged anchor, from `support_map`;
-- bend components, from `element_map[...].bend.component`;
+- bend components, from `element_map[...].bend.component`, and for format 6 each
+  component's node, from `element_map[...].bend.node` (**Format 6**);
 - materials, from `material_map[...].swbpipe_material`. MBF materials that map to one
   SWBPIPE material are merged after checking that E, ν and α are identical; otherwise
   `MBF-IMPORT-SIDECAR-CONFLICT`;
@@ -1773,7 +1884,7 @@ the identities, and the splits, that it explicitly preserves:
 - straight-pipe orientation, from `element_map[...].y_reference` (§10.5);
 - the pressure contract and pressure regions, from `pressure_map`, checked against the
   file (§9.4);
-- format 4: library sections and each pipe's `section_ref`, from `section_map`
+- formats 4 and 6: library sections and each pipe's `section_ref`, from `section_map`
   (**Format 4: section identities**).
 
 **The sidecar parser** (independent review VER-002 r7, r8). The whole sidecar is parsed into
@@ -1789,7 +1900,8 @@ union of what every SWBPIPE writer version records, so a sidecar from an older r
 
 - top level: format 2 as listed under **Sidecar format**, format 3 the same with
   `sidecar_sha256` (**The self-digest**), format 4 format 3 with `section_map` (record name →
-  `swbpipe_section`, a non-empty id or null; **Format 4**); a legacy sidecar holds the seven
+  `swbpipe_section`, a non-empty id or null; **Format 4**), format 6 format 4 with
+  `derivation` and each bend's `node` (**Format 6**); a legacy sidecar holds the seven
   maps below (no `pressure_map`) and `mbf_sha256`, a lowercase SHA-256 or null. The entries
   below are a legacy sidecar's ("optionally": its documented omissions; format 2 keeps only
   the fields listed above);
@@ -1797,8 +1909,9 @@ union of what every SWBPIPE writer version records, so a sidecar from an older r
 - `element_map`: id → `from`, `to`, `reversed` (bool), and optionally `layout_order`,
   `layout_row` (non-negative integers), `material`, `section`, `load`, and for a straight
   `y_reference` (`x`, `y`, `z` numbers; §10.5; format 2 also `y_reference_authored`), for a
-  bend `bend` (`component` id, `radius_mm`, `angle_deg`, `flexibility_factor`,
-  `tangent_intersection_mm` of three numbers, `caepipe_row_node`);
+  bend `bend` (`component` id; format 6 also `node`, a non-empty id; legacy also `radius_mm`,
+  `angle_deg`, `flexibility_factor`, `tangent_intersection_mm` of three numbers,
+  `caepipe_row_node`);
 - `support_map`: id → `node`, `restrained` (a non-empty list of distinct DOFs), and
   `caepipe_kind` (`anchor`, `restraint`) and `family` (`anchor`, `guide`, `line_stop`,
   `vertical_support`; `anchor` only with all six DOFs; legacy also null or absent; format 2
@@ -1812,7 +1925,7 @@ union of what every SWBPIPE writer version records, so a sidecar from an older r
 - `material_map`: name → `swbpipe_material` id, the four numbers the writer records,
   `temperatures_c`, `elements` and `origin` (one of `MATERIAL_ORIGINS`, format 2 also
   `"undeclared"`; legacy optionally absent);
-- `section_map`: legacy, name → its two numbers and `elements`; format 4, name →
+- `section_map`: legacy, name → its two numbers and `elements`; formats 4 and 6, name →
   `swbpipe_section`;
 - `load_map`: `<case>/<load id>` → `load_case`, `category` (the writer's five), `target`
   (exactly a `node`, a `pipe`, or a `support` with its `dof`), `caepipe_load_case`, `mbf`,
@@ -1848,7 +1961,7 @@ aliases. The check against the file of what the parser
 admits stays where it was: ownership and pressure of regions (§9.4), supports' DOF sets per
 node (§12), the frame check of `y_reference` (§10.5).
 
-A seeded mutation test exercises the parser on the writer's format-4 sidecars of seven invented files
+A seeded mutation test exercises the parser on the writer's format-6 sidecars of seven invented files
 (pressurized, pressure-free, with a contract and no region, with an authored non-default
 orientation, with two forces the MBF sums, with two springs, tranche 3, and with two library
 sections of equal OD and wall and a pipe of the same OD and wall with none, format 4). Each field is swapped for every other JSON type, each container emptied, each
@@ -1874,7 +1987,7 @@ refuses it. One the writer copies from the model unchanged imports and regenerat
 (§14). Each mutation and replacement is imported as a deliberate editor would leave it:
 its self-digest is recomputed, so it reaches the guards above. Each is imported a second
 time with its self-digest left stale, as an accidental edit leaves it. Where the sidecar
-still claims format 3 or 4 with a well-formed digest and canonical content, the self-digest
+still claims format 3, 4 or 6 with a well-formed digest and canonical content, the self-digest
 alone refuses it (`MBF-IMPORT-SIDECAR-DIGEST-MISMATCH`). Otherwise the parser refuses it
 by path.
 
@@ -1904,7 +2017,7 @@ completeness, reference equality or C6-5 result.
   (`MBF-IMPORT-DIRECTION-UNRECOVERABLE`), stating the direction the primitive takes and why
   (independent review VER-002 r15).
 - **Support families** when the sidecar entry has no `family` (§12): `MBF-IMPORT-FIELD-UNRECOVERABLE` at `{support_id}.family`.
-- **Bend component nodes** (§11 item 5): `MBF-IMPORT-REFERENCE-UNRECOVERABLE` at `{component_id}.node`.
+- **Bend component nodes** of a format-2, format-3 or format-4 sidecar (§11 item 5): `MBF-IMPORT-REFERENCE-UNRECOVERABLE` at `{component_id}.node`. A format-6 sidecar records the node (**Format 6**).
 - **Members the writer does not export** (§17.1): `MBF-IMPORT-SOURCE-COMPLETENESS-UNESTABLISHED`; this is a general limitation, not a measured missing-ID inventory.
 
 **Unbound** (no sidecar, or hashes differ: a CAEPIPE re-export, or an edit). The MBF
@@ -1921,7 +2034,8 @@ caller explicitly asks for `rebind_by_node_number`.
 - **What rebinding does.** It applies the sidecar
   by CAEPIPE name only: nodes by number, pipes by from/to names with their `reversed` flag,
   supports by node with their DOF split and family, bends by TI number, materials by name,
-  and format 4's library sections by PIPE record name. It restores no case or primitive id, orientation, origin or pressure state: those are
+  and format 4's library sections by PIPE record name. It restores no case or primitive id, orientation, origin, pressure state or format-6 bend
+  node (the near tangent node stands): those are
   formed or declared as on the unbound route. It keeps the parser, the element variant and
   ambiguity checks (§15 above) and does not run the regeneration identity (§14).
 - **Unconfirmed identity.** Whether CAEPIPE keeps names is open (TBD-17-04-008). Every
@@ -3560,6 +3674,17 @@ decision; none is proposed.
 and rebind skips it (§15).
 
 #### 20.4.5 Sidecar format 5 and the provenance carried
+
+*Format 6 is not format 5* (cross-reference added with format 6). The ordinary route's writer
+now records format 6 (§15 **Format 6: derivation and bend nodes**): format 4 plus a declared
+`derivation` (the source document's digest and the export settings) and each bend's `node`,
+at the sidecar's source-free trust level. It binds no designated source, carries no Route 1
+content (no render profile, selection semantics, material points or reference state) and
+strips no generated row. Format 5 below stays held: designed, not implemented, not written,
+and refused by `sidecar_format`. Where this section says an export outside Route 1 is written
+"with a format-4 sidecar" or describes "a format-4-only importer", read the current
+ordinary-route format and an importer that reads formats 2, 3, 4 and 6; its refusal of format
+5 is unchanged and pinned in both twins.
 
 **The binding requirement (Agent 0, as quoted in the lane's brief of 2026-11-02).** "Sidecar 5
 must bind source + export bytes/identities/derivation provenance so import strips ONLY proven
