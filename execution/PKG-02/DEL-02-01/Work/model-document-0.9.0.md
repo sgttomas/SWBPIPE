@@ -790,6 +790,16 @@ nothing. No member is renamed or re-keyed (FR-MOD-003).
 build refuses each new member as an unknown field. A document carrying one is
 not an 0.8.0 document.
 
+**A later optional setting without a version step.** `model_settings.pressure_elongation`
+(DEL-04-07 `Work/pressure-elongation.md`) joins 0.9.0 without a version step: the owner
+ruled on 2026-11-09 that existing documents get no compatibility or migration machinery
+and that a contextual note is enough. The member is optional and absent means off, so
+every saved 0.9.0 document keeps its version, opens and solves; one carrying a pressure
+contract now solves without pressure elongation, and the desktop says so beside the
+setting. A build older than the member refuses a document carrying it as an unknown field
+(`deny_unknown_fields`), not by version; no release precedes v1.0. This is the one
+exception to the rule above; any other new member still takes a version step.
+
 ### 3.2 0.8.0 is retired; nothing is migrated
 
 Under the one-version rule, 0.8.0 joins the retired list and is refused by name
