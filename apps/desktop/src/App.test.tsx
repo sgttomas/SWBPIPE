@@ -9149,7 +9149,7 @@ describe("SWBPIPE desktop preview", () => {
       "Blank Local Model",
     );
     const inspector = screen.getByLabelText("Property inspector");
-    expect(within(inspector).getByText("Project ID")).toBeInTheDocument();
+    expect(within(within(inspector).getByTestId("inspector-overview")).getByText("Project ID")).toBeInTheDocument();
     expect(inspector.textContent).toContain("project:blank-local-");
     expect(inspector.textContent).toContain("MODEL_INCOMPLETE");
 
@@ -13977,7 +13977,9 @@ describe("persistent modeling workspace", () => {
     await screen.findByTestId("desktop-preview-shell");
     const inspector = screen.getByTestId("property-inspector");
     const assertIdentity = (type: string, id: string) => {
-      expect(within(inspector).getByRole("heading", { level: 2 })).toHaveTextContent(`${type}: ${id}`);
+      // The heading states the kind once: an id that begins with "<kind>:" carries it.
+      const typedIdentity = id.startsWith(`${type}:`) ? id : `${type}: ${id}`;
+      expect(within(inspector).getByRole("heading", { level: 2 }).querySelector(".typed-identity")).toHaveTextContent(`— ${typedIdentity}`);
       expect(screen.getByTestId("command-selection-readout")).toHaveTextContent(`Selected ${type}: ${id}; 0 queued`);
     };
     selectTreeRow("project", model.project.id);

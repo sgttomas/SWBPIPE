@@ -14,6 +14,7 @@ import {
   ensureViewportToggle,
   expectedVisibleEntityLabel,
   expectedBoxInspectorHeading,
+  expectedTypedIdentity,
   installInstrumentation,
   loadFixture,
   measureCanvasBoxSelection,
@@ -312,7 +313,7 @@ test(`validate exact causal Chromium-reported presentation method for ${phase}`,
         modelGeneration: candidateBeforePoint.model.generation,
         priorRenderSubmissionSequence: candidateBeforePoint.viewport.mainRender.submissionSequence,
         priorActionSequence: candidateBeforePoint.viewport.selection.actionSequence,
-        expectedInspectorHeading: `${expectedLabel} — ${expectedRef.type}: ${expectedRef.id}`,
+        expectedInspectorHeading: `${expectedLabel} — ${expectedTypedIdentity(expectedRef)}`,
         expectedRef
       } : null,
       baselineExpectation: phase === "baseline" ? {
