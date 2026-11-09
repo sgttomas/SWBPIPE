@@ -673,8 +673,10 @@ B3B_PASSES = {
 # registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 # RT-A3 S6 (§8.59): S1's nonlinear clause restated; PP EXACT_PINNED's S6 re-pin (reseal-to-base proven); it replaced
 # 418d74b3.../4105eac0... and 0424d9d1.../5d187312....
-EXACT_PINNED = {"sparse_interactive": ("dcd8b13a7b62212eb933289da2a271cfdc47ae7930bf1985b9a6d20ecd3120a0", "9b88b65706bc9972eef15cb0b79bd1bcc4cde51477a83d574717044e0b399319"),
-                "dense_scrutiny": ("a8959bc8489b6c012c843f887c5cb7752ef31daed4d4585e72d630616087a3eb", "65009c8e43461834882a7164780f1f0b77f9336edfcdd079dcde3d82df33f80d")}
+# Pressure elongation (RT-L2): PP EXACT_PINNED's re-pin (pressure-3 identity and the setting's statement; reseal-to-base
+# proven, no numeric leaf moved); it replaced dcd8b13a.../9b88b657... and a8959bc8.../65009c8e....
+EXACT_PINNED = {"sparse_interactive": ("40b2b1991dfc86f602a8c74f53c2e2d07bf935fcbcded5d374e9e0e702d46b08", "eccf7619075504b3dc3fd9d2bcbac700ce489da62e29b7876a0a897d5d42c0ee"),
+                "dense_scrutiny": ("d425e5a228b01079f1a9bee790fd66157f7d94f345eafab1a5961aa5b0069402", "71c11cd36323869a680349bf7ea9393a919b90eb0a1fe78fd43c4a498957a776")}
 KINDS = ("synthetic", "producer")
 
 
