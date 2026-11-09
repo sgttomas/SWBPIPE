@@ -775,6 +775,50 @@ assembles, through the same functions:
   `SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED` warning naming the unmet condition
   (`append_constant_effort_consumption_diagnostics`). Its review rows remain.
 
+**RT-S3 defect: fallback support-action publication (source repair, qualification outstanding).**
+On main `00832d746`, the maintained reference system with its specified RS-R1 and
+RS-CE1 overlaid, self-weight regenerated on the complete overlaid source, and no
+nonlinear supports reproduced the defect in both static modes: every SUS/OPE/SAM
+case consumed and reported the +9000 N CE load, but published CE Fz as zero.
+All three cases retained `NUMERICAL_INTEGRITY_SENSITIVE`; the pressure reader
+accepted the envelopes. That acceptance did not establish correct support-action
+attribution. The zero is a product defect, not a preservation baseline or an
+accepted limitation of RT-S3.
+
+The ordinary publication vector started at zero and read only linear restraints,
+springs and nonlinear reaction entries. The zero-stiffness CE device has none;
+only the later certified-publication override restated its consumed force. The
+source repair gives the fallback its own CE branch, using the same normalized
+`classify_constant_effort_consumption` as the case force ledger. It publishes that
+force on the declared positive global DOF, with exact zeros elsewhere, and keeps
+the nonlinear-field precedence. It reads no rounded output row and changes no
+force formation, solve, tolerance, schema, admission, preload or support-state
+law. The existing certified path and its force remain unchanged.
+
+The maintained producer regressions extend `rt_a3_reducer_2b_reference_system.rs`
+with the ordinary/no-NL sensitive reproduction and all-support force/moment
+balance against the existing independent weight record; no applied-row
+substitution may hide an incorrect CE support action. They preserve the original
+topology, fittings, materials, cases and combinations and bind fresh self-weight
+to the overlaid model. `rt_a3_constant_effort_references.rs` also checks normalized
+kN inputs, all three positive global axes, zero remaining components and
+independent root equilibrium on certified cases in both modes. Existing active
+load-state, non-consumption, absent-record, source-receipt and nonlinear precedence
+controls remain part of the evidence. The existing test-only U4a demotion also
+checks all three axes with and without certification on the pressure-free
+publication in both modes. No frozen reference or raw carrier changes.
+
+This source correction is provisionally composed on S6 `7c70f52fe6f65ed8bd651f7d4d13472921505c03`,
+not qualified or integrated. Its actual-source regression scope, changed-edge
+resource obligations (authored restraints, error allocations, repeated classifier
+calls and modal same-run static-state custody), D3/AC-004 inputs and next actors
+are in [DEL-04-03 Work/constant-effort-publication.md](../../DEL-04-03/Work/constant-effort-publication.md).
+The historical L/E KD5T2 failures remain preserved; direct current-source
+inspection also stops at KD5T2 and B5O1 for the changed solve body. Their
+producer/consumer and staging warrants still require review. Existing guards,
+profiles, coefficients, laws and pins are unchanged. These CE preparation facts
+do not replace S6's observations, registration or status below.
+
 **D-2: load/reference-state documents (Agent 0, under its engineering-judgment
 delegation).** On a load/reference-state document the constant force is a
 device action of the active support in every state, not an ordinary primitive

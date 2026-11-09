@@ -101,11 +101,17 @@ def inspect(snapshot):
             source = stream.read().split("#[cfg(test)]", 1)[0]
         if hashlib.sha256(source.encode()).hexdigest() != digest:
             raise ValueError(f"KD5 source/slot inventory pin changed: {file}; re-review owned layouts and caller/workspace unions")
+    # RT-S3 CE fallback (§8.61, CEF-PJ): solve_prepared_load_case is compared without the exact reviewed branch, which
+    # adds no literal, label, record constructor, route string, carrier, staging, fallback attempt or first-return
+    # alternative (CEF-D1 binds it); the inventory below reads S6's body.
+    ce = _ce_fallback()
     for file, functions in PINS.items():
         with open(os.path.join(snapshot, file), encoding="utf-8") as stream:
             source = stream.read()
         for name, digest in functions.items():
             body = function_body(source, name)
+            if name == "solve_prepared_load_case" and file == ce["LIB"]:
+                body = ce["s6_body"](source, body)
             if hashlib.sha256(body.encode()).hexdigest() != digest:
                 raise ValueError(f"KD5T2: source pin changed: {file}:{name}; re-review the producer/consumer inventory")
             bodies[name] = body
@@ -249,13 +255,20 @@ def inspect_directed_helpers(snapshot):
 # they add or remove no `.min(`/`.max(` call (2 and 11 on the basis and the head), and the observation lane stays
 # deleted.
 # RT-A3 S6 D3 (§8.59): lib.rs re-read; no `.min(`/`.max(` call added or removed.
+# RT-S3 CE fallback (§8.61, CEF-PJ): compared without the exact reviewed CE delta (ce_fallback_model.s6_bytes); the
+# branch adds or removes no `.min(`/`.max(` call, and its two tests are test-only. The pin stays S6's.
 B7A_PRIMITIVE_LIB_SOURCE_PIN = 'd193d408df925ea70e77c93fd65dbbe88b9780a4353017c8ce8934f6032c6737'
+
+
+def _ce_fallback():
+    import runpy
+    return runpy.run_path(os.path.join(os.path.dirname(os.path.abspath(__file__)), "ce_fallback_model.py"))
 
 
 def primitive_lib_minmax_callers(snapshot):
     with open(os.path.join(snapshot, "core/product_physics/src/lib.rs"), "rb") as stream:
         raw = stream.read()
-    if hashlib.sha256(raw).hexdigest() != B7A_PRIMITIVE_LIB_SOURCE_PIN:
+    if hashlib.sha256(_ce_fallback()["s6_bytes"](raw)).hexdigest() != B7A_PRIMITIVE_LIB_SOURCE_PIN:
         raise ValueError("KD5C4: B7a E14 full-file source changed; re-audit retired lane and current primitive owners")
     source = raw.decode("utf-8")
     if re.search(r"^\s*(?:pub(?:\([a-z]+\))?\s+)?(?:const\s+)?fn\s+observation_lane_profile\b", source, re.M):

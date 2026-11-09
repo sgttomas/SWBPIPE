@@ -71,28 +71,16 @@ SOURCES = {
 # RT-A3 S6 D3 (§8.59): every lib.rs owner, site and caller moves with unchanged text (+4 to the case solve: the
 # formulation basis's two S6 bindings; +16 after it: the case solve's motion lines), mapped line by line from main
 # 394f4c623; no owner gains a caller.
+# RT-S3 CE fallback publication: the maintained line mapper carries the unchanged
+# lib.rs owner/site text +6 after the support loop; counts, bounds and caller sets stay.
 SITES = [
-  {
-    "file": "core/product_physics/src/lib.rs",
-    "line": 12320,
-    "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:12278:exact_straight_summary_extrema",
-    "short": "lib.rs:12320",
-    "from": "lib.rs:12278:exact_straight_summary_extrema",
-    "parents": [
-      "core/product_physics/src/lib.rs:5371:solve_prepared_load_case",
-      "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
-      "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
-      'core/product_physics/src/retained_product.rs:6191:prepared_maxima'
-    ]
-  },
   {
     "file": "core/product_physics/src/lib.rs",
     "line": 12326,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:12278:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:12284:exact_straight_summary_extrema",
     "short": "lib.rs:12326",
-    "from": "lib.rs:12278:exact_straight_summary_extrema",
+    "from": "lib.rs:12284:exact_straight_summary_extrema",
     "parents": [
       "core/product_physics/src/lib.rs:5371:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
@@ -102,11 +90,25 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 12989,
+    "line": 12332,
+    "kind": "format",
+    "owner": "core/product_physics/src/lib.rs:12284:exact_straight_summary_extrema",
+    "short": "lib.rs:12332",
+    "from": "lib.rs:12284:exact_straight_summary_extrema",
+    "parents": [
+      "core/product_physics/src/lib.rs:5371:solve_prepared_load_case",
+      "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
+      "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
+      'core/product_physics/src/retained_product.rs:6191:prepared_maxima'
+    ]
+  },
+  {
+    "file": "core/product_physics/src/lib.rs",
+    "line": 12995,
     "kind": "to_string",
-    "owner": "core/product_physics/src/lib.rs:12970:recover_curved_bend_local_forces",
-    "short": "lib.rs:12989",
-    "from": "lib.rs:12970:recover_curved_bend_local_forces",
+    "owner": "core/product_physics/src/lib.rs:12976:recover_curved_bend_local_forces",
+    "short": "lib.rs:12995",
+    "from": "lib.rs:12976:recover_curved_bend_local_forces",
     "parents": [
       "core/product_physics/src/lib.rs:5371:solve_prepared_load_case"
     ]
