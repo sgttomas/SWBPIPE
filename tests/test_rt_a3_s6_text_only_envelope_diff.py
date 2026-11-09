@@ -171,6 +171,15 @@ GENERATED_ORACLES = {
         ("apps/desktop/src/test-support/persistenceFormsCases.ts", "apps/desktop/src/services/persistenceForms.test.ts"),
     "apps/desktop/src/test-support/native-reopen/historical_reopen_cases.json":
         ("apps/desktop/src/test-support/historicalReopenCases.ts", "apps/desktop/src/services/historicalReopenParity.test.ts"),
+    "fixtures/results/result_summary_outcomes.json":
+        ("apps/desktop/src-tauri/src/result_summary_tests.rs", "apps/desktop/src/features/results/resultSummaryParity.test.ts"),
+    "fixtures/results/result_detail_outcomes.json":
+        ("apps/desktop/src-tauri/src/result_detail_tests.rs", "apps/desktop/src/features/results/resultDetailParity.test.ts"),
+    "apps/desktop/src/test-support/native-reopen/native_reopen_replies.json":
+        ("apps/desktop/src-tauri/src/stored_custody_tests.rs", "apps/desktop/src/features/workspace/nativeReopen.session.test.tsx",
+         "apps/desktop/src/services/nativeReopen.test.ts"),
+    "apps/desktop/src/test-support/native-reopen/native_reopen_requests.json":
+        ("apps/desktop/src/features/workspace/nativeReopen.session.test.tsx",),
 }
 PROVENANCE_SCOPE = "tools/release/provenance_scope.json"
 NOT_CARRIERS = {
