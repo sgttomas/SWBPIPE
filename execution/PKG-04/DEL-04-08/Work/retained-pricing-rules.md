@@ -6756,11 +6756,12 @@ the current-source AC-004 result above supplies the named witness evidence on th
 
 ### 8.61 RT-S3: constant-effort fallback publication on S6 (source treatment)
 
-**Status.** This section gives the tool treatment for the CE correction in DEL-04-03
-[`Work/constant-effort-publication.md`](../../DEL-04-03/Work/constant-effort-publication.md) on the S6
-source of §8.60. The treatment has not been priced: no `run`, comparison, native-atom collection or evaluation
-has been done on it. No coefficient, pin value, threshold, M, margin, reserve, law or registration input moves
-here. Which coefficients move, if any, comes from the maintained run on the final source.
+**Status.** This section gives the actual-source D3 proposal for the CE correction in DEL-04-03
+[`Work/constant-effort-publication.md`](../../DEL-04-03/Work/constant-effort-publication.md) on actual integrated
+S6/main `b24b9a5669f573a62d23eaafe7e12503fe29e195`. The maintained four-point run on `a6ef759eac38fcba320cc3919fa85e920e61a420`
+is complete, with O-10 0/0 and no unmapped or unclassified sites. All 1,602 coefficients equal §8.60's registered
+tree. No coefficient, existing pin value, threshold, M, margin, reserve, law or registration input changes.
+Final independent scrutiny, fresh scheduled AC-004 and exact-candidate hosted checks remain required.
 
 **The change.** PP `lib.rs` gains six lines in `solve_prepared_load_case`'s support loop, between the
 selected-source arm and the linear/spring arm. The loop is already bound to a known node by `node_index`. A support
@@ -6816,14 +6817,17 @@ other byte of `lib.rs` changes. The integration-test additions and the comment-o
 None of these is an input cap or a whole-app bound. The existing modal resource policy and its unbounded terms are
 unchanged.
 
-**Not yet run.** The maintained run on the final source has not been done:
-- `price.py run`, both routes and all four points, with its prune, unclassified and line-map review;
-- `compare` against §8.60's registered tree (`a_le_b` or a generator proposal);
-- the in-build atoms and all 80 evaluations;
-- `tests/test_861_rt_s3_ce_fallback.py` and the affected existing suites under the maintained route.
-
-If the predicate's retained by-name edges raise a coefficient, that rise is conservative. Any subtraction would
-need its own exact-target rule and review.
+**Derivation and native checks.** The four points retain S6's prune and resolution lists (36 prunes,
+8 resolutions); the maintained map carries 889 keys with zero unmapped. Four scoped-TEXT coordinates and nineteen
+B7a audit coordinates move +6 with identical source and owners; the matching test retains its seventeen sites,
+twenty-two exact arguments and IN128/128 B requirements. The comparison has equal structure, 1,602 equal
+coefficients, none higher or lower, and both `a_le_b` and `a_ge_b`. With the preserved §8.60 basis caption,
+`generate --check` matches all 1,713 profile lines and `point-atoms --check` all 154 lines; no generated profile
+or atom edit is needed. Fresh native atoms and nine profile laws pass on the comment-inclusive core
+`1bd119f3a49fb128cdd6d4b41daa3a13be787cf9`. All 80 phase/mode evaluations pass the unchanged margin and upward-rounded
+5 % TEXT reserve, and each point is bounded by the merged tree. Minimum remaining headroom is 2,478,279,900 B.
+The CEF refusal tests and affected existing pricing guards pass. Exact run, source-map, review and check history
+is in PR #193; this proposal does not establish stack neutrality or replace fresh AC-004.
 
 ## 9. Memory-profile gates and registration
 
@@ -6848,7 +6852,7 @@ Two limits keep these bounds fail-closed rather than reachable at the census max
 
 ## 10. Reproducing a registered revision
 
-The current tool cohort combines S6's reviewed proposal with accepted modal §8.59 source. It reproduces §8.60's final composition `da0afeabb` (exit 0, O-10 0/0; `generate --check` with §8.60's basis line and `point-atoms --check` equal). No earlier source identity changes. S6's private `0c480a9e5` and `3e6fc1a65` pricing is reproduced with its complete historical tool cohort.
+The current CE tool cohort prices `a6ef759eac38fcba320cc3919fa85e920e61a420` as described in §8.61; its current-coordinate tables bind that cohort. Reproduce §8.60's final S6 composition `da0afeabb` with the complete historical tool cohort at integrated S6 `b24b9a5669f573a62d23eaafe7e12503fe29e195` (its executable pricing tools are unchanged from `da0afeabb`): exit 0, O-10 0/0, `generate --check` with §8.60's basis line and `point-atoms --check` equal. No earlier source identity changes. S6's private `0c480a9e5` and `3e6fc1a65` pricing is reproduced with its complete historical tool cohort.
 
 Historical modal-cohort record:
 

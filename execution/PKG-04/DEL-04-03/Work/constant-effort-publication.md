@@ -59,10 +59,10 @@ are in PR #193.
 
 ## Changed proof and resource obligations
 
-This assessment concerns the CE delta on the provisional composition, not a
+This assessment concerns the CE delta on the actual integrated S6 composition, not a
 replacement for S6's §8.60 observations. The classifier body, its normalized
 receivers and the solve body's literal inventory are unchanged from the
-provisional predecessor. The extra call is still real work before a later
+S6 predecessor. The extra call is still real work before a later
 certified override; existing classifier calls are not replaced or discounted.
 
 | Site | Required treatment on the actual composition |
@@ -78,21 +78,21 @@ certified override; existing classifier calls are not replaced or discounted.
 D1.6 refuses every hanger and every family outside its listed linear families;
 D1 also excludes load states and nonlinear supports. With those exact receiver
 warrants, the new classifier branch is unreachable on admitted D1 models.
-That is a proposed retained-domain proof premise, not a global zero-cost
+That retained-domain proof premise supports CEF-D1, not a global zero-cost
 claim, stack-neutrality proof or automatic registration carry. The ordinary
 outside-D1 allocation/live-union and modal-state residuals remain explicit.
 Existing modal resource policy and unbounded terms are unchanged.
 
-The current maintained guards stop on the changed
-`solve_prepared_load_case`: KD5T2 protects the producer/consumer literal and
-owned-slot inventory; B5O1 protects carrier children and staging. The same body
-is also pinned by first-error and other owner models, while full-file and
-routing digests protect broader source identities. Historical L/E failures
-remain in the recovery evidence. No guard, pin, source assertion, profile,
-coefficient, threshold, law or native-smoke expected value is changed here.
-A proposed guard update needs source-grounded treatment and independent
-scrutiny; a requirement/proof conflict goes to Agent 0 before an affected
-change, with unaffected preparation continuing.
+The maintained CEF-PJ projection removes only the exact reviewed CE branch and
+test block to recover S6's existing whole-file and body pins. CEF-D1 guards the
+receiver and admission proof and zeroes only the new classifier edge on D1;
+predicate and other classifier/helper edges remain. The specific inventory,
+carrier, first-error and lifetime obligations below are reconciled in
+[DEL-04-08 §8.61](../../DEL-04-08/Work/retained-pricing-rules.md#861-rt-s3-constant-effort-fallback-publication-on-s6-source-treatment).
+Historical L/E guard failures remain in recovery evidence. Existing pin values,
+profile coefficients, thresholds, laws and native-smoke expected values remain
+unchanged; the new treatment and source-coordinate carries require final
+independent scrutiny.
 
 The maintained guard obligations for the selected source are specific:
 
@@ -105,11 +105,13 @@ The maintained guard obligations for the selected source are specific:
 | B7a domain and KD5C4 primitive-owner source bindings | Raw lib.rs changes include both production and test additions. D1.6 rejects the only receivers that can enter the new CE edge; verify the admission receiver and exact hanger/family predicate and preserve the primitive-owner census, formulation/text and late-admission warrants. |
 | W1 reduction source/lifetime binding | FormationSource and its Cow reduction, guarded combination index/shadow/insert/call and the reduction owners remain unchanged. The extra static call does not transfer ownership to a W1 reduction. Check those exact warrants and parent lifetimes before carrying this full-file binding. |
 
-The final tool treatment should source-guard the added edge's D1 exclusion and
-its exact receiver, not remove a broad helper/Display edge or weaken the D1
-admission domain. Which rule keys, coefficients, registration inputs and native
-atoms move must come from the maintained full derivation. No final rule or
-replacement pin is selected in this preparation.
+The full maintained derivation is complete on the composed source. Both routes
+have O-10 zero, all four points are complete with no unmapped or unclassified
+sites, and all 1,602 coefficients equal S6's registered tree. Prune and resolution
+lists are unchanged. Generated profile and point-atom checks match without edits.
+Fresh native atoms/profile laws and all 80 phase/mode evaluations pass the
+unchanged margin and TEXT reserve. This retained-domain result does not discharge
+the outside-D1 residuals or establish stack neutrality.
 
 The routing selector binds runtime readers to their calling crate's whole Rust
 tree. The CE overlay is anchored to actual integrated S6/main
@@ -126,7 +128,7 @@ exact S6 value for the existing S6-stage equality. The live product-physics
 tree remains derived from actual source. Forged/rolled-back bindings and
 unrelated inventory changes must refuse; S6's old refusal mutants remain.
 
-## Actual-source D3 and AC-004 inputs still needed
+## Actual-source D3 and AC-004 qualification
 
 1. Actual integrated S6/main is merged normally. Its source and historical
    consumer provenance are preserved. Maintained summary/detail, custody and
@@ -134,17 +136,16 @@ unrelated inventory changes must refuse; S6's old refusal mutants remain.
    remain byte-identical, including all 602 persistence keys. No historical
    S6 group is repurposed as CE evidence.
 
-2. Review the changed edge, receivers, authored-entry and error allocations,
-   repeated classification and modal/static parent unions. Apply maintained
-   pricing rules to that exact source, including any approved warrant change.
-   Compare all four points against S6's §8.60 registered tree using its complete
-   tool cohort; inspect pruning, unclassified sites and line-map movement.
-   Establish `a_le_b` or derive a proposal with the maintained generator.
-3. Bind actual native compiler/profile/lock, source-selected inputs and layouts,
-   run profile laws and all 80 budget evaluations. Reconcile registered input,
-   generated block/point atoms, retained carrier writers and runtime-read graph
-   only where actual source derivation requires it. No preselected coefficient
-   change or registration disposition is implied by this packet.
+2. The changed edge, receivers, authored-entry and error allocations, repeated
+   classification and modal/static parent unions have source-grounded treatment.
+   Four-point pricing and comparison against S6's §8.60 tree establish equality;
+   source-site coordinate carries preserve their source, class and bound.
+   Final independent scrutiny must examine that treatment and the completed
+   derivation, including its prune and line-map results.
+3. Actual compiler/profile/lock, source-selected inputs and layouts bind the
+   fresh native profile laws and all 80 budget evaluations. Registered input,
+   generated block/point atoms, retained carrier outputs and runtime-read graph
+   need no further change beyond the explicit two-leaf routing overlay.
 4. Prepare immutable final lib-test/challenge binaries, hashes, dep-info source
    map, harness/supervisor, exact command and fresh empty output destinations.
    Changed solve code compiles into witnessed binaries; equal core portions or
@@ -160,9 +161,9 @@ unrelated inventory changes must refuse; S6's old refusal mutants remain.
    hosted checks and Agent 0's existing publication consultation precede its
    integration decision.
 
-Native layouts/profile laws and targeted CE/support and consumer checks pass;
-full source-derived pricing, all 80 evaluations, final independent scrutiny and
-a fresh scheduled AC-004 remain required. The CE manager owns those repairs and
+Native layouts/profile laws, targeted CE/support and consumer checks, full
+source-derived pricing and all 80 evaluations pass. Final independent scrutiny,
+a fresh scheduled AC-004 and exact-head hosted checks remain required. The CE manager owns those repairs and
 qualification; Agent 0 owns exclusive scheduling and final integration. The CE
 draft remains unqualified.
 
