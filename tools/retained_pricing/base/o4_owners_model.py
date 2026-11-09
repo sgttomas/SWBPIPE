@@ -205,6 +205,17 @@ def inspect(snapshot):
     if not present:
         return False
     current = digests(snapshot)
+    # RT-S3 CE fallback (§8.61, CEF-PJ): the case solve is compared without the exact reviewed branch. It touches only
+    # the support action vector; no O4 owner, the second composite maximum (O4-SR) or the payload keys (O4-SP) change.
+    # `digests` keeps reporting the raw body.
+    import runpy
+    ce = runpy.run_path(os.path.join(os.path.dirname(os.path.abspath(__file__)), "ce_fallback_model.py"))
+    lib = _read(snapshot, ce["LIB"])
+    if (ce["LIB"], "solve_prepared_load_case") in BODY_PINS and lib is not None:
+        body = _body(lib, "solve_prepared_load_case")
+        if body:
+            current[f"{ce['LIB']}:solve_prepared_load_case"] = hashlib.sha256(
+                ce["s6_body"](lib, body).encode()).hexdigest()
     for (rel, name), pin in BODY_PINS.items():
         if current[f"{rel}:{name}"] != pin:
             raise SystemExit(f"O4 owners: {rel} fn {name} changed or is missing; re-review the owner it prices")

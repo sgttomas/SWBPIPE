@@ -6754,6 +6754,77 @@ static frame on the candidate's debug lib-test binary is 0x2c000 + 0x7c0 + 0x30 
 `capture_nonlinear_state_evidence` 0x290 + 0x20). No main binary was built in this pass, so no frame delta is stated:
 the current-source AC-004 result above supplies the named witness evidence on the combined candidate's binaries.
 
+### 8.61 RT-S3: constant-effort fallback publication on S6 (source treatment)
+
+**Status.** This section gives the tool treatment for the CE correction in DEL-04-03
+[`Work/constant-effort-publication.md`](../../DEL-04-03/Work/constant-effort-publication.md) on the S6
+source of §8.60. The treatment has not been priced: no `run`, comparison, native-atom collection or evaluation
+has been done on it. No coefficient, pin value, threshold, M, margin, reserve, law or registration input moves
+here. Which coefficients move, if any, comes from the maintained run on the final source.
+
+**The change.** PP `lib.rs` gains six lines in `solve_prepared_load_case`'s support loop, between the
+selected-source arm and the linear/spring arm. The loop is already bound to a known node by `node_index`. A support
+with no selected source action and `support.nonlinear.is_none() && is_constant_effort_support(support)` writes
+`classify_constant_effort_consumption(model, support)`'s `force_newtons` into `vector[dof_index(application.dof)]`.
+An `Err` is discarded by `if let Ok`. The change also adds two tests to `mod tests`, which are test-only. No
+other byte of `lib.rs` changes. The integration-test additions and the comment-only clarification in
+`exact_combinations.rs` change no other production token or priced owner.
+
+| Rule | Premise, argument and guard |
+|---|---|
+| **CEF-PJ** (`base/ce_fallback_model.py`: `s6_text`, `s6_bytes`, `s6_body`) | A projection, not a re-pin. When both the branch and the 87-line test block stand exactly at their reviewed anchors, they are removed. The branch sits between `vector = action.values;` and S6's `} else {` / `if let Some(linear) = built`. The test block is identified by SHA-256 and sits just before S6's `constant_effort_applies_in_every_solved_load_case`. Otherwise the text is returned unchanged. The existing pins then compare S6's reviewed bytes, and their warrants bind every other byte. The full-file pins are B7a domain, KD5C4 and W1 reductions. The `solve_prepared_load_case` body pins are KD5T2, KD5C6, batch 5 and O4. A moved, partial, duplicated or edited delta, or a CRLF file, is not projected, so the pin stops with its own message. The projection of the CE file reproduces S6's `d193d408…` exactly. |
+| **CEF-D1** (`O10_EDGE_ZERO`, both routes; guard `ce_fallback_model.inspect`) | The edge `solve_prepared_load_case → classify_constant_effort_consumption` is 0 on D1. D1.6 (`family_clauses` over `request.model`, called once from `domain_clauses`) refuses every hanger before any other support test, then every nonlinear support, then any family outside `anchor`, `guide`, `line_stop`, `vertical_support` and `spring`. `support_hanger_type` reads a non-empty trimmed hanger type and otherwise the trimmed family. On an admitted support it therefore yields only one of those five exact strings, or None, so `is_constant_effort_support` is false. The run solves the admitted request's model (`let mut model = request.model;`). The guard binds the branch at its loop head, its single classifier call, predicate and force write, and the absence of `?`, return, allocation, literal or fallback-error spelling in it. It also binds the six helper bodies (`support_hanger_type`, `is_constant_effort_support`, `classify_constant_effort_consumption`, `parse_dof`, `dof_index`, `node_index`), the scalar `ConstantEffortApplication`, D1.6's refusal order and family list, and the admission receiver. Any other form stops. The predicate itself is evaluated on D1 and keeps its by-name edges. No helper, Display or other classifier edge is subtracted. Without the branch, the rule is not added. |
+
+**Carried obligations.** Each item is checked against the projected source.
+- KD5T2: the branch adds no literal, label, record constructor, route string, carrier or staging, and its comments
+  hold no string literal.
+- B5O1: no `LoadCaseSolve`/ResultItem field, carrier, staging site or support row count changes. The six-slot
+  `vector` already exists.
+- O4: the branch touches only the support action vector. O4-SR's second composite maximum, O4-SP's payload keys and
+  per-station components, and every owner, copy, push-growth and phase charge are unchanged. Nothing is paid for by
+  subtracting an O4 owner.
+- KD5C6: no `?`, early return, fallback attempt, private fallback-error root or outer clone is added.
+- B7a/KD5C4: the primitive-owner census, formulation, text and late-admission warrants, the admission prefix and
+  caps, and `family_clauses` remain pinned. The branch adds no `.min(`/`.max(` call.
+- W1: FormationSource, its Cow reduction, and L5's guard, shadow, insert and call are unchanged. Nothing moves to a
+  reduction owner.
+- Line-keyed rules after the branch move +6 by the maintained line map, with unchanged text.
+
+**Outside D1 (stated residuals, not priced by the retained profile).** These come from the source:
+- **Calls.** One classifier call per eligible support per prepared case, made sequentially in the loop. A support
+  is eligible when its node is known, it has no selected action, it has no nonlinear field and it is a CE device.
+  This call is separate from, and additional to, the ledger's dispositions, the diagnostics, the applied rows and
+  the later certified call.
+- **Restraint backing.** Each recognized translational authored entry pushes one `FrameDof` (a fieldless `Copy`
+  enum) into a `Vec` that starts unallocated. Its length is bounded by the authored entry count, including
+  duplicates, not by three axes. Growth follows the maintained Vec push rule. While the backing reallocates, the
+  previous backing may coexist with the new one. Rotational entries push nothing.
+- **Invalid entry.** `parse_dof` formats `unsupported frame DOF {value}`. The arm then clones the raw token into
+  `UnparseableRestraintDof` while the formatted error and the backing are still live. The assessment conservatively retains
+  that overlap; both terms grow with the token's bytes, outside the retained D1 bound.
+- **Error and success values.** The caller drops the error without formatting `unmet_condition`. Missing,
+  non-positive, empty, multiple and unknown-node outcomes own no heap. Success scans `model.nodes` without
+  allocation and returns a scalar.
+- **Peak.** The peak is one call's maximum plus the live parent union, never every support's backing at once. The
+  parent union is the case's ledger, build and stiffness, solve arrays, selected nonlinear or confirmed state,
+  certified formation source, accumulated results and records, and observer custody, as live at the call.
+- **Modal.** `modal/state.rs::solve_modal_state_case` reaches this producer through `solve_load_case_observed`. A
+  CE record there reaches the call over the prepared model, build, boundary, resolution, stiffness, scratch budget,
+  diagnostics and returned state solve. The later mass, pencil and eigen owners are disjoint at this call.
+- **Publication consumers.** Changed action values can change text and serialization lengths.
+
+None of these is an input cap or a whole-app bound. The existing modal resource policy and its unbounded terms are
+unchanged.
+
+**Not yet run.** The maintained run on the final source has not been done:
+- `price.py run`, both routes and all four points, with its prune, unclassified and line-map review;
+- `compare` against §8.60's registered tree (`a_le_b` or a generator proposal);
+- the in-build atoms and all 80 evaluations;
+- `tests/test_861_rt_s3_ce_fallback.py` and the affected existing suites under the maintained route.
+
+If the predicate's retained by-name edges raise a coefficient, that rise is conservative. Any subtraction would
+need its own exact-target rule and review.
+
 ## 9. Memory-profile gates and registration
 
 ### Gate bounds (registration)
@@ -6885,4 +6956,5 @@ Code, tools and other designs cite this text by these earlier section names and 
 | "DEL-04-09 O-4: the modal resource preflight P0 and the S1 wiring", "§8.58" (MODAL-FB and MODAL-ID's P0 rules) | §8.58 |
 | "DEL-04-09: bounded modal support operations" (isolated registration proposal) | §8.59 |
 | "RT-A3 S6: nonlinear supports on load/reference-state documents and beside objective connectors", "§8.60" (S6-ME, RTA3S6-L, W16-NS's S6 arms) | §8.60 |
+| "RT-S3: constant-effort fallback publication", "§8.61" (CEF-PJ, CEF-D1) | §8.61 |
 | "§8.59" where RT-A3 S6 is meant: S6's source, test and pricing-tool comments (RT-A3 S6 D3, S6-ME, RTA3S6-L, RTA3S6-VP, W16-NS, RT-A4 `resolve`), the S6 test docstrings, and the GENERATED PROFILE basis line "at 0c480a9e5 (§8.59)", all written before the final composition renumbered S6 | §8.60 (their bytes are kept: they are priced, pinned or compiled inputs) |

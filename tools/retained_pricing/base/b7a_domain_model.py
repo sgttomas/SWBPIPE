@@ -323,12 +323,18 @@ def leaf_seam(text):
 
 
 def inspect(snapshot):
-    fingerprints = {}
+    fingerprints, projected = {}, []
+    # CEF-PJ (RT-S3 CE fallback, retained-pricing-rules.md §8.61): lib.rs is compared without the exact reviewed CE
+    # delta, so its pin stays S6's and binds every other byte; CEF-D1 binds the branch itself (o10_rules.py).
+    ce = runpy.run_path(os.path.join(os.path.dirname(os.path.abspath(__file__)), "ce_fallback_model.py"))
     for file, expected in SOURCE_FILES.items():
         with open(os.path.join(snapshot, file), "rb") as stream:
             raw = stream.read()
         fingerprints[file] = hashlib.sha256(raw).hexdigest()
-        if fingerprints[file] != expected:
+        compared = ce["s6_bytes"](raw) if file == ce["LIB"] else raw
+        if compared is not raw:
+            projected.append(file)
+        if hashlib.sha256(compared).hexdigest() != expected:
             raise ValueError("B7a positive-domain owner source changed: " + file)
     with open(os.path.join(snapshot, "core/product_physics/src/retained_memory.rs"), "rb") as stream:
         source = stream.read().decode("utf-8")
@@ -351,7 +357,7 @@ def inspect(snapshot):
         raise ValueError("B7a positive-domain family clauses changed")
     with open(os.path.join(snapshot, "core/solver/frame_kernel/src/structural/formation_check.rs"), "rb") as stream:
         seam = leaf_seam(stream.read().decode("utf-8"))
-    return {"full_raw_source_fingerprints": fingerprints,
+    return {"full_raw_source_fingerprints": fingerprints, "cef_projected": projected,
             "admission_caps_sha256": CAPS_PIN, "family_clauses_sha256": FAMILY_PIN,
             "admission_prefix_sha256": ADMISSION_PREFIX_PIN, "admission_late_sha256": ADMISSION_LATE_PINS,
             "formation_leaf_seam": seam,

@@ -7,17 +7,14 @@ system consumes RS-CE1 +9,000 N but publishes zero SUS/OPE/SAM support actions
 in both modes. An applied-load row or accepted reader verdict does not make
 that zero correct.
 
-The current preparation composes the repair from immutable recovery head
-`4c18bc277751e7be080ad5932fa06c5f1b49e50b` onto provisional S6 candidate
-`aea0887d5c51495f1b32bdea7f66863aa556fc87` (#166), incorporating its two
-test-tool repairs by an ordinary merge after the original `7c70f52fe` basis.
-The six production lines
-apply cleanly; the remaining changes are tests and DEL-04-03/DEL-04-07
-reconciliation. The final predecessor is the actual integrated S6 plus current
-main. Merge it normally, assess the delta and rederive affected consumers
-before qualification. Preparation on this candidate supplies no final-source
-qualification or acceptance. S6's source, observations, registration and
-pressure-contract status retain their own identities.
+The current composition normally merges actual integrated S6/main
+`b24b9a5669f573a62d23eaafe7e12503fe29e195` with the repair from immutable
+recovery head `4c18bc277751e7be080ad5932fa06c5f1b49e50b`. The six production
+lines retain their reviewed meaning. S6's maintained consumer repairs and
+historical registrations remain intact. Actual-source native, pricing and
+consumer checks must establish the CE composition; equal coefficients or
+preserved predecessor evidence supply no stack-neutrality or acceptance claim.
+Exact composition, review and check history belongs in PR #193.
 
 ## Publication and regression scope
 
@@ -56,8 +53,9 @@ The maintained packet is:
 Run targeted lib `constant_effort` tests, both reference-test targets above,
 `support_reactions_runtime`, the source-receipt controls and the affected S6
 and modal-state tests from the final selected source under the maintained
-route. New tests are prepared source, not current runtime passes. Original
-29-test evidence applies only to the recovery candidate.
+route. The targeted current-composition regressions pass. Original 29-test evidence
+applies only to the recovery candidate; exact current check inputs and results
+are in PR #193.
 
 ## Changed proof and resource obligations
 
@@ -113,32 +111,29 @@ admission domain. Which rule keys, coefficients, registration inputs and native
 atoms move must come from the maintained full derivation. No final rule or
 replacement pin is selected in this preparation.
 
-The routing selector also binds runtime readers to their calling crate's whole
-Rust tree. `source_block_recovery.rs` is unchanged and matches its declared
-hash, but the CE delta changes that crate tree. A projected in-memory derivation
-using maintained `numerical_ci.rust_tree_digest` and
-`source_read_dependencies` needs exactly the product-physics tree digest and
-`rt_a3_constant_effort_references.rs` runtime-read SHA. The latter reader's own
-source changed; the reducer reference test adds no runtime-read declaration.
-With those two projected values, all 47 manifests, 45 tree bindings and 1,808
-resources validate on the selected source. Inputs, source scans, callers and all
-other declaration fields remain unchanged. This is preparation only: the
-committed routing file is untouched, the count is an actual current-source
-observation rather than S6's historical count, and final values must be
-rederived after S6 lands. Preserve S6's historical derivation and proof.
-S6's existing `check_routing_inventory` already derives its tree and reader
-bindings from actual current source. Assess the final two-binding CE registration
-against that maintained check before proposing any guard change. The three
-historical malformed-owner materialization failures are a distinct S6 source
-repair in `aea0887d5`; incorporating that repair is not a passing test result.
+The routing selector binds runtime readers to their calling crate's whole Rust
+tree. The CE overlay is anchored to actual integrated S6/main
+`b24b9a5669f573a62d23eaafe7e12503fe29e195`: only the product-physics Rust-tree
+digest and `rt_a3_constant_effort_references.rs` runtime-reader SHA change, both
+derived from current source. Complete membership, callers, inputs, scans and
+routing rules retain their S6 values. The full maintained read graph validates
+47 manifests, 45 tree bindings and 1,808 resources. This is a current-source
+observation, not a replacement for S6's historical count or proof.
+
+`tests/test_ce_publication_routing.py` checks the entire raw overlay and the
+independent runtime-read scanner before restoring only the CE-reader SHA to its
+exact S6 value for the existing S6-stage equality. The live product-physics
+tree remains derived from actual source. Forged/rolled-back bindings and
+unrelated inventory changes must refuse; S6's old refusal mutants remain.
 
 ## Actual-source D3 and AC-004 inputs still needed
 
-1. Agent 0 integrates S6. The CE manager merges that actual predecessor plus
-   current main without rewriting history and assesses changed source,
-   dependencies and consumer writers. S6's pending native summary/detail/reopen
-   and PARITY outputs must be derived by maintained writers on the final CE
-   source, never hand-merged or treated as provisional hash carry.
+1. Actual integrated S6/main is merged normally. Its source and historical
+   consumer provenance are preserved. Maintained summary/detail, custody and
+   full persistence-map writers establish the composition; generated consumers
+   remain byte-identical, including all 602 persistence keys. No historical
+   S6 group is repurposed as CE evidence.
+
 2. Review the changed edge, receivers, authored-entry and error allocations,
    repeated classification and modal/static parent unions. Apply maintained
    pricing rules to that exact source, including any approved warrant change.
@@ -156,20 +151,20 @@ repair in `aea0887d5`; incorporating that repair is not a passing test result.
    coefficients cannot establish stack neutrality. The scoped witness set is
    W1 headroom sparse/dense, W2 deep milestone sparse/dense, W_C2 publication
    sparse/dense and `retained_direct_peak_is_within_the_profiles_bounds`.
-   Ask Agent 0 for the separate owner AC-004 decision on that concrete packet.
-   Old attempts are consumed; no fresh AC-004 is authorized here.
-5. Once Agent 0 supplies a verified usable route and lane-specific resource
-   window, run ordinary guarded regressions/builds with explicit source/input
-   provenance. AC-004 additionally requires separate owner authorization and an
-   exclusive no-build interval. Exact-head hosted checks and Agent 0's existing
-   publication consultation precede its integration decision.
+   Return that concrete packet to Agent 0 for exclusive resource scheduling.
+   Old attempts are consumed; ordinary execution grants no AC-004 window.
+5. Ordinary guarded execution is available through the unchanged maintained
+   slot scheduler, at most one heavy command per lane. Agent 0 schedules the
+   exclusive no-build interval for AC-004 under the owner's delegated test
+   controls; individual-test permission requests are unnecessary. Exact-head
+   hosted checks and Agent 0's existing publication consultation precede its
+   integration decision.
 
-The maintained host route is currently refused and the guard is not running;
-no local build, pytest, native launch, benchmark or capture follows from this
-preparation. Independent source scrutiny and lightweight checks can proceed.
-Next actor: CE manager owns source/proof preparation and ordinary repairs;
-Agent 0 owns final S6 integration, usable-route scheduling and the scoped
-owner AC-004 request. The CE draft remains unqualified.
+Native layouts/profile laws and targeted CE/support and consumer checks pass;
+full source-derived pricing, all 80 evaluations, final independent scrutiny and
+a fresh scheduled AC-004 remain required. The CE manager owns those repairs and
+qualification; Agent 0 owns exclusive scheduling and final integration. The CE
+draft remains unqualified.
 
 ## Recovery and boundaries
 

@@ -6464,3 +6464,20 @@ if fnkey("load_state_spring_ground", _LIB):
          O10 + "RTA3S6-L: CaseMotionEvidence's moved grounds; ground_motion is empty on D1 (D1.5, D1.6, D1.7)",
          ["lib.rs:new"]),
     ]
+
+# ---- RT-S3 CE fallback publication (DEL-04-03 Work/constant-effort-publication.md; retained-pricing-rules.md §8.61):
+# solve_prepared_load_case's support loop restates a consumed constant-effort device's normalized force when the
+# support has no selected source action and no nonlinear field. CEF-D1: D1.6 refuses every hanger before any other
+# support test, every nonlinear support and every family but its five exact strings, so support_hanger_type yields
+# only an admitted family and is_constant_effort_support is false for every support of an admitted model: the
+# branch's classifier call is unreached on D1. base/ce_fallback_model.py binds the exact branch, its loop receiver,
+# predicate, classifier and force assignment, the scalar application and D1.6 on the admitted request (a stop
+# otherwise). The predicate is evaluated on D1 and keeps its by-name edges; only this one call edge is zeroed, never
+# the classifier's other callers or a helper/Display edge.
+_CEF = __import__("runpy").run_path(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base",
+                                                  "ce_fallback_model.py"))["inspect"](_SNAP)
+if _CEF:
+    O10_EDGE_ZERO += [(fnkey("solve_prepared_load_case", _LIB), fnkey("classify_constant_effort_consumption", _LIB),
+                       O10 + "CEF-D1: D1.6 refuses every hanger, nonlinear support and non-listed family, so "
+                       "is_constant_effort_support is false on every admitted support and the case solve's fallback "
+                       "branch never classifies (one exact call, bound by ce_fallback_model)")]
