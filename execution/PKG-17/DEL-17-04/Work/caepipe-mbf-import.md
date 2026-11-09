@@ -888,9 +888,8 @@ exact rational product rounded once (psi is listed in `MBF-SI-UNITS-NORMALIZED`)
 outside every region get 0, and LOADS records are keyed by (T1, P1). With any pressure the
 writer adds `OPPRES` `0,0,0,1,0` after OPTEMP: field 1 = 0, the pressure-stress option
 CAEPIPE's public User's Manual defines as PD/4t (Appendix A, OPPRES); a piping code may
-fix the formula instead (OPCODE), and output for a B31.1 (1980) model written with this
-line labels the pressure stress "Pd^2 / (D^2 - d^2)". Bourdon effect off, pressure
-correction for bends off, peak pressure factor 1. That asks the target for the same
+fix the formula instead (OPCODE). Bourdon effect off, pressure correction for bends off,
+peak pressure factor 1. That asks the target for the same
 exclusions as SWBPIPE's model. The contract, region ids, members, terminals, closure
 transfer and provenance are not in the MBF. The sidecar's `pressure_map` carries them
 (`{contract, load_case, regions: [{id, members, terminals, provenance, pressure_bar}]}`),
