@@ -29,6 +29,22 @@ Usage (from the repository root):
     python3 tools/validation/pressure_elongation_anchor.py capture --baseline DIR
     python3 tools/validation/pressure_elongation_anchor.py check --switch all --baseline DIR
 
+Request-bound receipt chain. A retained-source envelope (`source_block_recovery`) commits
+to the request through `invocation.value`, so naming the cases changes that hash and the
+hashes chained from it, and the work charged for the request's bytes. Those leaves (the
+`CHAINED_RECEIPT_LEAVES` and `WORK_LEAVES` below) are allowed to differ only when the hashed
+preimages agree: for both the reference and the actual solve, the test-only
+`o4_source_payload_dump` (in `core/product_physics/src/source_receipt/o4_source_tests.rs`)
+writes each source case's private payload and functional plan. Each dumped text must hash
+to the envelope's commitment, the payload's `invocation_sha256` must be the envelope's
+`invocation.value`, and the reference and actual payloads must be equal leaf by leaf, every
+float bit pattern included, except `invocation_sha256` in the source payload and
+`normalized_source_sha256` in the plan. A case's `physical_evidence_sha256`, the
+`publication_sha256` and the `receipt_sha256` hash published members that are compared
+leaf by leaf above. Such an entry passes as PASS_CHAINED, and its work-charge deltas are
+listed for the retained-pricing (D3) turn, which owns them. `capture` writes the
+reference dumps beside the envelopes (`<key>.source-dump.json`).
+
 Options: `--examples-dir` (prebuilt `core/product_physics` examples; otherwise they are
 built with `$CARGO`, default `cargo`, release profile), `--entry ID` (repeatable),
 `--modes sparse,dense`, `--json OUT` (machine-readable report). Exit status 0 when no
@@ -39,7 +55,6 @@ from __future__ import annotations
 import argparse
 import copy
 import hashlib
-import itertools
 import json
 import os
 import re
@@ -87,6 +102,28 @@ BEND_CLAUSE_SUBSTITUTIONS = (
      "each owns the term K_b*u_free(eps_p) - c_b, with eps_p = (1-2nu)pAi/(E As) (the straight Lame mean Poisson "
      "term on the arc) and c_b its own end caps along the end tangents;"),
 )
+
+
+RECEIPT = "/source_block_recovery"
+# Leaves chained from the request hash (`invocation.value`); see the module docstring.
+CHAINED_RECEIPT_LEAVES = tuple(re.compile(f"^{RECEIPT}{pattern}$") for pattern in (
+    r"/body/invocation/value",
+    r"/body/cases/\d+/source/normalized_source_sha256",
+    r"/body/cases/\d+/source/functional_plan_sha256",
+    r"/body/cases/\d+/physical_evidence_sha256",
+    r"/body/publication_sha256",
+    r"/receipt_sha256",
+))
+# Work charged for the request's bytes; owned by the retained-pricing (D3) turn.
+WORK_LEAVES = tuple(re.compile(f"^{RECEIPT}{pattern}$") for pattern in (
+    r"/body/cases/\d+/work/charged",
+    r"/body/invocation_work/charged",
+    r"/body/invocation_work/publication_charged",
+))
+# The only payload leaves a request-bound dump may change.
+PAYLOAD_CHAINED = {"normalized_source_text": "/payload/invocation_sha256",
+                   "functional_plan_text": "/payload/normalized_source_sha256"}
+DUMP_TEST = "o4_source_payload_dump"
 
 
 def _norm_string(value: str) -> str:
@@ -265,6 +302,31 @@ class Solver:
             if not (self.examples_dir / name).exists():
                 raise SystemExit(f"missing example binary {self.examples_dir / name}")
 
+    def dump(self, request: dict, mode: str) -> dict:
+        """The test-only declared-problem dump of `request` (see the module docstring)."""
+        if getattr(self, "dump_binary", None) is None:
+            cargo = os.environ.get("CARGO", "cargo")
+            built = subprocess.run([cargo, "test", "--lib", "--no-run", "--message-format=json",
+                                    "--manifest-path", str(ROOT / MANIFEST)],
+                                   capture_output=True, text=True, check=True, cwd=ROOT)
+            binaries = [m["executable"] for m in map(json.loads, filter(None, built.stdout.splitlines()))
+                        if m.get("reason") == "compiler-artifact" and m.get("executable")
+                        and m["target"]["name"] == "open_pipe_stress_product_physics" and m["profile"]["test"]]
+            if len(binaries) != 1:
+                raise SystemExit(f"cannot find the product_physics lib test binary: {binaries}")
+            self.dump_binary = binaries[0]
+        with tempfile.TemporaryDirectory() as tmp:
+            source, out = Path(tmp) / "request.json", Path(tmp) / "dump.json"
+            source.write_text(json.dumps(request, ensure_ascii=False, allow_nan=False), encoding="utf-8")
+            env = dict(os.environ, SWBPIPE_O4_SOURCE_DUMP_REQUEST=str(source), SWBPIPE_O4_SOURCE_DUMP_OUT=str(out),
+                       SWBPIPE_O4_SOURCE_DUMP_MODE=MODES[mode])
+            done = subprocess.run([self.dump_binary, DUMP_TEST, "--quiet"],
+                                  capture_output=True, text=True, check=False, env=env,
+                                  cwd=ROOT / Path(MANIFEST).parent)
+            if done.returncode != 0 or not out.exists():
+                raise SystemExit(f"source dump failed: {done.stdout[-400:]} {done.stderr[-400:]}")
+            return json.loads(out.read_text(encoding="utf-8"))
+
     def solve(self, request: dict, mode: str, example: str) -> tuple[str, Any, str]:
         """(state, envelope or None, stderr): state is 'envelope', 'refused_member' or 'error'."""
         text = json.dumps(request, ensure_ascii=False, allow_nan=False)
@@ -310,7 +372,10 @@ def run(args) -> int:
               "exclusions": {"keys": sorted(EXCLUDED_KEYS),
                              "identity_substitutions": [list(p) for p in IDENTITY_SUBSTITUTIONS],
                              "limitations_dropped": sorted(ADDED_LIMITATION_STATEMENTS),
-                             "bend_clause_mapped": [new for new, _ in BEND_CLAUSE_SUBSTITUTIONS]},
+                             "bend_clause_mapped": [new for new, _ in BEND_CLAUSE_SUBSTITUTIONS],
+                             "chained_receipt_leaves": [p.pattern for p in CHAINED_RECEIPT_LEAVES],
+                             "work_leaves_for_d3": [p.pattern for p in WORK_LEAVES],
+                             "payload_chained": PAYLOAD_CHAINED},
               "entries": []}
     totals: dict[str, int] = {}
     for entry in entries:
@@ -334,6 +399,51 @@ def run(args) -> int:
     return 0
 
 
+def _matches(pointer: str, patterns: tuple) -> bool:
+    return any(p.match(pointer) for p in patterns)
+
+
+def _dump_bound(dump: dict, envelope: Any) -> str | None:
+    """None when every dumped text hashes to the envelope's commitments, else the reason."""
+    body = envelope["source_block_recovery"]["body"]
+    cases = {c["basis_ref"]["ref_id"]: c for c in body["cases"]}
+    if not dump.get("records"):
+        return "dump has no source case"
+    for record in dump["records"]:
+        case = cases.get(record["case_id"])
+        if case is None:
+            return f"dumped case {record['case_id']} not in the envelope"
+        for text, key in (("normalized_source_text", "normalized_source_sha256"),
+                          ("functional_plan_text", "functional_plan_sha256")):
+            digest = hashlib.sha256(record[text].encode("utf-8")).hexdigest()
+            if not (digest == record[key] == case["source"][key]):
+                return f"{record['case_id']} {key} does not hash its dumped text"
+        if json.loads(record["normalized_source_text"])["payload"]["invocation_sha256"] != body["invocation"]["value"]:
+            return f"{record['case_id']} payload invocation_sha256 is not the envelope's invocation"
+    return None
+
+
+def receipt_chain(reference: Any, envelope: Any, reference_dump: dict | None, actual_dump: dict) -> str | None:
+    """None when the request-bound chain holds (module docstring), else the reason."""
+    if reference_dump is None:
+        return "no reference source dump (capture writes <key>.source-dump.json)"
+    for name, dump, env in (("reference", reference_dump, reference), ("actual", actual_dump, envelope)):
+        reason = _dump_bound(dump, env)
+        if reason:
+            return f"{name}: {reason}"
+    expected = {r["case_id"]: r for r in reference_dump["records"]}
+    actual = {r["case_id"]: r for r in actual_dump["records"]}
+    if expected.keys() != actual.keys():
+        return f"dumped cases {sorted(expected)} != {sorted(actual)}"
+    for case_id, record in expected.items():
+        for text, allowed in PAYLOAD_CHAINED.items():
+            moved = [p for p, _ in differences(json.loads(record[text]), json.loads(actual[case_id][text]))
+                     if p != allowed]
+            if moved:
+                return f"{case_id} {text} differs beyond {allowed}: {moved[:5]}"
+    return None
+
+
 def run_entry(entry: dict, switch: str, modes: list[str], solver: Solver, baseline: Path | None, command: str) -> dict:
     anchor = entry["anchor"]
     if anchor["kind"] == "excluded":
@@ -341,7 +451,7 @@ def run_entry(entry: dict, switch: str, modes: list[str], solver: Solver, baseli
     container = loads((ROOT / entry["path"]).read_text(encoding="utf-8"))
     example = anchor.get("example", EXAMPLES[0])
     compared = solved = 0
-    uncompared = []
+    uncompared, chained, work = [], [], []
     for document in entry["documents"]:
         pointer = document["pointer"]
         request = request_for(container, pointer, switch)
@@ -360,6 +470,9 @@ def run_entry(entry: dict, switch: str, modes: list[str], solver: Solver, baseli
             key = baseline_key(entry["id"], pointer, mode)
             if command == "capture":
                 (baseline / f"{key}.json").write_text(json.dumps(envelope, ensure_ascii=False) + "\n", encoding="utf-8")
+                if isinstance(envelope, dict) and envelope.get("source_block_recovery"):
+                    (baseline / f"{key}.source-dump.json").write_text(
+                        json.dumps(solver.dump(request, mode), ensure_ascii=False) + "\n", encoding="utf-8")
                 continue
             if committed is not None:
                 reference = committed[mode]
@@ -368,21 +481,38 @@ def run_entry(entry: dict, switch: str, modes: list[str], solver: Solver, baseli
             else:
                 uncompared.append(where)
                 continue
-            count, first = compare(reference, envelope)
+            found = list(differences(reference, envelope))
             compared += 1
-            if count:
-                listed = [f"{p}: {r}" for p, r in itertools.islice(differences(reference, envelope), 20)]
-                return {"id": entry["id"], "status": "FAIL", "detail": f"{where}: {count} differences; first {first}",
-                        "differences": listed}
+            other = [(p, r) for p, r in found if not _matches(p, CHAINED_RECEIPT_LEAVES + WORK_LEAVES)]
+            if other:
+                return {"id": entry["id"], "status": "FAIL",
+                        "detail": f"{where}: {len(found)} differences; first {other[0][0]}: {other[0][1]}",
+                        "differences": [f"{p}: {r}" for p, r in other[:20]]}
+            if found:
+                dump_path = baseline / f"{key}.source-dump.json" if baseline is not None else None
+                reference_dump = (json.loads(dump_path.read_text(encoding="utf-8"))
+                                  if dump_path is not None and dump_path.exists() else None)
+                reason = receipt_chain(reference, envelope, reference_dump, solver.dump(request, mode))
+                if reason:
+                    return {"id": entry["id"], "status": "FAIL", "detail": f"{where}: receipt chain: {reason}",
+                            "differences": [f"{p}: {r}" for p, r in found[:20]]}
+                chained.append(where)
+                work.extend(f"{where} {p}: {r}" for p, r in found if _matches(p, WORK_LEAVES))
     if command == "capture":
         return {"id": entry["id"], "status": "CAPTURED", "detail": f"{solved} envelopes"}
     if compared == 0:
         return {"id": entry["id"], "status": "UNCOMPARED",
                 "detail": f"{solved} solved; no committed envelope and no baseline (pass --baseline)"}
     detail = f"{compared} envelopes identical"
+    if chained:
+        detail = (f"{compared} envelopes identical but for the request-bound receipt chain in {len(chained)}"
+                  f" (source payloads identical); work deltas for D3: {len(work)}")
     if uncompared:
         detail += f"; {len(uncompared)} without a reference"
-    return {"id": entry["id"], "status": "PASS", "detail": detail}
+    result = {"id": entry["id"], "status": "PASS_CHAINED" if chained else "PASS", "detail": detail}
+    if work:
+        result["work_deltas"] = work
+    return result
 
 
 def main(argv: list[str] | None = None) -> int:
