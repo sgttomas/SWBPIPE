@@ -1,8 +1,8 @@
 # T2.integrity: the step ledger and its replacements (DEL-04-09 Design §5.3.8)
 
-Source: main `bf1bdd2dbf1f1a357cbdeb01d78e41e502c5bd3e`, read with `git show`; every file:line below is at that commit. "`adapter`" is `core/solver/nonlinear_integration/src/structural_adapter.rs`, and "product `lib.rs`" and "product `skew.rs`" are under `core/product_physics/src/`. Status: **proposed**. It bounds `T2.integrity` (`core/product_physics/src/modal/resource.rs`) from source under two premises and four replacements that are specified here (Part II) and not built. Nothing here changes P0, adopts a premise or a weight, or authorizes any edit; P0 still refuses every budgeted request (modal-analysis.md §5.3.8). Part I is the ledger; Part II the replacements.
+Source: main `bf1bdd2dbf1f1a357cbdeb01d78e41e502c5bd3e`, read with `git show`; every file:line below is at that commit. "`adapter`" is `core/solver/nonlinear_integration/src/structural_adapter.rs`, and "product `lib.rs`" and "product `skew.rs`" are under `core/product_physics/src/`. Status: **proposed**. It bounds `T2.integrity` (`core/product_physics/src/modal/resource.rs`) from source under two premises, which Agent 0 adopted as pricing premises (§1.3), and five replacements that are specified here (Part II) and not built. Nothing here changes P0, adopts a weight, or authorizes an edit; P0 still refuses every budgeted request (modal-analysis.md §5.3.8). Part I is the ledger; Part II the replacements.
 
-**Summary.** `T2.integrity` is the M03-INTEGRITY work of the static screen's solve on a zero force (`stiffness.rs:193`–`:211`). It excludes the Cholesky k-loop (`T2.factor`) and `cholesky`'s entry, scan and allocation steps (`T2.entries`, `structural.rs:2067`–`:2104`). It is now bounded on both branches, under two premises and four replacements. On the plain path (`stiffness.rs:207`–`:209`) the charge is quadratic in n_g, plus C(3,400 + 105ℓ̄ + 2β̄) for the exact contribution audits, 277,757 per node for the rigid-body screen, and a fixed formation cost per element (§6). The restraint-basis branch (`:203`–`:205`) adds K-D5's formation check, which re-forms every element four times at 128-bit precision (≈ 7.1·10⁵ steps per element plus 4κ^F), the coordinate transforms, and the W4 constrained-body screen (§9). P0 needs these new dimensions: E_el, C, G, Z̄, δ̄, ℓ̄, β̄, λ̄_A and Λ_m on every request, and ν, s_k, Λ_s, β̂, w̄, Z_ν, U and m_A with a basis (§2). The premises are P-fp (core float and integer methods are one operation each) and P-fmt (`format!` is one step per output byte) (§1.3). The replacements are R1 (`SparsePattern::find`), R5 (`frame_member_identities`' hash sets) and R6 (`powi`) on the plain path, and R3 (eleven sorts and searches) on the basis branch. Each replacement needs an oracle test against a verbatim copy of the old code, the named suites, and `price.py` showing every coefficient equal (R5: equal or lower). R1, R3a–b, R4, R5 and R6 also edit a file that `tools/retained_pricing` pins by full-file hash, so each needs a reviewed re-pin (Part II, "Full-file pins").
+**Summary.** `T2.integrity` is the M03-INTEGRITY work of the static screen's solve on a zero force (`stiffness.rs:193`–`:211`). It excludes the Cholesky k-loop (`T2.factor`) and `cholesky`'s entry, scan and allocation steps (`T2.entries`, `structural.rs:2067`–`:2104`). It is bounded on both branches, under two premises and five replacements, on a target with a fused multiply-add instruction; on x86_64, `f64::mul_add` is a library routine and the bound waits on a decision (§12, item 2). On the plain path (`stiffness.rs:207`–`:209`) the charge is quadratic in n_g, plus C(3,400 + 105ℓ̄ + 2β̄) for the exact contribution audits, 350,793 per node for the rigid-body screen, and a fixed formation cost per element (§6). The restraint-basis branch (`:203`–`:205`) adds K-D5's formation check, which re-forms every element four times at 128-bit precision (≈ 7.1·10⁵ steps per element plus 4κ^F), the coordinate transforms, and the W4 constrained-body screen (§9). P0 needs these new dimensions: E_el, C, G, Z̄, δ̄, ℓ̄, β̄, λ̄_A and Λ_m on every request, and ν, s_k, Λ_s, β̂, w̄, Z_ν, U and m_A with a basis (§2). The premises are P-fp (core float and integer methods are one operation each, except those §1.3 names) and P-fmt (`format!` is one step per output byte) (§1.3). The replacements are R1 (`SparsePattern::find`), R5 (`frame_member_identities`' hash sets), R6 (`powi`) and R8 (128-bit integer divisions in the wide arithmetic) on the plain path, and R3 (eleven sorts and searches) on the basis branch. Each replacement needs an oracle test against a verbatim copy of the old code, the named suites, and `price.py` showing every coefficient equal (R5: equal or lower). R1, R3a–b, R4, R5, R6 and R8 also edit a file that `tools/retained_pricing` pins by full-file hash, so each needs a reviewed re-pin (Part II, "Full-file pins").
 
 ---
 
@@ -19,7 +19,7 @@ An *integrity step* is `T3.kernel`'s step, defined at `resource.rs:185`–`:197`
 This ledger applies it with four readings. Each can only raise a count.
 - Every loop iteration is a body, charged at least one step.
 - A callee's straight-line code may be charged as its own body (⌈a⌉ + ⌈b⌉ ≥ ⌈a + b⌉).
-- A fixed-size array fill (`[x; n]`) or an explicit copy of a fixed-size array (`*matrix`, `.clone()`, `*self`, an array field copied out of borrowed data) costs one step per element. A move or a return is one operation.
+- A fixed-size array fill (`[x; n]`) costs one step per element, and so does a copy of a fixed-size array. A copy of a struct, enum or tuple costs one step per scalar field, an array field counting one per element. This covers every copy made by dereferencing or cloning (`*matrix`, `*squares`, `*self`, `..*self`, `.clone()`, a by-value receiver called through a reference, such as `is_some_and` on `&mut Option<[f64; 3]>`), and every array or aggregate read by value out of borrowed data (`self.a_i`, `element.node_i.coordinates`, `self.node_i`, `v[1]` of a `&[Wide2; 3]`). An element of an array may itself be an aggregate (a `Wide2`, a tuple); it is one element of that array. A by-value read of an owned local, whether a move or a copy, is one read of a named value, as the Design counts it. So is a scalar field. A return is one operation.
 - A straight line not counted operation by operation is charged 2 × its token count (identifiers, literals and operators), callees included ("2×tok"). One token carries at most two operations (a compound assignment, a `?`, an implicit return or a shorthand field).
 
 ### 1.2 Premises already adopted
@@ -30,12 +30,15 @@ This ledger applies it with four readings. Each can only raise a count.
 
 This ledger reads the iterator consumers (`any`, `all`, `find`, `position`, `count`, `fold`, `sum`, `max`, `min_by`, `max_by`), slice `contains`, slice `==`, `copy_from_slice`, `String::clone`, `clone`/`to_vec` of a slice, `vec![x; n]` fills, `extend`, and drop glue per element as element primitives. The plain-path sites are listed in §11.
 
-### 1.3 Premises this ledger needs
+### 1.3 Premises adopted for this ledger
 
-The adopted text names √ and nothing else from `std`'s float or integer methods. Its arithmetic list "(+, −, ×, ÷, √)" is an enumeration. So these do not fall under it as written:
-- **P-fp.** Each of these is one operation: `f64::mul_add` (IEEE 754 fusedMultiplyAdd, correctly rounded, the same standing as √); `to_bits`/`from_bits`; `next_up`/`next_down`; `total_cmp`; `signum`; `clamp` (two comparisons and selects, as `max`/`min`); the integer operators `&`, `|`, `^`, `<<`, `>>`, ×, + and − on `u64`, `u128`, `i64`, `i128`, and their `from`/`as` conversions; `leading_zeros`; `is_power_of_two`; `rem_euclid`; `div_ceil`; `overflowing_add`/`overflowing_sub`/`wrapping_sub`/`saturating_add`. Plain-path uses: `structural.rs:852`, `:1838`; `correct_norm/src/lib.rs:79`, `:86`, `:96`, `:104`, `:162`; `exact_sum.rs:58`–`:66`, `:72`, `:164`, `:201`; `connector.rs:770`; `tie_rod.rs:451`; `load_ledger.rs:539`, `:617`; `rigid_body.rs:147`, `:175`. Basis-branch uses: `retained/wide.rs:314`–`:334`, `:505`–`:629`, `:818`; `wide/multi.rs:707`, `:711`; `restraint_basis.rs:190`, `:261`; `rigid_body.rs:583`, `:611`, `:1063`–`:1080`; `adapter :1861`.
-- **P-fmt.** `format!` over fixed text with a bounded payload costs one step per output byte. Plain-path sites: `structural_adapter.rs:2262` (`symmetry_basis`, < 512 B); product `lib.rs:4880` (`member_prefix`, λ_p + 9 + ⌈log₁₀(λ_p + 1)⌉ B, where λ_p is the pipe's `element_id` bytes); `structural.rs:1959` (an error path, < 512 B). Basis-branch sites, all on fail-closed paths: `adapter :2286`, `:2317` (< 64 + λ_A B, where λ_A is the arc's id bytes); `formation_check.rs:443`–`:449` (< 128 B: `WideError`'s texts, `retained/wide.rs:177`–`:197`); `formation_check/skew.rs:30` (< 64 B).
-- **`powi` is not a premise.** `2.0_f64.powi(k)` is not an IEEE basic operation. It lowers to `__powidf2`, a library loop whose source is outside the repository, which is the standing the Design refused for `binary_search`. R6 replaces it with a bit-built power at the same bits.
+The Design's adopted text names √ and nothing else from `std`'s float or integer methods. Its arithmetic list "(+, −, ×, ÷, √)" is an enumeration. Agent 0 adopted these two as pricing premises on 2026-11-09:
+- **P-fp.** Each of these is one operation: `f64::mul_add` where the target has a fused multiply-add instruction (IEEE 754 fusedMultiplyAdd, correctly rounded); `to_bits`/`from_bits`; `next_up`/`next_down`; `total_cmp`; `signum`; `clamp` (two comparisons and selects, as `max`/`min`); the integer operators `&`, `|`, `^`, `<<`, `>>`, ×, + and − on `u64`, `u128`, `i64`, `i128`, and their `from`/`as` conversions between integer types; `leading_zeros`; `is_power_of_two`; `overflowing_add`/`overflowing_sub`/`wrapping_sub`/`saturating_add`. *Rationale:* these are core float and integer methods with √'s standing, an IEEE operation or a fixed instruction sequence with no loop or library call. Plain-path uses: `structural.rs:852`, `:1838`; `correct_norm/src/lib.rs:79`, `:86`, `:96`, `:104`, `:162`; `exact_sum.rs:58`–`:66`, `:72`, `:164`, `:201`; `connector.rs:770`; `tie_rod.rs:451`; `load_ledger.rs:539`, `:617`; `rigid_body.rs:147`, `:175`. Basis-branch uses: `retained/wide.rs:314`–`:334`, `:505`–`:629`; `wide/multi.rs:707`; `restraint_basis.rs:190`, `:261`; `rigid_body.rs:583`, `:611`, `:1063`–`:1080`; `adapter :1861`.
+- **Excluded from P-fp by name**, because one operation would under-count a software path:
+  - `f64::powi`. `2.0_f64.powi(k)` is not an IEEE basic operation. It lowers to `__powidf2`, a library loop whose source is outside the repository, which is the standing the Design refused for `binary_search`. R6 replaces it with a bit-built power at the same bits.
+  - `f64::mul_add` on a target without a fused multiply-add instruction. `std` says it "may be more performant than an unfused multiply-add if the target architecture has a dedicated fma CPU instruction". x86_64's baseline target features have none, so on x86_64 (the Windows build is `x86_64-pc-windows-msvc`, `.github/workflows/piping-windows-core.yml:64`) it lowers to the platform's `fma` routine. On aarch64 it is the base-ISA `FMADD` and stays under P-fp. §12, item 2 holds the decision.
+  - `div_ceil` on `u128` (`wide/multi.rs:711`) lowers to `__udivti3`, a library division loop. `div_euclid` and `rem_euclid` on `i128` (`retained/wide.rs:818`, `wide/multi.rs:196`–`:197`, `:578`) are 128-bit divisions, `__divti3`/`__modti3` unless the optimizer folds the constant divisor. R8 replaces each with bit operations or an in-repo loop at the same bits.
+- **P-fmt.** `format!` over fixed text with a bounded payload costs one step per output byte. *Rationale:* `std` documents no cost for formatting, and one step per output byte is the conservative reading, since writing each byte is at least one operation. Plain-path sites: `structural_adapter.rs:2262` (`symmetry_basis`, < 512 B); product `lib.rs:4880` (`member_prefix`, λ_p + 9 + ⌈log₁₀(λ_p + 1)⌉ B, where λ_p is the pipe's `element_id` bytes); `structural.rs:1959` (an error path, < 512 B). Basis-branch sites, all on fail-closed paths: `adapter :2286`, `:2317` (< 64 + λ_A B, where λ_A is the arc's id bytes); `formation_check.rs:443`–`:449` (< 128 B: `WideError`'s texts, `retained/wide.rs:177`–`:197`); `formation_check/skew.rs:30` (< 64 B).
 - **No `HashSet` premise.** `std` documents no worst-case cost for it. R5 replaces it.
 
 ### 1.4 Lemmas
@@ -111,44 +114,45 @@ The adopted text names √ and nothing else from `std`'s float or integer method
 
 No repository test counts the iterations. `correct_norm`'s own tests (`lib.rs:210`–`:294`) are hand cases; `load_case_algebra/src/unsigned_tests.rs:318` compares a random sample with `norm3`; `stress_recovery/tests/u4b_section_bits/` compares `norm2` bit for bit with an exact `Fraction` reference. Part II R7 states the optional witness.
 
-*Steps.*
-- `exact_sign` (`:175`–`:200`): a `[0.0; 10]` fill (10), 10 outer bodies, and inner iterations ≤ Σ_{t<10} t = 45 (the length after t terms is at most t), plus the match. That is **66**.
-- `midpoint_sign`: 49 operations (1 step) plus `exact_sign`, so **67**.
-- `norm3`: straight line ≈ 230 operations (4 steps), 4 `scale` loop iterations, and per iteration 3 straight steps + 1 `scale` iteration + 2 × 66. That gives **ν̄₃ = 4 + 4 + 2 × 136 = 280**.
-- `norm2` (`:34`) adds one call: **ν̄₂ = 281**. The ledger charges 281 for both.
+*Steps.* The two array literals, `squares` (`:84`) and `exact_sign`'s argument (`:116`), are charged one step per element, as fills.
+- `exact_sign` (`:175`–`:200`): the `[0.0; 10]` fill (10); the prologue and the match (1); 10 outer bodies of ≤ 19 operations, each reading one element of `terms` through `&term`; and inner iterations of ≤ 35 operations, at most Σ_{t<10} t = 45 of them (the length after t terms is at most t). It copies no array. That is **66**.
+- `midpoint_sign` (`:113`–`:117`): `*squares` copies six elements out of borrowed data (6); the ten-element argument array (10); `square`, the bindings and the ten element expressions, 44 operations (1); and `exact_sign`. That is **83**.
+- `norm3`: straight line ≤ 320 operations counted literally, charged 6; the `squares` literal (6); 4 `scale` loop iterations (each `scale` call runs at most one, since |k| ≤ 1,074); and per loop iteration 3 straight steps (≤ 125 operations) + 1 `scale` iteration + 2 × 83. That gives **ν̄₃ = 6 + 6 + 4 + 2 × 170 = 356**.
+- `norm2` (`:34`) adds one call: **ν̄₂ = 357**. The ledger charges 357 for both.
 
-**Lemma E (128-bit wide arithmetic).** `Wide2` (a 128-bit significand) costs, charged 2×tok over each worst path with its callees (`retained/wide.rs:258`–`:498`, `:505`–`:629`, `:636`–`:919`):
+**Lemma E (128-bit wide arithmetic).** `Wide2` (a 128-bit significand) costs, charged 2×tok over each worst path with its callees (`retained/wide.rs:258`–`:498`, `:505`–`:629`, `:636`–`:919`), plus the copies of §1.1 on that path:
 
-| Operation | Path | Tokens | Steps |
-|---|---|---|---|
-| `add` | wrapper, `add_exact_operands`, 2 `is_zero`, `cmp_magnitude`, 2 `sig`, `shr_sticky`, 2 U256 `sub` + `is_zero`, `round_pack` (+ 7 helpers) | 979 | **31** |
-| `sub` | `add` + `neg` | 994 | **32** |
-| `mul` | wrapper, `mul_exact_operands`, 2 `is_zero`, 2 `sig`, `mul_u128`, `round_pack` | 659 | **21** |
-| `div` | prologue 600 tok (19) + 129 iterations of `divide_significands` | | **277** |
-| `sqrt` | prologue 572 tok (18) + 130 iterations of `sqrt_significand` | | **408** |
-| `from_f64` (`lift`) / `mul_pow2` / `cmp_value` | | 143 / 98 / 181 | **5 / 4 / 6** |
-| `neg`, `abs`, `is_zero` | | ≤ 29 | **1** |
-| `split_binary64` / `add_product_to` | 476 tok + 3 iterations / split + ≤ 3 accumulator `add_product` | | **18 / 74** |
-| `at_least_one_twentieth` | with `mul_u128`, `shl` | 227 | **8** |
-| `to_binary64` (`wide/multi.rs:725`–`:766`) | with helpers | ≤ 360 | **12** |
+| Operation | Path | Tokens | Copies | Steps |
+|---|---|---|---|---|
+| `add` | wrapper, `add_exact_operands`, 2 `is_zero`, `cmp_magnitude`, 2 `sig`, `shr_sticky`, 2 U256 `sub` + `is_zero`, `round_pack` (+ 7 helpers) | 979 | `shr_sticky`'s `(*self, false)` (`:544`) and `shl`'s `*self` (`:529`, in `round_pack`): U256, 2 each | **35** |
+| `sub` | `add` + `neg` | 994 | as `add`, plus `neg` | **39** |
+| `mul` | wrapper, `mul_exact_operands`, 2 `is_zero`, 2 `sig`, `mul_u128`, `round_pack` | 659 | `shl` 2 | **23** |
+| `div` | prologue 600 tok (19) + 129 iterations of `divide_significands` | | `shl` 2 in the prologue | **279** |
+| `sqrt` | prologue 572 tok (18) + 130 iterations of `sqrt_significand` | | `shl` 2 in the prologue; `Ok(*a)` (`:810`) only on the zero path | **410** |
+| `from_f64` (`lift`) / `mul_pow2` / `cmp_value` | | 143 / 98 / 181 | `mul_pow2`: `..*self` (`:376`), exponent and two limbs, 3; or `Ok(*self)` (`:373`) on the zero path, 4 | **5 / 7 / 6** |
+| `neg`, `abs` / `is_zero` | | ≤ 29 | `..*self` (`:353`, `:360`), 3 | **4 / 1** |
+| `split_binary64` / `add_product_to` | 476 tok + 3 iterations / split + ≤ 3 accumulator `add_product` | | none | **18 / 74** |
+| `at_least_one_twentieth` | with `mul_u128`, `shl` | 227 | `shl` 2 | **10** |
+| `to_binary64` (`wide/multi.rs:725`–`:766`) | with helpers, after R8 | ≤ 360 | none | **12** |
 
-- The division iteration (`:756`–`:764`) is 55 operations counted literally, with `shl` 21 and `or_low` 11 inlined. It is charged 2.
+- The division iteration (`:756`–`:764`) is 55 operations counted literally, with `shl` 21 and `or_low` 11 inlined. Its shift is by 1, so `shl`'s `0 => *self` arm is not taken. It is charged 2.
 - The square-root iteration (`:795`–`:803`) is 180 operations counted literally. It is charged 3.
-- `atan_of_positive` (`:954`–`:999`) costs ≤ 8,989:
-  - ≤ 5 reductions of 777 (`:957`–`:968`), plus a final test of 8;
-  - 38 before the series;
-  - ≤ 15 series terms of 305;
-  - a tail of ≤ 14 adds of 32;
-  - 35 to finish.
-- `included_angle` costs 9,304.
-- **τ̄**, the cost of `twice_atan2_nonnegative` (`structural/arc_angle.rs:36`–`:58`), is ≤ 9,296. It is charged **9,400**.
+- So no operation's charge exceeds 1.22 times its charge without copies (`sub`, 32 → 39), except `neg`, `abs` and `mul_pow2`, which add 3 each. §9.3 uses this.
+- `atan_of_positive` (`:954`–`:999`) costs ≤ 9,245:
+  - ≤ 5 reductions of 793 (`:957`–`:968`: `mul`, `add`, `sqrt`, `add`, `div`, the test 10 and 1), plus a final test of 10;
+  - 44 before the series (the `*t` copy at `:956`, 4; `mul`; the `[Wide2::ZERO; 15]` fill; 2);
+  - ≤ 15 series terms of 312 (`mul`, `neg`, `from_f64`, `div`, 1);
+  - a tail of ≤ 14 adds of 36;
+  - 42 to finish (`add`, `mul_pow2`).
+- `included_angle` costs ≤ 9,630: `atan_of_positive` and ≤ 1.22 × 315 for the rest.
+- **τ̄**, the cost of `twice_atan2_nonnegative` (`structural/arc_angle.rs:36`–`:58`), is ≤ 9,557: `atan_of_positive`, `div` 279, two `from_f64` 10, `mul_pow2` 7, `to_binary64` 12 and the `atan_positive` wrapper 4. It is charged **9,600**.
 
 **Lemma F (`body_scales`' union-find, `formation_check.rs:1151`–`:1157`).** Each `root` call runs ≤ N − 1 iterations.
 - *Proof.* `parent` starts as the identity (`:1150`), so it is a forest whose roots point to themselves. `parent[ra] = rb` (`:1180`) links two distinct roots, so it creates no cycle. Path halving (`:1153`) replaces a pointer by an ancestor. Each iteration moves x strictly toward its root, so the iterations are at most the depth, and the depth is at most N − 1.
 
 ## 2. Dimensions
 
-P0 holds N, n_g = 6N, n̄ = n̄_f, pipes, A, K_c, T_r and S (`modal_resource_bound_dimensions`, `resource.rs:1026`–`:1082`), and forms `twelve` = pipes + A + K_c + T_r at `:1048`. N is nodes, n_g global DOFs, n̄ the bound on free DOFs, A arcs, K_c connectors, T_r tie rods and S springs. Each new dimension is computable in `modal_resource_bound_dimensions` from `prepared.built` and `prepared.boundary` in O(model) time without allocation, except δ̄ (§12, item 2).
+P0 holds N, n_g = 6N, n̄ = n̄_f, pipes, A, K_c, T_r and S (`modal_resource_bound_dimensions`, `resource.rs:1026`–`:1082`), and forms `twelve` = pipes + A + K_c + T_r at `:1048`. N is nodes, n_g global DOFs, n̄ the bound on free DOFs, A arcs, K_c connectors, T_r tie rods and S springs. Each new dimension is computable in `modal_resource_bound_dimensions` from `prepared.built` and `prepared.boundary` in O(model) time without allocation, except δ̄, which takes one array of N counters (Agent 0's decision, §12).
 
 | Symbol | Meaning | Bound from source | P0 computes |
 |---|---|---|---|
@@ -159,7 +163,7 @@ P0 holds N, n_g = 6N, n̄ = n̄_f, pipes, A, K_c, T_r and S (`modal_resource_bou
 | C | physical contributions | 144E_el + S on the plain path (`:1909`–`:1920`, `:1833`); + 9s_k with a basis (`:1849`–`:1866`) | `144·twelve + springs + 9·skewed`. P0 already forms these products for D_K (`:1049`) |
 | G | contribution groups | E_el + S (+ s_k) (`:1922`, `:1839`, `:1865`) | `twelve + springs (+ skewed)` |
 | Z, Z̄ | stored pattern entries; their bound | Z ≤ Z̄ = min(n_g², 36(N + 2E_el) + S). The pattern is `from_connectivity` (`sparse.rs:83`–`:131`). A node's list is itself plus its partners, deduplicated (`:96`–`:101`), so Σ\|list\| ≤ N + 2E_el. A node gives 6 rows of 6·\|list\| (`:123`–`:125`), and a spring-only node at most 6 diagonals (`:114`–`:116`) | O(1) |
-| δ̄ | most contributions at one stored entry | max over nodes a of deg(a) + σ(a). deg(a) is the elements with a as an end; σ(a) is the springs on a's DOFs plus the skew blocks at a. An entry in block (a, b) receives one contribution per element joining a and b (a ≠ b) or meeting a (a = b), one per spring on its diagonal, and nine per skew block at a | one pass over `frame_elements`, `connectors`, their `tie_rods()`, `curved_bend_elements`, `boundary.springs` and `skew.springs()`, incrementing a counter per node: O(N + E_el + S) time and one allocation of N counters (§12, item 2) |
+| δ̄ | most contributions at one stored entry | max over nodes a of deg(a) + σ(a). deg(a) is the elements with a as an end; σ(a) is the springs on a's DOFs plus the skew blocks at a. An entry in block (a, b) receives one contribution per element joining a and b (a ≠ b) or meeting a (a = b), one per spring on its diagonal, and nine per skew block at a | one pass over `frame_elements`, `connectors`, their `tie_rods()`, `curved_bend_elements`, `boundary.springs` and `skew.springs()`, incrementing a counter per node: O(N + E_el + S) time and one allocation of N counters, charged in P0's own account (§12) |
 | ℓ̄ | longest expansion before an add | min(δ̄ − 1, X̄) ≤ min(δ̄, 2,099) (Lemma C) | O(1) |
 | β̄ | steps per pattern search | ⌊log₂ n_g⌋ + 2, after R1 (row width ≤ n_g) | O(1) |
 | λ̄_A | longest arc component id | `CurvedBendMacroBuild::component_id` bytes, cloned at `stiffness.rs:197`; λ_A ≤ λ̄_A for each arc | `max` of `component_id.len()`: O(A). `String::len` is a field read |
@@ -227,10 +231,10 @@ Two things are off this path:
 
 | Group | Lines | Trip counts | Steps |
 |---|---|---|---|
-| PREP, call preparation | `stiffness.rs:194`–`:202`, `:208`; product `lib.rs:4890`–`:4908`; `adapter :784`–`:787` | A × `from_macro_element` (κ_arc, §5.5); S; p. The pipe loop: 2 membership tests (scans of A and K_c with R5), `next`, `pipe.frame_element()` (κ_pe, §5.6), `==`, `member_prefix` (P-fmt), `push`. The `to_vec` of F_e strings | A(63,500 + 7λ̄_A) + S + p + pipes(194 + A + K_c) + 2Λ_m + F_e + 3 |
+| PREP, call preparation | `stiffness.rs:194`–`:202`, `:208`; product `lib.rs:4890`–`:4908`; `adapter :784`–`:787` | A × `from_macro_element` (κ_arc, §5.5); S; p. The pipe loop: 2 membership tests (scans of A and K_c with R5), `next`, `pipe.frame_element()` (κ_pe, §5.6), `==`, `member_prefix` (P-fmt), `push`. The `to_vec` of F_e strings | A(64,300 + 7λ̄_A) + S + p + pipes(233 + A + K_c) + 2Λ_m + F_e + 3 |
 | AE, evidence build | `adapter :711`–`:745`, `:1722`–`:1924` | `pattern.clone()` n_g + 2Z + 2 (its dimension and transpose fields included); four `vec![_; Z]`; `visit` Z (`:1682`–`:1694`); `build`'s checks (`:711`–`:744`). Then connectors' `force_scaled` (`:1725`–`:1728`); `coordinates` N; `frames.to_vec` F_e; arc slots; the frame, connector, rod and arc loops (§5); `element()` per element (§5.1); springs S(1 + β̄) + `to_vec` S; scatter C(1 + β̄) | 7Z + n_g + N + 8 + AE_el + E_el(190 + 144β̄) + S(2 + β̄) + C(1 + β̄) |
 | VIEW | `adapter :1085`–`:1092`; `sparse.rs:309`–`:318`; `adapter :846`–`:858`, `:2256`–`:2263` | `check_pattern` (derived `PartialEq`, slice compare) n_g + 2Z + 2; `symmetry_basis` E_el + ≤ 512 (P-fmt); `to_dense` n_g² + 2n_g + Z (outer row bodies, `sparse.rs:314`); the view 2n_g² + 3n_g + Z (outer row bodies, `adapter :850`) | 3n_g² + 6n_g + 4Z + E_el + 518 |
-| GE, `geometry` | `adapter :1941`–`:2038`; `rigid_body.rs:58`–`:231` | per node: `seen`, seed, BFS pop, `any`, collect, validation 3, `relative` (`norm3`, `:81`) ν̄₃ + 4, scaling 4. The BFS pops each node once and scans every edge: N·E_el. `body.contains` ≤ 2N·E_el. The ground filter ≤ 2N(p + S). Per qualified body, `assess_rows`: ≤ 7,256 + 960ν̄₂, of which Jacobi is ≤ 64 sweeps × 15 pairs (`:135`, `:138`–`:139`) at 7 + ν̄₂ each (`norm2`, `:147`). Per ground row 3,875: 3,840 in the sweeps (three sums and the rotation, 4 per pair), 21 for its formation, 6 for its clone, 6 for `singular` and 1 for `count` (`:108`–`:173`) | N(ν̄₃ + 960ν̄₂ + 7,716) + 3N·E_el + 2N(p + S) + 3,875(p + S) |
+| GE, `geometry` | `adapter :1941`–`:2038`; `rigid_body.rs:58`–`:231` | per node: `seen`, seed, BFS pop, `any`, collect (with its `Option<[f64; 3]>` copy out of borrowed data, `adapter :1991`, 4), validation 3, `relative` (`norm3`, `:81`) ν̄₃ + 4, scaling 4; per body, `origin` (`:72`) 3. These per-node and per-body constants lie inside 7,716. The BFS pops each node once and scans every edge: N·E_el. `body.contains` ≤ 2N·E_el. The ground filter ≤ 2N(p + S). Per qualified body, `assess_rows`: ≤ 7,256 + 960ν̄₂, of which Jacobi is ≤ 64 sweeps × 15 pairs (`:135`, `:138`–`:139`) at 7 + ν̄₂ each (`norm2`, `:147`). Per ground row 3,875: 3,840 in the sweeps (three sums and the rotation, 4 per pair), 21 for its formation (18 counted: the body, `motion_rows` 1 with its `relative[node]` copy at `:96` 3, the norm 6, the scaling 6 and the push), 6 for its clone, 6 for `singular` and 1 for `count` (`:108`–`:173`) | N(ν̄₃ + 960ν̄₂ + 7,716) + 3N·E_el + 2N(p + S) + 3,875(p + S) |
 | MECH (refusal only) | `rigid_body.rs:196`–`:299`; `adapter :2020`–`:2027` | one body at most. Candidates ≤ 7 + 2N, built in 55 + 8N (`rigid_body.rs:198`–`:216`); each 16 (the witness prologue, `:238`–`:241`) + ≤ 5,414 per node (`original_rigid_witness`: expansions ≤ 12 terms and 6 `exact_scalar` calls, Lemma C) + g, where g ≤ p + S is the body's ground rows; the direction copy n_g + 7N (`adapter :2023`–`:2025`) | (7 + 2N)(5,800N + p + S + 16) + 15N + n_g + 55 |
 | PB, `prepare_bound` without AC | `structural.rs:1496`–`:1607`, `:1461`–`:1491` | V; exponents n; `a` n² + n; `rhs` n. Per free row: n `radix_scale` at 6, then `exact_scaled_rhs`: `new` 137, `accumulate_dof` 1, p couplings at 2 (`add_product(−k, 0.0)`), `round` 412, `round_scaled` 412, `is_zero` 69 (`:1487`, value 0), checks 2. Symmetry evidence n_g² + 2n_g + 2. Skew loop n(n − 1)/2 at ≤ 14 (two `radix_scale` when skewed). `basis.to_owned()` ≤ 512 (P-fmt bytes) | V + 14n² + 1,036n + 2n·p + n_g² + 2n_g + 517 |
 | D, `contribution_differences` | `:1050`–`:1061` | `sums.to_vec()` n_g + n_g² + Σℓ; n_g outer bodies (`:1055`); n_g² adds at ℓ_e + 3, where ℓ_e is entry e's expansion length; Σℓ_e ≤ C | 4n_g² + 2n_g + 2C |
@@ -253,9 +257,9 @@ All loops here run over fixed ranges (`0..12`, `0..6`, `0..3`, `0..64`, `0..129`
 ### 5.1 The common `element()` and `node()`
 
 - `element` (`adapter :1895`–`:1924`): straight 1 step. `element_dof_map` (`frame_kernel/src/lib.rs:87`–`:95`) is a 12 fill + 6 iterations. Then 12 outer + 144 inner iterations (≤ 42 operations each, `slot` included) + 144 finds. That is **E = 190 + 144β̄**.
-- `node` (`adapter :1882`–`:1894`): 1 step.
+- `node` (`adapter :1882`–`:1894`): **8 steps**. `slot.is_some_and(..)` copies the `Option<[f64; 3]>` through the reference (4), `old != point` compares three elements (3), and the rest is 1. Each caller also passes a coordinate array: a frame's `element.node_i.coordinates` is read out of borrowed data (3), and a connector's or rod's `node_i()` copies its `FrameNode` (4).
 
-### 5.2 Frame, κ_f = 12,000 per frame element
+### 5.2 Frame, κ_f = 12,100 per frame element
 
 All at `frame_kernel/src/lib.rs` unless stated.
 
@@ -265,14 +269,15 @@ All at `frame_kernel/src/lib.rs` unless stated.
 | its `[[0.0; 12]; 12]` fill (`:843`) | | 144 |
 | `add_terms` × 2 (`:2090`–`:2096`): 4 + 16 iterations each | | 42 |
 | the row check (`:856`–`:858`): 12 + 144 iterations | | 156 |
-| **κ_ls**, `local_stiffness` | | **475** |
-| `orientation()` (`:700`–`:702`, `:622`–`:636`, `:595`–`:620`, helpers `:2182`–`:2247`): straight (2×tok) ≤ 135; `validate_finite_vector` loops 2 × 3 + 3 × 3 + 3 | | **160** |
-| `transformation_matrix()` (`:638`–`:648`): fill 144, 2 iterations, 4 `copy_rotation_block` × 12 (`:2140`–`:2146`), 1 | | **195** |
+| the copies out of `&self` in `properties()` (`:696`): `self.section` 8 and `length()`'s two coordinate arrays 6 (`:684`) | | 14 |
+| **κ_ls**, `local_stiffness` | | **489** |
+| `orientation()` (`:700`–`:702`, `:622`–`:636`, `:595`–`:620`, helpers `:2182`–`:2247`): straight (2×tok) ≤ 135; `validate_finite_vector` loops 2 × 3 + 3 × 3 + 3; the copies out of `&self`, `local_x_axis()`'s coordinates 6 and `self.y_reference` 3 | | **169** |
+| `transformation_matrix()` (`:638`–`:648`): fill 144, 2 iterations, 4 `copy_rotation_block` × 12 (`:2140`–`:2146`), each passed `self.local_axes` out of `&self` (4 × 9), 1 | | **231** |
 | `structural::transform_roundoff` (`structural.rs:2422`–`:2457`): three fills 432; loop 1: 12 + 144 + 1,728 iterations (body 56 operations: `checked_product` 23, `checked_value` 9 × 2, `:684`–`:706`); `gamma` 1 (`:649`–`:652`); loop 2: 12 + 144 iterations, 1,728 at 2 steps (81 operations); the `[[48; 12]; 12]` fill 144; 1 | | **6,074** |
-| `node` × 2 | | 2 |
-| `global_stiffness()` (`:708`–`:716`): κ_ls + `orientation` + `transform_global_stiffness` (`:1614`–`:1620`) = `transformation_matrix` + `multiply_transpose_left` (`:2119`–`:2138`: fills 288 + 2 × (12 + 144 + 1,728) + 1 = 4,057); row check 156; 1 | | **5,044** |
+| `node` × 2, with `element.node_i.coordinates` read out of borrowed data (2 × (8 + 3)) | | 22 |
+| `global_stiffness()` (`:708`–`:716`): κ_ls + `orientation` + `transform_global_stiffness` (`:1614`–`:1620`) = `transformation_matrix` + `multiply_transpose_left` (`:2119`–`:2138`: fills 288 + 2 × (12 + 144 + 1,728) + 1 = 4,057); row check 156; 1 | | **5,103** |
 | the loop body (`adapter :1755`–`:1776`), `frames.to_vec` | | 2 |
-| **κ_f** | | 11,952, charged **12,000** |
+| **κ_f** | | 12,090, charged **12,100** |
 
 ### 5.3 Connector, κ_c = 306,200 per connector
 
@@ -281,12 +286,12 @@ All at `frame_kernel/src/connector.rs` unless stated.
 | Part | Lines | Steps |
 |---|---|---|
 | `force_scaled` (`adapter :1727`; `:439`–`:454`): a `clone` of the connector (89 element values ≤ 100); 6 + 36 iterations of `force_scaled_value` (`lib.rs:1122`–`:1134`); 1. Rods are §5.4 | | 143 |
-| `b()` (`:366`–`:395`): `chord` (`:351`–`:360`, `:827`–`:847`) 11; straight 2; fills 18 + 72; 9 + 3 iterations; per (axis, c) 1 + 2 `exact_dot3` (`:775`–`:781`: 137 + 3 × 18 + 412 + 2 = 605); × 9 | | 11,020 (inside the next two rows) |
-| `global_stiffness` (`:400`–`:420`): `b()`; fill 144; 12 outer; 78 entries × (`new` 137 + 6 + 36 × (`triple` 1 + 2 × 18, `:762`–`:773`) + `round` 412 + 2 = 1,889) | | 158,518 |
+| `b()` (`:366`–`:395`): `chord` (`:351`–`:360`, `:827`–`:847`) 11, plus its four arrays read out of `&self` (`node_i.coordinates`, `node_j.coordinates`, `a_i`, `a_j`) 12; straight 2; `skew(self.a_i)`, `skew(self.a_j)` 6 (`:370`–`:371`); fills 18 + 72; 9 + 3 iterations; per (axis, c) 1 + 2 `exact_dot3` (`:775`–`:781`: 137 + 3 × 18 + 412 + 2 = 605); × 9 | | 11,038 (inside the next two rows) |
+| `global_stiffness` (`:400`–`:420`): `b()`; fill 144; 12 outer; 78 entries × (`new` 137 + 6 + 36 × (`triple` 1 + 2 × 18, `:762`–`:773`) + `round` 412 + 2 = 1,889) | | 158,536 |
 | `force_scaled_matrix` (`lib.rs:1138`–`:1150`): `*matrix` 144 + 12 + 144 + 1 | | 301 |
-| `formation_roundoff` (`:459`–`:488`): `b()`; fill 144; 12; 78 entries × (`new` 137 + 6 + 36 × 21 [`product_upward` × 2 (`load_ledger.rs:611`–`:621`, 2 steps each) + `add` 17] + `round_upward` 827 (`load_ledger.rs:530`–`:543`: ρ + clone 136 + an `add` on the clone ≤ 5 + 12 + 136 + `signum` 68 + 2) + 3 = 1,729); the `[[1; 12]; 12]` fill 144 | | 146,182 |
-| `force_scaled_matrix` (bounds), node × 2, body | | 304 |
-| **κ_c** | | 305,886 (the rows above sum to 305,448), charged **306,200** |
+| `formation_roundoff` (`:459`–`:488`): `b()`; fill 144; 12; 78 entries × (`new` 137 + 6 + 36 × 21 [`product_upward` × 2 (`load_ledger.rs:611`–`:621`, 2 steps each) + `add` 17] + `round_upward` 827 (`load_ledger.rs:530`–`:543`: ρ + clone 136 + an `add` on the clone ≤ 5 + 12 + 136 + `signum` 68 + 2) + 3 = 1,729); the `[[1; 12]; 12]` fill 144 | | 146,200 |
+| `force_scaled_matrix` (bounds), node × 2 with `node_i()`'s copy (2 × (8 + 4)), body | | 326 |
+| **κ_c** | | 305,944 (the rows above sum to 305,506), charged **306,200** |
 
 ### 5.4 Tie rod, κ_r = 64,440 + 2ν̄₃ per rod
 
@@ -295,33 +300,35 @@ All at `frame_kernel/src/tie_rod.rs` unless stated.
 | Part | Lines | Steps |
 |---|---|---|
 | `force_scaled` in the connector's (`connector.rs:447`–`:450`; `:321`–`:325`): `*self` 31 + 3; `collect` 1; `flat_map` 1 (`adapter :1799`) | | 36 |
-| `direction_and_length` (`:245`–`:264`): `difference` 7 (`:549`–`:565`); `all` 3; `degenerate` (`:490`–`:530`): 3 × (`new` 137 + 2 `add` + `signum` 68 + a second `new` and 2 `add` + `round_upward` 827 + 1) + `new` 137 + 3 `add` + `round_scaled` 412 + `add_product` 18 + `signum` 68 + `new` 137 + 4 `add_product` + `signum` 68 + 3 ≈ 4,680; `norm3` ν̄₃; 5 | | 4,695 + ν̄₃ (inside `c()`) |
-| `try_c` (`:274`–`:286`), that is `c()`: the above + `offset_cross` × 2 (`:470`–`:482`: 3 × (605 + 1) + 5) + fill 12 + 3 + 1 | | 8,357 + ν̄₃ (inside the next rows) |
-| `global_stiffness` (`:291`–`:304`): `c()`; fill 144; 12; 78 × (137 + 37 + 412 + 2) | | 54,377 + ν̄₃ |
-| `force_scaled_matrix` × 2, nodes, body | | 606 |
-| `formation_roundoff` (`:330`–`:349`): `c()`; fill 144; 12; 78 × 7; fill 144 | | 9,203 + ν̄₃ |
-| **κ_r** | | 64,277 + 2ν̄₃ + 36 (the rows above sum to 64,222 + 2ν̄₃), charged **64,440 + 2ν̄₃** (65,002 at ν̄₃ = 281) |
+| `direction_and_length` (`:245`–`:264`): `difference` 7 (`:549`–`:565`), plus its four arrays read out of `&self` (`:246`–`:251`) 12; `all` 3; `degenerate` (`:490`–`:530`): 3 × (`new` 137 + 2 `add` + `signum` 68 + a second `new` and 2 `add` + `round_upward` 827 + 1) + `new` 137 + 3 `add` + `round_scaled` 412 + `add_product` 18 + `signum` 68 + `new` 137 + 4 `add_product` + `signum` 68 + 3 ≈ 4,680, plus its copies out of `rod` (`:494` 6, `:509` 6) 12; `norm3` ν̄₃; 5 | | 4,719 + ν̄₃ (inside `c()`) |
+| `try_c` (`:274`–`:286`), that is `c()`: the above + `offset_cross` × 2 (`:470`–`:482`: 3 × (605 + 1) + 5), each passed `self.o_i` or `self.o_j` (2 × 3) + fill 12 + 3 + 1 | | 8,387 + ν̄₃ (inside the next rows) |
+| `global_stiffness` (`:291`–`:304`): `c()`; fill 144; 12; 78 × (137 + 37 + 412 + 2) | | 54,407 + ν̄₃ |
+| `force_scaled_matrix` × 2, node × 2 with `node_i()`'s copy (2 × (8 + 4)), body | | 628 |
+| `formation_roundoff` (`:330`–`:349`): `c()`; fill 144; 12; 78 × 7; fill 144 | | 9,233 + ν̄₃ |
+| **κ_r** | | 64,359 + 2ν̄₃ + 36 (the rows above sum to 64,304 + 2ν̄₃), charged **64,440 + 2ν̄₃** (65,154 at ν̄₃ = 357) |
 
-### 5.5 Arc, κ_arc = 63,500 + 7λ̄_A in PREP, κ_a = 439 + λ̄_A in AE
+### 5.5 Arc, κ_arc = 64,300 + 7λ̄_A in PREP, κ_a = 439 + λ̄_A in AE
 
-τ̄ = **9,400** (Lemma E): `twice_atan2_nonnegative` (`structural/arc_angle.rs:36`–`:58`) through the 128-bit arithmetic of `retained/wide.rs`. λ is the arc's id bytes, λ ≤ λ̄_A.
+τ̄ = **9,600** (Lemma E): `twice_atan2_nonnegative` (`structural/arc_angle.rs:36`–`:58`) through the 128-bit arithmetic of `retained/wide.rs`. λ is the arc's id bytes, λ ≤ λ̄_A.
 
 The parts, all at `curved_bend/src/lib.rs` unless stated:
 - `objective_arc` (`:186`–`:285`): two `exact_rounded_dot` (604, 622), `twice_atan2` τ̄, 2 Gram–Schmidt iterations, validations 9, straight 4. That is **1,245 + τ̄**.
-- `global_stiffness` (`:484`–`:488`) = 7,386 + τ̄ = **16,786**:
-  - `objective_arc`;
+- `geometry()` (`:378`–`:380`) passes `objective_arc` three arrays read out of `&self`: `chord()`'s two coordinate arrays (`:374`) and `self.y_reference`, 9.
+- `global_stiffness` (`:484`–`:488`) = 7,401 + τ̄ = **17,001**:
+  - `geometry()`, that is `objective_arc` and its copies 9;
+  - `self.chord()` for `assemble_macro_stiffness`, 6;
   - `tip_stiffness_global` (`:502`–`:506`) 5,320, made of `FrameOrientation::new` 20, `flexibility_of` (`:420`–`:468`, ≤ 8 `Series::eval` (`arc_integrals.rs:34`–`:45`, ≤ 13 coefficients + 5 powers + 1) + fill 36 + 21 iterations + 5) ≈ 230, `invert_symmetric6` (`:1092`–`:1117`: 6 × frame_kernel `solve_dense(6)` (`lib.rs:1995`–`:2058`) ≤ 700 + dense build 42 + 15 + 6) ≈ 4,360, and `rotate_tip_to_global` (`:1132`–`:1154`) ≈ 710;
   - `assemble_macro_stiffness` (`:1173`–`:1211`) 820.
-- `curved_formation` (`adapter :2761`–`:2883`) = **18,247 + 3τ̄**: `global_stiffness`, `geometry`, `tip_stiffness` (`objective_arc` + `flexibility_of` + `invert_symmetric6`), and four `stage` closures (`:2797`–`:2828`: fills 72, 6 + 36 iterations, 216 iterations at 3 steps (≈ 165 operations), 36 tails) of 799 each, plus fills, transposes and the 42-iteration copy.
-- `from_macro_element` (`nonlinear_integration/src/lib.rs:224`–`:244`): `normalize_required_id` × 2 (`:3519`–`:3531`, ≤ 3λ + 5 each), `global_stiffness`, `Self::new` (`:188`–`:220`, 157), and `curved_formation`. That is **25,802 + 4τ̄ + 6λ**, plus the `component_id.clone()` at `stiffness.rs:197` (λ).
-- **κ_arc** = 25,802 + 4τ̄ + 7λ̄_A = 63,402 + 7λ̄_A, charged **63,500 + 7λ̄_A**.
+- `curved_formation` (`adapter :2761`–`:2883`) = **18,280 + 3τ̄**: `global_stiffness`, `geometry` (with its copies 9), `tip_stiffness` (`geometry()` + `flexibility_of` + `invert_symmetric6`), and four `stage` closures (`:2797`–`:2828`: fills 72, 6 + 36 iterations, 216 iterations at 3 steps (≈ 165 operations), 36 tails) of 799 each, plus fills, transposes and the 42-iteration copy.
+- `from_macro_element` (`nonlinear_integration/src/lib.rs:224`–`:244`): `normalize_required_id` × 2 (`:3519`–`:3531`, ≤ 3λ + 5 each), `global_stiffness`, `Self::new` (`:188`–`:220`, 157), and `curved_formation`. That is **25,850 + 4τ̄ + 6λ**, plus the `component_id.clone()` at `stiffness.rs:197` (λ).
+- **κ_arc** = 25,850 + 4τ̄ + 7λ̄_A = 64,250 + 7λ̄_A, charged **64,300 + 7λ̄_A**.
 - **AE per arc** (`adapter :1740`–`:1749`, `:1811`–`:1828`): the slot (`element_id` clone λ, `global_stiffness` copy 144, 5) + two fills 288 + 1. That is **κ_a = 439 + λ̄_A**.
 
-### 5.6 Straight pipe in PREP, κ_pe = 190
+### 5.6 Straight pipe in PREP, κ_pe = 220
 
-`StraightPipeElement::frame_element` (`straight_pipe/src/lib.rs:506`–`:513`): `frame_section` (`:460`–`:480`) ≤ 9 (2×tok), and `FrameElement::new` (frame_kernel `lib.rs:660`–`:681`) with `properties` ≤ 10 and `orientation` 160, plus checks 4. That is 183, charged **190**. The pipe loop adds `next`, `==` (derived `PartialEq`, 1), `push` and the loop body: 194 per pipe, plus A + K_c for R5's scans.
+`StraightPipeElement::frame_element` (`straight_pipe/src/lib.rs:506`–`:513`): `self.node_i`, `self.node_j` and `self.y_reference` read out of `&self` (11); `frame_section` (`:460`–`:480`) ≤ 9 (2×tok); and `FrameElement::new` (frame_kernel `lib.rs:660`–`:681`) with `properties` ≤ 10 + 14 for its copies and `orientation` 169, plus checks 4. That is 217, charged **220**. The pipe loop adds `next`, `==` (derived `PartialEq` on `FrameElement`, product `lib.rs:4900`: its three `[f64; 3]` fields compared as element primitives 9, and its scalar fields 1), `push` and the loop body: 233 per pipe, plus A + K_c for R5's scans.
 
-So **AE_el = 12,000F_e + 306,200K_c + 65,002T_r + (439 + λ̄_A)A** and **PREP_el = (63,500 + 7λ̄_A)A + (194 + A + K_c)·pipes + 2Λ_m + F_e**.
+So **AE_el = 12,100F_e + 306,200K_c + 65,154T_r + (439 + λ̄_A)A** and **PREP_el = (64,300 + 7λ̄_A)A + (233 + A + K_c)·pipes + 2Λ_m + F_e**.
 
 ## 6. The closed form (plain path)
 
@@ -339,22 +346,22 @@ The β̄ terms are AE's E_el·144β̄ + Sβ̄ + Cβ̄ = 2Cβ̄, since C = 144E_e
 > + GE + MECH + WIT + AE_el + PREP_el,
 
 where:
-- GE = 277,757·N + 3N·E_el + 2N(n_g + S) + 3,875(n_g + S), with ν̄₃ + 960ν̄₂ + 7,716 = 277,757 at ν̄₂ = ν̄₃ = 281;
+- GE = 350,793·N + 3N·E_el + 2N(n_g + S) + 3,875(n_g + S), with ν̄₃ + 960ν̄₂ + 7,716 = 350,793 at ν̄₂ = ν̄₃ = 357;
 - MECH = (7 + 2N)(5,800N + n_g + S + 16) + 15N + n_g + 55;
 - WIT = 2V + 21.5n̄² + 12n̄ + n_g + 50 ≤ 5n_g² + 16n_g + 22n̄² + 12n̄ + 58 (factor failure only, under P-witness);
-- AE_el = 12,000F_e + 306,200K_c + 65,002T_r + (439 + λ̄_A)A;
-- PREP_el = (63,500 + 7λ̄_A)A + (194 + A + K_c)·pipes + 2Λ_m + F_e;
+- AE_el = 12,100F_e + 306,200K_c + 65,154T_r + (439 + λ̄_A)A;
+- PREP_el = (64,300 + 7λ̄_A)A + (233 + A + K_c)·pipes + 2Λ_m + F_e;
 - Z̄ = min(n_g², 36(N + 2E_el) + S), ℓ̄ = min(δ̄, 2,099), β̄ = ⌊log₂ n_g⌋ + 2 (§2).
 
 Every coefficient is positive, so the bound is monotone in every dimension. MECH, WIT and the success path are exclusive; charging all three is still an upper bound. P0 may charge F_e as pipes.
 
-**Order of growth.** The work is quadratic in n_g, and linear in C with constant 3,400 + 105ℓ̄. Per node it carries GE's 277,757 (the Jacobi screen's 960 `norm2` calls per body, with bodies ≤ N). Per element it carries the exact formations: a connector costs ≈ 3·10⁵ and an arc ≈ 6.4·10⁴. Nothing is cubic, so `T2.factor` (≈ n³/6) dominates at large n.
+**Order of growth.** The work is quadratic in n_g, and linear in C with constant 3,400 + 105ℓ̄. Per node it carries GE's 350,793 (the Jacobi screen's 960 `norm2` calls per body, with bodies ≤ N). Per element it carries the exact formations: a connector costs ≈ 3·10⁵ and an arc ≈ 6.4·10⁴. Nothing is cubic, so `T2.factor` (≈ n³/6) dominates at large n.
 
 **Hand check (SEC-A, N = 2, one frame).** n_g = 12, n̄ = 6, S = 0, E_el = F_e = pipes = 1, A = K_c = T_r = 0, G = 1, C = 144, Z̄ = 144, ℓ̄ = 1, β̄ = 5.
 - The charged polynomial is 544,658. Its C term is 144 × 3,515 = 506,160; n_g gives 14,400 and n̄ 11,400.
-- GE is 602,068 (555,514 + 6 + 48 + 46,500).
-- AE_el is 12,000, and PREP_el is 195 + 2Λ_m.
-- The success path is ≈ 1.16·10⁶. MECH (128,005) and WIT (1,834) raise the charge to ≈ 1.29·10⁶.
+- GE is 748,140 (701,586 + 6 + 48 + 46,500).
+- AE_el is 12,100, and PREP_el is 234 + 2Λ_m.
+- The success path is ≈ 1.31·10⁶ (1,305,132 + 2Λ_m). MECH (128,005) and WIT (1,834) raise the charge to ≈ 1.43·10⁶.
 
 ## 7. Premises, with the source that makes each true
 
@@ -424,17 +431,17 @@ In call order:
 | Group | Lines | Trip counts | Steps |
 |---|---|---|---|
 | PREP, AE, VIEW | as §4 | the same calls (`skew.rs:186`–`:196`) | as §4, with C and G including 9s_k and s_k |
-| NB, node blocks | `adapter :1200`–`:1205`, `:1849`–`:1866`; `restraint_basis.rs:1019`–`:1030`, `:380`–`:382` | per skew spring: `spring_block` 625 (`norm_squared`: `new` 137, 3 `add_product`, `round` 412), copy 10, 3 outer + 9 × (2 + β̂), group 1 | s_k(658 + 9β̂) |
+| NB, node blocks | `adapter :1200`–`:1205`, `:1849`–`:1866`; `restraint_basis.rs:1019`–`:1030`, `:380`–`:382` | per skew spring: `spring_block` 631 (`norm_squared`: `new` 137, 3 `add_product`, `round` 412; `direction.scaled()` and `norm_squared(self.scaled)` read `[f64; 3]` out of borrowed data, 2 × 3), copy 10, 3 outer + 9 × (2 + β̂), group 1 | s_k(664 + 9β̂) |
 | RBC, basis clone | `adapter :1216` | 2p + 4ν + 2s_k + Λ_s + 5 | as stated |
 | SRC, curved sources | `skew.rs:196` | A copies | A |
 | PRO, prologue | `adapter :1243`–`:1286`, `:1300` | prescribed check p; `ground_rows` + filter 2(p + ν + s_k); values p | 4p + 2ν + 2s_k + 5 |
-| GE′, frame screen with direction rows | `adapter :1999`–`:2018`; `rigid_body.rs:108`–`:126` | GE, plus per body (ν + s_k)(1 + \|b\|) row scans; 3,881 per direction row | GE + 2N(ν + s_k) + 3,881(ν + s_k) + (p + S) |
+| GE′, frame screen with direction rows | `adapter :1999`–`:2018`; `rigid_body.rs:108`–`:126` | GE, plus per body (ν + s_k)(1 + \|b\|) row scans; 3,884 per direction row (its formation is 30: GE's 18, the `[0.0; 6]` fill at `:113` 6 and its 6 iterations) | GE + 2N(ν + s_k) + 3,884(ν + s_k) + (p + S) |
 | W4, constrained-body screen | `adapter :2086`–`:2250`; `rigid_body.rs:381`–`:849` | §9.4 | W4 |
 | TS, `transform_stiffness` | `restraint_basis.rs:1065`–`:1117` | `check_node_blocks` ν(7 + 3β̂ + 2w̄); `to_vec` Z; per touched entry `transformed_entry` 966 + 11β̂ (`new` 137, `congruence_terms` 35 + 2β̂, ≤ 9 × (`get` β̂ + 2 + `add_triple` 40), `round` 412); pattern clone n_g + 2Z + 2 | ν(7 + 3β̂ + 2w̄) + 3Z + n_g + Z_ν(966 + 11β̂) + 6 |
 | RD, `reduce` | `:1125`–`:1189`, `:1208`–`:1224`; `sparse.rs:851`–`:960` | `transform_force` n_g(18 + β̂) + `finish(n_g)` 621n_g; `coordinate_values` (p + ν)(β̂ + 2); `reduce_assembled_sparse_system` 5n_g + 4Z + 4(p + ν) + 554n̄ | n_g(650 + 2β̂) + ν(6 + β̂) + 4Z + 554n̄ + 12 |
 | TC, `transform_contributions` | `:921`–`:951` | per contribution: 2 `translation`s, then 1 push or ≤ 9 pairs of `exact_triple_parts` (`:269`) + 4 pushes | C(108 + 6β̂) + 3 |
 | TR, `transform_roundoff` | `:957`–`:991` | `!=` n_g + 2Z + 2; two `to_vec` 2Z; per touched entry 105 + 11β̂ (`congruence_terms`, ≤ 9 `find`s) | n_g + 4Z + 3ν + Z_ν(105 + 11β̂) + 4 |
-| FS, `formation_source` | `adapter :2267`–`:2321` | frames F_e; members F_e + Λ_m; connectors 100K_c + 31T_r; per arc a scan of A, ≤ m_A macro `global_stiffness` (16,786) + 145, a push, or a P-fmt name ≤ 64 + λ_A | 2F_e + Λ_m + 100K_c + 31T_r + A(A + 16,931m_A + λ̄_A + 66) + S + 3 |
+| FS, `formation_source` | `adapter :2267`–`:2321` | frames F_e; members F_e + Λ_m; connectors 100K_c + 31T_r; per arc a scan of A, ≤ m_A macro `global_stiffness` (17,001) + 145, a push, or a P-fmt name ≤ 64 + λ_A | 2F_e + Λ_m + 100K_c + 31T_r + A(A + 17,146m_A + λ̄_A + 66) + S + 3 |
 | DV, dense view | `adapter :1317`–`:1332` | `symmetry_basis` E_el + 512; `to_dense` n_g² + 2n_g + Z; two fills and the copy 2n_g² + 3n_g + Z | as VIEW, which it replaces |
 | Gate | `adapter :1333`–`:1347`; `structural.rs:1432`–`:1438` | PB, CS, D, AC, G1, HC, R, K, L, FIN, WIT as §4, with C′ for C, ℓ̄′ for ℓ̄, G + s_k for G | §4's rows |
 | KD5 | `structural.rs:1968`–`:1978`; `formation_check.rs:489`–`:535`; `formation_check/skew.rs:271`–`:441` | §9.3 | KD5 |
@@ -444,38 +451,38 @@ In call order:
 
 `check_at` (`formation_check.rs:507`–`:530`) → `skew::evaluate`. FIN runs it unless the case is already Sensitive (`structural.rs:1964`–`:1969`). It is charged always.
 
-**Element re-formation at 128-bit precision** (Lemma E units), once per element per `intended_stiffness_pass` (`formation_check.rs:727`–`:750`):
+**Element re-formation at 128-bit precision** (Lemma E units), once per element per `intended_stiffness_pass` (`formation_check.rs:727`–`:750`). The "base" column counts each row with Lemma E's operation charges without their copies (`add` 31, `sub` 32, `mul` 21, `div` 277, `sqrt` 408, `neg` and `abs` 1, `mul_pow2` 4). Lemma E's copies raise every operation by at most 1.22 times, except `neg`, `abs` and `mul_pow2`, which add 3 each. So each row is charged ≤ 1.22·base + 3m + c, where m counts its `neg`, `abs` and `mul_pow2` calls and c its other copies under §1.1.
 
-| | Lines | Main parts | Steps |
-|---|---|---|---|
-| κ^F_f, frame | `:2694`–`:2827`, `:2609`–`:2678` | `chord_axes` 3,388; leaves 712; `coefficients` × 2 (Timoshenko) 3,350; fill and patterns 226; `rotate` 16 blocks × 3,034 + 148 = 48,700 | 56,379, charged **56,400** |
-| κ^F_c, connector | `:2835`–`:2936` | `connector_b` 3,972; lifts 258; `kb` 72 × 331; `out` 144 × 331; fills 216 | 75,996, charged **76,100** |
-| κ^F_r, tie rod | `:2942`–`:2996` | `tie_rod_c` 3,010; 12 × 23 + 78 × 24; fill 144 | 5,229, charged **5,300** |
-| κ^F_a, arc | `:3100`–`:3414` | `curved_geometry_values` 11,076 (`included_angle` 9,304); flexibility 21 × 4,034 (4 `quad` of 692); `invert6` 44,121; axes 3,170; `mul6` × 2 23,916; `rotate` 48,700; rest 1,108 | 216,845, charged **216,900** |
+| | Lines | Main parts of the base | Base | m | c | Steps |
+|---|---|---|---|---|---|---|
+| κ^F_f, frame | `:2694`–`:2827`, `:2609`–`:2678` | `chord_axes` 3,388; leaves 712; `coefficients` × 2 (Timoshenko) 3,350; fill and patterns 226; `rotate` 16 blocks × 3,034 + 148 = 48,700 | 56,379 | 16 (`pair` 4, the two bending patterns 12, `:2798`–`:2817`) | 9 (`frame_matrix`'s three arrays out of `e`, `:2695`) | 68,840, charged **68,900** |
+| κ^F_c, connector | `:2835`–`:2936` | `connector_b` 3,972; lifts 258; `kb` 72 × 331; `out` 144 × 331; fills 216 | 75,996 | 30 (`half` 3, `skew` 9, `qc.neg()` 18) | 95 (`node_i()`/`node_j()` 8, `offsets()` 6, `skew`'s by-value `v[k]` reads 3 × 12, `axes()` 9, `stiffness()` 36) | 92,901, charged **93,000** |
+| κ^F_r, tie rod | `:2942`–`:2996` | `tie_rod_c` 3,010; 12 × 23 + 78 × 24; fill 144 | 5,229 | 6 (`:2965`–`:2966`) | 23 (`axes()` 9, `local_offsets()` 6, `node_i()`/`node_j()` 8) | 6,421, charged **6,500** |
+| κ^F_a, arc | `:3100`–`:3414` | `curved_geometry_values` 11,076 (`included_angle` 9,304); flexibility 21 × 4,034 (4 `quad` of 692); `invert6` 44,121; axes 3,170; `mul6` × 2 23,916; `rotate` 48,700; rest 1,108 | 216,845 | 152 (geometry `mul_pow2` 4; `included_angle` 17; flexibility `mul_pow2` 4; `h` 3; the coupled blocks 72; `unit_load_actions` 7; `invert6` `abs` 30 and `mul_pow2` 15) | 53 (`e`'s three arrays 9; `*radius` 4, `:3319`; `*t` 4; `invert6`'s `let mut m = *f`, 36 elements, `:3372`) | 265,060, charged **265,100** |
 
-Σκ^F = 56,400F_e + 76,100K_c + 5,300T_r + 216,900A.
+Σκ^F = 68,900F_e + 93,000K_c + 6,500T_r + 265,100A.
 
 **The evaluation, in order:**
-1. **SA, `subtract_action`** (`skew.rs:85`–`:131`), three times (`:340`, `:379`, `:401`). Each costs Σκ^F + E_el(6,500 + 576β̂) + S(50 + 4β̂) + s_k(2,520 + 36β̂) + 4. Per element entry, `entry` is ≤ 44 + 4β̂: `q_row(i)` 8 + β̂, then ≤ 3 × (1 + `q_row(j)` + ≤ 3 `add_weighted` returns); 144 entries give ≤ 6,336 + 576β̂. Per skew spring, `skew_spring_matrix` costs 2,110.
+1. **SA, `subtract_action`** (`skew.rs:85`–`:131`), three times (`:340`, `:379`, `:401`). Each costs Σκ^F + E_el(6,500 + 576β̂) + S(50 + 4β̂) + s_k(2,577 + 36β̂) + 4. Per element entry, `entry` is ≤ 44 + 4β̂: `q_row(i)` 8 + β̂, then ≤ 3 × (1 + `q_row(j)` + ≤ 3 `add_weighted` returns); 144 entries give ≤ 6,336 + 576β̂. Per skew spring, `skew_spring_matrix` (`skew.rs:36`–`:54`: 3 `add`, 15 `mul`, 6 `div`) costs 2,164, and its `spring.direction.authored()` argument reads an array out of borrowed data, 3.
 2. **CORR, `correction`**, twice: 71n + n_g + 2 each (`scaled_exponent` returns at `is_zero`, `:1119`).
 3. **JUDGE** (`skew.rs:345`–`:375`):
    - `lift` n_g + ν(1,684 + 3β̂);
    - `physical_free` n_g(2 + β̂) (R3k);
    - **BS, `body_scales`** ≤ 9N² + 2N·E_el + 2E_el + 28N (Lemma F; its edges are E′ = F_e + K_c + A ≤ E_el, `formation_check.rs:1159`–`:1174`);
    - the loop n_g(26 + β̂).
-4. **Norms and σ** (`:383`–`:407`): 31n + 73n.
+4. **Norms and σ** (`:383`–`:407`): 31n + 79n (two `mul_pow2` per row, `:386`–`:387`), and the threshold's `mul_pow2` 7.
 5. **EPS, `epsilon_e`** (`skew.rs:136`–`:267`):
    - Σκ^F;
    - per element 18 + 144 × (4,826 + 4β̂), where the `formation` closure is `new` 137, `split` 18, 4 adds, and ≤ 9 pairs × 507 (`exact_abs_scaled_up` 482);
-   - per skew spring 46,200 + 36β̂;
+   - per skew spring 46,300 + 36β̂ (`skew_spring_matrix` 2,164 and its argument 3 included);
    - S;
-   - the assembly part: fill 137n, per row a reset of 139n plus a scan of C′, 17C′ adds, and 1,223 per pair (two `exact_abs_scaled_up`, a projection `new`, a split and adds), so 137n + 1,362n² + n·C′ + 17C′;
+   - the assembly part: fill 137n, per row a reset of 139n plus a scan of C′, 17C′ adds, and 1,226 per pair (two `exact_abs_scaled_up`, a projection `new`, the `mul_pow2` at `:253`, a split and adds), so 137n + 1,365n² + n·C′ + 17C′;
    - folds 4n.
 6. Rows, `psi`, the index fill and the tail: 139n + n_g + 330, plus λ̄_A for a refused-check detail.
 
-Summed: Σκ^F 3 + 1; E_el 3 × 6,500 + 694,962 ≤ 714,500; S 3 × 50 + 1; s_k 3 × 2,520 + 46,200; n 142 + 104 + 137 + 4 + 139 = 526 ≤ 527; n_g 2 + 29 + 1 ≤ 33; constants 12 + 4 + 330 ≤ 460.
+Summed: Σκ^F 3 + 1; E_el 3 × 6,500 + 694,962 ≤ 714,500; S 3 × 50 + 1; s_k 3 × 2,577 + 46,300 = 54,031; n 142 + 110 + 137 + 4 + 139 = 532 ≤ 533; n_g 2 + 29 + 1 ≤ 33; constants 12 + 4 + 7 + 330 ≤ 460.
 
-> **KD5** = 4Σκ^F + E_el(714,500 + 2,304β̂) + S(151 + 12β̂) + s_k(53,760 + 144β̂) + 1,362n̄² + n̄·C′ + 17C′ + 527n̄ + n_g(33 + 2β̂) + ν(1,684 + 3β̂) + BS + λ̄_A + 460.
+> **KD5** = 4Σκ^F + E_el(714,500 + 2,304β̂) + S(151 + 12β̂) + s_k(54,031 + 144β̂) + 1,365n̄² + n̄·C′ + 17C′ + 533n̄ + n_g(33 + 2β̂) + ν(1,684 + 3β̂) + BS + λ̄_A + 460.
 
 ### 9.4 W4, the constrained-body screen
 
@@ -484,23 +491,23 @@ Summed: Σκ^F 3 + 1; E_el 3 × 6,500 + 694,962 ≤ 714,500; S 3 × 50 + 1; s_k 
   - `to_vec` \|b\|, then **R3a** HS(\|b\|);
   - the rods sum K_c, and `curved_points` \|b\|;
   - the edge loop over **all** E_el edges, at 1 + 2β̂ each (**R3b**, two `local`s);
-  - per arc edge in the body (each arc once overall): a clone λ_A, and `w4_curved_source` (`:2226`–`:2250`), which scans A and runs ≤ m_A macro `global_stiffness` at 16,931 (16,786 + 145 bit compares);
+  - per arc edge in the body (each arc once overall): a clone λ_A, and `w4_curved_source` (`:2226`–`:2250`), which scans A and runs ≤ m_A macro `global_stiffness` at 17,146 (17,001 + 145 bit compares);
   - points 2\|b\|;
   - grounds (p + S)(1 + β̂) (**R3b**).
 - **`objective_sub_bodies`** (`rigid_body.rs:381`–`:418`): ≤ 4\|b\| + 7L_b + Σ HS(\|sb\|) (**R3c**) + 3σ_b.
 - **`assess_constrained_bodies`** (`:494`–`:705`), restrained path:
-  - `reduce_constrained_body` (`:709`–`:849`): 33\|b\| + Σ HS(\|sb\|) (**R3d**) + HS_k(σ_b) (**R3e**) + HS(0) (**R3f**; no ties, `adapter :2140`) + HS_k(g_b) (**R3g**) + 4σ_b + 5g_b + 10. With σ_b > 1 and no ties it returns `INVALID` at `:830`, which is cheaper;
+  - `reduce_constrained_body` (`:709`–`:849`): 33\|b\| + Σ HS(\|sb\|) (**R3d**) + HS_e(σ_b) (**R3e**) + HS(0) (**R3f**; no ties, `adapter :2140`) + HS_g(g_b) (**R3g**) + 4σ_b + 10g_b + 10. A ground row is ≤ 10: `match *ground` copies a directional row's `direction` out of borrowed data (`:751`, 3), its two scans 6, and the body 1. With σ_b > 1 and no ties it returns `INVALID` at `:830`, which is cheaper;
   - `rounded3` 1,756\|b\|;
   - rows 45g_b;
   - Jacobi 1,920g_b + 7,168 (`:565`–`:600`);
   - the rest 81.
 
-Here HS(w) = 3w(⌊log₂ w⌋ + 1) + 2 and HS_k(w) = 2·HS(w) for keyed comparisons (Part II, "Common algorithms"); ⌊log₂ w⌋ + 1 ≤ β̂ − 1 for every w on the branch. Summed over the U bodies (Σ\|b\| ≤ N, Σg_b ≤ p + S):
-- per body, constants 10 + 7,168 + 81 + HS(0) 2, plus the HS constants of R3a, R3e and R3g (2 + 4 + 4): 7,271 ≤ 7,280;
-- per node, 1 + 1 + 2 + 4 + 33 + 1,756 + 7 (σ_b ≤ \|b\|) = 1,804, plus 2 + 2 for R3c–d's constants, and 15(β̂ − 1) for R3a, R3c, R3d and R3e: ≤ N(1,809 + 15β̂);
-- per ground row, 5 + 45 + 1,920 + 6(β̂ − 1) for R3g: ≤ (n_g + S)(1,988 + 6β̂).
+Here HS(w) = 3w(⌊log₂ w⌋ + 1) + 2, and the keyed sorts cost HS_k(w; κ, c) = HS(w) + 2w(⌊log₂ w⌋ + 1)(2κ + c), with κ one key's computation and c one comparison of two keys (Part II, "Common algorithms"). R3e's key costs κ = 1 and c = 1, so HS_e(w) = 9w(⌊log₂ w⌋ + 1) + 2. R3g's costs κ = 7 and c = 4, so HS_g(w) = 39w(⌊log₂ w⌋ + 1) + 2. ⌊log₂ w⌋ + 1 ≤ β̂ − 1 for every w on the branch. Summed over the U bodies (Σ\|b\| ≤ N, Σg_b ≤ p + S):
+- per body, constants 10 + 7,168 + 81 + HS(0) 2, plus the HS constants of R3a, R3e and R3g (2 + 2 + 2): 7,267 ≤ 7,280;
+- per node, 1 + 1 + 2 + 4 + 33 + 1,756 + 7 (σ_b ≤ \|b\|) = 1,804, plus 2 + 2 for R3c–d's constants, and 18(β̂ − 1) for R3a, R3c, R3d (3 each) and R3e (9): ≤ N(1,809 + 18β̂);
+- per ground row, 10 + 45 + 1,920 + 39(β̂ − 1) for R3g: ≤ (n_g + S)(1,988 + 39β̂).
 
-> **W4** ≤ U·[E_el(1 + 2β̂) + (n_g + S)(1 + β̂) + K_c + 7,280] + N(1,809 + 15β̂) + 7E_el + (n_g + S)(1,988 + 6β̂) + A(λ̄_A + A + 16,931m_A + 7).
+> **W4** ≤ U·[E_el(1 + 2β̂) + (n_g + S)(1 + β̂) + K_c + 7,280] + N(1,809 + 18β̂) + 7E_el + (n_g + S)(1,988 + 39β̂) + A(λ̄_A + A + 17,146m_A + 7).
 
 **Refusal paths (each at most once, exclusive):**
 - **W4-MECH** (`rigid_body.rs:632`–`:705`, `:865`–`:1012`) = (391 + N)(174,400N + 137(n_g + S) + 84,000) + n_g + 7N + 10,300. Each candidate is a prefilter 7g_b, `null_translations` 530\|b\| + 2g_b, and `canonical` ≤ 64 × (1,308 + 2,716\|b\| + 2g_b).
@@ -516,9 +523,9 @@ Each is counted at its replacement's cost (Part II R3). LB is ≤ β̂ steps.
 | R3b | `adapter :2125` `nodes.binary_search` | 2E_el + p + S per W4 body | W4: U(2E_el + n_g + S)β̂ |
 | R3c | `rigid_body.rs:414` `body.sort_unstable()` | 1 per sub-body | W4: ≤ 3N(β̂ − 1) + 2N |
 | R3d | `rigid_body.rs:725` `body.sort_unstable()` | 1 per sub-body | W4: ≤ 3N(β̂ − 1) + 2N |
-| R3e | `rigid_body.rs:728` `sort_unstable_by_key(body[0])` | 1 per W4 body | W4: ≤ 6N(β̂ − 1) + 4U |
+| R3e | `rigid_body.rs:728` `sort_unstable_by_key(body[0])` | 1 per W4 body | W4: HS_e, ≤ 9N(β̂ − 1) + 2U |
 | R3f | `rigid_body.rs:748` `ties.sort_unstable()` | 1 per W4 body, on 0 ties | W4: 2U |
-| R3g | `rigid_body.rs:789` `sort_unstable_by_key(GroundRow::key)` | 1 per W4 body | W4: ≤ 6(n_g + S)(β̂ − 1) + 4U |
+| R3g | `rigid_body.rs:789` `sort_unstable_by_key(GroundRow::key)` | 1 per W4 body | W4: HS_g, ≤ 39(n_g + S)(β̂ − 1) + 2U |
 | R3h | `restraint_basis.rs:861` `binary_search_by_key` (through `translation`) | ≤ 22C + 4Z_ν + 2n_g + 3ν: TC 6C; TS and TR 2Z_ν each; `transform_force` n_g; KD5's three SAs 12C, EPS 4C, JUDGE n_g, `lift` 3ν | the β̂ terms of TC, TS, TR, RD and KD5 |
 | R3i | `restraint_basis.rs:1070` `first.binary_search` | 3ν | TS: 3νβ̂ |
 | R3j | `restraint_basis.rs:1178` `axis_restrained.binary_search` | p + ν | RD: (p + ν)β̂ |
@@ -529,26 +536,26 @@ Each is counted at its replacement's cost (Part II R3). LB is ≤ β̂ steps.
 > **c̄_basis(T2.integrity)** = 32·n_g² + 38·n̄² + 9·n̄·n_g + 29·Z̄ + C′·(3,400 + 105·ℓ̄′) + 2β̂·C + 1,200·n_g + 1,900·n̄ + 3(G + s_k) + 191·E_el + 3S + N + 2F_e + 2A + K_c + 1,700
 > + GE + MECH′ + W4-MECH + WIT + AE_el + PREP_el + Δ_basis,
 
-> **Δ_basis** = 225,600F_e + 304,400K_c + 21,200T_r + 867,600A
+> **Δ_basis** = 275,600F_e + 372,000K_c + 26,000T_r + 1,060,400A
 > + E_el(714,600 + 2,304β̂) + U·E_el(1 + 2β̂) + C(108 + 6β̂) + C′(n̄ + 17)
-> + 1,362n̄² + 1,081n̄ + n_g(700 + 4β̂) + (n_g + S)(1,990 + 6β̂) + U(n_g + S)(1 + β̂)
-> + 11Z̄ + Z_ν(1,071 + 22β̂) + S(153 + 12β̂) + s_k(54,424 + 153β̂) + ν(1,708 + 7β̂ + 2w̄) + (2N + 3,881)(ν + s_k)
-> + 9N² + 2N·E_el + N(1,837 + 15β̂) + A(2A + 33,862m_A + 2λ̄_A + 76) + 4F_e + 102K_c + 31T_r + U(K_c + 7,280)
+> + 1,365n̄² + 1,087n̄ + n_g(700 + 4β̂) + (n_g + S)(1,990 + 39β̂) + U(n_g + S)(1 + β̂)
+> + 11Z̄ + Z_ν(1,071 + 22β̂) + S(153 + 12β̂) + s_k(54,701 + 153β̂) + ν(1,708 + 7β̂ + 2w̄) + (2N + 3,884)(ν + s_k)
+> + 9N² + 2N·E_el + N(1,837 + 18β̂) + A(2A + 34,292m_A + 2λ̄_A + 76) + 4F_e + 102K_c + 31T_r + U(K_c + 7,280)
 > + Λ_m + Λ_s + λ̄_A + 518.
 
 How the rows map to it:
 - The first line is §6's charge with the gate's C′ and ℓ̄′. The gate's rows give C′(3,396 + 105ℓ̄′); AE's C(1 + β̄) and its other β̄ terms give C + (2C − 9s_k)β̄ ≤ C + 2β̂C. P0 charges C′ = 36C ≥ C, so C′·3,400 covers C′·3,396 + C.
 - Δ_basis's first line is KD5's 4Σκ^F.
 - E_el: KD5 714,500 + W4 7 + BS 2 ≤ 714,600; 2,304β̂ from KD5. U·E_el from W4. C from TC. C′(n̄ + 17) from KD5.
-- n̄: KD5 527 + RD 554 = 1,081. n_g: RBC 2p + PRO 4p + GE′ p (7, with p ≤ n_g) + TS 1 + RD 650 + TR 1 + KD5 33 + DROP′ 4 = 696 ≤ 700; 4β̂ from RD and KD5. (n_g + S) and U(n_g + S) from W4.
-- Z̄: TS 3 + RD 4 + TR 4. Z_ν: TS and TR. S: GE′ 1 + FS 1 + KD5 151. s_k: NB 658 + RBC 2 + PRO 2 + KD5 53,760 + DROP′ 2 = 54,424; 9β̂ + 144β̂ = 153β̂. ν: RBC 4 + PRO 2 + TS 7 + RD 6 + TR 3 + KD5 1,684 + DROP′ 2 = 1,708; 3β̂ + β̂ + 3β̂ = 7β̂; 2w̄ from TS. (2N + 3,881)(ν + s_k) from GE′.
-- 9N² + 2N·E_el + 28N from BS; N(1,809 + 15β̂) from W4. A: SRC 1 + W4 (A + 16,931m_A + λ̄_A + 7) + FS (A + 16,931m_A + λ̄_A + 66) + DROP′ 2. F_e: FS 2 + DROP′ 2. K_c: FS 100 + DROP′ 2. T_r: FS 31. U(K_c + 7,280) from W4.
+- n̄: KD5 533 + RD 554 = 1,087. n_g: RBC 2p + PRO 4p + GE′ p (7, with p ≤ n_g) + TS 1 + RD 650 + TR 1 + KD5 33 + DROP′ 4 = 696 ≤ 700; 4β̂ from RD and KD5. (n_g + S) and U(n_g + S) from W4.
+- Z̄: TS 3 + RD 4 + TR 4. Z_ν: TS and TR. S: GE′ 1 + FS 1 + KD5 151. s_k: NB 664 + RBC 2 + PRO 2 + KD5 54,031 + DROP′ 2 = 54,701; 9β̂ + 144β̂ = 153β̂. ν: RBC 4 + PRO 2 + TS 7 + RD 6 + TR 3 + KD5 1,684 + DROP′ 2 = 1,708; 3β̂ + β̂ + 3β̂ = 7β̂; 2w̄ from TS. (2N + 3,884)(ν + s_k) from GE′.
+- 9N² + 2N·E_el + 28N from BS; N(1,809 + 18β̂) from W4. A: SRC 1 + W4 (A + 17,146m_A + λ̄_A + 7) + FS (A + 17,146m_A + λ̄_A + 66) + DROP′ 2. F_e: FS 2 + DROP′ 2. K_c: FS 100 + DROP′ 2. T_r: FS 31. U(K_c + 7,280) from W4.
 - Λ_m from FS, Λ_s from RBC, λ̄_A from KD5. Constants: RBC 5 + PRO 5 + TS 6 + RD 12 + TC 3 + TR 4 + FS 3 + KD5 460 + DROP′ 20 = 518.
 
 - P0 charges C′ = 36C (μ = 36), ℓ̄′ = min(36δ̄, 2,099), U = min(N, K_c + A), and m_A = A unless it computes m_A.
 - GE, WIT, AE_el and PREP_el are §6's. MECH′ and W4-MECH are §9.4's.
 - Every coefficient is positive.
-- **Order of growth.** The branch adds ≈ 7.1·10⁵ + 2,304β̂ per element, plus 4κ^F (2.3·10⁵ per frame, 8.7·10⁵ per arc). The largest product term is n̄·C′ ≤ 36·n̄·C. It is still not cubic.
+- **Order of growth.** The branch adds ≈ 7.1·10⁵ + 2,304β̂ per element, plus 4κ^F (2.8·10⁵ per frame, 1.1·10⁶ per arc). The largest product term is n̄·C′ ≤ 36·n̄·C. It is still not cubic.
 
 ## 10. Allocation sizes (requested element counts; resident memory not stated)
 
@@ -593,9 +600,11 @@ Basis branch, beyond the plain path:
 | F1 | `slice::binary_search` | `sparse.rs:190` (`SparsePattern::find`), through `adapter :1657` from `:1666`, `:1677`; basis: `restraint_basis.rs:978` (TR) and, through `SparseStiffness::get` (`sparse.rs:299`), `restraint_basis.rs:1108` (TS) | 2C; basis + ≤ 18Z_ν | R1 |
 | F2 | `HashSet` collect, `contains` | product `lib.rs:4891`, `:4892`, `:4896` (`frame_member_identities`, from `stiffness.rs:208`) | A + K_c inserts, 2·pipes lookups | R5: `std` documents these only as expected O(1), so they have no worst-case constant even as a foreign step |
 | F3 | `f64::powi` | `structural.rs:666`, `:928`, `:929`, `:1627`; basis: `formation_check.rs:1139`, `:2559` | each radix iteration; the basis sites are unreached under P-zero | R6 |
-| F4 | float and integer methods | §1.3 | many | P-fp |
-| F5 | `format!` | §1.3 | 1 / pipes / ≤ 1 on the plain path; fail-closed paths on the basis branch | P-fmt |
+| F4 | float and integer methods | §1.3 | many | P-fp, adopted |
+| F5 | `format!` | §1.3 | 1 / pipes / ≤ 1 on the plain path; fail-closed paths on the basis branch | P-fmt, adopted |
 | F6 | sorts and searches, basis branch | the eleven R3 sites (§9.5) | §9.5 | R3 |
+| F7 | `f64::mul_add` on a target without a fused multiply-add instruction (x86_64) | `structural.rs:852`; `correct_norm/src/lib.rs:79`, `:162`; `connector.rs:770`; `tie_rod.rs:454`; basis: `restraint_basis.rs:190`, `:261` | every `Expansion::add_product`, `norm2`/`norm3` and `triple` | §12, item 2 |
+| F8 | 128-bit integer division | `retained/wide.rs:818` (`sqrt`); `wide/multi.rs:196`–`:197` (`word_at`, from `to_binary64`), `:711` (`half_quantum_over`); `:578` (`Wide<L>`'s `sqrt`, off this path) | every wide `sqrt` and `to_binary64`, so τ̄ on the plain path | R8 |
 | — | `correct_norm`'s ulp loop | `correct_norm/src/lib.rs:85` | N + ≤ 960 per body | closed by Lemma D (repository source, ≤ 2 iterations) |
 
 Element primitives on the plain path (§1.2; no replacement):
@@ -618,13 +627,22 @@ Off both paths:
 - `formation_check.rs:1357`: `member_frame_index` has no caller on this path (§9.1);
 - `formation_check.rs:2528`: a constant 2⁻⁹⁰⁰ in a load re-formation, unreached without loads.
 
-## 12. Open items
+## 12. Open items and decisions
 
-1. **P-fp and P-fmt need Agent 0's adoption** (Part II, decision 1). Without them, T2.integrity stays unbounded on both branches.
-2. **δ̄ needs one allocation of N counters in P0**, or Agent 0 accepts a fallback (Part II, decision 2). `BuiltModel` (product `lib.rs:2608`–`:2631`) holds no adjacency; an allocation-free exact pass is O(N·E_el).
-3. **R5 needs Agent 0's release** (Part II, decision 3). Without it, T2.integrity stays unbounded on every request.
-4. **R1, R3, R5 and R6 are specified, not built.** Until they land, F1–F3 (and F6 with a basis) keep T2.integrity unbounded. Each also needs the re-pins listed in Part II.
-5. **An independent literal audit of this ledger** is still required before adoption. It is a numerical-resource claim. The 2×tok constants (§5, Lemma E, §9.3) and the hand-rounded constants (`flexibility_of`, `invert_symmetric6`, `solve_dense(6)`) are sound over-counts under §1.1, not literal counts. The audit should also settle three small points, none of which moves a charge:
+**Decided by Agent 0** (2026-11-09; each was provisional on the independent review raising no objection to it, and it raised none):
+- **P-fp and P-fmt are adopted as pricing premises** (§1.3, with each one's rationale and its exclusions by name).
+- **δ̄ is computed with one array of N counters in P0.** P0 charges that allocation in its own account: one `vec![0; N]` of `usize` (8N bytes) and ≤ 2N + E_el + S + s_k steps (the fill, one iteration per element, spring and skew spring, and the maximum scan).
+- **R5 is approved in principle.** It is implemented with R1, R3 and R6 after the pressure-elongation unit merges, with its re-pins, and a D3 turn if coefficients fall.
+
+**Open:**
+1. **Implementation.** R1, R3, R5, R6 and R8 are specified, not built; R8 also awaits Agent 0's approval. Until they land, F1–F3 (and F6 with a basis) and F8 keep T2.integrity unbounded. Each also needs the re-pins listed in Part II.
+2. **`mul_add` on x86_64** (F7; §1.3 excludes it there by name). On x86_64 builds T2.integrity is unbounded on every request until one of these is chosen:
+   - build x86_64 with the `fma` target feature (FMA3), so `mul_add` is one instruction with the same bits; this sets a hardware floor (FMA3 CPUs) and is a build and support choice;
+   - an in-repo correctly rounded fused multiply-add (the exact 106-bit product as a `u128`, the addend aligned, one rounding), the same bits by IEEE 754's definition, priced from source, and reviewed as a change of numerical code;
+   - price the platform's `fma` routine as a foreign step, the standing the Design declined for `binary_search`.
+   *Recommendation:* the target feature, if the hardware floor is acceptable; otherwise the in-repo routine.
+3. **The weights.** The charged coefficients (§6, §9.6) are not yet adopted as P0's weights for `T2.integrity`.
+4. **An independent literal audit of this ledger** is still required before adoption. It is a numerical-resource claim. The 2×tok constants (§5, Lemma E, §9.3) and the hand-rounded constants (`flexibility_of`, `invert_symmetric6`, `solve_dense(6)`) are sound over-counts under §1.1, not literal counts. Agent 0 accepted three small points, none of which moves a charge:
    - κ_c and κ_r state totals above the sums of their listed parts (by 438 and 91 steps, §5.3–§5.4). The charges keep the larger totals.
    - K's and L's per-row parts, as listed in §4, sum to one step more than their rows charge (584 against 583, and 1,116 against 1,115 per row). K's unreached `round` (551) covers its row under P-zero. The charged coefficients 1,900n̄ and 1,200n_g keep 18.5n̄ and 12.5n_g of slack over the row sums, so the charge holds either way.
 
@@ -632,7 +650,7 @@ Off both paths:
 
 # Part II. Priced in-place replacements for the foreign steps (specification only)
 
-**Nothing here is to be built before Agent 0 releases it.** Units, premises, lemmas and dimensions are in Part I §1–§2.
+**Nothing here is built.** Agent 0 approved R5 in principle, to be implemented with R1, R3 and R6 after the pressure-elongation unit merges (Part I §12); R8 awaits its approval. Units, premises, lemmas and dimensions are in Part I §1–§2.
 
 "Result-identical" means the same returned values, the same `Err` variants at the same first failing input, and the same panics, for every input the callers can pass. The review's threat model is "a replacement that changes any static result or retained coefficient". So each replacement states:
 - the premise that makes its result identical, quoted from source;
@@ -643,7 +661,7 @@ Off both paths:
 - Every replacement allocates nothing new; it uses indices and swaps only. Only R5 removes allocation sites (two `HashSet`s).
 - Each new `while`/`for` header is a loop to loopscan (`base/loopscan.py:15`). On a priced route it needs a header classification with its bound and "no site inside". A loop with no allocation and no text site multiplies nothing, so a classified header leaves coefficients equal.
 - **Line neutrality.** Keep each touched function's header line, and add no line above a keyed line. A helper goes at the end of its file, below every key. This keeps the linemap carry trivial.
-- **Full-file pins.** `tools/retained_pricing` pins five of the touched files by SHA-256 of their bytes. `price.py` raises `ValueError` on any byte change until the pin is re-registered. Each pin's digest matches its file at bf1bdd2.
+- **Full-file pins.** `tools/retained_pricing` pins seven of the touched files by SHA-256 of their bytes. `price.py` raises `ValueError` on any byte change until the pin is re-registered. Each pin's digest matches its file at bf1bdd2.
 
   | File | Pin | Raised as |
   |---|---|---|
@@ -652,6 +670,8 @@ Off both paths:
   | `nonlinear_integration/src/structural_adapter.rs` | `base/b7a_domain_model.py:237`; `base/w1_reductions_model.py:113` | "B7a positive-domain owner source changed" (`:338`); "W1 reductions source/lifetime pin changed" (`:138`) |
   | `frame_kernel/src/structural/formation_check.rs` | `base/b7a_domain_model.py:237`; `base/w1_reductions_model.py:110` | the same two |
   | product `lib.rs` (compared through `ce_fallback_model.py`'s `s6_bytes`) | `base/b7a_domain_model.py:237`; `base/w1_reductions_model.py:105` | the same two |
+  | `structural/retained/wide.rs` | `base/w1_member_load_model.py:100` | "W1 stage2 source/owner pin changed" (`:196`) |
+  | `structural/retained/wide/multi.rs` | `base/w1_member_load_model.py:101` | the same |
 
   `rigid_body.rs`, `restraint_basis.rs` and `formation_check/skew.rs` carry no full-file pin, only `o10_rules.py` text guards. A re-pin follows the existing D3 pattern: the reviewed hunks are recorded in the pin's comment, and the new digest replaces the old. Replacements whose coefficients do not move may share one D3 turn (standing delegation, "Proportionate review").
 
@@ -670,9 +690,9 @@ while lo < hi { let mid = lo + (hi - lo) / 2; if k(&s[mid]) < key { lo = mid + 1
 
 **HS, in-place heapsort** (bottom-up `sift_down` with `swap`) on `&mut [T]` of length w:
 - comparisons ≤ 2w + 2w⌊log₂ w⌋;
-- steps HS(w) ≤ 3w(⌊log₂ w⌋ + 1) + 2;
-- HS_k(w) = 2·HS(w) where a comparison computes two keys;
-- no allocation.
+- steps HS(w) ≤ 3w(⌊log₂ w⌋ + 1) + 2, where comparing two elements is one step;
+- keyed: where a comparison computes two keys, or compares more than a scalar, each comparison also costs 2κ + c, with κ one key's computation and c one comparison of two keys, both in steps counted literally under §1.1 at that site. So HS_k(w; κ, c) = HS(w) + 2w(⌊log₂ w⌋ + 1)(2κ + c). Each keyed site states its κ and c (R3e, R3g, R4);
+- no allocation. Precomputing the keys would need a buffer of w keys, a new allocation, so it is not used.
 
 HS is unstable. It is used only where elements with equal keys are indistinguishable, or where every order gives the same result, so stable `sort`, `sort_unstable` and HS give the same outcome.
 
@@ -725,9 +745,9 @@ All lie on `stiffness.rs:204`'s branch; none is on the plain path. Each is resul
 | R3b | `adapter :2125` `nodes.binary_search(&global).ok()` | LB, `Some(lo)` when found | `nodes` sorted (R3a) and distinct | ⌊log₂\|b\|⌋ + 2 | 2E_el + p + S per W4 body: 2 per edge (`:2142`), 1 per ground (`:2212`) |
 | R3c | `rigid_body.rs:414` `body.sort_unstable()` | HS | `usize` elements (and distinct: `if !seen[other] { … }`, `:408`–`:411`) | HS(\|sb\|) | 1 per sub-body |
 | R3d | `rigid_body.rs:725` `body.sort_unstable()` | HS | `usize` elements: equal values are indistinguishable | HS(\|sb\|) | 1 per sub-body |
-| R3e | `rigid_body.rs:728` `bodies.sort_unstable_by_key(\|body\| body[0])` | HS by `body[0]` | equal keys mean two sub-bodies share a node; the owner loop then returns the constant `Err(INVALID)` in either order (`if node >= n \|\| owner[node] != usize::MAX { return Err(INVALID); }`, `:730`–`:737`); with distinct keys the order is unique; an empty body returned `Err(INVALID)` before the sort (`:721`–`:723`) | HS_k(σ_b) | 1 per W4 body |
-| R3f | `rigid_body.rs:748` `ties.sort_unstable()` | HS | `[usize; 2]` elements | HS(0) = 2 here (`let ties: Vec<[usize; 2]> = Vec::new();`, `adapter :2140`) | 1 per W4 body |
-| R3g | `rigid_body.rs:789` `rows.sort_unstable_by_key(GroundRow::key)` | HS by `key` | `key` is `(self.node, self.kind, self.axis.is_none(), self.axis.unwrap_or(0), self.direction.map(f64::to_bits))` (`:443`–`:451`), which fixes every field of `GroundRow { node, kind, axis, direction }` (`:433`–`:438`) bit for bit, so equal keys are identical rows | HS_k(g_b) | 1 per W4 body |
+| R3e | `rigid_body.rs:728` `bodies.sort_unstable_by_key(\|body\| body[0])` | HS by `body[0]` | equal keys mean two sub-bodies share a node; the owner loop then returns the constant `Err(INVALID)` in either order (`if node >= n \|\| owner[node] != usize::MAX { return Err(INVALID); }`, `:730`–`:737`); with distinct keys the order is unique; an empty body returned `Err(INVALID)` before the sort (`:721`–`:723`) | HS_e(σ_b) = HS_k(σ_b; 1, 1) = 9σ_b(⌊log₂ σ_b⌋ + 1) + 2: the closure `body[0]` is 3 operations, charged as its own body (κ = 1), and two `usize` keys compare in one step (c = 1) | 1 per W4 body |
+| R3f | `rigid_body.rs:748` `ties.sort_unstable()` | HS | `[usize; 2]` elements | HS(0) = 2 here (`let ties: Vec<[usize; 2]> = Vec::new();`, `adapter :2140`). With ties it would be HS_k(r; 0, 2), each comparison two element steps | 1 per W4 body |
+| R3g | `rigid_body.rs:789` `rows.sort_unstable_by_key(GroundRow::key)` | HS by `key` | `key` is `(self.node, self.kind, self.axis.is_none(), self.axis.unwrap_or(0), self.direction.map(f64::to_bits))` (`:443`–`:451`), which fixes every field of `GroundRow { node, kind, axis, direction }` (`:433`–`:438`) bit for bit, so equal keys are identical rows | HS_g(g_b) = HS_k(g_b; 7, 4) = 39g_b(⌊log₂ g_b⌋ + 1) + 2. κ = 7: `self.direction` is copied out of `&self` (3), `map(f64::to_bits)` is 3 element steps, and the rest is ≤ 64 operations (1). c = 4: the four scalar fields compare in one step, and the `[u64; 3]` field compares as an element primitive (3). A bottom-up heapsort of 8 ascending DOF rows makes 27 comparisons, 27 × 18 = 486 steps of keys, inside HS_g(8) = 1,250 | 1 per W4 body |
 | R3h | `restraint_basis.rs:861` `self.nodes.binary_search_by_key(&node, \|n\| n.node)` | LB by `n.node` | `build` orders stops by `order.sort_by_key(\|&k\| (stops[k].node, k))` (`:754`), walks one node group at a time (`:758`–`:765`), and refuses a node with two stops (`:766`–`:772`, `:808`–`:810`), so `nodes` is ascending, one per node | ⌊log₂ ν⌋ + 2 | ≤ 22C + 4Z_ν + 2n_g + 3ν |
 | R3i | `restraint_basis.rs:1070` `first.binary_search(&(base + t)).is_err()` | LB, found test | `first = pattern.row(base)`, strictly increasing (R1's premise) | β̄ | 3ν |
 | R3j | `restraint_basis.rs:1178` `self.axis_restrained.binary_search(&dof)` | LB, `Ok(lo)`/`Err` | `build` refuses `axis_restrained.windows(2).any(\|p\| p[0] >= p[1])` (`:739`–`:743`), so it is strictly increasing; only `Ok`'s index is read (`:1179`) | ⌊log₂ p⌋ + 2 | p + ν |
@@ -751,6 +771,7 @@ All per-call costs are ≤ β̂ (Part I §2).
 ### R4. `row_sources` (`structural.rs:1304`–`:1309`): T1, and T2 only on a flagged row
 
 HS (by `String` byte order), then DD.
+- **Steps:** HS_k(l; 0, 1 + λ̄_s) + DD with each `==` at ≤ 1 + λ̄_s, where l is the row's terms and λ̄_s its longest source id: comparing two `String`s is a slice comparison, one element step per byte compared. It is T1's work, and T2's only on a flagged row.
 - **Premise:** equal `String`s are byte-equal, and each element is `t.source.clone()` (`:1305`), whose capacity equals its length. So even the surviving object's capacity is the same.
 - **Pins kept byte-identical:** `base/b7a_owner_choices.py:35`, `:285`–`:310`; `base/b7a_formation_model.py:82`, `:91`; `base/text_args.g4.json:556`; `base/loop_bounds.g4.json:1121`; `tests/test_b7a_owner_choices.py:138`.
 - The `fn row_sources` header stays at line 1304. **Re-pin** `b7a_formation_model.py:52` (structural.rs). New headers classified (bound l, no site). Coefficients equal, plus AC-004.
@@ -784,14 +805,26 @@ HS (by `String` byte order), then DD.
 - Basis branch: `formation_check.rs:1139` (`pow2`, in `correction`) and `:2559` (`scale_up`). Both are unreached under P-zero but reached for a general force.
 - `formation_check.rs:2528` is a constant 2⁻⁹⁰⁰ in a load re-formation, off this path.
 
-**Replace** each with `f64::from_bits(((step + 1023) as u64) << 52)`, written inline on the same line; a helper would add a line above later keys. Every site clamps `step` to [−512, 512] (`structural.rs:665`, `:927`, `:1626`; `formation_check.rs:1138`, `:2558`). The same form exists as `correct_norm`'s `pow2` (`lib.rs:141`–`:144`) and `rigid_body.rs:1074`–`:1079`.
+**Replace** each power with the bit-built power of the same exponent, written inline on the same line; a helper would add a line above later keys. The exponent's sign differs between sites:
 
-**Premise.** 2^k for |k| ≤ 512 is a normal binary64, so the bit pattern is exact. `powi(2.0, k)` is also exact: `__powidf2`'s square-and-multiply on 2.0 forms only powers of two in [2⁻⁵¹², 2⁵¹²], and one reciprocal of a power of two, and constant folding gives the same value. Every product and check (`next * 2^-step != value`, `structural.rs:929`; `mul_up`, `formation_check.rs:2559`) sees identical operands.
+| Site | Function | Now | Replacement |
+|---|---|---|---|
+| `structural.rs:666` | `radix_scale` | `value *= 2.0_f64.powi(step);` | `value *= f64::from_bits(((step + 1023) as u64) << 52);` |
+| `structural.rs:928` | `exact_radix` | `let next = value * 2.0_f64.powi(step);` | `let next = value * f64::from_bits(((step + 1023) as u64) << 52);` |
+| `structural.rs:929` | `exact_radix` | `… \|\| next * 2.0_f64.powi(-step) != value {` | `… \|\| next * f64::from_bits(((1023 - step) as u64) << 52) != value {` |
+| `structural.rs:1627` | `physical_residual_record` | `value *= 2.0_f64.powi(step);` | `value *= f64::from_bits(((step + 1023) as u64) << 52);` |
+| `formation_check.rs:1139` | `pow2` | `value *= 2.0_f64.powi(step);` | `value *= f64::from_bits(((step + 1023) as u64) << 52);` |
+| `formation_check.rs:2559` | `scale_up` | `value = mul_up(value, 2.0_f64.powi(step));` | `value = mul_up(value, f64::from_bits(((step + 1023) as u64) << 52));` |
 
-**Steps.** One operation (P-fp's `from_bits` and shift) instead of a foreign loop.
+Every site clamps `step` to [−512, 512] on the line above (`structural.rs:665`, `:927`, `:1626`; `formation_check.rs:1138`, `:2558`), so `step + 1023` and `1023 − step` lie in [511, 1,535], a normal biased exponent. The same form exists as `correct_norm`'s `pow2` (`lib.rs:141`–`:144`) and `rigid_body.rs:1074`–`:1079`. The `:929` line becomes 109 columns. No CI job runs `cargo fmt --check`, and structural.rs already holds 24 lines over 100 columns, so it is not reflowed and the line count holds.
+
+**Premise.** 2^k and 2^−k for |k| ≤ 512 are normal binary64 values, so each bit pattern is exact. `powi(2.0, k)` is also exact: `__powidf2`'s square-and-multiply on 2.0 forms only powers of two in [2⁻⁵¹², 2⁵¹²], and one reciprocal of a power of two, and constant folding gives the same value. So every product and check (`next * 2^-step != value`, `structural.rs:929`; `mul_up`, `formation_check.rs:2559`) sees identical operands.
+
+**Steps.** One operation (P-fp's `from_bits`, the shift and the add or subtract) instead of a foreign loop.
 
 **Static results.**
-- An oracle comparing `to_bits` over all k ∈ [−512, 512].
+- A whole-function oracle (test-only): verbatim copies of `radix_scale`, `exact_radix`, `physical_residual_record`, `pow2` and `scale_up` (with `mul_up`) at bf1bdd2 against the new ones. `Result`s compare by `Ok` bits or the same `Err` and message; `f64`s by `to_bits`. Values: ±0.0, ±`f64::from_bits(1)`, ±`MIN_POSITIVE`, ±1.0, ±1.5, ±`MAX`, ±∞, NaN, and 10⁴ random finite values over every binade. Exponents: every integer in [−2,200, 2,200], and `i32::MIN` and `i32::MAX` for `radix_scale` and `exact_radix`. Named cases: `exact_radix(1.0, 1)` is `Ok(2.0)` and `exact_radix(1.0, -1)` is `Ok(0.5)`. A power built with the wrong sign at `:929` returns `Range` on the first.
+- An oracle comparing each power's `to_bits` over all k ∈ [−512, 512], for both signs.
 - The `exact_operation_count::radix_iteration` counters (`structural.rs:926`) unchanged.
 - `normalized_residual_retains_soft_physical_cancellation`, `krev03_offdiagonal_expansion_retains_lost_low_tail`, `nonfinite_and_unrepresentable_range_block`, every dense and sparse fixture, and the K-D5 suites (`formation_check_tests.rs`, `formation_check_timoshenko_tests.rs`, `formation_check_runtime.rs`).
 
@@ -810,24 +843,48 @@ If Agent 0 wants a regression witness, a test-only counter can record the iterat
 
 A defensive cap is not recommended. A cap at 2 that refuses would add a new refusal path, a changed static result in principle, that Lemma D makes unreachable. It would only add review surface.
 
+### R8. 128-bit integer divisions in the wide arithmetic: **recommended**
+
+§1.3 excludes these from P-fp: a 128-bit division lowers to `__divti3`, `__modti3` or `__udivti3`, library loops, unless the optimizer folds a constant divisor. Each is replaced inline on its own line, except one helper at the end of `wide/multi.rs`.
+
+| Site | Now | Replacement | Premise |
+|---|---|---|---|
+| `retained/wide.rs:818` (`sqrt_exact_operand`) | `if e.rem_euclid(2) == 0` (`e: i128`) | `if e & 1 == 0` | in two's complement, x mod 2 (Euclidean, in {0, 1}) is the low bit for every `i128` |
+| `wide/multi.rs:196` (`word_at`) | `start.div_euclid(64)` (`start: i128`) | `start >> 6` | the arithmetic shift is ⌊x/64⌋, which is Euclidean division by a positive divisor |
+| `wide/multi.rs:197` | `start.rem_euclid(64) as u32` | `(start & 63) as u32` | x − 64⌊x/64⌋ is the low six bits |
+| `wide/multi.rs:578` (`Wide<L>`'s square root, off this path) | `(e - base).rem_euclid(2) == 0` | `(e - base) & 1 == 0` | as `:818` |
+| `wide/multi.rs:711` (`half_quantum_over`) | `numerator.div_ceil(d)` (`u128`) | `ceil_div_u128(numerator, d)` | a long division in base 2¹⁰ with `u64` `/` and `%`. d < 2⁵⁴ (`debug_assert!(k >= 1 && k < 1 << 52)`, `:703`, d = 2k), so a remainder times 2¹⁰ plus a digit fits a `u64`. The numerator 2^(52+t) has ≤ 106 bits, so ≤ 11 digits. The helper returns q + (r ≠ 0), which is `div_ceil`'s value |
+
+**Steps.** One operation each, except `ceil_div_u128`: ≤ 11 iterations and its call, ≤ 13. `to_binary64` reaches it only on its subnormal path, so `to_binary64` is ≤ 25 there and 12 otherwise. τ̄ (Lemma E, ≤ 9,557 + 13) stays within its 9,600.
+
+**Static results.**
+- An oracle (test-only) against verbatim copies of `sqrt_exact_operand`, `word_at` and `half_quantum_over` at bf1bdd2: exponents over [−4,096, 4,096] and ±(2⁶² − 1), `start` over [−4,096, 4,096] and ±(2⁶² − 1), and every k = 2^j and 2^j ± 1 for j < 52 plus 10⁵ random k in [1, 2⁵²), compared by value.
+- The retained-wide suites (`tests/retained_wide/wide_tests.rs`, the `multi` tests), `arc_angle`'s tests, and the K-D5 suites.
+
+**Pricing.**
+- **Re-pin** `w1_member_load_model.py:100` (wide.rs) and `:101` (multi.rs). Both are full-file SHA-256 pins, raised as "W1 stage2 source/owner pin changed" (`:196`); each digest matches its file at bf1bdd2.
+- `callgraph_rules.g4.json` keys wide.rs and multi.rs by line (`:246`–`:272`, `:316`–`:324`, and multi.rs `:1052` onward). The inline edits keep every line, and the helper goes below the last key.
+- The helper's `for` header needs a loop classification: bound 11, no site inside.
+- `price.py compare` equal, plus AC-004.
+
 ### Premises rather than replacements
 
-- **P-fp** (Part I §1.3). These are IEEE operations and core integer operators, with √'s standing. Replacing `mul_add` with Dekker's TwoProduct would rewrite `Expansion::add_product`, `correct_norm`, `connector`, `tie_rod`, `restraint_basis` and the wide arithmetic for no change in value.
-- **P-fmt** (Part I §1.3). The three plain-path sites are priced TEXT sites. `o10_rules.py:419` pins `format!("member:{}:{member}:", member.len())` with `full=True`, and U8-FM pins the same text. Rewriting them would move text coefficients and trip both pins. The premise is the coefficient-neutral route.
+Agent 0 adopted both as pricing premises (Part I §1.3); modal-analysis.md §5.3.8 records them. The Design's adopted text (`resource.rs:185`–`:203`) names √ only.
+- **P-fp.** These are IEEE operations and core integer operators, with √'s standing. Where the target has a fused multiply-add instruction, replacing `mul_add` with Dekker's TwoProduct would rewrite `Expansion::add_product`, `correct_norm`, `connector`, `tie_rod`, `restraint_basis` and the wide arithmetic for no change in value. The methods §1.3 excludes by name are replaced (R6, R8) or wait on a decision (`mul_add` on x86_64, Part I §12, item 2).
+- **P-fmt.** The three plain-path sites are priced TEXT sites. `o10_rules.py:419` pins `format!("member:{}:{member}:", member.len())` with `full=True`, and U8-FM pins the same text. Rewriting them would move text coefficients and trip both pins. The premise is the coefficient-neutral route.
 
-Both need Agent 0's adoption. The Design's adopted text (`resource.rs:185`–`:203`) names √ only.
+### Decisions
 
-### Decisions for Agent 0
+Decided by Agent 0 (2026-11-09):
+1. **P-fp and P-fmt** are adopted as pricing premises.
+2. **δ̄** is computed with one array of N counters in P0, its allocation (8N bytes) and its ≤ 2N + E_el + S + s_k steps charged in P0's own account. P0 already allocates the `BTreeSet` at `resource.rs:1038`.
+3. **R5** is approved in principle. It is implemented with R1, R3 and R6 after the pressure-elongation unit merges, with its re-pins (`b7a_domain_model.py:237`, `w1_reductions_model.py:105`), and a D3 turn if `price.py compare` shows lower coefficients.
 
-1. **Adopt P-fp and P-fmt** as two premise sentences in Design §5.3.8, beside √.
-   - *Cost:* no code. P-fp extends √'s standing to IEEE fused multiply-add and core integer and bit operations, which have the same standing. P-fmt is weaker: it treats `format!` as linear in its output bytes, which `std` does not document. That is the standing the Design declined for `binary_search`.
-   - *If not adopted:* T2.integrity stays unbounded on both branches. Replacing the three P-fmt sites with in-repo byte writers would move text coefficients and trip `o10_rules.py:419` and U8-FM.
-2. **δ̄: one array of N counters in P0** (O(N + E_el + S) time, one allocation of 8N bytes; P0 already allocates the `BTreeSet` at `resource.rs:1038`), **or the allocation-free fallback δ̄ := E_el + S + s_k.**
-   - *Cost of the fallback:* any model with more than 2,099 elements charges ℓ̄ = 2,099, so the C term reaches ≈ 3.2·10⁷ per element. On the basis branch w̄ and Z_ν also go to their caps (n_g and Z̄). A third option is an exact allocation-free pass in O(N·E_el) time.
-   - *Recommendation:* the array.
-3. **Release R5.**
-   - *Cost:* one line-neutral product-lib.rs PR. Re-pin two full-file pins (`b7a_domain_model.py:237`, `w1_reductions_model.py:105`) with the hunk reviewed, and classify two loops. One D3 re-registration if `price.py compare` shows lower coefficients.
-   - *If not released:* T2.integrity stays unbounded on every request, because `frame_member_identities` runs on every screen.
+Open for Agent 0:
+4. **`mul_add` on x86_64** (Part I §12, item 2): the `fma` target feature, an in-repo fused multiply-add, or a priced foreign step.
+5. **Approve R8**, which the `div_ceil`, `div_euclid` and `rem_euclid` exclusions require.
+
+Beyond these, the open items are implementation and the weights (Part I §12).
 
 ### Summary
 
@@ -840,3 +897,4 @@ Both need Agent 0's adoption. The Design's adopted text (`resource.rs:185`–`:2
 | R5 | product `lib.rs:4891`, `:4892`, `:4896` | same membership predicate | re-pin `b7a_domain_model.py:237`, `w1_reductions_model.py:105`; U8-FM does not trip; equal or lower |
 | R6 | `structural.rs:666`, `:928`, `:929`, `:1627`; `formation_check.rs:1139`, `:2559` | 2^k exact for \|k\| ≤ 512 | re-pin `b7a_formation_model.py:52` (and `b7a_domain_model.py:237`, `w1_reductions_model.py:110` for formation_check.rs); equal |
 | R7 | none | Lemma D | none |
+| R8 | `retained/wide.rs:818`; `wide/multi.rs:196`–`:197`, `:578`, `:711` | x mod 2ⁿ is the low n bits and ⌊x/2ⁿ⌋ the arithmetic shift; an in-repo long division gives `div_ceil`'s value | re-pin `w1_member_load_model.py:100`, `:101`; one header; equal |
