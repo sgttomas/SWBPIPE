@@ -14,6 +14,7 @@ use crate::memory_pool::MemoryPool;
 use crate::solve_worker::test_support::{Gate, TestLauncher};
 use crate::solve_worker::WorkerLauncher;
 use serde_json::{json, Value};
+use std::collections::{BTreeMap, BTreeSet};
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 
 const EXPORT_MODEL: &str = include_str!("../../../../fixtures/caepipe_mbf/invented/desktop_export/export_model.json");
@@ -233,12 +234,336 @@ fn declaration_for(names: &[Value]) -> Value {
     Value::Object(map)
 }
 
+/// A complete review within R: no list holds anything back and the review fits the cap. Whether it blocks is the
+/// caller's to assert.
+fn assert_complete(review: &Value) {
+    assert_eq!(review["completeness"], "complete", "{review}");
+    assert_eq!(review["field_max_bytes"], mbf::REVIEW_FIELD_MAX_BYTES);
+    assert_eq!(review["counts"]["not_shown"], 0);
+    assert_eq!(review["counts"]["not_shown_blocking"], 0);
+    let lists = review["counts"]["lists"].as_object().unwrap();
+    assert_eq!(lists.len(), 6, "{review}");
+    for (list, count) in lists {
+        assert_eq!(count["listed"], count["total"], "{list}");
+        assert_eq!((count["not_shown"].as_u64(), count["not_shown_blocking"].as_u64()), (Some(0), Some(0)), "{list}");
+        assert_eq!(review[list.as_str()].as_array().map(Vec::len), count["total"].as_u64().map(|total| total as usize), "{list} is listed in full");
+    }
+    // Re-serialized (the fixture's review is ASCII with integer counts, so the length is the review's).
+    assert!(serde_json::to_string(review).unwrap().len() <= REVIEW_MAX_BYTES);
+}
+
+/// The review's per-class identity inventory: each of the nine classes once, as (count, restored, formed).
+fn identity_classes(review: &Value) -> BTreeMap<String, (u64, u64, u64)> {
+    let classes = review["identity"]["classes"].as_array().unwrap();
+    let inventory: BTreeMap<_, _> = classes
+        .iter()
+        .map(|class| {
+            let number = |field: &str| class[field].as_u64().unwrap_or_else(|| panic!("{class}"));
+            (class["class"].as_str().unwrap().to_string(), (number("count"), number("restored"), number("formed_from_mbf_names")))
+        })
+        .collect();
+    assert_eq!(inventory.len(), classes.len(), "each class once");
+    inventory
+}
+
+/// The source model's identity inventory in the review's classes, counted independently from the export model.
+fn source_identity_counts(source: &Value) -> BTreeMap<String, u64> {
+    let count = |member: &str| source[member].as_array().map_or(0, Vec::len) as u64;
+    let cases = source["load_cases"].as_array().unwrap();
+    let in_cases = |member: &str| cases.iter().map(|case| case[member].as_array().map_or(0, Vec::len) as u64).sum::<u64>();
+    let bends = source["components"].as_array().unwrap().iter().filter(|component| component["kind"] == "bend").count() as u64;
+    let referenced: BTreeSet<&str> = source["pipe_segments"].as_array().unwrap().iter().filter_map(|pipe| pipe["section_ref"].as_str()).collect();
+    [
+        ("node", count("nodes")),
+        ("element", count("pipe_segments")),
+        ("bend", bends),
+        ("support", count("supports")),
+        ("load_case", count("load_cases")),
+        ("material", count("materials")),
+        ("load", in_cases("primitive_loads")),
+        ("pressure_region", in_cases("pressure_regions")),
+        ("section", referenced.len() as u64),
+    ]
+    .into_iter()
+    .map(|(class, n)| (class.to_string(), n))
+    .collect()
+}
+
+/// `(case id, entry id)` for every entry of `member` in every load case: the primitive-load and pressure-region
+/// identity inventories.
+fn case_inventory(document: &Value, member: &str) -> BTreeSet<(String, String)> {
+    let mut out = BTreeSet::new();
+    for case in document["load_cases"].as_array().unwrap() {
+        for entry in case[member].as_array().map(Vec::as_slice).unwrap_or_default() {
+            out.insert((case["id"].as_str().unwrap().to_string(), entry["id"].as_str().unwrap().to_string()));
+        }
+    }
+    out
+}
+
+// -- Source-to-adopted canonical parity (import Design `caepipe-mbf-import.md` §18.2) --------------------------------
+//
+// The maintained comparator is `tests/caepipe_mbf_canonical.py`, which has no route from this native test. This is an
+// independent reduction of the same canonical form, limited to the families of the invented export model (an
+// anchored bent run, two library sections, a linear spring, one force and per-pipe thermal changes, no pressure).
+// This is a fixed-input comparison, not a coverage classifier: it compares only the fields enumerated below,
+// rejects unhandled units/load categories, and relies on the saved-pair fixture bindings to constrain the input.
+// Its bounds are §18.2's, taken from the source
+// values: the export model's values have at most ten significant digits and the unit factors are powers of ten, so
+// each printed value p is the source value and δ(p) scales with it. Where §18.2 adds model-specific terms (node
+// paths, bend legs), only the term every bound includes is used, so no bound here is looser than §18.2's.
+
+/// The binary64 unit roundoff, 2^-53.
+const EPS: f64 = f64::EPSILON / 2.0;
+
+fn to_si(value: f64, unit: &str) -> f64 {
+    match unit {
+        "m" | "N" | "N/m" | "Pa" | "1/degC" | "degC" | "rad" | "1" | "none" => value,
+        "mm" => value / 1000.0,
+        "N/mm" => value * 1000.0,
+        "MPa" => value * 1e6,
+        other => panic!("unit {other} is outside this fixture's comparison"),
+    }
+}
+
+fn si(quantity: &Value) -> f64 {
+    to_si(quantity["value"].as_f64().unwrap_or_else(|| panic!("{quantity}")), quantity["unit"].as_str().unwrap())
+}
+
+/// δ(p) = 0.5 × 10^(⌊log10|p|⌋ − 9), the half unit of the writer's tenth significant digit; 0 for zero.
+fn delta(value: f64) -> f64 {
+    if value == 0.0 {
+        return 0.0;
+    }
+    let magnitude = value.abs();
+    let mut exponent = magnitude.log10().floor() as i32;
+    if 10f64.powi(exponent) > magnitude {
+        exponent -= 1;
+    } else if 10f64.powi(exponent + 1) <= magnitude {
+        exponent += 1;
+    }
+    0.5 * 10f64.powi(exponent - 9)
+}
+
+#[derive(Clone, Copy, Debug)]
+enum Bound {
+    /// Printed directly: δ(p) + 4ε|p|.
+    Printed,
+    /// A node coordinate: 4εM, the import's term, which every node's §18.2 bound includes.
+    Coordinate,
+    /// G derived from the printed E and ν, when the source authored ν or G alone (not both): (δ(E)/E + δ(ν)/(1 + ν) + 8ε)|G|.
+    Shear { e: f64, nu: f64 },
+    /// ΔT = T1 − T_ref: δ(T1) + δ(T_ref) + 4ε|T1|.
+    Thermal,
+}
+
+#[derive(Debug, Default)]
+struct Canonical {
+    values: BTreeMap<String, (f64, Bound)>,
+    sets: BTreeMap<String, String>,
+    planes: BTreeMap<String, [f64; 3]>,
+}
+
+fn norm(v: [f64; 3]) -> f64 {
+    v[0].hypot(v[1]).hypot(v[2])
+}
+
+/// The bend plane as §18.2 compares it: `y` projected perpendicular to the unit chord from `a` to `b`, normalized.
+fn project(y: [f64; 3], a: [f64; 3], b: [f64; 3]) -> [f64; 3] {
+    let chord = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
+    let length = norm(chord);
+    let unit = chord.map(|value| value / length);
+    let dot: f64 = (0..3).map(|axis| y[axis] * unit[axis]).sum();
+    let side = [0, 1, 2].map(|axis| y[axis] - dot * unit[axis]);
+    let length = norm(side);
+    side.map(|value| value / length)
+}
+
+fn entries<'a>(value: &'a Value, member: &str) -> &'a [Value] {
+    value[member].as_array().map(Vec::as_slice).unwrap_or_default()
+}
+
+fn by_id<'a>(document: &'a Value, member: &str, id: &Value) -> &'a Value {
+    entries(document, member).iter().find(|item| item["id"] == *id).unwrap_or_else(|| panic!("{member} {id}"))
+}
+
+/// `document` reduced to the compared subset in SI base units, keyed by CAEPIPE node names (`nodes`, node id to
+/// name) and case labels (`cases`, case id to label); pipes by their end names, ordered only when `oriented` (bound).
+fn canonical(document: &Value, nodes: &BTreeMap<String, String>, cases: &BTreeMap<String, String>, oriented: bool) -> Canonical {
+    let mut out = Canonical::default();
+    let name = |id: &Value| nodes.get(id.as_str().unwrap()).unwrap_or_else(|| panic!("no name for {id}")).clone();
+    let length = document["project"]["units"]["length"].as_str().unwrap();
+    let mut positions = BTreeMap::new();
+    for node in entries(document, "nodes") {
+        let position = ["x", "y", "z"].map(|axis| to_si(node["position"][axis].as_f64().unwrap(), length));
+        for (axis, value) in position.iter().enumerate() {
+            out.values.insert(format!("node {} {axis}", name(&node["id"])), (*value, Bound::Coordinate));
+        }
+        positions.insert(node["id"].as_str().unwrap().to_string(), position);
+    }
+    let mut pipes = BTreeMap::new();
+    for pipe in entries(document, "pipe_segments") {
+        let mut ends = [name(&pipe["from"]), name(&pipe["to"])];
+        if !oriented {
+            ends.sort();
+        }
+        let key = format!("{}>{}", ends[0], ends[1]);
+        let material = by_id(document, "materials", &pipe["material"]);
+        let e = si(&material["elastic_modulus"]);
+        // The writer's ν: the authored ν, or E/(2G) − 1 when only G was authored.
+        let nu = if material["poisson_ratio"].is_object() { si(&material["poisson_ratio"]) } else { e / (2.0 * si(&material["shear_modulus"])) - 1.0 };
+        let g = if material["shear_modulus"].is_object() { si(&material["shear_modulus"]) } else { e / (2.0 * (1.0 + nu)) };
+        let alpha = si(&material["thermal_expansion_coefficient"]);
+        for (field, value, bound) in [
+            ("OD", si(&pipe["section"]["outside_diameter"]), Bound::Printed),
+            ("t", si(&pipe["section"]["wall_thickness"]), Bound::Printed),
+            ("E", e, Bound::Printed),
+            ("nu", nu, Bound::Printed),
+            ("G", g, Bound::Shear { e, nu }),
+            ("alpha", alpha, Bound::Printed),
+        ] {
+            out.values.insert(format!("pipe {key} {field}"), (value, bound));
+        }
+        if oriented {
+            out.sets.insert(format!("section_ref {key}"), pipe["section_ref"].to_string());
+            if pipe["section_ref"].is_string() {
+                let properties = &by_id(document, "sections", &pipe["section_ref"])["properties"];
+                for (field, member) in [("OD", "outside_diameter"), ("t", "wall_thickness")] {
+                    out.values.insert(format!("section {} {field}", pipe["section_ref"].as_str().unwrap()), (si(&properties[member]), Bound::Printed));
+                }
+            }
+        }
+        pipes.insert(pipe["id"].as_str().unwrap().to_string(), key);
+    }
+    let mut restrained: BTreeMap<String, BTreeSet<String>> = BTreeMap::new();
+    for support in entries(document, "supports") {
+        let node = name(&support["node"]);
+        let dofs: BTreeSet<String> = entries(support, "restraints").iter().map(|dof| dof.as_str().unwrap().to_string()).collect();
+        if oriented {
+            out.sets.insert(format!("support {}", support["id"].as_str().unwrap()), format!("{node} {dofs:?}"));
+        }
+        if support["family"] == "spring" {
+            let key = format!("spring {node} {}", support["stiffness"]["dof"].as_str().unwrap());
+            let previous = out.values.insert(key.clone(), (si(&support["stiffness"]["value"]), Bound::Printed));
+            assert!(previous.is_none(), "{key}: summed springs are outside this fixture's comparison");
+            continue;
+        }
+        restrained.entry(node).or_default().extend(dofs);
+    }
+    for (node, dofs) in restrained {
+        out.sets.insert(format!("restraints {node}"), format!("{dofs:?}"));
+    }
+    for component in entries(document, "components") {
+        assert_eq!(component["kind"], "bend", "the fixture's only component family");
+        let geometry = &component["geometry"];
+        let pipe = by_id(document, "pipe_segments", &geometry["bend_pipe_ref"]);
+        let key = &pipes[pipe["id"].as_str().unwrap()];
+        let y = ["x", "y", "z"].map(|axis| pipe["y_reference"][axis].as_f64().unwrap());
+        let (a, b) = (positions[pipe["from"].as_str().unwrap()], positions[pipe["to"].as_str().unwrap()]);
+        out.planes.insert(format!("bend {key} plane"), project(y, a, b));
+        out.values.insert(format!("bend {key} R"), (si(&geometry["bend_radius"]), Bound::Printed));
+        let modifiers = &component["modifiers"];
+        out.values.insert(format!("bend {key} k"), (si(&modifiers["flexibility_factor_user_value"]), Bound::Printed));
+        for sif in ["sif_in_plane_user_value", "sif_out_of_plane_user_value"] {
+            assert!(modifiers.get(sif).is_none(), "{sif} is outside this fixture's comparison");
+        }
+        out.sets.insert(format!("bend {key} node"), name(&component["node"]));
+    }
+    assert!(document.get("pressure_contract").is_none_or(Value::is_null), "pressure is outside this fixture's comparison");
+    for case in entries(document, "load_cases") {
+        let kind = &cases[case["id"].as_str().unwrap()];
+        assert!(entries(case, "pressure_regions").is_empty(), "pressure is outside this fixture's comparison");
+        for load in entries(case, "primitive_loads") {
+            let target = &load["target"];
+            let (key, bound) = match load["category"].as_str().unwrap() {
+                "concentrated_force" => (format!("load {kind} force {} {}", name(&target["node"]), load["direction"].as_str().unwrap()), Bound::Printed),
+                "thermal" => (format!("load {kind} thermal {}", pipes[target["pipe"].as_str().unwrap()]), Bound::Thermal),
+                other => panic!("primitive category {other} is outside this fixture's comparison"),
+            };
+            let value = si(&load["magnitude"]);
+            assert!(value != 0.0, "{key}: a zero primitive is outside this fixture's comparison");
+            let previous = out.values.insert(key.clone(), (value, bound));
+            assert!(previous.is_none(), "{key}: summed primitives are outside this fixture's comparison");
+        }
+    }
+    out
+}
+
+/// The writer's own CAEPIPE names from the saved identity file: node ids to node names and case ids to case labels.
+fn writer_names(sidecar: &[u8]) -> (BTreeMap<String, String>, BTreeMap<String, String>) {
+    let sidecar: Value = serde_json::from_slice(sidecar).unwrap();
+    let map = |member: &str| -> BTreeMap<String, String> {
+        sidecar[member].as_object().unwrap_or_else(|| panic!("{member}")).iter().map(|(id, name)| (id.clone(), name.as_str().unwrap().to_string())).collect()
+    };
+    (map("node_map"), map("load_case_map"))
+}
+
+/// The adopted document's names: each entry's label (the import labels nodes by CAEPIPE name and cases by case).
+fn labels(document: &Value, member: &str) -> BTreeMap<String, String> {
+    entries(document, member).iter().map(|item| (item["id"].as_str().unwrap().to_string(), item["label"].as_str().unwrap().to_string())).collect()
+}
+
+/// The export model and the adopted document agree under §18.2's canonical form within its bounds. Returns the
+/// number of compared scalars.
+fn assert_canonical_parity(adopted: &Value, sidecar: &[u8], oriented: bool) -> usize {
+    let source: Value = serde_json::from_str(EXPORT_MODEL).unwrap();
+    let settings: Value = serde_json::from_str(EXPORT_SETTINGS).unwrap();
+    assert_eq!(settings["referenceTemperature"]["unit"], "degC");
+    let t_ref = settings["referenceTemperature"]["value"].as_f64().unwrap();
+    let (nodes, cases) = writer_names(sidecar);
+    let reference = canonical(&source, &nodes, &cases, oriented);
+    let imported = canonical(adopted, &labels(adopted, "nodes"), &labels(adopted, "load_cases"), oriented);
+    let largest = entries(&source, "nodes").iter().flat_map(|node| ["x", "y", "z"].map(|axis| node["position"][axis].as_f64().unwrap().abs())).fold(0.0, f64::max);
+    assert_eq!(source["project"]["units"]["length"], "m");
+    assert_eq!(reference.values.keys().collect::<Vec<_>>(), imported.values.keys().collect::<Vec<_>>(), "the same scalars are compared");
+    for (key, (a, bound)) in &reference.values {
+        let b = imported.values[key].0;
+        let limit = match *bound {
+            Bound::Printed => delta(*a) + 4.0 * EPS * a.abs(),
+            Bound::Coordinate => 4.0 * EPS * largest,
+            Bound::Shear { e, nu } => (delta(e) / e + delta(nu) / (1.0 + nu) + 8.0 * EPS) * a.abs(),
+            Bound::Thermal => {
+                let t1 = a + t_ref;
+                delta(t1) + delta(t_ref) + 4.0 * EPS * t1.abs()
+            }
+        };
+        assert!((a - b).abs() <= limit, "{key}: |{a:e} - {b:e}| > {limit:e}");
+    }
+    assert_eq!(reference.sets, imported.sets);
+    // The bend plane: §18.2's bound is 2(b_TI + 2 b_tangent)/min(sagitta, chord) + 8ε plus residuals, and every b
+    // includes 4εM; this takes only those terms.
+    let plane_limit = entries(&source, "components")
+        .iter()
+        .map(|component| {
+            let (r, theta) = (si(&component["geometry"]["bend_radius"]), si(&component["geometry"]["bend_angle"]));
+            let chord = 2.0 * r * (theta / 2.0).sin();
+            let sagitta = r * (1.0 / (theta / 2.0).cos() - (theta / 2.0).cos());
+            2.0 * 3.0 * 4.0 * EPS * largest / chord.min(sagitta) + 8.0 * EPS
+        })
+        .fold(f64::INFINITY, f64::min);
+    assert_eq!(reference.planes.keys().collect::<Vec<_>>(), imported.planes.keys().collect::<Vec<_>>());
+    assert!(!reference.planes.is_empty());
+    for (key, a) in &reference.planes {
+        let b = imported.planes[key];
+        let cross = [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+        let angle = norm(cross).min(1.0).asin();
+        assert!((0..3).map(|axis| a[axis] * b[axis]).sum::<f64>() > 0.0 && angle <= plane_limit, "{key}: {angle:e} rad > {plane_limit:e}");
+    }
+    let families = |keys: Vec<&String>| keys.into_iter().map(|key| key.split(' ').next().unwrap().to_string()).collect::<BTreeSet<_>>();
+    let expected: &[&str] = if oriented { &["bend", "load", "node", "pipe", "section", "spring"] } else { &["bend", "load", "node", "pipe", "spring"] };
+    assert_eq!(families(reference.values.keys().collect()), expected.iter().map(|family| family.to_string()).collect::<BTreeSet<_>>(), "every family is compared");
+    reference.values.len()
+}
+
 // -- The connected path ---------------------------------------------------------------------------------------------
 
-/// Bound: the saved pair opens, its review is adoptable and bound, and Adopt returns the engine's import of those
-/// bytes as the `NativeModelDocumentOutcome`, whose model digest is the review's and whose ids are the exported
-/// model's for every class the export writes. The result and reply leases are held while each response is built;
-/// nothing is held between commands; the retirement drops the source.
+/// Bound: the saved pair (exactly the writer's bytes for the export model, and nothing else in the directory) opens,
+/// its review is complete, within its caps, adoptable and bound, with the source's identity inventory restored class
+/// by class (primitive loads in full; no pressure region on either side), and Adopt returns the engine's import of
+/// those bytes as the `NativeModelDocumentOutcome`, whose model digest is the review's, whose ids are the exported
+/// model's for every class the export writes, and which equals the export model under §18.2's canonical comparison.
+/// The result and reply leases are held while each response is built; nothing is held between commands; the
+/// retirement drops the source, and Review and Adopt are then refused retired.
 #[test]
 fn a_bound_saved_pair_imports_through_task_5_with_the_exported_ids() {
     let registry = real_worker();
@@ -246,6 +571,11 @@ fn a_bound_saved_pair_imports_through_task_5_with_the_exported_ids() {
     let sandbox = Sandbox::new("bound");
     let mbf_path = sandbox.native_pair(&registry);
     let (text, sidecar) = (fs::read(&mbf_path).unwrap(), fs::read(sandbox.ids()).unwrap());
+    let (written_text, written_sidecar) = written_pair();
+    assert!(text == written_text && sidecar == written_sidecar, "the saved pair is the writer's bytes for the export model");
+    let mut saved: Vec<String> = fs::read_dir(&sandbox.0).unwrap().map(|entry| entry.unwrap().file_name().into_string().unwrap()).collect();
+    saved.sort();
+    assert_eq!(saved, ["swbpipe-model.mbf", "swbpipe-model.swbpipe-ids.json"], "the save leaves exactly the pair");
     let opened = open(&registry, &imports, &mbf_path);
     assert!(opened.held_during_response > 0, "the result lease is held while the response is built");
     assert_released(&registry);
@@ -259,10 +589,27 @@ fn a_bound_saved_pair_imports_through_task_5_with_the_exported_ids() {
     assert_eq!(reply["review"]["adoptable"], true, "{review_text}");
     assert_eq!(reply["review"]["binding"]["state"], "bound");
     assert_eq!(reply["review"]["source"]["mbf_sha256"], hex(&text));
+    assert_eq!(reply["review"]["source"]["mbf_bytes"], text.len());
+    assert_eq!(reply["review"]["source"]["identity_file"]["state"], "present");
     assert_eq!(reply["review"]["source"]["identity_file"]["sha256"], hex(&sidecar));
+    assert_eq!(reply["review"]["source"]["identity_file"]["bytes"], sidecar.len());
     assert!(!review_text.contains(sandbox.0.to_str().unwrap()), "no path reaches the webview");
+    assert_complete(&reply["review"]);
+    assert!(reply["review"]["blocks"].as_object().unwrap().values().all(|blocked| *blocked == false), "{review_text}");
+    assert_eq!(reply["review"]["status"], "imported");
+    assert_eq!(reply["review"]["refusals"], json!([]));
+    assert_eq!(reply["review"]["declaration_needed"], json!([]));
+    assert_eq!(reply["review"]["transfer_limit"], "within");
+    assert_eq!(reply["review"]["identity"]["basis"], "restored_from_identity_file");
+    let exported: Value = serde_json::from_str(EXPORT_MODEL).unwrap();
+    let expected_classes: BTreeMap<_, _> = source_identity_counts(&exported).into_iter().map(|(class, n)| (class, (n, n, 0))).collect();
+    assert_eq!(identity_classes(&reply["review"]), expected_classes, "every class of the source is restored, none formed");
+    assert_eq!(expected_classes["load"].0, 5);
+    assert_eq!(expected_classes["pressure_region"].0, 0, "the supported subset has no pressure region");
     let expected_model = engine_model(&text, Some(&sidecar), None);
     assert_eq!(reply["review"]["model_sha256"], hex(&expected_model));
+    assert_eq!(reply["review"]["model_bytes"], expected_model.len());
+    assert!(expected_model.len() as u64 <= MBF_IMPORT_RESULT_MAX_BYTES);
     // Adopt.
     let adopted = adopt(&registry, &imports, &json!({"sourceId": source_id, "declaration": null, "reviewSha256": reply["reviewSha256"]}));
     assert!(adopted.held_during_response > 0);
@@ -275,26 +622,38 @@ fn a_bound_saved_pair_imports_through_task_5_with_the_exported_ids() {
     assert_eq!(opened_doc["modelSha256"], hex(&expected_model));
     assert_eq!(opened_doc["byte_count"], expected_model.len());
     assert_eq!(opened_doc["document"], serde_json::from_slice::<Value>(&expected_model).unwrap(), "the adopted document is the engine's import");
-    let exported: Value = serde_json::from_str(EXPORT_MODEL).unwrap();
     for member in ["nodes", "pipe_segments", "components", "supports", "load_cases", "materials", "sections"] {
         let restored = ids_of(&opened_doc["document"], member);
         assert!(!restored.is_empty(), "{member}");
         assert_eq!(restored, ids_of(&exported, member), "{member} ids are restored");
     }
+    let loads = case_inventory(&exported, "primitive_loads");
+    assert_eq!(loads.len(), 5);
+    assert_eq!(case_inventory(&opened_doc["document"], "primitive_loads"), loads, "every primitive load keeps its id and case");
+    assert_eq!(case_inventory(&exported, "pressure_regions"), BTreeSet::new());
+    assert_eq!(case_inventory(&opened_doc["document"], "pressure_regions"), BTreeSet::new(), "no pressure region appears");
+    assert!(exported.get("pressure_contract").is_none() && opened_doc["document"].get("pressure_contract").is_none());
     assert_ne!(opened_doc["document"]["project"]["id"], exported["project"]["id"], "an import is a new project");
+    assert_eq!(assert_canonical_parity(&opened_doc["document"], &sidecar, true), 51);
     assert_released(&registry);
-    // The keyed retirement drops the source; a later re-read is refused retired.
+    // The keyed retirement drops the source; a later re-read or Adopt is refused retired, with no model.
     let retired = retire(&registry, &imports, 1, 1);
     assert_eq!((retired.cancelled, retired.duplicate), (0, false));
     assert_eq!(imports.source_id(), None);
     let after = review(&registry, &imports, &json!({"sourceId": source_id, "declaration": null}));
     assert_eq!(codes(&after.value), vec![SOURCE_RETIRED]);
+    let late = adopt(&registry, &imports, &json!({"sourceId": source_id, "declaration": null, "reviewSha256": reply["reviewSha256"]})).value;
+    assert_eq!(codes(&late), vec![SOURCE_RETIRED]);
+    assert!(late.get("document").is_none());
     assert_released(&registry);
 }
 
-/// Unbound: the same MBF without its identity file reviews as needing a declaration per listed material; the declared
-/// re-run is adoptable, its ids are formed from MBF names, and the adopted document is the engine's import with that
-/// declaration. An identity file that appears afterwards is a change.
+/// Unbound: the same MBF without its identity file reviews, completely, as needing a declaration per listed material;
+/// the declared re-run is complete and adoptable, its ids are formed from MBF names for every class the source has
+/// (no section is restored and no pressure region formed), and the adopted document is the engine's import with that
+/// declaration and equals the export model under §18.2's comparison by CAEPIPE name. An identity file that appears
+/// afterwards is a change. The refused source stays in custody until its retirement, after which Review and Adopt
+/// are refused retired, even with the files as they were chosen.
 #[test]
 fn an_unbound_mbf_needs_its_declaration_and_imports_with_ids_formed_from_names() {
     let registry = real_worker();
@@ -307,6 +666,9 @@ fn an_unbound_mbf_needs_its_declaration_and_imports_with_ids_formed_from_names()
     assert_eq!(first["outcome"], "reviewed");
     assert_eq!(first["review"]["adoptable"], false);
     assert_eq!(first["review"]["binding"]["reason"], "no_identity_file");
+    assert_eq!(first["review"]["source"]["mbf_sha256"], hex(&text));
+    assert_eq!(first["review"]["source"]["identity_file"]["state"], "absent");
+    assert_complete(&first["review"]);
     let needed = first["review"]["declaration_needed"].as_array().unwrap().clone();
     assert!(!needed.is_empty());
     let source_id = first["sourceId"].clone();
@@ -319,15 +681,36 @@ fn an_unbound_mbf_needs_its_declaration_and_imports_with_ids_formed_from_names()
     assert_eq!(declared["review"]["adoptable"], true, "{declared}");
     assert_eq!(declared["review"]["identity"]["basis"], "formed_from_mbf_names");
     assert_ne!(declared["reviewSha256"], first["reviewSha256"], "the declaration is bound into the review");
+    assert_complete(&declared["review"]);
+    assert!(declared["review"]["blocks"].as_object().unwrap().values().all(|blocked| *blocked == false), "{declared}");
+    let exported: Value = serde_json::from_str(EXPORT_MODEL).unwrap();
+    let mut expected_classes: BTreeMap<_, _> = source_identity_counts(&exported).into_iter().map(|(class, n)| (class, (n, 0, n))).collect();
+    expected_classes.insert("section".into(), (0, 0, 0)); // an unbound import restores no library section
+    assert_eq!(identity_classes(&declared["review"]), expected_classes, "every other class of the source is formed from MBF names");
     let adopted = adopt(&registry, &imports, &json!({"sourceId": source_id, "declaration": declaration, "reviewSha256": declared["reviewSha256"]})).value;
     assert_eq!(adopted["outcome"], "opened", "{adopted}");
     let declaration_bytes = serde_json::to_vec(&declaration).unwrap();
     assert_eq!(adopted["document"], serde_json::from_slice::<Value>(&engine_model(&text, None, Some(&declaration_bytes))).unwrap());
     assert!(ids_of(&adopted["document"], "nodes").iter().all(|id| id.starts_with("node:")));
+    assert_eq!(case_inventory(&adopted["document"], "primitive_loads").len(), case_inventory(&exported, "primitive_loads").len());
+    assert_eq!(case_inventory(&adopted["document"], "pressure_regions"), BTreeSet::new(), "no pressure region appears");
+    assert_eq!(assert_canonical_parity(&adopted["document"], &sidecar, false), 47);
     // An identity file that appears beside the originally absent one is a change.
     fs::write(sandbox.ids(), sidecar).unwrap();
     let changed_reply = review(&registry, &imports, &json!({"sourceId": source_id, "declaration": declaration})).value;
     assert_eq!(codes(&changed_reply), vec![SOURCE_CHANGED]);
+    // The refusals keep the source in custody until its retirement, which drops it for Review and Adopt alike, even
+    // once the files are back as they were chosen.
+    assert_eq!(imports.source_id(), source_id.as_u64());
+    let retired = retire(&registry, &imports, 1, 1);
+    assert_eq!((retired.cancelled, retired.duplicate), (0, false));
+    assert_eq!(imports.source_id(), None);
+    fs::remove_file(sandbox.ids()).unwrap();
+    let after = review(&registry, &imports, &json!({"sourceId": source_id, "declaration": declaration})).value;
+    assert_eq!(codes(&after), vec![SOURCE_RETIRED]);
+    let late = adopt(&registry, &imports, &json!({"sourceId": source_id, "declaration": declaration, "reviewSha256": declared["reviewSha256"]})).value;
+    assert_eq!(codes(&late), vec![SOURCE_RETIRED]);
+    assert!(late.get("document").is_none());
     assert_released(&registry);
 }
 

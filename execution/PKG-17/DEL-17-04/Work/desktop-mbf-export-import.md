@@ -2186,6 +2186,23 @@ transaction and read-back, and task-5 open/review/adopt on those saved bytes, bo
 maintained fixture and checks the exact input/provenance bindings. Component passes and this mocked App
 cohort cannot establish that a launched desktop app performed that native round trip.
 
+The native connecting assertions also compare complete reviews within the 1 MiB cap, all nine identity classes,
+primitive-load inventories and the explicitly empty pressure-region inventories. A fixture-specific canonical
+reduction compares the source with the adopted document in SI using §18.2 bounds or stricter included terms,
+by restored identities when bound and by MBF names when unbound. It covers coordinates, pipe and referenced-section
+properties, material constants, restraints and spring stiffness, bend geometry/plane/flexibility, and force and
+thermal primitives. This is an independent comparison of this fixed input, not a general replacement for
+`tests/caepipe_mbf_canonical.py`. Retirement after Adopt or a refusal leaves later Review and Adopt unable to
+recover the retired source, including after the files are restored to their chosen state.
+
+**Identity-report limitation.** The committed bound review still reports `identity.unrecoverable: 2`, with
+`MBF-IMPORT-ID-UNRECOVERABLE` entries for `bend 20` and `unexported members` in category `approximated`, even though
+the nine restored identity-class inventories match. The latter entry is emitted for every bound import by
+`importer/finish.rs::report_unrecoverable`; the former is the bend reporting in `importer/assemble.rs`.
+The report is preserved. Matching inventories does not satisfy C6-5's separate requirement that the report list
+no unrecoverable identity. This candidate neither resolves that requirement/report conflict nor changes the
+metadata disposition to hide it.
+
 The focused execution packet is the desktop Vitest cohort `src/App.mbfRoundTrip.test.tsx` and the native
 `mbf_import::tests` cohort, including the reply producer above, from the same selected candidate source and
 its committed fixtures. Local native execution and the App's wasm-dependent tests await a usable, scheduled
