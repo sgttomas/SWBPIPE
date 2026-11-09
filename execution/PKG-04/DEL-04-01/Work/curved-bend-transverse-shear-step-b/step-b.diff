@@ -1,0 +1,1410 @@
+diff --git a/apps/desktop/src/features/model-settings/ModelSettingsSection.tsx b/apps/desktop/src/features/model-settings/ModelSettingsSection.tsx
+--- a/apps/desktop/src/features/model-settings/ModelSettingsSection.tsx
++++ b/apps/desktop/src/features/model-settings/ModelSettingsSection.tsx
+@@ -37,13 +37,14 @@
+   type SettingPath
+ } from "./modelSettingsIntents";
+ 
+-/** The straight-member shear deformation choices (pf-timoshenko.md §1), default first. */
++/** The shear deformation choices (pf-timoshenko.md §1; curved-bend-transverse-shear.md §5), default first. */
+ export const SHEAR_MODEL_CHOICES = Object.freeze([
+   { value: "euler_bernoulli", label: "Euler–Bernoulli (the default)" },
+-  { value: "timoshenko_annulus_energy_v1", label: "Timoshenko (energy-matched annular factor)" }
++  { value: "timoshenko_annulus_energy_v1", label: "Timoshenko (energy-matched annular factor)" },
++  { value: "timoshenko_annulus_energy_curved_v2", label: "Timoshenko, straight members and bends (energy-matched annular factor)" }
+ ] as const);
+ export const SHEAR_MODEL_NOTE =
+-  "Applies to every straight member, including tees' straight legs, rigid-family components and geometry-only bends. Realized arcs stay Euler–Bernoulli. Timoshenko members use Poisson's ratio E/(2G) − 1 from each case's moduli; an authored Poisson's ratio is not used.";
++  "Applies to every straight member, including tees' straight legs, rigid-family components and geometry-only bends. Realized arcs stay Euler–Bernoulli unless you choose straight members and bends, which applies the same factor along each arc (no curvature correction; arc stresses stay the straight-annulus recovery). Timoshenko members use Poisson's ratio E/(2G) − 1 from each case's moduli; an authored Poisson's ratio is not used. Modal analysis refuses either Timoshenko choice.";
+ export const SHEAR_MODEL_EXACT_NOTE =
+   "This document has a pressure contract, so its beam theory is the pressure contract's shear model: set it in the Pressure panel.";
+ 
+diff --git a/apps/desktop/src/features/model-settings/modelSettingsIntents.ts b/apps/desktop/src/features/model-settings/modelSettingsIntents.ts
+--- a/apps/desktop/src/features/model-settings/modelSettingsIntents.ts
++++ b/apps/desktop/src/features/model-settings/modelSettingsIntents.ts
+@@ -126,7 +126,8 @@
+   return authored === null ? "not_present" : canonicalize(authored);
+ }
+ 
+-/** Set the shear model to `name`, `euler_bernoulli` or `timoshenko_annulus_energy_v1` (the
++/** Set the shear model to `name`, `euler_bernoulli`, `timoshenko_annulus_energy_v1` or
++ * `timoshenko_annulus_energy_curved_v2` (the
+  * engine refuses by name an unknown name and a document with a pressure contract). */
+ export async function setShearModelIntent(canonicalize: Canonicalize, model: PreviewModel, name: string): Promise<EditorOperationIntent> {
+   return intent(model, "set_model_setting", await shearBefore(canonicalize, model), name, "none", "dimensionless", "Set shear model", SHEAR_MODEL_PATH);
+diff --git a/apps/desktop/src/features/pressure-authoring/pressureContract.ts b/apps/desktop/src/features/pressure-authoring/pressureContract.ts
+--- a/apps/desktop/src/features/pressure-authoring/pressureContract.ts
++++ b/apps/desktop/src/features/pressure-authoring/pressureContract.ts
+@@ -1,14 +1,17 @@
+ import type { PreviewModel } from "../../types";
+ import { MODEL_SCHEMA_VERSION } from "../../services/modelSchemaVersion";
+ 
+-/** The two admitted straight-member shear models of the exact contract (T4-U8, D-6/O3). */
+-export type ShearModel = "euler_bernoulli" | "timoshenko_annulus_energy_v1";
++/** The admitted shear models of the exact contract (T4-U8, D-6/O3; DEL-04-01
++ * `curved-bend-transverse-shear.md` §5 adds the curved v2). */
++export type ShearModel = "euler_bernoulli" | "timoshenko_annulus_energy_v1" | "timoshenko_annulus_energy_curved_v2";
+ /** From T4-U8 on, authoring writes Timoshenko by default; Euler-Bernoulli remains an
+- * explicit choice. Realized arcs are Euler-Bernoulli under either model. */
++ * explicit choice. Realized arcs are Euler-Bernoulli under v1 and carry shear only under the
++ * explicit v2, never by default. */
+ export const DEFAULT_SHEAR_MODEL: ShearModel = "timoshenko_annulus_energy_v1";
+ /** The selector's choices, the default first, with their user-facing labels. */
+ export const SHEAR_MODEL_CHOICES: readonly { value: ShearModel; label: string }[] = Object.freeze([
+   { value: "timoshenko_annulus_energy_v1", label: "Timoshenko (energy-matched annular shear factor)" },
++  { value: "timoshenko_annulus_energy_curved_v2", label: "Timoshenko, straight members and bends (energy-matched annular factor)" },
+   { value: "euler_bernoulli", label: "Euler–Bernoulli" },
+ ]);
+ 
+@@ -19,7 +22,7 @@
+ type ContractModel = Pick<PreviewModel, "schema_version" | "pressure_contract">;
+ 
+ export function isShearModel(value: unknown): value is ShearModel {
+-  return value === "euler_bernoulli" || value === "timoshenko_annulus_energy_v1";
++  return value === "euler_bernoulli" || value === "timoshenko_annulus_energy_v1" || value === "timoshenko_annulus_energy_curved_v2";
+ }
+ 
+ /** A document declaring `3.0.0/exact_pressure_v3`. */
+diff --git a/apps/desktop/src/features/results/knownSemanticLimitations.ts b/apps/desktop/src/features/results/knownSemanticLimitations.ts
+--- a/apps/desktop/src/features/results/knownSemanticLimitations.ts
++++ b/apps/desktop/src/features/results/knownSemanticLimitations.ts
+@@ -21,8 +21,11 @@
+   PREVIEW_PHYSICS_CONTRACT_ID,
+   // DEL-05-03 pf-timoshenko.md §4: the pressure-free Timoshenko identity (Rust's set too).
+   PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID,
++  // DEL-04-01 curved-bend-transverse-shear.md §5: either route's curved-shear identity (Rust's set too).
++  PREVIEW_PHYSICS_CURVED_SHEAR_CONTRACT_ID,
+   PRESSURE_SOURCE_CONTRACT_ID,
+   PRESSURE_CONTRACT_ID,
++  PRESSURE_CURVED_SHEAR_CONTRACT_ID,
+   PREVIEW_PHYSICS_RETAINED_CONTRACT_ID,
+ ]);
+ 
+diff --git a/apps/desktop/src/features/results/numericalResultQuality.ts b/apps/desktop/src/features/results/numericalResultQuality.ts
+--- a/apps/desktop/src/features/results/numericalResultQuality.ts
++++ b/apps/desktop/src/features/results/numericalResultQuality.ts
+@@ -15,14 +15,26 @@
+ export const PRESSURE_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1";
+ /** T4-U2: the ordinary exact identity (3.0.0/exact_pressure_v3). */
+ export const PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-2";
++/** DEL-04-01 `curved-bend-transverse-shear.md` §5: the exact identity of a document whose
++ * `pressure_contract.shear_model` is `timoshenko_annulus_energy_curved_v2`. */
++export const PRESSURE_CURVED_SHEAR_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-curved-shear-1";
++/** The ordinary exact route's identities. */
++export const PRESSURE_CONTRACT_IDS: readonly string[] = Object.freeze([PRESSURE_CONTRACT_ID, PRESSURE_CURVED_SHEAR_CONTRACT_ID]);
+ export const PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2";
+ /** DEL-05-03 Design `pf-timoshenko.md` §4: the pressure-free Timoshenko identity, a second
+  * complete identity on the `preview_physics` route (a document whose
+  * `model_settings.shear_model` selects `timoshenko_annulus_energy_v1`). Its table is
+  * preview-physics-2's with the identity, the profile and limitation 0 replaced. */
+ export const PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1";
++/** DEL-04-01 `curved-bend-transverse-shear.md` §5: the pressure-free curved-shear identity
++ * (`model_settings.shear_model` `timoshenko_annulus_energy_curved_v2`), derived as the Timoshenko one. */
++export const PREVIEW_PHYSICS_CURVED_SHEAR_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-curved-shear-1";
+ /** The `preview_physics` route's identities, Euler–Bernoulli first. */
+-export const PREVIEW_PHYSICS_CONTRACT_IDS: readonly string[] = Object.freeze([PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID]);
++export const PREVIEW_PHYSICS_CONTRACT_IDS: readonly string[] = Object.freeze([
++  PREVIEW_PHYSICS_CONTRACT_ID,
++  PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID,
++  PREVIEW_PHYSICS_CURVED_SHEAR_CONTRACT_ID,
++]);
+ /** U6d (D-U6-6; D2 4.7 S-1, 4.9.6): the F2a preview successor. Its statement is checked
+  * only by the accepted reader (the Rust one, through `retainedPrecisionReader.ts`), and
+  * standing comes only from that reader's registered validation
+diff --git a/apps/desktop/src/types.ts b/apps/desktop/src/types.ts
+--- a/apps/desktop/src/types.ts
++++ b/apps/desktop/src/types.ts
+@@ -381,7 +381,7 @@
+ export type SupportDirection = { x: number; y: number; z: number };
+ 
+ export type PreviewModel = {
+-  pressure_contract?: { version: string; mode: string; shear_model?: "euler_bernoulli" | "timoshenko_annulus_energy_v1" };
++  pressure_contract?: { version: string; mode: string; shear_model?: "euler_bernoulli" | "timoshenko_annulus_energy_v1" | "timoshenko_annulus_energy_curved_v2" };
+   schema_version: string;
+   document_kind: string;
+   data_boundary: Record<string, string>;
+@@ -611,8 +611,9 @@
+ /** `model_settings`: a closed record. `node_proximity_tolerance` is the near-duplicate node
+  * tolerance, a length quantity; absent means 5 mm. `shear_model` (model document 0.8.0) is the
+  * pressure-free document's beam theory, absent meaning Euler–Bernoulli, or
+- * `timoshenko_annulus_energy_v1` (DEL-05-03 Design `pf-timoshenko.md`); it is refused beside a
+- * pressure contract.
++ * `timoshenko_annulus_energy_v1` (DEL-05-03 Design `pf-timoshenko.md`), or
++ * `timoshenko_annulus_energy_curved_v2` (realized arcs too; DEL-04-01 Design
++ * `curved-bend-transverse-shear.md`); it is refused beside a pressure contract.
+  * The desktop never writes a default. */
+ export type ModelSettings = {
+   node_proximity_tolerance?: QuantityValue;
+diff --git a/core/model_operations/operation_applier/src/lib.rs b/core/model_operations/operation_applier/src/lib.rs
+--- a/core/model_operations/operation_applier/src/lib.rs
++++ b/core/model_operations/operation_applier/src/lib.rs
+@@ -927,7 +927,7 @@
+             && contract.get("version").and_then(Value::as_str) == Some("3.0.0")
+             && contract.get("mode").and_then(Value::as_str) == Some("exact_pressure_v3")
+             && matches!(contract.get("shear_model").and_then(Value::as_str),
+-                Some("euler_bernoulli" | "timoshenko_annulus_energy_v1")))
++                Some("euler_bernoulli" | "timoshenko_annulus_energy_v1" | "timoshenko_annulus_energy_curved_v2")))
+ }
+ 
+ fn collection_for(object_type: &str) -> Option<&'static str> {
+@@ -6004,7 +6004,7 @@
+             "OP-PRESSURE-PRIMITIVE-RETIRED",
+             "blocking",
+             "Pressure primitive loads are retired, zero values included; the product refuses them (PRESSURE_MODEL_REAUTHOR_REQUIRED).".to_string(),
+-            &format!("Author pressure as exact pressure regions: on model {} select the 3.0.0/exact_pressure_v3 profile (shear_model timoshenko_annulus_energy_v1, the default, or euler_bernoulli) with an explicit section.corrosion_allowance on every pipe, then enter the load case's pressure_regions (an explicit [] for an unpressurized case).", open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION),
++            &format!("Author pressure as exact pressure regions: on model {} select the 3.0.0/exact_pressure_v3 profile (shear_model timoshenko_annulus_energy_v1, the default, timoshenko_annulus_energy_curved_v2 or euler_bernoulli) with an explicit section.corrosion_allowance on every pipe, then enter the load case's pressure_regions (an explicit [] for an unpressurized case).", open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION),
+             vec![target_ref.to_string()],
+         );
+         return None;
+diff --git a/core/model_operations/operation_applier/src/pressure_authoring.rs b/core/model_operations/operation_applier/src/pressure_authoring.rs
+--- a/core/model_operations/operation_applier/src/pressure_authoring.rs
++++ b/core/model_operations/operation_applier/src/pressure_authoring.rs
+@@ -296,7 +296,7 @@
+             if !crate::is_pressure_v3_contract(&after) {
+                 return Err(RichError {
+                     code: "OP-PRESSURE-PROFILE-SUCCESSOR-REQUIRED",
+-                    message: "New pressure authoring requires the closed 3.0.0/exact_pressure_v3 contract with an explicit shear_model: timoshenko_annulus_energy_v1 (the default) or euler_bernoulli".into(),
++                    message: "New pressure authoring requires the closed 3.0.0/exact_pressure_v3 contract with an explicit shear_model: timoshenko_annulus_energy_v1 (the default), timoshenko_annulus_energy_curved_v2 or euler_bernoulli".into(),
+                 });
+             }
+             if model["schema_version"] != open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION
+diff --git a/core/product_physics/src/exact_admission.rs b/core/product_physics/src/exact_admission.rs
+--- a/core/product_physics/src/exact_admission.rs
++++ b/core/product_physics/src/exact_admission.rs
+@@ -54,6 +54,15 @@
+     "openpipestress.result_semantics/0.3.0/pressure-source-1";
+ /// The formulation profile of every `pressure-2` envelope.
+ pub(crate) const PRESSURE_PROFILE_ID: &str = "exact_pressure_v3";
++/// DEL-04-01 `curved-bend-transverse-shear.md` §5: the ordinary result semantics of a
++/// `3.0.0/exact_pressure_v3` document selecting `timoshenko_annulus_energy_curved_v2`.
++pub(crate) const PRESSURE_CURVED_SHEAR_SEMANTIC_CONTRACT_ID: &str =
++    "openpipestress.result_semantics/0.3.0/pressure-curved-shear-1";
++/// Its formulation profile.
++pub(crate) const PRESSURE_CURVED_SHEAR_PROFILE_ID: &str = "product_pressure_curved_shear_v2";
++/// Its limitation 0: pressure-2's unselected identity with the shear-model parenthesis and
++/// the realized-arc clause replaced. A whole static string, as v3's.
++const PRESSURE_CURVED_SHEAR_IDENTITY: &str = "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: timoshenko_annulus_energy_curved_v2, the energy-matched annular shear factor kappa_E on the nominal section, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends carry transverse shear with the same kappa_E and A_s rule applied along the arc centreline, a one-dimensional approximation with no curvature correction; an arc's thermal and pressure free-strain equivalent loads K_b*u_free are formed with that shear-dependent arc stiffness, as the solve is, and the arc's stress recovery stays the straight-annulus recovery; realized curved bends and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers when their mapped member lies outside every pressure region or forms a pressure step, the only member of its own region between single straight members of other regions with transfers_to_wall at both ends, either concentric and collinear or eccentric or slanted with W-15c's run evidence and any read offset accepted, whose junction caps at the actual nodes along each member's own axis carry the step's pressure force and moment (EXACT_PRESSURE_REDUCER_IN_REGION otherwise); a branch connection (tee) is a record at its node, whose members meet as a rigid joint with no branch flexibility; a tee consumed as mechanics_geometry_only gives its user-entered header and branch SIFs as intensified rows at the ends of its named straight members on each section basis, not a code stress, and a realized arc it names carries none; a constant-effort support (DEC-049) declaring exactly one translational DOF and a finite positive constant load is consumed: it has zero stiffness and applies that load as a constant nodal force along the DOF's positive global axis in every solved case, and a mechanics combination over a model with one is withheld (CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE) when a factor is not finite or the exact factor sum is not within 64 epsilon of 1; a record that is not consumed applies nothing and warns (SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED); gap, one-way, lift-off and friction supports (friction with an explicit normal or a normal derived from a linear restraint), beside objective connectors and on load/reference-state documents included, are solved in each case by the active-set loop from their authored initial states and publish their states, final displacements and reactions; K-D5 confirmation is attempted for an eligible non-gap state, and the case's published numerical standing reflects its outcome; a case with a gap support is published with the unqualified recovery basis (NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED) and no confirmation, and a mechanics combination over a model with a nonlinear support is withheld (NONLINEAR_COMBINATION_REQUIRES_SOLVE) unless it is one load case at factor exactly 1 plus at least one combination whose fixed-load count is exactly 0, formed from rows as a solved state plus derived differences or bounds, not an equilibrium state. Pressure regions meeting at a node where every terminal transfers to the wall form a junction, whose caps sum to the fitting's pressure load. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.";
+ 
+ /// The named seam refusal for a family a v3 document may not yet contain.
+ pub(crate) const FAMILY_NOT_ADMITTED: &str = "EXACT_PRESSURE_FAMILY_NOT_ADMITTED";
+@@ -185,6 +194,16 @@
+     FormulationBasis { profile_id: PRESSURE_PROFILE_ID.to_string(), limitations }
+ }
+ 
++/// `curved-bend-transverse-shear.md` §5: the curved-shear identity's basis: the unselected v3
++/// basis with its own profile and limitation 0. A v2 document never selects a retained source
++/// (`source_recovery` declines it by name), so there is no selected variant.
++pub(crate) fn pressure_v3_curved_shear_formulation_basis(load_state: bool, connectors: bool) -> FormulationBasis {
++    let mut basis = pressure_v3_formulation_basis_with_source(load_state, connectors, false);
++    basis.profile_id = PRESSURE_CURVED_SHEAR_PROFILE_ID.to_string();
++    basis.limitations[0] = PRESSURE_CURVED_SHEAR_IDENTITY.to_string();
++    basis
++}
++
+ /// W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md` §3): a case's
+ /// `equivalent_static` on a load/reference-state document. Generated loads
+ /// have no ledger class there, so they are refused for every authored case,
+diff --git a/core/product_physics/src/lib.rs b/core/product_physics/src/lib.rs
+--- a/core/product_physics/src/lib.rs
++++ b/core/product_physics/src/lib.rs
+@@ -1430,7 +1430,10 @@
+ /// The identity follows the actual current model route; source selection
+ /// changes it only at publication.
+ fn mechanics_producer_for_model(model: &PreviewModel) -> MechanicsProducer {
+-    mechanics_producer(if pressure_runtime::is_exact(model) {
++    mechanics_producer(if pressure_runtime::selects_arc_shear(model) {
++        // DEL-04-01 `curved-bend-transverse-shear.md` §5: its own exact identity.
++        exact_admission::PRESSURE_CURVED_SHEAR_SEMANTIC_CONTRACT_ID
++    } else if pressure_runtime::is_exact(model) {
+         PRESSURE_SEMANTIC_CONTRACT_ID
+     } else {
+         pf_timoshenko::semantic_contract_id(model)
+@@ -1447,11 +1450,11 @@
+         // names the publication (pressure-source-1 or pressure-2).
+         let load_state = case_state::is_load_state(model);
+         let connectors = model.components.iter().any(|c| c.objective_connector.is_some());
+-        let mut basis = exact_admission::pressure_v3_formulation_basis_with_source(
+-            load_state,
+-            connectors,
+-            source_selected,
+-        );
++        let mut basis = if pressure_runtime::selects_arc_shear(model) {
++            exact_admission::pressure_v3_curved_shear_formulation_basis(load_state, connectors)
++        } else {
++            exact_admission::pressure_v3_formulation_basis_with_source(load_state, connectors, source_selected)
++        };
+         // T4-U2: a model with a realized bend states the bend's terms; a
+         // straight-only v3 model keeps its text unchanged (SP-1).
+         if model.components.iter().any(is_curved_bend_macro_component) {
+@@ -7429,7 +7432,7 @@
+         "load_case_id":load_case.id,"profile_mode":pressure_runtime::exact_contract(model).map(|c| c.mode()),
+         "material_basis":modulus_basis_record.unwrap_or("base_material_common_E_nu"),
+         "pressure_rhs_assembly":pressure_assembly_evidence,
+-        "pipe_sections":exact_pipe_sections(built),
++        "pipe_sections":exact_pipe_sections(built, pressure_runtime::timoshenko_model(model)),
+         "pipe_stress_extrema":pipe_stress_extrema,
+         "stress_maximum_coverage":[
+             {"section_basis":pressure_exact::SectionBasis::Nominal.token(),"complete":unavailable_stress_maximum_members.is_empty(),"unavailable_pipe_ids":unavailable_stress_maximum_members},
+@@ -8823,6 +8826,10 @@
+     // Each realized-bend pipe's resolved (E, G): the material's, or the 0.4.0
+     // member pair. Straight pipes insert nothing (RV12 S-3).
+     let mut member_moduli: HashMap<&str, (f64, f64)> = HashMap::new();
++    // DEL-04-01 `curved-bend-transverse-shear.md` §5: each realized-bend pipe's transverse
++    // shear area A_s under timoshenko_annulus_energy_curved_v2, by its route's straight rule.
++    // Every other document inserts nothing.
++    let mut member_shear_areas: HashMap<&str, f64> = HashMap::new();
+     let mut exact_sections = HashMap::new();
+     // W-15 (DEL-03-05 Design `rigid-component-stiffness-scaling.md` §2.2): each
+     // eligible rigid-family component's member is formed with s*E and s*G.
+@@ -8936,9 +8943,12 @@
+         // area A_s = kappa_E * A_n, with kappa_E (FK `shear`) from the nominal
+         // annulus's binary64 leaves and the member's selected nu, the E/nu basis
+         // that gives its G (per resolved case on a load-state document). A
+-        // realized arc stays Euler-Bernoulli. A missing basis or a factor out of
+-        // range blocks by name; no default factor exists.
+-        let shear_area = if pressure_runtime::selects_timoshenko(model) && !curved_bend_pipe_ids.contains(pipe.id.as_str()) {
++        // realized arc stays Euler-Bernoulli, except under
++        // timoshenko_annulus_energy_curved_v2, where it takes A_s by the same rule
++        // (DEL-04-01 `curved-bend-transverse-shear.md` §5). A missing basis or a
++        // factor out of range blocks by name; no default factor exists.
++        let arc = curved_bend_pipe_ids.contains(pipe.id.as_str());
++        let shear_area = if pressure_runtime::selects_timoshenko(model) && (!arc || pressure_runtime::selects_arc_shear(model)) {
+             let nu = match member_pairs {
+                 Some(pairs) => pairs.get(&pipe.id).map(|pair| pair.poisson_ratio()),
+                 None => material.poisson_ratio.as_ref().map(|nu| nu.value),
+@@ -8958,14 +8968,15 @@
+                 }
+                 Err(missing) => {
+                     diagnostics.push(diag(&format!("diagnostic:exact-section:{}:shear", stable_suffix(&pipe.id)), "EXACT_PRESSURE_SHEAR_FACTOR_UNAVAILABLE", "blocking",
+-                        format!("a timoshenko_annulus_energy_v1 member requires {missing}; no default shear factor is used"), vec![pipe.id.clone()]));
++                        format!("a {} member requires {missing}; no default shear factor is used", pressure_runtime::timoshenko_model(model)), vec![pipe.id.clone()]));
+                     continue;
+                 }
+             }
+-        } else if let Some(basis) = pf_shear.filter(|_| !curved_bend_pipe_ids.contains(pipe.id.as_str())) {
++        } else if let Some(basis) = pf_shear.filter(|_| !arc || pf_timoshenko::selects_curved(model)) {
+             // PF Timoshenko (DEL-05-03 Design `pf-timoshenko.md` §2): every straight
+-            // member on a consumed basis, from PF's stiffness annulus and the nu of
+-            // the unscaled (E, G) above; a refused factor blocks the member by name.
++            // member on a consumed basis, and under v2 every realized arc too, from PF's
++            // stiffness annulus and the nu of the unscaled (E, G) above; a refused factor
++            // blocks the member by name.
+             let Some(shear_area) = pf_timoshenko::shear_area(basis, pipe, &derived, material, elastic_modulus, shear_modulus, &mut pf_poisson_warned, diagnostics) else {
+                 continue;
+             };
+@@ -9001,7 +9012,9 @@
+             }
+             None => (elastic_modulus, shear_modulus),
+         };
+-        let section = match shear_area.map_or_else(|| StraightPipeSectionProperties::new(
++        // A realized arc's chord section stays Euler-Bernoulli: its A_s reaches only the
++        // macro-element, through `member_shear_areas`.
++        let section = match shear_area.filter(|_| !arc).map_or_else(|| StraightPipeSectionProperties::new(
+             elastic_modulus,
+             shear_modulus,
+             derived.area,
+@@ -9046,8 +9059,11 @@
+                     continue;
+                 }
+             };
+-        if curved_bend_pipe_ids.contains(pipe.id.as_str()) {
++        if arc {
+             member_moduli.insert(pipe.id.as_str(), (elastic_modulus, shear_modulus));
++            if let Some(shear_area) = shear_area {
++                member_shear_areas.insert(pipe.id.as_str(), shear_area);
++            }
+         } else if !replaced_span_ids.contains(pipe.id.as_str()) {
+             frame_elements.push(
+                 element
+@@ -9089,6 +9105,7 @@
+         &node_map,
+         &sections,
+         &member_moduli,
++        &member_shear_areas,
+         diagnostics,
+     );
+     let nonlinear = build_nonlinear_supports(model, &node_map, diagnostics);
+@@ -9273,6 +9290,7 @@
+     node_map: &HashMap<&str, usize>,
+     sections: &HashMap<String, DerivedSection>,
+     member_moduli: &HashMap<&str, (f64, f64)>,
++    member_shear_areas: &HashMap<&str, f64>,
+     diagnostics: &mut Vec<Diagnostic>,
+ ) -> Vec<CurvedBendMacroBuild> {
+     let pipe_map = model
+@@ -9497,6 +9515,18 @@
+                 ));
+                 continue;
+             }
++        };
++        // DEL-04-01 `curved-bend-transverse-shear.md` §5: a v2 arc carries its route's A_s;
++        // every other arc is formed exactly as before (no shear arithmetic for `None`).
++        let element = match member_shear_areas.get(pipe_ref) {
++            None => element,
++            Some(&shear_area) => match element.with_transverse_shear_area(shear_area) {
++                Ok(element) => element,
++                Err(error) => {
++                    diagnostics.push(curved_bend_macro_element_diag(component, pipe_ref, &error.to_string()));
++                    continue;
++                }
++            },
+         };
+         let (global_stiffness, arc_length, included_angle) = match (
+             element.global_stiffness(),
+@@ -12154,14 +12184,14 @@
+ /// region geometry decides it (`realized_arc`), so a reader without the model
+ /// knows every arc, including arcs outside every pressure region. A straight
+ /// member's entry keeps exactly the `exact_section_evidence` keys.
+-fn exact_pipe_sections(built: &BuiltModel) -> Vec<serde_json::Value> {
++fn exact_pipe_sections(built: &BuiltModel, timoshenko: &'static str) -> Vec<serde_json::Value> {
+     built
+         .pipes
+         .iter()
+         .enumerate()
+         .map(|(index, pipe)| {
+             let sections = *built.exact_sections.get(&pipe.element_id).expect("every built exact member has source geometry");
+-            let mut entry = exact_section_evidence(&pipe.element_id, sections);
++            let mut entry = exact_section_evidence(&pipe.element_id, sections, timoshenko);
+             if realized_arc(built, index).is_some() {
+                 mark_realized_arc(&mut entry);
+             }
+@@ -12187,10 +12217,10 @@
+ /// pipe's `pipe_sections` entry, the one shape of every identity's section
+ /// evidence and of the realized-arc geometry record: the authored OD, wall,
+ /// mill tolerance (absent = 0) and allowance, both sections, the pressure bore
+-/// and the beam theory (a realized arc's sections carry no shear leaf, so it
+-/// is Euler-Bernoulli under either selection). Callers add the realized-arc
+-/// marker.
+-fn exact_section_evidence(pipe_id: &str, g: pressure_exact::ExactSectionBases) -> serde_json::Value {
++/// and the beam theory (a realized arc's sections carry a shear leaf only
++/// under timoshenko_annulus_energy_curved_v2; `timoshenko` names the document's Timoshenko
++/// model). Callers add the realized-arc marker.
++fn exact_section_evidence(pipe_id: &str, g: pressure_exact::ExactSectionBases, timoshenko: &'static str) -> serde_json::Value {
+     let section = |s: pressure_exact::SourceAnnulus| serde_json::json!({"wall_m":s.effective_wall_thickness_m(),
+         "ri_m":s.inner_radius_m(),"As_m2":s.wall_area_m2(),"I_m4":s.second_moment_m4(),"J_m4":s.polar_moment_m4(),"Z_m3":s.section_modulus_m3()});
+     serde_json::json!({"pipe_id":pipe_id,"geometry_basis":"authored_od_wall_d5_sections_v1",
+@@ -12198,10 +12228,11 @@
+         "wall_thickness_m":g.nominal_wall_m(),"mill_tolerance_m":g.mill_tolerance_m(),"corrosion_allowance_m":g.corrosion_allowance_m(),
+         "nominal_section":section(g.nominal()),"reduced_section":section(g.reduced()),
+         "pressure_bore":{"ri_m":g.pressure_bore_radius_m(),"Ai_m2":g.pressure_bore_area_m2()},
+-        // T4-U8 (§2.3): a Timoshenko straight member's kappa_E and A_s; every
+-        // other member, realized arcs included, is Euler-Bernoulli.
++        // T4-U8 (§2.3): a Timoshenko member's kappa_E and A_s under the document's
++        // Timoshenko model (under v2, realized arcs too); every other member is
++        // Euler-Bernoulli.
+         "beam_theory":match g.timoshenko() {
+-            Some((shear_factor, shear_area)) => serde_json::json!({"model":pressure_runtime::TIMOSHENKO_ANNULUS_ENERGY,
++            Some((shear_factor, shear_area)) => serde_json::json!({"model":timoshenko,
+                 "shear_factor":shear_factor,"shear_area_m2":shear_area}),
+             None => serde_json::json!({"model":pressure_runtime::EULER_BERNOULLI}),
+         }})
+diff --git a/core/product_physics/src/modal/prepare.rs b/core/product_physics/src/modal/prepare.rs
+--- a/core/product_physics/src/modal/prepare.rs
++++ b/core/product_physics/src/modal/prepare.rs
+@@ -256,11 +256,19 @@
+ 
+     // The modal interim refusals, each by name.
+     if pf_timoshenko::selects(&model) || pressure_runtime::selects_timoshenko(&model) {
++        // DEL-04-01 `curved-bend-transverse-shear.md` §5: v2 is refused under the same code,
++        // naming its value; its arcs would otherwise pair an Euler-Bernoulli mass with
++        // shear-flexible arcs too.
++        let message = if pf_timoshenko::selects_curved(&model) || pressure_runtime::selects_arc_shear(&model) {
++            "the model selects Timoshenko straight members and realized arcs (timoshenko_annulus_energy_curved_v2); modal analysis forms an Euler-Bernoulli consistent mass, and pairing it with shear-flexible stiffness would be inconsistent, so nothing is formed (a Timoshenko consistent mass is a later slice, M4)"
++        } else {
++            "the model selects Timoshenko straight members (timoshenko_annulus_energy_v1); modal analysis forms an Euler-Bernoulli consistent mass, and pairing it with shear-flexible stiffness would be inconsistent, so nothing is formed (a Timoshenko consistent mass is a later slice, M4)"
++        };
+         diagnostics.push(diag(
+             "diagnostic:modal:timoshenko-mass",
+             MODAL_TIMOSHENKO_MASS_UNSUPPORTED,
+             "blocking",
+-            "the model selects Timoshenko straight members (timoshenko_annulus_energy_v1); modal analysis forms an Euler-Bernoulli consistent mass, and pairing it with shear-flexible stiffness would be inconsistent, so nothing is formed (a Timoshenko consistent mass is a later slice, M4)",
++            message,
+             vec!["shear_model".to_string()],
+         ));
+         return Err(diagnostics);
+diff --git a/core/product_physics/src/model_settings.rs b/core/product_physics/src/model_settings.rs
+--- a/core/product_physics/src/model_settings.rs
++++ b/core/product_physics/src/model_settings.rs
+@@ -19,6 +19,9 @@
+ //! differs. `timoshenko_annulus_energy_v1` selects Timoshenko straight members on the
+ //! pressure-free route (DEL-05-03 Design `pf-timoshenko.md`; `crate::pf_timoshenko`),
+ //! which removed 0.8.0's interim refusal at solve and at authoring.
++//! `timoshenko_annulus_energy_curved_v2` (DEL-04-01 Design `curved-bend-transverse-shear.md`
++//! §1, §5) forms the straight members exactly as v1 does and adds transverse shear to every
++//! realized arc. It is never inferred: v1 keeps its meaning, and only an explicit set selects v2.
+ //!
+ //! The topology check (`topology::append_topology_diagnostics`) reads it through
+ //! [`PreviewModel::node_proximity_tolerance_m`]. The solve's validation
+@@ -48,17 +51,20 @@
+ pub const SHEAR_MODEL_EULER_BERNOULLI: &str = "euler_bernoulli";
+ /// `timoshenko_annulus_energy_v1`: Timoshenko straight members on a pressure-free document.
+ pub const SHEAR_MODEL_TIMOSHENKO: &str = "timoshenko_annulus_energy_v1";
+-/// The value is not one of the two strings (a non-string and `null` included).
++/// `timoshenko_annulus_energy_curved_v2`: v1's straight members, and realized arcs with transverse shear.
++pub const SHEAR_MODEL_TIMOSHENKO_CURVED: &str = "timoshenko_annulus_energy_curved_v2";
++/// The value is not one of the three strings (a non-string and `null` included).
+ pub const MODEL_SETTING_SHEAR_MODEL_UNKNOWN: &str = "MODEL-SETTING-SHEAR-MODEL-UNKNOWN";
+ /// The member is present on a document that declares `pressure_contract`.
+ pub const MODEL_SETTING_SHEAR_MODEL_WITH_PRESSURE_CONTRACT: &str = "MODEL-SETTING-SHEAR-MODEL-WITH-PRESSURE-CONTRACT";
+ 
+-/// The authored `model_settings.shear_model`, as decoded: one of the two names, or any other
++/// The authored `model_settings.shear_model`, as decoded: one of the three names, or any other
+ /// JSON value (a non-string and `null` included), which is refused by name rather than at decode.
+ #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+ pub enum ShearModelSetting {
+     EulerBernoulli,
+     TimoshenkoAnnulusEnergyV1,
++    TimoshenkoAnnulusEnergyCurvedV2,
+     Unknown,
+ }
+ 
+@@ -68,6 +74,7 @@
+         match value.as_str() {
+             Some(SHEAR_MODEL_EULER_BERNOULLI) => ShearModelSetting::EulerBernoulli,
+             Some(SHEAR_MODEL_TIMOSHENKO) => ShearModelSetting::TimoshenkoAnnulusEnergyV1,
++            Some(SHEAR_MODEL_TIMOSHENKO_CURVED) => ShearModelSetting::TimoshenkoAnnulusEnergyCurvedV2,
+             _ => ShearModelSetting::Unknown,
+         }
+     }
+@@ -88,6 +95,7 @@
+             Ok(match value {
+                 SHEAR_MODEL_EULER_BERNOULLI => ShearModelSetting::EulerBernoulli,
+                 SHEAR_MODEL_TIMOSHENKO => ShearModelSetting::TimoshenkoAnnulusEnergyV1,
++                SHEAR_MODEL_TIMOSHENKO_CURVED => ShearModelSetting::TimoshenkoAnnulusEnergyCurvedV2,
+                 _ => ShearModelSetting::Unknown,
+             })
+         }
+@@ -121,9 +129,9 @@
+     deserializer.deserialize_any(ShearModelVisitor).map(Some)
+ }
+ 
+-/// The refusal message for a value that is not one of the two names.
++/// The refusal message for a value that is not one of the three names.
+ pub fn shear_model_unknown_message() -> String {
+-    format!("{SHEAR_MODEL_PATH} must be `{SHEAR_MODEL_EULER_BERNOULLI}` or `{SHEAR_MODEL_TIMOSHENKO}`.")
++    format!("{SHEAR_MODEL_PATH} must be `{SHEAR_MODEL_EULER_BERNOULLI}`, `{SHEAR_MODEL_TIMOSHENKO}` or `{SHEAR_MODEL_TIMOSHENKO_CURVED}`.")
+ }
+ 
+ /// The refusal message for the member on a document that declares `pressure_contract`.
+@@ -132,8 +140,8 @@
+ }
+ 
+ /// The refusals of an authored setting, at solve, at authoring and in the document
+-/// validator alike: a value other than the two names, then the member on a document
+-/// that declares `pressure_contract`. Both names are admitted on a pressure-free document.
++/// validator alike: a value other than the three names, then the member on a document
++/// that declares `pressure_contract`. Every name is admitted on a pressure-free document.
+ pub fn shear_model_refusal(setting: ShearModelSetting, has_pressure_contract: bool) -> Option<ModelSettingError> {
+     if setting == ShearModelSetting::Unknown {
+         return Some(ModelSettingError { code: MODEL_SETTING_SHEAR_MODEL_UNKNOWN, message: shear_model_unknown_message() });
+@@ -244,10 +252,11 @@
+ 
+     /// The effective shear-model choice: the authored `model_settings.shear_model`, else
+     /// Euler–Bernoulli. An unknown value reads as Euler–Bernoulli here and is refused by
+-    /// [`shear_model_refusal`]; `crate::pf_timoshenko::selects` consumes the choice.
++    /// [`shear_model_refusal`]; `crate::pf_timoshenko::selects` and `selects_curved` consume the choice.
+     pub fn shear_model(&self) -> ShearModelSetting {
+         match self.model_settings.as_ref().and_then(|settings| settings.shear_model) {
+             Some(ShearModelSetting::TimoshenkoAnnulusEnergyV1) => ShearModelSetting::TimoshenkoAnnulusEnergyV1,
++            Some(ShearModelSetting::TimoshenkoAnnulusEnergyCurvedV2) => ShearModelSetting::TimoshenkoAnnulusEnergyCurvedV2,
+             _ => ShearModelSetting::EulerBernoulli,
+         }
+     }
+diff --git a/core/product_physics/src/pf_timoshenko.rs b/core/product_physics/src/pf_timoshenko.rs
+--- a/core/product_physics/src/pf_timoshenko.rs
++++ b/core/product_physics/src/pf_timoshenko.rs
+@@ -11,6 +11,12 @@
+ //! Realized arcs stay
+ //! Euler–Bernoulli and are disclosed by name (§4).
+ //!
++//! `timoshenko_annulus_energy_curved_v2` (DEL-04-01 Design `curved-bend-transverse-shear.md`
++//! §1, §5) forms the same straight members bit for bit, and each realized arc on a consumed
++//! basis also takes A_s from this module's [`shear_area`] (the arc's own PF annulus, area and
++//! unscaled moduli); its result has its own identity, profile and limitation 0, and no arc
++//! disclosure.
++//!
+ //! Admission follows consumption (§2): the bases the cases consume are known
+ //! from their temperature selections before any build, so a factor failure or
+ //! a ν warning belongs to a consumed basis and names the cases that select it.
+@@ -39,6 +45,13 @@
+ /// §4: the named disclosure of the realized arcs that stay Euler–Bernoulli.
+ pub(crate) const REALIZED_ARCS_EULER_BERNOULLI: &str = "PF_TIMOSHENKO_REALIZED_ARCS_EULER_BERNOULLI";
+ 
++/// DEL-04-01 `curved-bend-transverse-shear.md` §5: the curved-shear PF result's semantic contract identity.
++pub(crate) const CURVED_ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-curved-shear-1";
++/// The curved-shear PF result's profile.
++pub(crate) const CURVED_PROFILE_ID: &str = "product_preview_mechanics_curved_shear_v2";
++/// Limitation 0 of the curved-shear PF identity; the other limitations are preview-physics-2's.
++pub(crate) const CURVED_LIMITATION_0: &str = "Small-displacement, linear-elastic frame preview: straight members, including geometry-only bends, and realized arcs are Timoshenko with the energy-matched annular shear factor (timoshenko_annulus_energy_curved_v2) and Poisson's ratio E/(2G) - 1; on a realized arc the straight-annulus factor is applied along the centreline with no curvature correction, the arc's thermal equivalent load is formed with that shear-dependent arc stiffness, as the solve is, and the arc's stress recovery stays the straight-annulus recovery; a straight member's published nodal rotations are section rotations, not slopes; numerical integrity does not establish physical correctness.";
++
+ /// §4: the arc ids the disclosure names before "and N more".
+ const ARC_IDS_NAMED: usize = 32;
+ /// §4: the disclosure's bound in Unicode scalar values (the report renderer's evidence threshold).
+@@ -46,21 +59,50 @@
+ /// §2: the disclosure threshold of the authored-ν warning (not a numerical tolerance).
+ const POISSON_RATIO_DISCLOSURE: f64 = 1e-6;
+ 
+-/// Whether `model` is a pressure-free document selecting Timoshenko straight members.
++/// Whether `model` is a pressure-free document selecting Timoshenko straight members (v1 or v2;
++/// both form them identically).
+ pub(crate) fn selects(model: &PreviewModel) -> bool {
+-    model.pressure_contract.is_none() && model.shear_model() == ShearModelSetting::TimoshenkoAnnulusEnergyV1
++    model.pressure_contract.is_none()
++        && matches!(
++            model.shear_model(),
++            ShearModelSetting::TimoshenkoAnnulusEnergyV1 | ShearModelSetting::TimoshenkoAnnulusEnergyCurvedV2
++        )
+ }
+ 
++/// Whether `model` is a pressure-free document selecting `timoshenko_annulus_energy_curved_v2`:
++/// realized arcs with transverse shear as well.
++pub(crate) fn selects_curved(model: &PreviewModel) -> bool {
++    model.pressure_contract.is_none() && model.shear_model() == ShearModelSetting::TimoshenkoAnnulusEnergyCurvedV2
++}
++
++/// The selected Timoshenko model's document name, as the diagnostics state it.
++fn shear_model_name(model: &PreviewModel) -> &'static str {
++    if selects_curved(model) {
++        crate::model_settings::SHEAR_MODEL_TIMOSHENKO_CURVED
++    } else {
++        crate::model_settings::SHEAR_MODEL_TIMOSHENKO
++    }
++}
++
+ /// The producer's semantic contract identity on the preview route.
+ pub(crate) fn semantic_contract_id(model: &PreviewModel) -> &'static str {
+-    if selects(model) { ID } else { preview_physics::ID }
++    if selects_curved(model) {
++        CURVED_ID
++    } else if selects(model) {
++        ID
++    } else {
++        preview_physics::ID
++    }
+ }
+ 
+ /// The preview route's formulation basis: preview-physics-2's, or for a Timoshenko
+ /// document the same with its own profile and limitation 0.
+ pub(crate) fn formulation_basis(model: &PreviewModel) -> FormulationBasis {
+     let mut basis = preview_physics::formulation_basis();
+-    if selects(model) {
++    if selects_curved(model) {
++        basis.profile_id = CURVED_PROFILE_ID.to_string();
++        basis.limitations[0] = CURVED_LIMITATION_0.to_string();
++    } else if selects(model) {
+         basis.profile_id = PROFILE_ID.to_string();
+         basis.limitations[0] = LIMITATION_0.to_string();
+     }
+@@ -72,6 +114,8 @@
+ pub(crate) struct ConsumedBasis {
+     pub(crate) description: String,
+     pub(crate) case_ids: Vec<String>,
++    /// The selected Timoshenko model's name (v1 or v2), as the diagnostics state it.
++    pub(crate) shear_model: &'static str,
+ }
+ 
+ /// §2, "Construction boundary": the bases the document's cases consume, from their
+@@ -101,13 +145,14 @@
+                             (None, Some(temperature)) => format!("the material basis interpolated at solve temperature {:?} K", temperature.value),
+                             (None, None) => unreachable!("a selected basis has a selection"),
+                         };
+-                        bases.selected.push((key, ConsumedBasis { description, case_ids: Vec::new() }));
++                        bases.selected.push((key, ConsumedBasis { description, case_ids: Vec::new(), shear_model: shear_model_name(model) }));
+                         &mut bases.selected.last_mut().expect("pushed").1
+                     }
+                 },
+                 None if refusals.is_empty() => bases.base.get_or_insert_with(|| ConsumedBasis {
+                     description: "the base material basis (no temperature selection)".to_string(),
+                     case_ids: Vec::new(),
++                    shear_model: shear_model_name(model),
+                 }),
+                 None => continue,
+             };
+@@ -122,7 +167,8 @@
+     }
+ }
+ 
+-/// §2: one straight member's shear area on a consumed basis, from PF's stiffness annulus
++/// §2: one straight member's shear area on a consumed basis (under v2, also one realized
++/// arc's, by the same rule; `curved-bend-transverse-shear.md` §5), from PF's stiffness annulus
+ /// and the ν that gives the member's unscaled G. `None` after a blocking diagnostic: the
+ /// member is not formed, and the build blocks. The authored-ν warning is emitted once per
+ /// material and basis (`warned`), since every member of a material shares its moduli there.
+@@ -163,8 +209,8 @@
+                 SHEAR_FACTOR_UNAVAILABLE,
+                 "blocking",
+                 format!(
+-                    "timoshenko_annulus_energy_v1 member {} has no energy-matched annular shear factor on {} (load cases {cases}): nu = E/(2G) - 1 = {nu:?} from material {} E = {elastic_modulus:?} Pa and G = {shear_modulus:?} Pa, r_i = {inner_radius:?} m, r_o = {outer_radius:?} m: {error}; no default factor or Euler-Bernoulli member is used",
+-                    pipe.id, basis.description, material.id,
++                    "{} member {} has no energy-matched annular shear factor on {} (load cases {cases}): nu = E/(2G) - 1 = {nu:?} from material {} E = {elastic_modulus:?} Pa and G = {shear_modulus:?} Pa, r_i = {inner_radius:?} m, r_o = {outer_radius:?} m: {error}; no default factor or Euler-Bernoulli member is used",
++                    basis.shear_model, pipe.id, basis.description, material.id,
+                 ),
+                 refs,
+             ));
+@@ -181,8 +227,14 @@
+                 AUTHORED_POISSON_RATIO_NOT_USED,
+                 "warning",
+                 format!(
+-                    "material {} authors poisson_ratio {authored:?}, which is not used: its timoshenko_annulus_energy_v1 straight members on {} (load cases {cases}) take nu = E/(2G) - 1 = {nu:?} from E = {elastic_modulus:?} Pa and G = {shear_modulus:?} Pa",
+-                    material.id, basis.description,
++                    "material {} authors poisson_ratio {authored:?}, which is not used: its {} on {} (load cases {cases}) take nu = E/(2G) - 1 = {nu:?} from E = {elastic_modulus:?} Pa and G = {shear_modulus:?} Pa",
++                    material.id,
++                    if basis.shear_model == crate::model_settings::SHEAR_MODEL_TIMOSHENKO_CURVED {
++                        "timoshenko_annulus_energy_curved_v2 straight members and realized arcs"
++                    } else {
++                        "timoshenko_annulus_energy_v1 straight members"
++                    },
++                    basis.description,
+                 ),
+                 refs,
+             ));
+@@ -213,8 +265,9 @@
+                 PARTIAL_SPAN_UNSUPPORTED,
+                 "blocking",
+                 format!(
+-                    "load case {} equivalent_static.wind.exposed_spans[{index}] is a partial-span member load on timoshenko_annulus_energy_v1 straight member {pipe}; partial-span loads on Timoshenko members are not yet supported, so mark the whole span (exposed_pipe_refs) or select euler_bernoulli",
++                    "load case {} equivalent_static.wind.exposed_spans[{index}] is a partial-span member load on {} straight member {pipe}; partial-span loads on Timoshenko members are not yet supported, so mark the whole span (exposed_pipe_refs) or select euler_bernoulli",
+                     case.id,
++                    shear_model_name(model),
+                 ),
+                 vec![pipe.to_string(), case.id.clone()],
+             ));
+@@ -222,9 +275,10 @@
+     }
+ }
+ 
+-/// §4: the named arc disclosure, once per Timoshenko result that contains a realized arc.
++/// §4: the named arc disclosure, once per v1 Timoshenko result that contains a realized arc.
++/// Under v2 the arcs carry shear, so nothing is disclosed (`curved-bend-transverse-shear.md` §5).
+ pub(crate) fn append_arc_disclosure(model: &PreviewModel, built: &BuiltModel, diagnostics: &mut Vec<Diagnostic>) {
+-    if !selects(model) {
++    if !selects(model) || selects_curved(model) {
+         return;
+     }
+     let mut arcs: Vec<&str> = built.curved_bend_elements.iter().map(|bend| bend.pipe_id.as_str()).collect();
+diff --git a/core/product_physics/src/pressure_runtime.rs b/core/product_physics/src/pressure_runtime.rs
+--- a/core/product_physics/src/pressure_runtime.rs
++++ b/core/product_physics/src/pressure_runtime.rs
+@@ -39,19 +39,35 @@
+ /// T4-U2 (D-D): the named refusal of a direction change above alpha_tan at a
+ /// realized bend's end; static text (T3 O-10).
+ const MITRE_UNSUPPORTED: &str = "PRESSURE_REGION_MITRE_UNSUPPORTED";
+-/// The exact contract's two shear models (DEL-05-03 Design §3, §5).
++/// The exact contract's three shear models (DEL-05-03 Design §3, §5; DEL-04-01 Design
++/// `curved-bend-transverse-shear.md` §1).
+ pub(crate) const EULER_BERNOULLI: &str = "euler_bernoulli";
+ pub(crate) const TIMOSHENKO_ANNULUS_ENERGY: &str = "timoshenko_annulus_energy_v1";
++pub(crate) const TIMOSHENKO_ANNULUS_ENERGY_CURVED: &str = "timoshenko_annulus_energy_curved_v2";
+ 
+ /// T4-U8 (DEL-05-03 Design §3.6): whether an exact-contract document selects
+-/// the Timoshenko straight member (per document; realized arcs stay
+-/// Euler-Bernoulli).
++/// the Timoshenko straight member (per document; v1 and v2 form it identically).
+ pub(crate) fn selects_timoshenko(model: &PreviewModel) -> bool {
+     is_exact(model)
++        && matches!(
++            model.pressure_contract.as_ref().and_then(|contract| contract.shear_model.as_deref()),
++            Some(TIMOSHENKO_ANNULUS_ENERGY | TIMOSHENKO_ANNULUS_ENERGY_CURVED)
++        )
++}
++
++/// `curved-bend-transverse-shear.md` §5: whether an exact-contract document selects
++/// `timoshenko_annulus_energy_curved_v2`, so its realized arcs carry transverse shear too.
++pub(crate) fn selects_arc_shear(model: &PreviewModel) -> bool {
++    is_exact(model)
+         && model.pressure_contract.as_ref().and_then(|contract| contract.shear_model.as_deref())
+-            == Some(TIMOSHENKO_ANNULUS_ENERGY)
++            == Some(TIMOSHENKO_ANNULUS_ENERGY_CURVED)
+ }
+ 
++/// The Timoshenko model a Timoshenko member's `beam_theory` and diagnostics name.
++pub(crate) fn timoshenko_model(model: &PreviewModel) -> &'static str {
++    if selects_arc_shear(model) { TIMOSHENKO_ANNULUS_ENERGY_CURVED } else { TIMOSHENKO_ANNULUS_ENERGY }
++}
++
+ #[derive(Debug, Clone, Default, Deserialize)]
+ #[serde(deny_unknown_fields)]
+ pub struct PressureContractInput {
+@@ -229,8 +245,9 @@
+                     match contract.shear_model.as_deref() {
+                         None => problem(diagnostics, "EXACT_PRESSURE_SHEAR_MODEL_REQUIRED",
+                             &["pressure_contract", "shear_model"], "an exact pressure contract requires an explicit shear_model"),
+-                        // T4-U8 (DEL-05-03 Design §5): both shear models are admitted.
+-                        Some(EULER_BERNOULLI | TIMOSHENKO_ANNULUS_ENERGY) => {}
++                        // T4-U8 (DEL-05-03 Design §5) and `curved-bend-transverse-shear.md` §5:
++                        // the three shear models are admitted.
++                        Some(EULER_BERNOULLI | TIMOSHENKO_ANNULUS_ENERGY | TIMOSHENKO_ANNULUS_ENERGY_CURVED) => {}
+                         Some(_) => problem(diagnostics, "PRESSURE_CONTRACT_UNSUPPORTED",
+                             &["pressure_contract", "shear_model"], "unknown shear_model; no fallback is used"),
+                     }
+@@ -979,7 +996,7 @@
+                 },
+             };
+             let end_directions = arc.map_or([direction, direction], |arc| arc.tangents);
+-            let mut member_geometry = super::exact_section_evidence(&pipe.element_id, sections);
++            let mut member_geometry = super::exact_section_evidence(&pipe.element_id, sections, timoshenko_model(model));
+             member_geometry["traversal_forward"] = json!(step.forward);
+             if let Some(arc) = &arc {
+                 super::mark_realized_arc(&mut member_geometry);
+diff --git a/core/product_physics/src/source_receipt/composite.rs b/core/product_physics/src/source_receipt/composite.rs
+--- a/core/product_physics/src/source_receipt/composite.rs
++++ b/core/product_physics/src/source_receipt/composite.rs
+@@ -551,7 +551,7 @@
+     {
+         return Err(bad("physical case/method/material/coverage binding"));
+     }
+-    if evidence["pipe_sections"] != json!(exact_pipe_sections(built)) {
++    if evidence["pipe_sections"] != json!(exact_pipe_sections(built, crate::pressure_runtime::timoshenko_model(model))) {
+         return Err(bad("physical source geometry binding"));
+     }
+     let material_evidence: Value = if let Some((state, _)) = load_state {
+diff --git a/core/product_physics/src/source_recovery.rs b/core/product_physics/src/source_recovery.rs
+--- a/core/product_physics/src/source_recovery.rs
++++ b/core/product_physics/src/source_recovery.rs
+@@ -811,6 +811,12 @@
+     }
+     if !input.built.connectors.is_empty() {
+         return Err(unsupported("objective connector is not a straight source family"));
++    }
++    // DEL-04-01 `curved-bend-transverse-shear.md` §5: pressure-source-1 and its evidence
++    // state euler_bernoulli or timoshenko_annulus_energy_v1 only, so a document selecting
++    // timoshenko_annulus_energy_curved_v2 is declined by name, with or without arcs.
++    if super::pressure_runtime::selects_arc_shear(input.model) {
++        return Err(unsupported("timoshenko_annulus_energy_curved_v2 is not a straight source family"));
+     }
+     // O4 (DEL-04-08 Design `o4-source-extension.md` §3.1, §3.2): a
+     // timoshenko_annulus_energy_v1 document and a nonzero mill tolerance or
+diff --git a/core/reporting/modal_result/src/model_mass.rs b/core/reporting/modal_result/src/model_mass.rs
+--- a/core/reporting/modal_result/src/model_mass.rs
++++ b/core/reporting/modal_result/src/model_mass.rs
+@@ -81,6 +81,8 @@
+ const MM_GEOMETRY_ONLY: &str = "mechanics_geometry_only";
+ const MM_ARC: &str = "curved_bend_macro_element";
+ const MM_TIMOSHENKO: &str = "timoshenko_annulus_energy_v1";
++/// DEL-04-01 `curved-bend-transverse-shear.md` §5: refused by the producer under the same code.
++const MM_TIMOSHENKO_CURVED: &str = "timoshenko_annulus_energy_curved_v2";
+ /// The component-weight primitives' method (§2.3 item 5): their recorded
+ /// acceleration agreement is not re-derived here.
+ const MM_COMPONENT_WEIGHT_METHOD: &str = "component_weight_at_center_of_gravity_global_offset/v1";
+@@ -680,7 +682,7 @@
+     };
+     match shear {
+         None | Some("euler_bernoulli") => {}
+-        Some(MM_TIMOSHENKO) => return mm_fail("the bound model selects Timoshenko members, which modal analysis refuses (MODAL_TIMOSHENKO_MASS_UNSUPPORTED)"),
++        Some(MM_TIMOSHENKO | MM_TIMOSHENKO_CURVED) => return mm_fail("the bound model selects Timoshenko members, which modal analysis refuses (MODAL_TIMOSHENKO_MASS_UNSUPPORTED)"),
+         Some(other) => return mm_scope(format!("shear model `{other}` is outside this reader's mass basis")),
+     }
+ 
+diff --git a/core/reporting/result_export/src/arc_evidence.rs b/core/reporting/result_export/src/arc_evidence.rs
+--- a/core/reporting/result_export/src/arc_evidence.rs
++++ b/core/reporting/result_export/src/arc_evidence.rs
+@@ -117,9 +117,17 @@
+             "GEOMETRY",
+         )?;
+         // T4-U8 (D-6, §2.5, §3.6): a realized arc is Euler-Bernoulli under
+-        // either shear model, and its geometry record says so.
++        // euler_bernoulli and timoshenko_annulus_energy_v1, and its geometry record says
++        // so; under timoshenko_annulus_energy_curved_v2 it states that model with its
++        // kappa_E and A_s (curved-bend-transverse-shear.md §5). The case section binds the
++        // values and the publication's identity (`physics_evidence`, `section_basis`).
++        let beam = &g["beam_theory"];
+         require(
+-            g["beam_theory"] == serde_json::json!({"model": crate::section_basis::EULER_BERNOULLI}),
++            *beam == serde_json::json!({"model": crate::section_basis::EULER_BERNOULLI})
++                || (beam["model"] == crate::section_basis::TIMOSHENKO_CURVED
++                    && beam.as_object().is_some_and(|b| b.len() == 3)
++                    && beam["shear_factor"].as_f64().is_some_and(|k| k.is_finite() && k > 0.0)
++                    && beam["shear_area_m2"].as_f64().is_some_and(|a| a.is_finite() && a > 0.0)),
+             "BEAM_THEORY",
+         )?;
+         arcs.insert(g["pipe_id"].as_str().unwrap_or_default());
+diff --git a/core/reporting/result_export/src/physics_evidence.rs b/core/reporting/result_export/src/physics_evidence.rs
+--- a/core/reporting/result_export/src/physics_evidence.rs
++++ b/core/reporting/result_export/src/physics_evidence.rs
+@@ -617,6 +617,14 @@
+             // §3.1: kappa_E from this case's nu (per resolved case on load-state
+             // documents); a marked arc is Euler-Bernoulli.
+             crate::section_basis::beam_theory(&sections, number(&materials[pipe]["nu"])?, arc)?;
++            // curved-bend-transverse-shear.md §5: every member of a curved-shear publication
++            // states timoshenko_annulus_energy_curved_v2 (arcs included), and no member of any
++            // other publication does.
++            require(
++                (crate::section_basis::model(&sections) == crate::section_basis::TIMOSHENKO_CURVED)
++                    == (source["producer"]["semantic_contract_id"] == crate::semantic_contract::PRESSURE_CURVED_SHEAR_ID),
++                "SHEAR_MODEL_IDENTITY",
++            )?;
+             if arc {
+                 case_arcs.insert(pipe);
+             } else {
+diff --git a/core/reporting/result_export/src/reader_verdict.rs b/core/reporting/result_export/src/reader_verdict.rs
+--- a/core/reporting/result_export/src/reader_verdict.rs
++++ b/core/reporting/result_export/src/reader_verdict.rs
+@@ -55,11 +55,13 @@
+ /// `binding_hashes_are_the_table_files` checks them). A route's first binding is its
+ /// default; the preview-physics route admits two identities (pf-timoshenko.md §4), and a
+ /// source's binding is keyed by its `semantic_contract_id` (`binding_of`).
+-const BINDINGS: [(&str, &str, &str); 6] = [
++const BINDINGS: [(&str, &str, &str); 8] = [
+     ("pressure_source", sc::PRESSURE_SOURCE_ID, sc::PRESSURE_SOURCE_TABLE_SHA256),
+     ("preview_physics", sc::PREVIEW_PHYSICS_ID, sc::PREVIEW_PHYSICS_SHA256),
+     ("preview_physics", sc::PREVIEW_PHYSICS_TIMOSHENKO_ID, sc::PREVIEW_PHYSICS_TIMOSHENKO_SHA256),
++    ("preview_physics", sc::PREVIEW_PHYSICS_CURVED_SHEAR_ID, sc::PREVIEW_PHYSICS_CURVED_SHEAR_SHA256),
+     ("pressure", sc::PRESSURE_ID, sc::PRESSURE_TABLE_SHA256),
++    ("pressure", sc::PRESSURE_CURVED_SHEAR_ID, sc::PRESSURE_CURVED_SHEAR_TABLE_SHA256),
+     ("retained_preview_physics", sc::PREVIEW_PHYSICS_RETAINED_ID, sc::PREVIEW_PHYSICS_RETAINED_SHA256),
+     ("retained_physics", sc::PHYSICS_RETAINED_ID, sc::PHYSICS_RETAINED_SHA256),
+ ];
+@@ -108,8 +110,8 @@
+             crate::physics_source::validate_receipt_shape_in(receipt, crate::physics_source::SourceContract::PressureV3)?;
+             "pressure_source"
+         }
+-        Some(sc::PREVIEW_PHYSICS_ID | sc::PREVIEW_PHYSICS_TIMOSHENKO_ID) => "preview_physics",
+-        Some(sc::PRESSURE_ID) => {
++        Some(sc::PREVIEW_PHYSICS_ID | sc::PREVIEW_PHYSICS_TIMOSHENKO_ID | sc::PREVIEW_PHYSICS_CURVED_SHEAR_ID) => "preview_physics",
++        Some(sc::PRESSURE_ID | sc::PRESSURE_CURVED_SHEAR_ID) => {
+             if !evidence_object {
+                 return Err(SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED.into());
+             }
+@@ -216,8 +218,9 @@
+         None => sc::PREVIEW_PHYSICS_ID,
+         Some(Some("euler_bernoulli")) => sc::PREVIEW_PHYSICS_ID,
+         Some(Some("timoshenko_annulus_energy_v1")) => sc::PREVIEW_PHYSICS_TIMOSHENKO_ID,
++        Some(Some("timoshenko_annulus_energy_curved_v2")) => sc::PREVIEW_PHYSICS_CURVED_SHEAR_ID,
+         Some(_) => {
+-            return Err(format!("{SHEAR_MODEL_IDENTITY}: MODEL-SETTING-SHEAR-MODEL-UNKNOWN: model_settings.shear_model must be `euler_bernoulli` or `timoshenko_annulus_energy_v1`"));
++            return Err(format!("{SHEAR_MODEL_IDENTITY}: MODEL-SETTING-SHEAR-MODEL-UNKNOWN: model_settings.shear_model must be `euler_bernoulli`, `timoshenko_annulus_energy_v1` or `timoshenko_annulus_energy_curved_v2`"));
+         }
+     };
+     if source["producer"]["semantic_contract_id"] != expected {
+@@ -277,6 +280,15 @@
+     // contract selects for its member (a realized arc, Euler-Bernoulli).
+     if model.get("pressure_contract").is_some_and(|v| !v.is_null()) {
+         crate::section_basis::bind_shear_model(evidence, model)?;
++        // curved-bend-transverse-shear.md §5: the exact identity is the one the contract's
++        // shear model selects (the curved-shear identity iff v2), as on the preview route.
++        let curved = model["pressure_contract"]["shear_model"] == crate::section_basis::TIMOSHENKO_CURVED;
++        let expected = if curved { sc::PRESSURE_CURVED_SHEAR_ID } else { sc::PRESSURE_ID };
++        if sc::is_pressure_id(source["producer"]["semantic_contract_id"].as_str().unwrap_or_default())
++            && source["producer"]["semantic_contract_id"] != expected
++        {
++            return Err("SOURCE_PHYSICS_SHEAR_MODEL_IDENTITY".into());
++        }
+     }
+     if model.get("supports").is_some_and(|v| !v.is_null()) {
+         let supports = ids(&model["supports"], "id");
+diff --git a/core/reporting/result_export/src/section_basis.rs b/core/reporting/result_export/src/section_basis.rs
+--- a/core/reporting/result_export/src/section_basis.rs
++++ b/core/reporting/result_export/src/section_basis.rs
+@@ -66,6 +66,9 @@
+ pub const BORE_KEYS: [&str; 2] = ["ri_m", "Ai_m2"];
+ pub const EULER_BERNOULLI: &str = "euler_bernoulli";
+ pub const TIMOSHENKO: &str = "timoshenko_annulus_energy_v1";
++/// DEL-04-01 `curved-bend-transverse-shear.md` §5: v1's straight members, and realized arcs
++/// with the same kappa_E and A_s rule.
++pub const TIMOSHENKO_CURVED: &str = "timoshenko_annulus_energy_curved_v2";
+ /// §2.1: the kinds whose pressure-2 table family is `stress` and which the
+ /// exact route publishes, once per section basis.
+ pub const STRESS_KINDS: [&str; 15] = [
+@@ -210,7 +213,9 @@
+ #[derive(Clone, Copy, Debug, PartialEq)]
+ pub enum Beam {
+     EulerBernoulli,
+-    Timoshenko { shear_factor: f64, shear_area: f64 },
++    /// `curved`: the member states `timoshenko_annulus_energy_curved_v2` (a realized arc may then
++    /// be Timoshenko too); otherwise `timoshenko_annulus_energy_v1`.
++    Timoshenko { shear_factor: f64, shear_area: f64, curved: bool },
+ }
+ /// A checked D-5 `pipe_sections` entry.
+ #[derive(Clone, Copy, Debug)]
+@@ -332,9 +337,10 @@
+     let beam = &v["beam_theory"];
+     let beam = match beam["model"].as_str() {
+         Some(EULER_BERNOULLI) if keys(beam, &["model"]) => Beam::EulerBernoulli,
+-        Some(TIMOSHENKO) if keys(beam, &["model", "shear_factor", "shear_area_m2"]) => Beam::Timoshenko {
++        Some(model @ (TIMOSHENKO | TIMOSHENKO_CURVED)) if keys(beam, &["model", "shear_factor", "shear_area_m2"]) => Beam::Timoshenko {
+             shear_factor: number(&beam["shear_factor"])?,
+             shear_area: number(&beam["shear_area_m2"])?,
++            curved: model == TIMOSHENKO_CURVED,
+         },
+         _ => return Err("SOURCE_PHYSICS_BEAM_THEORY".into()),
+     };
+@@ -352,14 +358,14 @@
+     })
+ }
+ 
+-/// §3.1/§3.6: a realized arc states Euler-Bernoulli whatever the document
+-/// selects; a Timoshenko straight states kappa_E and A_s = kappa_E * A_n bit
+-/// for bit from its nominal radii and its case's nu.
++/// §3.1/§3.6: a realized arc states Euler-Bernoulli unless the document selects
++/// timoshenko_annulus_energy_curved_v2; a Timoshenko member states kappa_E and
++/// A_s = kappa_E * A_n bit for bit from its nominal radii and its case's nu.
+ pub fn beam_theory(sections: &Sections, nu: f64, arc: bool) -> Check {
+     match sections.beam {
+         Beam::EulerBernoulli => Ok(()),
+-        Beam::Timoshenko { .. } if arc => Err("SOURCE_PHYSICS_ARC_BEAM_THEORY".into()),
+-        Beam::Timoshenko { shear_factor, shear_area } => {
++        Beam::Timoshenko { curved: false, .. } if arc => Err("SOURCE_PHYSICS_ARC_BEAM_THEORY".into()),
++        Beam::Timoshenko { shear_factor, shear_area, .. } => {
+             let kappa = timoshenko_shear_factor(sections.nominal.ri, sections.ro, nu);
+             require(
+                 kappa.is_finite()
+@@ -375,7 +381,8 @@
+ pub fn model(sections: &Sections) -> &'static str {
+     match sections.beam {
+         Beam::EulerBernoulli => EULER_BERNOULLI,
+-        Beam::Timoshenko { .. } => TIMOSHENKO,
++        Beam::Timoshenko { curved: false, .. } => TIMOSHENKO,
++        Beam::Timoshenko { curved: true, .. } => TIMOSHENKO_CURVED,
+     }
+ }
+ 
+@@ -398,7 +405,7 @@
+ /// realized arc is Euler-Bernoulli whatever the document selects; a straight
+ /// member takes the contract's `pressure_contract.shear_model`.
+ pub fn selected_model(shear_model: &str, arc: bool) -> &str {
+-    if arc {
++    if arc && shear_model != TIMOSHENKO_CURVED {
+         EULER_BERNOULLI
+     } else {
+         shear_model
+@@ -420,7 +427,7 @@
+ pub fn bind_shear_model(evidence: &Value, model: &Value) -> Check {
+     let shear_model = model["pressure_contract"]["shear_model"]
+         .as_str()
+-        .filter(|m| [EULER_BERNOULLI, TIMOSHENKO].contains(m))
++        .filter(|m| [EULER_BERNOULLI, TIMOSHENKO, TIMOSHENKO_CURVED].contains(m))
+         .ok_or("SOURCE_PHYSICS_SHEAR_MODEL_CONTRACT")?;
+     let realized = realized_arcs(model);
+     let mut arcs = realized.clone();
+diff --git a/core/reporting/result_export/src/semantic_contract.rs b/core/reporting/result_export/src/semantic_contract.rs
+--- a/core/reporting/result_export/src/semantic_contract.rs
++++ b/core/reporting/result_export/src/semantic_contract.rs
+@@ -54,7 +54,7 @@
+ /// Canonical metadata under the vocabulary `for_source` selected for `source`
+ /// Connector-specific location/basis rules remain independently checked.
+ pub fn canonical_metadata_for(source: &Value, table: &Value, row: &Value) -> Option<Value> {
+-    if source["producer"]["semantic_contract_id"] == PRESSURE_ID
++    if source["producer"]["semantic_contract_id"].as_str().is_some_and(is_pressure_id)
+         && crate::connector_evidence::is_connector_kind(row["kind"].as_str().unwrap_or_default())
+     {
+         return crate::connector_evidence::canonical_metadata(row);
+@@ -95,6 +95,22 @@
+ /// pressure-1; model 0.6.0 renamed it, DEL-04-07 Design `u4b-u5b-implementation.md` §1.2).
+ pub const PRESSURE_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
+ pub const PRESSURE_PROFILE: &str = "exact_pressure_v3";
++/// DEL-04-01 `curved-bend-transverse-shear.md` §5: the exact curved-shear identity
++/// (`timoshenko_annulus_energy_curved_v2`). Its table is pressure-2's with the identity and
++/// profile replaced (`semantic_contract_tables.py derive`); pressure-2's bytes are unchanged.
++pub const PRESSURE_CURVED_SHEAR_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-curved-shear-1";
++pub const PRESSURE_CURVED_SHEAR_PROFILE: &str = "product_pressure_curved_shear_v2";
++/// Generated by `derive`; never edited by hand.
++pub const PRESSURE_CURVED_SHEAR_TABLE_SHA256: &str = "<sha256 of semantic_contract_v0_3_pressure_curved_shear_1.json>";
++/// The ordinary exact route's identities, `(id, profile)`.
++pub const PRESSURE_IDENTITIES: [(&str, &str); 2] = [
++    (PRESSURE_ID, PRESSURE_PROFILE),
++    (PRESSURE_CURVED_SHEAR_ID, PRESSURE_CURVED_SHEAR_PROFILE),
++];
++/// Either ordinary exact identity.
++pub fn is_pressure_id(id: &str) -> bool {
++    PRESSURE_IDENTITIES.iter().any(|(i, _)| *i == id)
++}
+ pub const PRESSURE_SOURCE_ID: &str = crate::physics_source::PRESSURE_CONTRACT_ID;
+ /// Independent current resident source-family table, with no ordinary alias.
+ /// T4-U6 (D-5, §2.4): both tables carry one stress signature per (recovery
+@@ -137,13 +153,21 @@
+ pub const PREVIEW_PHYSICS_TIMOSHENKO_PROFILE: &str = "product_preview_mechanics_timoshenko_v1";
+ pub const PREVIEW_PHYSICS_TIMOSHENKO_SHA256: &str =
+     "8a0abaeac93729b5d6ee6c922f2a60f0caf9332948622bb8b5896747ce41442d";
++/// DEL-04-01 `curved-bend-transverse-shear.md` §5: the pressure-free curved-shear identity
++/// (`timoshenko_annulus_energy_curved_v2`), a third complete identity on the route, derived
++/// as the Timoshenko one is.
++pub const PREVIEW_PHYSICS_CURVED_SHEAR_ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-curved-shear-1";
++pub const PREVIEW_PHYSICS_CURVED_SHEAR_PROFILE: &str = "product_preview_mechanics_curved_shear_v2";
++/// Generated by `derive`; never edited by hand.
++pub const PREVIEW_PHYSICS_CURVED_SHEAR_SHA256: &str = "<sha256 of semantic_contract_v0_3_preview_physics_curved_shear_1.json>";
+ /// The preview-physics route's admitted identities, `(id, profile)`, in one place: every
+ /// identity-aware site keys by the envelope's `semantic_contract_id` through this list.
+-pub const PREVIEW_PHYSICS_IDENTITIES: [(&str, &str); 2] = [
++pub const PREVIEW_PHYSICS_IDENTITIES: [(&str, &str); 3] = [
+     (PREVIEW_PHYSICS_ID, PREVIEW_PHYSICS_PROFILE),
+     (PREVIEW_PHYSICS_TIMOSHENKO_ID, PREVIEW_PHYSICS_TIMOSHENKO_PROFILE),
++    (PREVIEW_PHYSICS_CURVED_SHEAR_ID, PREVIEW_PHYSICS_CURVED_SHEAR_PROFILE),
+ ];
+-/// Either preview-physics identity (Euler–Bernoulli or Timoshenko).
++/// Any preview-physics identity (Euler–Bernoulli, Timoshenko or curved shear).
+ pub fn is_preview_physics_id(id: &str) -> bool {
+     PREVIEW_PHYSICS_IDENTITIES.iter().any(|(i, _)| *i == id)
+ }
+@@ -161,6 +185,10 @@
+         PREVIEW_PHYSICS_TIMOSHENKO_ID => {
+             Some((preview_physics_timoshenko_contract(), PREVIEW_PHYSICS_TIMOSHENKO_PROFILE))
+         }
++        // No recorded variant exists for the curved-shear identity: it is newer than every record.
++        PREVIEW_PHYSICS_CURVED_SHEAR_ID => {
++            Some((preview_physics_curved_shear_contract(), PREVIEW_PHYSICS_CURVED_SHEAR_PROFILE))
++        }
+         _ => None,
+     }
+ }
+@@ -377,6 +405,54 @@
+         .expect("pinned preview-physics-timoshenko semantic contract")
+     })
+ }
++/// Pinned curved-shear table bytes: identity, profile and sha256 are checked.
++pub fn verify_preview_physics_curved_shear_table(bytes: &[u8]) -> Result<Value, String> {
++    use sha2::{Digest, Sha256};
++    if format!("{:x}", Sha256::digest(bytes)) != PREVIEW_PHYSICS_CURVED_SHEAR_SHA256 {
++        return Err("SOURCE_PREVIEW_PHYSICS_CURVED_SHEAR_TABLE_HASH".into());
++    }
++    let table: Value = serde_json::from_slice(bytes)
++        .map_err(|_| "SOURCE_PREVIEW_PHYSICS_CURVED_SHEAR_TABLE_HASH".to_string())?;
++    if table["semantic_contract_id"] != PREVIEW_PHYSICS_CURVED_SHEAR_ID
++        || table["formulation_profile_id"] != PREVIEW_PHYSICS_CURVED_SHEAR_PROFILE
++    {
++        return Err("SOURCE_PREVIEW_PHYSICS_CURVED_SHEAR_TABLE_IDENTITY".into());
++    }
++    Ok(table)
++}
++pub fn preview_physics_curved_shear_contract() -> &'static Value {
++    static CONTRACT: OnceLock<Value> = OnceLock::new();
++    CONTRACT.get_or_init(|| {
++        verify_preview_physics_curved_shear_table(include_bytes!(
++            "../../../../fixtures/results/semantic_contract_v0_3_preview_physics_curved_shear_1.json"
++        ))
++        .expect("pinned preview-physics-curved-shear semantic contract")
++    })
++}
++/// Pinned exact curved-shear table bytes: identity, profile and sha256 are checked.
++pub fn verify_pressure_curved_shear_table(bytes: &[u8]) -> Result<Value, String> {
++    use sha2::{Digest, Sha256};
++    if format!("{:x}", Sha256::digest(bytes)) != PRESSURE_CURVED_SHEAR_TABLE_SHA256 {
++        return Err("SOURCE_PRESSURE_CURVED_SHEAR_TABLE_HASH".into());
++    }
++    let table: Value = serde_json::from_slice(bytes)
++        .map_err(|_| "SOURCE_PRESSURE_CURVED_SHEAR_TABLE_HASH".to_string())?;
++    if table["semantic_contract_id"] != PRESSURE_CURVED_SHEAR_ID
++        || table["formulation_profile_id"] != PRESSURE_CURVED_SHEAR_PROFILE
++    {
++        return Err("SOURCE_PRESSURE_CURVED_SHEAR_TABLE_IDENTITY".into());
++    }
++    Ok(table)
++}
++pub fn pressure_curved_shear_contract() -> &'static Value {
++    static CONTRACT: OnceLock<Value> = OnceLock::new();
++    CONTRACT.get_or_init(|| {
++        verify_pressure_curved_shear_table(include_bytes!(
++            "../../../../fixtures/results/semantic_contract_v0_3_pressure_curved_shear_1.json"
++        ))
++        .expect("pinned pressure-curved-shear semantic contract")
++    })
++}
+ /// Verify the independent current source table. Its full reviewed-byte digest
+ /// binds the 94 signatures, vocabulary, bases and hash vectors.
+ pub fn verify_pressure_source_table(bytes: &[u8]) -> Result<Value, String> {
+@@ -587,7 +663,12 @@
+             if !matches!(
+                 p["semantic_contract_id"].as_str(),
+                 Some(
+-                    PRESSURE_ID | PRESSURE_SOURCE_ID | PREVIEW_PHYSICS_ID | PREVIEW_PHYSICS_TIMOSHENKO_ID
++                    PRESSURE_ID
++                        | PRESSURE_CURVED_SHEAR_ID
++                        | PRESSURE_SOURCE_ID
++                        | PREVIEW_PHYSICS_ID
++                        | PREVIEW_PHYSICS_TIMOSHENKO_ID
++                        | PREVIEW_PHYSICS_CURVED_SHEAR_ID
+                 )
+             ) {
+                 return Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into());
+@@ -679,8 +760,10 @@
+             let profile = match p["semantic_contract_id"].as_str() {
+                 // T4-U2a: the only profile of pressure-1, on 0.3.0 and 0.4.0.
+                 Some(PRESSURE_ID | PRESSURE_SOURCE_ID) => PRESSURE_PROFILE,
++                Some(PRESSURE_CURVED_SHEAR_ID) => PRESSURE_CURVED_SHEAR_PROFILE,
+                 // pf-timoshenko.md §4: each preview identity has its own profile.
+                 Some(PREVIEW_PHYSICS_TIMOSHENKO_ID) => PREVIEW_PHYSICS_TIMOSHENKO_PROFILE,
++                Some(PREVIEW_PHYSICS_CURVED_SHEAR_ID) => PREVIEW_PHYSICS_CURVED_SHEAR_PROFILE,
+                 _ => PREVIEW_PHYSICS_PROFILE,
+             };
+             if !exact_keys(f, &["profile_id", "limitations"])
+@@ -695,8 +778,9 @@
+             // raw evidence and source-block invocation checks are separate APIs.
+             let table = match p["semantic_contract_id"].as_str() {
+                 Some(PRESSURE_ID) => pressure_rows_contract(),
++                Some(PRESSURE_CURVED_SHEAR_ID) => pressure_curved_shear_contract(),
+                 Some(PRESSURE_SOURCE_ID) => pressure_source_contract(),
+-                Some(id @ (PREVIEW_PHYSICS_ID | PREVIEW_PHYSICS_TIMOSHENKO_ID)) => {
++                Some(id @ (PREVIEW_PHYSICS_ID | PREVIEW_PHYSICS_TIMOSHENKO_ID | PREVIEW_PHYSICS_CURVED_SHEAR_ID)) => {
+                     preview_physics_identity(id).expect("a preview-physics identity").0
+                 }
+                 _ => return Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into()),
+@@ -717,8 +801,10 @@
+     let selected = for_source_metadata(source)?;
+     forbid_retained_rows(source)?;
+     match source["producer"]["semantic_contract_id"].as_str() {
+-        Some(PREVIEW_PHYSICS_ID | PREVIEW_PHYSICS_TIMOSHENKO_ID) => validate_preview_physics_evidence(source)?,
+-        Some(PRESSURE_ID) => validate_pressure_evidence(source)?,
++        Some(PREVIEW_PHYSICS_ID | PREVIEW_PHYSICS_TIMOSHENKO_ID | PREVIEW_PHYSICS_CURVED_SHEAR_ID) => {
++            validate_preview_physics_evidence(source)?
++        }
++        Some(PRESSURE_ID | PRESSURE_CURVED_SHEAR_ID) => validate_pressure_evidence(source)?,
+         Some(PRESSURE_SOURCE_ID) => {
+             crate::physics_source::validate_in(source, None, crate::physics_source::SourceContract::PressureV3)?;
+         }
+@@ -742,7 +828,7 @@
+ /// place of the reader's call. A change to those steps is a change to both. Any
+ /// other source reads as `for_source`.
+ fn for_source_given(source: &Value, verdict: &Result<(), String>) -> Result<(&'static Value, &'static str), String> {
+-    if is_retained(source) || source["producer"]["semantic_contract_id"] != PRESSURE_ID {
++    if is_retained(source) || !source["producer"]["semantic_contract_id"].as_str().is_some_and(is_pressure_id) {
+         return for_source(source);
+     }
+     let selected = for_source_metadata(source)?;
+@@ -760,9 +846,12 @@
+     // pf-timoshenko.md §4: a pressure-free document whose `model_settings.shear_model`
+     // selects `timoshenko_annulus_energy_v1`.
+     PREVIEW_PHYSICS_TIMOSHENKO_ID,
++    // curved-bend-transverse-shear.md §5: either route's `timoshenko_annulus_energy_curved_v2`.
++    PREVIEW_PHYSICS_CURVED_SHEAR_ID,
+     PRESSURE_SOURCE_ID,
+     // T4-U2: pressure-1 (`3.0.0/exact_pressure_v3`) on 0.3.0 and 0.4.0.
+     PRESSURE_ID,
++    PRESSURE_CURVED_SHEAR_ID,
+     // U6a (D-U6-6; D2 4.7 S-1): membership is not standing. The successor's
+     // standing comes only from the accepted reader's verified receipt.
+     PREVIEW_PHYSICS_RETAINED_ID,
+diff --git a/execution/PKG-04/DEL-04-01/Work/curved-bend-transverse-shear.md b/execution/PKG-04/DEL-04-01/Work/curved-bend-transverse-shear.md
+--- a/execution/PKG-04/DEL-04-01/Work/curved-bend-transverse-shear.md
++++ b/execution/PKG-04/DEL-04-01/Work/curved-bend-transverse-shear.md
+@@ -179,9 +179,9 @@
+ ## 5. Minimal implementation boundary
+ 
+ This boundary was audited at `5f2946ef12`. Step A, the kernel and
+-certification, is implemented on branch `codex/bend-transverse-shear`; no
+-product path sets the shear area yet. Step B, product admission, is reserved
+-until Agent 0 reviews its actual diff.
++certification, is implemented. Step B admits the explicit
++`timoshenko_annulus_energy_curved_v2` on both routes, with the identities,
++refusals and consumers listed below.
+ 
+ ### Step A: kernel and certification (DEL-04-01; FK structural)
+ 
+diff --git a/schemas/model.schema.yaml b/schemas/model.schema.yaml
+--- a/schemas/model.schema.yaml
++++ b/schemas/model.schema.yaml
+@@ -2226,10 +2226,12 @@
+           "const": "exact_pressure_v3"
+         },
+         "shear_model": {
++          "description": "euler_bernoulli; timoshenko_annulus_energy_v1 (Timoshenko straight members, realized arcs Euler–Bernoulli); or timoshenko_annulus_energy_curved_v2 (v1's straight members, and realized arcs with transverse shear by the same energy-matched annular factor; DEL-04-01 Design curved-bend-transverse-shear.md). Any other value is refused by name.",
+           "type": "string",
+           "enum": [
+             "euler_bernoulli",
+-            "timoshenko_annulus_energy_v1"
++            "timoshenko_annulus_energy_v1",
++            "timoshenko_annulus_energy_curved_v2"
+           ]
+         }
+       }
+@@ -2946,11 +2948,12 @@
+       "additionalProperties": false,
+       "properties": {
+         "shear_model": {
+-          "description": "Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §1, §4): the pressure-free document's beam theory, in the exact contract's vocabulary. Absent: Euler–Bernoulli. An explicit user set of either value writes the member (as for the tolerance); the product never writes the default into a document the user did not author, and clear restores the absent form. timoshenko_annulus_energy_v1 makes every straight member of the pressure-free document Timoshenko, with the exact route's energy-matched annular shear factor and Poisson's ratio E/(2G) - 1; realized arcs stay Euler–Bernoulli (DEL-05-03 Design pf-timoshenko.md). Refused on a document with pressure_contract (MODEL-SETTING-SHEAR-MODEL-WITH-PRESSURE-CONTRACT; that document's choice is pressure_contract.shear_model); any other value, null included, is refused (MODEL-SETTING-SHEAR-MODEL-UNKNOWN). euler_bernoulli solves exactly as absent.",
++          "description": "Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §1, §4): the pressure-free document's beam theory, in the exact contract's vocabulary. Absent: Euler–Bernoulli. An explicit user set of any value writes the member (as for the tolerance); the product never writes the default into a document the user did not author, and clear restores the absent form. timoshenko_annulus_energy_v1 makes every straight member of the pressure-free document Timoshenko, with the exact route's energy-matched annular shear factor and Poisson's ratio E/(2G) - 1; realized arcs stay Euler–Bernoulli (DEL-05-03 Design pf-timoshenko.md). timoshenko_annulus_energy_curved_v2 forms the same straight members and adds transverse shear to every realized arc by the same factor (DEL-04-01 Design curved-bend-transverse-shear.md). Refused on a document with pressure_contract (MODEL-SETTING-SHEAR-MODEL-WITH-PRESSURE-CONTRACT; that document's choice is pressure_contract.shear_model); any other value, null included, is refused (MODEL-SETTING-SHEAR-MODEL-UNKNOWN). euler_bernoulli solves exactly as absent.",
+           "type": "string",
+           "enum": [
+             "euler_bernoulli",
+-            "timoshenko_annulus_energy_v1"
++            "timoshenko_annulus_energy_v1",
++            "timoshenko_annulus_energy_curved_v2"
+           ]
+         },
+         "node_proximity_tolerance": {
+diff --git a/schemas/physical_transform_model.schema.yaml b/schemas/physical_transform_model.schema.yaml
+--- a/schemas/physical_transform_model.schema.yaml
++++ b/schemas/physical_transform_model.schema.yaml
+@@ -932,7 +932,7 @@
+       ]
+     },
+     "PressureContract": {
+-      "description": "Current exact pressure contract: a closed object with explicit version, mode and shear_model. Present null, scalars and arrays are invalid. Operative preview pipe sections require an explicit local corrosion_allowance; zero is authored, never defaulted, and a nonzero allowance is admitted with mill tolerance plus allowance below the wall. shear_model selects the straight members' shear deformation: euler_bernoulli, or timoshenko_annulus_energy_v1 (the energy-matched annular shear factor on the nominal section); realized arcs are Euler–Bernoulli under either. Stiffness and pipe metal mass use the nominal wall; contents mass and pressure end caps use the reduced bore; stresses are published on both the nominal and the reduced section (wall minus mill tolerance and corrosion allowance). Canonical Section.properties uses its separate code-neutral Quantity representation.",
++      "description": "Current exact pressure contract: a closed object with explicit version, mode and shear_model. Present null, scalars and arrays are invalid. Operative preview pipe sections require an explicit local corrosion_allowance; zero is authored, never defaulted, and a nonzero allowance is admitted with mill tolerance plus allowance below the wall. shear_model selects the shear deformation: euler_bernoulli; timoshenko_annulus_energy_v1 (the energy-matched annular shear factor on the nominal section for straight members; realized arcs Euler–Bernoulli); or timoshenko_annulus_energy_curved_v2 (the same straight members, and realized arcs with transverse shear by the same factor). Stiffness and pipe metal mass use the nominal wall; contents mass and pressure end caps use the reduced bore; stresses are published on both the nominal and the reduced section (wall minus mill tolerance and corrosion allowance). Canonical Section.properties uses its separate code-neutral Quantity representation.",
+       "type": "object",
+       "additionalProperties": false,
+       "required": [
+@@ -953,7 +953,8 @@
+           "type": "string",
+           "enum": [
+             "euler_bernoulli",
+-            "timoshenko_annulus_energy_v1"
++            "timoshenko_annulus_energy_v1",
++            "timoshenko_annulus_energy_curved_v2"
+           ]
+         }
+       }
+diff --git a/schemas/results.v0.3.schema.yaml b/schemas/results.v0.3.schema.yaml
+--- a/schemas/results.v0.3.schema.yaml
++++ b/schemas/results.v0.3.schema.yaml
+@@ -1411,6 +1411,91 @@
+           ]
+         },
+         {
++          "required": [
++            "contract_evidence"
++          ],
++          "properties": {
++            "producer": {
++              "properties": {
++                "semantic_contract_id": {
++                  "const": "openpipestress.result_semantics/0.3.0/preview-physics-curved-shear-1"
++                }
++              }
++            },
++            "semantic_contract_ref": {
++              "properties": {
++                "ref_id": {
++                  "const": "openpipestress.result_semantics/0.3.0/preview-physics-curved-shear-1"
++                }
++              }
++            },
++            "formulation_basis": {
++              "properties": {
++                "profile_id": {
++                  "const": "product_preview_mechanics_curved_shear_v2"
++                },
++                "limitations": {
++                  "const": [
++                    "Small-displacement, linear-elastic frame preview: straight members, including geometry-only bends, and realized arcs are Timoshenko with the energy-matched annular shear factor (timoshenko_annulus_energy_curved_v2) and Poisson's ratio E/(2G) - 1; on a realized arc the straight-annulus factor is applied along the centreline with no curvature correction, the arc's thermal equivalent load is formed with that shear-dependent arc stiffness, as the solve is, and the arc's stress recovery stays the straight-annulus recovery; a straight member's published nodal rotations are section rotations, not slopes; numerical integrity does not establish physical correctness.",
++                    "Nonzero pressure is refused on this route.",
++                    "On every member the section normal-stress extremes are N/A ± hypot(My,Mz)/Z at each station and the transverse shear maximum is the straight-annulus Saint-Venant value, with ν = E/(2G) − 1 assuming an isotropic material. On straight members the normal-stress maximum is |N/A| + hypot(My,Mz)/Z, bounded over all statics intervals. Torsional shear is separate. No equivalent stress or code stress.",
++                    "On arcs: signed tangent-frame resultants, nominal stress components and section extremes; endpoint force rows are node-on-element actions in the tangent frame at their end. The normal-stress maximum is bounded along the arc and enters the stress headline. The transverse shear uses the straight-annulus field without curvature correction.",
++                    "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress. On realized arcs with directional SIFs, intensified bending is hypot(i_ip*Mz, i_op*My)/Z in the tangent frame, with its along-arc maximum.",
++                    "Signed support actions for rigid restraints, springs, consuming constant effort and attributable nonlinear supports. Ambiguous attribution is withheld.",
++                    "Headlines cover all load cases. In a model with nonlinear supports a mechanics combination is withheld unless one term is a solved load case with factor exactly 1, at least one other term exists, and every other term is a combination whose fixed-load count κ is defined and exactly 0; it is then formed from rows, with its operands' standing, as a solved state plus derived differences or bounds, not an equilibrium state. With a consuming constant effort a mechanics combination is withheld when its κ is undefined or differs from 1 by more than 64ε, and an absolute sum or SRSS unless every operand's κ is exactly 0. Mechanics combinations, absolute sums and SRSS are also withheld for mixed moduli over the load cases they reach, and every combination is withheld with a withheld operand combination. Absolute sums and SRSS are unsigned. Subtraction is a labelled difference. No combination maxima and no code compliance.",
++                    "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
++                    "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
++                  ]
++                }
++              }
++            },
++            "contract_evidence": {
++              "$ref": "#/$defs/PreviewPhysicsContractEvidence"
++            },
++            "result_sets": {
++              "items": {
++                "$ref": "#/$defs/PreviewPhysicsResultSet"
++              }
++            }
++          },
++          "not": {
++            "anyOf": [
++              {
++                "required": [
++                  "source_block_recovery"
++                ]
++              }
++            ]
++          },
++          "allOf": [
++            {
++              "not": {
++                "required": [
++                  "retained_precision"
++                ]
++              }
++            },
++            {
++              "properties": {
++                "row_disclosures": {
++                  "items": {
++                    "properties": {
++                      "reason_code": {
++                        "not": {
++                          "enum": [
++                            "retained_precision_absolute_verified",
++                            "retained_precision_not_covered"
++                          ]
++                        }
++                      }
++                    }
++                  }
++                }
++              }
++            }
++          ]
++        },
++        {
+           "$ref": "results_pressure_2.v0.3.schema.json#/$defs/PressureResultEnvelope"
+         },
+         {
+diff --git a/tools/serialization/semantic_contract_tables.py b/tools/serialization/semantic_contract_tables.py
+--- a/tools/serialization/semantic_contract_tables.py
++++ b/tools/serialization/semantic_contract_tables.py
+@@ -94,6 +94,16 @@
+     "Timoshenko with the energy-matched annular shear factor (timoshenko_annulus_energy_v1) and Poisson's ratio "
+     "E/(2G) - 1, and realized arcs are Euler-Bernoulli; a straight member's published nodal rotations are section "
+     "rotations, not slopes; numerical integrity does not establish physical correctness.")
++# DEL-04-01 curved-bend-transverse-shear.md §5: the pressure-free curved-shear identity, preview-physics-2
++# with its identity, profile and limitation 0 replaced, as the Timoshenko one. Never hand-edited.
++CURVED = "fixtures/results/semantic_contract_v0_3_preview_physics_curved_shear_1.json"
++CURVED_ID = "openpipestress.result_semantics/0.3.0/preview-physics-curved-shear-1"
++CURVED_PROFILE = "product_preview_mechanics_curved_shear_v2"
++CURVED_LIMITATION_0 = "Small-displacement, linear-elastic frame preview: straight members, including geometry-only bends, and realized arcs are Timoshenko with the energy-matched annular shear factor (timoshenko_annulus_energy_curved_v2) and Poisson's ratio E/(2G) - 1; on a realized arc the straight-annulus factor is applied along the centreline with no curvature correction, the arc's thermal equivalent load is formed with that shear-dependent arc stiffness, as the solve is, and the arc's stress recovery stays the straight-annulus recovery; a straight member's published nodal rotations are section rotations, not slopes; numerical integrity does not establish physical correctness."
++# The exact curved-shear identity: pressure-2's table with its identity and profile replaced.
++PRESSURE_CURVED = "fixtures/results/semantic_contract_v0_3_pressure_curved_shear_1.json"
++PRESSURE_CURVED_ID = "openpipestress.result_semantics/0.3.0/pressure-curved-shear-1"
++PRESSURE_CURVED_PROFILE = "product_pressure_curved_shear_v2"
+ SCHEMA = "schemas/results_pressure_2.v0.3.schema.json"
+ # The members physics-retained-1 inherits unchanged from pressure-2. The retained
+ # table's own members (identity, profile, limitations, receipt and formation
+@@ -817,6 +827,10 @@
+             # pf-timoshenko.md §4: preview-physics-2's texts with limitation 0 replaced, as the table.
+             branch["properties"]["formulation_basis"]["properties"]["limitations"] = {
+                 "const": [TIMOSHENKO_LIMITATION_0] + list(preview_limitations[1:])}
++        elif identity == CURVED_ID:
++            # curved-bend-transverse-shear.md §5: likewise for the curved-shear identity.
++            branch["properties"]["formulation_basis"]["properties"]["limitations"] = {
++                "const": [CURVED_LIMITATION_0] + list(preview_limitations[1:])}
+ 
+ 
+ def pressure_schema(schema) -> None:
+@@ -921,7 +935,14 @@
+             raise SystemExit(f"{RETAINED}: inherited member {key} missing")
+         retained[key] = pressure[key]
+     retained["inherited_semantic_contract_sha256"] = sha256(pressure_bytes)
+-    return {PRESSURE: pressure_bytes, RETAINED: dumps(retained), TIMOSHENKO: timoshenko_table()}
++    # curved-bend-transverse-shear.md §5: the exact curved-shear table, pressure-2's members in the
++    # same order with the identity and profile replaced.
++    pressure_curved = json.loads(pressure_bytes)
++    pressure_curved["semantic_contract_id"] = PRESSURE_CURVED_ID
++    pressure_curved["formulation_profile_id"] = PRESSURE_CURVED_PROFILE
++    return {PRESSURE: pressure_bytes, RETAINED: dumps(retained), TIMOSHENKO: timoshenko_table(),
++            CURVED: preview_variant(CURVED_ID, CURVED_PROFILE, CURVED_LIMITATION_0),
++            PRESSURE_CURVED: dumps(pressure_curved)}
+ 
+ 
+ def timoshenko_table() -> bytes:
+@@ -929,14 +950,20 @@
+     the same order, with the identity, the profile and limitation 0 replaced. A preview-physics-2
+     whose limitation 0 is not the Euler-Bernoulli sentence is refused, so a later edit of that
+     sentence is reviewed here rather than carried silently."""
++    return preview_variant(TIMOSHENKO_ID, TIMOSHENKO_PROFILE, TIMOSHENKO_LIMITATION_0)
++
++
++def preview_variant(identity: str, profile: str, limitation_0: str) -> bytes:
++    """A preview-physics-2 variant (Timoshenko, curved shear): identity, profile and limitation 0
++    replaced, every other member and byte preview-physics-2's."""
+     preview = json.loads((PROJECT / PREVIEW).read_bytes())
+     if preview["semantic_contract_id"] != PREVIEW_IDENTITIES[0] or preview["formulation_profile_id"] != "product_preview_mechanics_v1":
+         raise SystemExit(f"{PREVIEW}: unexpected identity or profile")
+     if preview["supported_profile_limitations"][0] != PREVIEW_LIMITATION_0:
+         raise SystemExit(f"{PREVIEW}: limitation 0 is not the Euler-Bernoulli sentence this derivation replaces")
+-    preview["semantic_contract_id"] = TIMOSHENKO_ID
+-    preview["formulation_profile_id"] = TIMOSHENKO_PROFILE
+-    preview["supported_profile_limitations"][0] = TIMOSHENKO_LIMITATION_0
++    preview["semantic_contract_id"] = identity
++    preview["formulation_profile_id"] = profile
++    preview["supported_profile_limitations"][0] = limitation_0
+     return dumps(preview)
+ 
+ 
