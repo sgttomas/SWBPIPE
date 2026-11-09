@@ -61,6 +61,8 @@ export const NATIVE_INGRESS_COMMANDS = [
   "discard_project_autosave",
   "get_autosave_settings",
   "set_autosave_settings",
+  "configure_project_backup",
+  "write_project_backup",
   // C1 native custody (DEL-04-05 `c1-native-custody-plan.md`): the held result's readers.
   "read_preview_mechanics_job_verdict",
   "read_preview_mechanics_job_summary",
