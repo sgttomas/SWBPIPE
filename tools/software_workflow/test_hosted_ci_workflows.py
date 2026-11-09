@@ -23,6 +23,9 @@ def test_every_pr_reaches_single_required_aggregate_and_reusable_products():
     root = workflow('governance-harness.yml')
     assert 'pull_request' in root['on']
     assert not root['on']['pull_request']
+    # The merge queue runs the same aggregate on its temporary merge commit.
+    assert root['on']['merge_group'] == {'types': ['checks_requested']}
+    assert set(root['on']) == {'pull_request', 'merge_group', 'workflow_dispatch'}
     assert 'schedule' not in root['on']
     assert 'push' not in root['on']  # no duplicate post-merge product run
     jobs = root['jobs']
@@ -36,9 +39,50 @@ def test_every_pr_reaches_single_required_aggregate_and_reusable_products():
         assert 'workflow_call' in config['on']
         assert 'workflow_dispatch' in config['on']
         assert 'pull_request' not in config['on']
+        assert 'merge_group' not in config['on']  # reached only through the caller
         assert 'schedule' not in config['on']
         assert jobs[job]['uses'] == f'./.github/workflows/{name}'
         assert 'if' not in config['jobs']['selection']
+
+
+HEAD_REF = '${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}'
+BASE_REF = '${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}'
+
+
+def test_merge_group_candidate_is_checked_out_and_selected_as_a_pull_request():
+    """Every checkout and selection names the queue's merge commit and base
+    where it names a pull request's head and base."""
+    for name in ('governance-harness.yml', 'piping-desktop-e2e.yml'):
+        text = (ROOT / '.github/workflows' / name).read_text()
+        for pr_only in ('${{ github.event.pull_request.head.sha || github.sha }}',
+                        'BASE: ${{ github.event.pull_request.base.sha }}\n',
+                        '${{ github.event.pull_request.base.sha || github.event.before }}'):
+            assert pr_only not in text, (name, pr_only)
+        selections = 0
+        for job in workflow(name)['jobs'].values():
+            for step in job.get('steps', []):
+                if str(step.get('uses', '')).startswith('actions/checkout@'):
+                    assert step['with']['ref'] == HEAD_REF, (name, step)
+                if '--event "$EVENT"' in step.get('run', ''):
+                    selections += 1
+                    assert step['env'] == {'EVENT': '${{ github.event_name }}', 'BASE': BASE_REF, 'HEAD': HEAD_REF}
+        assert selections == {'governance-harness.yml': 2, 'piping-desktop-e2e.yml': 1}[name]
+    for step in workflow('governance-harness.yml')['jobs']['repository-checks']['steps']:
+        if 'BASE' in step.get('env', {}) and '--event' not in step['run']:
+            assert step['env']['BASE'] == '${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}'
+
+
+def test_merge_group_runs_neither_cancel_nor_are_cancelled():
+    for name, prefix in [('governance-harness.yml', 'governance-harness'), ('piping-desktop-e2e.yml', 'piping-desktop-e2e')]:
+        concurrency = workflow(name)['concurrency']
+        assert concurrency['group'] == prefix + '-${{ github.event.pull_request.number || github.event.merge_group.head_ref || github.ref }}'
+        assert concurrency['cancel-in-progress'] == "${{ github.event_name == 'pull_request' }}"
+
+
+def test_merge_group_runs_exactly_the_pull_request_jobs():
+    # The broad browser matrix is a dispatch-only run; a queued candidate runs what its pull request ran.
+    matrix = workflow('piping-desktop-e2e.yml')['jobs']['browser-matrix']
+    assert matrix['if'] == "github.event_name != 'pull_request' && github.event_name != 'merge_group' && needs.selection.outputs.mode == 'full'"
 
 
 def test_single_required_result_fails_for_any_unsuccessful_child(tmp_path):

@@ -22,7 +22,7 @@ from pathlib import Path, PurePosixPath
 import subprocess
 import sys
 
-from hosted_ci import RAW_DIFF_HEADER, git, text_at
+from hosted_ci import CANDIDATE_EVENTS, RAW_DIFF_HEADER, git, text_at
 
 ROOT = Path(__file__).resolve().parents[2]
 INVENTORY = "tools/software_workflow/documentation-inputs.json"
@@ -141,7 +141,7 @@ def plan(root: Path, event: str, base: str, head: str) -> dict:
     result = {"schema": "swbpipe-documentation-ci/v1", "head": resolved,
               "base": None, "paths": [], "mode": "product",
               "reason": "Non-PR or unavailable complete diff uses product verification"}
-    if event != "pull_request" or not base:
+    if event not in CANDIDATE_EVENTS or not base:
         return result
     try:
         previous = git(root, "merge-base", base, resolved).strip()

@@ -249,6 +249,14 @@ def test_repository_numerical_routing_checks_are_not_duplicated_in_product_job()
     assert 'tests/test_ci_python.py' in selected('tests/test_ci_python.py')
 
 
+def test_merge_group_selects_python_tests_as_a_pull_request():
+    for paths in ([ci.PREFIX + 'tools/validation/qualification_gate.py'], [ci.PREFIX + 'README.md'], []):
+        pull = ci.select(PROJECT, {'event': 'pull_request', 'paths': paths})
+        assert ci.select(PROJECT, {'event': 'merge_group', 'paths': paths}) == pull, paths
+    narrow = ci.select(PROJECT, {'event': 'merge_group', 'paths': [ci.PREFIX + 'tools/validation/qualification_gate.py']})
+    assert set(narrow) < set(ci.select(PROJECT, {'event': 'workflow_dispatch'}))
+
+
 def test_model_version_literal_guard_follows_every_root_it_scans():
     """The guard is selected by its derived roots, which include every root it scans: the selector names
     none of them itself (tests/test_verifier_independence.py forbids naming `tests/verifiers` outside tests)."""

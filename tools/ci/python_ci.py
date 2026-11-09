@@ -233,7 +233,7 @@ def test_tree_importers(project, changed):
 def select(project, plan, repository_checks_run=False):
     paths = plan.get('paths', [])
     derived = derived_tests(project)
-    if plan.get('event') != 'pull_request' or not paths:
+    if plan.get('event') not in hosted_ci.CANDIDATE_EVENTS or not paths:
         patterns = list(broad(project))
     else:
         patterns = list(BASE)

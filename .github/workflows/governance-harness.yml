@@ -1,11 +1,15 @@
 name: governance-harness
 on:
   pull_request:
+  # The merge queue's temporary merge commit is verified exactly as a pull
+  # request with that base and head (docs/CI_STRATEGY.md).
+  merge_group:
+    types: [checks_requested]
   workflow_dispatch:
 permissions:
   contents: read
 concurrency:
-  group: governance-harness-${{ github.event.pull_request.number || github.ref }}
+  group: governance-harness-${{ github.event.pull_request.number || github.event.merge_group.head_ref || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   changes:
@@ -17,15 +21,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}
           fetch-depth: 0
           filter: blob:none
       - name: Classify the complete candidate diff
         id: classify
         env:
           EVENT: ${{ github.event_name }}
-          BASE: ${{ github.event.pull_request.base.sha }}
-          HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          BASE: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
+          HEAD: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}
         run: python3 tools/software_workflow/documentation_ci.py plan --event "$EVENT" --base "$BASE" --head "$HEAD" --output documentation-ci-plan.json
       - name: Install documentation structure dependency
         if: steps.classify.outputs.mode == 'documentation'
@@ -48,7 +52,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}
           fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
@@ -61,8 +65,8 @@ jobs:
       - name: Select repository regressions
         env:
           EVENT: ${{ github.event_name }}
-          BASE: ${{ github.event.pull_request.base.sha }}
-          HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          BASE: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
+          HEAD: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}
         run: python3 tools/software_workflow/hosted_ci.py repository --event "$EVENT" --base "$BASE" --head "$HEAD" --output repository-ci-plan.json
       - name: Bounded shared-tool and routing regressions
         # Every regression runs, including for Rust/manifest additions and
@@ -76,13 +80,13 @@ jobs:
         run: python3 -m tools.deliverables --project . check > deliverable-check.json
       - name: Execution boundary and changed specification structure
         env:
-          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          BASE: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}
         run: |
           if ! git rev-parse --verify --quiet "${BASE}^{commit}" >/dev/null; then BASE=HEAD^1; fi
           python3 tools/software_workflow/documentation_ci.py documents --base "$BASE"
       - name: Conflict and credential checks
         env:
-          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          BASE: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}
         run: |
           if ! git rev-parse --verify --quiet "${BASE}^{commit}" >/dev/null; then BASE=HEAD^1; fi
           python3 tools/validation/validate_conflict_markers.py --base "$BASE" --head HEAD
@@ -102,7 +106,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}
           fetch-depth: 1
           sparse-checkout: tools/software_workflow
       - name: Require every selected verification to succeed
