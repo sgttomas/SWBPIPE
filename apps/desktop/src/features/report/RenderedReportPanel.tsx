@@ -50,6 +50,15 @@ import type { CurrentSessionInputManifestEvidence } from "../../services/inputMa
 // is re-checked immediately before IPC, and the render resubmits the texts the native
 // host binds (`renderedReportAssembly.ts`).
 
+/** A route-010 receipt's record (§2.3): the bound model document SHA-256 when the package
+ * records the user's per-report user release, else null. */
+function userReleaseReceipt(receipt: object): string | null {
+  const fields = receipt as { user_release_recorded?: unknown; user_release_model_document_sha256?: unknown };
+  return fields.user_release_recorded === true && typeof fields.user_release_model_document_sha256 === "string"
+    ? fields.user_release_model_document_sha256
+    : null;
+}
+
 const LOCAL_PRIVATE_REPORT_WARNING =
   "Local private report: this rendering contains private project values for your own local review. It is not for sharing or publication.";
 
@@ -68,7 +77,8 @@ export function RenderedReportPanel({
   reportComposition: sessionComposition,
   onReportCompositionChange,
   onPackagePrivateIntentChange,
-  onSaveReportPackage
+  onSaveReportPackage,
+  onSaveShareableReportPackage
 }: {
   reportComposition?: ReportComposition | null;
   onReportCompositionChange?: (value: ReportComposition | null) => void;
@@ -86,6 +96,8 @@ export function RenderedReportPanel({
   packageRoute?: ReportPackageSaveRoute | null;
   onPackagePrivateIntentChange?: (value: boolean) => void;
   onSaveReportPackage?: () => void;
+  /** W-18b (DEL-08-01 Design `report-user-release.md` §2.2): opens the user-release dialog. */
+  onSaveShareableReportPackage?: () => void;
 }) {
   const [panelComposition, setPanelComposition] = useState<ReportComposition | null>(null);
   const reportComposition = sessionComposition === undefined ? panelComposition : sessionComposition;
@@ -307,6 +319,17 @@ export function RenderedReportPanel({
           >
             {packageBusy ? "Saving report package…" : "Save Report Package…"}
           </button>
+          {onSaveShareableReportPackage ? (
+            <button
+              type="button"
+              data-testid="report-package-user-release"
+              disabled={!result || !analysisRun || packageBusy}
+              title={!result || !analysisRun ? "Solve first: report-package save needs the current mechanics result and analysis-run record." : undefined}
+              onClick={onSaveShareableReportPackage}
+            >
+              Save Shareable Report Package…
+            </button>
+          ) : null}
         </div>
       ) : null}
       {packageRedaction ? (
@@ -339,6 +362,11 @@ export function RenderedReportPanel({
           <span>
             path_containment={packageRoute.receipt.path_containment}; limitation={packageRoute.receipt.limitation}
           </span>
+          {userReleaseReceipt(packageRoute.receipt) ? (
+            <span data-testid="report-package-user-release-status">
+              user_release_recorded=true; model_document_sha256={userReleaseReceipt(packageRoute.receipt)}
+            </span>
+          ) : null}
         </div>
       ) : null}
       {unitBasisText ? (

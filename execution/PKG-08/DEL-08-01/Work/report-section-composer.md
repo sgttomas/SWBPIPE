@@ -365,8 +365,8 @@ are unchanged.
 - The shareable package name stays the derived
   `desktop-user-released-report-<run>` name; composition does not enter it
   (§4.3).
-- The dialog is not built yet (W-18b, desktop slice). Its proposed line on
-  carried content now names the chosen sections
+- The dialog (W-18b, desktop slice) names the chosen sections, and C5's
+  model-input tables, in its line on carried content
   ([report-user-release.md](report-user-release.md), "The dialog").
 - Checks:
   - `user_release_composed_keeps_required_disclosures` and
