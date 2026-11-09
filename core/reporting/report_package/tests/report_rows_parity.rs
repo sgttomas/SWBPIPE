@@ -17,7 +17,6 @@ use open_pipe_stress_report_package::bindings::expected_report_result_rows;
 use open_pipe_stress_report_package::model_input::{check_model_input_tables, model_input_tables};
 use open_pipe_stress_report_package::user_release::first_difference;
 use serde_json::{json, Value};
-use std::path::Path;
 
 const VECTORS: &str = include_str!("../../../../fixtures/reports/invented/report_result_rows_parity.json");
 const MODEL_INPUT_VECTORS: &str = include_str!("../../../../fixtures/reports/invented/report_model_input_vectors.json");
@@ -101,10 +100,17 @@ fn rust_report_rows_refuse_an_unreadable_section_basis() {
     }
 }
 
-
-fn project_root() -> &'static Path {
-    Path::new(env!("CARGO_MANIFEST_DIR")).ancestors().nth(3).unwrap()
-}
+/// The committed model fixtures the vectors name, compiled in (no runtime
+/// read).
+const MODEL_FIXTURES: [(&str, &str); 4] = [
+    ("fixtures/model_document/invented_every_slot_model.json", include_str!("../../../../fixtures/model_document/invented_every_slot_model.json")),
+    ("fixtures/product_preview/invented_preview_model.json", include_str!("../../../../fixtures/product_preview/invented_preview_model.json")),
+    (
+        "fixtures/results/skew_along_direction_combinations_preview.json",
+        include_str!("../../../../fixtures/results/skew_along_direction_combinations_preview.json"),
+    ),
+    ("fixtures/results/combination_certificate_corpus.json", include_str!("../../../../fixtures/results/combination_certificate_corpus.json")),
+];
 
 #[test]
 fn the_projection_matches_the_desktop_on_every_vector() {
@@ -115,8 +121,9 @@ fn the_projection_matches_the_desktop_on_every_vector() {
     assert!(vectors.len() >= 4);
     for vector in vectors {
         let name = vector["name"].as_str().unwrap();
-        let text = std::fs::read_to_string(project_root().join(vector["model_fixture"].as_str().unwrap())).unwrap();
-        let document: Value = serde_json::from_str(&text).unwrap();
+        let fixture = vector["model_fixture"].as_str().unwrap();
+        let text = MODEL_FIXTURES.iter().find(|(name, _)| *name == fixture).unwrap_or_else(|| panic!("{name}: no compiled fixture {fixture}")).1;
+        let document: Value = serde_json::from_str(text).unwrap();
         let model = document.pointer(vector["model_pointer"].as_str().unwrap()).unwrap();
         let tables = model_input_tables(model, Some(composition)).unwrap_or_else(|error| panic!("{name}: {error}")).unwrap();
         assert_eq!(first_difference(&vector["expected"], &tables), None, "{name}");

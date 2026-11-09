@@ -361,6 +361,11 @@ code_paths:
 - apps/desktop/src/features/report/ReportComposer.tsx
 - fixtures/reports/invented/report_composition_families.json
 - fixtures/reports/invented/report_composition_vectors.json
+# RT-R4 C5: model-input sections, the projection P(M, C) and its vectors.
+- core/reporting/report_renderer/src/model_input.rs
+- core/reporting/report_package/src/model_input.rs
+- apps/desktop/src/features/report/modelInputTables.ts
+- fixtures/reports/invented/report_model_input_vectors.json
 - apps/desktop/src/features/report/reportQuantityDisplay.ts
 - core/reporting/report_package/src/quantity_display.rs
 - fixtures/reports/invented/report_quantity_display_parity.json
@@ -450,3 +455,4 @@ checks:
 - core/reporting/report_renderer/tests/composition.rs
 - apps/desktop/src/features/report/ReportComposer.test.tsx
 - apps/desktop/src/features/report/reportComposition.parity.test.ts
+- apps/desktop/src/features/report/modelInputTables.parity.test.ts
