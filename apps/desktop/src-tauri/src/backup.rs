@@ -318,33 +318,31 @@ impl BackupDir {
     fn require_clone_capability(&self) -> io::Result<()> {
         #[cfg(target_os = "macos")]
         {
-            #[repr(C)]
-            struct Attributes {
-                length: u32,
-                caps: libc::vol_capabilities_attr_t,
-            }
-            // SAFETY: these C structs are plain integer fields; bitmap requests exactly caps.
+            // getattrlist's four-byte-packed result is a u32 length followed
+            // by vol_capabilities_attr_t: capabilities[4], then valid[4].
+            // An integer buffer preserves that ABI without a local C struct.
+            let mut result = [0_u32; 9];
+            // SAFETY: attrlist has plain integer fields; bitmap requests exactly caps.
             let mut attrs: libc::attrlist = unsafe { std::mem::zeroed() };
             attrs.bitmapcount = libc::ATTR_BIT_MAP_COUNT as u16;
             attrs.volattr = libc::ATTR_VOL_INFO | libc::ATTR_VOL_CAPABILITIES;
-            let mut result: Attributes = unsafe { std::mem::zeroed() };
             check(unsafe {
                 libc::fgetattrlist(
                     self.fd(),
                     &mut attrs as *mut libc::attrlist as *mut libc::c_void,
-                    &mut result as *mut _ as *mut libc::c_void,
-                    std::mem::size_of::<Attributes>(),
+                    result.as_mut_ptr().cast::<libc::c_void>(),
+                    std::mem::size_of_val(&result),
                     0,
                 )
             })?;
-            if result.length as usize != std::mem::size_of::<Attributes>() {
+            if result[0] as usize != std::mem::size_of_val(&result) {
                 return Err(io::Error::other(
                     "volume clone capability metadata is incomplete",
                 ));
             }
             clone_capability(
-                result.caps.valid[libc::VOL_CAPABILITIES_INTERFACES],
-                result.caps.capabilities[libc::VOL_CAPABILITIES_INTERFACES],
+                result[1 + 4 + libc::VOL_CAPABILITIES_INTERFACES],
+                result[1 + libc::VOL_CAPABILITIES_INTERFACES],
             )
         }
         #[cfg(not(target_os = "macos"))]
