@@ -107,7 +107,10 @@ def _rehash_ref(items, ref):
     return items[int(ref)] if int(ref) < len(items) else None
 
 
-def apply_mutation(base, mutation):
+def apply_mutation(base, mutation, *, rust_test_generator=False):
+    """Apply the Python corpus semantics by default. Explicit Rust test-generator mode follows
+    retained_precision_contract.rs `rehash_with`'s step-4 snapshot and mutable indexing,
+    including its null insertion on a malformed CombinationSource without operands."""
     value = deepcopy(base)
     _apply_edits(value, mutation["edits"])
     if mutation.get("_invocation_digest") is not None:
@@ -144,10 +147,19 @@ def apply_mutation(base, mutation):
             if source is not None:
                 case["source_identity_sha256"] = rp._source_hash(source)
         # Step 4: each CombinationSource operand's identity, the identity of the CaseSource at its `source_ref`.
+        sources = deepcopy(body["sources"]) if rust_test_generator else body["sources"]
         for source in body["sources"]:
-            for operand in source.get("operands") if isinstance(source.get("operands"), list) else []:
-                case_source = _rehash_ref(body["sources"], operand.get("source_ref"))
-                if case_source is not None:
+            if rust_test_generator:
+                owner = source.get("owner")
+                if not isinstance(owner, dict) or owner.get("kind") != "combination":
+                    continue
+                # Rust's s["operands"].as_array_mut() inserts null when the key is absent.
+                operands = source.setdefault("operands", None)
+            else:
+                operands = source.get("operands")
+            for operand in operands if isinstance(operands, list) else []:
+                case_source = _rehash_ref(sources, operand.get("source_ref"))
+                if case_source is not None and (not rust_test_generator or isinstance(case_source, dict)):
                     operand["source_identity_sha256"] = rp._source_hash(case_source)
         # Step 5: each retained_selected combination's identity, over its CombinationSource (after step 4).
         for entry in body.get("combinations") if isinstance(body.get("combinations"), list) else []:
@@ -162,17 +174,46 @@ def apply_mutation(base, mutation):
     return value
 
 
-def apply_entry(fixture, entry):
+def apply_entry(fixture, entry, *, rust_test_generator=False):
     """Shared-corpus entry semantics (SHARED_SNAPSHOT_06C format): (1) apply `edits` to a copy
     of the base source; (2) apply `invocation_edits` (same edit grammar; absent means none) to a
     copy of the base invocation; (3) when any invocation edit exists, set
     retained_precision.body.invocation.value = H(source_blocks_invocation_v1, edited invocation);
-    (4) rehash per `rehash`; then validate the edited source against the edited invocation."""
+    (4) rehash per `rehash`; then validate the edited source against the edited invocation.
+    `rust_test_generator=True` explicitly selects the Rust test generator's malformed-input rehash semantics."""
     invocation = deepcopy(fixture["invocation"])
     invocation_edits = entry.get("invocation_edits") or []
     _apply_edits(invocation, invocation_edits)
     digest = rp._hash("source_blocks_invocation_v1", invocation) if invocation_edits else None
-    return apply_mutation(fixture["source"], dict(entry, _invocation_digest=digest)), invocation
+    return apply_mutation(fixture["source"], dict(entry, _invocation_digest=digest), rust_test_generator=rust_test_generator), invocation
+
+
+def test_rust_test_generator_step4_uses_a_snapshot_and_only_combination_owners():
+    # Malformed/self-referencing controls distinguish materialization order; they make no reader-validity claim.
+    sources = [
+        {"owner": {"kind": "combination"}, "operands": [{"source_ref": 0, "source_identity_sha256": "old-self"}]},
+        {"owner": {"kind": "combination"}, "operands": [{"source_ref": 0, "source_identity_sha256": "old-forward"}]},
+        {"owner": {"kind": "case"}, "operands": [{"source_ref": 0, "source_identity_sha256": "case-owned"}]},
+    ]
+    base = {"retained_precision": {"body": {
+        "sources": sources, "product_attempts": [],
+        "cases": [{"status": "selected", "source_ref": 0}],
+        "combinations": [{"disposition": "retained_selected", "source_ref": 0}],
+    }}}
+    entry = {"edits": [], "rehash": "all"}
+    original = deepcopy(base)
+    generated = apply_mutation(base, entry, rust_test_generator=True)["retained_precision"]["body"]
+    default = apply_mutation(base, entry)
+    assert default == apply_mutation(base, entry, rust_test_generator=False)
+    python = default["retained_precision"]["body"]
+    before = rp._source_hash(sources[0])
+    assert generated["cases"][0]["source_identity_sha256"] == before
+    assert [s["operands"][0]["source_identity_sha256"] for s in generated["sources"]] == [before, before, "case-owned"]
+    after = rp._source_hash(generated["sources"][0])
+    assert after != before
+    assert generated["combinations"][0]["source_identity_sha256"] == after
+    assert [s["operands"][0]["source_identity_sha256"] for s in python["sources"]] == [before, after, after]
+    assert base == original
 
 
 
