@@ -1,3 +1,5 @@
+import { ReportComposer } from "./ReportComposer";
+import type { ReportComposition } from "./reportComposition";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { surfaceOutputRefusal } from "../results/outputPolicy";
@@ -63,9 +65,13 @@ export function RenderedReportPanel({
   packageRedaction = null,
   packageRoute = null,
   numericalHealth = null,
+  reportComposition: sessionComposition,
+  onReportCompositionChange,
   onPackagePrivateIntentChange,
   onSaveReportPackage
 }: {
+  reportComposition?: ReportComposition | null;
+  onReportCompositionChange?: (value: ReportComposition | null) => void;
   model: PreviewModel;
   result: MechanicsResult | null;
   /** DEL-07-05 numerical health of `result` (the report's per-load-case line). */
@@ -81,6 +87,9 @@ export function RenderedReportPanel({
   onPackagePrivateIntentChange?: (value: boolean) => void;
   onSaveReportPackage?: () => void;
 }) {
+  const [panelComposition, setPanelComposition] = useState<ReportComposition | null>(null);
+  const reportComposition = sessionComposition === undefined ? panelComposition : sessionComposition;
+  const changeComposition = onReportCompositionChange ?? setPanelComposition;
   const [localPrivateIntent, setLocalPrivateIntent] = useState(false);
   const currentContext: ReportExportContext = localPrivateIntent ? "local_private" : "public_report";
   const [renderState, setRenderState] = useState<{
@@ -100,7 +109,7 @@ export function RenderedReportPanel({
   // that produced it: a public render never reuses a private render's output.
   const route = renderState?.context === currentContext ? renderState.route : null;
   const redaction = redactionState?.context === currentContext ? redactionState.controlled : null;
-  const canRender = Boolean(result && analysisRun) && !rendering;
+  const canRender = Boolean(result && analysisRun) && !rendering && (!reportComposition || localPrivateIntent);
   const outcome = route?.route === "tauri_renderer" ? route.outcome : null;
   const localPrivateOutcome = outcome !== null && renderState?.context === "local_private";
   const localPrivateSinks = useMemo(() => {
@@ -138,10 +147,10 @@ export function RenderedReportPanel({
   useEffect(() => () => {
     renderGeneration.current += 1;
   }, []);
-  const sourceRef = useRef({ model, result, analysisRun, projectSummary, inputManifest, ruleCheckRun });
+  const sourceRef = useRef({ model, result, analysisRun, projectSummary, inputManifest, ruleCheckRun, reportComposition });
   useEffect(() => {
     const previous = sourceRef.current;
-    const next = { model, result, analysisRun, projectSummary, inputManifest, ruleCheckRun };
+    const next = { model, result, analysisRun, projectSummary, inputManifest, ruleCheckRun, reportComposition };
     sourceRef.current = next;
     if ((Object.keys(next) as Array<keyof typeof next>).every((key) => previous[key] === next[key])) return;
     renderGeneration.current += 1;
@@ -150,11 +159,20 @@ export function RenderedReportPanel({
     setPrintRequested(false);
     setRenderError(null);
     setRendering(false);
-  }, [model, result, analysisRun, projectSummary, inputManifest, ruleCheckRun]);
+  }, [model, result, analysisRun, projectSummary, inputManifest, ruleCheckRun, reportComposition]);
 
   function onLocalPrivateIntentChange(value: boolean) {
     renderGeneration.current += 1;
     setLocalPrivateIntent(value);
+    setRenderState(null);
+    setRedactionState(null);
+    setPrintRequested(false);
+    setRenderError(null);
+    setRendering(false);
+  }
+  function onCompositionChange(value: ReportComposition | null) {
+    renderGeneration.current += 1;
+    changeComposition(value);
     setRenderState(null);
     setRedactionState(null);
     setPrintRequested(false);
@@ -173,7 +191,7 @@ export function RenderedReportPanel({
     : null;
 
   async function onRender() {
-    if (!result || !analysisRun || surfaceOutputRefusal(result, model, "rendered-report")) return;
+    if ((reportComposition && !localPrivateIntent) || !result || !analysisRun || surfaceOutputRefusal(result, model, "rendered-report")) return;
     const generation = ++renderGeneration.current;
     const intent = localPrivateIntent;
     const context: ReportExportContext = intent ? "local_private" : "public_report";
@@ -192,6 +210,7 @@ export function RenderedReportPanel({
         inputManifest,
         ruleCheckRun: sessionRuleCheckRun,
         numericalHealth,
+        reportComposition,
         context,
         intent,
         generatedAt: new Date().toISOString()
@@ -232,6 +251,8 @@ export function RenderedReportPanel({
         <FileCheck size={16} />
         Rendered Report (FR-016)
       </div>
+      <ReportComposer composition={reportComposition} result={result} onChange={onCompositionChange} />
+      {reportComposition && !localPrivateIntent ? <p role="status">Select local private rendering to render this composition. User-released packages keep the full report until composed user-release is implemented.</p> : null}
       <div className="report-actions">
         <LoadReferenceOutputGate result={result} testIdPrefix="rendered-report">
         <button

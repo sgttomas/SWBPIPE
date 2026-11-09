@@ -38,6 +38,7 @@ use open_pipe_stress_report_sections as sections;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
+pub mod composer;
 pub mod exact_statements;
 pub mod object_form;
 
@@ -76,6 +77,17 @@ th{background:#f0f0f0;}\
 /// One displayed result row. Display strings are caller-formatted; they are
 /// part of the hashed bytes, so the caller's formatting is part of the
 /// deterministic input contract.
+///
+/// The four bound members (DEL-08-01 Design `report-section-composer.md`
+/// §2.6, row contract) are the source row's `kind`, its `entity_ref`, its
+/// value as canonical number text (`value_text`, the ECMAScript
+/// Number-to-String form the display rule starts from) and its stored `unit`.
+/// A row projected from a source row carries all four (`entity_ref` may be
+/// null); every boundary binds them by its full-row equality. A disclosure
+/// line that is not a source row (the desktop's numerical-health lines)
+/// carries none of them. They are read only by a composition
+/// ([`composer`]), so an input without one renders exactly as before; absent,
+/// they serialize to nothing.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ResultRow {
     pub row_id: String,
@@ -83,6 +95,14 @@ pub struct ResultRow {
     pub case_ref: String,
     pub quantity_display: String,
     pub source_ref: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub kind: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub entity_ref: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub value_text: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub unit: Option<String>,
 }
 
 /// Export context the generating application rendered this document under.
@@ -450,6 +470,11 @@ pub struct RenderableReportInput {
     pub exact_route: Option<ExactRouteSection>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub library_references: Option<Vec<LibraryReference>>,
+    /// The user's report composition (DEL-08-01 Design
+    /// `report-section-composer.md` §2.3). Absent, nothing is composed and
+    /// the input renders byte-identically to an input without the member.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub report_composition: Option<composer::ReportComposition>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -942,6 +967,7 @@ fn table(header: &[&str], rows: Vec<Vec<String>>) -> SectionBlock {
 pub fn assemble_report_sections(input: &RenderableReportInput) -> Vec<AssembledSection> {
     let calc = &input.calculation_report;
     let disclosure = &input.report_sections;
+    let composition = composer::admitted_composition(input);
     let mut assembled = Vec::new();
 
     for key in SECTION_ORDER {
@@ -1037,7 +1063,11 @@ pub fn assemble_report_sections(input: &RenderableReportInput) -> Vec<AssembledS
                 if let Some(route) = &input.exact_route {
                     blocks.extend(exact_route_blocks(input, route));
                 }
-                if input.result_rows.is_empty() {
+                // A composition selects among the bound rows (§2.6); without
+                // one, or when it is refused, the flat table is unchanged.
+                if let Some((_, composed)) = &composition {
+                    blocks.extend(composer::results_blocks(&input.result_rows, composed));
+                } else if input.result_rows.is_empty() {
                     blocks.push(paragraph("No result rows supplied for this rendering."));
                 } else {
                     let rows = input
@@ -1211,21 +1241,22 @@ pub fn assemble_report_sections(input: &RenderableReportInput) -> Vec<AssembledS
                         ]
                     })
                     .collect();
-                (
-                    "Audit Manifest",
-                    vec![
-                        paragraph(
-                            "The SHA-256 of this rendered calculation-report document is \
+                let mut blocks = vec![
+                    paragraph(
+                        "The SHA-256 of this rendered calculation-report document is \
 computed over its exact bytes and recorded alongside the referenced envelope hashes below. The \
 HTML and PDF emissions of the same assembled report sections are each hash-recorded this way. \
 The rendered-document hash is reported by the generating application next to this artifact; it \
 cannot appear inside the bytes it binds.",
-                        ),
-                        table(&["Referenced envelope", "Checksum"], envelope_rows),
-                        subheading("Software, Solver And Run"),
-                        table(&["Item", "Value"], run_context_rows(input)),
-                    ],
-                )
+                    ),
+                    table(&["Referenced envelope", "Checksum"], envelope_rows),
+                    subheading("Software, Solver And Run"),
+                    table(&["Item", "Value"], run_context_rows(input)),
+                ];
+                if let Some((report_composition, composed)) = &composition {
+                    blocks.extend(composer::audit_blocks(report_composition, composed));
+                }
+                ("Audit Manifest", blocks)
             }
             "rule_pack_references" => {
                 let rows = calc
@@ -2188,7 +2219,17 @@ pub fn decode_renderable_report_input_as(value: serde_json::Value, code: &str, r
         Value::Object(fields) => fields,
         Value::Array(items) => positional_members(
             items,
-            &["report_title", "calculation_report", "report_sections", "result_rows", "report_context", "user_rule_checks", "exact_route", "library_references"],
+            &[
+                "report_title",
+                "calculation_report",
+                "report_sections",
+                "result_rows",
+                "report_context",
+                "user_rule_checks",
+                "exact_route",
+                "library_references",
+                "report_composition",
+            ],
             4,
         )
         .map_err(|kind| refusal(kind, "the input"))?,
@@ -2226,6 +2267,7 @@ pub fn decode_renderable_report_input_as(value: serde_json::Value, code: &str, r
         user_rule_checks: optional(&mut fields, "user_rule_checks").map_err(at)?,
         exact_route: optional(&mut fields, "exact_route").map_err(at)?,
         library_references: optional(&mut fields, "library_references").map_err(at)?,
+        report_composition: optional(&mut fields, "report_composition").map_err(at)?,
     })
 }
 
@@ -2324,6 +2366,9 @@ pub fn render_calculation_report(input: &RenderableReportInput) -> RenderOutcome
     }
     for reason in exact_route_blocking_reasons(input, exact_statements::exact_statement_table()) {
         blocking_reasons.push(reason);
+    }
+    for reason in composer::composition_blocking_reasons(input) {
+        blocking_reasons.push(format!("report composition: {reason}"));
     }
     for finding in &pre_render_run.findings {
         if finding.is_blocking() {

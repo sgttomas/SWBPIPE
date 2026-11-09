@@ -84,11 +84,16 @@ fn fixture_input() -> RenderableReportInput {
             case_ref: "load_case:invented-weight".to_string(),
             quantity_display: "12.5 MPa".to_string(),
             source_ref: "result_envelope:invented-result".to_string(),
+            kind: None,
+            entity_ref: None,
+            value_text: None,
+            unit: None,
         }],
         report_context: None,
         user_rule_checks: None,
         exact_route: None,
         library_references: None,
+        report_composition: None,
     }
 }
 
@@ -606,4 +611,50 @@ fn the_readability_texts_reach_the_pdf() {
     assert!(warnings.blocks.iter().any(|block| matches!(block, open_pipe_stress_report_renderer::SectionBlock::Subheading { text } if text == DIAGNOSTIC_EVIDENCE_SUBHEADING)));
     assert!(warnings.blocks.iter().any(|block| matches!(block, open_pipe_stress_report_renderer::SectionBlock::Table { rows, .. }
         if rows.iter().any(|row| row[2] == "Numerical integrity checks passed (load case case:invented); full text: Diagnostic evidence E1"))));
+}
+
+/// Report composition (DEL-08-01 Design `report-section-composer.md`, slice
+/// C2): the PDF emits the same composed sections as the HTML; bound row
+/// members without a composition change no PDF byte; a refused composition
+/// blocks the PDF and the package.
+#[test]
+fn composed_sections_emit_in_the_pdf_alike() {
+    const VECTORS: &str = include_str!("../../../../fixtures/reports/invented/report_composition_vectors.json");
+    let vectors: serde_json::Value = serde_json::from_str(VECTORS).unwrap();
+    let mut plain = fixture_input();
+    plain.result_rows = serde_json::from_value(vectors["rows"].clone()).unwrap();
+    let mut stripped = plain.clone();
+    for row in &mut stripped.result_rows {
+        row.kind = None;
+        row.entity_ref = None;
+        row.value_text = None;
+        row.unit = None;
+    }
+    assert_eq!(emit_calculation_report_pdf(&plain).pdf_bytes, emit_calculation_report_pdf(&stripped).pdf_bytes);
+
+    let mut composed = plain.clone();
+    composed.report_context = Some(serde_json::from_value(serde_json::json!({
+        "export_context": "local_private", "software_name": "Invented composer test",
+        "solver_settings": [], "result_coordinate_systems": []
+    })).unwrap());
+    composed.report_composition = Some(
+        serde_json::from_value(serde_json::json!({
+            "composition_version": "1.0.0",
+            "sections": [{"section_id": "result_stresses", "cases": "all", "view": {"kind": "largest", "limit": 1}}]
+        }))
+        .unwrap(),
+    );
+    let render = render_calculation_report(&composed);
+    let pdf = emit_calculation_report_pdf(&composed);
+    assert!(!pdf.export_blocked, "{:?}", pdf.blocking_reasons);
+    assert_eq!(pdf.canonical_html_sha256_hex, render.sha256_hex);
+    for needle in ["Result rows shown: 2 of 18.", "Stresses", "Report Composition", "Result Disclosure Lines", "result:r06", "result:r18"] {
+        assert!(render.html.contains(needle), "html: {needle}");
+        assert!(pdf_contains(&pdf.pdf_bytes, needle), "pdf: {needle}");
+    }
+
+    let mut refused = composed.clone();
+    refused.report_composition.as_mut().unwrap().sections[0].view.limit = Some(0);
+    assert!(emit_calculation_report_pdf(&refused).export_blocked);
+    assert!(assemble_full_report_package(&refused).export_blocked);
 }

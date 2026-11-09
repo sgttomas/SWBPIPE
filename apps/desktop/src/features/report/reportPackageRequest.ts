@@ -1,3 +1,4 @@
+import type { ReportComposition } from "./reportComposition";
 // File > Save Report Package… request (DEL-08-01 Design
 // `report-package-current-results.md` §2.1-§2.5; FR-REP-001). The request is
 // the shared producer's version 2.0.0 request (`core/reporting/report_package/src/wire.rs`):
@@ -95,6 +96,7 @@ export function reportPackageUnavailableReason(result: SessionResult | null | un
 }
 
 export type ReportPackageRequestInput = {
+  reportComposition?: ReportComposition | null;
   model: PreviewModel;
   result: MechanicsResult;
   analysisRun: AnalysisRunEnvelope;
@@ -262,7 +264,8 @@ async function assembleReportPackageRequest(input: ReportPackageRequestInput, ad
     ruleCheckRun,
     renderContext: { exportContext: "local_private", generatedAt: null },
     exactAdmission: admission,
-    libraryRefFindings: currentLibraryRefFindings(model)
+    libraryRefFindings: currentLibraryRefFindings(model),
+    reportComposition: input.reportComposition
   });
   if (JSON.stringify(report.result_rows) !== JSON.stringify(reportResultRows(result))) {
     throw new Error(`${REPORT_PACKAGE_REPORT_ROWS_MISMATCH}: the report's result rows are not the source rows' projection.`);

@@ -482,7 +482,7 @@ each with a named `REPORT-PACKAGE-…` code:
    validator checks completeness, not equality with the source
    (`report_generator/src/lib.rs:537-596`). So the producer derives the
    expected rows from the validated source and requires equality
-   (`REPORT-PACKAGE-REPORT-ROWS-MISMATCH`). The five-field source-row
+   (`REPORT-PACKAGE-REPORT-ROWS-MISMATCH`). The complete source-row
    projection is the shared report-row contract. Document composition stays
    with `report_renderer`, and nothing here reimplements HTML or PDF
    rendering. The contract (today `renderableReportInput.ts:671-676`):
@@ -495,7 +495,12 @@ each with a named `REPORT-PACKAGE-…` code:
      canonical text (below), a `Pa` value shifted to `MPa` by six decimal
      places, rounded to six significant digits, half away from zero, in
      ECMAScript Number-to-String form;
-   - `source_ref` is `result:<id>`.
+   - `source_ref` is `result:<id>`;
+   - `kind`, `entity_ref` (string or null), `value_text` (canonical stored
+     number text) and `unit` (stored unit) bind composition selection metadata.
+     These fields do not print without a composition. The local-private
+     composer selects from the complete rows only after this equality check;
+     see [report-section-composer.md](report-section-composer.md) §2.6.
 
    Two pure helpers implement it:
    - **TypeScript.** `reportResultRows(result)` is extracted from

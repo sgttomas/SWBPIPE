@@ -1,0 +1,770 @@
+{
+ "schema_version": "1.0.0",
+ "description": "Shared selection vectors for the report composer (DEL-08-01 Design report-section-composer.md sections 2.3 to 2.6). The renderer (core/reporting/report_renderer/src/composer.rs, tests/composition.rs) and the desktop must both turn rows and each composition into expected_sections (row ids per listed section, in display order) and shown (n of n of N), or refuse it with exactly the listed codes. rows are renderer result rows: bound rows carry kind, entity_ref, value_text and unit; numerical-health:A carries none and is a disclosure line, never selected or counted (bound_rows excludes it). Families come from report_composition_families.json; invented_future_kind is unlisted and falls to result_other_rows. Invented values only.",
+ "bound_rows": 18,
+ "rows": [
+  {
+   "row_id": "row:r00",
+   "label": "global_nodal_displacement_x (dx)",
+   "case_ref": "load_case:A",
+   "quantity_display": "0.5 mm",
+   "source_ref": "result:r00",
+   "kind": "global_nodal_displacement_x",
+   "entity_ref": "node:N-1",
+   "value_text": "0.5",
+   "unit": "mm"
+  },
+  {
+   "row_id": "row:r01",
+   "label": "global_nodal_displacement_x (dx)",
+   "case_ref": "load_case:A",
+   "quantity_display": "-0.75 mm",
+   "source_ref": "result:r01",
+   "kind": "global_nodal_displacement_x",
+   "entity_ref": "node:N-2",
+   "value_text": "-0.75",
+   "unit": "mm"
+  },
+  {
+   "row_id": "row:r02",
+   "label": "global_nodal_displacement_x (dx)",
+   "case_ref": "load_case:B",
+   "quantity_display": "0.75 mm",
+   "source_ref": "result:r02",
+   "kind": "global_nodal_displacement_x",
+   "entity_ref": "node:N-1",
+   "value_text": "0.75",
+   "unit": "mm"
+  },
+  {
+   "row_id": "row:r03",
+   "label": "global_nodal_displacement_x (dx)",
+   "case_ref": "load_case:B",
+   "quantity_display": "-0.75 mm",
+   "source_ref": "result:r03",
+   "kind": "global_nodal_displacement_x",
+   "entity_ref": "node:N-2",
+   "value_text": "-0.75",
+   "unit": "mm"
+  },
+  {
+   "row_id": "row:r04",
+   "label": "global_nodal_rotation_x (rx)",
+   "case_ref": "load_case:A",
+   "quantity_display": "0.001 rad",
+   "source_ref": "result:r04",
+   "kind": "global_nodal_rotation_x",
+   "entity_ref": "node:N-1",
+   "value_text": "0.001",
+   "unit": "rad"
+  },
+  {
+   "row_id": "row:r05",
+   "label": "pipe_lame_hoop_stress_v2 (hoop)",
+   "case_ref": "load_case:A",
+   "quantity_display": "1.23457 MPa",
+   "source_ref": "result:r05",
+   "kind": "pipe_lame_hoop_stress_v2",
+   "entity_ref": "pipe:P-1",
+   "value_text": "1234567.5",
+   "unit": "Pa"
+  },
+  {
+   "row_id": "row:r06",
+   "label": "element_local_axial_normal_stress (axial_normal_stress) [nominal section]",
+   "case_ref": "load_case:A",
+   "quantity_display": "1.23457 MPa",
+   "source_ref": "result:r06",
+   "kind": "element_local_axial_normal_stress",
+   "entity_ref": "pipe:P-2",
+   "value_text": "1.234574",
+   "unit": "MPa"
+  },
+  {
+   "row_id": "row:r07",
+   "label": "element_local_axial_normal_stress (axial_normal_stress) [nominal section]",
+   "case_ref": "load_case:B",
+   "quantity_display": "-1.23457 MPa",
+   "source_ref": "result:r07",
+   "kind": "element_local_axial_normal_stress",
+   "entity_ref": "pipe:P-2",
+   "value_text": "-1.234574",
+   "unit": "MPa"
+  },
+  {
+   "row_id": "row:r08",
+   "label": "pipe_lame_hoop_stress_v2 (hoop)",
+   "case_ref": "load_case:A",
+   "quantity_display": "0 MPa",
+   "source_ref": "result:r08",
+   "kind": "pipe_lame_hoop_stress_v2",
+   "entity_ref": "pipe:P-3",
+   "value_text": "0",
+   "unit": "Pa"
+  },
+  {
+   "row_id": "row:r09",
+   "label": "element_local_axial_force (fx)",
+   "case_ref": "load_case:A",
+   "quantity_display": "120 N",
+   "source_ref": "result:r09",
+   "kind": "element_local_axial_force",
+   "entity_ref": "pipe:P-1",
+   "value_text": "120",
+   "unit": "N"
+  },
+  {
+   "row_id": "row:r10",
+   "label": "support_reaction_component_v2 (Fx)",
+   "case_ref": "load_case:A",
+   "quantity_display": "10 N",
+   "source_ref": "result:r10",
+   "kind": "support_reaction_component_v2",
+   "entity_ref": "support:S-2",
+   "value_text": "10",
+   "unit": "N"
+  },
+  {
+   "row_id": "row:r11",
+   "label": "support_reaction_component_v2 (Fx)",
+   "case_ref": "load_case:A",
+   "quantity_display": "5 N",
+   "source_ref": "result:r11",
+   "kind": "support_reaction_component_v2",
+   "entity_ref": "support:S-1",
+   "value_text": "5",
+   "unit": "N"
+  },
+  {
+   "row_id": "row:r12",
+   "label": "support_reaction_component_v2 (Fx)",
+   "case_ref": "load_case:B",
+   "quantity_display": "7 N",
+   "source_ref": "result:r12",
+   "kind": "support_reaction_component_v2",
+   "entity_ref": "support:S-2",
+   "value_text": "7",
+   "unit": "N"
+  },
+  {
+   "row_id": "row:r13",
+   "label": "support_reaction_component_v2 (Fx)",
+   "case_ref": "load_case:B",
+   "quantity_display": "3 N",
+   "source_ref": "result:r13",
+   "kind": "support_reaction_component_v2",
+   "entity_ref": "support:S-1",
+   "value_text": "3",
+   "unit": "N"
+  },
+  {
+   "row_id": "row:r14",
+   "label": "spring_hanger_user_input_review (stiffness)",
+   "case_ref": "load_case:A",
+   "quantity_display": "1000 N/m",
+   "source_ref": "result:r14",
+   "kind": "spring_hanger_user_input_review",
+   "entity_ref": "support:S-1",
+   "value_text": "1000",
+   "unit": "N/m"
+  },
+  {
+   "row_id": "row:r15",
+   "label": "global_nodal_displacement_x (dx)",
+   "case_ref": "TBD",
+   "quantity_display": "9 mm",
+   "source_ref": "result:r15",
+   "kind": "global_nodal_displacement_x",
+   "entity_ref": "node:N-3",
+   "value_text": "9",
+   "unit": "mm"
+  },
+  {
+   "row_id": "numerical-health:A",
+   "label": "Numerical health: invented disclosure line",
+   "case_ref": "load_case:A",
+   "quantity_display": "",
+   "source_ref": "numerical_quality"
+  },
+  {
+   "row_id": "row:r17",
+   "label": "invented_future_kind",
+   "case_ref": "load_case:A",
+   "quantity_display": "2 1",
+   "source_ref": "result:r17",
+   "kind": "invented_future_kind",
+   "entity_ref": null,
+   "value_text": "2",
+   "unit": "1"
+  },
+  {
+   "row_id": "row:r18",
+   "label": "element_local_axial_normal_stress (axial_normal_stress) [nominal section]",
+   "case_ref": "load_case:B",
+   "quantity_display": "100 psi",
+   "source_ref": "result:r18",
+   "kind": "element_local_axial_normal_stress",
+   "entity_ref": "pipe:P-2",
+   "value_text": "100",
+   "unit": "psi"
+  }
+ ],
+ "selection_vectors": [
+  {
+   "name": "every family, all rows",
+   "composition": {
+    "composition_version": "1.0.0",
+    "sections": [
+     {
+      "section_id": "result_stresses",
+      "cases": "all",
+      "view": {
+       "kind": "all"
+      }
+     },
+     {
+      "section_id": "result_displacements",
+      "cases": "all",
+      "view": {
+       "kind": "all"
+      }
+     },
+     {
+      "section_id": "result_forces_moments",
+      "cases": "all",
+      "view": {
+       "kind": "all"
+      }
+     },
+     {
+      "section_id": "result_support_loads",
+      "cases": "all",
+      "view": {
+       "kind": "all"
+      }
+     },
+     {
+      "section_id": "result_other_rows",
+      "cases": "all",
+      "view": {
+       "kind": "all"
+      }
+     }
+    ]
+   },
+   "expected_sections": [
+    {
+     "section_id": "result_stresses",
+     "row_ids": [
+      "row:r05",
+      "row:r06",
+      "row:r07",
+      "row:r08",
+      "row:r18"
+     ]
+    },
+    {
+     "section_id": "result_displacements",
+     "row_ids": [
+      "row:r00",
+      "row:r01",
+      "row:r02",
+      "row:r03",
+      "row:r04",
+      "row:r15"
+     ]
+    },
+    {
+     "section_id": "result_forces_moments",
+     "row_ids": [
+      "row:r09"
+     ]
+    },
+    {
+     "section_id": "result_support_loads",
+     "row_ids": [
+      "row:r10",
+      "row:r12",
+      "row:r11",
+      "row:r13"
+     ]
+    },
+    {
+     "section_id": "result_other_rows",
+     "row_ids": [
+      "row:r14",
+      "row:r17"
+     ]
+    }
+   ],
+   "shown": 18
+  },
+  {
+   "name": "displacement extremes: per case, result and unit; a tie keeps the first row; a TBD row only under all",
+   "composition": {
+    "composition_version": "1.0.0",
+    "sections": [
+     {
+      "section_id": "result_displacements",
+      "cases": "all",
+      "view": {
+       "kind": "extremes"
+      }
+     }
+    ]
+   },
+   "expected_sections": [
+    {
+     "section_id": "result_displacements",
+     "row_ids": [
+      "row:r01",
+      "row:r02",
+      "row:r04",
+      "row:r15"
+     ]
+    }
+   ],
+   "shown": 4
+  },
+  {
+   "name": "largest stresses rank exactly (1.234574 MPa above 1.2345675 MPa, which display alike), tie in source order, never across display units",
+   "composition": {
+    "composition_version": "1.0.0",
+    "sections": [
+     {
+      "section_id": "result_stresses",
+      "cases": "all",
+      "view": {
+       "kind": "largest",
+       "limit": 2
+      }
+     }
+    ]
+   },
+   "expected_sections": [
+    {
+     "section_id": "result_stresses",
+     "row_ids": [
+      "row:r06",
+      "row:r07",
+      "row:r18"
+     ]
+    }
+   ],
+   "shown": 3
+  },
+  {
+   "name": "largest stress of one case",
+   "composition": {
+    "composition_version": "1.0.0",
+    "sections": [
+     {
+      "section_id": "result_stresses",
+      "cases": [
+       "load_case:A"
+      ],
+      "view": {
+       "kind": "largest",
+       "limit": 1
+      }
+     }
+    ]
+   },
+   "expected_sections": [
+    {
+     "section_id": "result_stresses",
+     "row_ids": [
+      "row:r06"
+     ]
+    }
+   ],
+   "shown": 1
+  },
+  {
+   "name": "support loads grouped by support, then case",
+   "composition": {
+    "composition_version": "1.0.0",
+    "sections": [
+     {
+      "section_id": "result_support_loads",
+      "cases": [
+       "load_case:B",
+       "load_case:A"
+      ],
+      "view": {
+       "kind": "all"
+      }
+     }
+    ]
+   },
+   "expected_sections": [
+    {
+     "section_id": "result_support_loads",
+     "row_ids": [
+      "row:r10",
+      "row:r12",
+      "row:r11",
+      "row:r13"
+     ]
+    }
+   ],
+   "shown": 4
+  },
+  {
+   "name": "all rows of one case, in source order",
+   "composition": {
+    "composition_version": "1.0.0",
+    "sections": [
+     {
+      "section_id": "result_rows_all",
+      "cases": [
+       "load_case:B"
+      ],
+      "view": {
+       "kind": "all"
+      }
+     }
+    ]
+   },
+   "expected_sections": [
+    {
+     "section_id": "result_rows_all",
+     "row_ids": [
+      "row:r02",
+      "row:r03",
+      "row:r07",
+      "row:r12",
+      "row:r13",
+      "row:r18"
+     ]
+    }
+   ],
+   "shown": 6
+  },
+  {
+   "name": "list order is display order; an empty family section is not a refusal",
+   "composition": {
+    "composition_version": "1.0.0",
+    "sections": [
+     {
+      "section_id": "result_other_rows",
+      "cases": [
+       "load_case:B"
+      ],
+      "view": {
+       "kind": "all"
+      }
+     },
+     {
+      "section_id": "result_forces_moments",
+      "cases": "all",
+      "view": {
+       "kind": "all"
+      }
+     }
+    ]
+   },
+   "expected_sections": [
+    {
+     "section_id": "result_other_rows",
+     "row_ids": []
+    },
+    {
+     "section_id": "result_forces_moments",
+     "row_ids": [
+      "row:r09"
+     ]
+    }
+   ],
+   "shown": 1
+  },
+  {
+   "name": "every optional subsection omitted; governed content and disclosures remain",
+   "composition": {
+    "composition_version": "1.0.0",
+    "sections": []
+   },
+   "expected_sections": [],
+   "shown": 0
+  }
+ ],
+ "refusal_vectors": [
+  {
+   "name": "version",
+   "composition": {
+    "composition_version": "2.0.0",
+    "sections": [
+     {
+      "section_id": "result_stresses",
+      "cases": "all",
+      "view": {
+       "kind": "all"
+      }
+     }
+    ]
+   },
+   "codes": [
+    "REPORT-COMPOSITION-VERSION-UNSUPPORTED"
+   ]
+  },
+  {
+   "name": "a governed section kind",
+   "composition": {
+    "composition_version": "1.0.0",
+    "sections": [
+     {
+      "section_id": "results",
+      "cases": "all",
+      "view": {
+       "kind": "all"
+      }
+     }
+    ]
+   },
+   "codes": [
+    "REPORT-COMPOSITION-SECTION-UNKNOWN"
+   ]
+  },
+  {
+   "name": "an unknown id",
+   "composition": {
+    "composition_version": "1.0.0",
+    "sections": [
+     {
+      "section_id": "input_geometry",
+      "cases": "all",
+      "view": {
+       "kind": "all"
+      }
+     }
+    ]
+   },
+   "codes": [
+    "REPORT-COMPOSITION-SECTION-UNKNOWN"
+   ]
+  },
+  {
+   "name": "a duplicate",
+   "composition": {
+    "composition_version": "1.0.0",
+    "sections": [
+     {
+      "section_id": "result_stresses",
+      "cases": "all",
+      "view": {
+       "kind": "all"
+      }
+     },
+     {
+      "section_id": "result_stresses",
+      "cases": "all",
+      "view": {
+       "kind": "largest",
+       "limit": 3
+      }
+     }
+    ]
+   },
+   "codes": [
+    "REPORT-COMPOSITION-SECTION-DUPLICATE"
+   ]
+  },
+  {
+   "name": "a view the section does not take",
+   "composition": {
+    "composition_version": "1.0.0",
+    "sections": [
+     {
+      "section_id": "result_forces_moments",
+      "cases": "all",
+      "view": {
+       "kind": "extremes"
+      }
+     }
+    ]
+   },
+   "codes": [
+    "REPORT-COMPOSITION-OPTION-INVALID"
+   ]
+  },
+  {
+   "name": "limit 0",
+   "composition": {
+    "composition_version": "1.0.0",
+    "sections": [
+     {
+      "section_id": "result_stresses",
+      "cases": "all",
+      "view": {
+       "kind": "largest",
+       "limit": 0
+      }
+     }
+    ]
+   },
+   "codes": [
+    "REPORT-COMPOSITION-OPTION-INVALID"
+   ]
+  },
+  {
+   "name": "limit 1001",
+   "composition": {
+    "composition_version": "1.0.0",
+    "sections": [
+     {
+      "section_id": "result_stresses",
+      "cases": "all",
+      "view": {
+       "kind": "largest",
+       "limit": 1001
+      }
+     }
+    ]
+   },
+   "codes": [
+    "REPORT-COMPOSITION-OPTION-INVALID"
+   ]
+  },
+  {
+   "name": "largest without a limit",
+   "composition": {
+    "composition_version": "1.0.0",
+    "sections": [
+     {
+      "section_id": "result_stresses",
+      "cases": "all",
+      "view": {
+       "kind": "largest"
+      }
+     }
+    ]
+   },
+   "codes": [
+    "REPORT-COMPOSITION-OPTION-INVALID"
+   ]
+  },
+  {
+   "name": "a limit on the all view",
+   "composition": {
+    "composition_version": "1.0.0",
+    "sections": [
+     {
+      "section_id": "result_stresses",
+      "cases": "all",
+      "view": {
+       "kind": "all",
+       "limit": 5
+      }
+     }
+    ]
+   },
+   "codes": [
+    "REPORT-COMPOSITION-OPTION-INVALID"
+   ]
+  },
+  {
+   "name": "an empty case list",
+   "composition": {
+    "composition_version": "1.0.0",
+    "sections": [
+     {
+      "section_id": "result_stresses",
+      "cases": [],
+      "view": {
+       "kind": "all"
+      }
+     }
+    ]
+   },
+   "codes": [
+    "REPORT-COMPOSITION-OPTION-INVALID"
+   ]
+  },
+  {
+   "name": "a case listed twice",
+   "composition": {
+    "composition_version": "1.0.0",
+    "sections": [
+     {
+      "section_id": "result_stresses",
+      "cases": [
+       "load_case:A",
+       "load_case:A"
+      ],
+      "view": {
+       "kind": "all"
+      }
+     }
+    ]
+   },
+   "codes": [
+    "REPORT-COMPOSITION-OPTION-INVALID"
+   ]
+  },
+  {
+   "name": "TBD as a case",
+   "composition": {
+    "composition_version": "1.0.0",
+    "sections": [
+     {
+      "section_id": "result_displacements",
+      "cases": [
+       "TBD"
+      ],
+      "view": {
+       "kind": "all"
+      }
+     }
+    ]
+   },
+   "codes": [
+    "REPORT-COMPOSITION-OPTION-INVALID"
+   ]
+  },
+  {
+   "name": "a case no row carries",
+   "composition": {
+    "composition_version": "1.0.0",
+    "sections": [
+     {
+      "section_id": "result_stresses",
+      "cases": [
+       "load_case:C"
+      ],
+      "view": {
+       "kind": "all"
+      }
+     }
+    ]
+   },
+   "codes": [
+    "REPORT-COMPOSITION-CASE-UNKNOWN"
+   ]
+  },
+  {
+   "name": "all rows with a family section",
+   "composition": {
+    "composition_version": "1.0.0",
+    "sections": [
+     {
+      "section_id": "result_rows_all",
+      "cases": "all",
+      "view": {
+       "kind": "all"
+      }
+     },
+     {
+      "section_id": "result_other_rows",
+      "cases": "all",
+      "view": {
+       "kind": "all"
+      }
+     }
+    ]
+   },
+   "codes": [
+    "REPORT-COMPOSITION-ROWS-OVERLAP"
+   ]
+  }
+ ]
+}

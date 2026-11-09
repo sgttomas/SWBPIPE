@@ -519,9 +519,8 @@ async function substituteRequest(genuine: Json) {
   expect(target).toBeGreaterThanOrEqual(0);
   // A relative change of 1e-6, below the report's six-significant-digit display
   // (`reportQuantityDisplay.ts`): the substitute displays the same rows as the genuine result,
-  // so the native render refuses it by the rows' full-precision checksums
-  // (`REPORT-EXACT-SECTIONS-MISMATCH: result_export_refs`; Codex review round 1 of #1655),
-  // not by the displayed rows.
+  // while the composer's canonical value_text differs. Native tests cover both
+  // that complete-row refusal and an isolated full-precision checksum refusal.
   raw.results[target].value = raw.results[target].value * (1 + 1e-6);
   const session = await solve(item, solveBytes(raw), "invented-w11b-substitute-job");
   expect(numericalResultStanding(session.result, session.model).eligible).toBe(true);
@@ -586,9 +585,13 @@ describe("the witness requests (§5.5)", () => {
     const substitute = await substituteRequest(straight);
     expect(await canonicalSha256Hex(substitute.request.source_results[0])).not.toBe(await canonicalSha256Hex(straight.source_results[0]));
     expect(substitute.request.report.exact_route.admission.received_result_sha256).not.toBe(straight.report.exact_route.admission.received_result_sha256);
-    // The rounding collision the native render's checksum binding refuses: the displayed rows
-    // are the genuine ones, and the substituted row's full-precision checksum is not.
-    expect(substitute.request.report.result_rows).toEqual(straight.report.result_rows);
+    // The display still collides; the complete nine-field contract now also binds
+    // the changed full-precision text. Retain both assertions so the writer cannot
+    // hide either a display change or a lost metadata binding.
+    const displayRows = (request: Json) => request.report.result_rows.map(({ row_id, label, case_ref, quantity_display, source_ref }: Json) =>
+      ({ row_id, label, case_ref, quantity_display, source_ref }));
+    expect(displayRows(substitute.request)).toEqual(displayRows(straight));
+    expect(substitute.request.report.result_rows).not.toEqual(straight.report.result_rows);
     const substitutedRef = (request: Json) => request.report.calculation_report.result_export_refs.find((entry: Json) => entry.ref.ref_id === substitute.row);
     expect(substitutedRef(substitute.request).checksum.value).not.toBe(substitutedRef(straight).checksum.value);
     // The substitute is committed as leaf replacements over the straight witness's request

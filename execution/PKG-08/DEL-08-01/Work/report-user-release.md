@@ -404,7 +404,7 @@ Its members, in archive order after the manifest, are exactly these:
 
 | Member | Count | What it may contain | What is absent |
 |---|---|---|---|
-| `calculation_report.html`, `calculation_report.pdf` | one each | The rendering of the minimal native renderer input (§2.6): the title; the model summary (project name and id, units, model hash, input-manifest reference, display policy); the load cases (id, label, kind); the result rows (the five-field projection of every `results` row of the solve, its review rows included, such as a spring hanger's `spring_hanger_user_input_review` rows); the solve's diagnostics; the analysis-status disclosures; the fixed technical-preview limitation; the run context (software, solver identity, mode and settings, run name); the record and the notice | Rule-pack references; user-rule outcomes; component and spring-hanger provenance entries; dedicated per-object hanger quantity entries; numerical-health rows; the local persistence reference (always `TBD`); a generation time and a run recording time (not recorded) |
+| `calculation_report.html`, `calculation_report.pdf` | one each | The rendering of the minimal native renderer input (§2.6): the title; the model summary (project name and id, units, model hash, input-manifest reference, display policy); the load cases (id, label, kind); the result rows (the complete bound report-row projection (W-18 §2.3 item 6) of every `results` row of the solve, its review rows included, such as a spring hanger's `spring_hanger_user_input_review` rows); the solve's diagnostics; the analysis-status disclosures; the fixed technical-preview limitation; the run context (software, solver identity, mode and settings, run name); the record and the notice | Rule-pack references; user-rule outcomes; component and spring-hanger provenance entries; dedicated per-object hanger quantity entries; numerical-health rows; the local persistence reference (always `TBD`); a generation time and a run recording time (not recorded) |
 | `audit_manifest.json` | one | Its id (the input-manifest reference); the model and input-manifest hash records; the solver identity; the unit-system reference; `rule_pack_refs: []`; `assets: []`; the boundary constants | Any rule-pack reference; any asset |
 | `result_export_<envelope>.json` | exactly one | The DEL-08-04 0.3.0 document of a pressure-free (`preview-physics-2`) result, which native admission derives from the bound model, the attested solve, the run record and the input manifest (§2.6) | A second result member; an exact-route (`pressure-2`, `pressure-source-1`) document (§0) |
 | State/comparison/handoff record set | none | — | The member itself: no state/run, comparison or handoff section |
@@ -1170,7 +1170,8 @@ the bound basis and requires canonical equality. A new module,
     - the fixed technical-preview limitation;
     - the unresolved TBDs from R;
     - the boundary;
-  - `result_rows`: the existing five-field projection of S's rows,
+  - `result_rows`: the complete projection of S's rows defined by
+    [report-package-current-results.md](report-package-current-results.md) §2.3 item 6,
     `bindings::expected_report_result_rows(S)` (`bindings.rs:129-167`), which
     the producer already requires (item 6). Since #1655 each row's
     `quantity_display` is `quantity_display::display_quantity` over the row's
@@ -1178,7 +1179,8 @@ the bound basis and requires canonical equality. A new module,
     digits, half away from zero, and a value stored in `Pa` shown in `MPa`.
     The webview mirror is `reportQuantityDisplay.ts`, held equal by
     `report_quantity_display_parity.json`. The minimal input adds no
-    numerical-health row;
+    numerical-health row. The C1-C3 metadata remains fully derived from S;
+    user-released composition itself is refused until C4 extends this derivation;
   - `report_context`:
     - export context `user_released_report`;
     - `generated_at` null;

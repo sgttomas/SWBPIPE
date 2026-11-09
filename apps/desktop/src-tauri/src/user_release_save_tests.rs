@@ -1102,6 +1102,57 @@ fn d6_custody(vector: &Value) -> crate::solve_jobs::CustodyDigests {
     }
 }
 
+/// C1 metadata is present even without composition. Start from the raw IPC
+/// body so argument decoding, canonical request parsing, the object-form
+/// copy, exact re-derivation and package assembly share the measured interval.
+/// C4 remains closed: these are the default uncomposed user-release paths.
+#[test]
+fn default_user_release_metadata_fits_raw_ingress_and_derivation_leases() {
+    use crate::command_ingress::test_support::headers;
+    use crate::command_ingress::INGRESS_ARGS_JSON_V1;
+    use tauri::ipc::InvokeBody;
+    let preview = basis();
+    let (preview_registry, _) = preview.session(PreviewSolverMode::SparseInteractive);
+    let mut cases = vec![("pressure-free".to_string(), preview.args(), preview_registry, None)];
+    for text in D6_VECTORS {
+        let vector: Value = serde_json::from_str(text).unwrap();
+        let registry = registry(ScriptedHost::normal());
+        registry.record_attested_solve_for_tests(1, PreviewSolverMode::SparseInteractive, SolveAttestation::of(&vector["model"], &vector["source"]).unwrap());
+        cases.push((vector["shape"].as_str().unwrap().to_string(), d6_args(&vector, &vector["request"]), registry, Some(vector)));
+    }
+    for (name, args, registry, exact) in cases {
+        let request: Value = serde_json::from_str(&args.request_text).unwrap();
+        assert!(request["report"].get("report_composition").is_none());
+        for row in request["report"]["result_rows"].as_array().unwrap() {
+            for field in ["kind", "entity_ref", "value_text", "unit"] {
+                assert!(row.get(field).is_some(), "{name}: stale request row missing {field}");
+            }
+        }
+        let mut raw_args = args_body(&args);
+        raw_args["analysisRunCanonicalText"] = json!(args.analysis_run_text);
+        raw_args["exactResultText"] = json!(args.exact_result_text);
+        raw_args["exactIntakeText"] = json!(args.exact_intake_text);
+        let raw = serde_json::to_vec(&raw_args).unwrap();
+        let envelope = crate::ingress::allocation_envelope(raw.len() as u64).unwrap();
+        let body = InvokeBody::Raw(raw);
+        let custody = |id: &str| exact.as_ref().and_then(|vector| {
+            (vector["request"]["report"]["exact_route"]["admission"]["native_job_id"].as_str() == Some(id)).then(|| d6_custody(vector))
+        });
+        let ((blocked, reserved), measured) = crate::ingress::counting::measure(|| {
+            let (request, mut lease) = crate::admit_report_package_save(&registry, &body, &headers(Some(INGRESS_ARGS_JSON_V1))).unwrap();
+            let mut session = UserReleaseSession { registry: &registry, lease: &mut lease };
+            let admitted = admit_report_package_session(request, &software(), &mut no_store, &custody, Some(&mut session)).unwrap();
+            let blocked = admitted.package.export_blocked;
+            drop(admitted);
+            (blocked, lease.bytes())
+        });
+        assert!(!blocked, "{name}: default package must remain unblocked");
+        assert!(measured.peak_priced <= reserved - envelope,
+            "{name}: raw ingress/derivation peak {} exceeds reservation {}", measured.peak_priced, reserved - envelope);
+        eprintln!("{name} default user-release: raw ingress/derivation peak {} lease {}", measured.peak_priced, reserved - envelope);
+    }
+}
+
 /// Each new TypeScript vector passes native source binding and Rust derivation,
 /// then writes a package its reader reads back, including every notice.
 #[test]

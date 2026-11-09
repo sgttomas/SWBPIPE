@@ -1,3 +1,4 @@
+import type { ReportComposition } from "./reportComposition";
 /** The rendered report panel's build step (DEC-021 A7; W-11, DEL-08-01 Design
  * `exact-route-report-sections.md` §3.1, §3.6). The panel calls it only after its
  * output-policy cell admits the result (`surfaceOutputRefusal` on `rendered-report`),
@@ -24,6 +25,7 @@ import { controlReportRendererInput } from "./reportRedactionProjector";
 import { currentLibraryRefFindings } from "../library/libraryRefFindings";
 
 export type RenderedReportAssemblyInputs = {
+  reportComposition?: ReportComposition | null;
   model: PreviewModel;
   result: MechanicsResult;
   analysisRun: AnalysisRunEnvelope;
@@ -62,6 +64,7 @@ export async function assembleRenderedReport(inputs: RenderedReportAssemblyInput
     ruleCheckRun,
     renderContext: { exportContext: context, generatedAt },
     numericalHealth,
+    reportComposition: inputs.reportComposition,
     exactAdmission: admission,
     libraryRefFindings: currentLibraryRefFindings(model)
   });

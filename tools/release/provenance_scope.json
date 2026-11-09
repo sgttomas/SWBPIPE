@@ -1026,7 +1026,7 @@
     },
     {
       "path": "validation/witness/inputs/del1005_export_results_success_input.json",
-      "sha256": "842082487cb3b688f4b058db3d9abb6c372b4acbf313c1a3b933204c51fb0b05",
+      "sha256": "80f0ce2240c0ec92427366971e6bd28f9c69b695849d239a714de0c4110e0ade",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
