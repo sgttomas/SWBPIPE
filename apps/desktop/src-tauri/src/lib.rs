@@ -2273,6 +2273,10 @@ fn cancel_mbf_import(
 /// The native read-only open chooser for an `.mbf` (§4.8.8: the only source of
 /// the import's paths).
 fn choose_mbf_import_path(app: &AppHandle) -> Result<Option<PathBuf>, String> {
+    #[cfg(feature = "native-smoke")]
+    if let Some(path) = native_smoke::take_chosen_path(app) {
+        return Ok(Some(path));
+    }
     let Some(selected) = app.dialog().file().add_filter("Model batch file", &["mbf"]).blocking_pick_file() else {
         return Ok(None);
     };
