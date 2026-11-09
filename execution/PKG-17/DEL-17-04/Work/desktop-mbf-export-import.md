@@ -2235,6 +2235,9 @@ from the launched App witness below. Exact executions, checks and source revisio
 `mbf-journey.js`. The bound phase opens this invented input, exports it with the dialog's default settings (the
 selected `degc-default` settings), saves the pair, imports that pair bound and adopts it, then checks the Open guard:
 an edit to `node:A`, a second import of the pair, and cancelling the unsaved-changes prompt keeps the edited session.
+The bound phase's first Adopt is of the designated review: after the bound import it designates the opened source
+through Designate original source… (§5.4) and adopts that review, judged against the fixture's designated-review
+statement and designated-Adopt model.
 The unbound phase imports the MBF copied without its identity file, declares its material and adopts it. The runner
 judges the saved pair against the fixture's saved MBF and identity digests, the review's identity rows and loss
 entries, and the JCS hashes of the adopted models (saved through Save Model Document) against the native bound and
