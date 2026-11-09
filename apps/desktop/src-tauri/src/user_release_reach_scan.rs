@@ -987,6 +987,7 @@ pub(crate) const TARGETS: [(&str, &[(&str, &str, &str)]); 5] = [
         "report_renderer",
         &[
             ("lib", "open_pipe_stress_report_renderer", "report_renderer/src/lib.rs"),
+            ("test", "composition", "report_renderer/tests/composition.rs"),
             ("test", "object_form", "report_renderer/tests/object_form.rs"),
             ("test", "render", "report_renderer/tests/render.rs"),
         ],
