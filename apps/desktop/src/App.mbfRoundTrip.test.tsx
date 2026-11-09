@@ -172,16 +172,19 @@ describe("connected supported-subset MBF App round trip (mocked native host)", (
     expect(identity).toHaveTextContent("These counts describe this import. They do not establish that every original source identity was preserved.");
     expect(identity).toHaveTextContent("The loss report also includes fields and other information the file cannot recover.");
     const initialReview = replies[`${binding}-open`].review;
-    expect(initialReview.identity.unrecoverable).toBe(binding === "bound" ? 2 : 0);
+    expect(initialReview.format).toBe(2);
+    expect(initialReview.identity.unrecoverable).toBe(0);
+    expect(initialReview.identity.unrecovered_fields).toBe(binding === "bound" ? 1 : 0);
+    expect(initialReview.identity.source_completeness).toBe("not_established");
     // Keep both the warning payload and its displayed entries: the caveat supplies no completeness claim
-    // even when every class is restored, or when an unbound import has zero unrecoverable notices.
+    // even when every class is restored, or when an unbound import has zero known missing ids.
     if (binding === "bound") {
       expect(identity).toHaveTextContent("Identity file applied; each class lists restored and formed ids.");
       expect(identity).toHaveTextContent("node: 5 (5 restored, 0 formed)");
       const loss = within(dialog).getByTestId("mbf-import-loss");
       expect(within(loss).getAllByRole("listitem")).toHaveLength(initialReview.loss_entries.length);
-      expect(loss).toHaveTextContent("MBF-IMPORT-ID-UNRECOVERABLE (approximated, bend 20)");
-      expect(loss).toHaveTextContent("MBF-IMPORT-ID-UNRECOVERABLE (approximated, unexported members)");
+      expect(loss).toHaveTextContent("MBF-IMPORT-REFERENCE-UNRECOVERABLE (approximated, component:bend-1.node)");
+      expect(loss).toHaveTextContent("MBF-IMPORT-SOURCE-COMPLETENESS-UNESTABLISHED (approximated, unexported members)");
     } else {
       expect(identity).toHaveTextContent("Ids formed from node numbers.");
     }

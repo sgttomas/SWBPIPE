@@ -1247,11 +1247,11 @@ One engine function, `import_review(result, source, declaration_sha256, document
 inside the worker. It lives in `core/handoff/caepipe_mbf_engine/src/import_review.rs`, beside `export_review.rs`, and
 uses the same mechanics as the export review (§3.9.5).
 
-- **Format.** ASCII JSON, `swbpipe.mbf_import_review`, format 1. The whole review is at most R = 1 MiB after escaping
+- **Format.** ASCII JSON, `swbpipe.mbf_import_review`, format 2. The whole review is at most R = 1 MiB after escaping
   (`MBF_REVIEW_MAX_BYTES`, reused, not raised). A string longer than the per-field bound (`REVIEW_FIELD_MAX_BYTES`,
   512 bytes) is carried as `{prefix, bytes, sha256}`, formed in place.
 - **Fixed leading members**, in this order and byte form, so the host can check them without parsing:
-  `{"document_kind":"swbpipe.mbf_import_review","format":1,"status":"<imported|refused>","adoptable":<true|false>,
+  `{"document_kind":"swbpipe.mbf_import_review","format":2,"status":"<imported|refused>","adoptable":<true|false>,
   "model_sha256":<"hex"|null>,"model_bytes":<n>,`.
 - **Status first.** The importer's status, `adoptable` and the blocking state are computed over the full result
   before any bound applies. Overflow never makes a refused import adoptable.
@@ -1270,10 +1270,12 @@ uses the same mechanics as the export review (§3.9.5).
   `unsupported`, `tbd`).
 - **Target options.** Their names, marked "Recorded, not applied" (REQ-015).
 - **Identity.** Per class of A-3's identity set: the restored count and the count formed from MBF names, computed
-  from the id map. `identity.unrecoverable` counts `MBF-IMPORT-ID-UNRECOVERABLE` notices in the loss report,
-  including unrecovered fields/reference choices and general information-loss limitations; it is not a count
-  of distinct missing original ids. Neither a zero notice count nor matching class counts establishes
-  original-source completeness. An unbound import says "ids formed from node numbers". The implementation
+  from the id map. In review format 2, `identity.unrecoverable` counts known original ids not preserved,
+  each once, from fixed-size producer facts. A formed merged group is not another lost original id.
+  `identity.unrecovered_fields` separately counts reported unrecovered fields/reference choices, including
+  legacy direction loss. `identity.source_completeness` is `"not_established"` on every current route.
+  Neither zero nor matching class counts establishes original completeness, reference equality or C6-5.
+  Every warning/loss entry remains (§5.3). An unbound import says "ids formed from node numbers". The implementation
   names the id-map members it reads and pins them in a test with one bound and one unbound fixture (§4.8.9).
 - **Units.** The file's unit mode and angle option, and the project units the document receives, as the import
   report records them (import Design §5.2). A member the report does not carry is stated as not available, never
@@ -1958,7 +1960,8 @@ declarations. Nothing here records acceptance or shows criterion 6.
 
 #### 4.9.1 What was built
 
-- **Engine.** `import_review.rs` forms the review of §4.3 (`swbpipe.mbf_import_review`, format 1). After the fixed leading
+- **Engine.** Slice 5 originally formed `swbpipe.mbf_import_review`, format 1; current format-2 accounting is
+  specified in §4.3 and §5.3. After the fixed leading
   members come `completeness`, `transfer_limit` and a `blocks` object (`import_refused`, `document_check`,
   `truncated`, `model_too_large`, `assumption_unavailable`), then `source`, `binding` (`state`, `reason`),
   `declaration` (`sha256`, `recorded_origins`), `units`, `model` (`document_check`, `schema_status`), `identity`
@@ -2199,8 +2202,9 @@ recover the retired source, including after the files are restored to their chos
 
 **Identity-report limitation.** Matching inventories does not establish C6-5's separate requirement that the
 report list no unrecoverable identity. The report also includes missing-field and information-loss notices;
-§5.2 diagnoses their source semantics and the proposed next scope. This candidate preserves the report and
-does not resolve the requirement/report conflict by changing metadata disposition.
+§5.2 diagnoses their source semantics and §5.3 implements the selected format-2 accounting correction.
+Every notice, category and substantive reason remains. The corrected metrics do not resolve the requirement
+by relabeling actual missing IDs or claiming original completeness.
 
 The focused execution packet is the desktop Vitest cohort `src/App.mbfRoundTrip.test.tsx` and the native
 `mbf_import::tests` cohort, including the reply producer above, from the same selected candidate source and
@@ -2217,150 +2221,103 @@ requires separate authority; this candidate does not claim C6-2, full reference-
 The unsupported-family refusals and metadata/provenance dispositions remain those of the import Design,
 including §20.5.10; combinations remain outside criterion 6 under §8.1's owner amendment.
 
-This connection and explanation change neither DEL-17-04 nor DEL-07-12's ScopeOfWork or dependency conditions.
+This connection and reporting correction change neither DEL-17-04 nor DEL-07-12's ScopeOfWork or dependency conditions.
 The existing GUI/native split and Open-consumer boundary remain in force.
 
-### 5.2 Identity-report diagnosis and selected explanation
+### 5.2 Identity recovery and original-source limits
 
-**Diagnosis against the slice-6 candidate `2877f833a`; explanation and regressions selected by Agent 0.**
-The explanation changes no report, criterion or existing fixture bytes. These findings use source and the
-committed invented transcript, not a new engine or App execution.
+`finish.rs::report_unrecoverable` and its Python twin always emit the bound `unexported members` warning.
+It names the writer's omitted classes (labels, provenance, combinations, lines, unresolved assumptions,
+constraints, equipment interfaces, rule-pack references and settings); it is not a measured missing-ID inventory.
+Review format 1 counted this warning, bend references and legacy support fields with lost original load ids.
+Thus the maintained bound fixture's old count of 2 conflated one unrecovered reference and general uncertainty.
+The format-2 correction in §5.3 separates those facts and preserves every notice.
 
-- **Generic notice.** Python `importer.py::report_unrecoverable` and Rust
-  `importer/finish.rs::report_unrecoverable` emit one warning/loss entry on every bound import:
-  `MBF-IMPORT-ID-UNRECOVERABLE`, category `approximated`, location `unexported members`. No source-member
-  presence test or original id inventory is consulted. It lists labels, provenance, combinations, lines,
-  unresolved assumptions, constraints, equipment interfaces, rule-pack references and model settings as
-  content the exchange cannot reconstruct. It is a general information-loss limitation, not evidence that
-  any particular original entity id existed and was lost. The current fixture has labels/provenance and an
-  empty `combinations`; the other listed top-level members are absent. Export's field sweep reports actual
-  non-empty source fields, but that loss report is not part of the saved identity file.
-- **Bend notice.** Python `importer.py::bend_component` and Rust
-  `importer/assemble.rs::bend_component` restore `component:bend-1` from the sidecar's
-  `element_map[pipe:BEND].bend.component`, then assign its `.node` to the near tangent `node:T1` (MBF `20A`).
-  The warning at `bend 20` concerns the original `components[id=component:bend-1].node` reference, not a
-  missing component or node id. `read_bend` in both writers admits either endpoint of `pipe:BEND`, including
-  `node:T2` (`20B`), while `MbfSiResult.sidecar` / `WriterResult::sidecar_checked` retain only the bend's
-  component id. The source endpoint choice is not retained in the render record either. `from`, `to` and
-  `reversed` describe pipe orientation, not the component's node choice. The near/far variants therefore
-  cannot be distinguished from this exchange by that field. Import Design §11 explicitly selects near and
-  excludes far-node source models from canonical equality; the existing `writer-bent-l-reversed` exclusion
-  in `test_caepipe_mbf_round_trip.py` records it. The warning must not disappear just because the chosen
-  near-node fixture happens to match.
-- **Known losses versus unknown completeness.** A comparison of the committed source and bound-adopt reply
-  finds no missing original ids in the nine A-3 classes and finds `.node == node:T1` on both bend components.
-  Their labels/provenance and project state are not the original values; `project.id` changes intentionally
-  and is outside A-3. An arbitrary import has no original source model with which to make that comparison.
-  Missing labels are field information loss; the absent source endpoint choice is an unresolved reference;
-  neither proves a missing component id. In contrast, the summed-load branch names actual source
-  `load_map[<case>/<id>]` entries whose ids are replaced by one formed id. The legacy support branch names a
-  missing `.family` field while restoring the support id. All use the same diagnostic code today.
-- **Accounting.** `import_review.rs::identity_counts` derives class counts from the *result's* id map:
-  support entries expand their lists; a summed load is formed rather than restored; pressure regions count
-  map entries. Independently, `Header::push` sets `identity.unrecoverable` to the number of loss entries with
-  that diagnostic code. It is a notice count, not a distinct lost-id count: a sum of N original primitives
-  contributes N named-source notices plus one formed-group notice, while the generic and bend notices each
-  contribute one. The selected bound review reports 2; the declared unbound review reports 0 while forming
-  its ids. Review `completeness: complete` means the bounded review omitted no list entries, not that the
-  original model is completely represented. §4.3 distinguishes those two computations; §4.9.1 records the
-  implemented review fields.
-- **Trust and designation.** Import Design §§14–15 and both implementations verify the selected MBF digest,
-  the sidecar self-digest where present, strict shape, map/file agreement and regeneration consistency. They
-  establish consistency with the imported model, not authorship or original-source completeness. A consistent
-  id edit, or removal of one of two entries contributing to a sum, cannot establish the original inventory.
-  No original model digest, original inventory or export loss report is retained in the identity file.
-  `source_label` labels the import; it is not designation of an original model. Material `origin` and the
-  per-material `material_provenance` declaration establish the permitted material source under §7.4 only.
-  They neither restore the bend reference nor certify identity completeness. Rebinding is explicit and
-  unconfirmed; the desktop offers neither rebinding nor a source-completeness declaration.
+`assemble.rs::bend_component` restores the component id but uses the near tangent node. The identity file
+records the bend's identity and geometry, not which endpoint the source component named. The near/far source
+regressions in both twins write identical MBF/identity bytes for opposite source choices, restore the same
+component id, warn on both, choose the near node, and demonstrate the far reference lost. Matching nine output
+inventories cannot recover that choice. The corresponding support-family and summed-load regressions distinguish
+restored support ids with missing fields from actual original load ids absent after a sum.
 
-**Selected correction.** §4.3 describes the implemented accounting accurately, and `MbfImportDialog.tsx` keeps
-its current bound/unbound explanation and adds a caveat that the counts describe this import, not proof that
-every original identity was preserved. It directs the person importing to the loss report's fields and other
-unrecoverable information. The counter is not displayed by this dialog. Neither this explanation nor the
-regressions changes a native/report field, notice, mapping, source designation, permission or personal Adopt
-rule; the correction cannot close C6-5.
+The identity file's self-digest checks its own consistency and the MBF digest binds its selected bytes.
+Regeneration checks reproducibility of the represented values and mappings, with summed originals set aside
+by name (§14 of the import design). Neither proves authorship or original completeness: a consistently edited
+id, or removal of one contributor to a sum, cannot establish the original inventory. The identity file carries
+no original-model digest, complete original inventory or export loss report. `source_label` labels the import;
+material origin and per-material declarations establish permitted material provenance only (§7.4). Rebinding
+is explicit and unconfirmed; the desktop offers no rebinding or source-completeness declaration.
 
-`App.mbfRoundTrip.test.tsx` uses the unchanged bound/unbound replies to check the caveat with restored counts
-and zero unbound notices, retains both bound notices in the displayed report, and continues through the same
-Adopt path. Python `test_caepipe_mbf_round_trip.py` and Rust engine `tests/import_review.rs` compare otherwise
-identical invented sources with opposite bend component endpoints: identical emitted MBF/identity bytes,
-preserved component id, near-node result, warning on both and demonstrable far-node reference loss. The
-summed-primitives controls name both actual lost original ids and their formed group; the legacy-family
-controls preserve the support id while requiring its missing-family notice. These are meaningful loss
-controls, not a green C6-5 assertion. Runtime evidence awaits the authorized route; exact checks belong in the PR.
+The dialog keeps its bound/unbound explanation and adds: "These counts describe this import. They do not
+establish that every original source identity was preserved. The loss report also includes fields and other
+information the file cannot recover." App regressions retain the warning entries and personal Adopt flow.
+Their native transport is mocked; native/App execution evidence remains separate (§5.1).
 
-Recovering the original bend reference
-requires additional source input or a separately designed carrier for that reference. Establishing original
-identity completeness requires a comparison with the exact designated pre-export source (as the bounded
-test can do), or a separately designed source-bound inventory with explicit coverage/omissions; hashes and
-material declarations alone cannot supply it. Neither new capability is authorized by this diagnosis, and
-neither is inferred from nine matching result inventories. C6-5 and the actual App witness remain open.
+A later C6-5 capability must recover the original reference choice and establish a comparison against the exact
+designated original source with explicit completeness. This correction does not select its mechanism. A-3,
+C6-5, source-designation requirements and the actual App witness remain unchanged and open.
 
-### 5.3 Minimal report-taxonomy correction for Agent 0's scope decision
+### 5.3 Selected report taxonomy and bounded review format 2
 
-**Proposal only; no report/schema/fixture transformation is implemented.** The explanation in §5.2 leaves the
-current accounting misleading: every bound import has at least one notice even with no demonstrated missing
-entity id. The following separates facts without deleting notices, recovering absent information or changing
-C6-5/A-3. It introduces no source carrier, sidecar format, permission or source-designation rule.
+The source implementation corrects misleading recovery accounting without deleting notices, recovering absent
+information or weakening C6-5/A-3. It introduces no source carrier, sidecar/model format, mapping or permission.
 
-| Existing emission | Proposed code and subject | Meaning retained |
+| Prior emission | Current code and subject | Meaning retained |
 |---|---|---|
-| `MBF-IMPORT-ID-UNRECOVERABLE` for each original summed `load_map[case/id]` | Keep code and exact named original entry | That original load id is absent from the adopted model; count each original identity once |
-| Same code for the formed summed-load group | `MBF-IMPORT-IDENTITIES-MERGED`, same group and named contributing entries | The MBF combines several originals; the formed group is not an additional lost original id |
-| Same code at `bend n` | `MBF-IMPORT-REFERENCE-UNRECOVERABLE`, subject the restored component id's `.node` | Original endpoint choice is unrecorded; near node is used; component id survives |
-| Same code at legacy `support_map[id]` | `MBF-IMPORT-FIELD-UNRECOVERABLE`, subject that support id's `.family` | Original family cannot be recovered; support id survives |
-| Same code at `unexported members` | `MBF-IMPORT-SOURCE-COMPLETENESS-UNESTABLISHED`, same general limitation | The exchange cannot establish which uncarried original members existed or recover them |
+| `MBF-IMPORT-ID-UNRECOVERABLE` for each original summed `load_map[case/id]` | Same code and exact named original entry | That original load id is absent from the adopted model; count each original once |
+| Same code for the formed summed-load group | `MBF-IMPORT-IDENTITIES-MERGED`, same group and named contributors | The formed group is not an additional lost original id |
+| Same code at `bend n` | `MBF-IMPORT-REFERENCE-UNRECOVERABLE`, `{component_id}.node` | Original endpoint choice is unrecorded; near node is used; component id survives |
+| Same code at legacy `support_map[id]` | `MBF-IMPORT-FIELD-UNRECOVERABLE`, `{support_id}.family` | Original family cannot be recovered; support id survives |
+| Same code at `unexported members` | `MBF-IMPORT-SOURCE-COMPLETENESS-UNESTABLISHED`, same subject | The exchange cannot establish which uncarried original members existed or recover them |
 
-Every existing emission remains a warning and a loss entry, with its current category and substantive reason;
-only its code and, for the two field/reference cases, its precise subject change. Actual source-load notices
-and the aggregate notice all remain. Existing `MBF-IMPORT-DIRECTION-UNRECOVERABLE` remains a field limitation.
-No text is inferred by parsing a reason sentence. Python/Rust assembly branches should record fixed-size
-recovery counters alongside their emissions: original ids known lost, and explicitly reported field/reference
-choices not recovered. Map traversal already gives each original source-load key and each relevant field once.
-Those counters are internal facts, not another serialized per-entity inventory.
+Every emission remains both a warning and a loss entry with its existing category, substantive reason, line and
+order. `MBF-IMPORT-DIRECTION-UNRECOVERABLE` also remains and counts as a field limitation. All codes have product
+descriptions. No reason sentence is parsed. Python/Rust assembly records fixed-size `IdentityRecoveryFacts`
+(`known_missing_ids`, `unrecovered_fields`) at the corresponding branches, retained on refused results too.
+The existing matched-load-group tracking counts each original once even if malformed duplicate input repeats
+notices before refusal. The facts add no serialized per-entity inventory and do not alter model/id-map bytes.
 
-Proposed bounded-review semantics: retain the numeric `identity.unrecoverable` member but correct it to
-**known original ids not preserved**, read from the producer's original-id counter, excluding group notices,
-field choices and generic uncertainty. Add `identity.unrecovered_fields` for the reported field/reference
-counter and `identity.source_completeness: "not_established"`. The latter applies on every current route,
-including an unbound import with zero known missing ids. Class counts remain output-id-map counts. For this
-bound fixture the summary changes from a conflated 2 to 0 known lost ids, 1 unrecovered reference and source
-completeness not established; both notices remain. For two summed loads, known lost ids is 2, not the three
-source/group notices or the additional general notice. **Zero does not establish completeness, reference
-equality or a C6-5 pass.** Qualification still requires the unchanged criterion and exact original-source comparison;
-this proposal supplies no such source capability.
+§4.3 defines the format-2 identity members. The maintained bound example changes from format 1's conflated 2 to
+0 known lost ids, 1 unrecovered reference and completeness not established, with both notices retained. Two summed
+source loads count as 2 lost ids, excluding the group and generic notices. Unbound zero counts likewise leave
+source completeness unestablished. **Zero never establishes completeness, reference equality or C6-5.**
 
-The producer surfaces are Python `importer.py` (`MbfImportResult`, `bend_component`, `assemble_supports`, the
-summed-load branch and `report_unrecoverable`) and Rust `importer/assemble.rs`, `finish.rs` and `ImportResult`
-in `src/lib.rs`; direction accounting also touches its existing branch in both twins. The review contract is
-`import_review.rs`, mirrored by the TypeScript `MbfImportReview` type in `mbfImport.ts` (there is no separate
-JSON Schema for this bounded review). Consumers include its code descriptions/adoptability tests, the dialog,
-native worker review framing/validation tests, App replay tests and `mbfEngine.test.ts`. Native framing's fixed
-leading fields, review cap, model bytes and personal Adopt checks should stay unchanged. Renamed codes must
-all have product descriptions; none is silently made nonblocking or omitted from the review.
+**Reader compatibility.** `IMPORT_REVIEW_FORMAT`, the TypeScript `MbfImportReviewPayload` and native fixed-prefix
+validation select review format 2 together. MBFI1 worker framing is unchanged. Native Review and Adopt reject
+format-1 payloads even when rehashed; the desktop rejects prior/unknown versions before interpreting identity
+metrics or rendering the review. A prior-format review digest is stale for current Adopt. No compatibility
+fallback or grandfathering is provided. There is no maintained format-1 reader to keep using the old meaning.
+The full source census found no established external receiving consumer or separate bounded-review JSON Schema.
 
-Generated consumers needing maintained regeneration are the Python/Rust parity vectors and provenance,
-desktop native export-review/digest fixtures if affected by preflight output, and the raw desktop import
-transcript with its provenance bindings. Determine exact byte impact with their generators; never hand-edit
-the transcript or an expected value. Existing saved MBF/identity bytes and models should remain byte-identical.
-Regeneration is unavailable under the current build stop. Hosted routing derivatives need source-based
-reassessment if their declared reader set changes; no broad re-pin is inherent in this proposal.
+The maintained producer/reader neighborhood is:
 
-Compatibility is semantic even though `identity.unrecoverable` remains an integer: code consumers and any
-expectation that it counts all notices must update together. Additive review fields do not create a new source
-format; retaining review format 1 is proposed only with explicit acknowledgment of the corrected semantics and
-coordinated in-repository consumers. If an external pinned consumer requires old semantics, Agent 0 must resolve
-that compatibility scope before implementation. No stale persisted review is grandfathered: review hashes
-change and Adopt must still reproduce the exact reviewed result. Fixed-size counters add no new per-entity
-retained collection. Extra review bytes must remain inside the existing 1 MiB budget, counted before truncation;
-the worker/result/reply bounds and complete-review refusal stay in force, with no new allowance or pricing claim.
+- Python `importer.py` and Rust `src/lib.rs`, `importer/{mod,assemble,finish}.rs`; raw report `to_dict()` keeps its
+  shape while taxonomy codes/subjects change. Python/Rust parity tests consume those reports and model/id-map bytes.
+- Engine `import_review.rs`; native task-5 worker, decoder and reply writer in
+  `apps/desktop/src-tauri/src/mbf_import.rs`; the desktop `mbfImport.ts` descriptions/version/adoptability helpers,
+  `MbfImportDialog.tsx`, and App/component/native review tests.
+- `mbfEngine.ts` carries raw importer report strings, not bounded reviews; its test concerns missing Wasm assets.
+  Native ingress carries bounded replies without interpreting their review fields. Command catalogs/ingress and
+  report/export-adapter/agent paths do not parse this bounded review or its identity metric; no catalog change follows.
+- Maintained import/writer vector generators and their provenance/check readers; the native import transcript
+  producer in `mbf_import_tests.rs` and App replays. These generated derivatives require maintained regeneration,
+  never edited expected values. Their existing MBF/identity/model byte bindings must remain identical.
 
-Regressions must distinguish near/far reference loss from restored component ids, legacy field loss from
-restored support ids, and two actual lost load ids from the aggregate notice; prove all warnings survive;
-keep completeness unestablished for bound/unbound zero-id cases and consistently edited sidecars; and exercise
-complete/truncated reviews, new code descriptions, unchanged adoption rules and Python/Rust byte parity.
-The existing source-collision tests remain relevant. This proposal awaits Agent 0's integration-scope resolution.
+**Bounds.** The Rust facts contain two `u64` values (16 inline bytes, alignment 8), embedded in `Importer` and
+`ImportResult` without a heap collection; compiled whole-struct layout/peak checks remain pending. Python holds one small facts object and a result copy. Review format 2 adds at most 82 fixed ASCII bytes for the two
+new identity members; the changed codes/subjects are also counted after escaping, including long-field prefixes.
+`Header::push` participates in fixed-size sizing, complete/truncated serialization and the exact transfer decision.
+The 1 MiB review cap, 512-byte field cap, task/result/reply limits and leases remain in force. Native fixed-prefix
+control stays within its 1 KiB buffer (only the same-width version digit changes); later identity fields do not
+enter that prefix. Envelope/result/reply lengths use actual review bytes, with escaped reply sizing before
+allocation. Every loss entry still participates in completeness; a truncated review blocks Adopt. No cap or
+pricing coefficient changes are made or inferred. Runtime allocation/qualification evidence remains pending.
+
+The connecting and focused regression source covers both twins, near/far reference collision, generic/family/
+direction semantics, two summed original ids, notice preservation, full/truncated reviews, old-version refusal,
+stale/personal Adopt and session retirement. Maintained regeneration, runtime checks and final independent
+persistence/permission and exact old/new wording scrutiny remain prerequisites to integration; they establish
+no actual launched App witness by themselves.
 
 ## 6. Slices
 

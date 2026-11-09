@@ -12,6 +12,7 @@ import {
   importBlockingCodes,
   importCodeText,
   importFailureDiagnostic,
+  importReviewFormatCurrent,
   type MbfAdoptCapture,
   type MbfDeclarationEntry,
   type MbfImportDiagnostic,
@@ -123,6 +124,10 @@ export function MbfImportDialog({ request }: { request: MbfImportDialogRequest |
           setState({ phase: "refused", fileName: outcome.fileName, diagnostics: outcome.diagnostics, sourceId: null });
           return;
         }
+        if (!importReviewFormatCurrent(outcome.review)) {
+          setState({ phase: "refused", fileName: outcome.fileName, diagnostics: [importFailureDiagnostic("MBF-IMPORT-WORKER-PROTOCOL")], sourceId: null });
+          return;
+        }
         const needed = outcome.review.declaration_needed;
         setMaterials(needed.filter(fieldWhole));
         setUncut(needed.filter((name) => !fieldWhole(name)).map(fieldText));
@@ -164,7 +169,9 @@ export function MbfImportDialog({ request }: { request: MbfImportDialogRequest |
         if (generation.current !== mine || live.current !== request || !started.current()) return;
         setPending(false);
         const outcome = started.outcome;
-        if (outcome.outcome === "reviewed") setState({ phase: "reviewed", reviewed: outcome, key });
+        if (outcome.outcome === "reviewed" && !importReviewFormatCurrent(outcome.review)) {
+          setState({ phase: "refused", fileName: outcome.fileName, diagnostics: [importFailureDiagnostic("MBF-IMPORT-WORKER-PROTOCOL")], sourceId: null });
+        } else if (outcome.outcome === "reviewed") setState({ phase: "reviewed", reviewed: outcome, key });
         else setState({ phase: "refused", fileName: outcome.fileName, diagnostics: outcome.diagnostics, sourceId });
       },
       (error: unknown) => {

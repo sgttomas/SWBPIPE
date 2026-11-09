@@ -600,6 +600,10 @@ fn a_bound_saved_pair_imports_through_task_5_with_the_exported_ids() {
     assert_eq!(reply["review"]["refusals"], json!([]));
     assert_eq!(reply["review"]["declaration_needed"], json!([]));
     assert_eq!(reply["review"]["transfer_limit"], "within");
+    assert_eq!(reply["review"]["format"], 2);
+    assert_eq!(reply["review"]["identity"]["unrecoverable"], 0);
+    assert_eq!(reply["review"]["identity"]["unrecovered_fields"], 1);
+    assert_eq!(reply["review"]["identity"]["source_completeness"], "not_established");
     assert_eq!(reply["review"]["identity"]["basis"], "restored_from_identity_file");
     let exported: Value = serde_json::from_str(EXPORT_MODEL).unwrap();
     let expected_classes: BTreeMap<_, _> = source_identity_counts(&exported).into_iter().map(|(class, n)| (class, (n, n, 0))).collect();
@@ -679,6 +683,10 @@ fn an_unbound_mbf_needs_its_declaration_and_imports_with_ids_formed_from_names()
     let declaration = declaration_for(&needed);
     let declared = review(&registry, &imports, &json!({"sourceId": source_id, "declaration": declaration})).value;
     assert_eq!(declared["review"]["adoptable"], true, "{declared}");
+    assert_eq!(declared["review"]["format"], 2);
+    assert_eq!(declared["review"]["identity"]["unrecoverable"], 0);
+    assert_eq!(declared["review"]["identity"]["unrecovered_fields"], 0);
+    assert_eq!(declared["review"]["identity"]["source_completeness"], "not_established");
     assert_eq!(declared["review"]["identity"]["basis"], "formed_from_mbf_names");
     assert_ne!(declared["reviewSha256"], first["reviewSha256"], "the declaration is bound into the review");
     assert_complete(&declared["review"]);
@@ -1226,10 +1234,20 @@ fn adopt_refuses_a_stale_review_or_a_retired_source_with_no_model() {
     let sandbox = Sandbox::new("adopt-stale");
     let first = open(&registry, &imports, &sandbox.pair(true)).value;
     let source_id = first["sourceId"].clone();
+    // A review from the prior format cannot be grandfathered for Adopt. Bind this negative control to the same
+    // worker/source before changing only its version; the old review digest must reproduce neither current result.
+    let envelope = worker_envelope(ImportMode::Review, true);
+    let decoded = decode_import_result(ImportMode::Review, envelope.as_bytes()).unwrap();
+    let review = std::str::from_utf8(&envelope.as_bytes()[decoded.review]).unwrap();
+    assert_eq!(first["reviewSha256"], hex(review.as_bytes()));
+    let old_review = review.replacen("\"format\":2", "\"format\":1", 1);
+    assert_ne!(old_review, review);
+    let old_review_sha = hex(old_review.as_bytes());
     let other = json!({"swbpipe-unlisted": {"origin": "project_invented", "source_name": "x"}});
     for body in [
         json!({"sourceId": source_id, "declaration": other, "reviewSha256": first["reviewSha256"]}),
         json!({"sourceId": source_id, "declaration": null, "reviewSha256": "0".repeat(64)}),
+        json!({"sourceId": source_id, "declaration": null, "reviewSha256": old_review_sha}),
     ] {
         let reply = adopt(&registry, &imports, &body).value;
         assert_eq!(codes(&reply), vec![REVIEW_STALE], "{reply}");
@@ -1297,6 +1315,18 @@ fn every_tampered_or_malformed_envelope_is_a_protocol_refusal() {
     // The review's fixed prefix or digest.
     refused(ImportMode::Review, &review_envelope.replacen("\"adoptable\":true", "\"adoptable\":tru ", 1));
     refused(ImportMode::Review, &replace_header(&review_envelope, 5, &"0".repeat(64)));
+    // A validly rehashed format-1 review must still fail the version prefix, in both modes. Same-length version
+    // replacement keeps all length tokens valid; recomputing the digest isolates version separation from integrity.
+    for (mode, envelope) in [(ImportMode::Review, &review_envelope), (ImportMode::Adopt, &adopt_envelope)] {
+        let decoded = decode_import_result(mode, envelope.as_bytes()).unwrap();
+        let old_review = std::str::from_utf8(&envelope.as_bytes()[decoded.review.clone()]).unwrap()
+            .replacen("\"format\":2", "\"format\":1", 1);
+        assert_ne!(old_review.as_bytes(), &envelope.as_bytes()[decoded.review.clone()]);
+        let mut old = envelope.clone();
+        old.replace_range(decoded.review, &old_review);
+        let old = replace_header(&old, 5, &hex(old_review.as_bytes()));
+        refused(mode, &old);
+    }
     // The carried model: a changed byte (digest), a non-ASCII byte.
     let decoded = decode_import_result(ImportMode::Adopt, adopt_envelope.as_bytes()).unwrap();
     let mut changed = adopt_envelope.clone().into_bytes();

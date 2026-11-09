@@ -1203,7 +1203,7 @@ pub(crate) fn decode_import_result(mode: ImportMode, result: &[u8]) -> Result<De
     let review_view = &result[review.clone()];
     // The fixed leading members, from the validated fields only.
     let mut prefix = Prefix { bytes: [0; PREFIX_BUFFER_BYTES], len: 0, overflow: false };
-    prefix.put(b"{\"document_kind\":\"swbpipe.mbf_import_review\",\"format\":1,\"status\":\"");
+    prefix.put(b"{\"document_kind\":\"swbpipe.mbf_import_review\",\"format\":2,\"status\":\"");
     prefix.put(if imported { b"imported" } else { b"refused" });
     prefix.put(b"\",\"adoptable\":");
     prefix.put(if adoptable { b"true" } else { b"false" });
