@@ -436,11 +436,15 @@ fn a_rebound_model_with_the_same_mass_passes() {
         (json!({"family": "anchor"}), "SUPPORT_DIRECTION_RECORD_UNSUPPORTED"),
         (json!({"restraints": ["RY"]}), "SUPPORT_DIRECTION_ROTATIONAL_UNSUPPORTED"),
         (json!({"direction": {"x": 0, "y": 0, "z": 0}}), "SUPPORT_DIRECTION_ZERO"),
+        (json!({"direction": null}), "SUPPORT_DIRECTION_INVALID"),
         (json!({"stiffness": {"dof": "UZ", "value": {"unit": "N/m", "value": 1e6}}}), "SUPPORT_DIRECTION_RECORD_UNSUPPORTED"),
     ] {
         let r = request_case(BODY, needle, |r| split(r, variant.clone()));
         assert_failed(&r.mass, needle, needle);
     }
+    // Review of 2f254a66b, finding 3: a present null direction is refused, not absent.
+    let r = request_case(BODY, "null direction on the anchor", |r| r["model"]["supports"][0]["direction"] = Value::Null);
+    assert_failed(&r.mass, "SUPPORT_DIRECTION_INVALID", "null direction on the anchor");
 }
 
 // ---------------------------------------------------------------------------

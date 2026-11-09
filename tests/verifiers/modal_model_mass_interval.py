@@ -56,6 +56,14 @@ DD_RELATIVE = Fraction(1, 1 << 90)
 # value is outside the rounding model: unresolved, never passed.
 DD_LOW_WORD_FLOOR = Fraction(1, 1 << 969)
 DD_RESOLUTION_LIMIT = 1 << 37
+# Under gradual underflow a binary64 operation also errs by up to 2^-1075 absolutely (the
+# standard model with underflow, Higham 2002 §2.1); an addition whose result is
+# subnormal is exact. The kernel's Dd multiply has at most four such sites and its
+# divide at most a dozen, each divided by the divisor's high word, so one Dd operation
+# errs by its relative bound plus under 2^-1064·max(1, 1/|divisor|). The mass centre's
+# path (`node_centroid`, `nodal_resultant`, the division by T_k) is plain Dd and takes
+# this term; the participation path is extended-exponent `WideDd` and never underflows.
+DD_ABSOLUTE = Fraction(1, 1 << 1064)
 
 
 def below_floor(x: "Iv") -> bool:

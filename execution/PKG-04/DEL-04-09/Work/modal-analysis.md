@@ -175,9 +175,14 @@ would reach binary64 resolution, and no nonzero double-word intermediate of the
 element below the kernel's low-word floor 2⁻⁹⁶⁹ (`LOCAL_ENTRY_MIN`). Such an
 entry leaves undecidable only what uses it; every other entry, total, the centre
 and the participation quantities that do not use it are still compared. The
-floor is checked on the mass formation's products; the centre's and the
-participation's double-word products (arm by row sum, φᵀp_k squared, m·T_k) are
-covered by the relative premise alone, which is a stated limit. A
+mass centre's path (`node_centroid`, `nodal_resultant`, the division by T_k) is
+also plain double word, but its products are not compared one by one, so
+instead of the floor it takes the arithmetic's underflow term: under gradual
+underflow each binary64 operation errs by at most 2⁻¹⁰⁷⁵ more, absolutely, and
+a subnormal sum is exact, so one double-word operation errs by its relative
+bound plus under 2⁻¹⁰⁶⁴·max(1, 1/|divisor|). The participation path is the
+kernel's extended-exponent `WideDd` and does not underflow. A present null
+direction is refused as the producer refuses it. A
 published value outside its enclosure fails; a flagged or outside-profile value
 meeting it is unresolved. No threshold is selected or changed. A solved
 document bound to a model the producer refuses (snubber, gap support, skew, a

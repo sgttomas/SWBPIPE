@@ -103,6 +103,16 @@ const MM_DD_RESOLUTION_LIMIT: f64 = 137438953472.0;
 /// arc guard, `LOCAL_ENTRY_MIN`), so the relative premise does not hold.
 const MM_DD_LOW_WORD_FLOOR: f64 = 2.004168360008973e-292;
 
+/// An absolute bound, at 2⁻¹⁰⁶⁴·max(1, 1/|divisor|), on what one double-word
+/// operation loses to gradual underflow (each binary64 operation up to 2⁻¹⁰⁷⁵,
+/// a subnormal sum exactly; at most a dozen sites in the kernel's divide). The
+/// centre's path is plain double word and takes it; the participation path is
+/// the kernel's extended-exponent `WideDd`, which does not underflow.
+fn mm_dd_absolute(count: f64, divisor: f64) -> f64 {
+    let scaled = mm_up(count * 2f64.powi(-1000) / divisor.min(1.0));
+    mm_up(scaled * 2f64.powi(-64))
+}
+
 // ---------------------------------------------------------------------------
 // Outward-rounded intervals.
 
@@ -981,7 +991,8 @@ fn mm_form(p: &Parsed, request: &Value) -> S<Formed> {
             // SNUBBER_DYNAMIC_ONLY_UNSUPPORTED), so a solved document bound to one is a contradiction.
             return mm_fail(format!("support {id} is a snubber, which this source refuses on every solve (SNUBBER_DYNAMIC_ONLY_UNSUPPORTED)"));
         }
-        let direction = support.get("direction").filter(|d| !d.is_null());
+        // Any present direction, null included, is admitted or refused (`deserialize_direction`).
+        let direction = support.get("direction");
         // The producer's admission of a direction record (`supports_findings`), which it
         // applies before lowering; then an exactly axis-aligned direction is lowered as the
         // producer does (`lower_axis_aligned_directions`): each DOF token on another axis
@@ -1690,7 +1701,11 @@ fn mm_centre(items: &mut Vec<String>, p: &Parsed, f: &Formed, totals: &[Iv; 3]) 
     let reach = f.positions.iter().flat_map(|x| x.iter()).fold(0.0f64, |a, x| a.max(x.abs()));
     for k in 0..3 {
         let c = centre[k];
-        let grow = mm_up(U * (2.0 * c.mag() + reach) * (1.0 + 2f64.powi(-40)) + 2f64.powi(-80) * (c.mag() + reach));
+        // Underflow: two products per node and component in the moment, one division by
+        // T_k, and the centroid's division by the node count.
+        let total = if k < 2 { totals[2].lo } else { totals[0].lo };
+        let underflow = mm_up(mm_dd_absolute(2.0 * f.positions.len() as f64 + 1.0, total) + mm_dd_absolute(1.0, 1.0));
+        let grow = mm_up(U * (2.0 * c.mag() + reach) * (1.0 + 2f64.powi(-40)) + 2f64.powi(-80) * (c.mag() + reach) + underflow);
         mm_check(items, &published[k], true, c.widen(grow), &format!("the mass centre {}", DIRECTIONS[k]))?;
     }
     Ok(())

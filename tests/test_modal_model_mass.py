@@ -760,9 +760,15 @@ def test_an_axis_aligned_direction_is_lowered_as_the_producer_lowers_it():
     for variant, phrase in (({"family": "anchor"}, "SUPPORT_DIRECTION_RECORD_UNSUPPORTED"),
                             ({"restraints": ["RY"]}, "SUPPORT_DIRECTION_ROTATIONAL_UNSUPPORTED"),
                             ({"direction": {"x": 0, "y": 0, "z": 0}}, "SUPPORT_DIRECTION_ZERO"),
+                            ({"direction": None}, "SUPPORT_DIRECTION_INVALID"),
                             ({"stiffness": {"dof": "UZ", "value": {"unit": "N/m", "value": 1e6}}},
                              "SUPPORT_DIRECTION_RECORD_UNSUPPORTED")):
         _refused(split(**variant), phrase=phrase)
+
+    def null_on_anchor(model):  # review of 2f254a66b, finding 3: a present null is refused
+        model["supports"][0]["direction"] = None
+
+    _refused(null_on_anchor, phrase="SUPPORT_DIRECTION_INVALID")
 
 
 def test_a_body_whose_spatial_product_underflows_is_refused():
@@ -804,6 +810,76 @@ def test_a_body_whose_double_word_low_word_may_underflow_is_unresolved():
     rotary = (3, 3)  # node a's rx diagonal, a pipe entry outside the body's block
     wrong[rotary] *= 1.25
     assert_model_rejects(coherent(bound, wrong), changed)
+
+
+def test_a_mode_that_does_not_use_an_undecidable_block_is_still_compared():
+    """Review of 2f254a66b, finding 2: beside the tiny body's undecidable block at node c,
+    a mode shaped only at node b (φ[b:uy] = 1, φ[b:rx] = 0.5) uses none of it, so its m
+    is still compared: M withheld and M[b:rx, b:rx] ×1.25 re-formed coherently fails."""
+    doc, request = fixture("component_body")
+    changed = _mutate(request, _component_edit(["geometry", "weight"], {"unit": "N", "value": 2.3195656276910255e-308}))
+    changed = _mutate(changed, _component_edit(["geometry", "center_of_gravity"],
+                                               {"unit": "m", "x": 250575.49268495973, "y": 2.116592064317826, "z": 0}))
+    changed["weight_to_mass_acceleration"] = {"unit": "m/s^2", "value": 1.0}
+    bound = rebind(doc, changed)
+    bound["basis"]["weight_to_mass_acceleration"]["value"] = 1.0
+    bound["binding"]["options"]["weight_to_mass_acceleration"]["value"] = 1.0
+    shaped = {"dof:b:uy": 1.0, "dof:b:rx": 0.5}
+    for row in bound["tables"]["shapes"]["rows"]:
+        if row["mode_ref"] == "mode:1":
+            row["value"]["value"] = shaped.get(row["dof_ref"], 0.0)
+    _reseal(bound)
+    produced = formed(changed)
+    produced[(15, 16)] = -1.2302189740973076e-302
+    b_rx = (9, 9)
+
+    def read_withheld(mass):
+        published = coherent(bound, mass)
+        published["tables"]["mass_matrix"] = {"status": "withheld", "reason": "corpus: payload withheld"}
+        _reseal(published)
+        return me.read(published, changed)
+
+    intact = read_withheld(produced)
+    assert relation(intact, "participation")["status"] != "failed", relation(intact, "participation")
+    wrong = dict(produced)
+    wrong[b_rx] *= 1.25
+    verdict = read_withheld(wrong)
+    standing = relation(verdict, "participation")
+    assert standing["status"] == "failed" and "mode 1: m" in standing["difference"], standing
+
+
+def test_a_centre_whose_moment_products_underflow_is_inside_its_envelope():
+    """Review of 2f254a66b, finding 1: point bodies of 2^-200 and 2^-199 kg at nodes a and
+    c (zero offsets, a = 1) replace both spans, and c sits at (2, 2^-900, 0). The arm ×
+    mass products underflow in the producer's plain double word (`nodal_resultant`), so it
+    publishes the centre y as 3.943507287222582e-272 where the exact centre is about twice
+    that. The underflow term (`DD_ABSOLUTE`) holds it; a value far outside still fails."""
+    _, request = fixture("component_body")
+
+    def edit(model):
+        model["nodes"][2]["position"]["y"] = 2.0 ** -900
+        valve = model["components"][0]
+        valve["geometry"]["weight"] = {"unit": "N", "value": 2.0 ** -199}
+        valve["geometry"]["center_of_gravity"] = {"unit": "m", "x": 0, "y": 0, "z": 0}
+        twin = copy.deepcopy(valve)
+        twin.update(id="component:twin", node="a")
+        twin["geometry"].update(rigid_pipe_ref="pipe:p1", weight={"unit": "N", "value": 2.0 ** -200})
+        model["components"].append(twin)
+
+    changed = _mutate(request, edit)
+    changed["weight_to_mass_acceleration"] = {"unit": "m/s^2", "value": 1.0}
+    model = mm.derive(changed)
+    assert sorted(model.bodies) == ["body:v", "pipe:p1"]
+    rounded, outside = mm._rounded(model)
+    assert not outside
+
+    class View:
+        def __init__(self, y):
+            self.mass_center = [_Vo(4 / 3), _Vo(y), _Vo(0.0)]
+
+    assert mm._centre(model, View(3.943507287222582e-272), rounded, 18, []) is None
+    with pytest.raises(mm.Contradiction):
+        mm._centre(model, View(1e-200), rounded, 18, [])
 
 
 def test_a_frame_conditioning_at_binary64_resolution_is_unresolved_never_passed():

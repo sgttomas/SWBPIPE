@@ -76,7 +76,7 @@ from typing import Any
 
 from tests.verifiers import units
 from tests.verifiers.modal_model_mass_interval import (
-    DD_RELATIVE, DD_RESOLUTION_LIMIT, below_floor, dd_bound, LARGEST, NORMAL_MIN, ONE, PROFILE_FLOOR, U, ZERO, Iv, OutsideModel, Undecidable, asin_and_cos, binary64,
+    DD_ABSOLUTE, DD_RELATIVE, DD_RESOLUTION_LIMIT, below_floor, dd_bound, LARGEST, NORMAL_MIN, ONE, PROFILE_FLOOR, U, ZERO, Iv, OutsideModel, Undecidable, asin_and_cos, binary64,
     exact, pi, published_image, relative, scaled, sqrt,
 )
 
@@ -1032,9 +1032,9 @@ def _direction_axis(support, support_id, restraints):
     line_stop, spring or snubber; beside a nonlinear member; on a record whose
     restraints and stiffness do not name exactly one DOF, or name a rotational one.
     A skewed direction is admitted statically but refused by modal-1."""
-    direction = support.get("direction")
-    if direction is None:
+    if "direction" not in support:  # a present null is refused, as `deserialize_direction` keeps it
         return None
+    direction = support["direction"]
 
     def refused(reason):
         return RefusedDomain(f"support {support_id}: its direction {reason}, which the producer refuses")
@@ -1373,7 +1373,7 @@ def _centre(model: ModelMass, view, rounded, n_dofs, items):
     count = len(model.node_ids)
     mean = [Iv(sum((exact(c[k]) for c in model.coordinates), Fraction(0)) / count) for k in range(3)]
     spread = [sum((abs(exact(c[k])) for c in model.coordinates), Fraction(0)) / count for k in range(3)]
-    point = [binary64(relative(mean[k].widen(dd_bound(count, spread[k])), DD_RELATIVE)) for k in range(3)]
+    point = [binary64(relative(mean[k].widen(dd_bound(count, spread[k]) + DD_ABSOLUTE), DD_RELATIVE)) for k in range(3)]
 
     def moment(k):
         out, magnitude = [ZERO, ZERO, ZERO], [Fraction(0)] * 3
@@ -1390,8 +1390,10 @@ def _centre(model: ModelMass, view, rounded, n_dofs, items):
     (mz, mz_mag), (mx, mx_mag) = moment(2), moment(0)
     offsets = ((-mz[1], mz_mag[1], totals[2]), (mz[0], mz_mag[0], totals[2]), (mx[1], mx_mag[1], totals[0]))
     for k, (numerator, magnitude, total) in enumerate(offsets):
-        # Double-word error of the moment (against its absolute terms) and of the quotient.
-        d = binary64(relative(numerator.widen(dd_bound(3 * count, magnitude)) / total, DD_RELATIVE))
+        # Double-word error of the moment (against its absolute terms) and of the quotient,
+        # each with its underflow term: two products per node and component, one division.
+        quotient = numerator.widen(dd_bound(3 * count, magnitude) + 2 * count * DD_ABSOLUTE) / total
+        d = binary64(relative(quotient.widen(DD_ABSOLUTE * max(Fraction(1), 1 / total.lo)), DD_RELATIVE))
         expected = binary64(point[k] + d)
         what = f"mass centre {DIRECTIONS[k]}"
         _guarded(items, what, lambda: _judge(what, published[k], expected, signed=True))
@@ -1421,15 +1423,9 @@ def participation_items(model: ModelMass, view) -> list[str]:
         return items + ["shapes withheld: m_i, Γ, m_eff and the fractions are not recomputed from the model"]
     rounded, outside = _rounded(model)
     free = _free_list(view)
-    # An entry outside the rounding model leaves the participation quantities undecidable
-    # only where they use it: m_i the free block, p_k the free rows' translational
-    # columns, and the fractions T_k.
-    used = [(key, error) for key, error in outside
-            if (free[key[0]] and free[key[1]]) or (free[key[0]] and key[1] % 6 < 3)
-            or (free[key[1]] and key[0] % 6 < 3) or (key[0] % 6 == key[1] % 6 < 3)]
-    if used:
-        return items + [UNRESOLVED + f"mass entry {key}: {error}; the participation quantities are not recomputed"
-                        for key, error in used]
+    # An entry outside the rounding model leaves a mode's quantity undecidable only where
+    # that quantity uses it (below); every other quantity is still compared.
+    open_keys = [key for key, _ in outside]
     n_dofs = 6 * len(model.node_ids)
     rows, mags = _full_row_sums(rounded, n_dofs)
     try:
@@ -1448,6 +1444,14 @@ def participation_items(model: ModelMass, view) -> list[str]:
             cumulative_open = [True, True, True]
             continue
         nonzero = [not (v.lo == 0 and v.hi == 0) for v in phi]
+        # m_i sums the free block over the shape's nonzero components; φᵀp_k the rows of
+        # those components over column direction k; the fraction also T_k.
+        m_open = any(free[a] and free[b] and nonzero[a] and nonzero[b] for a, b in open_keys)
+        if m_open:
+            items.append(UNRESOLVED + f"mode {label}: m, Γ, m_eff and the fractions use a mass entry outside the "
+                         "rounding model")
+            cumulative_open = [True, True, True]
+            continue
         generalized = ZERO
         for (a, b), value in rounded.items():
             if free[a] and free[b] and nonzero[a] and nonzero[b]:
@@ -1458,6 +1462,13 @@ def participation_items(model: ModelMass, view) -> list[str]:
         for k in range(3):
             direction = DIRECTIONS[k]
             row = view.participation[m_index][k]
+            if any((free[a] and nonzero[a] and b % 6 == k) or (free[b] and nonzero[b] and a % 6 == k)
+                   for a, b in open_keys):
+                items.append(UNRESOLVED + f"mode {label} along {direction}: φᵀp_k uses a mass entry outside the "
+                             "rounding model")
+                cumulative_open[k] = True
+                continue
+            t_open = any(a % 6 == k and b % 6 == k for a, b in open_keys)
             q = ZERO
             for a in range(n_dofs):
                 if free[a] and nonzero[a]:
@@ -1465,7 +1476,8 @@ def participation_items(model: ModelMass, view) -> list[str]:
             try:
                 gamma = published_image(relative(q / wide, DD_RELATIVE * 2))
                 effective = published_image(relative(q.square() / wide, DD_RELATIVE * 3))
-                fraction = published_image(relative(q.square() / (wide * totals[k]), DD_RELATIVE * 4))
+                fraction = None if t_open else \
+                    published_image(relative(q.square() / (wide * totals[k]), DD_RELATIVE * 4))
             except (Undecidable, OutsideModel) as error:
                 items.append(UNRESOLVED + f"mode {label} along {direction}: {error}")
                 cumulative_open[k] = True
@@ -1474,6 +1486,11 @@ def participation_items(model: ModelMass, view) -> list[str]:
                 what = f"mode {label}: {name} along {direction} against the model"
                 _guarded(items, what, lambda: _judge(what, vo, expected, signed))
             fraction_vo = row["fraction"]
+            if t_open:
+                items.append(UNRESOLVED + f"mode {label}: the fraction along {direction} uses T_{direction}, which sums "
+                             "a mass entry outside the rounding model")
+                cumulative_open[k] = True
+                continue
             if fraction_vo.undefined == "total_mass_zero":
                 if totals[k].excludes_zero():
                     raise Contradiction(f"mode {label}: the fraction along {direction} claims T_k = 0, but the model's T_k is not 0")
