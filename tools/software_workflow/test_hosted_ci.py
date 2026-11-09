@@ -260,6 +260,53 @@ class HostedCITests(unittest.TestCase):
         self.assertEqual(plan['paths'], ['projects/chirality-app-v4/app/src/candidate.ts'])
         self.assertEqual(plan['modes'], dict.fromkeys(SUITES, 'full'))
 
+    # A merge-queue group is the queue's temporary merge commit of a pull request
+    # onto the queue's base. It selects exactly as a pull request with that base
+    # and head would.
+
+    def queue_candidate(self):
+        """(queue base, queue head): main advanced past the PR's fork point, and
+        the queue's merge commit of the PR onto it. The PR edits README.md."""
+        self.git('checkout', '-qb', 'candidate')
+        self.write('README.md', 'Edited prose.\n')
+        self.commit()
+        self.git('checkout', '-qb', 'queue-base', self.base)
+        self.write('unknown-root-input.bin')
+        self.write('tools/hosted-ci-routing.json', json.dumps(PROFILE))
+        queue_base = self.commit()
+        self.git('merge', '-q', '--no-ff', '--no-edit', 'candidate')
+        return queue_base, self.git('rev-parse', 'HEAD')
+
+    def test_merge_group_selects_as_a_pull_request_with_the_queue_base_and_head(self):
+        queue_base, queue_head = self.queue_candidate()
+        queued = make_plan(self.root, PROFILE, 'merge_group', queue_base, queue_head)
+        self.assertEqual((queued['event'], queued['head'], queued['target_base']), ('merge_group', queue_head, queue_base))
+        self.assertEqual(queued['base'], queue_base)
+        # The base's own advance is not the candidate's change.
+        self.assertEqual(queued['paths'], ['README.md'])
+        pull = make_plan(self.root, PROFILE, 'pull_request', queue_base, queue_head)
+        self.assertEqual({**queued, 'event': 'pull_request'}, pull)
+        validate_plan(self.root, queued)
+        with self.assertRaises(ValueError):
+            validate_plan(self.root, {**queued, 'paths': []})
+
+    def test_merge_group_without_a_complete_diff_runs_full_coverage(self):
+        self.queue_candidate()
+        for base in ['', '0' * 40]:
+            with self.subTest(base=base):
+                plan = make_plan(self.root, PROFILE, 'merge_group', base, 'HEAD')
+                self.assertEqual((plan['base'], plan['paths']), (None, []))
+                self.assertEqual(plan['modes'], dict.fromkeys(SUITES, 'full'))
+                repository = hosted_ci.repository_plan(self.root, 'merge_group', base, 'HEAD')
+                self.assertEqual((repository['mode'], repository['deselect']), ('full', []))
+
+    def test_merge_group_repository_regressions_follow_the_queued_diff(self):
+        queue_base, _ = self.queue_candidate()
+        queued = hosted_ci.repository_plan(self.root, 'merge_group', queue_base, 'HEAD')
+        self.assertEqual((queued['mode'], queued['paths']), ('markdown-only', ['README.md']))
+        pull = hosted_ci.repository_plan(self.root, 'pull_request', queue_base, 'HEAD')
+        self.assertEqual({**queued, 'event': 'pull_request'}, pull)
+
     def test_renamed_fixture_keeps_old_and_new_paths(self):
         original = 'fixtures/old.json'
         self.write(original)
