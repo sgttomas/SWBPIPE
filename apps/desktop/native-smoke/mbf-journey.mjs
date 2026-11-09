@@ -10,16 +10,18 @@
 // launches that copy twice against a throwaway HOME with `mbf-journey.js`:
 //
 //   1. bound:   Open the invented `export_model.json`, Export MBF with the dialog's defaults and save the pair;
-//               Import MBF of that pair and Adopt; Save Model Document of the adopted session; then the Open
-//               guard (edit node:A, import again, Adopt, cancel the unsaved-changes prompt).
+//               Import MBF of that pair, Designate original source… with the opened `export_model.json` and Adopt
+//               the designated review; Save Model Document of the adopted session; then the Open guard (edit
+//               node:A, import again, Adopt, cancel the unsaved-changes prompt).
 //   2. unbound: the MBF copied alone to another folder (the identity file left behind) is imported, its
 //               material declared as project-invented, and adopted; Save Model Document.
 //
 // The only substitution for a person is the file choosers (`native_smoke_choose`). Everything else, from the
 // export review and atomic save to the native import review, Adopt and the Open validator, runs on the product's
 // code. The runner judges against the maintained fixtures: the saved pair's SHA-256 values and the declaration in
-// `fixtures/caepipe_mbf/invented/desktop_import/import_replies.json`, its bound and unbound adopted model hashes
-// (RFC 8785 JCS SHA-256 of the saved model documents), and the review's identity rows. It writes `summary.json`
+// `fixtures/caepipe_mbf/invented/desktop_import/import_replies.json`, its designated-review statement and its
+// designated-Adopt and unbound adopted model hashes (RFC 8785 JCS SHA-256 of the saved model documents), and the
+// reviews' identity rows. It writes `summary.json`
 // with the app's identity, engine stamps, source revision and every file digest, and keeps that evidence unless
 // `--discard` is given and every check passed. `--judge` re-judges a kept evidence directory with no build or launch
 // (its `summary.json` keeps the run's app identity, engine stamps and revision; the result is `summary-judged.json`); it
@@ -274,8 +276,24 @@ check("bound import: every identity class row is the native review's", identityR
 check("bound import: the review is complete", /complete/i.test(bound.import?.completeness ?? "") && !/incomplete|truncat/i.test(bound.import?.completeness ?? ""), bound.import?.completeness);
 check("bound import: every loss entry is listed, the source-completeness notice included", bound.import?.loss?.length === boundReview.loss_entries.length
   && boundReview.loss_entries.every((entry) => bound.import.loss.some((item) => item.includes(entry.code))), bound.import?.loss);
-check("bound adopt: the session holds the unsaved import", /Not saved as a local project yet/.test(bound.adopted?.message ?? ""), bound.adopted);
-check("bound adopt: the adopted model is the native bound import's", documentSha(saved.bound) === adoptedSha("bound-adopt"), documentSha(saved.bound));
+const designateReply = reply("bound-designate");
+const designatedReview = designateReply.review;
+const designation = designatedReview.identity.designation;
+check("bound designate: the native designation rests on the bound review and names the opened source",
+  designateReply.baseReviewSha256 === reply("bound-open").reviewSha256 && designation?.sha256 === sha(sourceBytes) && designation?.file_name === path.basename(SOURCE_FIXTURE),
+  { base: designateReply.baseReviewSha256, designation });
+check("bound designate: the review states the identity set established for the designated source, with no reason or refusal",
+  designation?.outcome === "established_for_identity_set" && bound.designated?.designation?.includes(`${designation.file_name} (${designation.bytes} bytes)`)
+  && /the import has the same ids in each class/.test(bound.designated?.designation ?? "") && bound.designated?.reasons?.length === 0
+  && !bound.designated?.differing_classes && !bound.designated?.designation_refusal && /^Established for the identity set/.test(bound.designated?.source_completeness ?? ""),
+  bound.designated && { designation: bound.designated.designation, reasons: bound.designated.reasons, refusal: bound.designated.designation_refusal, source_completeness: bound.designated.source_completeness });
+check("bound designate: every identity class row is the designated review's", identityRows(designatedReview).every((row) => bound.designated?.identity?.includes(row)), identityRows(designatedReview));
+check("bound designate: the designated review is complete and offers Adopt", /complete/i.test(bound.designated?.completeness ?? "") && !/incomplete|truncat/i.test(bound.designated?.completeness ?? "")
+  && bound.designated?.adopt_disabled === false, bound.designated && { completeness: bound.designated.completeness, adopt_disabled: bound.designated.adopt_disabled });
+check("bound adopt of the designated review: the session holds the unsaved import", /Not saved as a local project yet/.test(bound.adopted?.message ?? ""), bound.adopted);
+// Adopt of the designated review takes its model from the pair: the native designated Adopt's document is the bound Adopt's.
+check("bound adopt of the designated review: the adopted model is the native designated Adopt's, which is the bound import's",
+  documentSha(saved.bound) === adoptedSha("bound-designated-adopt") && adoptedSha("bound-designated-adopt") === adoptedSha("bound-adopt"), documentSha(saved.bound));
 check("guard: the edit applied and the session is edited", /1 applied/.test(bound.guard?.edit?.summary ?? "") && /Edited/.test(bound.guard?.edit?.edited ?? ""), bound.guard?.edit);
 check("guard: Adopt over unsaved edits asks first; cancelling opens nothing and keeps the edits",
   bound.guard?.prompt && /Not opened/.test(bound.guard.message ?? "") && bound.guard.dialog_closed && /Edited/.test(bound.guard.edited_after ?? ""), bound.guard);

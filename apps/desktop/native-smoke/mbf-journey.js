@@ -4,15 +4,16 @@
 //
 // It works the app as a person would: native menu commands go through the dispatch a menu click uses, and
 // buttons, the review's own intent control and the declaration selects are operated in the window. The only
-// substitution is the file choosers (Open Model Document…, Export MBF's save, Import MBF's open and Save Model
-// Document…): `native_smoke_choose` names the file the next chooser returns. Export review, save, read-back,
+// substitution is the file choosers (Open Model Document…, Export MBF's save, Import MBF's open, Designate original
+// source… and Save Model Document…): `native_smoke_choose` names the file the next chooser returns. Export review, save, read-back,
 // import review and Adopt run on the product's native workers. It records what the window shows; the runner
 // judges against the maintained fixtures.
 //
 // Phases (plan.phase):
 //   bound   - Open the invented source, Export MBF with the dialog's default settings and save the pair; Import
-//             MBF of that pair (bound) and Adopt; Save Model Document of the adopted session. Then the Open guard:
-//             edit node:A, import the pair again, Adopt, and cancel the unsaved-changes prompt.
+//             MBF of that pair (bound), Designate original source… with the opened source document (the
+//             model-document chooser) and Adopt the designated review; Save Model Document of the adopted session.
+//             Then the Open guard: edit node:A, import the pair again, Adopt, and cancel the unsaved-changes prompt.
 //   unbound - Import the MBF copied without its identity file, declare its material and Adopt; Save Model Document.
 (() => {
   const ipc = window.__TAURI_INTERNALS__;
@@ -142,6 +143,26 @@
     };
   }
 
+  // Designate original source… (Design §5.4): the model-document chooser returns `path`; the dialog then shows the
+  // designated review, or the designation's refusal over the ordinary review.
+  async function designateSource(dialog, path) {
+    await waitFor("Designate enabled", () => byTestId("mbf-import-designate", dialog)?.disabled === false, 300000);
+    await call("native_smoke_choose", { path });
+    click("mbf-import-designate", dialog);
+    await waitFor("designated review", () => byTestId("mbf-import-designation", dialog) || byTestId("mbf-import-designation-refusal", dialog), 300000);
+    const designation = byTestId("mbf-import-designation", dialog);
+    const seen = {
+      ...importReview(dialog),
+      designation: bounded(designation?.textContent?.trim()),
+      reasons: [...(designation?.querySelectorAll("[data-reason]") ?? [])].map((item) => item.getAttribute("data-reason")),
+      differing_classes: bounded(text("mbf-import-designation-classes", dialog)),
+      source_completeness: bounded(text("mbf-import-source-completeness", dialog)),
+      designation_refusal: bounded(text("mbf-import-designation-refusal", dialog))
+    };
+    await log(`designate: ${seen.designation ?? seen.designation_refusal}`);
+    return seen;
+  }
+
   async function adopt(dialog, label) {
     await waitFor(`${label}: Adopt enabled`, () => byTestId("mbf-import-adopt", dialog)?.disabled === false, 300000);
     const before = message();
@@ -178,7 +199,8 @@
     report.export = await exportAndSave(plan.pair.mbf);
     const dialog = await openImport(plan.pair.mbf);
     report.import = importReview(dialog);
-    report.adopted = await adopt(dialog, "bound");
+    report.designated = await designateSource(dialog, plan.source.path);
+    report.adopted = await adopt(dialog, "bound/designated");
     report.saved = await saveModelDocument(plan.adopted_document, "bound/adopted");
     // The Open guard: a later unsaved edit survives a cancelled import of the earlier pair.
     report.guard = { edit: await editNodeA() };
