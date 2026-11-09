@@ -370,7 +370,10 @@ ac.Supervisor.verify_inodes = delayed_verify
         self.assertEqual((rc, t["outcome"], t["stop_reason"]), (ac.EX_TIMEOUT, "timeout", "timeout"))
         self.assertLessEqual(t["armed_to_release_s"], 1.5)
         acquired = float(stamp.read_text())
-        self.assertGreaterEqual(acquired, t["released_monotonic"])
+        # Locks stay held through containment and sentry reaping. A contender can
+        # acquire after close(), before the controller records its release mark.
+        self.assertGreaterEqual(acquired - t["armed_monotonic"],
+                                t["marks_from_armed_s"]["sentry_reaped"])
         self.assertLessEqual(acquired - t["armed_monotonic"], 1.5 + 0.5, "contender in within the budget")
         self.assert_released_and_intact(t)
 

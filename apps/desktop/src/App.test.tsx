@@ -10875,7 +10875,23 @@ describe("SWBPIPE desktop preview", () => {
     expect(packet.schema_version).toBe("0.3.0");
     expect(packet.result_envelope.row_accounting).toHaveLength(pair.source.results.length);
     expect(packet.result_envelope.producer).toEqual(pair.source.producer);
-    await inspectBundledReference();
+    // Inspection first retains the native result, then loads the bundled reference and publishes it only if its
+    // generation is still current. On hosted runners that path takes longer than the default 1 s query, so wait
+    // for the inspection's own reference load (a call-through spy) to settle, then query as before. If inspection
+    // never reaches the load, the test times out; if the load fails or never publishes, the query fails.
+    const previewServiceModule = await import("./services/previewService");
+    const loadReference = previewServiceModule.loadBundledMechanicsReference;
+    let referenceLoadStarted!: (load: ReturnType<typeof loadReference>) => void;
+    const referenceLoad = new Promise<Awaited<ReturnType<typeof loadReference>>>((resolve) => { referenceLoadStarted = resolve; });
+    vi.spyOn(previewServiceModule, "loadBundledMechanicsReference").mockImplementation((...args) => {
+      const load = loadReference(...args);
+      referenceLoadStarted(load);
+      return load;
+    });
+    await screen.findByTestId("workspace-toolbar");
+    fireEvent.click(within(openWorkspaceSection("solve")).getByRole("button", { name: "Inspect bundled reference" }));
+    await act(async () => { await referenceLoad; });
+    expect(await screen.findByTestId("historical-run-context")).toHaveTextContent("Bundled reference — not a solve for the current model");
     expect(screen.queryByTestId("status-pill-solve-proof")).not.toBeInTheDocument();
     expect(renderedReportButton()).toBeDisabled();
     expect(within(resultExportAudit()).getByTestId("result-export-empty")).toBeInTheDocument();

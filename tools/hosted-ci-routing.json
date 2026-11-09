@@ -268,7 +268,7 @@
       "core/loads/user_loads/Cargo.toml": "6c0add4912f9400459da5f89cfccfe6c7419d29a6641ebff65dbb8dc0c6a3ef6",
       "core/model_operations/operation_applier/Cargo.toml": "51e29628512d3c1ca79bce5a594568576eec33ad1ac64f8192ee65895a216c40",
       "core/numerics/correct_norm/Cargo.toml": "57cbcd985c88d79c7ebf198d9a5d3a68fa67fe74bfd11440791be7c9a44c8844",
-      "core/product_physics/Cargo.toml": "ec55cc3c2fafeb23afce60dca1e96c79142302bf8e9bedd0f1a76747e152d9db",
+      "core/product_physics/Cargo.toml": "2e684e0c079fca3436d2b8516ee4f9a5be4cdff4d7bfe5ba55b5837701814ae1",
       "core/reporting/audit_manifest/Cargo.toml": "b8bc4623a383ed2c22205326bc737486becd9d931bf869e1e8cf40e147f4fad7",
       "core/reporting/pdf_emitter/Cargo.toml": "bdac876fe00cde0e3ba33a557dafe3e76e96dd462f4a710b63012dada23fca50",
       "core/reporting/protected_content_linter/Cargo.toml": "6a11912d00b5c5c502e1f3d6d3036cf60d3e163078afbc3300005fd496a756ef",
@@ -1187,7 +1187,7 @@
         ]
       },
       "core/product_physics/tests/rt_a3_constant_effort_references.rs": {
-        "sha256": "c887ccf76a4ea7673b93ff0ba1bcc913d0a903aac4e8351a85749c1b5434186d",
+        "sha256": "5fd7f6e662e0d9e4a564377865170cd3845523aee69e3b1c4a98b53095711fa4",
         "source_trees": [
           "core/product_physics/Cargo.toml"
         ],

@@ -142,10 +142,16 @@ def active(snapshot):
         return False
     if pressure_digest != PRESSURE_PREFIX_PIN:
         raise ValueError("B5O1: pressure producer/declaration source changed; re-review every owner, child and staging bound")
+    # RT-S3 CE fallback (§8.61, CEF-PJ): solve_prepared_load_case is compared without the exact reviewed branch. It adds
+    # no LoadCaseSolve/ResultItem field, carrier constructor, staging site or support row; on D1 it is unreached
+    # (CEF-D1), and its outside-D1 classifier temporaries are §8.61's stated residuals, not a carrier change.
+    ce = HELPERS["_ce_fallback"]()
     for file, functions in PINS.items():
         source = open(os.path.join(snapshot, file), encoding="utf-8").read()
         for name, digest in functions.items():
             body = HELPERS["function_body"](source, name)
+            if name == "solve_prepared_load_case" and file == ce["LIB"]:
+                body = ce["s6_body"](source, body)
             if hashlib.sha256(body.encode()).hexdigest() != digest:
                 raise ValueError(f"B5O1: carrier/caller source changed: {file}:{name}; re-review staging and owned children")
     return True

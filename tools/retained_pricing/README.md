@@ -245,6 +245,15 @@ premises), O4-WR (receipt keys, class entries and reduced preparation records), 
 O4-SR (the second composite maximum), O4-SP (source payload keys) and O4-EV (Timoshenko evidence entries). A snapshot
 without them adds nothing and a changed body stops. See the governing rules' §8.9.
 
+### RT-S3 constant-effort fallback
+
+`base/ce_fallback_model.py` binds the six-line CE branch in `solve_prepared_load_case` and its two `lib.rs` tests. The
+existing pins do not change value. B7a domain, KD5C4 and W1 reductions compare `lib.rs`, and KD5T2, KD5C6, batch 5
+and O4 compare the case-solve body, after `s6_text`/`s6_bytes`/`s6_body` remove exactly that delta at its reviewed
+anchors (CEF-PJ). Any other form is not projected, and the pin stops. `rules/o10_rules.py` zeroes only the new
+`solve_prepared_load_case → classify_constant_effort_consumption` edge. Its guard, CEF-D1, binds the branch, its
+receiver, predicate, classifier and force write, and D1.6. See the governing rules' §8.61.
+
 ### W1 coverage repair actual-source owners and the off feature
 
 `base/w1r_owners_model.py` binds, by function-body and span sha256 and by its exact statements, the certified product
