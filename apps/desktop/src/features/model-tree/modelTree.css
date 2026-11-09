@@ -70,3 +70,37 @@
   font-size: var(--type-size-caption);
   line-height: 14px;
 }
+
+/* A resolved reference that selects its entity: the name reads as a link and the exact
+   id stays beneath it. The shell's density rule keeps the control's minimum height and
+   its focus-visible outline stays in force. */
+.inspector .property-reference-link {
+  /* A column flex box takes its first line's baseline, so the row label aligns with the name. */
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 100%;
+  padding: 0 var(--space-1);
+  margin-inline-start: calc(-1 * var(--space-1));
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font-size: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.inspector .property-reference-link .property-reference-name {
+  color: var(--text-link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.inspector .property-reference-link:hover {
+  background: var(--hover-wash);
+}
+
+.inspector .property-reference-link:hover .property-reference-name {
+  text-decoration-thickness: 2px;
+}

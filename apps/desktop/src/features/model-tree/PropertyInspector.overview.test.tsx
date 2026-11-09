@@ -30,8 +30,8 @@ function inventedModel(): PreviewModel {
 
 type Props = ComponentProps<typeof PropertyInspector>;
 
-function mount(selection: EntityRef, model = inventedModel()) {
-  const props: Props = { model, selection, onQueueIntent: vi.fn() };
+function mount(selection: EntityRef, model = inventedModel(), onSelectReference?: Props["onSelectReference"]) {
+  const props: Props = { model, selection, onQueueIntent: vi.fn(), onSelectReference };
   const view = render(<DisplayUnitsProvider initialPreference="SI"><PropertyInspector {...props} /></DisplayUnitsProvider>);
   return {
     select: (next: EntityRef) => view.rerender(<DisplayUnitsProvider initialPreference="SI"><PropertyInspector {...props} selection={next} /></DisplayUnitsProvider>)
@@ -97,5 +97,38 @@ describe("PropertyInspector overview", () => {
     fireEvent.click(screen.getByRole("tab", { name: "Task" }));
     expect(screen.getByTestId("inspector-frozen-task-target")).toHaveTextContent("Draft target: pipe: pipe:1");
     expect(screen.getByTestId("editor-intent-value")).toHaveValue("Draft name");
+  });
+
+  it("selects a resolved reference as its own type, from a native button", () => {
+    const onSelect = vi.fn();
+    mount({ type: "pipe", id: "pipe:1" }, inventedModel(), onSelect);
+    const from = within(overview("From")).getByRole("button", { name: "Select node Node named X (X)" });
+    expect(from).toHaveAttribute("type", "button");
+    expect(from).toHaveAttribute("data-testid", "property-reference");
+    fireEvent.click(from);
+    expect(onSelect).toHaveBeenLastCalledWith({ type: "node", id: "X" });
+    // The material shares the id "X" and is still selected as a material.
+    fireEvent.click(within(overview("Material")).getByRole("button", { name: "Select material Material named X (X)" }));
+    expect(onSelect).toHaveBeenLastCalledWith({ type: "material", id: "X" });
+    expect(onSelect).toHaveBeenCalledTimes(2);
+    // Focus leaves the pressed reference for the Properties panel, which stays mounted.
+    expect(document.activeElement).toBe(screen.getByRole("tabpanel"));
+  });
+
+  it("leaves an unresolved reference and TBD as text that cannot select", () => {
+    const onSelect = vi.fn();
+    mount({ type: "pipe", id: "pipe:2" }, inventedModel(), onSelect);
+    expect(within(overview("To")).queryByRole("button")).toBeNull();
+    expect(overview("To")).toHaveTextContent("node:missing (no node with this id in the model)");
+    expect(within(overview("Material")).queryByRole("button")).toBeNull();
+    expect(within(overview("Material")).getByRole("definition")).toHaveTextContent(/^TBD$/u);
+    // The resolved From reference is the only selectable one in the overview.
+    expect(within(screen.getByTestId("inspector-overview")).getAllByRole("button")).toHaveLength(1);
+  });
+
+  it("keeps references as text when the host offers no selection route", () => {
+    mount({ type: "pipe", id: "pipe:1" });
+    expect(within(screen.getByTestId("inspector-overview")).queryAllByRole("button")).toHaveLength(0);
+    expect(within(overview("From")).getByTestId("property-reference")).toHaveTextContent("Node named X X");
   });
 });
