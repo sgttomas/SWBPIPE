@@ -218,7 +218,7 @@ fn user_release_unbound_exact_route_refused() {
     args.exact_result_text = Some("{}".into());
     refused(args, &registry, "REPORT-EXACT-SECTIONS-MISMATCH");
     let mut request = basis.request();
-    request["report"]["exact_route"] = json!({"semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-2"});
+    request["report"]["exact_route"] = json!({"semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-3"});
     refused(basis.args_for(&request, &basis.model, &basis.manifest), &registry, "REPORT-EXACT-CUSTODY-RELEASED");
 }
 

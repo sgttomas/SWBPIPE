@@ -239,7 +239,7 @@ describe("admission and the request's members (§2.1-§2.4)", () => {
       PREVIEW_PHYSICS_CONTRACT_ID,
       // DEL-05-03 `pf-timoshenko.md` §4: the pressure-free Timoshenko identity.
       "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1",
-      "openpipestress.result_semantics/0.3.0/pressure-2",
+      "openpipestress.result_semantics/0.3.0/pressure-3",
       "openpipestress.result_semantics/0.3.0/pressure-source-1"
     ]);
   });

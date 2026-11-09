@@ -12,6 +12,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
+  ELONGATION_TRANSLITERATION,
   EXACT_REPORT_STATEMENTS,
   REPORT_EXACT_LIMITATION_UNREGISTERED,
   exactReportStatementFor,
@@ -42,6 +43,7 @@ type CoverageList = {
   load_reference_states: boolean;
   objective_connectors: boolean;
   realized_bends: boolean;
+  pressure_elongation: boolean;
   limitations: string[];
 };
 type Coverage = { schema_version: string; generator: string; lists: CoverageList[]; strings: string[] };
@@ -88,15 +90,15 @@ function strings(value: unknown, out: string[] = []): string[] {
 describe("exact-route statement table (W-11 slice (a))", () => {
   it("covers exactly the coverage fixture's strings, keyed by the SHA-256 of their UTF-8 bytes", async () => {
     expect(coverage.schema_version).toBe("1.0.0");
-    // The ten shapes the producer emits: the six pressure-source-1 shapes with
-    // a connector or a realized bend are never emitted, because source recovery
-    // refuses both (§2.2).
-    expect(coverage.lists).toHaveLength(10);
-    expect(coverage.strings).toHaveLength(19);
+    // The ten shapes the producer emits, each without and with pressure
+    // elongation (RT-L2): the six pressure-source-1 shapes with a connector or a
+    // realized bend are never emitted, because source recovery refuses both (§2.2).
+    expect(coverage.lists).toHaveLength(20);
+    expect(coverage.strings).toHaveLength(21);
     const fixtureDigests = await Promise.all(coverage.strings.map(producerStringSha256));
     const tableDigests = EXACT_REPORT_STATEMENTS.map((item) => item.producer_sha256);
-    expect(EXACT_REPORT_STATEMENTS).toHaveLength(19);
-    expect(new Set(tableDigests).size).toBe(19);
+    expect(EXACT_REPORT_STATEMENTS).toHaveLength(21);
+    expect(new Set(tableDigests).size).toBe(21);
     expect([...tableDigests].sort()).toEqual([...fixtureDigests].sort());
     for (const digest of tableDigests) expect(digest).toMatch(/^[0-9a-f]{64}$/);
     // The fixture's strings are its lists' strings, and nothing else.
@@ -113,7 +115,7 @@ describe("exact-route statement table (W-11 slice (a))", () => {
     expect(exactReportStatementFor(text)).toBeNull();
   });
 
-  it("copies each statement verbatim, except the two source paragraphs, which omit their last sentence", async () => {
+  it("copies each statement verbatim, except the two source paragraphs, which omit their last sentence, and the spelled-out elongation formula", async () => {
     const omitted = coverage.strings.filter((text) => text.endsWith(OMITTED_SENTENCE));
     expect(omitted).toHaveLength(2);
     for (const text of coverage.strings) {
@@ -122,13 +124,25 @@ describe("exact-route statement table (W-11 slice (a))", () => {
         expect(statement).toBe(text.slice(0, -(OMITTED_SENTENCE.length + 1)));
         expect(`${statement} ${OMITTED_SENTENCE}`).toBe(text);
       } else {
-        expect(statement).toBe(text);
+        const spelled = ELONGATION_TRANSLITERATION.reduce((out, [from, to]) => out.split(from).join(to), text);
+        expect(statement).toBe(spelled);
       }
     }
-    // The source paragraphs are S9 and S10: the pressure-2 and the
-    // pressure-source-1 lists' eighth entry.
-    const eighth = new Set(coverage.lists.map((list) => list.limitations[7]));
-    expect(eighth).toEqual(new Set(omitted));
+    // RT-L2: only S4b's formula is spelled out, and only its two characters outside WinAnsi.
+    const spelledOut = coverage.strings.filter((text) => ELONGATION_TRANSLITERATION.some(([from]) => text.includes(from)));
+    expect(spelledOut).toHaveLength(1);
+    expect(spelledOut[0].startsWith("Pressure elongation is included only in the operating load cases")).toBe(true);
+    // The source paragraphs are S9 and S10: the pressure-3 and the
+    // pressure-source-1 lists' ninth entry (after RT-L2's elongation statement).
+    const ninth = new Set(coverage.lists.map((list) => list.limitations[8]));
+    expect(ninth).toEqual(new Set(omitted));
+    // RT-L2: each list carries exactly one elongation statement, the setting's, after "Not modelled".
+    for (const list of coverage.lists) {
+      const at = list.limitations.findIndex((text) => text.startsWith("Not modelled: "));
+      const stated = list.limitations.filter((text) => text.startsWith("Pressure elongation is "));
+      expect(stated).toEqual([list.limitations[at + 1]]);
+      expect(stated[0].startsWith(list.pressure_elongation ? "Pressure elongation is included" : "Pressure elongation is not included")).toBe(true);
+    }
   });
 
   it("maps every fixture list, in the producer's order, one statement per string", async () => {
@@ -145,19 +159,41 @@ describe("exact-route statement table (W-11 slice (a))", () => {
     const list = coverage.lists[0];
     const identity = list.semantic_contract_id;
     const expected = `${REPORT_EXACT_LIMITATION_UNREGISTERED}: ${identity} publishes a limitation this report has no reviewed statement for.`;
-    const source = list.limitations[7];
+    const source = list.limitations[8];
     expect(source.endsWith(OMITTED_SENTENCE)).toBe(true);
     for (const changed of [
       [...list.limitations, "An invented limitation the producer never published."],
       // RT-A3 §4 review cert2 (item 2 withdrawn): an appended certificate claim the source readers admit as
       // untrusted text never reaches a report.
       [...list.limitations, "combination comb:cancel: all derived row groups are established within their stated bound of 1e-30."],
-      list.limitations.map((text, index) => (index === 7 ? text.replace("ordinary structural recovery", "ordinary structural response") : text)),
-      list.limitations.map((text, index) => (index === 7 ? text.slice(0, -(OMITTED_SENTENCE.length + 1)) : text))
+      list.limitations.map((text, index) => (index === 8 ? text.replace("ordinary structural recovery", "ordinary structural response") : text)),
+      list.limitations.map((text, index) => (index === 8 ? text.slice(0, -(OMITTED_SENTENCE.length + 1)) : text))
     ]) {
       expect(changed).not.toEqual(list.limitations);
       await expect(exactReportStatements(identity, changed)).rejects.toThrow(expected);
     }
+  });
+
+  it("RT-L2: binds the two elongation statements and refuses the retired bend statement and a transliterated producer string", async () => {
+    const included = coverage.lists.find((list) => list.pressure_elongation && list.realized_bends);
+    expect(included).toBeDefined();
+    const list = included!.limitations;
+    const at = list.findIndex((text) => text.startsWith("Pressure elongation is included"));
+    const expected = `${REPORT_EXACT_LIMITATION_UNREGISTERED}: ${included!.semantic_contract_id} publishes a limitation this report has no reviewed statement for.`;
+    // The retired bend statement: every realized arc owned the free strain in every case.
+    const retiredBend = "each owns the term K_b*u_free(eps_p) - c_b, with eps_p = (1-2nu)pAi/(E As) (the straight Lame mean Poisson term on the arc) and c_b its own end caps along the end tangents;";
+    const revisedBend = "each owns the term -c_b (c_b its own end caps along the end tangents) and, in a load case that includes pressure elongation, the term K_b*u_free(eps_p) from the arc's own stiffness, with eps_p = (1-2nu)pAi/(E As) (the straight Lame mean Poisson term on the arc);";
+    const bend = list.findIndex((text) => text.includes(revisedBend));
+    expect(bend).toBeGreaterThan(at);
+    for (const changed of [
+      list.map((text, index) => (index === bend ? text.replace(revisedBend, retiredBend) : text)),
+      list.map((text, index) => (index === at ? text.replace("(1 \u2212 2\u03bd)", "(1 - 2nu)") : text))
+    ]) {
+      expect(changed).not.toEqual(list);
+      await expect(exactReportStatements(included!.semantic_contract_id, changed)).rejects.toThrow(expected);
+    }
+    const statements = await exactReportStatements(included!.semantic_contract_id, list);
+    expect(statements[at]).toBe("Pressure elongation is included only in the operating load cases the model settings name, as the closed-end free strain (1 - 2nu)\u00b7p\u00b7A_i/(E\u00b7A_s), with A_i on the pressure bore and A_s the nominal section area; it is not a thin-wall mean-diameter form.");
   });
 
   it("writes its Rust form, exact_report_statements.json, and fails when it is stale", () => {

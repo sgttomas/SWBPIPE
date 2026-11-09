@@ -1,6 +1,6 @@
 """RT-A3 increment 4 (DEL-04-07 Design ``route-unification-r4.md`` §2.4 and §3.5 S5; ``pressure-contract.md``,
 "Nonlinear supports on EX (RT-A3 increment 4)"): the test-only Python pressure-2 reader
-(``tests/verifiers/pressure_2.py`` with ``nonlinear_support_evidence.py``) and the Rust product reader
+(``tests/verifiers/pressure_3.py`` with ``nonlinear_support_evidence.py``) and the Rust product reader
 (``openpipestress-runner read pressure``) take the same verdict on the exact route's nonlinear support results.
 
 Each case of the frozen references (``validation/references/rt_a3_nonlinear/``, 20 of 21; G1-P0 has no load and is
@@ -537,7 +537,7 @@ def test_flat_mechanics_combinations_are_withheld_and_oq1_is_admitted_by_both_re
 
 def test_every_reference_envelope_validates_against_the_pressure_2_result_schema(solved):
     """No new reason code or row kind is published: the nonlinear support kinds, their diagnostics, the gap standing and
-    the combination gate are already in ``results_pressure_2.v0.3.schema.json``, and every reference envelope (and the
+    the combination gate are already in ``results_pressure_3.v0.3.schema.json``, and every reference envelope (and the
     combination document's, gate-withheld) validates."""
     from tests.test_rt_a3_constant_effort_schema import _pressure_schema, _validate
     schema = _pressure_schema()

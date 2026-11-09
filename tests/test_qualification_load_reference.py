@@ -273,7 +273,7 @@ class PinTests(unittest.TestCase):
         # pre-pass over the pressure reader, against the pressure-2 table (the retired load-reference-1 table is gone).
         self.assertEqual((lr.MODULE, lr.BINDING_FORMAT), ('core/reporting/result_export/src/load_reference.rs',
                                                           'openpipestress.load_reference_consistency_binding/3'))
-        self.assertEqual((lr.CONTRACT, lr.READER, lr.ENTRYPOINT), ('openpipestress.result_semantics/0.3.0/pressure-2', 'pressure', 'validate_pressure_evidence'))
+        self.assertEqual((lr.CONTRACT, lr.READER, lr.ENTRYPOINT), ('openpipestress.result_semantics/0.3.0/pressure-3', 'pressure', 'validate_pressure_evidence'))
         self.assertEqual(lr.TRANSPORT, 'pressure_1_load_state_cli_1.0_raw0.2')
         self.assertFalse((PROJECT / 'fixtures/results/semantic_contract_v0_3_load_reference_1.json').exists())
         self.assertNotIn('source', lr.CONTRACT.rsplit('/', 1)[-1])

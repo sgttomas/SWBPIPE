@@ -309,7 +309,7 @@ fn the_fixtures_strings_ending_in_the_omitted_sentence_are_the_two_source_paragr
         .filter(|text| text.ends_with(OMITTED_SENTENCE))
         .collect();
     let paragraphs: std::collections::BTreeSet<&str> =
-        coverage["lists"].as_array().unwrap().iter().map(|list| list["limitations"][7].as_str().unwrap()).collect();
+        coverage["lists"].as_array().unwrap().iter().map(|list| list["limitations"][8].as_str().unwrap()).collect();
     assert_eq!(ending.len(), 2);
     assert_eq!(ending.iter().copied().collect::<std::collections::BTreeSet<_>>(), paragraphs);
 }
@@ -372,7 +372,7 @@ fn item_9_refuses_unregistered_and_changed_limitations() {
         let error = check_exact_sections(&source, &document, &audit, &report).unwrap_err();
         assert_eq!(
             error,
-            format!("{code}: openpipestress.result_semantics/0.3.0/pressure-2 publishes a limitation this report has no reviewed statement for."),
+            format!("{code}: openpipestress.result_semantics/0.3.0/pressure-3 publishes a limitation this report has no reviewed statement for."),
             "{name}"
         );
     }

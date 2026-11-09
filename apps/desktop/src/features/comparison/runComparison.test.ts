@@ -127,7 +127,7 @@ describe("the standing gate (conservative, whole run)", () => {
   it("compares no pair when the runs' result semantic identities differ (route, contract or its table hash)", () => {
     for (const other of [
       { ...IDENTITY, route: "pressure" },
-      { ...IDENTITY, contract_id: "openpipestress.result_semantics/0.3.0/pressure-2" },
+      { ...IDENTITY, contract_id: "openpipestress.result_semantics/0.3.0/pressure-3" },
       { ...IDENTITY, contract_sha256: "6991" }
     ]) {
       const comparison = compareRunInputs(input(left), input(right, { semantic_identity: other }));

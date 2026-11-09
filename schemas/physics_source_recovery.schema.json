@@ -1484,7 +1484,8 @@
               "approximation",
               "provenance",
               "geometry_representation_guard",
-              "result_ids"
+              "result_ids",
+              "pressure_elongation"
             ],
             "properties": {
               "load_case_id": {
@@ -1825,6 +1826,14 @@
                   "type": "string",
                   "minLength": 1
                 }
+              },
+              "pressure_elongation": {
+                "type": "string",
+                "enum": [
+                  "included",
+                  "not_included"
+                ],
+                "description": "RT-L2 (DEL-04-07 Design pressure-elongation.md §5): whether this case includes pressure elongation, the closed-end free pressure strain (1 - 2nu)pAi/(E As). Included: the straight Poisson group's coefficient is sign*2nu and a realized arc carries its signed nonzero free strain; not_included: sign*1 and exactly zero. Every pressure region of a case states the same value."
               }
             }
           }
@@ -2124,6 +2133,14 @@
                   },
                   "screen_is_not_numerical_qualification": {
                     "const": true
+                  },
+                  "pressure_elongation": {
+                    "type": "string",
+                    "enum": [
+                      "included",
+                      "not_included"
+                    ],
+                    "description": "RT-L2: present exactly when the case has pressure regions, equal to their pressure_elongation."
                   }
                 }
               },
@@ -2343,7 +2360,8 @@
         "approximation",
         "provenance",
         "geometry_representation_guard",
-        "result_ids"
+        "result_ids",
+        "pressure_elongation"
       ],
       "properties": {
         "load_case_id": {
@@ -2396,6 +2414,14 @@
         },
         "result_ids": {
           "$ref": "#/$defs/pressure_source_ordinary_evidence/properties/pressure/items/properties/result_ids"
+        },
+        "pressure_elongation": {
+          "type": "string",
+          "enum": [
+            "included",
+            "not_included"
+          ],
+          "description": "RT-L2 (DEL-04-07 Design pressure-elongation.md §5): whether this case includes pressure elongation, the closed-end free pressure strain (1 - 2nu)pAi/(E As). Included: the straight Poisson group's coefficient is sign*2nu and a realized arc carries its signed nonzero free strain; not_included: sign*1 and exactly zero. Every pressure region of a case states the same value."
         }
       }
     },

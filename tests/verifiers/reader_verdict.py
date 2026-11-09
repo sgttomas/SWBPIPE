@@ -22,7 +22,7 @@ retires (`numericalResultQuality.ts`'s `sourceContract` and `numericalResultStan
   TypeScript header's checks (the source route's receipt shape, the evidence object the pressure route
   needs, no identity outside these routes).
 - pressure-2 (DEL-04-07 `pressure-contract.md`, "Reading pressure-2"): its own route, read here by the
-  independent `pressure_2` verifier with G2's model checks and the ordinary standing; it has no transport
+  independent `pressure_3` verifier with G2's model checks and the ordinary standing; it has no transport
   reader, so a transported pressure-2 statement is refused by name.
 - B7b (A4/A5): five routes (`pressure_source`, `preview_physics`, `pressure`, `retained_preview_physics`,
   `retained_physics`) and four readers (`preview-physics`, `pressure-source`, `source-recovery`,
@@ -42,7 +42,7 @@ import re
 from typing import Any
 
 from . import compatibility as c
-from . import physics_source, preview_physics_evidence, pressure_2, section_basis as sb, source_blocks
+from . import physics_source, preview_physics_evidence, pressure_3, section_basis as sb, source_blocks
 
 ROUTES = ("pressure_source", "preview_physics", "pressure", "retained_preview_physics", "retained_physics")
 READERS = ("preview-physics", "pressure-source", "source-recovery", "pressure")
@@ -96,7 +96,7 @@ def _refusal(text: str) -> dict[str, Any]:
 
 def _table(identity: str | None) -> Any:
     if identity == c.PRESSURE_SOURCE_CONTRACT_ID: return physics_source.pressure_source_table()
-    if identity == PRESSURE_CONTRACT_ID: return pressure_2.pressure_table()
+    if identity == PRESSURE_CONTRACT_ID: return pressure_3.pressure_table()
     path = _TABLE_PATHS[identity]
     key = str(path)
     if key not in _TABLES:
@@ -144,6 +144,8 @@ def _metadata_header(source: Any) -> str:
         raise Refused(f"{c.SOURCE_PRECISION_1_RETIRED}: precision-1 results are no longer read; re-run the analysis")
     if identity == c.RETIRED_PRESSURE_1_CONTRACT_ID:
         raise Refused(f"{c.SOURCE_PRESSURE_1_RETIRED}: pressure-1 results are no longer read; re-run the analysis")
+    if identity == c.RETIRED_PRESSURE_2_CONTRACT_ID:
+        raise Refused(f"{c.SOURCE_PRESSURE_2_RETIRED}: pressure-2 results are no longer read; re-run the analysis")
     if identity == c.RETIRED_PREVIEW_PHYSICS_1_CONTRACT_ID:
         raise Refused(f"{c.SOURCE_PREVIEW_PHYSICS_1_RETIRED}: preview-physics-1 results are no longer read; re-run the analysis")
     if identity == c.RETIRED_SOURCE_BLOCKS_CONTRACT_ID:
@@ -396,10 +398,10 @@ def validate(reader: str, source: Any, model: Any = None, invocation: Any = None
             return {"ok": True}
         if reader == "pressure":
             if model is None:
-                pressure_2.validate_pressure_evidence(source)
+                pressure_3.validate_pressure_evidence(source)
             else:
                 # RT-A3 §4: with the model, the certificate is read after the model checks.
-                pressure_2.validate_pressure_evidence_without_certificate(source)
+                pressure_3.validate_pressure_evidence_without_certificate(source)
             if model is not None:
                 physics_model_checks(source, model)
                 # T4-U4b review item 1: the directional binding (the pressure-2 reader only).
@@ -407,7 +409,7 @@ def validate(reader: str, source: Any, model: Any = None, invocation: Any = None
                 u4b.directional_model_checks(source, model, True)
                 # W-15 slice d (DEL-03-05 Design §5): the model's bodies and their records.
                 from . import component_body
-                component_body.model_checks(source, model, pressure_2.pressure_table())
+                component_body.model_checks(source, model, pressure_3.pressure_table())
                 # RT-A3 increment 1: the branch rows bound to the model's tee associations (Rust `exact_model_checks`).
                 u4b.branch_model_checks(source, model)
                 # W-16 slice b (§6): the combination records bound to the model.
@@ -420,7 +422,7 @@ def validate(reader: str, source: Any, model: Any = None, invocation: Any = None
                 # RT-A3 §4: the certificate's records bound to the model's combinations, then the certificate last.
                 from . import combination_certificate
                 combination_certificate.model_checks(source, model)
-                pressure_2.certificate_check(source, model)
+                pressure_3.certificate_check(source, model)
             return {"ok": True}
         if reader == "pressure-source":
             eligible = _source_validate(source, invocation)

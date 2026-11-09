@@ -31,7 +31,7 @@ from core.analysis_runs.compatibility import (
 )
 from core.analysis_runs import rust_reader
 from tests.verifiers.load_reference_evidence import TRANSPORT_SCHEMA_SHA256
-from tests.verifiers.pressure_2 import pressure_table, validate_pressure_evidence, verify_pressure_table
+from tests.verifiers.pressure_3 import pressure_table, validate_pressure_evidence, verify_pressure_table
 from tests.verifiers import compatibility as verifier
 from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1
 
@@ -65,7 +65,7 @@ FROZEN = {
     "fixtures/product_preview/pressure/load_reference/pressure.request.json": "36f2b657c948fb9cb3af87d1626b9b1fe0304861e47d64f8bd2a27625247c0d7",
     "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json": "643e1d24013996e1a8b7e8a59a360803c20636cea5e1e2311c95c9b902f5c829",
     "fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json": "4beff985b4a7121586c69b0f826af516f0cbd0fc139c36137bdb848ee3116213",
-    "fixtures/results/semantic_contract_v0_3_pressure_2.json": PRESSURE_CONTRACT_SHA256,
+    "fixtures/results/semantic_contract_v0_3_pressure_3.json": PRESSURE_CONTRACT_SHA256,
     "schemas/load_reference_state.schema.json": TRANSPORT_SCHEMA_SHA256,
 }
 RAW = ["connected-sparse", "connected-dense", "pressure-sparse", "pressure-dense"]
@@ -246,7 +246,7 @@ def test_shared_adversarial_case(case):
 
 @pytest.mark.parametrize("case", CASES["table_cases"], ids=lambda case: case["id"])
 def test_table_bytes_are_pinned(case):
-    data = (PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_2.json").read_text()
+    data = (PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_3.json").read_text()
     if case["find"] is not None:
         assert case["find"] in data
         data = data.replace(case["find"], case["replace"], 1)
@@ -281,7 +281,7 @@ def test_nonfinite_cases_are_the_only_language_specific_representation():
 def test_actual_envelopes_admit_numerically_and_build_pressure_analysis_run(name):
     raw = actual(name)
     before = deepcopy(raw)
-    assert _source_contract(raw) == (PRESSURE_CONTRACT_ID, PRESSURE_CONTRACT_SHA256, PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_2.json")
+    assert _source_contract(raw) == (PRESSURE_CONTRACT_ID, PRESSURE_CONTRACT_SHA256, PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_3.json")
     assert numerical_use_standing(raw, bases(raw)) == "numerically_eligible"
     record = build_analysis_run_v0_3(raw, input_manifest_ref={"object_type": "InputManifest", "ref": "manifest:load-reference-reader-test"}, input_manifest_hash="1" * 64)
     assert raw == before

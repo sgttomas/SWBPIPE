@@ -748,7 +748,7 @@ def test_b3b_m3x_synthetic_base_is_eligible_and_classified_as_the_milestone(mode
     transport = rp.validate_retained_precision_transport(source)
     assert (transport["numerical_eligible"], transport["standing"], transport["classifications"]) == (False, "needs_recompute", [])
     # D4 (a): the base's own pressure-2 reader accepts the projection (G7).
-    assert dispatch(rp._project(source, rp.EXACT_ROUTE))[0] == "openpipestress.result_semantics/0.3.0/pressure-2"
+    assert dispatch(rp._project(source, rp.EXACT_ROUTE))[0] == "openpipestress.result_semantics/0.3.0/pressure-3"
     # The preview reader's path is not taken: G0 dispatches on the identity.
     assert rp.ROUTES[source["producer"]["semantic_contract_id"]] is rp.EXACT_ROUTE
 
@@ -987,7 +987,7 @@ def _packaged(tmp_path, monkeypatch, edit_table=None, edit_definition=None):
     results = tmp_path / "fixtures/results"
     results.mkdir(parents=True)
     # D4 (a): the exact route's inherited table is pressure-2's.
-    for name in ("semantic_contract_v0_3_physics_retained_1.json", "retained_precision_prepared_exact_v1.json", "semantic_contract_v0_3_pressure_2.json"):
+    for name in ("semantic_contract_v0_3_physics_retained_1.json", "retained_precision_prepared_exact_v1.json", "semantic_contract_v0_3_pressure_3.json"):
         (results / name).write_bytes((ROOT / "fixtures/results" / name).read_bytes())
     table = json.loads((results / "semantic_contract_v0_3_physics_retained_1.json").read_text())
     if edit_table is not None:

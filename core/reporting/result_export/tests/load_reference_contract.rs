@@ -13,7 +13,7 @@ use sha2::{Digest, Sha256};
 
 const CASES: &str = include_str!("fixtures/load_reference_mutations.json");
 const TABLE: &str =
-    include_str!("../../../../fixtures/results/semantic_contract_v0_3_pressure_2.json");
+    include_str!("../../../../fixtures/results/semantic_contract_v0_3_pressure_3.json");
 const PHYSICS_PREFIX: &str = "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE";
 const NONFINITE_MARKER: &str = "__LOAD_REFERENCE_NONFINITE__";
 const RAW: [&str; 4] = [

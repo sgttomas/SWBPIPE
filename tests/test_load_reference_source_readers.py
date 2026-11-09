@@ -36,7 +36,7 @@ from tests.verifiers.physics_source import (
     PRESSURE_PROFILE, SourceContract, pressure_source_table, validate_physics_source, validate_transport_metadata,
     verify_pressure_source_table,
 )
-from tests.verifiers.pressure_2 import validate_pressure_evidence
+from tests.verifiers.pressure_3 import validate_pressure_evidence
 from tests.verifiers.source_blocks import domain_hash
 from tests.verifiers import compatibility as verifier
 from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1

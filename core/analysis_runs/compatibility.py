@@ -492,38 +492,15 @@ PRESSURE_SOURCE_CONTRACT_SHA256 = "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b2577
 _PRESSURE_SOURCE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_source_1.json"
 # pressure-2: the ordinary exact route (a load/reference-state model publishes it with
 # contract_evidence.load_reference_states). Its record carries neither source_block_recovery nor contract_evidence.
-PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
-PRESSURE_CONTRACT_SHA256 = "c5fe09a2dc82068f46ce8dd0b5873071af1ec13e62c9bacf0a009570d7e5d2ad"
-_PRESSURE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_2.json"
-# Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §3.2; owner ruling "0.8.0 a2": recorded runs keep
-# their existing read and compare behaviour). pressure-2's table changed only the model version token of its
-# admitted-families sentence; every row is the same. A run recorded under the 0.7.0-era table binds that exact digest,
-# read by the record validator only as the recorded basis of exactly this current table (id, recorded, current); the
-# builder binds the current table, and any other digest or a mixed binding is refused as before. Model document 0.9.0
-# (Design model-document-0.9.0.md §3.2) edits the same sentence's token again (0.8.0 -> 0.9.0), so a run recorded under
-# the 0.8.0-era table is read the same way. RT-A3 reducer 2a (#73) and 2b (#80) each restated only the table's
-# admitted-families disclosure (supported_profile_limitations[1]; every row is the same), so runs recorded under the
-# 0.9.0 registration's table (d46e1963…) and under 2a's (032e861f…) are read the same way too. RT-A3 increment 3
-# (DEL-04-07 Design pressure-contract.md, "Constant-effort supports") restates two limitations and appends a
-# combination gate, rows unchanged, so a run recorded under the pre-increment table (a2db16a5…) is read the same way.
-# RT-A4 (DEL-05-02 Design absolute-sum-srss-combinations.md §10.2) restates the combination policy (v2: combination
-# operands, absolute sums and SRSS) and adds three vocabulary tokens, rows unchanged, so a run recorded under the
-# constant-effort table (be29fabc…) is read the same way. RT-A3 increment 4 (DEL-04-07 Design pressure-contract.md,
-# "Nonlinear supports on EX") restates two limitations, rows and gates unchanged, so a run recorded under the RT-A4 table
-# (10455bf3…) is read the same way. RT-A3 §4 (DEL-05-02 Work combination-certificate.md, the combination certificate)
-# restates the combination standing and the combinations limitation, rows and gates unchanged, so a run recorded under
-# main's table at 252bef969 (2c20583d…) is read the same way.
+PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-3"
+PRESSURE_CONTRACT_SHA256 = "757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb10813998200d9"
+_PRESSURE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_3.json"
+# Recorded-run table bases: (id, recorded digest, current digest), each read by the record validator only as the
+# recorded basis of exactly that current table. The pressure-2 bases that model documents 0.8.0 and 0.9.0, RT-A3 and
+# RT-A4 added are not carried into pressure-3 (RT-L2, DEL-04-07 Design pressure-elongation.md §5): a pressure-2 record
+# follows the retired-identity rule and is refused by name (SOURCE_PRESSURE_2_RETIRED). None is current.
 # The desktop's twin is analysisRunCompatibility.ts RECORDED_RUN_TABLE_BASES.
-RECORDED_RUN_TABLE_BASES = (
-    (PRESSURE_CONTRACT_ID, "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d", PRESSURE_CONTRACT_SHA256),
-    (PRESSURE_CONTRACT_ID, "5451fbf3e10e085c90b523baa7daf5fc723659e0d874d988d23807be7d2fefe6", PRESSURE_CONTRACT_SHA256),
-    (PRESSURE_CONTRACT_ID, "d46e1963d7502b8e41898805128f2807b2670a1d4c738c71876002ed727e5faf", PRESSURE_CONTRACT_SHA256),
-    (PRESSURE_CONTRACT_ID, "032e861fc66bf5f34a081b104ec879a39831bfd6472b186954966ea57d65f025", PRESSURE_CONTRACT_SHA256),
-    (PRESSURE_CONTRACT_ID, "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e", PRESSURE_CONTRACT_SHA256),
-    (PRESSURE_CONTRACT_ID, "be29fabcfacb1070a51bfb56dcfe61b4e4125638e249c3c0e96d092cc8aba43f", PRESSURE_CONTRACT_SHA256),
-    (PRESSURE_CONTRACT_ID, "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6", PRESSURE_CONTRACT_SHA256),
-    (PRESSURE_CONTRACT_ID, "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645", PRESSURE_CONTRACT_SHA256),
-)
+RECORDED_RUN_TABLE_BASES: tuple[tuple[str, str, str], ...] = ()
 
 
 def recorded_run_semantic_binding(recorded: Any, contract_id: str, contract_hash: str) -> dict[str, str]:
@@ -553,7 +530,7 @@ _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3
 # statements are checked only by the accepted reader, which dispatches on this identity, and its standing comes only
 # from that reader.
 PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
-PHYSICS_RETAINED_CONTRACT_SHA256 = "f17bd9d57ee8d1cef4b465715e4edbf030faa5aa4f5282ad7927c25e3f6668d3"
+PHYSICS_RETAINED_CONTRACT_SHA256 = "094e41545efdc9815af124e91ede505213a70e4425bf32c8e2138cd74ce22893"
 _PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_physics_retained_1.json"
 RETAINED_CONTRACTS = {PREVIEW_PHYSICS_RETAINED_CONTRACT_ID: (PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256, _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH),
                       PHYSICS_RETAINED_CONTRACT_ID: (PHYSICS_RETAINED_CONTRACT_SHA256, _PHYSICS_RETAINED_CONTRACT_PATH)}

@@ -26,9 +26,9 @@ except ImportError:
 from core.analysis_runs import rust_reader
 
 TRANSPORT = 'ordinary_pressure_1_cli_1.0_raw0.2'
-CONTRACT = 'openpipestress.result_semantics/0.3.0/pressure-2'
+CONTRACT = 'openpipestress.result_semantics/0.3.0/pressure-3'
 PROFILE = 'exact_pressure_v3'
-TABLE = 'fixtures/results/semantic_contract_v0_3_pressure_2.json'
+TABLE = 'fixtures/results/semantic_contract_v0_3_pressure_3.json'
 # b7-plan R2: the owned reader is Rust's current pressure-2 reader (`validate_pressure_evidence`, held in
 # physics_evidence.rs); the binding selects its source with the table and unit authority. Re-pin deliberately
 # whenever the reader changes. B7b re-pinned all three: physics-1's reader and table (a6681f69...) are retired.
@@ -36,7 +36,7 @@ MODULE = 'core/reporting/result_export/src/physics_evidence.rs'
 UNITS = 'core/units/src/lib.rs'
 # T4-U6 (D-5, §2.4): the table's per-basis stress signatures (106 signatures, 59 kinds); T4-U5b's tie-rod force
 # and T4-U4b's (§2.2) per-basis kinds (129 signatures, 66 kinds).
-TABLE_SHA256 = 'c5fe09a2dc82068f46ce8dd0b5873071af1ec13e62c9bacf0a009570d7e5d2ad'
+TABLE_SHA256 = '757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb10813998200d9'
 DEPENDENCIES = {
     # T4-U6/U8 re-pins: the D-5 section bases and the Timoshenko beam theory (8bf263d6..., was 38302413...);
     # then §2.5's realized-arc marker (98bdfeee3e: arcs known by `member_kind`, refused on the composite);

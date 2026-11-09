@@ -1161,7 +1161,7 @@ fn rt_s3_consumed_constant_effort_is_published_on_sensitive_no_nonlinear_referen
         let label = format!("RT-S3 no-NL {mode:?}");
         let envelope = solve(&model, mode);
         assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{label}: {:?}", blocking(&envelope));
-        assert_eq!(envelope["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/pressure-2");
+        assert_eq!(envelope["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/pressure-3");
         assert!(with_code(&envelope, "SOURCE_BLOCK_RECOVERY_SELECTED").is_empty(), "{label}: ordinary publication");
         for case in CASES {
             let id = format!("diagnostic:numerical-integrity:{case}");

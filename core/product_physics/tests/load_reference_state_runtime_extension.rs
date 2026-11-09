@@ -39,7 +39,7 @@ const RELATIVE: f64 = 1.0e-9;
 // identities: pressure-2 (ordinary) and pressure-source-1 (a selected
 // retained-source case), both under exact_pressure_v3. Its records keep their
 // own profile (resolved_straight_load_state_v1).
-const SEMANTICS: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
+const SEMANTICS: &str = "openpipestress.result_semantics/0.3.0/pressure-3";
 const PROFILE: &str = "exact_pressure_v3";
 const SOURCE_SEMANTICS: &str = "openpipestress.result_semantics/0.3.0/pressure-source-1";
 const SOURCE_PROFILE: &str = "exact_pressure_v3";

@@ -2,7 +2,7 @@
 
 The Rust reader (``core/reporting/result_export``: ``physics_evidence``,
 ``arc_evidence``, ``connector_evidence``, ``load_reference``) is the only
-product reader of ``openpipestress.result_semantics/0.3.0/pressure-2`` (owner,
+product reader of ``openpipestress.result_semantics/0.3.0/pressure-3`` (owner,
 2026-10-10: "move to one product reader in Rust"; "All readers."). The
 desktop, Python product paths and the VP-STATIC ``exact_pressure_1`` gate take
 that reader's verdict (``reader_verdict``'s ``pressure`` route, through
@@ -62,15 +62,15 @@ from . import combination_certificate, component_body, exact_combinations, globa
 
 PROJECT = Path(__file__).resolve().parents[2]
 
-CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
+CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-3"
 PROFILE = "exact_pressure_v3"
 PRESSURE_V3 = ("3.0.0", "exact_pressure_v3")
 PRODUCER = {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": CONTRACT_ID}
-TABLE_PATH = PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_2.json"
+TABLE_PATH = PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_3.json"
 # T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis); T4-U5b adds the tie-rod force and
 # T4-U4b its 22 per-basis signatures: 129 signatures over 66 kinds; W-7 (DEL-04-01) the six global end-action
 # signatures: 135 over 68; RT-A3 increment 1 the two branch intensified signatures: 137 over 69.
-TABLE_SHA256 = "c5fe09a2dc82068f46ce8dd0b5873071af1ec13e62c9bacf0a009570d7e5d2ad"
+TABLE_SHA256 = "757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb10813998200d9"
 TABLE_SIGNATURE_COUNT = 137
 TABLE_KIND_COUNT = 69
 
@@ -92,6 +92,10 @@ V2_RETIRED_TEXT = (f"{SOURCE_EXACT_PRESSURE_V2_RETIRED}: 2.0.0/exact_straight_pr
 RETIRED_PRESSURE_1_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
 SOURCE_PRESSURE_1_RETIRED = "SOURCE_PRESSURE_1_RETIRED"
 PRESSURE_1_RETIRED_TEXT = f"{SOURCE_PRESSURE_1_RETIRED}: pressure-1 results are no longer read; re-run the analysis"
+# RT-L2 (DEL-04-07 Design pressure-elongation.md §5): the retired pressure-2 identity, refused by name.
+RETIRED_PRESSURE_2_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
+SOURCE_PRESSURE_2_RETIRED = "SOURCE_PRESSURE_2_RETIRED"
+PRESSURE_2_RETIRED_TEXT = f"{SOURCE_PRESSURE_2_RETIRED}: pressure-2 results are no longer read; re-run the analysis"
 RETAINED_METHOD = "contribution_preserving_multiprecision_v1"
 RETAINED_PRECISION_DOWNGRADE_FORBIDDEN = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
 
@@ -171,7 +175,7 @@ STATIONS = ("end_i", "end_j", "quarter_1", "midspan", "quarter_3")
 ARC_STATIONS = {("end_i", "wall_axial_end_action"), ("end_j", "wall_axial_end_action")} | {(station, component) for station in STATIONS for component in ("wall_axial_force", "effective_axial_force", "axial_membrane_stress")}
 STRAIGHT_STATIONS = {(station, component) for station in STATIONS for component in ("wall_axial_force", "effective_axial_force", "axial_membrane_stress", "lame_inner_radial_stress", "lame_outer_radial_stress", "lame_inner_hoop_stress", "lame_outer_hoop_stress")} | {("end_i", "wall_axial_end_action"), ("end_j", "wall_axial_end_action")}
 STRESS_COMPONENTS = {"axial_membrane_stress", "lame_inner_radial_stress", "lame_outer_radial_stress", "lame_inner_hoop_stress", "lame_outer_hoop_stress"}
-REGION_KEYS = {"load_case_id", "region_id", "profile_mode", "profile_version", "pressure_basis", "p_pa", "external_pressure_increment_pa", "member_pipe_ids", "geometry", "materials", "terminals", "applied_loads", "approximation", "provenance", "geometry_representation_guard", "result_ids"}
+REGION_KEYS = {"load_case_id", "region_id", "profile_mode", "profile_version", "pressure_basis", "p_pa", "external_pressure_increment_pa", "member_pipe_ids", "geometry", "materials", "terminals", "applied_loads", "approximation", "provenance", "geometry_representation_guard", "result_ids", "pressure_elongation"}
 # T4-U6 (D-5, §2.5): the pipe_sections entry's keys.
 GEOMETRY = sb.SECTION_KEYS
 MATERIAL = {"pipe_id", "material_id", "E_pa", "nu", "G_pa", "constitutive_basis", "thermal_consumed", "alpha_per_kelvin", "provenance"}
@@ -257,13 +261,15 @@ def validate_exact_pressure_evidence(source: Mapping[str, Any]) -> None:
         raise ValueError(V2_RETIRED_TEXT)
     elif identity == RETIRED_PRESSURE_1_ID:
         raise ValueError(PRESSURE_1_RETIRED_TEXT)
+    elif identity == RETIRED_PRESSURE_2_ID:
+        raise ValueError(PRESSURE_2_RETIRED_TEXT)
     else:
         raise ValueError(f"{CONTRACT_UNKNOWN}: {identity!r}")
 
 
 def validate_pressure_transport_metadata(source: Mapping[str, Any]) -> None:
     """pressure-2 statements without raw rows: closed shape against the results
-    0.3 ``PressureContractEvidence`` (held in ``results_pressure_2.v0.3``; load/reference-state
+    0.3 ``PressureContractEvidence`` (held in ``results_pressure_3.v0.3``; load/reference-state
     records against the frozen load/reference-state schema) and internal joins
     only; never raw row evidence."""
     try:
@@ -366,6 +372,43 @@ def _shape(value: Any, keys: set[str], detail: str) -> None:
     _require(isinstance(value, Mapping) and set(value) == keys, detail)
 
 
+# RT-L2 (DEL-04-07 Design pressure-elongation.md §5; Rust `physics_evidence::elongation_included`,
+# `case_elongation`): every pressure region of a case states whether the case includes pressure
+# elongation. Included: the straight Poisson coefficient is sign*2nu and a realized arc carries its signed
+# nonzero free strain; not included: sign*1 and exactly zero. The refusal names are Rust's.
+PRESSURE_ELONGATION_TOKENS = {"included": True, "not_included": False}
+
+
+def elongation_included(region: Mapping[str, Any]) -> bool:
+    value = region.get("pressure_elongation")
+    _require(isinstance(value, str) and value in PRESSURE_ELONGATION_TOKENS, "SOURCE_PHYSICS_PRESSURE_ELONGATION_INVALID")
+    return PRESSURE_ELONGATION_TOKENS[value]
+
+
+def case_elongation(regions: Any, cid: str) -> bool | None:
+    """The setting the regions of case ``cid`` state, None for a case with none."""
+    stated = {elongation_included(r) for r in regions if isinstance(r, Mapping) and r.get("load_case_id") == cid}
+    _require(len(stated) <= 1, "SOURCE_PHYSICS_PRESSURE_ELONGATION_CASE_MISMATCH")
+    return next(iter(stated), None)
+
+
+def poisson_coefficient(coefficient: float, nu: float, included: bool) -> None:
+    two_nu = abs(2 * nu)
+    expected, other = (two_nu, 1.0) if included else (1.0, two_nu)
+    if abs(coefficient) != expected:
+        _require(abs(coefficient) != other, "SOURCE_PHYSICS_PRESSURE_ELONGATION_COEFFICIENT_MISMATCH")
+        _require(False, "RHS term coefficient binding")
+
+
+def rhs_elongation(rhs: Mapping[str, Any], keys: set[str], elongation: bool | None) -> set[str]:
+    """The assembly's keys: a case with pressure regions states its setting there too, equal to its regions'."""
+    if elongation is None:
+        return keys
+    if isinstance(rhs, Mapping) and set(rhs) == keys | {"pressure_elongation"}:
+        _require(rhs["pressure_elongation"] == ("included" if elongation else "not_included"), "SOURCE_PHYSICS_PRESSURE_ELONGATION_CASE_MISMATCH")
+    return keys | {"pressure_elongation"}
+
+
 def _text(value: Any) -> bool:
     return isinstance(value, str) and bool(value)
 
@@ -437,7 +480,7 @@ def _arc_region(region: Mapping[str, Any], arcs: set[str], p: float) -> None:
         load, forward = loads[pid], geometry[pid]["traversal_forward"]
         if pid in arcs:
             tangents = geometry[pid]["arc_end_tangents_global"]
-            _arc_applied(load, tangents, p)
+            _arc_applied(load, tangents, p, elongation_included(region))
             t_i, t_j = tangents
         else:
             _require(_vector(load.get("local_x_global"), 3), "arc applied load")
@@ -454,11 +497,16 @@ def _arc_region(region: Mapping[str, Any], arcs: set[str], p: float) -> None:
                  and _bits(junction["t_in_global"]) == _bits(directions[k - 1][2]) and _bits(junction["t_out_global"]) == _bits(directions[k][1]), "arc junction tangent")
 
 
-def _arc_applied(load: Any, tangents: list[list[float]], p: float) -> None:
+def _arc_applied(load: Any, tangents: list[list[float]], p: float, included: bool = True) -> None:
     _require(isinstance(load, Mapping) and set(load) == ARC_APPLIED_KEYS and load["bend_term"] == ARC_BEND_TERM and load["arc_pressure_strain_definition"] == ARC_STRAIN_DEFINITION
-             and load["thermal_included"] is False and _vector(load["mathematical_cap_pair_local_n"], 2) and _number(load["arc_pressure_strain"])
-             # (1-2nu) > 0 for an admitted nu, so eps_p has the sign of p.
-             and (load["arc_pressure_strain"] > 0) == (p > 0) and (load["arc_pressure_strain"] < 0) == (p < 0), "arc applied load")
+             and load["thermal_included"] is False and _vector(load["mathematical_cap_pair_local_n"], 2) and _number(load["arc_pressure_strain"]), "arc applied load")
+    # (1-2nu) > 0 for an admitted nu, so an included eps_p has the sign of p; RT-L2: a not-included arc carries
+    # exactly zero, and the other setting's strain is refused by name (Rust `arc_evidence::applied`).
+    strain = load["arc_pressure_strain"]
+    signed = (strain > 0) == (p > 0) and (strain < 0) == (p < 0)
+    if not (signed if included else strain == 0):
+        _require(not (strain == 0 if included else signed), "SOURCE_PHYSICS_ARC_PRESSURE_ELONGATION_MISMATCH")
+        _require(False, "arc applied load")
     given = load["arc_end_tangents_global"]
     _require(isinstance(given, list) and len(given) == 2 and all(_vector(t, 3) for t in given) and [_bits(t) for t in given] == [_bits(t) for t in tangents], "arc applied load")
     caps = load["mathematical_cap_pair_local_n"]
@@ -600,7 +648,7 @@ def _physics(source: Mapping[str, Any]) -> None:
         for pid, nominal in extrema_by_basis[sb.NOMINAL].items():
             if pid in extrema_by_basis[sb.REDUCED]:
                 _basis(sb.extrema_twins, nominal, extrema_by_basis[sb.REDUCED][pid], sections[cid, pid])
-        _validate_rhs(case["pressure_rhs_assembly"], cid, {
+        _validate_rhs(case["pressure_rhs_assembly"], cid, case_elongation(evidence["pressure"], cid), {
             (region.get("region_id"), geometry.get("pipe_id")): geometry.get("arc_end_tangents_global")
             for region in evidence["pressure"] if isinstance(region, Mapping) and region.get("load_case_id") == cid
             for geometry in (region.get("geometry") if isinstance(region.get("geometry"), list) else [])
@@ -615,6 +663,7 @@ def _physics(source: Mapping[str, Any]) -> None:
         arcs = arc_members(region)
         joints = region["approximation"] in {JOINT_APPROXIMATION, ARC_JOINT_APPROXIMATION}
         _shape(region, REGION_KEYS | (ARC_REGION_KEYS if arcs else set()) | ({"member_connector_ids", "joint_edges"} if joints else set()), "region shape")
+        elongation_included(region)
         cid, rid = region["load_case_id"], region["region_id"]
         _require(cid in cases and _text(rid) and (cid, rid) not in regions, "region case/identity")
         regions.add((cid, rid))
@@ -758,8 +807,11 @@ def _physics(source: Mapping[str, Any]) -> None:
                     _require(any(term["pipe_id"] in (j["pipe_in"], j["pipe_out"]) for j in region.get("bend_adjacent_junctions", [])) and abs(term["coefficient"]) == 1, "arc RHS term")
                 else:
                     _require(not (term["kind"] == "poisson_eigen" and term["pipe_id"] in arcs), "arc RHS term")
-                    expected_magnitude = 1 if term["kind"] in {"terminal_cap", "joint_face_cap"} else abs(2 * materials[cid][term["pipe_id"]]["nu"])
-                    _require(abs(term["coefficient"]) == expected_magnitude, "RHS term coefficient binding")
+                    if term["kind"] == "poisson_eigen":
+                        region = next(r for r in evidence["pressure"] if r["load_case_id"] == cid and r["region_id"] == term["region_id"])
+                        poisson_coefficient(term["coefficient"], materials[cid][term["pipe_id"]]["nu"], elongation_included(region))
+                    else:
+                        _require(abs(term["coefficient"]) == 1, "RHS term coefficient binding")
                     if term["kind"] == "joint_face_cap":
                         region = next(r for r in evidence["pressure"] if r["load_case_id"] == cid and r["region_id"] == term["region_id"])
                         node = group["node_ref"]
@@ -1097,14 +1149,14 @@ def _temperature_basis(basis: Any, case_basis: str, material_id: str) -> None:
         _require(False, "temperature selection")
 
 
-def _validate_rhs(rhs: Any, cid: str, arc_tangents: Mapping[tuple[Any, Any], Any] | None = None) -> None:
+def _validate_rhs(rhs: Any, cid: str, elongation: bool | None = None, arc_tangents: Mapping[tuple[Any, Any], Any] | None = None) -> None:
     """``arc_tangents``: the case's realized-arc members' published end tangents by (region, pipe). A realized arc's
     end tangent t = c*d + s*n is formed without renormalizing, so a component can round above 1; an arc term binds its
     group's direction magnitude exactly to one of its arc's end tangent components on the group's axis, and a group
     with no arc term keeps the bound 1 (a straight member's frame axis is at most 1). DEL-04-07 Work
     `pressure-contract.md`, "Direction magnitudes of arc tangents"; Rust `physics_evidence::assembly`."""
     arc_tangents = arc_tangents or {}
-    _shape(rhs, {"method", "load_case_id", "node_order", "dof_order", "dof_units", "assembled_pressure_rhs_global", "groups", "rounded_cap_rhs_global", "rounded_poisson_rhs_global", "rounded_cap_and_eigen_ledgers_are_observational", "cancellation_screen", "screen_limit", "screen_roundoff_multiplier", "screen_is_not_numerical_qualification"}, "pressure RHS shape")
+    _shape(rhs, rhs_elongation(rhs, {"method", "load_case_id", "node_order", "dof_order", "dof_units", "assembled_pressure_rhs_global", "groups", "rounded_cap_rhs_global", "rounded_poisson_rhs_global", "rounded_cap_and_eigen_ledgers_are_observational", "cancellation_screen", "screen_limit", "screen_roundoff_multiplier", "screen_is_not_numerical_qualification"}, elongation), "pressure RHS shape")
     _require(rhs["method"] == "source_factor_grouped_pressure_rhs_v1" and rhs["load_case_id"] == cid and _strings(rhs["node_order"], True) and rhs["dof_order"] == ["Fx", "Fy", "Fz", "Mx", "My", "Mz"] and rhs["dof_units"] == ["N", "N", "N", "N*m", "N*m", "N*m"], "pressure RHS basis")
     _require(rhs["rounded_cap_and_eigen_ledgers_are_observational"] is True and rhs["screen_is_not_numerical_qualification"] is True and rhs["screen_limit"] == 1e-9 and rhs["screen_roundoff_multiplier"] == 32 and _number(rhs["cancellation_screen"]) and 0 <= rhs["cancellation_screen"] <= rhs["screen_limit"], "pressure RHS screen")
     _require(all(_vector(rhs[k], 6 * len(rhs["node_order"])) for k in ("assembled_pressure_rhs_global", "rounded_cap_rhs_global", "rounded_poisson_rhs_global")) and isinstance(rhs["groups"], list), "pressure RHS vectors")
@@ -1205,7 +1257,7 @@ def _schema_shape(value: Any, schema: Mapping[str, Any], root: Mapping[str, Any]
 
 def _transport(source: Mapping[str, Any]) -> None:
     results = json.loads((PROJECT / "schemas/results.v0.3.schema.yaml").read_text())
-    pressure = json.loads((PROJECT / "schemas/results_pressure_2.v0.3.schema.json").read_text())
+    pressure = json.loads((PROJECT / "schemas/results_pressure_3.v0.3.schema.json").read_text())
     # The pressure-2 definitions name the shared ones as `results.v0.3.schema.yaml#/$defs/<name>`;
     # every definition name is unique across the two files.
     root = {"$defs": {**results["$defs"], **pressure["$defs"]}}
@@ -1290,7 +1342,7 @@ LS_MEMBER_STATE_KEYS = ["source_id", "owner_kind", "classification", "consumed_i
 LS_SUPPORT_STATE_KEYS = ["source_id", "owner_kind", "classification", "value"]
 LS_PRESSURE_REGION_KEYS = ["source_id", "owner_kind", "classification", "factor"]
 LS_EXCLUDED_KEYS = ["source_id", "owner_kind", "classification", "category", "reason"]
-LS_REGION_KEYS = ["profile_version", "profile_mode", "load_case_id", "region_id", "member_pipe_ids", "pressure_basis", "p_pa", "external_pressure_increment_pa", "approximation", "geometry_representation_guard", "geometry", "materials", "applied_loads", "terminals", "provenance", "result_ids"]
+LS_REGION_KEYS = ["profile_version", "profile_mode", "load_case_id", "region_id", "member_pipe_ids", "pressure_basis", "p_pa", "external_pressure_increment_pa", "approximation", "geometry_representation_guard", "geometry", "materials", "applied_loads", "terminals", "provenance", "result_ids", "pressure_elongation"]
 LS_REGION_MATERIAL_KEYS = ["pipe_id", "material_id", "E_pa", "nu", "G_pa", "constitutive_basis", "thermal_consumed", "alpha_per_kelvin", "provenance", "temperature_basis"]
 DOFS = ["UX", "UY", "UZ", "RX", "RY", "RZ"]
 LAW_DEFINITIONS = ["engineering_secant", "engineering_dilation", "differential_per_datum_length", "logarithmic_per_current_length"]

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Mechanical regeneration of the current semantic-contract tables and their pins.
 
-The pressure-2 table (`semantic_contract_v0_3_pressure_2.json`) is authored by hand:
+The pressure-2 table (`semantic_contract_v0_3_pressure_3.json`) is authored by hand:
 its rows, vocabulary and limitation sentences are the reviewed content. Everything
 derived from it is regenerated here, never edited by hand:
 
@@ -79,7 +79,7 @@ from pathlib import Path
 PROJECT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT / "tools"))
 from repository_history import source_spec
-PRESSURE = "fixtures/results/semantic_contract_v0_3_pressure_2.json"
+PRESSURE = "fixtures/results/semantic_contract_v0_3_pressure_3.json"
 RETAINED = "fixtures/results/semantic_contract_v0_3_physics_retained_1.json"
 # DEL-05-03 Design pf-timoshenko.md §4: the pressure-free Timoshenko identity, preview-physics-2
 # with its identity, profile and limitation 0 replaced. Never hand-edited.
@@ -94,7 +94,7 @@ TIMOSHENKO_LIMITATION_0 = (
     "Timoshenko with the energy-matched annular shear factor (timoshenko_annulus_energy_v1) and Poisson's ratio "
     "E/(2G) - 1, and realized arcs are Euler-Bernoulli; a straight member's published nodal rotations are section "
     "rotations, not slopes; numerical integrity does not establish physical correctness.")
-SCHEMA = "schemas/results_pressure_2.v0.3.schema.json"
+SCHEMA = "schemas/results_pressure_3.v0.3.schema.json"
 # The members physics-retained-1 inherits unchanged from pressure-2. The retained
 # table's own members (identity, profile, limitations, receipt and formation
 # definitions, accuracy classification, evidence policy) are authored there.
@@ -406,7 +406,7 @@ def table_text(table) -> str:
 def u4b_tables(files: dict) -> None:
     """Edits the four table documents in ``files`` (name -> text) in place."""
     hashes = {}
-    for name, exact in (("pressure_2", True), ("preview_physics_2", False)):
+    for name, exact in (("pressure_3", True), ("preview_physics_2", False)):
         table = json.loads(files[TABLE % name], object_pairs_hook=collections.OrderedDict)
         # W-7's rows, then W-16's and RT-A3's, follow the U4b rows and keep their numbers
         # (apply-w7, apply-w16, apply-branch).
@@ -429,7 +429,7 @@ def u4b_tables(files: dict) -> None:
             limitations[PREVIEW_LIMITATION_SLOTS] = PREVIEW_LIMITATIONS
         files[TABLE % name] = table_text(table)
         hashes[name] = hashlib.sha256(files[TABLE % name].encode()).hexdigest()
-    for name, base in (("physics_retained_1", "pressure_2"), ("preview_physics_retained_1", "preview_physics_2")):
+    for name, base in (("physics_retained_1", "pressure_3"), ("preview_physics_retained_1", "preview_physics_2")):
         table = json.loads(files[TABLE % name], object_pairs_hook=collections.OrderedDict)
         table["inherited_semantic_contract_sha256"] = hashes[base]
         if name == "preview_physics_retained_1":
@@ -498,7 +498,7 @@ def w7_rows(first: int) -> list:
 
 
 def w7_tables(files: dict) -> None:
-    for name, bases in (("pressure_2", [W7_BASIS, W7_WALL_BASIS]), ("preview_physics_2", [W7_BASIS])):
+    for name, bases in (("pressure_3", [W7_BASIS, W7_WALL_BASIS]), ("preview_physics_2", [W7_BASIS])):
         table = json.loads(files[TABLE % name], object_pairs_hook=collections.OrderedDict)
         # W-16's rows (apply-w16) and RT-A3's (apply-branch) follow W-7's and keep their numbers.
         w16 = [r for r in table["rows"] if r["kind"] in W16_KINDS + BRANCH_KINDS + SK1_KINDS]
@@ -522,7 +522,7 @@ def w7_schemas(files: dict) -> None:
     """The closed metadata basis enums of the result schemas: both W-7 bases where the exact
     vocabulary is closed (PressureResultMetadata, ResultMetadata), the plain basis on the
     preview branch (PreviewPhysicsResultMetadata)."""
-    for path, edits in (("schemas/results_pressure_2.v0.3.schema.json", (("PressureResultMetadata", [W7_BASIS, W7_WALL_BASIS]),)),
+    for path, edits in (("schemas/results_pressure_3.v0.3.schema.json", (("PressureResultMetadata", [W7_BASIS, W7_WALL_BASIS]),)),
                         ("schemas/results.v0.3.schema.yaml", (("ResultMetadata", [W7_BASIS, W7_WALL_BASIS]),
                                                               ("PreviewPhysicsResultMetadata", [W7_BASIS])))):
         schema = json.loads(files[path], object_pairs_hook=collections.OrderedDict)
@@ -531,8 +531,8 @@ def w7_schemas(files: dict) -> None:
         files[path] = schema_text(schema, files[path])
 
 
-W7_PATHS = [TABLE % n for n in ("pressure_2", "preview_physics_2", "preview_physics_retained_1")] + [
-    "schemas/results_pressure_2.v0.3.schema.json", "schemas/results.v0.3.schema.yaml"]
+W7_PATHS = [TABLE % n for n in ("pressure_3", "preview_physics_2", "preview_physics_retained_1")] + [
+    "schemas/results_pressure_3.v0.3.schema.json", "schemas/results.v0.3.schema.yaml"]
 
 
 def apply_w7(check: bool) -> int:
@@ -644,18 +644,18 @@ def branch_record() -> dict:
 
 
 def branch_tables(files: dict) -> None:
-    table = json.loads(files[TABLE % "pressure_2"], object_pairs_hook=collections.OrderedDict)
+    table = json.loads(files[TABLE % "pressure_3"], object_pairs_hook=collections.OrderedDict)
     rows = [r for r in table["rows"] if r["kind"] not in BRANCH_KINDS]
     rows = rows + branch_rows(highest(rows) + 1)
     table["rows"] = rows
     table["source_signature_count"] = len(rows)
     table["source_kind_count"] = len({r["kind"] for r in rows})
     extend(table["canonical_metadata_vocabulary"]["basis"]["enum"], BRANCH_BASES)
-    files[TABLE % "pressure_2"] = table_text(table)
+    files[TABLE % "pressure_3"] = table_text(table)
 
 
 def branch_schemas(files: dict) -> None:
-    path = "schemas/results_pressure_2.v0.3.schema.json"
+    path = "schemas/results_pressure_3.v0.3.schema.json"
     schema = json.loads(files[path], object_pairs_hook=collections.OrderedDict)
     defs = schema["$defs"]
     extend(defs["PressureResultMetadata"]["properties"]["basis"]["enum"], BRANCH_BASES)
@@ -664,7 +664,7 @@ def branch_schemas(files: dict) -> None:
     files[path] = schema_text(schema, files[path])
 
 
-BRANCH_PATHS = [TABLE % "pressure_2", "schemas/results_pressure_2.v0.3.schema.json"]
+BRANCH_PATHS = [TABLE % "pressure_3", "schemas/results_pressure_3.v0.3.schema.json"]
 
 
 def apply_branch(check: bool) -> int:
@@ -871,7 +871,7 @@ def u4b_schemas(files: dict) -> None:
     preview = json.loads(files[TABLE % "preview_physics_2"])["supported_profile_limitations"]
     for path, edit in (("schemas/results.v0.3.schema.yaml", lambda s: results_schema(s, preview)),
                        ("schemas/stress_neutral_export.v0.3.schema.json", lambda s: preview_evidence(s["$defs"])),
-                       ("schemas/results_pressure_2.v0.3.schema.json", pressure_schema),
+                       ("schemas/results_pressure_3.v0.3.schema.json", pressure_schema),
                        ("schemas/component.schema.yaml", component_schema)):
         schema = json.loads(files[path], object_pairs_hook=collections.OrderedDict)
         edit(schema)
@@ -880,10 +880,10 @@ def u4b_schemas(files: dict) -> None:
 
 
 
-U4B_PATHS = [TABLE % n for n in ("pressure_2", "preview_physics_2", "physics_retained_1", "preview_physics_retained_1",
+U4B_PATHS = [TABLE % n for n in ("pressure_3", "preview_physics_2", "physics_retained_1", "preview_physics_retained_1",
                                   "pressure_source_1")] + [
     "schemas/results.v0.3.schema.yaml", "schemas/stress_neutral_export.v0.3.schema.json",
-    "schemas/results_pressure_2.v0.3.schema.json", "schemas/component.schema.yaml"]
+    "schemas/results_pressure_3.v0.3.schema.json", "schemas/component.schema.yaml"]
 
 
 def apply_u4b(check: bool) -> int:

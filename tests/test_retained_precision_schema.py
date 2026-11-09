@@ -103,7 +103,7 @@ CODES = ["retained_precision_absolute_verified", "retained_precision_not_covered
 # the preview successor's. Both successors, and only they, carry a receipt.
 EXACT = "openpipestress.result_semantics/0.3.0/physics-retained-1"
 # T4-U6 (D-5, §2.4): follows pressure-2's per-basis table by its inherited hash (was 69581249...).
-EXACT_SHA = "f17bd9d57ee8d1cef4b465715e4edbf030faa5aa4f5282ad7927c25e3f6668d3"
+EXACT_SHA = "094e41545efdc9815af124e91ede505213a70e4425bf32c8e2138cd74ce22893"
 EXACT_PROFILE = "exact_straight_retained_w1a_v2"
 SUCCESSORS = (SUCC, EXACT)
 # b7-plan's pressure-source join: a tenth run branch (no receipt); its contract
@@ -163,7 +163,7 @@ def projected(source):
     base = deepcopy(source)
     del base["retained_precision"]
     exact = source["producer"]["semantic_contract_id"] == EXACT
-    base["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/pressure-2" if exact else PREVIEW
+    base["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/pressure-3" if exact else PREVIEW
     base["formulation_basis"]["profile_id"] = "exact_pressure_v3" if exact else "product_preview_mechanics_v1"
     for row in base["results"]:
         row.pop("recovery_method", None)
@@ -258,7 +258,7 @@ def test_d_u6_2_class_codes_are_admitted_only_in_the_successor_branch():
     assert enum[-2:] == CODES and len(set(enum)) == len(enum)
     clause = {"properties": {"row_disclosures": {"items": {"properties": {"reason_code": {"not": {"enum": CODES}}}}}}}
     from tests.schema_validation import envelope_branches
-    branches = envelope_branches(schema)  # pressure-2's branch is held in results_pressure_2.v0.3
+    branches = envelope_branches(schema)  # pressure-2's branch is held in results_pressure_3.v0.3
     for branch in branches:
         sid = branch["properties"]["producer"]["properties"]["semantic_contract_id"]["const"]
         if sid in SUCCESSORS:
@@ -439,7 +439,7 @@ def exact_source():
     """A pressure-2 statement under the exact successor's identity and profile (its limitations are pressure-2's,
     the branch's const), carrying the shared corpus's first receipt (shape only; no reader runs here)."""
     source = json.loads((ROOT / PLAIN).read_text())
-    assert source["producer"]["semantic_contract_id"] == "openpipestress.result_semantics/0.3.0/pressure-2"
+    assert source["producer"]["semantic_contract_id"] == "openpipestress.result_semantics/0.3.0/pressure-3"
     source = deepcopy(source)
     source["producer"]["semantic_contract_id"] = EXACT
     source["formulation_basis"]["profile_id"] = EXACT_PROFILE
