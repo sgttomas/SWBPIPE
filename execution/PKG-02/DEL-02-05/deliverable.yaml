@@ -150,11 +150,13 @@ code_paths:
 - apps/desktop/src-tauri/src/model_document_file.rs
 - apps/desktop/src-tauri/src/autosave.rs
 - apps/desktop/src-tauri/src/autosave_commands.rs
+- apps/desktop/src-tauri/src/backup.rs
 - apps/desktop/src/features/autosave/**
 - apps/desktop/src/services/modelDocumentFile.ts
 - apps/desktop/src/features/model-file/modelDocumentOpen.test.tsx
 - apps/desktop/e2e/b3b-project-persistence.spec.ts
 checks:
+- apps/desktop/src-tauri/src/backup_tests.rs
 - tests/test_persistence_schema.py
 - tests/test_project_persistence_service.py
 - apps/desktop/src/services/projectService.test.ts

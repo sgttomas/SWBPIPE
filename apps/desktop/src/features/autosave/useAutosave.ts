@@ -19,6 +19,7 @@
 //   Nothing is applied automatically; Open goes through the session's
 //   unsaved-changes guard and adopts the record as Open Model Document does.
 import { useEffect, useRef, useState } from "react";
+import { configureProjectBackup, writeProjectBackup } from "./backupService";
 import type { MutableRefObject } from "react";
 import { canonicalJsonString } from "../../services/hashService";
 import { nativeFailureText } from "../../services/nativeIngress";
@@ -106,6 +107,13 @@ export function useAutosave(deps: AutosaveDeps) {
   const depsRef = useRef(deps);
   depsRef.current = deps;
   const [settings, setSettings] = useState<AutosaveSettings | null>(null);
+  const [backupStatusLine, setBackupStatusLine] = useState<string | null>(null);
+  /** A backup configuration whose native outcome is unknown (its response was
+   * lost): it may have committed, so Turn backups off stays available until a
+   * later definite outcome. */
+  const [backupSettingsUncertain, setBackupSettingsUncertain] = useState(false);
+  const settingsInFlight = useRef(false);
+  const backupSequence = useRef(0);
   const [statusLine, setStatusLine] = useState<string | null>(null);
   const [recoveryPrompt, setRecoveryPrompt] = useState<AutosaveRecoveryPromptState | null>(null);
   const [settingBusy, setSettingBusy] = useState(false);
@@ -175,7 +183,8 @@ export function useAutosave(deps: AutosaveDeps) {
 
   /** The interval control: 0 is off. */
   async function chooseInterval(next: number): Promise<void> {
-    if (!depsRef.current.native || settingBusy) return;
+    if (!depsRef.current.native || settingsInFlight.current || depsRef.current.projectSessionBusy()) return;
+    settingsInFlight.current = true;
     setSettingBusy(true);
     try {
       const outcome = await setAutosaveSettings(next);
@@ -190,7 +199,85 @@ export function useAutosave(deps: AutosaveDeps) {
     } catch (error) {
       if (mounted.current) setStatusLine(`Autosave setting not changed: ${nativeFailureText(error)}`);
     } finally {
+      settingsInFlight.current = false;
       if (mounted.current) setSettingBusy(false);
+    }
+  }
+
+  /** The explicit local-private choice is made before the native folder chooser.
+   * The shared modal hold prevents project replacement or quit during it. */
+  async function configureBackup(enabled: boolean, keep: number | null, intent: boolean): Promise<void> {
+    const current = depsRef.current;
+    if (!current.native || settingsInFlight.current || current.projectSessionBusy()) return;
+    settingsInFlight.current = true;
+    ++backupSequence.current;
+    setSettingBusy(true);
+    const release = current.holdModal();
+    try {
+      const outcome = await configureProjectBackup(enabled, keep, intent);
+      if (!mounted.current) return;
+      if (outcome.outcome === "saved") {
+        setSettings(outcome.settings);
+        setBackupSettingsUncertain(false);
+        setBackupStatusLine(outcome.settings.backup_folder
+          ? "Backups are on after Save Local Project. Existing copies are unchanged."
+          : "Backups are off. Existing copies are kept.");
+      } else if (outcome.outcome === "refused") {
+        setBackupStatusLine(`Backup settings not changed: ${diagnosticsText(outcome.diagnostics)}`);
+      }
+    } catch (error) {
+      // The request may have committed natively before its response was lost.
+      // Refresh the authoritative settings, but keep the state uncertain: a
+      // read cannot prove a still-running change will not land after it.
+      if (!mounted.current) return;
+      setBackupSettingsUncertain(true);
+      let shown = "The current backup setting could not be read back";
+      try {
+        const read = await getAutosaveSettings();
+        if (mounted.current && typeof read?.settings?.autosave_minutes === "number" && !read.status) {
+          setSettings(read.settings);
+          shown = read.settings.backup_folder
+            ? `The saved settings now show backups on, to ${read.settings.backup_folder}`
+            : "The saved settings now show backups off";
+        }
+      } catch {
+        // The unknown outcome below is reported either way.
+      }
+      if (mounted.current) {
+        setBackupStatusLine(`Backup settings outcome unknown (${nativeFailureText(error)}). ${shown}. Turn backups off remains available.`);
+      }
+    } finally {
+      release();
+      settingsInFlight.current = false;
+      if (mounted.current) setSettingBusy(false);
+    }
+  }
+
+  /** Independent of autosave cleanup and never awaited by the successful save.
+   * Native settings are authoritative even if this window's settings are stale.
+   * A later session/save cannot inherit the completion's status. */
+  async function backupProjectSaved(projectId: string, savedHash: string, isCurrent: () => boolean): Promise<void> {
+    if (!depsRef.current.native) return;
+    const sequence = ++backupSequence.current;
+    if (mounted.current && isCurrent()) setBackupStatusLine(null);
+    const publish = (message: string) => {
+      if (mounted.current && sequence === backupSequence.current && isCurrent()) setBackupStatusLine(message);
+    };
+    try {
+      const outcome = await writeProjectBackup(projectId, savedHash);
+      if (outcome.outcome === "written") {
+        publish(`Saved. Backup written: ${outcome.file_name}.${outcome.warnings.length ? ` ${diagnosticsText(outcome.warnings)}` : ""}`);
+      } else if (outcome.outcome === "unchanged") {
+        publish(`Saved. Backup already holds this model: ${outcome.file_name}.${outcome.warnings.length ? ` ${diagnosticsText(outcome.warnings)}` : ""}`);
+      } else if (outcome.outcome === "unverified") {
+        publish(`Saved. Backup copy ${outcome.creation === "unknown" ? "outcome unknown" : "not verified"}: ${outcome.file_name}. ${diagnosticsText(outcome.diagnostics)}`);
+      } else if (outcome.outcome === "refused") {
+        publish(`Saved. Backup not written: ${diagnosticsText(outcome.diagnostics)}`);
+      } else {
+        publish("Saved. Backups are off.");
+      }
+    } catch (error) {
+      publish(`Saved. Backup outcome unknown: ${nativeFailureText(error)}`);
     }
   }
 
@@ -370,8 +457,12 @@ export function useAutosave(deps: AutosaveDeps) {
     offNotice: settings?.autosave_minutes === 0 ? AUTOSAVE_OFF_NOTICE : null,
     settingBusy,
     statusLine,
+    backupStatusLine,
+    backupSettingsUncertain,
     recoveryPrompt,
     chooseInterval,
+    configureBackup,
+    backupProjectSaved,
     afterProjectSaved,
     afterStoredProjectOpened,
     recoverAutosave

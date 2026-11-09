@@ -3580,6 +3580,13 @@ export function useWorkspaceSession() {
         saved.summary.project_id === requestModel.project.id &&
         persistenceHashesMatch(saved, returnedModelHash, recomputedReturnedEnvelopeHash, !responseModelChanged ? requestHistoricalRun?.modelHash ?? null : null) &&
         !responseModelChanged);
+      // Backup reads the verified saved model from native storage. It runs
+      // independently of save completion and autosave cleanup; failures have
+      // their own status and never change the save's result or session basis.
+      if (verifiedResponse && returnedModelHash) {
+        void autosave.backupProjectSaved(saved.summary.project_id, returnedModelHash.value,
+          () => sameProjectSession() && persistedWriteObservation.current === writeObservation);
+      }
       recordPersistenceObservation(saved, returnedModelHash, recomputedReturnedEnvelopeHash, "save", generation, writeObservation, verifiedResponse, requestModel.project.id, Boolean(verifiedResponse && requestHistoricalRun && !responseModelChanged));
       pendingObservation = null;
       if (saved.model.project.id !== requestModel.project.id || saved.summary.project_id !== requestModel.project.id) {

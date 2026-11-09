@@ -231,8 +231,8 @@ fn the_settings_default_is_on_every_five_minutes() {
     assert_eq!(read, AutosaveSettingsRead { settings: AutosaveSettings { autosave_minutes: 5, backup_folder: None, backup_keep: None }, source: "default", status: None });
     assert!(!sandbox.settings_path().exists(), "a read writes nothing");
     assert_eq!(
-        settings_text(&AutosaveSettings::default_settings()),
-        r#"{"document_kind":"swbpipe.desktop.autosave_settings","version":1,"autosave_minutes":5,"backup_folder":null,"backup_keep":null}"#
+        settings_text(&SettingsRecord::default_record()),
+        r#"{"document_kind":"swbpipe.desktop.autosave_settings","version":1,"autosave_minutes":5,"backup_folder":null,"backup_keep":null,"backup_local_private_intent":false}"#
     );
     // The default is one of the choices, and the choices are the Design's.
     assert_eq!(AUTOSAVE_MINUTE_CHOICES, [0, 1, 2, 5, 10, 15, 30]);
@@ -261,6 +261,7 @@ fn each_bad_settings_file_reads_as_the_default_with_a_status_naming_it() {
         ("\"5\" minutes", file_with(json!("5")).into_bytes(), SETTINGS_OUT_OF_RANGE),
         ("no minutes", json!({"document_kind": SETTINGS_KIND, "version": 1, "backup_folder": null, "backup_keep": null}).to_string().into_bytes(), SETTINGS_OUT_OF_RANGE),
         ("keep 4", json!({"document_kind": SETTINGS_KIND, "version": 1, "autosave_minutes": 10, "backup_folder": null, "backup_keep": 4}).to_string().into_bytes(), SETTINGS_OUT_OF_RANGE),
+        ("an intent that is not a boolean", json!({"document_kind": SETTINGS_KIND, "version": 1, "autosave_minutes": 10, "backup_folder": "/invented/folder", "backup_keep": null, "backup_local_private_intent": "yes"}).to_string().into_bytes(), SETTINGS_UNREADABLE),
     ];
     for (label, bytes, code) in cases {
         let sandbox = Sandbox::new("settings-bad");
@@ -312,7 +313,10 @@ fn setting_the_interval_writes_the_file_atomically_and_refuses_values_that_are_n
     for minutes in AUTOSAVE_MINUTE_CHOICES {
         let outcome = set_settings_at(sandbox.data(), minutes, &UnmeteredReadMemory);
         assert_eq!(outcome, AutosaveSettingsWriteOutcome::Saved { settings: AutosaveSettings { autosave_minutes: minutes, backup_folder: None, backup_keep: None } });
-        assert_eq!(fs::read_to_string(sandbox.settings_path()).unwrap(), settings_text(&AutosaveSettings { autosave_minutes: minutes, backup_folder: None, backup_keep: None }));
+        assert_eq!(
+            fs::read_to_string(sandbox.settings_path()).unwrap(),
+            settings_text(&SettingsRecord { autosave_minutes: minutes, ..SettingsRecord::default_record() })
+        );
         let read = get_settings_at(sandbox.data(), &UnmeteredReadMemory).into_unreserved().unwrap();
         assert_eq!((read.settings.autosave_minutes, read.source, read.status), (minutes, "file", None));
     }
@@ -322,14 +326,66 @@ fn setting_the_interval_writes_the_file_atomically_and_refuses_values_that_are_n
         assert_eq!(diagnostics[0].code, SETTINGS_OUT_OF_RANGE, "{minutes}");
         assert_eq!(fs::read(sandbox.settings_path()).unwrap(), before, "{minutes}: nothing was written");
     }
-    let names: Vec<String> = fs::read_dir(&sandbox.root).unwrap().map(|entry| entry.unwrap().file_name().to_string_lossy().into_owned()).collect();
-    assert_eq!(names, vec![SETTINGS_FILE.to_string()], "no temporary file is left");
-    // A readable file's backup members are kept; a bad file is replaced whole.
-    fs::write(sandbox.settings_path(), json!({"document_kind": SETTINGS_KIND, "version": 1, "autosave_minutes": 5, "backup_folder": "/invented/folder", "backup_keep": 10}).to_string()).unwrap();
+    let mut names: Vec<String> = fs::read_dir(&sandbox.root).unwrap().map(|entry| entry.unwrap().file_name().to_string_lossy().into_owned()).collect();
+    names.sort();
+    // The settings lock file is never removed (slice 1's lock rule).
+    let mut expected_names = vec![format!("{SETTINGS_LOCK_SLOT}.lock"), SETTINGS_FILE.to_string()];
+    expected_names.sort();
+    assert_eq!(names, expected_names, "no temporary file is left");
+    // A readable file's backup members are kept, the intent with them; a bad
+    // file is replaced whole.
+    let enabled = SettingsRecord { autosave_minutes: 5, backup_folder: Some("/invented/folder".to_string()), backup_keep: Some(10), backup_local_private_intent: true };
+    fs::write(sandbox.settings_path(), settings_text(&enabled)).unwrap();
     let AutosaveSettingsWriteOutcome::Saved { settings } = set_settings_at(sandbox.data(), 2, &UnmeteredReadMemory) else { panic!() };
     assert_eq!(settings, AutosaveSettings { autosave_minutes: 2, backup_folder: Some("/invented/folder".to_string()), backup_keep: Some(10) });
+    assert_eq!(fs::read_to_string(sandbox.settings_path()).unwrap(), settings_text(&SettingsRecord { autosave_minutes: 2, ..enabled }));
     fs::write(sandbox.settings_path(), b"not json").unwrap();
     let AutosaveSettingsWriteOutcome::Saved { settings } = set_settings_at(sandbox.data(), 15, &UnmeteredReadMemory) else { panic!() };
     assert_eq!(settings, AutosaveSettings { autosave_minutes: 15, backup_folder: None, backup_keep: None });
-    assert_eq!(fs::read_to_string(sandbox.settings_path()).unwrap(), settings_text(&settings));
+    assert_eq!(fs::read_to_string(sandbox.settings_path()).unwrap(), settings_text(&SettingsRecord { autosave_minutes: 15, ..SettingsRecord::default_record() }));
+}
+
+/// A folder in a file written before slice 3 (no recorded intent) is never
+/// a backup folder: it reads as off, is not rewritten by the read, and is
+/// kept, still without intent, when the interval changes.
+#[test]
+fn a_backup_folder_without_the_recorded_intent_reads_as_off_and_is_kept_unused() {
+    let _save_lock = atomic_save_test_lock();
+    let sandbox = Sandbox::new("settings-legacy-folder");
+    let legacy = json!({"document_kind": SETTINGS_KIND, "version": 1, "autosave_minutes": 10, "backup_folder": "/invented/legacy-folder", "backup_keep": 5}).to_string();
+    fs::write(sandbox.settings_path(), &legacy).unwrap();
+    let read = get_settings_at(sandbox.data(), &UnmeteredReadMemory).into_unreserved().unwrap();
+    assert_eq!(read, AutosaveSettingsRead { settings: AutosaveSettings { autosave_minutes: 10, backup_folder: None, backup_keep: Some(5) }, source: "file", status: None });
+    assert_eq!(fs::read_to_string(sandbox.settings_path()).unwrap(), legacy, "a read writes nothing");
+    let record = read_settings_record(&sandbox.root, &UnmeteredReadMemory).into_unreserved().unwrap().record;
+    assert_eq!(record.backup_folder_in_force(), None);
+    let AutosaveSettingsWriteOutcome::Saved { settings } = set_settings_at(sandbox.data(), 2, &UnmeteredReadMemory) else { panic!() };
+    assert_eq!(settings.backup_folder, None, "still off after the interval changed");
+    let kept = SettingsRecord { autosave_minutes: 2, backup_folder: Some("/invented/legacy-folder".to_string()), backup_keep: Some(5), backup_local_private_intent: false };
+    assert_eq!(fs::read_to_string(sandbox.settings_path()).unwrap(), settings_text(&kept));
+}
+
+/// Two writers changing different members at once (the interval, here from
+/// many threads, and the backup members) never undo each other: each change
+/// is a read-modify-write under the settings lock.
+#[test]
+fn concurrent_settings_changes_keep_each_other_s_members() {
+    let _save_lock = atomic_save_test_lock();
+    let owned = Sandbox::new("settings-race");
+    let sandbox = &owned;
+    let enabled = |record: SettingsRecord| -> Result<SettingsRecord, Vec<DispositionDiagnostic>> {
+        Ok(SettingsRecord { backup_folder: Some("/invented/folder".to_string()), backup_keep: Some(3), backup_local_private_intent: true, ..record })
+    };
+    std::thread::scope(|scope| {
+        for round in 0..8 {
+            scope.spawn(move || {
+                let minutes = AUTOSAVE_MINUTE_CHOICES[round % AUTOSAVE_MINUTE_CHOICES.len()];
+                assert!(matches!(set_settings_at(sandbox.data(), minutes, &UnmeteredReadMemory), AutosaveSettingsWriteOutcome::Saved { .. }));
+            });
+        }
+        scope.spawn(move || assert!(matches!(update_settings_at(sandbox.data(), &UnmeteredReadMemory, enabled), AutosaveSettingsWriteOutcome::Saved { .. })));
+    });
+    let record = read_settings_record(&sandbox.root, &UnmeteredReadMemory).into_unreserved().unwrap().record;
+    assert_eq!(record.backup_folder_in_force(), Some("/invented/folder"), "no interval write undid the backup members");
+    assert_eq!(record.backup_keep, Some(3));
 }
