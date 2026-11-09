@@ -3634,710 +3634,1114 @@
       "result_rows": [
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "solver:linear_static_preview",
+          "kind": "linear_solver_mode_basis",
           "label": "linear_solver_mode_basis (linear_solver_mode)",
           "quantity_display": "1 mode_code",
           "row_id": "row:result:solver-mode:linear-solve-basis",
-          "source_ref": "result:result:solver-mode:linear-solve-basis"
+          "source_ref": "result:result:solver-mode:linear-solve-basis",
+          "unit": "mode_code",
+          "value_text": "1"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "node:fixture-root",
+          "kind": "displacement_magnitude",
           "label": "displacement_magnitude",
           "quantity_display": "0 mm",
           "row_id": "row:result:disp:node-fixture-root",
-          "source_ref": "result:result:disp:node-fixture-root"
+          "source_ref": "result:result:disp:node-fixture-root",
+          "unit": "mm",
+          "value_text": "0"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "node:fixture-tip",
+          "kind": "displacement_magnitude",
           "label": "displacement_magnitude",
           "quantity_display": "1.16081 mm",
           "row_id": "row:result:disp:node-fixture-tip",
-          "source_ref": "result:result:disp:node-fixture-tip"
+          "source_ref": "result:result:disp:node-fixture-tip",
+          "unit": "mm",
+          "value_text": "1.1608090399600846"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "node:fixture-root",
+          "kind": "global_nodal_displacement_x",
           "label": "global_nodal_displacement_x (nodal_displacement_x)",
           "quantity_display": "0 mm",
           "row_id": "row:result:disp:node-fixture-root:ux",
-          "source_ref": "result:result:disp:node-fixture-root:ux"
+          "source_ref": "result:result:disp:node-fixture-root:ux",
+          "unit": "mm",
+          "value_text": "0"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "node:fixture-root",
+          "kind": "global_nodal_displacement_y",
           "label": "global_nodal_displacement_y (nodal_displacement_y)",
           "quantity_display": "0 mm",
           "row_id": "row:result:disp:node-fixture-root:uy",
-          "source_ref": "result:result:disp:node-fixture-root:uy"
+          "source_ref": "result:result:disp:node-fixture-root:uy",
+          "unit": "mm",
+          "value_text": "0"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "node:fixture-root",
+          "kind": "global_nodal_displacement_z",
           "label": "global_nodal_displacement_z (nodal_displacement_z)",
           "quantity_display": "0 mm",
           "row_id": "row:result:disp:node-fixture-root:uz",
-          "source_ref": "result:result:disp:node-fixture-root:uz"
+          "source_ref": "result:result:disp:node-fixture-root:uz",
+          "unit": "mm",
+          "value_text": "0"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "node:fixture-root",
+          "kind": "global_nodal_rotation_x",
           "label": "global_nodal_rotation_x (nodal_rotation_x)",
           "quantity_display": "0 rad",
           "row_id": "row:result:disp:node-fixture-root:rx",
-          "source_ref": "result:result:disp:node-fixture-root:rx"
+          "source_ref": "result:result:disp:node-fixture-root:rx",
+          "unit": "rad",
+          "value_text": "0"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "node:fixture-root",
+          "kind": "global_nodal_rotation_y",
           "label": "global_nodal_rotation_y (nodal_rotation_y)",
           "quantity_display": "0 rad",
           "row_id": "row:result:disp:node-fixture-root:ry",
-          "source_ref": "result:result:disp:node-fixture-root:ry"
+          "source_ref": "result:result:disp:node-fixture-root:ry",
+          "unit": "rad",
+          "value_text": "0"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "node:fixture-root",
+          "kind": "global_nodal_rotation_z",
           "label": "global_nodal_rotation_z (nodal_rotation_z)",
           "quantity_display": "0 rad",
           "row_id": "row:result:disp:node-fixture-root:rz",
-          "source_ref": "result:result:disp:node-fixture-root:rz"
+          "source_ref": "result:result:disp:node-fixture-root:rz",
+          "unit": "rad",
+          "value_text": "0"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "node:fixture-tip",
+          "kind": "global_nodal_displacement_x",
           "label": "global_nodal_displacement_x (nodal_displacement_x)",
           "quantity_display": "0.00144686 mm",
           "row_id": "row:result:disp:node-fixture-tip:ux",
-          "source_ref": "result:result:disp:node-fixture-tip:ux"
+          "source_ref": "result:result:disp:node-fixture-tip:ux",
+          "unit": "mm",
+          "value_text": "0.00144686311901723"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "node:fixture-tip",
+          "kind": "global_nodal_displacement_y",
           "label": "global_nodal_displacement_y (nodal_displacement_y)",
           "quantity_display": "0.917137 mm",
           "row_id": "row:result:disp:node-fixture-tip:uy",
-          "source_ref": "result:result:disp:node-fixture-tip:uy"
+          "source_ref": "result:result:disp:node-fixture-tip:uy",
+          "unit": "mm",
+          "value_text": "0.917137277628408"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "node:fixture-tip",
+          "kind": "global_nodal_displacement_z",
           "label": "global_nodal_displacement_z (nodal_displacement_z)",
           "quantity_display": "-0.711572 mm",
           "row_id": "row:result:disp:node-fixture-tip:uz",
-          "source_ref": "result:result:disp:node-fixture-tip:uz"
+          "source_ref": "result:result:disp:node-fixture-tip:uz",
+          "unit": "mm",
+          "value_text": "-0.7115720257461787"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "node:fixture-tip",
+          "kind": "global_nodal_rotation_x",
           "label": "global_nodal_rotation_x (nodal_rotation_x)",
           "quantity_display": "0.000492864 rad",
           "row_id": "row:result:disp:node-fixture-tip:rx",
-          "source_ref": "result:result:disp:node-fixture-tip:rx"
+          "source_ref": "result:result:disp:node-fixture-tip:rx",
+          "unit": "rad",
+          "value_text": "0.0004928637407765739"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "node:fixture-tip",
+          "kind": "global_nodal_rotation_y",
           "label": "global_nodal_rotation_y (nodal_rotation_y)",
           "quantity_display": "0.000948763 rad",
           "row_id": "row:result:disp:node-fixture-tip:ry",
-          "source_ref": "result:result:disp:node-fixture-tip:ry"
+          "source_ref": "result:result:disp:node-fixture-tip:ry",
+          "unit": "rad",
+          "value_text": "0.0009487627009949048"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "node:fixture-tip",
+          "kind": "global_nodal_rotation_z",
           "label": "global_nodal_rotation_z (nodal_rotation_z)",
           "quantity_display": "0.00151802 rad",
           "row_id": "row:result:disp:node-fixture-tip:rz",
-          "source_ref": "result:result:disp:node-fixture-tip:rz"
+          "source_ref": "result:result:disp:node-fixture-tip:rz",
+          "unit": "rad",
+          "value_text": "0.0015180203215918477"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "support:fixture-root",
+          "kind": "support_reaction_component_v2",
           "label": "support_reaction_component_v2 (Fx)",
           "quantity_display": "-1000 N",
           "row_id": "row:result:support-action:23:case:six-component-load:20:support:fixture-root:Fx",
-          "source_ref": "result:result:support-action:23:case:six-component-load:20:support:fixture-root:Fx"
+          "source_ref": "result:result:support-action:23:case:six-component-load:20:support:fixture-root:Fx",
+          "unit": "N",
+          "value_text": "-1000"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "support:fixture-root",
+          "kind": "support_reaction_component_v2",
           "label": "support_reaction_component_v2 (Fy)",
           "quantity_display": "-2000 N",
           "row_id": "row:result:support-action:23:case:six-component-load:20:support:fixture-root:Fy",
-          "source_ref": "result:result:support-action:23:case:six-component-load:20:support:fixture-root:Fy"
+          "source_ref": "result:result:support-action:23:case:six-component-load:20:support:fixture-root:Fy",
+          "unit": "N",
+          "value_text": "-2000"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "support:fixture-root",
+          "kind": "support_reaction_component_v2",
           "label": "support_reaction_component_v2 (Fz)",
           "quantity_display": "3000 N",
           "row_id": "row:result:support-action:23:case:six-component-load:20:support:fixture-root:Fz",
-          "source_ref": "result:result:support-action:23:case:six-component-load:20:support:fixture-root:Fz"
+          "source_ref": "result:result:support-action:23:case:six-component-load:20:support:fixture-root:Fz",
+          "unit": "N",
+          "value_text": "3000"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "support:fixture-root",
+          "kind": "support_reaction_component_v2",
           "label": "support_reaction_component_v2 (Mx)",
           "quantity_display": "-400 N*m",
           "row_id": "row:result:support-action:23:case:six-component-load:20:support:fixture-root:Mx",
-          "source_ref": "result:result:support-action:23:case:six-component-load:20:support:fixture-root:Mx"
+          "source_ref": "result:result:support-action:23:case:six-component-load:20:support:fixture-root:Mx",
+          "unit": "N*m",
+          "value_text": "-400"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "support:fixture-root",
+          "kind": "support_reaction_component_v2",
           "label": "support_reaction_component_v2 (My)",
           "quantity_display": "-2500 N*m",
           "row_id": "row:result:support-action:23:case:six-component-load:20:support:fixture-root:My",
-          "source_ref": "result:result:support-action:23:case:six-component-load:20:support:fixture-root:My"
+          "source_ref": "result:result:support-action:23:case:six-component-load:20:support:fixture-root:My",
+          "unit": "N*m",
+          "value_text": "-2500"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "support:fixture-root",
+          "kind": "support_reaction_component_v2",
           "label": "support_reaction_component_v2 (Mz)",
           "quantity_display": "-2600 N*m",
           "row_id": "row:result:support-action:23:case:six-component-load:20:support:fixture-root:Mz",
-          "source_ref": "result:result:support-action:23:case:six-component-load:20:support:fixture-root:Mz"
+          "source_ref": "result:result:support-action:23:case:six-component-load:20:support:fixture-root:Mz",
+          "unit": "N*m",
+          "value_text": "-2600"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "support:fixture-root",
+          "kind": "support_reaction_force_magnitude_v2",
           "label": "support_reaction_force_magnitude_v2 (force_magnitude)",
           "quantity_display": "3741.66 N",
           "row_id": "row:result:support-action:23:case:six-component-load:20:support:fixture-root:force_magnitude",
-          "source_ref": "result:result:support-action:23:case:six-component-load:20:support:fixture-root:force_magnitude"
+          "source_ref": "result:result:support-action:23:case:six-component-load:20:support:fixture-root:force_magnitude",
+          "unit": "N",
+          "value_text": "3741.657386773941"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "support:fixture-root",
+          "kind": "support_reaction_moment_magnitude_v2",
           "label": "support_reaction_moment_magnitude_v2 (moment_magnitude)",
           "quantity_display": "3629.05 N*m",
           "row_id": "row:result:support-action:23:case:six-component-load:20:support:fixture-root:moment_magnitude",
-          "source_ref": "result:result:support-action:23:case:six-component-load:20:support:fixture-root:moment_magnitude"
+          "source_ref": "result:result:support-action:23:case:six-component-load:20:support:fixture-root:moment_magnitude",
+          "unit": "N*m",
+          "value_text": "3629.049462324811"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_axial_force",
           "label": "element_local_axial_force (axial_force)",
           "quantity_display": "-1000 N",
           "row_id": "row:result:force:pipe-fixture-span:axial",
-          "source_ref": "result:result:force:pipe-fixture-span:axial"
+          "source_ref": "result:result:force:pipe-fixture-span:axial",
+          "unit": "N",
+          "value_text": "-1000"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_axial_force",
           "label": "element_local_axial_force (axial_force)",
           "quantity_display": "1000 N",
           "row_id": "row:result:force:pipe-fixture-span:axial:end-j",
-          "source_ref": "result:result:force:pipe-fixture-span:axial:end-j"
+          "source_ref": "result:result:force:pipe-fixture-span:axial:end-j",
+          "unit": "N",
+          "value_text": "1000"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_shear_force_y",
           "label": "element_local_shear_force_y (shear_force_y)",
           "quantity_display": "-2000 N",
           "row_id": "row:result:force:pipe-fixture-span:shear-y",
-          "source_ref": "result:result:force:pipe-fixture-span:shear-y"
+          "source_ref": "result:result:force:pipe-fixture-span:shear-y",
+          "unit": "N",
+          "value_text": "-2000"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_shear_force_y",
           "label": "element_local_shear_force_y (shear_force_y)",
           "quantity_display": "2000 N",
           "row_id": "row:result:force:pipe-fixture-span:shear-y:end-j",
-          "source_ref": "result:result:force:pipe-fixture-span:shear-y:end-j"
+          "source_ref": "result:result:force:pipe-fixture-span:shear-y:end-j",
+          "unit": "N",
+          "value_text": "2000"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_shear_force_z",
           "label": "element_local_shear_force_z (shear_force_z)",
           "quantity_display": "3000 N",
           "row_id": "row:result:force:pipe-fixture-span:shear-z",
-          "source_ref": "result:result:force:pipe-fixture-span:shear-z"
+          "source_ref": "result:result:force:pipe-fixture-span:shear-z",
+          "unit": "N",
+          "value_text": "3000"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_shear_force_z",
           "label": "element_local_shear_force_z (shear_force_z)",
           "quantity_display": "-3000 N",
           "row_id": "row:result:force:pipe-fixture-span:shear-z:end-j",
-          "source_ref": "result:result:force:pipe-fixture-span:shear-z:end-j"
+          "source_ref": "result:result:force:pipe-fixture-span:shear-z:end-j",
+          "unit": "N",
+          "value_text": "-3000"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_torsional_moment",
           "label": "element_local_torsional_moment (torsional_moment)",
           "quantity_display": "-400 N*m",
           "row_id": "row:result:moment:pipe-fixture-span:torsion",
-          "source_ref": "result:result:moment:pipe-fixture-span:torsion"
+          "source_ref": "result:result:moment:pipe-fixture-span:torsion",
+          "unit": "N*m",
+          "value_text": "-400"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_torsional_moment",
           "label": "element_local_torsional_moment (torsional_moment)",
           "quantity_display": "400 N*m",
           "row_id": "row:result:moment:pipe-fixture-span:torsion:end-j",
-          "source_ref": "result:result:moment:pipe-fixture-span:torsion:end-j"
+          "source_ref": "result:result:moment:pipe-fixture-span:torsion:end-j",
+          "unit": "N*m",
+          "value_text": "400"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_bending_moment_y",
           "label": "element_local_bending_moment_y (bending_moment_y)",
           "quantity_display": "-2500 N*m",
           "row_id": "row:result:moment:pipe-fixture-span:bending-y",
-          "source_ref": "result:result:moment:pipe-fixture-span:bending-y"
+          "source_ref": "result:result:moment:pipe-fixture-span:bending-y",
+          "unit": "N*m",
+          "value_text": "-2500"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_bending_moment_y",
           "label": "element_local_bending_moment_y (bending_moment_y)",
           "quantity_display": "-500 N*m",
           "row_id": "row:result:moment:pipe-fixture-span:bending-y:end-j",
-          "source_ref": "result:result:moment:pipe-fixture-span:bending-y:end-j"
+          "source_ref": "result:result:moment:pipe-fixture-span:bending-y:end-j",
+          "unit": "N*m",
+          "value_text": "-500"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_bending_moment_z",
           "label": "element_local_bending_moment_z (bending_moment_z)",
           "quantity_display": "-2600 N*m",
           "row_id": "row:result:moment:pipe-fixture-span:bending-z",
-          "source_ref": "result:result:moment:pipe-fixture-span:bending-z"
+          "source_ref": "result:result:moment:pipe-fixture-span:bending-z",
+          "unit": "N*m",
+          "value_text": "-2600"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_bending_moment_z",
           "label": "element_local_bending_moment_z (bending_moment_z)",
           "quantity_display": "600 N*m",
           "row_id": "row:result:moment:pipe-fixture-span:bending-z:end-j",
-          "source_ref": "result:result:moment:pipe-fixture-span:bending-z:end-j"
+          "source_ref": "result:result:moment:pipe-fixture-span:bending-z:end-j",
+          "unit": "N*m",
+          "value_text": "600"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_axial_force",
           "label": "element_local_axial_force (axial_force)",
           "quantity_display": "1000 N",
           "row_id": "row:result:force:pipe-fixture-span:quarter-1:axial",
-          "source_ref": "result:result:force:pipe-fixture-span:quarter-1:axial"
+          "source_ref": "result:result:force:pipe-fixture-span:quarter-1:axial",
+          "unit": "N",
+          "value_text": "1000"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_shear_force_y",
           "label": "element_local_shear_force_y (shear_force_y)",
           "quantity_display": "2000 N",
           "row_id": "row:result:force:pipe-fixture-span:quarter-1:shear-y",
-          "source_ref": "result:result:force:pipe-fixture-span:quarter-1:shear-y"
+          "source_ref": "result:result:force:pipe-fixture-span:quarter-1:shear-y",
+          "unit": "N",
+          "value_text": "2000"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_shear_force_z",
           "label": "element_local_shear_force_z (shear_force_z)",
           "quantity_display": "-3000 N",
           "row_id": "row:result:force:pipe-fixture-span:quarter-1:shear-z",
-          "source_ref": "result:result:force:pipe-fixture-span:quarter-1:shear-z"
+          "source_ref": "result:result:force:pipe-fixture-span:quarter-1:shear-z",
+          "unit": "N",
+          "value_text": "-3000"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_torsional_moment",
           "label": "element_local_torsional_moment (torsional_moment)",
           "quantity_display": "400 N*m",
           "row_id": "row:result:moment:pipe-fixture-span:quarter-1:torsion",
-          "source_ref": "result:result:moment:pipe-fixture-span:quarter-1:torsion"
+          "source_ref": "result:result:moment:pipe-fixture-span:quarter-1:torsion",
+          "unit": "N*m",
+          "value_text": "400"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_bending_moment_y",
           "label": "element_local_bending_moment_y (bending_moment_y)",
           "quantity_display": "1750 N*m",
           "row_id": "row:result:moment:pipe-fixture-span:quarter-1:bending-y",
-          "source_ref": "result:result:moment:pipe-fixture-span:quarter-1:bending-y"
+          "source_ref": "result:result:moment:pipe-fixture-span:quarter-1:bending-y",
+          "unit": "N*m",
+          "value_text": "1750"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_bending_moment_z",
           "label": "element_local_bending_moment_z (bending_moment_z)",
           "quantity_display": "2100 N*m",
           "row_id": "row:result:moment:pipe-fixture-span:quarter-1:bending-z",
-          "source_ref": "result:result:moment:pipe-fixture-span:quarter-1:bending-z"
+          "source_ref": "result:result:moment:pipe-fixture-span:quarter-1:bending-z",
+          "unit": "N*m",
+          "value_text": "2100"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_axial_force",
           "label": "element_local_axial_force (axial_force)",
           "quantity_display": "1000 N",
           "row_id": "row:result:force:pipe-fixture-span:midspan:axial",
-          "source_ref": "result:result:force:pipe-fixture-span:midspan:axial"
+          "source_ref": "result:result:force:pipe-fixture-span:midspan:axial",
+          "unit": "N",
+          "value_text": "1000"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_shear_force_y",
           "label": "element_local_shear_force_y (shear_force_y)",
           "quantity_display": "2000 N",
           "row_id": "row:result:force:pipe-fixture-span:midspan:shear-y",
-          "source_ref": "result:result:force:pipe-fixture-span:midspan:shear-y"
+          "source_ref": "result:result:force:pipe-fixture-span:midspan:shear-y",
+          "unit": "N",
+          "value_text": "2000"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_shear_force_z",
           "label": "element_local_shear_force_z (shear_force_z)",
           "quantity_display": "-3000 N",
           "row_id": "row:result:force:pipe-fixture-span:midspan:shear-z",
-          "source_ref": "result:result:force:pipe-fixture-span:midspan:shear-z"
+          "source_ref": "result:result:force:pipe-fixture-span:midspan:shear-z",
+          "unit": "N",
+          "value_text": "-3000"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_torsional_moment",
           "label": "element_local_torsional_moment (torsional_moment)",
           "quantity_display": "400 N*m",
           "row_id": "row:result:moment:pipe-fixture-span:midspan:torsion",
-          "source_ref": "result:result:moment:pipe-fixture-span:midspan:torsion"
+          "source_ref": "result:result:moment:pipe-fixture-span:midspan:torsion",
+          "unit": "N*m",
+          "value_text": "400"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_bending_moment_y",
           "label": "element_local_bending_moment_y (bending_moment_y)",
           "quantity_display": "1000 N*m",
           "row_id": "row:result:moment:pipe-fixture-span:midspan:bending-y",
-          "source_ref": "result:result:moment:pipe-fixture-span:midspan:bending-y"
+          "source_ref": "result:result:moment:pipe-fixture-span:midspan:bending-y",
+          "unit": "N*m",
+          "value_text": "1000"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_bending_moment_z",
           "label": "element_local_bending_moment_z (bending_moment_z)",
           "quantity_display": "1600 N*m",
           "row_id": "row:result:moment:pipe-fixture-span:midspan:bending-z",
-          "source_ref": "result:result:moment:pipe-fixture-span:midspan:bending-z"
+          "source_ref": "result:result:moment:pipe-fixture-span:midspan:bending-z",
+          "unit": "N*m",
+          "value_text": "1600"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_axial_force",
           "label": "element_local_axial_force (axial_force)",
           "quantity_display": "1000 N",
           "row_id": "row:result:force:pipe-fixture-span:quarter-3:axial",
-          "source_ref": "result:result:force:pipe-fixture-span:quarter-3:axial"
+          "source_ref": "result:result:force:pipe-fixture-span:quarter-3:axial",
+          "unit": "N",
+          "value_text": "1000"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_shear_force_y",
           "label": "element_local_shear_force_y (shear_force_y)",
           "quantity_display": "2000 N",
           "row_id": "row:result:force:pipe-fixture-span:quarter-3:shear-y",
-          "source_ref": "result:result:force:pipe-fixture-span:quarter-3:shear-y"
+          "source_ref": "result:result:force:pipe-fixture-span:quarter-3:shear-y",
+          "unit": "N",
+          "value_text": "2000"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_shear_force_z",
           "label": "element_local_shear_force_z (shear_force_z)",
           "quantity_display": "-3000 N",
           "row_id": "row:result:force:pipe-fixture-span:quarter-3:shear-z",
-          "source_ref": "result:result:force:pipe-fixture-span:quarter-3:shear-z"
+          "source_ref": "result:result:force:pipe-fixture-span:quarter-3:shear-z",
+          "unit": "N",
+          "value_text": "-3000"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_torsional_moment",
           "label": "element_local_torsional_moment (torsional_moment)",
           "quantity_display": "400 N*m",
           "row_id": "row:result:moment:pipe-fixture-span:quarter-3:torsion",
-          "source_ref": "result:result:moment:pipe-fixture-span:quarter-3:torsion"
+          "source_ref": "result:result:moment:pipe-fixture-span:quarter-3:torsion",
+          "unit": "N*m",
+          "value_text": "400"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_bending_moment_y",
           "label": "element_local_bending_moment_y (bending_moment_y)",
           "quantity_display": "250 N*m",
           "row_id": "row:result:moment:pipe-fixture-span:quarter-3:bending-y",
-          "source_ref": "result:result:moment:pipe-fixture-span:quarter-3:bending-y"
+          "source_ref": "result:result:moment:pipe-fixture-span:quarter-3:bending-y",
+          "unit": "N*m",
+          "value_text": "250"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_bending_moment_z",
           "label": "element_local_bending_moment_z (bending_moment_z)",
           "quantity_display": "1100 N*m",
           "row_id": "row:result:moment:pipe-fixture-span:quarter-3:bending-z",
-          "source_ref": "result:result:moment:pipe-fixture-span:quarter-3:bending-z"
+          "source_ref": "result:result:moment:pipe-fixture-span:quarter-3:bending-z",
+          "unit": "N*m",
+          "value_text": "1100"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_axial_normal_stress",
           "label": "element_local_axial_normal_stress (axial_normal_stress)",
           "quantity_display": "0.289373 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:end-i:axial-normal",
-          "source_ref": "result:result:stress:pipe-fixture-span:end-i:axial-normal"
+          "source_ref": "result:result:stress:pipe-fixture-span:end-i:axial-normal",
+          "unit": "MPa",
+          "value_text": "0.28937262380344597"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_bending_normal_stress_y",
           "label": "element_local_bending_normal_stress_y (bending_normal_stress_y)",
           "quantity_display": "28.4629 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:end-i:bending-normal-y",
-          "source_ref": "result:result:stress:pipe-fixture-span:end-i:bending-normal-y"
+          "source_ref": "result:result:stress:pipe-fixture-span:end-i:bending-normal-y",
+          "unit": "MPa",
+          "value_text": "28.462881029847143"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_bending_normal_stress_z",
           "label": "element_local_bending_normal_stress_z (bending_normal_stress_z)",
           "quantity_display": "29.6014 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:end-i:bending-normal-z",
-          "source_ref": "result:result:stress:pipe-fixture-span:end-i:bending-normal-z"
+          "source_ref": "result:result:stress:pipe-fixture-span:end-i:bending-normal-z",
+          "unit": "MPa",
+          "value_text": "29.60139627104103"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_torsional_shear_stress",
           "label": "element_local_torsional_shear_stress (torsional_shear_stress)",
           "quantity_display": "2.27703 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:end-i:torsional-shear",
-          "source_ref": "result:result:stress:pipe-fixture-span:end-i:torsional-shear"
+          "source_ref": "result:result:stress:pipe-fixture-span:end-i:torsional-shear",
+          "unit": "MPa",
+          "value_text": "2.2770304823877714"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_axial_normal_stress",
           "label": "element_local_axial_normal_stress (axial_normal_stress)",
           "quantity_display": "0.289373 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:end-j:axial-normal",
-          "source_ref": "result:result:stress:pipe-fixture-span:end-j:axial-normal"
+          "source_ref": "result:result:stress:pipe-fixture-span:end-j:axial-normal",
+          "unit": "MPa",
+          "value_text": "0.28937262380344597"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_bending_normal_stress_y",
           "label": "element_local_bending_normal_stress_y (bending_normal_stress_y)",
           "quantity_display": "-5.69258 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:end-j:bending-normal-y",
-          "source_ref": "result:result:stress:pipe-fixture-span:end-j:bending-normal-y"
+          "source_ref": "result:result:stress:pipe-fixture-span:end-j:bending-normal-y",
+          "unit": "MPa",
+          "value_text": "-5.692576205969429"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_bending_normal_stress_z",
           "label": "element_local_bending_normal_stress_z (bending_normal_stress_z)",
           "quantity_display": "6.83109 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:end-j:bending-normal-z",
-          "source_ref": "result:result:stress:pipe-fixture-span:end-j:bending-normal-z"
+          "source_ref": "result:result:stress:pipe-fixture-span:end-j:bending-normal-z",
+          "unit": "MPa",
+          "value_text": "6.831091447163314"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_torsional_shear_stress",
           "label": "element_local_torsional_shear_stress (torsional_shear_stress)",
           "quantity_display": "2.27703 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:end-j:torsional-shear",
-          "source_ref": "result:result:stress:pipe-fixture-span:end-j:torsional-shear"
+          "source_ref": "result:result:stress:pipe-fixture-span:end-j:torsional-shear",
+          "unit": "MPa",
+          "value_text": "2.2770304823877714"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_axial_normal_stress",
           "label": "element_local_axial_normal_stress (axial_normal_stress)",
           "quantity_display": "0.289373 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:quarter-1:axial-normal",
-          "source_ref": "result:result:stress:pipe-fixture-span:quarter-1:axial-normal"
+          "source_ref": "result:result:stress:pipe-fixture-span:quarter-1:axial-normal",
+          "unit": "MPa",
+          "value_text": "0.28937262380344597"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_bending_normal_stress_y",
           "label": "element_local_bending_normal_stress_y (bending_normal_stress_y)",
           "quantity_display": "19.924 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:quarter-1:bending-normal-y",
-          "source_ref": "result:result:stress:pipe-fixture-span:quarter-1:bending-normal-y"
+          "source_ref": "result:result:stress:pipe-fixture-span:quarter-1:bending-normal-y",
+          "unit": "MPa",
+          "value_text": "19.924016720893"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_bending_normal_stress_z",
           "label": "element_local_bending_normal_stress_z (bending_normal_stress_z)",
           "quantity_display": "23.9088 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:quarter-1:bending-normal-z",
-          "source_ref": "result:result:stress:pipe-fixture-span:quarter-1:bending-normal-z"
+          "source_ref": "result:result:stress:pipe-fixture-span:quarter-1:bending-normal-z",
+          "unit": "MPa",
+          "value_text": "23.908820065071602"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_torsional_shear_stress",
           "label": "element_local_torsional_shear_stress (torsional_shear_stress)",
           "quantity_display": "2.27703 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:quarter-1:torsional-shear",
-          "source_ref": "result:result:stress:pipe-fixture-span:quarter-1:torsional-shear"
+          "source_ref": "result:result:stress:pipe-fixture-span:quarter-1:torsional-shear",
+          "unit": "MPa",
+          "value_text": "2.2770304823877714"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_axial_normal_stress",
           "label": "element_local_axial_normal_stress (axial_normal_stress)",
           "quantity_display": "0.289373 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:midspan:axial-normal",
-          "source_ref": "result:result:stress:pipe-fixture-span:midspan:axial-normal"
+          "source_ref": "result:result:stress:pipe-fixture-span:midspan:axial-normal",
+          "unit": "MPa",
+          "value_text": "0.28937262380344597"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_bending_normal_stress_y",
           "label": "element_local_bending_normal_stress_y (bending_normal_stress_y)",
           "quantity_display": "11.3852 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:midspan:bending-normal-y",
-          "source_ref": "result:result:stress:pipe-fixture-span:midspan:bending-normal-y"
+          "source_ref": "result:result:stress:pipe-fixture-span:midspan:bending-normal-y",
+          "unit": "MPa",
+          "value_text": "11.385152411938858"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_bending_normal_stress_z",
           "label": "element_local_bending_normal_stress_z (bending_normal_stress_z)",
           "quantity_display": "18.2162 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:midspan:bending-normal-z",
-          "source_ref": "result:result:stress:pipe-fixture-span:midspan:bending-normal-z"
+          "source_ref": "result:result:stress:pipe-fixture-span:midspan:bending-normal-z",
+          "unit": "MPa",
+          "value_text": "18.21624385910217"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_torsional_shear_stress",
           "label": "element_local_torsional_shear_stress (torsional_shear_stress)",
           "quantity_display": "2.27703 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:midspan:torsional-shear",
-          "source_ref": "result:result:stress:pipe-fixture-span:midspan:torsional-shear"
+          "source_ref": "result:result:stress:pipe-fixture-span:midspan:torsional-shear",
+          "unit": "MPa",
+          "value_text": "2.2770304823877714"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_axial_normal_stress",
           "label": "element_local_axial_normal_stress (axial_normal_stress)",
           "quantity_display": "0.289373 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:quarter-3:axial-normal",
-          "source_ref": "result:result:stress:pipe-fixture-span:quarter-3:axial-normal"
+          "source_ref": "result:result:stress:pipe-fixture-span:quarter-3:axial-normal",
+          "unit": "MPa",
+          "value_text": "0.28937262380344597"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_bending_normal_stress_y",
           "label": "element_local_bending_normal_stress_y (bending_normal_stress_y)",
           "quantity_display": "2.84629 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:quarter-3:bending-normal-y",
-          "source_ref": "result:result:stress:pipe-fixture-span:quarter-3:bending-normal-y"
+          "source_ref": "result:result:stress:pipe-fixture-span:quarter-3:bending-normal-y",
+          "unit": "MPa",
+          "value_text": "2.8462881029847145"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_bending_normal_stress_z",
           "label": "element_local_bending_normal_stress_z (bending_normal_stress_z)",
           "quantity_display": "12.5237 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:quarter-3:bending-normal-z",
-          "source_ref": "result:result:stress:pipe-fixture-span:quarter-3:bending-normal-z"
+          "source_ref": "result:result:stress:pipe-fixture-span:quarter-3:bending-normal-z",
+          "unit": "MPa",
+          "value_text": "12.523667653132742"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_torsional_shear_stress",
           "label": "element_local_torsional_shear_stress (torsional_shear_stress)",
           "quantity_display": "2.27703 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:quarter-3:torsional-shear",
-          "source_ref": "result:result:stress:pipe-fixture-span:quarter-3:torsional-shear"
+          "source_ref": "result:result:stress:pipe-fixture-span:quarter-3:torsional-shear",
+          "unit": "MPa",
+          "value_text": "2.2770304823877714"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "pipe_elastic_normal_stress_maximum_v2",
           "label": "pipe_elastic_normal_stress_maximum_v2 (maximum_absolute_normal_stress)",
           "quantity_display": "41.3549 MPa",
           "row_id": "row:result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span",
-          "source_ref": "result:result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span"
+          "source_ref": "result:result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span",
+          "unit": "Pa",
+          "value_text": "41354908.75465695"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_global_end_force_v1",
           "label": "element_global_end_force_v1 (Fx)",
           "quantity_display": "-1000 N",
           "row_id": "row:result:element-global-end:pipe-fixture-span:end_i:fx",
-          "source_ref": "result:result:element-global-end:pipe-fixture-span:end_i:fx"
+          "source_ref": "result:result:element-global-end:pipe-fixture-span:end_i:fx",
+          "unit": "N",
+          "value_text": "-1000"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_global_end_force_v1",
           "label": "element_global_end_force_v1 (Fy)",
           "quantity_display": "-2000 N",
           "row_id": "row:result:element-global-end:pipe-fixture-span:end_i:fy",
-          "source_ref": "result:result:element-global-end:pipe-fixture-span:end_i:fy"
+          "source_ref": "result:result:element-global-end:pipe-fixture-span:end_i:fy",
+          "unit": "N",
+          "value_text": "-2000"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_global_end_force_v1",
           "label": "element_global_end_force_v1 (Fz)",
           "quantity_display": "3000 N",
           "row_id": "row:result:element-global-end:pipe-fixture-span:end_i:fz",
-          "source_ref": "result:result:element-global-end:pipe-fixture-span:end_i:fz"
+          "source_ref": "result:result:element-global-end:pipe-fixture-span:end_i:fz",
+          "unit": "N",
+          "value_text": "3000"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_global_end_moment_v1",
           "label": "element_global_end_moment_v1 (Mx)",
           "quantity_display": "-400 N*m",
           "row_id": "row:result:element-global-end:pipe-fixture-span:end_i:mx",
-          "source_ref": "result:result:element-global-end:pipe-fixture-span:end_i:mx"
+          "source_ref": "result:result:element-global-end:pipe-fixture-span:end_i:mx",
+          "unit": "N*m",
+          "value_text": "-400"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_global_end_moment_v1",
           "label": "element_global_end_moment_v1 (My)",
           "quantity_display": "-2500 N*m",
           "row_id": "row:result:element-global-end:pipe-fixture-span:end_i:my",
-          "source_ref": "result:result:element-global-end:pipe-fixture-span:end_i:my"
+          "source_ref": "result:result:element-global-end:pipe-fixture-span:end_i:my",
+          "unit": "N*m",
+          "value_text": "-2500"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_global_end_moment_v1",
           "label": "element_global_end_moment_v1 (Mz)",
           "quantity_display": "-2600 N*m",
           "row_id": "row:result:element-global-end:pipe-fixture-span:end_i:mz",
-          "source_ref": "result:result:element-global-end:pipe-fixture-span:end_i:mz"
+          "source_ref": "result:result:element-global-end:pipe-fixture-span:end_i:mz",
+          "unit": "N*m",
+          "value_text": "-2600"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_global_end_force_v1",
           "label": "element_global_end_force_v1 (Fx)",
           "quantity_display": "1000 N",
           "row_id": "row:result:element-global-end:pipe-fixture-span:end_j:fx",
-          "source_ref": "result:result:element-global-end:pipe-fixture-span:end_j:fx"
+          "source_ref": "result:result:element-global-end:pipe-fixture-span:end_j:fx",
+          "unit": "N",
+          "value_text": "1000"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_global_end_force_v1",
           "label": "element_global_end_force_v1 (Fy)",
           "quantity_display": "2000 N",
           "row_id": "row:result:element-global-end:pipe-fixture-span:end_j:fy",
-          "source_ref": "result:result:element-global-end:pipe-fixture-span:end_j:fy"
+          "source_ref": "result:result:element-global-end:pipe-fixture-span:end_j:fy",
+          "unit": "N",
+          "value_text": "2000"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_global_end_force_v1",
           "label": "element_global_end_force_v1 (Fz)",
           "quantity_display": "-3000 N",
           "row_id": "row:result:element-global-end:pipe-fixture-span:end_j:fz",
-          "source_ref": "result:result:element-global-end:pipe-fixture-span:end_j:fz"
+          "source_ref": "result:result:element-global-end:pipe-fixture-span:end_j:fz",
+          "unit": "N",
+          "value_text": "-3000"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_global_end_moment_v1",
           "label": "element_global_end_moment_v1 (Mx)",
           "quantity_display": "400 N*m",
           "row_id": "row:result:element-global-end:pipe-fixture-span:end_j:mx",
-          "source_ref": "result:result:element-global-end:pipe-fixture-span:end_j:mx"
+          "source_ref": "result:result:element-global-end:pipe-fixture-span:end_j:mx",
+          "unit": "N*m",
+          "value_text": "400"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_global_end_moment_v1",
           "label": "element_global_end_moment_v1 (My)",
           "quantity_display": "-500 N*m",
           "row_id": "row:result:element-global-end:pipe-fixture-span:end_j:my",
-          "source_ref": "result:result:element-global-end:pipe-fixture-span:end_j:my"
+          "source_ref": "result:result:element-global-end:pipe-fixture-span:end_j:my",
+          "unit": "N*m",
+          "value_text": "-500"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_global_end_moment_v1",
           "label": "element_global_end_moment_v1 (Mz)",
           "quantity_display": "600 N*m",
           "row_id": "row:result:element-global-end:pipe-fixture-span:end_j:mz",
-          "source_ref": "result:result:element-global-end:pipe-fixture-span:end_j:mz"
+          "source_ref": "result:result:element-global-end:pipe-fixture-span:end_j:mz",
+          "unit": "N*m",
+          "value_text": "600"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_normal_stress_extreme",
           "label": "element_local_normal_stress_extreme (sigma_plus)",
           "quantity_display": "41.3549 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:end-i:sigma-plus",
-          "source_ref": "result:result:stress:pipe-fixture-span:end-i:sigma-plus"
+          "source_ref": "result:result:stress:pipe-fixture-span:end-i:sigma-plus",
+          "unit": "MPa",
+          "value_text": "41.35490875465694"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_normal_stress_extreme",
           "label": "element_local_normal_stress_extreme (sigma_minus)",
           "quantity_display": "-40.7762 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:end-i:sigma-minus",
-          "source_ref": "result:result:stress:pipe-fixture-span:end-i:sigma-minus"
+          "source_ref": "result:result:stress:pipe-fixture-span:end-i:sigma-minus",
+          "unit": "MPa",
+          "value_text": "-40.77616350705005"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_transverse_shear_stress_maximum",
           "label": "element_local_transverse_shear_stress_maximum (tau_v_max)",
           "quantity_display": "2.23157 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:end-i:transverse-shear-max",
-          "source_ref": "result:result:stress:pipe-fixture-span:end-i:transverse-shear-max"
+          "source_ref": "result:result:stress:pipe-fixture-span:end-i:transverse-shear-max",
+          "unit": "MPa",
+          "value_text": "2.2315670778768544"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_normal_stress_extreme",
           "label": "element_local_normal_stress_extreme (sigma_plus)",
           "quantity_display": "9.18146 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:end-j:sigma-plus",
-          "source_ref": "result:result:stress:pipe-fixture-span:end-j:sigma-plus"
+          "source_ref": "result:result:stress:pipe-fixture-span:end-j:sigma-plus",
+          "unit": "MPa",
+          "value_text": "9.181460917352778"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_normal_stress_extreme",
           "label": "element_local_normal_stress_extreme (sigma_minus)",
           "quantity_display": "-8.60272 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:end-j:sigma-minus",
-          "source_ref": "result:result:stress:pipe-fixture-span:end-j:sigma-minus"
+          "source_ref": "result:result:stress:pipe-fixture-span:end-j:sigma-minus",
+          "unit": "MPa",
+          "value_text": "-8.602715669745885"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_transverse_shear_stress_maximum",
           "label": "element_local_transverse_shear_stress_maximum (tau_v_max)",
           "quantity_display": "2.23157 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:end-j:transverse-shear-max",
-          "source_ref": "result:result:stress:pipe-fixture-span:end-j:transverse-shear-max"
+          "source_ref": "result:result:stress:pipe-fixture-span:end-j:transverse-shear-max",
+          "unit": "MPa",
+          "value_text": "2.2315670778768544"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_normal_stress_extreme",
           "label": "element_local_normal_stress_extreme (sigma_plus)",
           "quantity_display": "31.4117 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:quarter-1:sigma-plus",
-          "source_ref": "result:result:stress:pipe-fixture-span:quarter-1:sigma-plus"
+          "source_ref": "result:result:stress:pipe-fixture-span:quarter-1:sigma-plus",
+          "unit": "MPa",
+          "value_text": "31.41168165122611"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_normal_stress_extreme",
           "label": "element_local_normal_stress_extreme (sigma_minus)",
           "quantity_display": "-30.8329 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:quarter-1:sigma-minus",
-          "source_ref": "result:result:stress:pipe-fixture-span:quarter-1:sigma-minus"
+          "source_ref": "result:result:stress:pipe-fixture-span:quarter-1:sigma-minus",
+          "unit": "MPa",
+          "value_text": "-30.83293640361922"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_transverse_shear_stress_maximum",
           "label": "element_local_transverse_shear_stress_maximum (tau_v_max)",
           "quantity_display": "2.23157 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:quarter-1:transverse-shear-max",
-          "source_ref": "result:result:stress:pipe-fixture-span:quarter-1:transverse-shear-max"
+          "source_ref": "result:result:stress:pipe-fixture-span:quarter-1:transverse-shear-max",
+          "unit": "MPa",
+          "value_text": "2.2315670778768544"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_normal_stress_extreme",
           "label": "element_local_normal_stress_extreme (sigma_plus)",
           "quantity_display": "21.7708 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:midspan:sigma-plus",
-          "source_ref": "result:result:stress:pipe-fixture-span:midspan:sigma-plus"
+          "source_ref": "result:result:stress:pipe-fixture-span:midspan:sigma-plus",
+          "unit": "MPa",
+          "value_text": "21.77083523176743"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_normal_stress_extreme",
           "label": "element_local_normal_stress_extreme (sigma_minus)",
           "quantity_display": "-21.1921 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:midspan:sigma-minus",
-          "source_ref": "result:result:stress:pipe-fixture-span:midspan:sigma-minus"
+          "source_ref": "result:result:stress:pipe-fixture-span:midspan:sigma-minus",
+          "unit": "MPa",
+          "value_text": "-21.19208998416054"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_transverse_shear_stress_maximum",
           "label": "element_local_transverse_shear_stress_maximum (tau_v_max)",
           "quantity_display": "2.23157 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:midspan:transverse-shear-max",
-          "source_ref": "result:result:stress:pipe-fixture-span:midspan:transverse-shear-max"
+          "source_ref": "result:result:stress:pipe-fixture-span:midspan:transverse-shear-max",
+          "unit": "MPa",
+          "value_text": "2.2315670778768544"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_normal_stress_extreme",
           "label": "element_local_normal_stress_extreme (sigma_plus)",
           "quantity_display": "13.1324 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:quarter-3:sigma-plus",
-          "source_ref": "result:result:stress:pipe-fixture-span:quarter-3:sigma-plus"
+          "source_ref": "result:result:stress:pipe-fixture-span:quarter-3:sigma-plus",
+          "unit": "MPa",
+          "value_text": "13.13240993790153"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_normal_stress_extreme",
           "label": "element_local_normal_stress_extreme (sigma_minus)",
           "quantity_display": "-12.5537 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:quarter-3:sigma-minus",
-          "source_ref": "result:result:stress:pipe-fixture-span:quarter-3:sigma-minus"
+          "source_ref": "result:result:stress:pipe-fixture-span:quarter-3:sigma-minus",
+          "unit": "MPa",
+          "value_text": "-12.553664690294637"
         },
         {
           "case_ref": "load_case:case:six-component-load",
+          "entity_ref": "pipe:fixture-span",
+          "kind": "element_local_transverse_shear_stress_maximum",
           "label": "element_local_transverse_shear_stress_maximum (tau_v_max)",
           "quantity_display": "2.23157 MPa",
           "row_id": "row:result:stress:pipe-fixture-span:quarter-3:transverse-shear-max",
-          "source_ref": "result:result:stress:pipe-fixture-span:quarter-3:transverse-shear-max"
+          "source_ref": "result:result:stress:pipe-fixture-span:quarter-3:transverse-shear-max",
+          "unit": "MPa",
+          "value_text": "2.2315670778768544"
         }
       ],
       "user_rule_checks": null

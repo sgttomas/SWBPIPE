@@ -2004,7 +2004,7 @@ fn a_composed_report_states_its_composition_and_coverage() {
     }
     assert!(audit.contains(&composition_sha256(input.report_composition.as_ref().unwrap())));
     // The flat table is not emitted when composed.
-    assert!(!html.contains("<th>Result</th><th>Case</th><th>Value</th><th>Source</th>"));
+    assert!(!html.contains("<tr><th>Result</th><th>Case</th><th>Value</th><th>Source</th>"));
     assert!(html.contains("<th>Disclosure</th><th>Case</th><th>Value</th><th>Source</th>"));
 }
 

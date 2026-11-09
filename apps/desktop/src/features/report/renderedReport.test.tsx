@@ -376,7 +376,11 @@ describe("buildRenderableReportInput", () => {
       label: "displacement",
       case_ref: "load_case:load_case:invented-weight",
       quantity_display: "0.0125 m",
-      source_ref: "result:result:disp:node-1"
+      source_ref: "result:result:disp:node-1",
+      kind: "displacement",
+      entity_ref: "node:N-1",
+      value_text: "0.0125",
+      unit: "m"
     });
     expect(input.report_sections.diagnostics[0].code).toBe("INVENTED_WARNING");
     expect(input.report_sections.diagnostics).toEqual(
@@ -1595,6 +1599,12 @@ describe("FR-REP-003 records (W-11 slice (c), §4.1)", () => {
       const earlier = structuredClone(input);
       earlier.calculation_report.model_input_summary.unit_display_summary.quantity_display_policy =
         "display result-row values with their explicit units; no report-time conversion";
+      // Reconstruct the captured five-field input without changing its historical
+      // pin. The current request binds four additional composition metadata fields.
+      for (const row of earlier.result_rows) {
+        for (const field of ["kind", "entity_ref", "value_text", "unit"] as const) delete row[field];
+      }
+      expect(await canonicalSha256Hex(input)).not.toBe(await canonicalSha256Hex(earlier));
       expect(await canonicalSha256Hex(earlier)).toBe(expected[renderContext.exportContext]);
     }
   });

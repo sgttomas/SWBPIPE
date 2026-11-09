@@ -239,8 +239,14 @@ describe("the user-released request derivation (W-18b §2.6)", () => {
       mutated.results[long].value = changed;
       return mutated;
     });
-    const unchanged = mutations.find((mutated) => JSON.stringify(reportResultRows(mutated)[long]) === JSON.stringify(reportResultRows(source)[long]));
+    const originalRow = reportResultRows(source)[long];
+    const unchanged = mutations.find((mutated) => {
+      const changedRow = reportResultRows(mutated)[long];
+      return (["row_id", "label", "case_ref", "quantity_display", "source_ref"] as const)
+        .every((field) => changedRow[field] === originalRow[field]);
+    });
     expect(unchanged).toBeDefined();
     expect(unchanged!.results[long].value).not.toBe(value);
+    expect(reportResultRows(unchanged!)[long].value_text).not.toBe(originalRow.value_text);
   });
 });

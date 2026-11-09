@@ -269,7 +269,8 @@ fn user_release_keeps_full_row_metadata_and_refuses_composition_until_c4() {
 /// `Pa` and rows with more than six significant digits. The derived rows show
 /// six significant digits and `MPa`, `conversion_performed` is true, and the
 /// row checksums are the full-precision digests. A stored value changed in
-/// its seventh significant digit leaves the displayed row unchanged, and the
+/// its seventh significant digit leaves the display projection unchanged
+/// while changing the bound value_text, and the
 /// derivation still refuses it, by the producer's `check_report_result_refs`
 /// over the run record's row checksums.
 #[test]
@@ -296,7 +297,13 @@ fn user_release_display_rule() {
         [value + step, value - step].into_iter().find_map(|changed| {
             let mut source = case.source.clone();
             source["results"][index]["value"] = json!(changed);
-            let kept = expected_report_result_rows(&source).unwrap()[index] == expected_report_result_rows(&case.source).unwrap()[index];
+            let changed_row = &expected_report_result_rows(&source).unwrap()[index];
+            let original_row = &expected_report_result_rows(&case.source).unwrap()[index];
+            let kept = ["row_id", "label", "case_ref", "quantity_display", "source_ref"]
+                .iter().all(|field| changed_row[field] == original_row[field]);
+            if kept && source["results"][index]["value"] != case.source["results"][index]["value"] {
+                assert_ne!(changed_row["value_text"], original_row["value_text"], "full precision stays bound");
+            }
             (kept && source["results"][index]["value"] != case.source["results"][index]["value"]).then_some(source)
         })
     };
