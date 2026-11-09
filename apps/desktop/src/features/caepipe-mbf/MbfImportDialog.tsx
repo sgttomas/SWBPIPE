@@ -365,6 +365,7 @@ function ImportReview({ reviewed }: { reviewed: Reviewed }) {
       <section data-testid="mbf-import-identity">
         <h3>Identities</h3>
         <p>{review.identity.basis === "restored_from_identity_file" ? "Identity file applied; each class lists restored and formed ids." : "Ids formed from node numbers."}</p>
+        <p>These counts describe this import. They do not establish that every original source identity was preserved. The loss report also includes fields and other information the file cannot recover.</p>
         <ul>
           {review.identity.classes.filter((item) => item.count > 0).map((item) => (
             <li key={item.class}>{item.class.replace(/_/g, " ")}: {item.count} ({item.restored} restored, {item.formed_from_mbf_names} formed)</li>

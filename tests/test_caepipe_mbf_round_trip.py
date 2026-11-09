@@ -362,6 +362,41 @@ def test_summed_primitives_are_many_to_one_and_reported():
     assert regeneration_difference(trip.sidecar, trip.bound) is None
     found = sidecar_difference(trip.sidecar, regenerated_from(trip.bound))  # with no identity set aside
     assert found is not None and found[0] in reported(trip.bound)
+    original_ids = {load["id"] for load in model["load_cases"][0]["primitive_loads"]}
+    assert original_ids == {"tip", "tip2"}
+    assert original_ids.isdisjoint(load["id"] for load in loads)
+    assert reported(trip.bound) == {
+        "load_map[case:tip/tip]", "load_map[case:tip/tip2]",
+        "load_map[case:tip/load:concentrated_force:N1:global_y]",
+    }, "both lost original identities and the formed group stay named"
+
+
+def test_bend_endpoint_choice_is_lost_even_when_all_entity_ids_are_restored():
+    # The exchange cannot distinguish source component.node choices. This proves the reason to retain the
+    # existing notice; it does not turn matching component/node inventories into a completeness assertion.
+    original = json.loads((ROOT / "fixtures/caepipe_mbf/invented/desktop_export/export_model.json").read_text())
+    pairs = []
+    imported = []
+    for endpoint in ("node:T1", "node:T2"):
+        model = deepcopy(original)
+        model["components"][0]["node"] = endpoint
+        written = render_caepipe_mbf_si(model, title="Invented MBF export", reference_temperature_c=20.0)
+        assert written.status == "written", written.diagnostics
+        data = written.text.encode("utf-8")
+        sidecar = importer_module.canonical_bytes(written.sidecar(hashlib.sha256(data).hexdigest()))
+        pairs.append((data, sidecar))
+        result = import_as_given(data, sidecar=sidecar, source_label="invented.mbf")
+        assert result.status == "imported", result.diagnostics
+        component = result.model["components"][0]
+        assert component["id"] == model["components"][0]["id"] == "component:bend-1"
+        assert component["node"] == "node:T1"
+        assert any(item["code"] == "MBF-IMPORT-ID-UNRECOVERABLE" and item["location"] == "bend 20"
+                   and item["category"] == "approximated" for item in result.loss_report)
+        assert {node["id"] for node in result.model["nodes"]} == {node["id"] for node in model["nodes"]}
+        imported.append(component)
+    assert pairs[0] == pairs[1], "neither saved member carries the original endpoint choice"
+    assert imported[0]["node"] == original["components"][0]["node"]
+    assert imported[1]["node"] != "node:T2", "the far-node source reference is demonstrably lost"
 
 
 def test_a_merged_anchor_split_the_solve_refuses_is_not_restored(monkeypatch):
@@ -419,6 +454,11 @@ def test_a_sidecar_without_family_reports_the_family_unrecoverable():
     result = import_caepipe_mbf(trip.data, sidecar=sidecar, material_provenance=INVENTED, source_label="old")
     assert any(item["code"] == "MBF-IMPORT-ID-UNRECOVERABLE" and "family" in item["reason"]
                for item in result.loss_report)
+    assert {support["id"] for support in result.model["supports"]} == set(sidecar["support_map"])
+    for support_id in sidecar["support_map"]:
+        assert any(item["code"] == "MBF-IMPORT-ID-UNRECOVERABLE"
+                   and item["location"] == f"support_map[{support_id}]" and "family" in item["reason"]
+                   for item in result.loss_report), "the missing family is reported even though the id survives"
     current = deepcopy(trip.sidecar)
     support_id = next(iter(current["support_map"]))
     del current["support_map"][support_id]["family"]

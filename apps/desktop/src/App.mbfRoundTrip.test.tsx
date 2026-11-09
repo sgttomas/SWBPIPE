@@ -168,6 +168,23 @@ describe("connected supported-subset MBF App round trip (mocked native host)", (
     const host = connectedHost(binding);
     await saveSource(host);
     const dialog = await openImport();
+    const identity = within(dialog).getByTestId("mbf-import-identity");
+    expect(identity).toHaveTextContent("These counts describe this import. They do not establish that every original source identity was preserved.");
+    expect(identity).toHaveTextContent("The loss report also includes fields and other information the file cannot recover.");
+    const initialReview = replies[`${binding}-open`].review;
+    expect(initialReview.identity.unrecoverable).toBe(binding === "bound" ? 2 : 0);
+    // Keep both the warning payload and its displayed entries: the caveat supplies no completeness claim
+    // even when every class is restored, or when an unbound import has zero unrecoverable notices.
+    if (binding === "bound") {
+      expect(identity).toHaveTextContent("Identity file applied; each class lists restored and formed ids.");
+      expect(identity).toHaveTextContent("node: 5 (5 restored, 0 formed)");
+      const loss = within(dialog).getByTestId("mbf-import-loss");
+      expect(within(loss).getAllByRole("listitem")).toHaveLength(initialReview.loss_entries.length);
+      expect(loss).toHaveTextContent("MBF-IMPORT-ID-UNRECOVERABLE (approximated, bend 20)");
+      expect(loss).toHaveTextContent("MBF-IMPORT-ID-UNRECOVERABLE (approximated, unexported members)");
+    } else {
+      expect(identity).toHaveTextContent("Ids formed from node numbers.");
+    }
     const before = host.named("cancel_mbf_import").length;
     const adopt = within(dialog).getByTestId("mbf-import-adopt");
     if (binding === "unbound") {
@@ -176,6 +193,11 @@ describe("connected supported-subset MBF App round trip (mocked native host)", (
       await waitFor(() => expect(host.named("review_mbf_import")).toHaveLength(1));
     }
     await waitFor(() => expect(adopt).toBeEnabled());
+    if (binding === "unbound") {
+      expect(replies["unbound-declared"].review.identity.unrecoverable).toBe(0);
+      expect(identity).toHaveTextContent("node: 5 (0 restored, 5 formed)");
+      expect(identity).toHaveTextContent("They do not establish that every original source identity was preserved.");
+    }
     validated.length = 0;
     fireEvent.click(adopt);
     await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("Not saved as a local project yet."));

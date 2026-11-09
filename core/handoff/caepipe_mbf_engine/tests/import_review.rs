@@ -80,11 +80,17 @@ fn class_counts(value: &Value) -> Vec<(String, i64, i64, i64)> {
 /// Replay a named maintained Python parity input through the real importer. Select by source identity rather than
 /// a vector's incidental position; the pressure examples and summed primitives exercise different map shapes.
 fn parity_case(source_name: &str) -> (ImportResult, Vec<u8>, Vec<u8>) {
+    parity_case_label(source_name, None)
+}
+
+fn parity_case_label(source_name: &str, label: Option<&str>) -> (ImportResult, Vec<u8>, Vec<u8>) {
     let doc = common::parse(include_bytes!("../../../../fixtures/caepipe_mbf/invented/parity/import_vectors.json"));
     let source = doc.get_or_null("sources").as_list().unwrap().iter().position(|entry| entry.as_str() == Some(source_name)).expect("named parity source");
-    let row = doc.get_or_null("imports").as_list().unwrap().iter().map(|entry| entry.as_list().unwrap())
-        .find(|row| mbf::value::small_int(&row[0]) == Some(source as i64) && !row[2].is_null()).expect("bound parity input");
     let mut inputs = common::Inputs::new(&doc);
+    let row = doc.get_or_null("imports").as_list().unwrap().iter().map(|entry| entry.as_list().unwrap())
+        .find(|row| mbf::value::small_int(&row[0]) == Some(source as i64) && !row[2].is_null()
+            && label.is_none_or(|wanted| inputs.value(&row[7]).is_some_and(|value| value.as_str() == Some(wanted))))
+        .expect("bound parity input with the requested source label");
     let bytes = inputs.blob(row[1].as_str().unwrap());
     let sidecar = row[2].as_list().unwrap();
     let (sidecar_input, sidecar_bytes) = if sidecar[0].as_str() == Some("json") {
@@ -180,6 +186,63 @@ fn a_summed_primitive_has_a_formed_id_even_in_a_bound_import() {
     assert!(loads.contains_key(&"load:concentrated_force:N1:global_y".to_string()));
     assert!(class_counts(&value).contains(&("load".into(), 1, 0, 1)), "neither tip nor tip2 survives as an id");
     assert!(result.loss_report.iter().any(|entry| entry.get("code").and_then(Value::as_str) == Some("MBF-IMPORT-ID-UNRECOVERABLE")));
+    let mut named: Vec<&str> = result.loss_report.iter()
+        .filter(|entry| entry.get_or_null("code").as_str() == Some("MBF-IMPORT-ID-UNRECOVERABLE"))
+        .filter_map(|entry| entry.get_or_null("location").as_str().filter(|location| location.starts_with("load_map[")))
+        .collect();
+    named.sort();
+    assert_eq!(named, ["load_map[case:tip/load:concentrated_force:N1:global_y]", "load_map[case:tip/tip2]", "load_map[case:tip/tip]"]);
+    assert!(!loads.contains_key(&"tip".to_string()) && !loads.contains_key(&"tip2".to_string()));
+}
+
+#[test]
+fn a_legacy_missing_family_is_reported_without_losing_the_support_id() {
+    let (result, bytes, sidecar) = parity_case_label(
+        "tests/test_caepipe_mbf_round_trip.py::test_a_sidecar_without_family_reports_the_family_unrecoverable", Some("old"));
+    let source = mbf::parse_sidecar_json(&sidecar).unwrap();
+    let supports = source.get_or_null("support_map").as_dict().unwrap();
+    let restored = result.id_map.get_or_null("support_map").as_dict().unwrap();
+    for (id, support) in supports.iter() {
+        assert!(support.get("family").is_none());
+        assert!(restored.values().any(|ids| ids.as_list().is_some_and(|items| items.iter().any(|value| value.as_str() == Some(id.as_str())))));
+        let location = format!("support_map[{id}]");
+        assert!(result.loss_report.iter().any(|entry| entry.get_or_null("code").as_str() == Some("MBF-IMPORT-ID-UNRECOVERABLE")
+            && entry.get_or_null("location").as_str() == Some(location.as_str())
+            && entry.get_or_null("reason").as_str().is_some_and(|reason| reason.contains("family"))));
+    }
+    let review = parsed(&review_of(&result, &bytes, Some(&sidecar), None, MBF_REVIEW_MAX_BYTES, true).review);
+    assert!(class_counts(&review).contains(&("support".into(), supports.len() as i64, supports.len() as i64, 0)));
+}
+
+#[test]
+fn opposite_source_bend_nodes_emit_the_same_pair_but_lose_the_far_reference() {
+    let original = mbf::parse_sidecar_json(EXPORT_MODEL.as_bytes()).unwrap();
+    let settings = mbf::export_settings_from_json(br#"{"title":"Invented MBF export","referenceTemperature":{"value":20,"unit":"degC"},"maxLayoutRows":null}"#).unwrap();
+    let mut pairs = Vec::new();
+    for endpoint in ["node:T1", "node:T2"] {
+        let mut model = original.clone();
+        let Value::List(components) = model.as_dict_mut().unwrap().get_mut(&"components".to_string()).unwrap() else { panic!("components list") };
+        components[0].as_dict_mut().unwrap().insert("node".into(), Value::str(endpoint));
+        let written = mbf::render_si(&model, &settings).unwrap();
+        assert_eq!(written.status, "written", "{:?}", written.diagnostics);
+        let bytes = written.text.clone().unwrap().into_bytes();
+        let sidecar = written.sidecar_bytes(&common::sha(&bytes)).unwrap();
+        let result = import(&bytes, Some(&sidecar), None, "invented.mbf");
+        assert_eq!(result.status, "imported", "{:?}", result.diagnostics);
+        let adopted = result.model.as_ref().unwrap();
+        let component = &adopted.get_or_null("components").as_list().unwrap()[0];
+        assert_eq!(component.get_or_null("id").as_str(), Some("component:bend-1"));
+        assert_eq!(component.get_or_null("node").as_str(), Some("node:T1"));
+        if endpoint == "node:T2" {
+            assert_ne!(component.get_or_null("node").as_str(), Some(endpoint), "the original far-node reference is lost");
+        }
+        assert!(result.loss_report.iter().any(|entry| entry.get_or_null("code").as_str() == Some("MBF-IMPORT-ID-UNRECOVERABLE")
+            && entry.get_or_null("location").as_str() == Some("bend 20") && entry.get_or_null("category").as_str() == Some("approximated")));
+        let reviewed = parsed(&review_of(&result, &bytes, Some(&sidecar), None, MBF_REVIEW_MAX_BYTES, true).review);
+        assert!(class_counts(&reviewed).contains(&("bend".into(), 1, 1, 0)), "restoring the component id does not recover its original node reference");
+        pairs.push((bytes, sidecar));
+    }
+    assert_eq!(pairs[0], pairs[1], "neither saved member distinguishes the original endpoint choice");
 }
 
 #[test]
