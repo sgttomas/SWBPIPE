@@ -45,7 +45,7 @@ describe("inspector references through the App selection route", () => {
     const overview = within(inspector()).getByTestId("inspector-overview");
     fireEvent.click(within(overview).getByRole("button", { name: "Select node Low point elbow (node:N-110)" }));
 
-    expect(within(inspector()).getByRole("heading", { level: 2 })).toHaveTextContent("node: node:N-110");
+    expect(within(inspector()).getByRole("heading", { level: 2 })).toHaveTextContent("Low point elbow — node:N-110");
     // The pressed reference has gone; focus stays in the inspector, on its Properties panel, not the tree.
     expect(document.activeElement).toBe(within(inspector()).getByRole("tabpanel"));
     await waitFor(() => expect(within(tree()).getByTestId("tree-group-Nodes")).toHaveAttribute("aria-expanded", "true"));
@@ -61,7 +61,7 @@ describe("inspector references through the App selection route", () => {
     const overview = within(inspector()).getByTestId("inspector-overview");
     fireEvent.click(within(overview).getByRole("button", { name: /^Select material .* \(material:invented-carbon-steel\)$/u }));
 
-    expect(within(inspector()).getByRole("heading", { level: 2 })).toHaveTextContent("material: material:invented-carbon-steel");
+    expect(within(inspector()).getByRole("heading", { level: 2 })).toHaveTextContent(/ — material:invented-carbon-steel$/u);
     expect(within(tree()).getByTestId("model-tree-filter-input")).toHaveValue("P-110");
     expect(within(tree()).getByTestId("model-tree-filter-summary").textContent).toBe(summary);
     expect(within(tree()).queryByTestId(rowId("material", "material:invented-carbon-steel"))).toBeNull();

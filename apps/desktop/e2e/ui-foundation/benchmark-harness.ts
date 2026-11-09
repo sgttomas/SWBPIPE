@@ -2070,7 +2070,7 @@ export async function measureCanvasPointSelection(
         modelGeneration: candidateBeforePoint.model.generation,
         priorRenderSubmissionSequence: candidateBeforePoint.viewport.mainRender.submissionSequence,
         priorActionSequence: candidateBeforePoint.viewport.selection.actionSequence,
-        expectedInspectorHeading: `${expectedVisibleLabel} — ${expectedHitRef.type}: ${expectedHitRef.id}`,
+        expectedInspectorHeading: `${expectedVisibleLabel} — ${expectedTypedIdentity(expectedHitRef)}`,
         expectedRef: expectedHitRef
       } : null,
       baselineExpectation: phase === "baseline" ? {
@@ -2313,11 +2313,19 @@ export function validatedPriorBoxBaseline(snapshot: any): PriorBoxBaseline {
   return { kind: "active", actionSequence: box.actionSequence, generation };
 }
 
+/**
+ * Independent expectation of the inspector heading's typed identity: the exact id, after its kind unless the
+ * id already begins with "<kind>:" (then the id states it). Mirrors the product's presentation rule only.
+ */
+export function expectedTypedIdentity(ref: { type: string; id: string }): string {
+  return ref.id.startsWith(`${ref.type}:`) ? ref.id : `${ref.type}: ${ref.id}`;
+}
+
 export function expectedBoxInspectorHeading(model: any, orderedRefs: any[], primaryRef: any, projectId: string): string {
   if (!Array.isArray(orderedRefs)) throw new Error("independent Box ordered expectation unavailable");
   if (orderedRefs.length > 1) return `${orderedRefs.length} selected items`;
   const ref = primaryRef ?? { type: "project", id: projectId };
-  return `${expectedVisibleEntityLabel(model, ref)} — ${ref.type}: ${ref.id}`;
+  return `${expectedVisibleEntityLabel(model, ref)} — ${expectedTypedIdentity(ref)}`;
 }
 
 export function boxCallbackMatchesSnapshot(marker: any, snapshot: any): boolean {

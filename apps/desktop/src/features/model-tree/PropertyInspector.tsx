@@ -454,7 +454,7 @@ export function PropertyInspector({
 
   return (
     <div className="panel inspector" data-testid="property-inspector" role="region" aria-label="Property inspector">
-      <h2>{aggregateProperties ? `${aggregateRefs.length} selected items` : <>{entityLabel(model, inspectorTarget)} <span className="typed-identity">— {inspectorTarget.type}: {inspectorTarget.id}</span></>}</h2>
+      <h2>{aggregateProperties ? `${aggregateRefs.length} selected items` : <>{entityLabel(model, inspectorTarget)} <span className="typed-identity">— {typedIdentityText(inspectorTarget)}</span></>}</h2>
       <div className="inspector-view-tabs" role="tablist" aria-label="Inspector views">
         <button aria-controls="inspector-properties-view" aria-selected={inspectorView === "properties"} onClick={() => setInspectorView("properties")} role="tab" type="button">Properties</button>
         <button aria-controls="inspector-task-view" aria-selected={inspectorView === "task"} onClick={() => setInspectorView("task")} role="tab" type="button">Task</button>
@@ -1114,6 +1114,15 @@ export function PropertyInspector({
       </div>
     </div>
   );
+}
+
+/**
+ * The heading's typed identity: the exact, unmodified id, after its kind. An id that already begins with
+ * its own kind ("pipe:P-110") states it, so the kind is not repeated; any other id ("n/1", or a node whose
+ * id is "pipe:X") keeps the explicit kind before it ("node: n/1", "node: pipe:X").
+ */
+function typedIdentityText(ref: EntityRef): string {
+  return ref.id.startsWith(`${ref.type}:`) ? ref.id : `${ref.type}: ${ref.id}`;
 }
 
 /** Rows shown in the inspector's always-visible overview: identity, connections, size and material. */

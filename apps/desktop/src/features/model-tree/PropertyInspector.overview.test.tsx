@@ -131,4 +131,18 @@ describe("PropertyInspector overview", () => {
     expect(within(screen.getByTestId("inspector-overview")).queryAllByRole("button")).toHaveLength(0);
     expect(within(overview("From")).getByTestId("property-reference")).toHaveTextContent("Node named X X");
   });
+
+  it("states the heading's kind once, keeping the exact id and the kind of a prefixless or other-kind id", () => {
+    const model = inventedModel();
+    model.nodes.push({ id: "pipe:odd", label: "Node with a pipe-like id", position: { x: 0, y: 1, z: 0 }, provenance: "invented node" });
+    const { select } = mount({ type: "pipe", id: "pipe:1" }, model);
+    const heading = () => screen.getByRole("heading", { level: 2 });
+    expect(heading()).toHaveTextContent(/^Pipe 1 — pipe:1$/u);
+    expect(heading().querySelector(".typed-identity")).toHaveTextContent(/^— pipe:1$/u);
+    select({ type: "node", id: "X" });
+    expect(heading()).toHaveTextContent(/^Node named X — node: X$/u);
+    select({ type: "node", id: "pipe:odd" });
+    expect(heading()).toHaveTextContent(/^Node with a pipe-like id — node: pipe:odd$/u);
+  });
 });
+
