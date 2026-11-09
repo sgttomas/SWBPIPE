@@ -80,15 +80,25 @@ jobs:
         run: python3 -m tools.deliverables --project . check > deliverable-check.json
       - name: Execution boundary and changed specification structure
         env:
+          EVENT: ${{ github.event_name }}
           BASE: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}
         run: |
-          if ! git rev-parse --verify --quiet "${BASE}^{commit}" >/dev/null; then BASE=HEAD^1; fi
+          if ! git rev-parse --verify --quiet "${BASE}^{commit}" >/dev/null; then
+            # A queue group can hold several PRs, so HEAD^1 would omit earlier ones: fail closed.
+            if [[ "$EVENT" == "merge_group" ]]; then echo "merge_group base ${BASE} is unavailable" >&2; exit 1; fi
+            BASE=HEAD^1
+          fi
           python3 tools/software_workflow/documentation_ci.py documents --base "$BASE"
       - name: Conflict and credential checks
         env:
+          EVENT: ${{ github.event_name }}
           BASE: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}
         run: |
-          if ! git rev-parse --verify --quiet "${BASE}^{commit}" >/dev/null; then BASE=HEAD^1; fi
+          if ! git rev-parse --verify --quiet "${BASE}^{commit}" >/dev/null; then
+            # A queue group can hold several PRs, so HEAD^1 would omit earlier ones: fail closed.
+            if [[ "$EVENT" == "merge_group" ]]; then echo "merge_group base ${BASE} is unavailable" >&2; exit 1; fi
+            BASE=HEAD^1
+          fi
           python3 tools/validation/validate_conflict_markers.py --base "$BASE" --head HEAD
           python3 tools/validation/validate_run_record_leaks.py --base "$BASE" --head HEAD
   piping:

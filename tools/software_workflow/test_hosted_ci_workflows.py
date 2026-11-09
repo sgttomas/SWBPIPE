@@ -436,3 +436,14 @@ def test_python_matrix_requires_all_successful_shards(tmp_path):
         path.write_text('wrong\n')
         assert not succeeds()
         path.write_text(f'{shard}\n')
+
+
+def test_merge_group_missing_base_fails_closed():
+    """A queue group can hold several PRs; a missing base must not fall back to HEAD^1."""
+    text = (ROOT / ".github/workflows/governance-harness.yml").read_text()
+    guard = 'if [[ "$EVENT" == "merge_group" ]]; then echo "merge_group base ${BASE} is unavailable" >&2; exit 1; fi'
+    blocks = text.split('if ! git rev-parse --verify --quiet "${BASE}^{commit}" >/dev/null; then')[1:]
+    assert len(blocks) == 2
+    for block in blocks:
+        assert block.index(guard) < block.index("BASE=HEAD^1")
+    assert text.count("EVENT: ${{ github.event_name }}") >= 2
