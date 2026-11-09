@@ -39,6 +39,7 @@ from __future__ import annotations
 import argparse
 import copy
 import hashlib
+import itertools
 import json
 import os
 import re
@@ -74,13 +75,22 @@ ADDED_LIMITATION_STATEMENTS = frozenset({  # §5 the two fixed statements, dropp
     "Pressure elongation is not included in any load case: the closed-end free pressure strain is omitted; "
     "pressure thrust at unbalanced locations is applied.",
     "Pressure elongation is included only in the operating load cases the model settings name, as the "
-    "closed-end free strain (1 − 2ν)·p·A_i/(E·A) in Lamé form on the pressure bore; "
-    "a thin-wall mean-diameter form gives a strain larger by (r_m/r_i)².",
+    "closed-end free strain (1 − 2ν)·p·A_i/(E·A_s), with A_i on the pressure bore and A_s the nominal "
+    "section area; it is not a thin-wall mean-diameter form.",
 })
+# §5 the bend statement's pressure clause, revised to say the push applies only in a case that includes
+# pressure elongation; the solve's revised clause is mapped back to today's before comparing.
+BEND_CLAUSE_SUBSTITUTIONS = (
+    ("each owns the term -c_b (c_b its own end caps along the end tangents) and, in a load case that includes "
+     "pressure elongation, the term K_b*u_free(eps_p) from the arc's own stiffness, with eps_p = (1-2nu)pAi/(E As) "
+     "(the straight Lame mean Poisson term on the arc);",
+     "each owns the term K_b*u_free(eps_p) - c_b, with eps_p = (1-2nu)pAi/(E As) (the straight Lame mean Poisson "
+     "term on the arc) and c_b its own end caps along the end tangents;"),
+)
 
 
 def _norm_string(value: str) -> str:
-    for old, new in IDENTITY_SUBSTITUTIONS:
+    for old, new in IDENTITY_SUBSTITUTIONS + BEND_CLAUSE_SUBSTITUTIONS:
         value = value.replace(old, new)
     return value
 
@@ -299,7 +309,8 @@ def run(args) -> int:
     report = {"switch": switch, "command": args.command, "modes": modes,
               "exclusions": {"keys": sorted(EXCLUDED_KEYS),
                              "identity_substitutions": [list(p) for p in IDENTITY_SUBSTITUTIONS],
-                             "limitations_dropped": sorted(ADDED_LIMITATION_STATEMENTS)},
+                             "limitations_dropped": sorted(ADDED_LIMITATION_STATEMENTS),
+                             "bend_clause_mapped": [new for new, _ in BEND_CLAUSE_SUBSTITUTIONS]},
               "entries": []}
     totals: dict[str, int] = {}
     for entry in entries:
@@ -360,7 +371,9 @@ def run_entry(entry: dict, switch: str, modes: list[str], solver: Solver, baseli
             count, first = compare(reference, envelope)
             compared += 1
             if count:
-                return {"id": entry["id"], "status": "FAIL", "detail": f"{where}: {count} differences; first {first}"}
+                listed = [f"{p}: {r}" for p, r in itertools.islice(differences(reference, envelope), 20)]
+                return {"id": entry["id"], "status": "FAIL", "detail": f"{where}: {count} differences; first {first}",
+                        "differences": listed}
     if command == "capture":
         return {"id": entry["id"], "status": "CAPTURED", "detail": f"{solved} envelopes"}
     if compared == 0:
