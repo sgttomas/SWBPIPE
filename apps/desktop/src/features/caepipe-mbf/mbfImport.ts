@@ -40,10 +40,10 @@ export type ReviewField = string | { prefix: string; bytes: number; sha256: stri
 export type MbfImportListCounts = { total: number; listed: number; not_shown: number; not_shown_blocking: number };
 export type MbfImportListName = "refusals" | "document_check" | "assumptions" | "declaration_needed" | "loss_entries" | "target_options";
 
-/** The worker's review (`swbpipe.mbf_import_review`, format 1), as the native reply embeds it. */
+/** The worker's review (`swbpipe.mbf_import_review`, format 2), as the native reply embeds it. */
 export type MbfImportReviewPayload = {
   document_kind: "swbpipe.mbf_import_review";
-  format: 1;
+  format: 2;
   status: "imported" | "refused";
   adoptable: boolean;
   model_sha256: string | null;
@@ -65,7 +65,10 @@ export type MbfImportReviewPayload = {
   identity: {
     basis: "restored_from_identity_file" | "formed_from_mbf_names";
     classes: Array<{ class: string; count: number; restored: number; formed_from_mbf_names: number }>;
+    /** Known original ids not preserved, counted once; zero does not prove original completeness. */
     unrecoverable: number;
+    unrecovered_fields: number;
+    source_completeness: "not_established";
   };
   counts: { not_shown: number; not_shown_blocking: number; lists: Record<MbfImportListName, MbfImportListCounts> };
   refusals: Array<{ code: ReviewField; line: number; entity: ReviewField }>;
@@ -139,7 +142,7 @@ export const MBF_IMPORT_DESCRIPTIONS: Readonly<Record<string, string>> = {
   "MBF-IMPORT-COMMENT-UNSUPPORTED": "This comment is outside the subset SWBPIPE imports.",
   "MBF-IMPORT-CONTENTS-UNSUPPORTED": "This element's contents are outside the subset SWBPIPE imports.",
   "MBF-IMPORT-CORROSION-ALLOWANCE-MISSING": "This pipe section states no corrosion allowance, which the imported pressure data needs.",
-  "MBF-IMPORT-DIRECTION-UNRECOVERABLE": "A direction recorded in the identity file cannot be restored from the file.",
+  "MBF-IMPORT-DIRECTION-UNRECOVERABLE": "The identity file does not record this load's direction. SWBPIPE uses the reported fallback direction.",
   "MBF-IMPORT-DISPLACEMENT-UNSUPPORTED": "This imposed displacement is outside the subset SWBPIPE imports.",
   "MBF-IMPORT-ENCODING-UNSUPPORTED": "The file's text encoding is not one SWBPIPE reads.",
   "MBF-IMPORT-FIELD-MISSING": "A field SWBPIPE needs is missing from this record.",
@@ -148,7 +151,11 @@ export const MBF_IMPORT_DESCRIPTIONS: Readonly<Record<string, string>> = {
   "MBF-IMPORT-FROM-COORDINATES-CONFLICT": "This row's start coordinates conflict with the position already read for the node.",
   "MBF-IMPORT-GEOMETRY-ZERO-LENGTH": "This element has zero length, so SWBPIPE does not import the file.",
   "MBF-IMPORT-GRAVITY-UNSUPPORTED": "The file's gravity setting is outside the subset SWBPIPE imports.",
-  "MBF-IMPORT-ID-UNRECOVERABLE": "Some model members are not carried by the file and are not recoverable on import.",
+  "MBF-IMPORT-ID-UNRECOVERABLE": "This original load id is not preserved because the file sums it with other loads.",
+  "MBF-IMPORT-IDENTITIES-MERGED": "The file sums these original loads into one primitive with a formed id.",
+  "MBF-IMPORT-REFERENCE-UNRECOVERABLE": "The identity file preserves this bend's id but not its original tangent-node choice. SWBPIPE uses the near tangent node.",
+  "MBF-IMPORT-FIELD-UNRECOVERABLE": "The identity file preserves this support's id but does not record its original family.",
+  "MBF-IMPORT-SOURCE-COMPLETENESS-UNESTABLISHED": "The file cannot recover members the writer does not export or establish whether every original source member was represented.",
   "MBF-IMPORT-LENGTH-NOTATION-INVALID": "This length is not in a notation SWBPIPE reads exactly.",
   "MBF-IMPORT-LINE-END-UNSUPPORTED": "The file's line endings are not ones SWBPIPE reads.",
   "MBF-IMPORT-LOAD-FIELD-UNSUPPORTED": "This load field is outside the subset SWBPIPE imports.",
@@ -315,8 +322,15 @@ export function assumptionText(entry: { id: ReviewField; parameters: Record<stri
 
 // -- Adoption ---------------------------------------------------------------------------------------------------------
 
+/** Version boundary before any format-specific interpretation. A format-1 review's metrics have different
+ * semantics and cannot be shown or adopted as format 2. This is not a general payload validator. */
+export function importReviewFormatCurrent(review: { document_kind: unknown; format: unknown }): boolean {
+  return review.document_kind === "swbpipe.mbf_import_review" && review.format === 2;
+}
+
 /** The review's blocking codes as the dialog shows them, in a fixed order (empty when it may be adopted). */
 export function importBlockingCodes(review: MbfImportReviewPayload): string[] {
+  if (!importReviewFormatCurrent(review)) return ["MBF-IMPORT-WORKER-PROTOCOL"];
   const codes: string[] = [];
   if (review.status !== "imported" || review.blocks.document_check) codes.push(MBF_IMPORT_NOT_ADOPTABLE);
   if (review.completeness !== "complete") codes.push(MBF_IMPORT_REVIEW_TRUNCATED);
