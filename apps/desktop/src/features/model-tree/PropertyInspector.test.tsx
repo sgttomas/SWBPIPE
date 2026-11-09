@@ -148,7 +148,7 @@ describe("PropertyInspector views", () => {
 
   it("names the typed target and switches between Properties and Task", () => {
     mount({ type: "node", id: "node:A" });
-    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("Node A — node: node:A");
+    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("Node A — node:A");
     expect(screen.getByRole("tab", { name: "Properties" })).toHaveAttribute("aria-selected", "true");
     fireEvent.click(screen.getByRole("tab", { name: "Task" }));
     expect(screen.getByRole("tab", { name: "Task" })).toHaveAttribute("aria-selected", "true");

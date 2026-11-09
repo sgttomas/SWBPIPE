@@ -75,9 +75,9 @@ describe("the pipe inspector's Condition set field", () => {
     const view = render(<PropertyInspector model={model} onQueueIntent={vi.fn()} selection={{ type: "pipe", id: "P1" }} />);
     expect(screen.getByTestId("pipe-condition-set-current")).toHaveTextContent("Carries condition set cs:a.");
     expect(screen.getByRole("region", { name: "Pipe condition set" })).toBeInTheDocument();
-    expect(screen.getByText("Condition set", { selector: "dt" }).nextElementSibling).toHaveTextContent("cs:a");
+    expect(within(screen.getByTestId("inspector-overview")).getByText("Condition set", { selector: "dt" }).nextElementSibling).toHaveTextContent("cs:a");
     view.rerender(<PropertyInspector model={model} onQueueIntent={vi.fn()} selection={{ type: "pipe", id: "P2" }} />);
-    expect(screen.getByText("Condition set", { selector: "dt" }).nextElementSibling).toHaveTextContent("not stated");
+    expect(within(screen.getByTestId("inspector-overview")).getByText("Condition set", { selector: "dt" }).nextElementSibling).toHaveTextContent("not stated");
     expect(screen.getByLabelText("Condition set", { selector: "select" })).toHaveValue("");
   });
 });
