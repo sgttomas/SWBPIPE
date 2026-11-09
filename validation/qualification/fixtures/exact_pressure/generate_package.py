@@ -46,13 +46,17 @@ rows are the same rows (no transverse load: the response is unchanged).
 
 Usage (WORKING_ROOT is ``projects/chirality-piping``)::
 
-    python validation/qualification/fixtures/exact_pressure/generate_package.py --write
-    python validation/qualification/fixtures/exact_pressure/generate_package.py --check
+    python validation/qualification/fixtures/exact_pressure/generate_package.py --write --pressure-elongation all
+    python validation/qualification/fixtures/exact_pressure/generate_package.py --check --pressure-elongation all
 
 ``--write`` writes every case file under ``cases/`` (not committed) and
 ``MANIFEST.json`` (committed; it binds each case file by sha256). ``--check``
 regenerates in memory and requires ``MANIFEST.json`` and any present case file
-to be byte identical.
+to be byte identical. ``--pressure-elongation {absent,all,none}`` (default:
+$SWBPIPE_PRESSURE_ELONGATION, else absent) sets ``model_settings.pressure_elongation``
+in each product request through the shared ``tools/validation/pressure_elongation.py``
+(DEL-04-07 ``Work/pressure-elongation.md`` §7); the committed package is ``all``: every
+pressurised case includes pressure elongation, today's mechanics, which the references are.
 """
 from __future__ import annotations
 
@@ -70,6 +74,9 @@ import sys
 PACKAGE = Path(__file__).resolve().parent
 WORKING_ROOT = PACKAGE.parents[3]
 PACKAGE_PATH = 'validation/qualification/fixtures/exact_pressure'
+if str(WORKING_ROOT) not in sys.path:
+    sys.path.append(str(WORKING_ROOT))  # the repository root, for the shared pressure-elongation switch
+from tools.validation import pressure_elongation as PE  # noqa: E402
 CASES = 'cases'
 I7 = 'validation/references/t4_i7/u2_reference_cases.json'
 I7_DOCUMENTS = 'validation/references/t4_i7/u2_document_sketches.json'
@@ -909,14 +916,17 @@ def cases() -> list[Case]:
     return built
 
 
-def generate() -> dict[str, bytes]:
-    """WORKING_ROOT-relative path -> bytes for every case file and the manifest."""
+def generate(elongation: str = PE.DEFAULT) -> dict[str, bytes]:
+    """WORKING_ROOT-relative path -> bytes for every case file and the manifest; ``elongation`` is the
+    pressure-elongation switch applied to each product request's model (``tools/validation/pressure_elongation.py``)."""
+    PE.check_mode(elongation)
     admitted = admission()
     hashes = {path: sha256_bytes((WORKING_ROOT / path).read_bytes()) for path in (I7, I8)}
     outputs, entries = {}, []
     for case in cases():
         stem = f'{PACKAGE_PATH}/{CASES}/{case.case_id.replace("@", ".")}'
         request = runner_input(case)
+        PE.apply(request['solve']['preview_model']['model'], elongation)
         files = case.files(admitted, hashes[case.reference_path])
         paths = {'runner_input': (f'{stem}.runner_input.json', request),
                  'product_request': (f'{stem}.preview_request.json', request['solve']['preview_model']),
@@ -940,8 +950,9 @@ def main(argv: list[str]) -> int:
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('--write', action='store_true')
     group.add_argument('--check', action='store_true')
+    PE.add_argument(parser)
     args = parser.parse_args(argv)
-    outputs = generate()
+    outputs = generate(PE.resolve_mode(args.pressure_elongation))
     if args.write:
         for path, data in outputs.items():
             (WORKING_ROOT / path).parent.mkdir(parents=True, exist_ok=True)

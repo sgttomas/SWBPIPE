@@ -116,6 +116,13 @@
         ]
       }
     ],
+    "model_settings": {
+      "pressure_elongation": {
+        "operating_load_cases": [
+          "case:ordinary-pressure"
+        ]
+      }
+    },
     "nodes": [
       {
         "id": "independent-root",
