@@ -7,6 +7,12 @@ this directory:
     python3 -I u4a_generate.py            # verify requests.json and oracle.json
     python3 -I u4a_generate.py --write    # intentionally replace them
 
+`--pressure-elongation {absent,all,none}` (default: $SWBPIPE_PRESSURE_ELONGATION,
+else absent) sets `model_settings.pressure_elongation` in the written
+documents through the shared `tools/validation/pressure_elongation.py`
+(DEL-04-07 `Work/pressure-elongation.md` §7); the oracle is today's mechanics,
+pressure elongation included, whatever the switch.
+
 The check also recomputes every valued T4-I7 case (validation/references/
 t4_i7/u2_reference_cases.json, read as data) and requires agreement of its
 stations, tangent-frame end rows, chord-frame elastic end rows and support A
@@ -25,6 +31,8 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))  # the engine beside this file (python3 -I omits the script directory)
 import u4a_engine as E  # noqa: E402
+sys.path.append(str(HERE.parents[2]))  # the repository root, for the shared pressure-elongation switch
+from tools.validation import pressure_elongation as PE  # noqa: E402
 
 D = Decimal
 I7_PATH = HERE.parent / "t4_i7" / "u2_reference_cases.json"
@@ -699,7 +707,7 @@ def precision_check():
     return f"{worst:.3e}"
 
 
-def build():
+def build(elongation=PE.DEFAULT):
     requests = {"schema_version": "u4a.requests/1.0.0",
                 "purpose": "Invented T4-U4a arc models as product documents: preview-physics-1 cases are 0.2.0 pressure-free documents; pressure-1 cases are 0.4.0 documents under 3.0.0/exact_pressure_v3.",
                 "cases": {}}
@@ -708,6 +716,7 @@ def build():
         oracle, line = oracle_case(c)
         requests["cases"][c["case_id"]] = request_document(c, line)
         cases[c["case_id"]] = oracle
+    PE.apply_to_container(requests, elongation)
     req_bytes = (json.dumps(requests, indent=1, ensure_ascii=False) + "\n").encode()
     oracle = {
         "schema_version": SCHEMA,
@@ -745,7 +754,7 @@ def build():
 
 
 def main():
-    req, orc = build()
+    req, orc = build(PE.argv_mode(sys.argv[1:]))
     targets = [(HERE / "requests.json", req), (HERE / "oracle.json", orc)]
     if "--write" in sys.argv:
         for path, data in targets:

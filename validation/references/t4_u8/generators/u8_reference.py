@@ -22,6 +22,12 @@ Modes:
                                         compare byte for byte with the committed
                                         files, SHA256SUMS included
   python3 -I u8_reference.py --write   write the outputs (intentional changes only)
+
+`--pressure-elongation {absent,all,none}` (default: $SWBPIPE_PRESSURE_ELONGATION,
+else absent) sets `model_settings.pressure_elongation` in the written requests
+through the shared `tools/validation/pressure_elongation.py` (DEL-04-07
+`Work/pressure-elongation.md` §7); the oracle is today's mechanics, pressure
+elongation included, whatever the switch.
 """
 import argparse
 import copy
@@ -38,6 +44,9 @@ HERE = Path(__file__).resolve().parent
 OUT = HERE.parent
 REFS = OUT.parent
 PROJECT = REFS.parent.parent
+sys.path.append(str(PROJECT))  # the repository root, for the shared pressure-elongation switch
+from tools.validation import pressure_elongation as PE  # noqa: E402
+ELONGATION = PE.DEFAULT
 T4_I8_PATH = REFS / "t4_i8" / "rebuilt_reference_cases.json"
 ODWALL_PATH = (PROJECT / "core" / "product_physics" / "tests" / "fixtures" / "pressure_reference"
                / "SOURCE_ODWALL_EXPECTATIONS.json")
@@ -1833,7 +1842,7 @@ def build_load_case(spec, lc, theory, mutants, scales_fn=None, tag_of=None, extr
 
 def request_entry(case_id, doc, requests, suffix=""):
     path = f"requests/{case_id}{suffix}.request.json"
-    data = dumps(doc).encode()
+    data = dumps(PE.apply_to_container(doc, ELONGATION)).encode()
     requests[path] = data
     return {"path": path, "sha256": hashlib.sha256(data).hexdigest()}
 
@@ -2957,7 +2966,10 @@ def build():
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--write", action="store_true")
+    PE.add_argument(parser)
     args = parser.parse_args()
+    global ELONGATION
+    ELONGATION = PE.resolve_mode(args.pressure_elongation)
     files, cases = build()
     bad = [c for c in CROSS if not c["agrees"]]
     rows = sum(len(lc["rows"]) for c in cases for lc in c["load_cases"])

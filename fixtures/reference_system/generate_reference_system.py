@@ -33,6 +33,10 @@ basis, so a version ripple re-runs this generator without a new capture.
 Usage:
     python3 fixtures/reference_system/generate_reference_system.py           # write
     python3 fixtures/reference_system/generate_reference_system.py --check   # compare only
+
+`--pressure-elongation {absent,all,none}` (default: $SWBPIPE_PRESSURE_ELONGATION, else absent) sets
+`model_settings.pressure_elongation` in the model document through the shared
+`tools/validation/pressure_elongation.py` (DEL-04-07 `Work/pressure-elongation.md` §7).
 """
 from __future__ import annotations
 
@@ -46,6 +50,8 @@ import sys
 
 MODEL_DOCUMENT_VERSION = "0.9.0"
 HERE = Path(__file__).resolve().parent
+sys.path.append(str(HERE.parents[1]))  # the repository root, for the shared pressure-elongation switch
+from tools.validation import pressure_elongation as PE  # noqa: E402
 SPEC = "execution/PKG-09/DEL-09-01/Work/reference-system.md"
 MODEL_FILE = "reference_system.json"
 AUTHORING_FILE = "authoring.json"
@@ -819,8 +825,8 @@ def dumps(value):
     return json.dumps(value, indent=2, sort_keys=True, ensure_ascii=False, allow_nan=False) + "\n"
 
 
-def generate():
-    model = model_document()
+def generate(elongation=PE.DEFAULT):
+    model = PE.apply(model_document(), elongation)
     return {MODEL_FILE: dumps(model), AUTHORING_FILE: dumps(authoring(model)), KEY_RESULTS_FILE: dumps(key_results())}
 
 
@@ -860,12 +866,13 @@ def main(argv=None):
     parser.add_argument("--check", action="store_true", help="compare with the committed files; write nothing")
     parser.add_argument("--capture-self-weight", type=Path, metavar="GLUE_DIR",
                         help="refresh the self-weight capture from the product engine, then write")
+    PE.add_argument(parser)
     args = parser.parse_args(argv)
     if args.capture_self_weight and args.check:
         parser.error("--capture-self-weight writes; it cannot be combined with --check")
     if args.capture_self_weight:
         capture_self_weight(args.capture_self_weight)
-    outputs = generate()
+    outputs = generate(PE.resolve_mode(args.pressure_elongation))
     if args.check:
         differing = [name for name, text in sorted(outputs.items())
                      if not (HERE / name).is_file() or (HERE / name).read_text(encoding="utf-8") != text]
