@@ -252,7 +252,7 @@ export function RenderedReportPanel({
         Rendered Report (FR-016)
       </div>
       <ReportComposer composition={reportComposition} result={result} onChange={onCompositionChange} />
-      {reportComposition && !localPrivateIntent ? <p role="status">Select local private rendering to render this composition. User-released packages keep the full report until composed user-release is implemented.</p> : null}
+      {reportComposition && !localPrivateIntent ? <p role="status">Select local private rendering to render this composition.</p> : null}
       <div className="report-actions">
         <LoadReferenceOutputGate result={result} testIdPrefix="rendered-report">
         <button

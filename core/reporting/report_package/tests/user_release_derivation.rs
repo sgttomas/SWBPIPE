@@ -48,6 +48,7 @@ impl Case {
             run_record: &self.vector["run_record"],
             software: &self.software,
             record: &self.record,
+            composition: self.vector.get("report_composition"),
         }
     }
 
@@ -100,7 +101,9 @@ fn cases() -> Vec<Case> {
 #[test]
 fn derivation_vectors_match_the_desktop_builders() {
     let cases = cases();
-    assert_eq!(cases.len(), 2, "one vector per desktop solver mode");
+    let composed = cases.iter().filter(|case| case.vector.get("report_composition").is_some()).count();
+    assert_eq!(cases.len() - composed, 2, "one uncomposed vector per desktop solver mode");
+    assert!(composed >= 1, "slice C4: at least one composed vector");
     for case in &cases {
         let name = case.vector["name"].as_str().unwrap();
         assert!(!case.vector["reason"].as_str().unwrap().is_empty(), "{name}: every vector states its reason");
@@ -156,7 +159,7 @@ fn derivation_vectors_match_the_desktop_builders() {
 
 #[test]
 fn default_user_release_metadata_changes_derived_request_hashes_only_at_the_input_boundary() {
-    for case in cases() {
+    for case in cases().into_iter().filter(|case| case.vector.get("report_composition").is_none()) {
         common::assert_default_metadata_hash_and_emission_contract(&case.derived().request);
     }
 }
@@ -367,7 +370,7 @@ fn d6_exact_derivation_vectors_match_typescript() {
         let v: Value = serde_json::from_str(text).unwrap();
         let record = serde_json::from_value(v["user_release"].clone()).unwrap();
         let software = SoftwareIdentity { name: "SWBPIPE".into(), version: "0.1.0".into() };
-        let basis = UserReleaseBasis { model: &v["model"], source: &v["source"], solver_mode: "sparse_interactive", run_record: &v["run_record"], software: &software, record: &record };
+        let basis = UserReleaseBasis { model: &v["model"], source: &v["source"], solver_mode: "sparse_interactive", run_record: &v["run_record"], software: &software, record: &record, composition: v.get("report_composition") };
         let binding = &v["request"]["report"]["exact_route"]["admission"];
         let derived = open_pipe_stress_report_package::user_release::derive_exact(&basis, binding["native_job_id"].as_str().unwrap(), binding["received_bytes_sha256"].as_str().unwrap()).unwrap();
         common::assert_default_metadata_hash_and_emission_contract(&derived.request);

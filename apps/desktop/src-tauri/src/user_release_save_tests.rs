@@ -63,6 +63,11 @@ fn basis() -> Basis {
 impl Basis {
     /// The coherent request: the derivation of this basis.
     fn request(&self) -> Value {
+        self.request_composed(None)
+    }
+
+    /// The coherent request with the composition `C` (slice C4).
+    fn request_composed(&self, composition: Option<&Value>) -> Value {
         let identity = SoftwareIdentity { name: software().name, version: software().version };
         derive(&UserReleaseBasis {
             model: &self.model,
@@ -71,6 +76,7 @@ impl Basis {
             run_record: &self.run_record,
             software: &identity,
             record: &self.record,
+            composition,
         })
         .unwrap()
         .request
@@ -1102,27 +1108,59 @@ fn d6_custody(vector: &Value) -> crate::solve_jobs::CustodyDigests {
     }
 }
 
-/// C1 metadata is present even without composition. Start from the raw IPC
-/// body so argument decoding, canonical request parsing, the object-form
-/// copy, exact re-derivation and package assembly share the measured interval.
-/// C4 remains closed: these are the default uncomposed user-release paths.
+/// A closed composition C on every case (slice C4): largest stresses, support
+/// loads and displacement extremes.
+fn composition() -> Value {
+    json!({
+        "composition_version": "1.0.0",
+        "sections": [
+            {"section_id": "result_stresses", "cases": "all", "view": {"kind": "largest", "limit": 3}},
+            {"section_id": "result_support_loads", "cases": "all", "view": {"kind": "all"}},
+            {"section_id": "result_displacements", "cases": "all", "view": {"kind": "extremes"}}
+        ]
+    })
+}
+
+/// The pressure-free and both exact route-010 cases, uncomposed or composed
+/// with [`composition`]: a name, the arguments, the registry and the exact
+/// vector, when exact.
+fn route_010_cases(composed: bool) -> Vec<(String, ReportPackageSaveRequest, SolveJobRegistry, Option<Value>)> {
+    let composition = composed.then(composition);
+    let preview = basis();
+    let (preview_registry, _) = preview.session(PreviewSolverMode::SparseInteractive);
+    let preview_args = preview.args_for(&preview.request_composed(composition.as_ref()), &preview.model, &preview.manifest);
+    let mut cases = vec![("pressure-free".to_string(), preview_args, preview_registry, None)];
+    for text in D6_VECTORS {
+        let vector: Value = serde_json::from_str(text).unwrap();
+        let registry = registry(ScriptedHost::normal());
+        registry.record_attested_solve_for_tests(1, PreviewSolverMode::SparseInteractive, SolveAttestation::of(&vector["model"], &vector["source"]).unwrap());
+        let mut request = vector["request"].clone();
+        if let Some(composition) = &composition {
+            request["report"]["report_composition"] = composition.clone();
+        }
+        cases.push((vector["shape"].as_str().unwrap().to_string(), d6_args(&vector, &request), registry, Some(vector)));
+    }
+    cases
+}
+
+/// C1 metadata is present even without composition, and slice C4 adds the
+/// composition. Start from the raw IPC body so argument decoding, canonical
+/// request parsing, the object-form copy, exact re-derivation, the copied
+/// composition and package assembly share the measured interval, for the
+/// default and the composed request on each route.
 #[test]
 fn default_user_release_metadata_fits_raw_ingress_and_derivation_leases() {
     use crate::command_ingress::test_support::headers;
     use crate::command_ingress::INGRESS_ARGS_JSON_V1;
     use tauri::ipc::InvokeBody;
-    let preview = basis();
-    let (preview_registry, _) = preview.session(PreviewSolverMode::SparseInteractive);
-    let mut cases = vec![("pressure-free".to_string(), preview.args(), preview_registry, None)];
-    for text in D6_VECTORS {
-        let vector: Value = serde_json::from_str(text).unwrap();
-        let registry = registry(ScriptedHost::normal());
-        registry.record_attested_solve_for_tests(1, PreviewSolverMode::SparseInteractive, SolveAttestation::of(&vector["model"], &vector["source"]).unwrap());
-        cases.push((vector["shape"].as_str().unwrap().to_string(), d6_args(&vector, &vector["request"]), registry, Some(vector)));
-    }
-    for (name, args, registry, exact) in cases {
+    let cases = [false, true].into_iter().flat_map(|composed| {
+        route_010_cases(composed).into_iter().map(move |(name, args, registry, exact)| {
+            (format!("{name} {}", if composed { "composed" } else { "default" }), composed, args, registry, exact)
+        })
+    });
+    for (name, composed, args, registry, exact) in cases {
         let request: Value = serde_json::from_str(&args.request_text).unwrap();
-        assert!(request["report"].get("report_composition").is_none());
+        assert_eq!(request["report"].get("report_composition").is_some(), composed, "{name}");
         for row in request["report"]["result_rows"].as_array().unwrap() {
             for field in ["kind", "entity_ref", "value_text", "unit"] {
                 assert!(row.get(field).is_some(), "{name}: stale request row missing {field}");
@@ -1146,11 +1184,110 @@ fn default_user_release_metadata_fits_raw_ingress_and_derivation_leases() {
             drop(admitted);
             (blocked, lease.bytes())
         });
-        assert!(!blocked, "{name}: default package must remain unblocked");
+        assert!(!blocked, "{name}: the package must remain unblocked");
         assert!(measured.peak_priced <= reserved - envelope,
             "{name}: raw ingress/derivation peak {} exceeds reservation {}", measured.peak_priced, reserved - envelope);
-        eprintln!("{name} default user-release: raw ingress/derivation peak {} lease {}", measured.peak_priced, reserved - envelope);
+        eprintln!("{name} user-release: raw ingress/derivation peak {} lease {}", measured.peak_priced, reserved - envelope);
     }
+}
+
+/// K8 (slice C4): a composed request on each route is admitted, saved and read
+/// back. Its HTML keeps the user-release banner, record rows and statement,
+/// the PRD section 19.3 notice and the governed sections, and discloses the
+/// composition; the composition the user released is in the members that
+/// `content_binding` hashes. The record versions are unchanged.
+#[test]
+fn route_010_saves_a_composed_package_with_its_required_disclosures() {
+    for (name, args, registry, exact) in route_010_cases(true) {
+        let mut lease = registry.acquire_interactive_ingress(1024).unwrap();
+        lease.grow_to(1024 + ingress_lease_bytes(&args).unwrap()).unwrap();
+        let custody = |id: &str| exact.as_ref().and_then(|vector| {
+            (vector["request"]["report"]["exact_route"]["admission"]["native_job_id"].as_str() == Some(id)).then(|| d6_custody(vector))
+        });
+        let mut session = UserReleaseSession { registry: &registry, lease: &mut lease };
+        let admitted = admit_report_package_session(args, &software(), &mut no_store, &custody, Some(&mut session)).unwrap_or_else(|refusal| panic!("{name}: {refusal:?}"));
+        assert!(!admitted.package.export_blocked, "{name}: {:?}", admitted.package.blocking_reasons);
+        let dir = sandbox("user-release-composed");
+        let mut chosen = None;
+        let receipt = save_admitted_report_package_in(admitted, &custody, |file| {
+            let path = dir.join(file);
+            chosen = Some(path.clone());
+            Some(Ok(path))
+        })
+        .unwrap();
+        assert!(receipt.user_release_recorded, "{name}");
+        let read = read_report_package_container(&std::fs::read(chosen.unwrap()).unwrap()).unwrap();
+        assert_eq!(read.container_sha256_hex, receipt.container_sha256_hex, "{name}");
+        let record = read.user_release.as_ref().unwrap();
+        assert_eq!(record["record_version"], if exact.is_some() { "1.1.0" } else { "1.0.0" }, "{name}");
+        let html = read.members.iter().find(|member| member.file_name == "calculation_report.html").unwrap();
+        let bound = record["content_binding"]["members"].as_array().unwrap();
+        assert!(bound.iter().any(|member| member["file_name"] == "calculation_report.html" && member["sha256"] == html.sha256_hex.as_str()), "{name}");
+        let html = std::str::from_utf8(&html.bytes).unwrap();
+        for required in [
+            "USER-RELEASED REPORT",
+            "User release statement",
+            "User release bound to",
+            "SWBPIPE is decision-support software for piping design, flexibility, and stress-analysis workflows.",
+            "Professional Boundary",
+            "Report Composition",
+            "Result rows shown:",
+            "Referenced result export",
+        ] {
+            assert!(html.contains(required), "{name}: {required}");
+        }
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+}
+
+/// Slice C4: a forged composition is refused at native admission: an id
+/// outside the closed catalogue, a governed section kind, an extra member at
+/// any depth, a positional or non-object form, and an option or overlap the
+/// catalogue refuses.
+#[test]
+fn route_010_refuses_a_forged_composition() {
+    let basis = basis();
+    let (registry, _) = basis.session(PreviewSolverMode::SparseInteractive);
+    let section = |id: &str| json!({"section_id": id, "cases": "all", "view": {"kind": "all"}});
+    let with_sections = |sections: Vec<Value>| json!({"composition_version": "1.0.0", "sections": sections});
+    let mut extra_top = composition();
+    extra_top["heading"] = json!("invented");
+    let mut extra_view = composition();
+    extra_view["sections"][0]["view"]["note"] = json!("invented");
+    let mut positional_section = composition();
+    positional_section["sections"][0] = json!(["result_stresses", "all", {"kind": "all"}]);
+    let forged = [
+        ("an unknown id", with_sections(vec![section("result_everything")]), Some("REPORT-COMPOSITION-SECTION-UNKNOWN")),
+        ("a governed kind", with_sections(vec![section("professional_boundary_notice")]), Some("REPORT-COMPOSITION-SECTION-UNKNOWN")),
+        ("an extra member", extra_top, None),
+        ("an extra nested member", extra_view, None),
+        ("a positional section", positional_section, None),
+        ("a list", json!(["1.0.0", []]), None),
+        ("null", Value::Null, None),
+        ("an overlap", with_sections(vec![section("result_rows_all"), section("result_stresses")]), Some("REPORT-COMPOSITION-ROWS-OVERLAP")),
+        ("another version", json!({"composition_version": "1.1.0", "sections": []}), Some("REPORT-COMPOSITION-VERSION-UNSUPPORTED")),
+    ];
+    for (name, forged, code) in forged {
+        let mut request = basis.request();
+        request["report"]["report_composition"] = forged;
+        let args = basis.args_for(&request, &basis.model, &basis.manifest);
+        let mut lease = registry.acquire_interactive_ingress(1024).unwrap();
+        lease.grow_to(1024 + ingress_lease_bytes(&args).unwrap()).unwrap();
+        match admit(args, &registry, &mut lease) {
+            Ok(_) => panic!("{name}: a forged composition was admitted"),
+            Err(SaveRefusal::Resource(refusal)) => panic!("{name}: resource {refusal:?}"),
+            Err(SaveRefusal::Command(error)) => {
+                if let Some(code) = code {
+                    assert!(error.message.contains(code), "{name}: {} {}", error.code, error.message);
+                }
+            }
+        }
+    }
+    // The genuine composition is admitted.
+    let args = basis.args_for(&basis.request_composed(Some(&composition())), &basis.model, &basis.manifest);
+    let mut lease = registry.acquire_interactive_ingress(1024).unwrap();
+    lease.grow_to(1024 + ingress_lease_bytes(&args).unwrap()).unwrap();
+    assert!(admit(args, &registry, &mut lease).is_ok());
 }
 
 /// Each new TypeScript vector passes native source binding and Rust derivation,

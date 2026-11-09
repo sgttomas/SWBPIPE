@@ -273,8 +273,8 @@
       "core/reporting/pdf_emitter/Cargo.toml": "ccef2b00643466747c00c118d9dfe26e6b5df722a67439290a3977f33e9eba75",
       "core/reporting/protected_content_linter/Cargo.toml": "6a11912d00b5c5c502e1f3d6d3036cf60d3e163078afbc3300005fd496a756ef",
       "core/reporting/report_generator/Cargo.toml": "625a9a604bf91c108cdbd55f650788f319c27c21390ae536d660a0d640d3c81c",
-      "core/reporting/report_package/Cargo.toml": "ab803eea7ab8953aa084be9031263330d283e28b62cfd1776c79428b9a127618",
-      "core/reporting/report_renderer/Cargo.toml": "49a46a60f20fba5ffcd1ffaa77054cda29593ec93e27f3688b2906e018b1bb86",
+      "core/reporting/report_package/Cargo.toml": "ac7fc2433429391309ddb86163cb17d521f96be0294cb4b87161308054dcf7eb",
+      "core/reporting/report_renderer/Cargo.toml": "587049c71016bcf41fa503cd020c6b05d017ec1190c0904089bf04ca6d39b97f",
       "core/reporting/report_sections/Cargo.toml": "44acb66312edbc9bfd77aa2980a898511ac34de67fba0fc773b70007a3aad0f1",
       "core/reporting/result_export/Cargo.toml": "973f5fc90351e4418663b8ebcc8e3c92be0ecf5e3900af122ac9a211c6fdb183",
       "core/rules/completeness_checker/Cargo.toml": "95cf7430d70fffc65a984a6841980f2c65f12000e28004da89efc092f1152737",
@@ -6027,7 +6027,7 @@
             ]
           }
         ],
-        "sha256": "bc86592b8642e663fea24022c0d0b52033bad95a4d6f607a60706b06cdb04194",
+        "sha256": "c3b2e4e6f304d7258c0ce78cefabf9d951f04d75c3367eaee9d131e7673c4dca",
         "source_trees": [
           "core/reporting/report_package/Cargo.toml"
         ]
