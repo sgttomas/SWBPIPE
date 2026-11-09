@@ -41,6 +41,19 @@ describe("ModelTree row context and group counts", () => {
     expect(row("pipe", "pipe:AB")).toHaveAttribute("title", "Pipe AB (pipe:AB · A → B)");
   });
 
+  it("marks the keyboard's current row, group or entity, apart from the selection", () => {
+    render(<ModelTree model={inventedModel()} onSelect={vi.fn()} selection={{ type: "project", id: "p" }} />);
+    const tree = screen.getByRole("tree", { name: "Model" });
+    const current = () => document.getElementById(tree.getAttribute("aria-activedescendant") ?? "")!;
+    fireEvent.keyDown(tree, { key: "Home" });
+    fireEvent.keyDown(tree, { key: "ArrowDown" });
+    expect(current()).toHaveClass("tree-group-row", "focused");
+    fireEvent.keyDown(tree, { key: "ArrowDown" });
+    expect(current()).not.toHaveClass("tree-group-row");
+    expect(current()).toHaveClass("focused");
+    expect(tree.querySelectorAll(".tree-row.focused")).toHaveLength(1);
+  });
+
   it("counts each group's entities, and while filtering its matches of that total", () => {
     render(<ModelTree model={inventedModel()} onSelect={vi.fn()} selection={{ type: "project", id: "p" }} />);
     expect(screen.getByTestId("tree-group-count-Nodes")).toHaveTextContent(/^3$/u);

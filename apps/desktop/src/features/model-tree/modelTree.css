@@ -19,6 +19,14 @@
   line-height: 14px;
 }
 
+/* The keyboard's current row (the tree's active descendant), group or entity, while
+   the tree has keyboard focus. The inset outline keeps the fixed row geometry and is
+   distinct from the selection's fill and accent edge. */
+.model-tree [role="tree"]:focus-visible .tree-row.focused {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: -2px;
+}
+
 /* Overview: the selected entity's identity, connections, size and material,
    compact and aligned above the editing sections. */
 .inspector .inspector-overview {

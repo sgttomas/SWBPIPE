@@ -360,7 +360,7 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
                 aria-level={1}
                 aria-posinset={row.position}
                 aria-setsize={row.setSize}
-                className="tree-row tree-group-row"
+                className={`tree-row tree-group-row ${effectiveFocusedTreeKey === row.key ? "focused" : ""}`}
                 data-testid={`tree-group-${encodeURIComponent(row.groupKey)}`}
                 id={treeRowDomId(row)}
                 onClick={(event) => {
