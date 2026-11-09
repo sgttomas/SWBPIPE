@@ -227,7 +227,8 @@ needs:
 # I2b-1 adds modal/{stiffness,eigen,integrity,outcome,tests_eigen}.rs; I2b-2 adds modal/{state,tests_state}.rs and
 # the decision-B seam in core/product_physics/src/lib.rs, a DEL-04-07 path); I3a adds modal/{document,tests_document}.rs,
 # core/reporting/modal_result/**, fixtures/results/{semantic_contract_modal_1,modal_*}.json and modal_README.md,
-# tests/verifiers/modal_evidence.py and tests/test_modal_evidence.py; the rest are planned (Design §3.5, §5).
+# tests/verifiers/modal_evidence.py and tests/test_modal_evidence.py; the model-derived mass readers add
+# core/reporting/modal_result/src/model_mass.rs and tests/verifiers/modal_model_mass*.py; the rest are planned (Design §3.5, §5).
 code_paths:
 - core/solver/modal_eigen/**
 - core/product_physics/src/modal.rs
@@ -238,6 +239,7 @@ code_paths:
 - fixtures/results/modal_*.json
 - fixtures/results/modal_README.md
 - tests/verifiers/modal_evidence.py
+- tests/verifiers/modal_model_mass*.py
 - tests/test_modal_*.py
 - validation/references/f1_modal/**
 - apps/desktop/src/features/results/ModalResultsPanel*

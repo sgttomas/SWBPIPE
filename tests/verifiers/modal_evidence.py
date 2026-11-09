@@ -29,7 +29,7 @@ import json
 import math
 from typing import Any
 
-from tests.verifiers import canonical_json, units
+from tests.verifiers import canonical_json, modal_model_mass, units
 
 FAMILY = "openpipestress.modal_result"
 SCHEMA_VERSION = "0.1.0"
@@ -464,11 +464,12 @@ def _closure(doc):
         node_index[f"node:{node_id}"] = i
         node_ids.append(node_id)
         p.nodes.append(coordinates)
+    p.node_ids = node_ids
     ndof = 6 * len(p.nodes)
     dof_rows = get("dofs")
     if len(dof_rows) != ndof:
         _fail("/tables/dofs: not six DOFs per node")
-    dof_index, p.free = {}, []
+    dof_index, p.free, p.dof_ids = {}, [], []
     for i, row in enumerate(dof_rows):
         path = f"/tables/dofs/rows/{i}"
         r = _fields(row, path, ("node_ref", "component", "free_index"))
@@ -482,6 +483,7 @@ def _closure(doc):
         dof_id = f"dof:{node_ids[node]}:{component}"
         _id_is(r, path, dof_id)
         dof_index[dof_id] = i
+        p.dof_ids.append(dof_id)
         p.free.append(None if r["free_index"] is None else _count(r["free_index"], f"{path}/free_index"))
     expected_free = 0
     for i, f in enumerate(p.free):
@@ -695,7 +697,7 @@ def _closure(doc):
                            "axis": _one_of(r["axis"], f"{path}/axis", DIRECTIONS),
                            "comparison": _one_of(r["comparison"], f"{path}/comparison", ("nodal", "resultant")),
                            "relative": relative})
-    p.support_states = {}
+    p.support_states, p.support_rows = {}, []
     for i, row in enumerate(get("supports")):
         path = f"/tables/supports/rows/{i}"
         r = _fields(row, path, ("support_id", "behavior", "dof_ref", "state", "treatment"))
@@ -705,6 +707,7 @@ def _closure(doc):
         _one_of(r["state"], f"{path}/state", ("active", "inactive", "sticking", "sliding"))
         p.support_states[r["support_id"]] = (dof, _one_of(r["treatment"], f"{path}/treatment",
                                                           ("restrained", "already_restrained", "free", "free_frozen_friction")))
+        p.support_rows.append((r["support_id"], r["behavior"], dof, r["state"], r["treatment"]))
     p.straight_members = []
     for i, row in enumerate(get("discretization")):
         path = f"/tables/discretization/rows/{i}"
@@ -729,16 +732,16 @@ def _closure(doc):
 
     basis = _obj(doc["basis"], "/basis", ("route", "no_translation_threshold", "bounding_box_diagonal", "weight_to_mass_acceleration",
                                           "identity_acceleration", "mass_center", "state_case"))
-    _one_of(basis["route"], "/basis/route", ("pressure_free", "exact_pressure"))
+    p.route = _one_of(basis["route"], "/basis/route", ("pressure_free", "exact_pressure"))
     p.tau_t = header(basis["no_translation_threshold"], "/basis/no_translation_threshold", "basis_no_translation_threshold").value
     p.ell = header(basis["bounding_box_diagonal"], "/basis/bounding_box_diagonal", "basis_bounding_box_diagonal").value
     if basis["weight_to_mass_acceleration"] is not None:
         header(basis["weight_to_mass_acceleration"], "/basis/weight_to_mass_acceleration", "request_weight_to_mass_acceleration")
     header(basis["identity_acceleration"], "/basis/identity_acceleration", "identity_acceleration")
+    p.mass_center = None
     if basis["mass_center"] is not None:
         center = _obj(basis["mass_center"], "/basis/mass_center", ("x", "y", "z"))
-        for axis in ("x", "y", "z"):
-            header(center[axis], f"/basis/mass_center/{axis}", "basis_mass_center")
+        p.mass_center = [header(center[axis], f"/basis/mass_center/{axis}", "basis_mass_center") for axis in ("x", "y", "z")]
     p.linearized_restrained = None
     if basis["state_case"] is not None:
         s = _obj(basis["state_case"], "/basis/state_case", ("case_id", "case_index", "linearized", "solver_mode", "restrained_dof_refs"))
@@ -1266,7 +1269,7 @@ def bessel_established(effective_highs, t_low, n):
     return highest <= Fraction(t_low) * (1 + Fraction(ALLOW) * (n + 2) * Fraction(U))
 
 
-def _mass(p):
+def _payload_mass(p):
     scope = []
     n = len(p.modes)
     for k in range(3):
@@ -1413,7 +1416,7 @@ def _quotient_relation(scope, label, operands, lhs, rhs, relative, failure, one_
     scope.append(UNRESOLVED + f"{label} is undecidable on the published bounds")
 
 
-def _participation(p):
+def _payload_participation(p):
     scope = []
     n = len(p.modes)
     for m, mode in enumerate(p.modes):
@@ -1581,6 +1584,69 @@ def _participation(p):
     return scope
 
 
+
+# --- The model-derived mass (Design, "Selected mass assurance: next modal unit after CE") ----
+#
+# Mandatory beside the payload relations: with the bound request supplied and its binding
+# passed, `modal_model_mass` derives the model's mass and restraint basis independently and
+# holds the formed M, T_k, the free-DOF masses, the centre and the participation quantities
+# to it. No request, a failed binding, a withheld payload or an uncovered basis is scoped
+# unsupported by name; an established contradiction fails; a comparison its rounding model
+# cannot decide is unresolved. Neither ever passes on the payload alone.
+
+def _model_mass(p):
+    """The model-derived mass of the bound request, once per document: ("ok", model),
+    ("refused", text), ("scope", text) or ("unresolved", text)."""
+    if getattr(p, "model_mass", None) is not None:
+        return p.model_mass
+    request = getattr(p, "request", None)
+    if request is None:
+        p.model_mass = ("scope", "no request is supplied: the model-derived mass, partition and participation are "
+                                 "not checked (a missing input, never a pass)")
+    elif not getattr(p, "request_bound", False):
+        p.model_mass = ("scope", "the supplied request's binding did not pass: the model-derived mass is not derived from it")
+    else:
+        budget = getattr(p, "model_mass_budget", None)
+        estimate = modal_model_mass.work_units(request, p)
+        if budget is not None and estimate > budget:
+            p.model_mass = ("scope", f"resources: the model-derived mass needs an estimated {estimate} interval operations, "
+                                     f"above the supplied budget {budget}; it is not formed")
+            return p.model_mass
+        try:
+            p.model_mass = ("ok", modal_model_mass.derive(request))
+        except modal_model_mass.RefusedDomain as error:
+            p.model_mass = ("refused", f"the bound model is one the producer refuses, so no solved document of it exists: {error}")
+        except modal_model_mass.Uncovered as error:
+            p.model_mass = ("scope", f"the model-derived mass does not cover this model: {error}")
+        except (modal_model_mass.OutsideModel, modal_model_mass.Undecidable, modal_model_mass.ReaderSelfCheck) as error:
+            p.model_mass = ("unresolved", f"the model-derived mass is undecidable: {error}")
+    return p.model_mass
+
+
+def _model_items(p, items_of):
+    kind, value = _model_mass(p)
+    if kind == "scope":
+        return [value]
+    if kind == "unresolved":
+        return [UNRESOLVED + value]
+    if kind == "refused":
+        if items_of is modal_model_mass.mass_items:
+            _fail(value)
+        return ["the model-derived participation is not computed: the bound model is refused (see mass)"]
+    try:
+        return items_of(value, p)
+    except modal_model_mass.Contradiction as error:
+        _fail(f"model-derived: {error}")
+    except modal_model_mass.ReaderSelfCheck as error:
+        return [UNRESOLVED + f"model-derived: the reader's own cross-check disagrees: {error}"]
+
+
+def _mass(p):
+    return _payload_mass(p) + _model_items(p, modal_model_mass.mass_items)
+
+
+def _participation(p):
+    return _payload_participation(p) + _model_items(p, modal_model_mass.participation_items)
 
 
 def _reported_set(frequencies, clusters, mode_count, cutoff):
@@ -2091,8 +2157,10 @@ def _closure_failed(difference):
             "validation": {"status": "not_fully_validated", "unmet": list(RELATIONS)}, "limit": VERDICT_LIMIT}
 
 
-def read(doc: Any, request: Any = None) -> dict:
-    """The verdict of one document, with the request it binds when supplied."""
+def read(doc: Any, request: Any = None, *, model_mass_budget: int | None = None) -> dict:
+    """The verdict of one document, with the request it binds when supplied.
+    `model_mass_budget` optionally bounds the model-derived mass's estimated interval
+    operations (`modal_model_mass.work_units`); none is selected by default."""
     if not isinstance(doc, dict):
         return _closure_failed("document: not an object")
     if doc.get("status") == "refused":
@@ -2111,6 +2179,9 @@ def read(doc: Any, request: Any = None) -> dict:
 
     bound = _standing_of(binding)
     bound["not_checked"] = not_checked
+    parsed.request = request
+    parsed.request_bound = bound["status"] == "passed"
+    parsed.model_mass_budget = model_mass_budget
     functions = {"mass": _mass, "normalization": _normalization, "participation": _participation, "counts": _counts,
                  "clusters": _clusters, "sturm": _sturm, "evidence": _evidence, "standing": _standing, "units": _units}
     relations = {name: _standing_of(functions[name], parsed) for name in RELATIONS}
@@ -2210,10 +2281,10 @@ def checked_load(text: str) -> Any:
     return value
 
 
-def read_text(text: str, request: Any = None) -> dict:
+def read_text(text: str, request: Any = None, *, model_mass_budget: int | None = None) -> dict:
     """The governed entry: the original text is checked before it is read."""
     try:
         doc = checked_load(text)
     except (ValueError, RecursionError) as error:
         return _closure_failed(f"document: outside the checked profile {CANONICAL_PROFILE} ({error})")
-    return read(doc, request)
+    return read(doc, request, model_mass_budget=model_mass_budget)

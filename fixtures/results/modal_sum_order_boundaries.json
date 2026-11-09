@@ -1,5 +1,5 @@
 {
-  "description": "DEL-04-09 (Design §5.3.4): point-sum evaluation-order boundaries for the modal result readers, in the modal_corpus.json entry format. Each pair replaces a published quantity at the last binary64 value the Rust reader's left-to-right evaluation admits and the first it refuses, on each side, for the four point relations that sum: m = φᵀM_ffφ (`generalized_mass`, ex_n05 mode 1, where Γ = m_eff = 0 so m enters no other point relation), T_x = Σ w·M (`total_mass`, cantilever_below_cutoff, no reported mode), the cumulative fraction (`cumulative_fraction`, cantilever_whole_spectrum mode 5 along y) and m_eff·m = (φᵀp_k)² (`effective_mass_excitation`, ex_n05 mode 2 along y: m_eff replaced, with Γ = √(m_eff/m), the fraction m_eff/T_y and the cumulative fractions of modes 2 and 3 re-formed from it so that only this relation sits at its allowance). `compensated_verdict_differs` marks the entries a compensated or correctly rounded sum decides differently. `expected` is the verdict both readers must return, written by the Rust reader: core/reporting/modal_result/tests/corpus.rs and tests/test_modal_evidence.py. All values are invented.",
+  "description": "DEL-04-09 (Design §5.3.4): point-sum evaluation-order boundaries for the modal result readers, in the modal_corpus.json entry format. Each pair replaces a published quantity at the last binary64 value the Rust reader's left-to-right evaluation admits and the first it refuses, on each side, for the four point relations that sum: m = φᵀM_ffφ (`generalized_mass`, ex_n05 mode 1, where Γ = m_eff = 0 so m enters no other point relation), T_x = Σ w·M (`total_mass`, cantilever_below_cutoff, no reported mode), the cumulative fraction (`cumulative_fraction`, cantilever_whole_spectrum mode 5 along y) and m_eff·m = (φᵀp_k)² (`effective_mass_excitation`, ex_n05 mode 2 along y: m_eff replaced, with Γ = √(m_eff/m), the fraction m_eff/T_y and the cumulative fractions of modes 2 and 3 re-formed from it so that only this relation sits at its allowance). `compensated_verdict_differs` marks the entries a compensated or correctly rounded sum decides differently. The entries pin the payload relations' own evaluation order, so they are read without the request: with it, the model-derived check decides points this close to a bound by each reader's own enclosure. `expected` is the verdict both readers must return, written by the Rust reader: core/reporting/modal_result/tests/corpus.rs and tests/test_modal_evidence.py. All values are invented.",
   "entries": [
     {
       "compensated_verdict_differs": true,
@@ -14,9 +14,9 @@
           "clusters": "passed",
           "counts": "passed",
           "evidence": "scoped_unsupported",
-          "mass": "passed",
+          "mass": "scoped_unsupported",
           "normalization": "passed",
-          "participation": "passed",
+          "participation": "scoped_unsupported",
           "standing": "passed",
           "sturm": "passed",
           "units": "passed"
@@ -31,7 +31,7 @@
           "value": 0.8481090651324774
         }
       ],
-      "request": "modal_ex_n05.request.json",
+      "request": null,
       "request_operations": [],
       "reseal": true,
       "sum_relation": "generalized_mass"
@@ -50,7 +50,7 @@
           "clusters": "passed",
           "counts": "passed",
           "evidence": "scoped_unsupported",
-          "mass": "passed",
+          "mass": "scoped_unsupported",
           "normalization": "passed",
           "participation": "failed",
           "standing": "passed",
@@ -67,7 +67,7 @@
           "value": 0.8481090651324775
         }
       ],
-      "request": "modal_ex_n05.request.json",
+      "request": null,
       "request_operations": [],
       "reseal": true,
       "sum_relation": "generalized_mass"
@@ -85,9 +85,9 @@
           "clusters": "passed",
           "counts": "passed",
           "evidence": "scoped_unsupported",
-          "mass": "passed",
+          "mass": "scoped_unsupported",
           "normalization": "passed",
-          "participation": "passed",
+          "participation": "scoped_unsupported",
           "standing": "passed",
           "sturm": "passed",
           "units": "passed"
@@ -102,7 +102,7 @@
           "value": 0.8481090651324354
         }
       ],
-      "request": "modal_ex_n05.request.json",
+      "request": null,
       "request_operations": [],
       "reseal": true,
       "sum_relation": "generalized_mass"
@@ -121,7 +121,7 @@
           "clusters": "passed",
           "counts": "passed",
           "evidence": "scoped_unsupported",
-          "mass": "passed",
+          "mass": "scoped_unsupported",
           "normalization": "passed",
           "participation": "failed",
           "standing": "passed",
@@ -138,7 +138,7 @@
           "value": 0.8481090651324353
         }
       ],
-      "request": "modal_ex_n05.request.json",
+      "request": null,
       "request_operations": [],
       "reseal": true,
       "sum_relation": "generalized_mass"
@@ -156,9 +156,9 @@
           "clusters": "passed",
           "counts": "passed",
           "evidence": "scoped_unsupported",
-          "mass": "passed",
+          "mass": "scoped_unsupported",
           "normalization": "passed",
-          "participation": "passed",
+          "participation": "scoped_unsupported",
           "standing": "passed",
           "sturm": "passed",
           "units": "passed"
@@ -173,7 +173,7 @@
           "value": 386.823046799456
         }
       ],
-      "request": "modal_cantilever_below_cutoff.request.json",
+      "request": null,
       "request_operations": [],
       "reseal": true,
       "sum_relation": "total_mass"
@@ -194,7 +194,7 @@
           "evidence": "scoped_unsupported",
           "mass": "failed",
           "normalization": "passed",
-          "participation": "passed",
+          "participation": "scoped_unsupported",
           "standing": "passed",
           "sturm": "passed",
           "units": "passed"
@@ -209,7 +209,7 @@
           "value": 386.82304679945605
         }
       ],
-      "request": "modal_cantilever_below_cutoff.request.json",
+      "request": null,
       "request_operations": [],
       "reseal": true,
       "sum_relation": "total_mass"
@@ -227,9 +227,9 @@
           "clusters": "passed",
           "counts": "passed",
           "evidence": "scoped_unsupported",
-          "mass": "passed",
+          "mass": "scoped_unsupported",
           "normalization": "passed",
-          "participation": "passed",
+          "participation": "scoped_unsupported",
           "standing": "passed",
           "sturm": "passed",
           "units": "passed"
@@ -244,7 +244,7 @@
           "value": 386.8230467994437
         }
       ],
-      "request": "modal_cantilever_below_cutoff.request.json",
+      "request": null,
       "request_operations": [],
       "reseal": true,
       "sum_relation": "total_mass"
@@ -265,7 +265,7 @@
           "evidence": "scoped_unsupported",
           "mass": "failed",
           "normalization": "passed",
-          "participation": "passed",
+          "participation": "scoped_unsupported",
           "standing": "passed",
           "sturm": "passed",
           "units": "passed"
@@ -280,7 +280,7 @@
           "value": 386.82304679944366
         }
       ],
-      "request": "modal_cantilever_below_cutoff.request.json",
+      "request": null,
       "request_operations": [],
       "reseal": true,
       "sum_relation": "total_mass"
@@ -298,9 +298,9 @@
           "clusters": "passed",
           "counts": "passed",
           "evidence": "scoped_unsupported",
-          "mass": "passed",
+          "mass": "scoped_unsupported",
           "normalization": "passed",
-          "participation": "passed",
+          "participation": "scoped_unsupported",
           "standing": "passed",
           "sturm": "passed",
           "units": "passed"
@@ -315,7 +315,7 @@
           "value": 0.8157848840390756
         }
       ],
-      "request": "modal_cantilever_whole_spectrum.request.json",
+      "request": null,
       "request_operations": [],
       "reseal": true,
       "sum_relation": "cumulative_fraction"
@@ -334,7 +334,7 @@
           "clusters": "passed",
           "counts": "passed",
           "evidence": "scoped_unsupported",
-          "mass": "passed",
+          "mass": "scoped_unsupported",
           "normalization": "passed",
           "participation": "failed",
           "standing": "passed",
@@ -351,7 +351,7 @@
           "value": 0.8157848840390757
         }
       ],
-      "request": "modal_cantilever_whole_spectrum.request.json",
+      "request": null,
       "request_operations": [],
       "reseal": true,
       "sum_relation": "cumulative_fraction"
@@ -369,9 +369,9 @@
           "clusters": "passed",
           "counts": "passed",
           "evidence": "scoped_unsupported",
-          "mass": "passed",
+          "mass": "scoped_unsupported",
           "normalization": "passed",
-          "participation": "passed",
+          "participation": "scoped_unsupported",
           "standing": "passed",
           "sturm": "passed",
           "units": "passed"
@@ -386,7 +386,7 @@
           "value": 0.8157848840390582
         }
       ],
-      "request": "modal_cantilever_whole_spectrum.request.json",
+      "request": null,
       "request_operations": [],
       "reseal": true,
       "sum_relation": "cumulative_fraction"
@@ -405,7 +405,7 @@
           "clusters": "passed",
           "counts": "passed",
           "evidence": "scoped_unsupported",
-          "mass": "passed",
+          "mass": "scoped_unsupported",
           "normalization": "passed",
           "participation": "failed",
           "standing": "passed",
@@ -422,7 +422,7 @@
           "value": 0.8157848840390581
         }
       ],
-      "request": "modal_cantilever_whole_spectrum.request.json",
+      "request": null,
       "request_operations": [],
       "reseal": true,
       "sum_relation": "cumulative_fraction"
@@ -440,9 +440,9 @@
           "clusters": "passed",
           "counts": "passed",
           "evidence": "scoped_unsupported",
-          "mass": "passed",
+          "mass": "scoped_unsupported",
           "normalization": "passed",
-          "participation": "passed",
+          "participation": "scoped_unsupported",
           "standing": "passed",
           "sturm": "passed",
           "units": "passed"
@@ -477,7 +477,7 @@
           "value": 0.603017030020743
         }
       ],
-      "request": "modal_ex_n05.request.json",
+      "request": null,
       "request_operations": [],
       "reseal": true,
       "sum_relation": "effective_mass_excitation"
@@ -496,7 +496,7 @@
           "clusters": "passed",
           "counts": "passed",
           "evidence": "scoped_unsupported",
-          "mass": "passed",
+          "mass": "scoped_unsupported",
           "normalization": "passed",
           "participation": "failed",
           "standing": "passed",
@@ -533,7 +533,7 @@
           "value": 0.603017030020743
         }
       ],
-      "request": "modal_ex_n05.request.json",
+      "request": null,
       "request_operations": [],
       "reseal": true,
       "sum_relation": "effective_mass_excitation"
@@ -551,9 +551,9 @@
           "clusters": "passed",
           "counts": "passed",
           "evidence": "scoped_unsupported",
-          "mass": "passed",
+          "mass": "scoped_unsupported",
           "normalization": "passed",
-          "participation": "passed",
+          "participation": "scoped_unsupported",
           "standing": "passed",
           "sturm": "passed",
           "units": "passed"
@@ -588,7 +588,7 @@
           "value": 0.6030170300206532
         }
       ],
-      "request": "modal_ex_n05.request.json",
+      "request": null,
       "request_operations": [],
       "reseal": true,
       "sum_relation": "effective_mass_excitation"
@@ -607,7 +607,7 @@
           "clusters": "passed",
           "counts": "passed",
           "evidence": "scoped_unsupported",
-          "mass": "passed",
+          "mass": "scoped_unsupported",
           "normalization": "passed",
           "participation": "failed",
           "standing": "passed",
@@ -644,7 +644,7 @@
           "value": 0.6030170300206531
         }
       ],
-      "request": "modal_ex_n05.request.json",
+      "request": null,
       "request_operations": [],
       "reseal": true,
       "sum_relation": "effective_mass_excitation"

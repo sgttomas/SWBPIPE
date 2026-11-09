@@ -157,6 +157,17 @@ def test_the_python_reader_returns_every_corpus_verdict(entry):
     check_entry(entry)
 
 
+MODEL_ONLY = [entry for entry in CORPUS if entry["id"].startswith("model:")]
+
+
+@pytest.mark.parametrize("entry", MODEL_ONLY, ids=[entry["id"] for entry in MODEL_ONLY])
+def test_a_model_only_mutation_is_coherent_on_the_payload(entry):
+    """The shared fixed-request wrong-M entries are coherent: without the request (the
+    payload relations alone) nothing fails, so only the model-derived comparison rejects them."""
+    got, verdict = run(dict(entry, request=None))
+    assert got["decision"] != "rejected" and "failed" not in got["relations"].values(), verdict
+
+
 @pytest.mark.parametrize("entry", SUM_ORDER, ids=[entry["id"] for entry in SUM_ORDER])
 def test_the_python_reader_returns_every_sum_order_boundary_verdict(entry):
     """The Rust reader writes these verdicts (`corpus.rs`); this reader is held to them."""
@@ -220,7 +231,11 @@ def test_every_solved_fixture_is_consistent_only_up_to_its_stated_scope():
         # Every value has its catalog unit (Design §5.3.5); units passing closes no other mandatory
         # relation: the subject census (evidence) still leaves validation unmet.
         assert units["status"] == "passed" and not units.get("scope"), units
-        assert verdict["validation"]["unmet"] == ["evidence"], verdict["validation"]
+        # A linearized state case's partition comes from the reported support states, whose
+        # qualification no payload establishes: the model-derived mass and participation stay
+        # scoped (Design, selected mass assurance).
+        unmet = ["evidence", "mass", "participation"] if name.startswith("modal_state_") else ["evidence"]
+        assert verdict["validation"]["unmet"] == unmet, (name, verdict["validation"])
 
 
 def test_the_equilibrated_basis_list_is_closed_and_states_every_such_rule():
