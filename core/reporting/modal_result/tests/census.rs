@@ -9,34 +9,65 @@
 use open_pipe_stress_modal_result::{modal_reader_sha256, read_modal_result, ModalReadStanding, ModalReadStatus, ModalSupplied, MODAL_RELATIONS};
 use serde_json::{json, Value};
 
-macro_rules! fixture {
-    ($name:literal) => {
-        (
-            $name,
-            include_str!(concat!("../../../../fixtures/results/", $name, ".json")),
-            include_str!(concat!("../../../../fixtures/results/", $name, ".request.json")),
-        )
-    };
-}
-
+// Each fixture is included by its literal path, which the runtime-read scanner
+// (tools/ci/numerical_ci.py) resolves; a computed path would not be.
 type Fixture = (&'static str, &'static str, &'static str);
-
-const BODY: Fixture = fixture!("modal_component_body");
-const ARC: Fixture = fixture!("modal_arc");
-const CANTILEVER: Fixture = fixture!("modal_cantilever_whole_spectrum");
-const PRESSED: Fixture = fixture!("modal_state_one_way_pressed");
-const SLIDING: Fixture = fixture!("modal_state_friction_sliding");
-const REFUSED: Fixture = fixture!("modal_refused_no_bound");
-const LINEAR: [Fixture; 8] = [
-    BODY,
-    ARC,
-    CANTILEVER,
-    fixture!("modal_ex_n05"),
-    fixture!("modal_cantilever_cluster_extension"),
-    fixture!("modal_cantilever_below_cutoff"),
-    fixture!("modal_cantilever_subnormal_cutoff"),
-    fixture!("modal_cantilever_sensitive"),
-];
+const BODY: Fixture = (
+    "modal_component_body",
+    include_str!("../../../../fixtures/results/modal_component_body.json"),
+    include_str!("../../../../fixtures/results/modal_component_body.request.json"),
+);
+const ARC: Fixture = (
+    "modal_arc",
+    include_str!("../../../../fixtures/results/modal_arc.json"),
+    include_str!("../../../../fixtures/results/modal_arc.request.json"),
+);
+const CANTILEVER: Fixture = (
+    "modal_cantilever_whole_spectrum",
+    include_str!("../../../../fixtures/results/modal_cantilever_whole_spectrum.json"),
+    include_str!("../../../../fixtures/results/modal_cantilever_whole_spectrum.request.json"),
+);
+const PRESSED: Fixture = (
+    "modal_state_one_way_pressed",
+    include_str!("../../../../fixtures/results/modal_state_one_way_pressed.json"),
+    include_str!("../../../../fixtures/results/modal_state_one_way_pressed.request.json"),
+);
+const SLIDING: Fixture = (
+    "modal_state_friction_sliding",
+    include_str!("../../../../fixtures/results/modal_state_friction_sliding.json"),
+    include_str!("../../../../fixtures/results/modal_state_friction_sliding.request.json"),
+);
+const REFUSED: Fixture = (
+    "modal_refused_no_bound",
+    include_str!("../../../../fixtures/results/modal_refused_no_bound.json"),
+    include_str!("../../../../fixtures/results/modal_refused_no_bound.request.json"),
+);
+const EX_N05: Fixture = (
+    "modal_ex_n05",
+    include_str!("../../../../fixtures/results/modal_ex_n05.json"),
+    include_str!("../../../../fixtures/results/modal_ex_n05.request.json"),
+);
+const CLUSTER: Fixture = (
+    "modal_cantilever_cluster_extension",
+    include_str!("../../../../fixtures/results/modal_cantilever_cluster_extension.json"),
+    include_str!("../../../../fixtures/results/modal_cantilever_cluster_extension.request.json"),
+);
+const BELOW: Fixture = (
+    "modal_cantilever_below_cutoff",
+    include_str!("../../../../fixtures/results/modal_cantilever_below_cutoff.json"),
+    include_str!("../../../../fixtures/results/modal_cantilever_below_cutoff.request.json"),
+);
+const SUBNORMAL: Fixture = (
+    "modal_cantilever_subnormal_cutoff",
+    include_str!("../../../../fixtures/results/modal_cantilever_subnormal_cutoff.json"),
+    include_str!("../../../../fixtures/results/modal_cantilever_subnormal_cutoff.request.json"),
+);
+const SENSITIVE: Fixture = (
+    "modal_cantilever_sensitive",
+    include_str!("../../../../fixtures/results/modal_cantilever_sensitive.json"),
+    include_str!("../../../../fixtures/results/modal_cantilever_sensitive.request.json"),
+);
+const LINEAR: [Fixture; 8] = [BODY, ARC, CANTILEVER, EX_N05, CLUSTER, BELOW, SUBNORMAL, SENSITIVE];
 
 fn load(fixture: Fixture) -> (Value, Value) {
     (serde_json::from_str(fixture.1).unwrap(), serde_json::from_str(fixture.2).unwrap())
