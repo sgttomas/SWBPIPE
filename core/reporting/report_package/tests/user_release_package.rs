@@ -65,6 +65,7 @@ impl Case {
             run_record: &self.vector["run_record"],
             software: &self.software,
             record: &self.record,
+            composition: self.vector.get("report_composition"),
         }
     }
 

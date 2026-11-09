@@ -29,8 +29,11 @@
 //!   with the SHA-256 of the composition's RFC 8785 bytes in the Audit
 //!   Manifest section.
 //!
-//! The user-released route (W-18b) does not admit a composition yet (slice C4):
-//! a composition under `user_released_report` is refused.
+//! Contexts (slice C4). A composition is admitted under `local_private` and
+//! under `user_released_report`; every other context refuses it. On the
+//! user-released route the native derivation copies the closed composition
+//! into the derived request (`report_package::user_release`), so whole-request
+//! equality binds it, and [`form_refusals`] refuses a malformed one there.
 //!
 //! Standard claim fence applies (claims taxonomy per DEC-081).
 
@@ -59,8 +62,8 @@ pub const COMPOSITION_ROWS_OVERLAP: &str = "REPORT-COMPOSITION-ROWS-OVERLAP";
 /// A row with some but not all of its bound members, or a `value_text` that
 /// is not a JSON number text.
 pub const COMPOSITION_ROW_FIELDS_INVALID: &str = "REPORT-COMPOSITION-ROW-FIELDS-INVALID";
-/// A composition on a report whose export context does not admit one (the
-/// user-released route until slice C4).
+/// A composition on a report whose export context admits none (every context
+/// other than `local_private` and `user_released_report`).
 pub const COMPOSITION_CONTEXT_NOT_ADMITTED: &str = "REPORT-COMPOSITION-CONTEXT-NOT-ADMITTED";
 /// The embedded family table does not parse or does not partition.
 pub const COMPOSITION_FAMILIES_INVALID: &str = "REPORT-COMPOSITION-FAMILIES-INVALID";
@@ -486,6 +489,23 @@ impl Composed {
 /// Check `composition` against the closed catalogue and the bound rows.
 /// Every refusal is returned; an empty list admits it.
 fn check(composition: &ReportComposition, bound: &[BoundRow<'_>]) -> Vec<String> {
+    let carried: BTreeSet<&str> = bound
+        .iter()
+        .map(|row| row.case_ref)
+        .filter(|case| *case != "TBD")
+        .collect();
+    check_in(composition, Some(&carried))
+}
+
+/// The refusals of a composition that need no result row: its version, each
+/// id in the closed catalogue (a governed kind is not one), duplicates, view
+/// options, case-list form and overlap. A case that no bound row carries is
+/// refused only with the rows (by [`compose`], when the renderer applies it).
+pub fn form_refusals(composition: &ReportComposition) -> Vec<String> {
+    check_in(composition, None)
+}
+
+fn check_in(composition: &ReportComposition, carried: Option<&BTreeSet<&str>>) -> Vec<String> {
     let mut refusals = Vec::new();
     if composition.composition_version != COMPOSITION_VERSION {
         refusals.push(format!(
@@ -493,11 +513,6 @@ fn check(composition: &ReportComposition, bound: &[BoundRow<'_>]) -> Vec<String>
         ));
         return refusals;
     }
-    let carried: BTreeSet<&str> = bound
-        .iter()
-        .map(|row| row.case_ref)
-        .filter(|case| *case != "TBD")
-        .collect();
     let mut listed: BTreeSet<&str> = BTreeSet::new();
     for (position, section) in composition.sections.iter().enumerate() {
         let at = format!("sections[{position}]");
@@ -545,7 +560,7 @@ fn check(composition: &ReportComposition, bound: &[BoundRow<'_>]) -> Vec<String>
                     ));
                 } else if case == "TBD" {
                     refusals.push(format!("{COMPOSITION_OPTION_INVALID}: {at}.cases lists TBD, which is shown only under all"));
-                } else if !carried.contains(case.as_str()) {
+                } else if carried.is_some_and(|carried| !carried.contains(case.as_str())) {
                     refusals.push(format!("{COMPOSITION_CASE_UNKNOWN}: {at}.cases names {case}, which no result row carries"));
                 }
             }
@@ -696,9 +711,12 @@ fn applied(input: &RenderableReportInput) -> Option<Result<Composed, Vec<String>
         .report_context
         .as_ref()
         .map(|context| context.export_context);
-    if context != Some(ReportExportContext::LocalPrivate) {
+    if !matches!(
+        context,
+        Some(ReportExportContext::LocalPrivate | ReportExportContext::UserReleasedReport)
+    ) {
         return Some(Err(vec![format!(
-            "{COMPOSITION_CONTEXT_NOT_ADMITTED}: composition currently requires a local private report"
+            "{COMPOSITION_CONTEXT_NOT_ADMITTED}: composition requires a local private or user-released report"
         )]));
     }
     Some(compose(&input.result_rows, composition))

@@ -9,9 +9,8 @@ It records no acceptance, issuance, approval, compliance or lifecycle standing
 (F-PIP-3). Standard claim fence applies (DEC-081).
 
 C1-C3 implement the contract, renderer and session-only local-private desktop
-composer. Final candidate qualification and independent scrutiny remain necessary
-before readiness. C4 (user-released composition) and C5 (model-input sections)
-remain separate units. Existing uncomposed user-released reports already admit
+composer. C4 adds the composition to the native user-release derivation (§4.4).
+C5 (model-input sections) remains a separate unit. User-released reports admit
 exact results under the current D-6 implementation; composition does not reopen
 or narrow that adopted route. The current source is the basis for route admission.
 
@@ -56,8 +55,8 @@ composition and shows how many result rows it carries.
 canonical hash on a report the user releases, saves and prints. The composer
 keeps the notice in every composition (§2.4). It makes the composition a
 recorded report setting, so the same inputs, versions and composition give the
-same bytes (R-08-01-010). Existing user-released reports cover the currently admitted routes. Adding
-composition to their native derivation is C4 and remains open.
+same bytes (R-08-01-010). User-released reports cover the currently admitted routes, and C4 carries
+the composition into their native derivation (§4.4).
 
 **Checks that establish the gap closed** (each named again in its slice, §6):
 
@@ -261,7 +260,7 @@ whatever is chosen here (W-18b §0).
 | Standalone render, pressure-free | The webview builds the input with `report_composition` and calls `render_calculation_report`. The renderer applies it |
 | Standalone render, exact | The same, through the native exact binding (W-11 §3.6). `rederive` compares the full rows, which are unchanged by composition |
 | Local-private package (009), both routes | `buildReportPackageRequest` passes the session composition into the renderer input. The producer runs item 6 on the full rows. `assemble_full_report_package` (`pdf_emitter/src/lib.rs:205`) renders the HTML and PDF from the same assembled sections |
-| User-released package (010), currently admitted routes | Existing full report; a composition is refused until C4 (§4.4) |
+| User-released package (010), currently admitted routes | The request carries the session composition; the native derivation copies the closed composition into the derived request, so whole-request equality binds it (§4.4) |
 | Print / PDF | The print view stays the canonical HTML with its hash banner, so it carries the composition. The hash-bound PDF is the package member. A standalone PDF stays as today (not hash-bound) |
 | Headless runner | Offers no composition. Its requests carry none; maintained writers refresh the nine-field row bindings while K2 checks default HTML/PDF stability |
 
@@ -270,11 +269,11 @@ whatever is chosen here (W-18b §0).
 | | Local-private (render; package 009) | User-released (package 010) |
 |---|---|---|
 | Routes | Currently admitted pressure-free and exact routes | Currently admitted routes under D-6 |
-| Result sections | C1-C3 result subsections in §2.2 | Full existing report; composed selection is C4 |
+| Result sections | C1-C3 result subsections in §2.2 | The same subsections (C4) |
 | Model-input sections (C5) | All | All, derived natively from M. R already refuses library- and rule-pack-referenced models |
 | Rule outcomes | Required whenever a run is recorded | None under R: the section states none (W-18b §2.1) |
 | Provenance entries and library records | As today | Absent under R (W-18b §2.6) |
-| Composition | Closed settings checked by the renderer and object form | Refused until C4 adds C to the native derivation (§4.4) |
+| Composition | Closed settings checked by the renderer and object form | The same closed settings, also form-checked and copied by the native derivation (§4.4) |
 | Required disclosures | §2.2 | §2.2 plus the user-release notice and record rows. No composition can remove them |
 
 ### 4.3 File names (separate from C1-C3)
@@ -283,33 +282,49 @@ C1-C3 preserve the existing chooser suggestions and package identity. Any
 necessary file-name reconciliation with DEL-07-01 is a separate change; the
 owner-held native-smoke expected values are unchanged by this unit.
 
-### 4.4 C4: user-released composition (not implemented)
+### 4.4 C4: user-released composition
 
-The following describes the next unit. C1-C3 accept composition only for local
-private rendering and package 009. The existing user-release derivation keeps
-its complete row equality and refuses a composed request.
+C4 admits a composition on route 010. Local-private rendering and package 009
+are unchanged.
 
-- The derivation becomes `E(M, S, m, I, R, H, U, C)` (W-18b §2.6).
-  - C is form-checked against the closed catalogue and copied into the derived
-    renderer input.
-  - Every other member is still derived.
-  - Whole-request equality therefore covers C, and C can only select among the
-    attested rows and the projections of M.
-- C4 preserves each currently admitted record version (legacy `1.0.0` and
-  exact-route `1.1.0`) unless that unit establishes a necessary form change:
+- The derivation is `E(M, S, m, I, R, H, U, C)` (W-18b §2.6,
+  `report_package::user_release`).
+  - C is the request's own `report.report_composition`, when present, as S is
+    its `source_results[0]`. `derived_composition` admits it only as an object
+    of the closed typed form (`composition_version`, `sections`; each
+    `section_id`, `cases`, `view`; no other member at any depth) with no
+    row-free refusal (`composer::form_refusals`: version, closed catalogue,
+    duplicates, options, overlap). The derived request carries its typed form.
+  - Every other member is still derived, and whole-request equality covers C.
+    So C can only select among the attested rows. A positional form, an extra
+    member, an id outside the catalogue (a governed kind included) or a
+    refused option is refused at native admission. A listed case that no
+    bound row carries is refused when the producer renders.
+  - The renderer admits a composition under `local_private` and
+    `user_released_report` only.
+- Each admitted record version (legacy `1.0.0`, exact-route `1.1.0`) is
+  unchanged:
   - The Report Composition table is in the HTML and PDF members, and the
     manifest's `content_binding` hashes those members, so the composition the
     user released is bound.
   - `scope.not_carried` keeps its constants. Sections the user omitted are
     disclosed in the table, not in the record.
-- The dialog's line "It carries the model summary, the load cases and this
-  solve's results." must change to name the user's sections. That text takes
-  the wording route; the exact New is drafted in C4, not here.
-- Tests:
-  - `user_release_composed_keeps_required_disclosures`;
-  - derivation vectors with compositions;
-  - a forged C (an unknown id, a governed kind, an extra key) refused at native
-    admission.
+- The shareable package name stays the derived
+  `desktop-user-released-report-<run>` name; composition does not enter it
+  (§4.3).
+- The dialog is not built yet (W-18b, desktop slice). Its proposed line on
+  carried content now names the chosen sections
+  ([report-user-release.md](report-user-release.md), "The dialog").
+- Checks:
+  - `user_release_composed_keeps_required_disclosures` and
+    `the_form_check_needs_no_rows` (renderer);
+  - the composed derivation vector `composed_sparse_interactive`, equal in
+    TypeScript and Rust;
+  - `route_010_saves_a_composed_package_with_its_required_disclosures` on the
+    pressure-free and both exact routes;
+  - `route_010_refuses_a_forged_composition`;
+  - default and composed raw-IPC lease fit in
+    `default_user_release_metadata_fits_raw_ingress_and_derivation_leases`.
 
 ## 5. Native custody and memory
 
@@ -349,9 +364,9 @@ The targeted native resource checks cover:
   pre-growth object-form copy checked against the initial ingress lease
   separately from the full command's final reservation;
 - `user_release_save_tests::default_user_release_metadata_fits_raw_ingress_and_derivation_leases`:
-  default pressure-free and both admitted exact user-release routes, including
-  raw IPC decoding and native derivation/package assembly. Composition remains
-  refused on user-release routes until C4.
+  default and composed pressure-free and both admitted exact user-release
+  routes, including raw IPC decoding, the copied composition and native
+  derivation/package assembly.
 
 These checks use the current maintained request/vector inputs regenerated by
 their writers; no old binary or
@@ -379,7 +394,7 @@ The slices may share a focused PR when their contracts are reviewed together.
 | **C1 Contract** | The `ReportComposition` types (Rust, TypeScript), the catalogue and family fixture, the bound row metadata in both helpers and the vectors, and object-form coverage. Nothing is visible | Row parity (new fields), object-form refusal of a positional composition, K2 on every witness | Codex; targeted regression (rows are bound content) |
 | **C2 Renderer** | `composer.rs`: selection, views, coverage line, Report Composition table, the §2.5 refusals, HTML and PDF alike | K1, K2, K3 (selection vectors in both languages), K4, K5, K6, K9; working-memory re-measurement | Codex and **independent review**: the renderer serves the release path |
 | **C3 Desktop, local private** | Composer UI in the rendered-report panel: the catalogue with checkboxes, keyboard reordering, options, and required items shown as such. Session state; render and package 009 wiring; save-basis refs; existing HTML and package names unchanged | vitest (UI and guards), K7, a native smoke step | Codex and **independent review** (file writes) |
-| **C4 User-released composition** | C in the route-010 derivation (Rust, TypeScript, vectors), the native check of C, the dialog text (wording route), the shareable name | K8, `user_release_composed_keeps_required_disclosures`, forged-C refusals, current reach controls | Codex and **independent review** (release path, data boundary). Needs D-4 |
+| **C4 User-released composition** | C in the route-010 derivation (Rust, TypeScript, vectors), the native check of C, the dialog text (wording route), the shareable name | K8, `user_release_composed_keeps_required_disclosures`, forged-C refusals, current reach controls | Codex and **independent review** (release path, data boundary). D-4 (admit composition on route 010) was a HELP_HUMAN decision in this design's first revision, recommended "admit"; Agent 0's C4 assignment takes it (§8) |
 | **C5 Model-input sections** | `load_combinations` and the four `input_*` sections: Rust projection of M at the native bindings and in the derivation, the TypeScript mirror, vectors | Projection parity, the library-refusal interplay on 010, memory measurement, K9 | Codex and **independent review** (data boundary on 010) |
 | C6 Presets (only if D-2 chooses (b)) | Native presets file and two commands; `app_invoke_handler` re-pin | Size cap, malformed and oversized file, reservation, re-pin test | Codex and **independent review** (persistence) |
 
@@ -426,9 +441,12 @@ in this design is superseded and is not an adoption action.
   retained across re-solves, and excluded from the model and native settings.
 - The report-wide display policy remains unchanged. Ranking uses its exact step,
   before six-significant-digit display rounding, within each display unit.
-- C4 must extend the current native user-release derivation and equality checks
-  before a user-released report may carry a composition. Exact uncomposed
-  user-release remains available under D-6; this is not a new owner decision.
+- C4 extends the native user-release derivation with C and keeps its
+  whole-request equality (§4.4); a user-released report may carry a
+  composition on every admitted route. D-4 (composition on the user-released
+  route) was listed for HELP_HUMAN / Agent 0, not reserved to the owner; Agent
+  0's C4 assignment adopts its recommendation. Exact user-release remains under
+  D-6; this is not a new owner decision.
 - C5 must bind projections of the current model before model-input subsections
   enter the catalogue. Current identity/load-case tables are retained.
 

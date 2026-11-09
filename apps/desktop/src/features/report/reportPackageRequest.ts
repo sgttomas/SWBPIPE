@@ -338,6 +338,8 @@ export type UserReleasedReportPackageRequestInput = {
   analysisRun: AnalysisRunEnvelope;
   inputManifest: CurrentSessionInputManifestEvidence;
   userRelease: UserReleaseRecordValue;
+  /** The session composition C (slice C4), or none for the full report. */
+  reportComposition?: ReportComposition | null;
 };
 
 /** The user-released request's assembly (§2.6; scope R, §2.1): the Export Result JSON
@@ -349,7 +351,7 @@ export type UserReleasedReportPackageRequestInput = {
  * `fixtures/reports/invented/user_release_derivation_vectors.json`). This is the assembly
  * only: it grants nothing, and the route's own cell and dialog are the desktop slice's. */
 export async function assembleUserReleasedReportPackageRequest(input: UserReleasedReportPackageRequestInput) {
-  const { model, result, analysisRun, inputManifest, userRelease } = input;
+  const { model, result, analysisRun, inputManifest, userRelease, reportComposition = null } = input;
   const exactInputs = isExactReportSource(result) ? { model, result, analysisRun, inputManifest } : null;
   const admission = exactInputs ? await admitExactReportSource(exactInputs) : null;
   const document: ResultDocument = admission ? admission.document : await buildCurrentResultExport({ model, result, analysisRun, inputManifest });
@@ -365,7 +367,7 @@ export async function assembleUserReleasedReportPackageRequest(input: UserReleas
   if (recordedTokens.length !== 1 || recordedTokens[0] !== result.status.rule_check) {
     throw ruleCheckMismatch(`the analysis record's rule status (${recordedTokens.join(", ") || "none"}) is not the solve's (${result.status.rule_check}).`);
   }
-  const report = await userReleasedRenderableReportInput({ model, result, analysisRun, inputManifest, userRelease, exactAdmission: admission });
+  const report = await userReleasedRenderableReportInput({ model, result, analysisRun, inputManifest, userRelease, exactAdmission: admission, reportComposition });
   if (JSON.stringify(report.result_rows) !== JSON.stringify(reportResultRows(result))) {
     throw new Error(`${REPORT_PACKAGE_REPORT_ROWS_MISMATCH}: the report's result rows are not the source rows' projection.`);
   }

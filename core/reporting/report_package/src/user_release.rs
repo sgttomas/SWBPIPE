@@ -31,6 +31,15 @@
 //!   (`reportPackageRequest.ts`) writes it, self-checked with the producer's
 //!   [`check_report_result_refs`] and [`check_unit_display_summary`].
 //!
+//! The composition `C` (slice C4; DEL-08-01 Design
+//! `report-section-composer.md` §4.4) is the request's own
+//! `/report/report_composition`, when present. [`derived_composition`] checks
+//! that it is a closed composition (an object of the typed form, no other
+//! member at any depth) with no form refusal, and the derived request carries
+//! its typed form; so whole-request equality binds `C`, and `C` can only select
+//! among the attested rows. Its cases are checked against the rows when the
+//! producer renders.
+//!
 //! The record `U` is the typed `report_renderer::UserReleaseRecord`, carried
 //! as given; its form and bound members are checked by native admission
 //! (§2.3, §2.5 step 4), the producer (item 10) and the reader.
@@ -231,9 +240,12 @@ pub struct UserReleaseBasis<'a> {
     pub software: &'a SoftwareIdentity,
     /// `U`, the record, as the request's `report.report_context.user_release`.
     pub record: &'a UserReleaseRecord,
+    /// `C`, the composition, as the request's `report.report_composition`;
+    /// `None` for a full report (slice C4).
+    pub composition: Option<&'a Value>,
 }
 
-/// The bound basis without `S`: the admitting entry takes `S` from the
+/// The bound basis without `S` and `C`: the admitting entry takes `S` from the
 /// request it admits (`/source_results/0`), which native admission has bound
 /// to this session's attested solve of `M` (§2.4, §2.5 step 7).
 pub struct UserReleaseInputs<'a> {
@@ -250,8 +262,8 @@ pub struct UserReleaseInputs<'a> {
 }
 
 impl<'a> UserReleaseInputs<'a> {
-    /// The basis with `source` as `S`.
-    pub fn with_source(&self, source: &'a Value) -> UserReleaseBasis<'a> {
+    /// The basis with `source` as `S` and `composition` as `C`.
+    pub fn with_source(&self, source: &'a Value, composition: Option<&'a Value>) -> UserReleaseBasis<'a> {
         UserReleaseBasis {
             model: self.model,
             source,
@@ -259,11 +271,12 @@ impl<'a> UserReleaseInputs<'a> {
             run_record: self.run_record,
             software: self.software,
             record: self.record,
+            composition,
         }
     }
 }
 
-/// `E(M, S, m, I, R, H, U)`: the derived input manifest, its identity, and
+/// `E(M, S, m, I, R, H, U, C)`: the derived input manifest, its identity, and
 /// the derived request.
 #[derive(Clone, Debug, PartialEq)]
 pub struct UserReleaseDerivation {
@@ -869,6 +882,25 @@ pub fn minimal_renderer_input(
     }))
 }
 
+/// `C` as the derived request carries it (slice C4): the typed form of a
+/// closed composition with no form refusal. A composition that is not an
+/// object, carries another member at any depth, or is refused by the closed
+/// catalogue (an unknown id, a governed kind), its version or its options is
+/// refused here; the refusal names no input value.
+fn derived_composition(composition: &Value) -> Result<Value, String> {
+    use open_pipe_stress_report_renderer::composer::{form_refusals, ReportComposition};
+    if !composition.is_object() {
+        return Err(invalid("report_composition is not a closed composition object"));
+    }
+    let typed: ReportComposition = serde_json::from_value(composition.clone())
+        .map_err(|_| invalid("report_composition is not a closed composition (composition_version and sections; each section_id, cases and view)"))?;
+    let refusals = form_refusals(&typed);
+    if let Some(first) = refusals.first() {
+        return Err(first.clone());
+    }
+    serde_json::to_value(&typed).map_err(|_| invalid("composition serialization"))
+}
+
 /// The source's identity must be pressure-free (§0, §2.1).
 fn check_pressure_free(source: &Value) -> Result<(), String> {
     match source.pointer("/producer/semantic_contract_id").and_then(Value::as_str) {
@@ -880,7 +912,7 @@ fn check_pressure_free(source: &Value) -> Result<(), String> {
     }
 }
 
-/// `E(M, S, m, I, R, H, U)` (§2.6): the derived input manifest and the whole
+/// `E(M, S, m, I, R, H, U, C)` (§2.6): the derived input manifest and the whole
 /// derived request. The run record's rule status must be the solve's own
 /// (no rule-check aggregate, §2.5 step 8), and the run record must name the
 /// derived input manifest. The derived report is checked with the producer's
@@ -897,7 +929,7 @@ pub fn derive_exact(basis: &UserReleaseBasis<'_>, native_job_id: &str, received_
 }
 
 fn derive_in(basis: &UserReleaseBasis<'_>, custody: Option<(&str, &str)>) -> Result<UserReleaseDerivation, String> {
-    let UserReleaseBasis { model, source, solver_mode, run_record, software, record } = *basis;
+    let UserReleaseBasis { model, source, solver_mode, run_record, software, record, composition } = *basis;
     let exact = source.pointer("/producer/semantic_contract_id").and_then(Value::as_str).is_some_and(crate::exact_sections::is_exact_identity);
     if exact {
         if record.record_version != open_pipe_stress_report_renderer::USER_RELEASE_EXACT_RECORD_VERSION {
@@ -936,7 +968,10 @@ fn derive_in(basis: &UserReleaseBasis<'_>, custody: Option<(&str, &str)>) -> Res
     let origin = current_received_origin(model, source, &manifest_ref)?;
     let base = current_result_document_base(model, source, run_record, &manifest_ref, &input_manifest["solver_basis"])?;
     let document = derive_document(base, model, source, origin, None)?;
-    let report = minimal_renderer_input(model, source, run_record, &input_manifest, software, record)?;
+    let mut report = minimal_renderer_input(model, source, run_record, &input_manifest, software, record)?;
+    if let Some(composition) = composition {
+        report["report_composition"] = derived_composition(composition)?;
+    }
     check_report_result_refs(&report, source)?;
     check_unit_display_summary(&report, source)?;
 
@@ -1177,7 +1212,7 @@ pub fn check_matches_derivation(derivation: &UserReleaseDerivation, input_manife
     Ok(())
 }
 
-/// The derivation check (§2.5 step 9, §2.8): `E(M, S, m, I, R, H, U)`, then
+/// The derivation check (§2.5 step 9, §2.8): `E(M, S, m, I, R, H, U, C)`, then
 /// the input manifest and the whole request must equal it canonically. Only
 /// [`assemble_derived`] calls it, and only it constructs a
 /// [`DerivedUserRelease`].
@@ -1219,7 +1254,8 @@ pub fn assemble_derived(
         }
     }
     let source = request.pointer("/source_results/0").unwrap_or(&Value::Null);
-    let derived = check_derived(&inputs.with_source(source), input_manifest, &request)?;
+    let composition = request.pointer("/report/report_composition");
+    let derived = check_derived(&inputs.with_source(source, composition), input_manifest, &request)?;
     let request = decode_report_package_request(request).map_err(|detail| format!("{PACKAGE_UNBOUND}: {detail}"))?;
     crate::wire::assemble_wire_request_in(request, linked, &ProducerEntry::UserRelease(derived), admitted::PRODUCTION)
 }
@@ -1355,6 +1391,7 @@ mod tests {
             run_record: &vector["run_record"],
             software: &software,
             record: &record,
+            composition: None,
         };
         let mut request = derive(&basis).unwrap().request;
         edit(&mut request);
