@@ -4,6 +4,8 @@
 //! PHYSICS_MANAGER/ASSEMBLY_ORACLE/FROZEN_RUNTIME_EXPECTATIONS.json.
 //! No production pressure, section, assembly or stress helper is an oracle here.
 
+#[path = "common/pressure_elongation.rs"]
+mod pressure_elongation;
 use open_pipe_stress_product_physics::{
     run_linear_static_preview_with_mode, LinearStaticPreviewRequest, MechanicsEnvelope,
     PreviewSolverMode, ResultItem,
@@ -117,7 +119,7 @@ fn model(fixed: bool, transfer: bool, thermal: f64) -> Value {
 }
 
 fn solve(input: Value, mode: PreviewSolverMode) -> MechanicsEnvelope {
-    let request: LinearStaticPreviewRequest = serde_json::from_value(input)
+    let request: LinearStaticPreviewRequest = serde_json::from_value(pressure_elongation::with_elongation_if_pressurised(&input))
         .expect("the independently authored public DTO must deserialize");
     run_linear_static_preview_with_mode(request, mode)
 }

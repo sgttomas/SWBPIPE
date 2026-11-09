@@ -192,7 +192,7 @@ fn formulation_helpers_preserve_held_callers_and_name_the_actual_publication() {
                 .get("load_reference_states")
                 .is_some();
             let unselected = exact_admission::pressure_v3_formulation_basis_with_source(
-                load_state, connectors, false,
+                load_state, connectors, false, false,
             );
             // The producer (`formulation_basis_for_model_with_source`) appends
             // K-D5's two route-independent certified-recovery statements.
@@ -206,25 +206,25 @@ fn formulation_helpers_preserve_held_callers_and_name_the_actual_publication() {
             assert!(tail[0].starts_with("Member actions, section actions, stresses and support reactions"));
             assert!(tail[1].starts_with("The recovery is checked against the formation check's re-formed system"));
             assert_eq!(unselected.limitations[0], PRESSURE_1_IDENTITY);
-            assert_eq!(unselected.limitations[7], JOINED_LIMITATION_7);
+            assert_eq!(unselected.limitations[8], JOINED_LIMITATION_7);
             let selected = exact_admission::pressure_v3_formulation_basis_with_source(
-                load_state, connectors, true,
+                load_state, connectors, true, false,
             );
             assert_eq!(selected.profile_id, unselected.profile_id);
             assert_eq!(selected.limitations.len(), unselected.limitations.len());
-            assert_eq!(&selected.limitations[1..7], &unselected.limitations[1..7]);
-            assert_eq!(&selected.limitations[8..], &unselected.limitations[8..]);
+            assert_eq!(&selected.limitations[1..8], &unselected.limitations[1..8]);
+            assert_eq!(&selected.limitations[9..], &unselected.limitations[9..]);
             assert!(selected.limitations[0].contains("under pressure-source-1 semantics"));
             // O4 §3.3: the selected response follows the contract's shear
             // model on both section bases; no O4 decline is stated.
             assert!(selected.limitations[0].contains("The selected retained-source response uses the contract's shear model and publishes its stress rows on both section bases."));
-            assert!(selected.limitations[7].contains("selected retained-source response"));
-            for text in [&selected.limitations[0], &selected.limitations[7], &unselected.limitations[7]] {
+            assert!(selected.limitations[8].contains("selected retained-source response"));
+            for text in [&selected.limitations[0], &selected.limitations[8], &unselected.limitations[8]] {
                 for retired in ["Euler-Bernoulli with coincident section bases", "zero mill tolerance", "zero corrosion allowance", "Timoshenko documents"] {
                     assert!(!text.contains(retired), "{retired}");
                 }
             }
-            assert!(unselected.limitations[7].contains("publishes ordinary structural recovery"));
+            assert!(unselected.limitations[8].contains("publishes ordinary structural recovery"));
         }
     }
 }

@@ -116,6 +116,17 @@ pub(crate) struct ExactPressurePipeState {
     /// T4-U2: a realized curved bend's pressure data (H-2); `None` on a
     /// straight member.
     pub arc: Option<ArcPressure>,
+    /// RT-L2 (DEL-04-07 `pressure-elongation.md` §4): whether this case includes
+    /// pressure elongation (`PreviewModel::pressure_elongation_included`). Included:
+    /// κ = 2ν on a straight member and the arc's K_b·u_free(ε_p) push and
+    /// u_free(ε_th + ε_p) recovery. Not included: κ = 1 (the cap pair alone), no arc
+    /// push, u_free(ε_th) only, and N_w = N_m + pAi, S = N_m on a straight.
+    pub elongation_included: bool,
+}
+
+/// RT-L2: the per-case evidence value of `pressure_elongation`.
+pub(crate) fn pressure_elongation_token(included: bool) -> &'static str {
+    if included { "included" } else { "not_included" }
 }
 
 /// T4-U2 (H-2): the pressure data of one realized arc in a v3 region. Its
@@ -129,7 +140,8 @@ pub(crate) struct ArcPressure {
     /// `arc_geometry` through the element).
     pub tangents: [[f64; 3]; 2],
     /// ε_p = (1 − 2ν)pAi/(E·As) as represented (`arc_pressure_strain`): the
-    /// one value the load and the recovery share.
+    /// one value the load and the recovery share. Exactly 0 in a case that does
+    /// not include pressure elongation (RT-L2), where neither uses it.
     pub strain: f64,
 }
 
@@ -765,6 +777,8 @@ fn assemble_pressure_case(
         evidence: Vec::new(),
         joint_pressures: BTreeMap::new(),
     };
+    // RT-L2 (`pressure-elongation.md` §4): one boolean per case.
+    let elongation_included = model.pressure_elongation_included(&case.id);
     let mut factor_groups = BTreeMap::new();
     let mut cap_terms = vec![Vec::new(); output.cap_loads.len()];
     let mut eigen_terms = vec![Vec::new(); output.eigenloads.len()];
@@ -917,10 +931,16 @@ fn assemble_pressure_case(
                 continue;
             }
             // D-5: the Poisson pair and caps on the pressure bore; each
-            // basis's own surface stresses must be representable.
-            let loads = sections
-                .poisson_eigenload_pair(material, pressure)
-                .and_then(|eigen| sections.cap_pair(pressure).map(|caps| (eigen, caps)))
+            // basis's own surface stresses must be representable. RT-L2: a case
+            // that does not include pressure elongation carries the κ = 1 pair
+            // ±pAi, the exact negation of the cap pair (the cap pair −c alone).
+            let loads = if elongation_included {
+                sections
+                    .poisson_eigenload_pair(material, pressure)
+                    .and_then(|eigen| sections.cap_pair(pressure).map(|caps| (eigen, caps)))
+            } else {
+                sections.cap_pair(pressure).map(|caps| ([-caps[0], -caps[1]], caps))
+            }
                 .and_then(|pairs| {
                     for basis in SectionBasis::BOTH {
                         sections.surface_stresses(basis, pressure)?;
@@ -963,7 +983,8 @@ fn assemble_pressure_case(
                 None => None,
                 Some(bend) => match (
                     bend.macro_element.end_tangents(),
-                    sections.arc_pressure_strain(material, pressure),
+                    // RT-L2: no free pressure strain on the arc when not included.
+                    if elongation_included { sections.arc_pressure_strain(material, pressure) } else { Ok(0.0) },
                 ) {
                     (Ok(tangents), Ok(strain)) => Some(ArcPressure { tangents, strain }),
                     (Err(_), _) => {
@@ -1011,6 +1032,7 @@ fn assemble_pressure_case(
                     material,
                     eigenload_pair: if arc.is_some() { [0.0, 0.0] } else { eigen },
                     arc,
+                    elongation_included,
                 },
                 caps,
                 end_directions,
@@ -1100,7 +1122,9 @@ fn assemble_pressure_case(
                             &state,
                             direction[axis],
                             source_zero[axis],
-                            sign * 2.0 * state.material.poisson_ratio(),
+                            // RT-L2: κ = 2ν when the case includes pressure
+                            // elongation (today's expression), else κ = 1.
+                            if state.elongation_included { sign * 2.0 * state.material.poisson_ratio() } else { sign },
                             id,
                             &pipe.element_id,
                             "poisson_eigen",
@@ -1153,6 +1177,7 @@ fn assemble_pressure_case(
             "terminals":terminal_evidence,"pressure_basis":PRESSURE_BASIS,"p_pa":pressure.pressure_pa(),"geometry":geometry,
             "materials":material_evidence,"applied_loads":load_evidence,"provenance":region.provenance,
             "approximation":"long_straight_annulus_small_strain_v2","external_pressure_increment_pa":0.0,
+            "pressure_elongation":pressure_elongation_token(elongation_included),
             "geometry_representation_guard":{"epsilon_multiplier":64,"meaning":"arithmetic_representation_only"}}));
         if has_arc {
             // T4-U2: only a region with a realized arc carries these keys, so
@@ -1381,7 +1406,8 @@ fn add_factor_term(
 ///
 /// The coefficient's sign is the summand's signed contribution relative to
 /// the binary64 direction the producer used; its magnitude is 1 for caps and
-/// remainders and 2|nu| for the straight Poisson pair, so the re-formed value
+/// remainders and 2|nu| for the straight Poisson pair (1, a constant, in a case
+/// that does not include pressure elongation: RT-L2), so the re-formed value
 /// is p*pi*r_i^2 times the summand's signed coefficient times the direction.
 fn closure_source(
     built: &BuiltModel,
@@ -1436,7 +1462,8 @@ fn closure_source(
         }
     };
     let sign = if term.0.is_sign_negative() == binary64.is_sign_negative() { 1.0 } else { -1.0 };
-    let coefficient = if term.3 == "poisson_eigen" {
+    // RT-L2: a case without pressure elongation forms κ = 1 as a constant.
+    let coefficient = if term.3 == "poisson_eigen" && state.elongation_included {
         PressureCoefficient::Poisson {
             poisson_ratio: state.material.poisson_ratio(),
             sign: sign * 2.0 * if state.material.poisson_ratio().is_sign_negative() { -1.0 } else { 1.0 },
@@ -1598,6 +1625,12 @@ fn finish_source_groups(
         "rounded_cap_rhs_global":output.cap_loads,"rounded_poisson_rhs_global":output.eigenloads,"dof_units":["N","N","N","N*m","N*m","N*m"],
         "cancellation_screen":if screen.is_finite(){Some(screen)}else{None},"screen_limit":1e-9,"screen_roundoff_multiplier":32,
         "screen_is_not_numerical_qualification":true});
+    // RT-L2 (`pressure-elongation.md` §5): a case with pressure regions states
+    // whether it includes pressure elongation; a pressure-free case is unchanged.
+    if case.pressure_regions.as_ref().is_some_and(|regions| !regions.is_empty()) {
+        output.assembly_evidence["pressure_elongation"] =
+            json!(pressure_elongation_token(model.pressure_elongation_included(&case.id)));
+    }
 }
 
 fn temperature_basis(case: &PreviewLoadCase) -> Value {
@@ -2006,6 +2039,34 @@ fn collinear_run(
 #[path = "joint_pressure_tests.rs"]
 mod joint_pressure_tests;
 
+/// RT-L2 test support (DEL-04-07 `pressure-elongation.md` §7 item 1): a pre-switch
+/// test model's meaning on the current engine, every pressurised case including
+/// pressure elongation. A no-op without a pressure contract, without a pressurised
+/// case, or when the model already states the setting.
+#[cfg(test)]
+pub(crate) fn name_every_pressurised_case(model: &mut Value) {
+    if model.get("pressure_contract").is_none()
+        || model.get("model_settings").and_then(|s| s.get("pressure_elongation")).is_some()
+    {
+        return;
+    }
+    let cases: Vec<Value> = model["load_cases"].as_array().into_iter().flatten()
+        .filter(|c| c["pressure_regions"].as_array().is_some_and(|r| !r.is_empty()))
+        .map(|c| c["id"].clone()).collect();
+    if !cases.is_empty() {
+        let settings = model.as_object_mut().expect("a model object").entry("model_settings").or_insert_with(|| json!({}));
+        settings["pressure_elongation"] = json!({"operating_load_cases": cases});
+    }
+}
+
+/// [`name_every_pressurised_case`] on a request's `model`.
+#[cfg(test)]
+pub(crate) fn with_pressurised_cases_named(request: &Value) -> Value {
+    let mut request = request.clone();
+    name_every_pressurised_case(&mut request["model"]);
+    request
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -2048,7 +2109,8 @@ mod tests {
         serde_json::from_value(value).unwrap()
     }
 
-    fn assemble(value: Value) -> (Option<ExactPressureCase>, Vec<Diagnostic>) {
+    fn assemble(mut value: Value) -> (Option<ExactPressureCase>, Vec<Diagnostic>) {
+        super::name_every_pressurised_case(&mut value);
         let model = parse(value);
         let mut diagnostics = Vec::new();
         let built = super::super::build_model(&model, &model.materials, &mut diagnostics).unwrap();
@@ -2232,6 +2294,7 @@ mod tests {
             material: IsotropicENu::new(120.0, 0.25).unwrap(),
             eigenload_pair: [0.0, 0.0],
             arc: None,
+            elongation_included: true,
         }
     }
 
@@ -2569,6 +2632,7 @@ mod grouping_identity_tests {
             pressure,
             eigenload_pair: sections.poisson_eigenload_pair(material, pressure).unwrap(),
             arc: None,
+            elongation_included: true,
         };
         let mut groups = BTreeMap::new();
         for zero in [-0.0, 0.0] {
@@ -2592,6 +2656,7 @@ mod grouping_identity_tests {
             pressure,
             eigenload_pair: [0.0, 0.0],
             arc: None,
+            elongation_included: true,
         };
         let mut groups = BTreeMap::new();
         for zero in [-0.0, 0.0] {

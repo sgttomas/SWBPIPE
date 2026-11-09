@@ -79,7 +79,7 @@ fn exact(v: &Value) -> f64 {
 }
 
 fn solve(request: &Value, mode: PreviewSolverMode) -> MechanicsEnvelope {
-    run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap()
+    run_linear_static_preview_value_with_mode(crate::pressure_runtime::with_pressurised_cases_named(request), mode).unwrap()
 }
 
 /// The pressure reader with the model, `None` when it admits the envelope.

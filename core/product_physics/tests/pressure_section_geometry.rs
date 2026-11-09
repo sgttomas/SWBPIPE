@@ -2,6 +2,8 @@
 //! Independent source OD/effective-wall expectations were frozen before repair.
 //! The older rounded-radii reference remains comparison evidence only.
 
+#[path = "common/pressure_elongation.rs"]
+mod pressure_elongation;
 use open_pipe_stress_product_physics::{
     run_linear_static_preview_with_mode, LinearStaticPreviewRequest, MechanicsEnvelope,
     PreviewSolverMode, ResultItem,
@@ -116,7 +118,7 @@ fn fixture(inputs: &Value, fixed: bool, pressurized: bool) -> Value {
 }
 
 fn solve(input: Value, mode: PreviewSolverMode) -> MechanicsEnvelope {
-    let request: LinearStaticPreviewRequest = serde_json::from_value(input).unwrap();
+    let request: LinearStaticPreviewRequest = serde_json::from_value(pressure_elongation::with_elongation_if_pressurised(&input)).unwrap();
     run_linear_static_preview_with_mode(request, mode)
 }
 

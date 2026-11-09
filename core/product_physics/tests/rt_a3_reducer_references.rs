@@ -140,7 +140,9 @@ fn document(references: &Value, case: &Value, shear: &str) -> Value {
             "elastic_modulus": quantity(ratio(&model["material"]["E_Pa"]), "Pa"), "poisson_ratio": quantity(0.3, "1"), "provenance": PROVENANCE}],
         "supports": supports, "components": [reducer],
         "load_cases": [{"id": CASE, "primitive_loads": [], "pressure_regions": regions, "provenance": PROVENANCE}],
-        "combinations": []},
+        "combinations": [],
+        // RT-L2: the references are today's mechanics, pressure elongation included.
+        "model_settings": {"pressure_elongation": {"operating_load_cases": [CASE]}}},
         "materials": []})
 }
 
@@ -845,4 +847,28 @@ fn adjacent_body_regions_are_each_checked_as_a_step() {
         assert_eq!(refusals.len(), 1);
         assert_eq!(refusals[0]["affected_refs"], json!([CASE, "region:up", "component:upstream-reducer", "pipe:up"]));
     }
+}
+
+#[path = "common/pressure_elongation.rs"]
+mod pressure_elongation;
+
+/// RT-L2 (DEL-04-07 `pressure-elongation.md` §4.3): with pressure elongation not
+/// included, each concentric reducer step is the unbalanced-thrust model on both
+/// shear models: its closed terminals carry no pressure load, and every member's
+/// N_w exceeds the p = 0 value by its own p·A_i.
+#[test]
+fn not_included_concentric_steps_carry_only_the_unbalanced_thrust() {
+    let references = references();
+    let mut checked = 0;
+    for case in admitted_cases(&references) {
+        for shear in SHEAR_MODELS {
+            let document = pressure_elongation::without_elongation(&document(&references, case, shear));
+            for mode in MODES {
+                let off = pressure_elongation::assert_off_is_the_unbalanced_thrust(&document, mode, &format!("{} {shear} {mode:?}", case["label"]));
+                pressure_elongation::assert_case_token(&off, CASE, "not_included");
+            }
+        }
+        checked += 1;
+    }
+    assert!(checked > 0);
 }

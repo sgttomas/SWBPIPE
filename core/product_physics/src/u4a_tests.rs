@@ -22,7 +22,7 @@ fn reference_inputs() -> (Value, Value) {
 /// pressure-free version; B7b's exact contract with zero allowance and
 /// Euler-Bernoulli). The SHA-bound frozen request and every physical input stay fixed.
 fn current_request(requests: &Value, id: &str) -> Value {
-    crate::b7b_admission_tests::reauthor_current_request(requests["cases"][id].clone())
+    crate::pressure_runtime::with_pressurised_cases_named(&crate::b7b_admission_tests::reauthor_current_request(requests["cases"][id].clone()))
 }
 fn row<'a>(out: &'a MechanicsEnvelope, kind: &str, entity: &str, location: &str, component: &str) -> &'a ResultItem {
     row_on(out, kind, entity, location, component, "")

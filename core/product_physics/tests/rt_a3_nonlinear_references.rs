@@ -58,6 +58,8 @@
 //! of a nonlinear model is withheld, OQ-1's one solved case at factor 1 plus
 //! κ-zero combinations is admitted, and both readers refuse forged gates.
 
+#[path = "common/pressure_elongation.rs"]
+mod pressure_elongation;
 use open_pipe_stress_product_physics::result_export::reader_verdict;
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode, MODEL_SCHEMA_VERSION};
 use serde_json::{json, Value};
@@ -259,7 +261,7 @@ fn document(references: &Value, case: &Value) -> Value {
 // ----------------------------------------------------------------- solving
 
 fn solve(document: &Value, mode: PreviewSolverMode) -> Value {
-    serde_json::to_value(run_linear_static_preview_value_with_mode(document.clone(), mode).expect("the entry accepts the document")).unwrap()
+    serde_json::to_value(run_linear_static_preview_value_with_mode(pressure_elongation::with_elongation_if_pressurised(document), mode).expect("the entry accepts the document")).unwrap()
 }
 
 fn diagnostics(envelope: &Value) -> &Vec<Value> {
