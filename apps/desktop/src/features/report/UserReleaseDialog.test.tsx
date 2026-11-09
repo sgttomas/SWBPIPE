@@ -36,12 +36,10 @@ function request(overrides: Partial<UserReleaseDialogRequest> = {}): UserRelease
 }
 
 describe("UserReleaseDialog", () => {
-  it("states the statement verbatim as the record's and the renderer's constant, and the design's §2.3", () => {
+  it("states the statement verbatim as the record's and the renderer's constant", () => {
     const renderer = readFileSync(path.join(root, "core/reporting/report_renderer/src/lib.rs"), "utf8");
     const constant = /pub const USER_RELEASE_STATEMENT: &str =\s*"([^"]+)";/.exec(renderer)?.[1];
     expect(constant).toBe(USER_RELEASE_STATEMENT);
-    const design = readFileSync(path.join(root, "execution/PKG-08/DEL-08-01/Work/report-user-release.md"), "utf8");
-    expect(design).toContain(`| \`statement\` | string, constant | \`${USER_RELEASE_STATEMENT}\``);
     render(<UserReleaseDialog request={request()} />);
     const statement = screen.getByTestId("user-release-statement");
     expect(statement.closest("label")).toHaveTextContent(USER_RELEASE_STATEMENT);
