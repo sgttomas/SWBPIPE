@@ -102,6 +102,7 @@ The maintained guard obligations for the selected source are specific:
 | --- | --- |
 | KD5T2, `kd5_text_model.py` | Removing exactly the six reviewed lines recovers S6's solve body. Its literal inventory and the classifier/ledger helpers are unchanged. Carry fixed-label/slot facts only after treating the new edge and its variable error allocation separately; an unchanged literal list alone does not price that edge. |
 | B5O1, `batch5_model.py` | No `LoadCaseSolve`/ResultItem field, carrier constructor, existing staging site or support row count changes. New classifier temporaries still coexist with the live static parent; use the existing carrier/child staging basis plus the added work, not a zero-temporary assertion. |
+| O4, `o4_owners_model.py` | Of 30 owner-body warrants, only `solve_prepared_load_case` differs; sidecar, reduced-set and case-preparation spans still match. Reconcile O4-SR's second composite maximum and O4-SP's payload keys/per-station components against the six-line delta. Preserve the positive owner/copy, push-growth/previous-backing and phase/lifetime charges, including distinct/reduced preparations, receipt and reader copies and kernel staging. No new CE temporary is paid for by subtracting an unchanged O4 owner or assuming reuse. Native strides and the actual live union still need final-source checks. |
 | KD5C6, `kd5_first_error_model.py` | The new if-let discards the consumption error and has no `?`, early return or call to the private fallback-error roots. Existing fallback attempts, first-return alternatives and outer clones stay. Check the exact helper/root/site inventory before carrying those first-return limits. |
 | B7a domain and KD5C4 primitive-owner source bindings | Raw lib.rs changes include both production and test additions. D1.6 rejects the only receivers that can enter the new CE edge; verify the admission receiver and exact hanger/family predicate and preserve the primitive-owner census, formulation/text and late-admission warrants. |
 | W1 reduction source/lifetime binding | FormationSource and its Cow reduction, guarded combination index/shadow/insert/call and the reduction owners remain unchanged. The extra static call does not transfer ownership to a W1 reduction. Check those exact warrants and parent lifetimes before carrying this full-file binding. |
@@ -125,6 +126,11 @@ other declaration fields remain unchanged. This is preparation only: the
 committed routing file is untouched, the count is an actual current-source
 observation rather than S6's historical count, and final values must be
 rederived after S6 lands. Preserve S6's historical derivation and proof.
+S6's existing `check_routing_inventory` already derives its tree and reader
+bindings from actual current source. Assess the final two-binding CE registration
+against that maintained check before proposing any guard change. The three
+historical malformed-owner materialization failures are a distinct S6 source
+repair in `aea0887d5`; incorporating that repair is not a passing test result.
 
 ## Actual-source D3 and AC-004 inputs still needed
 
