@@ -31,7 +31,7 @@ const FIXTURE: &str = include_str!("../../../fixtures/reports/exact_route_limita
 const WRITE_ENV: &str = "OPENPIPESTRESS_WRITE_EXACT_ROUTE_LIMITATIONS";
 const GENERATOR: &str =
     "core/product_physics/tests/exact_route_limitations.rs::exact_route_limitations_fixture_is_current";
-const PRESSURE_2: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
+const PRESSURE_3: &str = "openpipestress.result_semantics/0.3.0/pressure-3";
 const PRESSURE_SOURCE_1: &str = "openpipestress.result_semantics/0.3.0/pressure-source-1";
 /// The source method's named declines of a realized bend and of an objective
 /// connector (`src/source_recovery.rs`, ahead of its dimension closure; the
@@ -39,6 +39,11 @@ const PRESSURE_SOURCE_1: &str = "openpipestress.result_semantics/0.3.0/pressure-
 const BEND_REFUSAL: &str = "realized curved bend (curved_bend_macro_element) is not a straight source family";
 const CONNECTOR_REFUSAL: &str = "objective connector is not a straight source family";
 const PROVENANCE: &str = "invented W-11 exact-route limitation coverage input; not library, component, catalog or code-rule data";
+/// RT-L2 (DEL-04-07 Design `pressure-elongation.md` §5): exactly one of the two fixed
+/// pressure-elongation statements is on every exact-route list, after the D-3 "Not
+/// modelled" statement: `NOT_INCLUDED` without the setting, `INCLUDED` with it.
+const ELONGATION_NOT_INCLUDED: &str = "Pressure elongation is not included in any load case: the closed-end free pressure strain is omitted; pressure thrust at unbalanced locations is applied.";
+const ELONGATION_INCLUDED: &str = "Pressure elongation is included only in the operating load cases the model settings name, as the closed-end free strain (1 \u{2212} 2\u{3bd})\u{b7}p\u{b7}A_i/(E\u{b7}A_s), with A_i on the pressure bore and A_s the nominal section area; it is not a thin-wall mean-diameter form.";
 
 // Invented inputs (committed requests; frozen references are read, never edited).
 /// Straight `pressure-2`, without the load/reference-state group.
@@ -94,6 +99,8 @@ struct CoverageList {
     load_reference_states: bool,
     objective_connectors: bool,
     realized_bends: bool,
+    /// RT-L2: whether the request's model settings name pressure-elongation cases.
+    pressure_elongation: bool,
     limitations: Vec<String>,
 }
 
@@ -258,18 +265,30 @@ fn rename_support(model: &mut Value, from: &str, to: &str, node: &str) {
     }
 }
 
-/// The eight `pressure-2` shapes and the two `pressure-source-1` shapes the
+/// RT-L2: `request` with pressure elongation switched on in every one of its load
+/// cases (`model_settings.pressure_elongation`).
+fn with_elongation(mut request: Value) -> Value {
+    let model = &mut request["model"];
+    let cases: Vec<Value> = model["load_cases"].as_array().unwrap().iter().map(|case| case["id"].clone()).collect();
+    if model.get("model_settings").is_none() {
+        model["model_settings"] = json!({});
+    }
+    model["model_settings"]["pressure_elongation"] = json!({"operating_load_cases": cases});
+    request
+}
+
+/// The eight `pressure-3` shapes and the two `pressure-source-1` shapes the
 /// producer emits, in fixture order, each with its invented request.
 fn producer_inputs() -> Vec<(Shape, Value)> {
     vec![
-        ((PRESSURE_2, false, false, false), parse(STRAIGHT_REQUEST)),
-        ((PRESSURE_2, false, false, true), i7("U2-L-ANCH-PTW-K2", "0.3.0")),
-        ((PRESSURE_2, false, true, false), u3("U3-SYS-DEMO-CONNECTOR-001", "document_v3_0.3.0")),
-        ((PRESSURE_2, false, true, true), l_line_with_connector("0.3.0")),
-        ((PRESSURE_2, true, false, false), parse(LOAD_STATE_REQUEST)),
-        ((PRESSURE_2, true, false, true), i7("U2-L-ANCH-PTW-K2", "0.4.0")),
-        ((PRESSURE_2, true, true, false), u3("U3-SYS-DEMO-CONNECTOR-002-LR1", "document_v3_0.4.0")),
-        ((PRESSURE_2, true, true, true), l_line_with_connector("0.4.0")),
+        ((PRESSURE_3, false, false, false), parse(STRAIGHT_REQUEST)),
+        ((PRESSURE_3, false, false, true), i7("U2-L-ANCH-PTW-K2", "0.3.0")),
+        ((PRESSURE_3, false, true, false), u3("U3-SYS-DEMO-CONNECTOR-001", "document_v3_0.3.0")),
+        ((PRESSURE_3, false, true, true), l_line_with_connector("0.3.0")),
+        ((PRESSURE_3, true, false, false), parse(LOAD_STATE_REQUEST)),
+        ((PRESSURE_3, true, false, true), i7("U2-L-ANCH-PTW-K2", "0.4.0")),
+        ((PRESSURE_3, true, true, false), u3("U3-SYS-DEMO-CONNECTOR-002-LR1", "document_v3_0.4.0")),
+        ((PRESSURE_3, true, true, true), l_line_with_connector("0.4.0")),
         ((PRESSURE_SOURCE_1, false, false, false), parse(SOURCE_REQUEST)),
         ((PRESSURE_SOURCE_1, true, false, false), parse(LOAD_STATE_SOURCE_REQUEST)),
     ]
@@ -282,7 +301,8 @@ fn produced_lists() -> &'static [CoverageList] {
     LISTS.get_or_init(|| {
         producer_inputs()
             .into_iter()
-            .map(|((id, load_state, connectors, bends), request)| {
+            .flat_map(|(shape, request)| [(shape, false, request.clone()), (shape, true, with_elongation(request))])
+            .map(|((id, load_state, connectors, bends), elongation, request)| {
                 let envelope = run(request);
                 assert_eq!(
                     envelope["status"]["mechanics"],
@@ -296,12 +316,24 @@ fn produced_lists() -> &'static [CoverageList] {
                     "the envelope states its intended shape"
                 );
                 assert_eq!(envelope["formulation_basis"]["profile_id"], "exact_pressure_v3");
+                let limitations = limitations(&envelope);
+                // RT-L2: exactly one elongation statement, the setting's, after "Not modelled".
+                let (stated, other) = if elongation {
+                    (ELONGATION_INCLUDED, ELONGATION_NOT_INCLUDED)
+                } else {
+                    (ELONGATION_NOT_INCLUDED, ELONGATION_INCLUDED)
+                };
+                let at = limitations.iter().position(|text| text.starts_with("Not modelled: ")).expect("the D-3 statement");
+                assert_eq!(limitations.get(at + 1).map(String::as_str), Some(stated), "{id} elongation {elongation}");
+                assert_eq!(limitations.iter().filter(|text| *text == stated).count(), 1);
+                assert!(!limitations.iter().any(|text| text == other));
                 CoverageList {
                     semantic_contract_id: id.to_string(),
                     load_reference_states: load_state,
                     objective_connectors: connectors,
                     realized_bends: bends,
-                    limitations: limitations(&envelope),
+                    pressure_elongation: elongation,
+                    limitations,
                 }
             })
             .collect()
@@ -346,12 +378,13 @@ fn corpus_lists() -> Vec<(String, String, Vec<String>)> {
 #[test]
 fn exact_route_limitations_fixture_is_current() {
     let fixture = coverage_fixture();
-    // §2.2: the ten shapes the producer emits. The six pressure-source-1 shapes
-    // with a connector or a realized bend are never emitted (see the guard).
-    assert_eq!(fixture.lists.len(), 10);
-    assert_eq!(fixture.strings.len(), 19, "§1.3: 2 + 6 + 2 + 5 + 1 + 1 + 2 distinct strings");
+    // §2.2: the ten shapes the producer emits, each without and with pressure
+    // elongation (RT-L2). The six pressure-source-1 shapes with a connector or a
+    // realized bend are never emitted (see the guard).
+    assert_eq!(fixture.lists.len(), 20);
+    assert_eq!(fixture.strings.len(), 21, "§1.3: 2 + 6 + 2 + 5 + 1 + 1 + 2 distinct strings, plus the two elongation statements");
     for list in &fixture.lists {
-        assert!((10..=17).contains(&list.limitations.len()), "{} entries", list.limitations.len());
+        assert!((11..=18).contains(&list.limitations.len()), "{} entries", list.limitations.len());
     }
     // Against real envelopes: every published exact list in the committed
     // corpora equals one fixture list of its own identity.
@@ -365,13 +398,13 @@ fn exact_route_limitations_fixture_is_current() {
         shapes.insert((id, matched.load_reference_states, matched.objective_connectors, matched.realized_bends));
     }
     let expected: BTreeSet<_> = [
-        (PRESSURE_2, false, false, false),
-        (PRESSURE_2, true, false, false),
-        (PRESSURE_2, false, false, true),
-        (PRESSURE_2, true, false, true),
-        (PRESSURE_2, false, true, true),
-        (PRESSURE_2, false, true, false),
-        (PRESSURE_2, true, true, false),
+        (PRESSURE_3, false, false, false),
+        (PRESSURE_3, true, false, false),
+        (PRESSURE_3, false, false, true),
+        (PRESSURE_3, true, false, true),
+        (PRESSURE_3, false, true, true),
+        (PRESSURE_3, false, true, false),
+        (PRESSURE_3, true, true, false),
         (PRESSURE_SOURCE_1, true, false, false),
         (PRESSURE_SOURCE_1, false, false, false),
     ]
@@ -483,7 +516,7 @@ fn pressure_source_1_is_never_emitted_with_a_connector_or_a_realized_bend() {
             .collect();
         let pressure_2: BTreeSet<&String> = produced_lists()
             .iter()
-            .filter(|list| list.semantic_contract_id == PRESSURE_2)
+            .filter(|list| list.semantic_contract_id == PRESSURE_3)
             .flat_map(|list| &list.limitations)
             .collect();
         source.difference(&pressure_2).copied().collect()
@@ -496,14 +529,15 @@ fn pressure_source_1_is_never_emitted_with_a_connector_or_a_realized_bend() {
             let what = format!("load state {load_state}, connector {connectors}, bend {bends}");
             let envelope = run(source_control_with(load_state, connectors, bends));
             let (id, l, c, b) = published_shape(&envelope);
-            assert_eq!(id, PRESSURE_2, "{what}: the producer emitted another identity");
+            assert_eq!(id, PRESSURE_3, "{what}: the producer emitted another identity");
             assert_eq!((l, c, b), (load_state, connectors, bends), "{what}");
             let published = limitations(&envelope);
             assert!(published.iter().all(|text| !source_only.contains(text)), "{what}: pressure-source-1 text emitted");
             let fixture_list = produced_lists()
                 .iter()
                 .find(|list| {
-                    list.semantic_contract_id == PRESSURE_2
+                    list.semantic_contract_id == PRESSURE_3
+                        && !list.pressure_elongation
                         && (list.load_reference_states, list.objective_connectors, list.realized_bends) == (load_state, connectors, bends)
                 })
                 .unwrap();
@@ -567,8 +601,8 @@ const WITNESS_INPUTS: [(&str, &str, &str); 2] = [
 #[test]
 fn exact_report_witness_inputs_are_current() {
     let requests = [
-        ("pressure_2_connector", t4_u5b::request("AS-F", &t4_u5b::oracle()["cases"]["AS-F"]), (PRESSURE_2.to_string(), false, true, false)),
-        ("pressure_2_realized_bend", i7("U2-L-ANCH-PTW-K2", "0.3.0"), (PRESSURE_2.to_string(), false, false, true)),
+        ("pressure_2_connector", t4_u5b::request("AS-F", &t4_u5b::oracle()["cases"]["AS-F"]), (PRESSURE_3.to_string(), false, true, false)),
+        ("pressure_2_realized_bend", i7("U2-L-ANCH-PTW-K2", "0.3.0"), (PRESSURE_3.to_string(), false, false, true)),
     ];
     let target = std::env::var(WITNESS_INPUTS_ENV).ok();
     for ((name, request, shape), (committed_name, committed_request, committed_raw)) in requests.into_iter().zip(WITNESS_INPUTS) {

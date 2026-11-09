@@ -409,7 +409,7 @@ fn exact_block_and_library_records_emit_in_the_pdf() {
     assert!(pdf.text_model_findings.iter().all(|finding| !finding.blocking));
     for needle in [
         "Exact-Route Result",
-        "Semantic contract: openpipestress.result_semantics/0.3.0/pressure-2",
+        "Semantic contract: openpipestress.result_semantics/0.3.0/pressure-3",
         "Stress Headlines by Section Basis",
         "Section basis",
         "Stress maximum",

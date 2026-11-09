@@ -2,7 +2,7 @@
 
 Reads the shared generated pressure-2 corpus (the Rust reader's
 ``tests/pressure_contract.rs`` reads the same bytes; the Rust reader is the
-only product reader). The independent verifier (``tests/verifiers/pressure_2.py``)
+only product reader). The independent verifier (``tests/verifiers/pressure_3.py``)
 admits v3 straight families with signed p_pa. B7b retired the v2 contract: no
 v2 reader remains, evidence relabelled with the retired v2 profile is refused at
 the current profile check, a statement under a retired v2 identity is refused by
@@ -22,7 +22,7 @@ from core.analysis_runs import rust_reader
 from core.analysis_runs.compatibility import (
     PRESSURE_CONTRACT_ID, PRESSURE_CONTRACT_SHA256, _source_contract, build_analysis_run_v0_3, numerical_use_standing,
 )
-from tests.verifiers.pressure_2 import (
+from tests.verifiers.pressure_3 import (
     CONTRACT_ID, RETIRED_EXACT_V2_IDS, SOURCE_EXACT_PRESSURE_V2_RETIRED, V2_RETIRED_TEXT,
     validate_exact_pressure_evidence, validate_pressure_evidence, verify_source,
 )
@@ -30,7 +30,7 @@ from tests.verifiers.pressure_2 import (
 PROJECT = Path(__file__).resolve().parents[1]
 CORPUS = json.loads((PROJECT / "fixtures/results/pressure_v3_straight_reader_corpus.json").read_text())
 CASES = [(case["label"], case["envelope"]) for case in CORPUS["cases"]]
-VERIFIER = PROJECT / "tests/verifiers/pressure_2.py"
+VERIFIER = PROJECT / "tests/verifiers/pressure_3.py"
 # b7-plan R2: Python product paths read through the Rust verdict, whose
 # `pressure` route reads raw pressure-2 and refuses a transported one by name.
 PRESSURE_TRANSPORT_REFUSAL = "SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED"
@@ -110,7 +110,7 @@ def test_retired_v2_labels_are_refused(label, envelope):
 @pytest.mark.parametrize("label,envelope", CASES)
 def test_unknown_identities_are_refused(label, envelope):
     unknown = deepcopy(envelope)
-    unknown["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/pressure-3"
+    unknown["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/pressure-4"
     with pytest.raises(ValueError, match="SOURCE_PHYSICS_PRESSURE_CONTRACT_UNKNOWN"):
         validate_exact_pressure_evidence(unknown)
     with pytest.raises(ValueError, match="SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"):
@@ -124,6 +124,15 @@ def test_unknown_identities_are_refused(label, envelope):
     with pytest.raises(ValueError, match=message):
         _source_contract(retired)
     assert rust_reader.dispatch(retired)["error"]["code"] == "SOURCE_PRESSURE_1_RETIRED"
+    # RT-L2: the retired pressure-2 identity is refused by name the same way (re-run).
+    retired_2 = deepcopy(envelope)
+    retired_2["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/pressure-2"
+    message = "^SOURCE_PRESSURE_2_RETIRED: pressure-2 results are no longer read; re-run the analysis$"
+    with pytest.raises(ValueError, match=message):
+        validate_exact_pressure_evidence(retired_2)
+    with pytest.raises(ValueError, match=message):
+        _source_contract(retired_2)
+    assert rust_reader.dispatch(retired_2)["error"]["code"] == "SOURCE_PRESSURE_2_RETIRED"
     # The retired preview-physics-1 identity is refused by name the same way (re-run).
     retired_preview = deepcopy(envelope)
     retired_preview["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/preview-physics-1"

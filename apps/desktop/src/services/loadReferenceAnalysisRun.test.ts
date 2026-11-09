@@ -60,7 +60,7 @@ async function mirror(name: string, kind: keyof typeof FAMILY = "joined") {
   const desktop = await buildAnalysisRunV03(raw, manifest, undefined, modelLoadBasisRefs(model));
   return { raw, model, python, desktop };
 }
-const PRESSURE_1 = { id: "openpipestress.result_semantics/0.3.0/pressure-2", sha256: "c5fe09a2dc82068f46ce8dd0b5873071af1ec13e62c9bacf0a009570d7e5d2ad" };
+const PRESSURE_1 = { id: "openpipestress.result_semantics/0.3.0/pressure-3", sha256: "757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb10813998200d9" };
 
 describe("joined (pressure-source-1) AnalysisRun mirror", () => {
   it.each(LRS)("%s equals the Python carrier by canonical hash (route-independent fields normalized)", async name => {

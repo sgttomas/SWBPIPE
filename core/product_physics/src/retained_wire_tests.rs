@@ -843,7 +843,7 @@ fn b3b_exact_constants_bound_to_in_tree_fixtures() {
     const EXACT_DEFINITION: &str = include_str!("../../../fixtures/results/retained_precision_prepared_exact_v1.json");
     const EXACT_TABLE: &str = include_str!("../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json");
     // B7b D4 (a): physics-retained-1 is based on pressure-2 (exact_pressure_v3).
-    const PRESSURE_1_TABLE: &str = include_str!("../../../fixtures/results/semantic_contract_v0_3_pressure_2.json");
+    const PRESSURE_1_TABLE: &str = include_str!("../../../fixtures/results/semantic_contract_v0_3_pressure_3.json");
     let definition: Value = serde_json::from_str(EXACT_DEFINITION).unwrap();
     let table: Value = serde_json::from_str(EXACT_TABLE).unwrap();
     assert_eq!(definition["id"], json!(wire::EXACT_DEFINITION_ID));

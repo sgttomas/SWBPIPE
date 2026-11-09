@@ -18,8 +18,9 @@ use std::sync::OnceLock;
 
 /// The embedded table, as the TypeScript table's test writes it.
 pub const EXACT_STATEMENTS_JSON: &str = include_str!("../../../../fixtures/reports/exact_report_statements.json");
-/// The number of distinct exact-route producer strings (§1.3).
-pub const EXACT_STATEMENT_COUNT: usize = 19;
+/// The number of distinct exact-route producer strings (§1.3; RT-L2 adds the two
+/// pressure-elongation statements).
+pub const EXACT_STATEMENT_COUNT: usize = 21;
 /// The refusal of a malformed table.
 pub const EXACT_STATEMENT_TABLE_INVALID: &str = "REPORT-EXACT-STATEMENT-TABLE-INVALID";
 
@@ -145,17 +146,17 @@ mod tests {
     }
 
     #[test]
-    fn the_embedded_table_parses_with_nineteen_entries() {
+    fn the_embedded_table_parses_with_twenty_one_entries() {
         let table = exact_statement_table().expect("the embedded table is well formed");
         assert_eq!(table.len(), EXACT_STATEMENT_COUNT);
-        assert_eq!(table.len(), 19);
+        assert_eq!(table.len(), 21);
     }
 
     #[test]
     fn its_digests_are_the_coverage_fixtures_strings_digests() {
         let table = exact_statement_table().unwrap();
         let strings = coverage_strings();
-        assert_eq!(strings.len(), 19);
+        assert_eq!(strings.len(), 21);
         let mut fixture: Vec<String> = strings.iter().map(|text| producer_sha256(text)).collect();
         fixture.sort();
         let table_digests: Vec<String> = table.entries().map(|(digest, _)| digest.to_string()).collect();
@@ -174,7 +175,8 @@ mod tests {
                     assert_eq!(statement, head.strip_suffix(' ').unwrap());
                     assert!(text.contains("Other source families are declined by name."));
                 }
-                None => assert_eq!(statement, text),
+                // RT-L2: the included statement's minus sign and nu are spelled out (WinAnsi).
+                None => assert_eq!(statement, text.replace('\u{2212}', "-").replace('\u{3bd}', "nu")),
             }
             assert!(is_exact_statement(statement));
             assert!(!statement.contains(OMITTED_SENTENCE));

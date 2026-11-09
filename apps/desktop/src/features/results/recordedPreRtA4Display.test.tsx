@@ -207,7 +207,7 @@ describe("the recorded table is the only authority the display paths take", () =
     const id = source.producer!.semantic_contract_id;
     const other = VARIANTS.find((entry) => entry.open().source.producer!.semantic_contract_id !== id)!;
     const row = source.results.find((r) => r.kind === "global_nodal_displacement_x") ?? source.results[0];
-    for (const bad of [{ id, sha256: "0".repeat(64) }, { id: other.open().source.producer!.semantic_contract_id, sha256: other.sha256 }, { id: "openpipestress.result_semantics/0.3.0/pressure-2", sha256: variant.sha256 }]) {
+    for (const bad of [{ id, sha256: "0".repeat(64) }, { id: other.open().source.producer!.semantic_contract_id, sha256: other.sha256 }, { id: "openpipestress.result_semantics/0.3.0/pressure-3", sha256: variant.sha256 }]) {
       expect(displayRoute(source, bad)).toBe("unsupported");
       expect(knownSemanticNotices(source, bad)).toEqual([]);
       expect(resultRowLabel(row, source, bad)).toBeNull();

@@ -37,7 +37,7 @@ def test_dispatch_and_schema_binding_preserve_source_hash_and_rule_revision():
     assert verify_analysis_run_record(revised)=="match"
     # b7-plan R2's declared class: the Rust header knows pressure-2 and refuses its profile first; the retired
     # pressure-1 and preview-physics-1 are refused by name (model 0.6.0); the other identities are unknown.
-    for name,code in [('reactions-1','CONTRACT_UNSUPPORTED'),('pressure-2','SOURCE_FORMULATION_BASIS_UNSUPPORTED'),
+    for name,code in [('reactions-1','CONTRACT_UNSUPPORTED'),('pressure-3','SOURCE_FORMULATION_BASIS_UNSUPPORTED'),('pressure-2','SOURCE_PRESSURE_2_RETIRED'),
                       ('pressure-1','SOURCE_PRESSURE_1_RETIRED'),('preview-physics-1','^SOURCE_PREVIEW_PHYSICS_1_RETIRED: '),
                       ('stress-1','CONTRACT_UNSUPPORTED'),('future-1','CONTRACT_UNSUPPORTED')]:
         bad=deepcopy(raw);bad['producer']['semantic_contract_id']=f'openpipestress.result_semantics/0.3.0/{name}'

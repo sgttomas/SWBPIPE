@@ -46,7 +46,7 @@ import type { MechanicsResult, PreviewModel } from "../../types";
 
 export const PRESSURE_2_OUTPUT_NOT_YET_AVAILABLE = "PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE";
 /** Epoch 8 (design §5.3): reworded so that it no longer says every output is unavailable. */
-export const N_PRESSURE_2_OUTPUT = "This output of pressure-2 results (3.0.0/exact_pressure_v3) is not available on the desktop; only the result JSON and stress-neutral exports, the rule check, the rendered report and the report package admit a numerically eligible result. The result remains readable here; this is not a finding about the result.";
+export const N_PRESSURE_2_OUTPUT = "This output of pressure-3 results (3.0.0/exact_pressure_v3) is not available on the desktop; only the result JSON and stress-neutral exports, the rule check, the rendered report and the report package admit a numerically eligible result. The result remains readable here; this is not a finding about the result.";
 export const PRESSURE_2_OUTPUT_REFUSAL = `${PRESSURE_2_OUTPUT_NOT_YET_AVAILABLE}: ${N_PRESSURE_2_OUTPUT}`;
 /** b7-plan D6/MJ8: pressure-source-1 exports through the Rust derivative, which binds its
  * received v3 receipt. Epoch 8: the same surfaces as pressure-2 admit it, and every other

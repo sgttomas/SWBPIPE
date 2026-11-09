@@ -366,7 +366,7 @@ export type LoadReferenceStateRecord = {
   excluded_sources: LoadReferenceExcludedSource[];
 };
 /** The exact evidence namespace of a load/reference-state statement: pressure-2's
- * (schemas/results_pressure_2.v0.3.schema.json PressureContractEvidence) or
+ * (schemas/results_pressure_3.v0.3.schema.json PressureContractEvidence) or
  * pressure-source-1's (schemas/physics_source_recovery.schema.json
  * pressure_source_resolved_evidence), each with its `load_reference_states`. */
 export type LoadStateContractEvidence = {

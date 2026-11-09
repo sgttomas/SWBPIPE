@@ -54,7 +54,49 @@ pub(crate) const REGION_KEYS: &[&str] = &[
     "terminals",
     "provenance",
     "result_ids",
+    "pressure_elongation",
 ];
+
+/// RT-L2 (DEL-04-07 Design `pressure-elongation.md` §5): every pressure region of a case
+/// states whether the case includes pressure elongation (the closed-end free pressure
+/// strain). Included: the straight Poisson group's coefficient is sign·2ν and a realized
+/// arc carries its signed nonzero free strain; not included: sign·1 and exactly zero.
+pub(crate) const PRESSURE_ELONGATION_INCLUDED: &str = "included";
+pub(crate) const PRESSURE_ELONGATION_NOT_INCLUDED: &str = "not_included";
+/// A region's `pressure_elongation` is neither token.
+pub const SOURCE_PHYSICS_PRESSURE_ELONGATION_INVALID: &str = "SOURCE_PHYSICS_PRESSURE_ELONGATION_INVALID";
+/// A case's regions, or its pressure-RHS assembly, state different settings.
+pub const SOURCE_PHYSICS_PRESSURE_ELONGATION_CASE_MISMATCH: &str = "SOURCE_PHYSICS_PRESSURE_ELONGATION_CASE_MISMATCH";
+/// A straight Poisson coefficient is the other setting's: |coefficient| = 1 on an
+/// included case, or |2ν| on a not-included one (with 2ν ≠ 1).
+pub const SOURCE_PHYSICS_PRESSURE_ELONGATION_COEFFICIENT_MISMATCH: &str =
+    "SOURCE_PHYSICS_PRESSURE_ELONGATION_COEFFICIENT_MISMATCH";
+
+/// Whether a pressure region's case includes pressure elongation.
+pub(crate) fn elongation_included(region: &Value) -> Result<bool, String> {
+    match region["pressure_elongation"].as_str() {
+        Some(PRESSURE_ELONGATION_INCLUDED) => Ok(true),
+        Some(PRESSURE_ELONGATION_NOT_INCLUDED) => Ok(false),
+        _ => Err(SOURCE_PHYSICS_PRESSURE_ELONGATION_INVALID.into()),
+    }
+}
+/// The setting the regions of `case` state, `None` for a case with no region. Every
+/// token is read before agreement is checked, so the refusal does not depend on order.
+fn case_elongation(regions: &HashMap<(&str, &str), &Value>, case: &str) -> Result<Option<bool>, String> {
+    let stated = regions
+        .iter()
+        .filter(|((c, _), _)| *c == case)
+        .map(|(_, region)| elongation_included(region))
+        .collect::<Result<HashSet<bool>, String>>()?;
+    match stated.len() {
+        0 => Ok(None),
+        1 => Ok(stated.into_iter().next()),
+        _ => Err(SOURCE_PHYSICS_PRESSURE_ELONGATION_CASE_MISMATCH.into()),
+    }
+}
+fn elongation_token(included: bool) -> &'static str {
+    if included { PRESSURE_ELONGATION_INCLUDED } else { PRESSURE_ELONGATION_NOT_INCLUDED }
+}
 
 /// W-16 slice c (§2): the exact mass method (PP `self_weight::EXACT_MASS_METHOD`).
 pub(crate) const EXACT_MASS_METHOD: &str = "source_od_nominal_wall_pressure_bore_areas/v1";
@@ -975,6 +1017,7 @@ pub(crate) fn validate_physics_evidence_in(
             crate::arc_evidence::region_shape(region, REGION_KEYS, !arcs.is_empty()),
             "REGION_SHAPE",
         )?;
+        elongation_included(region)?;
         require(
             region["profile_version"] == contract.version()
                 && region["profile_mode"] == contract.mode()
@@ -1359,6 +1402,9 @@ fn assembly(
     contract: PressureContract,
     connectors: &Value,
 ) -> Check {
+    // RT-L2: a case with pressure regions states its setting on its assembly too,
+    // equal to its regions'; a pressure-free case's assembly carries none.
+    let elongation = case_elongation(regions, case)?;
     require(
         keys(
             v,
@@ -1377,10 +1423,17 @@ fn assembly(
                 "screen_limit",
                 "screen_roundoff_multiplier",
                 "screen_is_not_numerical_qualification",
-            ],
+                "pressure_elongation",
+            ][..if elongation.is_some() { 15 } else { 14 }],
         ),
         "RHS_SHAPE",
     )?;
+    if let Some(included) = elongation {
+        require(
+            v["pressure_elongation"] == elongation_token(included),
+            "PRESSURE_ELONGATION_CASE_MISMATCH",
+        )?;
+    }
     require(
         v["method"] == "source_factor_grouped_pressure_rhs_v1"
             && v["load_case_id"] == case
@@ -1599,11 +1652,14 @@ fn assembly(
                     }
                 },
                 Some("poisson_eigen") => {
+                    // RT-L2: κ = 2ν when the case includes pressure elongation, else 1.
                     let materials = indexed(&region["materials"], "pipe_id")?;
-                    require(
-                        coefficient.abs() == (2.0 * number(&materials[pipe]["nu"])?).abs(),
-                        "RHS_EIGEN_COEFFICIENT",
-                    )?;
+                    let two_nu = (2.0 * number(&materials[pipe]["nu"])?).abs();
+                    let (expected, other) = if elongation_included(region)? { (two_nu, 1.0) } else { (1.0, two_nu) };
+                    if coefficient.abs() != expected {
+                        require(coefficient.abs() != other, "PRESSURE_ELONGATION_COEFFICIENT_MISMATCH")?;
+                        return Err("SOURCE_PHYSICS_RHS_EIGEN_COEFFICIENT".into());
+                    }
                 }
                 _ => return Err("SOURCE_PHYSICS_RHS_TERM_KIND".into()),
             }

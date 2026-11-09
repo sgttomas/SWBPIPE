@@ -130,7 +130,7 @@ fn exact_authoring_review_apply_serialization_and_real_solve() {
         );
         assert_eq!(
             serde_json::to_value(&result).unwrap()["producer"]["semantic_contract_id"],
-            "openpipestress.result_semantics/0.3.0/pressure-2"
+            "openpipestress.result_semantics/0.3.0/pressure-3"
         );
         let row = result
             .results

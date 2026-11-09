@@ -481,7 +481,7 @@ const namesMissingInputs = (rules) => Boolean(rules?.aggregate?.includes("RULE_I
       && exactShown(/container_sha256=([0-9a-f]{64})/) === createHash("sha256").update(exactFile).digest("hex")
       && exactRead && !exactRead.error && exactRead.schema_version === "2.0.0" && exactRead.export_profile_id === "desktop_local_private_report_package_1"
       && exactRead.export_blocked === false && exactRead.package_identity_sha256_hex === exactShown(/package_identity=([0-9a-f]{64})/)
-      && ["openpipestress.result_semantics/0.3.0/pressure-2", "openpipestress.result_semantics/0.3.0/pressure-source-1"].includes(exactIdentity),
+      && ["openpipestress.result_semantics/0.3.0/pressure-3", "openpipestress.result_semantics/0.3.0/pressure-source-1"].includes(exactIdentity),
     exactRead?.error ?? exactPackage?.status ?? exact?.report_package_refusal ?? { identity: exactIdentity });
   check("exact route: rule checks refused as RULE_INPUTS_INCOMPLETE, naming the missing inputs", namesMissingInputs(exact?.rule_checks), exact?.rule_checks?.outcomes);
   checkStressRatioAfterRuleChecks("exact route: rule checks", exact?.rule_checks);

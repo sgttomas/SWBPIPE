@@ -314,9 +314,9 @@ fn sha256_matches_the_sha2_dependency() {
 const PRESSURE_SOURCE_BINDING_INPUT: &str =
     "../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json";
 const PRESSURE_SCHEMA_BINDING_INPUT: &str =
-    "../../schemas/results_pressure_2.v0.3.schema.json";
+    "../../schemas/results_pressure_3.v0.3.schema.json";
 const PRESSURE_TABLE_INPUT: &str =
-    "../../fixtures/results/semantic_contract_v0_3_pressure_2.json";
+    "../../fixtures/results/semantic_contract_v0_3_pressure_3.json";
 // B7b (O-10, b7-plan "Join"): the pressure-source table is resident
 // (`pressure_source_contract()`), so its binding is an ordinary include
 // obligation again; the pressure result schema is the one nonresident binding.
@@ -683,7 +683,7 @@ fn pressure_source_reviewed_guard_refuses_hidden_or_changed_production() {
     }
     // B7b: the late include names the one nonresident binding (the pressure
     // result schema); the pressure-source table is resident since O-10.
-    const LATE_PRODUCTION: &str = "\nconst LATE_REVIEWED_TABLE: &str = include_str!(\"../../../../schemas/results_pressure_2.v0.3.schema.json\");\n";
+    const LATE_PRODUCTION: &str = "\nconst LATE_REVIEWED_TABLE: &str = include_str!(\"../../../../schemas/results_pressure_3.v0.3.schema.json\");\n";
     let mut unchanged = 0;
     let mut refused = 0;
     let mut visible = 0;
@@ -807,9 +807,9 @@ fn pressure_schema_is_the_only_nonresident_binding() {
     for path in [PRESSURE_SOURCE_BINDING_INPUT, PRESSURE_TABLE_INPUT,
         "../../schemas/semantic_contract_v0_3_pressure_source_1.json",
         "fixtures/results/semantic_contract_v0_3_pressure_source_1.json",
-        "../../fixtures/results/results_pressure_2.v0.3.schema.json",
-        "schemas/results_pressure_2.v0.3.schema.json",
-        "../../schemas/results_pressure_2.v0.3.schema.yaml"] {
+        "../../fixtures/results/results_pressure_3.v0.3.schema.json",
+        "schemas/results_pressure_3.v0.3.schema.json",
+        "../../schemas/results_pressure_3.v0.3.schema.yaml"] {
         assert!(reader_include_required(path), "{path}");
     }
     let bytes = include_bytes!("../../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json");
@@ -819,14 +819,14 @@ fn pressure_schema_is_the_only_nonresident_binding() {
     assert_eq!(reader_verdict::binding("pressure_source"), json!({"id":sc::PRESSURE_SOURCE_ID,"sha256":sc::PRESSURE_SOURCE_TABLE_SHA256}));
     let mut edited = bytes.to_vec(); edited.push(b'\n');
     assert_eq!(sc::verify_pressure_source_table(&edited).unwrap_err(), "SOURCE_PRESSURE_SOURCE_TABLE_HASH");
-    let ordinary = include_bytes!("../../../fixtures/results/semantic_contract_v0_3_pressure_2.json");
+    let ordinary = include_bytes!("../../../fixtures/results/semantic_contract_v0_3_pressure_3.json");
     assert_eq!(format!("{:x}", Sha256::digest(ordinary)), sc::PRESSURE_TABLE_SHA256);
     assert_eq!(&sc::verify_pressure_table(ordinary).unwrap(), sc::pressure_rows_contract());
-    let schema_bytes = include_bytes!("../../../schemas/results_pressure_2.v0.3.schema.json");
+    let schema_bytes = include_bytes!("../../../schemas/results_pressure_3.v0.3.schema.json");
     let schema_hash = format!("{:x}", Sha256::digest(schema_bytes));
     // B7b A5: the result schema takes v3 only. T4-U6 (462b777b22): it carries the D-5
     // geometry, per-basis records and limitations (reviewed input #10, re-bound at D3).
-    assert_eq!(schema_hash, "612bb8167b89bc582f14dc1c29e56b6fab15197234b55a69d6e5fb416259f341");
+    assert_eq!(schema_hash, "efefbdfd148d88e1f53ae1eef1b731ce366b138975755a8013f3483ebe43f081");
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets all current inputs");
     let tokens: Vec<_> = compiled.split(';').collect();
     assert_eq!(tokens.len(), build_identity::REVIEWED_INPUT_COUNT + 1);
@@ -906,17 +906,17 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     // #105B, PF1b and I3a).
     const REVIEWED: [&str; build_identity::REVIEWED_INPUT_COUNT] = [
         "b7ebb02aafa8cfe214c18bc64941381b33ab3f9295e0fc774ee0819e1e4f5653",
-        "ae45b97742fd463866d8f231004f2053834d5bd413a1430e766f24516d3569ac",
+        "09a6dc0e14e2971dacad915f4783756e6eb74b1f48c9bca0bd3ac9ed45a86871",
         "73bebc5fb562b7f519c7d59be8e7830f98b21ce29fa0b7c017e43426f50cfcaa",
         "a056c395e27f964c842a1347db689eb24377d0b5a79a3b954435105a2c422d08",
         "ef59ef338d4e2cafca7017e13b7a450d1094ede8068c47cf5e44416c1adc177a",
         "16eeb49cb298c6d3634594bbd9ebf6bf86be8f114e2e524dbd624e401e31a729",
         "fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2",
-        "8d48e3d97bc4f69bf9b0da58db7538b0661cf52d05f771dc126be2c3cca8c163",
-        "f17bd9d57ee8d1cef4b465715e4edbf030faa5aa4f5282ad7927c25e3f6668d3",
+        "ce61278a855e9337af18fdc7a1fd517bbe881290be7a5fba049add2491511326",
+        "094e41545efdc9815af124e91ede505213a70e4425bf32c8e2138cd74ce22893",
         "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9",
-        "612bb8167b89bc582f14dc1c29e56b6fab15197234b55a69d6e5fb416259f341",
-        "c5fe09a2dc82068f46ce8dd0b5873071af1ec13e62c9bacf0a009570d7e5d2ad",
+        "efefbdfd148d88e1f53ae1eef1b731ce366b138975755a8013f3483ebe43f081",
+        "757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb10813998200d9",
         "8a0abaeac93729b5d6ee6c922f2a60f0caf9332948622bb8b5896747ce41442d",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
@@ -931,8 +931,8 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         include_bytes!("../../../fixtures/results/retained_precision_prepared_exact_v1.json"),
         include_bytes!("../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json"),
         include_bytes!("../../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json"),
-        include_bytes!("../../../schemas/results_pressure_2.v0.3.schema.json"),
-        include_bytes!("../../../fixtures/results/semantic_contract_v0_3_pressure_2.json"),
+        include_bytes!("../../../schemas/results_pressure_3.v0.3.schema.json"),
+        include_bytes!("../../../fixtures/results/semantic_contract_v0_3_pressure_3.json"),
         include_bytes!("../../../fixtures/results/semantic_contract_v0_3_preview_physics_timoshenko_1.json"),
     ];
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets the reviewed inputs");

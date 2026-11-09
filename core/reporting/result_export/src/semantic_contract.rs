@@ -90,17 +90,19 @@ pub fn canonical_metadata_in(table: &Value, row: &Value) -> Option<Value> {
 }
 
 /// Dispatch is source-bound; a reserved successor ID never selects a table.
-/// `3.0.0/exact_pressure_v3` publishes under the `pressure-2` semantics on the
+/// `3.0.0/exact_pressure_v3` publishes under the `pressure-3` semantics on the
 /// current model document, with one profile (T4-U2a H-1 introduced it as
-/// pressure-1; model 0.6.0 renamed it, DEL-04-07 Design `u4b-u5b-implementation.md` §1.2).
-pub const PRESSURE_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
+/// pressure-1; model 0.6.0 renamed it, DEL-04-07 Design `u4b-u5b-implementation.md` §1.2;
+/// RT-L2 moved it to pressure-3 with per-case pressure elongation, DEL-04-07 Design
+/// `pressure-elongation.md` §5).
+pub const PRESSURE_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-3";
 pub const PRESSURE_PROFILE: &str = "exact_pressure_v3";
 pub const PRESSURE_SOURCE_ID: &str = crate::physics_source::PRESSURE_CONTRACT_ID;
 /// Independent current resident source-family table, with no ordinary alias.
 /// T4-U6 (D-5, §2.4): both tables carry one stress signature per (recovery
 /// token × section basis), each with its `source_basis`.
 pub const PRESSURE_SOURCE_TABLE_SHA256: &str = "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9";
-pub const PRESSURE_TABLE_SHA256: &str = "c5fe09a2dc82068f46ce8dd0b5873071af1ec13e62c9bacf0a009570d7e5d2ad";
+pub const PRESSURE_TABLE_SHA256: &str = "757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb10813998200d9";
 /// The pinned counts, re-derived from the tables (T4-U6: pressure-2 106
 /// signatures over 59 kinds, T4-U5b: plus the tie-rod force, 107 over 60, T4-U4b:
 /// plus 22 section stress, toroidal and directional signatures, 129 over 66,
@@ -122,6 +124,11 @@ pub const SOURCE_PRECISION_1_RETIRED: &str = "SOURCE_PRECISION_1_RETIRED";
 /// tables deleted. A stored result under either is refused by name (re-run).
 pub const RETIRED_PRESSURE_1_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-1";
 pub const SOURCE_PRESSURE_1_RETIRED: &str = "SOURCE_PRESSURE_1_RETIRED";
+/// RT-L2 (DEL-04-07 Design `pressure-elongation.md` §5): pressure-2 included the free
+/// pressure strain in every pressurised case; pressure-3 includes it per case. A stored
+/// pressure-2 result is refused by name (re-run); no recorded-table alias carries it.
+pub const RETIRED_PRESSURE_2_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
+pub const SOURCE_PRESSURE_2_RETIRED: &str = "SOURCE_PRESSURE_2_RETIRED";
 pub const RETIRED_PREVIEW_PHYSICS_1_ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-1";
 pub const SOURCE_PREVIEW_PHYSICS_1_RETIRED: &str = "SOURCE_PREVIEW_PHYSICS_1_RETIRED";
 pub const PREVIEW_PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-2";
@@ -191,7 +198,7 @@ pub const PHYSICS_RETAINED_ID: &str = crate::retained_precision::EXACT_CONTRACT_
 pub const PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::EXACT_PROFILE;
 /// T4-U6: its rows, vocabulary and counts follow the inherited pressure-2 table.
 pub const PHYSICS_RETAINED_SHA256: &str =
-    "f17bd9d57ee8d1cef4b465715e4edbf030faa5aa4f5282ad7927c25e3f6668d3";
+    "094e41545efdc9815af124e91ede505213a70e4425bf32c8e2138cd74ce22893";
 /// A receipt member or a W1 method-token row offered under any other identity
 /// (I66 F-5: the base readers' closed lists do not name `retained_precision`).
 pub const RETAINED_PRECISION_DOWNGRADE_FORBIDDEN: &str = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN";
@@ -329,7 +336,7 @@ pub fn pressure_rows_contract() -> &'static Value {
     static CONTRACT: OnceLock<Value> = OnceLock::new();
     CONTRACT.get_or_init(|| {
         verify_pressure_table(include_bytes!(
-            "../../../../fixtures/results/semantic_contract_v0_3_pressure_2.json"
+            "../../../../fixtures/results/semantic_contract_v0_3_pressure_3.json"
         )).expect("pinned ordinary pressure semantic contract")
     })
 }
@@ -430,7 +437,7 @@ mod b7b_current_table_tests {
                 "ordinary joint signatures never widen the source table");
         }
         let mut ordinary_bytes = include_bytes!(
-            "../../../../fixtures/results/semantic_contract_v0_3_pressure_2.json"
+            "../../../../fixtures/results/semantic_contract_v0_3_pressure_3.json"
         ).to_vec();
         ordinary_bytes.push(b' ');
         assert_eq!(verify_pressure_table(&ordinary_bytes).unwrap_err(), "SOURCE_PRESSURE_TABLE_HASH");
@@ -574,6 +581,9 @@ fn current_header(source: &Value) -> Result<(&'static Value, &'static str), Stri
             }
             if p["semantic_contract_id"] == RETIRED_PRESSURE_1_ID {
                 return Err(format!("{SOURCE_PRESSURE_1_RETIRED}: pressure-1 results are no longer read; re-run the analysis"));
+            }
+            if p["semantic_contract_id"] == RETIRED_PRESSURE_2_ID {
+                return Err(format!("{SOURCE_PRESSURE_2_RETIRED}: pressure-2 results are no longer read; re-run the analysis"));
             }
             if p["semantic_contract_id"] == RETIRED_PREVIEW_PHYSICS_1_ID {
                 return Err(format!("{SOURCE_PREVIEW_PHYSICS_1_RETIRED}: preview-physics-1 results are no longer read; re-run the analysis"));

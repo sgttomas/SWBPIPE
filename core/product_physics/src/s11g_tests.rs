@@ -1725,7 +1725,7 @@ fn t13_committed_fallback_uz_is_byte_identical() {
         let envelope = run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap();
         // The role (RF §5.5): an ordinary pressure-2 publication whose source
         // attempt declines by name, not by work.
-        assert_eq!(envelope.producer.semantic_contract_id, "openpipestress.result_semantics/0.3.0/pressure-2", "{mode:?}");
+        assert_eq!(envelope.producer.semantic_contract_id, "openpipestress.result_semantics/0.3.0/pressure-3", "{mode:?}");
         assert!(
             envelope.diagnostics.iter().any(|d| d.code == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE"
                 && d.message.contains("helper_stage: SourceClosure, error: Unsupported(\"non-nodal load producer present\")")),

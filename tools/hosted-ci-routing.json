@@ -860,10 +860,10 @@
             "source_sha256": "62be0ab11251fdce4b0ed4e1d9c604d7a322ab19f3ff04b9147eb093ede400e5"
           },
           {
-            "anchor": "../../schemas/results_pressure_2.v0.3.schema.json",
+            "anchor": "../../schemas/results_pressure_3.v0.3.schema.json",
             "base": "manifest",
             "files": [
-              "schemas/results_pressure_2.v0.3.schema.json"
+              "schemas/results_pressure_3.v0.3.schema.json"
             ],
             "source": "src/build_identity.rs",
             "source_sha256": "62be0ab11251fdce4b0ed4e1d9c604d7a322ab19f3ff04b9147eb093ede400e5"
@@ -878,10 +878,10 @@
             ]
           },
           {
-            "anchor": "../../fixtures/results/semantic_contract_v0_3_pressure_2.json",
+            "anchor": "../../fixtures/results/semantic_contract_v0_3_pressure_3.json",
             "base": "manifest",
             "files": [
-              "fixtures/results/semantic_contract_v0_3_pressure_2.json"
+              "fixtures/results/semantic_contract_v0_3_pressure_3.json"
             ],
             "source": "src/build_identity.rs",
             "source_sha256": "62be0ab11251fdce4b0ed4e1d9c604d7a322ab19f3ff04b9147eb093ede400e5"
@@ -1653,7 +1653,7 @@
               "fixtures/results/schema_eval_vectors.json",
               "fixtures/results/semantic_contract_modal_1.json",
               "fixtures/results/semantic_contract_v0_3_physics_retained_1.json",
-              "fixtures/results/semantic_contract_v0_3_pressure_2.json",
+              "fixtures/results/semantic_contract_v0_3_pressure_3.json",
               "fixtures/results/semantic_contract_v0_3_pressure_source_1.json",
               "fixtures/results/semantic_contract_v0_3_preview_physics_2.json",
               "fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
@@ -1816,10 +1816,10 @@
             ]
           },
           {
-            "anchor": "../../../../fixtures/results/semantic_contract_v0_3_pressure_2.json",
+            "anchor": "../../../../fixtures/results/semantic_contract_v0_3_pressure_3.json",
             "base": "source",
             "files": [
-              "fixtures/results/semantic_contract_v0_3_pressure_2.json"
+              "fixtures/results/semantic_contract_v0_3_pressure_3.json"
             ]
           },
           {
@@ -1995,10 +1995,10 @@
             ]
           },
           {
-            "anchor": "../../../../fixtures/results/semantic_contract_v0_3_pressure_2.json",
+            "anchor": "../../../../fixtures/results/semantic_contract_v0_3_pressure_3.json",
             "base": "source",
             "files": [
-              "fixtures/results/semantic_contract_v0_3_pressure_2.json"
+              "fixtures/results/semantic_contract_v0_3_pressure_3.json"
             ]
           },
           {
@@ -2249,7 +2249,7 @@
               "fixtures/results/preview_physics_invented_dense.json",
               "fixtures/results/preview_physics_invented_sparse.json",
               "fixtures/results/semantic_contract_v0_3_physics_retained_1.json",
-              "fixtures/results/semantic_contract_v0_3_pressure_2.json",
+              "fixtures/results/semantic_contract_v0_3_pressure_3.json",
               "fixtures/results/semantic_contract_v0_3_pressure_source_1.json",
               "fixtures/results/semantic_contract_v0_3_preview_physics_2.json",
               "fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json"
@@ -5529,7 +5529,7 @@
               "fixtures/results/schema_eval_vectors.json",
               "fixtures/results/semantic_contract_modal_1.json",
               "fixtures/results/semantic_contract_v0_3_physics_retained_1.json",
-              "fixtures/results/semantic_contract_v0_3_pressure_2.json",
+              "fixtures/results/semantic_contract_v0_3_pressure_3.json",
               "fixtures/results/semantic_contract_v0_3_pressure_source_1.json",
               "fixtures/results/semantic_contract_v0_3_preview_physics_2.json",
               "fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",

@@ -22,7 +22,7 @@ pub const EXACT_DEFINITION_ID: &str = "RP-PREPARED-EXACT-DUAL-v1";
 /// H(`retained_precision_formation_v1`, DEF-E) (REVISION_01 §1.2). T4-U6: DEF-E
 /// states zero mill tolerance and lists the reduced-basis rows and both headlines.
 pub const EXACT_DEFINITION_HASH: &str =
-    "b60e69d4995c11274c53800e4d5d1e04b05c8d1aa3029f5017d7f0ea41bf047c";
+    "ec72007a916a88da503889e8db0361281d0d7c9ae33dc72d9f86ab0d4c31807c";
 const MAX_BITS: u64 = 0x7fef_ffff_ffff_ffff;
 /// B4/D1 W1 extension (b7-plan "Failed-ordinary successor rulings" (4)): the requested-mode
 /// basis row of a case whose ordinary attempt genuinely failed. It replaces
@@ -428,7 +428,7 @@ const PREVIEW: Route = Route {
 const EXACT: Route = Route {
     exact: true,
     definition_hash: EXACT_DEFINITION_HASH,
-    base_id: "openpipestress.result_semantics/0.3.0/pressure-2",
+    base_id: "openpipestress.result_semantics/0.3.0/pressure-3",
     base_profile: "exact_pressure_v3",
     geometry: "exact",
 };
@@ -593,8 +593,8 @@ const EXACT_TABLE_BYTES: &[u8] = include_bytes!(
     "../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json"
 );
 const PRESSURE_TABLE_BYTES: &[u8] =
-    include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_pressure_2.json");
-const EXACT_TABLE_HASH: &str = "f17bd9d57ee8d1cef4b465715e4edbf030faa5aa4f5282ad7927c25e3f6668d3";
+    include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_pressure_3.json");
+const EXACT_TABLE_HASH: &str = "094e41545efdc9815af124e91ede505213a70e4425bf32c8e2138cd74ce22893";
 /// RV78-N1's policies (B3D-8): the receipt values XTABLE's `receipt_bindings`
 /// binds from version 1, keyed by the receipt body's own paths.
 fn receipt_bindings() -> Value {

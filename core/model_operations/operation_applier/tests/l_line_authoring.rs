@@ -193,7 +193,7 @@ fn the_l_line_is_authored_from_its_corner_and_solves_under_pressure_1_in_both_mo
     for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
         let authored_result = solve(&restored, mode);
         assert_eq!(authored_result["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}: {}", authored_result["diagnostics"]);
-        assert_eq!(authored_result["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/pressure-2");
+        assert_eq!(authored_result["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/pressure-3");
         assert_eq!(authored_result["formulation_basis"]["profile_id"], "exact_pressure_v3");
         let reference_result = solve(&reference, mode);
         assert_eq!(reference_result["status"]["mechanics"], "MECHANICS_SOLVED");

@@ -8,7 +8,7 @@
     },
     {
       "path": "schemas/analysis_run.v0.3.schema.json",
-      "sha256": "d4d301722e9a77714df0d9dcd11022ab51abd0ea63b9ac4e58269dd7c36e96cc"
+      "sha256": "8e172540c56bc76f51285314b81e5ba16348c4f084131c5bed21ce2a6851d401"
     },
     {
       "path": "schemas/caepipe_external_run.schema.json",
@@ -76,11 +76,11 @@
     },
     {
       "path": "schemas/physics_source_recovery.schema.json",
-      "sha256": "ae45b97742fd463866d8f231004f2053834d5bd413a1430e766f24516d3569ac"
+      "sha256": "09a6dc0e14e2971dacad915f4783756e6eb74b1f48c9bca0bd3ac9ed45a86871"
     },
     {
-      "path": "schemas/results_pressure_2.v0.3.schema.json",
-      "sha256": "612bb8167b89bc582f14dc1c29e56b6fab15197234b55a69d6e5fb416259f341"
+      "path": "schemas/results_pressure_3.v0.3.schema.json",
+      "sha256": "efefbdfd148d88e1f53ae1eef1b731ce366b138975755a8013f3483ebe43f081"
     },
     {
       "path": "schemas/retained_precision_mp_v2.schema.json",
@@ -100,7 +100,7 @@
     },
     {
       "path": "schemas/stress_neutral_export.v0.3.schema.json",
-      "sha256": "993bd5c32a0610172200cab94465a1ea6f36d94c3735a1276ad4d925dbdf614c"
+      "sha256": "6213022481374335b8cffc3ff411771a56855ef8cddf29a0f275bd1449e7a23d"
     },
     {
       "path": "schemas/target_mapping.schema.json",

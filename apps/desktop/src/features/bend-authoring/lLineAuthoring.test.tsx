@@ -130,7 +130,7 @@ describe("the L line authored on the desktop (T4-U2)", () => {
   it("reads a pressure-2 result through the Rust reader's pressure route, with its standing, admitted only on the opened output surfaces (b7-plan R2; epoch 8)", () => {
     expect(sourceContract(pressure1)).toBe("pressure");
     const dispatch = readerDispatch(pressure1, expected);
-    expect(dispatch.binding?.id).toBe("openpipestress.result_semantics/0.3.0/pressure-2");
+    expect(dispatch.binding?.id).toBe("openpipestress.result_semantics/0.3.0/pressure-3");
     const standing = numericalResultStanding(pressure1, expected);
     expect({ eligible: standing.eligible, findings: standing.findings }).toStrictEqual({ eligible: dispatch.standing.eligible, findings: [...dispatch.standing.findings] });
     expect(standing.eligible).toBe(true);

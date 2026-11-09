@@ -35,9 +35,9 @@ const BYTES: &str = "55555555555555555555555555555555555555555555555555555555555
 
 /// The production step 0's refusal of an exact identity outside its set
 /// (physics-retained-1), naming the admitted set (§5.1 item 4).
-const RETAINED_REFUSAL: &str = "REPORT-RENDER-ROUTE-NOT-ADMITTED: the rendered report admits only the exact-route identities openpipestress.result_semantics/0.3.0/pressure-2, openpipestress.result_semantics/0.3.0/pressure-source-1; found openpipestress.result_semantics/0.3.0/physics-retained-1.";
+const RETAINED_REFUSAL: &str = "REPORT-RENDER-ROUTE-NOT-ADMITTED: the rendered report admits only the exact-route identities openpipestress.result_semantics/0.3.0/pressure-3, openpipestress.result_semantics/0.3.0/pressure-source-1; found openpipestress.result_semantics/0.3.0/physics-retained-1.";
 /// The same refusal's prefix, for any `found`.
-const ADMITS_ONLY: &str = "REPORT-RENDER-ROUTE-NOT-ADMITTED: the rendered report admits only the exact-route identities openpipestress.result_semantics/0.3.0/pressure-2, openpipestress.result_semantics/0.3.0/pressure-source-1; found";
+const ADMITS_ONLY: &str = "REPORT-RENDER-ROUTE-NOT-ADMITTED: the rendered report admits only the exact-route identities openpipestress.result_semantics/0.3.0/pressure-3, openpipestress.result_semantics/0.3.0/pressure-source-1; found";
 
 /// A pressure-free invented render input over the invented calculation-report
 /// fixture (as the command's fixture test builds it).
@@ -177,7 +177,7 @@ fn with_exact_route(mut input: Value) -> Value {
         .collect();
     entries.push(entry(
         format!("limitation:{run}:exact:profile-reference"),
-        "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-2 (sha256 6666666666666666666666666666666666666666666666666666666666666666) are bound by reference and are not restated in this report.",
+        "The profile limitations of the semantic table openpipestress.result_semantics/0.3.0/pressure-3 (sha256 6666666666666666666666666666666666666666666666666666666666666666) are bound by reference and are not restated in this report.",
     ));
     input["report_sections"]["limitations"].as_array_mut().unwrap().extend(entries);
     input
