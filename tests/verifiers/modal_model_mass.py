@@ -319,10 +319,14 @@ class Accumulator:
     def __init__(self):
         self.entries: dict[tuple[int, int], list] = {}
 
-    def add(self, a: int, b: int, exact_term: Iv, envelope_term: Iv, conditioning: Fraction = Fraction(1)):
+    def add(self, a: int, b: int, exact_term: Iv, envelope_term: Iv, conditioning: Fraction = Fraction(1),
+            scale: Fraction | None = None):
+        """`scale` is the absolute term sum of the producer's formation of this
+        contribution (default: the term's own magnitude, exact where no frame rotation
+        or cancellation intervenes, as for a body's products)."""
         if a > b:
             a, b = b, a
-        scale = conditioning * envelope_term.mag()
+        scale = conditioning * (envelope_term.mag() if scale is None else scale)
         held = self.entries.get((a, b))
         if held is None:
             self.entries[(a, b)] = [exact_term, envelope_term, scale, 1]
@@ -360,7 +364,11 @@ def _straight_blocks(xi, xj, mbar: Iv, ibar: Iv, jbar: Iv, geometry):
     displacement d = (I − eeᵀ)u and slope s = θ × e = −[e]×θ (so that along +x the planes
     act on [u_y, θ_z] and [u_z, −θ_y]); Hermitian translation m̄L/420·H and Rayleigh
     ī/(30L)·R on (d_i, s_i, d_j, s_j), linear axial m̄L and torsional j̄L. Returns
-    {(r, c): Iv} for r ≤ c over local DOFs 0..11."""
+    ({(r, c): Iv}, {(r, c): scale}) for r ≤ c over local DOFs 0..11: the scale bounds
+    the absolute terms the producer's frame rotation sums for that entry (|R| ≤ 1, so
+    the member-axis 3×3 block's absolute entries: |axial| + 2|plane| on a translation
+    or rotation pair, 2|plane| on a coupling), which an entry cancelling to zero in
+    this frame-free form does not show."""
     length, e = geometry
     proj = [[(ONE if a == b else ZERO) - e[a] * e[b] for b in range(3)] for a in range(3)]
     axis = [[e[a] * e[b] for b in range(3)] for a in range(3)]
@@ -368,11 +376,13 @@ def _straight_blocks(xi, xj, mbar: Iv, ibar: Iv, jbar: Iv, geometry):
     transverse = mbar * length / Iv(420)
     rotary = ibar / (Iv(30) * length)
     out: dict[tuple[int, int], Iv] = {}
+    scales: dict[tuple[int, int], Fraction] = {}
 
-    def put(r, c, value):
+    def put(r, c, value, scale):
         if r > c:
             r, c = c, r
         out[(r, c)] = out.get((r, c), ZERO) + value
+        scales[(r, c)] = scales.get((r, c), Fraction(0)) + scale
 
     for g in range(4):
         for h in range(4):
@@ -392,7 +402,7 @@ def _straight_blocks(xi, xj, mbar: Iv, ibar: Iv, jbar: Iv, geometry):
                     r = 6 * node_g + (3 if slope_g else 0) + a
                     c = 6 * node_h + (3 if slope_h else 0) + b
                     if r <= c:
-                        put(r, c, coef * geo)
+                        put(r, c, coef * geo, 2 * coef.mag())
     third, sixth = Iv(Fraction(1, 3)), Iv(Fraction(1, 6))
     for node_g in range(2):
         for node_h in range(2):
@@ -402,8 +412,8 @@ def _straight_blocks(xi, xj, mbar: Iv, ibar: Iv, jbar: Iv, geometry):
                     for offset, q in ((0, mbar), (3, jbar)):
                         r, c = 6 * node_g + offset + a, 6 * node_h + offset + b
                         if r <= c:
-                            put(r, c, q * length * factor * axis[a][b])
-    return out
+                            put(r, c, q * length * factor * axis[a][b], (q * length * factor).mag())
+    return out, scales
 
 
 def _frame_conditioning(xi, xj, y, what) -> Fraction:
@@ -506,7 +516,13 @@ def _arc_lumps(xi, xj, radius, y, mbar: Iv, ibar: Iv, jbar: Iv, trig):
                             continue
                         total = total + frame[p][a] * local[p][q] * frame[q][b]
                 second[a][b] = total
-        lumps.append(_rigid_block(mass, first, second))
+        # The producer turns S and J to global axes as Σ S_k·e_k and Σ J_pq·e_p·e_qᵀ
+        # (|e| ≤ 1): their absolute term sums bound each turned entry's scale.
+        first_scale = sum((v.mag() for v in local_first), Fraction(0))
+        second_scale = sum((local[p][q].mag() for p in range(3) for q in range(3)), Fraction(0))
+        block = _rigid_block(mass, first, second)
+        scales = {key: (mass.mag() if key[1] < 3 else first_scale if key[0] < 3 else second_scale) for key in block}
+        lumps.append((block, scales))
     return lumps
 
 
@@ -720,17 +736,19 @@ def derive(request: Any) -> ModelMass:
             for qs in ((section.mass[0], section.bending[0], section.polar[0]), (section.mass[1], section.bending[1], section.polar[1])):
                 pair.append(_arc_lumps(xi, xj, radius, y, *qs, geometry))
             for side, node in ((0, i), (1, j)):
-                for (r, c), value in pair[0][side].items():
-                    accumulator.add(6 * node + r, 6 * node + c, value, pair[1][side][(r, c)], conditioning)
+                block, _ = pair[0][side]
+                envelope, scales = pair[1][side]
+                for (r, c), value in block.items():
+                    accumulator.add(6 * node + r, 6 * node + c, value, envelope[(r, c)], conditioning, scales[(r, c)])
             arc_length = Iv(2) * Iv(radius) * geometry[0]
             out.arcs.append(pipe_id)
         else:
             geometry = _straight_geometry(xi, xj)
             blocks = [_straight_blocks(xi, xj, section.mass[k], section.bending[k], section.polar[k], geometry) for k in (0, 1)]
             nodes = (i, j)
-            for (r, c), value in blocks[0].items():
-                accumulator.add(6 * nodes[r // 6] + r % 6, 6 * nodes[c // 6] + c % 6, value, blocks[1][(r, c)],
-                                conditioning)
+            for (r, c), value in blocks[0][0].items():
+                accumulator.add(6 * nodes[r // 6] + r % 6, 6 * nodes[c // 6] + c % 6, value, blocks[1][0][(r, c)],
+                                conditioning, blocks[1][1][(r, c)])
             arc_length = geometry[0]
             out.straights.append(pipe_id)
         for name, pair in (("metal", section.metal), ("contents", section.contents), ("insulation", section.insulation)):
@@ -872,29 +890,35 @@ def _component_bodies(model, components, pipes, selected, curved, replaced, requ
 
 
 def _body_range(weight, a, cog, pipe_id):
-    """Design §2.3 item 6's four-part binary64 premise, evaluated in binary64. The
-    order of the spatial block's double products is not part of the stated contract,
-    so both orders are evaluated: refused when both leave the premise, uncovered when
-    they disagree."""
+    """Design §2.3 item 6's four-part binary64 premise, in binary64 and in the order the
+    producer evaluates it (`component_range`): first = m·r_i, then first·r_j, each
+    zero or normal, and a nonzero exact product that rounds to zero is out of range;
+    then the rotational diagonal's sums are finite. The producer refuses a body
+    outside it (MODAL_COMPONENT_MASS_OUT_OF_RANGE)."""
     def normal(x):
         return math.isfinite(x) and abs(x) >= 2.0 ** -1022
-
-    if not (normal(weight) and weight > 0 and normal(a) and a > 0):
-        raise RefusedDomain(f"body on {pipe_id}: W and a must be positive normal numbers (MODAL_COMPONENT_MASS_OUT_OF_RANGE)")
-    m = weight / a
-    if not normal(m) or not normal(a * m):
-        raise RefusedDomain(f"body on {pipe_id}: W/a or a·(W/a) leaves the normal range (MODAL_COMPONENT_MASS_OUT_OF_RANGE)")
 
     def ok(x):
         return x == 0.0 or normal(x)
 
-    first = [m * r for r in cog]
-    left = all(ok(x) for x in first) and all(ok(first[i] * cog[j]) for i in range(3) for j in range(3))
-    right = all(ok(x) for x in first) and all(ok(m * (cog[i] * cog[j])) for i in range(3) for j in range(3))
-    if not left and not right:
-        raise RefusedDomain(f"body on {pipe_id}: its spatial mass block leaves the normal range (MODAL_COMPONENT_MASS_OUT_OF_RANGE)")
-    if left != right:
-        raise Uncovered(f"body on {pipe_id}: the spatial block's range premise depends on an unstated operation order")
+    refused = RefusedDomain(f"body on {pipe_id}: it leaves the binary64 range premise (MODAL_COMPONENT_MASS_OUT_OF_RANGE)")
+    if not (normal(weight) and weight > 0 and normal(a) and a > 0):
+        raise refused
+    m = weight / a
+    if not normal(m) or not normal(a * m) or not all(math.isfinite(r) for r in cog):
+        raise refused
+    for i in range(3):
+        first = m * cog[i]
+        if not ok(first) or (first == 0.0 and cog[i] != 0.0):
+            raise refused
+        for j in range(3):
+            second = first * cog[j]
+            if not ok(second) or (second == 0.0 and first != 0.0 and cog[j] != 0.0):
+                raise refused
+    for i in range(3):
+        j, k = (i + 1) % 3, (i + 2) % 3
+        if not math.isfinite(m * cog[j] * cog[j] + m * cog[k] * cog[k]):
+            raise refused
 
 
 def _applied_acceleration_agreement(model, acceleration):
@@ -955,6 +979,11 @@ def _arc_admission(component, pipe_id, pipes, xi, xj, y) -> float:
     return radius
 
 
+# The axis of each DOF token the producer recognises (`dof_axis`), translations and rotations.
+_TOKEN_AXIS = {token: axis for axis, letter in enumerate("XYZ") for kind in "UR"
+               for token in (kind + letter, kind + letter.lower(), kind.lower() + letter.lower())}
+
+
 def _partition(model, index, out):
     """The axis restraint partition (Design §1.3): a rigid support restrains its listed
     DOFs; a spring or (variable) spring hanger leaves its DOF free; a constant-effort
@@ -969,17 +998,25 @@ def _partition(model, index, out):
         if family == "snubber":
             raise RefusedDomain(f"support {support_id}: a snubber is refused on this source (SNUBBER_DYNAMIC_ONLY_UNSUPPORTED)")
         direction = support.get("direction")
+        restraints_authored = _list(support.get("restraints"), f"support {support_id} restraints")
         if isinstance(direction, dict):
             d = [direction.get(axis) for axis in "xyz"]
             if all(type(v) in (int, float) for v in d) and sum(1 for v in d if v != 0) > 1:
                 raise RefusedDomain(f"support {support_id}: modal-1 refuses skew records (MODAL_DOCUMENT_SKEW_RESTRAINT_UNSUPPORTED)")
+            if all(type(v) in (int, float) for v in d) and sum(1 for v in d if v != 0) == 1:
+                # An exactly axis-aligned direction is lowered as the producer does
+                # (`lower_axis_aligned_directions`): each DOF token on another axis
+                # becomes the direction's translation token.
+                axis = next(k for k in range(3) if d[k] != 0)
+                restraints_authored = ["U" + "XYZ"[axis] if _TOKEN_AXIS.get(t, axis) != axis else t
+                                       for t in restraints_authored]
         hanger = support.get("hanger")
         hanger_type = hanger.get("hanger_type") if isinstance(hanger, dict) else None
         hanger_type = hanger_type.strip() if isinstance(hanger_type, str) and hanger_type.strip() else (
             family.strip() if isinstance(family, str) else None)
         stiffness = support.get("stiffness") or (hanger.get("stiffness") if isinstance(hanger, dict) else None)
         nonlinear = support.get("nonlinear")
-        restraints = _list(support.get("restraints"), f"support {support_id} restraints")
+        restraints = restraints_authored
         if nonlinear is not None and not restraints and stiffness is None:
             continue
         if hanger_type == "constant_effort_support":

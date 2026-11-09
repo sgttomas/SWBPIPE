@@ -356,7 +356,7 @@ fn shared_section(request: &mut Value, outside_diameter: f64) {
 
 #[test]
 fn a_rebound_model_whose_mass_differs_fails() {
-    let cases: [(&str, fn(&mut Value), &str); 9] = [
+    let cases: [(&str, fn(&mut Value), &str); 10] = [
         ("restraint removed", |r| {
             let restraints = r["model"]["supports"][0]["restraints"].as_array_mut().unwrap();
             restraints.retain(|t| t != "RX");
@@ -378,6 +378,10 @@ fn a_rebound_model_whose_mass_differs_fails() {
         // The producer blocks every solve of a model with a snubber, so a solved
         // document bound to one is a contradiction, never scoped.
         ("a support made a snubber", |r| r["model"]["supports"][0]["family"] = json!("snubber"), "SNUBBER_DYNAMIC_ONLY_UNSUPPORTED"),
+        // Review of ea6165a2d, finding 3: W = 500, a = 10 and r = (1e-200, 0, 0) make a nonzero
+        // m·r_x·r_x round to zero, which the producer's range premise refuses.
+        ("centre of gravity 1e-200", |r| r["model"]["components"][0]["geometry"]["center_of_gravity"] = json!({"unit": "m", "x": 1e-200, "y": 0, "z": 0}),
+            "MODAL_COMPONENT_MASS_OUT_OF_RANGE"),
     ];
     for (what, mutate, needle) in cases {
         let r = request_case(BODY, what, mutate);
@@ -408,6 +412,17 @@ fn a_rebound_model_with_the_same_mass_passes() {
     assert_eq!(r.mass.status, ModalReadStatus::Passed, "{:?}", r.mass);
     assert_eq!(r.participation.status, ModalReadStatus::Passed, "{:?}", r.participation);
     let r = request_case(BODY, "matching shared section", |r| shared_section(r, 0.2));
+    assert_eq!(r.mass.status, ModalReadStatus::Passed, "{:?}", r.mass);
+    assert_eq!(r.participation.status, ModalReadStatus::Passed, "{:?}", r.participation);
+    // Review of ea6165a2d, finding 2: an exactly axis-aligned direction is lowered as the
+    // producer lowers it (`lower_axis_aligned_directions`), each DOF token on another axis
+    // becoming that axis's translation: a line stop authored UY along +x restores the
+    // anchor's UX.
+    let r = request_case(BODY, "anchor split into a line stop along +x", |r| {
+        r["model"]["supports"][0]["restraints"] = json!(["UY", "UZ", "RX", "RY", "RZ"]);
+        r["model"]["supports"].as_array_mut().unwrap().push(json!({"id": "ls", "node": "a", "family": "anchor",
+            "restraints": ["UY"], "direction": {"x": 1, "y": 0, "z": 0}}));
+    });
     assert_eq!(r.mass.status, ModalReadStatus::Passed, "{:?}", r.mass);
     assert_eq!(r.participation.status, ModalReadStatus::Passed, "{:?}", r.participation);
 }

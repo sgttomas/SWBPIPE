@@ -715,3 +715,49 @@ def test_the_double_word_allowance_scales_with_its_contributions_and_frame_condi
     assert Fraction(10 ** 6) < steep < Fraction(10 ** 6 + 2)
     with pytest.raises(mm.RefusedDomain):
         mm._frame_conditioning((0.0, 0.0, 0.0), (2.0, 0.0, 0.0), (3.0, 0.0, 0.0), "parallel")
+
+
+def test_a_frame_rounded_entry_that_cancels_exactly_is_inside_its_envelope():
+    """Review of ea6165a2d, finding 1: the producer turns each member's local mass to global
+    axes through a double-word frame from y (`rotate12`), so an entry that is exactly 0 in
+    the frame-free form can be published as rounding residue. With y = (0, 1, 1.1) on the
+    whole-spectrum cantilever, replaying the producer's operations gives
+    M[n0.uy, n0.uz] = 3.944304526105059e-31. Its allowance scales with the rotation's
+    absolute terms, not the cancelled entry."""
+    doc, request = fixture("cantilever_whole_spectrum")
+
+    def tilted(model):
+        for pipe in model["pipe_segments"]:
+            pipe["y_reference"] = {"x": 0, "y": 1, "z": 1.1}
+
+    changed = _mutate(request, tilted)
+    mass = formed(changed)
+    assert mass.get((1, 2), 0.0) == 0.0
+    mass[(1, 2)] = 3.944304526105059e-31
+    verdict = me.read(coherent(rebind(doc, changed), mass), changed)
+    assert relation(verdict, "mass")["status"] != "failed", relation(verdict, "mass")
+
+
+def test_an_axis_aligned_direction_is_lowered_as_the_producer_lowers_it():
+    """Review of ea6165a2d, finding 2 (`lower_axis_aligned_directions`): a record with an
+    exactly axis-aligned direction has each DOF token on another axis set to that axis's
+    translation. The anchor split into five restraints and a line stop authored UY along
+    +x restores the complete anchor, so the unchanged document still passes."""
+    doc, request = fixture("component_body")
+
+    def split(model):
+        model["supports"][0]["restraints"] = ["UY", "UZ", "RX", "RY", "RZ"]
+        model["supports"].append({"id": "ls", "node": "a", "family": "anchor", "restraints": ["UY"],
+                                  "direction": {"x": 1, "y": 0, "z": 0}})
+
+    changed = _mutate(request, split)
+    verdict = me.read(rebind(doc, changed), changed)
+    assert relation(verdict, "mass")["status"] == "passed", relation(verdict, "mass")
+
+
+def test_a_body_whose_spatial_product_underflows_is_refused():
+    """Review of ea6165a2d, finding 3: the producer's range premise (`component_range`)
+    refuses a nonzero m·r_i·r_j that rounds to zero; W = 500, a = 10 and a centre of gravity
+    (1e-200, 0, 0) do that, so a solved document bound to it is a contradiction."""
+    _refused(_component_edit(["geometry", "center_of_gravity"], {"unit": "m", "x": 1e-200, "y": 0, "z": 0}),
+             phrase="MODAL_COMPONENT_MASS_OUT_OF_RANGE")

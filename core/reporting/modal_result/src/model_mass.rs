@@ -843,15 +843,29 @@ fn mm_form(p: &Parsed, request: &Value) -> S<Formed> {
         let Some(a) = acceleration else {
             return mm_fail(format!("component {id}'s weight enters the mass, but the request names no weight_to_mass_acceleration (MODAL_WEIGHT_ACCELERATION_REQUIRED)"));
         };
-        // The §2.3 item 6 binary64 range premise, as stated there.
+        // The §2.3 item 6 binary64 range premise, in the producer's stated order
+        // (`component_range`): a body outside it is refused
+        // (MODAL_COMPONENT_MASS_OUT_OF_RANGE), so a solved document bound to it is a
+        // contradiction. A nonzero exact product that rounds to zero is out of range.
         let m = weight / a;
         let normal = |x: f64| x.is_finite() && x.abs() >= f64::MIN_POSITIVE;
         let zero_or_normal = |x: f64| x == 0.0 || normal(x);
-        let premise = normal(weight) && normal(a) && normal(m) && normal(a * m)
-            && cog.iter().all(|r| zero_or_normal(m * r))
-            && cog.iter().all(|ri| cog.iter().all(|rj| zero_or_normal(m * ri * rj)));
+        let mut premise = normal(weight) && weight > 0.0 && normal(a) && a > 0.0 && normal(m) && normal(a * m)
+            && cog.iter().all(|x| x.is_finite());
+        for i in 0..3 {
+            let first = m * cog[i];
+            premise &= zero_or_normal(first) && !(first == 0.0 && cog[i] != 0.0);
+            for j in 0..3 {
+                let second = first * cog[j];
+                premise &= zero_or_normal(second) && !(second == 0.0 && first != 0.0 && cog[j] != 0.0);
+            }
+        }
+        for i in 0..3 {
+            let (j, k) = ((i + 1) % 3, (i + 2) % 3);
+            premise &= (m * cog[j] * cog[j] + m * cog[k] * cog[k]).is_finite();
+        }
         if !premise {
-            return Err(Stop::Open(format!("component {id}: its body is at the binary64 range premise (§2.3 item 6), outside this reader's enclosure")));
+            return mm_fail(format!("component {id}: its body leaves the binary64 range premise (§2.3 item 6), which the producer refuses (MODAL_COMPONENT_MASS_OUT_OF_RANGE)"));
         }
         bodies.insert(*pipe, (id, node_at, Iv::pt(weight).div(Iv::pt(a)), cog));
     }
@@ -945,13 +959,17 @@ fn mm_form(p: &Parsed, request: &Value) -> S<Formed> {
             return mm_fail(format!("support {id} is a snubber, which this source refuses on every solve (SNUBBER_DYNAMIC_ONLY_UNSUPPORTED)"));
         }
         let direction = support.get("direction").filter(|d| !d.is_null());
+        // An exactly axis-aligned direction is lowered as the producer does
+        // (`lower_axis_aligned_directions`): each DOF token on another axis becomes
+        // the direction's translation token.
+        let mut lowered_axis = None;
         if let Some(direction) = direction {
             let components: Option<Vec<f64>> = direction.as_object().map(|o| ["x", "y", "z"].iter().filter_map(|k| o.get(*k).and_then(Value::as_f64)).collect());
             match components {
                 Some(c) if c.len() == 3 && c.iter().filter(|x| **x != 0.0).count() > 1 => {
                     return mm_fail(format!("support {id} is skewed, which modal-1 refuses before projection (MODAL_DOCUMENT_SKEW_RESTRAINT_UNSUPPORTED)"));
                 }
-                Some(c) if c.len() == 3 => {}
+                Some(c) if c.len() == 3 => lowered_axis = c.iter().position(|x| *x != 0.0),
                 _ => return mm_scope(format!("support {id}: its direction is outside this reader's partition basis")),
             }
         }
@@ -991,9 +1009,14 @@ fn mm_form(p: &Parsed, request: &Value) -> S<Formed> {
         let n = node_of()?;
         for (j, token) in restraints.iter().enumerate() {
             let dof = token.as_str().and_then(mm_dof);
-            let Some(dof) = dof else {
+            let Some(mut dof) = dof else {
                 return mm_fail(format!("support {id}: restraint {j} is not a DOF token, which the contract refuses"));
             };
+            if let Some(axis) = lowered_axis {
+                if dof % 3 != axis {
+                    dof = axis;
+                }
+            }
             restrained[6 * n + dof] = true;
         }
     }
