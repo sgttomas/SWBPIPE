@@ -16,7 +16,8 @@ use std::{
 
 const DEMO: &str = include_str!("../../../../fixtures/product_preview/invented_demo_model.json");
 const PROJECT: &str = "project:invented-demo-loop-01";
-const T0: u64 = 1_790_000_800;
+// 2026-09-21 13:46:40 UTC, independently converted from the calendar date.
+const T0: u64 = 1_789_998_400;
 struct Sandbox(PathBuf);
 impl Sandbox {
     fn new(label: &str) -> Self {
@@ -454,12 +455,18 @@ fn stored_hash_identity_duplicate_and_protected_checks_precede_folder_writes() {
         [PROJECT_MISMATCH]
     );
     let mut blocked = demo();
-    blocked["materials"][0]["provenance_record"]["review_status"] = json!("quarantined");
+    blocked["materials"][0]["provenance_record"] = json!({
+        "source_name": "invented backup screening test",
+        "review_status": "quarantined"
+    });
     let blocked = canonical_json(&blocked);
     let blocked_hash = hash(&blocked);
     s.raw(&blocked, &claim(&blocked_hash));
-    assert!(codes(&write(&s, &blocked_hash, &mut Durable))
-        .contains(&"PROTECTED_CONTENT_BLOCKED".into()));
+    let blocked_outcome = write(&s, &blocked_hash, &mut Durable);
+    assert!(
+        codes(&blocked_outcome).contains(&"PROTECTED_CONTENT_BLOCKED".into()),
+        "{blocked_outcome:?}"
+    );
     assert!(s.entries().is_empty());
 }
 

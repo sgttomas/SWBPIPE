@@ -329,7 +329,9 @@ fn setting_the_interval_writes_the_file_atomically_and_refuses_values_that_are_n
     let mut names: Vec<String> = fs::read_dir(&sandbox.root).unwrap().map(|entry| entry.unwrap().file_name().to_string_lossy().into_owned()).collect();
     names.sort();
     // The settings lock file is never removed (slice 1's lock rule).
-    assert_eq!(names, vec![format!("{SETTINGS_LOCK_SLOT}.lock"), SETTINGS_FILE.to_string()], "no temporary file is left");
+    let mut expected_names = vec![format!("{SETTINGS_LOCK_SLOT}.lock"), SETTINGS_FILE.to_string()];
+    expected_names.sort();
+    assert_eq!(names, expected_names, "no temporary file is left");
     // A readable file's backup members are kept, the intent with them; a bad
     // file is replaced whole.
     let enabled = SettingsRecord { autosave_minutes: 5, backup_folder: Some("/invented/folder".to_string()), backup_keep: Some(10), backup_local_private_intent: true };

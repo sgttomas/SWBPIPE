@@ -331,7 +331,7 @@ impl BackupDir {
             check(unsafe {
                 libc::fgetattrlist(
                     self.fd(),
-                    &mut attrs,
+                    &mut attrs as *mut libc::attrlist as *mut libc::c_void,
                     &mut result as *mut _ as *mut libc::c_void,
                     std::mem::size_of::<Attributes>(),
                     0,
