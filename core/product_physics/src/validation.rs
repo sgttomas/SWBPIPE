@@ -52,6 +52,26 @@ fn validate_model_settings(model: &PreviewModel, diagnostics: &mut Vec<Diagnosti
             vec![crate::model_settings::SHEAR_MODEL_PATH.to_string()],
         ));
     }
+    // Model document 0.9.0 (DEL-04-07 `pressure-elongation.md` §3.1): `pressure_elongation`
+    // is refused by name without a pressure contract, for an empty or duplicated list and for
+    // an id that names no load case. Nothing is then solved.
+    if let Some(setting) = model.model_settings.as_ref().and_then(|settings| settings.pressure_elongation.as_ref()) {
+        let load_case_ids: HashSet<&str> = model.load_cases.iter().map(|case| case.id.as_str()).collect();
+        let refusals = crate::model_settings::pressure_elongation_refusals(
+            setting.operating_load_cases.iter().map(String::as_str),
+            model.pressure_contract.is_some(),
+            &load_case_ids,
+        );
+        for (index, error) in refusals.into_iter().enumerate() {
+            diagnostics.push(diag(
+                &format!("diagnostic:model-settings:pressure-elongation:{index}"),
+                error.code,
+                "blocking",
+                error.message,
+                vec![crate::model_settings::PRESSURE_ELONGATION_PATH.to_string()],
+            ));
+        }
+    }
 }
 
 // Local solve readiness only: records remain deserializable and editable.

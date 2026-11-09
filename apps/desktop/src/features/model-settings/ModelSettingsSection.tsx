@@ -14,6 +14,14 @@
 // clears it, so a document whose user never chose keeps it absent. On a document
 // with a pressure contract the control is disabled: that document's beam theory is
 // `pressure_contract.shear_model`, set in the pressure panel.
+//
+// On a document with a pressure contract it also holds Pressure elongation (Bourdon)
+// (DEL-04-07 Design pressure-elongation.md §3.3): one switch, "Include pressure
+// elongation". Switched on, a checklist "Operating load cases" of the document's load
+// cases, preselected with those whose kind is "operating" and editable; queueing "on"
+// needs at least one ticked case. Switching off queues clear_model_setting. While the
+// member is absent a contextual note states the default and the earlier behaviour; while
+// it is present a line names every pressurised case it does not include.
 import { useEffect, useRef, useState } from "react";
 import type { EditorOperationIntent, OperationOutcomeDiagnostic, PreviewModel } from "../../types";
 import { canonicalJsonString, computeModelHash } from "../../services/hashService";
@@ -25,13 +33,19 @@ import { storedProjectUnit } from "../project-units/projectUnitIntents";
 import {
   DEFAULT_NODE_PROXIMITY_TOLERANCE,
   NODE_PROXIMITY_TOLERANCE_PATH,
+  PRESSURE_ELONGATION_PATH,
   SHEAR_MODEL_PATH,
   authoredNodeProximityTolerance,
+  authoredPressureElongationCases,
   authoredShearModel,
   clearNodeProximityToleranceIntent,
+  clearPressureElongationIntent,
   clearShearModelIntent,
   effectiveNodeProximityTolerance,
+  operatingKindLoadCaseIds,
+  pressurisedCasesNotIncluded,
   setNodeProximityToleranceIntent,
+  setPressureElongationIntent,
   setShearModelIntent,
   type Canonicalize,
   type SettingPath
@@ -46,6 +60,16 @@ export const SHEAR_MODEL_NOTE =
   "Applies to every straight member, including tees' straight legs, rigid-family components and geometry-only bends. Realized arcs stay Euler–Bernoulli. Timoshenko members use Poisson's ratio E/(2G) − 1 from each case's moduli; an authored Poisson's ratio is not used.";
 export const SHEAR_MODEL_EXACT_NOTE =
   "This document has a pressure contract, so its beam theory is the pressure contract's shear model: set it in the Pressure panel.";
+
+export const PRESSURE_ELONGATION_OFF_NOTE =
+  "Off (default). Pressure elongation is not included in any load case. Documents saved before this setting existed included it in every pressurised case; turn it on and name the operating cases to include it there.";
+export const PRESSURE_ELONGATION_NONE_TICKED = "Tick at least one operating load case to include pressure elongation.";
+
+/** A load case as the pressure-elongation control names it: its label and id, or its id. */
+function caseName(loadCase: { id: string; label?: string }): string {
+  const label = typeof loadCase.label === "string" ? loadCase.label.trim() : "";
+  return label && label !== loadCase.id ? `${label} (${loadCase.id})` : loadCase.id;
+}
 
 type Feedback = { error: string; notice: string; diagnostics: OperationOutcomeDiagnostic[] };
 const NO_FEEDBACK: Feedback = { error: "", notice: "", diagnostics: [] };
@@ -88,10 +112,15 @@ export function ModelSettingsSection(props: ModelSettingsSectionProps) {
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState<Record<SettingPath, Feedback>>({
     [NODE_PROXIMITY_TOLERANCE_PATH]: NO_FEEDBACK,
-    [SHEAR_MODEL_PATH]: NO_FEEDBACK
+    [SHEAR_MODEL_PATH]: NO_FEEDBACK,
+    [PRESSURE_ELONGATION_PATH]: NO_FEEDBACK
   });
   const { error, notice, diagnostics } = feedback[NODE_PROXIMITY_TOLERANCE_PATH];
   const shearFeedback = feedback[SHEAR_MODEL_PATH];
+  const elongationFeedback = feedback[PRESSURE_ELONGATION_PATH];
+  const authoredElongation = authoredPressureElongationCases(model);
+  const [elongationOn, setElongationOn] = useState(authoredElongation !== null);
+  const [ticked, setTicked] = useState<string[]>(() => authoredElongation ?? operatingKindLoadCaseIds(model));
   const latest = useRef(props);
   latest.current = props;
   const live = useRef(false);
@@ -108,6 +137,12 @@ export function ModelSettingsSection(props: ModelSettingsSectionProps) {
     setValueText(authored ? String(authored.value) : "");
     setUnit(initialUnit(model));
   }, [storedKey, model.project.id, projectLength]);
+  // Re-seed the pressure-elongation draft whenever the stored setting changes.
+  const elongationKey = stableJson(authoredElongation);
+  useEffect(() => {
+    setElongationOn(authoredElongation !== null);
+    setTicked(authoredElongation ?? operatingKindLoadCaseIds(model));
+  }, [elongationKey, model.project.id]);
 
   const choices = toleranceUnitChoices(model, props.unitCatalogRoute);
   const unitOptions = choices.includes(unit) ? choices : [unit, ...choices];
@@ -134,7 +169,9 @@ export function ModelSettingsSection(props: ModelSettingsSectionProps) {
         queued.target.object_type === "Project" && queued.change.field_path === path)) {
         throw new Error(path === SHEAR_MODEL_PATH
           ? "Review or remove the pending shear deformation change before queuing another."
-          : "Review or remove the pending node-proximity tolerance change before queuing another.");
+          : path === PRESSURE_ELONGATION_PATH
+            ? "Review or remove the pending pressure elongation change before queuing another."
+            : "Review or remove the pending node-proximity tolerance change before queuing another.");
       }
       const intent = await build(canonicalize);
       const outcome = await validateModelOperation(captured.model, intent, await computeModelHash(captured.model));
@@ -156,6 +193,29 @@ export function ModelSettingsSection(props: ModelSettingsSectionProps) {
     } finally {
       if (live.current) setBusy(false);
     }
+  }
+
+  const loadCases = model.load_cases ?? [];
+  // The ticked cases in document order, so the written list does not depend on click order.
+  const tickedInOrder = loadCases.map((loadCase) => loadCase.id).filter((id) => ticked.includes(id));
+  const elongationUnchanged = authoredElongation !== null && stableJson(authoredElongation) === stableJson(tickedInOrder);
+  const notIncluded = pressurisedCasesNotIncluded(model);
+
+  function switchElongation(on: boolean) {
+    if (on) {
+      setElongationOn(true);
+      return;
+    }
+    if (authoredElongation === null) {
+      setElongationOn(false);
+      setTicked(operatingKindLoadCaseIds(model));
+      return;
+    }
+    void submit((canon) => clearPressureElongationIntent(canon, model), PRESSURE_ELONGATION_PATH);
+  }
+
+  function toggleCase(id: string, on: boolean) {
+    setTicked((current) => (on ? [...current.filter((item) => item !== id), id] : current.filter((item) => item !== id)));
   }
 
   return (
@@ -264,6 +324,74 @@ export function ModelSettingsSection(props: ModelSettingsSectionProps) {
         ) : null}
         {shearFeedback.notice ? <p role="status" data-testid="model-settings-shear-model-notice">{shearFeedback.notice}</p> : null}
       </fieldset>
+      {exactDocument ? (
+        <fieldset className="model-data-fieldset" data-testid="model-settings-pressure-elongation">
+          <legend>Pressure elongation (Bourdon)</legend>
+          <label>
+            <input
+              type="checkbox"
+              role="switch"
+              aria-label="Include pressure elongation"
+              data-testid="model-settings-pressure-elongation-switch"
+              checked={elongationOn}
+              aria-checked={elongationOn}
+              {...disabledBy(working)}
+              onChange={(event) => switchElongation(event.target.checked)}
+            />
+            Include pressure elongation
+          </label>
+          {authoredElongation === null ? (
+            <p className="model-data-note" data-testid="model-settings-pressure-elongation-off-note">{PRESSURE_ELONGATION_OFF_NOTE}</p>
+          ) : null}
+          {elongationOn ? (
+            <fieldset className="model-data-fieldset" data-testid="model-settings-pressure-elongation-cases">
+              <legend>Operating load cases</legend>
+              {loadCases.length === 0 ? <p className="model-data-note">This document has no load cases.</p> : null}
+              {loadCases.map((loadCase) => (
+                <label key={loadCase.id}>
+                  <input
+                    type="checkbox"
+                    data-testid={`model-settings-pressure-elongation-case-${loadCase.id}`}
+                    checked={ticked.includes(loadCase.id)}
+                    disabled={working}
+                    onChange={(event) => toggleCase(loadCase.id, event.target.checked)}
+                  />
+                  {caseName(loadCase)}
+                </label>
+              ))}
+              {tickedInOrder.length === 0 ? (
+                <p className="model-data-note" data-testid="model-settings-pressure-elongation-none-ticked">{PRESSURE_ELONGATION_NONE_TICKED}</p>
+              ) : null}
+              <div className="model-data-actions">
+                <button
+                  type="button"
+                  data-testid="model-settings-pressure-elongation-queue"
+                  {...disabledBy(working, [tickedInOrder.length === 0, PRESSURE_ELONGATION_NONE_TICKED], [elongationUnchanged, "These operating load cases are already set."])}
+                  onClick={() => void submit((canon) => setPressureElongationIntent(canon, model, tickedInOrder), PRESSURE_ELONGATION_PATH)}
+                >
+                  Queue pressure elongation
+                </button>
+              </div>
+            </fieldset>
+          ) : null}
+          {authoredElongation !== null && notIncluded.length ? (
+            <p data-testid="model-settings-pressure-elongation-not-included">
+              Not included: {notIncluded.map(caseName).join(", ")}
+            </p>
+          ) : null}
+          {elongationFeedback.error ? <p role="alert" data-testid="model-settings-pressure-elongation-error">{elongationFeedback.error}</p> : null}
+          {elongationFeedback.diagnostics.length ? (
+            <ul aria-label="Operation engine diagnostics" data-testid="model-settings-pressure-elongation-diagnostics">
+              {elongationFeedback.diagnostics.map((item) => (
+                <li key={item.id} data-testid={`model-settings-pressure-elongation-diagnostic-${item.code}`}>
+                  {item.code}: {item.message}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          {elongationFeedback.notice ? <p role="status" data-testid="model-settings-pressure-elongation-notice">{elongationFeedback.notice}</p> : null}
+        </fieldset>
+      ) : null}
     </section>
   );
 }

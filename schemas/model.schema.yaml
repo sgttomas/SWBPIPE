@@ -2945,6 +2945,24 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "pressure_elongation": {
+          "description": "Model document 0.9.0, no version step (DEL-04-07 Design pressure-elongation.md §3.1): the load cases of a pressure document in which pressure elongation (the closed-end free pressure strain) applies; every other case solves without it. Absent means off in every case. The product never writes an empty record; switching off removes the member. operating_load_cases holds unique ids of the document's own load_cases[]; nothing is inferred from kind, labels or combination roles. Refused by name without pressure_contract (MODEL-SETTING-PRESSURE-ELONGATION-WITHOUT-PRESSURE-CONTRACT), for an id that names no load case (MODEL-SETTING-PRESSURE-ELONGATION-CASE-UNKNOWN) and for an empty or duplicated list (MODEL-SETTING-PRESSURE-ELONGATION-CASES-INVALID).",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "operating_load_cases"
+          ],
+          "properties": {
+            "operating_load_cases": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
         "shear_model": {
           "description": "Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §1, §4): the pressure-free document's beam theory, in the exact contract's vocabulary. Absent: Euler–Bernoulli. An explicit user set of either value writes the member (as for the tolerance); the product never writes the default into a document the user did not author, and clear restores the absent form. timoshenko_annulus_energy_v1 makes every straight member of the pressure-free document Timoshenko, with the exact route's energy-matched annular shear factor and Poisson's ratio E/(2G) - 1; realized arcs stay Euler–Bernoulli (DEL-05-03 Design pf-timoshenko.md). Refused on a document with pressure_contract (MODEL-SETTING-SHEAR-MODEL-WITH-PRESSURE-CONTRACT; that document's choice is pressure_contract.shear_model); any other value, null included, is refused (MODEL-SETTING-SHEAR-MODEL-UNKNOWN). euler_bernoulli solves exactly as absent.",
           "type": "string",
