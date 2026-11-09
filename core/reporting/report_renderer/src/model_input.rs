@@ -228,10 +228,14 @@ impl ModelInputTables {
 }
 
 /// The refusals of a composition's model-input listing against the tables: a
-/// listed id without its table, and a table whose id is not listed. Named by
-/// id, never by a value.
+/// listed id without its table, a table whose id is not listed, and a tables
+/// member (even an empty one) when no model-input id is listed. Named by id,
+/// never by a value.
 pub(crate) fn listing_refusals(composition: &ReportComposition, tables: Option<&ModelInputTables>) -> Vec<String> {
     let listed = |id: &str| composition.sections.iter().any(|section| section.section_id == id);
+    if !MODEL_INPUT_SECTIONS.iter().any(|id| listed(id)) {
+        return unlisted_tables_refusal(tables).into_iter().collect();
+    }
     let mut refusals = Vec::new();
     for id in MODEL_INPUT_SECTIONS {
         let present = tables.is_some_and(|tables| tables.has(id));

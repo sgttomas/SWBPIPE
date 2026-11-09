@@ -81,27 +81,31 @@ function joined(object: JsonObject, pointer: string, key: string, separator: str
   }).join(separator);
 }
 
-/** §2.7: each term as `"<factor> × <load_case or combination>"` joined by `"; "`; else
- * `"<minuend_id> − <subtrahend_id>"`; else `operand_ids` joined by `", "`; else null. */
+/** §2.7, by the combination's basis: `result_state_subtraction` as `"<minuend_id> − <subtrahend_id>"`
+ * (null unless both are stored); `range_envelope` as `operand_ids` joined by `", "`; any other
+ * basis as each term `"<factor> × <load_case or combination>"` joined by `"; "` (null when no
+ * `terms` is stored). A stored member the basis does not use is not shown. */
 function operands(combination: JsonObject, pointer: string): ModelInputCell {
-  const terms = combination.terms;
-  if (terms !== undefined && terms !== null) {
-    if (!Array.isArray(terms)) throw unprojectable(`${pointer}/terms`, "a list");
-    return terms.map((term: Json, index) => {
-      const at = `${pointer}/terms/${index}`;
-      const factor = isObject(term) ? term.factor : undefined;
-      if (typeof factor !== "number") throw unprojectable(`${at}/factor`, "a number");
-      const { load_case: loadCase, combination: other } = term as JsonObject;
-      const operand = typeof loadCase === "string" ? loadCase
-        : (loadCase === undefined || loadCase === null) && typeof other === "string" ? other : null;
-      if (operand === null) throw unprojectable(at, "a term naming a load case or a combination");
-      return `${String(factor)} × ${operand}`;
-    }).join("; ");
+  const basis = combination.basis;
+  if (basis === "result_state_subtraction") {
+    const minuend = member(combination, pointer, "minuend_id");
+    const subtrahend = member(combination, pointer, "subtrahend_id");
+    return minuend !== null && subtrahend !== null ? `${minuend} − ${subtrahend}` : null;
   }
-  const minuend = member(combination, pointer, "minuend_id");
-  const subtrahend = member(combination, pointer, "subtrahend_id");
-  if (minuend !== null && subtrahend !== null) return `${minuend} − ${subtrahend}`;
-  return joined(combination, pointer, "operand_ids", ", ");
+  if (basis === "range_envelope") return joined(combination, pointer, "operand_ids", ", ");
+  const terms = combination.terms;
+  if (terms === undefined || terms === null) return null;
+  if (!Array.isArray(terms)) throw unprojectable(`${pointer}/terms`, "a list");
+  return terms.map((term: Json, index) => {
+    const at = `${pointer}/terms/${index}`;
+    const factor = isObject(term) ? term.factor : undefined;
+    if (typeof factor !== "number") throw unprojectable(`${at}/factor`, "a number");
+    const { load_case: loadCase, combination: other } = term as JsonObject;
+    const operand = typeof loadCase === "string" ? loadCase
+      : (loadCase === undefined || loadCase === null) && typeof other === "string" ? other : null;
+    if (operand === null) throw unprojectable(at, "a term naming a load case or a combination");
+    return `${String(factor)} × ${operand}`;
+  }).join("; ");
 }
 
 /** A load's target: `"<type>:<node, pipe or support>"`, followed by `" <dof>"` when the target

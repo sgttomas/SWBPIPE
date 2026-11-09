@@ -2230,7 +2230,11 @@ fn every_model_input_composition_keeps_the_governed_sections() {
             let mut reversed = subset.clone();
             reversed.reverse();
             for ids in [subset, reversed] {
-                let input = model_input_input(&ids, context);
+                let mut input = model_input_input(&ids, context);
+                if ids.is_empty() {
+                    // §2.7: with no model-input id listed, the member is absent.
+                    input.model_input_tables = None;
+                }
                 let outcome = render_calculation_report(&input);
                 assert!(!outcome.export_blocked, "{context:?} {ids:?}: {:?}", outcome.blocking_reasons);
                 let html = &outcome.html;
@@ -2301,8 +2305,9 @@ fn every_model_input_composition_keeps_the_governed_sections() {
 }
 
 /// The renderer refuses a listed model-input id without its table, a table
-/// whose id is not listed, and tables without a composition, and applies no
-/// such composition.
+/// whose id is not listed, a tables member (even empty) under a composition
+/// that lists no model-input id, and tables without a composition, and applies
+/// no such composition.
 #[test]
 fn model_input_tables_and_their_listing_go_together() {
     let unbound = |outcome: &open_pipe_stress_report_renderer::RenderOutcome| {
@@ -2316,6 +2321,10 @@ fn model_input_tables_and_their_listing_go_together() {
     let mut table_without = model_input_input(&["input_loads"], ReportExportContext::LocalPrivate);
     table_without.model_input_tables = Some(serde_json::from_value(invented_model_input_tables(&["input_loads", "input_supports"])).unwrap());
     assert!(unbound(&render_calculation_report(&table_without)));
+    // An empty tables member under a composition that lists no model-input id.
+    let mut empty_without = model_input_input(&[], ReportExportContext::LocalPrivate);
+    empty_without.model_input_tables = Some(serde_json::from_value(serde_json::json!({})).unwrap());
+    assert!(unbound(&render_calculation_report(&empty_without)));
     let mut no_composition = model_input_input(&["input_loads"], ReportExportContext::LocalPrivate);
     no_composition.report_composition = None;
     let outcome = render_calculation_report(&no_composition);

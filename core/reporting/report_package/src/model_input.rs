@@ -110,37 +110,49 @@ fn row(cells: Vec<(&str, Value)>) -> Value {
     Value::Object(cells.into_iter().map(|(key, value)| (key.to_string(), value)).collect())
 }
 
-/// A combination's operands (§2.7): each term as `"<factor> × <load_case or
-/// combination>"` joined by `"; "`; else `"<minuend_id> − <subtrahend_id>"`;
-/// else `operand_ids` joined by `", "`; else null.
+/// A combination's operands (§2.7), by its basis: `result_state_subtraction` as
+/// `"<minuend_id> − <subtrahend_id>"` (null unless both are stored);
+/// `range_envelope` as `operand_ids` joined by `", "`; any other basis as each term
+/// `"<factor> × <load_case or combination>"` joined by `"; "` (null when no `terms`
+/// is stored). A stored member the basis does not use is not shown.
 fn operands(combination: &Value, pointer: &str) -> Result<Value, String> {
-    match combination.get("terms") {
-        None | Some(Value::Null) => {}
-        Some(Value::Array(terms)) => {
-            let mut parts = Vec::with_capacity(terms.len());
-            for (index, term) in terms.iter().enumerate() {
-                let at = format!("{pointer}/terms/{index}");
-                let factor = match term.get("factor") {
-                    Some(Value::Number(number)) => canonical_number(number),
-                    _ => return Err(unprojectable(&format!("{at}/factor"), "a number")),
-                };
-                let operand = match (term.get("load_case"), term.get("combination")) {
-                    (Some(Value::String(id)), _) => id,
-                    (None | Some(Value::Null), Some(Value::String(id))) => id,
-                    _ => return Err(unprojectable(&at, "a term naming a load case or a combination")),
-                };
-                parts.push(format!("{factor} \u{00d7} {operand}"));
-            }
-            return Ok(Value::String(parts.join("; ")));
+    match combination.get("basis").and_then(Value::as_str) {
+        Some("result_state_subtraction") => {
+            let minuend = member(combination, pointer, "minuend_id")?;
+            let subtrahend = member(combination, pointer, "subtrahend_id")?;
+            Ok(match (&minuend, &subtrahend) {
+                (Value::String(minuend), Value::String(subtrahend)) => {
+                    Value::String(format!("{minuend} \u{2212} {subtrahend}"))
+                }
+                _ => Value::Null,
+            })
         }
+        Some("range_envelope") => joined(combination, pointer, "operand_ids", ", "),
+        _ => terms(combination, pointer),
+    }
+}
+
+fn terms(combination: &Value, pointer: &str) -> Result<Value, String> {
+    let terms = match combination.get("terms") {
+        None | Some(Value::Null) => return Ok(Value::Null),
+        Some(Value::Array(terms)) => terms,
         Some(_) => return Err(unprojectable(&format!("{pointer}/terms"), "a list")),
+    };
+    let mut parts = Vec::with_capacity(terms.len());
+    for (index, term) in terms.iter().enumerate() {
+        let at = format!("{pointer}/terms/{index}");
+        let factor = match term.get("factor") {
+            Some(Value::Number(number)) => canonical_number(number),
+            _ => return Err(unprojectable(&format!("{at}/factor"), "a number")),
+        };
+        let operand = match (term.get("load_case"), term.get("combination")) {
+            (Some(Value::String(id)), _) => id,
+            (None | Some(Value::Null), Some(Value::String(id))) => id,
+            _ => return Err(unprojectable(&at, "a term naming a load case or a combination")),
+        };
+        parts.push(format!("{factor} \u{00d7} {operand}"));
     }
-    let minuend = member(combination, pointer, "minuend_id")?;
-    let subtrahend = member(combination, pointer, "subtrahend_id")?;
-    if let (Value::String(minuend), Value::String(subtrahend)) = (&minuend, &subtrahend) {
-        return Ok(Value::String(format!("{minuend} \u{2212} {subtrahend}")));
-    }
-    joined(combination, pointer, "operand_ids", ", ")
+    Ok(Value::String(parts.join("; ")))
 }
 
 fn load_combinations(model: &Value) -> Result<Value, String> {
@@ -414,7 +426,11 @@ mod tests {
                 {"id": "c1", "basis": "mechanics", "terms": [{"load_case": "a", "factor": 1}, {"combination": "c0", "factor": -0.5}]},
                 {"id": "c2", "basis": "result_state_subtraction", "minuend_id": "a", "subtrahend_id": "b"},
                 {"id": "c3", "basis": "range_envelope", "operand_ids": ["a", "b"], "mode": "max"},
-                {"id": "c4", "basis": "srss"}
+                {"id": "c4", "basis": "srss"},
+                {"id": "c5", "basis": "result_state_subtraction", "terms": [], "minuend_id": "a", "subtrahend_id": "b"},
+                {"id": "c6", "basis": "range_envelope", "terms": [], "operand_ids": ["b", "a"], "mode": "max"},
+                {"id": "c7", "basis": "mechanics", "terms": []},
+                {"id": "c8", "basis": "result_state_subtraction", "minuend_id": "a"}
             ],
             "load_cases": [{"id": "a", "primitive_loads": [
                 {"id": "l1", "category": "concentrated_force", "target": {"type": "node", "node": "node:2"}, "direction": "global_x", "magnitude": {"value": 1000, "unit": "N"}},
@@ -428,7 +444,7 @@ mod tests {
         assert_eq!(tables["input_geometry"]["pipes"], json!([]));
         assert_eq!(tables["input_supports"][0], json!({"id": "support:1", "label": null, "node": "node:1", "family": null, "restraints": "UX, RZ", "stiffness": "UY: 1500000 N/m", "nonlinear_behavior": "gap"}));
         let operands: Vec<&Value> = tables["load_combinations"].as_array().unwrap().iter().map(|row| &row["operands"]).collect();
-        assert_eq!(operands, [&json!("1 \u{00d7} a; -0.5 \u{00d7} c0"), &json!("a \u{2212} b"), &json!("a, b"), &Value::Null]);
+        assert_eq!(operands, [&json!("1 \u{00d7} a; -0.5 \u{00d7} c0"), &json!("a \u{2212} b"), &json!("a, b"), &Value::Null, &json!("a \u{2212} b"), &json!("b, a"), &json!(""), &Value::Null]);
         let targets: Vec<&Value> = tables["input_loads"].as_array().unwrap().iter().map(|row| &row["target"]).collect();
         assert_eq!(targets, [&json!("node:node:2"), &json!("element:pipe:1"), &json!("support:support:1 UZ")]);
         assert_eq!(tables["input_loads"][1]["magnitude"], json!("-2.5 N/m"));

@@ -59,6 +59,18 @@ const MODELS = [
     reason: "a primitive load on a support target, shown as its type, support and DOF",
     fixture: "fixtures/results/combination_certificate_corpus.json",
     pointer: "/documents/3/model"
+  },
+  {
+    name: "created_subtraction",
+    reason: "a result-state subtraction as the create operation stores it, with an empty terms list",
+    fixture: "fixtures/model_operations/contract_corpus/case_58_accept_create_combination_subtraction.json",
+    pointer: "/expected/applied_model"
+  },
+  {
+    name: "created_range_envelope",
+    reason: "a range envelope as the create operation stores it, with an empty terms list",
+    fixture: "fixtures/model_operations/contract_corpus/case_59_accept_create_combination_range_envelope.json",
+    pointer: "/expected/applied_model"
   }
 ] as const;
 
@@ -98,6 +110,12 @@ describe("the model-input projection P(M, C) (§2.7)", () => {
     const tables = vectors.map((vector) => vector.expected!);
     const bases = new Set(tables.flatMap((table) => table.load_combinations!.map((row) => row.basis)));
     expect([...bases].sort()).toEqual(["absolute_sum", "mechanics", "range_envelope", "result_state_subtraction", "srss"]);
+    // A subtraction or envelope shows its operands even when it also stores an empty terms list.
+    const byBasis = tables.flatMap((table) => table.load_combinations!)
+      .filter((row) => row.basis === "result_state_subtraction" || row.basis === "range_envelope");
+    expect(byBasis.every((row) => typeof row.operands === "string" && row.operands.length > 0)).toBe(true);
+    expect(vectors.filter((vector) => vector.name.startsWith("created_"))
+      .every((vector) => vector.expected!.load_combinations!.some((row) => row.basis !== "mechanics" && row.operands))).toBe(true);
     expect(new Set(tables.flatMap((table) => table.input_loads!.map((row) => row.category))).size).toBeGreaterThanOrEqual(4);
     expect(tables.some((table) => table.input_loads!.some((row) => /^support:\S+ \S+$/.test(String(row.target))))).toBe(true);
     for (const key of ["pipes", "components", "nodes"] as const) expect(tables.some((table) => table.input_geometry![key].length > 0)).toBe(true);

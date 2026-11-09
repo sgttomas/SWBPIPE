@@ -768,6 +768,228 @@
      }
     ]
    }
+  },
+  {
+   "name": "created_subtraction",
+   "reason": "a result-state subtraction as the create operation stores it, with an empty terms list",
+   "model_fixture": "fixtures/model_operations/contract_corpus/case_58_accept_create_combination_subtraction.json",
+   "model_pointer": "/expected/applied_model",
+   "expected": {
+    "load_combinations": [
+     {
+      "id": "combination:C-OP",
+      "label": "Operating",
+      "basis": "mechanics",
+      "operands": "",
+      "mode": null
+     },
+     {
+      "id": "combination:C-DIFF",
+      "label": "Corpus subtraction combination",
+      "basis": "result_state_subtraction",
+      "operands": "load:L-1 − load:L-2",
+      "mode": null
+     }
+    ],
+    "input_geometry": {
+     "nodes": [
+      {
+       "id": "node:N-1",
+       "label": "Anchor",
+       "x": "0",
+       "y": "0",
+       "z": "0"
+      },
+      {
+       "id": "node:N-2",
+       "label": "Elbow",
+       "x": "3.2",
+       "y": "0",
+       "z": "0"
+      }
+     ],
+     "pipes": [
+      {
+       "id": "pipe:P-1",
+       "label": "Run",
+       "from": "node:N-1",
+       "to": "node:N-2",
+       "material": "material:M-1",
+       "outside_diameter": "0.168 m",
+       "wall_thickness": "0.007 m",
+       "section_ref": null
+      }
+     ],
+     "components": [
+      {
+       "id": "component:C-1",
+       "label": "Bend",
+       "kind": "bend"
+      }
+     ]
+    },
+    "input_materials_sections": {
+     "materials": [
+      {
+       "id": "material:M-1",
+       "label": "Invented steel-like material",
+       "elastic_modulus": "200000000000 Pa",
+       "shear_modulus": "77000000000 Pa",
+       "poisson_ratio": null,
+       "thermal_expansion_coefficient": "0.000012 1/degC"
+      },
+      {
+       "id": "material:M-2",
+       "label": "Invented alloy-like material",
+       "elastic_modulus": "100000000000 Pa",
+       "shear_modulus": "38000000000 Pa",
+       "poisson_ratio": null,
+       "thermal_expansion_coefficient": "0.000016 1/degC"
+      }
+     ],
+     "sections": []
+    },
+    "input_supports": [
+     {
+      "id": "support:S-1",
+      "label": "Anchor support",
+      "node": "node:N-1",
+      "family": null,
+      "restraints": "UX, UY, UZ",
+      "stiffness": null,
+      "nonlinear_behavior": null
+     }
+    ],
+    "input_loads": [
+     {
+      "case_id": "load:L-1",
+      "load_id": "load:L-1-Z",
+      "category": "distributed_force",
+      "target": "element:pipe:P-1",
+      "direction": "global_z",
+      "magnitude": "-190 N/m"
+     },
+     {
+      "case_id": "load:L-2",
+      "load_id": "load:L-2-Y",
+      "category": "concentrated_force",
+      "target": "node:node:N-2",
+      "direction": "global_y",
+      "magnitude": "410 N"
+     }
+    ]
+   }
+  },
+  {
+   "name": "created_range_envelope",
+   "reason": "a range envelope as the create operation stores it, with an empty terms list",
+   "model_fixture": "fixtures/model_operations/contract_corpus/case_59_accept_create_combination_range_envelope.json",
+   "model_pointer": "/expected/applied_model",
+   "expected": {
+    "load_combinations": [
+     {
+      "id": "combination:C-OP",
+      "label": "Operating",
+      "basis": "mechanics",
+      "operands": "",
+      "mode": null
+     },
+     {
+      "id": "combination:C-ENV",
+      "label": "Corpus range envelope combination",
+      "basis": "range_envelope",
+      "operands": "load:L-1, load:L-2",
+      "mode": "max_abs"
+     }
+    ],
+    "input_geometry": {
+     "nodes": [
+      {
+       "id": "node:N-1",
+       "label": "Anchor",
+       "x": "0",
+       "y": "0",
+       "z": "0"
+      },
+      {
+       "id": "node:N-2",
+       "label": "Elbow",
+       "x": "3.2",
+       "y": "0",
+       "z": "0"
+      }
+     ],
+     "pipes": [
+      {
+       "id": "pipe:P-1",
+       "label": "Run",
+       "from": "node:N-1",
+       "to": "node:N-2",
+       "material": "material:M-1",
+       "outside_diameter": "0.168 m",
+       "wall_thickness": "0.007 m",
+       "section_ref": null
+      }
+     ],
+     "components": [
+      {
+       "id": "component:C-1",
+       "label": "Bend",
+       "kind": "bend"
+      }
+     ]
+    },
+    "input_materials_sections": {
+     "materials": [
+      {
+       "id": "material:M-1",
+       "label": "Invented steel-like material",
+       "elastic_modulus": "200000000000 Pa",
+       "shear_modulus": "77000000000 Pa",
+       "poisson_ratio": null,
+       "thermal_expansion_coefficient": "0.000012 1/degC"
+      },
+      {
+       "id": "material:M-2",
+       "label": "Invented alloy-like material",
+       "elastic_modulus": "100000000000 Pa",
+       "shear_modulus": "38000000000 Pa",
+       "poisson_ratio": null,
+       "thermal_expansion_coefficient": "0.000016 1/degC"
+      }
+     ],
+     "sections": []
+    },
+    "input_supports": [
+     {
+      "id": "support:S-1",
+      "label": "Anchor support",
+      "node": "node:N-1",
+      "family": null,
+      "restraints": "UX, UY, UZ",
+      "stiffness": null,
+      "nonlinear_behavior": null
+     }
+    ],
+    "input_loads": [
+     {
+      "case_id": "load:L-1",
+      "load_id": "load:L-1-Z",
+      "category": "distributed_force",
+      "target": "element:pipe:P-1",
+      "direction": "global_z",
+      "magnitude": "-190 N/m"
+     },
+     {
+      "case_id": "load:L-2",
+      "load_id": "load:L-2-Y",
+      "category": "concentrated_force",
+      "target": "node:node:N-2",
+      "direction": "global_y",
+      "magnitude": "410 N"
+     }
+    ]
+   }
   }
  ]
 }

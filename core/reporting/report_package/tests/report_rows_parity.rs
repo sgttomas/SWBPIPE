@@ -102,7 +102,7 @@ fn rust_report_rows_refuse_an_unreadable_section_basis() {
 
 /// The committed model fixtures the vectors name, compiled in (no runtime
 /// read).
-const MODEL_FIXTURES: [(&str, &str); 4] = [
+const MODEL_FIXTURES: [(&str, &str); 6] = [
     ("fixtures/model_document/invented_every_slot_model.json", include_str!("../../../../fixtures/model_document/invented_every_slot_model.json")),
     ("fixtures/product_preview/invented_preview_model.json", include_str!("../../../../fixtures/product_preview/invented_preview_model.json")),
     (
@@ -110,6 +110,14 @@ const MODEL_FIXTURES: [(&str, &str); 4] = [
         include_str!("../../../../fixtures/results/skew_along_direction_combinations_preview.json"),
     ),
     ("fixtures/results/combination_certificate_corpus.json", include_str!("../../../../fixtures/results/combination_certificate_corpus.json")),
+    (
+        "fixtures/model_operations/contract_corpus/case_58_accept_create_combination_subtraction.json",
+        include_str!("../../../../fixtures/model_operations/contract_corpus/case_58_accept_create_combination_subtraction.json"),
+    ),
+    (
+        "fixtures/model_operations/contract_corpus/case_59_accept_create_combination_range_envelope.json",
+        include_str!("../../../../fixtures/model_operations/contract_corpus/case_59_accept_create_combination_range_envelope.json"),
+    ),
 ];
 
 #[test]
@@ -118,7 +126,7 @@ fn the_projection_matches_the_desktop_on_every_vector() {
     assert_eq!(file["schema_version"], "1.0.0");
     let composition = &file["composition"];
     let vectors = file["vectors"].as_array().unwrap();
-    assert!(vectors.len() >= 4);
+    assert!(vectors.len() >= 6);
     for vector in vectors {
         let name = vector["name"].as_str().unwrap();
         let fixture = vector["model_fixture"].as_str().unwrap();

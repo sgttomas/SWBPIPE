@@ -261,7 +261,7 @@ line and `result_rows_all`'s overlap rule are unchanged.
 
   | Id | Table rows and columns |
   |---|---|
-  | `load_combinations` | One row per combination: id, label, basis, operands, mode. Operands: each term as `"<factor> × <load_case or combination>"` joined by `"; "`; else `"<minuend_id> − <subtrahend_id>"`; else `operand_ids` joined by `", "`; else null |
+  | `load_combinations` | One row per combination: id, label, basis, operands, mode. Operands, by basis: `result_state_subtraction` as `"<minuend_id> − <subtrahend_id>"` (null unless both are stored); `range_envelope` as `operand_ids` joined by `", "`; any other basis as each term `"<factor> × <load_case or combination>"` joined by `"; "` (null when no `terms` is stored). A stored member the basis does not use, such as the empty `terms` list a created subtraction or envelope carries, is not shown |
   | `input_geometry` | `nodes`: id, label, x, y, z (stored numbers; the model's `project.units.length` names their unit). `pipes`: id, label, from, to, material, outside diameter, wall thickness, section_ref. `components`: id, label, kind |
   | `input_materials_sections` | `materials`: id, label, elastic modulus, shear modulus, Poisson ratio, thermal expansion coefficient. `sections`: id, name, section type, outside diameter, wall thickness |
   | `input_supports` | id, label, node, family, restraints (joined by `", "`), stiffness (`"<dof>: <quantity>"`), nonlinear behaviour |
@@ -277,7 +277,8 @@ line and `result_rows_all`'s overlap rule are unchanged.
   bound model re-derives it from M and C and requires equality
   (`REPORT-COMPOSITION-MODEL-INPUT-UNBOUND`, naming the first differing
   pointer, never a value), and refuses tables without a listing id or a
-  listing id without tables:
+  listing id without tables. The renderer itself refuses a tables member,
+  even an empty one, when C lists no model-input id. The boundaries are:
   - native package save, routes 009 and 010 (its parsed model, checked
     against the request's model hash);
   - the exact native render (its bound intake model);
@@ -488,7 +489,9 @@ The current R-08-01-011 in ScopeOfWork is adopted and unchanged. Its exact
 wording governs this implementation; the older proposed Old/New commitment
 in this design is superseded and is not an adoption action.
 
-- Governed frame and sections remain fixed; only result subsections are composed.
+- Governed frame and sections remain fixed. Only subsections within their
+  governed parents are composed: the result subsections, and the model-input
+  subsections of Model Input Summary and Load Cases (§2.7).
 - Composition is session-only, shared by the rendered report and package 009,
   retained across re-solves, and excluded from the model and native settings.
 - The report-wide display policy remains unchanged. Ranking uses its exact step,
