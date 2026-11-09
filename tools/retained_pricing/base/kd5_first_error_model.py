@@ -110,8 +110,13 @@ def inspect(snapshot):
         keys[name] = f"{CPP}:{line}:{name}"
     with open(os.path.join(snapshot, LIB), encoding="utf-8") as stream:
         consumer = stream.read()
+    # RT-S3 CE fallback (§8.61, CEF-PJ): the case solve is compared without the exact reviewed branch, whose `if let Ok`
+    # discards the classifier's error: no `?`, return, fallback attempt, private fallback-error root or outer clone.
+    ce = HELPERS["_ce_fallback"]()
     for name, digest in LIB_PINS.items():
         body, _ = HELPERS["_indented_function"](consumer, name)
+        if name == "solve_prepared_load_case" and LIB == ce["LIB"]:
+            body = ce["s6_body"](consumer, body)
         if hashlib.sha256(body.encode()).hexdigest() != digest:
             raise ValueError("KD5C6: attempt/clone consumer changed: " + name)
     sites = []

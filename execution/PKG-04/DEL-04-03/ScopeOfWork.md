@@ -95,6 +95,13 @@ This Scope of Work defines `DEL-04-03` in service of project scope [SOW-011] and
 > ##### D-41 R5 T7 PDU-054 current declaration
 >
 > Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The linear-support slice implements the recorded support/restraint families and DEC-049 hanger user data. Its current evidence and residuals are those named by the implemented crate and tests; no review, validation, or lifecycle ruling is made here.
+>
+> DEL-04-07 integrates the product-level support-action publication. A consumed DEC-049 constant-effort
+> device contributes zero stiffness and publishes its normalized consumed force on the declared positive global
+> translational DOF in both fallback and certified publication; an unconsumed record supplies no default force.
+> The pre-existing RT-S3 fallback-publication defect and its source-repair qualification limits are recorded in
+> [DEL-04-07 Work/pressure-contract.md](../DEL-04-07/Work/pressure-contract.md). Support laws, nonlinear-field
+> precedence and the held sizing/preload work are unchanged.
 
 ## Completion and Reliance Basis — Epistemology
 
