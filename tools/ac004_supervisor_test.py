@@ -340,7 +340,8 @@ ac.Supervisor.verify_inodes = delayed_verify
         marker = self.out / "ran"
         sup = self.start(["sh", "-c", f": > {marker}"], budget="1.5", reserve="0.5")
         pending = self.guard / ac.PENDING_NAME
-        self.assertTrue(wait_for(pending.exists))
+        # The marker is created with O_EXCL and then written, so wait for its content, not only its existence.
+        self.assertTrue(wait_for(lambda: pending.exists() and pending.read_text() != ""))
         self.assertEqual(pending.read_text(), f"{sup.pid}\n", "pending names the live controller")
         for name in ac.LOCK_NAMES[:3]:
             self.assertTrue(probe_busy(str(self.guard / name)), f"{name} held while queued")
