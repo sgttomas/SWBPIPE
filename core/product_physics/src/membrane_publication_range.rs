@@ -205,7 +205,7 @@ fn original_subnormal_wall_force_direct_extrema_preserves_membrane() {
 /// preparation reaches the subject directly: it does not invoke
 /// solve_load_case, select a solver, or produce a solved envelope.
 fn prepared(inputs: Value) -> (PreviewModel, BuiltModel, pressure_runtime::ExactPressureCase) {
-    let request: LinearStaticPreviewRequest = serde_json::from_value(fixture(&inputs, true, true)).unwrap();
+    let request: LinearStaticPreviewRequest = serde_json::from_value(crate::pressure_runtime::with_pressurised_cases_named(&fixture(&inputs, true, true))).unwrap();
     let mut model = request.model;
     let mut materials = model.materials.clone();
     let mut diagnostics = Vec::new();

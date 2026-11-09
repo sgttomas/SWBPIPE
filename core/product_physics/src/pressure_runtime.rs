@@ -2039,6 +2039,34 @@ fn collinear_run(
 #[path = "joint_pressure_tests.rs"]
 mod joint_pressure_tests;
 
+/// RT-L2 test support (DEL-04-07 `pressure-elongation.md` §7 item 1): a pre-switch
+/// test model's meaning on the current engine, every pressurised case including
+/// pressure elongation. A no-op without a pressure contract, without a pressurised
+/// case, or when the model already states the setting.
+#[cfg(test)]
+pub(crate) fn name_every_pressurised_case(model: &mut Value) {
+    if model.get("pressure_contract").is_none()
+        || model.get("model_settings").and_then(|s| s.get("pressure_elongation")).is_some()
+    {
+        return;
+    }
+    let cases: Vec<Value> = model["load_cases"].as_array().into_iter().flatten()
+        .filter(|c| c["pressure_regions"].as_array().is_some_and(|r| !r.is_empty()))
+        .map(|c| c["id"].clone()).collect();
+    if !cases.is_empty() {
+        let settings = model.as_object_mut().expect("a model object").entry("model_settings").or_insert_with(|| json!({}));
+        settings["pressure_elongation"] = json!({"operating_load_cases": cases});
+    }
+}
+
+/// [`name_every_pressurised_case`] on a request's `model`.
+#[cfg(test)]
+pub(crate) fn with_pressurised_cases_named(request: &Value) -> Value {
+    let mut request = request.clone();
+    name_every_pressurised_case(&mut request["model"]);
+    request
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -2081,7 +2109,8 @@ mod tests {
         serde_json::from_value(value).unwrap()
     }
 
-    fn assemble(value: Value) -> (Option<ExactPressureCase>, Vec<Diagnostic>) {
+    fn assemble(mut value: Value) -> (Option<ExactPressureCase>, Vec<Diagnostic>) {
+        super::name_every_pressurised_case(&mut value);
         let model = parse(value);
         let mut diagnostics = Vec::new();
         let built = super::super::build_model(&model, &model.materials, &mut diagnostics).unwrap();

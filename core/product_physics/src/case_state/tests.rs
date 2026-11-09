@@ -95,7 +95,7 @@ fn model(
 }
 
 fn run(request: &Value, mode: PreviewSolverMode) -> MechanicsEnvelope {
-    run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap()
+    run_linear_static_preview_value_with_mode(crate::pressure_runtime::with_pressurised_cases_named(request), mode).unwrap()
 }
 
 fn row(envelope: &MechanicsEnvelope, kind: &str, entity: &str, component: &str) -> f64 {

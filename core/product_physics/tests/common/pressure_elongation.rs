@@ -48,6 +48,21 @@ pub fn with_elongation(document: &Value) -> Value {
     with_cases(document, &cases)
 }
 
+/// A pre-switch document's meaning on the current engine: every pressurised case
+/// includes pressure elongation. A no-op on a document without a pressure contract,
+/// without a pressurised case, or that already states the setting.
+pub fn with_elongation_if_pressurised(document: &Value) -> Value {
+    let model = &document["model"];
+    if model.get("pressure_contract").is_none()
+        || model.get("model_settings").and_then(|s| s.get("pressure_elongation")).is_some()
+        || !model["load_cases"].is_array()
+    {
+        return document.clone();
+    }
+    let cases = pressurised_cases(document);
+    if cases.is_empty() { document.clone() } else { with_cases(document, &cases) }
+}
+
 /// The document without `model_settings.pressure_elongation` (the default, off).
 pub fn without_elongation(document: &Value) -> Value {
     let mut document = document.clone();

@@ -22,6 +22,8 @@
 //! `zero_scale` is the case magnitude named at each call site. No looser
 //! tolerance is used.
 
+#[path = "common/pressure_elongation.rs"]
+mod pressure_elongation;
 use open_pipe_stress_product_physics::{
     run_linear_static_preview_value_with_mode, MechanicsEnvelope, PreviewSolverMode, ResultItem,
 };
@@ -460,7 +462,7 @@ impl Case {
 // ---------------------------------------------------------------------------
 
 fn run(request: &Value, mode: PreviewSolverMode) -> Result<MechanicsEnvelope, String> {
-    run_linear_static_preview_value_with_mode(request.clone(), mode)
+    run_linear_static_preview_value_with_mode(pressure_elongation::with_elongation_if_pressurised(request), mode)
 }
 
 fn case_ids(request: &Value) -> Vec<String> {
