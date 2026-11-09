@@ -54,17 +54,17 @@ const CS_COUNTS: [&str; 5] = ["straight_members", "arcs", "component_bodies", "s
 const CS_KEYS: [&str; 6] = ["straight_members", "arcs", "component_bodies", "supports", "nonlinear_supports", "subjects_sha256"];
 
 /// A solved document's census, as published.
-pub(super) struct Census {
+pub(super) struct Census<'v> {
     straight: usize,
     arcs: usize,
     bodies: usize,
     supports: usize,
     nonlinear: usize,
-    sha: String,
+    sha: &'v str,
 }
 
 /// The census's shape (closure): `None` on a refused document.
-pub(super) fn cs_shape(value: &Value, solved: bool) -> R<Option<Census>> {
+pub(super) fn cs_shape(value: &Value, solved: bool) -> R<Option<Census<'_>>> {
     if !solved {
         return if value.is_null() { Ok(None) } else { Err(format!("{CS_PATH}: a refused document forms no subject census (null)")) };
     }
@@ -75,7 +75,7 @@ pub(super) fn cs_shape(value: &Value, solved: bool) -> R<Option<Census>> {
     }
     mr_hex(&map["subjects_sha256"], &mr_at(CS_PATH, "subjects_sha256"))?;
     let [straight, arcs, bodies, supports, nonlinear] = counts;
-    Ok(Some(Census { straight, arcs, bodies, supports, nonlinear, sha: map["subjects_sha256"].as_str().unwrap_or_default().to_string() }))
+    Ok(Some(Census { straight, arcs, bodies, supports, nonlinear, sha: map["subjects_sha256"].as_str().unwrap_or_default() }))
 }
 
 /// Why the subject list was not derived.
@@ -332,7 +332,7 @@ pub(super) fn cs_relation(p: &Parsed, request: Option<&Value>, bound: bool, mode
     let along = |k: usize, kind: &str, nodal: Option<bool>| -> Vec<&str> {
         cs_sorted(p.identity.iter()
             .filter(|r| r.axis == k && r.subject_kind == kind && nodal.map_or(true, |n| (r.comparison == "nodal") == n))
-            .map(|r| r.subject.as_str()))
+            .map(|r| r.subject))
     };
     let nonlinear = cs_sorted(s.nonlinear.iter().map(String::as_str));
     let mut tables = Vec::new();
@@ -341,8 +341,8 @@ pub(super) fn cs_relation(p: &Parsed, request: Option<&Value>, bound: bool, mode
         tables.push((format!("the identity table's resultant members along {axis}"), along(k, "member", Some(false)), &arcs, "arcs"));
         tables.push((format!("the identity table's component bodies along {axis}"), along(k, "component_body", None), &bodies, "component bodies"));
     }
-    tables.push(("the discretization table's members".to_string(), cs_sorted(p.members.iter().map(String::as_str)), &straight, "straight members"));
-    tables.push(("the supports table's supports".to_string(), cs_sorted(p.support_rows.iter().map(|r| r.id.as_str())), &nonlinear, "nonlinear supports"));
+    tables.push(("the discretization table's members".to_string(), cs_sorted(p.members.iter().copied()), &straight, "straight members"));
+    tables.push(("the supports table's supports".to_string(), cs_sorted(p.support_rows.iter().map(|r| r.id)), &nonlinear, "nonlinear supports"));
     for (what, published, derived, name) in tables {
         if published != *derived {
             let missing: Vec<&&str> = derived.iter().filter(|id| !published.contains(id)).collect();
@@ -360,7 +360,7 @@ pub(super) fn cs_relation(p: &Parsed, request: Option<&Value>, bound: bool, mode
             return Err(format!("model-derived subject census: {name} is {published}, but the bound model has {derived}"));
         }
     }
-    if cs_digest(&list).as_deref() != Some(c.sha.as_str()) {
+    if cs_digest(&list).as_deref() != Some(c.sha) {
         return Err("model-derived subject census: subjects_sha256 is not the digest of the bound model's subject list".to_string());
     }
     Ok(items)
