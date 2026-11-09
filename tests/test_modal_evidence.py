@@ -218,24 +218,29 @@ def test_the_readers_semantic_table_is_the_committed_table():
     assert me.catalog_differences() == []
 
 
-def test_every_solved_fixture_is_consistent_only_up_to_its_stated_scope():
+def test_every_solved_fixture_is_validated_up_to_its_stated_scope():
+    """With its request, a linear fixture is consistent and fully validated (its subject census is
+    re-derived from the bound model); a linearized state case stays scoped on its reported support
+    states; a refused fixture is refusal-consistent."""
     for path in sorted(RESULTS.glob("modal_*.request.json")):
         name = path.name.replace(".request.json", ".json")
         verdict = me.read(load(name), load(path.name))
         if verdict["decision"] == "refusal_consistent":
             assert verdict["refusal_codes"] and verdict["health"] == "not_assessed"
             continue
-        assert verdict["decision"] in ("consistent_with_scoped_unsupported", "consistent_with_unresolved"), (name, verdict)
-        assert verdict["validation"]["status"] == "not_fully_validated"
         units = verdict["relations"]["units"]
-        # Every value has its catalog unit (Design §5.3.5); units passing closes no other mandatory
-        # relation: the subject census (evidence) still leaves validation unmet.
+        # Every value has its catalog unit (Design §5.3.5).
         assert units["status"] == "passed" and not units.get("scope"), units
-        # A linearized state case's partition comes from the reported support states, whose
-        # qualification no payload establishes: the model-derived mass and participation stay
-        # scoped (Design, selected mass assurance).
-        unmet = ["evidence", "mass", "participation"] if name.startswith("modal_state_") else ["evidence"]
-        assert verdict["validation"]["unmet"] == unmet, (name, verdict["validation"])
+        if name.startswith("modal_state_"):
+            # A linearized state case's partition comes from the reported support states, whose
+            # qualification no payload establishes: mass, participation and the evidence formed on
+            # that partition stay scoped (Design, selected mass assurance).
+            assert verdict["decision"] == "consistent_with_scoped_unsupported", (name, verdict)
+            assert verdict["validation"]["status"] == "not_fully_validated"
+            assert verdict["validation"]["unmet"] == ["evidence", "mass", "participation"], (name, verdict["validation"])
+        else:
+            assert verdict["decision"] == "consistent", (name, verdict)
+            assert verdict["validation"] == {**verdict["validation"], "status": "fully_validated", "unmet": []}, (name, verdict["validation"])
 
 
 def test_the_equilibrated_basis_list_is_closed_and_states_every_such_rule():

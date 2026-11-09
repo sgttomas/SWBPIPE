@@ -1,0 +1,106 @@
+/* Model tree and property inspector: component-scoped presentation on the shared
+   tokens (tokens.css). Layout primitives, row geometry and the shell stay in styles.css. */
+
+/* A row's context follows its ID on the same single line; the global row style
+   truncates that line, so the ID stays readable and the context gives way. */
+.tree-row .tree-row-context {
+  color: var(--ui-muted);
+}
+
+.tree-group-row .tree-group-count {
+  margin-left: var(--space-3);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--ui-divider);
+  border-radius: 9px;
+  color: var(--ui-muted);
+  font-size: var(--type-size-caption);
+  font-weight: var(--type-weight-regular);
+  font-variant-numeric: tabular-nums;
+  line-height: 14px;
+}
+
+/* The keyboard's current row (the tree's active descendant), group or entity, while
+   the tree has keyboard focus. The inset outline keeps the fixed row geometry and is
+   distinct from the selection's fill and accent edge. */
+.model-tree [role="tree"]:focus-visible .tree-row.focused {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: -2px;
+}
+
+/* Overview: the selected entity's identity, connections, size and material,
+   compact and aligned above the editing sections. */
+.inspector .inspector-overview {
+  gap: var(--space-2);
+  margin: 0 0 var(--space-6);
+  padding: var(--space-4) 0 var(--space-5);
+  border-bottom: 1px solid var(--ui-divider);
+  overflow: visible;
+}
+
+.inspector .inspector-overview div {
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: baseline;
+}
+
+.inspector .inspector-overview dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+
+/* A resolved reference or a known enum: its readable name, then the exact stored
+   value on its own caption line. */
+.inspector .property-reference-name,
+.inspector .property-enum-label {
+  color: var(--ui-text);
+}
+
+.inspector .property-reference-id,
+.inspector .property-enum-value {
+  display: block;
+  color: var(--ui-muted);
+  font-size: var(--type-size-caption);
+  line-height: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.inspector .property-reference-missing {
+  color: var(--ui-warning-text);
+  font-size: var(--type-size-caption);
+  line-height: 14px;
+}
+
+/* A resolved reference that selects its entity: the name reads as a link and the exact
+   id stays beneath it. The shell's density rule keeps the control's minimum height and
+   its focus-visible outline stays in force. */
+.inspector .property-reference-link {
+  /* A column flex box takes its first line's baseline, so the row label aligns with the name. */
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 100%;
+  padding: 0 var(--space-1);
+  margin-inline-start: calc(-1 * var(--space-1));
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font-size: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.inspector .property-reference-link .property-reference-name {
+  color: var(--text-link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.inspector .property-reference-link:hover {
+  background: var(--hover-wash);
+}
+
+.inspector .property-reference-link:hover .property-reference-name {
+  text-decoration-thickness: 2px;
+}

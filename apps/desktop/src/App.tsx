@@ -1040,6 +1040,7 @@ function AppSession() {
             <PropertyInspector
               getPreparationEpoch={getPreparationEpoch}
               model={model}
+              onSelectReference={(entity) => { handleSelectEntity(entity); }}
               onQueueIntent={handleQueueEditorIntent}
               onValidateIntent={handleValidateIntent}
               onApplyIntent={handleApplyIntent}
