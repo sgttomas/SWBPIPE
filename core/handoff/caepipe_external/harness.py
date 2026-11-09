@@ -36,6 +36,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+import base64
 import contextlib
 import csv
 import hashlib
@@ -98,6 +99,40 @@ REG_VALUE_NAME_PATTERN = re.compile(r"^[A-Za-z0-9 ._()-]+\Z")
 # Data a restore can write back exactly through `reg add` (REG_SZ only within the guest-command allow-list).
 RESTORABLE_DATA = {"REG_BINARY": re.compile(r"^[0-9A-Fa-f]*\Z"), "REG_DWORD": re.compile(r"^0x[0-9A-Fa-f]{1,8}\Z"),
                    "REG_SZ": re.compile(r"^[A-Za-z0-9 \\._()*:-]*\Z")}
+# The one value name a restore may address outside REG_VALUE_NAME_PATTERN, and only in the recent-files subkey: the
+# folder of the configured executable with one trailing backslash, a value the tool writes there (observed format
+# behaviour; Design §5). `reg` cannot carry a quoted argument that ends in a backslash, so this value alone is written
+# and read back through the registry API (LITERAL_VALUE_SCRIPT), its key, name and data passed as encoded data.
+LITERAL_VALUE_FOLDER = re.compile(r"^[A-Za-z]:(\\[A-Za-z0-9 ._()-]+)+\Z")
+# cmd.exe takes a command line of at most 8191 characters; `cmd /c ` and a margin come off it.
+LITERAL_COMMAND_LIMIT = 8000
+LITERAL_VALUE_SCRIPT = r"""$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue'
+$missing = 'ERROR: The system was unable to find the specified registry key or value.'
+try {
+  $p = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('@PAYLOAD@')) | ConvertFrom-Json
+  $key = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey($p.key, ($p.action -ne 'read'))
+  if ($null -eq $key) { [Console]::Error.Write($missing); exit 1 }
+  try {
+    $present = $key.GetValueNames() -ccontains $p.name
+    if ($p.action -eq 'read') {
+      if (-not $present) { [Console]::Error.Write($missing); exit 1 }
+      if ($key.GetValueKind($p.name) -ne [Microsoft.Win32.RegistryValueKind]::Binary) { exit 2 }
+      $hex = ([BitConverter]::ToString([byte[]]$key.GetValue($p.name))) -replace '-', ''
+      [Console]::Out.Write("`r`nHKEY_CURRENT_USER\" + $p.key + "`r`n    " + $p.name + "    REG_BINARY    " + $hex + "`r`n")
+    } elseif ($p.action -eq 'set') {
+      $bytes = New-Object byte[] ($p.data.Length / 2)
+      for ($i = 0; $i -lt $bytes.Length; $i++) { $bytes[$i] = [Convert]::ToByte($p.data.Substring(2 * $i, 2), 16) }
+      $key.SetValue($p.name, $bytes, [Microsoft.Win32.RegistryValueKind]::Binary)
+      [Console]::Out.Write('The operation completed successfully.')
+    } elseif ($p.action -eq 'delete') {
+      if (-not $present) { [Console]::Error.Write($missing); exit 1 }
+      $key.DeleteValue($p.name, $true)
+      [Console]::Out.Write('The operation completed successfully.')
+    } else { exit 2 }
+  } finally { $key.Close() }
+} catch { [Console]::Error.Write($_.Exception.Message); exit 1 }
+exit 0
+"""
 # Written by the guest script in the case's work folder: one id per process it starts (guarded runs only).
 OWNED_PIDS_FILE = "owned_pids.txt"
 # The guard's result, with its write log, persisted on its own before the run record (guarded runs only).
@@ -390,6 +425,40 @@ def last_json_object(text: str) -> dict[str, Any] | None:
         if isinstance(value, dict):
             found = value
         index = end
+
+
+def _literal_recent_value(config: HarnessConfig) -> tuple[str, str] | None:
+    """(recent-files key id, value name) of the one literal value a restore may address (LITERAL_VALUE_FOLDER): the
+    configured executable's folder with one trailing backslash, inside the configured recent-files subkey. None
+    without a recent-files subkey, or when the executable is not in a named folder below a drive."""
+
+    guard = config.settings_guard
+    if guard is None or guard.recent_files_key is None or not valid_guest_path(config.guest_executable,
+                                                                               directory=False):
+        return None
+    folder = config.guest_executable.rsplit("\\", 1)[0]
+    if not LITERAL_VALUE_FOLDER.match(folder):
+        return None
+    return _registry_key_id(guard.recent_files_key), folder + "\\"
+
+
+def _literal_value_command(printed_key: str, name: str, action: str, data: str | None = None) -> str:
+    """The guest command for one `read`, `set` (REG_BINARY `data`) or `delete` of the literal value: PowerShell's
+    registry API with the key, the name and the data passed as encoded data, never as quoted command words. It
+    prints what `reg` prints: the value as `reg query` shows it, `REG_WRITE_OK`, or `REG_NOT_FOUND` with exit 1."""
+
+    if not REG_PRINTED_KEY_PATTERN.match(printed_key) or action not in ("read", "set", "delete") \
+            or (action == "set") != (data is not None) or (data is not None and not re.fullmatch(r"(?:[0-9A-F]{2})*",
+                                                                                                data)):
+        raise ValueError(f"{printed_key}\\{name} cannot be written back exactly")
+    payload = json.dumps({"key": printed_key[len("HKEY_CURRENT_USER\\"):], "name": name, "action": action,
+                          "data": data}, sort_keys=True)
+    script = LITERAL_VALUE_SCRIPT.replace("@PAYLOAD@", base64.b64encode(payload.encode("utf-8")).decode("ascii"))
+    encoded = base64.b64encode(script.encode("utf-16-le")).decode("ascii")
+    command = f"powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand {encoded}"
+    if len(command) > LITERAL_COMMAND_LIMIT:  # cmd.exe would cut it: refused while the plan is made, before any write
+        raise ValueError(f"{printed_key}\\{name} cannot be written back exactly (its guest command is too long)")
+    return command
 
 
 def _quote(path: str) -> str:
@@ -721,12 +790,12 @@ def _not_found(record: Mapping[str, Any]) -> bool:
 
 
 def _read_value(step: Callable[..., dict[str, Any]], name: str, key: str,
-                value_name: str) -> tuple[str, tuple[str, str] | None]:
-    """One value read back alone (`reg query <key> /v <name>`): ("present", (type, data)), ("absent", None) when
-    reg reports that it does not exist, or ("unreadable", None) when the read fails otherwise, does not parse
-    whole, or does not show exactly that one value."""
+                value_name: str, command: str | None = None) -> tuple[str, tuple[str, str] | None]:
+    """One value read back alone (`reg query <key> /v <name>`, or `command` for the literal value, which prints the
+    same): ("present", (type, data)), ("absent", None) when reg reports that it does not exist, or ("unreadable",
+    None) when the read fails otherwise, does not parse whole, or does not show exactly that one value."""
 
-    record = step(name, f"reg query {_quote(key)} /v {_quote(value_name)}")
+    record = step(name, command or f"reg query {_quote(key)} /v {_quote(value_name)}")
     if _not_found(record):
         return "absent", None
     parsed = parse_reg_query(record["stdout"]) if record["exit_status"] == 0 else None
@@ -939,7 +1008,7 @@ def _owned_processes(config: HarnessConfig, step: Callable[[str, str], dict[str,
 
 
 def _restore_plan(before: Mapping[str, Mapping], after: Mapping[str, Mapping], scope_id: str, *,
-                  whole_key: bool = False) -> list[dict[str, Any]]:
+                  whole_key: bool = False, literal: tuple[str, str] | None = None) -> list[dict[str, Any]]:
     """The writes that take the restore scope back to `before`.
 
     The scope is the key `scope_id`: its own values alone, or (`whole_key`) its values and everything strictly
@@ -949,7 +1018,9 @@ def _restore_plan(before: Mapping[str, Mapping], after: Mapping[str, Mapping], s
     `scope_id` itself is never created or deleted.
 
     ValueError (nothing is written) when any difference lies outside the scope, when a key or value name falls
-    outside the allowed characters, or when a value cannot be written back exactly.
+    outside the allowed characters, or when a value cannot be written back exactly. The one exception is `literal`
+    (`_literal_recent_value`): that exact (key id, value name), as REG_BINARY, is set or deleted through the
+    registry API (`_literal_value_command`), and its entry carries the command that reads it back.
     """
 
     def inside(key_id: str, *, strictly: bool = False) -> bool:
@@ -974,6 +1045,13 @@ def _restore_plan(before: Mapping[str, Mapping], after: Mapping[str, Mapping], s
         if not inside(item[0]):
             raise ValueError(f"{(before['values'].get(item) or after['values'][item])[0]}\\{item[1]} lies outside "
                              "the restore scope")
+    # The literal value, wherever it differs (a subkey that appeared included), must be REG_BINARY in every reading
+    # that has it; otherwise the whole restore is refused before any write.
+    if literal in differing_values:
+        for reading in (before, after):
+            found = reading["values"].get(literal)
+            if found is not None and found[1] != "REG_BINARY":
+                raise ValueError(f"{found[0]}\\{literal[1]} ({found[1]}) cannot be written back exactly")
     added = sorted((key for key in after["keys"] if key not in before["keys"]), key=lambda key: -key.count("\\"))
     removed = sorted((key for key in before["keys"] if key not in after["keys"]), key=lambda key: key.count("\\"))
 
@@ -984,24 +1062,35 @@ def _restore_plan(before: Mapping[str, Mapping], after: Mapping[str, Mapping], s
                      "command": f"reg add {_quote(printed)} /f"})
     for item, (printed, kind, data) in before["values"].items():
         if item in differing_values:
+            found = after["values"].get(item)
+            # Both readings of the literal value must be REG_BINARY where present; any other type keeps the refusal.
+            exact = item == literal and kind == "REG_BINARY" and (found is None or found[1] == "REG_BINARY")
             if kind not in RESTORABLE_DATA or not RESTORABLE_DATA[kind].match(data) or item[1] == "(Default)" \
-                    or not REG_VALUE_NAME_PATTERN.match(item[1]):
+                    or not (REG_VALUE_NAME_PATTERN.match(item[1]) or exact):
                 raise ValueError(f"{printed}\\{item[1]} ({kind}) cannot be written back exactly")
             printed = printed_key(printed, item[0])
-            found = after["values"].get(item)
-            plan.append({"value": f"{printed}\\{item[1]}", "action": "set", "target": (printed, item[1]),
-                         "restores": {"type": kind, "data": data},
-                         "replaces": {"type": found[1], "data": found[2]} if found else None,
-                         "command": f"reg add {_quote(printed)} /v {_quote(item[1])} /t {kind} /d {_quote(data)} /f"})
+            entry = {"value": f"{printed}\\{item[1]}", "action": "set", "target": (printed, item[1]),
+                     "restores": {"type": kind, "data": data},
+                     "replaces": {"type": found[1], "data": found[2]} if found else None,
+                     "command": f"reg add {_quote(printed)} /v {_quote(item[1])} /t {kind} /d {_quote(data)} /f"
+                     if not exact else _literal_value_command(printed, item[1], "set", data.upper())}
+            if exact:
+                entry["readback_command"] = _literal_value_command(printed, item[1], "read")
+            plan.append(entry)
     for item, (printed, kind, data) in after["values"].items():
         if item not in before["values"] and item[0] not in added:
-            if item[1] == "(Default)" or not REG_VALUE_NAME_PATTERN.match(item[1]):
+            exact = item == literal and kind == "REG_BINARY"
+            if item[1] == "(Default)" or not (REG_VALUE_NAME_PATTERN.match(item[1]) or exact):
                 raise ValueError(f"{printed}\\{item[1]} cannot be deleted exactly")
             printed = printed_key(printed, item[0])
-            plan.append({"value": f"{printed}\\{item[1]}", "action": "delete", "target": (printed, item[1]),
-                         "restores": None,
-                         "replaces": {"type": kind, "data": data},
-                         "command": f"reg delete {_quote(printed)} /v {_quote(item[1])} /f"})
+            entry = {"value": f"{printed}\\{item[1]}", "action": "delete", "target": (printed, item[1]),
+                     "restores": None,
+                     "replaces": {"type": kind, "data": data},
+                     "command": f"reg delete {_quote(printed)} /v {_quote(item[1])} /f"
+                     if not exact else _literal_value_command(printed, item[1], "delete")}
+            if exact:
+                entry["readback_command"] = _literal_value_command(printed, item[1], "read")
+            plan.append(entry)
     for key_id in added:
         printed = printed_key(after["keys"][key_id], key_id)
         subtree = {item: value[1:] for item, value in after["values"].items()
@@ -1090,7 +1179,8 @@ def _restore_recent_files(config: HarnessConfig, step: Callable[[str, str], dict
             intended = state_found == "absent"
             as_left = state_found == "present" and found == entry["subtree"]
         else:
-            state_found, found = _read_value(budgeted_step, f"settings_readback_{number}", *entry["target"])
+            state_found, found = _read_value(budgeted_step, f"settings_readback_{number}", *entry["target"],
+                                             command=entry.get("readback_command"))
             target = (entry["restores"]["type"], entry["restores"]["data"]) if entry["restores"] else None
             left = (entry["replaces"]["type"], entry["replaces"]["data"]) if entry["replaces"] else None
             intended = (state_found == "present" and found == target) or (state_found == "absent" and target is None)
@@ -1370,7 +1460,8 @@ def _guard_check(config: HarnessConfig, step: Callable[[str, str], dict[str, Any
                       + ("" if guard.restore_recent_files else " (restoring is not enabled)") + "; nothing was written")
         return result, None
     try:
-        plan = _restore_plan(settings_before, after, scope_id, whole_key=guard.restores_whole_key)
+        plan = _restore_plan(settings_before, after, scope_id, whole_key=guard.restores_whole_key,
+                             literal=_literal_recent_value(config))
     except ValueError as error:
         result.update(status="settings_restore_failed", reason=f"{error}; nothing was written")
         return result, None
@@ -1448,7 +1539,7 @@ def restore_recorded_settings(config: HarnessConfig, changed_values: list[Mappin
                            "values": [{"value": value, "status": "changed_since_record"} for value in differs],
                            "write_log": []})
         try:
-            plan = _restore_plan(intended, current, root, whole_key=True)
+            plan = _restore_plan(intended, current, root, whole_key=True, literal=_literal_recent_value(config))
         except ValueError as error:
             return finish({"status": "settings_restore_failed", "reason": f"{error}; nothing was written",
                            "write_log": []})
