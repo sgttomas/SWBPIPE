@@ -6,6 +6,11 @@ product output; every input is a constant in this file. From any directory:
     python3 -I -B generators/u6_reference.py           # verify every committed file byte for byte
     python3 -I -B generators/u6_reference.py --write   # rewrite them (intentional changes only)
 
+`--pressure-elongation {absent,all,none}` (default: $SWBPIPE_PRESSURE_ELONGATION, else absent) sets
+`model_settings.pressure_elongation` in the written requests through the shared
+`tools/validation/pressure_elongation.py` (DEL-04-07 `Work/pressure-elongation.md` §7); the oracle is
+today's mechanics, pressure elongation included, whatever the switch.
+
 Basis (read, not imported):
 - DEL-05-03 Design section-bases-and-timoshenko.md sections 1 (D-5 geometry and its binary64 order),
   2.1 (stress per basis), 2.5 (row naming), 3.1 (kappa_E), 7 and 8, and the rulings in
@@ -36,6 +41,9 @@ getcontext().prec = 130
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 CHECKS = []
+sys.path.append(str(ROOT.parents[2]))  # the repository root, for the shared pressure-elongation switch
+from tools.validation import pressure_elongation as PE  # noqa: E402
+ELONGATION = PE.DEFAULT
 
 
 def check(label, condition):
@@ -1103,7 +1111,7 @@ def build():
                                   any(LOAD_CASES[c]["thermal"] for c in runnable), runnable)
                 check_primitive_load_ids(request, doc)
                 docs[request] = doc
-                data = dump(doc)
+                data = dump(PE.apply_to_container(doc, ELONGATION))
                 files[f"requests/{request}.request.json"] = data
                 var["request"] = {"path": f"requests/{request}.request.json", "sha256": hashlib.sha256(data).hexdigest(), "load_cases": list(runnable)}
                 if restrained and shear == TIMO:
@@ -1114,7 +1122,7 @@ def build():
                 gdoc = request_doc_load_state_group(doc)
                 gdoc["model"]["project"]["id"] = f"project:invented-t4-u6-{group_request.lower()}"
                 check_primitive_load_ids(group_request, gdoc)
-                gdata = dump(gdoc)
+                gdata = dump(PE.apply_to_container(gdoc, ELONGATION))
                 files[f"requests/{group_request}.request.json"] = gdata
                 var["request_load_state_group"] = {
                     "path": f"requests/{group_request}.request.json", "sha256": hashlib.sha256(gdata).hexdigest(), "load_cases": list(runnable),
@@ -1124,7 +1132,7 @@ def build():
                                    any(LOAD_CASES[c]["thermal"] for c in weighted), weighted, densities=True)
                 check_self_weight_request(doc, wdoc, coincident, phys["w"])
                 check_primitive_load_ids(weight_request, wdoc)
-                wdata = dump(wdoc)
+                wdata = dump(PE.apply_to_container(wdoc, ELONGATION))
                 files[f"requests/{weight_request}.request.json"] = wdata
                 mass, magnitude = self_weight_binary64(coincident)
                 var["request_self_weight"] = {
@@ -1287,6 +1295,8 @@ def header():
 
 
 def main(argv):
+    global ELONGATION
+    ELONGATION = PE.argv_mode(argv)
     files, oracle = build()
     ok = all(c for _, c in CHECKS)
     print(f"checks: {sum(1 for _, c in CHECKS if c)} passed, {sum(1 for _, c in CHECKS if not c)} failed")
