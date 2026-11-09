@@ -2,17 +2,22 @@
 
 ## Unintegrated S6 and constant-effort work
 
-[S6, draft PR #166](https://github.com/sgttomas/SWBPIPE/pull/166), is retained at
-`codex/rt-a3-s6`, head `5b3f71fa5721546ffd93bb9c51b1ca4a56619b44`.
-Its PR describes the reviewed composition and remaining CE/S7/R3 and global
-nonlinear-reference limits. Read its actual current checks before integration;
-the old handoff's pending-check list is a dated observation. The seven-test
+[S6, draft PR #166](https://github.com/sgttomas/SWBPIPE/pull/166), is being
+reconciled with current main on `codex/rt-a3-s6`; its frozen pre-recovery head is
+`5b3f71fa5721546ffd93bb9c51b1ca4a56619b44`. Current disclosure-derived desktop
+oracles and their persistence consumers must agree with the S6 carriers before
+integration. The PR owns the actual candidate, check results and remaining
+qualification work, alongside the CE/S7/R3 and global nonlinear-reference limits.
+The seven-test
 AC-004 observation belongs to source `1a07aec6b732ffcf1b050626341780ff92888fbd`,
 not a later composition, and its one-attempt authorization is consumed.
 [Original packet and ten carrier observations](https://github.com/sgttomas/SWBPIPE/tree/dc037b5495ccd6fa35fb04758edbcdb019021bba/s6)
 are durably retained; generated trees and build caches do not substitute for
 them. The separate [constant-effort defect, candidate and readiness gaps](../../DEL-04-03/Work/constant-effort-publication.md)
-remain open. Neither branch establishes acceptance or release.
+remain open. S6 precedes the constant-effort repair: the latter was based on an
+older core and changes the same `solve_prepared_load_case` producer and this
+contract, so composing it first would change the qualified S6 source and its
+pricing pins. Neither branch establishes acceptance or release.
 
 ## Current pressure boundary
 
@@ -982,7 +987,7 @@ Lamé rows are recovered from the final displacement, as in a linear case.
 The references exercise straight Euler–Bernoulli and Timoshenko members and
 one realized bend (O-1).
 
-**Still refused.**
+**S5 context restrictions (superseded by the S6 candidate below).**
 - *By name, with the family's code and text unchanged*
   (`EXACT_PRESSURE_FAMILY_NOT_ADMITTED`; `exact_admission::nonlinear_support_admission`,
   called from `pressure_runtime::validate_profile`):
@@ -996,7 +1001,8 @@ one realized bend (O-1).
   - rotational gaps and rotational friction;
   - a linear restraint or spring on a nonlinear DOF;
   - a repeated active boundary DOF;
-  - the loop's own connector refusal.
+  - the loop's own connector refusal (lifted by S6 with node/law validation,
+    not by dropping validation).
 - *The retained sub-route:* source recovery stays ineligible for nonlinear
   cases (§2.4, D1 unchanged).
 - *`difference_basis` on EX:* stays refused (`document_members.rs`). Its S5
@@ -1404,9 +1410,10 @@ stated together (R-4 §3.5 "Publication"):
   table digest moves (`10455bf3…` → `5e224d17…`) and physics-retained-1
   follows (`040ef9a6…` → `ca6bb983…`).
 
-The load/reference-state sentences are unchanged: nonlinear supports stay
-refused on load/reference-state documents (S6). No new reason code is
-published: the pressure-2 result schema already lists the gate (RT-A4), and
+In this S5 registration record the load/reference-state sentences were
+unchanged: nonlinear supports stayed refused on load/reference-state
+documents until S6. That registration published no new reason code: the
+pressure-2 result schema already lists the gate (RT-A4), and
 every reference envelope validates against it
 (`tests/test_rt_a3_nonlinear_reader.py`).
 
@@ -1451,3 +1458,64 @@ every reference envelope validates against it
 - *§2.2's explicit member-bound integration test.* The confirmed cases'
   certified rows match the references, but the wall-bound derivation is not
   separately pinned.
+
+## Nonlinear connector and load-state connection (R-4 S6 candidate)
+
+S6 extends the admitted nonlinear support family to objective-connector and
+load/reference-state contexts. PP's context refusal and NI's blanket
+connector refusal are removed together; connector node/law validation remains.
+Each case's existing resolved E/nu, effective loads, pressure and eigenstrain
+ledger remain the solve inputs. Joint pressure and tie-rod actions enter that
+ledger once, with no added pressure term.
+
+The active W-16 stage-2 motion laws are connected without a second solve:
+rigid `boundary_motion` supplies the base prescribed values; motion on a
+nonlinear support's own DOF supplies its ground, judged on `u-g_s`; active
+spring `base_motion` contributes `k*g` once and recovers `-k*(u-g)`. Units,
+DOF ownership, duplicates and exact gap-position checks remain explicit.
+Motion off an active spring axis is refused by
+`LOAD_STATE_BASE_MOTION_UNSUPPORTED`. Device references, held/locked/inactive
+participation and unsupported skew or free-DOF motion remain refused. This
+does not implement hydrotest devices or contents lowering; R-4 §4.9 governs
+that future shared plan.
+
+`solve_load_case_observed` returns the one `LoadCaseSolve` whose typed
+`NonlinearStateEvidence` binds the selected states and consumed motion to the
+named case and solver mode. Modal consumes that result and refuses a replay
+or motion mismatch; it neither runs another active-set solve nor relaxes its
+contents-state or qualification gates. Readers bind the motion laws and their
+contributions to the same case and verify relative-displacement rows before
+using them for complementarity.
+
+The independent C-1/LS-1 packet in `validation/references/rt_a3_s6/` compares
+force-method and direct-stiffness derivations, with 895 passing exact checks.
+The C-1 controls include untied/tied, signed pressure, a no-nonlinear model,
+Timoshenko and a moved-anchor load-state twin. LS-1 carries rigid, nonlinear
+ground and active-spring motions into the current contract, including
+Timoshenko twins. Executed strict dropped-motion controls distinguish each
+motion law; the three exact weak-boundary controls are recorded separately.
+All pre-existing reference responses and request bytes are preserved by the
+manager's generator cleanup; only an effective-area-drop check is appended.
+The W-16 oracle and request inputs are checked by their actual bytes against
+their frozen manifest before use. Moving-friction reader checks use bound
+relative slip, including when its sign differs from absolute displacement;
+producer and independent reader controls reject a force aligned with that
+relative slip. The consumer retains its stricter nonzero-relative/zero-family
+criterion; the packet wording does not relax it.
+
+Ordinary EX disclosure now states S6 uniformly, while selected retained-source
+scope remains separate. Mechanical no-nonlinear behavior is preserved;
+canonical table/report registration and text/hash-only carrier reconciliation
+are required in this same change. Numerical/commitment review, source-derived
+D3 and any required registration disposition, final CI and any freshly cleared
+AC-004 window remain pending. Earlier witness clearances do not transfer.
+
+OQ-1, constant-effort combination gates, DEC-046 controls and source ledgers
+retain their meanings. Gap-bearing/mixed connector cases remain unqualified
+under the existing R-3 boundary; S6 does not qualify them. The intended
+reference-system friction-normal pair still requires S7, and its gap still
+requires R-3 for qualification. S8 is held and is not established as a
+prerequisite for that system's one-sided gap. Controlled fixture adoption and
+the usable sustained/operating/expansion/anchor-motion workflow have not been
+demonstrated merely by these local references. No acceptance or release is
+conferred by this candidate.

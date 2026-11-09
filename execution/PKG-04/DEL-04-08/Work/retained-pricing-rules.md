@@ -6561,6 +6561,199 @@ explicit unit scopes unchanged; do not query App availability or ask it to quit 
 coordination only when the owner advises that local LLM testing has resumed. The completed attempt's actual App
 concurrence, closure, deferral and release facts above remain historical facts, rather than future gates.
 
+### 8.60 RT-A3 S6: nonlinear supports on load/reference-state documents and beside objective connectors on the adopted modal §8.59 predecessor (actual-source D3)
+
+**Status.** Source, numerical, pricing and preservation scrutiny are complete for the final-composition candidate
+`1a07aec6b732ffcf1b050626341780ff92888fbd` on accepted predecessor
+`00d4820d15f01bcada536c97b2bc129efd64575a` (#164). The one newly authorized current-source AC-004 attempt passed,
+with verified closure (below). Exact-head hosted checks, publication consultation and integration remain pending.
+The independently reviewed private proposal was `abc8bac62340a515d12d84392dd2ea105495aa2a` on declared
+`394f4c623`/§8.58; its original derivation below remains the evidence for the unchanged conservative pricing delta.
+This registration candidate for RT-A3 S6 (DEL-04-07 `Work/route-unification-r4.md` §3.7) records no acceptance,
+release or public admission. No numerical parameter, threshold, M, margin or reserve moves. The full workflow still
+requires the separate CE publication repair, S7's intended friction-normal source and R-3 gap qualification; the
+connecting-path evidence supplies no independent global nonlinear solution or state-accuracy qualification.
+
+**Final composition (`da0afeabb`, core `e8e83ae9f1b7dbf7a9984eee1fa8d7a7688cad87`).** The S6 proposal
+`abc8bac62` merged with the accepted predecessor `00d4820d1` (§8.59's modal support operations on the MBF import
+landing). The product merge was clean. Two texts conflicted: this file, where §8.59 is kept verbatim and S6 is renumbered
+§8.60, and the routing inventory's PP tree digest, derived by `numerical_ci.rust_tree_digest`. The priced lineages are
+disjoint. The predecessor changes PP `modal/eigen.rs`, `modal/integrity.rs`, `modal/resource.rs`, the test-only
+`modal/tests_resource.rs` and `modal_eigen`; S6 changes none of them, and the predecessor changes none of S6's priced
+files. `rules/o10_rules.py` carries both lineages' warrants as reviewed (§8.59's MODAL-FB/MODAL-ID pins beside S6's
+rules), and no pin or snapshot key is reset. S6's source and tool comments, and the block's basis line, still cite the
+pre-renumbering "§8.59" ("Section names cited elsewhere"). Their bytes are priced, pinned or compiled, so they are kept.
+
+- **Pricing.** The committed tool at `da0afeabb` exits 0, O-10 0/0, all four points complete, with no unmapped header
+  or unclassified argument. D and TAV equal S6's: L(3,0) 43,783 / 4,714,368,834, L(2,1) 39,373 / 4,103,401,544,
+  L(1,2) 35,239 / 3,578,739,796 and E 76,356 / 7,229,423,696. The merged tree equals S6's reviewed tree in
+  structure and all 1,602 coefficients; only its basis string differs. That tree was priced at `3e6fc1a65`, whose priced
+  source equals `abc8bac62`'s. Against main `394f4c623` (§8.58), and equally against §8.59's composed `f4e23a3ce`,
+  the merged tree has 1,586 coefficients equal, the same 16 higher at the same values (table below) and none lower.
+  `generate --check` with this section's basis line equals the committed block (1,713 lines), and `point-atoms --check`
+  equals the committed atoms (154 lines). Nothing is regenerated. The block, `REGISTERED_PROFILES` (inputs #8 and #11),
+  `PINNED_RECORD`, the challenge records, layouts, M, margin and reserve remain S6's reviewed values.
+- **Native atoms and laws.** The combined PP lib-test binary is built by the registered toolchain: rustc 1.97.1
+  `8bab26f4f`, debug, no flag variables, offline and locked, jobs 2 under the slot wrapper. Its `profile_` law tests
+  pass (9), and they check `PINNED_RECORD` in-build. Its 359 `I65_G5_ATOM` lines are byte-identical to S6's
+  candidate's. `eval` of the merged tree at those atoms is identical to S6's reviewed evaluation, so all 80
+  evaluations stand: every phase is +18,761 B, and W3 is the maximum at dense 8,870,363,838 B.
+- **Routing.** `tests/test_rt_a3_s6_text_only_envelope_diff.py` applies S6's own routing derivation to the
+  predecessor's inventory: three tree digests, seven read hashes and `rt_a3_s6_tests.rs` added to three existing scans. It also
+  attributes every moved value. The predecessor's five moved values are kept wherever S6 does not move them, and S6's
+  thirteen reviewed values wherever the predecessor does not. Only the two values both lineages move are re-derived on
+  the combined source: the PP tree digest and RE's complete Rust scan, which keeps `support.rs` and adds the S6 file.
+  The partition attributes the predecessor's two MBF desktop-import JSON files, which are byte-identical to it, to
+  the predecessor. The maintained runtime-read graph validates 47 manifests, all 45 bound tree digests and 1,807
+  resources.
+- **AC-004 artifacts.** S6's and §8.59's changed PP sources both compile into the witnessed binaries. The guarded build at `da0afeabb` gives the lib-test
+  `open_pipe_stress_product_physics-f31c71322c8cc2bc`, SHA-256
+  `8f2b649d4bc6ffd4933aeda986e7a1c2bf4f649315edb57dc721e6a67a7d0c73`, and the challenge
+  `retained_memory_challenge-0a8cb81bbc9e389a`, SHA-256
+  `bba69229159f741484fc0af9ea90ab897232bddab51ee850118bef4d239213a5`. The profile file is SHA-256
+  `24141f216cbb54285dacf7b1419d20867aec71a1ba20ccd7984135ab7ec80081`, and the lock `b7ebb02a…4f5653` is unchanged.
+  Their dep-info lists 379 and 3 local files, all tracked. Four are the predecessor's modal files and 45 are S6's;
+  none is changed by both, and no MBF/desktop-import resource appears. The harness, literal direct-supervisor command
+  and technical binding are in `/Users/ryan/dev/chirality-t3/scratch/rt-a3-s6-final/ac004/`, bound to the candidate
+  head. That scratch is not a permanent dependency. The technical packet was independently scrutinized before the single
+  attempt recorded below; its one-attempt GO is consumed, with no continuing resource hold or retry authority.
+
+
+**Current-source AC-004 result (2026-11-08).** Independent changed-proof scrutiny cleared exact `1a07aec6b`
+and the frozen technical packet before Agent 0 granted one attempt. Immediately before execution, both clean source
+checkouts, head/core, source and read-only artifact hashes, compiler/profile/lock, command/harness/supervisor bindings
+and empty destinations matched. A separate admission-only check executed zero tests and acquired no locks. The exact
+bound command then ran once, without builds, added tests or retry, through the approved direct supervisor (60 s from
+arming through release, 3 s reserve, 1 s TERM grace, separate 55 s inner target; untimed queue).
+
+| Exact once-only test | Result | Harness process time |
+|---|---|---:|
+| W1 headroom, sparse | 1 passed, 0 failed | 2.54 s |
+| W1 headroom, dense | 1 passed, 0 failed | 0.64 s |
+| W2 deep milestone, sparse | 1 passed, 0 failed | 1.26 s |
+| W2 deep milestone, dense | 1 passed, 0 failed | 1.27 s |
+| W_C2 publication, sparse | 1 passed, 0 failed | 2.40 s |
+| W_C2 publication, dense | 1 passed, 0 failed | 2.39 s |
+| `retained_direct_peak_is_within_the_profiles_bounds` | 1 passed, 0 failed | 5.16 s |
+
+Outer rc/outcome was **0/success**, payload rc 0 and strays 0. The harness took **15.916 s ≤ 55 s**;
+armed `3498673.264125375` to released `3498689.2123925` was **15.948267 s ≤ 60 s**. Source and both immutable
+binary post-hashes matched the bindings above. Containment was verified with no error or overrun; the owned pending
+marker was removed, the sentry reaped and all four acquired lock descriptors closed before the release mark.
+Post-return kernel membership was empty and the controller, sentry and payload identities were absent. Agent 0
+independently parsed the raw receipt and inner JSON and confirmed the ordered seven results and closure.
+
+The separate raw files are `supervisor.receipt.json`, `inner.stdout.json` and `combined.stderr.log` in
+`/Users/ryan/dev/chirality-t3/scratch/rt-a3-s6-final/ac004/attempt-1/`. Their SHA-256 values are
+`3900cdec9ba21bd808b8fa2965495330c8a601be44bdfc41ff7ea7fd084aa9e8` (receipt),
+`b81e4d13b5e2b91b144a233246f72403531faa13518e64dedd3f3fa05a33a6cb` (inner JSON), and the receipt's hash again
+(stderr, 1,654 bytes, byte-identical to the raw receipt). The named witness qualification applies to this exact
+compiled source; it does not assert stack-frame neutrality, acceptance, release or completion of other workflows.
+The qualification record adds no compiled input; later documentation alone does not require another attempt.
+
+**Basis.** Main `394f4c623` (#157, docs only against `e8cfa72d5`). Its core tree prices as §8.58: the committed tool
+at that source exits 0, O-10 0/0, all four points complete; D (L(3,0) 43,783, L(2,1) 39,373, L(1,2) 35,239, E 76,356)
+and TAV (4,714,366,116, 4,103,398,826, 3,578,737,078, 7,229,420,978) are §8.58's; `generate --check` with §8.55's
+basis line equals the committed block (1,713 lines) and `point-atoms --check` the committed point atoms (154 lines).
+The kept profile file is SHA-256 `c4df869d…996c`. Main's source therefore equals the kept registration's.
+
+**Priced source.** `0c480a9e5`: the S6 source (`fff62c0a5`, merged with main as `8a6596b50`) plus the uniform
+disclosure reconciliation (the restated pressure-2 table, derived physics-retained-1, the report statement table, the
+retained limitations const of `results.v0.3.schema.yaml`, `load_reference_state.schema.json`'s S6 law/source pairs
+and the moved digest pins). Against main the priced changes are:
+- PP `lib.rs`: `solve_prepared_load_case` takes a resolved case's spring bases (`load_state_spring_ground`, new),
+  moved grounds (`state.ground_motion.clone()`) and base prescribed map (`base_motion`), offers retained-source
+  recovery only with every spring ground 0.0, passes `base_motion` to the loop and the held-status arm, and builds
+  `CaseMotionEvidence::new(base_motion, &ground_motion, &spring_ground)` as `capture_nonlinear_state_evidence`'s new
+  argument; `NonlinearStateEvidence` gains `motion` (boxed); `CaseMotionEvidence::resolve` serves the modal state
+  case; the formulation basis binds `load_state` and `connectors` once;
+- PP `case_state/resolve.rs` (routes `boundary_motion`/`base_motion` by `imposed_motion::acting`; `ResolvedCase`
+  gains `ground_motion` and `spring_base`), `imposed_motion.rs` (visibility and `normalized_gap_closure_exact`),
+  `exact_admission.rs` (S1, S13, S15; `nonlinear_support_admission` deleted), `pressure_runtime.rs` (the S6 context
+  removed: the table judges every family), `modal/state.rs` (motion binding);
+- NI `lib.rs` (connectors assembled in the loop), RE `load_reference.rs` (three law/source pairs; transport digest),
+  `nonlinear_support_evidence.rs` (relative rows), `retained_precision.rs` and `semantic_contract.rs` (table digests).
+
+**D1 premises.**
+- **No load state.** D1.5 refuses every `analysis_state`, so every retained case solve has `load_state` None:
+  `load_state_spring_ground`, the resolved grounds and base map, `resolve_case`'s new routing and `ResolvedCase`'s two
+  vectors are unreached.
+- **No nonlinear support, connector or support target.** D1.6, D1.4 and D1.7 (W16-NS) as before: the ground map is
+  empty, `case_prescribed` returns None, the loop's connector assembly and the relative rows are unreached, and the
+  capture returns None at its first statement (MODAL-SEAM).
+- **The capture's argument (S6-ME).** It is evaluated before the call on every case. Its three vectors are collected
+  from exact-size iterators: `base_prescribed` and `ground_motion` are empty on D1 (no allocation), `spring_ground`
+  holds one u64 per prepared spring. Charged positively: B(8s) per case in CasePrefix beside W16S-SG (256 B at
+  s = 32: `prepare_boundary` gives a scalar spring exactly one `SpringEntry` and refuses a spring with any other
+  number of DOFs, D1.6 admits only scalar springs, and D1.9 caps supports at 32; the census's `SPRINGS` = 192 row
+  bounds a different count), an over-bound of its life (dropped at the capture's return).
+
+| Rule | Premise, argument and guard |
+|---|---|
+| **S6-ME** (`w16_owners_model.py`, `ordinary_caps.py`) | Positive owner above. Guard: the three `CaseMotionEvidence::new` collects, the capture argument and the `base_motion` binding verbatim (impl-scoped body lookup), with W-16's statements. |
+| **W16-NS** (rewritten guard) | The case solve's spring-ground, ground and base-map arms in their S6 text; `CaseMotionEvidence::resolve` restates the three resolvers and has exactly one caller, `modal/state.rs`'s `solve_modal_state_case` (no retained root, §8.43); the call counts exclude its body. |
+| **RTA3S6-L** (`O10_LOOPS_LAST` "0", guard) | `for (support_id, dof, value) in &state.spring_base` (only `lib.rs:load_state_spring_ground`) and `iter:ground_motion: ground.iter().map` (only `lib.rs:new`): zero by D1.5/D1.6/D1.7. Guard: the `Some(state)` arm, three call spellings of `load_state_spring_ground` (definition, case solve, resolve) and D1.5's refusal. |
+| **RT-A4 `resolve`** | lib.rs gains a second `fn resolve`; RT-A4's guard reads `CombinationExpression::resolve` by its impl block and exact signature (a stop otherwise). The graph shows no multiplicity change but the two new functions'. |
+| **RTA5-DZ** | The held-status arm passes `base_motion` (None on D1, as `pf_motion` was). |
+| **MODAL-SEAM** | The capture's body pin follows its new parameter; its first statement and every shape check are unchanged. |
+| **Pins** | Full-file: `exact_admission.rs`, `pressure_runtime.rs`, `lib.rs`, RE `retained_precision.rs` and `semantic_contract.rs` (B7a domain), `lib.rs` (KD5's primitive pin: no `.min(`/`.max(` added; W1 reductions: no owner or lifetime), `retained_precision.rs` (W1 member load: the digest constant), `imposed_motion.rs` (W16). Bodies: `solve_prepared_load_case` (KD5T2, KD5C6, batch 5, O4), batch 5's pressure prefix. Snapshot keys moved with unchanged text, mapped line by line from main: B7a domain audits (lib.rs +16), owner choices (+16/+52), phase model (+4), returning errors (+4/+16), scoped TEXT (lib.rs +16/+52; pressure_runtime parents −10 after `validate_profile`, whose 30 `problem` calls are unchanged), the `_X` emitter's `retained_w1` 4200 → 4204. Basis-keyed preimages (e.g. `text_args.g4.json`'s `lib.rs:10230`, the retired carry's edges) are not touched. |
+
+**Run and graph.** `price.py run 0c480a9e5`: exit 0, O-10 0/0, all four points complete, no unmapped header or
+unclassified argument. D is unchanged at every point. `reachable_fns` 4,779 → 4,781 (`CaseMotionEvidence::new` and
+`load_state_spring_ground`, multiplicity 3 each; every other function multiplicity equal); text sites 5,053 → 5,062,
+positive-multiplicity sites 1,912 unchanged. TAV rises by 2,718 B at every point: the formulation basis's six
+copies of S13 (+351 B) and S15 (+114 B) less S1 (−12 B).
+
+**Comparison** (head tree against main's, which is the kept tree): structure equal, **1,586 equal, 16 higher, none
+lower** (`a_ge_b`), so the kept block does not bound the head and is regenerated:
+
+| Coefficient (and its `success__` copy) | Main | Head | Change | Source |
+|---|---:|---:|---:|---|
+| `O_base_sparse[1]` / `O_base_dense[1]` | 237,874,996 / 259,234,516 | 237,875,252 / 259,234,772 | +256 | S6-ME |
+| `STATICS[1]` | 628,168 | 628,947 | +779 | strb + keyb: pressure-2 table strings +34 B; load_reference_state schema strings +591 B, keys +154 B |
+| `STATICS[Node(String,Value)]` | 7,902 | 7,919 | +17 | obj + ⌊ent/5⌋: the schema's objects 432 → 446 (+14) and entries 936 → 953 (⌊ent/5⌋ +3) |
+| `STATICS[s(Value)]` | 31,512 | 31,590 | +78 | 6·arr: the schema's array slots 357 → 370 (+13) |
+| `TAV_W[1]` / `TAV_X[1]` | 4,955,356,494 / 5,437,243,864 | 4,955,359,212 / 5,437,246,582 | +2,718 | S1, S13, S15 (six copies) |
+| `TAV_text_requested` / `TAV_text_moving` | 7,229,420,978 / 7,232,021,074 | 7,229,423,696 / 7,232,023,792 | +2,718 | (text atoms) |
+
+Per phase, at the native atoms (Node(String,Value) = 736 B, s(Value) = 32 B): 256 + 779 + 17·736 + 78·32 + 2,718 =
+18,761 B, each term charged once per phase (STATICS and O_base once; TAV_W/TAV_X once in their phases). The pressure-2
+table and physics-retained-1 are the only other changed static inputs: physics-retained-1 changes only its parent
+digest (same length), and `results.v0.3.schema.yaml`, `analysis_run.v0.3` and `stress_neutral_export.v0.3` are not
+static owners. The TAV term is U6-J4's six formulation-basis copies per point of the three restated literals, read
+from the rows of `pressure_v3_formulation_basis_with_source` (56,382 → 59,100 B at every point, its only changed
+text row); six times (351 + 114 − 12) B. No coefficient falls, so no conservative allowance is at issue; every kept coefficient is retained or raised. The
+unmerged L(2,1) tree moves the same 16 coefficients (1,692 equal). `point-atoms --check` is equal (154 lines).
+
+**Native atoms and evaluation.** The candidate's PP lib-test binary (rustc 1.97.1, debug) collects 359
+`I65_G5_ATOM` lines; main's tree evaluated at them reproduces §8.58's `PINNED_RECORD` exactly, so no atom moved
+(`LoadCaseSolve` is unchanged; `ResolvedCase` and `NonlinearStateEvidence` are not atoms). Maintained `eval` of the
+head tree, R = 64 MiB: every phase in both modes is main's +18,761 B; W3 is the maximum, dense 8,870,363,838 B,
+2,726,047,861 B below ⌊0.9M⌋ = 11,596,411,699 B (sparse 2,785,179,205 B). All four points move +18,761 B in every
+phase and mode and stay at or below the merged tree; the tightest point is E dense W3 (8,784,413,037 B). All 80
+evaluations fit the unchanged M, margin and reserve policy (the law tests check the reserve).
+
+**Profile and records (proposed).**
+- **Block.** `generate` with basis `, re-run as RT-A3 S6 (nonlinear supports on load/reference-state documents and
+  beside objective connectors) on main 394f4c623 (§8.58's kept tree) at 0c480a9e5 (§8.59): …` (1,713 lines;
+  `--check` equal).
+- **`REGISTERED_PROFILES`.** Reviewed inputs #8 (physics-retained-1 `320dc3f1…` → `f17bd9d5…`) and #11 (pressure-2
+  `21b7426e…` → `c5fe09a2…`) take the restated tables' bytes; the identity, the other eleven inputs, the reader
+  layouts and the threshold are unchanged. The transport schema is a priced static but not a reviewed input.
+- **Law records.** `PINNED_RECORD` sparse [6,450,393,241, 6,792,387,802, 8,744,123,630, 8,537,839,902,
+  7,611,535,700, 8,526,373,345, 7,258,990,735, 6,932,280,611]; dense [6,509,524,585, 6,851,519,146, 8,803,254,974,
+  8,596,971,246, 7,670,667,044, 8,585,504,689, 7,318,122,079, 6,991,411,955]. Challenge `W1_PHASE_BYTES`
+  [6,450,393,241, 6,509,524,585], `MAX_PHASE_BYTES` [8,744,123,630, 8,803,254,974].
+
+**Initial isolated stack inspection.** Coefficient identity with the predecessor is not claimed and stack neutrality
+is not established from source. The static frame observations below belong to the original isolated proposal; the
+combined artifacts passed the named current-source witnesses above. On D1 the case
+solve gains the 72 B `CaseMotionEvidence` temporary and the `base_motion` reference; `solve_prepared_load_case`'s
+static frame on the candidate's debug lib-test binary is 0x2c000 + 0x7c0 + 0x30 = 182,256 B
+(`run_linear_static_preview_observed_inner` 0x10000 + 0xd30 + 0x20, `solve_load_case_observed` 0x390 + 0x40,
+`capture_nonlinear_state_evidence` 0x290 + 0x20). No main binary was built in this pass, so no frame delta is stated:
+the current-source AC-004 result above supplies the named witness evidence on the combined candidate's binaries.
+
 ## 9. Memory-profile gates and registration
 
 ### Gate bounds (registration)
@@ -6583,6 +6776,10 @@ Two limits keep these bounds fail-closed rather than reachable at the census max
 - **Qualification.** A complete `run` is a pricing-completeness result. Registration additionally requires the native atoms, all 80 budget evaluations, the reviewed inputs and layouts, and independent source and pricing scrutiny; a source proof in this text alone confers no budget pass.
 
 ## 10. Reproducing a registered revision
+
+The current tool cohort combines S6's reviewed proposal with accepted modal §8.59 source. It reproduces §8.60's final composition `da0afeabb` (exit 0, O-10 0/0; `generate --check` with §8.60's basis line and `point-atoms --check` equal). No earlier source identity changes. S6's private `0c480a9e5` and `3e6fc1a65` pricing is reproduced with its complete historical tool cohort.
+
+Historical modal-cohort record:
 
 The committed tool's source pins hold one current value each. For §8.59, this cohort reproduces the actual composed source `f4e23a3ce` (qualified at `8c26b7556`, same core), and `generate --check` uses the preserved §8.55 basis line. Earlier revisions need their complete historical tool cohort, including `tools/repository_history.py`, rather than a selective pin reset; no old source identity changes.
 
@@ -6687,3 +6884,5 @@ Code, tools and other designs cite this text by these earlier section names and 
 | "DEL-04-09: the selected A1, A2 and A3 modal parameter instance", "§8.57" | §8.57 |
 | "DEL-04-09 O-4: the modal resource preflight P0 and the S1 wiring", "§8.58" (MODAL-FB and MODAL-ID's P0 rules) | §8.58 |
 | "DEL-04-09: bounded modal support operations" (isolated registration proposal) | §8.59 |
+| "RT-A3 S6: nonlinear supports on load/reference-state documents and beside objective connectors", "§8.60" (S6-ME, RTA3S6-L, W16-NS's S6 arms) | §8.60 |
+| "§8.59" where RT-A3 S6 is meant: S6's source, test and pricing-tool comments (RT-A3 S6 D3, S6-ME, RTA3S6-L, RTA3S6-VP, W16-NS, RT-A4 `resolve`), the S6 test docstrings, and the GENERATED PROFILE basis line "at 0c480a9e5 (§8.59)", all written before the final composition renumbered S6 | §8.60 (their bytes are kept: they are priced, pinned or compiled inputs) |

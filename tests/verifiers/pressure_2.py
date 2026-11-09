@@ -70,7 +70,7 @@ TABLE_PATH = PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_2.json"
 # T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis); T4-U5b adds the tie-rod force and
 # T4-U4b its 22 per-basis signatures: 129 signatures over 66 kinds; W-7 (DEL-04-01) the six global end-action
 # signatures: 135 over 68; RT-A3 increment 1 the two branch intensified signatures: 137 over 69.
-TABLE_SHA256 = "21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765b5faa7d6bb90"
+TABLE_SHA256 = "c5fe09a2dc82068f46ce8dd0b5873071af1ec13e62c9bacf0a009570d7e5d2ad"
 TABLE_SIGNATURE_COUNT = 137
 TABLE_KIND_COUNT = 69
 
@@ -1520,7 +1520,10 @@ def _ls_prepass(source: Mapping[str, Any]) -> None:
     # a region with a realized arc adds the arc keys (checked by the physics pass).
     for region in pressure:
         arcs = arc_members(region)
-        _ls_require(_ls_keys(region, LS_REGION_KEYS + (sorted(ARC_REGION_KEYS) if arcs else [])), "REGION_SHAPE")
+        # Rust ``arc_evidence::region_shape``: a joint region adds its two keys.
+        joints = region.get("approximation") in {JOINT_APPROXIMATION, ARC_JOINT_APPROXIMATION}
+        _ls_require(_ls_keys(region, LS_REGION_KEYS + (sorted(ARC_REGION_KEYS) if arcs else [])
+                             + (["member_connector_ids", "joint_edges"] if joints else [])), "REGION_SHAPE")
         case_id = _ls_text(region["load_case_id"])
         _ls_text(region["region_id"])
         case = next((value for known, value in cases if known == case_id), None)
@@ -1679,12 +1682,30 @@ def _ls_record(record: Mapping[str, Any], cases: list[tuple[str, Mapping[str, An
         contribution = find(source_id)
         if contribution is None:
             raise _ls_fail("SUPPORT_CONTRIBUTION_COVERAGE")
-        _ls_require(_ls_num_eq(_ls_get(contribution, "value"), component["prescribed_value"]), "SUPPORT_CONTRIBUTION_BINDING")
+        _ls_require(_ls_num_eq(_ls_get(contribution, "value"), component["prescribed_value"])
+                 and _ls_support_law_classification(component) is not None
+                 and _ls_eq(_ls_get(contribution, "classification"), _ls_support_law_classification(component)), "SUPPORT_CONTRIBUTION_BINDING")
     expected_regions: set[str] = set()
     for region in pressure:
         if _ls_eq(_ls_get(region, "load_case_id"), case_id):
             expected_regions.add(f"pressure_region:{_ls_text(_ls_get(region, 'region_id'))}")
     _ls_require(of_kind("pressure_region") == expected_regions, "PRESSURE_CONTRIBUTION_COVERAGE")
+
+
+# R-4 §3.7 S6: a support component's (law, source) pair and its contribution
+# classification (Rust ``load_reference::support_law_classification``).
+_LS_SUPPORT_LAWS = {
+    ("rigid_prescribed", "support_state.boundary_motion"): "prescribed_boundary",
+    ("nonlinear_ground", "support_state.boundary_motion"): "nonlinear_ground_motion",
+    ("spring_base", "support_state.base_motion"): "spring_base_motion",
+}
+
+
+def _ls_support_law_classification(component: Any) -> str | None:
+    law, source = component.get("law_kind"), component.get("physical_state_source")
+    if not (isinstance(law, str) and isinstance(source, str)):
+        return None
+    return _LS_SUPPORT_LAWS.get((law, source))
 
 
 def _ls_member(member: Any) -> None:
@@ -1831,7 +1852,7 @@ def _ls_support_component(component: Any) -> None:
     position = DOFS.index(dof)
     global_dof = _ls_index(component["global_dof"])
     _ls_require(global_dof % 6 == position, "SUPPORT_COMPONENT_DOF")
-    _ls_require(_ls_eq(component["law_kind"], "rigid_prescribed") and _ls_eq(component["meaning"], "absolute_reference_displacement") and _ls_eq(component["physical_state_source"], "support_state.boundary_motion"), "SUPPORT_COMPONENT_LAW")
+    _ls_require(_ls_support_law_classification(component) is not None and _ls_eq(component["meaning"], "absolute_reference_displacement"), "SUPPORT_COMPONENT_LAW")
     _ls_require(_ls_eq(component["unit"], "m" if position < 3 else "rad"), "SUPPORT_COMPONENT_UNIT")
     _ls_number(component["prescribed_value"])
 
@@ -1848,7 +1869,10 @@ def _ls_contribution(contribution: Any) -> None:
         raise _ls_fail("CONTRIBUTION_KIND")
     shape, classification = shapes[kind]
     _ls_require(_ls_keys(contribution, shape), "CONTRIBUTION_SHAPE")
-    _ls_require(_ls_eq(contribution["classification"], classification), "CONTRIBUTION_CLASSIFICATION")
+    if kind == "support_state":
+        _ls_require(any(_ls_eq(contribution["classification"], c) for c in _LS_SUPPORT_LAWS.values()), "CONTRIBUTION_CLASSIFICATION")
+    else:
+        _ls_require(_ls_eq(contribution["classification"], classification), "CONTRIBUTION_CLASSIFICATION")
     _ls_text(contribution["source_id"])
     if kind == "stored_primitive":
         factor = _ls_as_f64(contribution["factor"])

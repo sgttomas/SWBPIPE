@@ -53,7 +53,7 @@ EXACT_DEFINITION_ID = "RP-PREPARED-EXACT-DUAL-v1"
 # T4-U6: DEF-E states zero mill tolerance and lists the reduced-basis rows and both headlines; the table follows the
 # inherited pressure-2 table's per-basis rows.
 EXACT_DEFINITION_HASH = "b60e69d4995c11274c53800e4d5d1e04b05c8d1aa3029f5017d7f0ea41bf047c"
-EXACT_TABLE_HASH = "320dc3f1f75944af8b66da1287e6f8ee5e1fcd5fe005752f2c90bf8c89a9c894"
+EXACT_TABLE_HASH = "f17bd9d57ee8d1cef4b465715e4edbf030faa5aa4f5282ad7927c25e3f6668d3"
 RECEIPT_POLICY = "M03-INTEGRITY-MP-v2"
 # The current model document version the namespace gates accept (b7-plan "Current model format").
 MODEL_VERSION = "0.9.0"

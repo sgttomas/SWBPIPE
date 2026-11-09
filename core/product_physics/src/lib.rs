@@ -65,6 +65,8 @@ mod corrected_displacement_tests;
 mod op1a_seed_tests;
 #[cfg(test)]
 mod w16_nonlinear_motion_tests;
+#[cfg(test)]
+mod rt_a3_s6_tests;
 
 use open_pipe_stress_curved_bend::CurvedBendMacroElement;
 pub use open_pipe_stress_curved_bend::{arc_geometry, kink, ArcFrame, TANGENCY_TOLERANCE_RAD};
@@ -1443,9 +1445,11 @@ fn formulation_basis_for_model_with_source(model: &PreviewModel, source_selected
         // T4-U3: a model with an objective connector states its law; a model
         // without one keeps v3's text unchanged. The join's `source_selected`
         // names the publication (pressure-source-1 or pressure-2).
+        let load_state = case_state::is_load_state(model);
+        let connectors = model.components.iter().any(|c| c.objective_connector.is_some());
         let mut basis = exact_admission::pressure_v3_formulation_basis_with_source(
-            case_state::is_load_state(model),
-            model.components.iter().any(|c| c.objective_connector.is_some()),
+            load_state,
+            connectors,
             source_selected,
         );
         // T4-U2: a model with a realized bend states the bend's terms; a
@@ -5490,8 +5494,10 @@ fn solve_prepared_load_case(
     // spring (0.0 when unmoved), and their formed loads k·g; refusals join
     // the motion maps' check below.
     let before = diagnostics.len();
+    // R-4 §3.7 S6: a resolved case's active spring bases (`base_motion`) take
+    // the same per-spring map and the same formed loads.
     let spring_ground = match load_state {
-        Some(_) => vec![0.0; spring_entries.len()],
+        Some(state) => load_state_spring_ground(state, spring_entries, &load_case.id, diagnostics),
         None => imposed_motion::case_spring_ground(model, load_case, spring_entries, diagnostics),
     };
     certified_loads::spring_base_motion(&mut ledger, spring_entries, &spring_ground);
@@ -5537,11 +5543,16 @@ fn solve_prepared_load_case(
         Some(_) => None,
         None => imposed_motion::case_prescribed(model, load_case, restrained_dofs, diagnostics),
     };
-    // W-16 stage 2 (R-b): the case's moved nonlinear grounds, by support id.
+    // W-16 stage 2 (R-b): the case's moved nonlinear grounds, by support id;
+    // R-4 §3.7 S6: a resolved case's from its own `boundary_motion`.
     let ground_motion = match load_state {
-        Some(_) => Vec::new(),
+        Some(state) => state.ground_motion.clone(),
         None => imposed_motion::case_ground_motion(model, load_case),
     };
+    // R-4 §3.7 S6 (W-16 R-a/R-d): the loop's base prescribed values are the
+    // same map the linear partition prescribes, the resolved case's or the
+    // pressure-free case's.
+    let base_motion = load_state.map(|state| &state.prescribed).or(pf_motion.as_ref());
     if has_blocking(&diagnostics[before..]) {
         return Ok(LoadCaseSolve {
             load_state_evidence: None,
@@ -5671,8 +5682,12 @@ fn solve_prepared_load_case(
     // A resolved case enters retained-source recovery only through its own
     // closed join: the recovery input carries the resolved case, and source
     // closure refuses any eigen load, pair or motion it does not own.
+    // R-4 §3.7 S6: a moved spring base's formed load k·g has no retained
+    // source owner, so such a case is not offered to retained-source recovery
+    // (its closure would decline it; this keeps an absorbed product from
+    // reaching the device projection).
     let source_eligible = source_eligible(
-        capture.is_some() && built.skew.is_none(),
+        capture.is_some() && built.skew.is_none() && spring_ground.iter().all(|ground| *ground == 0.0),
         pressure_runtime::is_exact(model),
         !built.nonlinear_supports.is_empty(),
         !model.combinations.is_empty(),
@@ -5968,7 +5983,7 @@ fn solve_prepared_load_case(
             model,
             built,
             restrained_dofs,
-            pf_motion.as_ref(),
+            base_motion,
             &ground_motion,
             &force,
             load_case,
@@ -6102,11 +6117,12 @@ fn solve_prepared_load_case(
         nonlinear_qualification,
         confirmed.is_some(),
         nonlinear_sentence.as_deref(),
+        CaseMotionEvidence::new(base_motion, &ground_motion, &spring_ground),
     );
     // RT-A5 (operating-case §7.4): a `minuend_final` combination's minuend lends its state.
     let held_status_source = match role {
         held_status::CaseRole::Own(Some(invocation)) if held_status::wanted(model, &load_case.id) => {
-            nonlinear_frame_input(built, restrained_dofs, pf_motion.as_ref(), &ground_motion, &force).ok().and_then(|input| {
+            nonlinear_frame_input(built, restrained_dofs, base_motion, &ground_motion, &force).ok().and_then(|input| {
                 held_status::capture_held_status_source(
                     invocation,
                     true,
@@ -15447,6 +15463,42 @@ fn append_nonlinear_relative_displacements(
         appended = true;
     }
     appended
+}
+
+/// R-4 §3.7 S6 (W-16 R-c's semantics on a resolved case): each prepared
+/// spring's base motion g_k from the case's `base_motion`, in `springs` order;
+/// 0.0 for an unmoved spring. A resolved base without exactly one prepared
+/// spring entry is a blocking finding (unreachable after `resolve_case`
+/// routed it to a spring axis); nothing is silently dropped.
+fn load_state_spring_ground(
+    state: &case_state::resolve::ResolvedCase,
+    springs: &[SpringEntry],
+    case_id: &str,
+    diagnostics: &mut Vec<Diagnostic>,
+) -> Vec<f64> {
+    let mut ground = vec![0.0; springs.len()];
+    let mut moved = vec![false; springs.len()];
+    for (support_id, dof, value) in &state.spring_base {
+        let mut entries = springs
+            .iter()
+            .enumerate()
+            .filter(|(_, spring)| &spring.support_id == support_id && spring.node_dof.dof == *dof)
+            .map(|(index, _)| index);
+        match (entries.next(), entries.next()) {
+            (Some(index), None) if !moved[index] => {
+                moved[index] = true;
+                ground[index] = *value;
+            }
+            _ => diagnostics.push(diag(
+                &format!("diagnostic:load-state:{}:spring-base:{}", stable_suffix(case_id), stable_suffix(support_id)),
+                "LOAD_STATE_BASE_MOTION_UNSUPPORTED",
+                "blocking",
+                "a resolved base motion does not address exactly one prepared spring of its support",
+                vec![case_id.to_string(), support_id.clone()],
+            )),
+        }
+    }
+    ground
 }
 
 /// T4-U5b item 6: each nonlinear support's final-displacement row restates
@@ -25654,6 +25706,57 @@ struct NonlinearStateEvidence {
     qualification: NonlinearQualification,
     standing: NonlinearStateStanding,
     final_states: Vec<SupportStateRecord>,
+    /// R-4 §3.7 S6: the motion the case's loop consumed with these states.
+    motion: CaseMotionEvidence,
+}
+
+/// R-4 §3.7 S6: the boundary motion one case's loop and ledger consumed, as
+/// binary64 bits so that a sign of zero is kept: the base prescribed values
+/// the loop received (`base_prescribed`, global DOF order), the moved
+/// nonlinear grounds (`ground_motion`, as supplied) and every prepared
+/// spring's base (`spring_ground`, spring order, 0.0 unmoved). A consumer that
+/// binds the states to a case compares this with that case's own resolution.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+struct CaseMotionEvidence {
+    base_prescribed: Vec<(usize, u64)>,
+    ground_motion: Vec<(String, u64)>,
+    spring_ground: Vec<u64>,
+}
+
+impl CaseMotionEvidence {
+    fn new(base: Option<&BTreeMap<usize, f64>>, ground: &[(String, f64)], springs: &[f64]) -> Self {
+        Self {
+            base_prescribed: base.into_iter().flatten().map(|(&dof, value)| (dof, value.to_bits())).collect(),
+            ground_motion: ground.iter().map(|(id, value)| (id.clone(), value.to_bits())).collect(),
+            spring_ground: springs.iter().map(|value| value.to_bits()).collect(),
+        }
+    }
+
+    /// The motion `solve_prepared_load_case` resolves for a case, by the same
+    /// resolvers (the resolved case's maps, or the pressure-free primitives),
+    /// for a consumer that did not run the loop. Findings go to a scratch list:
+    /// a refused motion never reaches a completed case's evidence.
+    fn resolve(
+        model: &PreviewModel,
+        load_case: &PreviewLoadCase,
+        load_state: Option<&case_state::resolve::ResolvedCase>,
+        restrained_dofs: &[usize],
+        spring_entries: &[SpringEntry],
+    ) -> Self {
+        let mut scratch = Vec::new();
+        match load_state {
+            Some(state) => Self::new(
+                Some(&state.prescribed),
+                &state.ground_motion,
+                &load_state_spring_ground(state, spring_entries, &load_case.id, &mut scratch),
+            ),
+            None => Self::new(
+                imposed_motion::case_prescribed(model, load_case, restrained_dofs, &mut scratch).as_ref(),
+                &imposed_motion::case_ground_motion(model, load_case),
+                &imposed_motion::case_spring_ground(model, load_case, spring_entries, &mut scratch),
+            ),
+        }
+    }
 }
 
 /// Decision B: the evidence of a completed case (see `NonlinearStateEvidence`),
@@ -25667,6 +25770,7 @@ fn capture_nonlinear_state_evidence(
     qualification: Option<NonlinearQualification>,
     confirmed: bool,
     sentence: Option<&str>,
+    motion: CaseMotionEvidence,
 ) -> Option<Box<NonlinearStateEvidence>> {
     let solve = solve.filter(|solve| solve.converged)?;
     let qualification = qualification?;
@@ -25687,5 +25791,6 @@ fn capture_nonlinear_state_evidence(
         qualification,
         standing,
         final_states: solve.final_states.clone(),
+        motion,
     }))
 }

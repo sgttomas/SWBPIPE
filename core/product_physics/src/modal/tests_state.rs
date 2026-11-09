@@ -14,7 +14,7 @@ use super::tests::{arc_request, codes, modal, pf_request, q, section, with, PROV
 use super::tests_eigen::test_local_parameters;
 use super::MODAL_STATE_CASE_UNAVAILABLE;
 use crate::{
-    active_set_state_code, solve_load_case_observed, form_basis_stiffness, ActiveSetState, Diagnostic, LoadCaseSolve, NonlinearQualification,
+    active_set_state_code, solve_load_case_observed, form_basis_stiffness, ActiveSetState, CaseMotionEvidence, Diagnostic, LoadCaseSolve, NonlinearQualification,
     NonlinearStateEvidence, NonlinearStateStanding, NonlinearSupport, PreviewSolverMode, SourceRecoveryBudget, SupportStateRecord,
 };
 use open_pipe_stress_linear_supports::FrameDof;
@@ -310,6 +310,7 @@ fn constructed_state_evidence(case: &str) -> NonlinearStateEvidence {
         qualification: NonlinearQualification::Qualified,
         standing: NonlinearStateStanding::Confirmed,
         final_states: vec![SupportStateRecord::new("support:nl", ActiveSetState::Active)],
+        motion: CaseMotionEvidence::default(),
     }
 }
 
@@ -321,11 +322,11 @@ fn state_blocking_diag(code: &str) -> Diagnostic {
 fn admission_refuses_every_combination_but_the_confirmed_dense_one() {
     let dense = PreviewSolverMode::DenseScrutiny;
     let good = constructed_state_evidence("case:s");
-    assert!(admit_modal_state_evidence(Some(&good), "case:s", dense, &[]).is_ok());
+    assert!(admit_modal_state_evidence(Some(&good), "case:s", &CaseMotionEvidence::default(), dense, &[]).is_ok());
     let warning = crate::diag("diagnostic:test", "NONLINEAR_SUPPORT_LOOP_CONVERGED", "info", "test", vec![]);
-    assert!(admit_modal_state_evidence(Some(&good), "case:s", dense, &[warning]).is_ok());
+    assert!(admit_modal_state_evidence(Some(&good), "case:s", &CaseMotionEvidence::default(), dense, &[warning]).is_ok());
     let refused = |e: Option<&NonlinearStateEvidence>, mode: PreviewSolverMode, found: &[Diagnostic]| {
-        admit_modal_state_evidence(e, "case:s", mode, found).err().unwrap()
+        admit_modal_state_evidence(e, "case:s", &CaseMotionEvidence::default(), mode, found).err().unwrap()
     };
     // Missing evidence: named as not converged when the loop says so by code.
     let not_converged = crate::diag("diagnostic:test", "NONLINEAR_SUPPORT_LOOP_NOT_CONVERGED", "warning", "test", vec![]);
@@ -337,6 +338,19 @@ fn admission_refuses_every_combination_but_the_confirmed_dense_one() {
         refused(Some(&constructed_state_evidence("case:other")), dense, &[]),
         StateCaseRefusal::CaseMismatch { expected: "case:s".into(), found: "case:other".into() }
     );
+    // R-4 §3.7 S6: evidence whose consumed motion is not the bound case's
+    // (a replayed solve of another motion under the same id) is refused,
+    // and so is the bound motion against evidence of no motion.
+    let moved = CaseMotionEvidence { ground_motion: vec![("support:nl".into(), 0.25f64.to_bits())], ..CaseMotionEvidence::default() };
+    let replayed = NonlinearStateEvidence { motion: moved.clone(), ..constructed_state_evidence("case:s") };
+    assert_eq!(refused(Some(&replayed), dense, &[]), StateCaseRefusal::MotionMismatch);
+    assert_eq!(admit_modal_state_evidence(Some(&good), "case:s", &moved, dense, &[]).err().unwrap(), StateCaseRefusal::MotionMismatch);
+    assert!(admit_modal_state_evidence(Some(&replayed), "case:s", &moved, dense, &[]).is_ok());
+    // A sign of zero is part of the bound motion.
+    let negative_zero = CaseMotionEvidence { ground_motion: vec![("support:nl".into(), (-0.0f64).to_bits())], ..CaseMotionEvidence::default() };
+    let positive_zero = CaseMotionEvidence { ground_motion: vec![("support:nl".into(), 0.0f64.to_bits())], ..CaseMotionEvidence::default() };
+    let zero = NonlinearStateEvidence { motion: positive_zero, ..constructed_state_evidence("case:s") };
+    assert_eq!(admit_modal_state_evidence(Some(&zero), "case:s", &negative_zero, dense, &[]).err().unwrap(), StateCaseRefusal::MotionMismatch);
     // A mismatched mode, and a request mode other than the dense path's.
     let sparse = NonlinearStateEvidence { solver_mode: PreviewSolverMode::SparseInteractive, ..constructed_state_evidence("case:s") };
     assert_eq!(refused(Some(&sparse), dense, &[]), StateCaseRefusal::ModeMismatch { requested: dense, solved: PreviewSolverMode::SparseInteractive });
@@ -612,4 +626,49 @@ fn a_refusals_blocking_codes_are_stated_by_count() {
     }
     assert!(StateCaseRefusal::MissingEvidence(Vec::new()).modal_refusal_reason().contains("(0 blocking diagnostic(s)"));
     assert_eq!(StateCaseRefusal::Blocking(codes.clone()), StateCaseRefusal::Blocking(codes));
+}
+
+/// R-4 §3.7 S6: a load/reference-state state case with a moved nonlinear
+/// ground and a moved spring base (`validation/references/rt_a3_s6`'s C-5
+/// twin). The static case solve's evidence carries the motion it consumed;
+/// the modal path admits it against the bound case's own resolved motion
+/// and linearizes the confirmed state with no second active-set solve.
+/// Evidence of another case of the same model (a replay) is refused.
+#[test]
+fn an_s6_state_case_binds_its_moved_ground_and_spring_base() {
+    let mut twin: Value = serde_json::from_str(include_str!("../../../../validation/references/rt_a3_s6/requests/ls1_c5.json")).unwrap();
+    for pipe in twin["model"]["pipe_segments"].as_array_mut().unwrap() {
+        pipe["section"]["material_density"] = q(7850.0, "kg/m^3");
+    }
+    let unequal = modal(state_request(&twin, "load:UNEQUAL"));
+    let prepared = prepare_modal(&unequal).unwrap();
+    let (solve, diagnostics) = static_state_solve(&prepared, PreviewSolverMode::DenseScrutiny);
+    let evidence = solve.nonlinear_state.as_deref().expect("a confirmed S6 case carries its evidence");
+    assert_eq!(evidence.case_id, "load:UNEQUAL");
+    assert!(matches!(evidence.standing, NonlinearStateStanding::Confirmed));
+    let motion = CaseMotionEvidence::resolve(
+        &prepared.model,
+        &prepared.model.load_cases[prepared.bound_case.as_ref().unwrap().case_index],
+        prepared.state_resolution.as_ref(),
+        &prepared.boundary.restrained_dofs,
+        &prepared.boundary.springs,
+    );
+    assert_eq!(evidence.motion, motion);
+    assert_eq!(motion.ground_motion, vec![("support:LIFT".to_string(), (-0.00048828125f64).to_bits())]);
+    assert!(motion.spring_ground.contains(&(-0.000244140625f64).to_bits()));
+    assert!(admit_modal_state_evidence(Some(evidence), "load:UNEQUAL", &motion, PreviewSolverMode::DenseScrutiny, &diagnostics).is_ok());
+    // The same-run modal state case admits it and linearizes the active lift-off.
+    let state = solve_modal_state_case(&prepared, MODAL_DENSE_PATH_MODE).unwrap().unwrap();
+    assert_eq!(state.case_id, "load:UNEQUAL");
+    assert_eq!(state.supports.iter().map(|s| (s.support_id.as_str(), s.state)).collect::<Vec<_>>(), [("support:LIFT", ActiveSetState::Active)]);
+    // A replay: the ACTIVE case's evidence (equal grounds) presented for UNEQUAL.
+    let active = modal(state_request(&twin, "load:ACTIVE"));
+    let active_prepared = prepare_modal(&active).unwrap();
+    let (active_solve, _) = static_state_solve(&active_prepared, PreviewSolverMode::DenseScrutiny);
+    let mut replayed = active_solve.nonlinear_state.as_deref().unwrap().clone();
+    replayed.case_id = "load:UNEQUAL".to_string();
+    assert_eq!(
+        admit_modal_state_evidence(Some(&replayed), "load:UNEQUAL", &motion, PreviewSolverMode::DenseScrutiny, &[]).err().unwrap(),
+        StateCaseRefusal::MotionMismatch
+    );
 }

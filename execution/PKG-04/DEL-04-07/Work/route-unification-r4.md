@@ -786,6 +786,204 @@ code before P.
 
 **Interactions:** after stage 2 (S2 #1654, #1671) merges.
 
+**Resumed implementation boundary (source `b06e1da32`, 2026-11-07).** The
+current PP context gate (`exact_admission::nonlinear_support_admission`) and
+NI's `validate_input` both refuse this unit. Lifting them is insufficient:
+`solve_prepared_load_case` passes no prescribed motion and no nonlinear-ground
+offsets to the loop on a resolved load-state case. S6 must feed the resolved
+rigid prescribed values, nonlinear own-DOF ground motions and active spring
+base motions into their existing W-16 stage-2 laws. C-1/LS-1 must discriminate
+each nonzero motion from a dropped-motion mutant. Free or unrelated DOFs,
+unsupported device references and held/locked participation retain their
+refusals. No new numerical parameter is selected by this connection.
+
+The completed case remains the single state source through
+`solve_load_case_observed` → `LoadCaseSolve` → `NonlinearStateEvidence`.
+Static publication and modal consumption bind that case's selected state and
+motion evidence; modal does not run a parallel active-set solve. Connector and
+tie-rod actions stay in the source ledger exactly once. OQ-1, the
+constant-effort factor gates and the existing gap/nonlinear-normal limits
+remain in force; R-3 qualification and S7/S8 are separate, unreleased units.
+
+**Future held-device seam, coordinated with the hydrotest design lane.** S6
+does not implement `case_devices`, condition/contents lowering or a new wire
+format. The proposed shared `resolve_case_devices(model, case, normalized
+participation requests, diagnostics)` returns one all-or-none plan bound to
+the original case, reference geometry and support identities. That future plan
+owns active spring and force/preload actions, replacement rigid/prescribed
+constraints and original support/node/DOF attribution with suppressed-law
+evidence. Assembly/cache, ledger, recovery and publication must consume the
+same plan: held devices contribute neither active stiffness nor active
+force/preload. The hydrotest design owns exact-zero held positions and
+coalescence/refusal rules; S6's admitted nonzero motions apply to active
+supports only and grant no held, lock, preload or device-reference behavior.
+
+**S6 candidate as implemented (RT-A3, 2026-11-07; numerical/commitment scrutiny cleared at
+`fff62c0a5`; pricing/carrier proposal remains unadopted).**
+- **Admission.** PP's S6 context gate (`nonlinear_support_admission`) is
+  removed: the admission table admits the nonlinear support on plain and
+  load/reference-state documents and beside objective connectors. NI's
+  blanket connector refusal is replaced by a named node-range check; each
+  connector remains a construction-validated kernel object, so a malformed
+  connector law is still refused before any solve.
+- **Load/reference-state motion.** `case_state::resolve` routes each motion
+  by W-16 stage 2's per-DOF classifier (`imposed_motion::acting`):
+  `boundary_motion` on a rigid restraint (a mixed nonlinear record's
+  included, R-d) is a prescribed value; on an active nonlinear support's own
+  DOF it is that support's ground g_s (R-b, with the exact gap closing
+  position and the one-support-per-node-DOF checks); `base_motion` on an
+  active spring or variable spring hanger's stiffness axis is its base g_k
+  (R-c). Every other DOF, a constant-effort device, a skewed record, a device
+  reference and held/locked/inactive participation keep their refusals
+  (`LOAD_STATE_BOUNDARY_MOTION_UNRESTRAINED`,
+  `LOAD_STATE_BASE_MOTION_UNSUPPORTED`,
+  `LOAD_STATE_SUPPORT_REFERENCE_UNSUPPORTED`,
+  `LOAD_STATE_SUPPORT_PARTICIPATION_UNSUPPORTED`). `solve_prepared_load_case`
+  feeds the resolved prescribed map, grounds and spring bases to the loop,
+  the ledger (k·g) and publication; nothing else changes on the PF route.
+  A moved spring base declines retained-source recovery (its k·g has no
+  retained source owner).
+- **State binding.** `NonlinearStateEvidence` carries the consumed motion
+  (`CaseMotionEvidence`: base values, grounds and spring bases as binary64
+  bits). Modal admission re-resolves the bound state case's motion through
+  the same resolvers and refuses evidence whose motion differs
+  (`MotionMismatch`); it runs no second active-set solve.
+- **Readers.** A load/reference-state support component may be
+  `rigid_prescribed` or `nonlinear_ground` (`support_state.boundary_motion`)
+  or `spring_base` (`support_state.base_motion`), each bound to its
+  contribution classification (`prescribed_boundary`,
+  `nonlinear_ground_motion`, `spring_base_motion`). The pressure reader admits
+  a `nonlinear_support_final_relative_displacement` row exactly for a ground
+  that case's record moves, bound to the published displacement less that
+  ground, and judges complementarity on the relative displacement (Rust and
+  Python mirrors).
+- **Text.** The S6 wording of the v3 nonlinear-support clause and of the
+  load/reference-state motion and history sentences describes the current
+  ordinary contract uniformly. The selected retained-source scope remains
+  separate. Unrelated no-nonlinear mechanics, rows and standing are preserved;
+  canonical table/report registration and text/hash-only carrier
+  reconciliation belong to this same S6 change. Exact old/new sentences:
+  - old: "on a document without the load/reference-state group and without
+    an objective connector, gap, one-way, lift-off and friction supports
+    (friction with an explicit normal or a normal derived from a linear
+    restraint) are solved in each case by the active-set loop"; new:
+    "gap, one-way, lift-off and friction supports (friction with an
+    explicit normal or a normal derived from a linear restraint), beside
+    objective connectors and on load/reference-state documents included, are
+    solved in each case by the active-set loop".
+  - old: "… A consumed constant-effort support's constant force is a device
+    action of the active support in every state. Spring base motion, device
+    preload/reference, inactive or locked supports are not provided."; new
+    (ordinary load-state contract): "… Boundary motion on an active nonlinear support's own DOF
+    moves its ground: its state is measured on u - g_s and an active or
+    sticking state prescribes the moved ground (plus or minus the clearance
+    for a gap). Base motion on an active spring's stiffness axis adds the
+    formed load k*g and the spring publishes -k*(u - g). Each motion is an
+    absolute reference displacement. A consumed constant-effort support's
+    constant force is a device action of the active support in every state.
+    Device preload/reference, inactive or locked supports are not provided."
+  - old: "History is independent equilibrium only; no installation, contact,
+    friction or predecessor history is represented."; new:
+    "History is independent equilibrium only: contact and friction are static
+    and history-free (DEC-067), each case's active-set loop starts from the
+    authored initial states, and no installation or predecessor history is
+    represented."
+  These disclosure changes require the current source-derived D3 and affected
+  writer/reader preservation checks; they do not grant another implementation
+  unit, a new numerical parameter or a registration without its disposition.
+- **References.** `validation/references/rt_a3_s6/` (C-1 with no-nonlinear,
+  tie-rod, gap, Timoshenko and load/reference-state controls; LS-1 as twins
+  of W-16's A-1, D-3 and C-5 with Timoshenko twins and dropped-motion
+  mutants); consumer `core/product_physics/src/rt_a3_s6_tests.rs`.
+- **Unchanged.** OQ-1's solved-state-plus-derived-increments semantics, the
+  unit factor-sum combination gates, R1's gap standing (a gap beside a
+  connector stays `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED`), the
+  nonlinear friction-normal refusal (S7), rotational gap/friction and S8,
+  DEC-046 controls, per-case seeds, and §4.4/§4.9's held-device boundary.
+- **Full reference system.** `core/product_physics/tests/rt_a3_s6_reference_system.rs`
+  overlays, in its test input only, the released RS-R1, RS-CE1, RS-LO1, RS-FR1
+  (normal from the interim linear RS-FR1V) and RS-G1 on DEL-09-01's maintained
+  fixture with the weight regenerated. RS-SUS, RS-OPE and RS-SAM solve in both
+  modes with no blocking finding, the reader admits the publication, every
+  case carries R-3's unqualified basis (RS-G1) and is published `unresolved`,
+  and EQ-1/EQ-2 hold within 1e-9 against the independent weight record. RS-SAM
+  with RS-C's motion dropped publishes RS-SUS's rows bit for bit; with it,
+  RS-LO1 lifts. RS-EXP and RS-dSAM are published as their operands'
+  differences. The published states are reported, not verified (no independent
+  nonlinear full-system solution exists).
+- **Qualification and open limits.** Final-composition source/pricing/preservation scrutiny is clear at
+  `1a07aec6b` on accepted main `00d4820d1`; its newly authorized AC-004 attempt passed all seven exact tests once,
+  with unchanged post-hashes and verified containment, cleanup and release (15.916 s inner; 15.948267 s outer).
+  §8.60 of DEL-04-08's retained-pricing rules records the result; exact-head hosted checks, publication consultation
+  and integration remain pending. The original private entry was drafted as §8.59. This does not complete the full
+  reference/report workflow: the intended RS-FR1V `one_way` normal source (refused by
+  `NONLINEAR_FRICTION_NORMAL_SOURCE_INVALID`, S7) and RS-G1's qualification
+  (R-3). Finding F-CE, which precedes S6: on this document the consumed RS-CE1's
+  `support_reaction_component_v2` rows are 0.0 in every S6 case and mode while
+  its applied-load row states 9,000 N; the S7 limitation attributes the constant
+  force as its support action. The gap cases are `unresolved`. A separate
+  ordinary/no-nonlinear probe has zero actions in its three `sensitive` cases,
+  but its log does not identify the mode.
+  EQ-1/EQ-2 above use the applied device force and do not establish correct
+  support-action publication. The separately owned RT-S3 fallback-publication
+  repair requires both solver modes, sensitive/no-nonlinear controls, sign/frame and
+  equilibrium checks and independent scrutiny; it is outside this preservation
+  candidate and remains necessary for the maintained-reference/report workflow.
+- **Disclosure carriers.** S1, S13 and S15 are restated in the tables, the report
+  statements and ordinary and retained carriers, regenerated by their writers;
+  `tests/test_rt_a3_s6_text_only_envelope_diff.py` compares them field by field from
+  main 394f4c623 (only the texts and derived binding digests move), and the ten
+  retained in-memory successor pins reseal to main's. The ten desktop-writer
+  carriers (four W-11 exact-report requests, the D-6 user-release vector, four
+  desktop-shaped plain-connected records and the C1 replay corpus) and the linked
+  W-11 substitute overlay are regenerated by their maintained writers. The C1
+  persistence transcript follows its actual command writer: its expected record,
+  recorded revisions and persisted-project identities bind the current source.
+  Their preservation checks are mandatory; an expected failure supplies no
+  completion or qualification exception.
+- **Native replay preservation.** All 1,077 predecessor requests retain their
+  semantics and receiver bindings, including all 313 historical requests and their
+  exact held texts. The index is sorted by derived request keys. Main's unchanged
+  `NativeResultsPanel` already issues an along-direction presence lookup beside
+  each intensified-kind lookup; the old corpus omitted these replies. Exactly 25
+  paired probes are added on the existing receivers, with actual empty lookups and
+  source-derived row counts, without inventing a row or numerical source. Native
+  headers' byte counts and source hashes derive from their exact UTF-8 subjects.
+  The five persistence scenarios retain their entered inputs, outcomes and
+  permissions; their byte-count metadata and one-byte-below-row-size test boundary
+  follow the source-text size. No product limit or numerical parameter changes.
+- **Record materialization.** The guard re-materializes report-bound full
+  AnalysisRun records from their source and immutable input manifest and
+  independently reverses/reseals the authorized metadata to the predecessor
+  references. Native preview headers omit row-scale members and cannot themselves
+  be hashed as full records; their full-record claims require that same complete
+  materialization. Pricing/carrier scrutiny and final qualification remain pending;
+  none of these checks establishes the missing global nonlinear reference solution.
+- **Pricing/preservation review repairs.** Scrutiny of `35c5aa04a` confirmed the
+  16 coefficient increases, the 18,761 B phase delta and the source/layout/capacity
+  bounds, but found an unchecked successful-reader-outcome hash. The guard now
+  derives all 178 successful reading endpoints of the 59 moved inputs from their
+  publication and the independent Python classification equations, with a forged
+  successful-hash control; it also re-materializes all 118 input endpoints. This
+  is a preservation warrant, not fresh historical admission. The routing comparison
+  derives three source-tree and seven read-source hashes and adds only
+  `core/product_physics/src/rt_a3_s6_tests.rs` to three existing source scans
+  (RE `retained_precision_carriers`, NI `s11k_tests` and NI `k5_tests`). Scan rules,
+  exclusions, callers, fixture boundaries and unrelated declarations are unchanged.
+  The changed routing JSON is explicitly covered by this comparison, rather than
+  excluded from the guard's completeness assertion. The repairs require their
+  affected checks and focused independent re-check before clearance.
+- **Final composition.** S6 is merged with the accepted predecessor `00d4820d1`
+  (#164: §8.59's modal support operations on the MBF import landing) as
+  `da0afeabb`. Carrier and history obligations keep main 394f4c623 as their
+  endpoint. Only the routing inventory and the partition are attributed through
+  the predecessor. S6's derivation is applied to the predecessor's inventory,
+  every moved value is attributed to its lineage, and only the PP tree digest and
+  RE's complete scan, which both lineages move, are re-derived. The predecessor's
+  two MBF desktop-import JSON files are byte-identical to it and attributed to
+  it. The combined source prices to S6's reviewed tree (DEL-04-08 §8.60, "Final
+  composition"). Fresh changed-proof scrutiny and AC-004 remain pending.
+
 ### 3.8 S7: friction with a one-way normal source, and k > 1 (M–L, both routes)
 
 **Basis.**
