@@ -104,6 +104,8 @@ RESTORABLE_DATA = {"REG_BINARY": re.compile(r"^[0-9A-Fa-f]*\Z"), "REG_DWORD": re
 # behaviour; Design §5). `reg` cannot carry a quoted argument that ends in a backslash, so this value alone is written
 # and read back through the registry API (LITERAL_VALUE_SCRIPT), its key, name and data passed as encoded data.
 LITERAL_VALUE_FOLDER = re.compile(r"^[A-Za-z]:(\\[A-Za-z0-9 ._()-]+)+\Z")
+# cmd.exe takes a command line of at most 8191 characters; `cmd /c ` and a margin come off it.
+LITERAL_COMMAND_LIMIT = 8000
 LITERAL_VALUE_SCRIPT = r"""$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue'
 $missing = 'ERROR: The system was unable to find the specified registry key or value.'
 try {
@@ -453,7 +455,10 @@ def _literal_value_command(printed_key: str, name: str, action: str, data: str |
                           "data": data}, sort_keys=True)
     script = LITERAL_VALUE_SCRIPT.replace("@PAYLOAD@", base64.b64encode(payload.encode("utf-8")).decode("ascii"))
     encoded = base64.b64encode(script.encode("utf-16-le")).decode("ascii")
-    return f"powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand {encoded}"
+    command = f"powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand {encoded}"
+    if len(command) > LITERAL_COMMAND_LIMIT:  # cmd.exe would cut it: refused while the plan is made, before any write
+        raise ValueError(f"{printed_key}\\{name} cannot be written back exactly (its guest command is too long)")
+    return command
 
 
 def _quote(path: str) -> str:
@@ -1050,12 +1055,13 @@ def _restore_plan(before: Mapping[str, Mapping], after: Mapping[str, Mapping], s
                      "command": f"reg add {_quote(printed)} /f"})
     for item, (printed, kind, data) in before["values"].items():
         if item in differing_values:
-            exact = item == literal and kind == "REG_BINARY"
+            found = after["values"].get(item)
+            # Both readings of the literal value must be REG_BINARY where present; any other type keeps the refusal.
+            exact = item == literal and kind == "REG_BINARY" and (found is None or found[1] == "REG_BINARY")
             if kind not in RESTORABLE_DATA or not RESTORABLE_DATA[kind].match(data) or item[1] == "(Default)" \
                     or not (REG_VALUE_NAME_PATTERN.match(item[1]) or exact):
                 raise ValueError(f"{printed}\\{item[1]} ({kind}) cannot be written back exactly")
             printed = printed_key(printed, item[0])
-            found = after["values"].get(item)
             entry = {"value": f"{printed}\\{item[1]}", "action": "set", "target": (printed, item[1]),
                      "restores": {"type": kind, "data": data},
                      "replaces": {"type": found[1], "data": found[2]} if found else None,
@@ -1066,7 +1072,7 @@ def _restore_plan(before: Mapping[str, Mapping], after: Mapping[str, Mapping], s
             plan.append(entry)
     for item, (printed, kind, data) in after["values"].items():
         if item not in before["values"] and item[0] not in added:
-            exact = item == literal
+            exact = item == literal and kind == "REG_BINARY"
             if item[1] == "(Default)" or not (REG_VALUE_NAME_PATTERN.match(item[1]) or exact):
                 raise ValueError(f"{printed}\\{item[1]} cannot be deleted exactly")
             printed = printed_key(printed, item[0])

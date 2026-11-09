@@ -2661,9 +2661,18 @@ def test_restore_plan_admits_only_the_exact_literal_value_and_writes_it_through_
                               (snapshot(base, (key, name, kind, data)), snapshot(base))):
             with pytest.raises(ValueError, match="exactly"):
                 harness._restore_plan(before, after, root, whole_key=True, literal=literal)
-    with pytest.raises(ValueError, match="exactly"):  # REG_SZ cannot be set back through the literal route
-        harness._restore_plan(snapshot(base, (RECENT, LITERAL, "REG_SZ", "x")), snapshot(base), root,
-                              whole_key=True, literal=literal)
+    # Every present reading of the literal must be REG_BINARY: created, restored over, or restored as another type.
+    for before, after in ((snapshot(base), snapshot(base, (RECENT, LITERAL, "REG_SZ", "x"))),
+                          (snapshot(base), snapshot(base, (RECENT, LITERAL, "REG_DWORD", "0x1"))),
+                          (snapshot(base, (RECENT, LITERAL, *old)), snapshot(base, (RECENT, LITERAL, "REG_SZ", "x"))),
+                          (snapshot(base, (RECENT, LITERAL, "REG_SZ", "x")), snapshot(base, (RECENT, LITERAL, *new))),
+                          (snapshot(base, (RECENT, LITERAL, "REG_SZ", "x")), snapshot(base))):
+        with pytest.raises(ValueError, match="exactly"):
+            harness._restore_plan(before, after, root, whole_key=True, literal=literal)
+    # A value too long for one guest command is refused while the plan is made.
+    with pytest.raises(ValueError, match="too long"):
+        harness._restore_plan(snapshot(base, (RECENT, LITERAL, "REG_BINARY", "AB" * 4096)),
+                              snapshot(base, (RECENT, LITERAL, *new)), root, whole_key=True, literal=literal)
 
 
 @pytest.mark.parametrize("guard", [KEY_GUARD, RESTORING_GUARD], ids=["key", "recent_files"])

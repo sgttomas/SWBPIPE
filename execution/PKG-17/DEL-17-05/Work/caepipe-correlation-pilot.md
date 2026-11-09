@@ -205,8 +205,9 @@ described under **Restore**.
   that ends in a backslash, so that value alone is set, deleted and read back through the registry API in
   PowerShell, with its key, name and data passed as encoded data, never as command words. Its steps print
   what `reg` prints and go through the same checks, log, settlement and final comparison. The same name
-  in another subkey, any other spelling or another type still stops the restore before any write. The
-  routine keeps a write log: each value or subkey, what it restores and what it replaces,
+  in another subkey, any other spelling, a reading of it (before or after) of another type, or a value
+  too long for one guest command still stops the restore before any write. The routine keeps a write
+  log: each value or subkey, what it restores and what it replaces,
   its attempts and its outcome. Each write counts as completed only on exit 0 with the command's success
   message, and is never repeated blindly (the retry the harness applies to reads does not apply to
   writes). A reported failure is logged `failed` and other output `unknown`; either stops the restore
