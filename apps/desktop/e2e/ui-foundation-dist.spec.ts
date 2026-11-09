@@ -40,6 +40,7 @@ import {
   setAppearance,
   showModelTree,
 } from "./ui-foundation-workflows";
+import { expectedTypedIdentity } from "./ui-foundation/benchmark-harness";
 
 // A reference is preserved source evidence, never a browser solve or Current basis.
 async function inspectBundledReference(page: Page) {
@@ -1566,7 +1567,7 @@ test("empty ordered selection publishes independently from project inspector", a
           current.viewport.selection.renderSubmissionSequence === current.viewport.mainRender.submissionSequence &&
           current.viewport.mainRender.selectionPresentation?.renderedSubmissionSequence === current.viewport.mainRender.submissionSequence };
     }).toEqual({ ordered: orderedRefs, primary: primaryRef, inspector: inspectorRef, pending: 0, rendered: orderedRefs, selectionMatchesCurrentFrame: true });
-    await expect(page.getByTestId("property-inspector").getByRole("heading", { level: 2 })).toContainText(`${inspectorRef.type}: ${inspectorRef.id}`);
+    await expect(page.getByTestId("property-inspector").getByRole("heading", { level: 2 })).toContainText(expectedTypedIdentity(inspectorRef));
     const snapshot = await read();
     expect(snapshot.viewport.selection.generation).toBe(snapshot.model.generation);
     expect(snapshot.viewport.inspector.generation).toBe(snapshot.model.generation);
