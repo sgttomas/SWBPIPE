@@ -204,9 +204,11 @@ described under **Restore**.
   `REG_BINARY` value the tool writes there (observed format behaviour). `reg` cannot carry a quoted name
   that ends in a backslash, so that value alone is set, deleted and read back through the registry API in
   PowerShell, with its key, name and data passed as encoded data, never as command words. Its steps print
-  what `reg` prints and go through the same checks, log, settlement and final comparison. The same name
-  in another subkey, any other spelling, a reading of it (before or after) of another type, or a value
-  too long for one guest command still stops the restore before any write. The routine keeps a write
+  what `reg` prints and go through the same checks, log, settlement and final comparison. A reading of
+  that value (before or after) of another type, or a value too long for one guest command, stops the
+  restore before any write. The same name in another subkey, or any other spelling, is refused like any
+  other name outside the allowed characters, except inside a subkey that appeared: such a subkey is
+  deleted as a whole, as before, and no value name enters that command. The routine keeps a write
   log: each value or subkey, what it restores and what it replaces,
   its attempts and its outcome. Each write counts as completed only on exit 0 with the command's success
   message, and is never repeated blindly (the retry the harness applies to reads does not apply to

@@ -2678,6 +2678,11 @@ def test_restore_plan_admits_only_the_exact_literal_value_and_writes_it_through_
     appeared = harness._restore_plan(without_recent, snapshot(base, (RECENT, LITERAL, *new)), root, whole_key=True,
                                      literal=literal)
     assert [entry["action"] for entry in appeared] == ["delete_key"]  # binary: the subkey goes as a whole
+    # As before this change, a subkey that appeared goes as a whole whatever its values are named: no value name
+    # enters that command, and nothing is written value by value.
+    odd = harness._restore_plan(without_recent, snapshot(base, (RECENT, "C:\\Other\\", "REG_BINARY", "01")), root,
+                                whole_key=True, literal=literal)
+    assert [(entry["action"], entry["command"]) for entry in odd] == [("delete_key", f'reg delete "{RECENT}" /f')]
     # Both the write and its read-back command are bounded: the longest data whose set command fits is admitted
     # only when its read-back fits too; a value too long for one guest command is refused while the plan is made.
     for size in range(1, 4200):
