@@ -104,9 +104,10 @@ PRESSURE_CONTRACT_VERSION = ("3.0.0", "exact_pressure_v3")
 _SHEAR_MODELS = ("euler_bernoulli", "timoshenko_annulus_energy_v1")
 _PRESSURE_BASIS = "internal_differential_zero_external_v1"
 _CLOSURE_TRANSFERS = ("transfers_to_wall", "separately_supported_or_compensated")
-# OPPRES as written with pressure: field 1 = 0, the pressure stress CAEPIPE's output labels "Pressure stress =
-# Pd^2 / (D^2 - d^2)", Bourdon effect off, pressure correction for bends off, peak pressure factor 1, Bourdon (off) in
-# expansion cases. SWBPIPE's exact pressure route models neither effect (DEL-04-07 D-3).
+# OPPRES as written with pressure: field 1 = 0, the pressure-stress option CAEPIPE's public User's Manual defines as
+# PD/4t (Appendix A, OPPRES); a piping code may fix the formula instead (OPCODE), and output for a B31.1 (1980) model
+# written with this line labels the pressure stress "Pd^2 / (D^2 - d^2)". Bourdon effect off, pressure correction for
+# bends off, peak pressure factor 1, Bourdon (off) in expansion cases. SWBPIPE's exact pressure route models neither effect (DEL-04-07 D-3).
 OPPRES_LINE = "0,0,0,1,0"
 # The OPCODE line written with an ASME B31 piping code (Format of .MBF, OPCODE): axial force in the code stress off,
 # liberal allowable off (both code-stress settings only), B31J off. The other fields are not written.
@@ -2081,9 +2082,11 @@ class _Writer:
                          "in N/mm; a zero component leaves its DOF free and ROTK(0,0,0) leaves rotations free "
                          "(technical reference, Anchor).")
         if self.pipe_pressure:
-            notes.append(f"OPPRES is written {OPPRES_LINE}: pressure stress Pd^2 / (D^2 - d^2) (as CAEPIPE's output "
-                         "labels this setting), Bourdon effect off, pressure correction for bends off, peak pressure "
-                         "factor 1. SWBPIPE's exact pressure route models neither effect (DEL-04-07 D-3).")
+            notes.append(f"OPPRES is written {OPPRES_LINE}: field 1 = 0, the pressure-stress option CAEPIPE's public "
+                         "User's Manual defines as PD/4t (Appendix A, OPPRES); a piping code may fix the formula "
+                         "instead (OPCODE), and output for a B31.1 (1980) model written with this line labels the "
+                         "pressure stress 'Pd^2 / (D^2 - d^2)'; Bourdon effect off, pressure correction for bends off, "
+                         "peak pressure factor 1. SWBPIPE's exact pressure route models neither effect (DEL-04-07 D-3).")
         if self.contract is not None:
             notes.append("The pressure contract, region ids, members, terminals with their closure transfer and the "
                          "provenance are not in the MBF; the sidecar's pressure_map carries them for a bound import.")
