@@ -465,3 +465,4 @@ checks:
 - apps/desktop/src/features/report/UserReleaseDialog.test.tsx
 - apps/desktop/src/features/report/userReleasedReportPackageCell.test.ts
 - apps/desktop/src/features/report/userReleasedReportPackageSave.test.ts
+- apps/desktop/src/features/workspace/userReleaseSave.session.test.tsx

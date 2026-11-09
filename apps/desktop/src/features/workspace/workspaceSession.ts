@@ -165,7 +165,9 @@ import type {
 } from "../../types";
 import { defaultSelection } from "../model-workspace/modelView";
 import { intentKey } from "../operations/OperationApplyPanel";
-import { buildReportPackageRequest, reportPackageExactSubmission } from "../report/reportPackageRequest";
+import { buildReportPackageRequest, reportPackageExactSubmission, userReleaseModelRefusal, userReleasedReportPackageUnavailableReason } from "../report/reportPackageRequest";
+import type { UserReleaseDialogRequest } from "../report/UserReleaseDialog";
+import { invokeUserReleasedReportPackageSave, prepareShareableReportPackageSave, type UserReleaseConfirmation } from "../report/userReleasedReportPackageSave";
 import { controlReportPackageRequest } from "../report/reportRedactionProjector";
 import { buildBundledReferenceContext, buildHistoricalRunContext, buildNativeHistoricalRunContext } from "../results/HistoricalRunContext";
 import { disposeRestoredRun, STORED_RESULT_RESTORE_REFUSED, type RestoredRun } from "../../services/nativeReopen";
@@ -417,6 +419,10 @@ export function useWorkspaceSession() {
   // The open Save Handoff… dialog (DEL-15-01 W-6b), modal in the same way.
   const [handoffSaveRequest, setHandoffSaveRequest] = useState<HandoffSaveDialogRequest | null>(null);
   const handoffSaveDialogOpenRef = useRef(false);
+  // The open Save Shareable Report Package… dialog (W-18b, DEL-08-01 Design `report-user-release.md`
+  // §2.2), modal in the same way. The selection lives only in the dialog and the one save it starts.
+  const [userReleaseRequest, setUserReleaseRequest] = useState<UserReleaseDialogRequest | null>(null);
+  const userReleaseDialogOpenRef = useRef(false);
   // The open Export MBF… dialog (DEL-17-04 slice 4b.2b), modal in the same way.
   const [mbfExportRequest, setMbfExportRequest] = useState<MbfExportDialogRequest | null>(null);
   const mbfExportDialogOpenRef = useRef(false);
@@ -3117,7 +3123,7 @@ export function useWorkspaceSession() {
   function requestSaveModelDocument() {
     const saveModel = modelDocumentSaveBasisRef.current.model;
     if (!saveModel) return;
-    if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current || mbfExportDialogOpenRef.current || mbfImportDialogOpenRef.current || projectOperationOwner.current !== null) return;
+    if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current || userReleaseDialogOpenRef.current || mbfExportDialogOpenRef.current || mbfImportDialogOpenRef.current || projectOperationOwner.current !== null) return;
     // Captured before the workspace turns inert, which drops its focus.
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const close = () => { modelDocumentSaveDialogOpenRef.current = false; setModelDocumentSaveRequest(null); };
@@ -3925,6 +3931,119 @@ export function useWorkspaceSession() {
     }
   }
 
+  // File > Save Shareable Report Package… (W-18b, DEL-08-01 Design `report-user-release.md`
+  // §2.2, §2.3 "Session"). The basis is the local-private save's without the comparison, the
+  // project summary, the rule-check aggregate and run, and the private intent.
+  type UserReleaseBasis = {
+    projectSessionGeneration: number;
+    modelRevision: number;
+    model: PreviewModel;
+    result: SessionResult;
+    inputManifest: CurrentSessionInputManifestEvidence;
+    analysisRun: SessionAnalysisRun;
+    reportComposition: ReportComposition | null;
+  };
+  const userReleaseBasisCurrent = (basis: UserReleaseBasis) =>
+    projectSessionGenerationRef.current === basis.projectSessionGeneration &&
+    uiModelRevisionRef.current === basis.modelRevision &&
+    currentModel.current === basis.model &&
+    currentSolvedResultRef.current === basis.result &&
+    currentInputManifestRef.current === basis.inputManifest &&
+    analysisBasisRef.current.value === basis.analysisRun &&
+    reportCompositionRef.current === basis.reportComposition;
+  /** Opens the user-release dialog for the current report. The dialog shows the early model
+   * check's and the route-010 cell's refusal in place of the statement. Nothing happens while
+   * another project operation or modal is open, a solve runs or a package is being saved. */
+  async function requestSaveShareableReportPackage() {
+    if (!model || !currentSolvedResult || !analysisRun || !inputManifest || running || reportPackageBusyGenerationRef.current !== null) return;
+    if (projectSessionBusy()) return;
+    // Captured before the workspace turns inert, which drops its focus.
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const basis: UserReleaseBasis = {
+      projectSessionGeneration: projectSessionGenerationRef.current,
+      modelRevision: uiModelRevisionRef.current,
+      model,
+      result: currentSolvedResult,
+      inputManifest,
+      analysisRun,
+      reportComposition
+    };
+    const modelDocumentSha256 = await canonicalSha256Hex(basis.model);
+    // Nothing is asked of a session that moved on.
+    if (!userReleaseBasisCurrent(basis) || projectSessionBusy() || reportPackageBusyGenerationRef.current !== null) return;
+    const modelRefusal = userReleaseModelRefusal(basis.model, basis.inputManifest);
+    const resultRefusal = userReleasedReportPackageUnavailableReason(basis.result);
+    const close = () => { userReleaseDialogOpenRef.current = false; setUserReleaseRequest(null); };
+    userReleaseDialogOpenRef.current = true;
+    setUserReleaseRequest({
+      projectName: basis.model.project.name,
+      modelDocumentSha256,
+      runId: basis.result.run_id,
+      refusal: modelRefusal ? { kind: "library_or_rule_pack", reason: modelRefusal } : resultRefusal ? { kind: "result", reason: resultRefusal } : null,
+      opener,
+      cancel: close,
+      save: (confirmation) => {
+        close();
+        void handleSaveShareableReportPackage(confirmation, basis);
+      }
+    });
+  }
+  // A basis member that changes while the dialog is open closes it; the next attempt needs a
+  // new confirmation (§2.3 "Session").
+  useEffect(() => {
+    if (!userReleaseDialogOpenRef.current) return;
+    userReleaseDialogOpenRef.current = false;
+    setUserReleaseRequest(null);
+  }, [projectSessionGeneration, model, currentSolvedResult, inputManifest, analysisRun, reportComposition]);
+
+  /** The one save the dialog's confirmation starts, on route `DREP-PACKAGE-USER-RELEASE-010`.
+   * Its status and evidence use the package's status line; nothing outlives the save. */
+  async function handleSaveShareableReportPackage(confirmation: UserReleaseConfirmation, basis: UserReleaseBasis) {
+    if (running || reportPackageBusyGenerationRef.current !== null || !userReleaseBasisCurrent(basis)) return;
+    const generation = ++reportPackageRequestGenerationRef.current;
+    const isCurrent = () =>
+      reportPackageRequestGenerationRef.current === generation &&
+      reportPackageBusyGenerationRef.current === generation &&
+      userReleaseBasisCurrent(basis);
+    reportPackageBusyGenerationRef.current = generation;
+    setReportPackageBusy(true);
+    setReportPackageRoute(null);
+    try {
+      // The package reads full rows (C2): a native result's bounded full copy.
+      const full = isNativeResult(basis.result) ? (await loadC2Full(basis.result)).result : (basis.result as MechanicsResult);
+      if (!isCurrent()) return;
+      const { controlled, prepared, request } = await prepareShareableReportPackageSave({
+        model: basis.model,
+        result: full,
+        inputManifest: basis.inputManifest,
+        reportComposition: basis.reportComposition,
+        confirmation
+      });
+      if (!isCurrent()) return;
+      setReportPackageRedaction(controlled);
+      if (prepared.route !== "ready") {
+        setReportPackageRoute(prepared);
+        return;
+      }
+      const exactStillCurrent = () => {
+        if (prepared.args.exactResultText === undefined) return true;
+        try { reportPackageExactSubmission(request); return true; } catch { return false; }
+      };
+      const saved = await invokeUserReleasedReportPackageSave(prepared, () => isCurrent() && exactStillCurrent());
+      if (!isCurrent()) return;
+      setReportPackageRoute(saved);
+    } catch (error) {
+      if (error instanceof IngressRequestRetiredError || !isCurrent()) return;
+      setReportPackageRedaction(null);
+      setReportPackageRoute({ route: "redaction_blocked", diagnostic: formatPackageSaveError(error) });
+    } finally {
+      if (isCurrent()) {
+        reportPackageBusyGenerationRef.current = null;
+        setReportPackageBusy(false);
+      }
+    }
+  }
+
   // B11 on-demand model checks (DEL-04-06 Design `on-demand-model-checks.md`):
   // the session's last run, shown in the Issues drawer. The checks read the
   // model as it stands and never change it.
@@ -3985,7 +4104,7 @@ export function useWorkspaceSession() {
   // viewport | inspector) is always present, so Insert commands arm the same
   // creation tools exposed in the command bar instead of acting as navigation.
   function runMenuCommand(command: MenuCommandId) {
-    if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current || mbfExportDialogOpenRef.current || mbfImportDialogOpenRef.current) return;
+    if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current || userReleaseDialogOpenRef.current || mbfExportDialogOpenRef.current || mbfImportDialogOpenRef.current) return;
     setOpenMenu(null);
     switch (command) {
       case "file.new-local":
@@ -4021,6 +4140,10 @@ export function useWorkspaceSession() {
       case "file.save-report-package":
         setActiveSection("report");
         void handleSaveReportPackage();
+        break;
+      case "file.save-shareable-report-package":
+        setActiveSection("report");
+        void requestSaveShareableReportPackage();
         break;
       case "edit.undo":
         handleUndoSessionModelEdit();
@@ -4179,7 +4302,7 @@ export function useWorkspaceSession() {
     // Any dialog or prompt holding the window, read after the busy prompt has
     // released its own hold: a dialog that opened behind it (a replace prompt
     // after a refused save) must be decided first (Codex r2 P2).
-    const dialogOpen = () => replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current || mbfExportDialogOpenRef.current || mbfImportDialogOpenRef.current;
+    const dialogOpen = () => replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current || userReleaseDialogOpenRef.current || mbfExportDialogOpenRef.current || mbfImportDialogOpenRef.current;
     const keptForDialog = () => {
       setProjectMessage(`${refused}: a dialog is open. Finish or cancel it first; nothing was closed.`);
       setProjectOperation(kind === "quit" ? "quit_dialog_open" : "close_dialog_open");
@@ -4456,7 +4579,7 @@ export function useWorkspaceSession() {
   shellKeyHandlersRef.current = shellKeyHandlers;
   useEffect(() => {
     function handleShellAccelerator(event: KeyboardEvent) {
-      if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current || mbfExportDialogOpenRef.current || mbfImportDialogOpenRef.current) return;
+      if (replacePromptOpenRef.current || projectUnitsDialogOpenRef.current || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current || userReleaseDialogOpenRef.current || mbfExportDialogOpenRef.current || mbfImportDialogOpenRef.current) return;
       if ((!event.metaKey && !event.ctrlKey) || event.altKey || event.defaultPrevented) return;
       const key = event.key.toLowerCase();
       // ⇧⌘M runs the model checks (Analyze → Check Model). AppKit owns it in the
@@ -4571,7 +4694,7 @@ export function useWorkspaceSession() {
    * model-replacing commands, Open State and Save Model State start nothing then. */
   function projectSessionBusy(): boolean {
     return projectOperationOwner.current !== null || replacePromptOpenRef.current || projectUnitsDialogOpenRef.current
-      || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current || mbfExportDialogOpenRef.current || mbfImportDialogOpenRef.current;
+      || modelDocumentSaveDialogOpenRef.current || handoffSaveDialogOpenRef.current || userReleaseDialogOpenRef.current || mbfExportDialogOpenRef.current || mbfImportDialogOpenRef.current;
   }
 
   async function saveLocalProjectFirst(): Promise<LandedProjectSave | null> {
@@ -4705,6 +4828,8 @@ export function useWorkspaceSession() {
       handleSelectResult,
       handleSelectDiagnostic,
       handleSaveReportPackage,
+      requestSaveShareableReportPackage,
+      userReleaseRequest,
       loadC2Full,
       /** A native result's C2 full copy when one is loaded (for rule-check ratios); else null. */
       fullResult: fullResultCopy && fullResultCopy.of === result ? fullResultCopy.copy : null
