@@ -490,9 +490,13 @@ describe("opt-in backups", () => {
     const button = await screen.findByTestId("backup-enable");
     await waitFor(() => expect(screen.getByTestId("autosave-interval")).toHaveValue("5"));
     expect(button).toBeDisabled();
+    expect(button).toHaveAttribute("title", "Check the private-copy statement above to choose a folder.");
+    expect(screen.getByTestId("backup-disable")).toHaveAttribute("title", "Backups are already off.");
     expect(screen.getByText("Retention: All — delete nothing. Automatic rotation is unavailable.")).toBeInTheDocument();
     expect(screen.queryByLabelText("Backups to keep")).toBeNull();
     fireEvent.click(screen.getByLabelText("I intend to copy private project models to the local folder I choose and keep all copies."));
+    expect(button).toBeEnabled();
+    expect(button).not.toHaveAttribute("title");
     fireEvent.click(button);
     await waitFor(() => expect(calls("configure_project_backup").map(([, args]) => args)).toEqual([
       { enabled: true, backupKeep: null, explicitLocalPrivateIntent: true }
