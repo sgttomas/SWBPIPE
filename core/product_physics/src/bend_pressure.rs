@@ -225,3 +225,36 @@ pub(super) fn append_arc_pressure_results(
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::pressure_exact::{ExactSectionBases, InternalDifferentialPressure, IsotropicENu};
+    use crate::pressure_runtime::ArcPressure;
+    use std::collections::BTreeMap;
+
+    /// RT-L2 (`pressure-elongation.md` §4.1): an arc in a case that does not
+    /// include pressure elongation recovers with u_free(ε_th) only, even if its
+    /// state carried a strain; an included arc subtracts its ε_p.
+    #[test]
+    fn the_arc_recovery_strain_follows_the_case_setting() {
+        let sections = ExactSectionBases::derive(0.12, 0.01, 0.0, 0.0).unwrap();
+        let material = IsotropicENu::new(200e9, 0.3).unwrap();
+        let pressure = InternalDifferentialPressure::new(2e6).unwrap();
+        let strain = sections.arc_pressure_strain(material, pressure).unwrap();
+        let case = |included: bool| ExactPressureCase {
+            pipe_states: BTreeMap::from([(3, ExactPressurePipeState {
+                region_id: "region:r".into(), sections, pressure, material, eigenload_pair: [0.0, 0.0],
+                arc: Some(ArcPressure { tangents: [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]], strain }),
+                elongation_included: included,
+            })]),
+            eigenloads: Vec::new(), cap_loads: Vec::new(), assembled_loads: Vec::new(), assembled_operands: Vec::new(),
+            assembled_operand_bounds: Vec::new(), closure_sources: Vec::new(), assembly_evidence: serde_json::Value::Null,
+            evidence: Vec::new(), joint_pressures: BTreeMap::new(),
+        };
+        assert_eq!(recovery_strain(Some(&case(true)), 3).map(f64::to_bits), Some(strain.to_bits()));
+        assert_eq!(recovery_strain(Some(&case(false)), 3), None);
+        assert_eq!(recovery_strain(Some(&case(true)), 4), None);
+        assert_eq!(recovery_strain(None, 3), None);
+    }
+}

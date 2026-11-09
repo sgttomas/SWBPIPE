@@ -532,6 +532,8 @@ fn preview(document: &Value) -> Value {
     let mut document = document.clone();
     let model = document["model"].as_object_mut().unwrap();
     model.remove("pressure_contract");
+    // RT-L2: pressure elongation has no meaning without a pressure contract.
+    model.remove("model_settings");
     model["materials"] = json!([{"id": "material:rt-a3-2b", "elastic_modulus": quantity(2.0e11, "Pa"), "shear_modulus": quantity(2.0e11 / 2.6, "Pa"),
         "thermal_expansion_coefficient": quantity(1.2e-5, "1/degC"), "provenance": PROVENANCE}]);
     for pipe in model["pipe_segments"].as_array_mut().unwrap() {
