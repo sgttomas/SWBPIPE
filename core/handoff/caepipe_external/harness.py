@@ -1740,6 +1740,8 @@ def _round_trip_body(config: HarnessConfig, case_id: str, mbf_text: str, paths: 
             if log or settings or guard_state.get("restore_entered"):
                 settings.setdefault("write_log", log)
                 settings.setdefault("writes_completed", sum(1 for entry in log if entry["completed"]))
+                if guard_state.get("failed_write_stderr"):
+                    settings.setdefault("failed_write_stderr", guard_state["failed_write_stderr"])
                 settings["status"] = "settings_restore_failed"
                 settings.setdefault("reason", f"interrupted ({type(caught).__name__}) during the restore; "
                                               f"{settings['writes_completed']} of {len(log)} attempted writes "

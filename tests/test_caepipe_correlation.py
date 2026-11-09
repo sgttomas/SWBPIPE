@@ -3398,3 +3398,22 @@ def test_live_guard_result_carries_failed_write_stderr_for_an_interruption():
     state = {"restore_entered": True, "write_log": [{"completed": False}], "failed_write_stderr": [note]}
     assert harness._live_guard_result({"guard_state": state})["failed_write_stderr"] == [note]
     assert "failed_write_stderr" not in harness._live_guard_result({"guard_state": {"restore_entered": True}})
+
+
+def test_an_interruption_after_the_restore_returned_keeps_failed_write_stderr(tmp_path, monkeypatch):
+    real = harness._restore_recent_files
+
+    def then_interrupted(*args, **kwargs):  # a termination request as the restore hands back its result
+        real(*args, **kwargs)
+        raise harness.TerminationRequested("signal SIGTERM")
+
+    monkeypatch.setattr(harness, "_restore_recent_files", then_interrupted)
+    guest = FakeGuest()
+    guest.write_results[2] = TRANSPORT
+    with pytest.raises(harness.TerminationRequested) as raised:
+        guarded(tmp_path, guest, _open_model, guard=RESTORING_GUARD)
+    assert len(guest.writes) == 5  # the settled write's second attempt, nothing more
+    for guard in (raised.value.settings_guard, _guard_file(tmp_path)):
+        assert guard["status"] == "settings_restore_failed"
+        assert [(item["step"], item["stderr_text"]) for item in guard["failed_write_stderr"]] == \
+            [("settings_restore_2", TRANSPORT[2])]
