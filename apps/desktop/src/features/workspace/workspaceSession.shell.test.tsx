@@ -42,7 +42,7 @@ const SESSION_SETTERS: Record<(typeof SLICES)[number], string[]> = {
   agent: [],
   model: [],
   selection: ["setHiddenEntityKeys", "setIsolationSelectionKeys"],
-  results: ["setSolverMode", "setReportPackagePrivateIntent"],
+  results: ["setSolverMode", "setReportComposition", "setReportPackagePrivateIntent"],
   operations: [],
   project: [],
   chrome: [
@@ -88,8 +88,9 @@ describe("the session's key set", () => {
     const forbidden =
       /^set(Model|Knowledge|ModelHash|ModelAssignment|UiModelRevision|ProjectSessionGeneration|Result|HistoricalRun|AnalysisRun|InputManifest|RuleCheck|Comparison|Proposal|SelectedReviewTarget|SolveJob|SolveProof|Running|ReportPackage(Busy|Redaction|Route)|EditorIntents|RetainedReviewContext|OperationOutcomes|AppliedOperations|UndoStack|RedoStack|QueuedBatches|Batch|RequestEpoch|DirectDraft|OperationBusy|OperationMessage|OperationEngineStatus|Storage|Project|ModelDocumentMigration|ModelMigrationLedger|Selection|OrderedSelection)/;
     expect(exposed.filter((name) => forbidden.test(name))).toEqual([]);
-    // The two results setters that are exposed are a solver-mode choice and a privacy intent, not results.
-    expect(setterNames(session.results)).toEqual(["setSolverMode", "setReportPackagePrivateIntent"]);
+    // The exposed results setters are a solver-mode choice, a session-only report composition
+    // (which invalidates any computed package) and a privacy intent, not results.
+    expect(setterNames(session.results)).toEqual(["setSolverMode", "setReportComposition", "setReportPackagePrivateIntent"]);
   });
 });
 
