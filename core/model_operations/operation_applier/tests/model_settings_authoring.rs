@@ -407,5 +407,122 @@ fn the_shear_model_refusals_are_named_at_authoring_and_at_the_validator() {
     // The settings list names both members.
     let unknown = intent("set_model_setting", PROJECT, "model_settings.beam_theory", "not_present", "x", "none", "dimensionless");
     assert_eq!(refused(&model, &unknown, "OP-MODEL-SETTING-UNKNOWN"),
-        "`model_settings.beam_theory` is not a model setting; the settings are `model_settings.node_proximity_tolerance` and `model_settings.shear_model`.");
+        "`model_settings.beam_theory` is not a model setting; the settings are `model_settings.node_proximity_tolerance`, `model_settings.shear_model` and `model_settings.pressure_elongation`.");
+}
+
+// ---- model document 0.9.0: model_settings.pressure_elongation ----------------
+// (DEL-04-07 Design `pressure-elongation.md` §3.1.)
+
+const ELONGATION: &str = "model_settings.pressure_elongation";
+
+fn elongation_before(model: &Value) -> String {
+    model.pointer("/model_settings/pressure_elongation").map(canonical_json).unwrap_or_else(|| "not_present".into())
+}
+fn set_elongation(model: &Value, cases: &[&str]) -> Value {
+    let after = canonical_json(&json!({"operating_load_cases": cases}));
+    intent("set_model_setting", PROJECT, ELONGATION, &elongation_before(model), &after, "none", "dimensionless")
+}
+fn clear_elongation(model: &Value) -> Value {
+    intent("clear_model_setting", PROJECT, ELONGATION, &elongation_before(model), "not_present", "none", "dimensionless")
+}
+/// The cantilevers with a pressure contract and a second (sustained) load case.
+fn pressure_document() -> Value {
+    let mut model = exact(&cantilevers(0.003));
+    let cases = model["load_cases"].as_array_mut().unwrap();
+    cases[0]["label"] = json!("Operating");
+    cases[0]["kind"] = json!("operating");
+    cases[0]["status"] = json!("preview_only");
+    cases.push(json!({"id": "case:s", "label": "Sustained", "kind": "sustained", "status": "preview_only", "primitive_loads": [], "provenance": "w8"}));
+    model
+}
+fn delete_case(id: &str, display: &str) -> Value {
+    let mut intent = intent("delete_load_case", id, "load_cases", display, "not_present", "none", "dimensionless");
+    intent["operation_kind"] = json!("delete");
+    intent["target"]["object_type"] = json!("Load");
+    intent
+}
+
+#[test]
+fn pressure_elongation_is_set_and_cleared_and_absent_means_off() {
+    let model = pressure_document();
+    assert!(validator_codes(&model).is_empty(), "{:?}", validator_codes(&model));
+    let (on, outcome) = applied(&model, &set_elongation(&model, &["case:f"]));
+    assert_eq!(on["model_settings"], json!({"pressure_elongation": {"operating_load_cases": ["case:f"]}}));
+    assert_eq!(outcome.diff_preview[0].field_path, ELONGATION);
+    assert_eq!(outcome.diff_preview[0].before, "not_present");
+    assert_eq!(outcome.diff_preview[0].after, "{\"operating_load_cases\":[\"case:f\"]}");
+    assert!(validator_codes(&on).is_empty());
+    refused(&on, &set_elongation(&on, &["case:f"]), "OP-MODEL-SETTING-UNCHANGED");
+    // A changed list replaces the record; the order given is kept.
+    let (both, _) = applied(&on, &set_elongation(&on, &["case:s", "case:f"]));
+    assert_eq!(both["model_settings"]["pressure_elongation"]["operating_load_cases"], json!(["case:s", "case:f"]));
+    // Switching off removes the member and the emptied record: the prior bytes return.
+    let (off, _) = applied(&on, &clear_elongation(&on));
+    assert_eq!(bytes(&off), bytes(&model));
+    let message = refused(&off, &clear_elongation(&off), "OP-MODEL-SETTING-UNCHANGED");
+    assert!(message.contains("pressure elongation is off"), "{message}");
+}
+
+#[test]
+fn the_pressure_elongation_refusals_are_named_at_authoring_and_at_the_validator() {
+    let model = pressure_document();
+    // Without a pressure contract.
+    let mut free = model.clone();
+    free.as_object_mut().unwrap().remove("pressure_contract");
+    assert_eq!(
+        refused(&free, &set_elongation(&free, &["case:f"]), "MODEL-SETTING-PRESSURE-ELONGATION-WITHOUT-PRESSURE-CONTRACT"),
+        "model_settings.pressure_elongation is set on a document without pressure_contract; there is no pressure to elongate, so remove model_settings.pressure_elongation."
+    );
+    // An unknown id.
+    assert_eq!(
+        refused(&model, &set_elongation(&model, &["case:x"]), "MODEL-SETTING-PRESSURE-ELONGATION-CASE-UNKNOWN"),
+        "model_settings.pressure_elongation.operating_load_cases names `case:x`, which is not a load case of this document."
+    );
+    // Empty, then duplicated.
+    assert_eq!(
+        refused(&model, &set_elongation(&model, &[]), "MODEL-SETTING-PRESSURE-ELONGATION-CASES-INVALID"),
+        "model_settings.pressure_elongation.operating_load_cases is empty; name at least one operating load case, or remove model_settings.pressure_elongation to switch pressure elongation off."
+    );
+    assert_eq!(
+        refused(&model, &set_elongation(&model, &["case:f", "case:f"]), "MODEL-SETTING-PRESSURE-ELONGATION-CASES-INVALID"),
+        "model_settings.pressure_elongation.operating_load_cases names `case:f` more than once; name each operating load case once."
+    );
+    // A text that is not the closed record, and the wire's unit and dimension.
+    for after in ["[\"case:f\"]", "{\"operating_load_cases\":\"case:f\"}", "{\"operating_load_cases\":[\"case:f\"],\"x\":1}", "{}", "not json"] {
+        let mut wrong = set_elongation(&model, &["case:f"]);
+        wrong["change"]["after"] = json!(after);
+        refused(&model, &wrong, "OP-MODEL-SETTING-SHAPE-INVALID");
+    }
+    let mut wrong = set_elongation(&model, &["case:f"]);
+    wrong["change"]["dimension"] = json!("length");
+    refused(&model, &wrong, "OP-MODEL-SETTING-SHAPE-INVALID");
+    // The validator gives the same codes on a carried document.
+    let carried = |document: &Value, value: Value| {
+        let mut document = document.clone();
+        document["model_settings"] = json!({"pressure_elongation": value});
+        validator_codes(&document)
+    };
+    assert_eq!(carried(&free, json!({"operating_load_cases": ["case:f"]})), vec!["MODEL-SETTING-PRESSURE-ELONGATION-WITHOUT-PRESSURE-CONTRACT"]);
+    assert_eq!(carried(&model, json!({"operating_load_cases": ["case:x"]})), vec!["MODEL-SETTING-PRESSURE-ELONGATION-CASE-UNKNOWN"]);
+    assert_eq!(carried(&model, json!({"operating_load_cases": []})), vec!["MODEL-SETTING-PRESSURE-ELONGATION-CASES-INVALID"]);
+    assert_eq!(carried(&model, json!({"operating_load_cases": ["case:s", "case:s"]})), vec!["MODEL-SETTING-PRESSURE-ELONGATION-CASES-INVALID"]);
+    // Malformed shapes take the closed-record path.
+    for value in [json!(null), json!([]), json!({}), json!({"operating_load_cases": "case:f"}), json!({"operating_load_cases": [1]}), json!({"operating_load_cases": ["case:f"], "x": 1})] {
+        assert_eq!(carried(&model, value.clone()), vec!["MODEL-SLOT-SHAPE"], "{value}");
+    }
+}
+
+#[test]
+fn deleting_a_load_case_the_setting_names_is_refused_by_name() {
+    let model = pressure_document();
+    let (on, _) = applied(&model, &set_elongation(&model, &["case:f"]));
+    let display = "case:f; Operating; operating; preview_only; primitives=1";
+    let message = refused(&on, &delete_case("case:f", display), "OP-LOAD-CASE-DELETE-REFERENCED");
+    assert_eq!(message, "Load case `case:f` is still named by model_settings.pressure_elongation.operating_load_cases.");
+    // A case the setting does not name is deleted as before.
+    let (deleted, _) = applied(&on, &delete_case("case:s", "case:s; Sustained; sustained; preview_only; primitives=0"));
+    assert_eq!(deleted["load_cases"].as_array().unwrap().len(), 1);
+    // Switched off, the case deletes.
+    let (off, _) = applied(&on, &clear_elongation(&on));
+    applied(&off, &delete_case("case:f", display));
 }

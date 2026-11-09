@@ -748,6 +748,46 @@ impl Validator {
 
     // ---- §3.8 model settings ------------------------------------------------
 
+    /// `model_settings.pressure_elongation` (model document 0.9.0; DEL-04-07
+    /// `pressure-elongation.md` §3.1): a closed record whose one required member
+    /// `operating_load_cases` is an array of strings. A malformed shape takes the
+    /// closed-record path (`MODEL-SLOT-SHAPE`); the content takes product_physics'
+    /// named refusals, which the solve and the applier also give.
+    fn pressure_elongation(&mut self, root: &Map<String, Value>, value: &Value) {
+        use open_pipe_stress_product_physics::model_settings as ms;
+        let at = ms::PRESSURE_ELONGATION_PATH;
+        let Some(record) = value.as_object() else {
+            self.block(SLOT_SHAPE, at, format!("{at} is {}; a record {{operating_load_cases}} is required.", kind_name(value)), Vec::new());
+            return;
+        };
+        self.members(record, at, &["operating_load_cases"], &["operating_load_cases"], &[]);
+        let Some(list) = record.get("operating_load_cases") else { return };
+        let path = ms::PRESSURE_ELONGATION_CASES_PATH;
+        let Some(items) = list.as_array() else {
+            self.block(SLOT_SHAPE, path, format!("{path} is {}; an array of load-case ids is required.", kind_name(list)), Vec::new());
+            return;
+        };
+        let mut ids = Vec::with_capacity(items.len());
+        for (index, item) in items.iter().enumerate() {
+            match item.as_str() {
+                Some(id) => ids.push(id),
+                None => {
+                    let item_path = format!("{path}[{index}]");
+                    self.block(SLOT_SHAPE, &item_path, format!("{item_path} is {}; string required.", kind_name(item)), Vec::new());
+                }
+            }
+        }
+        if ids.len() != items.len() {
+            return;
+        }
+        let has_contract = root.get("pressure_contract").is_some_and(|contract| !contract.is_null());
+        let load_case_ids: std::collections::HashSet<&str> =
+            array(root, "load_cases").iter().filter_map(|case| case.get("id").and_then(Value::as_str)).collect();
+        for error in ms::pressure_elongation_refusals(ids, has_contract, &load_case_ids) {
+            self.block(error.code, at, error.message, Vec::new());
+        }
+    }
+
     /// `model_settings`: a closed record. `node_proximity_tolerance` is a length quantity
     /// `{value, unit}`: finite, greater than zero, in a catalog length unit; `shear_model`
     /// (model document 0.8.0) is one of the two names and never beside a pressure contract.
@@ -760,7 +800,10 @@ impl Validator {
             self.block(SLOT_SHAPE, "model_settings", format!("model_settings is {}; object required.", kind_name(value)), Vec::new());
             return;
         };
-        self.members(settings, "model_settings", &[], &["node_proximity_tolerance", "shear_model"], &[]);
+        self.members(settings, "model_settings", &[], &["node_proximity_tolerance", "shear_model", "pressure_elongation"], &[]);
+        if let Some(value) = settings.get("pressure_elongation") {
+            self.pressure_elongation(root, value);
+        }
         // Model document 0.8.0: `shear_model`, one of the two names, never beside a
         // pressure contract; the solve and authoring apply the same refusals.
         if let Some(value) = settings.get("shear_model") {

@@ -20,6 +20,15 @@
 //! pressure-free route (DEL-05-03 Design `pf-timoshenko.md`; `crate::pf_timoshenko`),
 //! which removed 0.8.0's interim refusal at solve and at authoring.
 //!
+//! Model document 0.9.0 (DEL-04-07 Design `pressure-elongation.md` §3; DEL-02-01
+//! `model-document-0.9.0.md` §3.1, no version step) adds `pressure_elongation`, a closed
+//! record `{operating_load_cases: [id, ...]}`: the load cases of a pressure document in
+//! which pressure elongation (the closed-end free pressure strain) applies. Absent means
+//! off: no case includes it. The product never writes an empty record; switching off
+//! removes the member. It is refused by name without `pressure_contract`, for an id that
+//! names no load case, and for an empty or duplicated list ([`pressure_elongation_refusals`]).
+//! The exact route reads [`PreviewModel::pressure_elongation_included`] per case.
+//!
 //! The topology check (`topology::append_topology_diagnostics`) reads it through
 //! [`PreviewModel::node_proximity_tolerance_m`]. The solve's validation
 //! (`validation::validate_model_settings`) and the document validator
@@ -52,6 +61,93 @@ pub const SHEAR_MODEL_TIMOSHENKO: &str = "timoshenko_annulus_energy_v1";
 pub const MODEL_SETTING_SHEAR_MODEL_UNKNOWN: &str = "MODEL-SETTING-SHEAR-MODEL-UNKNOWN";
 /// The member is present on a document that declares `pressure_contract`.
 pub const MODEL_SETTING_SHEAR_MODEL_WITH_PRESSURE_CONTRACT: &str = "MODEL-SETTING-SHEAR-MODEL-WITH-PRESSURE-CONTRACT";
+
+/// The path of the pressure-elongation setting in the document.
+pub const PRESSURE_ELONGATION_PATH: &str = "model_settings.pressure_elongation";
+/// The path of its list of operating load cases.
+pub const PRESSURE_ELONGATION_CASES_PATH: &str = "model_settings.pressure_elongation.operating_load_cases";
+/// The member is present on a document without `pressure_contract`.
+pub const MODEL_SETTING_PRESSURE_ELONGATION_WITHOUT_PRESSURE_CONTRACT: &str =
+    "MODEL-SETTING-PRESSURE-ELONGATION-WITHOUT-PRESSURE-CONTRACT";
+/// An id in `operating_load_cases` names no `load_cases[]` entry.
+pub const MODEL_SETTING_PRESSURE_ELONGATION_CASE_UNKNOWN: &str = "MODEL-SETTING-PRESSURE-ELONGATION-CASE-UNKNOWN";
+/// `operating_load_cases` is empty or names a case more than once.
+pub const MODEL_SETTING_PRESSURE_ELONGATION_CASES_INVALID: &str = "MODEL-SETTING-PRESSURE-ELONGATION-CASES-INVALID";
+
+/// `model_settings.pressure_elongation`: a closed record. Its shape (an object, the one
+/// required member, an array of strings) is the decode's; its content is judged by name
+/// in [`pressure_elongation_refusals`].
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct PressureElongationSetting {
+    /// The ids of the load cases in which pressure elongation applies, as authored.
+    pub operating_load_cases: Vec<String>,
+}
+
+/// The refusal message for the member on a document without `pressure_contract`.
+pub fn pressure_elongation_without_pressure_contract_message() -> String {
+    format!("{PRESSURE_ELONGATION_PATH} is set on a document without pressure_contract; there is no pressure to elongate, so remove {PRESSURE_ELONGATION_PATH}.")
+}
+
+/// The refusal message for an id that names no load case.
+pub fn pressure_elongation_case_unknown_message(id: &str) -> String {
+    format!("{PRESSURE_ELONGATION_CASES_PATH} names `{id}`, which is not a load case of this document.")
+}
+
+/// The refusal message for an empty list.
+pub fn pressure_elongation_cases_empty_message() -> String {
+    format!("{PRESSURE_ELONGATION_CASES_PATH} is empty; name at least one operating load case, or remove {PRESSURE_ELONGATION_PATH} to switch pressure elongation off.")
+}
+
+/// The refusal message for an id named more than once.
+pub fn pressure_elongation_case_duplicated_message(id: &str) -> String {
+    format!("{PRESSURE_ELONGATION_CASES_PATH} names `{id}` more than once; name each operating load case once.")
+}
+
+/// The refusals of an authored setting, at solve, at authoring and in the document validator
+/// alike, in this order: the member without `pressure_contract`; an empty list; each id named
+/// more than once (once per id); each id that is not one of `load_case_ids` (once per id).
+/// An empty result admits the setting.
+pub fn pressure_elongation_refusals<'a>(
+    operating_load_cases: impl IntoIterator<Item = &'a str>,
+    has_pressure_contract: bool,
+    load_case_ids: &std::collections::HashSet<&str>,
+) -> Vec<ModelSettingError> {
+    let mut refusals = Vec::new();
+    if !has_pressure_contract {
+        refusals.push(ModelSettingError {
+            code: MODEL_SETTING_PRESSURE_ELONGATION_WITHOUT_PRESSURE_CONTRACT,
+            message: pressure_elongation_without_pressure_contract_message(),
+        });
+    }
+    let ids: Vec<&str> = operating_load_cases.into_iter().collect();
+    if ids.is_empty() {
+        refusals.push(ModelSettingError {
+            code: MODEL_SETTING_PRESSURE_ELONGATION_CASES_INVALID,
+            message: pressure_elongation_cases_empty_message(),
+        });
+    }
+    let mut seen = std::collections::HashSet::new();
+    let mut duplicated = std::collections::HashSet::new();
+    for id in &ids {
+        if !seen.insert(*id) && duplicated.insert(*id) {
+            refusals.push(ModelSettingError {
+                code: MODEL_SETTING_PRESSURE_ELONGATION_CASES_INVALID,
+                message: pressure_elongation_case_duplicated_message(id),
+            });
+        }
+    }
+    let mut unknown = std::collections::HashSet::new();
+    for id in &ids {
+        if !load_case_ids.contains(id) && unknown.insert(*id) {
+            refusals.push(ModelSettingError {
+                code: MODEL_SETTING_PRESSURE_ELONGATION_CASE_UNKNOWN,
+                message: pressure_elongation_case_unknown_message(id),
+            });
+        }
+    }
+    refusals
+}
 
 /// The authored `model_settings.shear_model`, as decoded: one of the two names, or any other
 /// JSON value (a non-string and `null` included), which is refused by name rather than at decode.
@@ -156,6 +252,11 @@ pub struct ModelSettings {
     /// Euler–Bernoulli. Any present value, `null` included, is kept for its named refusal.
     #[serde(default, deserialize_with = "deserialize_shear_model")]
     pub shear_model: Option<ShearModelSetting>,
+    /// The operating load cases that include pressure elongation (model document 0.9.0,
+    /// DEL-04-07 `pressure-elongation.md` §3.1). Absent: off in every case. An authored
+    /// `null` is not absence: it is refused, as for the `model_settings` record itself.
+    #[serde(default, deserialize_with = "crate::deserialize_present_object")]
+    pub pressure_elongation: Option<PressureElongationSetting>,
 }
 
 /// A refused setting: its named code and the message the validator also gives.
@@ -251,6 +352,18 @@ impl PreviewModel {
             _ => ShearModelSetting::EulerBernoulli,
         }
     }
+
+    /// Whether the load case `load_case_id` includes pressure elongation (DEL-04-07
+    /// `pressure-elongation.md` §3.2: `elongation_included(case) = setting lists case.id`).
+    /// False when `model_settings.pressure_elongation` is absent (the default, off) or does
+    /// not list the case. It judges nothing: a setting refused by
+    /// [`pressure_elongation_refusals`] never reaches a solve.
+    pub fn pressure_elongation_included(&self, load_case_id: &str) -> bool {
+        self.model_settings
+            .as_ref()
+            .and_then(|settings| settings.pressure_elongation.as_ref())
+            .is_some_and(|setting| setting.operating_load_cases.iter().any(|id| id == load_case_id))
+    }
 }
 
 #[cfg(test)]
@@ -300,6 +413,46 @@ mod tests {
             .to_string();
         assert!(error.contains("an authored object"), "{error}");
         assert!(parsed(Some(serde_json::json!([]))).is_err());
+    }
+
+    #[test]
+    fn pressure_elongation_parses_and_absent_means_off() {
+        let off = parsed(None).unwrap();
+        assert!(!off.pressure_elongation_included("load:L-100"));
+        let model = parsed(Some(serde_json::json!({"pressure_elongation": {"operating_load_cases": ["load:L-200"]}}))).unwrap();
+        assert_eq!(
+            model.model_settings.as_ref().unwrap().pressure_elongation,
+            Some(PressureElongationSetting { operating_load_cases: vec!["load:L-200".into()] })
+        );
+        assert!(model.pressure_elongation_included("load:L-200"));
+        assert!(!model.pressure_elongation_included("load:L-100"));
+        for value in [
+            serde_json::Value::Null,
+            serde_json::json!({}),
+            serde_json::json!([]),
+            serde_json::json!({"operating_load_cases": "load:L-200"}),
+            serde_json::json!({"operating_load_cases": [1]}),
+            serde_json::json!({"operating_load_cases": [], "x": 1}),
+        ] {
+            assert!(parsed(Some(serde_json::json!({"pressure_elongation": value.clone()}))).is_err(), "{value}");
+        }
+    }
+
+    #[test]
+    fn pressure_elongation_refusals_are_named_in_order() {
+        let cases: std::collections::HashSet<&str> = ["a", "b"].into_iter().collect();
+        assert!(pressure_elongation_refusals(["a", "b"], true, &cases).is_empty());
+        let codes = |ids: &[&'static str], contract: bool| {
+            pressure_elongation_refusals(ids.iter().copied(), contract, &cases).into_iter().map(|e| e.code).collect::<Vec<_>>()
+        };
+        assert_eq!(codes(&["a"], false), vec![MODEL_SETTING_PRESSURE_ELONGATION_WITHOUT_PRESSURE_CONTRACT]);
+        assert_eq!(codes(&[], true), vec![MODEL_SETTING_PRESSURE_ELONGATION_CASES_INVALID]);
+        assert_eq!(codes(&["a", "a", "a"], true), vec![MODEL_SETTING_PRESSURE_ELONGATION_CASES_INVALID], "one refusal per duplicated id");
+        assert_eq!(codes(&["x", "x"], true), vec![MODEL_SETTING_PRESSURE_ELONGATION_CASES_INVALID, MODEL_SETTING_PRESSURE_ELONGATION_CASE_UNKNOWN]);
+        assert_eq!(
+            codes(&[], false),
+            vec![MODEL_SETTING_PRESSURE_ELONGATION_WITHOUT_PRESSURE_CONTRACT, MODEL_SETTING_PRESSURE_ELONGATION_CASES_INVALID]
+        );
     }
 
     #[test]

@@ -5857,6 +5857,20 @@ fn resolve_delete_load_case(
         );
         return None;
     }
+    // DEL-04-07 `pressure-elongation.md` §3.1: a case the pressure-elongation setting names
+    // stays until the user removes it from the setting.
+    if load_case_named_by_pressure_elongation(model, target_ref) {
+        let setting = open_pipe_stress_product_physics::model_settings::PRESSURE_ELONGATION_CASES_PATH;
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-LOAD-CASE-DELETE-REFERENCED",
+            "blocking",
+            format!("Load case `{target_ref}` is still named by {setting}."),
+            "Remove the load case from the pressure-elongation setting's operating load cases, or switch pressure elongation off, before deleting the load case.",
+            vec![target_ref.to_string(), setting.to_string()],
+        );
+        return None;
+    }
 
     checker.reference_state = "passed";
     check_before(&current_display, before, target_ref, field_path, checker);
@@ -10061,6 +10075,14 @@ fn combination_operand_references(model: &Value, combination_ref: &str) -> Vec<S
     references.sort();
     references.dedup();
     references
+}
+
+/// Whether `model_settings.pressure_elongation.operating_load_cases` names the load case.
+fn load_case_named_by_pressure_elongation(model: &Value, load_case_ref: &str) -> bool {
+    model
+        .pointer("/model_settings/pressure_elongation/operating_load_cases")
+        .and_then(Value::as_array)
+        .is_some_and(|ids| ids.iter().any(|id| id.as_str() == Some(load_case_ref)))
 }
 
 fn load_case_combination_references(model: &Value, load_case_ref: &str) -> Vec<String> {
