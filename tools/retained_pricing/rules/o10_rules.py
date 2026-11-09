@@ -6473,10 +6473,10 @@ if fnkey("load_state_spring_ground", _LIB):
 # branch's classifier call is unreached on D1. base/ce_fallback_model.py binds the exact branch, its loop receiver,
 # predicate, classifier and force assignment, the scalar application and D1.6 on the admitted request (a stop
 # otherwise). The predicate is evaluated on D1 and keeps its by-name edges; only this one call edge is zeroed, never
-# the classifier's other callers or a helper/Display edge.
-_CEF = __import__("runpy").run_path(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base",
-                                                  "ce_fallback_model.py"))["inspect"](_SNAP)
-if _CEF:
+# the classifier's other callers or a helper/Display edge. The inspected state is tested in place, never bound, so
+# no model state stands in the namespace as a purported decision table.
+if __import__("runpy").run_path(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base",
+                                              "ce_fallback_model.py"))["inspect"](_SNAP):
     O10_EDGE_ZERO += [(fnkey("solve_prepared_load_case", _LIB), fnkey("classify_constant_effort_consumption", _LIB),
                        O10 + "CEF-D1: D1.6 refuses every hanger, nonlinear support and non-listed family, so "
                        "is_constant_effort_support is false on every admitted support and the case solve's fallback "
