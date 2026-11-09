@@ -633,9 +633,10 @@ Off both paths:
 - **P-fp and P-fmt are adopted as pricing premises** (§1.3, with each one's rationale and its exclusions by name).
 - **δ̄ is computed with one array of N counters in P0.** P0 charges that allocation in its own account: one `vec![0; N]` of `usize` (8N bytes) and ≤ 2N + E_el + S + s_k steps (the fill, one iteration per element, spring and skew spring, and the maximum scan).
 - **R5 is approved in principle.** It is implemented with R1, R3 and R6 after the pressure-elongation unit merges, with its re-pins, and a D3 turn if coefficients fall.
+- **R8 is approved** (Agent 0, 2026-11-09), as specified in Part II: the four power-of-two sites become a mask or an arithmetic shift, and `div_ceil` becomes the in-repo `ceil_div_u128`, a base-2¹⁰ long division of at most 11 iterations. It is implemented with R1, R3, R5 and R6 after the pressure-elongation unit merges, with its oracle test against verbatim copies at `bf1bdd2`, the re-pins of `w1_member_load_model.py:100` and `:101`, its loop classification, `price.py compare` showing every coefficient equal, and AC-004 with the batch.
 
 **Open:**
-1. **Implementation.** R1, R3, R5, R6 and R8 are specified, not built; R8 also awaits Agent 0's approval. Until they land, F1–F3 (and F6 with a basis) and F8 keep T2.integrity unbounded. Each also needs the re-pins listed in Part II.
+1. **Implementation.** R1, R3, R5, R6 and R8 are specified, not built. Until they land, F1–F3 (and F6 with a basis) and F8 keep T2.integrity unbounded. Each also needs the re-pins listed in Part II.
 2. **`mul_add` on x86_64** (F7; §1.3 excludes it there by name). On x86_64 builds T2.integrity is unbounded on every request until one of these is chosen:
    - build x86_64 with the `fma` target feature (FMA3), so `mul_add` is one instruction with the same bits; this sets a hardware floor (FMA3 CPUs) and is a build and support choice;
    - an in-repo correctly rounded fused multiply-add (the exact 106-bit product as a `u128`, the addend aligned, one rounding), the same bits by IEEE 754's definition, priced from source, and reviewed as a change of numerical code;
@@ -650,7 +651,7 @@ Off both paths:
 
 # Part II. Priced in-place replacements for the foreign steps (specification only)
 
-**Nothing here is built.** Agent 0 approved R5 in principle, to be implemented with R1, R3 and R6 after the pressure-elongation unit merges (Part I §12); R8 awaits its approval. Units, premises, lemmas and dimensions are in Part I §1–§2.
+**Nothing here is built.** Agent 0 approved R5 in principle and approved R8, both to be implemented with R1, R3 and R6 after the pressure-elongation unit merges (Part I §12). Units, premises, lemmas and dimensions are in Part I §1–§2.
 
 "Result-identical" means the same returned values, the same `Err` variants at the same first failing input, and the same panics, for every input the callers can pass. The review's threat model is "a replacement that changes any static result or retained coefficient". So each replacement states:
 - the premise that makes its result identical, quoted from source;
@@ -843,7 +844,7 @@ If Agent 0 wants a regression witness, a test-only counter can record the iterat
 
 A defensive cap is not recommended. A cap at 2 that refuses would add a new refusal path, a changed static result in principle, that Lemma D makes unreachable. It would only add review surface.
 
-### R8. 128-bit integer divisions in the wide arithmetic: **recommended**
+### R8. 128-bit integer divisions in the wide arithmetic: **approved** (Agent 0, 2026-11-09)
 
 §1.3 excludes these from P-fp: a 128-bit division lowers to `__divti3`, `__modti3` or `__udivti3`, library loops, unless the optimizer folds a constant divisor. Each is replaced inline on its own line, except one helper at the end of `wide/multi.rs`.
 
@@ -879,10 +880,10 @@ Decided by Agent 0 (2026-11-09):
 1. **P-fp and P-fmt** are adopted as pricing premises.
 2. **δ̄** is computed with one array of N counters in P0, its allocation (8N bytes) and its ≤ 2N + E_el + S + s_k steps charged in P0's own account. P0 already allocates the `BTreeSet` at `resource.rs:1038`.
 3. **R5** is approved in principle. It is implemented with R1, R3 and R6 after the pressure-elongation unit merges, with its re-pins (`b7a_domain_model.py:237`, `w1_reductions_model.py:105`), and a D3 turn if `price.py compare` shows lower coefficients.
+5. **R8 is approved** (Agent 0, 2026-11-09), as specified in Part II: the four power-of-two sites become a mask or an arithmetic shift, and `div_ceil` becomes the in-repo `ceil_div_u128`, a base-2¹⁰ long division of at most 11 iterations. It is implemented with R1, R3, R5 and R6 after the pressure-elongation unit merges, with its oracle test against verbatim copies at `bf1bdd2`, the re-pins of `w1_member_load_model.py:100` and `:101`, its loop classification, `price.py compare` showing every coefficient equal, and AC-004 with the batch.
 
 Open for Agent 0:
 4. **`mul_add` on x86_64** (Part I §12, item 2): the `fma` target feature, an in-repo fused multiply-add, or a priced foreign step.
-5. **Approve R8**, which the `div_ceil`, `div_euclid` and `rem_euclid` exclusions require.
 
 Beyond these, the open items are implementation and the weights (Part I §12).
 
