@@ -192,7 +192,9 @@ eccentric reducer steps (each step's thrust unchanged from today).
     bore and A_s the nominal section area; it is not a thin-wall mean-diameter form."
   Both are fixed strings, so the report's hash-pinned statement table
   (`exactReportLimitations.ts`, `fixtures/reports/exact_route_limitations.json`,
-  `exact_report_statements.json`) gains exactly these two.
+  `exact_report_statements.json`) gains exactly these two. PDF text encoding: '-' for
+  U+2212 and 'nu' for ν, because WinAnsi cannot encode them (a practical engineering
+  resolution; the producer string and its hash are unchanged).
 - **Bend statement.** `BEND_LIMITATION` (`bend_pressure.rs` ~35, published whenever a bend
   exists, `lib.rs` ~1457) says every realized arc owns `K_b·u_free(ε_p) − c_b`. It is
   revised to make the free-strain term conditional ("…owns −c_b, and K_b·u_free(ε_p) in a
