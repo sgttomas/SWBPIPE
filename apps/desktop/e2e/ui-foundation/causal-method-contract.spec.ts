@@ -468,7 +468,7 @@ for (const headingCase of ["valid", "wrong-label", "wrong-typed-identity"] as co
       const gl = canvas.getContext("webgl")!;
       const expectedRef = { type: "pipe", id: "pipe:UIF-00266" };
       // Independent fixture-shaped expectation; do not derive this from actual DOM.
-      const expectedInspectorHeading = "UI benchmark pipe 00266 — pipe: pipe:UIF-00266";
+      const expectedInspectorHeading = "UI benchmark pipe 00266 — pipe:UIF-00266";
       const causal = (globalThis as any).__uifHarness.causal;
       let snapshot: any = null;
       Object.defineProperty(globalThis, "__openPipeStressUiDiagnosticsV1", {
@@ -488,7 +488,7 @@ for (const headingCase of ["valid", "wrong-label", "wrong-typed-identity"] as co
         const typedIdentity = document.createElement("span");
         typedIdentity.className = "typed-identity";
         typedIdentity.textContent = variant === "wrong-typed-identity"
-          ? "— node: pipe:UIF-00266" : "— pipe: pipe:UIF-00266";
+          ? "— node: pipe:UIF-00266" : "— pipe:UIF-00266";
         heading.append(typedIdentity);
         document.querySelector('[data-testid="command-selection-readout"]')!.textContent =
           "Selected pipe: pipe:UIF-00266; 0 queued";
@@ -513,7 +513,7 @@ for (const headingCase of ["valid", "wrong-label", "wrong-typed-identity"] as co
       expect(evidence.active.feedbackMarkers).toHaveLength(1);
       expect(() => assertStoppedCausalEvidence(evidence, "point-selection", true)).not.toThrow();
       expect(evidence.active.feedbackMarkers[0]).toMatchObject({ mainContextColorClearObserved: true,
-        observed: { inspectorHeading: "UI benchmark pipe 00266 — pipe: pipe:UIF-00266",
+        observed: { inspectorHeading: "UI benchmark pipe 00266 — pipe:UIF-00266",
           readout: "Selected pipe: pipe:UIF-00266; 0 queued", mainRenderSubmissionSequence: 2,
           selectionPrimaryRef: { type: "pipe", id: "pipe:UIF-00266" }, inspectorGeneration: 1 } });
     } else {

@@ -10,7 +10,7 @@ import { performance as nodePerformance } from "node:perf_hooks";
 import { setTimeout as delay } from "node:timers/promises";
 import type { Page } from "@playwright/test";
 import { armCausalFeedbackMarker, captureChromiumEnvironment, ensureViewportToggle, expectedVisibleEntityLabel,
-  installInstrumentation, expectedBoxInspectorHeading, validatedPriorBoxBaseline, persistBoxPostcondition, readBoxVisibleIdentity, boxCallbackMatchesSnapshot, pairedWinnerCueWitness, captureWinnerCue, cueActionBindingsStable, pointCaptureMatchesMarker, validateWinnerCuePlan, projectCandidateAuthoredPoint, readCandidateDiagnostics,
+  installInstrumentation, expectedBoxInspectorHeading, expectedTypedIdentity, validatedPriorBoxBaseline, persistBoxPostcondition, readBoxVisibleIdentity, boxCallbackMatchesSnapshot, pairedWinnerCueWitness, captureWinnerCue, cueActionBindingsStable, pointCaptureMatchesMarker, validateWinnerCuePlan, projectCandidateAuthoredPoint, readCandidateDiagnostics,
   requireUniqueConnectedMainCanvas, restoreCausalFeedbackInstrumentation, routeModelFixture, settledRafState,
   stopCausalFeedbackMarker, treeRowTestId, validateCandidateMeasuredCameraBinding, validateCandidateOracleBinding,
   validateMainCanvasHitTarget, waitForCandidateExclusiveSelection, type LoadedFixture } from "./benchmark-harness";
@@ -680,7 +680,7 @@ export async function runCandidateCausalPerformance(page: Page, fixture: LoadedF
           expectedActionTargetTestId: "viewport-canvas", maximumFeedbackMarkers: 1,
           actionIdentity: { sample: sample.sample, expectedRef, expectedCssPoint: point, expectedCanvasLocalPoint: local, expectedClientPoint: point },
           candidateExpectation: { ...modelExpectation(before), priorActionSequence: before.viewport.selection.actionSequence, expectedRef,
-            expectedInspectorHeading: `${expectedVisibleEntityLabel(fixture.model, expectedRef)} — ${expectedRef.type}: ${expectedRef.id}` } });
+            expectedInspectorHeading: `${expectedVisibleEntityLabel(fixture.model, expectedRef)} — ${expectedTypedIdentity(expectedRef)}` } });
         assertMainCanvasHitTarget(await validateMainCanvasHitTarget(page, point));
         await page.mouse.click(point.x, point.y, { button: "left" });
         await delay(FULL_COHORT_RECIPE.settleMs);

@@ -60,7 +60,7 @@ describe("typed model display integration", () => {
       expect(draft).toHaveAccessibleName(`${model.nodes[0].id} X [${model.project.units.length}]`);
       fireEvent.change(draft, { target: { value: "2.3450" } });
       fireEvent.change(screen.getByLabelText("Display units"), { target: { value: "US" } });
-      const position = screen.getByText("Position").parentElement!;
+      const position = within(screen.getByTestId("inspector-overview")).getByText("Position").parentElement!;
       await waitFor(() => expect(position.querySelector('[data-display-status="converted"]')).not.toBeNull());
       expect(position).toHaveTextContent("in");
       expect(draft).toHaveValue("2.3450");
