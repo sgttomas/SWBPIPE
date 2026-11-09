@@ -105,8 +105,43 @@ def test_missing_diff_or_dispatch_keeps_product_verification(repo):
     root, base = repo
     (root / "README.md").write_text("changed\n")
     head = commit(root)
-    for event, previous in [("workflow_dispatch", base), ("pull_request", ""), ("pull_request", "missing")]:
+    for event, previous in [("workflow_dispatch", base), ("pull_request", ""), ("pull_request", "missing"),
+                            ("merge_group", ""), ("merge_group", "missing")]:
         assert docs.plan(root, event, previous, head)["mode"] == "product"
+
+
+def queue(root, base, path, content):
+    """The merge queue's temporary merge commit of a PR changing `path` onto a
+    queue base that has advanced since the PR forked."""
+    git(root, "checkout", "-qb", "candidate")
+    (root / path).write_text(content)
+    commit(root)
+    git(root, "checkout", "-qb", "queue-base", base)
+    (root / "execution/PKG-01/DEL-01-01/Work/rows.csv").write_text("a\nb\n")
+    queue_base = commit(root)
+    git(root, "merge", "-q", "--no-ff", "--no-edit", "candidate")
+    return queue_base, git(root, "rev-parse", "HEAD")
+
+
+def test_merge_group_classifies_the_queued_diff_as_a_pull_request(repo):
+    root, base = repo
+    queue_base, head = queue(root, base, "docs/note.md", "queued prose\n")
+    selected = docs.plan(root, "merge_group", queue_base, head)
+    assert selected == docs.plan(root, "pull_request", queue_base, head)
+    assert (selected["mode"], selected["base"], selected["paths"]) == ("documentation", queue_base, ["docs/note.md"])
+    docs.verify(root, selected)
+    with pytest.raises(ValueError):
+        docs.verify(root, {**selected, "paths": []})
+
+
+def test_merge_group_product_change_keeps_product_verification(repo):
+    root, base = repo
+    queue_base, head = queue(root, base, "core/code.py", "queued code\n")
+    selected = docs.plan(root, "merge_group", queue_base, head)
+    assert "core/code.py" in selected["paths"]
+    assert not any(path.startswith("execution/") for path in selected["paths"])  # the base's advance
+    assert selected == docs.plan(root, "pull_request", queue_base, head)
+    assert selected["mode"] == "product"
 
 
 def test_failed_document_consumer_cannot_pass(monkeypatch, repo):
