@@ -604,7 +604,9 @@ impl<'a> Importer<'a> {
                     "the sidecar does not record which tangent node bend {n}'s component names; the importer uses the \
                      near tangent node {n}A"
                 );
-                self.listed("approximated", "MBF-IMPORT-ID-UNRECOVERABLE", element.line, &format!("bend {n}"), &message);
+                // The component id is restored; its original `.node` choice is the reference not recovered.
+                self.listed("approximated", "MBF-IMPORT-REFERENCE-UNRECOVERABLE", element.line, &format!("{component_id}.node"), &message);
+                self.identity_recovery.unrecovered_fields += 1;
             }
         }
         self.claim(claims, &component_id, &format!("CAEPIPE bend {n}"), element.line);
@@ -1073,7 +1075,9 @@ impl<'a> Importer<'a> {
                     let family = if authored { entry.get("family").and_then(Value::as_str).map(String::from) } else { None };
                     if !entry.has("family") {
                         let message = format!("the sidecar entry for {swb_id} carries no family, which is not recoverable");
-                        self.listed("approximated", "MBF-IMPORT-ID-UNRECOVERABLE", line, &format!("support_map[{swb_id}]"), &message);
+                        // The support id is restored; its `.family` is the field not recovered.
+                        self.listed("approximated", "MBF-IMPORT-FIELD-UNRECOVERABLE", line, &format!("{swb_id}.family"), &message);
+                        self.identity_recovery.unrecovered_fields += 1;
                     }
                     let label = match family.as_deref() {
                         Some(SPRING_FAMILY) => "spring",
@@ -1340,9 +1344,13 @@ impl<'a> Importer<'a> {
                 };
                 let found: Vec<PrimKey> = [key.clone(), key.with_star()].into_iter().filter(|option| restorable.contains_key(option)).collect();
                 let matching: Option<Restorable> = found.first().map(|option| restorable.get(option).expect("restorable").clone());
+                // The first item to match a sidecar group counts its original ids and unrecovered fields; a later item
+                // matching the same group repeats the report but not the count.
+                let mut fresh = false;
                 if let Some(first) = found.first() {
                     if !matched.contains(first) {
                         matched.push(first.clone());
+                        fresh = true;
                     }
                 }
                 if self.bound && matching.is_none() {
@@ -1362,7 +1370,7 @@ impl<'a> Importer<'a> {
                         }
                     }
                     if item.category == "thermal" {
-                        direction = self.thermal_direction(&found.3, &formed, item.line);
+                        direction = self.thermal_direction(&found.3, &formed, item.line, fresh);
                     }
                     if found.1 == 1 {
                         load_id = found.0.clone();
@@ -1373,13 +1381,17 @@ impl<'a> Importer<'a> {
                             "the MBF holds {named} summed as one primitive; no single sidecar id is its own, so it keeps \
                              its formed id {formed}"
                         );
-                        self.listed("approximated", "MBF-IMPORT-ID-UNRECOVERABLE", item.line, &format!("load_map[{case_id}/{formed}]"), &message);
+                        // The formed group merges the originals; it is not itself an original id lost.
+                        self.listed("approximated", "MBF-IMPORT-IDENTITIES-MERGED", item.line, &format!("load_map[{case_id}/{formed}]"), &message);
                         for map_key in &keys {
                             let message = format!(
                                 "load_map[{map_key}] is one of the {} primitives the MBF sums into {formed}; its id is not recoverable",
                                 keys.len()
                             );
                             self.listed("approximated", "MBF-IMPORT-ID-UNRECOVERABLE", item.line, &format!("load_map[{map_key}]"), &message);
+                            if fresh {
+                                self.identity_recovery.known_missing_ids += 1;
+                            }
                         }
                     }
                 }

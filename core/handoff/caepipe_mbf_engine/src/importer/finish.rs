@@ -208,7 +208,8 @@ impl<'a> Importer<'a> {
         Ok(())
     }
 
-    pub(crate) fn thermal_direction(&mut self, entries: &[(String, Option<String>)], formed: &str, line: usize) -> String {
+    /// `count`: the first item matching these entries, which counts each unrecovered direction once.
+    pub(crate) fn thermal_direction(&mut self, entries: &[(String, Option<String>)], formed: &str, line: usize, count: bool) -> String {
         let recorded: Vec<(String, String)> =
             entries.iter().filter_map(|(key, direction)| direction.clone().map(|direction| (key.clone(), direction))).collect();
         let mut axes: Vec<(char, usize)> = Vec::new();
@@ -237,6 +238,9 @@ impl<'a> Importer<'a> {
             if direction.is_none() {
                 let message = format!("load_map[{key}] records no direction; {formed} takes {effective}, {why}");
                 self.listed("approximated", "MBF-IMPORT-DIRECTION-UNRECOVERABLE", line, &format!("load_map[{key}].direction"), &message);
+                if count {
+                    self.identity_recovery.unrecovered_fields += 1;
+                }
             }
         }
         effective
@@ -246,9 +250,10 @@ impl<'a> Importer<'a> {
         if !self.bound {
             return;
         }
+        // A general limitation, not a known lost id: the exchange cannot establish which uncarried members existed.
         self.listed(
             "approximated",
-            "MBF-IMPORT-ID-UNRECOVERABLE",
+            "MBF-IMPORT-SOURCE-COMPLETENESS-UNESTABLISHED",
             0,
             "unexported members",
             "members the writer does not export (labels, provenance, combinations, lines, unresolved assumptions, \

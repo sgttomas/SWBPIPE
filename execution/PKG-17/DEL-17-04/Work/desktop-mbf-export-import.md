@@ -1247,11 +1247,11 @@ One engine function, `import_review(result, source, declaration_sha256, document
 inside the worker. It lives in `core/handoff/caepipe_mbf_engine/src/import_review.rs`, beside `export_review.rs`, and
 uses the same mechanics as the export review (§3.9.5).
 
-- **Format.** ASCII JSON, `swbpipe.mbf_import_review`, format 1. The whole review is at most R = 1 MiB after escaping
+- **Format.** ASCII JSON, `swbpipe.mbf_import_review`, format 2. The whole review is at most R = 1 MiB after escaping
   (`MBF_REVIEW_MAX_BYTES`, reused, not raised). A string longer than the per-field bound (`REVIEW_FIELD_MAX_BYTES`,
   512 bytes) is carried as `{prefix, bytes, sha256}`, formed in place.
 - **Fixed leading members**, in this order and byte form, so the host can check them without parsing:
-  `{"document_kind":"swbpipe.mbf_import_review","format":1,"status":"<imported|refused>","adoptable":<true|false>,
+  `{"document_kind":"swbpipe.mbf_import_review","format":2,"status":"<imported|refused>","adoptable":<true|false>,
   "model_sha256":<"hex"|null>,"model_bytes":<n>,`.
 - **Status first.** The importer's status, `adoptable` and the blocking state are computed over the full result
   before any bound applies. Overflow never makes a refused import adoptable.
@@ -1269,10 +1269,14 @@ uses the same mechanics as the export review (§3.9.5).
 - **Loss entries** (do not block). Each with its code, entity and category (`omitted`, `approximated`, `delegated`,
   `unsupported`, `tbd`).
 - **Target options.** Their names, marked "Recorded, not applied" (REQ-015).
-- **Identity.** Per class of A-3's identity set: the restored count, the count formed from MBF names, and the
-  unrecoverable list, all computed from the id map. An unbound import says "ids formed from node numbers". The
-  implementation names the id-map members it reads and pins them in a test with one bound and one unbound fixture
-  (§4.8.9).
+- **Identity.** Per class of A-3's identity set: the restored count and the count formed from MBF names, computed
+  from the id map. In review format 2, `identity.unrecoverable` counts known original ids not preserved,
+  each once, from fixed-size producer facts. A formed merged group is not another lost original id.
+  `identity.unrecovered_fields` separately counts reported unrecovered fields/reference choices, including
+  legacy direction loss. `identity.source_completeness` is `"not_established"` on every current route.
+  Neither zero nor matching class counts establishes original completeness, reference equality or C6-5.
+  Every warning/loss entry remains (§5.3). An unbound import says "ids formed from node numbers". The implementation
+  names the id-map members it reads and pins them in a test with one bound and one unbound fixture (§4.8.9).
 - **Units.** The file's unit mode and angle option, and the project units the document receives, as the import
   report records them (import Design §5.2). A member the report does not carry is stated as not available, never
   recomputed.
@@ -1956,7 +1960,8 @@ declarations. Nothing here records acceptance or shows criterion 6.
 
 #### 4.9.1 What was built
 
-- **Engine.** `import_review.rs` forms the review of §4.3 (`swbpipe.mbf_import_review`, format 1). After the fixed leading
+- **Engine.** Slice 5 originally formed `swbpipe.mbf_import_review`, format 1; current format-2 accounting is
+  specified in §4.3 and §5.3. After the fixed leading
   members come `completeness`, `transfer_limit` and a `blocks` object (`import_refused`, `document_check`,
   `truncated`, `model_too_large`, `assumption_unavailable`), then `source`, `binding` (`state`, `reason`),
   `declaration` (`sha256`, `recorded_origins`), `units`, `model` (`document_check`, `schema_status`), `identity`
@@ -2118,7 +2123,8 @@ Criterion 6 is not claimed: reference-family coverage, C6-2 and Route 1 stay ope
 
 ## 5. The round-trip check
 
-**In CI, with invented data only.**
+**The planned complete-family check in CI, with invented data only.** The supported-subset connecting
+candidate is narrower and is described in §5.1; it does not establish this complete-family check.
 
 - **Fixture.** `fixtures/caepipe_mbf/invented/coverage/coverage_model.json`, with its
   invented-provenance sidecar. It holds one instance of every family the writer covers, and
@@ -2157,6 +2163,161 @@ source (today valves, reducers, flanges, rigid elements and nozzles; Q-3) are au
 fixture and expected in the loss report until their sources exist. The fixture is named here
 and in RT-R7/R8's status column; the release target's criterion text is the owner's and is
 not edited.
+
+### 5.1 Supported-subset connecting candidate (slice 6)
+
+The maintained input is `fixtures/caepipe_mbf/invented/desktop_export/export_model.json`: an invented bent run,
+two library sections, anchors, a linear spring, one sustained force and one thermal case. Its pressure-region
+set is empty. This is the existing supported subset, not the criterion-1 reference system or a new family
+mapping. Its exact settings are the `degc-default` case of `review_cases.json`; `export_digests.json` and
+`desktop_import/import_replies.json` bind the source, saved MBF, identity file and declaration bytes. The raw
+import replies and their public provenance companion remain the native generator's output (§4.9.2).
+
+`apps/desktop/src/App.mbfRoundTrip.test.tsx` joins the mounted App's actions in one session: ordinary Open
+loads that selected source; File > Export MBF… reviews it and explicitly saves; closing export retires it;
+File > Import MBF… reviews and adopts the matching bound or unbound reply. The test host checks the submitted
+canonical model, model hash, exact settings and pair digests together, rather than returning an unrelated
+import after an arbitrary export. Unbound import requires the per-material declaration and its new review.
+The candidate reaches the maintained Open validator once by reference. Opening export again reads the
+committed session model and compares its whole document with the native candidate. The negative cohorts
+check whole-model preservation after a stale Adopt and after Open's unsaved-changes guard cancels an import
+of the earlier saved pair; cancellation sends no Adopt and retires the source once.
+
+This is **mocked native transport coverage**. Export review and import payloads come from the maintained native
+producers; the save receipt is a stub with their exact pair sizes and digests. The App test writes no MBF and
+opens no native chooser. `mbf_import_tests.rs` separately connects actual export review/save task 3, the file
+transaction and read-back, and task-5 open/review/adopt on those saved bytes, bound and unbound. Its generator
+`the_dialogs_import_replies_are_the_native_replies` compares the complete captured reply strings with the
+maintained fixture and checks the exact input/provenance bindings. Component passes and this mocked App
+cohort cannot establish that a launched desktop app performed that native round trip.
+
+The native connecting assertions also compare complete reviews within the 1 MiB cap, all nine identity classes,
+primitive-load inventories and the explicitly empty pressure-region inventories. A fixture-specific canonical
+reduction compares the source with the adopted document in SI using §18.2 bounds or stricter included terms,
+by restored identities when bound and by MBF names when unbound. It covers coordinates, pipe and referenced-section
+properties, material constants, restraints and spring stiffness, bend geometry/plane/flexibility, and force and
+thermal primitives. This is an independent comparison of this fixed input, not a general replacement for
+`tests/caepipe_mbf_canonical.py`. Retirement after Adopt or a refusal leaves later Review and Adopt unable to
+recover the retired source, including after the files are restored to their chosen state.
+
+**Identity-report limitation.** Matching inventories does not establish C6-5's separate requirement that the
+report list no unrecoverable identity. The report also includes missing-field and information-loss notices;
+§5.2 diagnoses their source semantics and §5.3 implements the selected format-2 accounting correction.
+Every notice, category and substantive reason remains. The corrected metrics do not resolve the requirement
+by relabeling actual missing IDs or claiming original completeness.
+
+The focused execution packet is the desktop Vitest cohort `src/App.mbfRoundTrip.test.tsx` and the native
+`mbf_import::tests` cohort, including the reply producer above, from the same selected candidate source and
+its maintained fixtures. The native cohort exercises the capped workers and saved bytes; the App cohort uses
+mocked native transport with the maintained Wasm operation engine for its edit. These checks remain distinct
+from the launched App witness below. Exact executions, checks and source revisions belong in the PR.
+
+The remaining actual App witness uses this invented input and those settings, saves through the native
+chooser, imports that written pair bound, and repeats without the identity file with each material explicitly
+designated. It must record the actual selected build/input bytes, complete export/import reviews and output
+ceilings, saved-pair bindings, adopted model and identity comparison, and Open guard/session-retirement
+behavior. A native test process plus mocked App replay does not supply that witness. App launch/capture
+requires separate authority; this candidate does not claim C6-2, full reference-family coverage or criterion 6.
+The unsupported-family refusals and metadata/provenance dispositions remain those of the import Design,
+including §20.5.10; combinations remain outside criterion 6 under §8.1's owner amendment.
+
+This connection and reporting correction change neither DEL-17-04 nor DEL-07-12's ScopeOfWork or dependency conditions.
+The existing GUI/native split and Open-consumer boundary remain in force.
+
+### 5.2 Identity recovery and original-source limits
+
+`finish.rs::report_unrecoverable` and its Python twin always emit the bound `unexported members` warning.
+It names the writer's omitted classes (labels, provenance, combinations, lines, unresolved assumptions,
+constraints, equipment interfaces, rule-pack references and settings); it is not a measured missing-ID inventory.
+Review format 1 counted this warning, bend references and legacy support fields with lost original load ids.
+Thus the maintained bound fixture's old count of 2 conflated one unrecovered reference and general uncertainty.
+The format-2 correction in §5.3 separates those facts and preserves every notice.
+
+`assemble.rs::bend_component` restores the component id but uses the near tangent node. The identity file
+records the bend's identity and geometry, not which endpoint the source component named. The near/far source
+regressions in both twins write identical MBF/identity bytes for opposite source choices, restore the same
+component id, warn on both, choose the near node, and demonstrate the far reference lost. Matching nine output
+inventories cannot recover that choice. The corresponding support-family and summed-load regressions distinguish
+restored support ids with missing fields from actual original load ids absent after a sum.
+
+The identity file's self-digest checks its own consistency and the MBF digest binds its selected bytes.
+Regeneration checks reproducibility of the represented values and mappings, with summed originals set aside
+by name (§14 of the import design). Neither proves authorship or original completeness: a consistently edited
+id, or removal of one contributor to a sum, cannot establish the original inventory. The identity file carries
+no original-model digest, complete original inventory or export loss report. `source_label` labels the import;
+material origin and per-material declarations establish permitted material provenance only (§7.4). Rebinding
+is explicit and unconfirmed; the desktop offers no rebinding or source-completeness declaration.
+
+The dialog keeps its bound/unbound explanation and adds: "These counts describe this import. They do not
+establish that every original source identity was preserved. The loss report also includes fields and other
+information the file cannot recover." App regressions retain the warning entries and personal Adopt flow.
+Their native transport is mocked; native/App execution evidence remains separate (§5.1).
+
+A later C6-5 capability must recover the original reference choice and establish a comparison against the exact
+designated original source with explicit completeness. This correction does not select its mechanism. A-3,
+C6-5, source-designation requirements and the actual App witness remain unchanged and open.
+
+### 5.3 Selected report taxonomy and bounded review format 2
+
+The source implementation corrects misleading recovery accounting without deleting notices, recovering absent
+information or weakening C6-5/A-3. It introduces no source carrier, sidecar/model format, mapping or permission.
+
+| Prior emission | Current code and subject | Meaning retained |
+|---|---|---|
+| `MBF-IMPORT-ID-UNRECOVERABLE` for each original summed `load_map[case/id]` | Same code and exact named original entry | That original load id is absent from the adopted model; count each original once |
+| Same code for the formed summed-load group | `MBF-IMPORT-IDENTITIES-MERGED`, same group and named contributors | The formed group is not an additional lost original id |
+| Same code at `bend n` | `MBF-IMPORT-REFERENCE-UNRECOVERABLE`, `{component_id}.node` | Original endpoint choice is unrecorded; near node is used; component id survives |
+| Same code at legacy `support_map[id]` | `MBF-IMPORT-FIELD-UNRECOVERABLE`, `{support_id}.family` | Original family cannot be recovered; support id survives |
+| Same code at `unexported members` | `MBF-IMPORT-SOURCE-COMPLETENESS-UNESTABLISHED`, same subject | The exchange cannot establish which uncarried original members existed or recover them |
+
+Every emission remains both a warning and a loss entry with its existing category, substantive reason, line and
+order. `MBF-IMPORT-DIRECTION-UNRECOVERABLE` also remains and counts as a field limitation. All codes have product
+descriptions. No reason sentence is parsed. Python/Rust assembly records fixed-size `IdentityRecoveryFacts`
+(`known_missing_ids`, `unrecovered_fields`) at the corresponding branches, retained on refused results too.
+The existing matched-load-group tracking counts each original once even if malformed duplicate input repeats
+notices before refusal. The facts add no serialized per-entity inventory and do not alter model/id-map bytes.
+
+§4.3 defines the format-2 identity members. The maintained bound example changes from format 1's conflated 2 to
+0 known lost ids, 1 unrecovered reference and completeness not established, with both notices retained. Two summed
+source loads count as 2 lost ids, excluding the group and generic notices. Unbound zero counts likewise leave
+source completeness unestablished. **Zero never establishes completeness, reference equality or C6-5.**
+
+**Reader compatibility.** `IMPORT_REVIEW_FORMAT`, the TypeScript `MbfImportReviewPayload` and native fixed-prefix
+validation select review format 2 together. MBFI1 worker framing is unchanged. Native Review and Adopt reject
+format-1 payloads even when rehashed; the desktop rejects prior/unknown versions before interpreting identity
+metrics or rendering the review. A prior-format review digest is stale for current Adopt. No compatibility
+fallback or grandfathering is provided. There is no maintained format-1 reader to keep using the old meaning.
+The full source census found no established external receiving consumer or separate bounded-review JSON Schema.
+
+The maintained producer/reader neighborhood is:
+
+- Python `importer.py` and Rust `src/lib.rs`, `importer/{mod,assemble,finish}.rs`; raw report `to_dict()` keeps its
+  shape while taxonomy codes/subjects change. Python/Rust parity tests consume those reports and model/id-map bytes.
+- Engine `import_review.rs`; native task-5 worker, decoder and reply writer in
+  `apps/desktop/src-tauri/src/mbf_import.rs`; the desktop `mbfImport.ts` descriptions/version/adoptability helpers,
+  `MbfImportDialog.tsx`, and App/component/native review tests.
+- `mbfEngine.ts` carries raw importer report strings, not bounded reviews; its test concerns missing Wasm assets.
+  Native ingress carries bounded replies without interpreting their review fields. Command catalogs/ingress and
+  report/export-adapter/agent paths do not parse this bounded review or its identity metric; no catalog change follows.
+- Maintained import/writer vector generators and their provenance/check readers; the native import transcript
+  producer in `mbf_import_tests.rs` and App replays. These generated derivatives require maintained regeneration,
+  never edited expected values. Their existing MBF/identity/model byte bindings must remain identical.
+
+**Bounds.** The Rust facts contain two `u64` values (16 inline bytes, alignment 8), embedded in `Importer` and
+`ImportResult` without a heap collection; compiled whole-struct layout/peak checks remain pending. Python holds one small facts object and a result copy. Review format 2 adds at most 82 fixed ASCII bytes for the two
+new identity members; the changed codes/subjects are also counted after escaping, including long-field prefixes.
+`Header::push` participates in fixed-size sizing, complete/truncated serialization and the exact transfer decision.
+The 1 MiB review cap, 512-byte field cap, task/result/reply limits and leases remain in force. Native fixed-prefix
+control stays within its 1 KiB buffer (only the same-width version digit changes); later identity fields do not
+enter that prefix. Envelope/result/reply lengths use actual review bytes, with escaped reply sizing before
+allocation. Every loss entry still participates in completeness; a truncated review blocks Adopt. No cap or
+pricing coefficient changes are made or inferred. Runtime allocation/qualification evidence remains pending.
+
+The connecting and focused regression source covers both twins, near/far reference collision, generic/family/
+direction semantics, two summed original ids, notice preservation, full/truncated reviews, old-version refusal,
+stale/personal Adopt and session retirement. Maintained regeneration and targeted native/App checks support
+this component connection. Final independent persistence/permission and exact old/new wording scrutiny on the
+integrated predecessor remains required; these checks supply no launched App witness.
 
 ## 6. Slices
 

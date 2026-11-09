@@ -8,7 +8,7 @@
 //! - **Status first.** The importer's status, the document check, the assumptions' completeness and every count are
 //!   computed over the full result before any bound applies. Overflow never makes a refused import adoptable.
 //! - **Fixed leading members**, byte for byte, so the host checks them without parsing:
-//!   `{"document_kind":"swbpipe.mbf_import_review","format":1,"status":"<imported|refused>","adoptable":<true|false>,
+//!   `{"document_kind":"swbpipe.mbf_import_review","format":2,"status":"<imported|refused>","adoptable":<true|false>,
 //!   "model_sha256":<"hex"|null>,"model_bytes":<n>,`.
 //! - **Lists**, in order: `refusals` (each error diagnostic: code, line, entity; they block), `document_check` (the
 //!   worker's blocking document-check findings: code, path; they block), `assumptions` (every applied mapping
@@ -33,7 +33,7 @@ use crate::{ImportResult, ASSUMPTION_IDS};
 /// The review's `document_kind`.
 pub const IMPORT_REVIEW_DOCUMENT_KIND: &str = "swbpipe.mbf_import_review";
 /// The review's `format`.
-pub const IMPORT_REVIEW_FORMAT: u64 = 1;
+pub const IMPORT_REVIEW_FORMAT: u64 = 2;
 /// A truncated review blocks adoption (§4.3).
 pub const IMPORT_REVIEW_TRUNCATED: &str = "MBF-IMPORT-REVIEW-TRUNCATED";
 /// An applied mapping assumption lacks its bounded source-safe representation (§4.3).
@@ -424,7 +424,10 @@ impl Header<'_> {
             out.push("}");
         }
         out.push("],\"unrecoverable\":");
-        push_u64(out, self.result.loss_report.iter().filter(|item| text(item, "code") == "MBF-IMPORT-ID-UNRECOVERABLE").count() as u64);
+        push_u64(out, self.result.identity_recovery.known_missing_ids);
+        out.push(",\"unrecovered_fields\":");
+        push_u64(out, self.result.identity_recovery.unrecovered_fields);
+        out.push(",\"source_completeness\":\"not_established\"");
         let not_shown = |index: usize| (self.totals[index] - self.listed[index]) as u64;
         out.push("},\"counts\":{\"not_shown\":");
         push_u64(out, (0..6).map(not_shown).sum());

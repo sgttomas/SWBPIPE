@@ -15,7 +15,7 @@ use crate::pystr::{
 use crate::rational::{fraction_is_zero, parse_fraction, Parsed, Q};
 use crate::sidecar::{sidecar_self_digest, SidecarParser, DIGESTED_FORMATS, SHEAR_MODELS, SIDECAR_DIGEST_KEY};
 use crate::value::{Dict, OMap, Value};
-use crate::{AssumptionFact, ImportError, ImportOptions, ImportResult, SidecarInput, ASSUMPTION_ID_UNAVAILABLE};
+use crate::{AssumptionFact, IdentityRecoveryFacts, ImportError, ImportOptions, ImportResult, SidecarInput, ASSUMPTION_ID_UNAVAILABLE};
 use sha2::{Digest, Sha256};
 
 pub(crate) const IMPORT_PROFILE_ID: &str = "caepipe-mbf-import-1";
@@ -258,6 +258,8 @@ pub(crate) struct Importer<'a> {
     /// The structured counterpart of each entry of `assumptions`, in the same order.
     pub assumption_facts: Vec<AssumptionFact>,
     pub recorded_material_origins: u64,
+    /// Counted at the emissions that report an original id not preserved or a field/reference not recovered.
+    pub identity_recovery: IdentityRecoveryFacts,
     pub target_options: Dict,
     pub empty_comments: i64,
     pub delegated_sections: Dict,
@@ -304,6 +306,7 @@ impl<'a> Importer<'a> {
             assumptions: Vec::new(),
             assumption_facts: Vec::new(),
             recorded_material_origins: 0,
+            identity_recovery: IdentityRecoveryFacts::default(),
             target_options: Dict::new(),
             empty_comments: 0,
             delegated_sections: Dict::new(),
@@ -436,6 +439,7 @@ impl<'a> Importer<'a> {
             assumptions: self.assumptions.clone(),
             assumption_facts: self.assumption_facts.clone(),
             recorded_material_origins: if refused { 0 } else { self.recorded_material_origins },
+            identity_recovery: self.identity_recovery,
             target_options: self.target_options.clone(),
             id_map: if refused { Value::Dict(Dict::new()) } else { id_map },
             source,
