@@ -33,14 +33,18 @@ authored.
   `±κ·p·A_i` with κ = 2ν (`pressure_exact.rs` `eigenload_pair`; source group
   `poisson_eigen`, coefficient `sign·2ν`). Since 2ν = 1 − (1 − 2ν), this pair is the cap
   pair −c plus the free-strain push K·u_free(ε_p).
-- **Realized arcs** carry the free strain as its own push, `K_b·u_free(ε_p)`
-  (`LoadFormula::PressureFreeStrainCurved`, `lib.rs` `add_curved_bend_pressure_equivalent_load`),
-  with the cap part `−c_b` in source group `bend_cap_removed`; recovery subtracts
-  `u_free(ε_th + ε_p)` (`bend_pressure::recovery_strain`).
-- **Thrust** at unbalanced locations is separate and is not part of ε_p: `terminal_cap`
-  at non-transferring terminals, `kink_remainder` at bend junctions, `joint_effective_area`
-  and `joint_face_cap` (p(A_e − A_i)) at expansion joints, and elastic tie rods as plain
-  connector members (RT-K4).
+- **Realized arcs** carry the free strain as its own push, `K_b·u_free(ε_p)`, formed
+  from the arc's own stiffness K_b (`LoadFormula::PressureFreeStrainCurved`, `lib.rs`
+  `add_curved_bend_pressure_equivalent_load`), with the cap part `−c_b` in source group
+  `bend_cap_removed`; recovery subtracts `u_free(ε_th + ε_p)` (`bend_pressure::recovery_strain`).
+- **Thrust sources** are separate from ε_p: `terminal_cap` is emitted only at
+  transferring terminals (where it cancels the member's cap); `kink_remainder` at bend
+  junctions; `joint_effective_area` and `joint_face_cap` (p(A_e − A_i)) at expansion
+  joints; elastic tie rods are plain connector members (RT-K4). The thrust a support or
+  joint attachment actually feels is the **assembled resultant** of these groups with the
+  members' cap pairs: at a non-transferring terminal it is the member's uncancelled cap,
+  p·A_i; at a joint the face-cap part cancels the adjacent member's cap, leaving a net
+  attachment load of magnitude p·A_e.
 - **Wall and effective force.** Arcs publish N_w = N_el + p·A_i and S = N_el. Straights
   publish the same law through the member force N_m of the eigenload solve:
   N_w = N_m + 2ν·p·A_i, S = N_m + (2ν − 1)·p·A_i, that is N_el = N_m + (2ν − 1)·p·A_i
@@ -86,12 +90,16 @@ TS `types.ts` gains it. Per case, the exact route reads one boolean,
 
 ### 3.3 Desktop
 
-- The model settings section (`ModelSettingsSection.tsx`) gains **Pressure elongation
-  (Bourdon)**, shown only on a document with a pressure contract: an off/on switch and,
-  when on, a checklist of the document's load cases titled "Operating load cases". Queueing
-  "on" requires at least one ticked case; nothing is pre-ticked. Intents use the existing
-  `set_model_setting` / `clear_model_setting` route on the project, so undo and drafts are
-  the existing ones.
+- The model settings section (`ModelSettingsSection.tsx`) gains one **Include pressure
+  elongation** toggle, shown only on a document with a pressure contract. Switching it on
+  shows the "Operating load cases" checklist, **preselected** with the cases whose `kind`
+  the user marked operating (trimmed, case-insensitive "operating") and editable; queueing
+  "on" requires at least one ticked case. The preselection is a desktop convenience the
+  user sees before queueing: the document holds only the explicit list, and the engine
+  reads nothing else. Intents use the existing `set_model_setting` / `clear_model_setting`
+  route on the project, so undo and drafts are the existing ones.
+- While on, the section names every load case that has pressure regions but is not in the
+  list ("Not included: …"), so a case added later is never excluded silently.
 - **Contextual note** while the member is absent on a pressure document: "Off (default).
   Pressure elongation is not included in any load case. Documents saved before this
   setting existed included it in every pressurised case; turn it on and name the operating
@@ -110,13 +118,21 @@ pressure elongation, κ = 1 when it does not.
 Removes the free pressure strain **only**:
 
 - **Straights:** the `poisson_eigen` group coefficient is `sign·1` (the cap pair −c
-  alone). Inside a region these pairs cancel with the internal caps, and with
-  `terminal_cap` and `kink_remainder` at transferring terminals and bend junctions, so what
-  loads the system is exactly the unbalanced thrust: p·A_i at non-transferring terminals
-  and the joint's p(A_e − A_i). The source-grouped ledger keeps its groups (with the new
-  coefficient) so evidence stays comparable.
+  alone), formed as `PressureCoefficient::Constant` rather than the Poisson coefficient.
+  κ must reach **every** path that forms or re-forms it: the grouped assembly, the
+  independent per-source reconstruction (`pressure_runtime.rs` `PressureCoefficient::Poisson`,
+  ~1439, and its frame-kernel formation check), the certified load path, and the certified
+  straight stress maxima, which add `2ν·p·A_i` on their own (`certified_publication.rs`
+  ~639) and must add `κ·p·A_i`. Otherwise assembled loads, certified loads and published
+  maxima disagree. Inside a region the κ = 1 pairs cancel with the internal caps, with
+  `terminal_cap` at transferring terminals and with `kink_remainder` at bend junctions, so
+  what loads the system is exactly the assembled unbalanced thrust of §2. The
+  source-grouped ledger keeps its groups (with the new coefficient).
 - **Arcs:** no `PressureFreeStrainCurved` push; recovery subtracts `u_free(ε_th)` only;
   `bend_cap_removed` stays.
+- **On-path arithmetic is untouched.** The included branch keeps today's expressions and
+  operation order exactly (including the two-difference `2ν − 1` split), so the anchor of
+  §7 can be bit-identical.
 - **Unchanged:** every thrust source of §2 (terminal caps, kink remainders, joint terms,
   tie rods), the pressure stress terms published today, and the pressure contract's region
   and closure rules.
@@ -124,10 +140,12 @@ Removes the free pressure strain **only**:
 ### 4.2 Included ("on")
 
 Exactly today's mechanics (κ = 2ν on straights, the `PressureFreeStrainCurved` push and
-`u_free(ε_th + ε_p)` recovery on arcs), in the named operating cases only. ε_p keeps the
-Lamé form on the pressure bore. A thin-wall form on the mean diameter (σ_L = p·D_m/(4t))
-gives a larger strain by (r_m / r_i)²; the difference is disclosed in the included
-statement (§5).
+`u_free(ε_th + ε_p)` recovery on arcs), in the named operating cases only. ε_p keeps its
+current form: p·A_i on the pressure bore (r_i = OD/2 − t_r, the reduced wall) over the
+nominal section area A_s. It is not a thin-wall mean-diameter form. For one common annulus
+(r_i, r_o) the thin-wall form σ_L = p·D_m/(4t) gives a strain larger than the Lamé form by
+(r_m/r_i)²; on the route the bore and the stiffness area come from different walls, so no
+unconditional ordering is claimed (§5).
 
 ### 4.3 Wall and effective force, both settings
 
@@ -145,7 +163,10 @@ publication twin follows the same κ.
 included: anchor reactions 0, N_el = 0, N_w = p·A_i, S = 0. Included:
 N_el = −(1 − 2ν)·p·A_i, N_w = 2ν·p·A_i, anchor reactions ∓(1 − 2ν)·p·A_i. The
 operating-minus-sustained difference of an included operating case and a not-included
-sustained case with the same p is the elongation response alone.
+sustained case with the same p is the elongation response alone. Further "not included"
+controls, each against its assembled resultant: a non-transferring terminal (support feels
+p·A_i), an expansion joint (attachment load p·A_e), a tee junction, and concentric and
+eccentric reducer steps (each step's thrust unchanged from today).
 
 ### 4.4 Out of scope, unchanged
 
@@ -167,13 +188,29 @@ sustained case with the same p is the elongation response alone.
   - "Pressure elongation is not included in any load case: the closed-end free pressure
     strain is omitted; pressure thrust at unbalanced locations is applied."
   - "Pressure elongation is included only in the operating load cases the model settings
-    name, as the closed-end free strain (1 − 2ν)·p·A_i/(E·A) in Lamé form on the pressure
-    bore; a thin-wall mean-diameter form gives a strain larger by (r_m/r_i)²."
+    name, as the closed-end free strain (1 − 2ν)·p·A_i/(E·A_s), with A_i on the pressure
+    bore and A_s the nominal section area; it is not a thin-wall mean-diameter form."
   Both are fixed strings, so the report's hash-pinned statement table
   (`exactReportLimitations.ts`, `fixtures/reports/exact_route_limitations.json`,
   `exact_report_statements.json`) gains exactly these two.
+- **Bend statement.** `BEND_LIMITATION` (`bend_pressure.rs` ~35, published whenever a bend
+  exists, `lib.rs` ~1457) says every realized arc owns `K_b·u_free(ε_p) − c_b`. It is
+  revised to make the free-strain term conditional ("…owns −c_b, and K_b·u_free(ε_p) in a
+  case that includes pressure elongation…"), and its report-table binding is regenerated.
 - **Per case.** Each case's pressure evidence carries `pressure_elongation: included |
   not_included`, which the desktop shows as the §3.3 label.
+- **Readers.** The Rust readers enforce today's law and would refuse an off result:
+  the straight coefficient check requires |coefficient| = |2ν| (`result_export`
+  `physics_evidence.rs` ~1601) and the arc check requires a nonzero arc strain matching
+  the pressure's sign (`arc_evidence.rs` ~218). Both become switch-aware, keyed on the
+  case's `pressure_elongation` evidence: κ = 2ν and the signed nonzero strain when
+  included; κ = 1 and zero arc free strain when not. The results schema gains the per-case
+  member; retained-source receipts carry it. Every table digest that inherits the pressure
+  table moves with it, including the pressure digest inherited by
+  `fixtures/results/semantic_contract_v0_3_physics_retained_1.json` (~2312) and the
+  retained registration's reviewed inputs. The `pressure-2` recorded-table aliases are
+  **not** carried into `pressure-3`. Mixed selections (some cases included, some not) are
+  verified through ordinary, retained-source and load/reference-state replay.
 
 ## 6. CAEPIPE MBF mapping
 
@@ -188,10 +225,17 @@ MBF `OPPRES` field 2 is the Bourdon flag (0 or 1 today; other values refused wit
   expansion case, and no operating case, so "elongation in the expansion range" has no
   case to be named in. Representing it (for example an imported operating case) is MBF-lane
   work after this switch. Field 3 (bend pressure correction) is unchanged.
-- **Write:** field 2 = 1 when the setting is present, 0 otherwise; the writer stops
-  classifying `model_settings` wholesale as omitted input-validation settings, and its
-  OPPRES note is corrected (today it says the exact route models neither effect, which is
-  wrong for elongation).
+- **Write:** field 2 is always 0 in this unit. The writer maps pressure to the sustained
+  case and refuses pressure-plus-thermal cases (`si_writer.py` ~1276), so a SWBPIPE
+  selection of operating cases has no faithful CAEPIPE mapping yet, and setting presence
+  cannot stand in for the flag (a setting may name a pressure-free case while the
+  pressurised one is unlisted). When the setting is present the writer lists an explicit
+  loss, `MBF-EXPORT-PRESSURE-ELONGATION-OMITTED` ("pressure elongation is not exported;
+  the written model solves without it"), and still writes field 2 = 0. Enabled export
+  (defined case mappings and named refusals) is MBF-lane follow-up. The writer keeps
+  listing the other unexported `model_settings` members as it does today, and its OPPRES
+  note is corrected (it says the exact route models neither effect, which was wrong for
+  elongation and is now true only of the default).
 - Both twins (Python and Rust) change together with their vectors. This lands after PR 197
   (which rewrites the same OPPRES note and vectors), coordinated with the MBF lane; if PR 197
   has not merged when the rest is ready, the MBF change follows as its own PR so it cannot
@@ -206,10 +250,14 @@ The default change moves every pressurised exact-route result, so:
    pressurised cases; its physical numbers must be bit-identical to the current committed
    values (only identity, setting and label bytes change). This proves "included" is
    today's mechanics exactly.
-2. **New off controls.** Closed-form controls of §4.3 on straights; an arc control
-   (no ε_p in the arc); a joint control showing p(A_e − A_i) unchanged with elongation off;
-   a mixed O/S pair showing the O − S difference equals the elongation response; certified
-   and ordinary publication agree in both settings.
+2. **New off controls.** The closed-form and resultant controls of §4.3 (straight,
+   non-transferring terminal, joint, tee, concentric and eccentric reducer); an arc control
+   (no ε_p in the arc; tests use the arc's own stiffness and assume no particular beam
+   theory, since arcs may carry a shear area); a mixed O/S pair showing the O − S
+   difference equals the elongation response; assembled, certified and published maxima
+   agree in both settings; readers accept both settings and refuse a case whose evidence
+   and coefficients disagree; the desktop toggle's preselection, editability and
+   not-included line.
 3. **Fixtures and references** (re-produced, setting explicit): `validation/references`
    pressure sets (t4_u4a/u4b/u5a/u5b/u6/u8, t4_i7/i8/i12, rt_a3_*, w15_rigid_scaling,
    o4_retained_source), `validation/qualification/fixtures/exact_pressure` (MANIFEST),
