@@ -228,7 +228,8 @@ fn arc_documents() -> Vec<(String, Value)> {
         current_model::project_root().join("fixtures/results/pressure_v3_arc_reader_corpus.json")).unwrap()).unwrap();
     corpus["cases"].as_array().unwrap().iter()
         .filter(|c| !pressure_elongation::pressurised_cases(&c["document"]).is_empty())
-        .map(|c| (c["label"].as_str().unwrap().to_string(), c["document"].clone()))
+        // The corpus names its pressurised cases (today's mechanics); "not included" is the document without it.
+        .map(|c| (c["label"].as_str().unwrap().to_string(), pressure_elongation::without_elongation(&c["document"])))
         .collect()
 }
 
@@ -273,6 +274,8 @@ fn a_realized_arc_has_no_free_pressure_strain_when_not_included() {
 fn an_expansion_joint_attachment_feels_p_ae_when_not_included() {
     let request: Value = serde_json::from_str(&std::fs::read_to_string(current_model::project_root()
         .join("fixtures/reports/invented/exact_report_witness_inputs/pressure_2_connector.request.json")).unwrap()).unwrap();
+    // The witness request names its pressurised case; "not included" is the request without it.
+    let request = pressure_elongation::without_elongation(&request);
     let joint = &request["model"]["components"][0];
     assert_eq!(joint["kind"], "expansion_joint");
     let ae = joint["objective_connector"]["pressure_model"]["effective_area"]["value"].as_f64().unwrap();

@@ -684,6 +684,7 @@ fn force_rows_of_a_pressure_free_model_agree_with_the_preview_route() {
     let mut pf = ex.clone();
     let model = pf["model"].as_object_mut().unwrap();
     model.remove("pressure_contract");
+    model.remove("model_settings"); // pressure elongation needs a pressure contract
     for case in pf["model"]["load_cases"].as_array_mut().unwrap() {
         case.as_object_mut().unwrap().remove("pressure_regions");
     }

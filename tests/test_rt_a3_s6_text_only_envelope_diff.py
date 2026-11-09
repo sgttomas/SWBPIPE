@@ -117,10 +117,10 @@ NEEDLES = ("group and without an objective connector, gap", "Spring base motion,
 TABLES = {
     "fixtures/results/semantic_contract_v0_3_pressure_2.json": (
         "21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765b5faa7d6bb90",
-        "757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb10813998200d9"),
+        "c5fe09a2dc82068f46ce8dd0b5873071af1ec13e62c9bacf0a009570d7e5d2ad"),
     "fixtures/results/semantic_contract_v0_3_physics_retained_1.json": (
         "320dc3f1f75944af8b66da1287e6f8ee5e1fcd5fe005752f2c90bf8c89a9c894",
-        "094e41545efdc9815af124e91ede505213a70e4425bf32c8e2138cd74ce22893"),
+        "f17bd9d57ee8d1cef4b465715e4edbf030faa5aa4f5282ad7927c25e3f6668d3"),
 }
 TABLE_SHA256 = TABLES["fixtures/results/semantic_contract_v0_3_pressure_2.json"]
 TABLE_PAIRS = frozenset(TABLES.values())
