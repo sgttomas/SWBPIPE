@@ -1,5 +1,5 @@
 //! The desktop shell. `unsafe` code is denied here and in every module but
-//! the thirteen that carry `#[allow(unsafe_code)]` on their `mod` line, a list the
+//! the fourteen that carry `#[allow(unsafe_code)]` on their `mod` line, a list the
 //! user-release reach scan pins (DEL-08-01 Design `report-user-release.md`
 //! §2.8, "Symbol-level FFI"; code review r9 at #1682).
 #![deny(unsafe_code)]
@@ -8,6 +8,8 @@ mod atomic_report_package_save;
 #[allow(unsafe_code)]
 mod autosave;
 mod autosave_commands;
+#[allow(unsafe_code)]
+mod backup;
 mod close_guard;
 mod command_ingress;
 mod embedded_agent;
@@ -6274,6 +6276,8 @@ macro_rules! app_invoke_handler {
             autosave_commands::discard_project_autosave,
             autosave_commands::get_autosave_settings,
             autosave_commands::set_autosave_settings,
+            backup::configure_project_backup,
+            backup::write_project_backup,
             sync_native_shell_state,
             acknowledge_close_request,
             resolve_close_request,

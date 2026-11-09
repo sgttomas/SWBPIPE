@@ -54,6 +54,8 @@ export const INGRESS_COMMANDS: ReadonlySet<string> = new Set([
   "discard_project_autosave",
   "get_autosave_settings",
   "set_autosave_settings",
+  "configure_project_backup",
+  "write_project_backup",
   "read_preview_mechanics_job_verdict",
   "read_preview_mechanics_job_summary",
   "query_preview_mechanics_job_rows",
