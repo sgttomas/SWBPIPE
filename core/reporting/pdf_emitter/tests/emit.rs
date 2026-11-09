@@ -94,6 +94,7 @@ fn fixture_input() -> RenderableReportInput {
         exact_route: None,
         library_references: None,
         report_composition: None,
+        model_input_tables: None,
     }
 }
 
@@ -657,4 +658,42 @@ fn composed_sections_emit_in_the_pdf_alike() {
     refused.report_composition.as_mut().unwrap().sections[0].view.limit = Some(0);
     assert!(emit_calculation_report_pdf(&refused).export_blocked);
     assert!(assemble_full_report_package(&refused).export_blocked);
+}
+
+/// Slice C5 (DEL-08-01 Design `report-section-composer.md` §2.7): model-input
+/// subsections are emitted in the PDF as in the HTML, under their governed
+/// parents.
+#[test]
+fn model_input_sections_emit_in_the_pdf_alike() {
+    const VECTORS: &str = include_str!("../../../../fixtures/reports/invented/report_composition_vectors.json");
+    let vectors: serde_json::Value = serde_json::from_str(VECTORS).unwrap();
+    let mut composed = fixture_input();
+    composed.result_rows = serde_json::from_value(vectors["rows"].clone()).unwrap();
+    composed.report_context = Some(serde_json::from_value(serde_json::json!({
+        "export_context": "local_private", "software_name": "Invented composer test",
+        "solver_settings": [], "result_coordinate_systems": []
+    })).unwrap());
+    composed.report_composition = Some(serde_json::from_value(serde_json::json!({
+        "composition_version": "1.0.0",
+        "sections": [
+            {"section_id": "load_combinations", "cases": "all", "view": {"kind": "all"}},
+            {"section_id": "input_loads", "cases": "all", "view": {"kind": "all"}}
+        ]
+    })).unwrap());
+    composed.model_input_tables = Some(serde_json::from_value(serde_json::json!({
+        "load_combinations": [{"id": "combination:PDF-C1", "label": null, "basis": "srss", "operands": "1 × case:PDF-A", "mode": null}],
+        "input_loads": [{"case_id": "case:PDF-A", "load_id": "load:PDF-1", "category": "weight", "target": "element:pipe:PDF", "direction": "global_y", "magnitude": "-9.81 N/m"}]
+    })).unwrap());
+    let render = render_calculation_report(&composed);
+    let pdf = emit_calculation_report_pdf(&composed);
+    assert!(!pdf.export_blocked, "{:?}", pdf.blocking_reasons);
+    assert_eq!(pdf.canonical_html_sha256_hex, render.sha256_hex);
+    for needle in ["Load combinations", "combination:PDF-C1", "Applied loads", "load:PDF-1", "element:pipe:PDF", "Values as entered in the model"] {
+        assert!(render.html.contains(needle), "html: {needle}");
+        assert!(pdf_contains(&pdf.pdf_bytes, needle), "pdf: {needle}");
+    }
+    let mut unlisted = composed.clone();
+    unlisted.report_composition = None;
+    assert!(emit_calculation_report_pdf(&unlisted).export_blocked);
+    assert!(assemble_full_report_package(&unlisted).export_blocked);
 }

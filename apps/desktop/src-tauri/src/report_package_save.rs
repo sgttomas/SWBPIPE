@@ -1477,6 +1477,13 @@ fn admit_both_routes(
         )
         .into());
     }
+    // Slice C5 (DEL-08-01 Design `report-section-composer.md` §2.7): the
+    // report's model-input tables are P(M, C) of this bound model and the
+    // report's own composition, on both routes; tables without a listing id,
+    // or a listing id without tables, are refused. The refusal names a JSON
+    // pointer, never a value.
+    open_pipe_stress_report_package::model_input::check_model_input_tables(&model_value, request_value.get("report").unwrap_or(&Value::Null))
+        .map_err(|message| coded("/request/report/model_input_tables", &message))?;
     // The run's input manifest: its SHA-256 is the audit input-manifest hash.
     let input_manifest_value = parse_canonical("input_manifest", &input_manifest_text)?;
     let input_manifest_hex = sha256_hex(&input_manifest_text);

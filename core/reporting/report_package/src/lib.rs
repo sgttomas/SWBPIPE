@@ -66,6 +66,7 @@ pub(crate) mod admitted;
 pub mod bindings;
 pub mod document_form;
 pub mod exact_sections;
+pub mod model_input;
 pub mod pf_timoshenko;
 pub mod quantity_display;
 pub mod reader;

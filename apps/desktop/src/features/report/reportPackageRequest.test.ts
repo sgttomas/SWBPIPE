@@ -37,6 +37,7 @@ import {
 } from "./reportPackageRequest";
 import { numericalResultStanding } from "../results/resultStanding";
 import { buildRenderableReportInput, type SessionRuleCheckRun } from "./renderableReportInput";
+import { modelInputTables } from "./modelInputTables";
 import { reportResultRows } from "./reportResultRows";
 import componentProvenanceProjection from "../../../../../fixtures/reports/invented/component_provenance_cross_layer_projection.json";
 
@@ -447,6 +448,25 @@ describe("the report input the package carries", () => {
       quantity: { magnitude: 375, unit: "N", dimension: "force" }, required_for: ["reporting", "human_review"], missing_data_finding: false
     });
     expect(JSON.stringify(session)).toBe(before);
+  });
+
+  // Slice C5 (DEL-08-01 Design `report-section-composer.md` §2.7): the local-private input
+  // carries P(M, C) exactly when the composition lists a model-input section.
+  it("carries the model-input tables P(M, C) only when the composition lists a model-input section", async () => {
+    const session = await syntheticPreviewSession(structuredClone(inventedPreviewModel) as unknown as PreviewModel);
+    const renderContext = { exportContext: "local_private" as const, generatedAt: null };
+    const listed = { composition_version: "1.0.0" as const, sections: [
+      { section_id: "result_rows_all" as const, cases: "all" as const, view: { kind: "all" as const } },
+      { section_id: "input_loads" as const, cases: "all" as const, view: { kind: "all" as const } }
+    ] };
+    const report = await buildRenderableReportInput({ ...session, projectSummary: null, renderContext, reportComposition: listed }) as Record<string, unknown>;
+    expect(report.model_input_tables).toEqual(modelInputTables(session.model, listed));
+    expect(Object.keys(report.model_input_tables as object)).toEqual(["input_loads"]);
+    const resultOnly = { composition_version: "1.0.0" as const, sections: [{ section_id: "result_stresses" as const, cases: "all" as const, view: { kind: "all" as const } }] };
+    const plain = await buildRenderableReportInput({ ...session, projectSummary: null, renderContext, reportComposition: resultOnly }) as Record<string, unknown>;
+    expect(Object.hasOwn(plain, "model_input_tables")).toBe(false);
+    const uncomposed = await buildRenderableReportInput({ ...session, projectSummary: null, renderContext }) as Record<string, unknown>;
+    expect(Object.hasOwn(uncomposed, "model_input_tables")).toBe(false);
   });
 
   // Report-content correction (2026-10-27): the solver reads `spring_hanger` as a variable spring

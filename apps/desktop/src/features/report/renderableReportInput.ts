@@ -1,4 +1,5 @@
 import { composeReportRows, type ReportComposition } from "./reportComposition";
+import { modelInputTables } from "./modelInputTables";
 import { analysisResultHashScope } from "../results/analysisResultHashScope";
 import { documentCombinationIdentities, SUPPLEMENTAL_DIAGNOSTIC_LABEL, suppliedDiagnosticMessage } from "../results/suppliedDiagnostics";
 import type { NotNativeResult } from "../../services/nativeResult";
@@ -1102,8 +1103,13 @@ async function renderableReportInput(
 
   const resultRows = reportResultRows(result);
   if (reportComposition) composeReportRows(resultRows, reportComposition);
+  // Slice C5 (DEL-08-01 Design `report-section-composer.md` §2.7): `P(M, C)` when the
+  // composition lists a model-input section; every native boundary that holds the model
+  // re-derives it and requires equality.
+  const tables = modelInputTables(model, reportComposition);
   return {
     ...(reportComposition ? { report_composition: reportComposition } : {}),
+    ...(tables ? { model_input_tables: tables } : {}),
     report_title: `${model.project.name} — Calculation Report`,
     calculation_report: calculationReport,
     report_sections: reportSections,

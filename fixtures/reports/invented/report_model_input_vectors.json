@@ -1,0 +1,773 @@
+{
+ "schema_version": "1.0.0",
+ "generator": "apps/desktop/src/features/report/modelInputTables.parity.test.ts",
+ "description": "Invented data. Model-input projection vectors (DEL-08-01 Design report-section-composer.md section 2.7, slice C5): for each committed model (model_fixture at model_pointer) and the composition, the expected model_input_tables P(M, C) the desktop builds (modelInputTables.ts). The Rust projection (report_package::model_input::model_input_tables) must give the same. The tables carry the models' stored values as entered and no result.",
+ "composition": {
+  "composition_version": "1.0.0",
+  "sections": [
+   {
+    "section_id": "input_loads",
+    "cases": "all",
+    "view": {
+     "kind": "all"
+    }
+   },
+   {
+    "section_id": "result_rows_all",
+    "cases": "all",
+    "view": {
+     "kind": "all"
+    }
+   },
+   {
+    "section_id": "input_supports",
+    "cases": "all",
+    "view": {
+     "kind": "all"
+    }
+   },
+   {
+    "section_id": "input_geometry",
+    "cases": "all",
+    "view": {
+     "kind": "all"
+    }
+   },
+   {
+    "section_id": "load_combinations",
+    "cases": "all",
+    "view": {
+     "kind": "all"
+    }
+   },
+   {
+    "section_id": "input_materials_sections",
+    "cases": "all",
+    "view": {
+     "kind": "all"
+    }
+   }
+  ]
+ },
+ "vectors": [
+  {
+   "name": "every_slot",
+   "reason": "components, shared sections, materials with every listed member, supports with stiffness and nonlinear behaviour; mechanics, result-state subtraction, absolute-sum and SRSS combinations",
+   "model_fixture": "fixtures/model_document/invented_every_slot_model.json",
+   "model_pointer": "",
+   "expected": {
+    "load_combinations": [
+     {
+      "id": "combination:C-OP",
+      "label": "Operating",
+      "basis": "mechanics",
+      "operands": "",
+      "mode": null
+     },
+     {
+      "id": "combination:C-EXP",
+      "label": "Expansion",
+      "basis": "result_state_subtraction",
+      "operands": "load:L-2 − load:L-1",
+      "mode": null
+     },
+     {
+      "id": "combination:C-ABS",
+      "label": "Absolute sum",
+      "basis": "absolute_sum",
+      "operands": "1 × load:L-1; 1 × combination:C-EXP",
+      "mode": null
+     },
+     {
+      "id": "combination:C-SRSS",
+      "label": "SRSS",
+      "basis": "srss",
+      "operands": "1 × combination:C-ABS",
+      "mode": null
+     }
+    ],
+    "input_geometry": {
+     "nodes": [
+      {
+       "id": "node:N-1",
+       "label": "Anchor",
+       "x": "0",
+       "y": "0",
+       "z": "0"
+      },
+      {
+       "id": "node:N-2",
+       "label": "Elbow",
+       "x": "3.2",
+       "y": "0",
+       "z": "0"
+      },
+      {
+       "id": "node:N-3",
+       "label": "End",
+       "x": "3.2",
+       "y": "2",
+       "z": "0"
+      }
+     ],
+     "pipes": [
+      {
+       "id": "pipe:P-1",
+       "label": "Run",
+       "from": "node:N-1",
+       "to": "node:N-2",
+       "material": "material:steel",
+       "outside_diameter": "0.168 m",
+       "wall_thickness": "0.007 m",
+       "section_ref": null
+      },
+      {
+       "id": "pipe:P-2",
+       "label": "Riser",
+       "from": "node:N-2",
+       "to": "node:N-3",
+       "material": "material:steel",
+       "outside_diameter": "0.168 m",
+       "wall_thickness": "0.007 m",
+       "section_ref": null
+      }
+     ],
+     "components": [
+      {
+       "id": "component:C-1",
+       "label": "Bend",
+       "kind": "bend"
+      }
+     ]
+    },
+    "input_materials_sections": {
+     "materials": [
+      {
+       "id": "material:steel",
+       "label": "Invented steel",
+       "elastic_modulus": "200000000000 Pa",
+       "shear_modulus": "77000000000 Pa",
+       "poisson_ratio": null,
+       "thermal_expansion_coefficient": "0.000012 1/degC"
+      }
+     ],
+     "sections": [
+      {
+       "id": "section:std",
+       "name": "Invented section",
+       "section_type": "pipe",
+       "outside_diameter": "0.168 m",
+       "wall_thickness": null
+      }
+     ]
+    },
+    "input_supports": [
+     {
+      "id": "support:S-1",
+      "label": "Anchor support",
+      "node": "node:N-1",
+      "family": null,
+      "restraints": "UX, UY, UZ",
+      "stiffness": null,
+      "nonlinear_behavior": null
+     },
+     {
+      "id": "support:SN-1",
+      "label": "Snubber",
+      "node": "node:N-3",
+      "family": "snubber",
+      "restraints": "UY",
+      "stiffness": "UY: 10000000 N/m",
+      "nonlinear_behavior": null
+     }
+    ],
+    "input_loads": [
+     {
+      "case_id": "load:L-1",
+      "load_id": "load:L-1-Z",
+      "category": "occasional",
+      "target": "node:node:N-2",
+      "direction": "global_z",
+      "magnitude": "-190 N"
+     }
+    ]
+   }
+  },
+  {
+   "name": "preview_loads",
+   "reason": "primitive loads of weight, thermal, pressure and occasional categories on node and element targets",
+   "model_fixture": "fixtures/product_preview/invented_preview_model.json",
+   "model_pointer": "",
+   "expected": {
+    "load_combinations": [
+     {
+      "id": "combination:C-OPER-ALT",
+      "label": "Invented explicit operating plus alternate preview",
+      "basis": "mechanics",
+      "operands": "1 × load:L-100; 0.5 × load:L-200",
+      "mode": null
+     }
+    ],
+    "input_geometry": {
+     "nodes": [
+      {
+       "id": "node:N-100",
+       "label": "Pump nozzle",
+       "x": "0",
+       "y": "0",
+       "z": "0"
+      },
+      {
+       "id": "node:N-110",
+       "label": "Low point elbow",
+       "x": "3.2",
+       "y": "0",
+       "z": "0"
+      },
+      {
+       "id": "node:N-120",
+       "label": "Riser elbow",
+       "x": "3.2",
+       "y": "2.4",
+       "z": "0"
+      },
+      {
+       "id": "node:N-130",
+       "label": "Rack turn",
+       "x": "7.6",
+       "y": "2.4",
+       "z": "0"
+      },
+      {
+       "id": "node:N-140",
+       "label": "Terminal tie-in",
+       "x": "7.6",
+       "y": "2.4",
+       "z": "2.2"
+      }
+     ],
+     "pipes": [
+      {
+       "id": "pipe:P-100",
+       "label": "Pump discharge run",
+       "from": "node:N-100",
+       "to": "node:N-110",
+       "material": "material:invented-carbon-steel",
+       "outside_diameter": "0.168 m",
+       "wall_thickness": "0.007 m",
+       "section_ref": null
+      },
+      {
+       "id": "pipe:P-110",
+       "label": "Vertical riser",
+       "from": "node:N-110",
+       "to": "node:N-120",
+       "material": "material:invented-carbon-steel",
+       "outside_diameter": "0.168 m",
+       "wall_thickness": "0.007 m",
+       "section_ref": null
+      },
+      {
+       "id": "pipe:P-120",
+       "label": "Rack span",
+       "from": "node:N-120",
+       "to": "node:N-130",
+       "material": "material:invented-carbon-steel",
+       "outside_diameter": "0.168 m",
+       "wall_thickness": "0.007 m",
+       "section_ref": null
+      },
+      {
+       "id": "pipe:P-130",
+       "label": "Tie-in rise",
+       "from": "node:N-130",
+       "to": "node:N-140",
+       "material": "material:invented-carbon-steel",
+       "outside_diameter": "0.168 m",
+       "wall_thickness": "0.007 m",
+       "section_ref": null
+      }
+     ],
+     "components": [
+      {
+       "id": "component:C-110",
+       "label": "Invented elbow marker",
+       "kind": "bend"
+      },
+      {
+       "id": "component:C-120",
+       "label": "Invented branch connection marker",
+       "kind": "branch"
+      },
+      {
+       "id": "component:C-130",
+       "label": "Invented semi-rigid valve marker",
+       "kind": "valve"
+      },
+      {
+       "id": "component:C-140",
+       "label": "Invented tie-in marker",
+       "kind": "terminal"
+      },
+      {
+       "id": "component:C-150",
+       "label": "Invented expansion joint marker",
+       "kind": "expansion_joint"
+      }
+     ]
+    },
+    "input_materials_sections": {
+     "materials": [
+      {
+       "id": "material:invented-carbon-steel",
+       "label": "Invented carbon-steel-like material",
+       "elastic_modulus": "200000000000 Pa",
+       "shear_modulus": "77000000000 Pa",
+       "poisson_ratio": null,
+       "thermal_expansion_coefficient": "0.000012 1/degC"
+      }
+     ],
+     "sections": []
+    },
+    "input_supports": [
+     {
+      "id": "support:S-100",
+      "label": "Anchor at pump nozzle",
+      "node": "node:N-100",
+      "family": "anchor",
+      "restraints": "UX, UY, UZ, RX, RY, RZ",
+      "stiffness": null,
+      "nonlinear_behavior": null
+     },
+     {
+      "id": "support:S-120",
+      "label": "Guide on riser",
+      "node": "node:N-120",
+      "family": "guide",
+      "restraints": "UX, UZ",
+      "stiffness": null,
+      "nonlinear_behavior": null
+     },
+     {
+      "id": "support:S-130",
+      "label": "Rack shoe",
+      "node": "node:N-130",
+      "family": "guide",
+      "restraints": "UY",
+      "stiffness": null,
+      "nonlinear_behavior": null
+     },
+     {
+      "id": "support:NL-140",
+      "label": "Preview one-way terminal stop",
+      "node": "node:N-140",
+      "family": "nonlinear",
+      "restraints": "",
+      "stiffness": null,
+      "nonlinear_behavior": "one_way"
+     },
+     {
+      "id": "support:NL-130-FRIC",
+      "label": "Preview sliding-friction rack shoe",
+      "node": "node:N-130",
+      "family": "nonlinear",
+      "restraints": "",
+      "stiffness": null,
+      "nonlinear_behavior": "friction"
+     },
+     {
+      "id": "support:SH-140",
+      "label": "Invented variable spring hanger",
+      "node": "node:N-140",
+      "family": "variable_spring_hanger",
+      "restraints": "",
+      "stiffness": null,
+      "nonlinear_behavior": null
+     },
+     {
+      "id": "support:CE-120",
+      "label": "Invented constant-effort support",
+      "node": "node:N-120",
+      "family": "constant_effort_support",
+      "restraints": "",
+      "stiffness": null,
+      "nonlinear_behavior": null
+     }
+    ],
+    "input_loads": [
+     {
+      "case_id": "load:L-100",
+      "load_id": "load:L-100-Z",
+      "category": "weight",
+      "target": "element:pipe:P-120",
+      "direction": "global_z",
+      "magnitude": "-190 N/m"
+     },
+     {
+      "case_id": "load:L-100",
+      "load_id": "load:L-100-Y",
+      "category": "occasional",
+      "target": "node:node:N-140",
+      "direction": "global_y",
+      "magnitude": "350 N"
+     },
+     {
+      "case_id": "load:L-100",
+      "load_id": "load:L-100-P",
+      "category": "pressure",
+      "target": "element:pipe:P-120",
+      "direction": "global_x",
+      "magnitude": "1200000 Pa"
+     },
+     {
+      "case_id": "load:L-100",
+      "load_id": "load:L-100-P-EJ",
+      "category": "pressure",
+      "target": "element:pipe:P-130",
+      "direction": "global_x",
+      "magnitude": "1200000 Pa"
+     },
+     {
+      "case_id": "load:L-100",
+      "load_id": "load:L-100-T",
+      "category": "thermal",
+      "target": "element:pipe:P-120",
+      "direction": "global_z",
+      "magnitude": "12.5 degC"
+     },
+     {
+      "case_id": "load:L-200",
+      "load_id": "load:L-200-Z",
+      "category": "weight",
+      "target": "element:pipe:P-120",
+      "direction": "global_z",
+      "magnitude": "-95 N/m"
+     },
+     {
+      "case_id": "load:L-200",
+      "load_id": "load:L-200-Y",
+      "category": "occasional",
+      "target": "node:node:N-140",
+      "direction": "global_y",
+      "magnitude": "125 N"
+     },
+     {
+      "case_id": "load:L-200",
+      "load_id": "load:L-200-P",
+      "category": "pressure",
+      "target": "element:pipe:P-120",
+      "direction": "global_x",
+      "magnitude": "600000 Pa"
+     },
+     {
+      "case_id": "load:L-200",
+      "load_id": "load:L-200-P-EJ",
+      "category": "pressure",
+      "target": "element:pipe:P-130",
+      "direction": "global_x",
+      "magnitude": "600000 Pa"
+     }
+    ]
+   }
+  },
+  {
+   "name": "every_combination_basis",
+   "reason": "combinations of every basis: mechanics terms, result-state subtraction, range envelope, absolute sum and SRSS",
+   "model_fixture": "fixtures/results/skew_along_direction_combinations_preview.json",
+   "model_pointer": "/request/model",
+   "expected": {
+    "load_combinations": [
+     {
+      "id": "C_SIGNED",
+      "label": null,
+      "basis": "mechanics",
+      "operands": "2 × case:skew; -1 × case:b",
+      "mode": null
+     },
+     {
+      "id": "C_ABS",
+      "label": null,
+      "basis": "absolute_sum",
+      "operands": "1 × case:skew; 1 × case:b",
+      "mode": null
+     },
+     {
+      "id": "C_SRSS",
+      "label": null,
+      "basis": "srss",
+      "operands": "1 × case:skew; 1 × case:b",
+      "mode": null
+     },
+     {
+      "id": "C_ENV",
+      "label": null,
+      "basis": "range_envelope",
+      "operands": "case:skew, case:b",
+      "mode": "max"
+     },
+     {
+      "id": "C_DIFF",
+      "label": null,
+      "basis": "result_state_subtraction",
+      "operands": "case:skew − case:b",
+      "mode": null
+     }
+    ],
+    "input_geometry": {
+     "nodes": [
+      {
+       "id": "A",
+       "label": null,
+       "x": "0",
+       "y": "0",
+       "z": "0"
+      },
+      {
+       "id": "B",
+       "label": null,
+       "x": "4",
+       "y": "0",
+       "z": "0"
+      }
+     ],
+     "pipes": [
+      {
+       "id": "pipe:AB",
+       "label": null,
+       "from": "A",
+       "to": "B",
+       "material": "material:skew",
+       "outside_diameter": "0.206 m",
+       "wall_thickness": "0.011 m",
+       "section_ref": null
+      }
+     ],
+     "components": []
+    },
+    "input_materials_sections": {
+     "materials": [
+      {
+       "id": "material:skew",
+       "label": null,
+       "elastic_modulus": "171798691840 Pa",
+       "shear_modulus": "68719476736 Pa",
+       "poisson_ratio": null,
+       "thermal_expansion_coefficient": null
+      }
+     ],
+     "sections": []
+    },
+    "input_supports": [
+     {
+      "id": "anchor_A",
+      "label": null,
+      "node": "A",
+      "family": "anchor",
+      "restraints": "UX, UY, UZ, RX, RY, RZ",
+      "stiffness": null,
+      "nonlinear_behavior": null
+     },
+     {
+      "id": "rot_B",
+      "label": null,
+      "node": "B",
+      "family": "anchor",
+      "restraints": "RX, RY, RZ",
+      "stiffness": null,
+      "nonlinear_behavior": null
+     },
+     {
+      "id": "stop_B",
+      "label": null,
+      "node": "B",
+      "family": "line_stop",
+      "restraints": "UY",
+      "stiffness": null,
+      "nonlinear_behavior": null
+     },
+     {
+      "id": "spring_B",
+      "label": null,
+      "node": "B",
+      "family": "spring",
+      "restraints": "UY",
+      "stiffness": "UY: 1048576 N/m",
+      "nonlinear_behavior": null
+     }
+    ],
+    "input_loads": [
+     {
+      "case_id": "case:skew",
+      "load_id": "load:global_y",
+      "category": "concentrated_force",
+      "target": "node:B",
+      "direction": "global_y",
+      "magnitude": "-1024 N"
+     },
+     {
+      "case_id": "case:b",
+      "load_id": "load:b",
+      "category": "concentrated_force",
+      "target": "node:B",
+      "direction": "global_x",
+      "magnitude": "512 N"
+     }
+    ]
+   }
+  },
+  {
+   "name": "support_target",
+   "reason": "a primitive load on a support target, which names neither a node nor a pipe (null target)",
+   "model_fixture": "fixtures/results/combination_certificate_corpus.json",
+   "model_pointer": "/documents/3/model",
+   "expected": {
+    "load_combinations": [
+     {
+      "id": "comb:lift",
+      "label": null,
+      "basis": "result_state_subtraction",
+      "operands": "case:O-LIFT − case:S",
+      "mode": null
+     },
+     {
+      "id": "comb:act",
+      "label": null,
+      "basis": "result_state_subtraction",
+      "operands": "case:O-ACT − case:S",
+      "mode": null
+     },
+     {
+      "id": "comb:range",
+      "label": null,
+      "basis": "range_envelope",
+      "operands": "case:S, case:O-LIFT",
+      "mode": "max"
+     }
+    ],
+    "input_geometry": {
+     "nodes": [
+      {
+       "id": "node:A",
+       "label": null,
+       "x": "0",
+       "y": "0",
+       "z": "0"
+      },
+      {
+       "id": "node:M",
+       "label": null,
+       "x": "2",
+       "y": "0",
+       "z": "0"
+      },
+      {
+       "id": "node:T",
+       "label": null,
+       "x": "4",
+       "y": "0",
+       "z": "0"
+      }
+     ],
+     "pipes": [
+      {
+       "id": "pipe:AM",
+       "label": null,
+       "from": "node:A",
+       "to": "node:M",
+       "material": "material:w16nl",
+       "outside_diameter": "0.206 m",
+       "wall_thickness": "0.011 m",
+       "section_ref": null
+      },
+      {
+       "id": "pipe:MT",
+       "label": null,
+       "from": "node:M",
+       "to": "node:T",
+       "material": "material:w16nl",
+       "outside_diameter": "0.206 m",
+       "wall_thickness": "0.011 m",
+       "section_ref": null
+      }
+     ],
+     "components": []
+    },
+    "input_materials_sections": {
+     "materials": [
+      {
+       "id": "material:w16nl",
+       "label": null,
+       "elastic_modulus": "171798691840 Pa",
+       "shear_modulus": "68719476736 Pa",
+       "poisson_ratio": null,
+       "thermal_expansion_coefficient": "0.000012 1/degC"
+      }
+     ],
+     "sections": []
+    },
+    "input_supports": [
+     {
+      "id": "support:ANCHOR",
+      "label": null,
+      "node": "node:A",
+      "family": "anchor",
+      "restraints": "UX, UY, UZ, RX, RY, RZ",
+      "stiffness": null,
+      "nonlinear_behavior": null
+     },
+     {
+      "id": "support:PROP",
+      "label": null,
+      "node": "node:T",
+      "family": "nonlinear",
+      "restraints": "",
+      "stiffness": null,
+      "nonlinear_behavior": "one_way"
+     }
+    ],
+    "input_loads": [
+     {
+      "case_id": "case:S",
+      "load_id": "case:S-P",
+      "category": "concentrated_force",
+      "target": "node:node:M",
+      "direction": "global_z",
+      "magnitude": "-808.6253305030623 N"
+     },
+     {
+      "case_id": "case:O-LIFT",
+      "load_id": "case:O-LIFT-P",
+      "category": "concentrated_force",
+      "target": "node:node:M",
+      "direction": "global_z",
+      "magnitude": "-808.6253305030623 N"
+     },
+     {
+      "case_id": "case:O-LIFT",
+      "load_id": "case:O-LIFT-S",
+      "category": "imposed_displacement",
+      "target": null,
+      "direction": "UZ",
+      "magnitude": "0.001953125 m"
+     },
+     {
+      "case_id": "case:O-ACT",
+      "load_id": "case:O-ACT-P",
+      "category": "concentrated_force",
+      "target": "node:node:M",
+      "direction": "global_z",
+      "magnitude": "-808.6253305030623 N"
+     },
+     {
+      "case_id": "case:O-ACT",
+      "load_id": "case:O-ACT-S",
+      "category": "imposed_displacement",
+      "target": null,
+      "direction": "UZ",
+      "magnitude": "0.00048828125 m"
+     }
+    ]
+   }
+  }
+ ]
+}
