@@ -1061,8 +1061,9 @@ impl<'m> Writer<'m> {
         }
         if !self.pipe_pressure.is_empty() {
             notes.push(format!(
-                "OPPRES is written {OPPRES_LINE}: PD/4t, Bourdon effect off, pressure correction for bends off, peak \
-                 pressure factor 1. SWBPIPE's exact pressure route models neither effect (DEL-04-07 D-3)."
+                "OPPRES is written {OPPRES_LINE}: pressure stress Pd^2 / (D^2 - d^2) (as CAEPIPE's output labels this \
+                 setting), Bourdon effect off, pressure correction for bends off, peak pressure factor 1. SWBPIPE's \
+                 exact pressure route models neither effect (DEL-04-07 D-3)."
             ));
         }
         if self.contract.is_some() {

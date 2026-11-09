@@ -886,8 +886,9 @@ the sustained-mapped case becomes Pressure 1 on its member elements, in bar: Pa 
 kPa × 10⁻², MPa × 10, bar × 1, and psi × 0.45359237 × 9.80665 / 0.0254² / 10⁵, each the
 exact rational product rounded once (psi is listed in `MBF-SI-UNITS-NORMALIZED`). Elements
 outside every region get 0, and LOADS records are keyed by (T1, P1). With any pressure the
-writer adds `OPPRES` `0,0,0,1,0` after OPTEMP: PD/4t, Bourdon effect off, pressure
-correction for bends off, peak pressure factor 1. That asks the target for the same
+writer adds `OPPRES` `0,0,0,1,0` after OPTEMP: field 1 = 0, the pressure stress
+CAEPIPE's output labels "Pressure stress = Pd^2 / (D^2 - d^2)"; Bourdon effect off,
+pressure correction for bends off, peak pressure factor 1. That asks the target for the same
 exclusions as SWBPIPE's model. The contract, region ids, members, terminals, closure
 transfer and provenance are not in the MBF. The sidecar's `pressure_map` carries them
 (`{contract, load_case, regions: [{id, members, terminals, provenance, pressure_bar}]}`),
