@@ -10857,13 +10857,34 @@ describe("SWBPIPE desktop preview", () => {
     // Native runtime renders a save button. Inspect the real screened request
     // sent to the mocked save seam, not a nonexistent browser download href.
     const saveRequests: NativeResultSaveRequest[] = [];
+    // CE193 diagnostic (temporary, observation only): timestamps for the inspection's native reads and its
+    // bundled-reference load, printed as one CE193_DIAG line. Assertions and timeouts are unchanged.
+    let diagStart: number | null = null;
+    const diagMarks: Array<[string, number, unknown?]> = [];
+    const diagMark = (name: string, detail?: unknown) => { if (diagStart !== null) diagMarks.push([name, Math.round(performance.now() - diagStart), detail]); };
     invokeMock.mockImplementation((command: string, args?: unknown, options?: unknown) => {
       if (command === "save_local_result_json") {
         const request = (args as { request: NativeResultSaveRequest }).request;
         saveRequests.push(structuredClone(request));
         return Promise.resolve({ outcome: "saved", file_name: request.file_name, byte_count: new TextEncoder().encode(decodeURIComponent(request.href.split(",", 2)[1])).length, replaced_existing: false, durability: "not_guaranteed", path_containment: "best_effort_non_adversarial" });
       }
-      return pair.replay.invoke(command, args, options);
+      diagMark(`invoke:${command}`);
+      const reply = pair.replay.invoke(command, args, options);
+      void Promise.resolve(reply).then(() => diagMark(`invoke-done:${command}`), (error: unknown) => diagMark(`invoke-error:${command}`, String(error)));
+      return reply;
+    });
+    const previewServiceModule = await import("./services/previewService");
+    const actualBundledReference = previewServiceModule.loadBundledMechanicsReference;
+    vi.spyOn(previewServiceModule, "loadBundledMechanicsReference").mockImplementation(async (...args) => {
+      diagMark("bundled-start");
+      try {
+        const reference = await actualBundledReference(...args);
+        diagMark("bundled-complete");
+        return reference;
+      } catch (error) {
+        diagMark("bundled-error", String(error));
+        throw error;
+      }
     });
     fireEvent.click(within(exportPanel).getByTestId("result-export-link-local-private-intent"));
     const saveButton = within(exportPanel).getByTestId("result-export-link");
@@ -10875,7 +10896,23 @@ describe("SWBPIPE desktop preview", () => {
     expect(packet.schema_version).toBe("0.3.0");
     expect(packet.result_envelope.row_accounting).toHaveLength(pair.source.results.length);
     expect(packet.result_envelope.producer).toEqual(pair.source.producer);
-    await inspectBundledReference();
+    diagStart = performance.now();
+    try {
+      await inspectBundledReference();
+      diagMark("context-found");
+    } catch (error) {
+      // Observation only: record whether Current was retired (the handler passed its ownership check) and whether
+      // the reference context appears later, then fail with the original error.
+      diagMark("context-not-found", {
+        solveProofPresent: screen.queryByTestId("status-pill-solve-proof") !== null,
+        projectMessage: screen.queryByTestId("local-project-message")?.textContent ?? null,
+      });
+      const late = await screen.findByTestId("historical-run-context", {}, { timeout: 15000 }).then(() => true, () => false);
+      diagMark(late ? "context-found-late" : "context-never-found");
+      console.info("CE193_DIAG", JSON.stringify(diagMarks));
+      throw error;
+    }
+    console.info("CE193_DIAG", JSON.stringify(diagMarks));
     expect(screen.queryByTestId("status-pill-solve-proof")).not.toBeInTheDocument();
     expect(renderedReportButton()).toBeDisabled();
     expect(within(resultExportAudit()).getByTestId("result-export-empty")).toBeInTheDocument();
