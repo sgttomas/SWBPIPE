@@ -9,6 +9,8 @@
 //! route calls the derivation yet; nothing here records a user release.
 //! Standard claim fence applies (claims taxonomy per DEC-081).
 
+mod common;
+
 use open_pipe_stress_report_package::bindings::{check_report_result_refs, expected_report_result_rows, BINDING_MISMATCH};
 use open_pipe_stress_report_package::user_release::{
     check_matches_derivation, derive, derive_input_manifest, first_difference, SoftwareIdentity, UserReleaseBasis, UserReleaseDerivation,
@@ -152,6 +154,13 @@ fn derivation_vectors_match_the_desktop_builders() {
     }
 }
 
+#[test]
+fn default_user_release_metadata_changes_derived_request_hashes_only_at_the_input_boundary() {
+    for case in cases() {
+        common::assert_default_metadata_hash_and_emission_contract(&case.derived().request);
+    }
+}
+
 /// Every member pointer of `value` down to `depth` levels, arrays by their
 /// first and last element.
 fn member_pointers(value: &Value, pointer: &str, depth: usize, out: &mut Vec<String>) {
@@ -236,11 +245,32 @@ fn a_mutation_of_each_member_is_refused_naming_its_pointer() {
         .ends_with("/source_results/0/results/0/metadata/invented_annotation"));
 }
 
+#[test]
+fn user_release_keeps_full_row_metadata_and_refuses_composition_until_c4() {
+    let case = &cases()[0];
+    let derived = case.derived();
+    let manifest = &case.vector["input_manifest"];
+    for (field, forged) in [
+        ("kind", json!("forged")), ("entity_ref", json!("node:forged")),
+        ("value_text", json!("999")), ("unit", json!("forged"))
+    ] {
+        let mut request = derived.request.clone();
+        request["report"]["result_rows"][0][field] = forged;
+        let refusal = check_matches_derivation(&derived, manifest, &request).unwrap_err();
+        assert!(refusal.contains(&format!("/report/result_rows/0/{field}")), "{refusal}");
+    }
+    let mut request = derived.request.clone();
+    request["report"]["report_composition"] = json!({"composition_version": "1.0.0", "sections": []});
+    let refusal = check_matches_derivation(&derived, manifest, &request).unwrap_err();
+    assert!(refusal.contains("/report/report_composition"), "{refusal}");
+}
+
 /// `user_release_display_rule` (§6): the vector whose S has rows stored in
 /// `Pa` and rows with more than six significant digits. The derived rows show
 /// six significant digits and `MPa`, `conversion_performed` is true, and the
 /// row checksums are the full-precision digests. A stored value changed in
-/// its seventh significant digit leaves the displayed row unchanged, and the
+/// its seventh significant digit leaves the display projection unchanged
+/// while changing the bound value_text, and the
 /// derivation still refuses it, by the producer's `check_report_result_refs`
 /// over the run record's row checksums.
 #[test]
@@ -267,7 +297,13 @@ fn user_release_display_rule() {
         [value + step, value - step].into_iter().find_map(|changed| {
             let mut source = case.source.clone();
             source["results"][index]["value"] = json!(changed);
-            let kept = expected_report_result_rows(&source).unwrap()[index] == expected_report_result_rows(&case.source).unwrap()[index];
+            let changed_row = &expected_report_result_rows(&source).unwrap()[index];
+            let original_row = &expected_report_result_rows(&case.source).unwrap()[index];
+            let kept = ["row_id", "label", "case_ref", "quantity_display", "source_ref"]
+                .iter().all(|field| changed_row[field] == original_row[field]);
+            if kept && source["results"][index]["value"] != case.source["results"][index]["value"] {
+                assert_ne!(changed_row["value_text"], original_row["value_text"], "full precision stays bound");
+            }
             (kept && source["results"][index]["value"] != case.source["results"][index]["value"]).then_some(source)
         })
     };
@@ -334,6 +370,7 @@ fn d6_exact_derivation_vectors_match_typescript() {
         let basis = UserReleaseBasis { model: &v["model"], source: &v["source"], solver_mode: "sparse_interactive", run_record: &v["run_record"], software: &software, record: &record };
         let binding = &v["request"]["report"]["exact_route"]["admission"];
         let derived = open_pipe_stress_report_package::user_release::derive_exact(&basis, binding["native_job_id"].as_str().unwrap(), binding["received_bytes_sha256"].as_str().unwrap()).unwrap();
+        common::assert_default_metadata_hash_and_emission_contract(&derived.request);
         if let Some(pointer) = first_difference(&v["request"]["result_documents"], &derived.request["result_documents"]) {
             panic!("{} document {pointer}: TS {:?}, Rust {:?}", v["shape"], v["request"]["result_documents"].pointer(&pointer), derived.request["result_documents"].pointer(&pointer));
         }

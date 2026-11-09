@@ -1,3 +1,4 @@
+import { composeReportRows, type ReportComposition } from "./reportComposition";
 import { analysisResultHashScope } from "../results/analysisResultHashScope";
 import { documentCombinationIdentities, SUPPLEMENTAL_DIAGNOSTIC_LABEL, suppliedDiagnosticMessage } from "../results/suppliedDiagnostics";
 import type { NotNativeResult } from "../../services/nativeResult";
@@ -776,6 +777,7 @@ function userRuleChecks(run: SessionRuleCheckRun) {
 }
 
 type RenderableReportInputArgs = {
+  reportComposition?: ReportComposition | null;
   model: PreviewModel;
   result: MechanicsResult;
   analysisRun: AnalysisRunEnvelope;
@@ -851,11 +853,15 @@ async function renderableReportInput(
     ruleCheckRun = null,
     numericalHealth = null,
     exactAdmission = null,
-    libraryRefFindings = []
+    libraryRefFindings = [],
+    reportComposition = null
   }: RenderableReportInputArgs,
   userRelease: UserReleaseRecordValue | null
 ) {
   const minimal = userRelease !== null;
+  if (reportComposition && (minimal || renderContext.exportContext !== "local_private")) {
+    throw new Error("REPORT-COMPOSITION-CONTEXT-NOT-ADMITTED: composition currently requires a local private report");
+  }
   const exact = isExactReportSource(result);
   // DEL-05-03 `pf-timoshenko.md` §4: a pressure-free Timoshenko source carries its
   // limitation 0 entry always, and its `pf_timoshenko` section when it took the admission
@@ -1088,14 +1094,17 @@ async function renderableReportInput(
   if (exactInputs) checkExactReportAdmission(exactAdmission, exactInputs);
   if (pfInputs) checkExactReportAdmission(exactAdmission, pfInputs);
 
+  const resultRows = reportResultRows(result);
+  if (reportComposition) composeReportRows(resultRows, reportComposition);
   return {
+    ...(reportComposition ? { report_composition: reportComposition } : {}),
     report_title: `${model.project.name} — Calculation Report`,
     calculation_report: calculationReport,
     report_sections: reportSections,
     // W-11 (DEL-08-01 Design `exact-route-report-sections.md` §6.1): an exact-route
     // report carries no numerical-health line until the native render can re-derive it
     // from the delivered result; its rows are exactly the source rows' projection.
-    result_rows: reportResultRows(result).concat((numericalHealth?.route === "generic" && !exactInputs ? numericalHealth.cases : []).map((item) => ({
+    result_rows: resultRows.concat((numericalHealth?.route === "generic" && !exactInputs ? numericalHealth.cases : []).map((item) => ({
       row_id: `numerical-health:${item.caseId}`,
       label: reportLineText(item.state),
       case_ref: `load_case:${item.caseId}`,

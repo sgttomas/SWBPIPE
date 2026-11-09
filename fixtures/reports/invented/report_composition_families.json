@@ -1,0 +1,76 @@
+{
+  "schema_version": "1.0.0",
+  "description": "Report composer families (DEL-08-01 Design report-section-composer.md section 2.2): each result row kind listed here belongs to one family section; every other kind, and every row whose kind is absent, falls to result_other_rows, so the families partition the rows. Derived from the family column of the semantic contract tables (fixtures/results/semantic_contract_v0_3_*.json): displacement and rotation to result_displacements, force and moment to result_forces_moments, stress to result_stresses, reaction to result_support_loads. Kinds with no family (review evidence, records, counts, flags, solver modes, diagnostic observations) are not listed. The renderer (core/reporting/report_renderer/src/composer.rs) embeds this table and its tests require it to equal that derivation; the desktop reads the same table.",
+  "other_section": "result_other_rows",
+  "family_basis": {
+    "displacement": "result_displacements",
+    "rotation": "result_displacements",
+    "force": "result_forces_moments",
+    "moment": "result_forces_moments",
+    "stress": "result_stresses",
+    "reaction": "result_support_loads"
+  },
+  "sections": {
+    "result_displacements": [
+      "connector_generalized_rotation_v1",
+      "connector_generalized_translation_v1",
+      "displacement_magnitude",
+      "global_nodal_displacement_x",
+      "global_nodal_displacement_y",
+      "global_nodal_displacement_z",
+      "global_nodal_rotation_x",
+      "global_nodal_rotation_y",
+      "global_nodal_rotation_z",
+      "nonlinear_support_final_displacement",
+      "nonlinear_support_final_relative_displacement"
+    ],
+    "result_forces_moments": [
+      "connector_effective_axial_force_v1",
+      "connector_endpoint_force_v1",
+      "connector_endpoint_moment_v1",
+      "connector_generalized_force_v1",
+      "connector_generalized_moment_v1",
+      "connector_pressure_force_v1",
+      "connector_tie_rod_force_v1",
+      "element_global_end_force_v1",
+      "element_global_end_moment_v1",
+      "element_local_axial_force",
+      "element_local_bending_moment_y",
+      "element_local_bending_moment_z",
+      "element_local_shear_force_y",
+      "element_local_shear_force_z",
+      "element_local_torsional_moment",
+      "pipe_effective_axial_force_v2",
+      "pipe_wall_axial_force_v2",
+      "pipe_wall_endpoint_action_v2"
+    ],
+    "result_stresses": [
+      "branch_intensified_bending_stress_v1",
+      "component_equal_factor_intensified_bending_stress_v1",
+      "curved_bend_directional_intensified_bending_maximum_v1",
+      "curved_bend_directional_intensified_bending_stress_v1",
+      "element_local_axial_normal_stress",
+      "element_local_bending_normal_stress_y",
+      "element_local_bending_normal_stress_z",
+      "element_local_normal_stress_extreme",
+      "element_local_torsional_shear_stress",
+      "element_local_transverse_shear_stress_maximum",
+      "pipe_axial_membrane_stress_v2",
+      "pipe_elastic_normal_stress_maximum_v2",
+      "pipe_lame_hoop_stress_v2",
+      "pipe_lame_radial_stress_v2",
+      "pipe_section_pressure_hoop_stress",
+      "pipe_section_pressure_longitudinal_stress",
+      "pipe_toroidal_membrane_hoop_stress_v1",
+      "pipe_toroidal_radial_surface_stress_v1"
+    ],
+    "result_support_loads": [
+      "nonlinear_support_final_reaction",
+      "nonlinear_support_friction_normal_reaction_derived",
+      "support_reaction_along_direction_v1",
+      "support_reaction_component_v2",
+      "support_reaction_force_magnitude_v2",
+      "support_reaction_moment_magnitude_v2"
+    ]
+  }
+}

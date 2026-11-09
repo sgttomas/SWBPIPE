@@ -1,3 +1,4 @@
+import type { ReportComposition } from "../report/reportComposition";
 import { EmbeddedAgentSession, type AgentContext, type AgentRunReceipt } from "../../services/embeddedAgentSession";
 import { requeueRetainedRecord, type ImportContext } from "../../services/operationAuthorship";
 import { hasCurrentSourceContract } from "../results/resultReader";
@@ -490,6 +491,7 @@ export function useWorkspaceSession() {
     solveProof, setSolveProof,
     running, setRunning,
     solverMode, setSolverMode,
+    reportComposition, setReportComposition, reportCompositionRef,
     reportPackagePrivateIntent, setReportPackagePrivateIntent,
     reportPackageBusy, setReportPackageBusy,
     reportPackageRedaction, setReportPackageRedaction,
@@ -2386,6 +2388,12 @@ export function useWorkspaceSession() {
     setSolveJob(nextSolveJob);
   }
 
+  function handleReportCompositionChange(value: ReportComposition | null) {
+    reportCompositionRef.current = value;
+    setReportComposition(value);
+    invalidateReportPackageComputedState();
+  }
+
   function invalidateReportPackageComputedState() {
     reportPackageRequestGenerationRef.current += 1;
     reportPackageBusyGenerationRef.current = null;
@@ -3838,6 +3846,7 @@ export function useWorkspaceSession() {
       projectSummary,
       ruleCheckAggregate,
       ruleCheckRun: ruleCheckReportRun,
+      reportComposition,
       privateIntent: reportPackagePrivateIntent
     } as const;
     // Refs, because the awaited build and preparation outlive this render's closure.
@@ -3851,7 +3860,8 @@ export function useWorkspaceSession() {
       currentInputManifestRef.current === basis.inputManifest &&
       analysisBasisRef.current.value === basis.analysisRun &&
       ruleCheckAggregateRef.current === basis.ruleCheckAggregate &&
-      ruleCheckReportRunRef.current === basis.ruleCheckRun;
+      ruleCheckReportRunRef.current === basis.ruleCheckRun &&
+      reportCompositionRef.current === basis.reportComposition;
     reportPackageBusyGenerationRef.current = generation;
     setReportPackageBusy(true);
     setReportPackageRoute(null);
@@ -3868,7 +3878,8 @@ export function useWorkspaceSession() {
         comparison: basis.comparison,
         comparisonUnavailable: basis.comparisonUnavailable,
         ruleCheckAggregate: basis.ruleCheckAggregate,
-        ruleCheckRun: basis.ruleCheckRun
+        ruleCheckRun: basis.ruleCheckRun,
+        reportComposition: basis.reportComposition
       });
       if (!isCurrent()) return;
       const controlled = controlReportPackageRequest(request, basis.privateIntent);
@@ -4681,6 +4692,7 @@ export function useWorkspaceSession() {
       solveProof,
       running,
       solverMode, setSolverMode,
+      reportComposition, setReportComposition: handleReportCompositionChange,
       reportPackagePrivateIntent, setReportPackagePrivateIntent,
       reportPackageBusy,
       reportPackageRedaction,
