@@ -2038,21 +2038,75 @@ fn a_refused_composition_blocks_export_and_is_not_applied() {
     assert!(!render_calculation_report(&partial).export_blocked);
 }
 
-/// Slice C4 is not built: a user-released report refuses any composition.
+/// Slice C4 (K8): a user-released report admits a composition, and every
+/// required disclosure stays: the user-release banner, its record rows and
+/// statement, the PRD section 19.3 notice, the governed sections and the
+/// composition's own disclosures.
 #[test]
-fn a_user_released_report_refuses_a_composition() {
-    let mut input = user_released_with(private_record(sections::ReviewStatus::Pending, sections::RedistributionStatus::PrivateOnly));
-    assert!(!render_calculation_report(&input).export_blocked);
-    let vectors: serde_json::Value = serde_json::from_str(COMPOSITION_VECTORS).unwrap();
-    input.result_rows = serde_json::from_value(vectors["rows"].clone()).unwrap();
-    input.report_composition = Some(serde_json::from_value(composition_of(&[("result_stresses", serde_json::json!({"kind": "all"}))])).unwrap());
+fn user_release_composed_keeps_required_disclosures() {
+    use open_pipe_stress_report_renderer::{user_release_notice_text, USER_RELEASE_STATEMENT};
+    let mut input = composed_input(Some(composition_of(&[
+        ("result_stresses", serde_json::json!({"kind": "largest", "limit": 1})),
+        ("result_support_loads", serde_json::json!({"kind": "all"})),
+    ])));
+    input.report_context = Some(invented_report_context(ReportExportContext::UserReleasedReport));
+    input.report_context.as_mut().unwrap().user_release = Some(invented_user_release_record());
     let outcome = render_calculation_report(&input);
-    assert!(outcome.export_blocked);
-    assert_eq!(
-        outcome.blocking_reasons.iter().filter(|reason| reason.starts_with("report composition:")).collect::<Vec<_>>(),
-        ["report composition: REPORT-COMPOSITION-CONTEXT-NOT-ADMITTED: composition currently requires a local private report"]
-    );
-    assert!(!outcome.html.contains("Result rows shown"));
+    assert!(!outcome.export_blocked, "{:?}", outcome.blocking_reasons);
+    let notice = user_release_notice_text(&input).unwrap();
+    let banner = format!("<div class=\"user-release-banner\" data-export-context=\"user_released_report\">{}</div>", escape_html(&notice));
+    assert_eq!(outcome.html.matches(&banner).count(), 1);
+    for required in [
+        "Report export context",
+        "user_released_report",
+        "User release statement",
+        "User release time (application clock)",
+        "User release bound to",
+        "SWBPIPE is decision-support software for piping design, flexibility, and stress-analysis workflows.",
+        "<h2>Model Input Summary</h2>",
+        "<h2>Load Cases</h2>",
+        "<h2>Limitations</h2>",
+        "<h2>Professional Boundary And Human Review</h2>",
+        "<h3>Human Review Record</h3>",
+        "<h3>Report Composition</h3>",
+        "Referenced result export",
+        "Result rows shown:",
+        "Numerical health: invented disclosure line",
+    ] {
+        assert!(outcome.html.contains(required), "{required}");
+    }
+    assert!(outcome.html.contains(&escape_html(USER_RELEASE_STATEMENT)));
+    assert!(!outcome.html.contains("LOCAL PRIVATE REPORT"));
+    // A malformed composition is still refused under the user-released context.
+    input.report_composition = Some(serde_json::from_value(composition_of(&[("result_rows_all", serde_json::json!({"kind": "all"})), ("result_stresses", serde_json::json!({"kind": "all"}))])).unwrap());
+    let refused = render_calculation_report(&input);
+    assert!(refused.export_blocked);
+    assert!(refused.blocking_reasons.iter().any(|reason| reason.contains("REPORT-COMPOSITION-ROWS-OVERLAP")));
+}
+
+/// The row-free form check refuses what the catalogue and the options refuse,
+/// and leaves an unknown case to the check with rows.
+#[test]
+fn the_form_check_needs_no_rows() {
+    use open_pipe_stress_report_renderer::composer::{form_refusals, ReportComposition};
+    let decode = |value: serde_json::Value| -> ReportComposition { serde_json::from_value(value).unwrap() };
+    assert!(form_refusals(&decode(composition_of(&[("result_stresses", serde_json::json!({"kind": "largest", "limit": 5}))]))).is_empty());
+    for (value, code) in [
+        (composition_of(&[("results", serde_json::json!({"kind": "all"}))]), "REPORT-COMPOSITION-SECTION-UNKNOWN"),
+        (composition_of(&[("professional_boundary_notice", serde_json::json!({"kind": "all"}))]), "REPORT-COMPOSITION-SECTION-UNKNOWN"),
+        (composition_of(&[("result_stresses", serde_json::json!({"kind": "all"})), ("result_stresses", serde_json::json!({"kind": "all"}))]), "REPORT-COMPOSITION-SECTION-DUPLICATE"),
+        (composition_of(&[("result_stresses", serde_json::json!({"kind": "largest", "limit": 0}))]), "REPORT-COMPOSITION-OPTION-INVALID"),
+        (composition_of(&[("result_rows_all", serde_json::json!({"kind": "all"})), ("result_other_rows", serde_json::json!({"kind": "all"}))]), "REPORT-COMPOSITION-ROWS-OVERLAP"),
+        (serde_json::json!({"composition_version": "2.0.0", "sections": []}), "REPORT-COMPOSITION-VERSION-UNSUPPORTED"),
+    ] {
+        let refusals = form_refusals(&decode(value));
+        assert!(refusals.iter().any(|reason| reason.starts_with(code)), "{code}: {refusals:?}");
+    }
+    // A repeated case is refused by position; its text is not quoted.
+    let repeated = form_refusals(&decode(serde_json::json!({"composition_version": "1.0.0", "sections": [{"section_id": "result_stresses", "cases": ["unattested-marker", "unattested-marker"], "view": {"kind": "all"}}]})));
+    assert_eq!(repeated, ["REPORT-COMPOSITION-OPTION-INVALID: sections[0].cases[1] repeats an earlier case"]);
+    let unknown_case = decode(serde_json::json!({"composition_version": "1.0.0", "sections": [{"section_id": "result_stresses", "cases": ["load_case:not-carried"], "view": {"kind": "all"}}]}));
+    assert!(form_refusals(&unknown_case).is_empty());
 }
 
 /// The composition decodes as a closed object through the renderer's
