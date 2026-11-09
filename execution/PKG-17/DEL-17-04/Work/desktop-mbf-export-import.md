@@ -2212,12 +2212,19 @@ its maintained fixtures. The native cohort exercises the capped workers and save
 mocked native transport with the maintained Wasm operation engine for its edit. These checks remain distinct
 from the launched App witness below. Exact executions, checks and source revisions belong in the PR.
 
-The remaining actual App witness uses this invented input and those settings, saves through the native
-chooser, imports that written pair bound, and repeats without the identity file with each material explicitly
-designated. It must record the actual selected build/input bytes, complete export/import reviews and output
-ceilings, saved-pair bindings, adopted model and identity comparison, and Open guard/session-retirement
-behavior. A native test process plus mocked App replay does not supply that witness. App launch/capture
-requires separate authority; this candidate does not claim C6-2, full reference-family coverage or criterion 6.
+**Launched-App witness.** `apps/desktop/native-smoke/mbf-journey.mjs` builds and binds the `native-smoke` app as
+`run.mjs` does (engine stamps, binding record, worktree build lock, private launch copy) and launches it twice with
+`mbf-journey.js`. The bound phase opens this invented input, exports it with the dialog's default settings (the
+selected `degc-default` settings), saves the pair, imports that pair bound and adopts it, then checks the Open guard:
+an edit to `node:A`, a second import of the pair, and cancelling the unsaved-changes prompt keeps the edited session.
+The unbound phase imports the MBF copied without its identity file, declares its material and adopts it. The runner
+judges the saved pair against the fixture's saved MBF and identity digests, the review's identity rows and loss
+entries, and the JCS hashes of the adopted models (saved through Save Model Document) against the native bound and
+declared-unbound adopted model hashes. It records the app identity, engine stamps, source revision and every digest
+in `summary.json`. The only substitution is the file chooser's presentation (`native_smoke_choose`), as in the native
+smoke; the import chooser needs the same feature-gated seam the export save chooser has. It witnesses this supported
+subset only: no C6-2, C6-5, reference-family or criterion-6 claim follows. Session retirement is observed through
+the product's UI (dialog closed, nothing opened), not by native inspection; the native cohort covers its internals.
 The unsupported-family refusals and metadata/provenance dispositions remain those of the import Design,
 including §20.5.10; combinations remain outside criterion 6 under §8.1's owner amendment.
 
