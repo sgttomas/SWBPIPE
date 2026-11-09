@@ -204,6 +204,14 @@ fn run(entry: &Value) -> (Value, Value) {
     (statuses(&verdict), verdict)
 }
 
+/// `run` without the request: the payload relations alone, the model-derived
+/// standings scoped.
+fn run_payload(entry: &Value) -> (Value, Value) {
+    let mut entry = entry.clone();
+    entry["request"] = Value::Null;
+    run(&entry)
+}
+
 /// The targeted standing's difference names the entry's reason.
 fn reason_holds(entry: &Value, verdict: &Value) -> bool {
     let Some(needle) = entry.get("difference_contains").and_then(Value::as_str) else { return true };
@@ -282,7 +290,19 @@ fn the_rust_reader_agrees_with_the_feasibility_oracle() {
     assert!(cases.len() >= 500);
     let mut failures = Vec::new();
     for case in cases {
-        let (got, verdict) = run(case);
+        // With the bound request, the model-derived mass is held as well: never weaker than
+        // the oracle (an infeasible family still fails), though it may fail a tampering
+        // the payload alone admits.
+        let (bound, bound_verdict) = run(case);
+        for (family, truth) in case["oracle"].as_object().unwrap() {
+            let status = bound["relations"][family].as_str().unwrap();
+            if truth == "infeasible" && !(status == "failed" || (status == "unresolved" && case["unresolved_allowed"] == true)) {
+                failures.push(format!("{}: {family}: oracle infeasible, reader with the request {status} ({})", case["id"],
+                    bound_verdict["relations"][family]["difference"]));
+            }
+        }
+        // The oracle decides the payload's own feasibility: compared without the request.
+        let (got, verdict) = run_payload(case);
         if got["closure"] != "passed" {
             failures.push(format!("{}: closure {}", case["id"], verdict["closure"]["difference"]));
             continue;
@@ -312,7 +332,9 @@ fn the_rust_reader_accepts_every_producer_edge() {
     let entries = edges["entries"].as_array().unwrap();
     assert!(entries.len() >= 3);
     for entry in entries {
-        let (got, verdict) = run(entry);
+        // Their values are invented at the payload's arithmetic edges, not the bound model's
+        // mass: read without the request (the payload domain).
+        let (got, verdict) = run_payload(entry);
         assert!(got["decision"] != "rejected", "{}: {verdict:#}", entry["id"]);
         assert_eq!(verdict["validation"]["status"], "not_fully_validated", "{}", entry["id"]);
     }
@@ -360,7 +382,11 @@ fn every_committed_fixture_reads_consistent_up_to_its_scope() {
             // mandatory relation, so the census (evidence) still leaves validation unmet.
             assert_eq!(verdict.relations[8].status, ModalReadStatus::Passed, "{name}: {json:#}");
             assert!(verdict.relations[8].scope.is_empty(), "{name}");
-            assert_eq!(json["validation"]["unmet"], json!(["evidence"]), "{name}: {json:#}");
+            // A linearized state case's partition comes from the reported support states, whose
+            // qualification no payload establishes: the model-derived mass and participation stay
+            // scoped (Design, selected mass assurance).
+            let unmet = if name.starts_with("state_") { json!(["mass", "participation", "evidence"]) } else { json!(["evidence"]) };
+            assert_eq!(json["validation"]["unmet"], unmet, "{name}: {json:#}");
             let expected = if name == "cantilever_sensitive" { "sensitive" } else { "checks_passed" };
             assert_eq!(verdict.health, expected, "{name}");
         }

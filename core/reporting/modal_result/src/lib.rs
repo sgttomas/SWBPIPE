@@ -26,6 +26,12 @@
 //! - `units`: every value's unit against modal-1, and every
 //!   `equilibrated_basis` value's kind against modal-1's closed list.
 //!
+//! With the bound request supplied, `mass` and `participation` are also held
+//! to the mass the request's model implies (`model_mass`): the full global M
+//! entry by entry, T_k, the free-DOF mass, the mass centre, m_i, Γ, m_eff and
+//! the fractions from the published shapes. Without it, or beyond that
+//! derivation's basis, both standings are scoped unsupported by name.
+//!
 //! Each standing is passed, failed (with the first difference), scoped
 //! unsupported (with its scope) or not checked. A withheld authoritative
 //! payload is scoped unsupported: nothing is reconstructed from a digest.
@@ -54,6 +60,8 @@ use serde_json::{json, Map, Value};
 use sha2::{Digest, Sha256};
 use std::collections::{HashMap, HashSet};
 
+mod model_mass;
+
 pub const MODAL_RESULT_FAMILY: &str = "openpipestress.modal_result";
 pub const MODAL_RESULT_SCHEMA_VERSION: &str = "0.1.0";
 pub const MODAL_RESULT_SEMANTICS_ID: &str = "openpipestress.result_semantics/modal-1";
@@ -72,7 +80,7 @@ pub const MODAL_RESULT_ADMISSION_CONDITIONS: [&str; 6] = [
     "the dense work budget is unmeasured and no work guard is applied (O-4)",
     "no native, worker or custody path forms, stores or transports the document",
     "no published piping benchmark is compared (FR-SOL-016 partial; O-3 held)",
-    "the reader's re-derivation stops at the document's payload: the stiffness, the re-formation and the eigen solve are not re-derived",
+    "the reader re-derives the mass from the bound request's model, but not the stiffness, the re-formation, the eigen solve or the nonlinear support states' qualification",
 ];
 
 const U: f64 = 1.1102230246251565e-16;
@@ -566,10 +574,13 @@ pub fn read_modal_result(doc: &Value, supplied: ModalSupplied<'_>) -> ModalReadV
         Err(difference) => return mr_closure_failed(difference),
     };
     let (binding, not_checked) = mr_binding(doc, supplied);
+    // The model-derived mass (module docs), from the supplied request only
+    // when it is the bound one.
+    let model = model_mass::mm_derive(&parsed, supplied.request, binding.status != ModalReadStatus::Failed);
     let relations = vec![
-        ModalReadStanding::mr_of(mr_mass(&parsed)),
+        ModalReadStanding::mr_of(mr_mass(&parsed).and_then(|items| model_mass::mm_mass_relation(&parsed, &model, items))),
         ModalReadStanding::mr_of(mr_normalization(&parsed)),
-        ModalReadStanding::mr_of(mr_participation(&parsed)),
+        ModalReadStanding::mr_of(mr_participation(&parsed).and_then(|items| model_mass::mm_participation_relation(&parsed, &model, items))),
         ModalReadStanding::mr_of(mr_counts(&parsed)),
         ModalReadStanding::mr_of(mr_clusters(&parsed)),
         ModalReadStanding::mr_of(mr_sturm(&parsed)),
@@ -1186,9 +1197,26 @@ struct IdentityRow {
     relative: Num,
 }
 
+/// One support row of a linearized state case.
+struct SupportRow {
+    id: String,
+    behavior: String,
+    dof: usize,
+    state: String,
+    treatment: String,
+}
+
 /// Everything the relations read, after closure.
 struct Parsed {
     nodes: Vec<[Option<f64>; 3]>,
+    /// The node ids, in node order.
+    node_ids: Vec<String>,
+    /// `pressure_free` or `exact_pressure`.
+    route: String,
+    /// The published mass centre, when stated.
+    mass_center: Option<[Num; 3]>,
+    /// The support rows, in row order.
+    support_rows: Vec<SupportRow>,
     /// Per global DOF, its free index.
     free: Vec<Option<usize>>,
     /// (row, col, value); `None` when withheld.
@@ -1575,16 +1603,18 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
         identity.push(IdentityRow { subject_kind, subject, axis, comparison, relative: Num::mr_from(&vo) });
     }
     let mut supports = Vec::new();
+    let mut support_rows = Vec::new();
     for (i, row) in get("supports")?.ok_or("/tables/supports: withheld")?.iter().enumerate() {
         let path = format!("/tables/supports/rows/{i}");
         let r = mr_fields(row, &path, &["support_id", "behavior", "dof_ref", "state", "treatment"])?;
         let id = mr_text(&r["support_id"], &mr_at(&path, "support_id"))?;
         mr_id_is(r, &path, &format!("support:{id}"))?;
-        mr_text(&r["behavior"], &mr_at(&path, "behavior"))?;
+        let behavior = mr_text(&r["behavior"], &mr_at(&path, "behavior"))?;
         let dof = dof_of(&r["dof_ref"], &mr_at(&path, "dof_ref"))?;
-        mr_one_of(&r["state"], &mr_at(&path, "state"), &["active", "inactive", "sticking", "sliding"])?;
+        let state = mr_one_of(&r["state"], &mr_at(&path, "state"), &["active", "inactive", "sticking", "sliding"])?;
         let treatment = mr_one_of(&r["treatment"], &mr_at(&path, "treatment"), &["restrained", "already_restrained", "free", "free_frozen_friction"])?;
         supports.push((dof, treatment.to_string()));
+        support_rows.push(SupportRow { id: id.to_string(), behavior: behavior.to_string(), dof, state: state.to_string(), treatment: treatment.to_string() });
     }
     let mut members = Vec::new();
     for (i, row) in get("discretization")?.ok_or("/tables/discretization: withheld")?.iter().enumerate() {
@@ -1615,7 +1645,7 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
     // Headers.
     let basis = mr_object(&doc["basis"], "/basis", &["route", "no_translation_threshold", "bounding_box_diagonal", "weight_to_mass_acceleration",
         "identity_acceleration", "mass_center", "state_case"])?;
-    mr_one_of(&basis["route"], "/basis/route", &["pressure_free", "exact_pressure"])?;
+    let route = mr_one_of(&basis["route"], "/basis/route", &["pressure_free", "exact_pressure"])?.to_string();
     let mut header_vo = |value: &Value, path: &str, kind: &str| -> R<Vo> {
         let vo = mr_vo(value, path, &[kind])?;
         mr_unitize(&mut unitized, &vo, "fixed", path);
@@ -1627,11 +1657,14 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
         header_vo(&basis["weight_to_mass_acceleration"], "/basis/weight_to_mass_acceleration", "request_weight_to_mass_acceleration")?;
     }
     header_vo(&basis["identity_acceleration"], "/basis/identity_acceleration", "identity_acceleration")?;
+    let mut mass_center = None;
     if !basis["mass_center"].is_null() {
         let c = mr_object(&basis["mass_center"], "/basis/mass_center", &["x", "y", "z"])?;
-        for axis in ["x", "y", "z"] {
-            header_vo(&c[axis], &format!("/basis/mass_center/{axis}"), "basis_mass_center")?;
+        let mut center = [none(), none(), none()];
+        for (k, axis) in ["x", "y", "z"].into_iter().enumerate() {
+            center[k] = Num::mr_from(&header_vo(&c[axis], &format!("/basis/mass_center/{axis}"), "basis_mass_center")?);
         }
+        mass_center = Some(center);
     }
     let (mut linearized_state, mut restrained_refs) = (None, Vec::new());
     if !basis["state_case"].is_null() {
@@ -1766,6 +1799,10 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
     let count_of = |v: &Value, path: &str| mr_count(v, path);
     Ok(Parsed {
         nodes,
+        node_ids,
+        route,
+        mass_center,
+        support_rows,
         free,
         mass,
         totals,
