@@ -176,6 +176,22 @@ pub const ASSUMPTION_ID_UNAVAILABLE: &str = "unavailable";
 /// Every structured assumption identifier the importer records ([`AssumptionFact::id`]).
 pub const ASSUMPTION_IDS: [&str; 16] = importer::ASSUMPTION_IDS;
 
+/// The importer's identity-recovery accounting (DEL-17-04 Design `desktop-mbf-export-import.md` §5.3), counted at
+/// the emissions that report it: Python `IdentityRecoveryFacts`. Fixed-size producer facts for the bounded review,
+/// not part of `to_dict()`, the report, the model or the id map. Neither count establishes that the original source
+/// was completely represented; the exchange never establishes that.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct IdentityRecoveryFacts {
+    /// Original source ids the import names as not preserved (`MBF-IMPORT-ID-UNRECOVERABLE`), each counted once: today
+    /// each bound `load_map` entry the MBF sums with others. The formed group (`MBF-IMPORT-IDENTITIES-MERGED`) is
+    /// not an original id and is not counted.
+    pub known_missing_ids: u64,
+    /// Fields and references the import reports as not recovered, each counted once: a bend component's `.node`
+    /// (`MBF-IMPORT-REFERENCE-UNRECOVERABLE`), a legacy support's `.family` (`MBF-IMPORT-FIELD-UNRECOVERABLE`) and a
+    /// restored thermal entry's `.direction` (`MBF-IMPORT-DIRECTION-UNRECOVERABLE`).
+    pub unrecovered_fields: u64,
+}
+
 /// `MbfImportResult`.
 #[derive(Clone, Debug)]
 pub struct ImportResult {
@@ -189,6 +205,8 @@ pub struct ImportResult {
     /// Number of emitted materials whose origin was selected from a bound sidecar. Review-only metadata, not
     /// inferred from caller-controlled provenance wording and not part of the serialized model/report/id map.
     pub recorded_material_origins: u64,
+    /// The importer's identity-recovery counts, carried on refused results too (not part of `to_dict()`).
+    pub identity_recovery: IdentityRecoveryFacts,
     pub target_options: Dict,
     pub id_map: Value,
     pub source: Value,

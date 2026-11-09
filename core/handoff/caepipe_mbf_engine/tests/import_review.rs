@@ -77,14 +77,61 @@ fn class_counts(value: &Value) -> Vec<(String, i64, i64, i64)> {
     }).collect()
 }
 
+// Facts are independent of listed-entry truncation and never establish source completeness.
+fn assert_recovery(review: &Value, ids: i64, fields: i64) {
+    assert_eq!(mbf::value::small_int(review.get_or_null("format")), Some(2));
+    let identity = review.get_or_null("identity");
+    assert_eq!(mbf::value::small_int(identity.get_or_null("unrecoverable")), Some(ids));
+    assert_eq!(mbf::value::small_int(identity.get_or_null("unrecovered_fields")), Some(fields));
+    assert_eq!(identity.get_or_null("source_completeness").as_str(), Some("not_established"));
+}
+
+// Every taxonomy notice remains a warning and an approximated loss entry, and every such entry reaches a complete
+// review. Compare structured facts, not parsed English, and preserve the producer's substantive reason verbatim.
+fn assert_taxonomy(result: &ImportResult, review: &Value) {
+    let codes = ["MBF-IMPORT-ID-UNRECOVERABLE", "MBF-IMPORT-IDENTITIES-MERGED", "MBF-IMPORT-REFERENCE-UNRECOVERABLE",
+        "MBF-IMPORT-FIELD-UNRECOVERABLE", "MBF-IMPORT-DIRECTION-UNRECOVERABLE", "MBF-IMPORT-SOURCE-COMPLETENESS-UNESTABLISHED"];
+    let entries: Vec<_> = result.loss_report.iter().filter(|entry| codes.contains(&entry.get_or_null("code").as_str().unwrap_or(""))).collect();
+    let listed = review.get_or_null("loss_entries").as_list().unwrap();
+    assert_eq!(listed.len(), result.loss_report.len(), "this helper requires a complete loss list");
+    for entry in &entries {
+        assert_eq!(entry.get_or_null("category").as_str(), Some("approximated"));
+        assert!(result.diagnostics.iter().any(|diagnostic| diagnostic.get_or_null("severity").as_str() == Some("warning")
+            && diagnostic.get_or_null("code").as_str() == entry.get_or_null("code").as_str()
+            && diagnostic.get_or_null("location").as_str() == entry.get_or_null("location").as_str()
+            && diagnostic.get_or_null("message").as_str() == entry.get_or_null("reason").as_str()
+            && mbf::value::small_int(diagnostic.get_or_null("line")) == mbf::value::small_int(entry.get_or_null("line"))));
+        assert!(listed.iter().any(|item| item.get_or_null("code").as_str() == entry.get_or_null("code").as_str()
+            && item.get_or_null("entity").as_str() == entry.get_or_null("location").as_str() && item.get_or_null("category").as_str() == entry.get_or_null("category").as_str()));
+    }
+    let generic = entries.iter().filter(|entry| entry.get_or_null("code").as_str() == Some("MBF-IMPORT-SOURCE-COMPLETENESS-UNESTABLISHED")).count();
+    assert_eq!(generic, usize::from(result.source.get_or_null("binding").as_str() == Some("bound")));
+}
+
+#[test]
+fn a_legacy_direction_is_a_field_loss_separate_from_two_lost_load_ids() {
+    let (result, bytes, sidecar) = parity_case_label(
+        "tests/test_caepipe_mbf_round_trip.py::test_a_mixed_legacy_thermal_set_keeps_the_agreed_direction_and_says_so", Some("mixed"));
+    let review = parsed(&review_of(&result, &bytes, Some(&sidecar), None, MBF_REVIEW_MAX_BYTES, true).review);
+    assert_recovery(&review, 2, 1);
+    assert_taxonomy(&result, &review);
+    assert_eq!(result.loss_report.iter().filter(|entry| entry.get_or_null("code").as_str() == Some("MBF-IMPORT-DIRECTION-UNRECOVERABLE")).count(), 1);
+}
+
 /// Replay a named maintained Python parity input through the real importer. Select by source identity rather than
 /// a vector's incidental position; the pressure examples and summed primitives exercise different map shapes.
 fn parity_case(source_name: &str) -> (ImportResult, Vec<u8>, Vec<u8>) {
+    parity_case_label(source_name, None)
+}
+
+fn parity_case_label(source_name: &str, label: Option<&str>) -> (ImportResult, Vec<u8>, Vec<u8>) {
     let doc = common::parse(include_bytes!("../../../../fixtures/caepipe_mbf/invented/parity/import_vectors.json"));
     let source = doc.get_or_null("sources").as_list().unwrap().iter().position(|entry| entry.as_str() == Some(source_name)).expect("named parity source");
-    let row = doc.get_or_null("imports").as_list().unwrap().iter().map(|entry| entry.as_list().unwrap())
-        .find(|row| mbf::value::small_int(&row[0]) == Some(source as i64) && !row[2].is_null()).expect("bound parity input");
     let mut inputs = common::Inputs::new(&doc);
+    let row = doc.get_or_null("imports").as_list().unwrap().iter().map(|entry| entry.as_list().unwrap())
+        .find(|row| mbf::value::small_int(&row[0]) == Some(source as i64) && !row[2].is_null()
+            && label.is_none_or(|wanted| inputs.value(&row[7]).is_some_and(|value| value.as_str() == Some(wanted))))
+        .expect("bound parity input with the requested source label");
     let bytes = inputs.blob(row[1].as_str().unwrap());
     let sidecar = row[2].as_list().unwrap();
     let (sidecar_input, sidecar_bytes) = if sidecar[0].as_str() == Some("json") {
@@ -115,7 +162,7 @@ fn the_fixed_leading_members_are_byte_exact() {
     let reviewed = review_of(&result, &text, Some(&sidecar), None, MBF_REVIEW_MAX_BYTES, true);
     let model_bytes = result.model_bytes().unwrap().unwrap();
     let prefix = format!(
-        "{{\"document_kind\":\"swbpipe.mbf_import_review\",\"format\":1,\"status\":\"imported\",\"adoptable\":true,\"model_sha256\":\"{}\",\"model_bytes\":{},",
+        "{{\"document_kind\":\"swbpipe.mbf_import_review\",\"format\":2,\"status\":\"imported\",\"adoptable\":true,\"model_sha256\":\"{}\",\"model_bytes\":{},",
         reviewed.model_sha.as_ref().unwrap(),
         model_bytes.len()
     );
@@ -126,7 +173,7 @@ fn the_fixed_leading_members_are_byte_exact() {
     assert_eq!(refused.status, "refused");
     let reviewed = review_of(&refused, &text, None, None, MBF_REVIEW_MAX_BYTES, true);
     assert!(reviewed.review.text.starts_with(
-        "{\"document_kind\":\"swbpipe.mbf_import_review\",\"format\":1,\"status\":\"refused\",\"adoptable\":false,\"model_sha256\":null,\"model_bytes\":0,"
+        "{\"document_kind\":\"swbpipe.mbf_import_review\",\"format\":2,\"status\":\"refused\",\"adoptable\":false,\"model_sha256\":null,\"model_bytes\":0,"
     ));
     assert_eq!(reviewed.review.summary.blocking_codes(), vec![NOT_ADOPTABLE]);
 }
@@ -151,6 +198,8 @@ fn bound_and_unbound_imports_pin_the_identity_counts() {
     let (text, sidecar) = written_pair();
     let bound = import(&text, Some(&sidecar), None, "invented.mbf");
     let bound_value = parsed(&review_of(&bound, &text, Some(&sidecar), None, MBF_REVIEW_MAX_BYTES, true).review);
+    assert_recovery(&bound_value, 0, 1);
+    assert_taxonomy(&bound, &bound_value);
     assert_eq!(bound_value.get_or_null("binding").get_or_null("state").as_str(), Some("bound"));
     assert_eq!(bound_value.get_or_null("identity").get_or_null("basis").as_str(), Some("restored_from_identity_file"));
     // Independent inventory of the maintained export model: five nodes, four elements, one bend, three supports,
@@ -164,6 +213,8 @@ fn bound_and_unbound_imports_pin_the_identity_counts() {
     let names: Vec<&str> = needed.iter().map(String::as_str).collect();
     let unbound = import(&text, None, Some(invented_declaration(&names)), "invented.mbf");
     let unbound_value = parsed(&review_of(&unbound, &text, None, None, MBF_REVIEW_MAX_BYTES, true).review);
+    assert_recovery(&unbound_value, 0, 0);
+    assert_taxonomy(&unbound, &unbound_value);
     assert_eq!(unbound_value.get_or_null("identity").get_or_null("basis").as_str(), Some("formed_from_mbf_names"));
     assert_eq!(class_counts(&unbound_value), expected.iter().map(|(class, n)| {
         let n = if *class == "section" { 0 } else { *n }; // Without the identity file no shared section is restored.
@@ -180,6 +231,71 @@ fn a_summed_primitive_has_a_formed_id_even_in_a_bound_import() {
     assert!(loads.contains_key(&"load:concentrated_force:N1:global_y".to_string()));
     assert!(class_counts(&value).contains(&("load".into(), 1, 0, 1)), "neither tip nor tip2 survives as an id");
     assert!(result.loss_report.iter().any(|entry| entry.get("code").and_then(Value::as_str) == Some("MBF-IMPORT-ID-UNRECOVERABLE")));
+    let mut named: Vec<&str> = result.loss_report.iter()
+        .filter(|entry| entry.get_or_null("code").as_str() == Some("MBF-IMPORT-ID-UNRECOVERABLE"))
+        .filter_map(|entry| entry.get_or_null("location").as_str().filter(|location| location.starts_with("load_map[")))
+        .collect();
+    named.sort();
+    assert_eq!(named, ["load_map[case:tip/tip2]", "load_map[case:tip/tip]"]);
+    assert_recovery(&value, 2, 0);
+    assert_taxonomy(&result, &value);
+    assert!(result.loss_report.iter().any(|entry| entry.get_or_null("code").as_str() == Some("MBF-IMPORT-IDENTITIES-MERGED")
+        && entry.get_or_null("location").as_str() == Some("load_map[case:tip/load:concentrated_force:N1:global_y]")));
+    assert!(!loads.contains_key(&"tip".to_string()) && !loads.contains_key(&"tip2".to_string()));
+}
+
+#[test]
+fn a_legacy_missing_family_is_reported_without_losing_the_support_id() {
+    let (result, bytes, sidecar) = parity_case_label(
+        "tests/test_caepipe_mbf_round_trip.py::test_a_sidecar_without_family_reports_the_family_unrecoverable", Some("old"));
+    let source = mbf::parse_sidecar_json(&sidecar).unwrap();
+    let supports = source.get_or_null("support_map").as_dict().unwrap();
+    let restored = result.id_map.get_or_null("support_map").as_dict().unwrap();
+    for (id, support) in supports.iter() {
+        assert!(support.get("family").is_none());
+        assert!(restored.values().any(|ids| ids.as_list().is_some_and(|items| items.iter().any(|value| value.as_str() == Some(id.as_str())))));
+        let location = format!("{id}.family");
+        assert!(result.loss_report.iter().any(|entry| entry.get_or_null("code").as_str() == Some("MBF-IMPORT-FIELD-UNRECOVERABLE")
+            && entry.get_or_null("location").as_str() == Some(location.as_str())
+            && entry.get_or_null("reason").as_str().is_some_and(|reason| reason.contains("family"))));
+    }
+    let review = parsed(&review_of(&result, &bytes, Some(&sidecar), None, MBF_REVIEW_MAX_BYTES, true).review);
+    assert!(class_counts(&review).contains(&("support".into(), supports.len() as i64, supports.len() as i64, 0)));
+    assert_recovery(&review, 0, supports.len() as i64);
+    assert_taxonomy(&result, &review);
+}
+
+#[test]
+fn opposite_source_bend_nodes_emit_the_same_pair_but_lose_the_far_reference() {
+    let original = mbf::parse_sidecar_json(EXPORT_MODEL.as_bytes()).unwrap();
+    let settings = mbf::export_settings_from_json(br#"{"title":"Invented MBF export","referenceTemperature":{"value":20,"unit":"degC"},"maxLayoutRows":null}"#).unwrap();
+    let mut pairs = Vec::new();
+    for endpoint in ["node:T1", "node:T2"] {
+        let mut model = original.clone();
+        let Value::List(components) = model.as_dict_mut().unwrap().get_mut(&"components".to_string()).unwrap() else { panic!("components list") };
+        components[0].as_dict_mut().unwrap().insert("node".into(), Value::str(endpoint));
+        let written = mbf::render_si(&model, &settings).unwrap();
+        assert_eq!(written.status, "written", "{:?}", written.diagnostics);
+        let bytes = written.text.clone().unwrap().into_bytes();
+        let sidecar = written.sidecar_bytes(&common::sha(&bytes)).unwrap();
+        let result = import(&bytes, Some(&sidecar), None, "invented.mbf");
+        assert_eq!(result.status, "imported", "{:?}", result.diagnostics);
+        let adopted = result.model.as_ref().unwrap();
+        let component = &adopted.get_or_null("components").as_list().unwrap()[0];
+        assert_eq!(component.get_or_null("id").as_str(), Some("component:bend-1"));
+        assert_eq!(component.get_or_null("node").as_str(), Some("node:T1"));
+        if endpoint == "node:T2" {
+            assert_ne!(component.get_or_null("node").as_str(), Some(endpoint), "the original far-node reference is lost");
+        }
+        assert!(result.loss_report.iter().any(|entry| entry.get_or_null("code").as_str() == Some("MBF-IMPORT-REFERENCE-UNRECOVERABLE")
+            && entry.get_or_null("location").as_str() == Some("component:bend-1.node") && entry.get_or_null("category").as_str() == Some("approximated")));
+        let reviewed = parsed(&review_of(&result, &bytes, Some(&sidecar), None, MBF_REVIEW_MAX_BYTES, true).review);
+        assert!(class_counts(&reviewed).contains(&("bend".into(), 1, 1, 0)), "restoring the component id does not recover its original node reference");
+        assert_recovery(&reviewed, 0, 1);
+        assert_taxonomy(&result, &reviewed);
+        pairs.push((bytes, sidecar));
+    }
+    assert_eq!(pairs[0], pairs[1], "neither saved member distinguishes the original endpoint choice");
 }
 
 #[test]
@@ -267,6 +383,7 @@ fn status_and_counts_come_before_truncation_and_a_truncated_review_blocks() {
         assert_eq!(truncated.summary.totals, totals, "every count is over the full result");
         assert!(truncated.summary.blocking_codes().contains(&IMPORT_REVIEW_TRUNCATED));
         let value = parsed(&truncated);
+        assert_recovery(&value, 0, 1);
         assert_eq!(value.get_or_null("completeness").as_str(), Some("truncated"));
         assert_eq!(value.get_or_null("adoptable").as_bool(), Some(false));
         let not_shown: usize = (0..6).map(|index| totals[index] - truncated.summary.listed[index]).sum();
@@ -276,6 +393,52 @@ fn status_and_counts_come_before_truncation_and_a_truncated_review_blocks() {
     let refused = import(&text, None, None, "invented.mbf");
     let small = review_of(&refused, &text, None, None, needed + 64, true).review;
     assert!(!small.summary.imported && !small.summary.adoptable);
+    assert_recovery(&parsed(&small), 0, 0);
+}
+
+#[test]
+fn format_two_fixed_facts_fit_or_refuse_without_hiding_required_losses() {
+    let (mut result, bytes, sidecar) = parity_case("tests/test_caepipe_mbf_round_trip.py::test_summed_primitives_are_many_to_one_and_reported");
+    assert_eq!(std::mem::size_of::<mbf::IdentityRecoveryFacts>(), 16);
+    assert_eq!(mbf::IdentityRecoveryFacts::default(), mbf::IdentityRecoveryFacts { known_missing_ids: 0, unrecovered_fields: 0 });
+    // Exercise actual two-id facts and the widest fixed counter representation with the same required loss entries.
+    for facts in [result.identity_recovery, mbf::IdentityRecoveryFacts { known_missing_ids: u64::MAX, unrecovered_fields: u64::MAX }] {
+        result.identity_recovery = facts;
+        let model = result.model_bytes().unwrap().unwrap();
+        let model_sha = common::sha(&model);
+        let mbf_sha = common::sha(&bytes);
+        let sidecar_sha = common::sha(&sidecar);
+        let review_with = |allowance| import_review(
+            &result,
+            ImportReviewSource { file_name: "invented.mbf", mbf_sha256: &mbf_sha, mbf_bytes: bytes.len() as u64,
+                identity_file: ReviewedIdentityFile::Present { sha256: &sidecar_sha, bytes: sidecar.len() as u64 } },
+            None,
+            Some(ReviewModel { sha256: &model_sha, bytes: model.len() as u64 }),
+            ReviewDocumentCheck::Passed { schema_status: "current" },
+            allowance,
+            |_| true,
+        );
+        let needed = review_with(16).unwrap_err().needed;
+        assert!(review_with(needed - 1).is_err());
+        let minimum = review_with(needed).unwrap();
+        assert!(minimum.text.len() <= needed);
+        assert!(!minimum.summary.adoptable && !minimum.summary.complete);
+        assert_eq!(minimum.summary.listed[4], 0, "all required loss entries are unshown at the fixed-part allowance");
+        assert!(minimum.summary.totals[4] >= 4, "merged group, two originals and generic notice are still counted");
+        assert!(minimum.summary.blocking_codes().contains(&IMPORT_REVIEW_TRUNCATED));
+        let full = review_with(MBF_REVIEW_MAX_BYTES).unwrap();
+        assert!(full.summary.complete && full.summary.adoptable);
+        assert!(full.text.len() <= MBF_REVIEW_MAX_BYTES);
+        for review in [&minimum, &full] {
+            let value = parsed(review);
+            let identity = value.get_or_null("identity");
+            assert_eq!(identity.get_or_null("source_completeness").as_str(), Some("not_established"));
+            // Decimal u64 values are emitted exactly, even above the strict reader's small signed-int range.
+            assert!(review.text.contains(&format!("\"unrecoverable\":{}", facts.known_missing_ids)));
+            assert!(review.text.contains(&format!("\"unrecovered_fields\":{}", facts.unrecovered_fields)));
+        }
+        assert_taxonomy(&result, &parsed(&full));
+    }
 }
 
 #[test]

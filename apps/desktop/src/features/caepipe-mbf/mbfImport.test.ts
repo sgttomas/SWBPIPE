@@ -17,6 +17,7 @@ import {
   declarationFor,
   importAdoptable,
   importBlockingCodes,
+  importReviewFormatCurrent,
   type MbfImportReviewOutcome,
   type MbfImportReviewPayload
 } from "./mbfImport";
@@ -79,6 +80,19 @@ describe("the import review's product presentation", () => {
     expect(importAdoptable(reviewed("unbound-open").review)).toBe(false);
     // The capture carries bounded identities only.
     expect(Object.keys(adoptCapture(bound, null)!).sort()).toEqual(["binding", "declaration", "fileName", "formedFromNames", "modelSha256", "restored", "reviewSha256", "sourceId"]);
+  });
+
+  it("rejects prior and unknown review versions before interpreting metrics or capturing Adopt", () => {
+    const bound = reviewed("bound-open");
+    expect(importReviewFormatCurrent(bound.review)).toBe(true);
+    for (const format of [1, 0, 3, "2", null]) {
+      // Deliberately foreign payload at the transport boundary, with no format-2 members to accidentally read.
+      const foreign = { document_kind: "swbpipe.mbf_import_review", format, adoptable: true } as unknown as MbfImportReviewPayload;
+      expect(importReviewFormatCurrent(foreign)).toBe(false);
+      expect(importBlockingCodes(foreign)).toEqual(["MBF-IMPORT-WORKER-PROTOCOL"]);
+      expect(importAdoptable(foreign)).toBe(false);
+      expect(adoptCapture({ ...bound, review: foreign }, null)).toBeNull();
+    }
   });
 
   it("sends one entry per declared material and never the engine's wildcard", () => {

@@ -1124,7 +1124,7 @@ reference *Bend*; *Node*). The inverse:
 5. **Component** `component:bend-n`:
    - `kind: bend`, `node: node:nA`. The sidecar does not record which tangent node the
      source component named, so a bound import also uses the near tangent node and reports
-     the component node as `MBF-IMPORT-ID-UNRECOVERABLE`; a source model whose component
+     the component node as `MBF-IMPORT-REFERENCE-UNRECOVERABLE` at `{component_id}.node`; a source model whose component
      names the far node is excluded from canonical equality by name (§18.1);
    - `geometry.bend_pipe_ref`, `geometry.bend_radius` {R, `in`|`mm`} and
      `bend_geometry_source_reference` (MBF hash and line);
@@ -1879,15 +1879,18 @@ alone refuses it (`MBF-IMPORT-SIDECAR-DIGEST-MISMATCH`). Otherwise the parser re
 by path.
 
 **What a bound sidecar cannot restore.** Many-to-one mappings and identities the sidecar
-does not preserve are reported, never guessed. Each is listed in the loss report as
-`approximated` with code `MBF-IMPORT-ID-UNRECOVERABLE`, naming the sidecar entries
-involved.
+does not preserve are reported, never guessed. Every existing warning and loss entry remains
+`approximated`, naming its subject. Known original ids lost use `MBF-IMPORT-ID-UNRECOVERABLE`;
+merged groups, unrecovered fields/references and general source-completeness limits use the distinct
+codes in desktop design §5.3. Review format 2 separates these counts; zero establishes no source
+completeness, reference equality or C6-5 result.
 
 - **Primitive loads.** `load_map` records each primitive's case, category, target and
   direction (implemented), but not its magnitude. The writer sums several primitives on one
   target, so a primitive id is restored only when the sidecar names exactly one primitive
   for that (case, category, target, axis). A sum keeps its §10.4 id. It is reported at
-  `load_map[<case>/<formed id>]`, and each sidecar entry it sums at `load_map[<key>]`. Its
+  `load_map[<case>/<formed id>]` as `MBF-IMPORT-IDENTITIES-MERGED`, and each sidecar entry it sums
+  at `load_map[<key>]` as `MBF-IMPORT-ID-UNRECOVERABLE` (counted once per original id). Its
   identity is all the regeneration identity sets aside (§14); a formed id that a restored
   id already has is refused by name (DUPLICATE_ID).
 - **Thermal direction.** The MBF carries none, so a restored thermal primitive keeps the
@@ -1900,9 +1903,9 @@ involved.
   `global_x` stands. Either way each entry without a direction is reported by name
   (`MBF-IMPORT-DIRECTION-UNRECOVERABLE`), stating the direction the primitive takes and why
   (independent review VER-002 r15).
-- **Support families** when the sidecar entry has no `family` (§12).
-- **Bend component nodes** (§11 item 5).
-- **Members the writer does not export** (§17.1).
+- **Support families** when the sidecar entry has no `family` (§12): `MBF-IMPORT-FIELD-UNRECOVERABLE` at `{support_id}.family`.
+- **Bend component nodes** (§11 item 5): `MBF-IMPORT-REFERENCE-UNRECOVERABLE` at `{component_id}.node`.
+- **Members the writer does not export** (§17.1): `MBF-IMPORT-SOURCE-COMPLETENESS-UNESTABLISHED`; this is a general limitation, not a measured missing-ID inventory.
 
 **Unbound** (no sidecar, or hashes differ: a CAEPIPE re-export, or an edit). The MBF
 governs every value, and ids are formed by §10.4. A sidecar is not applied unless the

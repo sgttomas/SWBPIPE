@@ -133,6 +133,25 @@ describe("File > Import MBF… in the App", () => {
     expect(REPLIES["unbound-adopt"].reviewSha256).toBe(declared.reviewSha256);
   });
 
+  it("refuses an old review before showing format-2 identities or adopting, and still retires on Close", async () => {
+    await renderApp();
+    setTauriRuntime();
+    const old = reply("bound-open");
+    // A foreign format-1 transport reply, not a reconstructed format-2 native capture.
+    old.review = { document_kind: "swbpipe.mbf_import_review", format: 1, adoptable: true };
+    const host = nativeHost({ open_mbf_import: () => old });
+    const dialog = await openImport();
+    await waitFor(() => expect(dialog).toHaveTextContent("MBF-IMPORT-WORKER-PROTOCOL"));
+    expect(within(dialog).queryByTestId("mbf-import-identity")).not.toBeInTheDocument();
+    expect(within(dialog).getByTestId("mbf-import-adopt")).toBeDisabled();
+    expect(host.count("adopt_mbf_import")).toBe(0);
+    expectDemoSession();
+    const before = host.count("cancel_mbf_import");
+    fireEvent.click(within(dialog).getByRole("button", { name: "Close" }));
+    await waitFor(() => expect(host.count("cancel_mbf_import")).toBe(before + 1));
+    expectDemoSession();
+  });
+
   it("opens from the native menu and the in-window File menu, shows the native review and adopts the bound import through the Open transaction", async () => {
     await renderApp();
     setTauriRuntime();
@@ -217,6 +236,25 @@ describe("File > Import MBF… in the App", () => {
     await waitFor(() => expect(projectMessage()).toHaveTextContent("unbound; ids were formed from node numbers"), { timeout: 20000 });
     expect(host.named("adopt_mbf_import")[0].args.declaration).toEqual(sent);
     expectNoFileContent(host);
+  });
+
+  it("refuses a prior-format declaration review without adopting or replacing the session", async () => {
+    await renderApp();
+    setTauriRuntime();
+    const old = reply("unbound-declared");
+    old.review = { document_kind: "swbpipe.mbf_import_review", format: 1, adoptable: true };
+    const host = nativeHost({ open_mbf_import: () => reply("unbound-open"), review_mbf_import: () => old });
+    const dialog = await openImport();
+    await reviewShown();
+    fireEvent.change(within(dialog).getByRole("combobox", { name: /Source of / }), { target: { value: "invented" } });
+    await waitFor(() => expect(dialog).toHaveTextContent("MBF-IMPORT-WORKER-PROTOCOL"));
+    expect(within(dialog).queryByTestId("mbf-import-identity")).not.toBeInTheDocument();
+    expect(within(dialog).getByTestId("mbf-import-adopt")).toBeDisabled();
+    expect(host.count("adopt_mbf_import")).toBe(0);
+    expectDemoSession();
+    const before = host.count("cancel_mbf_import");
+    fireEvent.click(within(dialog).getByRole("button", { name: "Close" }));
+    await waitFor(() => expect(host.count("cancel_mbf_import")).toBe(before + 1));
   });
 
   it("invalidates a pending declaration review on reversion, then can review and adopt again", async () => {

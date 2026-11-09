@@ -171,7 +171,7 @@ MODELS = models()
 # Reversible subset (§18.2): written, no MBF-SI-SHEAR-MODULUS-NOT-EXPORTED, printed values valid, distinct keys kept.
 REVERSIBLE = sorted(MODELS)
 # Excluded by name, with the reason: the component names the far tangent node, which the sidecar does not carry
-# (the importer reports MBF-IMPORT-ID-UNRECOVERABLE for every bound bend component node).
+# (the importer reports MBF-IMPORT-REFERENCE-UNRECOVERABLE for every bound bend component's .node).
 EXCLUDED = {"writer-bent-l-reversed": (reversed_bend(), "component node is the far tangent node; not in the sidecar")}
 # Byte-reproducible subset (§18.2): bound sidecar, identical writer settings, no formatting collision.
 BYTE_REPRODUCIBLE = sorted(MODELS)
@@ -183,6 +183,27 @@ SOLVE_EXCLUDED = {
     "writer-straight-run": "A has no primitive load",
 }
 PRESSURE_MODELS = {name for name, (model, _, _) in MODELS.items() if model.get("pressure_contract")}
+# The identity-recovery taxonomy (DEL-17-04 Design `desktop-mbf-export-import.md` §5.3): an original id not
+# preserved; the formed group of summed originals; a field or reference not recovered; the general limitation.
+ID_LOST = "MBF-IMPORT-ID-UNRECOVERABLE"
+IDS_MERGED = "MBF-IMPORT-IDENTITIES-MERGED"
+FIELD_CODES = ("MBF-IMPORT-REFERENCE-UNRECOVERABLE", "MBF-IMPORT-FIELD-UNRECOVERABLE",
+               "MBF-IMPORT-DIRECTION-UNRECOVERABLE")
+COMPLETENESS = "MBF-IMPORT-SOURCE-COMPLETENESS-UNESTABLISHED"
+IDENTITY_CODES = (ID_LOST, IDS_MERGED, *FIELD_CODES, COMPLETENESS)
+Facts = importer_module.IdentityRecoveryFacts
+
+
+def identity_notices(result) -> list[tuple[str, str]]:
+    """(code, location) of every identity-taxonomy entry in `result`'s loss report, in order. Each is also a warning
+    diagnostic, with the same reason, and an `approximated` loss entry."""
+    found = [(item["code"], item["location"]) for item in result.loss_report if item["code"] in IDENTITY_CODES]
+    assert all(item["category"] == "approximated" for item in result.loss_report if item["code"] in IDENTITY_CODES)
+    warnings = [(item["code"], item["location"], item["message"]) for item in result.diagnostics
+                if item["code"] in IDENTITY_CODES and item["severity"] == "warning"]
+    assert warnings == [(item["code"], item["location"], item["reason"]) for item in result.loss_report
+                        if item["code"] in IDENTITY_CODES]
+    return found
 
 
 def unbound_closure(trip) -> dict | None:
@@ -269,6 +290,8 @@ def test_unbound_import_under_pd1_equals_by_caepipe_name(trips, name):
     reference_unoriented, limits = canon.unoriented(reference, trip.limits(reference))
     comparison = canon.compare(reference_unoriented, trip.imported(result, oriented=False), limits)
     assert comparison.failures == []
+    assert result.identity_recovery == Facts(), "an unbound import restores no identity, so it reports none lost"
+    assert not identity_notices(result)
 
 
 @pytest.mark.parametrize("name", REVERSIBLE)
@@ -308,22 +331,31 @@ def test_bound_import_restores_the_sidecar_identities_and_reports_the_rest(trips
     assert ids(imported.get("sections")) == {pipe["section_ref"] for pipe in source["pipe_segments"]
                                              if pipe.get("section_ref") is not None}
     assert ids(imported["load_cases"]) <= ids(source["load_cases"])
-    unrecoverable = " ".join(item["location"] + " " + item["reason"] for item in trip.bound.loss_report
-                             if item["code"] == "MBF-IMPORT-ID-UNRECOVERABLE")
+    notices = identity_notices(trip.bound)
+    text = lambda code: " ".join(item["location"] + " " + item["reason"]  # noqa: E731
+                                 for item in trip.bound.loss_report if item["code"] == code)
     restored = {load["id"] for case in imported["load_cases"] for load in case["primitive_loads"]}
     for case in source["load_cases"]:
         for load in case.get("primitive_loads") or []:
             if load["magnitude"]["value"] == 0:
                 continue
-            assert load["id"] in restored or "keeps its formed id" in unrecoverable, load["id"]
+            assert load["id"] in restored or (f"/{load['id']}]" in text(ID_LOST)
+                                              and "keeps its formed id" in text(IDS_MERGED)), load["id"]
     for pipe in source["pipe_segments"]:  # straight orientation travels in the sidecar
         if pipe.get("y_reference") is not None and pipe["id"] not in {
                 component["geometry"]["bend_pipe_ref"] for component in source.get("components") or []}:
             restored = next(item for item in imported["pipe_segments"] if item["id"] == pipe["id"])
             assert restored["y_reference"] == {axis: float(pipe["y_reference"][axis]) for axis in "xyz"}
     for component in imported["components"]:  # the component's tangent node is not in the sidecar
-        assert f"bend {component['label'].split()[-1]}" in unrecoverable
-    assert "not export" in unrecoverable
+        assert ("MBF-IMPORT-REFERENCE-UNRECOVERABLE", f"{component['id']}.node") in notices
+    assert notices.count((COMPLETENESS, "unexported members")) == 1 and "not export" in text(COMPLETENESS)
+    # Only original summed load ids are reported lost; each counts once, and the formed groups and the field,
+    # reference and general notices are not lost ids.
+    assert all(location.startswith("load_map[") for code, location in notices if code == ID_LOST)
+    lost = [location for code, location in notices if code == ID_LOST]
+    assert len(lost) == len(set(lost))
+    assert trip.bound.identity_recovery == Facts(
+        known_missing_ids=len(lost), unrecovered_fields=sum(code in FIELD_CODES for code, _ in notices))
 
 
 def test_two_library_sections_of_equal_od_and_wall_keep_their_ids_through_a_round_trip(trips):
@@ -338,7 +370,7 @@ def test_two_library_sections_of_equal_od_and_wall_keep_their_ids_through_a_roun
         source = next(item for item in trip.model["sections"] if item["id"] == section["id"])
         assert {key: canon.si(value) for key, value in section["properties"].items()} == pytest.approx(
             {key: canon.si(value) for key, value in source["properties"].items()}, rel=1e-12)
-    assert not [item for item in trip.bound.loss_report if item["code"] == "MBF-IMPORT-ID-UNRECOVERABLE"
+    assert not [item for item in trip.bound.loss_report if item["code"] in IDENTITY_CODES
                 and "section" in item["location"]]
     again = render_caepipe_mbf_si(imported, title=trip.title, reference_temperature_c=trip.t_ref)
     assert again.text == trip.text
@@ -362,6 +394,54 @@ def test_summed_primitives_are_many_to_one_and_reported():
     assert regeneration_difference(trip.sidecar, trip.bound) is None
     found = sidecar_difference(trip.sidecar, regenerated_from(trip.bound))  # with no identity set aside
     assert found is not None and found[0] in reported(trip.bound)
+    original_ids = {load["id"] for load in model["load_cases"][0]["primitive_loads"]}
+    assert original_ids == {"tip", "tip2"}
+    assert original_ids.isdisjoint(load["id"] for load in loads)
+    assert reported(trip.bound) == {
+        "load_map[case:tip/tip]", "load_map[case:tip/tip2]",
+        "load_map[case:tip/load:concentrated_force:N1:global_y]",
+    }, "both lost original identities and the formed group stay named"
+    # The two original ids are the known losses, each counted once; the formed group is merged, not lost, and the
+    # general notice stays.
+    assert identity_notices(trip.bound) == [
+        (IDS_MERGED, "load_map[case:tip/load:concentrated_force:N1:global_y]"),
+        (ID_LOST, "load_map[case:tip/tip]"), (ID_LOST, "load_map[case:tip/tip2]"),
+        (COMPLETENESS, "unexported members")]
+    assert trip.bound.identity_recovery == Facts(known_missing_ids=2, unrecovered_fields=0)
+
+
+def test_bend_endpoint_choice_is_lost_even_when_all_entity_ids_are_restored():
+    # The exchange cannot distinguish source component.node choices. This proves the reason to retain the
+    # existing notice; it does not turn matching component/node inventories into a completeness assertion.
+    original = json.loads((ROOT / "fixtures/caepipe_mbf/invented/desktop_export/export_model.json").read_text())
+    pairs = []
+    imported = []
+    for endpoint in ("node:T1", "node:T2"):
+        model = deepcopy(original)
+        model["components"][0]["node"] = endpoint
+        written = render_caepipe_mbf_si(model, title="Invented MBF export", reference_temperature_c=20.0)
+        assert written.status == "written", written.diagnostics
+        data = written.text.encode("utf-8")
+        sidecar = importer_module.canonical_bytes(written.sidecar(hashlib.sha256(data).hexdigest()))
+        pairs.append((data, sidecar))
+        result = import_as_given(data, sidecar=sidecar, source_label="invented.mbf")
+        assert result.status == "imported", result.diagnostics
+        component = result.model["components"][0]
+        assert component["id"] == model["components"][0]["id"] == "component:bend-1"
+        assert component["node"] == "node:T1"
+        # The component id survives; its .node reference is reported not recovered, with the same reason, on
+        # both endpoints, and no original id is reported lost. Source completeness stays unestablished.
+        assert identity_notices(result) == [("MBF-IMPORT-REFERENCE-UNRECOVERABLE", "component:bend-1.node"),
+                                            (COMPLETENESS, "unexported members")]
+        (notice,) = [item for item in result.loss_report if item["code"] == "MBF-IMPORT-REFERENCE-UNRECOVERABLE"]
+        assert notice["reason"] == ("the sidecar does not record which tangent node bend 20's component names; the "
+                                    "importer uses the near tangent node 20A")
+        assert result.identity_recovery == Facts(known_missing_ids=0, unrecovered_fields=1)
+        assert {node["id"] for node in result.model["nodes"]} == {node["id"] for node in model["nodes"]}
+        imported.append(component)
+    assert pairs[0] == pairs[1], "neither saved member carries the original endpoint choice"
+    assert imported[0]["node"] == original["components"][0]["node"]
+    assert imported[1]["node"] != "node:T2", "the far-node source reference is demonstrably lost"
 
 
 def test_a_merged_anchor_split_the_solve_refuses_is_not_restored(monkeypatch):
@@ -417,8 +497,17 @@ def test_a_sidecar_without_family_reports_the_family_unrecoverable():
     for entry in sidecar["support_map"].values():
         del entry["family"]
     result = import_caepipe_mbf(trip.data, sidecar=sidecar, material_provenance=INVENTED, source_label="old")
-    assert any(item["code"] == "MBF-IMPORT-ID-UNRECOVERABLE" and "family" in item["reason"]
+    assert any(item["code"] == "MBF-IMPORT-FIELD-UNRECOVERABLE" and "family" in item["reason"]
                for item in result.loss_report)
+    assert {support["id"] for support in result.model["supports"]} == set(sidecar["support_map"])
+    for support_id in sidecar["support_map"]:
+        assert any(item["code"] == "MBF-IMPORT-FIELD-UNRECOVERABLE"
+                   and item["location"] == f"{support_id}.family"
+                   and item["reason"] == f"the sidecar entry for {support_id} carries no family, which is not "
+                                         "recoverable"
+                   for item in result.loss_report), "the missing family is reported even though the id survives"
+    assert not [location for code, location in identity_notices(result) if code == ID_LOST]
+    assert result.identity_recovery == Facts(known_missing_ids=0, unrecovered_fields=len(sidecar["support_map"]))
     current = deepcopy(trip.sidecar)
     support_id = next(iter(current["support_map"]))
     del current["support_map"][support_id]["family"]
@@ -818,9 +907,10 @@ def groups(result) -> dict[str, list[str]]:
 
 
 def reported(result) -> set[str]:
-    """The load_map paths `result`'s import reported by name as many-to-one (MBF-IMPORT-ID-UNRECOVERABLE)."""
+    """The load_map paths `result`'s import reported by name as many-to-one: each formed group
+    (MBF-IMPORT-IDENTITIES-MERGED) and each original entry it sums (MBF-IMPORT-ID-UNRECOVERABLE)."""
     return {item["location"] for item in result.loss_report
-            if item["code"] == "MBF-IMPORT-ID-UNRECOVERABLE" and item["location"].startswith("load_map[")}
+            if item["code"] in (ID_LOST, IDS_MERGED) and item["location"].startswith("load_map[")}
 
 
 def set_aside(result) -> set[str]:
@@ -2399,6 +2489,10 @@ def test_a_restored_id_that_a_summed_primitive_would_also_take_is_refused(monkey
     assert refusals(result) == {("MBF-IMPORT-SIDECAR-CONFLICT",
                                  "load_map[case:tip/load:concentrated_force:N1:global_y]")}
     assert "DUPLICATE_ID" in result.diagnostics[-1]["message"] and result.model is None
+    # The refused result still carries the counts: tip and tip2 were reported lost before the collision.
+    assert [location for code, location in identity_notices(result) if code == ID_LOST] == [
+        "load_map[case:tip/tip]", "load_map[case:tip/tip2]"]
+    assert result.identity_recovery.known_missing_ids == 2
 
 
 def test_summed_thermal_entries_keep_their_common_direction_or_are_refused():
@@ -2593,6 +2687,8 @@ def test_a_mixed_legacy_thermal_set_keeps_the_agreed_direction_and_says_so():
     (report,) = [item for item in result.loss_report if item["code"] == "MBF-IMPORT-DIRECTION-UNRECOVERABLE"]
     assert report["location"] == f"load_map[{entry['load_case']}/t2].direction"
     assert "takes global_z" in report["reason"] and "global_x" not in report["reason"]
+    # The direction is the one field not recovered; both summed originals are the known lost ids.
+    assert result.identity_recovery == Facts(known_missing_ids=2, unrecovered_fields=1)
 
 
 # --- the sidecar's self-digest (Design §15) --------------------------------------------------------------------------
