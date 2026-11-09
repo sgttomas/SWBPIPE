@@ -12,8 +12,9 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: piping-desktop-e2e-${{ github.event.pull_request.number || github.ref }}
-  # Do not queue stale candidates ahead of the current PR head.
+  group: piping-desktop-e2e-${{ github.event.pull_request.number || github.event.merge_group.head_ref || github.ref }}
+  # Do not queue stale candidates ahead of the current PR head. Merge-queue
+  # groups each have their own group and are never cancelled here.
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 env:
   CI: "true"
@@ -35,7 +36,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}
           fetch-depth: 0
           filter: blob:none
           sparse-checkout: |
@@ -47,8 +48,8 @@ jobs:
         id: plan
         env:
           EVENT: ${{ github.event_name }}
-          BASE: ${{ github.event.pull_request.base.sha }}
-          HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          BASE: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
+          HEAD: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}
         run: python3 tools/software_workflow/hosted_ci.py plan --suite piping --event "$EVENT" --base "$BASE" --head "$HEAD" --output piping-ci-plan.json
       - name: Read numerical selection
         id: numeric
@@ -90,7 +91,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}
           fetch-depth: 0
           filter: blob:none
           sparse-checkout: |
@@ -176,7 +177,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}
           fetch-depth: 0
           filter: blob:none
           sparse-checkout: |
@@ -239,7 +240,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}
           fetch-depth: 0
           filter: blob:none
           sparse-checkout: |
@@ -298,7 +299,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}
           filter: blob:none
           sparse-checkout: |
             /*
@@ -330,7 +331,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}
           fetch-depth: 0
           filter: blob:none
           sparse-checkout: |
@@ -438,7 +439,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}
           fetch-depth: 0
           filter: blob:none
           # Declarative specifications are not product inputs: a selected test that read them fails here
@@ -476,7 +477,7 @@ jobs:
   browser-matrix:
     name: Broad browser matrix (${{ matrix.shard }}/4)
     needs: selection
-    if: github.event_name != 'pull_request' && needs.selection.outputs.mode == 'full'
+    if: github.event_name != 'pull_request' && github.event_name != 'merge_group' && needs.selection.outputs.mode == 'full'
     # Playwright 1.60.0 supports Ubuntu 24.04; ubuntu-latest may select 26.04.
     runs-on: ubuntu-24.04
     timeout-minutes: 45
@@ -487,7 +488,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}
           fetch-depth: 0
           filter: blob:none
           sparse-checkout: |
@@ -516,7 +517,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}
           fetch-depth: 0
           filter: blob:none
           sparse-checkout: |

@@ -15,6 +15,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import hosted_ci
 import python_test_reads
 
+# These tools scan the repository (crates, tests and selection patterns), so a test that imports them reads
+# any path: declare the whole tree rather than an incomplete list.
+CI_READS = ("**",)
+
 PREFIX = ''
 BASE = ['tests/security', 'tests/test_constraint_validation.py', 'tests/test_source_block_schema_contract.py']
 FAMILIES = {
@@ -233,7 +237,7 @@ def test_tree_importers(project, changed):
 def select(project, plan, repository_checks_run=False):
     paths = plan.get('paths', [])
     derived = derived_tests(project)
-    if plan.get('event') != 'pull_request' or not paths:
+    if plan.get('event') not in hosted_ci.CANDIDATE_EVENTS or not paths:
         patterns = list(broad(project))
     else:
         patterns = list(BASE)
