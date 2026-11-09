@@ -92,6 +92,7 @@ TIME_SQUARED = _catalog("s^2", "time_squared", "unit:square_second")
 # The statuses a value may carry: catalog, and equilibrated_basis for a listed kind only. The
 # former catalog_family_absent is not one: every kind now has its catalog family.
 UNIT_STATUSES = ("catalog", "equilibrated_basis")
+CENSUS_COUNTS = ("straight_members", "arcs", "component_bodies", "supports", "nonlinear_supports")
 # modal-1's closed list of the kinds that may be published `equilibrated_basis` (a
 # coordinate-basis magnitude with mixed exponents: no dimension, no physical unit, not
 # dimensionless). The Design's dimensional trace lists none.
@@ -347,7 +348,8 @@ def _identity(doc):
     _const(run["mode_id_scope"], "/run/mode_id_scope", "run_local")
     _const(run["solver_path"], "/run/solver_path", "dense_scrutiny")
     b = _obj(doc["binding"], "/binding", ("request_sha256", "model_sha256", "materials_sha256", "materials_member", "options",
-                                          "undeclared_members", "state_case", "integrity_parameters_sha256", "integrity_parameters"))
+                                          "undeclared_members", "state_case", "integrity_parameters_sha256", "integrity_parameters",
+                                          "subject_census"))
     _hex(b["request_sha256"], "/binding/request_sha256")
     if b["model_sha256"] is not None:
         _hex(b["model_sha256"], "/binding/model_sha256")
@@ -366,6 +368,15 @@ def _identity(doc):
         _count(s["case_index"], "/binding/state_case/case_index")
         _hex(s["case_sha256"], "/binding/state_case/case_sha256")
     _hex(b["integrity_parameters_sha256"], "/binding/integrity_parameters_sha256")
+    # The subject census (Design §5.3.2): formed by a solved run only.
+    if doc.get("status") == "refused":
+        if b["subject_census"] is not None:
+            _fail("/binding/subject_census: a refused document states none")
+    else:
+        c = _obj(b["subject_census"], "/binding/subject_census", CENSUS_COUNTS + ("subjects_sha256",))
+        for field in CENSUS_COUNTS:
+            _count(c[field], f"/binding/subject_census/{field}")
+        _hex(c["subjects_sha256"], "/binding/subject_census/subjects_sha256")
     p = _obj(b["integrity_parameters"], "/binding/integrity_parameters", PARAMETERS)
     for field in PARAMETERS:
         path = f"/binding/integrity_parameters/{field}"
@@ -437,6 +448,7 @@ def _closure(doc):
     _identity(doc)
     _const(doc["status"], "/status", "solved")
     p = Parsed()
+    p.subject_census = doc["binding"]["subject_census"]
     p.unitized = []
     p.params = doc["binding"]["integrity_parameters"]
 
@@ -1972,13 +1984,13 @@ def _identity_coverage(p):
     nodal rows for nothing else, resultant rows for the other subjects, and the model's
     aggregate (subject kind `model`) last and once; the same (kind, subject) list on
     every axis. Subjects are told apart by their kind, so a member may be named
-    `model`. The document carries no census of what bears mass, so only what is listed
-    is covered."""
+    `model`. Then the subject census (`_subject_census`)."""
     axes = [row["axis"] for row in p.identity]
     if axes != sorted(axes, key=DIRECTIONS.index):
         _fail("identity: rows are not grouped in axis order")
     straight = set(p.straight_members)
     reference = None
+    listed = {}
     for axis in DIRECTIONS:
         rows = [row for row in p.identity if row["axis"] == axis]
         aggregate = [row for row in rows if row["kind"] == "model"]
@@ -1994,9 +2006,80 @@ def _identity_coverage(p):
             reference = keys
         elif keys != reference:
             _fail(f"identity: the subjects along {axis} differ from those along x")
-    return ["identity: covered are the straight members the discretization table lists and the model's aggregate; "
-            "the document has no census of mass-bearing members, arcs or component bodies, so a subject absent "
-            "from every axis (and, for a straight member, from the discretization table as well) cannot be seen"]
+        listed[axis] = {
+            "straight_member": sorted(row["subject"] for row in rows if row["kind"] == "member" and row["comparison"] == "nodal"),
+            "arc": sorted(row["subject"] for row in rows if row["kind"] == "member" and row["comparison"] == "resultant"),
+            "component_body": sorted(row["subject"] for row in rows if row["kind"] == "component_body")}
+    return _subject_census(p, listed)
+
+
+def _subject_census(p, listed):
+    """The subject census (Design §5.3.2) against the tables. Always: along each axis the
+    identity's nodal member rows count the straight members, its resultant member rows
+    the arcs and its component-body rows the bodies; the discretization table has the
+    straight members' rows; the supports table has the nonlinear supports' rows, which
+    are at most the supports. With the bound request, the census pass of
+    `modal_model_mass` re-derives the subject list from the model and every count, the
+    digest and each table's subject set are held to it. Without it the identities are not
+    re-derived, so evidence stays scoped whatever the counts say."""
+    c = p.subject_census
+    counted = {"straight_member": "straight_members", "arc": "arcs", "component_body": "component_bodies"}
+    for axis, subjects in listed.items():
+        for kind, field in counted.items():
+            if len(subjects[kind]) != c[field]:
+                _fail(f"subject census: along {axis}, the identity's {kind} rows are {len(subjects[kind])}, "
+                      f"the census counts {c[field]} {field}")
+    if len(p.straight_members) != c["straight_members"]:
+        _fail(f"subject census: the discretization table has {len(p.straight_members)} rows, "
+              f"the census counts {c['straight_members']} straight_members")
+    supports = sorted(row[0] for row in p.support_rows)
+    if len(supports) != c["nonlinear_supports"]:
+        _fail(f"subject census: the supports table has {len(supports)} rows, "
+              f"the census counts {c['nonlinear_supports']} nonlinear_supports")
+    if c["nonlinear_supports"] > c["supports"]:
+        _fail("subject census: more nonlinear supports than supports")
+    request = getattr(p, "request", None)
+    if request is None or not getattr(p, "request_bound", False):
+        why = "no request is supplied" if request is None else "the supplied request's binding did not pass"
+        return [f"subject census: {why}, so the subjects are not re-derived from the model; the identity, "
+                "discretization and supports tables are held only to the document's own counts, and a subject the "
+                "run omitted from both its census and its tables cannot be seen (a missing input, never a pass)"]
+    try:
+        derived = modal_model_mass.census(request)
+    except modal_model_mass.RefusedDomain as error:
+        return [f"subject census: not re-derived, the bound model is one the producer refuses (see mass): {error}"]
+    except modal_model_mass.Uncovered as error:
+        return [f"subject census: not re-derived, the subject rule does not cover this model: {error}"]
+    own = {"straight_member": sorted(derived.straights), "arc": sorted(derived.arcs),
+           "component_body": sorted(derived.bodies)}
+    # The tables' subject sets first, so a forged table is named whatever its census says.
+    for axis, subjects in listed.items():
+        for kind in counted:
+            if subjects[kind] != own[kind]:
+                _fail(f"model-derived: along {axis}, the identity's {kind} subjects {subjects[kind]} are not the "
+                      f"model's {own[kind]}")
+    if sorted(p.straight_members) != own["straight_member"]:
+        _fail(f"model-derived: the discretization table's members {sorted(p.straight_members)} are not the model's "
+              f"straight members {own['straight_member']}")
+    if supports != sorted(derived.nonlinear):
+        _fail(f"model-derived: the supports table's supports {supports} are not the model's nonlinear supports "
+              f"{sorted(derived.nonlinear)}")
+    # Then the record itself: every count and the digest of the model's list.
+    for kind, field in counted.items():
+        if c[field] != len(own[kind]):
+            _fail(f"model-derived: the subject census counts {c[field]} {field}, the model has {len(own[kind])}")
+    for field, mine in (("supports", derived.supports), ("nonlinear_supports", derived.nonlinear)):
+        if c[field] != len(mine):
+            _fail(f"model-derived: the subject census counts {c[field]} {field}, the model has {len(mine)}")
+    if sha256(derived.subjects()) != c["subjects_sha256"]:
+        _fail("model-derived: the subject census's subjects_sha256 is not the digest of the model's subject list")
+    kind, value = _model_mass(p)
+    if kind == "ok":
+        try:
+            modal_model_mass.census_self_check(value, derived)
+        except modal_model_mass.ReaderSelfCheck as error:
+            return [UNRESOLVED + f"model-derived: the reader's own cross-check disagrees: {error}"]
+    return []
 
 
 def _state_coverage(p):
@@ -2046,6 +2129,13 @@ def _evidence(p):
         _fail("the identity tolerance is not bound")
     scope.extend(_identity_coverage(p))
     _state_coverage(p)
+    if p.linearized_restrained is not None:
+        # The partition the identity rows are formed on comes from reported support
+        # states; nothing in the document shows they are the static solve's converged,
+        # confirmed states, so the evidence is conditional, as the model-derived mass is.
+        scope.append("supports: the linearized state case's support states, and the partition formed from them, "
+                     "are conditional on qualification of the static solve's converged states, which the "
+                     "document does not establish")
     if not any(text.startswith("numerical integrity does not establish physical correctness")
                for text in p.disclosure_texts.get("modal", [])):
         _fail("disclosures: the fixed numerical-integrity disclosure is missing")

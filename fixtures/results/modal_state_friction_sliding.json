@@ -123,6 +123,14 @@
       "case_index": 0,
       "case_sha256": "ea1d9dc821aba5fe0c804edf37cac41c54ad04c4909d07d1b942aa4696513da9"
     },
+    "subject_census": {
+      "arcs": 0,
+      "component_bodies": 0,
+      "nonlinear_supports": 1,
+      "straight_members": 1,
+      "subjects_sha256": "78adc17a349f55c0ee6f8cbbfe14c6a45d121d6ac18f1791b49fd9204ecf3c99",
+      "supports": 3
+    },
     "undeclared_members": []
   },
   "canonical_profile": "openpipestress_jcs_ijson_v1",
