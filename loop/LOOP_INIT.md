@@ -112,10 +112,13 @@ On the shared T3 development host, start local pytest inside the maintained
 `t3_slot.sh` wrapper: session setup can build Cargo CLIs even for Python-only
 test selections. The wrapper refuses to start while the host's memory guard is
 not running. When that happens, report it to the owner at once as a host
-blocker; restarting the guard is not Agent 0's to do. Meanwhile, keep testing:
-run the needed local jobs directly, no more at once than the wrapper's slots
-allow, and use hosted CI for broad selections. Return to the wrapper when the
-guard is back.
+blocker; restarting the guard is not Agent 0's to do. Meanwhile, keep testing.
+Agent 0 coordinates the needed local jobs across all lanes within the wrapper's
+shared slot allowance, because direct jobs are invisible to the slot locks.
+Direct jobs finish before an AC-004 exclusive window begins, and nothing here
+bypasses the AC-004 supervisor's own refusal. Where that coordination cannot be
+kept, use hosted CI. Hosted CI stays the default for broad selections. Return
+to the wrapper when the guard is back.
 
 Pytest builds the Cargo binaries it needs unless `OPENPIPESTRESS_NO_CARGO_BUILD=1`
 is set together with `OPENPIPESTRESS_RUNNER_BIN`, `OPENPIPESTRESS_UNITS_BIN`,
