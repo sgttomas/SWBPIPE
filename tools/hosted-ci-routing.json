@@ -2803,6 +2803,7 @@
               "core/reporting/modal_result/src/census.rs",
               "core/reporting/modal_result/src/lib.rs",
               "core/reporting/modal_result/src/model_mass.rs",
+              "core/reporting/modal_result/src/working_bound.rs",
               "core/reporting/pdf_emitter/src/lib.rs",
               "core/reporting/protected_content_linter/src/bin/protected_content_lint_cli.rs",
               "core/reporting/protected_content_linter/src/lib.rs",

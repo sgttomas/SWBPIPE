@@ -220,7 +220,11 @@ described under **Restore**.
   write is completed; if it is still as the run left it, the write is issued once more (attempt 2), at
   most once; any other read-back (other data or content, an unreadable read-back) or another instance
   stops the restore with the write `unknown`. Every attempt and the read-back are logged. Creating a
-  subkey is not retried. It checks
+  subkey is not retried. A write that did not complete keeps the client's stderr text, cut to
+  2048 UTF-8 bytes at a character boundary with `stderr_truncated` saying whether anything was cut,
+  in its step record and in the result's `failed_write_stderr`. Every result built from the restore
+  carries that list: success, the failure path, an attached exception and an interruption. No other
+  step keeps its output text. This is diagnostic only and changes no check, attempt or outcome. It checks
   the process list before each write, after the last write,
   and once more before declaring success, reads the key a third time and compares it exactly with the
   first reading. The result is `recent_files_restored` (`settings_restored` with `"key"`) only when every
