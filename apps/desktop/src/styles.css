@@ -4825,3 +4825,24 @@ body { min-width: 760px; min-height: 540px; }
 /* A value stays on one line with its unit; ids may still wrap at their separators. */
 .app-shell .results-panel .result-value-cell { white-space: nowrap; overflow-wrap: normal; }
 .app-shell .results-panel .dual-unit-cell { overflow-wrap: break-word; }
+
+/* Form fields (DEL-07-06 Work `workspace-presentation.md`, section 2). The shared authoring fields
+   (rich-authoring `formSupport.tsx`) lay out the same way in every form. A field is a grid whose
+   tracks wrap by width, not by context: where it has room the label and its control sit side by
+   side, with every field of a form sharing the same columns; where it does not (the inspector, a
+   narrow pane) the label stacks above its control. Nothing is hidden or clipped, and the field
+   keeps its label association, name and order. */
+.app-shell .form-field {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); align-items: center;
+  column-gap: var(--space-4); row-gap: var(--space-1); max-width: 36rem; margin-block: var(--space-2);
+}
+.app-shell .form-field > :is(input, select, textarea, .compact-select) { width: 100%; min-width: 0; max-width: none; margin-inline: 0; }
+/* A quantity: its dimension note, then its value and unit on one row (the unit narrower), then Clear. */
+.app-shell .quantity-field > p { margin-block: 0 var(--space-2); color: var(--text-secondary); font-size: var(--type-size-caption); line-height: var(--type-lineHeight-caption); }
+.app-shell .quantity-field-row { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-2) var(--space-4); max-width: 36rem; }
+.app-shell .quantity-field-row > label {
+  display: grid; row-gap: var(--space-1); flex: 2 1 9rem; min-width: 0; margin: 0; color: var(--text-secondary);
+}
+.app-shell .quantity-field-row > label + label { flex: 1 1 6rem; }
+.app-shell .quantity-field-row > label > input { width: 100%; min-width: 0; margin-inline: 0; color: var(--ui-text); }
+.app-shell .quantity-field > .quantity-field-row + button { margin-top: var(--space-2); }

@@ -56,7 +56,7 @@ export function TextField({ label, value, onChange, choices, compactSelect = fal
   compactSelect?: boolean;
 }) {
   const entered = typeof value === "string" ? value : "";
-  return <label>{label}
+  return <label className="form-field">{label}
     {choices && compactSelect ? <CompactSelect
       aria-label={label}
       value={entered}
@@ -80,10 +80,10 @@ export function QuantityField({ label, value, onChange, dimension }: {
   dimension: string;
 }) {
   const q = record(value);
-  return <fieldset>
+  return <fieldset className="quantity-field">
     <legend>{label}</legend>
     <p>Expected dimension: {dimension}. Enter an explicit compatible unit; validation checks compatibility.</p>
-    <label>Value<input
+    <div className="quantity-field-row"><label>Value<input
       aria-label={`${label} value`}
       inputMode="decimal"
       value={q.value === undefined ? "" : String(q.value)}
@@ -95,7 +95,7 @@ export function QuantityField({ label, value, onChange, dimension }: {
       value={typeof q.unit === "string" ? q.unit : ""}
       onChange={e => onChange({ ...q, unit: e.target.value })}
     />
-    </label>{value !== undefined && <button type="button" onClick={() => onChange(undefined)}>Clear {label.toLowerCase()}</button>}</fieldset>;
+    </label></div>{value !== undefined && <button type="button" onClick={() => onChange(undefined)}>Clear {label.toLowerCase()}</button>}</fieldset>;
 }
 export function makeRichIntent(target: EditorOperationIntent["target"], kind: EditorOperationIntent["change"]["change_kind"], path: string, before: string, after: unknown, label: string): EditorOperationIntent {
   const id = `${target.ref}:${path}`;

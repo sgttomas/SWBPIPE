@@ -39,6 +39,7 @@ Every pane uses one vocabulary, so slices built by different lanes read as one p
 | State | Hover is the hover wash over the control's own fill. Pressed is the pressed fill and ink pair, with no layout-shifting bar. A selected row is the selection band plus the 3 px selection bar. Focus is the 2 px ring. Disabled is the disabled fill with its reason reachable. |
 | Boundaries | Command and field boundaries keep the 3:1 border that the resolved-style check enforces. Text-identified items such as menu-bar triggers may be borderless. |
 | Panes | A pane's eyebrow title is caption size, muted, in spaced capitals. Section headings use the title and body sizes. Fieldsets are hairline cards. Explanatory prose keeps a readable measure; tables and grids are not limited. |
+| Forms | A field's label and its control share two aligned columns where the field has room (up to 36 rem) and stack, label above control, where it does not, such as in the inspector. A quantity shows its dimension note, then its value and its narrower unit on one row with their captions, then Clear. Fields keep their label association, accessible name and order. |
 | Tables | Body-size cells with tabular figures. A caption-size header on the header surface whose words never break mid-word. Hairline rows with the alternate-row tint and a hover wash. Padding is set by density. A value stays on one line with its unit; identifiers may wrap at their separators. Component tables keep their own column rules. |
 
 ## 3. What the increment changes, and why
@@ -72,6 +73,14 @@ light and dark themes, comfortable and compact density, at 1440 × 900 and 1100 
   standing line states each route's limitations is kept.
 - **Tables.** Rows were 37 px with browser-default headers, values broke mid-digit, and header
   words broke mid-word. The dense table primitive in section 2 replaces them.
+- **Form fields.** The shared authoring fields (`TextField` and `QuantityField` in
+  `apps/desktop/src/features/rich-authoring/formSupport.tsx`) ran their label text and control
+  together inline, so each form read as one ragged column. The value and unit of a quantity wrapped
+  wherever they fell. The fields now carry the form classes in section 2, and every form built from
+  them takes that layout: the pressure-region and exact-material editors on the Loads page and the
+  support, material, bend and wind forms in the inspector. The markup gains only those classes and
+  one wrapper around a quantity's value and unit. Accessible names, labels, the Clear command,
+  helper text, order and parsing are unchanged.
 - **Smaller repairs.** Disclosure summaries meet the 24 px target. Inline labels keep a gap before
   their field. The status bar sets the selection's type as a quiet label and its identifier in
   mono, with unchanged text.
@@ -86,9 +95,12 @@ beyond presentation:
   Its event history is truthful, so de-duplicating it is that panel's own decision.
 - The load-cases summary shows raw state tokens (`unit posture=…; saved_project_mutated=false`).
   Plain wording needs that panel's owner to confirm the meaning.
-- Long authoring pages, such as the pressure-region and condition forms, are single scrolling
-  columns of prose and controls. They need a form-layout primitive (label column, grouped fields,
-  sticky actions) that the panels then adopt one by one.
+- Forms that write their own labels instead of using the shared fields keep the inline layout until
+  their owners adopt the form classes. Examples are the condition-set form and the pressure
+  profile's shear-model choice. A label that holds more than its text and one control, such as a
+  condition-set exposure choice with its not-used marker, needs its own arrangement first.
+- A sticky action row (queue and apply kept in view in a long form) is not adopted. No action row
+  in this lane's scope could take it without risking cover over the form's last controls.
 - The results standing line is now scannable but still long on routes with many limitations. A
   result-first layout that keeps every limitation visible would need DEL-07-05's agreement.
 - The model tree and property inspector ergonomics are a separate lane that uses these conventions.
