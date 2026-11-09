@@ -1,0 +1,50 @@
+/* Support configuration form: component-scoped grouping and section hierarchy on the shared
+   tokens (tokens.css). Spacing follows the shell convention: 4 within a group, 8 between
+   controls, 16 between sections. Each field keeps the shared field layout (formSupport and the
+   shell's primitives own it); this file only groups, titles and orders sections. Field order,
+   names and values are the form's own; nothing here hides one. */
+
+#rich-support-form .support-identity {
+  margin: var(--space-2) 0 var(--space-4);
+  font-weight: var(--type-weight-medium);
+  overflow-wrap: anywhere;
+}
+
+/* Six restraint checkboxes as two rows: translations, then rotations. */
+#rich-support-form .support-dofs {
+  display: grid;
+  grid-template-columns: repeat(3, max-content);
+  column-gap: var(--space-6);
+  row-gap: var(--space-2);
+}
+
+#rich-support-form .support-dofs > label {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* An optional section (hanger, nonlinear behavior) leads with a section title. */
+#rich-support-form .support-section > legend {
+  padding: 0 var(--space-2);
+  font-size: var(--type-size-body);
+  font-weight: var(--type-weight-semibold);
+}
+
+/* A group inside a section: no box of its own, so its fields sit in the section's box under a
+   caption title, and they stay direct children of a fieldset for the shared field layout. */
+#rich-support-form .support-subgroup {
+  margin: var(--space-6) 0 0;
+  padding: 0;
+  border: 0;
+}
+
+#rich-support-form .support-subgroup-title {
+  margin: 0 0 var(--space-2);
+  padding: 0;
+  color: var(--ui-muted);
+  font-size: var(--type-size-caption);
+  font-weight: var(--type-weight-semibold);
+  line-height: 14px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
