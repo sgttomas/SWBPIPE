@@ -18,6 +18,8 @@ vi.mock("./features/model-file/modelDocumentShape", async (importOriginal) => {
 });
 
 import { App } from "./App";
+import { loadWasmEngine } from "./services/wasmEngine/loadWasmEngine";
+import { outcomeFromWasmEngineJson } from "./services/operationService";
 import { retireMbfExportSession } from "./features/caepipe-mbf/mbfExportCancel";
 import { retireMbfImportSession } from "./features/caepipe-mbf/mbfImportCancel";
 
@@ -58,6 +60,15 @@ function connectedHost(binding: "bound" | "unbound") {
     switch (command) {
       case "sync_native_shell_state": return null;
       case "check_model_library_refs": return [];
+      case "list_project_autosaves": return [];
+      case "validate_model_operation":
+      case "apply_model_operation": {
+        // This transport stub uses the maintained operation engine, not a fabricated edited document. It supplies
+        // no actual native operation witness; the App still performs the edit, hash checks and session commit.
+        const engine = await loadWasmEngine();
+        const execute = command === "apply_model_operation" ? engine.applyOperationJson : engine.validateOperationJson;
+        return outcomeFromWasmEngineJson(execute(JSON.stringify(args.model), JSON.stringify(args.intent), JSON.stringify(args.claimedModelHash ?? null)));
+      }
       case "cancel_mbf_export": return retirement(args);
       case "cancel_mbf_import": sourceActive = false; return retirement(args);
       case "open_model_document_file":
@@ -230,6 +241,8 @@ describe("connected supported-subset MBF App round trip (mocked native host)", (
     fireEvent.change(screen.getByTestId("engineering-table-review").querySelector("input")!, { target: { value: "0.5" } });
     fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
     fireEvent.click(screen.getAllByTestId(/^apply-intent-editor-intent-\d+$/).at(-1)!);
+    await waitFor(() => expect(screen.getByTestId("operation-apply-summary")).toHaveTextContent("1 applied"), { timeout: 10000 });
+    expect(host.named("apply_model_operation")).toHaveLength(1);
     await waitFor(() => expect(screen.getByTestId("project-edited")).toHaveTextContent("Edited"));
     const edited = await sessionModel(host);
     expect(edited.nodes.find((node: { id: string }) => node.id === "node:A").position.y).toBe(0.5);

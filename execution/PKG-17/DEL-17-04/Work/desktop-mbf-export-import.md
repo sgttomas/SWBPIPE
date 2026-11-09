@@ -2208,9 +2208,9 @@ by relabeling actual missing IDs or claiming original completeness.
 
 The focused execution packet is the desktop Vitest cohort `src/App.mbfRoundTrip.test.tsx` and the native
 `mbf_import::tests` cohort, including the reply producer above, from the same selected candidate source and
-its committed fixtures. Local native execution and the App's wasm-dependent tests await a usable, scheduled
-host route; no other lane's binaries supply qualification. Hosted CI can establish its own built-source
-results. Exact executions, checks and source revisions belong in the PR.
+its maintained fixtures. The native cohort exercises the capped workers and saved bytes; the App cohort uses
+mocked native transport with the maintained Wasm operation engine for its edit. These checks remain distinct
+from the launched App witness below. Exact executions, checks and source revisions belong in the PR.
 
 The remaining actual App witness uses this invented input and those settings, saves through the native
 chooser, imports that written pair bound, and repeats without the identity file with each material explicitly
@@ -2315,9 +2315,9 @@ pricing coefficient changes are made or inferred. Runtime allocation/qualificati
 
 The connecting and focused regression source covers both twins, near/far reference collision, generic/family/
 direction semantics, two summed original ids, notice preservation, full/truncated reviews, old-version refusal,
-stale/personal Adopt and session retirement. Maintained regeneration, runtime checks and final independent
-persistence/permission and exact old/new wording scrutiny remain prerequisites to integration; they establish
-no actual launched App witness by themselves.
+stale/personal Adopt and session retirement. Maintained regeneration and targeted native/App checks support
+this component connection. Final independent persistence/permission and exact old/new wording scrutiny on the
+integrated predecessor remains required; these checks supply no launched App witness.
 
 ## 6. Slices
 
