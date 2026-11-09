@@ -18,8 +18,7 @@ or accepted. The independent reference is
 - **New `timoshenko_annulus_energy_curved_v2`.** Straight members are formed
   exactly as under v1, bit for bit. Each realized arc adds the shear term of
   §3, with A_s = κ_E·A formed by the same per-route rule as that route's
-  straight members. No fitted constant, alpha_b2, finite-anchor 1e12, vendor
-  value or data enters.
+  straight members. No fitted constant, vendor value or proprietary data enters.
 
 ## 2. Source and translation
 
@@ -53,7 +52,7 @@ R3.08.03's own circular, Cowper and Jourawski values (§§2.1.1–2.2) are not
 used.
 
 **Printed typographical errors.** These are recorded so that nobody adopts
-them. None affects the integral definition, which is the only thing adopted.
+them. The candidate uses the integral definition and derives its own closed forms.
 
 - p. 47 prints the torsion energy over EI; pp. 48–49 print 1/GC.
 - p. 50's annex prints ∫₀^β sin²θ dθ = ½(β + sin β cos β). Its own second
@@ -137,11 +136,10 @@ re-formation therefore come from one energy.
   v2 they read the v2 K through `CurvedFormation` and stay self-equilibrated.
   No shear term enters pressure.
 - **κ_E is a straight-annulus approximation.** The energy coefficient is the
-  straight prismatic Saint-Venant value. The curved section's shear stress
-  distribution differs at order r/R. This is the source's model too (one k
-  per section). It is the engineering approximation adopted here (AGENTS.md
-  engineering-judgment delegation), and no claim of curvature-corrected shear
-  energy is made.
+  straight prismatic Saint-Venant value. This candidate applies that section
+  coefficient along the curved centreline, as a one-dimensional constitutive
+  approximation. No curvature-dependent correction or quantified error bound
+  for that approximation is established by the cited equations or this oracle.
 
 ### 3.4 Recovery and stress
 
