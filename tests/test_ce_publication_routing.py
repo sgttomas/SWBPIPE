@@ -49,25 +49,35 @@ def derive_ce_routing():
     return document
 
 
-def checked_s6_stage_routing(document):
-    """Refuse an invalid raw overlay before restoring only S6's CE-reader SHA."""
+def checked_s6_stage_routing(document, scanned=None):
+    """Refuse an invalid raw overlay before restoring only S6's CE-reader SHA.
+
+    ``document`` is CE's stage view; a later stage passes its projection and the
+    live inventory it was projected from as ``scanned``."""
     expected = derive_ce_routing()
     # Compare every raw value (including JSON types), list position and membership.
     assert json.dumps(document, sort_keys=True, allow_nan=False) == json.dumps(
         expected, sort_keys=True, allow_nan=False), REFUSAL
     numerical = _numerical()
     numerical.source_read_dependencies(
-        ROOT, numerical.readiness.discover_cargo_manifests(ROOT), document["piping_runtime_reads"])
+        ROOT, numerical.readiness.discover_cargo_manifests(ROOT), (document if scanned is None else scanned)["piping_runtime_reads"])
     stage = deepcopy(document)
     stage["piping_runtime_reads"]["reads"][CE_READER]["sha256"] = json.loads(
         _s6_text())["piping_runtime_reads"]["reads"][CE_READER]["sha256"]
     return stage
 
 
+def _ce_stage():
+    """The live inventory and its projection to CE's stage by the report composer's guard."""
+    from tests.test_report_composer_routing import checked_ce_stage_routing
+    live = json.loads((ROOT / ROUTING).read_text())
+    return checked_ce_stage_routing(live), live
+
+
 def test_ce_overlay_is_complete_before_its_single_leaf_stage_projection():
-    raw = json.loads((ROOT / ROUTING).read_text())
+    raw, live = _ce_stage()
     before = deepcopy(raw)
-    stage = checked_s6_stage_routing(raw)
+    stage = checked_s6_stage_routing(raw, live)
     predecessor = json.loads(_s6_text())
     assert raw == before, "checking/projection cannot mutate the raw inventory"
     assert stage["piping_runtime_reads"]["source_trees"][PP_MANIFEST] == _numerical().rust_tree_digest(ROOT, Path(PP_MANIFEST))
@@ -80,7 +90,7 @@ def test_ce_overlay_is_complete_before_its_single_leaf_stage_projection():
     "membership", "missing_reader", "caller", "input", "scan", "routing_rule",
 ])
 def test_ce_overlay_refuses_unbound_bindings_and_unrelated_changes(mutation):
-    raw = json.loads((ROOT / ROUTING).read_text())
+    raw, live = _ce_stage()
     runtime = raw["piping_runtime_reads"]
     predecessor = json.loads(_s6_text())["piping_runtime_reads"]
     if mutation == "forged_reader":
@@ -106,15 +116,15 @@ def test_ce_overlay_refuses_unbound_bindings_and_unrelated_changes(mutation):
     else:
         raw["path_rules"].pop(0)
     with pytest.raises(AssertionError, match=REFUSAL):
-        checked_s6_stage_routing(raw)
+        checked_s6_stage_routing(raw, live)
 
 
 def test_ce_overlay_keeps_the_independent_runtime_read_scanner(monkeypatch):
-    raw = json.loads((ROOT / ROUTING).read_text())
+    raw, live = _ce_stage()
 
     def refused(*args, **kwargs):
         raise ValueError("independent runtime-read refusal")
 
     monkeypatch.setattr(_numerical(), "source_read_dependencies", refused)
     with pytest.raises(ValueError, match="independent runtime-read refusal"):
-        checked_s6_stage_routing(raw)
+        checked_s6_stage_routing(raw, live)
