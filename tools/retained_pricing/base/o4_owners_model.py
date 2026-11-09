@@ -103,7 +103,8 @@ BODY_PINS = {
     # and force-scaled refusals' early returns, the skew solve arm, the reduction's `filter(|_| built.skew.is_none())`,
     # source eligibility's `&& built.skew.is_none()`, the attribution (`skew_reactions`) and its along pushes, and the
     # certified support's along row; O4-ID/O4-SR's Timoshenko blocks and maxima are unchanged.
-    (LIB, "solve_prepared_load_case"): "7baaf610260b88504e39cbbbf018ab10dfbe07b1def840435eabd8f872d7b2ff",
+    # RT-A3 S6 D3 (§8.59): no O4 owner or the selected-source maximum changes (motion arms and capture argument only).
+    (LIB, "solve_prepared_load_case"): "8ffff0a7f46b1abc6be16ed58e8bd9a8c4f1d273729d493a5f9bcc76cea0bf19",
     (SRC, "distinct_reduced_section"): "179e447476ae2a7cf8b01d1e5da22bddd66b9057403453ffc79f9e57747fd100",
     (SRC, "stress_operands"): "de7a26eb0574635be8c808bc42070cdb132f8f8b67fee83542bd79f667cb6050",
     (SRC, "commitment"): "279ce112036664d7802e2952d87a67abe6dd7fe04879a4d498fd2544fe86753d",

@@ -561,3 +561,20 @@ D1-empty loops), RTA3NL-ID (a support state, at most 8 B) and the re-read pins (
 `recorded_tables.rs`). `base/b7a_scoped_text_model.py`'s `problem` parents move +11 (RTA3NL-PP). Against main
 `aa794eb68`, eight coefficients rise (STATICS[1] +754 B; TAV +5,862 B) and every phase moves +6,616 B. See the
 governing rules' §8.49 and `tests/test_849_rt_a3_nonlinear.py`.
+
+### §8.60: RT-A3 S6, nonlinear supports on load/reference-state documents and beside connectors (proposed)
+
+D1.5 refuses every `analysis_state`, D1.6 every nonlinear support and D1.4 every component, so S6's resolved-case
+motion paths are unreached on D1. One owner is reached: `solve_prepared_load_case` builds the loop's consumed motion,
+`CaseMotionEvidence::new(..)`, as `capture_nonlinear_state_evidence`'s argument before the capture returns None.
+`base/w16_owners_model.py` prices its one non-empty vector (S6-ME: one u64 per spring, B(8s) per case, CasePrefix);
+`rules/o10_rules.py` adds RTA3S6-L (the resolved spring-base loop and the moved-ground map, 0 on D1), rewrites
+W16-NS's arms (and excludes `CaseMotionEvidence::resolve`, the modal state case's restatement) and reads RT-A4's
+`CombinationExpression::resolve` by its impl, since lib.rs now has two `fn resolve`. Against main `394f4c623` (the kept
+§8.58 tree) 16 coefficients rise and none fall (O_base +256 B, STATICS +779 B, +17 Node, +78 Value, TAV +2,718 B);
+every native phase rises +18,761 B. The regenerated block, reviewed inputs #8 and #11 and the law and challenge records
+have cleared numerical/pricing/preservation scrutiny on the final composition; its one current-source AC-004 attempt
+passed all seven once-only tests with verified closure at `1a07aec6b`. Exact-head hosted checks, publication
+consultation and integration remain pending. S6 was drafted as §8.59; its source and tool comments
+still cite that number, which now means §8.60 (the modal support operations are §8.59). On the final composition
+with §8.59's predecessor (`da0afeabb`) the tool prices S6's tree unchanged. See the governing rules' §8.60.

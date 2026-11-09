@@ -531,8 +531,11 @@ In DEL-04-07 `Work/pressure-contract.md`, the stage-2 bullet becomes:
 
 Agent 0 adopted R-d with R-c on 2026-10-27, under the owner's delegation. R-c,
 a linear spring's moving base, is built (§11). Both are pressure-free
-only. The exact route keeps refusing every support-targeted primitive, and its
-`boundary_motion` law stays rigid-only.
+only. The exact route keeps refusing every support-targeted primitive. Since
+R-4 S6 (DEL-04-07 `route-unification-r4.md` §3.7) its load/reference-state
+`boundary_motion` carries R-a/R-d (rigid restraints) and R-b (an active
+nonlinear support's own DOF), and `base_motion` carries R-c (an active
+spring's axis), routed by this design's per-DOF classifier.
 
 ### 10.1 One action per target DOF
 

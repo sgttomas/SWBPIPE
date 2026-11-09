@@ -69,6 +69,7 @@ fn source(input: &NonlinearFrameSolveInput, invocation: InvocationToken) -> (Non
         qualification: NonlinearQualification::Qualified,
         standing: NonlinearStateStanding::NotEstablished { reason: "test".to_string() },
         final_states: solve.final_states.clone(),
+        motion: crate::CaseMotionEvidence::default(),
     };
     let captured = capture_held_status_source(invocation, true, Some(&evidence), input, &[], Some(&solve), &node_ids()).unwrap();
     (evidence, captured)

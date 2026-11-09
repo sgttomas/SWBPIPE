@@ -338,13 +338,16 @@ export type LoadReferenceMember = {
 };
 export type LoadReferenceSupportComponent = {
   support_id: string; node_id: string; dof: "UX" | "UY" | "UZ" | "RX" | "RY" | "RZ"; global_dof: number;
-  law_kind: "rigid_prescribed"; prescribed_value: number; unit: "m" | "rad";
-  meaning: "absolute_reference_displacement"; physical_state_source: "support_state.boundary_motion";
-};
+  prescribed_value: number; unit: "m" | "rad"; meaning: "absolute_reference_displacement";
+} & (
+  // R-4 §3.7 S6: each law with its required source (schemas/load_reference_state.schema.json).
+  | { law_kind: "rigid_prescribed" | "nonlinear_ground"; physical_state_source: "support_state.boundary_motion" }
+  | { law_kind: "spring_base"; physical_state_source: "support_state.base_motion" }
+);
 export type LoadReferenceContribution =
   | { source_id: string; owner_kind: "stored_primitive"; classification: "ordinary_applied"; factor: number; category: string; dimension: string; authored_normalized_magnitude: number; applied_magnitude: number }
   | { source_id: string; owner_kind: "resolved_member_state"; classification: "eigenstrain"; consumed_input_refs: string[]; value: number }
-  | { source_id: string; owner_kind: "support_state"; classification: "prescribed_boundary"; value: number }
+  | { source_id: string; owner_kind: "support_state"; classification: "prescribed_boundary" | "nonlinear_ground_motion" | "spring_base_motion"; value: number }
   | { source_id: string; owner_kind: "pressure_region"; classification: "pressure_eigen_and_closure"; factor: null };
 export type LoadReferenceExcludedSource = { source_id: string; owner_kind: "stored_primitive"; classification: "excluded"; category: string; reason: string };
 export type LoadReferenceStateRecord = {
