@@ -185,7 +185,7 @@ refuses the package.
 | `REPORT-COMPOSITION-SECTION-DUPLICATE` | an id listed twice |
 | `REPORT-COMPOSITION-OPTION-INVALID` | an option the section does not take, a limit outside 1-1000, an empty or duplicate case list, or an explicit `TBD` case (`TBD` appears only under all cases) |
 | `REPORT-COMPOSITION-ROW-FIELDS-INVALID` | partial bound metadata or unreadable stored number text |
-| `REPORT-COMPOSITION-CONTEXT-NOT-ADMITTED` | a composition outside the explicit local-private context |
+| `REPORT-COMPOSITION-CONTEXT-NOT-ADMITTED` | a composition outside the explicit local-private and user-released contexts |
 | `REPORT-COMPOSITION-CASE-UNKNOWN` | a `case_ref` that no bound row carries (names it) |
 | `REPORT-COMPOSITION-ROWS-OVERLAP` | `result_rows_all` together with any family section |
 

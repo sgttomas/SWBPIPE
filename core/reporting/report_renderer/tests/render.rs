@@ -2102,6 +2102,9 @@ fn the_form_check_needs_no_rows() {
         let refusals = form_refusals(&decode(value));
         assert!(refusals.iter().any(|reason| reason.starts_with(code)), "{code}: {refusals:?}");
     }
+    // A repeated case is refused by position; its text is not quoted.
+    let repeated = form_refusals(&decode(serde_json::json!({"composition_version": "1.0.0", "sections": [{"section_id": "result_stresses", "cases": ["unattested-marker", "unattested-marker"], "view": {"kind": "all"}}]})));
+    assert_eq!(repeated, ["REPORT-COMPOSITION-OPTION-INVALID: sections[0].cases[1] repeats an earlier case"]);
     let unknown_case = decode(serde_json::json!({"composition_version": "1.0.0", "sections": [{"section_id": "result_stresses", "cases": ["load_case:not-carried"], "view": {"kind": "all"}}]}));
     assert!(form_refusals(&unknown_case).is_empty());
 }

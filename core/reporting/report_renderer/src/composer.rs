@@ -553,10 +553,11 @@ fn check_in(composition: &ReportComposition, carried: Option<&BTreeSet<&str>>) -
                 ));
             }
             let mut seen = BTreeSet::new();
-            for case in cases {
+            for (index, case) in cases.iter().enumerate() {
                 if !seen.insert(case.as_str()) {
+                    // Named by position, not by its text (the form check is value-free).
                     refusals.push(format!(
-                        "{COMPOSITION_OPTION_INVALID}: {at}.cases lists {case} twice"
+                        "{COMPOSITION_OPTION_INVALID}: {at}.cases[{index}] repeats an earlier case"
                     ));
                 } else if case == "TBD" {
                     refusals.push(format!("{COMPOSITION_OPTION_INVALID}: {at}.cases lists TBD, which is shown only under all"));
