@@ -27,6 +27,8 @@ import {
 } from "../project-units/projectUnitSelection";
 import { loadUnitCatalog, type UnitCatalogRoute } from "../../services/unitCatalogService";
 import { RunSheet, type RunSheetHost } from "./runSheet/RunSheet";
+import "./modelTree.css";
+import { FAMILIES as SUPPORT_FAMILIES } from "../support-configuration/SupportConfigurationForm";
 
 type Props = {
   model: PreviewModel;
@@ -358,7 +360,7 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
                 aria-level={1}
                 aria-posinset={row.position}
                 aria-setsize={row.setSize}
-                className="tree-row tree-group-row"
+                className={`tree-row tree-group-row ${effectiveFocusedTreeKey === row.key ? "focused" : ""}`}
                 data-testid={`tree-group-${encodeURIComponent(row.groupKey)}`}
                 id={treeRowDomId(row)}
                 onClick={(event) => {
@@ -372,6 +374,9 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
                 type="button"
               >
                 <span aria-hidden="true">{row.expanded ? "▾" : "▸"}</span><strong>{row.title}</strong>
+                <span className="tree-group-count" data-testid={`tree-group-count-${encodeURIComponent(row.groupKey)}`}>
+                  {row.count === row.total ? row.total : `${row.count} of ${row.total}`}
+                </span>
               </button>
             ) : (
               <TreeButton
@@ -454,6 +459,8 @@ type TreeItem = {
   type: EntityRef["type"];
   label: string;
   detail?: string;
+  /** What the entity connects or where it sits (shown after the ID). */
+  context?: string;
   icon: React.ReactNode;
   keywords: string[];
 };
@@ -471,7 +478,8 @@ type TreeModel = {
 
 type FilteredTreeModel = {
   project: TreeItem | null;
-  groups: TreeGroupModel[];
+  /** Each group's matching items and its unfiltered size. */
+  groups: Array<TreeGroupModel & { total: number }>;
   count: number;
 };
 
@@ -521,7 +529,7 @@ function TreeControls({
 
 function buildTree(index: ModelIndex): TreeModel {
   const projectEntity = index.entities.get(index.projectKey)!;
-  const project = indexedTreeItem(projectEntity.ref, projectEntity.label, projectEntity.record, projectEntity.geometryIssue);
+  const project = indexedTreeItem(projectEntity.ref, projectEntity.label, projectEntity.record, projectEntity.geometryIssue, null);
   const groupOrder: ReadonlyArray<{ type: EntityRef["type"]; title: string }> = [
     { type: "material", title: "Materials" },
     { type: "section", title: "Sections" },
@@ -539,7 +547,7 @@ function buildTree(index: ModelIndex): TreeModel {
     const entity = index.entities.get(key);
     if (!entity) continue;
     const items = itemsByType.get(entity.ref.type) ?? [];
-    items.push(indexedTreeItem(entity.ref, entity.label, entity.record, entity.geometryIssue));
+    items.push(indexedTreeItem(entity.ref, entity.label, entity.record, entity.geometryIssue, treeItemContext(index, entity.ref, entity.record)));
     itemsByType.set(entity.ref.type, items);
   }
   const groups = groupOrder.flatMap(({ type, title }) => {
@@ -549,7 +557,7 @@ function buildTree(index: ModelIndex): TreeModel {
   return { project, groups, count: index.treeOrder.length };
 }
 
-function indexedTreeItem(ref: EntityRef, label: string, record: unknown, geometryIssue: string | null): TreeItem {
+function indexedTreeItem(ref: EntityRef, label: string, record: unknown, geometryIssue: string | null, context: string | null): TreeItem {
   const values = record && typeof record === "object" ? record as Record<string, unknown> : {};
   const simpleTerms = ["id", "label", "name", "from", "to", "node", "kind", "status", "family", "basis", "code", "message"]
     .flatMap((key) => typeof values[key] === "string" ? [values[key] as string] : []);
@@ -558,9 +566,38 @@ function indexedTreeItem(ref: EntityRef, label: string, record: unknown, geometr
     type: ref.type,
     label,
     detail: geometryIssue ? `${ref.id} · invalid geometry` : ref.id,
+    context: context ?? undefined,
     icon: treeItemIcon(ref.type),
     keywords: [ref.id, label, ref.type, ...simpleTerms, ...legacyTreeKeywords(ref.type, record), geometryIssue ?? ""]
   };
+}
+
+/** A row's identifying context: what the entity connects or where it sits, from
+ * fields the model already states (no quantity is shown, so no unit is chosen). */
+function treeItemContext(index: ModelIndex, ref: EntityRef, record: unknown): string | null {
+  const values = record && typeof record === "object" ? record as Record<string, unknown> : {};
+  const text = (key: string) => typeof values[key] === "string" && values[key] ? values[key] as string : null;
+  const shortId = (id: string) => id.includes(":") ? id.slice(id.indexOf(":") + 1) : id;
+  const plural = (count: number, word: string) => `${count} ${word}${count === 1 ? "" : "s"}`;
+  if (ref.type === "pipe") {
+    const from = text("from"), to = text("to");
+    return from && to ? `${shortId(from)} → ${shortId(to)}` : null;
+  }
+  if (ref.type === "support" || ref.type === "component") {
+    const node = text("node");
+    const kind = ref.type === "support"
+      ? ((values.hanger as { hanger_type?: unknown } | undefined)?.hanger_type as string | undefined) || text("family")
+      : text("kind");
+    const product = ref.type === "support" ? SUPPORT_FAMILIES.find((family) => family.value === kind)?.label : undefined;
+    const parts = [node ? `at ${shortId(node)}` : null, kind ? product ?? kind.replaceAll("_", " ") : null].filter(Boolean);
+    return parts.length ? parts.join(" · ") : null;
+  }
+  if (ref.type === "node") {
+    const pipes = index.pipeKeysByNode.get(entityKey(ref))?.length ?? 0;
+    return pipes ? plural(pipes, "pipe") : "no pipes";
+  }
+  if (ref.type === "combination" && Array.isArray(values.terms)) return plural(values.terms.length, "term");
+  return null;
 }
 
 function legacyTreeKeywords(type: EntityRef["type"], record: unknown): string[] {
@@ -710,14 +747,15 @@ function treeItemIcon(type: EntityRef["type"]): React.ReactNode {
 function filterTree(tree: TreeModel, filterText: string): FilteredTreeModel {
   const query = filterText.trim().toLowerCase();
   if (!query) {
-    return { project: tree.project, groups: tree.groups, count: tree.count };
+    return { project: tree.project, groups: tree.groups.map((group) => ({ ...group, total: group.items.length })), count: tree.count };
   }
 
   const project = matchesTreeItem(tree.project, "Project", query) ? tree.project : null;
   const groups = tree.groups
     .map((group) => ({
       title: group.title,
-      items: group.items.filter((item) => matchesTreeItem(item, group.title, query))
+      items: group.items.filter((item) => matchesTreeItem(item, group.title, query)),
+      total: group.items.length
     }))
     .filter((group) => group.items.length > 0);
 
@@ -756,7 +794,7 @@ function TreeButton({ active, focused, hidden, item, level, onClick, onContextMe
       aria-posinset={position}
       aria-selected={active}
       aria-setsize={setSize}
-      title={`${item.label}${item.detail ? ` (${item.detail})` : ""}`}
+      title={`${item.label}${item.detail ? ` (${item.detail}${item.context ? ` · ${item.context}` : ""})` : ""}`}
       onClick={onClick}
       onContextMenu={onContextMenu}
       role="treeitem"
@@ -766,7 +804,7 @@ function TreeButton({ active, focused, hidden, item, level, onClick, onContextMe
       {item.icon}
       <span>
         <strong>{item.label}</strong>
-        {item.detail ? <small>{item.detail}</small> : null}
+        {item.detail ? <small>{item.detail}{item.context ? <span className="tree-row-context" data-testid="tree-row-context"> · {item.context}</span> : null}</small> : null}
       </span>
       {hidden ? <span className="tree-visibility-state">Hidden</span> : null}
     </button>
@@ -774,7 +812,7 @@ function TreeButton({ active, focused, hidden, item, level, onClick, onContextMe
 }
 
 type FlatTreeRow =
-  | Readonly<{ kind: "group"; key: string; groupKey: string; title: string; expanded: boolean; position: number; setSize: number }>
+  | Readonly<{ kind: "group"; key: string; groupKey: string; title: string; count: number; total: number; expanded: boolean; position: number; setSize: number }>
   | Readonly<{ kind: "entity"; key: string; item: TreeItem; level: number; position: number; setSize: number }>;
 
 function flattenTreeRows(tree: FilteredTreeModel, expandedGroups: ReadonlySet<string>, filtering: boolean, filteredCollapsedGroups: ReadonlySet<string>): FlatTreeRow[] {
@@ -787,7 +825,7 @@ function flattenTreeRows(tree: FilteredTreeModel, expandedGroups: ReadonlySet<st
     const groupKey = group.title;
     const expanded = filtering ? !filteredCollapsedGroups.has(group.title) : expandedGroups.has(group.title);
     rows.push({
-      kind: "group", key: `group:${groupKey}`, groupKey, title: group.title, expanded,
+      kind: "group", key: `group:${groupKey}`, groupKey, title: group.title, count: group.items.length, total: group.total, expanded,
       position: groupIndex + (tree.project ? 2 : 1), setSize: topLevelSize
     });
     if (!expanded) return;
