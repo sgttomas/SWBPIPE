@@ -126,8 +126,15 @@ def inspect(snapshot):
         expected = RF_PINS
     else:
         raise ValueError("W1 reductions L1a: FormationSource.loads changed; re-review")
+    # RT-S3 CE fallback (§8.61, CEF-PJ): lib.rs is compared without the exact reviewed CE delta. The branch transfers
+    # nothing to a reduction: FormationSource, its Cow loads and the L5 guard, shadow, insert and call are unchanged.
+    import runpy
+    ce = runpy.run_path(str(Path(__file__).resolve().parent / "ce_fallback_model.py"))
     for relative, digest in expected.items():
-        if hashlib.sha256((root / relative).read_bytes()).hexdigest() != digest:
+        raw = (root / relative).read_bytes()
+        if relative == ce["LIB"]:
+            raw = ce["s6_bytes"](raw)
+        if hashlib.sha256(raw).hexdigest() != digest:
             raise ValueError("W1 reductions source/lifetime pin changed: " + relative)
     if reduced:
         guard((root / LIB).read_text())

@@ -603,6 +603,10 @@ def check_routing_inventory(after=None):
     main's inventory (recovery composition: S6's own derivation applied to CURRENT_MAIN instead of BASE).
     Every source-scan rule, exclusion, caller, fixture enumeration and unrelated control retains its predecessor value.
     The exact scan contents are checked from the current filesystem, using the selector's declared boundaries."""
+    from tests.test_ce_publication_routing import checked_s6_stage_routing
+    # Validate CE's complete raw overlay on integrated S6 before restoring its
+    # one reader leaf for this S6-stage derivation. The live PP tree stays live.
+    actual_overlay = checked_s6_stage_routing(json.loads(current(ROUTING) if after is None else after))
     import importlib.util
     module_path = ROOT / "tools/ci/numerical_ci.py"
     spec = importlib.util.spec_from_file_location("s6_routing_inventory", module_path)
@@ -633,7 +637,7 @@ def check_routing_inventory(after=None):
                   and (not scan.get("hidden") or not any(part.startswith(".") for part in p.relative_to(boundary).parts))}
         assert actual - set(entry["files"]) == {addition} and not set(entry["files"]) - actual
         entry["files"] = sorted(actual)
-    assert expected == json.loads(current(ROUTING) if after is None else after), "routing inventory changed outside its derivation"
+    assert expected == actual_overlay, "routing inventory changed outside its derivation"
 
 
 def test_routing_inventory_derives_only_s6_source_bindings_and_scan_additions():
