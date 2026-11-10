@@ -151,12 +151,11 @@ needs:
 - from: DEL-03-03
   condition: 'Run-sheet bend SIF cells require the user-entered directional SIF and flexibility slots of the bend component and the existing bend_realization contract consumed from DEL-03-03 bend authoring (both SIFs or neither, one source_reference shared with k, user authors only); the sheet supplies no value.'
   gating: true
-  when: A bend run row enters the SIF pair.
   evidence: execution/PKG-03/DEL-03-03/ScopeOfWork.md
 - from: DEL-04-03
   condition: 'The support Direction (x, y, z) entry requires the S-K1 create_support contract consumed from DEL-04-03 (skew-restraints.md §2.2 gate order and codes, §4.2 range, §6.4 DOF token, and the S-K1 model, applier and authoring contract) and its applier on main; the desktop writes the entered vector and shows the engine''s refusals by name.'
   gating: true
-  when: A support is created with a direction entered.
+  when: Preparing a support creation with a direction entered.
   evidence: execution/PKG-04/DEL-04-03/Work/skew-restraints.md
 code_paths:
 - apps/desktop/e2e/ui-foundation.spec.ts
