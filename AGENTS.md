@@ -220,7 +220,8 @@ within authorized work after the verification above and required checks pass on
 the exact head. The Agent 0 of the session that opened a PR, directly or
 through its delegates, merges it after the review its change requires and with
 required checks green on the exact head, having first triaged any open issue
-labelled `nightly` (the PR that repairs one may merge). Agent 0 may arm GitHub
+labelled `nightly` (the PR that repairs one may merge). If that session has ended, the current
+Agent 0 takes that duty. Agent 0 may arm GitHub
 auto-merge instead of merging by hand. It arms only after the review and any
 INTERLOCUTOR consultation are done and the last push is made, against the
 reviewed head, and it triages `nightly` issues when arming. It disarms before
