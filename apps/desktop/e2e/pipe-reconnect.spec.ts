@@ -57,7 +57,7 @@ test("W-10 reconnect applies after Validate, shows in the table, undoes and redo
   await queueReconnect(page, "pipe:P", "to", "node:C");
   const apply = page.getByTestId("apply-batch-operation-batch-1");
   await expect(apply).toBeDisabled();
-  await expect(page.getByTestId("preview-required-operation-batch-1")).toContainText("This batch contains a reconnect.");
+  await expect(page.getByTestId("preview-required-operation-batch-1")).toContainText("This batch contains reconnect_pipe_run.");
   await page.getByTestId("validate-batch-operation-batch-1").click();
   await expect(page.getByText(/Preview only. Temporary state was discarded/)).toBeVisible();
   await expect(apply).toBeEnabled();
