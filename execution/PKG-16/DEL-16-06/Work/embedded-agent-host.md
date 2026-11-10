@@ -509,7 +509,7 @@ Withheld/unavailable values carry no substitute numeric value.
 
 ## Boundaries and reconciliation
 
-F-PIP-3, FR-AGENT-005, DEC-081 and Root `docs/PRODUCT_BOUNDARIES.md` govern all
+F-PIP-3, FR-AGENT-005, DEC-081 and `docs/PRD.md` §4.3 govern all
 agent-visible claims. Agents do not record, imply or derive engineering
 acceptance, issuance, certification or code compliance. Numerical results and
 passed checks do not confer professional authority. Human model-change review
