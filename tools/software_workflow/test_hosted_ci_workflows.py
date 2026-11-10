@@ -85,6 +85,38 @@ def test_merge_group_runs_exactly_the_pull_request_jobs():
     assert matrix['if'] == "github.event_name != 'pull_request' && github.event_name != 'merge_group' && needs.selection.outputs.mode == 'full'"
 
 
+def test_nightly_full_run_reuses_the_product_workflow_and_is_advisory():
+    nightly = workflow('nightly-full-ci.yml')
+    assert nightly['on'] == {'schedule': [{'cron': '0 9 * * *'}], 'workflow_dispatch': ''}
+    assert nightly['permissions'] == {'contents': 'read'}
+    assert nightly['concurrency']['cancel-in-progress'] == 'false'
+    jobs = nightly['jobs']
+    assert set(jobs) == {'changed', 'full-suite'}
+    # Neither the job ids nor the check names can be taken for the required `harness` context.
+    for job_id, job in jobs.items():
+        assert 'harness' not in job_id.lower() and 'harness' not in job['name'].lower()
+    assert jobs['changed']['permissions'] == {'contents': 'read', 'actions': 'read'}
+    [gate] = [s for s in jobs['changed']['steps'] if s.get('id') == 'decide']
+    assert gate['env'] == {'GH_TOKEN': '${{ github.token }}', 'EVENT': '${{ github.event_name }}', 'SHA': '${{ github.sha }}'}
+    assert gate['run'] == ('python3 tools/software_workflow/nightly_ci.py --event "$EVENT" --sha "$SHA" '
+                           '--workflow nightly-full-ci.yml')
+    assert jobs['changed']['outputs']['run'] == '${{ steps.decide.outputs.run }}'
+    full = jobs['full-suite']
+    assert full['needs'] == 'changed'
+    assert full['if'] == "needs.changed.outputs.run == 'true'"
+    # Reuse, not copies: the product workflow with full selection, keeping the routing suite in its Python shards.
+    assert full['uses'] == './.github/workflows/piping-desktop-e2e.yml'
+    assert full['with'] == {'repository-checks-run': 'false'}
+    assert 'steps' not in full
+    # The required harness gains no trigger and calls no nightly work.
+    assert 'schedule' not in workflow('governance-harness.yml')['on']
+    assert 'nightly' not in (ROOT / '.github/workflows/governance-harness.yml').read_text()
+    # The broad matrix runs on the nightly's events and not on candidates.
+    matrix = workflow('piping-desktop-e2e.yml')['jobs']['browser-matrix']['if']
+    for event in ('schedule', 'workflow_dispatch'):
+        assert f"'{event}'" not in matrix
+
+
 def test_single_required_result_fails_for_any_unsuccessful_child(tmp_path):
     import os
     import subprocess

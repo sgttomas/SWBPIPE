@@ -300,6 +300,25 @@ class HostedCITests(unittest.TestCase):
                 repository = hosted_ci.repository_plan(self.root, 'merge_group', base, 'HEAD')
                 self.assertEqual((repository['mode'], repository['deselect']), ('full', []))
 
+    def test_scheduled_and_dispatched_runs_select_full_coverage_with_no_range(self):
+        """The nightly run has no candidate base: even a base it is handed is not
+        a diff range, so every suite and spec is selected over the whole tree."""
+        queue_base, _ = self.queue_candidate()
+        self.assertEqual(make_plan(self.root, PROFILE, 'pull_request', queue_base, 'HEAD')['paths'], ['README.md'])
+        for event, reason in hosted_ci.FULL_COVERAGE_EVENTS.items():
+            for base in ['', queue_base]:
+                with self.subTest(event=event, base=base):
+                    plan = make_plan(self.root, PROFILE, event, base, 'HEAD')
+                    self.assertEqual((plan['base'], plan['paths'], plan['selection_reason']), (None, [], reason))
+                    self.assertEqual(plan['modes'], dict.fromkeys(SUITES, 'full'))
+                    browser = plan['piping_browser_selection']
+                    self.assertEqual(browser['classification'], 'full-fallback')
+                    self.assertTrue(set(PROFILE['piping_browser_journeys']['core']) < set(browser['specs']))
+                    validate_plan(self.root, plan)
+                    repository = hosted_ci.repository_plan(self.root, event, base, 'HEAD')
+                    self.assertEqual((repository['mode'], repository['deselect'], repository['paths']), ('full', [], []))
+        self.assertIn('No candidate diff', make_plan(self.root, PROFILE, 'push', queue_base, 'HEAD')['selection_reason'])
+
     def test_merge_group_repository_regressions_follow_the_queued_diff(self):
         queue_base, _ = self.queue_candidate()
         queued = hosted_ci.repository_plan(self.root, 'merge_group', queue_base, 'HEAD')
