@@ -82,8 +82,8 @@ needs:
   condition: 'DEL-06-01 needs DEL-02-01 as a predecessor: rule-pack schema references model/result entities
 
 
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions and package dependency shape;
-    TP-DAG-004 conservative refresh for RECONCILIATION retained active edge under revision-0.5 decomposition.
+    Notes: TP-DAG-004 conservative refresh for RECONCILIATION retained active edge under revision-0.5
+    decomposition.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -93,8 +93,8 @@ needs:
   condition: 'DEL-06-01 needs DEL-02-02 as a predecessor: rule-pack values and expressions are unit-aware
 
 
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions and package dependency shape;
-    TP-DAG-004 conservative refresh for RECONCILIATION retained active edge under revision-0.5 decomposition.
+    Notes: TP-DAG-004 conservative refresh for RECONCILIATION retained active edge under revision-0.5
+    decomposition.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -105,8 +105,8 @@ needs:
     analysis boundary
 
 
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions and package dependency shape;
-    TP-DAG-004 conservative refresh for RECONCILIATION retained active edge under revision-0.5 decomposition.
+    Notes: TP-DAG-004 conservative refresh for RECONCILIATION retained active edge under revision-0.5
+    decomposition.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -117,8 +117,8 @@ needs:
     data
 
 
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions and package dependency shape;
-    TP-DAG-004 conservative refresh for RECONCILIATION retained active edge under revision-0.5 decomposition.
+    Notes: TP-DAG-004 conservative refresh for RECONCILIATION retained active edge under revision-0.5
+    decomposition.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -129,8 +129,8 @@ needs:
     approval
 
 
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions and package dependency shape;
-    TP-DAG-004 conservative refresh for RECONCILIATION retained active edge under revision-0.5 decomposition.
+    Notes: TP-DAG-004 conservative refresh for RECONCILIATION retained active edge under revision-0.5
+    decomposition.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

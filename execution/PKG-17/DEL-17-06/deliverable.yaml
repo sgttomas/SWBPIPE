@@ -94,19 +94,11 @@ needs:
     contracts.
 
 
-    Notes: FACT: declared upstream preserved; dependency type normalized to INTERFACE from source contract
-    role.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-08-04
   condition: 'DEL-17-06 consumes DEL-08-04 result-export envelope boundaries for review regression comparison
     and downstream tooling.
-
-
-    Notes: FACT: declared upstream preserved; dependency type normalized to INTERFACE from result-export
-    contract role.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -116,19 +108,11 @@ needs:
     provenance.
 
 
-    Notes: FACT: declared upstream preserved; dependency type normalized to INTERFACE from analysis-run
-    record model role.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-14-05
   condition: 'DEL-17-06 consumes DEL-14-05 comparison mapping tolerance and export contracts before making
     comparison export semantics concrete.
-
-
-    Notes: FACT: declared upstream preserved; dependency type normalized to INTERFACE from comparison
-    export contract role.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

@@ -97,7 +97,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-11/DEL-11-03/Specification.md
+  evidence: execution/PKG-11/DEL-11-03/ScopeOfWork.md
 - from: DEL-04-02
   condition: 'DEL-11-03 needs line-element and element-force context to explain centerline behavior.
 
@@ -114,7 +114,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-11/DEL-11-03/Guidance.md
+  evidence: execution/PKG-11/DEL-11-03/ScopeOfWork.md
 - from: DEL-09-01
   condition: 'DEL-11-03 should align theory claims with mechanics benchmark scope where examples or validation
     claims are discussed.
@@ -132,7 +132,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-11/DEL-11-03/Specification.md
+  evidence: execution/PKG-11/DEL-11-03/ScopeOfWork.md
 - from: DEL-01-02
   condition: 'DEL-11-03 is constrained by the protected-content and public/permissive citation boundary.
 
@@ -149,7 +149,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-11/DEL-11-03/Specification.md
+  evidence: execution/PKG-11/DEL-11-03/ScopeOfWork.md
 code_paths:
 - tools/validation/validate_dependencies_schema.py
 - docs/theory/centerline_analysis.md

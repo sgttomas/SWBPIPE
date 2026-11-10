@@ -6,8 +6,7 @@ needs:
     execution.
 
 
-    Notes: Preserved DAG-002 synchronized evidence row; enum-normalized for dependency-extract v3.1; not
-    promoted to aggregate authority by this local refresh.
+    Notes: not promoted to aggregate authority by this local refresh.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -17,8 +16,7 @@ needs:
     execution.
 
 
-    Notes: Preserved DAG-002 synchronized evidence row; enum-normalized for dependency-extract v3.1; not
-    promoted to aggregate authority by this local refresh.
+    Notes: not promoted to aggregate authority by this local refresh.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -28,8 +26,7 @@ needs:
     execution.
 
 
-    Notes: Preserved DAG-002 synchronized evidence row; enum-normalized for dependency-extract v3.1; not
-    promoted to aggregate authority by this local refresh.
+    Notes: not promoted to aggregate authority by this local refresh.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -39,8 +36,7 @@ needs:
     execution.
 
 
-    Notes: Preserved DAG-002 synchronized evidence row; enum-normalized for dependency-extract v3.1; not
-    promoted to aggregate authority by this local refresh.
+    Notes: not promoted to aggregate authority by this local refresh.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -50,9 +46,8 @@ needs:
     governance baseline.
 
 
-    Notes: Preserved historical DAG-002 synchronized evidence row; current-basis evidence confirms DEL-01-01
-    supplies the governance baseline context required by DEL-01-02 without promoting aggregate graph authority
-    or lifecycle state.
+    Notes: current-basis evidence confirms DEL-01-01 supplies the governance baseline context required
+    by DEL-01-02 without promoting aggregate graph authority or lifecycle state.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -70,7 +65,7 @@ needs:
 
     Target description — TargetName: CONTRACT invariant catalog; TargetRefID: docs/CONTRACT.md; TargetLocation:
     docs/CONTRACT.md'
-  evidence: execution/PKG-01/DEL-01-02/Procedure.md
+  evidence: execution/PKG-01/DEL-01-02/ScopeOfWork.md
 - from: external:HUMAN_LEGAL_REVIEW
   condition: 'Unresolved legal wording license contributor certification mechanism and legal-review authority
     require human/legal availability.
@@ -97,7 +92,6 @@ needs:
 
 
     Target description — TargetName: Human project authority assignment; TargetRefID: HUMAN_PROJECT_AUTHORITY'
-  evidence: execution/PKG-01/DEL-01-02/Procedure.md
 - from: doc:docs/IP_AND_DATA_BOUNDARY.md
   condition: 'Repo-level protected-data policy and contribution review checklist artifacts exist as draft
     governance surfaces.
@@ -114,7 +108,7 @@ needs:
     TargetLocation: docs/IP_AND_DATA_BOUNDARY.md'
   direction: downstream
   gating: false
-  evidence: execution/PKG-01/DEL-01-02/Specification.md
+  evidence: execution/PKG-01/DEL-01-02/ScopeOfWork.md
 code_paths:
 - docs/IP_AND_DATA_BOUNDARY.md
 - governance/CONTRIBUTION_REVIEW_CHECKLIST.md

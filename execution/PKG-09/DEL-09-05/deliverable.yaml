@@ -5,16 +5,10 @@ needs:
   condition: 'DEL-09-05 is constrained by architecture basis AB-00-01 from DEL-00-01.
 
 
-    Notes: Preserves matching prior DependencyID; normalized to canonical execution enums.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-02
   condition: 'DEL-09-05 is constrained by architecture basis AB-00-02 from DEL-00-02.
-
-
-    Notes: Preserves matching prior DependencyID; normalized to canonical execution enums.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -23,16 +17,10 @@ needs:
   condition: 'DEL-09-05 is constrained by architecture basis AB-00-06 from DEL-00-06.
 
 
-    Notes: Preserves matching prior DependencyID; normalized to canonical execution enums.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-08
   condition: 'DEL-09-05 is constrained by architecture basis AB-00-08 from DEL-00-08.
-
-
-    Notes: Preserves matching prior DependencyID; normalized to canonical execution enums.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -41,56 +29,41 @@ needs:
   condition: 'Solver-change release gates require mechanics benchmark evidence from DEL-09-01.
 
 
-    Notes: Preserves matching prior DependencyID; target resolved through SOFTWARE_DECOMP.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-09/DEL-09-05/Procedure.md
+  evidence: execution/PKG-09/DEL-09-05/ScopeOfWork.md
 - from: DEL-09-02
   condition: 'Solver-change release gates require stress recovery benchmark evidence from DEL-09-02 when
     stresses or result-facing values are affected.
 
 
-    Notes: Preserves matching prior DependencyID; target resolved through SOFTWARE_DECOMP.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-09/DEL-09-05/Procedure.md
+  evidence: execution/PKG-09/DEL-09-05/ScopeOfWork.md
 - from: DEL-09-03
   condition: 'Solver-change release gates require nonlinear support regression evidence from DEL-09-03
     when nonlinear behavior is affected.
 
 
-    Notes: Preserves matching prior DependencyID; target resolved through SOFTWARE_DECOMP.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-09/DEL-09-05/Procedure.md
+  evidence: execution/PKG-09/DEL-09-05/ScopeOfWork.md
 - from: DEL-08-05
   condition: 'Report-template release gates require protected-content lint evidence from DEL-08-05 where
     public templates or examples are affected.
 
 
-    Notes: Preserves matching prior DependencyID; target resolved through SOFTWARE_DECOMP.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-09/DEL-09-05/Procedure.md
+  evidence: execution/PKG-09/DEL-09-05/ScopeOfWork.md
 - from: DEL-01-04
   condition: 'Release gates are constrained by the professional responsibility and product-claims boundary
     defined by DEL-01-04.
 
 
-    Notes: Preserves matching prior DependencyID; target resolved through SOFTWARE_DECOMP.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-09/DEL-09-05/Guidance.md
+  evidence: execution/PKG-09/DEL-09-05/ScopeOfWork.md
 - from: DEL-09-04
   condition: 'DEL-09-04 informs release-gate checklist language by separating software maturity and validation
     evidence from engineering approval.

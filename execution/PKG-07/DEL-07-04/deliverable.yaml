@@ -5,18 +5,10 @@ needs:
   condition: 'DEL-07-04 must apply architecture-basis constraint AB-00-01 from DEL-00-01 when executed.
 
 
-    Notes: Existing dependency ID preserved; normalized from DAG mirror values to v3.1 dependency-extract
-    enums.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-02
   condition: 'DEL-07-04 must apply architecture-basis constraint AB-00-02 from DEL-00-02 when executed.
-
-
-    Notes: Existing dependency ID preserved; normalized from DAG mirror values to v3.1 dependency-extract
-    enums.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -26,8 +18,7 @@ needs:
     before implementation.
 
 
-    Notes: Existing dependency ID preserved; supported by both _CONTEXT applicable basis IDs and Specification
-    external inputs.
+    Notes: supported by both _CONTEXT applicable basis IDs and Specification external inputs.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -36,8 +27,7 @@ needs:
   condition: 'DEL-07-04 needs AB-00-05 GUI state and diagnostic-preservation architecture before implementation.
 
 
-    Notes: Existing dependency ID preserved; supported by both _CONTEXT applicable basis IDs and Specification
-    external inputs.
+    Notes: supported by both _CONTEXT applicable basis IDs and Specification external inputs.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -46,8 +36,7 @@ needs:
   condition: 'DEL-07-04 needs AB-00-06 diagnostics and warning-class contract before implementation.
 
 
-    Notes: Existing dependency ID preserved; supported by both _CONTEXT applicable basis IDs and Specification
-    external inputs.
+    Notes: supported by both _CONTEXT applicable basis IDs and Specification external inputs.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -56,18 +45,10 @@ needs:
   condition: 'DEL-07-04 must apply architecture-basis constraint AB-00-07 from DEL-00-07 when executed.
 
 
-    Notes: Existing dependency ID preserved; normalized from DAG mirror values to v3.1 dependency-extract
-    enums.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-08
   condition: 'DEL-07-04 must apply architecture-basis constraint AB-00-08 from DEL-00-08 when executed.
-
-
-    Notes: Existing dependency ID preserved; normalized from DAG mirror values to v3.1 dependency-extract
-    enums.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -77,7 +58,7 @@ needs:
     rule-inputs-incomplete and human-review-required distinctions.
 
 
-    Notes: Existing dependency ID preserved; satisfaction not verified within bounded read scope.
+    Notes: satisfaction not verified within bounded read scope.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -87,7 +68,7 @@ needs:
     missing-data behavior.
 
 
-    Notes: Existing dependency ID preserved; satisfaction not verified within bounded read scope.
+    Notes: satisfaction not verified within bounded read scope.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -96,7 +77,7 @@ needs:
   condition: 'DEL-07-04 requires solver diagnostics for solve-blocking and nonlinear warning producers.
 
 
-    Notes: Existing dependency ID preserved; satisfaction not verified within bounded read scope.
+    Notes: satisfaction not verified within bounded read scope.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

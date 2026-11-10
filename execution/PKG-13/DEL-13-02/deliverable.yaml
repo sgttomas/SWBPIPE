@@ -6,8 +6,8 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -18,8 +18,8 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -30,8 +30,8 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -42,8 +42,8 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -54,8 +54,8 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -66,8 +66,8 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -78,8 +78,8 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -90,60 +90,55 @@ needs:
     vocabulary.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 - from: DEL-02-01
   condition: 'DEL-13-02 needs DEL-02-01 as a predecessor: Constraint entities bind to the canonical physical/domain
     model.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 - from: DEL-02-02
   condition: 'DEL-13-02 needs DEL-02-02 as a predecessor: Constraint entities need unit-aware values.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 - from: DEL-02-05
   condition: 'DEL-13-02 needs DEL-02-05 as a predecessor: Constraint entities need persistence/round-trip
     semantics.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 - from: DEL-01-04
   condition: 'DEL-13-02 needs DEL-01-04 as a predecessor: Constraint entities must not encode professional
     approval claims.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 code_paths:
 - schemas/constraint.schema.json
 - schemas/units.schema.yaml

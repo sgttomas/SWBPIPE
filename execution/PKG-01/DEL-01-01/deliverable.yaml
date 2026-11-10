@@ -6,8 +6,8 @@ needs:
     execution.
 
 
-    Notes: Preserved from DAG-002 mirror as local extracted context evidence; normalized AnchorType/DependencyType/Origin
-    to v3.1 enums; does not mark PKG-00 as ISSUED or change DAG-006 authority.
+    Notes: Preserved from DAG-002 mirror as local extracted context evidence; does not mark PKG-00 as
+    ISSUED or change DAG-006 authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -17,8 +17,8 @@ needs:
     execution.
 
 
-    Notes: Preserved from DAG-002 mirror as local extracted context evidence; normalized AnchorType/DependencyType/Origin
-    to v3.1 enums; does not mark PKG-00 as ISSUED or change DAG-006 authority.
+    Notes: Preserved from DAG-002 mirror as local extracted context evidence; does not mark PKG-00 as
+    ISSUED or change DAG-006 authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -28,8 +28,8 @@ needs:
     execution.
 
 
-    Notes: Preserved from DAG-002 mirror as local extracted context evidence; normalized AnchorType/DependencyType/Origin
-    to v3.1 enums; does not mark PKG-00 as ISSUED or change DAG-006 authority.
+    Notes: Preserved from DAG-002 mirror as local extracted context evidence; does not mark PKG-00 as
+    ISSUED or change DAG-006 authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -39,8 +39,8 @@ needs:
     execution.
 
 
-    Notes: Preserved from DAG-002 mirror as local extracted context evidence; normalized AnchorType/DependencyType/Origin
-    to v3.1 enums; does not mark PKG-00 as ISSUED or change DAG-006 authority.
+    Notes: Preserved from DAG-002 mirror as local extracted context evidence; does not mark PKG-00 as
+    ISSUED or change DAG-006 authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -58,7 +58,7 @@ needs:
 
     Target description — TargetName: CONTRACT invariant catalog; TargetRefID: OPS-CONTRACT; TargetLocation:
     docs/CONTRACT.md'
-  evidence: execution/PKG-01/DEL-01-01/Procedure.md
+  evidence: execution/PKG-01/DEL-01-01/ScopeOfWork.md
 - from: doc:docs/DIRECTIVE.md
   condition: 'DEL-01-01 requires the founding directive for product boundaries stop rules and governance
     intent.
@@ -71,7 +71,7 @@ needs:
 
 
     Target description — TargetName: Founding directive; TargetRefID: OPS-DIRECTIVE; TargetLocation: docs/DIRECTIVE.md'
-  evidence: execution/PKG-01/DEL-01-01/Procedure.md
+  evidence: execution/PKG-01/DEL-01-01/ScopeOfWork.md
 - from: doc:docs/TYPES.md
   condition: 'DEL-01-01 requires the type and vocabulary definitions for stable IDs lifecycle and project
     vocabulary.
@@ -85,7 +85,7 @@ needs:
 
     Target description — TargetName: Identifier lifecycle and vocabulary definitions; TargetRefID: OPS-TYPES;
     TargetLocation: docs/TYPES.md'
-  evidence: execution/PKG-01/DEL-01-01/Procedure.md
+  evidence: execution/PKG-01/DEL-01-01/ScopeOfWork.md
 - from: doc:docs/AGENTIC_DEVELOPMENT_WORKFLOW.md
   condition: 'DEL-01-01 requires the agentic workflow boundary so agent-produced governance content remains
     draft until human gate acceptance.
@@ -100,7 +100,7 @@ needs:
 
     Target description — TargetName: Agentic development workflow; TargetRefID: OPS-AGENTIC-WORKFLOW;
     TargetLocation: docs/AGENTIC_DEVELOPMENT_WORKFLOW.md'
-  evidence: execution/PKG-01/DEL-01-01/Datasheet.md
+  evidence: execution/PKG-01/DEL-01-01/ScopeOfWork.md
 code_paths:
 - LICENSE.md
 - docs/README.md

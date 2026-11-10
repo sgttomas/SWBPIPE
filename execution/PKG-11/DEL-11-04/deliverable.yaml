@@ -6,11 +6,10 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0344 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
-    refresh normalized prior DAG-002 ARCHITECTURE_BASIS type to v3.1 CONSTRAINT while preserving approved
-    DAG-002 evidence.
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
+    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
+    by itself; TP-DAG-004 refresh normalized prior DAG-002 ARCHITECTURE_BASIS type to v3.1 CONSTRAINT
+    while preserving approved DAG-002 evidence.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -20,11 +19,10 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0345 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
-    refresh normalized prior DAG-002 ARCHITECTURE_BASIS type to v3.1 CONSTRAINT while preserving approved
-    DAG-002 evidence.
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
+    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
+    by itself; TP-DAG-004 refresh normalized prior DAG-002 ARCHITECTURE_BASIS type to v3.1 CONSTRAINT
+    while preserving approved DAG-002 evidence.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -34,11 +32,10 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0346 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
-    refresh normalized prior DAG-002 ARCHITECTURE_BASIS type to v3.1 CONSTRAINT while preserving approved
-    DAG-002 evidence.
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
+    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
+    by itself; TP-DAG-004 refresh normalized prior DAG-002 ARCHITECTURE_BASIS type to v3.1 CONSTRAINT
+    while preserving approved DAG-002 evidence.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -48,11 +45,10 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0347 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
-    refresh normalized prior DAG-002 ARCHITECTURE_BASIS type to v3.1 CONSTRAINT while preserving approved
-    DAG-002 evidence.
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
+    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
+    by itself; TP-DAG-004 refresh normalized prior DAG-002 ARCHITECTURE_BASIS type to v3.1 CONSTRAINT
+    while preserving approved DAG-002 evidence.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -62,11 +58,10 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0348 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
-    refresh normalized prior DAG-002 ARCHITECTURE_BASIS type to v3.1 CONSTRAINT while preserving approved
-    DAG-002 evidence.
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
+    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
+    by itself; TP-DAG-004 refresh normalized prior DAG-002 ARCHITECTURE_BASIS type to v3.1 CONSTRAINT
+    while preserving approved DAG-002 evidence.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -76,13 +71,10 @@ needs:
     rule pack
 
 
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0590 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; TP-DAG-004 refresh normalized prior DAG-002 DOCS_PREDECESSOR
-    type to v3.1 PREREQUISITE while preserving approved DAG-002 evidence.; TP-DAG-004 refresh normalized
-    prior UNKNOWN satisfaction status to v3.1 TBD.; TP-DAG-004 refresh normalized prior INFERRED_DIRECT
-    explicitness to v3.1 IMPLICIT.
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself; TP-DAG-004 refresh normalized prior DAG-002 DOCS_PREDECESSOR type
+    to v3.1 PREREQUISITE while preserving approved DAG-002 evidence.; TP-DAG-004 refresh normalized prior
+    UNKNOWN satisfaction status to v3.1 TBD.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -92,13 +84,10 @@ needs:
     benchmarks
 
 
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0591 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; TP-DAG-004 refresh normalized prior DAG-002 DOCS_PREDECESSOR
-    type to v3.1 PREREQUISITE while preserving approved DAG-002 evidence.; TP-DAG-004 refresh normalized
-    prior UNKNOWN satisfaction status to v3.1 TBD.; TP-DAG-004 refresh normalized prior INFERRED_DIRECT
-    explicitness to v3.1 IMPLICIT.
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself; TP-DAG-004 refresh normalized prior DAG-002 DOCS_PREDECESSOR type
+    to v3.1 PREREQUISITE while preserving approved DAG-002 evidence.; TP-DAG-004 refresh normalized prior
+    UNKNOWN satisfaction status to v3.1 TBD.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -108,13 +97,10 @@ needs:
     benchmarks
 
 
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0592 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; TP-DAG-004 refresh normalized prior DAG-002 DOCS_PREDECESSOR
-    type to v3.1 PREREQUISITE while preserving approved DAG-002 evidence.; TP-DAG-004 refresh normalized
-    prior UNKNOWN satisfaction status to v3.1 TBD.; TP-DAG-004 refresh normalized prior INFERRED_DIRECT
-    explicitness to v3.1 IMPLICIT.
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself; TP-DAG-004 refresh normalized prior DAG-002 DOCS_PREDECESSOR type
+    to v3.1 PREREQUISITE while preserving approved DAG-002 evidence.; TP-DAG-004 refresh normalized prior
+    UNKNOWN satisfaction status to v3.1 TBD.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -124,13 +110,10 @@ needs:
     lint
 
 
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0593 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; TP-DAG-004 refresh normalized prior DAG-002 GOVERNANCE_PREDECESSOR
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself; TP-DAG-004 refresh normalized prior DAG-002 GOVERNANCE_PREDECESSOR
     type to v3.1 PREREQUISITE while preserving approved DAG-002 evidence.; TP-DAG-004 refresh normalized
-    prior UNKNOWN satisfaction status to v3.1 TBD.; TP-DAG-004 refresh normalized prior INFERRED_DIRECT
-    explicitness to v3.1 IMPLICIT.
+    prior UNKNOWN satisfaction status to v3.1 TBD.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -139,13 +122,10 @@ needs:
   condition: 'DEL-11-04 needs DEL-01-02 as a predecessor: public examples must not embed protected examples/data
 
 
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0594 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; TP-DAG-004 refresh normalized prior DAG-002 GOVERNANCE_PREDECESSOR
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself; TP-DAG-004 refresh normalized prior DAG-002 GOVERNANCE_PREDECESSOR
     type to v3.1 PREREQUISITE while preserving approved DAG-002 evidence.; TP-DAG-004 refresh normalized
-    prior UNKNOWN satisfaction status to v3.1 TBD.; TP-DAG-004 refresh normalized prior INFERRED_DIRECT
-    explicitness to v3.1 IMPLICIT.
+    prior UNKNOWN satisfaction status to v3.1 TBD.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -155,8 +135,7 @@ needs:
     outside this setup folder.
 
 
-    Notes: FACT: Explicit external input for future example model materialization; added by TP-DAG-004
-    refresh.
+    Notes: FACT: Explicit external input for future example model materialization
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -166,8 +145,7 @@ needs:
     outside this setup folder.
 
 
-    Notes: FACT: Explicit external input for future example model materialization; added by TP-DAG-004
-    refresh.
+    Notes: FACT: Explicit external input for future example model materialization
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -176,8 +154,7 @@ needs:
   condition: 'Future fake-rule-pack demonstration files require the rule-pack schema before materialization.
 
 
-    Notes: FACT: Explicit external input for future fake-rule-pack demonstration files; added by TP-DAG-004
-    refresh.
+    Notes: FACT: Explicit external input for future fake-rule-pack demonstration files
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

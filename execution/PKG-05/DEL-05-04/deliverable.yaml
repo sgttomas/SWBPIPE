@@ -6,19 +6,11 @@ needs:
     execution proceeds.
 
 
-    Notes: FACT: normalized from DAG-002 mirror; prior dependency type ARCHITECTURE_BASIS represented
-    as CONSTRAINT for v3.1 enum compliance.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-02
   condition: 'DEL-05-04 must apply architecture basis AB-00-02 from DEL-00-02 when future product-development
     execution proceeds.
-
-
-    Notes: FACT: normalized from DAG-002 mirror; prior dependency type ARCHITECTURE_BASIS represented
-    as CONSTRAINT for v3.1 enum compliance.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -28,10 +20,6 @@ needs:
     execution proceeds.
 
 
-    Notes: FACT: normalized from DAG-002 mirror; prior dependency type ARCHITECTURE_BASIS represented
-    as CONSTRAINT for v3.1 enum compliance.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-06
@@ -39,19 +27,11 @@ needs:
     semantics.
 
 
-    Notes: FACT: normalized from DAG-002 mirror; prior dependency type ARCHITECTURE_BASIS represented
-    as CONSTRAINT for v3.1 enum compliance.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-08
   condition: 'DEL-05-04 must apply architecture basis AB-00-08 for future status-boundary tests and acceptance
     gates.
-
-
-    Notes: FACT: normalized from DAG-002 mirror; prior dependency type ARCHITECTURE_BASIS represented
-    as CONSTRAINT for v3.1 enum compliance.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

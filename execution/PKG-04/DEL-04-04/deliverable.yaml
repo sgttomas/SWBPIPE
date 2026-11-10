@@ -29,8 +29,7 @@ needs:
 
 
     Notes: Architecture basis is dispatchable context evidence only; PKG-00 is not treated as ISSUED by
-    this row.; semantic_refresh_2026-06-16: architecture-basis dependency normalized to CONSTRAINT from
-    INTERFACE.
+    this row.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -40,8 +39,7 @@ needs:
     constraints injected as AB-00-06.
 
 
-    Notes: Also supported by CONTRACT OPS-K-SOLVER-2 and _CONTEXT architecture basis injection.; semantic_refresh_2026-06-16:
-    architecture-basis dependency normalized to CONSTRAINT from INTERFACE.
+    Notes: Also supported by CONTRACT OPS-K-SOLVER-2 and _CONTEXT architecture basis injection.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -93,7 +91,7 @@ needs:
     and friction-related quantities must be unit-aware and dimensionally checked.
 
 
-    Notes: New TP-DAG-004 conservative extraction row; upstream satisfaction not resolved by this refresh.
+    Notes: upstream satisfaction not resolved by this refresh.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

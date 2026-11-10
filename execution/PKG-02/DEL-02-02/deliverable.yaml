@@ -6,8 +6,7 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; preserved as declared DAG mirror; normalized
-    to v3.1 enum surface during TP-DAG-004 dependency-extract refresh.
+    Notes: Architecture-basis edge from SCA-001 context injection
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -17,8 +16,7 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; preserved as declared DAG mirror; normalized
-    to v3.1 enum surface during TP-DAG-004 dependency-extract refresh.
+    Notes: Architecture-basis edge from SCA-001 context injection
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -28,8 +26,7 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; preserved as declared DAG mirror; normalized
-    to v3.1 enum surface during TP-DAG-004 dependency-extract refresh.
+    Notes: Architecture-basis edge from SCA-001 context injection
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -39,8 +36,7 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; preserved as declared DAG mirror; normalized
-    to v3.1 enum surface during TP-DAG-004 dependency-extract refresh.
+    Notes: Architecture-basis edge from SCA-001 context injection
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -50,8 +46,7 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; preserved as declared DAG mirror; normalized
-    to v3.1 enum surface during TP-DAG-004 dependency-extract refresh.
+    Notes: Architecture-basis edge from SCA-001 context injection
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -61,8 +56,7 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; preserved as declared DAG mirror; normalized
-    to v3.1 enum surface during TP-DAG-004 dependency-extract refresh.
+    Notes: Architecture-basis edge from SCA-001 context injection
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -72,8 +66,7 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; preserved as declared DAG mirror; normalized
-    to v3.1 enum surface during TP-DAG-004 dependency-extract refresh.
+    Notes: Architecture-basis edge from SCA-001 context injection
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -81,10 +74,6 @@ needs:
 - from: DEL-02-01
   condition: 'DEL-02-02 needs DEL-02-01 as a predecessor: unit and dimensional-analysis contracts must
     bind to canonical domain entities.
-
-
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions and scope mapping; preserved
-    as declared DAG mirror; normalized to v3.1 enum surface during TP-DAG-004 dependency-extract refresh.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -106,7 +95,7 @@ needs:
     handling for DEL-02-02.
 
 
-    Notes: FACT; governing document target resolved from prerequisite row and governing read set.
+    Notes: FACT
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
@@ -119,8 +108,7 @@ needs:
     the deliverable.
 
 
-    Notes: FACT; document pointer preserved from local procedure without reading outside allowed governing/decomposition/source
-    scope.
+    Notes: FACT
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.

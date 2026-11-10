@@ -83,7 +83,7 @@ needs:
     loss-report contract.
 
 
-    Notes: FACT: Declared upstream edge preserved; Specification.md REQ-001 also states this dependency.
+    Notes: Specification.md REQ-001 also states this dependency.
 
 
     Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.'
@@ -93,8 +93,7 @@ needs:
     obligations.
 
 
-    Notes: FACT: Declared upstream edge preserved; Guidance.md cites no-bypass controls from docs/SPEC.md
-    section 4.5.
+    Notes: Guidance.md cites no-bypass controls from docs/SPEC.md section 4.5.
 
 
     Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.'
@@ -104,8 +103,7 @@ needs:
     and public API promises.
 
 
-    Notes: FACT: Declared upstream edge preserved; Specification.md REQ-008 keeps runtime grant mechanics
-    TBD.
+    Notes: Specification.md REQ-008 keeps runtime grant mechanics TBD.
 
 
     Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.'
@@ -115,8 +113,7 @@ needs:
     surfaces.
 
 
-    Notes: FACT: Declared upstream edge preserved; Procedure.md identifies runtime/API surface as later
-    scoped work.
+    Notes: Procedure.md identifies runtime/API surface as later scoped work.
 
 
     Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.'

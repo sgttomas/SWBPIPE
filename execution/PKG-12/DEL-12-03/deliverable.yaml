@@ -92,7 +92,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-12/DEL-12-03/Specification.md
+  evidence: execution/PKG-12/DEL-12-03/ScopeOfWork.md
 - from: DEL-01-02
   condition: 'DEL-12-03 needs DEL-01-02 as a protected-content and private-data boundary constraint for
     telemetry payload design.
@@ -108,37 +108,36 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-12/DEL-12-03/Specification.md
+  evidence: execution/PKG-12/DEL-12-03/ScopeOfWork.md
 - from: DEL-01-04
   condition: 'DEL-12-03 needs DEL-01-04 as a professional-claims constraint for telemetry diagnostics
     and status wording.
 
 
-    Notes: Added by TP-DAG-004 refresh; conservative governance constraint directly supported by TEL-REQ-007
-    and CONTRACT OPS-K-AUTH; 2026-06-07 readiness alignment: SATISFIED for telemetry wording evidence
-    because DEL-01-04 is CHECKING as of 2026-06-04 and formal review found no affirmative prohibited software
-    authority claim; professional legal release and human-acceptance workflow details remain non-blocking
-    deferrals and not acceptance or professional approval.
+    Notes: conservative governance constraint directly supported by TEL-REQ-007 and CONTRACT OPS-K-AUTH;
+    2026-06-07 readiness alignment: SATISFIED for telemetry wording evidence because DEL-01-04 is CHECKING
+    as of 2026-06-04 and formal review found no affirmative prohibited software authority claim; professional
+    legal release and human-acceptance workflow details remain non-blocking deferrals and not acceptance
+    or professional approval.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-12/DEL-12-03/Specification.md
+  evidence: execution/PKG-12/DEL-12-03/ScopeOfWork.md
 - from: DEL-05-04
   condition: 'DEL-12-03 needs DEL-05-04 as a predecessor for canonical mechanics solved rule-checked and
     human-approved status distinctions.
 
 
-    Notes: Added by TP-DAG-004 refresh; target resolved through approved DAG-002/decomposition authority;
-    2026-06-07 readiness alignment: SATISFIED for canonical status-separation evidence because DEL-05-04
-    is CHECKING as of 2026-06-05 and review records status semantics tests and no professional/code-compliance
-    claim guards; residual result-envelope non-JSON hash and human-acceptance workflow details remain
-    future TBDs.
+    Notes: target resolved through approved DAG-002/decomposition authority; 2026-06-07 readiness alignment:
+    SATISFIED for canonical status-separation evidence because DEL-05-04 is CHECKING as of 2026-06-05
+    and review records status semantics tests and no professional/code-compliance claim guards; residual
+    result-envelope non-JSON hash and human-acceptance workflow details remain future TBDs.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-12/DEL-12-03/Specification.md
+  evidence: execution/PKG-12/DEL-12-03/ScopeOfWork.md
 code_paths:
 - apps/desktop/src/features/telemetry
 - apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx

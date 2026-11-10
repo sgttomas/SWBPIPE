@@ -5,16 +5,10 @@ needs:
   condition: 'DEL-08-04 must apply the SCA-001 architecture-basis constraints from AB-00-01.
 
 
-    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-02
   condition: 'DEL-08-04 must apply the SCA-001 architecture-basis constraints from AB-00-02.
-
-
-    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -22,9 +16,6 @@ needs:
 - from: DEL-00-03
   condition: 'DEL-08-04 must apply the schema-first command/query/job result-envelope architecture basis
     from AB-00-03.
-
-
-    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -35,16 +26,10 @@ needs:
     where JSON payloads are hashed.
 
 
-    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-06
   condition: 'DEL-08-04 must carry structured diagnostics using the PKG-00 baseline fields from AB-00-06.
-
-
-    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -52,9 +37,6 @@ needs:
   evidence: execution/PKG-08/DEL-08-04/ScopeOfWork.md
 - from: DEL-00-07
   condition: 'DEL-08-04 must preserve the no-bypass API and adapter constraints from AB-00-07.
-
-
-    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -65,17 +47,11 @@ needs:
     gates from AB-00-08.
 
 
-    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-02-01
   condition: 'DEL-08-04 needs canonical domain model and result object semantics for stable model/result
     references and object vocabulary.
-
-
-    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -84,9 +60,6 @@ needs:
 - from: DEL-02-02
   condition: 'DEL-08-04 requires the unit system and dimensional-analysis core contract because result
     exports need unit-aware values and dimensional checks.
-
-
-    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -121,18 +94,12 @@ needs:
     for reproducible exports.
 
 
-    Notes: New explicit upstream handover extracted under TP-DAG-004 conservative refresh.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
   evidence: execution/PKG-08/DEL-08-04/ScopeOfWork.md
 - from: DEL-06-04
   condition: 'DEL-08-04 needs rule-pack identity, version, and checksum handling without copying private
     or protected payloads.
-
-
-    Notes: New explicit upstream interface extracted under TP-DAG-004 conservative refresh.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

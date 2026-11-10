@@ -90,7 +90,7 @@ needs:
 
     Target description — TargetName: Project contract invariants; TargetRefID: CONTRACT; TargetLocation:
     docs/CONTRACT.md'
-  evidence: execution/PKG-17/DEL-17-02/Specification.md
+  evidence: execution/PKG-17/DEL-17-02/ScopeOfWork.md
 - from: doc:docs/IP_AND_DATA_BOUNDARY.md
   condition: 'Export artifacts must exclude protected/private/proprietary content absent rights and review.
 
@@ -102,7 +102,7 @@ needs:
 
 
     Target description — TargetName: IP and data boundary; TargetRefID: IP-DATA; TargetLocation: docs/IP_AND_DATA_BOUNDARY.md'
-  evidence: execution/PKG-17/DEL-17-02/Guidance.md
+  evidence: execution/PKG-17/DEL-17-02/ScopeOfWork.md
 - from: doc:schemas/model.schema.yaml
   condition: 'Canonical OpenPipeStress identities constrain stable ID map families.
 
@@ -115,7 +115,7 @@ needs:
 
     Target description — TargetName: Canonical model schema; TargetRefID: MODEL-SCHEMA; TargetLocation:
     schemas/model.schema.yaml'
-  evidence: execution/PKG-17/DEL-17-02/Datasheet.md
+  evidence: execution/PKG-17/DEL-17-02/ScopeOfWork.md
 - from: DEL-17-01
   condition: 'DEL-17-02 consumes DEL-17-01 as source authority.
 
@@ -125,7 +125,7 @@ needs:
 
     Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-17/DEL-17-01/Specification.md
+  evidence: execution/PKG-17/DEL-17-01/ScopeOfWork.md
 code_paths:
 - core/handoff/review_geometry/package.py
 - schemas/model.schema.yaml

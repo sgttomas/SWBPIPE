@@ -87,7 +87,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-17/DEL-17-03/Guidance.md
+  evidence: execution/PKG-17/DEL-17-03/ScopeOfWork.md
 - from: DEL-17-02
   condition: 'DEL-17-03 depends on DEL-17-02 under DAG-005.
 
@@ -97,7 +97,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-17/DEL-17-02/Specification.md
+  evidence: execution/PKG-17/DEL-17-02/ScopeOfWork.md
 code_paths:
 - core/handoff/native_json/
 - core/handoff/native_json/package.py

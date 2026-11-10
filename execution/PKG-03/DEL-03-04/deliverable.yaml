@@ -6,8 +6,7 @@ needs:
     execution.
 
 
-    Notes: TP-DAG-004 conservative refresh; architecture-basis edge remains local evidence only and does
-    not mark PKG-00 as ISSUED.; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
+    Notes: architecture-basis edge remains local evidence only and does not mark PKG-00 as ISSUED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -17,8 +16,7 @@ needs:
     execution.
 
 
-    Notes: TP-DAG-004 conservative refresh; architecture-basis edge remains local evidence only and does
-    not mark PKG-00 as ISSUED.; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
+    Notes: architecture-basis edge remains local evidence only and does not mark PKG-00 as ISSUED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -28,8 +26,7 @@ needs:
     execution.
 
 
-    Notes: TP-DAG-004 conservative refresh; architecture-basis edge remains local evidence only and does
-    not mark PKG-00 as ISSUED.; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
+    Notes: architecture-basis edge remains local evidence only and does not mark PKG-00 as ISSUED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -39,8 +36,7 @@ needs:
     execution.
 
 
-    Notes: TP-DAG-004 conservative refresh; architecture-basis edge remains local evidence only and does
-    not mark PKG-00 as ISSUED.; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
+    Notes: architecture-basis edge remains local evidence only and does not mark PKG-00 as ISSUED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -50,8 +46,7 @@ needs:
     execution.
 
 
-    Notes: TP-DAG-004 conservative refresh; architecture-basis edge remains local evidence only and does
-    not mark PKG-00 as ISSUED.; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
+    Notes: architecture-basis edge remains local evidence only and does not mark PKG-00 as ISSUED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -61,8 +56,7 @@ needs:
     execution.
 
 
-    Notes: TP-DAG-004 conservative refresh; architecture-basis edge remains local evidence only and does
-    not mark PKG-00 as ISSUED.; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
+    Notes: architecture-basis edge remains local evidence only and does not mark PKG-00 as ISSUED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -72,8 +66,8 @@ needs:
     schema and metadata model.
 
 
-    Notes: TP-DAG-004 conservative refresh for RECONCILIATION; inferred predecessor retained from decomposition
-    evidence without adding speculative component-family edges.
+    Notes: inferred predecessor retained from decomposition evidence without adding speculative component-family
+    edges.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -84,8 +78,8 @@ needs:
     require unit-aware validation.
 
 
-    Notes: TP-DAG-004 conservative refresh for RECONCILIATION; unit predecessor retained because dimensional
-    branch fields cannot be validated safely without the unit contract.
+    Notes: unit predecessor retained because dimensional branch fields cannot be validated safely without
+    the unit contract.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -96,8 +90,7 @@ needs:
     not bundle protected standards or vendor data.
 
 
-    Notes: TP-DAG-004 conservative refresh for RECONCILIATION; governance predecessor retained to protect
-    branch/SIF/flexibility data boundary.
+    Notes: governance predecessor retained to protect branch/SIF/flexibility data boundary.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

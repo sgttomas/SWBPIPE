@@ -6,17 +6,11 @@ needs:
     execution.
 
 
-    Notes: FACT: preserved from DAG-002 mirror; normalized to v3.1 enums as architecture-basis prerequisite.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-02
   condition: 'DEL-02-04 uses SCA-001 architecture basis AB-00-02 from DEL-00-02 before product-development
     execution.
-
-
-    Notes: FACT: preserved from DAG-002 mirror; normalized to v3.1 enums as architecture-basis prerequisite.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -26,17 +20,11 @@ needs:
     execution.
 
 
-    Notes: FACT: preserved from DAG-002 mirror; normalized to v3.1 enums as architecture-basis prerequisite.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-04
   condition: 'DEL-02-04 uses SCA-001 architecture basis AB-00-04 from DEL-00-04 before product-development
     execution.
-
-
-    Notes: FACT: preserved from DAG-002 mirror; normalized to v3.1 enums as architecture-basis prerequisite.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -46,9 +34,6 @@ needs:
     execution.
 
 
-    Notes: FACT: preserved from DAG-002 mirror; normalized to v3.1 enums as architecture-basis prerequisite.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-07
@@ -56,17 +41,11 @@ needs:
     execution.
 
 
-    Notes: FACT: preserved from DAG-002 mirror; normalized to v3.1 enums as architecture-basis prerequisite.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-08
   condition: 'DEL-02-04 uses SCA-001 architecture basis AB-00-08 from DEL-00-08 before product-development
     execution.
-
-
-    Notes: FACT: preserved from DAG-002 mirror; normalized to v3.1 enums as architecture-basis prerequisite.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
