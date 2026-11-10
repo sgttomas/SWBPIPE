@@ -11,10 +11,47 @@ metadata:
 # SWBPIPE development entry
 
 SWBPIPE is an analysis-grade piping design engine and stress-model authoring
-environment. Development is a hill climb to the first publication-ready
-release, v1.0. Its target, capability rows and exit criteria are in
-`docs/RELEASE_TARGET_v1.0.md`, which the owner accepted on 2026-10-28. Briefs
-and PRs for that work name the `RT-` row they serve.
+environment.
+
+## Direction
+
+**Target.** Development is a hill climb to the first publication-ready release,
+v1.0, defined by the Must rows in
+[`docs/RELEASE_TARGET_v1.0.md` §2](../docs/RELEASE_TARGET_v1.0.md#2-capability-rows)
+and the exit criteria in [§4](../docs/RELEASE_TARGET_v1.0.md#4-exit-criteria)
+(accepted by the owner, 2026-10-28). Briefs and PRs name the `RT-` row they
+serve.
+
+**Opening duty.** At session start, Agent 0 states the path from the current
+state to that target, identifies the work that can proceed independently, and
+runs it in parallel in standalone Type 1 sessions.
+
+**Working posture.** The owner's standing instruction (2026-11-09 00:29 UTC):
+"This is just a standing instruction for you: Your top priority is to keep
+productive work moving forward. Don't stall out in repetitive cycles of testing
+and documenting of work. Some of that is necessary but easy to get absorbed in.
+Keep development moving towards the publication goals. Tell your interlocutor
+this is important for them to remind you of too, when relevant circumstances
+arise." In practice:
+
+- Testing and documenting serve the next step, not their own completeness.
+- Group known CI failures by cause instead of re-examining each job.
+- Use CI waits for other work.
+- When something outside Agent 0's authority blocks work (the host, another
+  project, a reserved choice), bring it to the owner at once as one decision
+  with a recommendation, and keep the other lanes moving.
+- Act on authority already given. Do not re-ask a settled decision.
+- Budgets, caps and gates that Agent 0 sets itself are its own to change.
+  Label them as its own when stating them.
+
+**Testing.** The owner delegated testing (2026-11-09 04:42 UTC): "Ok I need to
+be clear that I'm not going to be approving every test you want to run. Either
+do the testing as you see fit or put controls in place that you can manage
+yourself. Your role is to keep productive work moving forward. If that means
+certain necessary tests then orchestrate that." Agent 0 decides and orchestrates
+the tests a change needs. Controls it adds are its own, under the posture above.
+
+## Working locality
 
 Work at this repository root. Read local `AGENTS.md` for shared-library
 selection and the applicable active role. Start from the affected
@@ -73,7 +110,15 @@ session, send pre-merge consultations to its existing INTERLOCUTOR session.
 
 On the shared T3 development host, start local pytest inside the maintained
 `t3_slot.sh` wrapper: session setup can build Cargo CLIs even for Python-only
-test selections.
+test selections. The wrapper refuses to start while the host's memory guard is
+not running. When that happens, report it to the owner at once as a host
+blocker; restarting the guard is not Agent 0's to do. Meanwhile, keep testing.
+Agent 0 coordinates the needed local jobs across all lanes within the wrapper's
+shared slot allowance, because direct jobs are invisible to the slot locks.
+Direct jobs finish before an AC-004 exclusive window begins, and nothing here
+bypasses the AC-004 supervisor's own refusal. Where that coordination cannot be
+kept, use hosted CI. Hosted CI stays the default for broad selections. Return
+to the wrapper when the guard is back.
 
 Pytest builds the Cargo binaries it needs unless `OPENPIPESTRESS_NO_CARGO_BUILD=1`
 is set together with `OPENPIPESTRESS_RUNNER_BIN`, `OPENPIPESTRESS_UNITS_BIN`,
@@ -89,7 +134,14 @@ require the targeted checks and independent scrutiny specified in local
 A change that can move the retained route's memory needs re-pricing with
 `tools/retained_pricing/README.md` (rules in DEL-04-08
 `Work/retained-pricing-rules.md`) and independent review of the registration.
-AC-004's stack witnesses run with no concurrent builds.
+
+Ordinary builds and tests run concurrently across isolated worktrees; do not
+serialise them for caution (owner, 2026-11-09 04:51 UTC: "Do you need to be so
+cautious?"; 05:46 UTC: "you ought to be able to continue testing as you
+wanted."). Isolation belongs to a measurement whose evidence concurrent load
+would disturb. AC-004's stack witnesses measure memory and timing, so they run
+in the supervisor's short exclusive window (`tools/ac004_supervisor.md`), and
+other work resumes when it closes.
 
 ## Hard boundaries
 

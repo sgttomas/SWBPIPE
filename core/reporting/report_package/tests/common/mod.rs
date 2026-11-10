@@ -130,6 +130,7 @@ pub fn fixture_report_input() -> RenderableReportInput {
         exact_route: None,
         library_references: None,
         report_composition: None,
+        model_input_tables: None,
     }
 }
 

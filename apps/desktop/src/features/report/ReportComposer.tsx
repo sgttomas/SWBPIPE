@@ -1,6 +1,6 @@
 import type { MechanicsResult } from "../../types";
 import {
-  composeReportRows, DEFAULT_REPORT_COMPOSITION_SECTION, optionalReportComposition,
+  composeReportRows, DEFAULT_REPORT_COMPOSITION_SECTION, FAMILY_SECTION_IDS, optionalReportComposition,
   REPORT_COMPOSITION_CATALOGUE,
   type ReportComposition, type ReportCompositionSection
 } from "./reportComposition";
@@ -35,13 +35,16 @@ export function ReportComposer({ composition, result, onChange }: {
   }
   return <fieldset data-testid="report-composer">
     <legend>Report sections</legend>
-    <p>Session only. Model identity, run binding, warnings, references, limitations and the professional-review notice always remain. These controls apply to local private reports and packages.</p>
+    <p>Session only. Model identity, run binding, warnings, references, limitations and the professional-review notice always remain. These controls apply to local private reports and packages. Model-input tables list the model's values as entered, in their stored units.</p>
     <div>
       {REPORT_COMPOSITION_CATALOGUE.map((entry) => <label key={entry.id}>
         <input type="checkbox" checked={sections.some((section) => section.section_id === entry.id)}
           onChange={(event) => {
+            // All result rows and the family sections exclude each other; the model-input
+            // sections (slice C5) show no result row and exclude nothing.
             const next = event.currentTarget.checked
-              ? [...sections.filter((section) => entry.id === "result_rows_all" ? false : section.section_id !== "result_rows_all"),
+              ? [...sections.filter((section) => entry.id === "result_rows_all" ? !FAMILY_SECTION_IDS.includes(section.section_id)
+                : FAMILY_SECTION_IDS.includes(entry.id) ? section.section_id !== "result_rows_all" : true),
                 { section_id: entry.id, cases: "all" as const, view: { kind: "all" as const } }]
               : sections.filter((section) => section.section_id !== entry.id);
             onChange(optionalReportComposition(next));
@@ -56,7 +59,7 @@ export function ReportComposer({ composition, result, onChange }: {
         <strong>{entry.title}</strong>{" "}
         <button type="button" aria-label={`Move ${entry.title} up`} disabled={index === 0} onClick={() => move(index, -1)}>Up</button>{" "}
         <button type="button" aria-label={`Move ${entry.title} down`} disabled={index === sections.length - 1} onClick={() => move(index, 1)}>Down</button>{" "}
-        <label>Cases for {entry.title}
+        {entry.parent === "results" ? <label>Cases for {entry.title}
           <select multiple value={section.cases === "all" ? ["all"] : section.cases} onChange={(event) => {
             const selected = Array.from(event.currentTarget.selectedOptions, (option) => option.value);
             update(index, { cases: selected.includes("all") ? "all" : selected });
@@ -64,7 +67,7 @@ export function ReportComposer({ composition, result, onChange }: {
             <option value="all">All cases (including unassigned rows)</option>
             {caseOptions.map((value) => <option key={value} value={value}>{value}{cases.includes(value) ? "" : " (not in current result)"}</option>)}
           </select>
-        </label>{" "}
+        </label> : <span>Values as entered in the model, in model order</span>}{" "}
         <label>View for {entry.title}
           <select value={section.view.kind} onChange={(event) => update(index, {
             view: event.currentTarget.value === "largest" ? { kind: "largest", limit: 25 }

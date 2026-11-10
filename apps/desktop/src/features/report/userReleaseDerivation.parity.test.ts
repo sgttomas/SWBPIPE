@@ -112,7 +112,21 @@ const COMPOSITION = {
   ]
 } as const;
 
-const MODES: { mode: PreviewSolverMode; reason: string; composition?: typeof COMPOSITION }[] = [
+/** Slice C5 (§2.7): a composition listing every model-input section beside all result rows;
+ * the derived request carries P(M, C) as `model_input_tables`. */
+const MODEL_INPUT_COMPOSITION = {
+  composition_version: "1.0.0",
+  sections: [
+    { section_id: "load_combinations", cases: "all", view: { kind: "all" } },
+    { section_id: "result_rows_all", cases: "all", view: { kind: "all" } },
+    { section_id: "input_geometry", cases: "all", view: { kind: "all" } },
+    { section_id: "input_materials_sections", cases: "all", view: { kind: "all" } },
+    { section_id: "input_supports", cases: "all", view: { kind: "all" } },
+    { section_id: "input_loads", cases: "all", view: { kind: "all" } }
+  ]
+} as const;
+
+const MODES: { mode: PreviewSolverMode; reason: string; name?: string; composition?: typeof COMPOSITION | typeof MODEL_INPUT_COMPOSITION }[] = [
   {
     mode: "sparse_interactive",
     reason: "user_release_display_rule: the connected preview-physics-2 sparse solve, whose rows include values stored in Pa and values with more than six significant digits; sparse settings"
@@ -125,10 +139,16 @@ const MODES: { mode: PreviewSolverMode; reason: string; composition?: typeof COM
     mode: "sparse_interactive",
     reason: "user_release_composed: the connected preview-physics-2 sparse solve with a closed composition C (slice C4), copied into the derived request",
     composition: COMPOSITION
+  },
+  {
+    mode: "sparse_interactive",
+    name: "composed_model_input_sparse_interactive",
+    reason: "user_release_model_input: the connected preview-physics-2 sparse solve with a composition listing every model-input section (slice C5); the derived request carries P(M, C)",
+    composition: MODEL_INPUT_COMPOSITION
   }
 ];
 
-async function vector({ mode, reason, composition }: (typeof MODES)[number]) {
+async function vector({ mode, reason, name, composition }: (typeof MODES)[number]) {
   const session = await solvedSession(mode);
   const { model, result, inputManifest, analysisRun, pair } = session;
   // The record binds the result document's identity, known before the report is built.
@@ -140,7 +160,7 @@ async function vector({ mode, reason, composition }: (typeof MODES)[number]) {
   const document = result_documents[0] as Json;
   expect(source_results).toEqual([result]);
   return {
-    name: composition ? `composed_${mode}` : `connected_${mode}`,
+    name: name ?? (composition ? `composed_${mode}` : `connected_${mode}`),
     reason,
     ...(composition ? { report_composition: composition } : {}),
     model_fixture: pair.provenance.model_fixture_ref,
@@ -170,7 +190,7 @@ async function vectorsDocument() {
     schema_version: "1.0.0",
     generator: GENERATOR,
     description:
-      "Invented data. W-18b derivation vectors (DEL-08-01 Design report-user-release.md section 2.6): for each vector, the inputs M (model_fixture), S (source_fixture, the producer's bytes), m (solver_mode), I (input_manifest), R (run_record, the solve's own transient record), H (software), U (user_release, an invented record) and, on a composed vector, C (report_composition, slice C4), and the expected request the desktop builders assemble: its canonical SHA-256, its result document's canonical SHA-256 and derivative hash, and in full its top-level members, audit manifest and minimal renderer input. The Rust derivation (report_package::user_release::derive) must give the same. Unit transport replay of committed producer bytes; not a native UI qualification, not engineering output, and no user release is recorded.",
+      "Invented data. W-18b derivation vectors (DEL-08-01 Design report-user-release.md section 2.6): for each vector, the inputs M (model_fixture), S (source_fixture, the producer's bytes), m (solver_mode), I (input_manifest), R (run_record, the solve's own transient record), H (software), U (user_release, an invented record) and, on a composed vector, C (report_composition, slice C4; with model-input sections, slice C5, the report carries P(M, C) as model_input_tables), and the expected request the desktop builders assemble: its canonical SHA-256, its result document's canonical SHA-256 and derivative hash, and in full its top-level members, audit manifest and minimal renderer input. The Rust derivation (report_package::user_release::derive) must give the same. Unit transport replay of committed producer bytes; not a native UI qualification, not engineering output, and no user release is recorded.",
     vectors
   };
 }

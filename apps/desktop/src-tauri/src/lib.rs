@@ -5476,6 +5476,7 @@ const NATIVE_FILE_MENU: &[Option<(&str, &str, Option<&str>)>] = &[
     Some(("file.save-handoff", "Save Handoff…", None)),
     Some(("file.export-mbf", "Export MBF…", None)),
     Some(("file.save-report-package", "Save Report Package…", None)),
+    Some(("file.save-shareable-report-package", "Save Shareable Report Package…", None)),
 ];
 
 // Native macOS menu bar (TP-R3UX-CADSHELL). Each custom item carries the same
@@ -6980,6 +6981,33 @@ mod tests {
         assert_eq!(items[open + 1], ("file.import-mbf", "Import MBF…"));
         assert_eq!(items.iter().filter(|(id, _)| *id == "file.import-mbf").count(), 1);
         assert!(native_menu_dispatch_script("file.import-mbf").contains("detail: \"file.import-mbf\""));
+    }
+
+    /// W-18b (DEL-08-01 Design `report-user-release.md` §2.2): File > Save Shareable Report
+    /// Package… follows Save Report Package…, is enabled exactly as it is (neither is in
+    /// the shell state's enablement list; the webview's command sink decides), and
+    /// dispatches its id to the webview.
+    #[test]
+    fn native_file_menu_offers_save_shareable_report_package_after_save_report_package() {
+        let items: Vec<(&str, &str)> = NATIVE_FILE_MENU
+            .iter()
+            .flatten()
+            .map(|(id, label, _)| (*id, *label))
+            .collect();
+        let package = items.iter().position(|(id, _)| *id == "file.save-report-package").unwrap();
+        assert_eq!(items[package + 1], ("file.save-shareable-report-package", "Save Shareable Report Package…"));
+        assert_eq!(items.iter().filter(|(id, _)| *id == "file.save-shareable-report-package").count(), 1);
+        let enabled_ids: Vec<&str> = native_menu_mutations(&sample_native_shell_state())
+            .into_iter()
+            .filter_map(|mutation| match mutation {
+                NativeMenuMutation::Enabled(id, _) => Some(id),
+                NativeMenuMutation::Checked(..) => None,
+            })
+            .collect();
+        for id in ["file.save-report-package", "file.save-shareable-report-package"] {
+            assert!(!enabled_ids.contains(&id), "{id} is not enablement-synced");
+        }
+        assert!(native_menu_dispatch_script("file.save-shareable-report-package").contains("detail: \"file.save-shareable-report-package\""));
     }
 
     #[test]
