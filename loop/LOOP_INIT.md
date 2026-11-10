@@ -26,7 +26,9 @@ serve.
 state to that target, the work that can proceed independently, what it needs
 from the owner to keep that work moving (decisions, credentials, host
 conditions) and any open `nightly` issue. Once the owner has steered, it runs
-the independent work in parallel in standalone Type 1 sessions.
+the independent work in parallel in standalone Type 1 sessions. Read
+[`RECOVERY.md`](RECOVERY.md), if it exists, before that first report: it says
+where work in flight stands and how to resume it.
 
 **Working posture.** The owner's standing instruction (2026-11-09 00:29 UTC):
 "This is just a standing instruction for you: Your top priority is to keep
