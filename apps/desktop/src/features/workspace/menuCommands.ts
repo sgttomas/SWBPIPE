@@ -19,6 +19,7 @@ export type MenuCommandId =
   | "file.save-handoff"
   | "file.export-mbf"
   | "file.save-report-package"
+  | "file.save-shareable-report-package"
   | "edit.undo"
   | "edit.redo"
   | "view.tree"
@@ -66,6 +67,7 @@ const NATIVE_MENU_COMMAND_IDS: ReadonlySet<string> = new Set([
   "file.save-handoff",
   "file.export-mbf",
   "file.save-report-package",
+  "file.save-shareable-report-package",
   "edit.undo",
   "edit.redo",
   "view.tree",

@@ -1899,3 +1899,61 @@ describe("the display rule's conversion disclosure", () => {
     expect(disclosure.result_units).toEqual(["Pa", "m"]);
   });
 });
+
+describe("RenderedReportPanel: Save Shareable Report Package… (W-18b §2.2)", () => {
+  const RECEIPT = {
+    outcome: "saved", stage: "complete", code: "REPORT-PACKAGE-SAVED", container_file_name: "invented.opsproj", byte_count: 1,
+    package_identity_sha256_hex: "a".repeat(64), container_sha256_hex: "b".repeat(64), members: [], replaced_existing: false, durability: "durable",
+    redaction_route_id: "DREP-PACKAGE-USER-RELEASE-010", redaction_decision_count: 0, redaction_finding_count: 0, redaction_blocking_count: 0,
+    local_first_route_id: "DREP-PACKAGE-USER-RELEASE-010", local_first_export_context: "user_released_report", local_first_storage_context: "private_report",
+    local_first_action: "include_metadata_only", local_first_reason_code: "USER_RELEASE_METADATA_ALLOWED", local_first_blocked: false,
+    local_first_metadata_only: true, local_first_explicit_local_private_intent: false, selected_basename: "invented.opsproj",
+    path_containment: "best_effort_non_adversarial", limitation: "Invented limitation."
+  } as const;
+
+  it("offers the shareable save after the local-private save, enabled under the same conditions", () => {
+    const onSave = vi.fn();
+    const onShare = vi.fn();
+    const { rerender } = render(
+      <RenderedReportPanel model={inventedModel()} result={inventedResult()} analysisRun={inventedRun()} projectSummary={null}
+        onSaveReportPackage={onSave} onSaveShareableReportPackage={onShare} />
+    );
+    const controls = screen.getByTestId("report-package-controls");
+    const buttons = [...controls.querySelectorAll("button")].map((button) => button.getAttribute("data-testid"));
+    expect(buttons).toEqual(["report-package-save", "report-package-user-release"]);
+    const share = screen.getByTestId("report-package-user-release");
+    expect(share).toHaveTextContent("Save Shareable Report Package…");
+    expect(share).toBeEnabled();
+    fireEvent.click(share);
+    expect(onShare).toHaveBeenCalledTimes(1);
+    expect(onSave).not.toHaveBeenCalled();
+    rerender(
+      <RenderedReportPanel model={inventedModel()} result={inventedResult()} analysisRun={inventedRun()} projectSummary={null}
+        packageBusy onSaveReportPackage={onSave} onSaveShareableReportPackage={onShare} />
+    );
+    expect(screen.getByTestId("report-package-save")).toBeDisabled();
+    expect(screen.getByTestId("report-package-user-release")).toBeDisabled();
+    rerender(
+      <RenderedReportPanel model={inventedModel()} result={null} analysisRun={null} projectSummary={null}
+        onSaveReportPackage={onSave} onSaveShareableReportPackage={onShare} />
+    );
+    expect(screen.getByTestId("report-package-save")).toBeDisabled();
+    expect(screen.getByTestId("report-package-user-release")).toBeDisabled();
+  });
+
+  it("offers no shareable save without its handler, and shows a route-010 receipt's record", () => {
+    const { rerender } = render(
+      <RenderedReportPanel model={inventedModel()} result={inventedResult()} analysisRun={inventedRun()} projectSummary={null}
+        onSaveReportPackage={() => undefined}
+        packageRoute={{ route: "tauri_report_package_save", receipt: { ...RECEIPT, user_release_recorded: false, user_release_model_document_sha256: "" } as never }} />
+    );
+    expect(screen.queryByTestId("report-package-user-release")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("report-package-user-release-status")).not.toBeInTheDocument();
+    rerender(
+      <RenderedReportPanel model={inventedModel()} result={inventedResult()} analysisRun={inventedRun()} projectSummary={null}
+        onSaveReportPackage={() => undefined}
+        packageRoute={{ route: "tauri_report_package_save", receipt: { ...RECEIPT, user_release_recorded: true, user_release_model_document_sha256: "c".repeat(64) } as never }} />
+    );
+    expect(screen.getByTestId("report-package-user-release-status")).toHaveTextContent(`user_release_recorded=true; model_document_sha256=${"c".repeat(64)}`);
+  });
+});

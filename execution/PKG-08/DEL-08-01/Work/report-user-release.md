@@ -482,13 +482,15 @@ close it and discard the selection. Exact proposed wording:
 >
 > - It covers only this report: model "{project name}" (SHA-256
 >   {first 12 hex}…), run {run id}.
-> - It carries the model summary, the load cases and this solve's results in
->   the report sections you chose; every result row is still listed with its
->   checksum. It carries no rule-pack reference, user-rule outcome or run
->   comparison.
-> - It needs a pressure-free result solved in this session. An exact-route
->   result, and a model with a library or rule-pack reference, cannot be
->   shared this way.
+> - It carries the model summary, the load cases, this solve's results and
+>   any model-input tables in the report sections you chose; every result row
+>   is still listed with its checksum. An exact pressure route result also
+>   carries its exact-route standing, disclosures, headlines and limitations.
+>   It carries no rule-pack reference, user-rule outcome or run comparison.
+> - It needs a result solved in this session: a pressure-free
+>   (preview-physics-2) result, or an exact pressure route (pressure-2 or
+>   pressure-source-1) result that is eligible for output. A model with a
+>   library or rule-pack reference cannot be shared this way.
 > - The application checks this model only for library and rule-pack marks.
 >   It cannot tell where any other value came from, so your statement below
 >   covers every value in this report.
@@ -506,13 +508,16 @@ form §2.7 names,
 the dialog shows, in place of the checkbox: "This model uses a library record
 or a rule pack. Shareable packages do not yet carry library record values or
 rule-pack checks, so a shareable package cannot be saved for this model. Its
-local private package is unaffected." The save button stays disabled.
+local private package is unaffected." The check's reason follows it. The save
+button stays disabled.
 
-When the user-release cell refuses an exact-route result (below), the dialog
-shows, in place of the checkbox: "This result is from an exact pressure route
-(pressure-2 or pressure-source-1). Shareable packages do not yet carry
-exact-route results, so a shareable package cannot be saved for this result.
-Its local private package is unaffected." The save button stays disabled.
+When the user-release cell refuses the result (below), the dialog shows, in
+place of the checkbox: "This result is not one a shareable package carries.
+Shareable packages carry a pressure-free (preview-physics-2) result, or an
+exact pressure route (pressure-2 or pressure-source-1) result that is eligible
+for output, so a shareable package cannot be saved for this result. Its local
+private package is unaffected." The cell's reason follows it. The save button
+stays disabled.
 
 The save button is disabled until the checkbox is ticked. The checkbox starts
 unticked every time the dialog opens.
@@ -522,28 +527,39 @@ control) plus a statement of the redistribution right (ticking the statement),
 then the save. Confirming starts the save at once; the confirmation is one
 argument of that one save (§2.3, "Session").
 
-**Exact routes are refused on this route (§0).** The package's own cell,
-`reportPackageUnavailableReason` (`reportPackageRequest.ts:83-85`), admits
-exact-route results since the W-11 opening, so the dialog reads a cell of its
-own, `userReleasedReportPackageUnavailableReason(result)` in
+**The route's own cell (D-6, §11).** Route 010 admits a pressure-free
+(`preview-physics-2`) result with record 1.0.0, and an eligible `pressure-2`
+or `pressure-source-1` result with record 1.1.0 (§11). Among the pressure-free
+identities its derivation admits `preview-physics-2` only
+(`report_package::user_release`), so it refuses the pressure-free Timoshenko
+identity (`preview-physics-timoshenko-1`) that the local-private package
+admits. The dialog therefore reads a cell of its own,
+`userReleasedReportPackageUnavailableReason(result)` in
 `reportPackageRequest.ts`:
-- the package cell's refusal, when it refuses (the retained routes);
-- else, for a result that `isExactReportSource` recognizes
-  (`exactReportSections.ts:68`),
-  `REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED: a shareable report package
-  carries pressure-free (preview-physics-2) results only; this exact-route
-  result can be saved in a local private package.`;
+- the package cell's refusal (`reportPackageUnavailableReason`), when it
+  refuses (the retained routes);
+- else, for a result whose identity is not one of
+  `USER_RELEASED_ADMITTED_CONTRACT_IDS` (`preview-physics-2`, `pressure-2`,
+  `pressure-source-1`), `REPORT-PACKAGE-ROUTE-NOT-ADMITTED: a shareable report
+  package carries pressure-free (preview-physics-2) results and eligible exact
+  pressure route (pressure-2, pressure-source-1) results; this result is
+  <identity>. It can be saved in a local private package.`;
 - else null.
 
+An exact-route result passes the cell. The builder's Export Result JSON
+admission decides its eligible standing (W-11 §3.1), and native admission its
+live custody and delivered texts (§11).
+
 `OUTPUT_POLICY` gains no surface and no cell changes, so every other surface's
-decision is unchanged. `buildUserReleasedReportPackageRequest` applies the same
-cell first. Its document identity check, the form of
-`assembleReportPackageRequest`'s (`reportPackageRequest.ts:230-234`), admits
-`preview-physics-2` only, not `REPORT_PACKAGE_ADMITTED_CONTRACT_IDS` (`:57`).
-Native admission
-(§2.5 step 2a) and the producer (§2.8) refuse the same results, and the reader
-refuses such a package (§2.9). The webview check is early; native admission
-decides.
+decision is unchanged. `buildUserReleasedReportPackageRequest` applies the
+same cell first, then the webview's early model check
+(`userReleaseModelRefusal`: `REPORT-USER-RELEASE-LIBRARY-REFERENCED` or
+`REPORT-USER-RELEASE-RULE-PACK-REFERENCED`, §2.7), then the package surface's
+eligible standing. It binds the record to the session and to the result
+document the package carries (`userReleaseRecord`). Its document identity
+check admits `USER_RELEASED_ADMITTED_CONTRACT_IDS`, not
+`REPORT_PACKAGE_ADMITTED_CONTRACT_IDS`. The webview check is early; native
+admission decides.
 
 ### 2.3 The record
 
@@ -638,8 +654,9 @@ plus the hash of every member it covers.
 
 **Session.** The selection lives only in the dialog's React state and in the
 argument of the one save it starts:
-`handleSaveShareableReportPackage({ userReleasedAt })`, beside
-`handleSaveReportPackage` (`workspaceSession.ts:2976-3062`).
+`handleSaveShareableReportPackage({ userReleasedAt }, basis)`, beside
+`handleSaveReportPackage` (`workspaceSession.ts:2976-3062`). The basis is the
+one `requestSaveShareableReportPackage` captured when it opened the dialog.
 - Its basis is the same basis without `comparison`, `comparisonUnavailable`,
   `projectSummary`, `ruleCheckAggregate`, `ruleCheckRun` and `privateIntent`,
   and the builder computes every bound value from that basis (§2.6).

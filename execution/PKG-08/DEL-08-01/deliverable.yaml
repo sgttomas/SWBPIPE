@@ -399,6 +399,11 @@ code_paths:
 - fixtures/reports/invented/user_release_runner_refusal_request.json
 # D-6: exact-route user-release vectors, Rust derivation and native custody checks.
 - fixtures/reports/invented/user_release_exact/
+# W-18b desktop slice (Design report-user-release.md §2.2, §2.3 "Session"): the user-release dialog and the
+# route-010 preparation and save; the cell, early model check and record are in reportPackageRequest.ts, the
+# panel's control in RenderedReportPanel.tsx and the native File menu entry in src-tauri lib.rs (listed above).
+- apps/desktop/src/features/report/UserReleaseDialog.tsx
+- apps/desktop/src/features/report/userReleasedReportPackageSave.ts
 checks:
 - core/reporting/report_package/tests/container.rs
 - core/reporting/report_package/tests/reader.rs
@@ -456,3 +461,8 @@ checks:
 - apps/desktop/src/features/report/ReportComposer.test.tsx
 - apps/desktop/src/features/report/reportComposition.parity.test.ts
 - apps/desktop/src/features/report/modelInputTables.parity.test.ts
+# W-18b desktop slice: the dialog, the route-010 cell and record, and the preparation pinned to the derivation vectors.
+- apps/desktop/src/features/report/UserReleaseDialog.test.tsx
+- apps/desktop/src/features/report/userReleasedReportPackageCell.test.ts
+- apps/desktop/src/features/report/userReleasedReportPackageSave.test.ts
+- apps/desktop/src/features/workspace/userReleaseSave.session.test.tsx
