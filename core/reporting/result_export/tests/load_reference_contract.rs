@@ -292,22 +292,24 @@ fn current_inputs_table_and_schema_are_pinned() {
     // RT-A3 increment 4: limitation[0] and S7 (nonlinear supports) only (test_rt_a3_nonlinear_text_only_envelope_diff).
     // RT-A3 S6: limitation[0] (S1), the load-state motion limitation (S13) and the history limitation (S15) only
     // (each raw equals main's bytes with those texts substituted; the S6 text-only guard).
+    // Pressure elongation (RT-L2): the requests name their pressurised cases explicitly; limitation[0]'s
+    // pressure-3 identity and bend clause, the elongation statement and the per-case label only.
     for (name, digest) in [
         (
             "connected-sparse",
-            "1014ba184a4824d619a82188b63f17746aa0e007b12cb3b2f9f0b4d209d313a3",
+            "c241b75c27859f37c5e353e3a64d70687bc388f9f46852a31ad1b7311f8c6299",
         ),
         (
             "connected-dense",
-            "ebf85793e4ccd51753ae3c65e4c4c34c854fca18e50bf52f3ac82dffb68852f5",
+            "340c3ded0fd7f411743e5facad97954dac91a13814891a83e27db1c0572430e5",
         ),
         (
             "pressure-sparse",
-            "643e1d24013996e1a8b7e8a59a360803c20636cea5e1e2311c95c9b902f5c829",
+            "73ea7b6c5dc69a6aec16e7ee0553bc908b3b5112c5c2e3bbd0661d626ed85471",
         ),
         (
             "pressure-dense",
-            "4beff985b4a7121586c69b0f826af516f0cbd0fc139c36137bdb848ee3116213",
+            "15ed482eeb118a816b5d0c92e67db27f3cebc503b7986c525581c34c0e032e5e",
         ),
     ] {
         assert_eq!(sha(source_text(name).as_bytes()), digest, "{name}");

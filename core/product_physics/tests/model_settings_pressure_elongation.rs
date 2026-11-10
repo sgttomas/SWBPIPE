@@ -71,8 +71,10 @@ fn each_refusal_is_named_at_solve() {
 
 #[test]
 fn an_admitted_setting_raises_no_refusal_and_absence_solves_as_before() {
-    let exact: Value = serde_json::from_str(EXACT).unwrap();
-    assert!(exact["model"].get("model_settings").is_none());
+    let mut exact: Value = serde_json::from_str(EXACT).unwrap();
+    // The committed X0 names its pressurised case (RT-L2 §7); absence is the copy without the setting.
+    assert_eq!(exact["model"]["model_settings"], json!({"pressure_elongation": {"operating_load_cases": ["case:closed-pressure"]}}));
+    exact["model"].as_object_mut().unwrap().remove("model_settings");
     let authored = with_setting(&exact, json!({"operating_load_cases": ["case:closed-pressure"]}));
     for mode in MODES {
         let reference = solve(&exact, mode);

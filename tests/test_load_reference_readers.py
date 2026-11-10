@@ -60,11 +60,13 @@ FROZEN = {
     # test_rt_a3_nonlinear_text_only_envelope_diff.
     # S6: the identity, load-state motion and static history disclosures only;
     # test_rt_a3_s6_text_only_envelope_diff binds all numerical tokens and derived hashes.
-    "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json": "1014ba184a4824d619a82188b63f17746aa0e007b12cb3b2f9f0b4d209d313a3",
-    "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json": "ebf85793e4ccd51753ae3c65e4c4c34c854fca18e50bf52f3ac82dffb68852f5",
-    "fixtures/product_preview/pressure/load_reference/pressure.request.json": "36f2b657c948fb9cb3af87d1626b9b1fe0304861e47d64f8bd2a27625247c0d7",
-    "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json": "643e1d24013996e1a8b7e8a59a360803c20636cea5e1e2311c95c9b902f5c829",
-    "fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json": "4beff985b4a7121586c69b0f826af516f0cbd0fc139c36137bdb848ee3116213",
+    # Pressure elongation (RT-L2): the request names its pressurised cases; the raws differ only in the identity, the
+    # bend clause, the elongation statement and the per-case label.
+    "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json": "c241b75c27859f37c5e353e3a64d70687bc388f9f46852a31ad1b7311f8c6299",
+    "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json": "340c3ded0fd7f411743e5facad97954dac91a13814891a83e27db1c0572430e5",
+    "fixtures/product_preview/pressure/load_reference/pressure.request.json": "58ac643f423b38a9ce5792e8f5f584a16c0a5bdbcb88ad6334204746deb91810",
+    "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json": "73ea7b6c5dc69a6aec16e7ee0553bc908b3b5112c5c2e3bbd0661d626ed85471",
+    "fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json": "15ed482eeb118a816b5d0c92e67db27f3cebc503b7986c525581c34c0e032e5e",
     "fixtures/results/semantic_contract_v0_3_pressure_3.json": PRESSURE_CONTRACT_SHA256,
     "schemas/load_reference_state.schema.json": TRANSPORT_SCHEMA_SHA256,
 }

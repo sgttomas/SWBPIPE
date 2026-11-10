@@ -62,16 +62,16 @@ U5A = ROOT.parent / "t4_u5a"
 getcontext().prec = 120
 
 U5A_PINNED = {
-    "oracle.json": "72cd5afa4b417f561c2c357aa3014de22d2dd3e64caf5574455aa6d7d9aba1a8",
-    "requests/J3-1.request.json": "e64cbeae5b9f25a25b1d38566579e3d9ccabd7e69304e9637af20033efa49e47",
-    "requests/J3-3.request.json": "7598c7b47dac284ac0d84de634682f04b537b71e14fefd11fe01376266816732",
-    "requests/J3-5U.request.json": "ba56d91991ebaa09bc5e9310d6872b9d0f9241a94c47b8928c5a1047fb231530",
-    "requests/J3-5UA.request.json": "8cabf999bf9ab5a7e7602af73c6e900b381ea2414499f205d2ec308923908960",
-    "requests/J3-1R.request.json": "c72059741eff1d0d63cbae3add491099cfa0e62b97656d33a59d1d96b3623dd4",
-    "requests/J3-1V.request.json": "bba8f7b4650c9258edd6670b2a09c711b15a866d102c10050a9a491e9bc6344f",
-    "requests/J3-1T.request.json": "829fc390290b7b0ed392f50078c01a9f7f8a4e56f23c13ee067309c05f36307d",
-    "requests/J3-R.request.json": "481bf60266f064655fdd4a439b7e269d5f114610c320d638d6a70b4f11a1dd80",
-    "requests/J3-RP.request.json": "c3267c0e631126cfb2afc0efdb4df06fb8eca083435c1d8da9687c23cc20acca",
+    "oracle.json": "46176ee39ad4e89773f413e3d34a0e3b064291d9423c7f777fe42c5d42c62f73",
+    "requests/J3-1.request.json": "5b4aabda6740f11b8fa75a76459df4d23975ff752a267871111796aa978d0f68",
+    "requests/J3-3.request.json": "ada829e90c3e5ec58a6919b996ca356e74cc82d860aab8155e8b7e0b38db94a4",
+    "requests/J3-5U.request.json": "4a68b75ddd29d61879b9d9ba6c18f7d8920c4ca87ac809e6cf7de17599642550",
+    "requests/J3-5UA.request.json": "54e702a81694e89647083953a69bf30714caef89794a274b0ed25c57a0a9a8bc",
+    "requests/J3-1R.request.json": "6eeaea1a39eef7783180e9339ee0e25cff553f51b46bff518ec02158b84e4aa8",
+    "requests/J3-1V.request.json": "fc8400526d9cdee0c92b296bb5a1b35871c806f24c14fccd920feb0c14a577ca",
+    "requests/J3-1T.request.json": "a8f4f27760e4928fd8a898149f481a86dc7643656809e94ab4a0e8f155d62c73",
+    "requests/J3-R.request.json": "f8f473bdb6f7f3caca6fa566206c2c24d6442c85755b085686f88f46eaa5a4e4",
+    "requests/J3-RP.request.json": "001ddc3d0c91e34ba292af634e20f4af9eed0013958b586e69bf639303b85bb2",
 }
 
 CHECKS = []  # (name, passed) records of every cross-check

@@ -6039,12 +6039,12 @@
    "shear_model": "timoshenko_annulus_energy_v1",
    "request": {
     "path": "requests/I8-CASE2-TIMOSHENKO.request.json",
-    "sha256": "2efd1058db89b5d58ec23626964fb52b18bbaab3b5f68afaeeeb50b27aab3138"
+    "sha256": "4ab6b6197571faae8ec63ea574d7346077a2b9186474b5ba316e365fe32438d9"
    },
    "alternate_requests": [
     {
      "path": "requests/I8-CASE2-TIMOSHENKO-LOAD-STATE.request.json",
-     "sha256": "b1a26415a40b6edbb9c716bfbf057317bce46316088ea69ff5c228c784c852e9"
+     "sha256": "856686d94998133c2a60bc1844fa073a5bcf76929714975dddd46f679b16b25f"
     }
    ],
    "t4_i8_binding": {
@@ -7385,7 +7385,7 @@
    "shear_model": "timoshenko_annulus_energy_v1",
    "request": {
     "path": "requests/TWIN-A-TIMOSHENKO.request.json",
-    "sha256": "10a9a24cb9a5809235a4fd8605d43436e3e2adbde31417f6f832d8a941fda99a"
+    "sha256": "b5c4e3ce3e8b10375d95107b0de8e3756700c14a20823f082840591cafeb49d4"
    },
    "source_binding": {
     "fixture": "core/product_physics/tests/fixtures/pressure_reference/SOURCE_ODWALL_EXPECTATIONS.json",

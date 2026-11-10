@@ -146,12 +146,12 @@ fn refusals() -> Vec<(&'static str, Value, &'static str)> {
         ),
         (
             "s9_with_one_word_changed",
-            spec(straight, "/cases/0/envelope", json!([{"op": "replace_text", "pointer": "/formulation_basis/limitations/7", "from": "ordinary structural recovery", "to": "ordinary structural response"}])),
+            spec(straight, "/cases/0/envelope", json!([{"op": "replace_text", "pointer": "/formulation_basis/limitations/8", "from": "ordinary structural recovery", "to": "ordinary structural response"}])),
             EXACT_LIMITATION_UNREGISTERED,
         ),
         (
             "s9_without_its_last_sentence",
-            spec(straight, "/cases/0/envelope", json!([{"op": "replace_text", "pointer": "/formulation_basis/limitations/7", "from": format!(" {OMITTED_SENTENCE}"), "to": ""}])),
+            spec(straight, "/cases/0/envelope", json!([{"op": "replace_text", "pointer": "/formulation_basis/limitations/8", "from": format!(" {OMITTED_SENTENCE}"), "to": ""}])),
             EXACT_LIMITATION_UNREGISTERED,
         ),
         (
@@ -246,6 +246,9 @@ fn the_vectors_state_the_table_statements_and_the_section_texts() {
             let statement = entry["statement"].as_str().unwrap();
             let text = text.as_str().unwrap();
             assert_eq!(Some(statement), exact_statement_for(&producer_sha256(text)));
+            // The report's WinAnsi form: '-' for U+2212 and 'nu' for ν (DEL-04-07 `pressure-elongation.md`,
+            // "Formulation limitations"); the producer text and its hash are unchanged.
+            let text = text.replace('\u{2212}', "-").replace('\u{3bd}', "nu");
             assert!(statement == text || format!("{statement} {OMITTED_SENTENCE}") == text, "{name} {index}");
         }
         let reference = entries.last().unwrap()["statement"].as_str().unwrap();

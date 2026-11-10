@@ -1037,6 +1037,9 @@ fn reader_binds_inactive_residuals_support_nodes_and_standings() {
     // load subtracted) and the residual evaluation (the negative load, then
     // normalized products) are different evaluations, and neither row's
     // denominator is published, so the record bounds nothing. Admitted.
+    // Pressure elongation (RT-L2): the source was re-produced from this model by the current
+    // producer; every number, these two among them, is bit-identical, and only the identity,
+    // limitation texts and the not-included elongation statement moved.
     let fixture: Value = serde_json::from_str(B1_LOADED).unwrap();
     let loaded = json!({"model": fixture["model"].clone(), "materials": []});
     let source = &fixture["source"];

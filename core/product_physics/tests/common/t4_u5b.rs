@@ -215,8 +215,29 @@ pub fn request(name: &str, case: &Value) -> Value {
             }
         }
     }
+    name_pressurised_cases(&mut request["model"]);
     check_physical_inputs(&request["model"], inputs, name);
     request
+}
+
+/// DEL-04-07 `pressure-elongation.md` §7: the t4_u5a base names its
+/// pressurised cases in `model_settings.pressure_elongation`; the built request
+/// keeps only the cases that still carry a pressure region (MO-* remove it), and
+/// states no setting when none does.
+fn name_pressurised_cases(model: &mut Value) {
+    let pressurised: Vec<Value> = model["load_cases"].as_array().unwrap().iter()
+        .filter(|case| case["pressure_regions"].as_array().is_some_and(|regions| !regions.is_empty()))
+        .map(|case| case["id"].clone())
+        .collect();
+    let Some(settings) = model.get_mut("model_settings").and_then(Value::as_object_mut) else { return };
+    if pressurised.is_empty() {
+        settings.remove("pressure_elongation");
+    } else if settings.contains_key("pressure_elongation") {
+        settings["pressure_elongation"] = json!({"operating_load_cases": pressurised});
+    }
+    if settings.is_empty() {
+        model.as_object_mut().unwrap().remove("model_settings");
+    }
 }
 
 /// Every built physical input equals the case description's binary64 value.

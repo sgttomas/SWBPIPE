@@ -254,7 +254,14 @@
         "provenance": "synthetic_integration_input_not_library_data"
       }
     ],
-    "combinations": []
+    "combinations": [],
+    "model_settings": {
+      "pressure_elongation": {
+        "operating_load_cases": [
+          "case:pressure"
+        ]
+      }
+    }
   },
   "materials": []
 }

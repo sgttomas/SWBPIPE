@@ -6,11 +6,11 @@
  "derives_from": {
   "reference": "validation/references/t4_u5a",
   "request": "requests/J3-3.request.json",
-  "request_sha256": "7598c7b47dac284ac0d84de634682f04b537b71e14fefd11fe01376266816732",
+  "request_sha256": "ada829e90c3e5ec58a6919b996ca356e74cc82d860aab8155e8b7e0b38db94a4",
   "oracle_case": "J3-3",
   "orientation_pattern": {
    "request": "requests/J3-1V.request.json",
-   "request_sha256": "bba8f7b4650c9258edd6670b2a09c711b15a866d102c10050a9a491e9bc6344f",
+   "request_sha256": "fc8400526d9cdee0c92b296bb5a1b35871c806f24c14fccd920feb0c14a577ca",
    "applied": "J3-1V's connector end reversal (end_i at node:C, end_j at node:B, Q' = Q J with J = diag(-1, 1, -1)); each rod's ends are swapped with the connector's"
   }
  },

@@ -49,9 +49,11 @@ endpoint: 252bef969 (its merge to main, #108).
 test_rt_a3_combination_certificate_envelope_diff compares the §4 stage from P's
 final candidate 78580da7e.
 """
+from contextlib import contextmanager
 from functools import cache
 from pathlib import Path
 import json
+import re
 import subprocess
 
 import pytest
@@ -94,14 +96,14 @@ NEEDLES = (CE_TAIL + ". Pressure regions meeting",
 # pressure-2 table digest at the endpoint and now (admitted-families and combinations limitations); and
 # physics-retained-1, which inherits it. Both are recomputed from the table files (test below).
 TABLES = {
-    "fixtures/results/semantic_contract_v0_3_pressure_3.json": (
+    "fixtures/results/semantic_contract_v0_3_pressure_2.json": (
         "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6",
         "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645"),
     "fixtures/results/semantic_contract_v0_3_physics_retained_1.json": (
         "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034",
         "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691"),
 }
-TABLE_SHA256 = TABLES["fixtures/results/semantic_contract_v0_3_pressure_3.json"]
+TABLE_SHA256 = TABLES["fixtures/results/semantic_contract_v0_3_pressure_2.json"]
 TABLE_PAIRS = frozenset(TABLES.values())
 
 CE2 = "fixtures/results/rt_a3_ce2_withheld_sparse.json"
@@ -408,6 +410,18 @@ def _refusal_digest(summary):
     return canonical_sha256({"ok": False, "error": {"gate": gate, "code": code, "detail": detail if _ else None}})
 
 
+@contextmanager
+def _definition_at(rev):
+    """Rematerialize a revision's entries under that revision's DEF-E hash, never a later definition's."""
+    from tests.verifiers import retained_precision as rp
+    found = re.search(r'^EXACT_DEFINITION_HASH = "([0-9a-f]{64})"$', _at(rev, "tests/verifiers/retained_precision.py"), re.M)
+    saved, rp.EXACT_DEFINITION_HASH = rp.EXACT_DEFINITION_HASH, found.group(1)
+    try:
+        yield
+    finally:
+        rp.EXACT_DEFINITION_HASH = saved
+
+
 def check_reader_outcomes(before, after):
     """The native reader outcomes, compared and derived (no hash-only allowance).
 
@@ -431,7 +445,8 @@ def check_reader_outcomes(before, after):
         inputs = _reader_inputs(rev)
         for key, (_, digest, readings) in entries.items():
             if key in inputs and b[key][1] != a[key][1]:
-                assert canonical_sha256(inputs[key]()) == digest, (rev, key)
+                with _definition_at(rev or END):
+                    assert canonical_sha256(inputs[key]()) == digest, (rev, key)
                 derived += 1
             for reading, (outcome, summary) in readings.items():
                 if not summary.startswith("pass"):

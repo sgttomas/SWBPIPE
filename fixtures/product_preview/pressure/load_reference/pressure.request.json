@@ -341,7 +341,15 @@
         }
       }
     ],
-    "combinations": []
+    "combinations": [],
+    "model_settings": {
+      "pressure_elongation": {
+        "operating_load_cases": [
+          "case:cold-pressure",
+          "case:hot-pressure"
+        ]
+      }
+    }
   },
   "materials": []
 }

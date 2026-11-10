@@ -114,14 +114,14 @@ NEEDLES = ("a realized arc it names carries none. Pressure regions meeting",
 # pressure-2 table digest at the endpoint and now (admitted families, combinations limitation, gate 4); and
 # physics-retained-1, which inherits it. Both are recomputed from the table files (test below).
 TABLES = {
-    "fixtures/results/semantic_contract_v0_3_pressure_3.json": (
+    "fixtures/results/semantic_contract_v0_3_pressure_2.json": (
         "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e",
         "be29fabcfacb1070a51bfb56dcfe61b4e4125638e249c3c0e96d092cc8aba43f"),
     "fixtures/results/semantic_contract_v0_3_physics_retained_1.json": (
         "cf29fd5fc5d61de0f1133e9668b05f3d62ae8f696944fe04de7470029f5357dd",
         "045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b"),
 }
-TABLE_SHA256 = TABLES["fixtures/results/semantic_contract_v0_3_pressure_3.json"]
+TABLE_SHA256 = TABLES["fixtures/results/semantic_contract_v0_3_pressure_2.json"]
 TABLE_PAIRS = frozenset(TABLES.values())
 
 # The pressure-source-1 load/reference-state carriers state S13 and S7 (not the pressure-2 identity).

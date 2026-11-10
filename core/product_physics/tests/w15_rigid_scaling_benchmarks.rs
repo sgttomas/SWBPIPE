@@ -24,6 +24,9 @@ use open_pipe_stress_product_physics::result_export::reader_verdict;
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 
+#[path = "common/pressure_elongation.rs"]
+mod pressure_elongation;
+
 const REFERENCES: &str = include_str!("../../../validation/references/w15_rigid_scaling/references.json");
 const SUMS: &str = include_str!("../../../validation/references/w15_rigid_scaling/SHA256SUMS");
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
@@ -295,7 +298,8 @@ fn request(reference: &Value, route: Route, a: Authoring) -> Value {
         }
     }
     model["load_cases"] = json!([case]);
-    json!({"model": model, "materials": []})
+    // The references are today's mechanics: a pressurised case includes pressure elongation (RT-L2 §7).
+    pressure_elongation::with_elongation_if_pressurised(&json!({"model": model, "materials": []}))
 }
 
 fn solve(wire: &Value, route: Route, mode: PreviewSolverMode, label: &str) -> MechanicsEnvelope {
