@@ -6,9 +6,9 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0308 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
+    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
+    by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -18,9 +18,9 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0309 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
+    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
+    by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -30,9 +30,9 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0310 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
+    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
+    by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -42,9 +42,9 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0311 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
+    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
+    by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -54,9 +54,9 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0312 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
+    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
+    by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -66,9 +66,9 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0313 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
+    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
+    by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -78,9 +78,9 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0314 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
+    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
+    by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -90,57 +90,45 @@ needs:
     contract
 
 
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0561 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-10/DEL-10-03/docs/_Registers/Deliverables.csv
 - from: DEL-04-01
   condition: 'DEL-10-03 needs DEL-04-01 as a predecessor: FEA handoff criteria are grounded in global
     centerline solver scope
 
 
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0562 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-10/DEL-10-03/docs/_Registers/Deliverables.csv
 - from: DEL-05-03
   condition: 'DEL-10-03 needs DEL-05-03 as a predecessor: FEA handoff package may include forces/stresses
     for local review
 
 
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0563 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-10/DEL-10-03/docs/_Registers/Deliverables.csv
 - from: DEL-01-04
   condition: 'DEL-10-03 needs DEL-01-04 as a predecessor: FEA handoff guidance must avoid automatic certification
     claims
 
 
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0564 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; edge touches targeted-review deliverable DEL-01-04 or DEL-02-01
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself; edge touches targeted-review deliverable DEL-01-04 or DEL-02-01
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-10/DEL-10-03/docs/_Registers/Deliverables.csv
 - from: DEL-02-01
   condition: 'DEL-10-03 depends on DEL-02-01 because local FEA handoff packages require source model/result
     references, entity IDs, selected region context, and global centerline model identity.

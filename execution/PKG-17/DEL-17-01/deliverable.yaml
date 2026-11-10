@@ -90,4 +90,4 @@ needs:
 
     Target description — TargetName: Project contract invariants; TargetRefID: CONTRACT; TargetLocation:
     docs/CONTRACT.md'
-  evidence: execution/PKG-17/DEL-17-01/Specification.md
+  evidence: execution/PKG-17/DEL-17-01/ScopeOfWork.md

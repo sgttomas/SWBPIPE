@@ -93,7 +93,7 @@ needs:
 
     Notes: FACT: Explicit source-authority interface; unresolved CAEPIPE target behavior remains TBD.'
   gating: true
-  evidence: execution/PKG-17/DEL-17-05/Datasheet.md
+  evidence: execution/PKG-17/DEL-17-05/ScopeOfWork.md
 - from: DEL-17-02
   condition: 'DEL-17-05 uses DEL-17-02 manifest stable-ID map loss-report profile and external-execution
     policy contracts.
@@ -101,7 +101,7 @@ needs:
 
     Notes: FACT: Explicit contract interface for manifest ID-map loss-report and external-execution policy.'
   gating: true
-  evidence: execution/PKG-17/DEL-17-05/Datasheet.md
+  evidence: execution/PKG-17/DEL-17-05/ScopeOfWork.md
 - from: external:CAEPIPE-EXECUTABLE
   condition: 'Future live harness execution requires a user-provided licensed CAEPIPE executable and user-owned
     execution environment.
@@ -113,7 +113,7 @@ needs:
 
     Target description — TargetName: user-provided licensed CAEPIPE executable; TargetRefID: CAEPIPE-EXECUTABLE;
     TargetLocation: user-controlled local path or environment'
-  evidence: execution/PKG-17/DEL-17-05/Specification.md
+  evidence: execution/PKG-17/DEL-17-05/ScopeOfWork.md
 code_paths:
 - core/handoff/caepipe_external/
 - tools/caepipe_correlation/

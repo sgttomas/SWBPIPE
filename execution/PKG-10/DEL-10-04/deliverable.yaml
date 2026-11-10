@@ -9,8 +9,7 @@ needs:
   condition: 'DEL-10-04 must apply SCA-001 architecture-basis constraint AB-00-01 from DEL-00-01.
 
 
-    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md; dependency type normalized
-    to CONSTRAINT for v3.1 enum compliance.
+    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -19,8 +18,7 @@ needs:
   condition: 'DEL-10-04 must apply SCA-001 architecture-basis constraint AB-00-02 from DEL-00-02.
 
 
-    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md; dependency type normalized
-    to CONSTRAINT for v3.1 enum compliance.
+    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -29,8 +27,7 @@ needs:
   condition: 'DEL-10-04 must apply SCA-001 architecture-basis constraint AB-00-03 from DEL-00-03.
 
 
-    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md; dependency type normalized
-    to CONSTRAINT for v3.1 enum compliance.
+    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -39,8 +36,7 @@ needs:
   condition: 'DEL-10-04 must apply SCA-001 architecture-basis constraint AB-00-04 from DEL-00-04.
 
 
-    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md; dependency type normalized
-    to CONSTRAINT for v3.1 enum compliance.
+    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -49,8 +45,7 @@ needs:
   condition: 'DEL-10-04 must apply SCA-001 architecture-basis constraint AB-00-06 from DEL-00-06.
 
 
-    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md; dependency type normalized
-    to CONSTRAINT for v3.1 enum compliance.
+    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -59,8 +54,7 @@ needs:
   condition: 'DEL-10-04 must apply SCA-001 architecture-basis constraint AB-00-07 from DEL-00-07.
 
 
-    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md; dependency type normalized
-    to CONSTRAINT for v3.1 enum compliance.
+    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -69,8 +63,7 @@ needs:
   condition: 'DEL-10-04 must apply SCA-001 architecture-basis constraint AB-00-08 from DEL-00-08.
 
 
-    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md; dependency type normalized
-    to CONSTRAINT for v3.1 enum compliance.
+    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

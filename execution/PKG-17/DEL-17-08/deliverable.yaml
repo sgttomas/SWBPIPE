@@ -83,7 +83,7 @@ needs:
     loss-report behavior.
 
 
-    Notes: FACT: declared edge preserved; reinforced by Specification.md:16 and Procedure.md:12.
+    Notes: reinforced by Specification.md:16 and Procedure.md:12.
 
 
     Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.'
@@ -93,7 +93,7 @@ needs:
     coordinate policy, and canonical ID families.
 
 
-    Notes: FACT: declared edge preserved; supported by Datasheet.md:35 and Procedure.md:14.
+    Notes: supported by Datasheet.md:35 and Procedure.md:14.
 
 
     Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.'
@@ -103,7 +103,7 @@ needs:
     semantics are inferred.
 
 
-    Notes: FACT: declared edge preserved; source documents do not elaborate beyond declared dependency.
+    Notes: source documents do not elaborate beyond declared dependency.
 
 
     Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.'
@@ -113,7 +113,7 @@ needs:
     semantics are inferred.
 
 
-    Notes: FACT: declared edge preserved; source documents do not elaborate beyond declared dependency.
+    Notes: source documents do not elaborate beyond declared dependency.
 
 
     Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.'
@@ -123,7 +123,7 @@ needs:
     behavior.
 
 
-    Notes: FACT: declared edge preserved; supported by Specification.md:46-49.
+    Notes: supported by Specification.md:46-49.
 
 
     Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.'
@@ -137,7 +137,7 @@ needs:
 
     Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-17/DEL-17-08/Specification.md
+  evidence: execution/PKG-17/DEL-17-08/ScopeOfWork.md
 - from: doc:https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html
   condition: 'DEL-17-08 depends on GLTF-2.0 as the public target-format basis for asset structure, units,
     coordinates, GLB behavior, nodes, meshes, primitives, extensions, and extras metadata.
@@ -151,7 +151,7 @@ needs:
 
     Target description — TargetName: Khronos glTF 2.0 specification; TargetRefID: GLTF-2.0; TargetLocation:
     https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html'
-  evidence: execution/PKG-17/DEL-17-08/Specification.md
+  evidence: execution/PKG-17/DEL-17-08/ScopeOfWork.md
 code_paths:
 - core/handoff/review_geometry/
 - core/handoff/review_geometry/package.py

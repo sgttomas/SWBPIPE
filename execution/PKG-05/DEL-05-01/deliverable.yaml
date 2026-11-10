@@ -6,19 +6,11 @@ needs:
     execution.
 
 
-    Notes: Existing architecture-basis edge preserved and normalized to canonical v3.1 enums for local
-    dependency-extract refresh.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-02
   condition: 'DEL-05-01 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
     execution.
-
-
-    Notes: Existing architecture-basis edge preserved and normalized to canonical v3.1 enums for local
-    dependency-extract refresh.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -28,10 +20,6 @@ needs:
     execution.
 
 
-    Notes: Existing architecture-basis edge preserved and normalized to canonical v3.1 enums for local
-    dependency-extract refresh.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-06
@@ -39,19 +27,11 @@ needs:
     execution.
 
 
-    Notes: Existing architecture-basis edge preserved and normalized to canonical v3.1 enums for local
-    dependency-extract refresh.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-08
   condition: 'DEL-05-01 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
     execution.
-
-
-    Notes: Existing architecture-basis edge preserved and normalized to canonical v3.1 enums for local
-    dependency-extract refresh.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

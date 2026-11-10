@@ -6,8 +6,7 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Preserved DAG-002 approved active edge ID; normalized local enum fields for v3.1 validation;
-    original DAG-002 type ARCHITECTURE_BASIS retained in statement/notes
+    Notes: Preserved DAG-002 approved active edge ID
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -18,8 +17,7 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Preserved DAG-002 approved active edge ID; normalized local enum fields for v3.1 validation;
-    original DAG-002 type ARCHITECTURE_BASIS retained in statement/notes
+    Notes: Preserved DAG-002 approved active edge ID
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -30,8 +28,7 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Preserved DAG-002 approved active edge ID; normalized local enum fields for v3.1 validation;
-    original DAG-002 type ARCHITECTURE_BASIS retained in statement/notes
+    Notes: Preserved DAG-002 approved active edge ID
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -42,8 +39,7 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Preserved DAG-002 approved active edge ID; normalized local enum fields for v3.1 validation;
-    original DAG-002 type ARCHITECTURE_BASIS retained in statement/notes
+    Notes: Preserved DAG-002 approved active edge ID
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -54,8 +50,7 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Preserved DAG-002 approved active edge ID; normalized local enum fields for v3.1 validation;
-    original DAG-002 type ARCHITECTURE_BASIS retained in statement/notes
+    Notes: Preserved DAG-002 approved active edge ID
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -66,8 +61,7 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Preserved DAG-002 approved active edge ID; normalized local enum fields for v3.1 validation;
-    original DAG-002 type ARCHITECTURE_BASIS retained in statement/notes
+    Notes: Preserved DAG-002 approved active edge ID
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -78,8 +72,7 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Preserved DAG-002 approved active edge ID; normalized local enum fields for v3.1 validation;
-    original DAG-002 type ARCHITECTURE_BASIS retained in statement/notes
+    Notes: Preserved DAG-002 approved active edge ID
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -90,35 +83,35 @@ needs:
 
 
     Notes: Preserved DAG-002 approved active edge ID; local Procedure and Specification explicitly confirm
-    the prerequisite; original DAG-002 type PERSISTENCE_CONTRACT retained in statement/notes
+    the prerequisite
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-14/DEL-14-03/Procedure.md
+  evidence: execution/PKG-14/DEL-14-03/ScopeOfWork.md
 - from: DEL-14-05
   condition: 'DEL-14-03 needs DEL-14-05 as a predecessor: State comparison consumes mapping/tolerance
     contracts.
 
 
     Notes: Preserved DAG-002 approved active edge ID; local Procedure and Specification explicitly confirm
-    the prerequisite; original DAG-002 type PERSISTENCE_CONTRACT retained in statement/notes
+    the prerequisite
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-14/DEL-14-03/Procedure.md
+  evidence: execution/PKG-14/DEL-14-03/ScopeOfWork.md
 - from: DEL-02-02
   condition: 'DEL-14-03 needs DEL-02-02 as a predecessor: State comparison needs unit-aware tolerances.
 
 
     Notes: Preserved DAG-002 approved active edge ID; local Specification explicitly confirms the unit-system
-    prerequisite; original DAG-002 type UNIT_CONTRACT retained in statement/notes
+    prerequisite
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-14/DEL-14-03/Specification.md
+  evidence: execution/PKG-14/DEL-14-03/ScopeOfWork.md
 code_paths:
 - apps/desktop/src/features/comparison/stateComparison.ts
 - core/comparison/model_state/engine.py

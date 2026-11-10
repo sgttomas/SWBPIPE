@@ -6,8 +6,7 @@ needs:
     execution.
 
 
-    Notes: FACT; normalized legacy DAG-002 mirror row to v3.1 enums; architecture-basis edge remains context
-    evidence only and not aggregate graph authority.
+    Notes: FACT; architecture-basis edge remains context evidence only and not aggregate graph authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -17,8 +16,7 @@ needs:
     execution.
 
 
-    Notes: FACT; normalized legacy DAG-002 mirror row to v3.1 enums; architecture-basis edge remains context
-    evidence only and not aggregate graph authority.
+    Notes: FACT; architecture-basis edge remains context evidence only and not aggregate graph authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -28,8 +26,7 @@ needs:
     execution.
 
 
-    Notes: FACT; normalized legacy DAG-002 mirror row to v3.1 enums; architecture-basis edge remains context
-    evidence only and not aggregate graph authority.
+    Notes: FACT; architecture-basis edge remains context evidence only and not aggregate graph authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -39,8 +36,7 @@ needs:
     execution.
 
 
-    Notes: FACT; normalized legacy DAG-002 mirror row to v3.1 enums; architecture-basis edge remains context
-    evidence only and not aggregate graph authority.
+    Notes: FACT; architecture-basis edge remains context evidence only and not aggregate graph authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -57,7 +53,7 @@ needs:
 
 
     Target description — TargetName: Invariant catalog; TargetRefID: OPS-CONTRACT; TargetLocation: docs/CONTRACT.md'
-  evidence: execution/PKG-01/DEL-01-04/Specification.md
+  evidence: execution/PKG-01/DEL-01-04/ScopeOfWork.md
 - from: doc:docs/IP_AND_DATA_BOUNDARY.md
   condition: 'DEL-01-04 drafting inputs must avoid protected standards/code text and proprietary engineering
     data.
@@ -71,7 +67,7 @@ needs:
 
     Target description — TargetName: Protected-content and private-data boundary; TargetRefID: OPS-IP-DATA-BOUNDARY;
     TargetLocation: docs/IP_AND_DATA_BOUNDARY.md'
-  evidence: execution/PKG-01/DEL-01-04/Procedure.md
+  evidence: execution/PKG-01/DEL-01-04/ScopeOfWork.md
 - from: doc:execution/_Decomposition/SOFTWARE_DECOMP.md
   condition: 'The workflow requires the current decomposition for deliverable context scope objectives
     and product-claims boundaries.
@@ -86,7 +82,7 @@ needs:
 
     Target description — TargetName: Software decomposition current basis; TargetRefID: OPS-SOFTWARE-DECOMP;
     TargetLocation: execution/_Decomposition/SOFTWARE_DECOMP.md'
-  evidence: execution/PKG-01/DEL-01-04/Procedure.md
+  evidence: execution/PKG-01/DEL-01-04/ScopeOfWork.md
 - from: external:HUMAN_LEGAL_PROFESSIONAL_REVIEW
   condition: 'Jurisdiction-specific professional-practice wording and legal interpretations require qualified
     human legal or professional review.
@@ -99,7 +95,7 @@ needs:
 
 
     Target description — TargetName: Human legal/professional review; TargetRefID: HUMAN_LEGAL_PROFESSIONAL_REVIEW'
-  evidence: execution/PKG-01/DEL-01-04/Specification.md
+  evidence: execution/PKG-01/DEL-01-04/ScopeOfWork.md
 - from: external:HUMAN_PROJECT_AUTHORITY
   condition: 'Final acceptance or revision of the professional-boundary policy and report notice template
     requires a human project authority gate.
@@ -112,7 +108,6 @@ needs:
 
 
     Target description — TargetName: Human project authority acceptance; TargetRefID: HUMAN_PROJECT_AUTHORITY'
-  evidence: execution/PKG-01/DEL-01-04/Specification.md
 - from: doc:docs/report_notice_template.md
   condition: 'DEL-01-04 provides and constrains the draft report notice template; final acceptance remains
     human-gated.

@@ -6,8 +6,8 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -18,8 +18,8 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -30,8 +30,8 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -42,8 +42,8 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -54,8 +54,8 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -66,8 +66,8 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -78,8 +78,8 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -90,57 +90,52 @@ needs:
     physical/domain model.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 - from: DEL-02-02
   condition: 'DEL-13-01 needs DEL-02-02 as a predecessor: Design knowledge needs canonical unit and dimensional
     contracts.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 - from: DEL-01-02
   condition: 'DEL-13-01 needs DEL-01-02 as a predecessor: Design knowledge provenance must preserve protected-data
     boundaries.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 - from: DEL-01-04
   condition: 'DEL-13-01 needs DEL-01-04 as a predecessor: Design knowledge must preserve professional-boundary
     framing.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 - from: DEL-02-05
   condition: 'DEL-13-01 needs DEL-02-05 as predecessor evidence because design knowledge records are provenance-bearing
     project/model payloads that require persistence round-trip and hash/no-bypass context before persisted
     use.
 
 
-    Notes: Added by DEV-001 Stage 2 package-scoped finding resolution; HumanDisposition remains TBD; aggregate
-    DAG files not edited.
+    Notes: HumanDisposition remains TBD; aggregate DAG files not edited.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

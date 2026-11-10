@@ -6,19 +6,11 @@ needs:
     execution.
 
 
-    Notes: Preserved prior DAG-002 mirror ID; normalized prior DependencyType=ARCHITECTURE_BASIS and Origin=CONTEXT
-    to v3.1 write-form enums for reconciliation.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-02
   condition: 'DEL-07-03 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
     execution.
-
-
-    Notes: Preserved prior DAG-002 mirror ID; normalized prior DependencyType=ARCHITECTURE_BASIS and Origin=CONTEXT
-    to v3.1 write-form enums for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -28,19 +20,11 @@ needs:
     execution.
 
 
-    Notes: Preserved prior DAG-002 mirror ID; normalized prior DependencyType=ARCHITECTURE_BASIS and Origin=CONTEXT
-    to v3.1 write-form enums for reconciliation.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-05
   condition: 'DEL-07-03 requires SCA-001 architecture basis AB-00-05 from DEL-00-05 before sealed product-development
     execution.
-
-
-    Notes: Preserved prior DAG-002 mirror ID; normalized prior DependencyType=ARCHITECTURE_BASIS and Origin=CONTEXT
-    to v3.1 write-form enums for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -50,19 +34,11 @@ needs:
     execution.
 
 
-    Notes: Preserved prior DAG-002 mirror ID; normalized prior DependencyType=ARCHITECTURE_BASIS and Origin=CONTEXT
-    to v3.1 write-form enums for reconciliation.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-07
   condition: 'DEL-07-03 requires SCA-001 architecture basis AB-00-07 from DEL-00-07 before sealed product-development
     execution.
-
-
-    Notes: Preserved prior DAG-002 mirror ID; normalized prior DependencyType=ARCHITECTURE_BASIS and Origin=CONTEXT
-    to v3.1 write-form enums for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -72,10 +48,6 @@ needs:
     execution.
 
 
-    Notes: Preserved prior DAG-002 mirror ID; normalized prior DependencyType=ARCHITECTURE_BASIS and Origin=CONTEXT
-    to v3.1 write-form enums for reconciliation.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-03-01
@@ -83,84 +55,83 @@ needs:
     records and provenance fields.
 
 
-    Notes: Preserved prior DAG-002 mirror ID; normalized prior DependencyType=DOMAIN_MODEL, Explicitness=INFERRED_DIRECT,
-    Origin=DECOMPOSITION, and SatisfactionStatus=UNKNOWN to v3.1 write-form enums for reconciliation.;
-    FACT: 2026-08-02 dependency-currency PASS under R23; target maturity PASS is frozen in TARGET_MATURITY_EVIDENCE.csv;
-    consumer integration PASS is frozen in N2C_DEL0703_PATCH/LAUNCH_BRIEF.md.
+    Notes: normalized prior DependencyType=DOMAIN_MODEL, Explicitness=INFERRED_DIRECT, Origin=DECOMPOSITION,
+    and SatisfactionStatus=UNKNOWN to v3.1 write-form enums for reconciliation.; FACT: 2026-08-02 dependency-currency
+    PASS under R23; target maturity PASS is frozen in TARGET_MATURITY_EVIDENCE.csv; consumer integration
+    PASS is frozen in N2C_DEL0703_PATCH/LAUNCH_BRIEF.md.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-07/DEL-07-03/Specification.md
+  evidence: execution/PKG-07/DEL-07-03/ScopeOfWork.md
 - from: DEL-03-02
   condition: 'DEL-07-03 needs DEL-03-02 as a predecessor because component and section editors edit schema-governed
     library records.
 
 
-    Notes: Preserved prior DAG-002 mirror ID; normalized prior DependencyType=DOMAIN_MODEL, Explicitness=INFERRED_DIRECT,
-    Origin=DECOMPOSITION, and SatisfactionStatus=UNKNOWN to v3.1 write-form enums for reconciliation.;
-    FACT: 2026-08-02 dependency-currency PASS under R23; target maturity PASS is frozen in TARGET_MATURITY_EVIDENCE.csv;
-    consumer integration PASS is frozen in N2C_DEL0703_PATCH/LAUNCH_BRIEF.md.
+    Notes: normalized prior DependencyType=DOMAIN_MODEL, Explicitness=INFERRED_DIRECT, Origin=DECOMPOSITION,
+    and SatisfactionStatus=UNKNOWN to v3.1 write-form enums for reconciliation.; FACT: 2026-08-02 dependency-currency
+    PASS under R23; target maturity PASS is frozen in TARGET_MATURITY_EVIDENCE.csv; consumer integration
+    PASS is frozen in N2C_DEL0703_PATCH/LAUNCH_BRIEF.md.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-07/DEL-07-03/Specification.md
+  evidence: execution/PKG-07/DEL-07-03/ScopeOfWork.md
 - from: DEL-03-07
   condition: 'DEL-07-03 needs DEL-03-07 as a predecessor because editors must expose provenance and redistribution
     controls for library data.
 
 
-    Notes: Preserved prior DAG-002 mirror ID; normalized prior DependencyType=GOVERNANCE_PREDECESSOR,
-    Explicitness=INFERRED_DIRECT, Origin=DECOMPOSITION, and SatisfactionStatus=UNKNOWN to v3.1 write-form
-    enums for reconciliation.
+    Notes: normalized prior DependencyType=GOVERNANCE_PREDECESSOR, Explicitness=INFERRED_DIRECT, Origin=DECOMPOSITION,
+    and SatisfactionStatus=UNKNOWN to v3.1 write-form enums for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-07/DEL-07-03/Guidance.md
+  evidence: execution/PKG-07/DEL-07-03/ScopeOfWork.md
 - from: DEL-06-01
   condition: 'DEL-07-03 needs DEL-06-01 as a predecessor because rule-pack editors and references depend
     on schema-governed rule-pack identity and required inputs.
 
 
-    Notes: Preserved prior DAG-002 mirror ID; normalized prior DependencyType=RULE_PACK_PREDECESSOR, Explicitness=INFERRED_DIRECT,
-    Origin=DECOMPOSITION, and SatisfactionStatus=UNKNOWN to v3.1 write-form enums for reconciliation.;
-    FACT: 2026-08-02 dependency-currency PASS under R23; target maturity PASS is frozen in TARGET_MATURITY_EVIDENCE.csv;
-    consumer integration PASS is frozen in N2C_DEL0703_PATCH/LAUNCH_BRIEF.md.
+    Notes: normalized prior DependencyType=RULE_PACK_PREDECESSOR, Explicitness=INFERRED_DIRECT, Origin=DECOMPOSITION,
+    and SatisfactionStatus=UNKNOWN to v3.1 write-form enums for reconciliation.; FACT: 2026-08-02 dependency-currency
+    PASS under R23; target maturity PASS is frozen in TARGET_MATURITY_EVIDENCE.csv; consumer integration
+    PASS is frozen in N2C_DEL0703_PATCH/LAUNCH_BRIEF.md.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-07/DEL-07-03/Specification.md
+  evidence: execution/PKG-07/DEL-07-03/ScopeOfWork.md
 - from: DEL-06-04
   condition: 'DEL-07-03 needs DEL-06-04 as a predecessor because the rule-pack editor must preserve private
     lifecycle and checksum metadata.
 
 
-    Notes: Preserved prior DAG-002 mirror ID; normalized prior DependencyType=RULE_PACK_PREDECESSOR, Explicitness=INFERRED_DIRECT,
-    Origin=DECOMPOSITION, and SatisfactionStatus=UNKNOWN to v3.1 write-form enums for reconciliation.;
-    FACT: 2026-08-02 dependency-currency PASS under R23; target maturity PASS is frozen in TARGET_MATURITY_EVIDENCE.csv;
-    consumer integration PASS is frozen in N2C_DEL0703_PATCH/LAUNCH_BRIEF.md.
+    Notes: normalized prior DependencyType=RULE_PACK_PREDECESSOR, Explicitness=INFERRED_DIRECT, Origin=DECOMPOSITION,
+    and SatisfactionStatus=UNKNOWN to v3.1 write-form enums for reconciliation.; FACT: 2026-08-02 dependency-currency
+    PASS under R23; target maturity PASS is frozen in TARGET_MATURITY_EVIDENCE.csv; consumer integration
+    PASS is frozen in N2C_DEL0703_PATCH/LAUNCH_BRIEF.md.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-07/DEL-07-03/Specification.md
+  evidence: execution/PKG-07/DEL-07-03/ScopeOfWork.md
 - from: DEL-12-01
   condition: 'DEL-07-03 needs DEL-12-01 as a predecessor because private material component project and
     rule-pack data must remain local and user controlled by default.
 
 
-    Notes: Preserved prior DAG-002 mirror ID; normalized prior DependencyType=SECURITY_PREDECESSOR, Explicitness=INFERRED_DIRECT,
-    Origin=DECOMPOSITION, and SatisfactionStatus=UNKNOWN to v3.1 write-form enums for reconciliation.;
-    FACT: 2026-08-02 dependency-currency PASS under R23; target maturity PASS is frozen in TARGET_MATURITY_EVIDENCE.csv;
-    consumer integration PASS is frozen in N2C_DEL0703_PATCH/LAUNCH_BRIEF.md.
+    Notes: normalized prior DependencyType=SECURITY_PREDECESSOR, Explicitness=INFERRED_DIRECT, Origin=DECOMPOSITION,
+    and SatisfactionStatus=UNKNOWN to v3.1 write-form enums for reconciliation.; FACT: 2026-08-02 dependency-currency
+    PASS under R23; target maturity PASS is frozen in TARGET_MATURITY_EVIDENCE.csv; consumer integration
+    PASS is frozen in N2C_DEL0703_PATCH/LAUNCH_BRIEF.md.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-07/DEL-07-03/Specification.md
+  evidence: execution/PKG-07/DEL-07-03/ScopeOfWork.md
 - from: DEL-05-01
   condition: 'DEL-07-03 consumes Primitive load case engine from DEL-05-01: load/self-weight interaction
     dispatches to existing generators and controlled application; existing library contracts are retained.
@@ -229,7 +200,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-07/DEL-07-02/Guidance.md
+  evidence: execution/PKG-07/DEL-07-02/ScopeOfWork.md
 code_paths:
 - apps/desktop/package.json
 - tools/validation/validate_dependencies_schema.py

@@ -6,12 +6,10 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0082 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
-    refresh 2026-05-10: conservative dependency-extract review for RECONCILIATION; retained active edge
-    from existing DAG-002 synchronized register with no speculative new rows.; TP-DAG-004 enum normalization
-    2026-05-10 preserved legacy labels: AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT.
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
+    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
+    by itself; retained active edge from existing DAG-002 synchronized register with no speculative new
+    rows.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -21,12 +19,10 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0083 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
-    refresh 2026-05-10: conservative dependency-extract review for RECONCILIATION; retained active edge
-    from existing DAG-002 synchronized register with no speculative new rows.; TP-DAG-004 enum normalization
-    2026-05-10 preserved legacy labels: AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT.
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
+    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
+    by itself; retained active edge from existing DAG-002 synchronized register with no speculative new
+    rows.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -36,12 +32,10 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0084 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
-    refresh 2026-05-10: conservative dependency-extract review for RECONCILIATION; retained active edge
-    from existing DAG-002 synchronized register with no speculative new rows.; TP-DAG-004 enum normalization
-    2026-05-10 preserved legacy labels: AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT.
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
+    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
+    by itself; retained active edge from existing DAG-002 synchronized register with no speculative new
+    rows.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -51,12 +45,10 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0085 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
-    refresh 2026-05-10: conservative dependency-extract review for RECONCILIATION; retained active edge
-    from existing DAG-002 synchronized register with no speculative new rows.; TP-DAG-004 enum normalization
-    2026-05-10 preserved legacy labels: AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT.
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
+    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
+    by itself; retained active edge from existing DAG-002 synchronized register with no speculative new
+    rows.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -66,12 +58,10 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0086 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
-    refresh 2026-05-10: conservative dependency-extract review for RECONCILIATION; retained active edge
-    from existing DAG-002 synchronized register with no speculative new rows.; TP-DAG-004 enum normalization
-    2026-05-10 preserved legacy labels: AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT.
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
+    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
+    by itself; retained active edge from existing DAG-002 synchronized register with no speculative new
+    rows.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -81,12 +71,10 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0087 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
-    refresh 2026-05-10: conservative dependency-extract review for RECONCILIATION; retained active edge
-    from existing DAG-002 synchronized register with no speculative new rows.; TP-DAG-004 enum normalization
-    2026-05-10 preserved legacy labels: AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT.
+    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
+    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
+    by itself; retained active edge from existing DAG-002 synchronized register with no speculative new
+    rows.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -96,12 +84,9 @@ needs:
     schema
 
 
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0418 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; TP-DAG-004 refresh 2026-05-10: conservative dependency-extract
-    review for RECONCILIATION; retained active edge from existing DAG-002 synchronized register with no
-    speculative new rows.; TP-DAG-004 enum normalization 2026-05-10 preserved legacy labels: AnchorType=DELIVERABLE,
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself; retained active edge from existing DAG-002 synchronized register with
+    no speculative new rows.; TP-DAG-004 enum normalization 2026-05-10 preserved legacy labels: AnchorType=DELIVERABLE,
     DependencyType=DOMAIN_MODEL, Explicitness=INFERRED_DIRECT, Origin=DECOMPOSITION, SatisfactionStatus=UNKNOWN.
 
 
@@ -113,12 +98,9 @@ needs:
     fields are unit-aware
 
 
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0419 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; TP-DAG-004 refresh 2026-05-10: conservative dependency-extract
-    review for RECONCILIATION; retained active edge from existing DAG-002 synchronized register with no
-    speculative new rows.; TP-DAG-004 enum normalization 2026-05-10 preserved legacy labels: AnchorType=DELIVERABLE,
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself; retained active edge from existing DAG-002 synchronized register with
+    no speculative new rows.; TP-DAG-004 enum normalization 2026-05-10 preserved legacy labels: AnchorType=DELIVERABLE,
     DependencyType=UNIT_CONTRACT, Explicitness=INFERRED_DIRECT, Origin=DECOMPOSITION, SatisfactionStatus=UNKNOWN.
 
 
@@ -130,12 +112,9 @@ needs:
     with provenance
 
 
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0420 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; TP-DAG-004 refresh 2026-05-10: conservative dependency-extract
-    review for RECONCILIATION; retained active edge from existing DAG-002 synchronized register with no
-    speculative new rows.; TP-DAG-004 enum normalization 2026-05-10 preserved legacy labels: AnchorType=DELIVERABLE,
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself; retained active edge from existing DAG-002 synchronized register with
+    no speculative new rows.; TP-DAG-004 enum normalization 2026-05-10 preserved legacy labels: AnchorType=DELIVERABLE,
     DependencyType=GOVERNANCE_PREDECESSOR, Explicitness=INFERRED_DIRECT, Origin=DECOMPOSITION, SatisfactionStatus=UNKNOWN.
 
 

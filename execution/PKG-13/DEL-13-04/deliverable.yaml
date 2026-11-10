@@ -6,81 +6,74 @@ needs:
     work.
 
 
-    Notes: Preserved from approved DAG-002 mirror; normalized enums for local dependency-extract register.
+    Notes: Preserved from approved DAG-002 mirror
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DependencyEdges.csv
 - from: DEL-00-02
   condition: 'DEL-13-04 needs DEL-00-02 as prerequisite architecture-basis context for sealed downstream
     work.
 
 
-    Notes: Preserved from approved DAG-002 mirror; normalized enums for local dependency-extract register.
+    Notes: Preserved from approved DAG-002 mirror
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DependencyEdges.csv
 - from: DEL-00-03
   condition: 'DEL-13-04 needs DEL-00-03 as prerequisite architecture-basis context for sealed downstream
     work.
 
 
-    Notes: Preserved from approved DAG-002 mirror; normalized enums for local dependency-extract register.
+    Notes: Preserved from approved DAG-002 mirror
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DependencyEdges.csv
 - from: DEL-00-04
   condition: 'DEL-13-04 needs DEL-00-04 as prerequisite architecture-basis context for sealed downstream
     work.
 
 
-    Notes: Preserved from approved DAG-002 mirror; normalized enums for local dependency-extract register.
+    Notes: Preserved from approved DAG-002 mirror
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DependencyEdges.csv
 - from: DEL-00-06
   condition: 'DEL-13-04 needs DEL-00-06 as prerequisite diagnostics and result-envelope architecture context.
 
 
-    Notes: Preserved from approved DAG-002 mirror; normalized enums for local dependency-extract register.
+    Notes: Preserved from approved DAG-002 mirror
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DependencyEdges.csv
 - from: DEL-00-07
   condition: 'DEL-13-04 needs DEL-00-07 as prerequisite API and adapter boundary architecture context.
 
 
-    Notes: Preserved from approved DAG-002 mirror; normalized enums for local dependency-extract register.
+    Notes: Preserved from approved DAG-002 mirror
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DependencyEdges.csv
 - from: DEL-00-08
   condition: 'DEL-13-04 needs DEL-00-08 as prerequisite test and acceptance architecture context.
 
 
-    Notes: Preserved from approved DAG-002 mirror; normalized enums for local dependency-extract register.
+    Notes: Preserved from approved DAG-002 mirror
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DependencyEdges.csv
 - from: DEL-02-01
   condition: 'DEL-13-04 needs DEL-02-01 because the physical-to-analytical transform starts from the canonical
     physical and domain model.
 
 
-    Notes: Preserved DAG-002 target; local source evidence confirms canonical model/domain schema input.
+    Notes: local source evidence confirms canonical model/domain schema input.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -91,7 +84,7 @@ needs:
     inputs.
 
 
-    Notes: Preserved DAG-002 target; local source evidence confirms design knowledge and provenance input.
+    Notes: local source evidence confirms design knowledge and provenance input.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -101,7 +94,7 @@ needs:
   condition: 'DEL-13-04 needs DEL-13-02 because the transform consumes constraint entities.
 
 
-    Notes: Preserved DAG-002 target; local source evidence confirms constraint entity input.
+    Notes: local source evidence confirms constraint entity input.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -111,7 +104,7 @@ needs:
   condition: 'DEL-13-04 needs DEL-13-03 because the transform consumes constraint validation context.
 
 
-    Notes: Preserved DAG-002 target; local source evidence confirms constraint validation input.
+    Notes: local source evidence confirms constraint validation input.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -122,7 +115,7 @@ needs:
     boundary.
 
 
-    Notes: Preserved DAG-002 target; local source evidence confirms frame mechanics target.
+    Notes: local source evidence confirms frame mechanics target.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -133,7 +126,7 @@ needs:
     for the transform contract.
 
 
-    Notes: Preserved DAG-002 target; local source evidence confirms support/restraint input.
+    Notes: local source evidence confirms support/restraint input.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -144,7 +137,7 @@ needs:
     the transform contract.
 
 
-    Notes: Preserved DAG-002 target; local source evidence confirms primitive load input.
+    Notes: local source evidence confirms primitive load input.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -156,8 +149,7 @@ needs:
     or handoff use.
 
 
-    Notes: Added by DEV-001 Stage 2 package-scoped finding resolution; HumanDisposition remains TBD; aggregate
-    DAG files not edited.
+    Notes: HumanDisposition remains TBD; aggregate DAG files not edited.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

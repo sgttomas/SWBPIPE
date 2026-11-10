@@ -87,7 +87,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-03/DEL-03-01/Specification.md
+  evidence: execution/PKG-03/DEL-03-01/ScopeOfWork.md
 - from: DEL-02-02
   condition: 'DEL-03-01 depends on the unit system because material properties and allowables are unit-aware
     values.
@@ -101,7 +101,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-03/DEL-03-01/Specification.md
+  evidence: execution/PKG-03/DEL-03-01/ScopeOfWork.md
 - from: DEL-01-02
   condition: 'DEL-03-01 depends on protected-data boundary policy because material provenance must avoid
     protected standards data and proprietary material tables.
@@ -113,7 +113,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-03/DEL-03-01/Specification.md
+  evidence: execution/PKG-03/DEL-03-01/ScopeOfWork.md
 - from: DEL-01-03
   condition: 'DEL-03-01 depends on contributor certification workflow because public material contributions
     require provenance rights review and certification.
@@ -126,7 +126,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-03/DEL-03-01/Datasheet.md
+  evidence: execution/PKG-03/DEL-03-01/ScopeOfWork.md
 code_paths:
 - schemas/material.schema.yaml
 - apps/desktop/src/features/library/LibraryManagerPanel.tsx

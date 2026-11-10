@@ -6,19 +6,11 @@ needs:
     operations.
 
 
-    Notes: Target deliverable resolved from decomposition deliverables table; replaces prior DAG architecture-basis
-    mirror row.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-04
   condition: 'DEL-10-02 depends on deterministic schema versioning and canonical JSON/hash basis where
     adapter payloads are schema-governed or hashed.
-
-
-    Notes: Target deliverable resolved from decomposition deliverables table; replaces prior DAG architecture-basis
-    mirror row.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -28,19 +20,12 @@ needs:
     and provenance-bearing diagnostics.
 
 
-    Notes: Target deliverable resolved from AB-00-06 context and decomposition deliverables table.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-10/DEL-10-02/Specification.md
+  evidence: execution/PKG-10/DEL-10-02/ScopeOfWork.md
 - from: DEL-00-07
   condition: 'DEL-10-02 depends on the API boundary and adapter contract map because adapters cannot bypass
     validation sandboxing envelopes or report controls.
-
-
-    Notes: Target deliverable resolved from decomposition deliverables table; replaces prior DAG architecture-basis
-    mirror row.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -50,10 +35,6 @@ needs:
     implementation acceptance.
 
 
-    Notes: Target deliverable resolved from decomposition deliverables table; replaces prior DAG architecture-basis
-    mirror row.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-02-04
@@ -61,37 +42,34 @@ needs:
     is an extension surface governed by plugin/adapter constraints.
 
 
-    Notes: Target deliverable resolved from decomposition row DEL-02-04; assigned source states extension-surface
-    obligation but not the deliverable ID.
+    Notes: assigned source states extension-surface obligation but not the deliverable ID.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-10/DEL-10-02/Guidance.md
+  evidence: execution/PKG-10/DEL-10-02/ScopeOfWork.md
 - from: DEL-03-07
   condition: 'DEL-10-02 depends on provenance and redistribution-status import checking before imported
     data can be accepted or reused.
 
 
-    Notes: Target deliverable resolved from decomposition row DEL-03-07; assigned source states provenance-check
-    obligation but not the deliverable ID.
+    Notes: assigned source states provenance-check obligation but not the deliverable ID.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-10/DEL-10-02/Specification.md
+  evidence: execution/PKG-10/DEL-10-02/ScopeOfWork.md
 - from: DEL-12-01
   condition: 'DEL-10-02 is constrained by local-first private data handling for imports and exports involving
     private project libraries rule packs and results.
 
 
-    Notes: Target deliverable resolved from decomposition row DEL-12-01; assigned source states privacy
-    constraint but not the deliverable ID.
+    Notes: assigned source states privacy constraint but not the deliverable ID.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-10/DEL-10-02/Datasheet.md
+  evidence: execution/PKG-10/DEL-10-02/ScopeOfWork.md
 - from: DEL-02-01
   condition: 'DEL-10-02 depends on DEL-02-01 because adapter capabilities include model import/export
     and external data is accepted into schema-governed domain workflows.
@@ -115,7 +93,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-10/DEL-10-02/Specification.md
+  evidence: execution/PKG-10/DEL-10-02/ScopeOfWork.md
 - from: DEL-02-03
   condition: 'DEL-10-02 depends on DEL-02-03 because adapter results and validation plans must preserve
     diagnostics and the human-review boundary rather than emitting approval or compliance claims.
@@ -150,7 +128,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-08/DEL-08-04/Specification.md
+  evidence: execution/PKG-08/DEL-08-04/ScopeOfWork.md
 code_paths:
 - tools/validation/validate_dependencies_schema.py
 - schemas/adapter_framework.schema.yaml

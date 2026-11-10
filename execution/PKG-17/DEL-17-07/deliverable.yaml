@@ -83,38 +83,38 @@ needs:
     rules.
 
 
-    Notes: FACT: preserved declared upstream; also explicit in Procedure and Specification.'
+    Notes: also explicit in Procedure and Specification.'
   gating: true
-  evidence: execution/PKG-17/DEL-17-07/Procedure.md
+  evidence: execution/PKG-17/DEL-17-07/ScopeOfWork.md
 - from: DEL-03-02
   condition: 'DEL-17-07 implementation must review DEL-03-02 for component and section source data contracts.
 
 
-    Notes: FACT: preserved declared upstream; implementation use remains TBD until consumed.'
+    Notes: implementation use remains TBD until consumed.'
   gating: true
-  evidence: execution/PKG-17/DEL-17-07/Datasheet.md
+  evidence: execution/PKG-17/DEL-17-07/ScopeOfWork.md
 - from: DEL-13-04
   condition: 'DEL-17-07 implementation must review DEL-13-04 for transformation and loss semantics.
 
 
-    Notes: FACT: preserved declared upstream; implementation use remains TBD until consumed.'
+    Notes: implementation use remains TBD until consumed.'
   gating: true
-  evidence: execution/PKG-17/DEL-17-07/Datasheet.md
+  evidence: execution/PKG-17/DEL-17-07/ScopeOfWork.md
 - from: DEL-15-02
   condition: 'DEL-17-07 implementation must review DEL-15-02 for handoff-package and unsupported-behavior
     alignment.
 
 
-    Notes: FACT: preserved declared upstream; implementation use remains TBD until consumed.'
+    Notes: implementation use remains TBD until consumed.'
   gating: true
-  evidence: execution/PKG-17/DEL-17-07/Datasheet.md
+  evidence: execution/PKG-17/DEL-17-07/ScopeOfWork.md
 - from: DEL-17-01
   condition: 'The PCF subset profile must consume DEL-17-01 before making PCF target behavior claims.
 
 
     Notes: FACT: explicit source-authority prerequisite.'
   gating: true
-  evidence: execution/PKG-17/DEL-17-07/Specification.md
+  evidence: execution/PKG-17/DEL-17-07/ScopeOfWork.md
 - from: doc:plans/EXPORT_FORMAT_INTEROPERABILITY_PLAN.md
   condition: 'DEL-17-07 must read the export interoperability plan PCF section before selecting the conservative
     subset.
@@ -125,7 +125,7 @@ needs:
 
     Target description — TargetName: Export format interoperability plan; TargetRefID: PLAN-EXPORT-INTEROP;
     TargetLocation: plans/EXPORT_FORMAT_INTEROPERABILITY_PLAN.md'
-  evidence: execution/PKG-17/DEL-17-07/Procedure.md
+  evidence: execution/PKG-17/DEL-17-07/ScopeOfWork.md
 - from: doc:https://www.sstusa.com/pdfs/PCF.pdf
   condition: 'DEL-17-07 must read admitted public PCF translator evidence before making PCF behavior claims.
 
@@ -135,7 +135,7 @@ needs:
 
     Target description — TargetName: Public CAEPIPE PCF translator documentation; TargetRefID: CAEPIPE-PCF;
     TargetLocation: https://www.sstusa.com/pdfs/PCF.pdf'
-  evidence: execution/PKG-17/DEL-17-07/Procedure.md
+  evidence: execution/PKG-17/DEL-17-07/ScopeOfWork.md
 - from: doc:docs/IP_AND_DATA_BOUNDARY.md
   condition: 'Fixture and exporter evidence must obey protected-content and redistribution-safe data boundary
     rules.
@@ -146,7 +146,7 @@ needs:
 
     Target description — TargetName: Protected-content and public/private data boundary policy; TargetRefID:
     IP-DATA; TargetLocation: docs/IP_AND_DATA_BOUNDARY.md'
-  evidence: execution/PKG-17/DEL-17-07/Procedure.md
+  evidence: execution/PKG-17/DEL-17-07/ScopeOfWork.md
 code_paths:
 - core/handoff/pcf_export/package.py
 - schemas/pcf_export.schema.json

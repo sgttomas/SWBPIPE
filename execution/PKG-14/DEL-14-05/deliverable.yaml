@@ -6,8 +6,7 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Preserved from approved DAG-002 mirror; original DAG type ARCHITECTURE_BASIS and origin CONTEXT
-    normalized to dependency-extract enums; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
+    Notes: Preserved from approved DAG-002 mirror; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
     not Type 2 dispatch authority by itself.
 
 
@@ -19,8 +18,7 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Preserved from approved DAG-002 mirror; original DAG type ARCHITECTURE_BASIS and origin CONTEXT
-    normalized to dependency-extract enums; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
+    Notes: Preserved from approved DAG-002 mirror; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
     not Type 2 dispatch authority by itself.
 
 
@@ -32,8 +30,7 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Preserved from approved DAG-002 mirror; original DAG type ARCHITECTURE_BASIS and origin CONTEXT
-    normalized to dependency-extract enums; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
+    Notes: Preserved from approved DAG-002 mirror; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
     not Type 2 dispatch authority by itself.
 
 
@@ -45,8 +42,7 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Preserved from approved DAG-002 mirror; original DAG type ARCHITECTURE_BASIS and origin CONTEXT
-    normalized to dependency-extract enums; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
+    Notes: Preserved from approved DAG-002 mirror; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
     not Type 2 dispatch authority by itself.
 
 
@@ -58,8 +54,7 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Preserved from approved DAG-002 mirror; original DAG type ARCHITECTURE_BASIS and origin CONTEXT
-    normalized to dependency-extract enums; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
+    Notes: Preserved from approved DAG-002 mirror; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
     not Type 2 dispatch authority by itself.
 
 
@@ -71,8 +66,7 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Preserved from approved DAG-002 mirror; original DAG type ARCHITECTURE_BASIS and origin CONTEXT
-    normalized to dependency-extract enums; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
+    Notes: Preserved from approved DAG-002 mirror; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
     not Type 2 dispatch authority by itself.
 
 
@@ -84,8 +78,7 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Preserved from approved DAG-002 mirror; original DAG type ARCHITECTURE_BASIS and origin CONTEXT
-    normalized to dependency-extract enums; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
+    Notes: Preserved from approved DAG-002 mirror; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
     not Type 2 dispatch authority by itself.
 
 
@@ -104,7 +97,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 - from: DEL-14-02
   condition: 'DEL-14-05 needs DEL-14-02 as a predecessor: Comparison mapping/tolerance/export contracts
     consume analysis runs.
@@ -117,7 +109,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 - from: DEL-08-04
   condition: 'DEL-14-05 needs DEL-08-04 as a predecessor: Comparison export needs structured result export
     envelopes.
@@ -130,7 +121,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 - from: DEL-02-02
   condition: 'DEL-14-05 needs DEL-02-02 as a predecessor: Comparison tolerances need unit-aware semantics.
 
@@ -142,7 +132,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 code_paths:
 - schemas/comparison_mapping.schema.json
 - schemas/comparison_tolerance.schema.json

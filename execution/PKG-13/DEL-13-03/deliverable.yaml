@@ -6,8 +6,7 @@ needs:
     execution.
 
 
-    Notes: Preserved from approved DAG-002 mirror; canonicalized enum fields during TP-DAG-004 local dependency
-    refresh; local evidence only, not aggregate graph approval.
+    Notes: Preserved from approved DAG-002 mirror; local evidence only, not aggregate graph approval.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -17,8 +16,7 @@ needs:
     execution.
 
 
-    Notes: Preserved from approved DAG-002 mirror; canonicalized enum fields during TP-DAG-004 local dependency
-    refresh; local evidence only, not aggregate graph approval.
+    Notes: Preserved from approved DAG-002 mirror; local evidence only, not aggregate graph approval.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -28,8 +26,7 @@ needs:
     execution.
 
 
-    Notes: Preserved from approved DAG-002 mirror; canonicalized enum fields during TP-DAG-004 local dependency
-    refresh; local evidence only, not aggregate graph approval.
+    Notes: Preserved from approved DAG-002 mirror; local evidence only, not aggregate graph approval.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -39,8 +36,7 @@ needs:
     execution.
 
 
-    Notes: Preserved from approved DAG-002 mirror; canonicalized enum fields during TP-DAG-004 local dependency
-    refresh; local evidence only, not aggregate graph approval.
+    Notes: Preserved from approved DAG-002 mirror; local evidence only, not aggregate graph approval.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -50,8 +46,7 @@ needs:
     execution.
 
 
-    Notes: Preserved from approved DAG-002 mirror; canonicalized enum fields during TP-DAG-004 local dependency
-    refresh; local evidence only, not aggregate graph approval.
+    Notes: Preserved from approved DAG-002 mirror; local evidence only, not aggregate graph approval.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -61,8 +56,7 @@ needs:
     execution.
 
 
-    Notes: Preserved from approved DAG-002 mirror; canonicalized enum fields during TP-DAG-004 local dependency
-    refresh; local evidence only, not aggregate graph approval.
+    Notes: Preserved from approved DAG-002 mirror; local evidence only, not aggregate graph approval.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -72,8 +66,7 @@ needs:
     execution.
 
 
-    Notes: Preserved from approved DAG-002 mirror; canonicalized enum fields during TP-DAG-004 local dependency
-    refresh; local evidence only, not aggregate graph approval.
+    Notes: Preserved from approved DAG-002 mirror; local evidence only, not aggregate graph approval.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -84,65 +77,60 @@ needs:
 
 
     Notes: Preserved from approved DAG-002 mirror and supported as predecessor evidence by the DEL-13-03
-    source kit; canonicalized enum fields during TP-DAG-004 local dependency refresh; reconciliation should
-    compare against aggregate graph authority before sequencing changes.
+    source kit; reconciliation should compare against aggregate graph authority before sequencing changes.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-13/DEL-13-03/Guidance.md
+  evidence: execution/PKG-13/DEL-13-03/ScopeOfWork.md
 - from: DEL-13-02
   condition: 'DEL-13-03 needs DEL-13-02 as a predecessor because constraint validation consumes constraint
     entity and provenance inputs.
 
 
     Notes: Preserved from approved DAG-002 mirror and supported as predecessor evidence by the DEL-13-03
-    source kit; canonicalized enum fields during TP-DAG-004 local dependency refresh; reconciliation should
-    compare against aggregate graph authority before sequencing changes.
+    source kit; reconciliation should compare against aggregate graph authority before sequencing changes.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-13/DEL-13-03/Guidance.md
+  evidence: execution/PKG-13/DEL-13-03/ScopeOfWork.md
 - from: DEL-02-02
   condition: 'DEL-13-03 needs DEL-02-02 as a predecessor because constraint validation must remain unit-aware
     and dimensionally checked.
 
 
     Notes: Preserved from approved DAG-002 mirror and supported as predecessor evidence by the DEL-13-03
-    source kit; canonicalized enum fields during TP-DAG-004 local dependency refresh; reconciliation should
-    compare against aggregate graph authority before sequencing changes.
+    source kit; reconciliation should compare against aggregate graph authority before sequencing changes.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-13/DEL-13-03/Guidance.md
+  evidence: execution/PKG-13/DEL-13-03/ScopeOfWork.md
 - from: DEL-04-06
   condition: 'DEL-13-03 needs DEL-04-06 as a predecessor because deterministic validation messages need
     diagnostic and warning semantics.
 
 
     Notes: Preserved from approved DAG-002 mirror and supported as predecessor evidence by the DEL-13-03
-    source kit; canonicalized enum fields during TP-DAG-004 local dependency refresh; reconciliation should
-    compare against aggregate graph authority before sequencing changes.
+    source kit; reconciliation should compare against aggregate graph authority before sequencing changes.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-13/DEL-13-03/Guidance.md
+  evidence: execution/PKG-13/DEL-13-03/ScopeOfWork.md
 - from: DEL-02-05
   condition: 'DEL-13-03 needs DEL-02-05 as a predecessor because provenance-aware validation needs persisted
     project data and round-trip serialization context.
 
 
     Notes: Preserved from approved DAG-002 mirror and supported as predecessor evidence by the DEL-13-03
-    source kit; canonicalized enum fields during TP-DAG-004 local dependency refresh; reconciliation should
-    compare against aggregate graph authority before sequencing changes.
+    source kit; reconciliation should compare against aggregate graph authority before sequencing changes.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-13/DEL-13-03/Guidance.md
+  evidence: execution/PKG-13/DEL-13-03/ScopeOfWork.md
 code_paths:
 - core/constraints/validation
 - core/constraints/validation/__init__.py

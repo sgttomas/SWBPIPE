@@ -6,9 +6,6 @@ needs:
     discipline.
 
 
-    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-02
@@ -16,17 +13,11 @@ needs:
     boundary constraints.
 
 
-    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-03
   condition: 'DEL-02-05 applies AB-00-03 as an upstream prerequisite for schema-first service/result-envelope
     behavior.
-
-
-    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -37,9 +28,6 @@ needs:
     and round-trip prerequisite.
 
 
-    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
   evidence: execution/PKG-02/DEL-02-05/ScopeOfWork.md
@@ -48,18 +36,12 @@ needs:
     coverage.
 
 
-    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
   evidence: execution/PKG-02/DEL-02-05/ScopeOfWork.md
 - from: DEL-00-07
   condition: 'DEL-02-05 applies AB-00-07 as an upstream prerequisite for adapter validation and public/private
     boundary constraints.
-
-
-    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -76,9 +58,6 @@ needs:
     model and schema-backed objects.
 
 
-    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical INTERFACE.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
   evidence: execution/PKG-02/DEL-02-05/ScopeOfWork.md
@@ -87,8 +66,7 @@ needs:
     unit-system references for downstream dimensional checks.
 
 
-    Notes: Target deliverable resolved through decomposition PKG-02 row for unit system contract; retained
-    conservatively as interface rather than prerequisite.
+    Notes: retained conservatively as interface rather than prerequisite.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -99,8 +77,7 @@ needs:
     must preserve the mechanics rule-check and human-review boundary.
 
 
-    Notes: Target deliverable resolved through decomposition PKG-02 row for code-neutral analysis boundary;
-    retained conservatively as interface rather than prerequisite.
+    Notes: retained conservatively as interface rather than prerequisite.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

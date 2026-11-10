@@ -6,17 +6,13 @@ needs:
     are finalized.
 
 
-    Notes: Normalized from prior DAG mirror row; DependencyType changed to CONSTRAINT and Origin changed
-    to EXTRACTED for v3.1 enum compliance.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-02
   condition: 'DEL-05-03 must preserve repository and module boundary constraints from AB-00-02.
 
 
-    Notes: Normalized from prior DAG mirror row; dependency is an upstream architecture constraint.
+    Notes: dependency is an upstream architecture constraint.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -26,7 +22,7 @@ needs:
     mechanics solved rule checked and human approved states.
 
 
-    Notes: Normalized from prior DAG mirror row; dependency is an upstream architecture constraint.
+    Notes: dependency is an upstream architecture constraint.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -35,7 +31,7 @@ needs:
   condition: 'DEL-05-03 diagnostics and result envelopes must apply AB-00-06 warning and provenance constraints.
 
 
-    Notes: Normalized from prior DAG mirror row; dependency is an upstream architecture constraint.
+    Notes: dependency is an upstream architecture constraint.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -44,7 +40,7 @@ needs:
   condition: 'DEL-05-03 verification must apply AB-00-08 layered test constraints.
 
 
-    Notes: Normalized from prior DAG mirror row; dependency is an upstream architecture constraint.
+    Notes: dependency is an upstream architecture constraint.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

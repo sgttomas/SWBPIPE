@@ -6,11 +6,10 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
-    legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
-    Origin=CONTEXT, Explicitness=EXPLICIT, SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved
-    for reconciliation.
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself; TP-DAG-004 normalized legacy DAG-002 edge fields for v3.1 enum validation
+    (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT, Explicitness=EXPLICIT,
+    SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -21,11 +20,10 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
-    legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
-    Origin=CONTEXT, Explicitness=EXPLICIT, SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved
-    for reconciliation.
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself; TP-DAG-004 normalized legacy DAG-002 edge fields for v3.1 enum validation
+    (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT, Explicitness=EXPLICIT,
+    SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -36,11 +34,10 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
-    legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
-    Origin=CONTEXT, Explicitness=EXPLICIT, SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved
-    for reconciliation.
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself; TP-DAG-004 normalized legacy DAG-002 edge fields for v3.1 enum validation
+    (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT, Explicitness=EXPLICIT,
+    SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -51,11 +48,10 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
-    legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
-    Origin=CONTEXT, Explicitness=EXPLICIT, SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved
-    for reconciliation.
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself; TP-DAG-004 normalized legacy DAG-002 edge fields for v3.1 enum validation
+    (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT, Explicitness=EXPLICIT,
+    SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -66,11 +62,10 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
-    legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
-    Origin=CONTEXT, Explicitness=EXPLICIT, SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved
-    for reconciliation.
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself; TP-DAG-004 normalized legacy DAG-002 edge fields for v3.1 enum validation
+    (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT, Explicitness=EXPLICIT,
+    SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -81,11 +76,10 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
-    legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
-    Origin=CONTEXT, Explicitness=EXPLICIT, SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved
-    for reconciliation.
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself; TP-DAG-004 normalized legacy DAG-002 edge fields for v3.1 enum validation
+    (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT, Explicitness=EXPLICIT,
+    SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -96,11 +90,10 @@ needs:
     for sealed downstream work.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
-    legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
-    Origin=CONTEXT, Explicitness=EXPLICIT, SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved
-    for reconciliation.
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself; TP-DAG-004 normalized legacy DAG-002 edge fields for v3.1 enum validation
+    (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT, Explicitness=EXPLICIT,
+    SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -110,12 +103,12 @@ needs:
   condition: 'DEL-16-02 needs DEL-16-01 as a predecessor: Operation validation consumes operation schema.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
-    legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=DOMAIN_MODEL,
-    Origin=GRAPH_REVIEW, Explicitness=INFERRED_DIRECT, SatisfactionStatus=UNKNOWN); approved DAG-002 evidence
-    preserved for reconciliation.; FACT: 2026-08-02 dependency-currency PASS under R23; target maturity
-    PASS is frozen in TARGET_MATURITY_EVIDENCE.csv; consumer integration PASS is frozen in N2E_DEL1602_PATCH/LAUNCH_BRIEF.md.
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself; TP-DAG-004 normalized legacy DAG-002 edge fields for v3.1 enum validation
+    (legacy AnchorType=DELIVERABLE, DependencyType=DOMAIN_MODEL, Origin=GRAPH_REVIEW, Explicitness=INFERRED_DIRECT,
+    SatisfactionStatus=UNKNOWN); approved DAG-002 evidence preserved for reconciliation.; FACT: 2026-08-02
+    dependency-currency PASS under R23; target maturity PASS is frozen in TARGET_MATURITY_EVIDENCE.csv;
+    consumer integration PASS is frozen in N2E_DEL1602_PATCH/LAUNCH_BRIEF.md.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -124,11 +117,10 @@ needs:
   condition: 'DEL-16-02 needs DEL-13-03 as a predecessor: Operation validation consumes constraint validation.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
-    legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=DIAGNOSTICS_CONTRACT,
-    Origin=GRAPH_REVIEW, Explicitness=INFERRED_DIRECT, SatisfactionStatus=UNKNOWN); approved DAG-002 evidence
-    preserved for reconciliation.
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself; TP-DAG-004 normalized legacy DAG-002 edge fields for v3.1 enum validation
+    (legacy AnchorType=DELIVERABLE, DependencyType=DIAGNOSTICS_CONTRACT, Origin=GRAPH_REVIEW, Explicitness=INFERRED_DIRECT,
+    SatisfactionStatus=UNKNOWN); approved DAG-002 evidence preserved for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -137,11 +129,10 @@ needs:
   condition: 'DEL-16-02 needs DEL-14-03 as a predecessor: Operation diff preview consumes state comparison.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
-    legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=PERSISTENCE_CONTRACT,
-    Origin=GRAPH_REVIEW, Explicitness=INFERRED_DIRECT, SatisfactionStatus=UNKNOWN); approved DAG-002 evidence
-    preserved for reconciliation.
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself; TP-DAG-004 normalized legacy DAG-002 edge fields for v3.1 enum validation
+    (legacy AnchorType=DELIVERABLE, DependencyType=PERSISTENCE_CONTRACT, Origin=GRAPH_REVIEW, Explicitness=INFERRED_DIRECT,
+    SatisfactionStatus=UNKNOWN); approved DAG-002 evidence preserved for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -151,11 +142,10 @@ needs:
     contracts.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
-    legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=PERSISTENCE_CONTRACT,
-    Origin=GRAPH_REVIEW, Explicitness=INFERRED_DIRECT, SatisfactionStatus=UNKNOWN); approved DAG-002 evidence
-    preserved for reconciliation.
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself; TP-DAG-004 normalized legacy DAG-002 edge fields for v3.1 enum validation
+    (legacy AnchorType=DELIVERABLE, DependencyType=PERSISTENCE_CONTRACT, Origin=GRAPH_REVIEW, Explicitness=INFERRED_DIRECT,
+    SatisfactionStatus=UNKNOWN); approved DAG-002 evidence preserved for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -165,11 +155,10 @@ needs:
     contracts.
 
 
-    Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
-    legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=DIAGNOSTICS_CONTRACT,
-    Origin=GRAPH_REVIEW, Explicitness=INFERRED_DIRECT, SatisfactionStatus=UNKNOWN); approved DAG-002 evidence
-    preserved for reconciliation.
+    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
+    2 dispatch authority by itself; TP-DAG-004 normalized legacy DAG-002 edge fields for v3.1 enum validation
+    (legacy AnchorType=DELIVERABLE, DependencyType=DIAGNOSTICS_CONTRACT, Origin=GRAPH_REVIEW, Explicitness=INFERRED_DIRECT,
+    SatisfactionStatus=UNKNOWN); approved DAG-002 evidence preserved for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

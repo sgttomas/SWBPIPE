@@ -108,8 +108,7 @@ needs:
     unit-aware and dimensionally checked.
 
 
-    Notes: New conservative local edge from TP-DAG-004 refresh; target maturity not verified from permitted
-    read set.
+    Notes: target maturity not verified from permitted read set.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -119,10 +118,9 @@ needs:
     and result-envelope status.
 
 
-    Notes: New conservative local edge from TP-DAG-004 refresh; target maturity not verified from permitted
-    read set. AB-00-06 remains the architecture-basis result-envelope contract edge.; FACT: 2026-08-02
-    dependency-currency PASS under R23; target maturity PASS is frozen in TARGET_MATURITY_EVIDENCE.csv;
-    consumer integration PASS is frozen in N2D_DEL0901_PATCH/LAUNCH_BRIEF.md.
+    Notes: target maturity not verified from permitted read set. AB-00-06 remains the architecture-basis
+    result-envelope contract edge.; FACT: 2026-08-02 dependency-currency PASS under R23; target maturity
+    PASS is frozen in TARGET_MATURITY_EVIDENCE.csv; consumer integration PASS is frozen in N2D_DEL0901_PATCH/LAUNCH_BRIEF.md.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

@@ -6,8 +6,7 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; refreshed for TP-DAG-004 from the prior
-    DAG-002 local mirror; not independent Type 2 dispatch authority.
+    Notes: Architecture-basis edge from SCA-001 context injection; not independent Type 2 dispatch authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -17,8 +16,7 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; refreshed for TP-DAG-004 from the prior
-    DAG-002 local mirror; not independent Type 2 dispatch authority.
+    Notes: Architecture-basis edge from SCA-001 context injection; not independent Type 2 dispatch authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -28,8 +26,7 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; refreshed for TP-DAG-004 from the prior
-    DAG-002 local mirror; not independent Type 2 dispatch authority.
+    Notes: Architecture-basis edge from SCA-001 context injection; not independent Type 2 dispatch authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -39,8 +36,7 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; refreshed for TP-DAG-004 from the prior
-    DAG-002 local mirror; not independent Type 2 dispatch authority.
+    Notes: Architecture-basis edge from SCA-001 context injection; not independent Type 2 dispatch authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -50,8 +46,7 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; refreshed for TP-DAG-004 from the prior
-    DAG-002 local mirror; not independent Type 2 dispatch authority.
+    Notes: Architecture-basis edge from SCA-001 context injection; not independent Type 2 dispatch authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -61,8 +56,7 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; refreshed for TP-DAG-004 from the prior
-    DAG-002 local mirror; not independent Type 2 dispatch authority.
+    Notes: Architecture-basis edge from SCA-001 context injection; not independent Type 2 dispatch authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -72,8 +66,7 @@ needs:
     execution.
 
 
-    Notes: Architecture-basis edge from SCA-001 context injection; refreshed for TP-DAG-004 from the prior
-    DAG-002 local mirror; not independent Type 2 dispatch authority.
+    Notes: Architecture-basis edge from SCA-001 context injection; not independent Type 2 dispatch authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -81,10 +74,6 @@ needs:
 - from: DEL-05-03
   condition: 'DEL-07-05 needs DEL-05-03 as a predecessor because the results viewer displays recovered
     stresses and result values.
-
-
-    Notes: Conservative direct predecessor retained from prior DAG local mirror and refreshed against
-    decomposition revision 0.5.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -95,20 +84,12 @@ needs:
     rule-check and human-review status distinctions without claiming compliance.
 
 
-    Notes: Conservative direct predecessor retained from prior DAG local mirror and refreshed against
-    decomposition revision 0.5.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
   evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
 - from: DEL-04-06
   condition: 'DEL-07-05 needs DEL-04-06 as a predecessor because the results viewer displays solver warning
     and diagnostic state that qualifies result review.
-
-
-    Notes: Conservative direct predecessor retained from prior DAG local mirror and refreshed against
-    decomposition revision 0.5.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

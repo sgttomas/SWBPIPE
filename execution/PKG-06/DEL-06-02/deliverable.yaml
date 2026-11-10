@@ -6,8 +6,7 @@ needs:
     implementation constraint.
 
 
-    Notes: Normalized from prior DAG-synchronized row to v3.1 enum values; source authority remains context
-    injection rather than local graph authority.
+    Notes: source authority remains context injection rather than local graph authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -17,8 +16,7 @@ needs:
     implementation constraint.
 
 
-    Notes: Normalized from prior DAG-synchronized row to v3.1 enum values; source authority remains context
-    injection rather than local graph authority.
+    Notes: source authority remains context injection rather than local graph authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -28,8 +26,7 @@ needs:
     implementation constraint.
 
 
-    Notes: Normalized from prior DAG-synchronized row to v3.1 enum values; source authority remains context
-    injection rather than local graph authority.
+    Notes: source authority remains context injection rather than local graph authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -39,8 +36,7 @@ needs:
     implementation constraint.
 
 
-    Notes: Normalized from prior DAG-synchronized row to v3.1 enum values; source authority remains context
-    injection rather than local graph authority.
+    Notes: source authority remains context injection rather than local graph authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -50,8 +46,7 @@ needs:
     implementation constraint.
 
 
-    Notes: Normalized from prior DAG-synchronized row to v3.1 enum values; source authority remains context
-    injection rather than local graph authority.
+    Notes: source authority remains context injection rather than local graph authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -61,8 +56,7 @@ needs:
     implementation constraint.
 
 
-    Notes: Normalized from prior DAG-synchronized row to v3.1 enum values; source authority remains context
-    injection rather than local graph authority.
+    Notes: source authority remains context injection rather than local graph authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -72,8 +66,7 @@ needs:
     implementation constraint.
 
 
-    Notes: Normalized from prior DAG-synchronized row to v3.1 enum values; source authority remains context
-    injection rather than local graph authority.
+    Notes: source authority remains context injection rather than local graph authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -83,17 +76,11 @@ needs:
     variable binding and formula structures must follow the sealed schema contract.
 
 
-    Notes: Conservative interface edge retained from prior register and refreshed from local Procedure.md.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-02-02
   condition: 'DEL-06-02 has an upstream interface dependency on the unit-system contract because expression
     operands comparisons and outputs must be dimensionally checked.
-
-
-    Notes: Conservative interface edge retained from prior register and refreshed from local Procedure.md.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

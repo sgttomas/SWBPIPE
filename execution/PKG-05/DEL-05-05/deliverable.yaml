@@ -6,10 +6,6 @@ needs:
     product implementation.
 
 
-    Notes: Prior DAG-002 mirror edge preserved by ID; v3.1 enum normalization maps architecture basis
-    to CONSTRAINT.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-02
@@ -17,19 +13,11 @@ needs:
     product implementation.
 
 
-    Notes: Prior DAG-002 mirror edge preserved by ID; v3.1 enum normalization maps architecture basis
-    to CONSTRAINT.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-03
   condition: 'DEL-05-05 must preserve architecture-basis constraint AB-00-03 for command query job and
     result-envelope boundaries.
-
-
-    Notes: Prior DAG-002 mirror edge preserved by ID; v3.1 enum normalization maps architecture basis
-    to CONSTRAINT.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -40,20 +28,12 @@ needs:
     and status provenance distinctions.
 
 
-    Notes: Prior DAG-002 mirror edge preserved by ID; v3.1 enum normalization maps architecture basis
-    to CONSTRAINT.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
   evidence: execution/PKG-05/DEL-05-05/ScopeOfWork.md
 - from: DEL-00-08
   condition: 'DEL-05-05 must preserve architecture-basis constraint AB-00-08 for deterministic tests before
     release use.
-
-
-    Notes: Prior DAG-002 mirror edge preserved by ID; v3.1 enum normalization maps architecture basis
-    to CONSTRAINT.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

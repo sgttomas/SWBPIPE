@@ -112,7 +112,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-15/DEL-15-03/Procedure.md
+  evidence: execution/PKG-15/DEL-15-03/ScopeOfWork.md
 - from: DEL-15-02
   condition: 'DEL-15-03 needs DEL-15-02 as a predecessor: Export workflow consumes target mapping records.
 
@@ -125,7 +125,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-15/DEL-15-03/Procedure.md
+  evidence: execution/PKG-15/DEL-15-03/ScopeOfWork.md
 - from: DEL-10-02
   condition: 'DEL-15-03 needs DEL-10-02 as a predecessor: Export workflow consumes adapter framework contracts.
 
@@ -138,7 +138,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-15/DEL-15-03/Procedure.md
+  evidence: execution/PKG-15/DEL-15-03/ScopeOfWork.md
 - from: DEL-10-03
   condition: 'DEL-15-03 needs DEL-10-03 as a predecessor: Export workflow aligns with local FEA handoff
     contracts.
@@ -152,7 +152,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-15/DEL-15-03/Procedure.md
+  evidence: execution/PKG-15/DEL-15-03/ScopeOfWork.md
 - from: DEL-12-02
   condition: 'DEL-15-03 needs DEL-12-02 as a predecessor: Export workflow must preserve redaction/export
     controls.
@@ -166,7 +166,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-15/DEL-15-03/Procedure.md
+  evidence: execution/PKG-15/DEL-15-03/ScopeOfWork.md
 - from: DEL-13-04
   condition: 'DEL-15-03 needs DEL-13-04 as a predecessor: Export workflow consumes physical-to-analytical
     transform output.
@@ -180,7 +180,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-15/DEL-15-03/Procedure.md
+  evidence: execution/PKG-15/DEL-15-03/ScopeOfWork.md
 - from: DEL-14-05
   condition: 'DEL-15-03 needs DEL-14-05 as a predecessor: Export workflow consumes comparison export contracts.
 
@@ -193,7 +193,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-15/DEL-15-03/Procedure.md
+  evidence: execution/PKG-15/DEL-15-03/ScopeOfWork.md
 code_paths:
 - core/handoff/exporter/workflow.py
 - schemas/handoff_package.schema.json

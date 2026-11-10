@@ -6,19 +6,11 @@ needs:
     execution.
 
 
-    Notes: Normalized from prior DAG mirror row: AnchorType DELIVERABLE to NOT_APPLICABLE; DependencyType
-    ARCHITECTURE_BASIS to CONSTRAINT; Origin CONTEXT to EXTRACTED.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-02
   condition: 'DEL-09-02 must apply architecture-basis constraint AB-00-02 from DEL-00-02 during sealed
     execution.
-
-
-    Notes: Normalized from prior DAG mirror row: AnchorType DELIVERABLE to NOT_APPLICABLE; DependencyType
-    ARCHITECTURE_BASIS to CONSTRAINT; Origin CONTEXT to EXTRACTED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -27,18 +19,10 @@ needs:
   condition: 'DEL-09-02 must preserve diagnostics and result-envelope boundaries from AB-00-06.
 
 
-    Notes: Normalized from prior DAG mirror row: AnchorType DELIVERABLE to NOT_APPLICABLE; DependencyType
-    ARCHITECTURE_BASIS to INTERFACE; Origin CONTEXT to EXTRACTED.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-08
   condition: 'DEL-09-02 must apply layered validation and protected-content gates from AB-00-08.
-
-
-    Notes: Normalized from prior DAG mirror row: AnchorType DELIVERABLE to NOT_APPLICABLE; DependencyType
-    ARCHITECTURE_BASIS to CONSTRAINT; Origin CONTEXT to EXTRACTED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -48,8 +32,7 @@ needs:
     recovery deliverable.
 
 
-    Notes: Target DEL-05-03 resolved from SOFTWARE_DECOMP revision 0.5; source does not name the deliverable
-    ID directly.
+    Notes: source does not name the deliverable ID directly.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -68,10 +51,6 @@ needs:
 - from: DEL-01-02
   condition: 'DEL-09-02 requires protected-content review before accepting future source fixtures or hand-calc
     notes.
-
-
-    Notes: Target DEL-01-02 resolved from SOFTWARE_DECOMP revision 0.5 copyright and protected-data boundary
-    policy row.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

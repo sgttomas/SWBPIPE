@@ -6,19 +6,11 @@ needs:
     constraint evidence.
 
 
-    Notes: Preserved existing DAG-002 mirror edge; normalized DependencyType and AnchorType to dependency-extract
-    enums.; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-02
   condition: 'DEL-03-07 uses the applicable SCA-001 architecture basis AB-00-02 from DEL-00-02 as sealed-context
     constraint evidence.
-
-
-    Notes: Preserved existing DAG-002 mirror edge; normalized DependencyType and AnchorType to dependency-extract
-    enums.; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -28,19 +20,11 @@ needs:
     constraint evidence.
 
 
-    Notes: Preserved existing DAG-002 mirror edge; normalized DependencyType and AnchorType to dependency-extract
-    enums.; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-06
   condition: 'DEL-03-07 uses the applicable SCA-001 architecture basis AB-00-06 from DEL-00-06 as sealed-context
     constraint evidence.
-
-
-    Notes: Preserved existing DAG-002 mirror edge; normalized DependencyType and AnchorType to dependency-extract
-    enums.; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -50,19 +34,11 @@ needs:
     constraint evidence.
 
 
-    Notes: Preserved existing DAG-002 mirror edge; normalized DependencyType and AnchorType to dependency-extract
-    enums.; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-08
   condition: 'DEL-03-07 uses the applicable SCA-001 architecture basis AB-00-08 from DEL-00-08 as sealed-context
     constraint evidence.
-
-
-    Notes: Preserved existing DAG-002 mirror edge; normalized DependencyType and AnchorType to dependency-extract
-    enums.; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -72,61 +48,56 @@ needs:
     records for provenance/license/redistribution metadata.
 
 
-    Notes: Preserved existing DAG-002 mirror edge; target deliverable resolution uses decomposition; conservative
-    source evidence supports material-library interface but not implementation completion.
+    Notes: conservative source evidence supports material-library interface but not implementation completion.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-03/DEL-03-07/Specification.md
+  evidence: execution/PKG-03/DEL-03-07/ScopeOfWork.md
 - from: DEL-03-02
   condition: 'DEL-03-07 interfaces with DEL-03-02 because the checker validates component-library import
     records for provenance/license/redistribution metadata.
 
 
-    Notes: Preserved existing DAG-002 mirror edge; target deliverable resolution uses decomposition; conservative
-    source evidence supports component-library interface but not implementation completion.
+    Notes: conservative source evidence supports component-library interface but not implementation completion.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-03/DEL-03-07/Specification.md
+  evidence: execution/PKG-03/DEL-03-07/ScopeOfWork.md
 - from: DEL-01-02
   condition: 'DEL-03-07 is constrained by protected-data boundary rules because suspected protected standards
     or vendor content must be quarantined and escalated.
 
 
-    Notes: Preserved existing DAG-002 mirror edge; normalized to CONSTRAINT because source docs frame
-    protected-content policy as a boundary.
+    Notes: normalized to CONSTRAINT because source docs frame protected-content policy as a boundary.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-03/DEL-03-07/Datasheet.md
+  evidence: execution/PKG-03/DEL-03-07/ScopeOfWork.md
 - from: DEL-01-03
   condition: 'DEL-03-07 is constrained by contributor/reviewer disposition metadata and review authority
     for public data imports.
 
 
-    Notes: Preserved existing DAG-002 mirror edge; contributor certification is supported as a governance
-    constraint rather than a completed dependency.
+    Notes: contributor certification is supported as a governance constraint rather than a completed dependency.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-03/DEL-03-07/Specification.md
+  evidence: execution/PKG-03/DEL-03-07/ScopeOfWork.md
 - from: DEL-02-04
   condition: 'DEL-03-07 interfaces with plugin/adapter governance constraints because import mechanisms
     must preserve validation and public/private data boundaries.
 
 
-    Notes: Preserved existing DAG-002 mirror edge; source evidence supports interface/constraint signal
-    but not completion.
+    Notes: source evidence supports interface/constraint signal but not completion.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-03/DEL-03-07/Guidance.md
+  evidence: execution/PKG-03/DEL-03-07/ScopeOfWork.md
 code_paths:
 - core/library_import/README.md
 - core/library_import/library_import_document/

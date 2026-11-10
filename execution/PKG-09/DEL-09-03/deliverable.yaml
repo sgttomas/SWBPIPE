@@ -6,8 +6,7 @@ needs:
     execution.
 
 
-    Notes: Preserved prior DAG-002 mirror edge as extracted local evidence; normalized AnchorType DependencyType
-    Origin and enum fields for dependency-extract v3.1.
+    Notes: Preserved prior DAG-002 mirror edge as extracted local evidence
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -17,8 +16,7 @@ needs:
     execution.
 
 
-    Notes: Preserved prior DAG-002 mirror edge as extracted local evidence; normalized AnchorType DependencyType
-    Origin and enum fields for dependency-extract v3.1.
+    Notes: Preserved prior DAG-002 mirror edge as extracted local evidence
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -28,8 +26,7 @@ needs:
     result-envelope constraints.
 
 
-    Notes: Preserved prior DAG-002 mirror edge as extracted local evidence; normalized AnchorType DependencyType
-    Origin and enum fields for dependency-extract v3.1.
+    Notes: Preserved prior DAG-002 mirror edge as extracted local evidence
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -39,8 +36,7 @@ needs:
     execution.
 
 
-    Notes: Preserved prior DAG-002 mirror edge as extracted local evidence; normalized AnchorType DependencyType
-    Origin and enum fields for dependency-extract v3.1.
+    Notes: Preserved prior DAG-002 mirror edge as extracted local evidence
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

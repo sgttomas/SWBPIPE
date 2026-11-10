@@ -6,19 +6,11 @@ needs:
     execution
 
 
-    Notes: Normalized from DAG mirror: AnchorType DELIVERABLE to NOT_APPLICABLE; DependencyType ARCHITECTURE_BASIS
-    to CONSTRAINT; Origin CONTEXT to EXTRACTED.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-02
   condition: 'DEL-06-05 is constrained by architecture basis AB-00-02 during sealed product-development
     execution
-
-
-    Notes: Normalized from DAG mirror: AnchorType DELIVERABLE to NOT_APPLICABLE; DependencyType ARCHITECTURE_BASIS
-    to CONSTRAINT; Origin CONTEXT to EXTRACTED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -28,19 +20,11 @@ needs:
     execution
 
 
-    Notes: Normalized from DAG mirror: AnchorType DELIVERABLE to NOT_APPLICABLE; DependencyType ARCHITECTURE_BASIS
-    to CONSTRAINT; Origin CONTEXT to EXTRACTED.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-04
   condition: 'DEL-06-05 is constrained by architecture basis AB-00-04 during sealed product-development
     execution
-
-
-    Notes: Normalized from DAG mirror: AnchorType DELIVERABLE to NOT_APPLICABLE; DependencyType ARCHITECTURE_BASIS
-    to CONSTRAINT; Origin CONTEXT to EXTRACTED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -50,19 +34,11 @@ needs:
     execution
 
 
-    Notes: Normalized from DAG mirror: AnchorType DELIVERABLE to NOT_APPLICABLE; DependencyType ARCHITECTURE_BASIS
-    to CONSTRAINT; Origin CONTEXT to EXTRACTED.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-00-07
   condition: 'DEL-06-05 is constrained by architecture basis AB-00-07 during sealed product-development
     execution
-
-
-    Notes: Normalized from DAG mirror: AnchorType DELIVERABLE to NOT_APPLICABLE; DependencyType ARCHITECTURE_BASIS
-    to CONSTRAINT; Origin CONTEXT to EXTRACTED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -72,35 +48,23 @@ needs:
     execution
 
 
-    Notes: Normalized from DAG mirror: AnchorType DELIVERABLE to NOT_APPLICABLE; DependencyType ARCHITECTURE_BASIS
-    to CONSTRAINT; Origin CONTEXT to EXTRACTED.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-06-01
   condition: 'DEL-06-05 depends on DEL-06-01 before schema-specific example details can be finalized
 
 
-    Notes: Normalized from DAG mirror: AnchorType DELIVERABLE to NOT_APPLICABLE; DependencyType RULE_PACK_PREDECESSOR
-    to PREREQUISITE; Origin DECOMPOSITION to EXTRACTED.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-06/DEL-06-05/Guidance.md
+  evidence: execution/PKG-06/DEL-06-05/ScopeOfWork.md
 - from: DEL-06-02
   condition: 'DEL-06-05 depends on DEL-06-02 before evaluator grammar and sandbox behavior can be represented
     in an example
 
 
-    Notes: Normalized from DAG mirror: AnchorType DELIVERABLE to NOT_APPLICABLE; DependencyType RULE_PACK_PREDECESSOR
-    to PREREQUISITE; Origin DECOMPOSITION to EXTRACTED.
-
-
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-06/DEL-06-05/Specification.md
+  evidence: execution/PKG-06/DEL-06-05/ScopeOfWork.md
 code_paths:
 - schemas/rule_pack.schema.yaml
 - tools/validation/validate_dependencies_schema.py
