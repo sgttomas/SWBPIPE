@@ -22,8 +22,7 @@ This policy is a project governance control, not legal advice, professional engi
 ## 1.1 Current authority basis
 
 This draft policy is aligned to
-the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md` and the approved
-graph selected by `execution/_DAG/_LATEST.md`. The project license has been selected as
+the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md`. The project license has been selected as
 `MIT`; contribution-source license and redistribution
 fields still record the source basis for submitted material and do not replace
 the project license notice.

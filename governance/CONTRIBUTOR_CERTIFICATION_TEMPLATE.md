@@ -18,8 +18,7 @@ standards-body endorsement, or a code-compliance determination.
 ## Current Authority Basis
 
 This draft template is aligned to
-the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md` and the approved
-graph selected by `execution/_DAG/_LATEST.md`. The project license has been selected as
+the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md`. The project license has been selected as
 `MIT`; source-license and redistribution fields below
 record the submitted material's basis and do not replace that project license
 notice.

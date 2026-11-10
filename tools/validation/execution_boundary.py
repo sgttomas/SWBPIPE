@@ -88,7 +88,6 @@ SPEC_READERS = (
     "tools/deliverables/",
     "tools/validation/execution_boundary.py",
     "tools/validation/test_execution_boundary.py",
-    "tools/validation/test_execution_dag.py",
     "tools/validation/test_hanger_sizing_design.py",
     "tools/validation/test_reference_system_ledger.py",
     "tools/release/check_release_readiness.py",

@@ -15,8 +15,8 @@ This file defines the current maintainer policy for SWBPIPE. It is a governance 
 ## Authority Basis
 
 This draft maintainer policy is aligned to
-the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md` and the approved
-graph selected by `execution/_DAG/_LATEST.md`. Those artifacts define current package and
+the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md` and the dependency
+declarations in each deliverable's `deliverable.yaml`. Those artifacts define current package and
 deliverable scope and active dependency relationships; they do not by
 themselves approve releases, lifecycle transitions, professional reliance,
 code-compliance claims, or final governance decisions.

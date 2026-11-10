@@ -103,9 +103,9 @@ EXEC_PROBES = {
 def test_python_execution_edges_are_rejected_even_in_document_readers(tmp_path, name):
     repo = Repo(tmp_path)
     repo.write("tools/probe.py", EXEC_PROBES[name])
-    repo.write("tools/validation/test_execution_dag.py", EXEC_PROBES[name])  # a declared reader gains nothing
+    repo.write("tools/validation/test_hanger_sizing_design.py", EXEC_PROBES[name])  # a declared reader gains nothing
     found = repo.findings()
-    assert {("exec", "tools/probe.py"), ("exec", "tools/validation/test_execution_dag.py")} <= found
+    assert {("exec", "tools/probe.py"), ("exec", "tools/validation/test_hanger_sizing_design.py")} <= found
     assert {kind for kind, _ in found} <= {"exec", "read"}
 
 
@@ -201,8 +201,8 @@ def test_unpacked_mapping_defaults_reaching_execution_are_rejected(tmp_path, met
     probe = ('import runpy\nfrom pathlib import Path\npaths = {}\n'
              f'arguments = ("entry", {default})\n{sink}\n')
     repo.write("tools/probe.py", probe)
-    repo.write("tools/validation/test_execution_dag.py", probe)
-    assert {("exec", "tools/probe.py"), ("exec", "tools/validation/test_execution_dag.py")} <= repo.findings()
+    repo.write("tools/validation/test_hanger_sizing_design.py", probe)
+    assert {("exec", "tools/probe.py"), ("exec", "tools/validation/test_hanger_sizing_design.py")} <= repo.findings()
 
 
 @pytest.mark.parametrize("method", ["get", "pop"])
@@ -263,7 +263,7 @@ def test_provenance_comments_exclusions_and_temporary_fixtures_are_not_edges(tmp
                'subprocess.run(["git", "diff", "--", ":!execution/"])\n'
                'SKIP = ("target", "execution")\n'
                'def keep(name):\n    return name not in SKIP and not name.startswith("execution/")\n')
-    repo.write("tests/test_fixture.py", 'def test_x(tmp_path):\n    p = tmp_path / "execution/_DAG/_LATEST.md"\n'
+    repo.write("tests/test_fixture.py", 'def test_x(tmp_path):\n    p = tmp_path / "execution/_DAG/note.md"\n'
                '    p.parent.mkdir(parents=True)\n    p.write_text("x")\n')
     repo.write(".github/workflows/ci.yml", "jobs:\n  a:\n    steps:\n      - uses: actions/checkout@v4\n"
                "        with:\n          sparse-checkout: |\n            /*\n            !/execution/\n")

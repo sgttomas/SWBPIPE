@@ -17,8 +17,7 @@ Use this checklist before accepting contributions that add or modify public data
 ## Current Authority Basis
 
 This draft checklist is aligned to
-the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md` and the approved
-graph selected by `execution/_DAG/_LATEST.md`. The project license has been selected as
+the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md`. The project license has been selected as
 `MIT`; this checklist records contribution-source
 rights and redistribution evidence separately from that project license notice.
 

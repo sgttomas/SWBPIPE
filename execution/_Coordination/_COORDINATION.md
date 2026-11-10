@@ -106,6 +106,5 @@ history at this path.
   `tools/coordination/list_deliverable_status.py` (read-only discovery).
 - Decision register: `execution/_Coordination/_DECISIONS/_REGISTER.md`.
 - Codified rulings: `execution/_Decomposition/SOFTWARE_DECOMP.md` §12.
-- Approved DAG pointer: `execution/_DAG/_LATEST.md`.
 - `execution/_Coordination/NEXT_INSTANCE_PROMPT.md`: dated historical map
   (pre-loop session entry; never authority).
