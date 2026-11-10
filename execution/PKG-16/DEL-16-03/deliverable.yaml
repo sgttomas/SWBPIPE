@@ -6,9 +6,7 @@ needs:
 
 
     Notes: Preserved from approved DAG-002 mirror row DAG-002-E0744; original DAG type ARCHITECTURE_BASIS
-    normalized to PREREQUISITE for local v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE
+    normalized to PREREQUISITE for local v3.1 enum compliance.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -18,9 +16,7 @@ needs:
 
 
     Notes: Preserved from approved DAG-002 mirror row DAG-002-E0745; original DAG type ARCHITECTURE_BASIS
-    normalized to PREREQUISITE for local v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE
+    normalized to PREREQUISITE for local v3.1 enum compliance.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -30,9 +26,7 @@ needs:
 
 
     Notes: Preserved from approved DAG-002 mirror row DAG-002-E0746; original DAG type ARCHITECTURE_BASIS
-    normalized to PREREQUISITE for local v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE
+    normalized to PREREQUISITE for local v3.1 enum compliance.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -42,9 +36,7 @@ needs:
 
 
     Notes: Preserved from approved DAG-002 mirror row DAG-002-E0747; original DAG type ARCHITECTURE_BASIS
-    normalized to PREREQUISITE for local v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE
+    normalized to PREREQUISITE for local v3.1 enum compliance.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -54,9 +46,7 @@ needs:
 
 
     Notes: Preserved from approved DAG-002 mirror row DAG-002-E0748; original DAG type ARCHITECTURE_BASIS
-    normalized to PREREQUISITE for local v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE
+    normalized to PREREQUISITE for local v3.1 enum compliance.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -66,9 +56,7 @@ needs:
 
 
     Notes: Preserved from approved DAG-002 mirror row DAG-002-E0749; original DAG type ARCHITECTURE_BASIS
-    normalized to PREREQUISITE for local v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE
+    normalized to PREREQUISITE for local v3.1 enum compliance.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -78,9 +66,7 @@ needs:
 
 
     Notes: Preserved from approved DAG-002 mirror row DAG-002-E0750; original DAG type ARCHITECTURE_BASIS
-    normalized to PREREQUISITE for local v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE
+    normalized to PREREQUISITE for local v3.1 enum compliance.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -91,9 +77,7 @@ needs:
 
 
     Notes: Preserved from approved DAG-002 mirror row DAG-002-E0832; original DAG type DOMAIN_MODEL normalized
-    to PREREQUISITE for local v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    to PREREQUISITE for local v3.1 enum compliance.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -105,9 +89,7 @@ needs:
 
 
     Notes: Preserved from approved DAG-002 mirror row DAG-002-E0833; original DAG type DIAGNOSTICS_CONTRACT
-    normalized to PREREQUISITE for local v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    normalized to PREREQUISITE for local v3.1 enum compliance.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -119,9 +101,7 @@ needs:
 
 
     Notes: Preserved from approved DAG-002 mirror row DAG-002-E0834; original DAG type PERSISTENCE_CONTRACT
-    normalized to INTERFACE for local v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    normalized to INTERFACE for local v3.1 enum compliance.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -132,9 +112,7 @@ needs:
 
 
     Notes: Preserved from approved DAG-002 mirror row DAG-002-E0835; original DAG type REPORTING_PREDECESSOR
-    normalized to INTERFACE for local v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    normalized to INTERFACE for local v3.1 enum compliance.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -146,9 +124,7 @@ needs:
 
 
     Notes: Preserved from approved DAG-002 mirror row DAG-002-E0836; original DAG type PERSISTENCE_CONTRACT
-    normalized to INTERFACE for local v3.1 enum compliance; exact storage mechanism remains TBD.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    normalized to INTERFACE for local v3.1 enum compliance; exact storage mechanism remains TBD.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

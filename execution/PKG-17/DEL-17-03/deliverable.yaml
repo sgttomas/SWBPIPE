@@ -82,9 +82,7 @@ needs:
   condition: 'DEL-17-03 consumes DEL-17-01 boundary discipline for export claims.
 
 
-    Notes: No target-specific behavior introduced.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=SOURCE_BASIS; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=TASK_EXTRACT; legacy_status=ACTIVE
+    Notes: No target-specific behavior introduced.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -94,9 +92,7 @@ needs:
   condition: 'DEL-17-03 depends on DEL-17-02 under DAG-005.
 
 
-    Notes: Downstream production docs not populated in this tranche.; legacy_anchortype=DELIVERABLE; legacy_direction=DOWNSTREAM;
-    legacy_dependencytype=CONSUMED_BY; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=PENDING;
-    legacy_origin=TASK_EXTRACT; legacy_status=ACTIVE
+    Notes: Downstream production docs not populated in this tranche.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

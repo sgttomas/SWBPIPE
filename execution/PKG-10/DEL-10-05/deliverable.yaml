@@ -6,9 +6,7 @@ needs:
     rather than bypassing the solver.
 
 
-    Notes: FACT: Architecture-basis interface dependency; concrete interface language remains TBD.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: FACT: Architecture-basis interface dependency; concrete interface language remains TBD.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -19,9 +17,7 @@ needs:
     and no compliance claim.
 
 
-    Notes: FACT: Architecture-basis diagnostics dependency.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: FACT: Architecture-basis diagnostics dependency.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -68,9 +64,7 @@ needs:
 
     Notes: DEV-001 Stage 2 package-local technical finding resolution for PKG10-DEL1005-PKG02-W001; grounded
     in accepted PKG-02 canonical model contract; local evidence only, not aggregate DAG authority or lifecycle
-    approval.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=SCHEMA_CONTRACT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=PACKAGE_AUDIT; legacy_status=ACTIVE
+    approval.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -82,9 +76,7 @@ needs:
 
 
     Notes: DEV-001 Stage 2 package-local technical finding resolution for PKG10-DEL1005-PKG02-W001; grounded
-    in accepted PKG-02 authority-status semantics; local evidence only.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=DOMAIN_MODEL; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=PACKAGE_AUDIT; legacy_status=ACTIVE
+    in accepted PKG-02 authority-status semantics; local evidence only.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

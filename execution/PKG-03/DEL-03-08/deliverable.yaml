@@ -7,9 +7,7 @@ needs:
 
 
     Notes: TP-DAG-004 refresh preserved active architecture-basis edge; no new target inferred under conservative
-    strictness.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=CONTEXT; legacy_status=ACTIVE; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
+    strictness.; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -20,9 +18,7 @@ needs:
 
 
     Notes: TP-DAG-004 refresh preserved active architecture-basis edge; module-boundary relevance also
-    appears in Specification requirement DEL-03-08-RQ-007.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
+    appears in Specification requirement DEL-03-08-RQ-007.; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -33,9 +29,7 @@ needs:
 
 
     Notes: TP-DAG-004 refresh preserved active architecture-basis edge; provenance-preserving schema hooks
-    remain relevant to SOW-018.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=CONTEXT; legacy_status=ACTIVE; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
+    remain relevant to SOW-018.; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -46,10 +40,7 @@ needs:
 
 
     Notes: TP-DAG-004 refresh preserved active architecture-basis edge; Procedure requires diagnostic
-    handling for invalid geometry missing provenance and unit mismatch with exact codes TBD.; legacy_anchortype=DELIVERABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE;
-    semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
+    handling for invalid geometry missing provenance and unit mismatch with exact codes TBD.; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -60,9 +51,7 @@ needs:
 
 
     Notes: TP-DAG-004 refresh preserved active architecture-basis edge; Guidance keeps calculator outputs
-    code-neutral and provenance-aware for downstream review.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
+    code-neutral and provenance-aware for downstream review.; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -73,10 +62,7 @@ needs:
 
 
     Notes: TP-DAG-004 refresh preserved active architecture-basis edge; Specification verification requires
-    unit missing-input provenance IP-boundary and solver-boundary tests.; legacy_anchortype=DELIVERABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE;
-    semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
+    unit missing-input provenance IP-boundary and solver-boundary tests.; semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -87,9 +73,7 @@ needs:
 
 
     Notes: TP-DAG-004 refresh preserved active DAG-002 domain-model edge; target satisfaction remains
-    UNKNOWN because target artifact maturity was not revalidated in this bounded row.; legacy_anchortype=DELIVERABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=DOMAIN_MODEL; legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT;
-    legacy_satisfactionstatus=UNKNOWN; legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+    UNKNOWN because target artifact maturity was not revalidated in this bounded row.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -101,9 +85,7 @@ needs:
 
 
     Notes: TP-DAG-004 refresh preserved active DAG-002 domain-model edge; exact schema hook names remain
-    a reconciliation-visible TBD.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=DOMAIN_MODEL;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN;
-    legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+    a reconciliation-visible TBD.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -115,9 +97,7 @@ needs:
 
 
     Notes: TP-DAG-004 refresh preserved active DAG-002 unit-contract edge; exact dimensions tolerances
-    and unit API remain TBD.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=UNIT_CONTRACT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN;
-    legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+    and unit API remain TBD.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

@@ -5,9 +5,7 @@ needs:
   condition: 'DEL-08-04 must apply the SCA-001 architecture-basis constraints from AB-00-01.
 
 
-    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -16,9 +14,7 @@ needs:
   condition: 'DEL-08-04 must apply the SCA-001 architecture-basis constraints from AB-00-02.
 
 
-    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -28,9 +24,7 @@ needs:
     from AB-00-03.
 
 
-    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -41,9 +35,7 @@ needs:
     where JSON payloads are hashed.
 
 
-    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -52,9 +44,7 @@ needs:
   condition: 'DEL-08-04 must carry structured diagnostics using the PKG-00 baseline fields from AB-00-06.
 
 
-    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -64,9 +54,7 @@ needs:
   condition: 'DEL-08-04 must preserve the no-bypass API and adapter constraints from AB-00-07.
 
 
-    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -77,9 +65,7 @@ needs:
     gates from AB-00-08.
 
 
-    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -89,9 +75,7 @@ needs:
     references and object vocabulary.
 
 
-    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -102,9 +86,7 @@ needs:
     exports need unit-aware values and dimensional checks.
 
 
-    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Preserved matchable dependency ID; normalized to v3.1 enums from prior DAG mirror row.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -139,9 +121,7 @@ needs:
     for reproducible exports.
 
 
-    Notes: New explicit upstream handover extracted under TP-DAG-004 conservative refresh.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=HANDOVER; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: New explicit upstream handover extracted under TP-DAG-004 conservative refresh.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -152,9 +132,7 @@ needs:
     or protected payloads.
 
 
-    Notes: New explicit upstream interface extracted under TP-DAG-004 conservative refresh.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: New explicit upstream interface extracted under TP-DAG-004 conservative refresh.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

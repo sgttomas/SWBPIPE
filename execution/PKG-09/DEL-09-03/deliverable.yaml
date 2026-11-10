@@ -7,9 +7,7 @@ needs:
 
 
     Notes: Preserved prior DAG-002 mirror edge as extracted local evidence; normalized AnchorType DependencyType
-    Origin and enum fields for dependency-extract v3.1.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Origin and enum fields for dependency-extract v3.1.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -20,9 +18,7 @@ needs:
 
 
     Notes: Preserved prior DAG-002 mirror edge as extracted local evidence; normalized AnchorType DependencyType
-    Origin and enum fields for dependency-extract v3.1.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Origin and enum fields for dependency-extract v3.1.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -33,9 +29,7 @@ needs:
 
 
     Notes: Preserved prior DAG-002 mirror edge as extracted local evidence; normalized AnchorType DependencyType
-    Origin and enum fields for dependency-extract v3.1.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Origin and enum fields for dependency-extract v3.1.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -46,9 +40,7 @@ needs:
 
 
     Notes: Preserved prior DAG-002 mirror edge as extracted local evidence; normalized AnchorType DependencyType
-    Origin and enum fields for dependency-extract v3.1.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Origin and enum fields for dependency-extract v3.1.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -59,9 +51,7 @@ needs:
 
 
     Notes: Preserved prior DAG-002 mirror edge because current deliverable docs explicitly identify nonlinear
-    solver maturity as a dependency; no claim of satisfaction.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=PENDING;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    solver maturity as a dependency; no claim of satisfaction.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -72,9 +62,7 @@ needs:
 
 
     Notes: Preserved prior DAG-002 mirror edge because current deliverable docs explicitly identify nonlinear
-    diagnostics/result-envelope data as a dependency; exact field names remain TBD.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    diagnostics/result-envelope data as a dependency; exact field names remain TBD.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

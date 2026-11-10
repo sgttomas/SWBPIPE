@@ -7,9 +7,7 @@ needs:
 
 
     Notes: Architecture-basis context edge retained from DAG-002 mirror as local evidence; not Type 2
-    dispatch authority by itself.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    dispatch authority by itself.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -20,9 +18,7 @@ needs:
 
 
     Notes: Architecture-basis context edge retained from DAG-002 mirror as local evidence; not Type 2
-    dispatch authority by itself.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    dispatch authority by itself.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -32,9 +28,7 @@ needs:
     result-envelope boundaries.
 
 
-    Notes: Architecture-basis context edge retained and sharpened to DEL-08-05 integration behavior.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Architecture-basis context edge retained and sharpened to DEL-08-05 integration behavior.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -44,9 +38,7 @@ needs:
     schema and hash assumptions where applicable.
 
 
-    Notes: Architecture-basis context edge retained from DAG-002 mirror as local evidence.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Architecture-basis context edge retained from DAG-002 mirror as local evidence.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -56,9 +48,7 @@ needs:
     where applicable.
 
 
-    Notes: Architecture-basis context edge retained and supported by local specification evidence.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Architecture-basis context edge retained and supported by local specification evidence.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -69,9 +59,7 @@ needs:
     diagnostics or public/private data-boundary controls.
 
 
-    Notes: Architecture-basis context edge retained and supported by local specification evidence.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Architecture-basis context edge retained and supported by local specification evidence.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -82,9 +70,7 @@ needs:
     are implemented.
 
 
-    Notes: Architecture-basis context edge retained from DAG-002 mirror as local evidence.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Architecture-basis context edge retained from DAG-002 mirror as local evidence.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -95,9 +81,7 @@ needs:
 
 
     Notes: Retained upstream predecessor from DAG-002 mirror; satisfaction remains pending for reconciliation
-    because this worker did not inspect target deliverable maturity.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    because this worker did not inspect target deliverable maturity.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -109,9 +93,7 @@ needs:
 
 
     Notes: Retained upstream predecessor from DAG-002 mirror; satisfaction remains pending for reconciliation
-    because this worker did not inspect target deliverable maturity.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    because this worker did not inspect target deliverable maturity.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -123,9 +105,7 @@ needs:
 
 
     Notes: Retained same-package reporting dependency from DAG-002 mirror; target maturity not revalidated
-    by this bounded worker.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
+    by this bounded worker.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

@@ -10,9 +10,7 @@ needs:
     forward from DAG-001-E0349 into DAG-002 revision 0.5 proposal; active edge approved for coordination
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
     local refresh normalized dependency-extract enum fields while preserving DAG-002 DependencyID, target,
-    statement, and evidence.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    statement, and evidence.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -26,9 +24,7 @@ needs:
     forward from DAG-001-E0350 into DAG-002 revision 0.5 proposal; active edge approved for coordination
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
     local refresh normalized dependency-extract enum fields while preserving DAG-002 DependencyID, target,
-    statement, and evidence.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    statement, and evidence.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -42,9 +38,7 @@ needs:
     forward from DAG-001-E0351 into DAG-002 revision 0.5 proposal; active edge approved for coordination
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
     local refresh normalized dependency-extract enum fields while preserving DAG-002 DependencyID, target,
-    statement, and evidence.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    statement, and evidence.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -58,9 +52,7 @@ needs:
     forward from DAG-001-E0352 into DAG-002 revision 0.5 proposal; active edge approved for coordination
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
     local refresh normalized dependency-extract enum fields while preserving DAG-002 DependencyID, target,
-    statement, and evidence.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    statement, and evidence.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -74,9 +66,7 @@ needs:
     forward from DAG-001-E0353 into DAG-002 revision 0.5 proposal; active edge approved for coordination
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
     local refresh normalized dependency-extract enum fields while preserving DAG-002 DependencyID, target,
-    statement, and evidence.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    statement, and evidence.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -93,9 +83,7 @@ needs:
     _STATUS.md after prior SEMANTIC_READY history, satisfying the SEMANTIC_READY predecessor purpose for
     contributor onboarding.; Satisfaction is dependency evidence only, not Type 2 dispatch authority,
     release acceptance, legal advice, professional approval, certification, sealing, authentication, or
-    code-compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    code-compliance.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -112,9 +100,7 @@ needs:
     _STATUS.md after prior SEMANTIC_READY history, satisfying the SEMANTIC_READY predecessor purpose for
     contributor onboarding.; Remaining contributor legal mechanism, reviewer role, legal-review authority,
     and related governance decisions remain TBD upstream and are not resolved by this dependency evidence
-    update.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    update.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -130,9 +116,7 @@ needs:
     _STATUS.md after prior SEMANTIC_READY history, satisfying the SEMANTIC_READY predecessor purpose for
     contributor onboarding.; Final contributor legal mechanism, legal sufficiency, maintainer/reviewer
     authority, and related governance decisions remain TBD upstream and are not resolved by this dependency
-    evidence update.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    evidence update.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

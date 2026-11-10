@@ -83,9 +83,7 @@ needs:
     loss-report behavior.
 
 
-    Notes: FACT: declared edge preserved; reinforced by Specification.md:16 and Procedure.md:12.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=DECLARED; legacy_status=ACTIVE
+    Notes: FACT: declared edge preserved; reinforced by Specification.md:16 and Procedure.md:12.
 
 
     Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.'
@@ -95,9 +93,7 @@ needs:
     coordinate policy, and canonical ID families.
 
 
-    Notes: FACT: declared edge preserved; supported by Datasheet.md:35 and Procedure.md:14.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=DECLARED; legacy_status=ACTIVE
+    Notes: FACT: declared edge preserved; supported by Datasheet.md:35 and Procedure.md:14.
 
 
     Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.'
@@ -107,9 +103,7 @@ needs:
     semantics are inferred.
 
 
-    Notes: FACT: declared edge preserved; source documents do not elaborate beyond declared dependency.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DECLARED; legacy_status=ACTIVE
+    Notes: FACT: declared edge preserved; source documents do not elaborate beyond declared dependency.
 
 
     Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.'
@@ -119,9 +113,7 @@ needs:
     semantics are inferred.
 
 
-    Notes: FACT: declared edge preserved; source documents do not elaborate beyond declared dependency.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DECLARED; legacy_status=ACTIVE
+    Notes: FACT: declared edge preserved; source documents do not elaborate beyond declared dependency.
 
 
     Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.'
@@ -131,9 +123,7 @@ needs:
     behavior.
 
 
-    Notes: FACT: declared edge preserved; supported by Specification.md:46-49.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=DECLARED; legacy_status=ACTIVE
+    Notes: FACT: declared edge preserved; supported by Specification.md:46-49.
 
 
     Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.'
@@ -142,9 +132,7 @@ needs:
   condition: 'DEL-17-08 consumes DEL-17-01 as the source-basis authority for GLB/glTF boundary claims.
 
 
-    Notes: FACT: explicit prerequisite extracted from requirements; target exists in SOFTWARE_DECOMP.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: FACT: explicit prerequisite extracted from requirements; target exists in SOFTWARE_DECOMP.
 
 
     Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.'
@@ -155,9 +143,7 @@ needs:
     coordinates, GLB behavior, nodes, meshes, primitives, extensions, and extras metadata.
 
 
-    Notes: FACT: explicit external document dependency resolved through _REFERENCES.md:16.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: FACT: explicit external document dependency resolved through _REFERENCES.md:16.
 
 
     Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.

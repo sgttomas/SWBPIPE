@@ -7,9 +7,7 @@ needs:
 
 
     Notes: Normalized from prior DAG mirror row: AnchorType DELIVERABLE to NOT_APPLICABLE; DependencyType
-    ARCHITECTURE_BASIS to CONSTRAINT; Origin CONTEXT to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    ARCHITECTURE_BASIS to CONSTRAINT; Origin CONTEXT to EXTRACTED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -20,9 +18,7 @@ needs:
 
 
     Notes: Normalized from prior DAG mirror row: AnchorType DELIVERABLE to NOT_APPLICABLE; DependencyType
-    ARCHITECTURE_BASIS to CONSTRAINT; Origin CONTEXT to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    ARCHITECTURE_BASIS to CONSTRAINT; Origin CONTEXT to EXTRACTED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -32,9 +28,7 @@ needs:
 
 
     Notes: Normalized from prior DAG mirror row: AnchorType DELIVERABLE to NOT_APPLICABLE; DependencyType
-    ARCHITECTURE_BASIS to INTERFACE; Origin CONTEXT to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    ARCHITECTURE_BASIS to INTERFACE; Origin CONTEXT to EXTRACTED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -44,9 +38,7 @@ needs:
 
 
     Notes: Normalized from prior DAG mirror row: AnchorType DELIVERABLE to NOT_APPLICABLE; DependencyType
-    ARCHITECTURE_BASIS to CONSTRAINT; Origin CONTEXT to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    ARCHITECTURE_BASIS to CONSTRAINT; Origin CONTEXT to EXTRACTED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -57,9 +49,7 @@ needs:
 
 
     Notes: Target DEL-05-03 resolved from SOFTWARE_DECOMP revision 0.5; source does not name the deliverable
-    ID directly.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
+    ID directly.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -70,9 +60,7 @@ needs:
 
 
     Notes: Target DEL-03-08 retained from prior DAG mirror and supported indirectly by decomposition SOW-051/DEL-03-08;
-    no fixture values are introduced.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
+    no fixture values are introduced.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -83,9 +71,7 @@ needs:
 
 
     Notes: Target DEL-01-02 resolved from SOFTWARE_DECOMP revision 0.5 copyright and protected-data boundary
-    policy row.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
+    policy row.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

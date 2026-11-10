@@ -6,9 +6,7 @@ needs:
     work.
 
 
-    Notes: Preserved from approved DAG-002 mirror; normalized enums for local dependency-extract register.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+    Notes: Preserved from approved DAG-002 mirror; normalized enums for local dependency-extract register.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -19,9 +17,7 @@ needs:
     work.
 
 
-    Notes: Preserved from approved DAG-002 mirror; normalized enums for local dependency-extract register.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+    Notes: Preserved from approved DAG-002 mirror; normalized enums for local dependency-extract register.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -32,9 +28,7 @@ needs:
     work.
 
 
-    Notes: Preserved from approved DAG-002 mirror; normalized enums for local dependency-extract register.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+    Notes: Preserved from approved DAG-002 mirror; normalized enums for local dependency-extract register.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -45,9 +39,7 @@ needs:
     work.
 
 
-    Notes: Preserved from approved DAG-002 mirror; normalized enums for local dependency-extract register.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+    Notes: Preserved from approved DAG-002 mirror; normalized enums for local dependency-extract register.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -57,9 +49,7 @@ needs:
   condition: 'DEL-13-04 needs DEL-00-06 as prerequisite diagnostics and result-envelope architecture context.
 
 
-    Notes: Preserved from approved DAG-002 mirror; normalized enums for local dependency-extract register.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+    Notes: Preserved from approved DAG-002 mirror; normalized enums for local dependency-extract register.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -69,9 +59,7 @@ needs:
   condition: 'DEL-13-04 needs DEL-00-07 as prerequisite API and adapter boundary architecture context.
 
 
-    Notes: Preserved from approved DAG-002 mirror; normalized enums for local dependency-extract register.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+    Notes: Preserved from approved DAG-002 mirror; normalized enums for local dependency-extract register.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -81,9 +69,7 @@ needs:
   condition: 'DEL-13-04 needs DEL-00-08 as prerequisite test and acceptance architecture context.
 
 
-    Notes: Preserved from approved DAG-002 mirror; normalized enums for local dependency-extract register.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+    Notes: Preserved from approved DAG-002 mirror; normalized enums for local dependency-extract register.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -94,9 +80,7 @@ needs:
     physical and domain model.
 
 
-    Notes: Preserved DAG-002 target; local source evidence confirms canonical model/domain schema input.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Preserved DAG-002 target; local source evidence confirms canonical model/domain schema input.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -107,9 +91,7 @@ needs:
     inputs.
 
 
-    Notes: Preserved DAG-002 target; local source evidence confirms design knowledge and provenance input.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Preserved DAG-002 target; local source evidence confirms design knowledge and provenance input.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -119,9 +101,7 @@ needs:
   condition: 'DEL-13-04 needs DEL-13-02 because the transform consumes constraint entities.
 
 
-    Notes: Preserved DAG-002 target; local source evidence confirms constraint entity input.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Preserved DAG-002 target; local source evidence confirms constraint entity input.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -131,9 +111,7 @@ needs:
   condition: 'DEL-13-04 needs DEL-13-03 because the transform consumes constraint validation context.
 
 
-    Notes: Preserved DAG-002 target; local source evidence confirms constraint validation input.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Preserved DAG-002 target; local source evidence confirms constraint validation input.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -144,9 +122,7 @@ needs:
     boundary.
 
 
-    Notes: Preserved DAG-002 target; local source evidence confirms frame mechanics target.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Preserved DAG-002 target; local source evidence confirms frame mechanics target.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -157,9 +133,7 @@ needs:
     for the transform contract.
 
 
-    Notes: Preserved DAG-002 target; local source evidence confirms support/restraint input.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Preserved DAG-002 target; local source evidence confirms support/restraint input.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -170,9 +144,7 @@ needs:
     the transform contract.
 
 
-    Notes: Preserved DAG-002 target; local source evidence confirms primitive load input.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Preserved DAG-002 target; local source evidence confirms primitive load input.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -185,9 +157,7 @@ needs:
 
 
     Notes: Added by DEV-001 Stage 2 package-scoped finding resolution; HumanDisposition remains TBD; aggregate
-    DAG files not edited.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PERSISTENCE_CONTRACT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DEV001_STAGE2;
-    legacy_status=ACTIVE
+    DAG files not edited.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

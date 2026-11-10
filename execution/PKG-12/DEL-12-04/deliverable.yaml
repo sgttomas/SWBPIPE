@@ -7,10 +7,8 @@ needs:
 
 
     Notes: FACT; preserved from approved DAG-002 mirror and normalized to dependency-extract enums. Original
-    graph type ARCHITECTURE_BASIS; original origin CONTEXT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: PKG-00 tracker normalized
-    to AB-00 constraint semantics; PKG-00 not treated as issuance authority
+    graph type ARCHITECTURE_BASIS; original origin CONTEXT.; semantic_refresh_2026-06-16: PKG-00 tracker
+    normalized to AB-00 constraint semantics; PKG-00 not treated as issuance authority
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -21,10 +19,8 @@ needs:
 
 
     Notes: FACT; preserved from approved DAG-002 mirror and normalized to dependency-extract enums. Original
-    graph type ARCHITECTURE_BASIS; original origin CONTEXT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: PKG-00 tracker normalized
-    to AB-00 constraint semantics; PKG-00 not treated as issuance authority
+    graph type ARCHITECTURE_BASIS; original origin CONTEXT.; semantic_refresh_2026-06-16: PKG-00 tracker
+    normalized to AB-00 constraint semantics; PKG-00 not treated as issuance authority
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -35,10 +31,8 @@ needs:
 
 
     Notes: FACT; preserved from approved DAG-002 mirror and normalized to dependency-extract enums. Original
-    graph type ARCHITECTURE_BASIS; original origin CONTEXT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: PKG-00 tracker normalized
-    to AB-00 constraint semantics; PKG-00 not treated as issuance authority
+    graph type ARCHITECTURE_BASIS; original origin CONTEXT.; semantic_refresh_2026-06-16: PKG-00 tracker
+    normalized to AB-00 constraint semantics; PKG-00 not treated as issuance authority
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -49,10 +43,8 @@ needs:
 
 
     Notes: FACT; preserved from approved DAG-002 mirror and normalized to dependency-extract enums. Original
-    graph type ARCHITECTURE_BASIS; original origin CONTEXT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: PKG-00 tracker normalized
-    to AB-00 constraint semantics; PKG-00 not treated as issuance authority
+    graph type ARCHITECTURE_BASIS; original origin CONTEXT.; semantic_refresh_2026-06-16: PKG-00 tracker
+    normalized to AB-00 constraint semantics; PKG-00 not treated as issuance authority
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -63,10 +55,8 @@ needs:
 
 
     Notes: FACT; preserved from approved DAG-002 mirror and normalized to dependency-extract enums. Original
-    graph type ARCHITECTURE_BASIS; original origin CONTEXT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: PKG-00 tracker normalized
-    to AB-00 constraint semantics; PKG-00 not treated as issuance authority
+    graph type ARCHITECTURE_BASIS; original origin CONTEXT.; semantic_refresh_2026-06-16: PKG-00 tracker
+    normalized to AB-00 constraint semantics; PKG-00 not treated as issuance authority
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -77,10 +67,8 @@ needs:
 
 
     Notes: FACT; preserved from approved DAG-002 mirror and normalized to dependency-extract enums. Original
-    graph type ARCHITECTURE_BASIS; original origin CONTEXT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: PKG-00 tracker normalized
-    to AB-00 constraint semantics; PKG-00 not treated as issuance authority
+    graph type ARCHITECTURE_BASIS; original origin CONTEXT.; semantic_refresh_2026-06-16: PKG-00 tracker
+    normalized to AB-00 constraint semantics; PKG-00 not treated as issuance authority
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -91,10 +79,8 @@ needs:
 
 
     Notes: FACT; preserved from approved DAG-002 mirror and normalized to dependency-extract enums. Original
-    graph type ARCHITECTURE_BASIS; original origin CONTEXT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: PKG-00 tracker normalized
-    to AB-00 constraint semantics; PKG-00 not treated as issuance authority
+    graph type ARCHITECTURE_BASIS; original origin CONTEXT.; semantic_refresh_2026-06-16: PKG-00 tracker
+    normalized to AB-00 constraint semantics; PKG-00 not treated as issuance authority
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -107,9 +93,7 @@ needs:
     Notes: FACT: 2026-06-07 readiness alignment marks this prerequisite satisfied for DEL-12-04 evidence
     only because DEL-12-05 is CHECKING and latest run records threat-model hardening; exact secret provider,
     encrypted-storage default, storage roots, cloud/network behavior, external secret manager behavior,
-    approval choices, release/security claims, and threat-model iteration remain owning-workflow deferrals.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+    approval choices, release/security claims, and threat-model iteration remain owning-workflow deferrals.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -124,9 +108,7 @@ needs:
     Notes: FACT: 2026-06-07 readiness alignment marks this predecessor satisfied for current evidence
     only because DEL-12-04 consumed DEL-12-01 local-first storage/private path semantics; DEL-12-01 and
     DEL-12-04 remain IN_PROGRESS and storage roots, physical project package/container, real private paths/secrets,
-    encryption/key-management, cloud exception behavior, and approval choices remain deferred.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+    encryption/key-management, cloud exception behavior, and approval choices remain deferred.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -142,9 +124,7 @@ needs:
     Notes: FACT: 2026-06-07 readiness alignment marks this predecessor satisfied for DEL-12-04 evidence
     only because DEL-03-07 is CHECKING with resolved review findings and current import provenance checker
     evidence; concrete external import formats, legal/license policy, accepted public source catalogs,
-    downstream adapter mechanics, and release/legal/professional approvals remain deferred.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+    downstream adapter mechanics, and release/legal/professional approvals remain deferred.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -161,9 +141,7 @@ needs:
     Notes: FACT: 2026-06-07 readiness alignment marks this predecessor satisfied for DEL-12-04 evidence
     only because DEL-06-04 is CHECKING with resolved review finding and current caller-supplied checksum
     verification evidence; private storage path, encryption defaults, access control, secret handling,
-    GUI/report/API integration, result-envelope integration, and approval choices remain deferred.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+    GUI/report/API integration, result-envelope integration, and approval choices remain deferred.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -182,9 +160,7 @@ needs:
     because DEL-12-02 redaction/export controls and DEL-12-04 secret/private-library guards were aligned
     and fan-in tested together; runtime report/export integration, destructive quarantine movement, legal
     review workflow, cloud exception workflow, storage roots, UI/CLI/API/adapter/report integration, and
-    approval choices remain deferred.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    approval choices remain deferred.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -201,9 +177,7 @@ needs:
     because DEL-12-03 telemetry-off evidence exists and DEL-12-04 guards block telemetry exposure markers;
     runtime telemetry endpoint/vendor/transport, event allowlist/schema, consent UI/CLI, support-bundle
     workflow, plugin/adapter/report/private-library runtime route integration, and approval choices remain
-    deferred.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    deferred.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

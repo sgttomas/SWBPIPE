@@ -7,10 +7,7 @@ needs:
 
 
     Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED; TP-DAG-004
-    conservative refresh for RECONCILIATION retained active edge with no revision-0.5 conflict found.;
-    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=CONTEXT; legacy_status=ACTIVE
+    conservative refresh for RECONCILIATION retained active edge with no revision-0.5 conflict found.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -21,10 +18,7 @@ needs:
 
 
     Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED; TP-DAG-004
-    conservative refresh for RECONCILIATION retained active edge with no revision-0.5 conflict found.;
-    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=CONTEXT; legacy_status=ACTIVE
+    conservative refresh for RECONCILIATION retained active edge with no revision-0.5 conflict found.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -35,10 +29,7 @@ needs:
 
 
     Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED; TP-DAG-004
-    conservative refresh for RECONCILIATION retained active edge with no revision-0.5 conflict found.;
-    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=CONTEXT; legacy_status=ACTIVE
+    conservative refresh for RECONCILIATION retained active edge with no revision-0.5 conflict found.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -49,10 +40,7 @@ needs:
 
 
     Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED; TP-DAG-004
-    conservative refresh for RECONCILIATION retained active edge with no revision-0.5 conflict found.;
-    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=CONTEXT; legacy_status=ACTIVE
+    conservative refresh for RECONCILIATION retained active edge with no revision-0.5 conflict found.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -63,10 +51,7 @@ needs:
 
 
     Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED; TP-DAG-004
-    conservative refresh for RECONCILIATION retained active edge with no revision-0.5 conflict found.;
-    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=CONTEXT; legacy_status=ACTIVE
+    conservative refresh for RECONCILIATION retained active edge with no revision-0.5 conflict found.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -77,10 +62,7 @@ needs:
 
 
     Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED; TP-DAG-004
-    conservative refresh for RECONCILIATION retained active edge with no revision-0.5 conflict found.;
-    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=CONTEXT; legacy_status=ACTIVE
+    conservative refresh for RECONCILIATION retained active edge with no revision-0.5 conflict found.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -91,10 +73,7 @@ needs:
 
 
     Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED; TP-DAG-004
-    conservative refresh for RECONCILIATION retained active edge with no revision-0.5 conflict found.;
-    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=CONTEXT; legacy_status=ACTIVE
+    conservative refresh for RECONCILIATION retained active edge with no revision-0.5 conflict found.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -104,10 +83,7 @@ needs:
 
 
     Notes: DAG-001 direct dependency inferred from deliverable descriptions and package dependency shape;
-    TP-DAG-004 conservative refresh for RECONCILIATION retained active edge under revision-0.5 decomposition.;
-    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=SCHEMA_CONTRACT; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=DECOMPOSITION;
-    legacy_status=ACTIVE
+    TP-DAG-004 conservative refresh for RECONCILIATION retained active edge under revision-0.5 decomposition.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -118,10 +94,7 @@ needs:
 
 
     Notes: DAG-001 direct dependency inferred from deliverable descriptions and package dependency shape;
-    TP-DAG-004 conservative refresh for RECONCILIATION retained active edge under revision-0.5 decomposition.;
-    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=UNIT_CONTRACT; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=DECOMPOSITION;
-    legacy_status=ACTIVE
+    TP-DAG-004 conservative refresh for RECONCILIATION retained active edge under revision-0.5 decomposition.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -133,10 +106,7 @@ needs:
 
 
     Notes: DAG-001 direct dependency inferred from deliverable descriptions and package dependency shape;
-    TP-DAG-004 conservative refresh for RECONCILIATION retained active edge under revision-0.5 decomposition.;
-    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=DOMAIN_MODEL; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=DECOMPOSITION;
-    legacy_status=ACTIVE
+    TP-DAG-004 conservative refresh for RECONCILIATION retained active edge under revision-0.5 decomposition.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -148,10 +118,7 @@ needs:
 
 
     Notes: DAG-001 direct dependency inferred from deliverable descriptions and package dependency shape;
-    TP-DAG-004 conservative refresh for RECONCILIATION retained active edge under revision-0.5 decomposition.;
-    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=GOVERNANCE_PREDECESSOR;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN;
-    legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+    TP-DAG-004 conservative refresh for RECONCILIATION retained active edge under revision-0.5 decomposition.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -163,10 +130,7 @@ needs:
 
 
     Notes: DAG-001 direct dependency inferred from deliverable descriptions and package dependency shape;
-    TP-DAG-004 conservative refresh for RECONCILIATION retained active edge under revision-0.5 decomposition.;
-    legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=GOVERNANCE_PREDECESSOR;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN;
-    legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+    TP-DAG-004 conservative refresh for RECONCILIATION retained active edge under revision-0.5 decomposition.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

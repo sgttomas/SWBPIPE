@@ -7,9 +7,7 @@ needs:
 
 
     Notes: Normalized from prior DAG mirror row; DependencyType changed to CONSTRAINT and Origin changed
-    to EXTRACTED for v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    to EXTRACTED for v3.1 enum compliance.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -18,9 +16,7 @@ needs:
   condition: 'DEL-05-03 must preserve repository and module boundary constraints from AB-00-02.
 
 
-    Notes: Normalized from prior DAG mirror row; dependency is an upstream architecture constraint.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Normalized from prior DAG mirror row; dependency is an upstream architecture constraint.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -30,9 +26,7 @@ needs:
     mechanics solved rule checked and human approved states.
 
 
-    Notes: Normalized from prior DAG mirror row; dependency is an upstream architecture constraint.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Normalized from prior DAG mirror row; dependency is an upstream architecture constraint.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -41,9 +35,7 @@ needs:
   condition: 'DEL-05-03 diagnostics and result envelopes must apply AB-00-06 warning and provenance constraints.
 
 
-    Notes: Normalized from prior DAG mirror row; dependency is an upstream architecture constraint.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Normalized from prior DAG mirror row; dependency is an upstream architecture constraint.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -52,9 +44,7 @@ needs:
   condition: 'DEL-05-03 verification must apply AB-00-08 layered test constraints.
 
 
-    Notes: Normalized from prior DAG mirror row; dependency is an upstream architecture constraint.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Normalized from prior DAG mirror row; dependency is an upstream architecture constraint.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

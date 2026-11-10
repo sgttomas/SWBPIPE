@@ -8,9 +8,7 @@ needs:
 
     Notes: Architecture-basis edge retained and enum-normalized during TP-DAG-004 refresh. SCA-002 revision
     0.5 preserves SCA-001 architecture-basis dispatch constraints; this local row is evidence for reconciliation
-    and not independent DAG authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    and not independent DAG authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -22,9 +20,7 @@ needs:
 
     Notes: Architecture-basis edge retained and enum-normalized during TP-DAG-004 refresh. SCA-002 revision
     0.5 preserves SCA-001 architecture-basis dispatch constraints; this local row is evidence for reconciliation
-    and not independent DAG authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    and not independent DAG authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -36,9 +32,7 @@ needs:
 
     Notes: Architecture-basis edge retained and enum-normalized during TP-DAG-004 refresh. SCA-002 revision
     0.5 preserves SCA-001 architecture-basis dispatch constraints; this local row is evidence for reconciliation
-    and not independent DAG authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    and not independent DAG authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -50,9 +44,7 @@ needs:
 
     Notes: Architecture-basis edge retained and enum-normalized during TP-DAG-004 refresh. SCA-002 revision
     0.5 preserves SCA-001 architecture-basis dispatch constraints; this local row is evidence for reconciliation
-    and not independent DAG authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    and not independent DAG authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -64,9 +56,7 @@ needs:
 
     Notes: Architecture-basis edge retained and enum-normalized during TP-DAG-004 refresh. SCA-002 revision
     0.5 preserves SCA-001 architecture-basis dispatch constraints; this local row is evidence for reconciliation
-    and not independent DAG authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    and not independent DAG authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -78,9 +68,7 @@ needs:
 
     Notes: Predecessor edge retained from prior DAG-002 local mirror and enum-normalized for v3.1. Decomposition
     revision 0.5 still identifies DEL-04-01 as the central 3D frame stiffness kernel; diagnostics remain
-    separate from but dependent on solver mechanics output.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    separate from but dependent on solver mechanics output.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -91,9 +79,7 @@ needs:
 
 
     Notes: Predecessor edge retained from prior DAG-002 local mirror and enum-normalized for v3.1. Decomposition
-    revision 0.5 preserves code-neutral analysis boundary scope and professional-boundary separation.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    revision 0.5 preserves code-neutral analysis boundary scope and professional-boundary separation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -104,9 +90,7 @@ needs:
 
 
     Notes: Predecessor edge retained from prior DAG-002 local mirror and enum-normalized for v3.1. Decomposition
-    revision 0.5 preserves unit-aware deterministic data-flow scope.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    revision 0.5 preserves unit-aware deterministic data-flow scope.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

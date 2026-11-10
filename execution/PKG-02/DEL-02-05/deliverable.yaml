@@ -6,9 +6,7 @@ needs:
     discipline.
 
 
-    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -18,9 +16,7 @@ needs:
     boundary constraints.
 
 
-    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -30,9 +26,7 @@ needs:
     behavior.
 
 
-    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -43,9 +37,7 @@ needs:
     and round-trip prerequisite.
 
 
-    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -56,9 +48,7 @@ needs:
     coverage.
 
 
-    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -69,9 +59,7 @@ needs:
     boundary constraints.
 
 
-    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -88,9 +76,7 @@ needs:
     model and schema-backed objects.
 
 
-    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical INTERFACE.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical INTERFACE.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -102,9 +88,7 @@ needs:
 
 
     Notes: Target deliverable resolved through decomposition PKG-02 row for unit system contract; retained
-    conservatively as interface rather than prerequisite.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    conservatively as interface rather than prerequisite.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -116,9 +100,7 @@ needs:
 
 
     Notes: Target deliverable resolved through decomposition PKG-02 row for code-neutral analysis boundary;
-    retained conservatively as interface rather than prerequisite.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    retained conservatively as interface rather than prerequisite.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
