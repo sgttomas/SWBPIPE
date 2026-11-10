@@ -137,23 +137,23 @@ needs:
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-10-05
-  condition: 'CANDIDATE: DEL-07-07 may need DEL-10-05 as a predecessor: solve execution UX and headless
-    runner may share job orchestration implementation; current evidence only proves shared architecture
-    basis
+  condition: 'CANDIDATE: DEL-07-07 mirrors the DEL-10-05 headless runner''s automatic rule-check statuses:
+    the three statuses a GUI rule-check run may produce (RULE_INPUTS_INCOMPLETE, USER_RULE_CHECKED, USER_RULE_FAILED)
+    are those `analysis_status_for_rule_check` maps in `core/runner/headless`, held as a separate set
+    in `apps/desktop/src/services/previewService.ts`. The two do not share job orchestration code.
 
 
-    Notes: solve execution UX and headless runner may share job orchestration implementation; current
-    evidence only proves shared architecture basis; Carried forward from DAG-001-E0624 into DAG-002 revision
-    0.5 candidate layer; candidate row remains non-gating after approval; not dispatch authority; candidate
-    remains non-gating after graph approval; Revision 0.5 edge-disposition review retains this row as
-    a non-gating candidate; Enum normalization 2026-05-10: legacy AnchorType=DELIVERABLE, legacy DependencyType=GUI_PREDECESSOR,
-    legacy Explicitness=INFERRED_INDIRECT, legacy Origin=AGENT_INFERENCE, legacy SatisfactionStatus=UNKNOWN,
-    candidate row retained as non-gating candidate in Statement/Notes; Status normalized from CANDIDATE
-    to ACTIVE for v3.1 enum
+    Notes: Carried forward from DAG-001-E0624 into DAG-002 revision 0.5 candidate layer; candidate row
+    remains non-gating after approval; not dispatch authority; candidate remains non-gating after graph
+    approval; Revision 0.5 edge-disposition review retains this row as a non-gating candidate; Enum normalization
+    2026-05-10: legacy AnchorType=DELIVERABLE, legacy DependencyType=GUI_PREDECESSOR, legacy Explicitness=INFERRED_INDIRECT,
+    legacy Origin=AGENT_INFERENCE, legacy SatisfactionStatus=UNKNOWN, candidate row retained as non-gating
+    candidate in Statement/Notes; Status normalized from CANDIDATE to ACTIVE for v3.1 enum
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: false
+  evidence: apps/desktop/src/services/previewService.ts
 - from: DEL-02-03
   condition: 'DEL-07-07 directly depends on DEL-02-03 because solve event records display canonical analysis
     status and external human-acceptance reference boundaries.

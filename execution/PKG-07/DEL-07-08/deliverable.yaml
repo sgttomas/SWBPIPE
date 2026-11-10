@@ -226,8 +226,8 @@ needs:
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-16-06
-  condition: 'DEL-07-08 consumes Controlled model operation application from DEL-16-06: operation outcomes
-    and common comparison envelope; existing scope remains.
+  condition: 'DEL-07-08 consumes Controlled model operation application from DEL-16-06: operation outcomes;
+    existing scope remains.
 
 
     Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
