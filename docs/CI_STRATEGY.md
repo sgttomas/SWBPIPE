@@ -357,8 +357,9 @@ A scheduled run skips the suite and succeeds only when the most recently
 finished run of this workflow on `main` succeeded on `main`'s current head
 (`tools/software_workflow/nightly_ci.py`), so the suite runs only when `main`
 has changed. Runs of `main` share one concurrency group, so a skip is only ever
-decided from a finished run that succeeded on that head. If the history cannot
-be read, it runs. After a failed, cancelled or timed-out run, the suite runs
+decided from a finished run that succeeded on that head. A scheduled run that
+succeeded on a later attempt is not evidence, because re-running its failed jobs
+keeps the earlier decision to skip. If the history cannot be read, it runs. After a failed, cancelled or timed-out run, the suite runs
 every night until one passes. A manual dispatch always runs.
 
 The run adds no GitHub required check. Its check names (`Full run change

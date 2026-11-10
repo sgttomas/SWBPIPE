@@ -60,6 +60,25 @@ def test_the_newest_finished_run_decides_whatever_started_it():
         {"head_sha": A, "head_branch": "main", "conclusion": "success", "event": "schedule", "updated_at": "2026-11-10T09:01:00Z"},
         {"head_sha": A, "head_branch": "main", "conclusion": "failure", "event": "schedule", "updated_at": "2026-11-10T11:00:00Z"}]}
     assert not skips(rerun)
+    # A skipped scheduled run whose failed report job was re-run keeps its skip decision, so it
+    # is not evidence and the manual failure before it still decides.
+    repaired_skip = {"workflow_runs": [
+        {"head_sha": A, "head_branch": "main", "conclusion": "success", "event": "schedule", "run_attempt": 2,
+         "updated_at": "2026-11-10T12:00:00Z"},
+        {"head_sha": A, "head_branch": "main", "conclusion": "failure", "event": "workflow_dispatch", "run_attempt": 1,
+         "updated_at": "2026-11-10T11:00:00Z"},
+        {"head_sha": A, "head_branch": "main", "conclusion": "success", "event": "workflow_dispatch", "run_attempt": 1,
+         "updated_at": "2026-11-10T09:00:00Z"}]}
+    assert not skips(repaired_skip)
+    # Only a success is passed over: a later attempt that failed still decides, and a manual re-run counts.
+    repaired_skip["workflow_runs"][0]["conclusion"] = "failure"
+    repaired_skip["workflow_runs"][1]["conclusion"] = "success"
+    assert not skips(repaired_skip)
+    assert skips({"workflow_runs": [{"head_sha": A, "head_branch": "main", "conclusion": "success",
+                                     "event": "workflow_dispatch", "run_attempt": 2}]})
+    with pytest.raises(ValueError):
+        nightly_ci.last_successful_sha({"workflow_runs": [{"head_sha": A, "head_branch": "main", "conclusion": "success",
+                                                           "event": "schedule", "run_attempt": "2"}]})
 
 
 def test_dispatch_always_runs_and_other_events_are_refused():

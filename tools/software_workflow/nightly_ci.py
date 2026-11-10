@@ -5,8 +5,9 @@ A scheduled run is skipped only when the most recently finished run of the
 full-run workflow on main succeeded on main's current head. A run that skipped
 the suite also concludes success, and that carries the verdict forward soundly:
 runs of main share one concurrency group, so a skip is only ever decided from a
-finished run that succeeded on the same head. A manual dispatch always runs. An
-unavailable or malformed run history fails toward running.
+finished run that succeeded on the same head. A scheduled run that succeeded on
+a later attempt is not evidence: re-running its failed jobs keeps the earlier
+attempt's decision to skip. A manual dispatch always runs. An unavailable or malformed run history fails toward running.
 """
 from __future__ import annotations
 
@@ -25,7 +26,8 @@ def last_successful_sha(history: dict, branch: str = BRANCH) -> str | None:
     """Head SHA of the most recently finished run on `branch` if it succeeded, else None.
 
     Runs are ordered by when they last finished, because GitHub lists them by
-    creation and a re-run keeps its place.
+    creation and a re-run keeps its place. A scheduled run that succeeded on a
+    later attempt is passed over, because it may have reused an earlier skip.
     """
     if not isinstance(history, dict):
         raise ValueError("Malformed workflow run history")
@@ -42,6 +44,11 @@ def last_successful_sha(history: dict, branch: str = BRANCH) -> str | None:
             continue
         if run.get("conclusion") != "success":
             return None
+        attempt = run.get("run_attempt", 1)
+        if not isinstance(attempt, int):
+            raise ValueError("Malformed run attempt in workflow run listing")
+        if run.get("event") == "schedule" and attempt != 1:
+            continue
         sha = run.get("head_sha")
         if not isinstance(sha, str) or not SHA.fullmatch(sha):
             raise ValueError("Malformed head SHA in workflow run listing")
