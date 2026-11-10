@@ -22,6 +22,10 @@ SUITES = ("piping", "piping-desktop", "piping-desktop-rust", "piping-numerical",
 # request, and a merge-queue group (its temporary merge commit against the
 # queue's base). Both select from that diff alike; any other event is full.
 CANDIDATE_EVENTS = frozenset({"pull_request", "merge_group"})
+# Events with no candidate base. Their range is the whole tree at the head:
+# full coverage, never a diff against a guessed base such as HEAD^1. The
+# nightly workflow (nightly-full-ci.yml) runs on `schedule` and by hand.
+FULL_COVERAGE_EVENTS = {"schedule": "Scheduled full run of main", "workflow_dispatch": "Explicit full workflow dispatch"}
 PIPING = ""
 # Repository-level execution controls are shared inputs even after the
 # product directory is promoted to repository root.
@@ -651,6 +655,7 @@ def make_plan(root: Path, profile: dict, event: str, base: str, head: str) -> di
                                               "fallback_reasons": ["Full product coverage"]},
             "piping_browser_selection": browser_full(profile, "Full product coverage")}
     if event not in CANDIDATE_EVENTS:
+        plan["selection_reason"] = FULL_COVERAGE_EVENTS.get(event, f"No candidate diff for event {event!r}; full product coverage")
         return plan
     try:
         if not base:

@@ -16,6 +16,13 @@ Act as `HELP_HUMAN` and Agent 0 for `{REPO_ROOT}`.
 Read and follow `{REPO_ROOT}/loop/LOOP_INIT.md`.
 Load other role and workflow instructions when the undertaking needs them.
 
-Orient. Briefly report your understanding of the release target, current basis
-and boundaries. Await the owner's separate steering.
+Orient. Report briefly:
+
+- the path from the current state to the release target, and the independent
+  lanes you would open;
+- what you need from the owner to keep every lane moving: decisions,
+  credentials and host conditions;
+- any open issues labelled `nightly`.
+
+Start no work until the owner's separate steering.
 </init-prompt>

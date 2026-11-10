@@ -1,0 +1,46 @@
+name: nightly-full-ci
+# Advisory full run of main (docs/CI_STRATEGY.md, "Nightly full run"). It adds
+# no required check: `harness` on the pull request stays the merge check.
+on:
+  schedule:
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: nightly-full-ci-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  changed:
+    name: Nightly change check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      run: ${{ steps.decide.outputs.run }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          sparse-checkout: tools/software_workflow
+      - name: Skip when main is unchanged since the last successful nightly run
+        id: decide
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          SHA: ${{ github.sha }}
+        run: python3 tools/software_workflow/nightly_ci.py --event "$EVENT" --sha "$SHA" --workflow nightly-full-ci.yml
+  full-suite:
+    # The product workflow with no candidate base selects full coverage
+    # (hosted_ci.FULL_COVERAGE_EVENTS): the broad browser matrix, desktop
+    # behaviour and Rust, numerical Cargo oracles and all Python shards.
+    name: Nightly full suite
+    needs: changed
+    if: needs.changed.outputs.run == 'true'
+    uses: ./.github/workflows/piping-desktop-e2e.yml
+    with:
+      # No Repository checks job runs here, so the Python shards keep tests/test_ci_numerical.py.
+      repository-checks-run: false

@@ -22,9 +22,11 @@ and the exit criteria in [§4](../docs/RELEASE_TARGET_v1.0.md#4-exit-criteria)
 (accepted by the owner, 2026-10-28). Briefs and PRs name the `RT-` row they
 serve.
 
-**Opening duty.** At session start, Agent 0 states the path from the current
-state to that target, identifies the work that can proceed independently, and
-runs it in parallel in standalone Type 1 sessions.
+**Opening duty.** At session start, Agent 0 reports the path from the current
+state to that target, the work that can proceed independently, what it needs
+from the owner to keep that work moving (decisions, credentials, host
+conditions) and any open `nightly` issue. Once the owner has steered, it runs
+the independent work in parallel in standalone Type 1 sessions.
 
 **Working posture.** The owner's standing instruction (2026-11-09 00:29 UTC):
 "This is just a standing instruction for you: Your top priority is to keep

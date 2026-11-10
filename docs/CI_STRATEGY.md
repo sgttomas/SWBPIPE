@@ -106,7 +106,7 @@ unmatched project input or full coverage adds every group. The core specs,
 groups and paths are declared in `piping_browser_journeys` in
 `tools/hosted-ci-routing.json`. The product job runs the plan's spec list, and
 the plan's reasons name the path and group behind each added spec. The browser
-matrix runs only by explicit workflow dispatch.
+matrix runs only by explicit workflow dispatch and in the nightly full run.
 
 The `piping-desktop` selection adds the full desktop Vitest suite, run in two
 shards (`vitest --shard=1/2` and `2/2`) as jobs beside the product job, under
@@ -297,7 +297,7 @@ locally in the registered build and in an emulated unregistered build (a
 build-identity-changing flag such as `RUSTFLAGS=--cap-lints=warn`, in its own
 target directory).
 
-No automatic nightly or post-merge duplicate suite is required. Reuse passing
+No post-merge duplicate suite is required. Reuse passing
 hosted results rather than repeating the same suite locally without a change or
 unresolved concern. Failure diagnostics stay in CI artifacts. The optional
 macOS release sweep remains available for release preparation.
@@ -328,3 +328,39 @@ all belong to the keyed input set and the key must still match. The main-only
 `shared-build-cache.yml` warmer uses the same setup action with `build-only:
 true`, so other PRs can read main-scoped engine outputs without running tests
 or installing browsers in the warmer.
+
+## Nightly full run
+
+Pull-request selection follows paths, so it can miss a test that a change
+breaks elsewhere. `nightly-full-ci.yml` closes that gap on `main`. It runs at
+09:00 UTC on a schedule (`0 9 * * *`) and also by manual `workflow_dispatch`.
+It calls the product workflow, `piping-desktop-e2e.yml`, as `harness` does.
+Its events have no candidate base, so the planner gives them full coverage
+(`hosted_ci.FULL_COVERAGE_EVENTS`). It never computes a diff range from them
+and never falls back to `HEAD^1`. The run therefore covers:
+
+- the broad browser matrix;
+- the core browser journey with every spec group;
+- both desktop behaviour shards and the desktop Rust tests;
+- all three numerical Cargo shards;
+- all four Python shards, including `tests/test_ci_numerical.py`.
+
+The run does not reuse or record verified results. The repository
+tool/routing suite is not path-selected, so it runs whole on every product PR
+in `harness` and has no nightly job.
+
+A scheduled run first compares `main`'s head with the head of the last
+successful nightly run on `main` (`tools/software_workflow/nightly_ci.py`). If
+the two are equal, it skips the suite and succeeds. If the history cannot be
+read, it runs. A failed run does not count as successful, so the suite runs
+again the next night until it passes. A manual dispatch always runs.
+
+The run adds no GitHub required check. Its check names (`Nightly change
+check`, `Nightly full suite / …`) cannot be taken for the required `harness`
+context. An external check, kept outside this repository, reads the run at
+about 15:00 UTC and opens a GitHub issue labelled `nightly` when the run
+failed. Before merging, Agent 0 triages any open `nightly` issue
+([AGENTS.md, Standing Git grant](../AGENTS.md#standing-git-grant)): it finds
+the cause and repairs it, or assigns the repair, before merging unrelated work.
+The PR that repairs a finding may merge. Agent 0 acts on a failed nightly run
+it sees itself and does not wait for the issue.
