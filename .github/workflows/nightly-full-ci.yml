@@ -1,20 +1,16 @@
 name: nightly-full-ci
-# Advisory full runs of main (docs/CI_STRATEGY.md, "Nightly full run" and
-# "After-merge full run"): nightly on a schedule, after every push to main and
-# by hand. It adds no required check: `harness` on the pull request stays the
+# Advisory full runs of main (docs/CI_STRATEGY.md, "Nightly full run"): nightly
+# on a schedule when main has changed, and by hand. It adds no required check: `harness` on the pull request stays the
 # merge check. A run that does not pass opens or updates a `nightly` issue.
 on:
   schedule:
     - cron: '0 9 * * *'
-  push:
-    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
 concurrency:
-  # One group per pushed commit: GitHub keeps a single pending run per group,
-  # so a group shared by merges would cancel the pending run of an earlier one.
-  group: nightly-full-ci-${{ github.event_name == 'push' && github.sha || github.ref }}
+  # Runs of main go one at a time, so a skip is always decided from a finished run.
+  group: nightly-full-ci-${{ github.ref }}
   cancel-in-progress: false
 jobs:
   changed:
@@ -32,8 +28,7 @@ jobs:
           ref: ${{ github.sha }}
           fetch-depth: 1
           sparse-checkout: tools/software_workflow
-      # The history is this workflow's own, so a successful after-merge run of
-      # the same head counts. A push or a manual dispatch always runs.
+      # The history is this workflow's own. A manual dispatch always runs.
       - name: Skip a scheduled run when main is unchanged since the last successful full run
         id: decide
         env:

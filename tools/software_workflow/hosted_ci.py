@@ -24,10 +24,8 @@ SUITES = ("piping", "piping-desktop", "piping-desktop-rust", "piping-numerical",
 CANDIDATE_EVENTS = frozenset({"pull_request", "merge_group"})
 # Events with no candidate base. Their range is the whole tree at the head:
 # full coverage, never a diff against a guessed base such as HEAD^1. The
-# full-run workflow (nightly-full-ci.yml) runs on `schedule`, by hand and on
-# every `push` to main (the after-merge run).
-FULL_COVERAGE_EVENTS = {"schedule": "Scheduled full run of main", "workflow_dispatch": "Explicit full workflow dispatch",
-                        "push": "Full run of main after a merge"}
+# full-run workflow (nightly-full-ci.yml) runs on `schedule` and by hand.
+FULL_COVERAGE_EVENTS = {"schedule": "Scheduled full run of main", "workflow_dispatch": "Explicit full workflow dispatch"}
 PIPING = ""
 # Repository-level execution controls are shared inputs even after the
 # product directory is promoted to repository root.

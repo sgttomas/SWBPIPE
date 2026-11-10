@@ -88,12 +88,6 @@ def test_the_merged_pull_request_is_the_one_whose_merge_commit_is_the_head():
     assert nightly_report.merged_pull_request(pulls, A) == 9
     for none in ([], None, {"message": "x"}, pulls[:2], [{"number": "9", "merge_commit_sha": A, "merged_at": "t"}]):
         assert nightly_report.merged_pull_request(none, A) is None
-    event = {"head_commit": {"id": A, "message": "Merge pull request #220 from o/branch\n\n$(title) `x`"}}
-    assert nightly_report.merge_subject_pull_request(event, A) == 220
-    for none in ({}, None, {"head_commit": None}, {"head_commit": {"id": B, "message": "Merge pull request #220 from o/b"}},
-                 {"head_commit": {"id": A, "message": "Fix #220; Merge pull request #221 from o/b"}},
-                 {"head_commit": {"id": A, "message": "Merge pull request #2x from o/b"}}):
-        assert nightly_report.merge_subject_pull_request(none, A) is None
 
 
 class Api:
@@ -133,12 +127,10 @@ class Api:
         raise AssertionError(path)
 
 
-def report(monkeypatch, tmp_path, api, results, event="push", ref="refs/heads/main", sha=A, attempt="1", event_file=None):
-    path = tmp_path / "event.json"
-    path.write_text(json.dumps(event_file or {}))
+def report(monkeypatch, tmp_path, api, results, event="schedule", ref="refs/heads/main", sha=A, attempt="1"):
     for name, value in {"RESULTS": results if isinstance(results, str) else json.dumps(results), "GITHUB_REF": ref,
                         "GITHUB_SHA": sha, "GITHUB_REPOSITORY": REPO, "GITHUB_RUN_ID": "7", "GITHUB_RUN_ATTEMPT": attempt,
-                        "GITHUB_EVENT_NAME": event, "GITHUB_EVENT_PATH": str(path), "GH_TOKEN": "t",
+                        "GITHUB_EVENT_NAME": event, "GH_TOKEN": "t",
                         "GITHUB_SERVER_URL": "https://github.com"}.items():
         monkeypatch.setenv(name, value)
     monkeypatch.setattr(nightly_report, "api", api)
@@ -148,12 +140,12 @@ def report(monkeypatch, tmp_path, api, results, event="push", ref="refs/heads/ma
 
 def test_a_passing_or_skipped_run_reports_nothing_and_calls_nothing(monkeypatch, tmp_path):
     for results in (needs(), needs(run="false", suite="skipped")):
-        for event in ("push", "schedule", "workflow_dispatch"):
+        for event in ("schedule", "workflow_dispatch"):
             api = report(monkeypatch, tmp_path, Api(issues=[issue(3, A)]), results, event=event)
             assert api.calls == []
 
 
-@pytest.mark.parametrize("event", ["push", "schedule", "workflow_dispatch"])
+@pytest.mark.parametrize("event", ["schedule", "workflow_dispatch"])
 @pytest.mark.parametrize("suite", ["failure", "cancelled", "timed_out", "skipped"])
 def test_a_failed_cancelled_or_timed_out_run_opens_one_issue_then_comments(monkeypatch, tmp_path, event, suite):
     jobs = [job("Full run change check", "success"),
@@ -206,16 +198,13 @@ def test_the_open_issue_for_a_commit_is_found_on_a_later_page_and_after_a_failed
 
 def test_unreadable_results_and_failed_lookups_still_open_the_issue(monkeypatch, tmp_path):
     monkeypatch.setattr(nightly_report, "RETRY_DELAYS", (0, 0))
-    event_file = {"head_commit": {"id": A, "message": "Merge pull request #220 from o/b\n\n`$(x)` @someone"}}
-    api = report(monkeypatch, tmp_path, Api(fail={"/jobs?", "/pulls?", "/issues?"}), "not json", event_file=event_file)
+    api = report(monkeypatch, tmp_path, Api(fail={"/jobs?", "/pulls?", "/issues?"}), "not json")
     [(path, payload)] = api.writes
     assert path == "/repos/o/r/issues"
     body = payload["body"]
     assert "the job results could not be read" in body and "The job list could not be read (OSError)" in body
     assert "Open `nightly` issues could not be listed (OSError)" in body
-    # The pull request number is the only part of the commit message that reaches the issue.
-    assert "- Merged pull request: #220 (named by the merge commit message)\n" in body
-    assert "$(x)" not in body and "@someone" not in body and "$(x)" not in payload["title"]
+    assert "- Merged pull request: none found for this commit\n" in body
     # An unread annotation says so and does not call the job a failed test.
     api = report(monkeypatch, tmp_path, Api(jobs=[job("j", "cancelled")], fail={"/annotations"}), needs(suite="cancelled"))
     assert "- `j` was cancelled or timed out after 10.5 min (GitHub's reason could not be read); no step failed" in api.writes[0][1]["body"]

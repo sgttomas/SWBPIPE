@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Decide whether a full run of main has a commit to verify.
 
-A scheduled run is skipped only when the most recently finished after-merge
-(push) or manual run of the full-run workflow on main succeeded on main's current
-head. Scheduled runs are not evidence, because one that skipped the suite also
-concludes success. A push and a manual dispatch always run. An unavailable or malformed run history fails toward
-running.
+A scheduled run is skipped only when the most recently finished run of the
+full-run workflow on main succeeded on main's current head. A run that skipped
+the suite also concludes success, and that carries the verdict forward soundly:
+runs of main share one concurrency group, so a skip is only ever decided from a
+finished run that succeeded on the same head. A manual dispatch always runs. An
+unavailable or malformed run history fails toward running.
 """
 from __future__ import annotations
 
@@ -21,11 +22,10 @@ SHA = re.compile(r"[0-9a-f]{40}|[0-9a-f]{64}")
 
 
 def last_successful_sha(history: dict, branch: str = BRANCH) -> str | None:
-    """Head SHA of the most recently finished push or manual run on `branch` if it succeeded, else None.
+    """Head SHA of the most recently finished run on `branch` if it succeeded, else None.
 
     Runs are ordered by when they last finished, because GitHub lists them by
-    creation and a re-run keeps its place. Scheduled runs are ignored: one that
-    skipped the suite concludes success without having verified anything.
+    creation and a re-run keeps its place.
     """
     if not isinstance(history, dict):
         raise ValueError("Malformed workflow run history")
@@ -38,7 +38,7 @@ def last_successful_sha(history: dict, branch: str = BRANCH) -> str | None:
         if not isinstance(run.get("updated_at", ""), str):
             raise ValueError("Malformed run time in workflow run listing")
     for run in sorted(runs, key=lambda entry: entry.get("updated_at", ""), reverse=True):
-        if run.get("head_branch") != branch or run.get("conclusion") is None or run.get("event") == "schedule":
+        if run.get("head_branch") != branch or run.get("conclusion") is None:
             continue
         if run.get("conclusion") != "success":
             return None
@@ -54,8 +54,6 @@ def decide(event: str, sha: str, last_success: str | None, lookup_error: str | N
         raise ValueError(f"Not a commit SHA: {sha!r}")
     if event == "workflow_dispatch":
         return True, "Manual dispatch always runs the full suite"
-    if event == "push":
-        return True, "A push to main always runs the full suite"
     if event != "schedule":
         raise ValueError(f"Unsupported full-run event {event!r}")
     if lookup_error:

@@ -229,8 +229,7 @@ any further push to the branch. `main` does not require an up-to-date branch:
 before merging or arming, Agent 0 updates the branch and waits for a fresh run
 when a PR merged since the branch's base touched the same files or the same
 deliverable. Open PRs that overlap this way merge in turn: the later one stays
-unarmed until the earlier has landed and the later has been updated. A full run of `main` follows each merge and opens a `nightly`
-issue naming the merge when it fails. Delegated agents report a PR ready to
+unarmed until the earlier has landed and the later has been updated. Delegated agents report a PR ready to
 merge and wait for Agent 0 to merge it. Explicit holds and reserved decisions
 apply. This grant excludes protection bypasses, history rewrites, force pushes,
 permission changes and releases. Use [Git conventions](#git-conventions) below.
