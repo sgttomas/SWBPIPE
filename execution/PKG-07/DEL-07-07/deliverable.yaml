@@ -9,9 +9,7 @@ needs:
     Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
     forward from DAG-001-E0232 into DAG-002 revision 0.5 proposal; active edge approved for coordination
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Enum normalization
-    2026-05-10: legacy AnchorType=DELIVERABLE, legacy DependencyType=ARCHITECTURE_BASIS, legacy Origin=CONTEXT;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    2026-05-10: legacy AnchorType=DELIVERABLE, legacy DependencyType=ARCHITECTURE_BASIS, legacy Origin=CONTEXT
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -24,9 +22,7 @@ needs:
     Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
     forward from DAG-001-E0233 into DAG-002 revision 0.5 proposal; active edge approved for coordination
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Enum normalization
-    2026-05-10: legacy AnchorType=DELIVERABLE, legacy DependencyType=ARCHITECTURE_BASIS, legacy Origin=CONTEXT;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    2026-05-10: legacy AnchorType=DELIVERABLE, legacy DependencyType=ARCHITECTURE_BASIS, legacy Origin=CONTEXT
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -39,9 +35,7 @@ needs:
     Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
     forward from DAG-001-E0234 into DAG-002 revision 0.5 proposal; active edge approved for coordination
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Enum normalization
-    2026-05-10: legacy AnchorType=DELIVERABLE, legacy DependencyType=ARCHITECTURE_BASIS, legacy Origin=CONTEXT;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    2026-05-10: legacy AnchorType=DELIVERABLE, legacy DependencyType=ARCHITECTURE_BASIS, legacy Origin=CONTEXT
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -54,9 +48,7 @@ needs:
     Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
     forward from DAG-001-E0235 into DAG-002 revision 0.5 proposal; active edge approved for coordination
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Enum normalization
-    2026-05-10: legacy AnchorType=DELIVERABLE, legacy DependencyType=ARCHITECTURE_BASIS, legacy Origin=CONTEXT;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    2026-05-10: legacy AnchorType=DELIVERABLE, legacy DependencyType=ARCHITECTURE_BASIS, legacy Origin=CONTEXT
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -69,9 +61,7 @@ needs:
     Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
     forward from DAG-001-E0236 into DAG-002 revision 0.5 proposal; active edge approved for coordination
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Enum normalization
-    2026-05-10: legacy AnchorType=DELIVERABLE, legacy DependencyType=ARCHITECTURE_BASIS, legacy Origin=CONTEXT;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    2026-05-10: legacy AnchorType=DELIVERABLE, legacy DependencyType=ARCHITECTURE_BASIS, legacy Origin=CONTEXT
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -84,9 +74,7 @@ needs:
     Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
     forward from DAG-001-E0237 into DAG-002 revision 0.5 proposal; active edge approved for coordination
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Enum normalization
-    2026-05-10: legacy AnchorType=DELIVERABLE, legacy DependencyType=ARCHITECTURE_BASIS, legacy Origin=CONTEXT;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    2026-05-10: legacy AnchorType=DELIVERABLE, legacy DependencyType=ARCHITECTURE_BASIS, legacy Origin=CONTEXT
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -99,9 +87,7 @@ needs:
     Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
     forward from DAG-001-E0238 into DAG-002 revision 0.5 proposal; active edge approved for coordination
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Enum normalization
-    2026-05-10: legacy AnchorType=DELIVERABLE, legacy DependencyType=ARCHITECTURE_BASIS, legacy Origin=CONTEXT;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    2026-05-10: legacy AnchorType=DELIVERABLE, legacy DependencyType=ARCHITECTURE_BASIS, legacy Origin=CONTEXT
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -115,9 +101,7 @@ needs:
     proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
     Type 2 dispatch authority by itself; Enum normalization 2026-05-10: legacy AnchorType=DELIVERABLE,
     legacy DependencyType=SOLVER_PREDECESSOR, legacy Explicitness=INFERRED_DIRECT, legacy Origin=DECOMPOSITION,
-    legacy SatisfactionStatus=UNKNOWN; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
+    legacy SatisfactionStatus=UNKNOWN
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -133,9 +117,7 @@ needs:
     proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
     Type 2 dispatch authority by itself; Enum normalization 2026-05-10: legacy AnchorType=DELIVERABLE,
     legacy DependencyType=LOAD_STRESS_PREDECESSOR, legacy Explicitness=INFERRED_DIRECT, legacy Origin=DECOMPOSITION,
-    legacy SatisfactionStatus=UNKNOWN; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
+    legacy SatisfactionStatus=UNKNOWN
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -151,9 +133,7 @@ needs:
     proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
     Type 2 dispatch authority by itself; Enum normalization 2026-05-10: legacy AnchorType=DELIVERABLE,
     legacy DependencyType=DIAGNOSTICS_CONTRACT, legacy Explicitness=INFERRED_DIRECT, legacy Origin=DECOMPOSITION,
-    legacy SatisfactionStatus=UNKNOWN; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
+    legacy SatisfactionStatus=UNKNOWN
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -169,9 +149,7 @@ needs:
     proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
     Type 2 dispatch authority by itself; Enum normalization 2026-05-10: legacy AnchorType=DELIVERABLE,
     legacy DependencyType=DOMAIN_MODEL, legacy Explicitness=INFERRED_DIRECT, legacy Origin=DECOMPOSITION,
-    legacy SatisfactionStatus=UNKNOWN; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
+    legacy SatisfactionStatus=UNKNOWN
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -190,9 +168,7 @@ needs:
     a non-gating candidate; Enum normalization 2026-05-10: legacy AnchorType=DELIVERABLE, legacy DependencyType=GUI_PREDECESSOR,
     legacy Explicitness=INFERRED_INDIRECT, legacy Origin=AGENT_INFERENCE, legacy SatisfactionStatus=UNKNOWN,
     candidate row retained as non-gating candidate in Statement/Notes; Status normalized from CANDIDATE
-    to ACTIVE for v3.1 enum; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
+    to ACTIVE for v3.1 enum
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -203,9 +179,7 @@ needs:
     status and external human-acceptance reference boundaries.
 
 
-    Notes: Package-local PKG-02 compatibility evidence only; no aggregate DAG or lifecycle state changed.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Package-local PKG-02 compatibility evidence only; no aggregate DAG or lifecycle state changed.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -216,9 +190,7 @@ needs:
     carry model/result hash and provenance references when result evidence is available.
 
 
-    Notes: Package-local PKG-02 compatibility evidence only; no aggregate DAG or lifecycle state changed.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Package-local PKG-02 compatibility evidence only; no aggregate DAG or lifecycle state changed.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

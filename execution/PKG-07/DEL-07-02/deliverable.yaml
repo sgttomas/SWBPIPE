@@ -6,9 +6,7 @@ needs:
 
 
     Notes: FACT: normalized from prior DAG-002 mirror; preserved DependencyID and updated enums to v3.1
-    canonical values.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    canonical values.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -18,9 +16,7 @@ needs:
 
 
     Notes: FACT: normalized from prior DAG-002 mirror; preserved DependencyID and updated enums to v3.1
-    canonical values.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    canonical values.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -30,9 +26,7 @@ needs:
 
 
     Notes: FACT: normalized from prior DAG-002 mirror; preserved DependencyID and updated enums to v3.1
-    canonical values.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    canonical values.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -42,9 +36,7 @@ needs:
 
 
     Notes: FACT: normalized from prior DAG-002 mirror; preserved DependencyID and updated enums to v3.1
-    canonical values.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    canonical values.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -55,9 +47,7 @@ needs:
 
 
     Notes: FACT: normalized from prior DAG-002 mirror; preserved DependencyID and updated enums to v3.1
-    canonical values.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    canonical values.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -67,9 +57,7 @@ needs:
 
 
     Notes: FACT: normalized from prior DAG-002 mirror; preserved DependencyID and updated enums to v3.1
-    canonical values.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    canonical values.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -79,9 +67,7 @@ needs:
 
 
     Notes: FACT: normalized from prior DAG-002 mirror; preserved DependencyID and updated enums to v3.1
-    canonical values.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    canonical values.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -91,9 +77,7 @@ needs:
     inspector field groups
 
 
-    Notes: FACT: normalized from prior DAG-002 mirror and refreshed against deliverable-local evidence.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: FACT: normalized from prior DAG-002 mirror and refreshed against deliverable-local evidence.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -103,9 +87,7 @@ needs:
     durable project state
 
 
-    Notes: FACT: normalized from prior DAG-002 mirror and refreshed against deliverable-local evidence.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: FACT: normalized from prior DAG-002 mirror and refreshed against deliverable-local evidence.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -114,9 +96,7 @@ needs:
   condition: 'DEL-07-02 requires component and section library schema fields for inspector display
 
 
-    Notes: FACT: normalized from prior DAG-002 mirror and refreshed against deliverable-local evidence.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: FACT: normalized from prior DAG-002 mirror and refreshed against deliverable-local evidence.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -126,9 +106,7 @@ needs:
 
 
     Notes: FACT: target deliverable resolved from SOFTWARE_DECOMP.md; satisfaction remains TBD until upstream
-    maturity is verified.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
+    maturity is verified.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -139,9 +117,7 @@ needs:
 
 
     Notes: FACT: target deliverable resolved from SOFTWARE_DECOMP.md; satisfaction remains TBD until upstream
-    maturity is verified.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
+    maturity is verified.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -152,9 +128,7 @@ needs:
 
 
     Notes: FACT: target deliverable resolved from SOFTWARE_DECOMP.md; satisfaction remains TBD until upstream
-    maturity is verified.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
+    maturity is verified.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -165,9 +139,7 @@ needs:
 
 
     Notes: FACT: target deliverable resolved from SOFTWARE_DECOMP.md; satisfaction remains TBD until upstream
-    maturity is verified.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
+    maturity is verified.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

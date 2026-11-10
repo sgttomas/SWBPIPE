@@ -7,9 +7,7 @@ needs:
 
 
     Notes: Preserved prior DAG-002 mirror ID; normalized prior DependencyType=ARCHITECTURE_BASIS and Origin=CONTEXT
-    to v3.1 write-form enums for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    to v3.1 write-form enums for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -20,9 +18,7 @@ needs:
 
 
     Notes: Preserved prior DAG-002 mirror ID; normalized prior DependencyType=ARCHITECTURE_BASIS and Origin=CONTEXT
-    to v3.1 write-form enums for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    to v3.1 write-form enums for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -33,9 +29,7 @@ needs:
 
 
     Notes: Preserved prior DAG-002 mirror ID; normalized prior DependencyType=ARCHITECTURE_BASIS and Origin=CONTEXT
-    to v3.1 write-form enums for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    to v3.1 write-form enums for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -46,9 +40,7 @@ needs:
 
 
     Notes: Preserved prior DAG-002 mirror ID; normalized prior DependencyType=ARCHITECTURE_BASIS and Origin=CONTEXT
-    to v3.1 write-form enums for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    to v3.1 write-form enums for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -59,9 +51,7 @@ needs:
 
 
     Notes: Preserved prior DAG-002 mirror ID; normalized prior DependencyType=ARCHITECTURE_BASIS and Origin=CONTEXT
-    to v3.1 write-form enums for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    to v3.1 write-form enums for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -72,9 +62,7 @@ needs:
 
 
     Notes: Preserved prior DAG-002 mirror ID; normalized prior DependencyType=ARCHITECTURE_BASIS and Origin=CONTEXT
-    to v3.1 write-form enums for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    to v3.1 write-form enums for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -85,9 +73,7 @@ needs:
 
 
     Notes: Preserved prior DAG-002 mirror ID; normalized prior DependencyType=ARCHITECTURE_BASIS and Origin=CONTEXT
-    to v3.1 write-form enums for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    to v3.1 write-form enums for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -99,8 +85,6 @@ needs:
 
     Notes: Preserved prior DAG-002 mirror ID; normalized prior DependencyType=DOMAIN_MODEL, Explicitness=INFERRED_DIRECT,
     Origin=DECOMPOSITION, and SatisfactionStatus=UNKNOWN to v3.1 write-form enums for reconciliation.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE;
     FACT: 2026-08-02 dependency-currency PASS under R23; target maturity PASS is frozen in TARGET_MATURITY_EVIDENCE.csv;
     consumer integration PASS is frozen in N2C_DEL0703_PATCH/LAUNCH_BRIEF.md.
 
@@ -115,8 +99,6 @@ needs:
 
     Notes: Preserved prior DAG-002 mirror ID; normalized prior DependencyType=DOMAIN_MODEL, Explicitness=INFERRED_DIRECT,
     Origin=DECOMPOSITION, and SatisfactionStatus=UNKNOWN to v3.1 write-form enums for reconciliation.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE;
     FACT: 2026-08-02 dependency-currency PASS under R23; target maturity PASS is frozen in TARGET_MATURITY_EVIDENCE.csv;
     consumer integration PASS is frozen in N2C_DEL0703_PATCH/LAUNCH_BRIEF.md.
 
@@ -131,9 +113,7 @@ needs:
 
     Notes: Preserved prior DAG-002 mirror ID; normalized prior DependencyType=GOVERNANCE_PREDECESSOR,
     Explicitness=INFERRED_DIRECT, Origin=DECOMPOSITION, and SatisfactionStatus=UNKNOWN to v3.1 write-form
-    enums for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
+    enums for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -146,8 +126,6 @@ needs:
 
     Notes: Preserved prior DAG-002 mirror ID; normalized prior DependencyType=RULE_PACK_PREDECESSOR, Explicitness=INFERRED_DIRECT,
     Origin=DECOMPOSITION, and SatisfactionStatus=UNKNOWN to v3.1 write-form enums for reconciliation.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE;
     FACT: 2026-08-02 dependency-currency PASS under R23; target maturity PASS is frozen in TARGET_MATURITY_EVIDENCE.csv;
     consumer integration PASS is frozen in N2C_DEL0703_PATCH/LAUNCH_BRIEF.md.
 
@@ -162,8 +140,6 @@ needs:
 
     Notes: Preserved prior DAG-002 mirror ID; normalized prior DependencyType=RULE_PACK_PREDECESSOR, Explicitness=INFERRED_DIRECT,
     Origin=DECOMPOSITION, and SatisfactionStatus=UNKNOWN to v3.1 write-form enums for reconciliation.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE;
     FACT: 2026-08-02 dependency-currency PASS under R23; target maturity PASS is frozen in TARGET_MATURITY_EVIDENCE.csv;
     consumer integration PASS is frozen in N2C_DEL0703_PATCH/LAUNCH_BRIEF.md.
 
@@ -178,8 +154,6 @@ needs:
 
     Notes: Preserved prior DAG-002 mirror ID; normalized prior DependencyType=SECURITY_PREDECESSOR, Explicitness=INFERRED_DIRECT,
     Origin=DECOMPOSITION, and SatisfactionStatus=UNKNOWN to v3.1 write-form enums for reconciliation.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE;
     FACT: 2026-08-02 dependency-currency PASS under R23; target maturity PASS is frozen in TARGET_MATURITY_EVIDENCE.csv;
     consumer integration PASS is frozen in N2C_DEL0703_PATCH/LAUNCH_BRIEF.md.
 
@@ -238,9 +212,7 @@ needs:
     carry explicit unit and canonical dimension metadata with missing metadata diagnostics.
 
 
-    Notes: Package-local PKG-02 compatibility evidence only; no aggregate DAG or lifecycle state changed.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Package-local PKG-02 compatibility evidence only; no aggregate DAG or lifecycle state changed.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -252,9 +224,7 @@ needs:
 
 
     Notes: FACT: downstream interface edge supports RECONCILIATION boundary checking between adjacent
-    GUI slices.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=DOWNSTREAM; legacy_dependencytype=INTERFACE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
+    GUI slices.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
