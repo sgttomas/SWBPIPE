@@ -351,14 +351,13 @@ The run does not reuse or record verified results. The repository
 tool/routing suite is not path-selected, so it runs whole on every product PR
 in `harness` and has no job here.
 
-A scheduled run first compares `main`'s head with the head of the last
-successful run of this workflow on `main`
+A scheduled run skips the suite and succeeds only when the newest completed run
+of this workflow on `main` succeeded on `main`'s current head
 (`tools/software_workflow/nightly_ci.py`). That history holds scheduled, manual
 and after-merge runs alike, so a successful after-merge run of the same head is
-enough. If the two are equal, it skips the suite and succeeds. If the history
-cannot be read, it runs. A failed, cancelled or timed-out run does not count as
-successful, so the suite runs again the next night until it passes. A push and
-a manual dispatch always run.
+enough. If the history cannot be read, it runs. After a failed, cancelled or
+timed-out run, the suite runs again the next night until it passes, even when
+the same head passed earlier. A push and a manual dispatch always run.
 
 The run adds no GitHub required check. Its check names (`Full run change
 check`, `Full suite of main / …`, `Full run report`) cannot be taken for the

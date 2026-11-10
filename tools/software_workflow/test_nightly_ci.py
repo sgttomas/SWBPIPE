@@ -19,7 +19,9 @@ def history(*runs):
 
 def test_last_successful_sha_is_the_newest_success_on_main():
     assert nightly_ci.last_successful_sha(history()) is None
-    assert nightly_ci.last_successful_sha(history((B, "main", "failure"), (A, "main", "success"))) == A
+    assert nightly_ci.last_successful_sha(history((B, "main", "failure"), (A, "main", "success"))) is None
+    assert nightly_ci.last_successful_sha(history((A, "main", "cancelled"), (A, "main", "success"))) is None
+    assert nightly_ci.last_successful_sha(history((B, "main", None), (A, "main", "success"))) == A
     assert nightly_ci.last_successful_sha(history((B, "feature", "success"), (A, "main", "success"))) == A
     assert nightly_ci.last_successful_sha(history((B, "main", "success"), (A, "main", "success"))) == B
     for malformed in ({}, None, [], "x", {"workflow_runs": None}, {"workflow_runs": ["x"]},
@@ -48,6 +50,9 @@ def test_a_successful_after_merge_run_of_the_same_head_lets_the_schedule_skip():
     for conclusion in ("failure", "cancelled", "timed_out", None):
         older = nightly_ci.last_successful_sha(runs((A, conclusion, "push"), (B, "success", "push")))
         assert nightly_ci.decide("schedule", A, older)[0] is True
+    # A later failure of the same head outweighs its earlier success.
+    later_failure = nightly_ci.last_successful_sha(runs((A, "failure", "workflow_dispatch"), (A, "success", "push")))
+    assert nightly_ci.decide("schedule", A, later_failure)[0] is True
     # Nor does a success of an earlier merge when a later merge has moved main.
     assert nightly_ci.decide("schedule", A, nightly_ci.last_successful_sha(runs((B, "success", "push"))))[0] is True
 

@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Decide whether a full run of main has a commit to verify.
 
-A scheduled run proceeds only when main's head differs from the head of the
-last successful run of the full-run workflow on main. That history holds the
-workflow's scheduled, manual and after-merge (push) runs alike, so a
-successful after-merge run of the same head is enough. A push and a manual
-dispatch always run. An unavailable or malformed run history fails toward
+A scheduled run is skipped only when the newest completed run of the full-run
+workflow on main succeeded on main's current head. That history holds the
+workflow's scheduled, manual and after-merge (push) runs alike, so a successful
+after-merge run of the same head is enough, and a later failure of that head
+means the suite runs again. A push and a manual dispatch always run. An unavailable or malformed run history fails toward
 running.
 """
 from __future__ import annotations
@@ -22,7 +22,7 @@ SHA = re.compile(r"[0-9a-f]{40}|[0-9a-f]{64}")
 
 
 def last_successful_sha(history: dict, branch: str = BRANCH) -> str | None:
-    """Head SHA of the newest successful run on `branch` in a workflow-runs listing (newest first)."""
+    """Head SHA of the newest completed run on `branch` if it succeeded, else None (listing is newest first)."""
     if not isinstance(history, dict):
         raise ValueError("Malformed workflow run history")
     runs = history.get("workflow_runs")
@@ -31,11 +31,14 @@ def last_successful_sha(history: dict, branch: str = BRANCH) -> str | None:
     for run in runs:
         if not isinstance(run, dict):
             raise ValueError("Malformed workflow run entry")
-        if run.get("conclusion") == "success" and run.get("head_branch") == branch:
-            sha = run.get("head_sha")
-            if not isinstance(sha, str) or not SHA.fullmatch(sha):
-                raise ValueError("Malformed head SHA in workflow run listing")
-            return sha
+        if run.get("head_branch") != branch or run.get("conclusion") is None:
+            continue
+        if run.get("conclusion") != "success":
+            return None
+        sha = run.get("head_sha")
+        if not isinstance(sha, str) or not SHA.fullmatch(sha):
+            raise ValueError("Malformed head SHA in workflow run listing")
+        return sha
     return None
 
 
@@ -51,14 +54,14 @@ def decide(event: str, sha: str, last_success: str | None, lookup_error: str | N
     if lookup_error:
         return True, f"Last successful run unavailable ({lookup_error}); running the full suite"
     if last_success is None:
-        return True, "No earlier successful full run on main; running the full suite"
+        return True, "The newest completed full run on main did not succeed, or there is none; running the full suite"
     if last_success == sha:
         return False, f"main is unchanged at {sha} since the last successful full run; skipped"
     return True, f"main moved from {last_success} to {sha}; running the full suite"
 
 
 def fetch_history(api: str, repository: str, workflow: str, token: str) -> dict:
-    query = urllib.parse.urlencode({"branch": BRANCH, "status": "success", "exclude_pull_requests": "true", "per_page": "20"})
+    query = urllib.parse.urlencode({"branch": BRANCH, "status": "completed", "exclude_pull_requests": "true", "per_page": "20"})
     url = f"{api}/repos/{repository}/actions/workflows/{urllib.parse.quote(workflow, safe='')}/runs?{query}"
     request = urllib.request.Request(url, headers={"Accept": "application/vnd.github+json",
                                                    "Authorization": f"Bearer {token}",

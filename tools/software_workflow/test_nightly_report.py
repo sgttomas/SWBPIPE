@@ -99,8 +99,9 @@ def test_the_merged_pull_request_is_the_one_whose_merge_commit_is_the_head():
 class Api:
     """The API as the report uses it, recording every write."""
 
-    def __init__(self, issues=(), jobs=(), pulls=(), fail=()):
+    def __init__(self, issues=(), jobs=(), pulls=(), fail=(), flaky=0):
         self.issues, self.jobs, self.pulls, self.fail = list(issues), list(jobs), list(pulls), set(fail)
+        self.flaky = flaky
         self.calls, self.writes = [], []
 
     def __call__(self, method, path, payload=None):
@@ -124,7 +125,11 @@ class Api:
             return self.pulls
         if "/issues?" in path:
             assert "state=open" in path and "labels=nightly" in path
-            return [entry for entry in self.issues if entry["state"] == "open"]
+            if self.flaky:
+                self.flaky -= 1
+                raise OSError("unavailable")
+            page = int(path.rsplit("page=", 1)[1])
+            return [entry for entry in self.issues if entry["state"] == "open"][(page - 1) * 100:page * 100]
         raise AssertionError(path)
 
 
@@ -180,7 +185,23 @@ def test_a_failed_cancelled_or_timed_out_run_opens_one_issue_then_comments(monke
     assert [path for path, _ in api.writes][3:] == ["/repos/o/r/issues"]
 
 
+def open_for(sha, number):
+    return {"number": number, "state": "open", "body": nightly_report.marker(sha), "labels": [{"name": "nightly"}]}
+
+
+def test_the_open_issue_for_a_commit_is_found_on_a_later_page_and_after_a_failed_read(monkeypatch, tmp_path):
+    monkeypatch.setattr(nightly_report, "RETRY_DELAYS", (0, 0))
+    others = [open_for(format(n, "040x"), n) for n in range(1, 101)]
+    api = report(monkeypatch, tmp_path, Api(issues=[*others, open_for(A, 200)]), needs(suite="failure"))
+    [(path, _)] = api.writes
+    assert path == "/repos/o/r/issues/200/comments"
+    api = report(monkeypatch, tmp_path, Api(issues=[open_for(A, 200)], flaky=2), needs(suite="failure"))
+    [(path, _)] = api.writes
+    assert path == "/repos/o/r/issues/200/comments"
+
+
 def test_unreadable_results_and_failed_lookups_still_open_the_issue(monkeypatch, tmp_path):
+    monkeypatch.setattr(nightly_report, "RETRY_DELAYS", (0, 0))
     event_file = {"head_commit": {"id": A, "message": "Merge pull request #220 from o/b\n\n`$(x)` @someone"}}
     api = report(monkeypatch, tmp_path, Api(fail={"/jobs?", "/pulls?", "/issues?"}), "not json", event_file=event_file)
     [(path, payload)] = api.writes

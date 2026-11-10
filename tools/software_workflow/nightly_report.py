@@ -19,6 +19,7 @@ from datetime import datetime
 import json
 import os
 import re
+import time
 import urllib.request
 
 LABEL = "nightly"
@@ -34,6 +35,8 @@ MERGE_SUBJECT = re.compile(r"Merge pull request #([0-9]{1,9}) from ")
 TRIGGERS = {"push": "after-merge run (push to `main`)", "schedule": "scheduled nightly run",
             "workflow_dispatch": "manual dispatch"}
 MAX_JOB_PAGES = 5
+MAX_ISSUE_PAGES = 10
+RETRY_DELAYS = (2, 5)  # seconds between attempts to read the open issues
 
 
 def outcome(needs) -> tuple[bool, str]:
@@ -190,6 +193,26 @@ def run_jobs(repository: str, run_id: int, attempt: int) -> list:
     return jobs
 
 
+def open_issues(repository: str) -> list:
+    """Every open issue with the label; a read that keeps failing raises."""
+    issues = []
+    for page in range(1, MAX_ISSUE_PAGES + 1):
+        for delay in (*RETRY_DELAYS, None):
+            try:
+                batch = api("GET", f"/repos/{repository}/issues?state=open&labels={LABEL}&per_page=100&page={page}")
+                if not isinstance(batch, list):
+                    raise ValueError("Malformed issue listing")
+                break
+            except Exception:
+                if delay is None:
+                    raise
+                time.sleep(delay)
+        issues += batch
+        if len(batch) < 100:
+            return issues
+    raise RuntimeError(f"More than {MAX_ISSUE_PAGES} pages of open {LABEL} issues")
+
+
 def main() -> int:
     try:
         needs = json.loads(os.environ.get("RESULTS", ""))
@@ -229,8 +252,8 @@ def main() -> int:
         except (KeyError, OSError, ValueError):
             pass
     try:
-        issues = api("GET", f"/repos/{repository}/issues?state=open&labels={LABEL}&per_page=100")
-    except Exception as exc:  # an unreadable listing opens an issue rather than staying silent
+        issues = open_issues(repository)
+    except Exception as exc:  # after the retries, a possible duplicate is better than an unreported failure
         issues = []
         notes.append(f"Open `{LABEL}` issues could not be listed ({type(exc).__name__}); this may repeat one.")
     action, number = decide(True, sha, issues)
