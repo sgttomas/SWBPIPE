@@ -20,14 +20,17 @@ ends on **November 25, 2026**, and capture is not possible after that. That date
 was counted by Agent 0 and not read from the application, so check it when the
 guest next starts.
 
-The re-verification needs the pressure-elongation switch in the shipped build,
+The re-verification needs the pressure-elongation switch in the selected re-verification build,
 so [#217](https://github.com/sgttomas/SWBPIPE/pull/217) comes first. Then:
 
-1. Run the offline re-verification against the shipped commit and runner.
+1. Run the offline re-verification against the selected commit and its runner.
+   Integration and qualification of that build authorize no release.
 2. Before November 25, finish any further CAEPIPE capture: the integrated model
    after #217 and the `lib-seismic` case set, which failed its gate on an extra
-   SL+SO column. Agent 0 decides whether to accept it, change the parser or
-   re-run it. Recount the attempt reserve first.
+   SL+SO column. Agent 0 decides on parser work, further capture and
+   use of the successfully parsed subset for private evaluation. The failed gate
+   and the unread local-force block stay stated; nothing here accepts them or
+   waives qualification. Recount the attempt reserve first.
 
 The campaign is private and stays out of Git. Its recovery record, on the
 development host, is
@@ -39,8 +42,8 @@ done. Benchmark evaluation stays private
 ## Path to the target
 
 Lanes, in the order that matters. Each draft's description holds its recovery
-note: start there. The Agent 0 that resumes a draft takes the merge duty the
-Standing Git grant gives to the session that opened it. `harness` currently
+note: start there. The [Standing Git grant](../AGENTS.md#standing-git-grant) says who
+merges a draft whose opening session has ended. `harness` currently
 fails on #217 and #214; #217's item 1 lists its known failures, and #214's have
 not been examined.
 
@@ -59,7 +62,7 @@ RT-U4) and the embedded agent's qualification (RT-E1).
 
 Bring these before the work they affect, each with its recorded recommendation.
 - **Selections that are the owner's.** Whether to start the hanger lane (`execution/PKG-04/DEL-04-11/Work/hanger-sizing.md`), H1 (`execution/PKG-05/DEL-05-01/Work/hydrostatic-test.md`) and the dormant build guest (`execution/PKG-10/DEL-10-04/Work/windows-port.md`). None starts until the owner selects it.
-- **Leave to launch the app** for #217's native recordings, and an AC-004 window for its final head.
+- **Leave to launch the app** for #217's native recordings. Agent 0 arranges the AC-004 window for its final head.
 - **The supplier-only HC-1 capture** for the embedded agent's qualification (RT-E1; `execution/PKG-16/DEL-16-06/Work/agent-d4-capture-proposal.md`).
 - **Choices the governing text records no answer for.** Telemetry privacy (`execution/PKG-12/DEL-12-03/Work/telemetry-privacy-decision.md`), the Sensitive certificate notice (`execution/PKG-05/DEL-05-02/Work/pf-nonlinear-operand-standing.md` §5), operation-ID pairs (`execution/PKG-07/DEL-07-03/Work/combination-editor.md` §5) and affected-reference navigation (`execution/PKG-07/DEL-07-04/Work/affected-reference-navigation.md`). These were raised with the owner on 2026-11-08. Check that no answer has landed before asking again.
 - **Before v1.0.** The signed D-20/DEC-058 repository scan, including the recovery branches published on 2026-11-08 (RT-V8); accepting any limitation; acceptance, issuance and release; the copyright holder's name for the licence (RT-V6); the check of the CAEPIPE licence for benchmark clauses before agreement is published (§1, §3); and the batch disposition of the 23 holds, which does not gate v1.0 (§1).
