@@ -351,7 +351,7 @@ The run does not reuse or record verified results. The repository
 tool/routing suite is not path-selected, so it runs whole on every product PR
 in `harness` and has no job here.
 
-A scheduled run skips the suite and succeeds only when the newest completed run
+A scheduled run skips the suite and succeeds only when the most recently finished run
 of this workflow on `main` succeeded on `main`'s current head
 (`tools/software_workflow/nightly_ci.py`). That history holds scheduled, manual
 and after-merge runs alike, so a successful after-merge run of the same head is

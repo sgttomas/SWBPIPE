@@ -22,7 +22,13 @@ SHA = re.compile(r"[0-9a-f]{40}|[0-9a-f]{64}")
 
 
 def last_successful_sha(history: dict, branch: str = BRANCH) -> str | None:
-    """Head SHA of the newest completed run on `branch` if it succeeded, else None (listing is newest first)."""
+    """Head SHA of the most recently finished run on `branch` if it succeeded, else None.
+
+    Runs are ordered by when they last finished, because GitHub lists them by
+    creation and a re-run keeps its place. A scheduled run that skipped the suite
+    concludes success, but only ever follows a success of the same head, so
+    anything that fails after it is newer and decides.
+    """
     if not isinstance(history, dict):
         raise ValueError("Malformed workflow run history")
     runs = history.get("workflow_runs")
@@ -31,6 +37,9 @@ def last_successful_sha(history: dict, branch: str = BRANCH) -> str | None:
     for run in runs:
         if not isinstance(run, dict):
             raise ValueError("Malformed workflow run entry")
+        if not isinstance(run.get("updated_at", ""), str):
+            raise ValueError("Malformed run time in workflow run listing")
+    for run in sorted(runs, key=lambda entry: entry.get("updated_at", ""), reverse=True):
         if run.get("head_branch") != branch or run.get("conclusion") is None:
             continue
         if run.get("conclusion") != "success":

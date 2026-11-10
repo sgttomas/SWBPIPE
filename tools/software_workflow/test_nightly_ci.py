@@ -53,6 +53,11 @@ def test_a_successful_after_merge_run_of_the_same_head_lets_the_schedule_skip():
     # A later failure of the same head outweighs its earlier success.
     later_failure = nightly_ci.last_successful_sha(runs((A, "failure", "workflow_dispatch"), (A, "success", "push")))
     assert nightly_ci.decide("schedule", A, later_failure)[0] is True
+    # A re-run that fails keeps its place in the listing, and still decides over a later skip.
+    rerun = {"workflow_runs": [
+        {"head_sha": A, "head_branch": "main", "conclusion": "success", "event": "schedule", "updated_at": "2026-11-10T09:01:00Z"},
+        {"head_sha": A, "head_branch": "main", "conclusion": "failure", "event": "push", "updated_at": "2026-11-10T11:00:00Z"}]}
+    assert nightly_ci.decide("schedule", A, nightly_ci.last_successful_sha(rerun))[0] is True
     # Nor does a success of an earlier merge when a later merge has moved main.
     assert nightly_ci.decide("schedule", A, nightly_ci.last_successful_sha(runs((B, "success", "push"))))[0] is True
 

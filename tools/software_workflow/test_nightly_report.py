@@ -195,6 +195,10 @@ def test_the_open_issue_for_a_commit_is_found_on_a_later_page_and_after_a_failed
     api = report(monkeypatch, tmp_path, Api(issues=[*others, open_for(A, 200)]), needs(suite="failure"))
     [(path, _)] = api.writes
     assert path == "/repos/o/r/issues/200/comments"
+    many = [open_for(format(n, "040x"), n) for n in range(1, 1001)]
+    api = report(monkeypatch, tmp_path, Api(issues=[open_for(A, 2000), *many]), needs(suite="failure"))
+    [(path, _)] = api.writes
+    assert path == "/repos/o/r/issues/2000/comments"
     api = report(monkeypatch, tmp_path, Api(issues=[open_for(A, 200)], flaky=2), needs(suite="failure"))
     [(path, _)] = api.writes
     assert path == "/repos/o/r/issues/200/comments"

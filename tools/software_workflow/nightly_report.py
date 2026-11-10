@@ -16,6 +16,7 @@ from __future__ import annotations
 
 from collections import Counter
 from datetime import datetime
+from itertools import count
 import json
 import os
 import re
@@ -35,7 +36,6 @@ MERGE_SUBJECT = re.compile(r"Merge pull request #([0-9]{1,9}) from ")
 TRIGGERS = {"push": "after-merge run (push to `main`)", "schedule": "scheduled nightly run",
             "workflow_dispatch": "manual dispatch"}
 MAX_JOB_PAGES = 5
-MAX_ISSUE_PAGES = 10
 RETRY_DELAYS = (2, 5)  # seconds between attempts to read the open issues
 
 
@@ -196,7 +196,7 @@ def run_jobs(repository: str, run_id: int, attempt: int) -> list:
 def open_issues(repository: str) -> list:
     """Every open issue with the label; a read that keeps failing raises."""
     issues = []
-    for page in range(1, MAX_ISSUE_PAGES + 1):
+    for page in count(1):
         for delay in (*RETRY_DELAYS, None):
             try:
                 batch = api("GET", f"/repos/{repository}/issues?state=open&labels={LABEL}&per_page=100&page={page}")
@@ -210,7 +210,7 @@ def open_issues(repository: str) -> list:
         issues += batch
         if len(batch) < 100:
             return issues
-    raise RuntimeError(f"More than {MAX_ISSUE_PAGES} pages of open {LABEL} issues")
+    raise AssertionError("unreachable")
 
 
 def main() -> int:
