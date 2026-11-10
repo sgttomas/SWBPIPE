@@ -183,16 +183,34 @@ eccentric reducer steps (each step's thrust unchanged from today).
   `pressure-2` is refused by name (`SOURCE_PRESSURE_2_RETIRED`), following the
   `pressure-1` → `pressure-2` precedent ([u4b-u5b-implementation.md](u4b-u5b-implementation.md)).
   Raw/component (0.2) and canonical (0.3) result formats are unchanged.
+- **Recorded `pressure-2` documents are refused, not read** (Agent 0, 2026-11-09, under
+  ruling 3: no compatibility machinery). `recorded_tables.rs` gains no `pressure-2` exact
+  variant. The refusal's message tells the user that the result predates the
+  pressure-elongation setting and must be re-solved. The recorded pre-RT-A4 reader tests
+  (`core/reporting/result_export/tests/recorded_pre_rt_a4.rs`,
+  `tests/test_recorded_pre_rt_a4_pf.py`, desktop `recordedPreRtA4*`) assert that refusal
+  and its message for a recorded `pressure-2` exact successor, in place of acceptance.
+  `recorded_tables.rs` changes only if the message needs a hook there.
 - **Formulation limitations.** The D-3 sentence keeps "bend opening under pressure (Bourdon
-  effect)" among the "Not modelled" terms, and one of two fixed statements is added:
-  - "Pressure elongation is not included in any load case: the closed-end free pressure
-    strain is omitted; pressure thrust at unbalanced locations is applied."
-  - "Pressure elongation is included only in the operating load cases the model settings
-    name, as the closed-end free strain (1 − 2ν)·p·A_i/(E·A_s), with A_i on the pressure
-    bore and A_s the nominal section area; it is not a thin-wall mean-diameter form."
-  Both are fixed strings, so the report's hash-pinned statement table
+  effect)" among the "Not modelled" terms, and exactly one statement is added, chosen so
+  that it states only what is true of the document (Agent 0, 2026-11-09):
+  - Setting absent: "Pressure elongation is not included in any load case: the closed-end
+    free pressure strain is omitted; pressure thrust at unbalanced locations is applied."
+  - At least one named case carries pressure (has a pressure region): "Pressure
+    elongation is included only in the operating load cases the model settings name, as
+    the closed-end free strain (1 − 2ν)·p·A_i/(E·A_s), with A_i on the pressure bore and
+    A_s the nominal section area; it is not a thin-wall mean-diameter form."
+  - The setting names cases but none of them carries pressure: "Pressure elongation is
+    set for <cases>, which carry no pressure; it has no effect." (`<cases>` is the named
+    case ids.)
+
+  The first two are fixed strings in the report's hash-pinned statement table
   (`exactReportLimitations.ts`, `fixtures/reports/exact_route_limitations.json`,
-  `exact_report_statements.json`) gains exactly these two. PDF text encoding: '-' for
+  `exact_report_statements.json`). The third carries case ids, so it is not a fixed
+  string: its implementation must settle how the statement table and the engine's
+  whole-static-string rule (`exact_admission.rs`) admit it, and that choice goes to
+  Agent 0 before code. Until this is implemented the engine publishes the second
+  statement whenever the setting names any case. PDF text encoding: '-' for
   U+2212 and 'nu' for ν, because WinAnsi cannot encode them (a practical engineering
   resolution; the producer string and its hash are unchanged).
 - **Bend statement.** `BEND_LIMITATION` (`bend_pressure.rs` ~35, published whenever a bend
@@ -269,6 +287,16 @@ The default change moves every pressurised exact-route result, so:
    (`tests/verifiers/pressure_2.py` successor, `test_pressure_arc_readers.py`,
    `qualification_exact_pressure.py`). Frozen persistence records and the owner-reserved
    native-smoke `expected.json` are not touched (native smoke carries no pressure).
+   **The S6 replay is retired** (Agent 0, 2026-11-09):
+   `tests/test_rt_a3_s6_text_only_envelope_diff.py` replays a merged, one-time `pressure-2`
+   migration through the current builder, which now refuses `pressure-2`. It leaves the
+   maintained suite; it is not narrowed to a pinned historical builder. Its declarations
+   in the DEL-04-07 and DEL-04-08 `deliverable.yaml` files and the CI routing that names
+   it are updated with their generators, in the change that removes the file. The frozen
+   envelopes and accepted evidence stay as history, untouched: the proof read both sides
+   from Git (the base main `394f4c623` and S6's END revision), and
+   [route-unification-r4.md](route-unification-r4.md) ("Disclosure carriers") records the
+   result.
 4. **Retained pricing.** `product_physics` and `frame_kernel` are priced crates and the
    pressure table digest is a reviewed input, so the registered profile is re-priced with an
    actual-source D3 audit.
