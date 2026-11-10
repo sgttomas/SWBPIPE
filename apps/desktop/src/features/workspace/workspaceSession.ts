@@ -97,7 +97,7 @@ import type { MbfExportDialogRequest } from "../caepipe-mbf/MbfExportDialog";
 import { closedSaveStatusLine } from "../caepipe-mbf/mbfExport";
 import { mbfExportRetirementOwner } from "../caepipe-mbf/mbfExportSession";
 import { mbfImportRetirementOwner } from "../caepipe-mbf/mbfImportSession";
-import { adoptMbfImport, openMbfImport, retireMbfImportSession, reviewMbfImport } from "../caepipe-mbf/mbfImportCancel";
+import { adoptMbfImport, designateMbfImportSource, openMbfImport, retireMbfImportSession, reviewMbfImport } from "../caepipe-mbf/mbfImportCancel";
 import type { MbfImportDialogRequest } from "../caepipe-mbf/MbfImportDialog";
 import {
   MBF_IMPORT_BUSY_MESSAGE,
@@ -3261,6 +3261,7 @@ export function useWorkspaceSession() {
       },
       open: () => openMbfImport(stillCurrent),
       review: (args, current) => reviewMbfImport(args, () => stillCurrent() && (current?.() ?? true)),
+      designate: (args, current) => designateMbfImportSource(args, () => stillCurrent() && (current?.() ?? true)),
       adopt: (capture) => {
         if (handedOff) return;
         handedOff = true;

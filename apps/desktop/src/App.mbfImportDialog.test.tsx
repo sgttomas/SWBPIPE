@@ -55,7 +55,7 @@ afterEach(async () => {
 
 type Held = { command: string; args: Args; resolve: (value: unknown) => void; reject: (error: unknown) => void };
 
-function nativeHost(answers: Partial<Record<"open_mbf_import" | "review_mbf_import" | "adopt_mbf_import" | "open_model_document_file", (args: Args) => unknown>>, hold: ReadonlySet<string> = new Set()) {
+function nativeHost(answers: Partial<Record<"open_mbf_import" | "review_mbf_import" | "adopt_mbf_import" | "designate_mbf_import_source" | "open_model_document_file", (args: Args) => unknown>>, hold: ReadonlySet<string> = new Set()) {
   const commands: Array<{ command: string; args: Args; raw: unknown }> = [];
   const held: Held[] = [];
   invokeMock.mockImplementation((command: string, raw?: Args) => {
@@ -112,7 +112,8 @@ function expectNoFileContent(host: ReturnType<typeof nativeHost>) {
   const allowed: Record<string, string[]> = {
     open_mbf_import: ["expectedEpoch", "requestSequence"],
     review_mbf_import: ["expectedEpoch", "requestSequence", "sourceId", "declaration"],
-    adopt_mbf_import: ["expectedEpoch", "requestSequence", "sourceId", "declaration", "reviewSha256"]
+    adopt_mbf_import: ["expectedEpoch", "requestSequence", "sourceId", "declaration", "reviewSha256"],
+    designate_mbf_import_source: ["expectedEpoch", "requestSequence", "sourceId", "declaration", "reviewSha256"]
   };
   for (const { command, args } of host.commands) {
     if (!(command in allowed)) continue;
@@ -184,6 +185,83 @@ describe("File > Import MBF… in the App", () => {
     await act(async () => {}); // Flush the retiring generation's passive cleanup too.
     expect(host.count("cancel_mbf_import")).toBe(retirementsBefore + 1);
     expectNoFileContent(host);
+  });
+
+  it("designates the original source, states the established identity set and adopts the designated review", async () => {
+    await renderApp();
+    setTauriRuntime();
+    const host = nativeHost({
+      open_mbf_import: () => reply("bound-open"),
+      designate_mbf_import_source: () => reply("bound-designate"),
+      adopt_mbf_import: () => reply("bound-designated-adopt")
+    });
+    const dialog = await openImport();
+    await reviewShown();
+    expect(within(dialog).queryByTestId("mbf-import-designation")).not.toBeInTheDocument();
+    fireEvent.click(within(dialog).getByTestId("mbf-import-designate"));
+    await waitFor(() => expect(within(dialog).getByTestId("mbf-import-designation")).toBeInTheDocument());
+    // Formed over the review shown, under the declaration it was formed for.
+    expect(host.named("designate_mbf_import_source")[0].args).toMatchObject({ sourceId: REPLIES["bound-open"].sourceId, declaration: null, reviewSha256: REPLIES["bound-open"].reviewSha256 });
+    expect(within(dialog).getByTestId("mbf-import-designation")).toHaveTextContent("export_model.json");
+    expect(within(dialog).getByTestId("mbf-import-designation")).toHaveTextContent("the import has the same ids in each class");
+    expect(within(dialog).getByTestId("mbf-import-source-completeness")).toHaveTextContent("Established for the identity set");
+    expect(within(dialog).getByTestId("mbf-import-source-completeness")).toHaveTextContent("does not establish that the two models are equivalent");
+    await waitFor(() => expect(within(dialog).getByTestId("mbf-import-adopt")).toBeEnabled());
+    validatorCalls.length = 0;
+    fireEvent.click(within(dialog).getByTestId("mbf-import-adopt"));
+    await waitFor(() => expect(screen.getByTestId(IMPORTED_ROW)).toBeInTheDocument(), { timeout: 20000 });
+    expect(host.named("adopt_mbf_import")[0].args).toMatchObject({ sourceId: REPLIES["bound-open"].sourceId, declaration: null, reviewSha256: REPLIES["bound-designate"].reviewSha256 });
+    expect(validatorCalls).toHaveLength(1);
+    expect(host.count("review_mbf_import")).toBe(0);
+    expectNoFileContent(host);
+  });
+
+  it("re-forms the ordinary review when a designation shown is cancelled or refused, and never sends the designated digest as a base", async () => {
+    await renderApp();
+    setTauriRuntime();
+    const answers: Array<() => unknown> = [
+      () => reply("bound-designate"),
+      () => ({ outcome: "cancelled" }),
+      () => reply("bound-designate"),
+      () => ({ outcome: "refused", fileName: "swbpipe-model.mbf", diagnostics: [{ code: "MBF-IMPORT-REVIEW-STALE", path: "reviewSha256", message: "native text" }] })
+    ];
+    const host = nativeHost({
+      open_mbf_import: () => reply("bound-open"),
+      review_mbf_import: () => reply("bound-open"),
+      designate_mbf_import_source: () => answers.shift()!()
+    });
+    const dialog = await openImport();
+    await reviewShown();
+    const designateButton = within(dialog).getByTestId("mbf-import-designate");
+    const adopt = within(dialog).getByTestId("mbf-import-adopt");
+    for (const [round, reviews] of [[0, 1], [1, 2]] as const) {
+      fireEvent.click(designateButton);
+      await waitFor(() => expect(within(dialog).getByTestId("mbf-import-designation")).toBeInTheDocument());
+      await waitFor(() => expect(designateButton).toBeEnabled());
+      fireEvent.click(designateButton);
+      // The native start retired X: the ordinary review is formed again before Adopt is offered.
+      await waitFor(() => expect(host.count("review_mbf_import")).toBe(reviews));
+      await waitFor(() => expect(within(dialog).queryByTestId("mbf-import-designation")).not.toBeInTheDocument());
+      await waitFor(() => expect(adopt).toBeEnabled());
+      if (round === 1) expect(within(dialog).getByTestId("mbf-import-designation-refusal")).toHaveTextContent("MBF-IMPORT-REVIEW-STALE");
+    }
+    for (const call of host.named("designate_mbf_import_source")) expect(call.args.reviewSha256).toBe(REPLIES["bound-open"].reviewSha256);
+    expectDemoSession();
+  });
+
+  it("does not show a designated review formed over another base", async () => {
+    await renderApp();
+    setTauriRuntime();
+    const foreign = reply("bound-designate");
+    foreign.baseReviewSha256 = "0".repeat(64);
+    const host = nativeHost({ open_mbf_import: () => reply("bound-open"), designate_mbf_import_source: () => foreign });
+    const dialog = await openImport();
+    await reviewShown();
+    fireEvent.click(within(dialog).getByTestId("mbf-import-designate"));
+    await waitFor(() => expect(within(dialog).getByTestId("mbf-import-designation-refusal")).toHaveTextContent("MBF-IMPORT-WORKER-PROTOCOL"));
+    expect(within(dialog).queryByTestId("mbf-import-designation")).not.toBeInTheDocument();
+    await waitFor(() => expect(within(dialog).getByTestId("mbf-import-adopt")).toBeEnabled());
+    expect(host.count("adopt_mbf_import")).toBe(0);
   });
 
   it("gives the Open consumer the same document object, one validator call and the same adoption as ordinary Open", async () => {

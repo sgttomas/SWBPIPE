@@ -19,8 +19,8 @@
 //!
 //! The harness substitutes exactly two things for a person at the machine: it
 //! names the file the next model-document chooser returns (`native_smoke_choose`;
-//! the Open Model Document…, Save Model Document…, Save Handoff… and Save Report
-//! Package… choosers) instead of showing the chooser, and it delivers native menu commands through the same
+//! the Open Model Document…, Save Model Document…, Save Handoff…, Save Report
+//! Package…, Export MBF's save and Import MBF's open choosers) instead of showing the chooser, and it delivers native menu commands through the same
 //! dispatch a menu click uses (`native_smoke_menu`). Everything else, from the
 //! open checks to solve, persistence and export, runs on the product's code.
 

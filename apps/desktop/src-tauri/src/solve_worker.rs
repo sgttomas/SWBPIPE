@@ -2805,9 +2805,9 @@ pub(crate) mod tests {
         let mbf = include_str!("../../../../fixtures/caepipe_mbf/invented/import/units_si.mbf").as_bytes();
         let declaration = br#"{"CS1":{"origin":"project_invented","source_name":"invented"}}"#;
         for raw in [
-            encode_worker_request(&WorkerRequest { mode: ImportMode::Review, label: "units_si.mbf", declaration, mbf, identity: None }),
-            encode_worker_request(&WorkerRequest { mode: ImportMode::Adopt, label: "units_si.mbf", declaration, mbf, identity: None }),
-            encode_worker_request(&WorkerRequest { mode: ImportMode::Review, label: "units_si.mbf", declaration: b"", mbf, identity: None }),
+            encode_worker_request(&WorkerRequest { mode: ImportMode::Review, label: "units_si.mbf", declaration, mbf, identity: None, designated: None }),
+            encode_worker_request(&WorkerRequest { mode: ImportMode::Adopt, label: "units_si.mbf", declaration, mbf, identity: None, designated: None }),
+            encode_worker_request(&WorkerRequest { mode: ImportMode::Review, label: "units_si.mbf", declaration: b"", mbf, identity: None, designated: None }),
             vec![9, 0, 0, 0],
         ] {
             let expected = worker_import(&raw).map(|envelope| (envelope, None));
