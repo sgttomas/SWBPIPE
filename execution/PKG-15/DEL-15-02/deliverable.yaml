@@ -9,9 +9,7 @@ needs:
     Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
     execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Local v3.1 enum
     normalization preserved DAG-002 authority; original fields AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
-    Explicitness=EXPLICIT, Origin=CONTEXT, SatisfactionStatus=SATISFIED.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+    Explicitness=EXPLICIT, Origin=CONTEXT, SatisfactionStatus=SATISFIED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -25,9 +23,7 @@ needs:
     Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
     execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Local v3.1 enum
     normalization preserved DAG-002 authority; original fields AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
-    Explicitness=EXPLICIT, Origin=CONTEXT, SatisfactionStatus=SATISFIED.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+    Explicitness=EXPLICIT, Origin=CONTEXT, SatisfactionStatus=SATISFIED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -41,9 +37,7 @@ needs:
     Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
     execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Local v3.1 enum
     normalization preserved DAG-002 authority; original fields AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
-    Explicitness=EXPLICIT, Origin=CONTEXT, SatisfactionStatus=SATISFIED.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+    Explicitness=EXPLICIT, Origin=CONTEXT, SatisfactionStatus=SATISFIED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -57,9 +51,7 @@ needs:
     Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
     execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Local v3.1 enum
     normalization preserved DAG-002 authority; original fields AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
-    Explicitness=EXPLICIT, Origin=CONTEXT, SatisfactionStatus=SATISFIED.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+    Explicitness=EXPLICIT, Origin=CONTEXT, SatisfactionStatus=SATISFIED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -73,9 +65,7 @@ needs:
     Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
     execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Local v3.1 enum
     normalization preserved DAG-002 authority; original fields AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
-    Explicitness=EXPLICIT, Origin=CONTEXT, SatisfactionStatus=SATISFIED.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+    Explicitness=EXPLICIT, Origin=CONTEXT, SatisfactionStatus=SATISFIED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -89,9 +79,7 @@ needs:
     Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
     execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Local v3.1 enum
     normalization preserved DAG-002 authority; original fields AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
-    Explicitness=EXPLICIT, Origin=CONTEXT, SatisfactionStatus=SATISFIED.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+    Explicitness=EXPLICIT, Origin=CONTEXT, SatisfactionStatus=SATISFIED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -105,9 +93,7 @@ needs:
     Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
     execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Local v3.1 enum
     normalization preserved DAG-002 authority; original fields AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
-    Explicitness=EXPLICIT, Origin=CONTEXT, SatisfactionStatus=SATISFIED.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+    Explicitness=EXPLICIT, Origin=CONTEXT, SatisfactionStatus=SATISFIED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -121,9 +107,7 @@ needs:
     Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
     execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Local v3.1 enum
     normalization preserved DAG-002 authority; original fields AnchorType=DELIVERABLE, DependencyType=INTEROP_PREDECESSOR,
-    Explicitness=INFERRED_DIRECT, Origin=GRAPH_REVIEW, SatisfactionStatus=UNKNOWN.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=DECLARED; legacy_status=ACTIVE
+    Explicitness=INFERRED_DIRECT, Origin=GRAPH_REVIEW, SatisfactionStatus=UNKNOWN.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -136,9 +120,7 @@ needs:
     Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
     execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Local v3.1 enum
     normalization preserved DAG-002 authority; original fields AnchorType=DELIVERABLE, DependencyType=INTEROP_PREDECESSOR,
-    Explicitness=INFERRED_DIRECT, Origin=GRAPH_REVIEW, SatisfactionStatus=UNKNOWN.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=DECLARED; legacy_status=ACTIVE
+    Explicitness=INFERRED_DIRECT, Origin=GRAPH_REVIEW, SatisfactionStatus=UNKNOWN.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -152,9 +134,7 @@ needs:
     Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
     execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Local v3.1 enum
     normalization preserved DAG-002 authority; original fields AnchorType=DELIVERABLE, DependencyType=INTEROP_PREDECESSOR,
-    Explicitness=INFERRED_DIRECT, Origin=GRAPH_REVIEW, SatisfactionStatus=UNKNOWN.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=DECLARED; legacy_status=ACTIVE
+    Explicitness=INFERRED_DIRECT, Origin=GRAPH_REVIEW, SatisfactionStatus=UNKNOWN.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -168,9 +148,7 @@ needs:
     Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
     execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Local v3.1 enum
     normalization preserved DAG-002 authority; original fields AnchorType=DELIVERABLE, DependencyType=SECURITY_PREDECESSOR,
-    Explicitness=INFERRED_DIRECT, Origin=GRAPH_REVIEW, SatisfactionStatus=UNKNOWN.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=DECLARED; legacy_status=ACTIVE
+    Explicitness=INFERRED_DIRECT, Origin=GRAPH_REVIEW, SatisfactionStatus=UNKNOWN.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -184,9 +162,7 @@ needs:
     Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
     execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Local v3.1 enum
     normalization preserved DAG-002 authority; original fields AnchorType=DELIVERABLE, DependencyType=DOMAIN_MODEL,
-    Explicitness=INFERRED_DIRECT, Origin=GRAPH_REVIEW, SatisfactionStatus=UNKNOWN.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=DECLARED; legacy_status=ACTIVE
+    Explicitness=INFERRED_DIRECT, Origin=GRAPH_REVIEW, SatisfactionStatus=UNKNOWN.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -199,9 +175,7 @@ needs:
     Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
     execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Local v3.1 enum
     normalization preserved DAG-002 authority; original fields AnchorType=DELIVERABLE, DependencyType=PERSISTENCE_CONTRACT,
-    Explicitness=INFERRED_DIRECT, Origin=GRAPH_REVIEW, SatisfactionStatus=UNKNOWN.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=DECLARED; legacy_status=ACTIVE
+    Explicitness=INFERRED_DIRECT, Origin=GRAPH_REVIEW, SatisfactionStatus=UNKNOWN.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

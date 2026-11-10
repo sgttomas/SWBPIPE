@@ -10,9 +10,7 @@ needs:
     forward from DAG-001-E0344 into DAG-002 revision 0.5 proposal; active edge approved for coordination
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
     refresh normalized prior DAG-002 ARCHITECTURE_BASIS type to v3.1 CONSTRAINT while preserving approved
-    DAG-002 evidence.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    DAG-002 evidence.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -26,9 +24,7 @@ needs:
     forward from DAG-001-E0345 into DAG-002 revision 0.5 proposal; active edge approved for coordination
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
     refresh normalized prior DAG-002 ARCHITECTURE_BASIS type to v3.1 CONSTRAINT while preserving approved
-    DAG-002 evidence.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    DAG-002 evidence.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -42,9 +38,7 @@ needs:
     forward from DAG-001-E0346 into DAG-002 revision 0.5 proposal; active edge approved for coordination
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
     refresh normalized prior DAG-002 ARCHITECTURE_BASIS type to v3.1 CONSTRAINT while preserving approved
-    DAG-002 evidence.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    DAG-002 evidence.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -58,9 +52,7 @@ needs:
     forward from DAG-001-E0347 into DAG-002 revision 0.5 proposal; active edge approved for coordination
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
     refresh normalized prior DAG-002 ARCHITECTURE_BASIS type to v3.1 CONSTRAINT while preserving approved
-    DAG-002 evidence.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    DAG-002 evidence.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -74,9 +66,7 @@ needs:
     forward from DAG-001-E0348 into DAG-002 revision 0.5 proposal; active edge approved for coordination
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
     refresh normalized prior DAG-002 ARCHITECTURE_BASIS type to v3.1 CONSTRAINT while preserving approved
-    DAG-002 evidence.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    DAG-002 evidence.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -92,9 +82,7 @@ needs:
     Type 2 dispatch authority by itself; TP-DAG-004 refresh normalized prior DAG-002 DOCS_PREDECESSOR
     type to v3.1 PREREQUISITE while preserving approved DAG-002 evidence.; TP-DAG-004 refresh normalized
     prior UNKNOWN satisfaction status to v3.1 TBD.; TP-DAG-004 refresh normalized prior INFERRED_DIRECT
-    explicitness to v3.1 IMPLICIT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
+    explicitness to v3.1 IMPLICIT.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -110,9 +98,7 @@ needs:
     Type 2 dispatch authority by itself; TP-DAG-004 refresh normalized prior DAG-002 DOCS_PREDECESSOR
     type to v3.1 PREREQUISITE while preserving approved DAG-002 evidence.; TP-DAG-004 refresh normalized
     prior UNKNOWN satisfaction status to v3.1 TBD.; TP-DAG-004 refresh normalized prior INFERRED_DIRECT
-    explicitness to v3.1 IMPLICIT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
+    explicitness to v3.1 IMPLICIT.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -128,9 +114,7 @@ needs:
     Type 2 dispatch authority by itself; TP-DAG-004 refresh normalized prior DAG-002 DOCS_PREDECESSOR
     type to v3.1 PREREQUISITE while preserving approved DAG-002 evidence.; TP-DAG-004 refresh normalized
     prior UNKNOWN satisfaction status to v3.1 TBD.; TP-DAG-004 refresh normalized prior INFERRED_DIRECT
-    explicitness to v3.1 IMPLICIT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
+    explicitness to v3.1 IMPLICIT.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -146,9 +130,7 @@ needs:
     Type 2 dispatch authority by itself; TP-DAG-004 refresh normalized prior DAG-002 GOVERNANCE_PREDECESSOR
     type to v3.1 PREREQUISITE while preserving approved DAG-002 evidence.; TP-DAG-004 refresh normalized
     prior UNKNOWN satisfaction status to v3.1 TBD.; TP-DAG-004 refresh normalized prior INFERRED_DIRECT
-    explicitness to v3.1 IMPLICIT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
+    explicitness to v3.1 IMPLICIT.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -163,9 +145,7 @@ needs:
     Type 2 dispatch authority by itself; TP-DAG-004 refresh normalized prior DAG-002 GOVERNANCE_PREDECESSOR
     type to v3.1 PREREQUISITE while preserving approved DAG-002 evidence.; TP-DAG-004 refresh normalized
     prior UNKNOWN satisfaction status to v3.1 TBD.; TP-DAG-004 refresh normalized prior INFERRED_DIRECT
-    explicitness to v3.1 IMPLICIT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
+    explicitness to v3.1 IMPLICIT.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -176,8 +156,7 @@ needs:
 
 
     Notes: FACT: Explicit external input for future example model materialization; added by TP-DAG-004
-    refresh.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    refresh.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -188,8 +167,7 @@ needs:
 
 
     Notes: FACT: Explicit external input for future example model materialization; added by TP-DAG-004
-    refresh.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    refresh.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -199,8 +177,7 @@ needs:
 
 
     Notes: FACT: Explicit external input for future fake-rule-pack demonstration files; added by TP-DAG-004
-    refresh.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    refresh.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

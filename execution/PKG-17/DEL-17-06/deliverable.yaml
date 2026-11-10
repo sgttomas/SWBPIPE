@@ -84,9 +84,7 @@ needs:
 
 
     Notes: FACT: extracted from explicit Procedure prerequisite and Datasheet relationship; not added
-    to declared list because it was not declared there.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    to declared list because it was not declared there.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -97,9 +95,7 @@ needs:
 
 
     Notes: FACT: declared upstream preserved; dependency type normalized to INTERFACE from source contract
-    role.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DECLARED;
-    legacy_status=ACTIVE
+    role.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -110,9 +106,7 @@ needs:
 
 
     Notes: FACT: declared upstream preserved; dependency type normalized to INTERFACE from result-export
-    contract role.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DECLARED;
-    legacy_status=ACTIVE
+    contract role.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -123,9 +117,7 @@ needs:
 
 
     Notes: FACT: declared upstream preserved; dependency type normalized to INTERFACE from analysis-run
-    record model role.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DECLARED;
-    legacy_status=ACTIVE
+    record model role.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -136,9 +128,7 @@ needs:
 
 
     Notes: FACT: declared upstream preserved; dependency type normalized to INTERFACE from comparison
-    export contract role.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DECLARED;
-    legacy_status=ACTIVE
+    export contract role.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

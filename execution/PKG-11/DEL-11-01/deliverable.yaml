@@ -13,9 +13,7 @@ needs:
     prior SEMANTIC_READY history, meeting RequiredMaturity=SEMANTIC_READY; supporting local memory execution/PKG-00_Software
     Architecture Runway/1_Working/DEL-00-01_Architecture decision record baseline/MEMORY.md heading ''TP-AUTHORITY-REFRESH-0_7-DAG006''
     reviewed. This is dependency satisfaction evidence only; no lifecycle, release, professional-approval,
-    certification, sealing, authentication, or code-compliance claim.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    certification, sealing, authentication, or code-compliance claim.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -33,9 +31,7 @@ needs:
     execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-02_Repository and module boundary architecture/MEMORY.md
     heading ''TP-AUTHORITY-REFRESH-0_7-DAG006'' reviewed. This is dependency satisfaction evidence only;
     no lifecycle, release, professional-approval, certification, sealing, authentication, or code-compliance
-    claim.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    claim.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -53,9 +49,7 @@ needs:
     memory execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-06_Diagnostics, warning, and
     result-envelope contract/MEMORY.md heading ''TP-AUTHORITY-REFRESH-0_7-DAG006'' reviewed. This is dependency
     satisfaction evidence only; no lifecycle, release, professional-approval, certification, sealing,
-    authentication, or code-compliance claim.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    authentication, or code-compliance claim.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -72,9 +66,7 @@ needs:
     prior SEMANTIC_READY history, meeting RequiredMaturity=SEMANTIC_READY; supporting local memory execution/PKG-00_Software
     Architecture Runway/1_Working/DEL-00-07_API boundary and adapter contract map/MEMORY.md heading ''TP-AUTHORITY-REFRESH-0_7-DAG006''
     reviewed. This is dependency satisfaction evidence only; no lifecycle, release, professional-approval,
-    certification, sealing, authentication, or code-compliance claim.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    certification, sealing, authentication, or code-compliance claim.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -92,9 +84,7 @@ needs:
     execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-08_Layered software test and acceptance
     strategy/MEMORY.md heading ''TP-AUTHORITY-REFRESH-0_7-DAG006'' reviewed. This is dependency satisfaction
     evidence only; no lifecycle, release, professional-approval, certification, sealing, authentication,
-    or code-compliance claim.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    or code-compliance claim.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -112,9 +102,7 @@ needs:
     supporting local memory execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D
     viewport and centerline editor/MEMORY.md heading ''Lifecycle update to CHECKING'' reviewed. This is
     dependency satisfaction evidence only; no lifecycle, release, professional-approval, certification,
-    sealing, authentication, or code-compliance claim.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    sealing, authentication, or code-compliance claim.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -134,9 +122,7 @@ needs:
     and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/MEMORY.md
     heading ''CHECKING-readiness review addendum'' reviewed. This is dependency satisfaction evidence
     only; no lifecycle, release, professional-approval, certification, sealing, authentication, or code-compliance
-    claim.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    claim.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -154,9 +140,7 @@ needs:
     supporting local memory execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results
     viewer/MEMORY.md heading ''CHECKING-readiness review addendum'' reviewed. This is dependency satisfaction
     evidence only; no lifecycle, release, professional-approval, certification, sealing, authentication,
-    or code-compliance claim.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    or code-compliance claim.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -174,9 +158,7 @@ needs:
     supporting local memory execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation
     report generator/MEMORY.md heading ''WORKING_ITEMS fan-in validation'' reviewed. This is dependency
     satisfaction evidence only; no lifecycle, release, professional-approval, certification, sealing,
-    authentication, or code-compliance claim.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    authentication, or code-compliance claim.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -195,9 +177,7 @@ needs:
     memory execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-04_Professional
     responsibility and product-claims policy/MEMORY.md heading ''CHECKING Transition'' reviewed. This
     is dependency satisfaction evidence only; no lifecycle, release, professional-approval, certification,
-    sealing, authentication, or code-compliance claim.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    sealing, authentication, or code-compliance claim.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -216,9 +196,7 @@ needs:
     memory execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-02_Copyright
     and protected-data boundary policy/MEMORY.md heading ''CHECKING Transition'' reviewed. This is dependency
     satisfaction evidence only; no lifecycle, release, professional-approval, certification, sealing,
-    authentication, or code-compliance claim.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    authentication, or code-compliance claim.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -236,9 +214,7 @@ needs:
     history, meeting RequiredMaturity=SEMANTIC_READY; supporting local memory execution/PKG-05_Loads,
     Load Cases, and Stress Recovery/1_Working/DEL-05-04_Analysis status semantics/MEMORY.md heading ''Blocker
     closure ruling applied'' reviewed. This is dependency satisfaction evidence only; no lifecycle, release,
-    professional-approval, certification, sealing, authentication, or code-compliance claim.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    professional-approval, certification, sealing, authentication, or code-compliance claim.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -257,9 +233,7 @@ needs:
     Packs and User-Supplied Code Check Engine/1_Working/DEL-06-03_Required-input completeness checker/MEMORY.md
     heading ''TP-CODE-EVIDENCE-MIGRATION-RECONCILIATION-001 CHECKING transition'' reviewed. This is dependency
     satisfaction evidence only; no lifecycle, release, professional-approval, certification, sealing,
-    authentication, or code-compliance claim.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    authentication, or code-compliance claim.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -278,9 +252,7 @@ needs:
     User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/MEMORY.md
     heading ''CHECKING-readiness review addendum'' reviewed. This is dependency satisfaction evidence
     only; no lifecycle, release, professional-approval, certification, sealing, authentication, or code-compliance
-    claim.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    claim.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -299,9 +271,7 @@ needs:
     supporting local memory execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve
     execution UX- progress, cancellation, and diagnostics/MEMORY.md heading ''CHECKING-readiness review
     addendum'' reviewed. This is dependency satisfaction evidence only; no lifecycle, release, professional-approval,
-    certification, sealing, authentication, or code-compliance claim.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    certification, sealing, authentication, or code-compliance claim.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -320,9 +290,7 @@ needs:
     supporting local memory execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-02_Audit
     manifest and model hash/MEMORY.md heading ''WORKING_ITEMS fan-in validation'' reviewed. This is dependency
     satisfaction evidence only; no lifecycle, release, professional-approval, certification, sealing,
-    authentication, or code-compliance claim.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    authentication, or code-compliance claim.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -341,9 +309,7 @@ needs:
     RequiredMaturity=SEMANTIC_READY; supporting local memory execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-03_Warnings,
     assumptions, and provenance report section/MEMORY.md heading ''WORKING_ITEMS fan-in validation'' reviewed.
     This is dependency satisfaction evidence only; no lifecycle, release, professional-approval, certification,
-    sealing, authentication, or code-compliance claim.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    sealing, authentication, or code-compliance claim.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

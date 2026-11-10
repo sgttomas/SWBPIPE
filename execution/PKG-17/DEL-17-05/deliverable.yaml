@@ -84,18 +84,14 @@ needs:
 
 
     Notes: FACT: Preserved declared upstream edge; source documents corroborate that the accepted DEL-17-04
-    profile/writer tranche remains a gate.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD;
-    legacy_origin=DECLARED; legacy_status=ACTIVE'
+    profile/writer tranche remains a gate.'
   gating: true
 - from: DEL-17-01
   condition: 'DEL-17-05 uses DEL-17-01 as the CAEPIPE source authority for questions TBDs and boundary
     facts.
 
 
-    Notes: FACT: Explicit source-authority interface; unresolved CAEPIPE target behavior remains TBD.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE'
+    Notes: FACT: Explicit source-authority interface; unresolved CAEPIPE target behavior remains TBD.'
   gating: true
   evidence: execution/PKG-17/DEL-17-05/Datasheet.md
 - from: DEL-17-02
@@ -103,9 +99,7 @@ needs:
     policy contracts.
 
 
-    Notes: FACT: Explicit contract interface for manifest ID-map loss-report and external-execution policy.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE'
+    Notes: FACT: Explicit contract interface for manifest ID-map loss-report and external-execution policy.'
   gating: true
   evidence: execution/PKG-17/DEL-17-05/Datasheet.md
 - from: external:CAEPIPE-EXECUTABLE
@@ -114,9 +108,7 @@ needs:
 
 
     Notes: FACT: External constraint is explicit; no executable path or license mechanism is supplied
-    by this deliverable.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=EXTERNAL; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
+    by this deliverable.
 
 
     Target description — TargetName: user-provided licensed CAEPIPE executable; TargetRefID: CAEPIPE-EXECUTABLE;

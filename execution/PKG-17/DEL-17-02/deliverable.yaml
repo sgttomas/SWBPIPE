@@ -82,9 +82,7 @@ needs:
   condition: 'Professional/IP/data-boundary invariants constrain export contract claims.
 
 
-    Notes: Architecture/governance basis edge satisfied by accepted PKG-00 baseline in blocker queue.;
-    legacy_anchortype=GOVERNANCE; legacy_direction=UPSTREAM; legacy_dependencytype=BOUNDARY; legacy_targettype=REFERENCE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=TASK_EXTRACT; legacy_status=ACTIVE
+    Notes: Architecture/governance basis edge satisfied by accepted PKG-00 baseline in blocker queue.
 
 
     Required input maturity in source: ACCEPTED_BASELINE; this is not a fulfilment or completion claim.
@@ -97,9 +95,7 @@ needs:
   condition: 'Export artifacts must exclude protected/private/proprietary content absent rights and review.
 
 
-    Notes: Boundary control only; no protected source material added.; legacy_anchortype=GOVERNANCE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=DATA_BOUNDARY; legacy_targettype=REFERENCE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=TASK_EXTRACT; legacy_status=ACTIVE
+    Notes: Boundary control only; no protected source material added.
 
 
     Required input maturity in source: ACCEPTED_BASELINE; this is not a fulfilment or completion claim.
@@ -111,9 +107,7 @@ needs:
   condition: 'Canonical OpenPipeStress identities constrain stable ID map families.
 
 
-    Notes: No schema edit was made; contract references canonical identity vocabulary only.; legacy_anchortype=SCHEMA;
-    legacy_direction=UPSTREAM; legacy_dependencytype=IDENTITY_BASIS; legacy_targettype=REFERENCE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=TASK_EXTRACT; legacy_status=ACTIVE
+    Notes: No schema edit was made; contract references canonical identity vocabulary only.
 
 
     Required input maturity in source: COMMITTED; this is not a fulfilment or completion claim.
@@ -126,9 +120,7 @@ needs:
   condition: 'DEL-17-02 consumes DEL-17-01 as source authority.
 
 
-    Notes: Downstream dependency already committed through DEL-17-02 foundation.; legacy_anchortype=DELIVERABLE;
-    legacy_direction=DOWNSTREAM; legacy_dependencytype=CONSUMED_BY; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=TASK_EXTRACT; legacy_status=ACTIVE
+    Notes: Downstream dependency already committed through DEL-17-02 foundation.
 
 
     Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.'

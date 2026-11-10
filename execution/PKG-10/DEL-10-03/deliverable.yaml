@@ -8,9 +8,7 @@ needs:
 
     Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
     forward from DAG-001-E0308 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -22,9 +20,7 @@ needs:
 
     Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
     forward from DAG-001-E0309 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -36,9 +32,7 @@ needs:
 
     Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
     forward from DAG-001-E0310 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -50,9 +44,7 @@ needs:
 
     Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
     forward from DAG-001-E0311 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -64,9 +56,7 @@ needs:
 
     Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
     forward from DAG-001-E0312 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -78,9 +68,7 @@ needs:
 
     Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
     forward from DAG-001-E0313 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -92,9 +80,7 @@ needs:
 
     Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
     forward from DAG-001-E0314 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -107,9 +93,7 @@ needs:
     Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
     mapping, and package dependency shape.; Carried forward from DAG-001-E0561 into DAG-002 revision 0.5
     proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Type 2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -123,9 +107,7 @@ needs:
     Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
     mapping, and package dependency shape.; Carried forward from DAG-001-E0562 into DAG-002 revision 0.5
     proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Type 2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -139,9 +121,7 @@ needs:
     Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
     mapping, and package dependency shape.; Carried forward from DAG-001-E0563 into DAG-002 revision 0.5
     proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Type 2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -155,9 +135,7 @@ needs:
     Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
     mapping, and package dependency shape.; Carried forward from DAG-001-E0564 into DAG-002 revision 0.5
     proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; edge touches targeted-review deliverable DEL-01-04 or DEL-02-01;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Type 2 dispatch authority by itself; edge touches targeted-review deliverable DEL-01-04 or DEL-02-01
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -170,9 +148,7 @@ needs:
 
     Notes: DEV-001 Stage 2 package-local technical finding resolution for PKG10-DEL1003-PKG02-W001; grounded
     in accepted PKG-02 canonical model contract; local evidence only, not aggregate DAG authority or lifecycle
-    approval.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=SCHEMA_CONTRACT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=PACKAGE_AUDIT; legacy_status=ACTIVE
+    approval.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -184,9 +160,7 @@ needs:
 
 
     Notes: DEV-001 Stage 2 package-local technical finding resolution for PKG10-DEL1003-PKG02-W001; grounded
-    in accepted PKG-02 unit contract; local evidence only.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=UNIT_CONTRACT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=PACKAGE_AUDIT; legacy_status=ACTIVE
+    in accepted PKG-02 unit contract; local evidence only.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -198,9 +172,7 @@ needs:
 
 
     Notes: DEV-001 Stage 2 package-local technical finding resolution for PKG10-DEL1003-PKG02-W001; grounded
-    in accepted PKG-02 authority-status semantics; local evidence only.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=DOMAIN_MODEL; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=PACKAGE_AUDIT; legacy_status=ACTIVE
+    in accepted PKG-02 authority-status semantics; local evidence only.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -212,9 +184,7 @@ needs:
 
 
     Notes: DEV-001 Stage 2 package-local technical finding resolution for PKG10-DEL1003-PKG02-W001; grounded
-    in accepted PKG-02 persistence/hash contract; local evidence only.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=PACKAGE_AUDIT; legacy_status=ACTIVE
+    in accepted PKG-02 persistence/hash contract; local evidence only.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

@@ -7,9 +7,7 @@ needs:
 
 
     Notes: FACT; normalized legacy DAG-002 mirror row to v3.1 enums; architecture-basis edge remains context
-    evidence only and not aggregate graph authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    evidence only and not aggregate graph authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -20,9 +18,7 @@ needs:
 
 
     Notes: FACT; normalized legacy DAG-002 mirror row to v3.1 enums; architecture-basis edge remains context
-    evidence only and not aggregate graph authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    evidence only and not aggregate graph authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -33,9 +29,7 @@ needs:
 
 
     Notes: FACT; normalized legacy DAG-002 mirror row to v3.1 enums; architecture-basis edge remains context
-    evidence only and not aggregate graph authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    evidence only and not aggregate graph authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -46,9 +40,7 @@ needs:
 
 
     Notes: FACT; normalized legacy DAG-002 mirror row to v3.1 enums; architecture-basis edge remains context
-    evidence only and not aggregate graph authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    evidence only and not aggregate graph authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -58,9 +50,7 @@ needs:
     agent boundaries.
 
 
-    Notes: FACT; document target is referenced by repo path and not treated as aggregate graph authority.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DOCUMENT;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: FACT; document target is referenced by repo path and not treated as aggregate graph authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
@@ -73,9 +63,7 @@ needs:
     data.
 
 
-    Notes: FACT; uses governing boundary read in this task brief.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: FACT; uses governing boundary read in this task brief.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
@@ -90,9 +78,7 @@ needs:
 
 
     Notes: FACT; current-basis refresh clears stale revision 0.4 references without changing lifecycle
-    or aggregate DAG state.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
+    or aggregate DAG state.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
@@ -106,9 +92,7 @@ needs:
     human legal or professional review.
 
 
-    Notes: No legal conclusion inferred; external review remains pending for jurisdiction-specific wording.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=EXTERNAL;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: No legal conclusion inferred; external review remains pending for jurisdiction-specific wording.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
@@ -121,9 +105,7 @@ needs:
     requires a human project authority gate.
 
 
-    Notes: No lifecycle transition or issued-policy claim; final governance acceptance remains pending.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=EXTERNAL;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: No lifecycle transition or issued-policy claim; final governance acceptance remains pending.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
@@ -137,9 +119,7 @@ needs:
 
 
     Notes: FACT; draft repo-level report notice template exists; final acceptance or revision remains
-    TBD and no issued report-template claim is made.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=DOWNSTREAM;
-    legacy_dependencytype=HANDOVER; legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    TBD and no issued report-template claim is made.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.

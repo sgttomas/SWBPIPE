@@ -82,9 +82,7 @@ needs:
   condition: 'Project governance constrains source boundary and professional claims.
 
 
-    Notes: No protected or proprietary source material added.; legacy_anchortype=GOVERNANCE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=BOUNDARY; legacy_targettype=REFERENCE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=TASK_EXTRACT; legacy_status=ACTIVE
+    Notes: No protected or proprietary source material added.
 
 
     Required input maturity in source: ACCEPTED_BASELINE; this is not a fulfilment or completion claim.

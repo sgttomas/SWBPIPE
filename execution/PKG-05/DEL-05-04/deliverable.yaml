@@ -7,9 +7,7 @@ needs:
 
 
     Notes: FACT: normalized from DAG-002 mirror; prior dependency type ARCHITECTURE_BASIS represented
-    as CONSTRAINT for v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    as CONSTRAINT for v3.1 enum compliance.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -20,9 +18,7 @@ needs:
 
 
     Notes: FACT: normalized from DAG-002 mirror; prior dependency type ARCHITECTURE_BASIS represented
-    as CONSTRAINT for v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    as CONSTRAINT for v3.1 enum compliance.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -33,9 +29,7 @@ needs:
 
 
     Notes: FACT: normalized from DAG-002 mirror; prior dependency type ARCHITECTURE_BASIS represented
-    as CONSTRAINT for v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    as CONSTRAINT for v3.1 enum compliance.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -46,9 +40,7 @@ needs:
 
 
     Notes: FACT: normalized from DAG-002 mirror; prior dependency type ARCHITECTURE_BASIS represented
-    as CONSTRAINT for v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    as CONSTRAINT for v3.1 enum compliance.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -59,9 +51,7 @@ needs:
 
 
     Notes: FACT: normalized from DAG-002 mirror; prior dependency type ARCHITECTURE_BASIS represented
-    as CONSTRAINT for v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    as CONSTRAINT for v3.1 enum compliance.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -73,9 +63,7 @@ needs:
 
     Notes: STAGE2: local metadata alignment only; relationship is explicit in DEL-05-04 status/schema
     evidence and technically satisfied for PKG-05. Result-envelope and non-JSON hash details remain documented
-    TBDs. No aggregate DAG or lifecycle action taken.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    TBDs. No aggregate DAG or lifecycle action taken.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

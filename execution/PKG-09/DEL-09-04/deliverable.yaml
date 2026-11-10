@@ -7,9 +7,7 @@ needs:
 
 
     Notes: Normalized from prior DAG-002 ARCHITECTURE_BASIS row for enum conformance; original source
-    classified Origin=CONTEXT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    classified Origin=CONTEXT.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -20,9 +18,7 @@ needs:
 
 
     Notes: Normalized from prior DAG-002 ARCHITECTURE_BASIS row for enum conformance; original source
-    classified Origin=CONTEXT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    classified Origin=CONTEXT.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -33,9 +29,7 @@ needs:
 
 
     Notes: Normalized from prior DAG-002 ARCHITECTURE_BASIS row for enum conformance; original source
-    classified Origin=CONTEXT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    classified Origin=CONTEXT.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -46,9 +40,7 @@ needs:
 
 
     Notes: Normalized from prior DAG-002 ARCHITECTURE_BASIS row for enum conformance; original source
-    classified Origin=CONTEXT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    classified Origin=CONTEXT.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -63,9 +55,7 @@ needs:
     records invented public mechanics benchmark fixtures and passing tests. RequiredMaturity SEMANTIC_READY
     is met by current CHECKING status. Satisfaction is dependency maturity only; final benchmark tolerance
     policy, source acceptance, release thresholds, CI gate policy, publication scope, result-envelope/export
-    integration, and professional reliance remain TBD.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    integration, and professional reliance remain TBD.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -80,9 +70,7 @@ needs:
     records invented public stress recovery benchmarks and passing tests. RequiredMaturity SEMANTIC_READY
     is met by current CHECKING status. Satisfaction is dependency maturity only; final benchmark tolerance
     policy, source acceptance, release thresholds, CI gate policy, result-envelope/export integration,
-    publication scope, canonical units/conversions, and professional reliance remain TBD.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    publication scope, canonical units/conversions, and professional reliance remain TBD.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -97,9 +85,7 @@ needs:
     records nonlinear support regression fixtures and passing tests. RequiredMaturity SEMANTIC_READY is
     met by current CHECKING status. Satisfaction is dependency maturity only; final nonlinear convergence
     tolerance policy, release thresholds, CI/publication policy, external validation claims, unit catalog,
-    conversion constants, and professional reliance remain TBD.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    conversion constants, and professional reliance remain TBD.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -115,9 +101,7 @@ needs:
     refreshed to current basis. RequiredMaturity SEMANTIC_READY is met by current CHECKING status. Satisfaction
     is dependency maturity only; jurisdiction-specific wording, human-acceptance workflow, release-label
     vocabulary, final release policy, legal-review authority, and final policy/template acceptance remain
-    TBD.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    TBD.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

@@ -7,9 +7,7 @@ needs:
 
 
     Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -21,9 +19,7 @@ needs:
 
 
     Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -35,9 +31,7 @@ needs:
 
 
     Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -49,9 +43,7 @@ needs:
 
 
     Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -63,9 +55,7 @@ needs:
 
 
     Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -77,9 +67,7 @@ needs:
 
 
     Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -91,9 +79,7 @@ needs:
 
 
     Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -105,9 +91,7 @@ needs:
 
 
     Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=DOMAIN_MODEL; legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT;
-    legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW; legacy_status=ACTIVE
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -119,9 +103,7 @@ needs:
 
 
     Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=UNIT_CONTRACT; legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT;
-    legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW; legacy_status=ACTIVE
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -133,10 +115,7 @@ needs:
 
 
     Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=GOVERNANCE_PREDECESSOR; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW;
-    legacy_status=ACTIVE
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -148,10 +127,7 @@ needs:
 
 
     Notes: Added by SCA-002 DAG-002 edge-disposition review; active edge approved for coordination by
-    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=GOVERNANCE_PREDECESSOR; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=GRAPH_REVIEW;
-    legacy_status=ACTIVE
+    execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -164,9 +140,7 @@ needs:
 
 
     Notes: Added by DEV-001 Stage 2 package-scoped finding resolution; HumanDisposition remains TBD; aggregate
-    DAG files not edited.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PERSISTENCE_CONTRACT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DEV001_STAGE2;
-    legacy_status=ACTIVE
+    DAG files not edited.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

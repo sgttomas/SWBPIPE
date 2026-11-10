@@ -5,9 +5,7 @@ needs:
   condition: 'DEL-09-05 is constrained by architecture basis AB-00-01 from DEL-00-01.
 
 
-    Notes: Preserves matching prior DependencyID; normalized to canonical execution enums.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Preserves matching prior DependencyID; normalized to canonical execution enums.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -16,9 +14,7 @@ needs:
   condition: 'DEL-09-05 is constrained by architecture basis AB-00-02 from DEL-00-02.
 
 
-    Notes: Preserves matching prior DependencyID; normalized to canonical execution enums.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Preserves matching prior DependencyID; normalized to canonical execution enums.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -27,9 +23,7 @@ needs:
   condition: 'DEL-09-05 is constrained by architecture basis AB-00-06 from DEL-00-06.
 
 
-    Notes: Preserves matching prior DependencyID; normalized to canonical execution enums.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Preserves matching prior DependencyID; normalized to canonical execution enums.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -38,9 +32,7 @@ needs:
   condition: 'DEL-09-05 is constrained by architecture basis AB-00-08 from DEL-00-08.
 
 
-    Notes: Preserves matching prior DependencyID; normalized to canonical execution enums.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Preserves matching prior DependencyID; normalized to canonical execution enums.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -49,9 +41,7 @@ needs:
   condition: 'Solver-change release gates require mechanics benchmark evidence from DEL-09-01.
 
 
-    Notes: Preserves matching prior DependencyID; target resolved through SOFTWARE_DECOMP.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Preserves matching prior DependencyID; target resolved through SOFTWARE_DECOMP.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -62,9 +52,7 @@ needs:
     stresses or result-facing values are affected.
 
 
-    Notes: Preserves matching prior DependencyID; target resolved through SOFTWARE_DECOMP.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Preserves matching prior DependencyID; target resolved through SOFTWARE_DECOMP.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -75,9 +63,7 @@ needs:
     when nonlinear behavior is affected.
 
 
-    Notes: Preserves matching prior DependencyID; target resolved through SOFTWARE_DECOMP.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Preserves matching prior DependencyID; target resolved through SOFTWARE_DECOMP.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -88,9 +74,7 @@ needs:
     public templates or examples are affected.
 
 
-    Notes: Preserves matching prior DependencyID; target resolved through SOFTWARE_DECOMP.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Preserves matching prior DependencyID; target resolved through SOFTWARE_DECOMP.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -101,9 +85,7 @@ needs:
     defined by DEL-01-04.
 
 
-    Notes: Preserves matching prior DependencyID; target resolved through SOFTWARE_DECOMP.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Preserves matching prior DependencyID; target resolved through SOFTWARE_DECOMP.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -120,9 +102,7 @@ needs:
     record or professional claim. RequiredMaturity SEMANTIC_READY is met by current CHECKING status for
     the handoff target. Satisfaction is handoff maturity only; release-label vocabulary, final thresholds,
     CI provider, release matrix, signing/attestation, owners, waiver roles, known-limitations release-note
-    format, GUI validation evidence, and evidence-bundle-storage policy remain TBD.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=DOWNSTREAM; legacy_dependencytype=ENABLES; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    format, GUI validation evidence, and evidence-bundle-storage policy remain TBD.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

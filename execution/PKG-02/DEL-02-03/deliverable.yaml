@@ -9,9 +9,7 @@ needs:
     Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
     forward from DAG-001-E0031 into DAG-002 revision 0.5 proposal; active edge approved for coordination
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Normalized
-    from legacy DAG mirror values: AnchorType=DELIVERABLE; DependencyType=ARCHITECTURE_BASIS; Origin=CONTEXT.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    from legacy DAG mirror values: AnchorType=DELIVERABLE; DependencyType=ARCHITECTURE_BASIS; Origin=CONTEXT.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -24,9 +22,7 @@ needs:
     Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
     forward from DAG-001-E0032 into DAG-002 revision 0.5 proposal; active edge approved for coordination
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Normalized
-    from legacy DAG mirror values: AnchorType=DELIVERABLE; DependencyType=ARCHITECTURE_BASIS; Origin=CONTEXT.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    from legacy DAG mirror values: AnchorType=DELIVERABLE; DependencyType=ARCHITECTURE_BASIS; Origin=CONTEXT.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -39,9 +35,7 @@ needs:
     Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
     forward from DAG-001-E0033 into DAG-002 revision 0.5 proposal; active edge approved for coordination
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Normalized
-    from legacy DAG mirror values: AnchorType=DELIVERABLE; DependencyType=ARCHITECTURE_BASIS; Origin=CONTEXT.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    from legacy DAG mirror values: AnchorType=DELIVERABLE; DependencyType=ARCHITECTURE_BASIS; Origin=CONTEXT.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -54,9 +48,7 @@ needs:
     Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
     forward from DAG-001-E0034 into DAG-002 revision 0.5 proposal; active edge approved for coordination
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Normalized
-    from legacy DAG mirror values: AnchorType=DELIVERABLE; DependencyType=ARCHITECTURE_BASIS; Origin=CONTEXT.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    from legacy DAG mirror values: AnchorType=DELIVERABLE; DependencyType=ARCHITECTURE_BASIS; Origin=CONTEXT.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -69,9 +61,7 @@ needs:
     Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
     forward from DAG-001-E0035 into DAG-002 revision 0.5 proposal; active edge approved for coordination
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Normalized
-    from legacy DAG mirror values: AnchorType=DELIVERABLE; DependencyType=ARCHITECTURE_BASIS; Origin=CONTEXT.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    from legacy DAG mirror values: AnchorType=DELIVERABLE; DependencyType=ARCHITECTURE_BASIS; Origin=CONTEXT.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -84,9 +74,7 @@ needs:
     Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
     forward from DAG-001-E0036 into DAG-002 revision 0.5 proposal; active edge approved for coordination
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Normalized
-    from legacy DAG mirror values: AnchorType=DELIVERABLE; DependencyType=ARCHITECTURE_BASIS; Origin=CONTEXT.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    from legacy DAG mirror values: AnchorType=DELIVERABLE; DependencyType=ARCHITECTURE_BASIS; Origin=CONTEXT.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -99,9 +87,7 @@ needs:
     Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
     forward from DAG-001-E0037 into DAG-002 revision 0.5 proposal; active edge approved for coordination
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; Normalized
-    from legacy DAG mirror values: AnchorType=DELIVERABLE; DependencyType=ARCHITECTURE_BASIS; Origin=CONTEXT.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    from legacy DAG mirror values: AnchorType=DELIVERABLE; DependencyType=ARCHITECTURE_BASIS; Origin=CONTEXT.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -116,9 +102,7 @@ needs:
     proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
     Type 2 dispatch authority by itself; edge touches targeted-review deliverable DEL-01-04 or DEL-02-01;
     Normalized from legacy DAG mirror values: AnchorType=DELIVERABLE; DependencyType=DOMAIN_MODEL; Explicitness=INFERRED_DIRECT;
-    Origin=DECOMPOSITION; SatisfactionStatus=UNKNOWN.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Origin=DECOMPOSITION; SatisfactionStatus=UNKNOWN.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

@@ -7,9 +7,7 @@ needs:
 
 
     Notes: Preserved DAG-002 approved active edge ID; normalized local enum fields for v3.1 validation;
-    original DAG-002 type ARCHITECTURE_BASIS retained in statement/notes; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+    original DAG-002 type ARCHITECTURE_BASIS retained in statement/notes
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -21,9 +19,7 @@ needs:
 
 
     Notes: Preserved DAG-002 approved active edge ID; normalized local enum fields for v3.1 validation;
-    original DAG-002 type ARCHITECTURE_BASIS retained in statement/notes; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+    original DAG-002 type ARCHITECTURE_BASIS retained in statement/notes
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -35,9 +31,7 @@ needs:
 
 
     Notes: Preserved DAG-002 approved active edge ID; normalized local enum fields for v3.1 validation;
-    original DAG-002 type ARCHITECTURE_BASIS retained in statement/notes; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+    original DAG-002 type ARCHITECTURE_BASIS retained in statement/notes
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -49,9 +43,7 @@ needs:
 
 
     Notes: Preserved DAG-002 approved active edge ID; normalized local enum fields for v3.1 validation;
-    original DAG-002 type ARCHITECTURE_BASIS retained in statement/notes; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+    original DAG-002 type ARCHITECTURE_BASIS retained in statement/notes
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -63,9 +55,7 @@ needs:
 
 
     Notes: Preserved DAG-002 approved active edge ID; normalized local enum fields for v3.1 validation;
-    original DAG-002 type ARCHITECTURE_BASIS retained in statement/notes; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+    original DAG-002 type ARCHITECTURE_BASIS retained in statement/notes
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -77,9 +67,7 @@ needs:
 
 
     Notes: Preserved DAG-002 approved active edge ID; normalized local enum fields for v3.1 validation;
-    original DAG-002 type ARCHITECTURE_BASIS retained in statement/notes; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+    original DAG-002 type ARCHITECTURE_BASIS retained in statement/notes
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -91,9 +79,7 @@ needs:
 
 
     Notes: Preserved DAG-002 approved active edge ID; normalized local enum fields for v3.1 validation;
-    original DAG-002 type ARCHITECTURE_BASIS retained in statement/notes; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+    original DAG-002 type ARCHITECTURE_BASIS retained in statement/notes
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -104,9 +90,7 @@ needs:
 
 
     Notes: Preserved DAG-002 approved active edge ID; local Procedure and Specification explicitly confirm
-    the prerequisite; original DAG-002 type PERSISTENCE_CONTRACT retained in statement/notes; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    the prerequisite; original DAG-002 type PERSISTENCE_CONTRACT retained in statement/notes
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -118,9 +102,7 @@ needs:
 
 
     Notes: Preserved DAG-002 approved active edge ID; local Procedure and Specification explicitly confirm
-    the prerequisite; original DAG-002 type PERSISTENCE_CONTRACT retained in statement/notes; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    the prerequisite; original DAG-002 type PERSISTENCE_CONTRACT retained in statement/notes
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -131,9 +113,7 @@ needs:
 
 
     Notes: Preserved DAG-002 approved active edge ID; local Specification explicitly confirms the unit-system
-    prerequisite; original DAG-002 type UNIT_CONTRACT retained in statement/notes; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    prerequisite; original DAG-002 type UNIT_CONTRACT retained in statement/notes
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

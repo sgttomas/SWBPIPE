@@ -7,9 +7,7 @@ needs:
 
 
     Notes: FACT: preserved DAG-002 mirror row; normalized local DependencyType from ARCHITECTURE_BASIS
-    to CONSTRAINT and Origin from CONTEXT to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    to CONSTRAINT and Origin from CONTEXT to EXTRACTED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -20,9 +18,7 @@ needs:
 
 
     Notes: FACT: preserved DAG-002 mirror row; normalized local DependencyType from ARCHITECTURE_BASIS
-    to CONSTRAINT and Origin from CONTEXT to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    to CONSTRAINT and Origin from CONTEXT to EXTRACTED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -33,9 +29,7 @@ needs:
 
 
     Notes: FACT: preserved DAG-002 mirror row; normalized local DependencyType from ARCHITECTURE_BASIS
-    to CONSTRAINT and Origin from CONTEXT to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    to CONSTRAINT and Origin from CONTEXT to EXTRACTED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -46,9 +40,7 @@ needs:
 
 
     Notes: FACT: preserved DAG-002 mirror row; normalized local DependencyType from ARCHITECTURE_BASIS
-    to CONSTRAINT and Origin from CONTEXT to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    to CONSTRAINT and Origin from CONTEXT to EXTRACTED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -59,9 +51,7 @@ needs:
 
 
     Notes: FACT: preserved DAG-002 mirror row; normalized local DependencyType from ARCHITECTURE_BASIS
-    to CONSTRAINT and Origin from CONTEXT to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    to CONSTRAINT and Origin from CONTEXT to EXTRACTED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -72,9 +62,7 @@ needs:
 
 
     Notes: FACT: preserved DAG-002 mirror row; normalized local DependencyType from ARCHITECTURE_BASIS
-    to CONSTRAINT and Origin from CONTEXT to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    to CONSTRAINT and Origin from CONTEXT to EXTRACTED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -85,9 +73,7 @@ needs:
 
 
     Notes: FACT: preserved DAG-002 mirror row; normalized local DependencyType from ARCHITECTURE_BASIS
-    to CONSTRAINT and Origin from CONTEXT to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    to CONSTRAINT and Origin from CONTEXT to EXTRACTED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -98,9 +84,7 @@ needs:
 
 
     Notes: FACT: preserved DAG-002 mirror row; normalized local DependencyType from PERSISTENCE_CONTRACT
-    to INTERFACE and Origin from GRAPH_REVIEW to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    to INTERFACE and Origin from GRAPH_REVIEW to EXTRACTED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -112,9 +96,7 @@ needs:
 
 
     Notes: FACT: preserved DAG-002 mirror row; normalized local DependencyType from PERSISTENCE_CONTRACT
-    to INTERFACE and Origin from GRAPH_REVIEW to EXTRACTED; OI-014 remains TBD.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    to INTERFACE and Origin from GRAPH_REVIEW to EXTRACTED; OI-014 remains TBD.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -126,9 +108,7 @@ needs:
 
 
     Notes: FACT: preserved DAG-002 mirror row; normalized local DependencyType from REPORTING_PREDECESSOR
-    to INTERFACE and Origin from GRAPH_REVIEW to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    to INTERFACE and Origin from GRAPH_REVIEW to EXTRACTED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -140,9 +120,7 @@ needs:
 
 
     Notes: FACT: preserved DAG-002 mirror row; normalized local DependencyType from UNIT_CONTRACT to CONSTRAINT
-    and Origin from GRAPH_REVIEW to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    and Origin from GRAPH_REVIEW to EXTRACTED.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

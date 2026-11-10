@@ -7,9 +7,7 @@ needs:
 
 
     Notes: Preserved from DAG-002 mirror as local extracted context evidence; normalized AnchorType/DependencyType/Origin
-    to v3.1 enums; does not mark PKG-00 as ISSUED or change DAG-006 authority.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    to v3.1 enums; does not mark PKG-00 as ISSUED or change DAG-006 authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -20,9 +18,7 @@ needs:
 
 
     Notes: Preserved from DAG-002 mirror as local extracted context evidence; normalized AnchorType/DependencyType/Origin
-    to v3.1 enums; does not mark PKG-00 as ISSUED or change DAG-006 authority.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    to v3.1 enums; does not mark PKG-00 as ISSUED or change DAG-006 authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -33,9 +29,7 @@ needs:
 
 
     Notes: Preserved from DAG-002 mirror as local extracted context evidence; normalized AnchorType/DependencyType/Origin
-    to v3.1 enums; does not mark PKG-00 as ISSUED or change DAG-006 authority.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    to v3.1 enums; does not mark PKG-00 as ISSUED or change DAG-006 authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -46,9 +40,7 @@ needs:
 
 
     Notes: Preserved from DAG-002 mirror as local extracted context evidence; normalized AnchorType/DependencyType/Origin
-    to v3.1 enums; does not mark PKG-00 as ISSUED or change DAG-006 authority.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    to v3.1 enums; does not mark PKG-00 as ISSUED or change DAG-006 authority.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -58,9 +50,7 @@ needs:
     authority governance and agent execution.
 
 
-    Notes: FACT: Document dependency resolved through _REFERENCES.md governing references.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: FACT: Document dependency resolved through _REFERENCES.md governing references.
 
 
     Required input maturity in source: CHECKING; this is not a fulfilment or completion claim.
@@ -74,9 +64,7 @@ needs:
     intent.
 
 
-    Notes: FACT: Document dependency resolved through _REFERENCES.md governing references.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: FACT: Document dependency resolved through _REFERENCES.md governing references.
 
 
     Required input maturity in source: CHECKING; this is not a fulfilment or completion claim.
@@ -89,9 +77,7 @@ needs:
     vocabulary.
 
 
-    Notes: FACT: Document dependency resolved through _REFERENCES.md governing references.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: FACT: Document dependency resolved through _REFERENCES.md governing references.
 
 
     Required input maturity in source: CHECKING; this is not a fulfilment or completion claim.
@@ -106,9 +92,7 @@ needs:
 
 
     Notes: FACT: Document dependency resolved through _REFERENCES.md governing references and Datasheet
-    authority-boundary attribute.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
+    authority-boundary attribute.
 
 
     Required input maturity in source: CHECKING; this is not a fulfilment or completion claim.

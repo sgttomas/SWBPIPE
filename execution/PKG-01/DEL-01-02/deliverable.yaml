@@ -7,9 +7,7 @@ needs:
 
 
     Notes: Preserved DAG-002 synchronized evidence row; enum-normalized for dependency-extract v3.1; not
-    promoted to aggregate authority by this local refresh.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE
+    promoted to aggregate authority by this local refresh.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -20,9 +18,7 @@ needs:
 
 
     Notes: Preserved DAG-002 synchronized evidence row; enum-normalized for dependency-extract v3.1; not
-    promoted to aggregate authority by this local refresh.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE
+    promoted to aggregate authority by this local refresh.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -33,9 +29,7 @@ needs:
 
 
     Notes: Preserved DAG-002 synchronized evidence row; enum-normalized for dependency-extract v3.1; not
-    promoted to aggregate authority by this local refresh.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE
+    promoted to aggregate authority by this local refresh.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -46,9 +40,7 @@ needs:
 
 
     Notes: Preserved DAG-002 synchronized evidence row; enum-normalized for dependency-extract v3.1; not
-    promoted to aggregate authority by this local refresh.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE
+    promoted to aggregate authority by this local refresh.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -60,9 +52,7 @@ needs:
 
     Notes: Preserved historical DAG-002 synchronized evidence row; current-basis evidence confirms DEL-01-01
     supplies the governance baseline context required by DEL-01-02 without promoting aggregate graph authority
-    or lifecycle state.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE
+    or lifecycle state.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -72,9 +62,7 @@ needs:
     boundary policy.
 
 
-    Notes: Document prerequisite resolved through _REFERENCES.md governing references.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Document prerequisite resolved through _REFERENCES.md governing references.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
@@ -89,9 +77,7 @@ needs:
 
 
     Notes: No legal conclusion inferred; default quarantine path exists but final legal/governance mechanism
-    and legal-review authority remain external prerequisites.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=EXTERNAL; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=PENDING;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    and legal-review authority remain external prerequisites.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
@@ -104,9 +90,7 @@ needs:
 
 
     Notes: Checklist path is resolved; reviewer role and final governance/legal mechanism remain unresolved
-    human-authority prerequisites.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=EXTERNAL; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
+    human-authority prerequisites.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
@@ -120,9 +104,7 @@ needs:
 
 
     Notes: Repo-level artifacts exist and are cited by the current-basis local kit; this satisfies artifact
-    handoff evidence without approving aggregate DAG changes or lifecycle transition.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=DOWNSTREAM; legacy_dependencytype=HANDOVER; legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    handoff evidence without approving aggregate DAG changes or lifecycle transition.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.

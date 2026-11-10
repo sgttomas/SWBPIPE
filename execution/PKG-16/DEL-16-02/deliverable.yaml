@@ -10,9 +10,7 @@ needs:
     execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
     legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
     Origin=CONTEXT, Explicitness=EXPLICIT, SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved
-    for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE
+    for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -27,9 +25,7 @@ needs:
     execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
     legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
     Origin=CONTEXT, Explicitness=EXPLICIT, SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved
-    for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE
+    for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -44,9 +40,7 @@ needs:
     execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
     legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
     Origin=CONTEXT, Explicitness=EXPLICIT, SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved
-    for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE
+    for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -61,9 +55,7 @@ needs:
     execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
     legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
     Origin=CONTEXT, Explicitness=EXPLICIT, SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved
-    for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE
+    for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -78,9 +70,7 @@ needs:
     execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
     legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
     Origin=CONTEXT, Explicitness=EXPLICIT, SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved
-    for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE
+    for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -95,9 +85,7 @@ needs:
     execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
     legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
     Origin=CONTEXT, Explicitness=EXPLICIT, SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved
-    for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE
+    for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -112,9 +100,7 @@ needs:
     execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
     legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS,
     Origin=CONTEXT, Explicitness=EXPLICIT, SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved
-    for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE
+    for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -128,10 +114,8 @@ needs:
     execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
     legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=DOMAIN_MODEL,
     Origin=GRAPH_REVIEW, Explicitness=INFERRED_DIRECT, SatisfactionStatus=UNKNOWN); approved DAG-002 evidence
-    preserved for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DECLARED;
-    legacy_status=ACTIVE; FACT: 2026-08-02 dependency-currency PASS under R23; target maturity PASS is
-    frozen in TARGET_MATURITY_EVIDENCE.csv; consumer integration PASS is frozen in N2E_DEL1602_PATCH/LAUNCH_BRIEF.md.
+    preserved for reconciliation.; FACT: 2026-08-02 dependency-currency PASS under R23; target maturity
+    PASS is frozen in TARGET_MATURITY_EVIDENCE.csv; consumer integration PASS is frozen in N2E_DEL1602_PATCH/LAUNCH_BRIEF.md.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -144,9 +128,7 @@ needs:
     execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
     legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=DIAGNOSTICS_CONTRACT,
     Origin=GRAPH_REVIEW, Explicitness=INFERRED_DIRECT, SatisfactionStatus=UNKNOWN); approved DAG-002 evidence
-    preserved for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DECLARED;
-    legacy_status=ACTIVE
+    preserved for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -159,9 +141,7 @@ needs:
     execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
     legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=PERSISTENCE_CONTRACT,
     Origin=GRAPH_REVIEW, Explicitness=INFERRED_DIRECT, SatisfactionStatus=UNKNOWN); approved DAG-002 evidence
-    preserved for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DECLARED;
-    legacy_status=ACTIVE
+    preserved for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -175,9 +155,7 @@ needs:
     execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
     legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=PERSISTENCE_CONTRACT,
     Origin=GRAPH_REVIEW, Explicitness=INFERRED_DIRECT, SatisfactionStatus=UNKNOWN); approved DAG-002 evidence
-    preserved for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DECLARED;
-    legacy_status=ACTIVE
+    preserved for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -191,9 +169,7 @@ needs:
     execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004 normalized
     legacy DAG-002 edge fields for v3.1 enum validation (legacy AnchorType=DELIVERABLE, DependencyType=DIAGNOSTICS_CONTRACT,
     Origin=GRAPH_REVIEW, Explicitness=INFERRED_DIRECT, SatisfactionStatus=UNKNOWN); approved DAG-002 evidence
-    preserved for reconciliation.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DECLARED;
-    legacy_status=ACTIVE
+    preserved for reconciliation.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

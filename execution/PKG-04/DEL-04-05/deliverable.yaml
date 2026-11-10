@@ -9,9 +9,7 @@ needs:
     Notes: Architecture-basis edge from SCA-001 context injection; original DAG-002 type ARCHITECTURE_BASIS
     normalized to v3.1 DependencyType=CONSTRAINT; does not mark PKG-00 as ISSUED.; Carried forward from
     DAG-001-E0120 into DAG-002 revision 0.5 proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
-    not Type 2 dispatch authority by itself; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    not Type 2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -24,9 +22,7 @@ needs:
     Notes: Architecture-basis edge from SCA-001 context injection; original DAG-002 type ARCHITECTURE_BASIS
     normalized to v3.1 DependencyType=CONSTRAINT; does not mark PKG-00 as ISSUED.; Carried forward from
     DAG-001-E0121 into DAG-002 revision 0.5 proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
-    not Type 2 dispatch authority by itself; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    not Type 2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -39,9 +35,7 @@ needs:
     Notes: Architecture-basis edge from SCA-001 context injection; original DAG-002 type ARCHITECTURE_BASIS
     normalized to v3.1 DependencyType=CONSTRAINT; does not mark PKG-00 as ISSUED.; Carried forward from
     DAG-001-E0122 into DAG-002 revision 0.5 proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
-    not Type 2 dispatch authority by itself; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    not Type 2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -54,9 +48,7 @@ needs:
     Notes: Architecture-basis edge from SCA-001 context injection; original DAG-002 type ARCHITECTURE_BASIS
     normalized to v3.1 DependencyType=CONSTRAINT; does not mark PKG-00 as ISSUED.; Carried forward from
     DAG-001-E0123 into DAG-002 revision 0.5 proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
-    not Type 2 dispatch authority by itself; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    not Type 2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -69,9 +61,7 @@ needs:
     Notes: Architecture-basis edge from SCA-001 context injection; original DAG-002 type ARCHITECTURE_BASIS
     normalized to v3.1 DependencyType=CONSTRAINT; does not mark PKG-00 as ISSUED.; Carried forward from
     DAG-001-E0124 into DAG-002 revision 0.5 proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
-    not Type 2 dispatch authority by itself; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    not Type 2 dispatch authority by itself
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

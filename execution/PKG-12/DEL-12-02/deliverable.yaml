@@ -7,9 +7,7 @@ needs:
 
 
     Notes: FACT; normalized DAG-002 mirror row to v3.1 enums; architecture-basis edge remains local context
-    evidence and does not approve or promote DAG-003.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: PKG-00 tracker normalized
+    evidence and does not approve or promote DAG-003.; semantic_refresh_2026-06-16: PKG-00 tracker normalized
     to AB-00 constraint semantics; PKG-00 not treated as issuance authority
 
 
@@ -21,9 +19,7 @@ needs:
 
 
     Notes: FACT; normalized DAG-002 mirror row to v3.1 enums; architecture-basis edge remains local context
-    evidence and does not approve or promote DAG-003.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: PKG-00 tracker normalized
+    evidence and does not approve or promote DAG-003.; semantic_refresh_2026-06-16: PKG-00 tracker normalized
     to AB-00 constraint semantics; PKG-00 not treated as issuance authority
 
 
@@ -35,9 +31,7 @@ needs:
 
 
     Notes: FACT; normalized DAG-002 mirror row to v3.1 enums; architecture-basis edge remains local context
-    evidence and does not approve or promote DAG-003.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: PKG-00 tracker normalized
+    evidence and does not approve or promote DAG-003.; semantic_refresh_2026-06-16: PKG-00 tracker normalized
     to AB-00 constraint semantics; PKG-00 not treated as issuance authority
 
 
@@ -49,9 +43,7 @@ needs:
 
 
     Notes: FACT; normalized DAG-002 mirror row to v3.1 enums; architecture-basis edge remains local context
-    evidence and does not approve or promote DAG-003.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: PKG-00 tracker normalized
+    evidence and does not approve or promote DAG-003.; semantic_refresh_2026-06-16: PKG-00 tracker normalized
     to AB-00 constraint semantics; PKG-00 not treated as issuance authority
 
 
@@ -63,9 +55,7 @@ needs:
 
 
     Notes: FACT; normalized DAG-002 mirror row to v3.1 enums; architecture-basis edge remains local context
-    evidence and does not approve or promote DAG-003.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: PKG-00 tracker normalized
+    evidence and does not approve or promote DAG-003.; semantic_refresh_2026-06-16: PKG-00 tracker normalized
     to AB-00 constraint semantics; PKG-00 not treated as issuance authority
 
 
@@ -77,9 +67,7 @@ needs:
 
 
     Notes: FACT; normalized DAG-002 mirror row to v3.1 enums; architecture-basis edge remains local context
-    evidence and does not approve or promote DAG-003.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: PKG-00 tracker normalized
+    evidence and does not approve or promote DAG-003.; semantic_refresh_2026-06-16: PKG-00 tracker normalized
     to AB-00 constraint semantics; PKG-00 not treated as issuance authority
 
 
@@ -91,9 +79,7 @@ needs:
 
 
     Notes: FACT; normalized DAG-002 mirror row to v3.1 enums; architecture-basis edge remains local context
-    evidence and does not approve or promote DAG-003.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: PKG-00 tracker normalized
+    evidence and does not approve or promote DAG-003.; semantic_refresh_2026-06-16: PKG-00 tracker normalized
     to AB-00 constraint semantics; PKG-00 not treated as issuance authority
 
 
@@ -104,9 +90,7 @@ needs:
 
 
     Notes: FACT: 2026-06-07 alignment marks this prerequisite satisfied for readiness evidence only; target-specific
-    runtime controls and approval choices remain deferred; no aggregate DAG or lifecycle promotion.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+    runtime controls and approval choices remain deferred; no aggregate DAG or lifecycle promotion.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -119,9 +103,7 @@ needs:
 
     Notes: FACT: 2026-06-07 alignment marks this prerequisite satisfied for readiness evidence only; runtime
     storage roots cloud exception and approval choices remain deferred; no aggregate DAG or lifecycle
-    promotion.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE
+    promotion.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -134,9 +116,7 @@ needs:
 
 
     Notes: FACT: 2026-06-07 alignment marks this prerequisite satisfied for readiness evidence only; runtime
-    report integration styling and approval choices remain deferred; no aggregate DAG or lifecycle promotion.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
+    report integration styling and approval choices remain deferred; no aggregate DAG or lifecycle promotion.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -149,9 +129,7 @@ needs:
 
     Notes: FACT: 2026-06-07 alignment marks this prerequisite satisfied for readiness evidence only; additional
     formats public transport and runtime redaction integration remain deferred; no aggregate DAG or lifecycle
-    promotion.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE
+    promotion.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -163,9 +141,7 @@ needs:
 
     Notes: FACT: 2026-06-07 alignment marks this prerequisite satisfied for readiness evidence only; private
     storage report API and result-envelope integration remain deferred; no aggregate DAG or lifecycle
-    promotion.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE
+    promotion.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -181,9 +157,7 @@ needs:
 
     Notes: FACT: 2026-06-07 alignment marks this prerequisite satisfied for readiness evidence only; external
     import formats legal policy and accepted source catalogs remain deferred; no aggregate DAG or lifecycle
-    promotion.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE
+    promotion.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -198,9 +172,7 @@ needs:
 
 
     Notes: FACT; document constraint is local evidence only and not an aggregate deliverable sequencing
-    edge.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
+    edge.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
@@ -214,9 +186,7 @@ needs:
 
 
     Notes: FACT; document constraint is local evidence only and not an aggregate deliverable sequencing
-    edge.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
+    edge.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
@@ -231,9 +201,7 @@ needs:
 
 
     Notes: FACT; document constraint is local evidence only and not an aggregate deliverable sequencing
-    edge.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DOCUMENT; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
+    edge.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.

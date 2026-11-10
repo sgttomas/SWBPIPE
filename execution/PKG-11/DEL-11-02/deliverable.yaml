@@ -8,9 +8,7 @@ needs:
 
     Notes: Current DAG-006 active edge row is DAG-004-R0605; target local status CHECKING meets required
     SEMANTIC_READY. Architecture basis remains coordination evidence only and does not make PKG-00 ISSUED
-    or authorize Type 2 dispatch by itself.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+    or authorize Type 2 dispatch by itself.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -22,9 +20,7 @@ needs:
 
     Notes: Current DAG-006 active edge row is DAG-004-R0606; target local status CHECKING meets required
     SEMANTIC_READY. Architecture basis remains coordination evidence only and does not make PKG-00 ISSUED
-    or authorize Type 2 dispatch by itself.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+    or authorize Type 2 dispatch by itself.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -36,9 +32,7 @@ needs:
 
     Notes: Current DAG-006 active edge row is DAG-004-R0607; target local status CHECKING meets required
     SEMANTIC_READY. Architecture basis remains coordination evidence only and does not make PKG-00 ISSUED
-    or authorize Type 2 dispatch by itself.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+    or authorize Type 2 dispatch by itself.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -50,9 +44,7 @@ needs:
 
     Notes: Current DAG-006 active edge row is DAG-004-R0608; target local status CHECKING meets required
     SEMANTIC_READY. Architecture/API basis remains coordination evidence only and does not make PKG-00
-    ISSUED or authorize Type 2 dispatch by itself.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+    ISSUED or authorize Type 2 dispatch by itself.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -64,9 +56,7 @@ needs:
 
     Notes: Current DAG-006 active edge row is DAG-004-R0609; target local status CHECKING meets required
     SEMANTIC_READY. Architecture basis remains coordination evidence only and does not make PKG-00 ISSUED
-    or authorize Type 2 dispatch by itself.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
+    or authorize Type 2 dispatch by itself.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -78,9 +68,7 @@ needs:
 
     Notes: Current DAG-006 active edge row is DAG-004-R0610; target local status CHECKING meets required
     SEMANTIC_READY. MEMORY.md records current IP/data boundary evidence and residual TBDs for contributor/legal/reviewer
-    authority; no legal, release, or professional claim is inferred.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=GOVERNANCE_PREDECESSOR; legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+    authority; no legal, release, or professional claim is inferred.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -91,9 +79,7 @@ needs:
 
     Notes: Current DAG-006 active edge row is DAG-004-R0611; target local status CHECKING meets required
     SEMANTIC_READY. MEMORY.md preserves current schema evidence and downstream ownership TBDs without
-    release, compatibility, or professional claims.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=DOCS_PREDECESSOR; legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+    release, compatibility, or professional claims.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -104,9 +90,7 @@ needs:
 
     Notes: Current DAG-006 active edge row is DAG-004-R0612; target local status CHECKING meets required
     SEMANTIC_READY. MEMORY.md records unit-contract evidence and residual unit-system TBDs; no protected
-    dimensional tables or conversion defaults are inferred.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=DOCS_PREDECESSOR; legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+    dimensional tables or conversion defaults are inferred.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -117,9 +101,7 @@ needs:
 
     Notes: Current DAG-006 active edge row is DAG-004-R0613; target local status CHECKING meets required
     SEMANTIC_READY. MEMORY.md records frame-kernel evidence and residual solver TBDs; no release, code-compliance,
-    or professional reliance claim is inferred.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=DOCS_PREDECESSOR; legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+    or professional reliance claim is inferred.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -130,9 +112,7 @@ needs:
 
     Notes: Current DAG-006 active edge row is DAG-004-R0614; target local status CHECKING meets required
     SEMANTIC_READY. MEMORY.md records rule-pack schema evidence and residual rule-engine TBDs; no protected/code-specific
-    values or compliance claims are inferred.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=DOCS_PREDECESSOR; legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
+    values or compliance claims are inferred.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -144,10 +124,7 @@ needs:
 
     Notes: Current DAG-006 active edge row is DAG-004-R0615; target local status CHECKING meets required
     SEMANTIC_READY. MEMORY.md records API/plugin boundary evidence and residual transport/plugin/export
-    TBDs; no release, external compatibility, or professional claim is inferred.; legacy_anchortype=DELIVERABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=DOCS_PREDECESSOR; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECOMPOSITION;
-    legacy_status=ACTIVE
+    TBDs; no release, external compatibility, or professional claim is inferred.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

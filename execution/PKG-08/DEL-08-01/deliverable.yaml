@@ -11,9 +11,7 @@ needs:
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; OriginalDependencyType=ARCHITECTURE_BASIS;
     normalized for v3.1 enum conformance during TP-DAG-004 refresh; OriginalOrigin=CONTEXT; normalized
     for v3.1 enum conformance during TP-DAG-004 refresh; OriginalAnchorType=DELIVERABLE; normalized for
-    v3.1 enum conformance during TP-DAG-004 refresh; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    v3.1 enum conformance during TP-DAG-004 refresh
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -28,9 +26,7 @@ needs:
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; OriginalDependencyType=ARCHITECTURE_BASIS;
     normalized for v3.1 enum conformance during TP-DAG-004 refresh; OriginalOrigin=CONTEXT; normalized
     for v3.1 enum conformance during TP-DAG-004 refresh; OriginalAnchorType=DELIVERABLE; normalized for
-    v3.1 enum conformance during TP-DAG-004 refresh; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    v3.1 enum conformance during TP-DAG-004 refresh
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -45,9 +41,7 @@ needs:
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; OriginalDependencyType=ARCHITECTURE_BASIS;
     normalized for v3.1 enum conformance during TP-DAG-004 refresh; OriginalOrigin=CONTEXT; normalized
     for v3.1 enum conformance during TP-DAG-004 refresh; OriginalAnchorType=DELIVERABLE; normalized for
-    v3.1 enum conformance during TP-DAG-004 refresh; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    v3.1 enum conformance during TP-DAG-004 refresh
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -62,9 +56,7 @@ needs:
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; OriginalDependencyType=ARCHITECTURE_BASIS;
     normalized for v3.1 enum conformance during TP-DAG-004 refresh; OriginalOrigin=CONTEXT; normalized
     for v3.1 enum conformance during TP-DAG-004 refresh; OriginalAnchorType=DELIVERABLE; normalized for
-    v3.1 enum conformance during TP-DAG-004 refresh; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    v3.1 enum conformance during TP-DAG-004 refresh
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -79,9 +71,7 @@ needs:
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; OriginalDependencyType=ARCHITECTURE_BASIS;
     normalized for v3.1 enum conformance during TP-DAG-004 refresh; OriginalOrigin=CONTEXT; normalized
     for v3.1 enum conformance during TP-DAG-004 refresh; OriginalAnchorType=DELIVERABLE; normalized for
-    v3.1 enum conformance during TP-DAG-004 refresh; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    v3.1 enum conformance during TP-DAG-004 refresh
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -96,9 +86,7 @@ needs:
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; OriginalDependencyType=ARCHITECTURE_BASIS;
     normalized for v3.1 enum conformance during TP-DAG-004 refresh; OriginalOrigin=CONTEXT; normalized
     for v3.1 enum conformance during TP-DAG-004 refresh; OriginalAnchorType=DELIVERABLE; normalized for
-    v3.1 enum conformance during TP-DAG-004 refresh; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    v3.1 enum conformance during TP-DAG-004 refresh
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -113,9 +101,7 @@ needs:
     by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; OriginalDependencyType=ARCHITECTURE_BASIS;
     normalized for v3.1 enum conformance during TP-DAG-004 refresh; OriginalOrigin=CONTEXT; normalized
     for v3.1 enum conformance during TP-DAG-004 refresh; OriginalAnchorType=DELIVERABLE; normalized for
-    v3.1 enum conformance during TP-DAG-004 refresh; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    v3.1 enum conformance during TP-DAG-004 refresh
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -133,10 +119,8 @@ needs:
     conformance during TP-DAG-004 refresh; OriginalExplicitness=INFERRED_DIRECT; normalized for v3.1 enum
     conformance during TP-DAG-004 refresh; OriginalSatisfactionStatus=UNKNOWN; normalized for v3.1 enum
     conformance during TP-DAG-004 refresh; OriginalAnchorType=DELIVERABLE; normalized for v3.1 enum conformance
-    during TP-DAG-004 refresh; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=OTHER;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE; R15 DEPENDENCY_READINESS_AUDIT_2026-07-21_R15: SATISFIED_IN_FACT_BUT_STALE at
-    HIGH confidence; 2026-07-22 refresh records SATISFIED only at this edge grain and RequiredMaturity=SEMANTIC_READY;
+    during TP-DAG-004 refresh; R15 DEPENDENCY_READINESS_AUDIT_2026-07-21_R15: SATISFIED_IN_FACT_BUT_STALE
+    at HIGH confidence; 2026-07-22 refresh records SATISFIED only at this edge grain and RequiredMaturity=SEMANTIC_READY;
     broader residuals and lifecycle remain unchanged; not DAG activation, selection authority, or lifecycle
     closure.
 
@@ -156,9 +140,7 @@ needs:
     enum conformance during TP-DAG-004 refresh; OriginalExplicitness=INFERRED_DIRECT; normalized for v3.1
     enum conformance during TP-DAG-004 refresh; OriginalSatisfactionStatus=UNKNOWN; normalized for v3.1
     enum conformance during TP-DAG-004 refresh; OriginalAnchorType=DELIVERABLE; normalized for v3.1 enum
-    conformance during TP-DAG-004 refresh; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE; R15 DEPENDENCY_READINESS_AUDIT_2026-07-21_R15: SATISFIED_IN_FACT_BUT_STALE
+    conformance during TP-DAG-004 refresh; R15 DEPENDENCY_READINESS_AUDIT_2026-07-21_R15: SATISFIED_IN_FACT_BUT_STALE
     at HIGH confidence; 2026-07-22 refresh records SATISFIED only at this edge grain and RequiredMaturity=SEMANTIC_READY;
     broader residuals and lifecycle remain unchanged; not DAG activation, selection authority, or lifecycle
     closure.
@@ -179,9 +161,7 @@ needs:
     during TP-DAG-004 refresh; OriginalExplicitness=INFERRED_DIRECT; normalized for v3.1 enum conformance
     during TP-DAG-004 refresh; OriginalSatisfactionStatus=UNKNOWN; normalized for v3.1 enum conformance
     during TP-DAG-004 refresh; OriginalAnchorType=DELIVERABLE; normalized for v3.1 enum conformance during
-    TP-DAG-004 refresh; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=OTHER;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE; R15 DEPENDENCY_READINESS_AUDIT_2026-07-21_R15: SATISFIED_IN_FACT_BUT_STALE at
+    TP-DAG-004 refresh; R15 DEPENDENCY_READINESS_AUDIT_2026-07-21_R15: SATISFIED_IN_FACT_BUT_STALE at
     HIGH confidence; 2026-07-22 refresh records SATISFIED only at this edge grain and RequiredMaturity=SEMANTIC_READY;
     broader residuals and lifecycle remain unchanged; not DAG activation, selection authority, or lifecycle
     closure.
@@ -202,9 +182,7 @@ needs:
     enum conformance during TP-DAG-004 refresh; OriginalExplicitness=INFERRED_DIRECT; normalized for v3.1
     enum conformance during TP-DAG-004 refresh; OriginalSatisfactionStatus=UNKNOWN; normalized for v3.1
     enum conformance during TP-DAG-004 refresh; OriginalAnchorType=DELIVERABLE; normalized for v3.1 enum
-    conformance during TP-DAG-004 refresh; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE; R15 DEPENDENCY_READINESS_AUDIT_2026-07-21_R15: SATISFIED_IN_FACT_BUT_STALE
+    conformance during TP-DAG-004 refresh; R15 DEPENDENCY_READINESS_AUDIT_2026-07-21_R15: SATISFIED_IN_FACT_BUT_STALE
     at HIGH confidence; 2026-07-22 refresh records SATISFIED only at this edge grain and RequiredMaturity=SEMANTIC_READY;
     broader residuals and lifecycle remain unchanged; not DAG activation, selection authority, or lifecycle
     closure.
@@ -226,9 +204,7 @@ needs:
     enum conformance during TP-DAG-004 refresh; OriginalExplicitness=INFERRED_DIRECT; normalized for v3.1
     enum conformance during TP-DAG-004 refresh; OriginalSatisfactionStatus=UNKNOWN; normalized for v3.1
     enum conformance during TP-DAG-004 refresh; OriginalAnchorType=DELIVERABLE; normalized for v3.1 enum
-    conformance during TP-DAG-004 refresh; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE; R15 DEPENDENCY_READINESS_AUDIT_2026-07-21_R15: SATISFIED_IN_FACT_BUT_STALE
+    conformance during TP-DAG-004 refresh; R15 DEPENDENCY_READINESS_AUDIT_2026-07-21_R15: SATISFIED_IN_FACT_BUT_STALE
     at HIGH confidence; 2026-07-22 refresh records SATISFIED only at this edge grain and RequiredMaturity=SEMANTIC_READY;
     broader residuals and lifecycle remain unchanged; not DAG activation, selection authority, or lifecycle
     closure.
@@ -250,9 +226,7 @@ needs:
     enum conformance during TP-DAG-004 refresh; OriginalExplicitness=INFERRED_DIRECT; normalized for v3.1
     enum conformance during TP-DAG-004 refresh; OriginalSatisfactionStatus=UNKNOWN; normalized for v3.1
     enum conformance during TP-DAG-004 refresh; OriginalAnchorType=DELIVERABLE; normalized for v3.1 enum
-    conformance during TP-DAG-004 refresh; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE; R15 DEPENDENCY_READINESS_AUDIT_2026-07-21_R15: SATISFIED_IN_FACT_BUT_STALE
+    conformance during TP-DAG-004 refresh; R15 DEPENDENCY_READINESS_AUDIT_2026-07-21_R15: SATISFIED_IN_FACT_BUT_STALE
     at HIGH confidence; 2026-07-22 refresh records SATISFIED only at this edge grain and RequiredMaturity=SEMANTIC_READY;
     broader residuals and lifecycle remain unchanged; not DAG activation, selection authority, or lifecycle
     closure.
@@ -273,12 +247,10 @@ needs:
     refresh; OriginalOrigin=DECOMPOSITION; normalized for v3.1 enum conformance during TP-DAG-004 refresh;
     OriginalExplicitness=INFERRED_DIRECT; normalized for v3.1 enum conformance during TP-DAG-004 refresh;
     OriginalSatisfactionStatus=UNKNOWN; normalized for v3.1 enum conformance during TP-DAG-004 refresh;
-    OriginalAnchorType=DELIVERABLE; normalized for v3.1 enum conformance during TP-DAG-004 refresh; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE; R15 DEPENDENCY_READINESS_AUDIT_2026-07-21_R15:
-    SATISFIED_IN_FACT_BUT_STALE at HIGH confidence; 2026-07-22 refresh records SATISFIED only at this
-    edge grain and RequiredMaturity=SEMANTIC_READY; broader residuals and lifecycle remain unchanged;
-    not DAG activation, selection authority, or lifecycle closure.
+    OriginalAnchorType=DELIVERABLE; normalized for v3.1 enum conformance during TP-DAG-004 refresh; R15
+    DEPENDENCY_READINESS_AUDIT_2026-07-21_R15: SATISFIED_IN_FACT_BUT_STALE at HIGH confidence; 2026-07-22
+    refresh records SATISFIED only at this edge grain and RequiredMaturity=SEMANTIC_READY; broader residuals
+    and lifecycle remain unchanged; not DAG activation, selection authority, or lifecycle closure.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -289,9 +261,7 @@ needs:
     status and diagnostic distinctions.
 
 
-    Notes: New downstream consumer edge extracted for reconciliation context.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=DOWNSTREAM; legacy_dependencytype=ENABLES; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: New downstream consumer edge extracted for reconciliation context.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

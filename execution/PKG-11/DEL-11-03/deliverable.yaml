@@ -12,9 +12,7 @@ needs:
     and CHECKING after human-approved corrected PKG-00 architecture-basis re-review. Upstream DEL-00-01
     MEMORY.md records current-authority refresh to SOFTWARE_DECOMP revision 0.7 plus approved DAG-006.
     This is local dependency-readiness evidence only and does not mark the upstream or this deliverable
-    ISSUED, released, professionally approved, certified, sealed, authenticated, or code-compliant.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    ISSUED, released, professionally approved, certified, sealed, authenticated, or code-compliant.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -30,9 +28,7 @@ needs:
     and CHECKING after human-approved corrected PKG-00 architecture-basis re-review. Upstream DEL-00-02
     MEMORY.md records current-authority refresh to SOFTWARE_DECOMP revision 0.7 plus approved DAG-006.
     This is local dependency-readiness evidence only and does not mark the upstream or this deliverable
-    ISSUED, released, professionally approved, certified, sealed, authenticated, or code-compliant.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    ISSUED, released, professionally approved, certified, sealed, authenticated, or code-compliant.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -48,9 +44,7 @@ needs:
     and CHECKING after human-approved corrected PKG-00 architecture-basis re-review. Upstream DEL-00-06
     MEMORY.md records current-authority refresh to SOFTWARE_DECOMP revision 0.7 plus approved DAG-006.
     This is local dependency-readiness evidence only and does not mark the upstream or this deliverable
-    ISSUED, released, professionally approved, certified, sealed, authenticated, or code-compliant.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    ISSUED, released, professionally approved, certified, sealed, authenticated, or code-compliant.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -66,9 +60,7 @@ needs:
     and CHECKING after human-approved corrected PKG-00 architecture-basis re-review. Upstream DEL-00-07
     MEMORY.md records current-authority refresh to SOFTWARE_DECOMP revision 0.7 plus approved DAG-006.
     This is local dependency-readiness evidence only and does not mark the upstream or this deliverable
-    ISSUED, released, professionally approved, certified, sealed, authenticated, or code-compliant.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    ISSUED, released, professionally approved, certified, sealed, authenticated, or code-compliant.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -84,9 +76,7 @@ needs:
     and CHECKING after human-approved corrected PKG-00 architecture-basis re-review. Upstream DEL-00-08
     MEMORY.md records current-authority refresh to SOFTWARE_DECOMP revision 0.7 plus approved DAG-006.
     This is local dependency-readiness evidence only and does not mark the upstream or this deliverable
-    ISSUED, released, professionally approved, certified, sealed, authenticated, or code-compliant.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    ISSUED, released, professionally approved, certified, sealed, authenticated, or code-compliant.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -102,9 +92,7 @@ needs:
     Upstream DEL-04-01 MEMORY.md records current-authority refresh plus parent fan-in/readiness evidence
     without release or professional/code-compliance claims. This is local dependency-readiness evidence
     only and does not mark the upstream or this deliverable ISSUED, released, professionally approved,
-    certified, sealed, authenticated, or code-compliant.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    certified, sealed, authenticated, or code-compliant.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -121,9 +109,7 @@ needs:
     Upstream DEL-04-02 MEMORY.md records current-authority refresh plus parent fan-in/readiness evidence
     without release or professional/code-compliance claims. This is local dependency-readiness evidence
     only and does not mark the upstream or this deliverable ISSUED, released, professionally approved,
-    certified, sealed, authenticated, or code-compliant.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    certified, sealed, authenticated, or code-compliant.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -141,9 +127,7 @@ needs:
     MEMORY.md records current-authority refresh and validation/readiness evidence while leaving release
     thresholds, tolerance policy, and publication scope separately gated. This is local dependency-readiness
     evidence only and does not mark the upstream or this deliverable ISSUED, released, professionally
-    approved, certified, sealed, authenticated, or code-compliant.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    approved, certified, sealed, authenticated, or code-compliant.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -160,9 +144,7 @@ needs:
     current-authority refresh plus CHECKING transition evidence; DEL-11-03 public/permissive source TBDs
     remain separate content-source gaps. This is local dependency-readiness evidence only and does not
     mark the upstream or this deliverable ISSUED, released, professionally approved, certified, sealed,
-    authenticated, or code-compliant.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    authenticated, or code-compliant.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

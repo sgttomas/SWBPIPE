@@ -7,9 +7,7 @@ needs:
 
 
     Notes: Prior DAG-002 mirror edge preserved by ID; v3.1 enum normalization maps architecture basis
-    to CONSTRAINT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    to CONSTRAINT.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -20,9 +18,7 @@ needs:
 
 
     Notes: Prior DAG-002 mirror edge preserved by ID; v3.1 enum normalization maps architecture basis
-    to CONSTRAINT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    to CONSTRAINT.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -33,9 +29,7 @@ needs:
 
 
     Notes: Prior DAG-002 mirror edge preserved by ID; v3.1 enum normalization maps architecture basis
-    to CONSTRAINT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    to CONSTRAINT.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -47,9 +41,7 @@ needs:
 
 
     Notes: Prior DAG-002 mirror edge preserved by ID; v3.1 enum normalization maps architecture basis
-    to CONSTRAINT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    to CONSTRAINT.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -61,9 +53,7 @@ needs:
 
 
     Notes: Prior DAG-002 mirror edge preserved by ID; v3.1 enum normalization maps architecture basis
-    to CONSTRAINT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    to CONSTRAINT.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'

@@ -7,9 +7,7 @@ needs:
 
 
     Notes: TP-DAG-004 local refresh preserved architecture-basis edge from context injection; local register
-    remains evidence surface only.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=CONTEXT; legacy_status=ACTIVE
+    remains evidence surface only.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -20,9 +18,7 @@ needs:
 
 
     Notes: TP-DAG-004 local refresh preserved architecture-basis edge from context injection; local register
-    remains evidence surface only.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=CONTEXT; legacy_status=ACTIVE
+    remains evidence surface only.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -33,9 +29,7 @@ needs:
 
 
     Notes: TP-DAG-004 local refresh preserved architecture-basis edge from context injection; local register
-    remains evidence surface only.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=CONTEXT; legacy_status=ACTIVE
+    remains evidence surface only.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -46,9 +40,7 @@ needs:
 
 
     Notes: TP-DAG-004 local refresh preserved architecture-basis edge from context injection; local register
-    remains evidence surface only.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=CONTEXT; legacy_status=ACTIVE
+    remains evidence surface only.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -59,9 +51,7 @@ needs:
 
 
     Notes: Local refresh confirmed existing predecessor from deliverable procedure; target maturity not
-    verified from permitted read set.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=VALIDATION_PREDECESSOR;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=DECOMPOSITION;
-    legacy_status=ACTIVE
+    verified from permitted read set.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -72,9 +62,7 @@ needs:
 
 
     Notes: Local refresh confirmed existing predecessor from deliverable procedure; target maturity not
-    verified from permitted read set.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=VALIDATION_PREDECESSOR;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=DECOMPOSITION;
-    legacy_status=ACTIVE
+    verified from permitted read set.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -85,10 +73,8 @@ needs:
 
 
     Notes: Local refresh confirmed existing predecessor from deliverable procedure; target maturity not
-    verified from permitted read set.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=VALIDATION_PREDECESSOR;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=DECOMPOSITION;
-    legacy_status=ACTIVE; FACT: 2026-08-02 dependency-currency PASS under R23; target maturity PASS is
-    frozen in TARGET_MATURITY_EVIDENCE.csv; consumer integration PASS is frozen in N2D_DEL0901_PATCH/LAUNCH_BRIEF.md.
+    verified from permitted read set.; FACT: 2026-08-02 dependency-currency PASS under R23; target maturity
+    PASS is frozen in TARGET_MATURITY_EVIDENCE.csv; consumer integration PASS is frozen in N2D_DEL0901_PATCH/LAUNCH_BRIEF.md.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -99,10 +85,8 @@ needs:
 
 
     Notes: Local refresh confirmed existing predecessor from deliverable procedure; target maturity not
-    verified from permitted read set.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=VALIDATION_PREDECESSOR;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=DECOMPOSITION;
-    legacy_status=ACTIVE; FACT: 2026-08-02 dependency-currency PASS under R23; target maturity PASS is
-    frozen in TARGET_MATURITY_EVIDENCE.csv; consumer integration PASS is frozen in N2D_DEL0901_PATCH/LAUNCH_BRIEF.md.
+    verified from permitted read set.; FACT: 2026-08-02 dependency-currency PASS under R23; target maturity
+    PASS is frozen in TARGET_MATURITY_EVIDENCE.csv; consumer integration PASS is frozen in N2D_DEL0901_PATCH/LAUNCH_BRIEF.md.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -113,10 +97,8 @@ needs:
 
 
     Notes: Local refresh confirmed existing predecessor from deliverable specification; target maturity
-    not verified from permitted read set.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=GOVERNANCE_PREDECESSOR;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=DECOMPOSITION;
-    legacy_status=ACTIVE; FACT: 2026-08-02 dependency-currency PASS under R23; target maturity PASS is
-    frozen in TARGET_MATURITY_EVIDENCE.csv; consumer integration PASS is frozen in N2D_DEL0901_PATCH/LAUNCH_BRIEF.md.
+    not verified from permitted read set.; FACT: 2026-08-02 dependency-currency PASS under R23; target
+    maturity PASS is frozen in TARGET_MATURITY_EVIDENCE.csv; consumer integration PASS is frozen in N2D_DEL0901_PATCH/LAUNCH_BRIEF.md.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -127,9 +109,7 @@ needs:
 
 
     Notes: New conservative local edge from TP-DAG-004 refresh; target maturity not verified from permitted
-    read set.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=UNIT_CONTRACT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=DECOMPOSITION;
-    legacy_status=ACTIVE
+    read set.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -140,10 +120,8 @@ needs:
 
 
     Notes: New conservative local edge from TP-DAG-004 refresh; target maturity not verified from permitted
-    read set. AB-00-06 remains the architecture-basis result-envelope contract edge.; legacy_anchortype=DELIVERABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=DIAGNOSTICS_CONTRACT; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=UNKNOWN; legacy_origin=DECOMPOSITION; legacy_status=ACTIVE;
-    FACT: 2026-08-02 dependency-currency PASS under R23; target maturity PASS is frozen in TARGET_MATURITY_EVIDENCE.csv;
+    read set. AB-00-06 remains the architecture-basis result-envelope contract edge.; FACT: 2026-08-02
+    dependency-currency PASS under R23; target maturity PASS is frozen in TARGET_MATURITY_EVIDENCE.csv;
     consumer integration PASS is frozen in N2D_DEL0901_PATCH/LAUNCH_BRIEF.md.
 
 

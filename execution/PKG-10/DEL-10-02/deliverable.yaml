@@ -7,9 +7,7 @@ needs:
 
 
     Notes: Target deliverable resolved from decomposition deliverables table; replaces prior DAG architecture-basis
-    mirror row.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    mirror row.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -20,9 +18,7 @@ needs:
 
 
     Notes: Target deliverable resolved from decomposition deliverables table; replaces prior DAG architecture-basis
-    mirror row.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    mirror row.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -32,9 +28,7 @@ needs:
     and provenance-bearing diagnostics.
 
 
-    Notes: Target deliverable resolved from AB-00-06 context and decomposition deliverables table.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: Target deliverable resolved from AB-00-06 context and decomposition deliverables table.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -46,9 +40,7 @@ needs:
 
 
     Notes: Target deliverable resolved from decomposition deliverables table; replaces prior DAG architecture-basis
-    mirror row.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    mirror row.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -59,9 +51,7 @@ needs:
 
 
     Notes: Target deliverable resolved from decomposition deliverables table; replaces prior DAG architecture-basis
-    mirror row.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    mirror row.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -72,9 +62,7 @@ needs:
 
 
     Notes: Target deliverable resolved from decomposition row DEL-02-04; assigned source states extension-surface
-    obligation but not the deliverable ID.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    obligation but not the deliverable ID.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -86,9 +74,7 @@ needs:
 
 
     Notes: Target deliverable resolved from decomposition row DEL-03-07; assigned source states provenance-check
-    obligation but not the deliverable ID.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    obligation but not the deliverable ID.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -100,9 +86,7 @@ needs:
 
 
     Notes: Target deliverable resolved from decomposition row DEL-12-01; assigned source states privacy
-    constraint but not the deliverable ID.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    constraint but not the deliverable ID.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -114,9 +98,7 @@ needs:
 
 
     Notes: DEV-001 Stage 2 package-local technical finding resolution for PKG10-DEL1002-PKG02-W001; local
-    evidence only, not aggregate DAG authority or lifecycle approval.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=SCHEMA_CONTRACT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=PACKAGE_AUDIT; legacy_status=ACTIVE
+    evidence only, not aggregate DAG authority or lifecycle approval.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -128,9 +110,7 @@ needs:
 
 
     Notes: DEV-001 Stage 2 package-local technical finding resolution for PKG10-DEL1002-PKG02-W001; grounded
-    in accepted PKG-02 unit contract; local evidence only.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=UNIT_CONTRACT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=PACKAGE_AUDIT; legacy_status=ACTIVE
+    in accepted PKG-02 unit contract; local evidence only.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -142,9 +122,7 @@ needs:
 
 
     Notes: DEV-001 Stage 2 package-local technical finding resolution for PKG10-DEL1002-PKG02-W001; grounded
-    in accepted PKG-02 authority-status semantics; local evidence only.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=DOMAIN_MODEL; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=PACKAGE_AUDIT; legacy_status=ACTIVE
+    in accepted PKG-02 authority-status semantics; local evidence only.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -156,9 +134,7 @@ needs:
 
 
     Notes: DEV-001 Stage 2 package-local technical finding resolution for PKG10-DEL1002-PKG02-W001; grounded
-    in accepted PKG-02 persistence/hash contract; local evidence only.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=PACKAGE_AUDIT; legacy_status=ACTIVE
+    in accepted PKG-02 persistence/hash contract; local evidence only.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
@@ -169,9 +145,7 @@ needs:
     unit, provenance, diagnostic, or data-boundary checks.
 
 
-    Notes: New downstream consumer edge extracted for reconciliation context.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=DOWNSTREAM; legacy_dependencytype=ENABLES; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
+    Notes: New downstream consumer edge extracted for reconciliation context.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
