@@ -12,10 +12,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  # A push to main (the after-merge full run, nightly-full-ci.yml) gets one group
-  # per commit: GitHub keeps a single pending run per group, so a group shared
-  # by merges would cancel the pending run of an earlier merge.
-  group: piping-desktop-e2e-${{ github.event.pull_request.number || github.event.merge_group.head_ref || (github.event_name == 'push' && github.sha) || github.ref }}
+  group: piping-desktop-e2e-${{ github.event.pull_request.number || github.event.merge_group.head_ref || github.ref }}
   # Do not queue stale candidates ahead of the current PR head. Merge-queue
   # groups each have their own group and are never cancelled here.
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}

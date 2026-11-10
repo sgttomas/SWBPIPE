@@ -73,12 +73,9 @@ def test_merge_group_candidate_is_checked_out_and_selected_as_a_pull_request():
 
 
 def test_merge_group_runs_neither_cancel_nor_are_cancelled():
-    # The product workflow's extra term gives a push to main its own group per commit (the after-merge run).
-    for name, prefix, push in [('governance-harness.yml', 'governance-harness', ''),
-                               ('piping-desktop-e2e.yml', 'piping-desktop-e2e', "(github.event_name == 'push' && github.sha) || ")]:
+    for name, prefix in [('governance-harness.yml', 'governance-harness'), ('piping-desktop-e2e.yml', 'piping-desktop-e2e')]:
         concurrency = workflow(name)['concurrency']
-        assert concurrency['group'] == (prefix + '-${{ github.event.pull_request.number || github.event.merge_group.head_ref || '
-                                        + push + 'github.ref }}')
+        assert concurrency['group'] == prefix + '-${{ github.event.pull_request.number || github.event.merge_group.head_ref || github.ref }}'
         assert concurrency['cancel-in-progress'] == "${{ github.event_name == 'pull_request' }}"
 
 
@@ -97,11 +94,10 @@ def concurrency_group(expression, github):
     return re.sub(r"\$\{\{(.*?)\}\}", value, expression)
 
 
-def test_after_merge_runs_get_one_group_per_commit_and_candidate_groups_are_unchanged():
-    """GitHub keeps one pending run per concurrency group and cancels the one it
-    replaces, so a group shared by pushes to main would cancel the pending run
-    of an earlier merge. The called product workflow has its own group."""
-    a, b = 'a' * 40, 'b' * 40
+def test_full_runs_of_main_share_one_group_and_candidate_groups_are_unchanged():
+    """Runs of main go one at a time, so a scheduled skip is only ever decided
+    from a finished run (nightly_ci.py relies on this)."""
+    a = 'a' * 40
     main = {'ref': 'refs/heads/main'}
     pull = {'event_name': 'pull_request', 'ref': 'refs/pull/7/merge', 'sha': a, 'event.pull_request.number': 7}
     queue = {'event_name': 'merge_group', 'ref': 'refs/heads/gh-readonly-queue/main/pr-7-x', 'sha': a,
@@ -112,14 +108,9 @@ def test_after_merge_runs_get_one_group_per_commit_and_candidate_groups_are_unch
     report = workflow('nightly-full-ci.yml')['jobs']['report']['concurrency']
     assert report['cancel-in-progress'] == 'false'
     groups = set()
-    for expression in (product, nightly['group'], report['group']):
-        pushes = [concurrency_group(expression, {**main, 'event_name': 'push', 'sha': sha}) for sha in (a, b)]
-        # One group per pushed commit, never the ref's group that scheduled and manual runs of main use.
-        assert pushes[0] != pushes[1] and pushes[0].endswith('-' + a) and pushes[1].endswith('-' + b)
-        groups.update(pushes)
-    assert len(groups) == 6
     for event in ('schedule', 'workflow_dispatch'):
         scheduled = {**main, 'event_name': event, 'sha': a}
+        groups.add(concurrency_group(product, scheduled))
         assert concurrency_group(product, scheduled) == 'piping-desktop-e2e-refs/heads/main'
         assert concurrency_group(nightly['group'], scheduled) == 'nightly-full-ci-refs/heads/main'
     # A pull request and a merge-queue group keep the groups they had, in both candidate workflows,
@@ -131,8 +122,8 @@ def test_after_merge_runs_get_one_group_per_commit_and_candidate_groups_are_unch
     assert concurrency_group(harness['group'], queue) == 'governance-harness-refs/heads/gh-readonly-queue/main/pr-7-x'
     assert not {concurrency_group(product, pull), concurrency_group(product, queue)} & groups
     cancel = workflow('piping-desktop-e2e.yml')['concurrency']['cancel-in-progress']
-    assert [concurrency_group(cancel, {'event_name': event}) for event in ('pull_request', 'merge_group', 'push', 'schedule')] == [
-        'True', 'False', 'False', 'False']
+    assert [concurrency_group(cancel, {'event_name': event}) for event in ('pull_request', 'merge_group', 'schedule')] == [
+        'True', 'False', 'False']
 
 
 def test_merge_group_runs_exactly_the_pull_request_jobs():
@@ -143,8 +134,8 @@ def test_merge_group_runs_exactly_the_pull_request_jobs():
 
 def test_full_runs_of_main_reuse_the_product_workflow_and_are_advisory():
     nightly = workflow('nightly-full-ci.yml')
-    # Nightly, after every push to main (the after-merge run) and by hand; never on a candidate.
-    assert nightly['on'] == {'schedule': [{'cron': '0 9 * * *'}], 'push': {'branches': ['main']}, 'workflow_dispatch': ''}
+    # Nightly and by hand; never on a candidate and never on a push to main.
+    assert nightly['on'] == {'schedule': [{'cron': '0 9 * * *'}], 'workflow_dispatch': ''}
     assert nightly['permissions'] == {'contents': 'read'}
     jobs = nightly['jobs']
     assert set(jobs) == {'changed', 'full-suite', 'report'}
@@ -172,9 +163,9 @@ def test_full_runs_of_main_reuse_the_product_workflow_and_are_advisory():
     assert [name for name in harness['jobs'] if 'uses' in harness['jobs'][name]] == ['piping']
     # The broad matrix runs on the full run's events and not on candidates.
     matrix = workflow('piping-desktop-e2e.yml')['jobs']['browser-matrix']['if']
-    for event in ('schedule', 'workflow_dispatch', 'push'):
+    for event in ('schedule', 'workflow_dispatch'):
         assert f"'{event}'" not in matrix
-    # The product workflow selects from the caller's event, so a push reaches the planner as `push`.
+    # The product workflow selects from the caller's event.
     [select] = [s for s in workflow('piping-desktop-e2e.yml')['jobs']['selection']['steps'] if s.get('id') == 'plan']
     assert select['env']['EVENT'] == '${{ github.event_name }}' and '--event "$EVENT"' in select['run']
 

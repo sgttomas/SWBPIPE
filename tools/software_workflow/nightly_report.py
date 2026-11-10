@@ -9,7 +9,7 @@ that did not succeed and the run, or adds a comment to the open issue for the
 same commit. The decision to report uses the workflow's job results alone;
 lookups that only add detail fail soft.
 
-Every value comes from the environment, the event file or the API and is
+Every value comes from the environment or the API and is
 placed in the issue by this script, never in a shell command.
 """
 from __future__ import annotations
@@ -32,9 +32,7 @@ PASSED = frozenset({"success", "skipped", "neutral"})
 # conclusion is `cancelled`, as for a cancelled run, so the conclusion alone
 # cannot tell the two apart.
 TIMEOUT_ANNOTATION = "exceeded the maximum execution time"
-MERGE_SUBJECT = re.compile(r"Merge pull request #([0-9]{1,9}) from ")
-TRIGGERS = {"push": "after-merge run (push to `main`)", "schedule": "scheduled nightly run",
-            "workflow_dispatch": "manual dispatch"}
+TRIGGERS = {"schedule": "scheduled nightly run", "workflow_dispatch": "manual dispatch"}
 MAX_JOB_PAGES = 5
 RETRY_DELAYS = (2, 5)  # seconds between attempts to read the open issues
 
@@ -143,22 +141,10 @@ def merged_pull_request(pulls, sha: str) -> int | None:
     return None
 
 
-def merge_subject_pull_request(event, sha: str) -> int | None:
-    """The pull request a push's head commit message names ("Merge pull request #N from ...")."""
-    try:
-        commit = event["head_commit"]
-        if commit["id"] != sha:
-            return None
-        match = MERGE_SUBJECT.match(commit["message"])
-    except (KeyError, TypeError):
-        return None
-    return int(match.group(1)) if match else None
-
-
-def render(sha: str, event: str, pull: int | None, pull_note: str, summary: str, run_url: str,
+def render(sha: str, event: str, pull: int | None, summary: str, run_url: str,
            lines: list[str], kinds: Counter, notes: list[str]) -> tuple[str, str]:
     title = f"Full run of main did not pass at {sha[:12]}" + (f" (merge of #{pull})" if pull else "")
-    merged = f"#{pull}{pull_note}" if pull else "none found for this commit"
+    merged = f"#{pull}" if pull else "none found for this commit"
     counts = ", ".join(f"{count} {kind}" for kind, count in sorted(kinds.items()))
     body = [marker(sha), "", f"A full run of `main` did not pass: {summary}.", "",
             f"- Commit: {sha}", f"- Merged pull request: {merged}",
@@ -239,25 +225,18 @@ def main() -> int:
             f"{server}/{repository}/")
     except Exception as exc:  # the issue is still filed, with the run link
         notes.append(f"The job list could not be read ({type(exc).__name__}); see the run.")
-    pull, pull_note = None, ""
+    pull = None
     try:
         pull = merged_pull_request(api("GET", f"/repos/{repository}/commits/{sha}/pulls?per_page=100"), sha)
     except Exception:
         pass
-    if pull is None:
-        try:
-            with open(os.environ["GITHUB_EVENT_PATH"], encoding="utf-8") as stream:
-                pull = merge_subject_pull_request(json.load(stream), sha)
-            pull_note = " (named by the merge commit message)"
-        except (KeyError, OSError, ValueError):
-            pass
     try:
         issues = open_issues(repository)
     except Exception as exc:  # after the retries, a possible duplicate is better than an unreported failure
         issues = []
         notes.append(f"Open `{LABEL}` issues could not be listed ({type(exc).__name__}); this may repeat one.")
     action, number = decide(True, sha, issues)
-    title, body = render(sha, os.environ.get("GITHUB_EVENT_NAME", ""), pull, pull_note, summary, run_url, lines, kinds, notes)
+    title, body = render(sha, os.environ.get("GITHUB_EVENT_NAME", ""), pull, summary, run_url, lines, kinds, notes)
     if action == "comment":
         api("POST", f"/repos/{repository}/issues/{number}/comments", {"body": body})
         print(f"Commented on open {LABEL} issue #{number} for {sha}.")

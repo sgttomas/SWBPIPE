@@ -108,8 +108,8 @@ unmatched project input or full coverage adds every group. The core specs,
 groups and paths are declared in `piping_browser_journeys` in
 `tools/hosted-ci-routing.json`. The product job runs the plan's spec list, and
 the plan's reasons name the path and group behind each added spec. The browser
-matrix runs only by explicit workflow dispatch and in the full runs of `main`
-(nightly and after each merge).
+matrix runs only by explicit workflow dispatch and in the nightly full run of
+`main`.
 
 The `piping-desktop` selection adds the full desktop Vitest suite, run in two
 shards (`vitest --shard=1/2` and `2/2`) as jobs beside the product job, under
@@ -300,7 +300,7 @@ locally in the registered build and in an emulated unregistered build (a
 build-identity-changing flag such as `RUSTFLAGS=--cap-lints=warn`, in its own
 target directory).
 
-The full run of `main` after each merge is the only post-merge suite. Reuse passing
+No post-merge duplicate suite is required. Reuse passing
 hosted results rather than repeating the same suite locally without a change or
 unresolved concern. Failure diagnostics stay in CI artifacts. The optional
 macOS release sweep remains available for release preparation.
@@ -335,9 +335,9 @@ or installing browsers in the warmer.
 ## Nightly full run
 
 Pull-request selection follows paths, so it can miss a test that a change
-breaks elsewhere. `nightly-full-ci.yml` closes that gap on `main`. It runs at
-09:00 UTC on a schedule (`0 9 * * *`), after every push to `main` (the
-[after-merge full run](#after-merge-full-run)) and by manual
+breaks elsewhere. `main` does not require an up-to-date branch, so two PRs that
+each pass alone can also break it together. `nightly-full-ci.yml` closes both
+gaps on `main`. It runs at 09:00 UTC on a schedule (`0 9 * * *`) and by manual
 `workflow_dispatch`. It calls the product workflow, `piping-desktop-e2e.yml`,
 as `harness` does. Its events have no candidate base, so the planner gives them
 full coverage (`hosted_ci.FULL_COVERAGE_EVENTS`). It never computes a diff
@@ -353,39 +353,24 @@ The run does not reuse or record verified results. The repository
 tool/routing suite is not path-selected, so it runs whole on every product PR
 in `harness` and has no job here.
 
-A scheduled run skips the suite and succeeds only when the most recently finished
-after-merge or manual run of this workflow on `main` succeeded on `main`'s current
-head (`tools/software_workflow/nightly_ci.py`). Scheduled runs are not evidence,
-because one that skipped also concludes success. If the history cannot be read,
-it runs. After a failed, cancelled or timed-out after-merge or manual run, the
-suite runs every night until a later after-merge or manual run of `main` passes. A push and a manual dispatch always run.
+A scheduled run skips the suite and succeeds only when the most recently
+finished run of this workflow on `main` succeeded on `main`'s current head
+(`tools/software_workflow/nightly_ci.py`), so the suite runs only when `main`
+has changed. Runs of `main` share one concurrency group, so a skip is only ever
+decided from a finished run that succeeded on that head. A scheduled run that
+succeeded on a later attempt is not evidence, because re-running its failed jobs
+keeps the earlier decision to skip. If the history cannot be read, it runs. After a failed, cancelled or timed-out run, the suite runs
+every night until one passes. A manual dispatch always runs.
 
 The run adds no GitHub required check. Its check names (`Full run change
 check`, `Full suite of main / …`, `Full run report`) cannot be taken for the
 required `harness` context.
 
-## After-merge full run
-
-`main` does not require an up-to-date branch (ruleset `main-required-harness`,
-by the owner's decision of 2026-11-10). A PR merges on its own green `harness`
-run, so two PRs that each pass alone can break `main` together. The full run
-that follows every push to `main` is what detects such a combination. It is
-the same workflow and the same full coverage as the nightly run. It adds no
-required check and changes nothing that runs on a pull request or a
-merge-queue group.
-
-Each pushed commit gets its own concurrency group, in the calling workflow and
-in the product workflow it calls. GitHub keeps one pending run per group and
-cancels the one a newer run replaces, so a group shared by merges would cancel
-the run of an earlier merge. Runs for different merges therefore neither
-cancel nor wait for one another, and a failure belongs to one merge. Scheduled
-and manual runs keep the group of their ref.
-
 ## Reporting a full run that did not pass
 
 The workflow's last job (`Full run report`,
-`tools/software_workflow/nightly_report.py`) runs after every full run:
-after-merge, nightly and manual. When a run of `main` passed, or a scheduled
+`tools/software_workflow/nightly_report.py`) runs after every full run,
+nightly and manual. When a run of `main` passed, or a scheduled
 run skipped an unchanged `main`, it does nothing. Otherwise (a job failed, was
 cancelled or timed out, or the results cannot be read) it opens a GitHub issue
 labelled `nightly`. Nothing outside the repository is needed to open it. The
@@ -403,7 +388,7 @@ GitHub gives a timed-out job the conclusion `cancelled`; the report reads the
 job's annotation to tell the two apart, and says so when it cannot.
 
 One commit has at most one open issue: a later failed run of the same commit
-(a rerun, or the nightly run after a failed after-merge run) adds a comment to
+(a rerun, or the next nightly run) adds a comment to
 it. A failure at another commit opens its own issue. A manual run of another
 branch reports nothing. `issues: write` is granted to this job alone, and it
 uses no secret other than `GITHUB_TOKEN`.

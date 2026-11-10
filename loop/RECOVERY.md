@@ -60,8 +60,8 @@ owned by a personal account; moving to an organization is parked by the owner.
 To run CI once for several ready, non-overlapping PRs, merge their reviewed heads
 into one integration branch and merge that, as #220 did.
 
-A full run of `main` follows every merge, and runs at 09:00 UTC if `main` has not
-been verified. A failed run opens an issue labelled `nightly` naming the merge.
+The full suite of `main` runs at 09:00 UTC when `main` has changed. A failed run
+opens an issue labelled `nightly`.
 [`docs/CI_STRATEGY.md`](../docs/CI_STRATEGY.md) describes it, and the
 [Standing Git grant](../AGENTS.md#standing-git-grant) has the arming, overlap and
 triage rules.
