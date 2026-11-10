@@ -219,8 +219,8 @@ For `sgttomas/SWBPIPE` only, agents may commit, push, open, update and merge PRs
 within authorized work after the verification above and required checks pass on
 the exact head. The Agent 0 of the session that opened a PR, directly or
 through its delegates, merges it after the review its change requires and with
-required checks green on the exact head, having first checked for open issues
-labelled `nightly` and dealt with them. Delegated agents report a PR ready to
+required checks green on the exact head, having first triaged any open issue
+labelled `nightly` (the PR that repairs one may merge). Delegated agents report a PR ready to
 merge and wait for Agent 0 to merge it. Explicit holds and reserved decisions
 apply. This grant excludes protection bypasses, history rewrites, force pushes,
 permission changes and releases. Use [Git conventions](#git-conventions) below.

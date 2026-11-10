@@ -355,9 +355,12 @@ the two are equal, it skips the suite and succeeds. If the history cannot be
 read, it runs. A failed run does not count as successful, so the suite runs
 again the next night until it passes. A manual dispatch always runs.
 
-The run is advisory. It adds no required check and never blocks a merge. Its
-check names (`Nightly change check`, `Nightly full suite / …`) cannot be taken
-for the required `harness` context. An external check reads the run at about
-15:00 UTC and opens a GitHub issue labelled `nightly` when the run failed.
-Before merging, Agent 0 checks for open `nightly` issues and deals with them
-first ([AGENTS.md, Standing Git grant](../AGENTS.md#standing-git-grant)).
+The run adds no GitHub required check. Its check names (`Nightly change
+check`, `Nightly full suite / …`) cannot be taken for the required `harness`
+context. An external check, kept outside this repository, reads the run at
+about 15:00 UTC and opens a GitHub issue labelled `nightly` when the run
+failed. Before merging, Agent 0 triages any open `nightly` issue
+([AGENTS.md, Standing Git grant](../AGENTS.md#standing-git-grant)): it finds
+the cause and repairs it, or assigns the repair, before merging unrelated work.
+The PR that repairs a finding may merge. Agent 0 acts on a failed nightly run
+it sees itself and does not wait for the issue.
