@@ -12,7 +12,9 @@ fails if any selected verification fails, is cancelled or never runs. Unselected
 product jobs are explicitly skipped. Selection uses the complete PR diff;
 missing diff information conservatively selects coverage.
 
-The merge queue (`merge_group`) verifies its temporary merge commit exactly as
+GitHub offers its merge queue only to organization-owned repositories, so it is
+not enabled here. The workflow stays ready for it: the merge queue
+(`merge_group`) verifies its temporary merge commit exactly as
 a pull request with the queue's base and that commit as head: the same
 checkout, complete-diff selection, document route and aggregate. Queue runs
 neither cancel nor are cancelled by other runs, do not reuse or record
@@ -298,7 +300,7 @@ locally in the registered build and in an emulated unregistered build (a
 build-identity-changing flag such as `RUSTFLAGS=--cap-lints=warn`, in its own
 target directory).
 
-No post-merge duplicate suite is required. Reuse passing
+The full run of `main` after each merge is the only post-merge suite. Reuse passing
 hosted results rather than repeating the same suite locally without a change or
 unresolved concern. Failure diagnostics stay in CI artifacts. The optional
 macOS release sweep remains available for release preparation.
