@@ -1,9 +1,10 @@
 import { CompactSelect } from "../workspace/CompactSelect";
-import { useEffect, useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState, type ReactNode } from "react";
 import { clone, makeRichIntent, parseQuantities, QueueFeedback, QuantityField, record, requireText, setMember, TextField, useRichQueue, type DraftRecord, type RichFormProps } from "../rich-authoring/formSupport";
 import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 import { EngineFeedback, useEngineCheckedQueue } from "../condition-sets/engineCheckedQueue";
 import { DIRECTION_AXES, EMPTY_DIRECTION_TEXT, parseDirectionEntry, STORED_DIRECTION_NOTE, storedDirectionText, type DirectionText } from "./supportDirection";
+import "./supportConfiguration.css";
 const DOFS = ["UX", "UY", "UZ", "RX", "RY", "RZ"];
 /** Product labels for the stored support family enums (also shown by the property inspector). */
 export const FAMILIES = [
@@ -103,6 +104,14 @@ function DirectionFields({ value, onChange }: { value: DirectionText; onChange: 
       value={value[axis]}
       onChange={e => onChange({ ...value, [axis]: e.target.value })}
     /></label>)}
+  </fieldset>;
+}
+/** A titled run of related fields inside a section. It only groups and titles controls that
+ * follow one another anyway: their order, names, values and shared field layout are their own. */
+function FieldGroup({ title, children }: { title: string; children: ReactNode }) {
+  return <fieldset className="support-subgroup">
+    <legend className="support-subgroup-title">{title}</legend>
+    {children}
   </fieldset>;
 }
 function SupportEditor(props: RichFormProps & {
@@ -230,10 +239,10 @@ function SupportEditor(props: RichFormProps & {
           onChange={setLabel}
         />
         <VirtualTargetPicker label="Support node" value={node} options={nodeOptions} onChange={setNode} testId="support-node-picker" />
-      </> : <p>{support?.label} — {support?.id}, node {support?.node}</p>}
+      </> : <p className="support-identity">{support?.label} — {support?.id}, node {support?.node}</p>}
       {storedDirection !== null && <p data-testid="support-direction-stored">Direction (x, y, z), stored: <output aria-label="Stored direction">{storedDirection}</output> — {STORED_DIRECTION_NOTE}. Configuration edits keep it; the operation engine refuses one that would make it inadmissible.</p>}
       <FamilyField value={draft.family} onChange={value => set("family", value)} />
-      <fieldset>
+      <fieldset className="support-dofs">
         <legend>Restrained degrees of freedom</legend>{DOFS.map(dof => <label key={dof}>
           <input
             type="checkbox"
@@ -258,7 +267,7 @@ function SupportEditor(props: RichFormProps & {
           checked={draft.hanger !== undefined}
           onChange={e => set("hanger", e.target.checked ? {} : undefined)}
         />Include hanger data</label>
-      {draft.hanger !== undefined && <fieldset>
+      {draft.hanger !== undefined && <fieldset className="support-section">
         <legend>Hanger</legend>
         <TextField
           label="Hanger type"
@@ -272,27 +281,41 @@ function SupportEditor(props: RichFormProps & {
           value={hanger.stiffness}
           onChange={v => setH("stiffness", v)}
         /> : <button type="button" onClick={() => setH("stiffness", {})}>Add hanger stiffness</button>}
-        {["installed_load", "cold_load", "hot_load", "constant_load", "travel_range", "movement_limit"].map(key => <QuantityField
-          dimension={["travel_range", "movement_limit"].includes(key) ? "length" : "force"}
-          key={key}
-          label={`Hanger ${key.replaceAll("_", " ")}`}
-          value={hanger[key]}
-          onChange={v => setH(key, v)}
-        />)}
-        {["manufacturer_reference", "source_reference", "load_side_review_reference", "mechanics_consumption"].map(key => <TextField
-          key={key}
-          label={`Hanger ${key.replaceAll("_", " ")}`}
-          value={hanger[key]}
-          onChange={v => setH(key, v)}
-        />)}</fieldset>}
+        <FieldGroup title="Loads">
+          {["installed_load", "cold_load", "hot_load", "constant_load"].map(key => <QuantityField
+            dimension="force"
+            key={key}
+            label={`Hanger ${key.replaceAll("_", " ")}`}
+            value={hanger[key]}
+            onChange={v => setH(key, v)}
+          />)}
+        </FieldGroup>
+        <FieldGroup title="Travel">
+          {["travel_range", "movement_limit"].map(key => <QuantityField
+            dimension="length"
+            key={key}
+            label={`Hanger ${key.replaceAll("_", " ")}`}
+            value={hanger[key]}
+            onChange={v => setH(key, v)}
+          />)}
+        </FieldGroup>
+        <FieldGroup title="Sources and references">
+          {["manufacturer_reference", "source_reference", "load_side_review_reference", "mechanics_consumption"].map(key => <TextField
+            key={key}
+            label={`Hanger ${key.replaceAll("_", " ")}`}
+            value={hanger[key]}
+            onChange={v => setH(key, v)}
+          />)}
+        </FieldGroup></fieldset>}
       <label>
         <input
           type="checkbox"
           checked={draft.nonlinear !== undefined}
           onChange={e => set("nonlinear", e.target.checked ? {} : undefined)}
         />Include nonlinear behavior</label>
-      {draft.nonlinear !== undefined && <fieldset>
+      {draft.nonlinear !== undefined && <fieldset className="support-section">
         <legend>Nonlinear behavior</legend>
+        <FieldGroup title="Behavior and state">
         <TextField
           label="Nonlinear behavior"
           value={nonlinear.behavior}
@@ -322,6 +345,8 @@ function SupportEditor(props: RichFormProps & {
           choices={key === "closes_when" ? ["positive_displacement", "negative_displacement"] : ["positive_reaction", "negative_reaction"]}
           onChange={v => setN(key, v)}
         />)}
+        </FieldGroup>
+        <FieldGroup title="Gap, friction and normal reaction">
         {["gap", "friction_coefficient", "normal_reaction"].map(key => <QuantityField
           dimension={key === "gap" ? "length" : key === "normal_reaction" ? "force" : "dimensionless coefficient"}
           key={key}
@@ -329,6 +354,7 @@ function SupportEditor(props: RichFormProps & {
           value={nonlinear[key]}
           onChange={v => setN(key, v)}
         />)}
+        </FieldGroup>
         <label>
           <input
             type="checkbox"
