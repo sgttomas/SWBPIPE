@@ -1995,9 +1995,12 @@ test("decorative viewport overlays pass real canvas gestures while view controls
   // (measured on main at d20eb1294). The shell's Both view gives that same box
   // to a 1688 x 787 window with the stored split at 50 % (surfaces 1588 wide,
   // canvas pane 794; 787 less the 228 px of bars above and below the drawn canvas is 559).
+  // 2026-11-09, DEL-07-06 workspace presentation: the canvas header went from a fixed
+  // 80 px box to a 32 px command row and the 24 px status strip (69 px with padding),
+  // so the same move again: 772 less the 213 px of bars is the same 559.
   // The box is asserted below, so the geometry the frozen endpoints depend on is
   // pinned and not implied. The endpoints and every other assertion are untouched.
-  await page.setViewportSize({ width: 1688, height: 787 });
+  await page.setViewportSize({ width: 1688, height: 772 });
   await page.addInitScript(() => {
     window.localStorage.setItem("chirality.desktop.ui-preferences.v1", JSON.stringify({ version: 1, bothSplitPct: 50 }));
   });

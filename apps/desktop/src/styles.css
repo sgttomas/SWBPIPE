@@ -773,26 +773,29 @@ button:focus-visible {
 .viewport-shell {
   min-height: 0;
   overflow: hidden;
-  border: 1px solid #c8d0cb;
-  border-radius: 6px;
-  background: #fbfcfa;
-  box-shadow: 0 1px 2px rgb(27 39 37 / 8%);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-card);
+  background: var(--surface-panel);
+  box-shadow: none;
 }
 
 .panel {
   display: flex;
   flex-direction: column;
-  padding: 12px;
+  padding: var(--space-5);
 }
 
+/* A pane's eyebrow title: caption size, muted, spaced capitals (DEL-07-06 Work, type scale). */
 .panel-title {
   display: flex;
   align-items: center;
-  gap: 7px;
-  margin-bottom: 10px;
-  color: #465450;
-  font-size: 12px;
-  font-weight: 700;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  color: var(--text-secondary);
+  font-size: var(--type-size-caption);
+  line-height: var(--type-lineHeight-caption);
+  font-weight: var(--type-weight-semibold);
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
@@ -3175,26 +3178,45 @@ fieldset.viewport-intent-controls {
   cursor: not-allowed;
 }
 
+/* The dense table primitive (DEL-07-06 Work, tables): body-size cells with tabular figures, a
+   quiet caption-size header on the sunken surface, hairline rows with the alternate-row tint and
+   a hover wash. Density sets cell padding only. Element selectors keep component tables in
+   charge of their own columns. */
 table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: var(--type-size-body);
+  line-height: var(--type-lineHeight-body);
+  font-variant-numeric: tabular-nums;
 }
 
 th,
 td {
-  padding: 8px 6px;
-  border-bottom: 1px solid #dfe4e1;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-hairline);
   text-align: left;
   vertical-align: top;
   overflow-wrap: anywhere;
 }
 
 th {
-  color: #59645f;
-  font-size: 11px;
+  color: var(--text-secondary);
+  background: var(--surface-header);
+  font-size: var(--type-size-caption);
+  line-height: var(--type-lineHeight-caption);
+  font-weight: var(--type-weight-semibold);
+  letter-spacing: 0.04em;
   text-transform: uppercase;
+  vertical-align: bottom;
+  border-bottom-color: var(--border-strong);
+  overflow-wrap: normal;
+  word-break: keep-all;
 }
+
+tbody tr:nth-child(even) { background-color: var(--surface-rowAlt); }
+tbody tr:hover { background-image: linear-gradient(var(--hover-wash), var(--hover-wash)); }
+:where(.app-shell[data-density="compact"]) th,
+:where(.app-shell[data-density="compact"]) td { padding: var(--space-2) var(--space-3); }
 
 .muted {
   margin: 0;
@@ -3777,22 +3799,29 @@ body { min-width: 760px; min-height: 540px; }
   --ui-viewport-selection-geometry: var(--canvas-selection);
   --ui-focus: var(--focus-ring); --ui-disabled: var(--disabled-fill); --ui-disabled-text: #667680;
   color: var(--ui-text); background: var(--ui-bg);
-  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 14px; line-height: 1.4;
+  /* One type scale in both densities: body 13/18 is the repeatedly-read minimum; density changes
+     spacing and control height, never legibility. Figures are tabular so columns of values align. */
+  font-family: var(--font-ui);
+  font-size: var(--type-size-body); line-height: var(--type-lineHeight-body);
+  font-variant-numeric: tabular-nums;
 }
 .app-shell[data-theme="dark"] {
   --ui-border: #70828c;
   --ui-disabled-text: #9baab2;
 }
-.app-shell[data-density="compact"] { font-size: 13px; }
 .app-shell .workspace-toolbar, .app-shell .workspace-pane, .app-shell .workspace-dock,
 .app-shell .panel, .app-shell .viewport-toolbar, .app-shell .command-bar,
 .app-shell .workspace-dock-body, .app-shell .operation-tabs { color: var(--ui-text); background: var(--ui-surface); border-color: var(--ui-divider); }
 .app-shell input, .app-shell select, .app-shell textarea, .app-shell button {
   color: var(--ui-text); background-color: var(--ui-surface); border-color: var(--ui-border);
+  border-radius: var(--radius-control); font-family: inherit;
 }
-.app-shell button[aria-pressed="true"], .app-shell .tree-row[aria-selected="true"] {
-  color: var(--ui-selection-text); background: var(--ui-selection); border-inline-start: 3px solid var(--ui-accent);
+/* Hover washes the control without replacing its fill; pressed is the token pair, with no
+   layout-shifting bar. The 3 px selection bar belongs to selected rows, not to buttons. */
+.app-shell button:hover:not(:disabled):not([aria-disabled="true"]) { background-image: linear-gradient(var(--hover-wash), var(--hover-wash)); }
+.app-shell button[aria-pressed="true"] { color: var(--pressed-ink); background-color: var(--pressed-fill); border-color: var(--ui-accent); }
+.app-shell .tree-row[aria-selected="true"] {
+  color: var(--ui-selection-text); background: var(--ui-selection); border-inline-start: var(--border-width-selectionBar) solid var(--ui-accent);
 }
 .app-shell button:disabled, .app-shell input:disabled, .app-shell select:disabled {
   color: var(--ui-disabled-text); background: var(--ui-disabled);
@@ -3827,10 +3856,12 @@ body { min-width: 760px; min-height: 540px; }
   background: var(--ui-disabled);
   box-shadow: none;
 }
+/* Control height by density: comfortable 28 px, compact 24 px. 24 px is the WCAG 2.2 AA minimum
+   target (2.5.8) that D-68 selects, so compact never goes below it. */
 .app-shell[data-density="comfortable"] button, .app-shell[data-density="comfortable"] select,
-.app-shell[data-density="comfortable"] input:not([type="checkbox"]):not([type="radio"]) { min-height: 32px; }
+.app-shell[data-density="comfortable"] input:not([type="checkbox"]):not([type="radio"]) { min-height: 28px; }
 .app-shell[data-density="compact"] button, .app-shell[data-density="compact"] select,
-.app-shell[data-density="compact"] input:not([type="checkbox"]):not([type="radio"]) { min-height: 28px; }
+.app-shell[data-density="compact"] input:not([type="checkbox"]):not([type="radio"]) { min-height: 24px; }
 
 .task-action-footer { position: sticky; bottom: 0; z-index: 8; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; padding: 8px 0; border-top: 1px solid var(--ui-divider); background: var(--ui-surface); }
 .task-action-footer button { min-width: 0; }
@@ -4178,7 +4209,9 @@ body { min-width: 760px; min-height: 540px; }
 .app-shell .shell-rail-item[aria-current="page"], .app-shell .shell-rail-item[aria-pressed="true"] { color: var(--ui-text); background: transparent; border-inline-start: 3px solid var(--ui-accent); }
 .app-shell .shell-rail-item[aria-expanded="true"] { color: var(--ui-text); }
 .app-shell .shell-rail-caption { font-size: var(--type-size-caption); color: var(--rail-captionHistorical); }
-.app-shell [data-testid="rail-caption-results"]:not(:empty) { color: var(--rail-captionFailed); }
+.app-shell .shell-rail-caption[data-caption-kind="failed"] { color: var(--rail-captionFailed); }
+.app-shell .shell-rail-caption[data-caption-kind="stale"] { color: var(--rail-captionStale); }
+.app-shell .shell-rail-caption[data-caption-kind="historical"] { color: var(--rail-captionHistorical); }
 .app-shell .shell-rail-badge { position: absolute; top: 2px; right: 6px; min-width: 14px; padding: 0 3px; border-radius: var(--radius-pill); color: var(--ui-text); background: var(--ui-raised); font-size: var(--type-size-caption); }
 
 .app-shell .shell-surfaces-frame { position: relative; display: block; min-width: 0; min-height: 0; padding: 0; gap: 0; overflow: hidden; }
@@ -4692,3 +4725,129 @@ body { min-width: 760px; min-height: 540px; }
 .key-results-action kbd { color: var(--ui-muted); font-family: var(--font-mono); font-size: var(--type-size-caption); }
 .key-results-action[aria-disabled="true"] { opacity: 0.6; cursor: default; }
 .key-results-every-solve { display: flex; align-items: center; gap: var(--space-2); }
+
+/* === Workstation presentation conventions (DEL-07-06 Work `workspace-presentation.md`) ===
+ * One shared vocabulary for every pane, built only from the maintained tokens:
+ *   type   caption 11/14 (eyebrows, captions, ids), body 13/18 (everything read), title 15/20
+ *          (a pane's section heading); weights 400 / 500 / 600; figures tabular.
+ *   space  4 px inside a control group, 8 px between controls, 12 px pane padding,
+ *          16 px between sections.
+ *   size   controls 28 px comfortable, 24 px compact; rows follow their table.
+ *   state  hover = hover wash; pressed = pressed fill + ink; a selected row = selection band +
+ *          3 px bar; focus = 2 px ring; disabled = disabled fill with its reason reachable.
+ * Rules here are presentation only: no control is added, removed, enabled or disabled. */
+
+/* The in-window menu bar reads as a menu bar: flat text triggers, not a row of buttons. */
+.app-shell .app-menu-bar { padding: var(--space-1) var(--space-4); gap: 0; background: var(--ui-bg); }
+.app-shell .app-menu-trigger {
+  min-height: 24px; padding: 0 var(--space-4); border-color: transparent; background-color: transparent;
+  color: var(--ui-text); font-size: var(--type-size-body); font-weight: var(--type-weight-medium);
+}
+.app-shell .app-menu-trigger.open { background-color: var(--pressed-fill); color: var(--pressed-ink); }
+
+/* Section headings inside panes: title and body sizes, not browser defaults. */
+.app-shell .shell-surfaces h2, .app-shell .shell-page-sections h2 {
+  margin: var(--space-6) 0 var(--space-3); font-size: var(--type-size-title); line-height: var(--type-lineHeight-title); font-weight: var(--type-weight-semibold);
+}
+.app-shell .shell-surfaces h3, .app-shell .shell-page-sections h3 {
+  margin: var(--space-6) 0 var(--space-2); font-size: var(--type-size-body); line-height: var(--type-lineHeight-body); font-weight: var(--type-weight-semibold);
+}
+.app-shell .shell-surfaces h4, .app-shell .shell-page-sections h4 {
+  margin: var(--space-5) 0 var(--space-2); color: var(--text-secondary); font-size: var(--type-size-body); font-weight: var(--type-weight-semibold);
+}
+.app-shell .panel > :is(h2, h3, h4):first-child, .app-shell .panel > .panel-title + :is(h2, h3, h4) { margin-top: 0; }
+/* Explanatory prose keeps a readable measure; tables and grids are not limited. */
+.app-shell .shell-surfaces p, .app-shell .shell-page-sections p { max-width: 90ch; margin-block: var(--space-3); }
+.app-shell .shell-surfaces fieldset, .app-shell .shell-page-sections fieldset {
+  margin: var(--space-4) 0; padding: var(--space-4) var(--space-5); border: 1px solid var(--border-hairline); border-radius: var(--radius-card);
+}
+.app-shell .shell-surfaces legend, .app-shell .shell-page-sections legend { padding: 0 var(--space-2); color: var(--text-secondary); font-weight: var(--type-weight-semibold); }
+
+/* A field written inline after its label text keeps a gap from it. These defaults carry no
+   specificity, so any component's own margin wins; labels laid out as grid or flex (the inspector,
+   the canvas, the appearance popover) set their own gap and reset this margin below. */
+:where(.app-shell .shell-surfaces, .app-shell .shell-page-sections) :where(label > :is(select, input:not([type="checkbox"]):not([type="radio"]), textarea)) { margin-inline: var(--space-3) var(--space-2); }
+:where(.app-shell .shell-surfaces, .app-shell .shell-page-sections) :where(label > input:is([type="checkbox"], [type="radio"])) { margin-inline: 0 var(--space-3); }
+
+.app-shell .inspector label > *, .app-shell .property-inspector label > *, .app-shell .viewport-shell label > *,
+.app-shell .shell-appearance-popover label > * { margin-inline: 0; }
+
+/* A disclosure's summary is a control: at least the 24 px target (WCAG 2.2 2.5.8, D-68). */
+.app-shell .shell-surfaces summary, .app-shell .shell-page-sections summary { min-height: 24px; padding-block: 3px; box-sizing: border-box; cursor: pointer; }
+
+/* Canvas identity labels size to their id (up to a cap) so N-110 is never shown as N-…. */
+.app-shell .viewport-select-target { width: auto; min-width: 40px; max-width: 120px; font-weight: var(--type-weight-semibold); }
+
+/* Toolbar: hairline separators between its groups, so commands read as sets. */
+.app-shell .shell-toolbar > .shell-toolbar-group, .app-shell .shell-toolbar > .shell-view-switch,
+.app-shell .shell-toolbar > .shell-toolbar-units {
+  padding-inline-start: var(--space-4); border-inline-start: 1px solid var(--ui-divider);
+}
+.app-shell .shell-toolbar .shell-project-name { font-weight: var(--type-weight-semibold); }
+.app-shell .shell-toolbar .shell-run { min-width: 64px; font-weight: var(--type-weight-semibold); }
+
+/* Canvas header: one row that scrolls sideways instead of a fixed box whose later rows are cut
+   in half. Every control stays reachable by Tab and by scrolling; groups are separated. An opened
+   disclosure (Deformation) lays its content out in the row, so the row grows to show it, up to a
+   bound past which it scrolls vertically; it never clips what the disclosure states. */
+.app-shell .viewport-toolbar { grid-template-rows: minmax(32px, auto) 24px; height: auto; align-content: center; }
+.app-shell .viewport-toolbar-controls {
+  flex-wrap: nowrap; align-items: flex-start; gap: var(--space-4); overflow: auto; max-height: min(320px, 45vh); padding-block: var(--space-1);
+}
+/* Each group keeps its own width: the row scrolls instead, so a group never overflows onto the next. */
+.app-shell .viewport-toolbar-controls > * { max-width: none; }
+.app-shell .viewport-toolbar-controls > * + * { padding-inline-start: var(--space-4); border-inline-start: 1px solid var(--ui-divider); }
+.app-shell .viewport-toolbar button, .app-shell .viewport-toolbar select {
+  min-height: 24px; height: 24px; padding: 0 var(--space-3); font-size: var(--type-size-caption);
+}
+.app-shell .viewport-display-toggles, .app-shell .viewport-selection-tools, .app-shell .viewport-geometry-tools { flex-wrap: nowrap; gap: var(--space-1); }
+
+/* Canvas status strip: when the strip overflows in a narrow pane, the selection echo (also in the
+   status bar and in its own title) is the one item that yields width, so the Show all command after
+   it is never left partly past the strip's edge, where focus would not scroll it into view. */
+.app-shell .viewport-toolbar-status-strip > .viewport-toolbar-selection-status { flex-shrink: 1; }
+
+/* Status bar: the selection's type is a quiet label and its id is set as an identifier. */
+.app-shell .shell-status-selection .shell-status-selection-type { color: var(--text-secondary); }
+.app-shell .shell-status-selection .shell-status-selection-id { color: var(--ui-text); font-family: var(--font-mono); font-size: var(--type-size-caption); }
+
+/* Results actions (Inspect bundled reference, Key results) are ordinary commands in one group at
+   the head of the results column, not full-width bars. */
+.app-shell .results-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: var(--space-4); }
+
+/* A results standing line: its headline, then each published limitation on its own line, then the
+   closing sentence. Every word stays visible (DEL-07-05: the standing line states each route's
+   limitations); the layout only makes a long basis scannable before the tables. */
+.app-shell .result-standing {
+  max-width: 110ch; margin-block: var(--space-4); padding: var(--space-3) var(--space-5);
+  border-inline-start: var(--border-width-selectionBar) solid var(--border-strong); background: var(--surface-sunken); color: var(--ui-text);
+}
+.app-shell .result-standing-lead, .app-shell .result-standing-close { display: block; font-weight: var(--type-weight-semibold); }
+.app-shell .result-standing-lead { margin-bottom: var(--space-2); }
+.app-shell .result-standing-close { margin-top: var(--space-2); }
+.app-shell .result-standing-limitation { display: list-item; list-style: disc outside; margin-inline-start: 1.25em; padding-block: 1px; color: var(--text-secondary); }
+
+/* A value stays on one line with its unit; ids may still wrap at their separators. */
+.app-shell .results-panel .result-value-cell { white-space: nowrap; overflow-wrap: normal; }
+.app-shell .results-panel .dual-unit-cell { overflow-wrap: break-word; }
+
+/* Form fields (DEL-07-06 Work `workspace-presentation.md`, section 2). The shared authoring fields
+   (rich-authoring `formSupport.tsx`) lay out the same way in every form. A field is a grid whose
+   tracks wrap by width, not by context: where it has room the label and its control sit side by
+   side, with every field of a form sharing the same columns; where it does not (the inspector, a
+   narrow pane) the label stacks above its control. Nothing is hidden or clipped, and the field
+   keeps its label association, name and order. */
+.app-shell .form-field {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); align-items: center;
+  column-gap: var(--space-4); row-gap: var(--space-1); max-width: 36rem; margin-block: var(--space-2);
+}
+.app-shell .form-field > :is(input, select, textarea, .compact-select) { width: 100%; min-width: 0; max-width: none; margin-inline: 0; }
+/* A quantity: its dimension note, then its value and unit on one row (the unit narrower), then Clear. */
+.app-shell .quantity-field > p { margin-block: 0 var(--space-2); color: var(--text-secondary); font-size: var(--type-size-caption); line-height: var(--type-lineHeight-caption); }
+.app-shell .quantity-field-row { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-2) var(--space-4); max-width: 36rem; }
+.app-shell .quantity-field-row > label {
+  display: grid; row-gap: var(--space-1); flex: 2 1 9rem; min-width: 0; margin: 0; color: var(--text-secondary);
+}
+.app-shell .quantity-field-row > label + label { flex: 1 1 6rem; }
+.app-shell .quantity-field-row > label > input { width: 100%; min-width: 0; margin-inline: 0; color: var(--ui-text); }
+.app-shell .quantity-field > .quantity-field-row + button { margin-top: var(--space-2); }

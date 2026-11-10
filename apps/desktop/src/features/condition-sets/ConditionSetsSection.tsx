@@ -157,14 +157,14 @@ export function ConditionSetFields({ draft, onChange, model, route, idEditable, 
   return (
     <fieldset className="condition-set-fields" data-testid={`${testId}-fields`}>
       <legend>{idEditable ? "New condition set" : `Condition set ${draft.id}`}</legend>
-      <label>Id
+      <label className="form-field">Id
         <input aria-label="Condition set id" data-testid={`${testId}-id`} value={draft.id} readOnly={!idEditable} placeholder={NOT_STATED}
           onChange={(event) => set("id", event.target.value)} />
       </label>
-      <label>Label
+      <label className="form-field">Label
         <input aria-label="Condition set label" data-testid={`${testId}-label`} value={draft.label} placeholder={NOT_STATED} onChange={(event) => set("label", event.target.value)} />
       </label>
-      <label>Provenance (required)
+      <label className="form-field">Provenance (required)
         <input aria-label="Condition set provenance" data-testid={`${testId}-provenance`} value={draft.provenance} placeholder={NOT_STATED} onChange={(event) => set("provenance", event.target.value)} />
       </label>
       <QuantityInput label="Installation temperature" dimension={DIMENSIONS.temperature} route={route} value={draft.installationTemperature} stored={storedAt("installation_temperature")} onChange={(value) => set("installationTemperature", value)} testId={`${testId}-installation-temperature`} />
@@ -216,7 +216,7 @@ export function ConditionSetFields({ draft, onChange, model, route, idEditable, 
       <fieldset>
         <legend>Added weight (uniform, on every pipe carrying the set)</legend>
         <QuantityInput label="Added weight magnitude" dimension={DIMENSIONS.forcePerLength} route={route} value={draft.addedWeightMagnitude} stored={storedAt("added_weight.magnitude")} onChange={(value) => set("addedWeightMagnitude", value)} testId={`${testId}-added-weight-magnitude`} />
-        <label>Added weight direction
+        <label className="form-field">Added weight direction
           <select aria-label="Added weight direction" data-testid={`${testId}-added-weight-direction`} value={draft.addedWeightDirection}
             onChange={(event) => set("addedWeightDirection", event.target.value as ConditionSetDraft["addedWeightDirection"])}>
             <option value="">{NOT_STATED}</option>

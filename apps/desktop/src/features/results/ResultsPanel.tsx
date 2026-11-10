@@ -376,7 +376,7 @@ function FullResultsPanel({
             <p className="numerical-health-header-line" data-testid="numerical-health-header-line"><NumericalHealthBadgeText badge={health.badge} text={health.headline} testId="numerical-health-header" />{health.outputSentence ? <>. <span data-testid="numerical-health-output-sentence">{health.outputSentence}</span></> : null}</p>
           ) : null}
           {health ? <NumericalHealthDetail health={health} resolveCauseLocation={resolveCauseLocation} onSelectCauseLocation={onSelectCauseLocation} onShowDiagnostic={onShowDiagnostic} /> : null}
-          <p data-testid="numerical-result-standing">{recordedTableRead ? `${recordedTableLabel(recordedTableRead)}. ` : null}{route === "unsupported" ? "Unsupported numerical contract; historical values only. Needs recompute." : isRetainedRoute(route) ? retainedPrecisionStandingText(result) : route === "pressure_source" ? `Ordinary solve: ${result.numerical_quality!.status}. Producer recovery receipt: ${(result.source_block_recovery as {body:{status:string}}).body.status}. ${result.formulation_basis!.limitations.join(" ")} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.` : `Numerical integrity: ${result.numerical_quality!.status}. ${result.formulation_basis!.limitations.join(" ")} Numerical checks do not establish engineering correctness.`}{hangerPreloadStanding(result) ? ` ${hangerPreloadStanding(result)}` : null}</p>
+          <p className="result-standing" data-testid="numerical-result-standing">{recordedTableRead ? `${recordedTableLabel(recordedTableRead)}. ` : null}{route === "unsupported" ? "Unsupported numerical contract; historical values only. Needs recompute." : isRetainedRoute(route) ? retainedPrecisionStandingText(result) : route === "pressure_source" ? <StandingStatement lead={`Ordinary solve: ${result.numerical_quality!.status}. Producer recovery receipt: ${(result.source_block_recovery as {body:{status:string}}).body.status}.`} limitations={result.formulation_basis!.limitations} close="Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness." /> : <StandingStatement lead={`Numerical integrity: ${result.numerical_quality!.status}.`} limitations={result.formulation_basis!.limitations} close="Numerical checks do not establish engineering correctness." />}{hangerPreloadStanding(result) ? ` ${hangerPreloadStanding(result)}` : null}</p>
           <KnownSemanticNotices result={result} testIdPrefix="results" recordedTableRead={recordedTableRead} />
           <SectionBasisHeadlines result={result} />
           <PhysicsSourceEvidencePanel result={result} />
@@ -479,7 +479,7 @@ function FullResultsPanel({
                           <td>{item.entity_ref}</td>
                           <td>{item.metadata?.location ?? "summary"}</td>
                           <td data-testid={`result-row-frame-${item.id}`}>{frameLabel(resultFrame(item))}</td>
-                          <td>
+                          <td className="result-value-cell">
                             <QuantityReadout quantity={{ value: item.value, unit: item.unit, dimension_id: labels!.dimension(item) ?? "unknown" }} />
                           </td>
                           <td className="dual-unit-cell" data-testid={`result-row-dual-${item.id}`}>
@@ -1227,5 +1227,22 @@ export function NumericalHealthDetail({ health, resolveCauseLocation, onSelectCa
         </article>
       ))}
     </details>
+  );
+}
+
+/**
+ * A route's standing line with its published limitations set out one per line. The text is
+ * exactly the joined sentence (lead, each limitation, the closing sentence, single spaces), so
+ * nothing is shortened, reordered or hidden; only the layout makes each limitation readable.
+ */
+function StandingStatement({ lead, limitations, close }: { lead: string; limitations: readonly string[]; close: string }) {
+  return (
+    <>
+      <span className="result-standing-lead">{lead}</span>{" "}
+      {limitations.length === 0 ? " " : limitations.map((text, index) => (
+        <span key={index} className="result-standing-limitation">{text}{" "}</span>
+      ))}
+      <span className="result-standing-close">{close}</span>
+    </>
   );
 }

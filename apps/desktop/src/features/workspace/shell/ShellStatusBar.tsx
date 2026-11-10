@@ -64,7 +64,7 @@ export function ShellStatusBar({ issueCount }: { issueCount: number }) {
         <Flag size={12} aria-hidden="true" /> {issueCount} Issues
       </button>
       <span className="shell-status-selection" data-testid="status-selection" title="Selection">
-        {selection ? `${selection.type}: ${selection.id}` : ""}{count > 1 ? ` · ${count} selected` : ""}
+        {selection ? <><span className="shell-status-selection-type">{selection.type}:</span> <span className="shell-status-selection-id">{selection.id}</span></> : null}{count > 1 ? ` · ${count} selected` : ""}
       </span>
       <span className="shell-status-units" data-testid="status-display-units" title="Display units">{DISPLAY_UNIT_FACES[preference]}</span>
       <button

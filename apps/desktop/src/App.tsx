@@ -773,12 +773,14 @@ function AppSession() {
               {activeSection === "results" || activatedExpensiveSections.has("results") ? (
               <DormantSection active={activeSection === "results"} sessionGeneration={projectSessionGeneration}>
               <Fragment key={`results:${dormantOutputBasis}`}>
-              <button type="button" onClick={() => void handleInspectBundledReference()}>
-                Inspect bundled reference
-              </button>
-              <button type="button" data-testid="key-results-open" aria-pressed={keyResults.open} onClick={keyResults.toggle}>
-                Key results
-              </button>
+              <div className="results-actions" role="group" aria-label="Results actions">
+                <button type="button" onClick={() => void handleInspectBundledReference()}>
+                  Inspect bundled reference
+                </button>
+                <button type="button" data-testid="key-results-open" aria-pressed={keyResults.open} onClick={keyResults.toggle}>
+                  Key results
+                </button>
+              </div>
               {historicalRun ? <HistoricalRunPanel key={historicalRun.runId} context={historicalRun} /> : <ResultsPanel
                 result={result}
                 model={model}
