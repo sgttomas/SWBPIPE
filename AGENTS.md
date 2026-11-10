@@ -220,7 +220,8 @@ within authorized work after the verification above and required checks pass on
 the exact head. The Agent 0 of the session that opened a PR, directly or
 through its delegates, merges it after the review its change requires and with
 required checks green on the exact head, having first triaged any open issue
-labelled `nightly` (the PR that repairs one may merge). Agent 0 may arm GitHub
+labelled `nightly` (the PR that repairs one may merge). If that session has ended, the current
+Agent 0 takes that duty. Agent 0 may arm GitHub
 auto-merge instead of merging by hand. It arms only after the review and any
 INTERLOCUTOR consultation are done and the last push is made, against the
 reviewed head, and it triages `nightly` issues when arming. It disarms before
@@ -241,8 +242,7 @@ Apply these project conventions while using ordinary Git judgment and the author
 - Treat `main` as SWBPIPE's integration branch. Name task branches with a prefix that identifies the authoring agent, such as `codex/` or `claude/`, unless the user or an applicable owning-loop rule specifies otherwise. Integrate a PR with a merge commit (no fast-forward) unless the PR or its owning loop chooses otherwise.
 - Use a separate worktree when the user requests isolation or when concurrent sessions make isolation proportionate, such as overlapping writes to governance surfaces, risky refactors, or tool interference. Do not require a worktree for every change. High-risk overlap paths here include `AGENTS.md`, `loop/`, governance documents under `docs/`, accepted snapshots, generated derivative packages, and shared control roots such as `execution/_Coordination/`; warn when two lanes overlap on them.
 - Close authorized work through a PR under [SWBPIPE AGENTS.md's standing Git grant](#standing-git-grant). No separate commit, push, PR or merge approval is needed when its conditions hold. Use the configured authenticated identity and retain truthful authorship; agent review is not personal owner review.
-- Verify in proportion to consequence and confirm required checks pass on the exact head; if that session has ended, the current Agent 0 takes
-that duty. Obtain independent scrutiny where the grant requires it. Clear blocking findings and reassess affected checks after candidate changes; a passing rerun does not establish that a known defect was repaired. Verify the source HEAD when merging.
+- Verify in proportion to consequence and confirm required checks pass on the exact head. Obtain independent scrutiny where the grant requires it. Clear blocking findings and reassess affected checks after candidate changes; a passing rerun does not establish that a known defect was repaired. Verify the source HEAD when merging.
 - Git integration, human acceptance and product release remain distinct. Explicit holds and reserved decisions apply. The grant is limited to `sgttomas/SWBPIPE`; it does not authorize protection bypasses, history rewrites, force pushes, permission changes or releases.
 - Update affected live consumers and references in the change itself.
 
