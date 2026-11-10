@@ -2042,11 +2042,15 @@ mod direct_native {
                 {"section_id": "result_displacements", "cases": "all", "view": {"kind": "extremes"}},
                 {"section_id": "result_stresses", "cases": "all", "view": {"kind": "largest", "limit": 25}}
             ]});
-            for (variant, composition) in [("default", None), ("full", Some(full)), ("ranked", Some(ranked))] {
+            // Slice C5: every model-input section beside all result rows, with P(M, C).
+            let model_input = crate::object_form_tests::model_input_composition();
+            for (variant, composition) in [("default", None), ("full", Some(full)), ("ranked", Some(ranked)), ("model-input", Some(model_input))] {
                 let w = witness(text);
                 let live = live(&w);
                 let mut render_args = genuine_render_args(&w, &live.job);
                 if let Some(composition) = &composition {
+                    let intake: Value = serde_json::from_str(&w.intake).unwrap();
+                    crate::object_form_tests::with_model_input_tables(&mut render_args["input"], &intake, composition);
                     render_args["input"]["report_composition"] = composition.clone();
                 }
                 let raw = serde_json::to_vec(&render_args).unwrap();
@@ -2079,6 +2083,7 @@ mod direct_native {
 
                 let mut request = bound(&w.request, &live.job);
                 if let Some(composition) = &composition {
+                    crate::object_form_tests::with_model_input_tables(&mut request["report"], &w.model, composition);
                     request["report"]["report_composition"] = composition.clone();
                 }
                 let args = save_args(&request, &w, &w.model, Some(&w.result), Some(&w.intake));
@@ -2111,6 +2116,47 @@ mod direct_native {
                 assert!(!blocked, "the assembled package is unblocked");
                 assert!(measured.peak_priced <= lease_bytes - envelope, "{shape} {variant} save: priced peak {} exceeds its lease {}", measured.peak_priced, lease_bytes - envelope);
                 eprintln!("{shape} {variant} exact save: priced peak {} lease {}", measured.peak_priced, lease_bytes - envelope);
+            }
+        }
+    }
+
+    /// Slice C5 (DEL-08-01 Design `report-section-composer.md` §2.7): on every
+    /// exact witness, the exact render binds the model-input tables to its bound
+    /// intake model and the local-private save (route 009) to its model; the
+    /// genuine projection is admitted at both, and an edited cell, an extra
+    /// row, tables without a listing id and a listing id without tables are
+    /// refused with REPORT-COMPOSITION-MODEL-INPUT-UNBOUND, naming no value.
+    #[test]
+    fn model_input_tables_are_bound_at_the_exact_render_and_the_save() {
+        use crate::object_form_tests::{forged_model_input_reports, model_input_composition, with_model_input_tables, FORGED_CELL};
+        const UNBOUND: &str = "REPORT-COMPOSITION-MODEL-INPUT-UNBOUND";
+        for (shape, text) in SHAPES {
+            let w = witness(text);
+            let live = live(&w);
+            let composition = model_input_composition();
+            let intake: Value = serde_json::from_str(&w.intake).unwrap();
+            let mut args = genuine_render_args(&w, &live.job);
+            with_model_input_tables(&mut args["input"], &intake, &composition);
+            args["input"]["report_composition"] = composition.clone();
+            let rendered = production_render_on(&live, &args).unwrap_or_else(|error| panic!("{shape}: {error:?}"));
+            assert_eq!(rendered["export_blocked"], json!(false), "{shape}: {}", rendered["blocking_reasons"]);
+            assert!(rendered["html"].as_str().unwrap().contains("<h3>Applied loads</h3>"), "{shape}");
+            let mut request = bound(&w.request, &live.job);
+            with_model_input_tables(&mut request["report"], &w.model, &composition);
+            request["report"]["report_composition"] = composition;
+            let _admitted = save_admitted(&live, save_args(&request, &w, &w.model, Some(&w.result), Some(&w.intake)), shape);
+            for (name, report) in forged_model_input_reports(&request["report"]) {
+                let mut forged_args = args.clone();
+                forged_args["input"] = report.clone();
+                forged_args["input"]["exact_route"] = args["input"]["exact_route"].clone();
+                let refusal = refusal_text(production_render_on(&live, &forged_args));
+                assert!(refusal.starts_with(&format!("{UNBOUND}: ")), "{shape} {name} render: {refusal}");
+                assert!(!refusal.contains(FORGED_CELL), "{shape} {name} render: {refusal}");
+                let mut forged = request.clone();
+                forged["report"] = report;
+                let (code, message) = save_code(&live, save_args(&forged, &w, &w.model, Some(&w.result), Some(&w.intake)));
+                assert_eq!(code, UNBOUND, "{shape} {name} save: {message}");
+                assert!(!message.contains(FORGED_CELL), "{shape} {name} save: {message}");
             }
         }
     }

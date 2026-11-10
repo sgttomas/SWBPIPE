@@ -30,6 +30,7 @@ import {
 } from "./ui-foundation-workflows";
 
 import { confirmProjectUnits, projectCommand, startPropertyTaskFromTreeEntity } from "./workspace-driver";
+import { expectedTypedIdentity } from "./ui-foundation/benchmark-harness";
 
 test.beforeAll(async ({ browser }, testInfo) => {
   await attachBrowserIdentity(browser, testInfo);
@@ -1138,7 +1139,7 @@ test("live Properties routes follow catalogue target B while frozen Task A remai
   await selectTreeRow(page, "pipe", pipeA.id);
   await ensureRail(page, "inspector", true);
   const freshPanel = await openSectionAssignment();
-  await expect(inspector.locator(":scope > h2")).toContainText(`pipe: ${pipeA.id}`);
+  await expect(inspector.locator(":scope > h2")).toContainText(expectedTypedIdentity({ type: "pipe", id: pipeA.id }));
   await expect(freshPanel).toContainText(`Shared section: ${pipeA.section_ref}`);
   await expect(freshPanel.getByRole("combobox", { name: "Shared section" })).toHaveAttribute("data-value", "");
   await selectCompactOption(freshPanel.getByRole("combobox", { name: "Shared section" }), alternateForA.id);
@@ -1155,7 +1156,7 @@ test("live Properties routes follow catalogue target B while frozen Task A remai
   await expect(inspector.getByTestId("editor-intent-value")).toHaveValue("Frozen Task A entered value");
 
   const liveBPanel = await openSectionAssignment();
-  await expect(inspector.locator(":scope > h2")).toContainText(`pipe: ${pipeB.id}`);
+  await expect(inspector.locator(":scope > h2")).toContainText(expectedTypedIdentity({ type: "pipe", id: pipeB.id }));
   await expect(liveBPanel).toContainText(`Shared section: ${pipeB.section_ref}`);
   const liveSection = liveBPanel.getByRole("combobox", { name: "Shared section" });
   await expect(liveSection).toHaveAttribute("data-value", "");
@@ -1212,7 +1213,7 @@ test("an unqueued rich Properties draft survives aggregate inspection with mutat
 
   await selectTreeRow(page, "node", peer.id, { toggle: true });
   await expect(aggregate).toHaveCount(0);
-  await expect(inspector.locator(":scope > h2")).toContainText(`support: ${support.id}`);
+  await expect(inspector.locator(":scope > h2")).toContainText(expectedTypedIdentity({ type: "support", id: support.id }));
   await expect(form).toBeVisible();
   await expect(provenance).toBeEnabled();
   await expect(provenance).toHaveValue(enteredProvenance);
@@ -1875,7 +1876,7 @@ test("empty ordered selection publishes independently from project inspector", a
           current.viewport.selection.renderSubmissionSequence === current.viewport.mainRender.submissionSequence &&
           current.viewport.mainRender.selectionPresentation?.renderedSubmissionSequence === current.viewport.mainRender.submissionSequence };
     }).toEqual({ ordered: orderedRefs, primary: primaryRef, inspector: inspectorRef, pending: 0, rendered: orderedRefs, selectionMatchesCurrentFrame: true });
-    await expect(page.getByTestId("property-inspector").getByRole("heading", { level: 2 })).toContainText(`${inspectorRef.type}: ${inspectorRef.id}`);
+    await expect(page.getByTestId("property-inspector").getByRole("heading", { level: 2 })).toContainText(expectedTypedIdentity(inspectorRef));
     const snapshot = await read();
     expect(snapshot.viewport.selection.generation).toBe(snapshot.model.generation);
     expect(snapshot.viewport.inspector.generation).toBe(snapshot.model.generation);

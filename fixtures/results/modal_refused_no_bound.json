@@ -47,6 +47,7 @@
     "options": {},
     "request_sha256": "a3ff0c8b827cfd7e38764a4e22cd55199600b832e675afa3a10bd96061a3ed04",
     "state_case": null,
+    "subject_census": null,
     "undeclared_members": []
   },
   "canonical_profile": "openpipestress_jcs_ijson_v1",

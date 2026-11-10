@@ -1125,7 +1125,13 @@ fn composition() -> Value {
 /// with [`composition`]: a name, the arguments, the registry and the exact
 /// vector, when exact.
 fn route_010_cases(composed: bool) -> Vec<(String, ReportPackageSaveRequest, SolveJobRegistry, Option<Value>)> {
-    let composition = composed.then(composition);
+    route_010_cases_with(composed.then(composition))
+}
+
+/// [`route_010_cases`] with `composition`; an exact vector's request gains
+/// `P(M, C)` when the composition lists a model-input section (slice C5), as
+/// the derivation writes it for the pressure-free basis.
+fn route_010_cases_with(composition: Option<Value>) -> Vec<(String, ReportPackageSaveRequest, SolveJobRegistry, Option<Value>)> {
     let preview = basis();
     let (preview_registry, _) = preview.session(PreviewSolverMode::SparseInteractive);
     let preview_args = preview.args_for(&preview.request_composed(composition.as_ref()), &preview.model, &preview.manifest);
@@ -1136,6 +1142,7 @@ fn route_010_cases(composed: bool) -> Vec<(String, ReportPackageSaveRequest, Sol
         registry.record_attested_solve_for_tests(1, PreviewSolverMode::SparseInteractive, SolveAttestation::of(&vector["model"], &vector["source"]).unwrap());
         let mut request = vector["request"].clone();
         if let Some(composition) = &composition {
+            crate::object_form_tests::with_model_input_tables(&mut request["report"], &vector["model"], composition);
             request["report"]["report_composition"] = composition.clone();
         }
         cases.push((vector["shape"].as_str().unwrap().to_string(), d6_args(&vector, &request), registry, Some(vector)));
@@ -1153,10 +1160,11 @@ fn default_user_release_metadata_fits_raw_ingress_and_derivation_leases() {
     use crate::command_ingress::test_support::headers;
     use crate::command_ingress::INGRESS_ARGS_JSON_V1;
     use tauri::ipc::InvokeBody;
-    let cases = [false, true].into_iter().flat_map(|composed| {
-        route_010_cases(composed).into_iter().map(move |(name, args, registry, exact)| {
-            (format!("{name} {}", if composed { "composed" } else { "default" }), composed, args, registry, exact)
-        })
+    // Slice C5: the model-input variant lists every model-input section and carries P(M, C).
+    let variants = [("default", None), ("composed", Some(composition())), ("model-input", Some(crate::object_form_tests::model_input_composition()))];
+    let cases = variants.into_iter().flat_map(|(variant, composition)| {
+        let composed = composition.is_some();
+        route_010_cases_with(composition).into_iter().map(move |(name, args, registry, exact)| (format!("{name} {variant}"), composed, args, registry, exact))
     });
     for (name, composed, args, registry, exact) in cases {
         let request: Value = serde_json::from_str(&args.request_text).unwrap();
@@ -1396,5 +1404,50 @@ fn d6_ineligible_delivered_exact_source_is_refused() {
     match outcome {
         Err(SaveRefusal::Command(error)) => assert_eq!(error.code, "REPORT-EXACT-STANDING-NOT-ELIGIBLE", "{}", error.message),
         _ => panic!("the native reader must refuse ineligible standing"),
+    }
+}
+
+/// Slice C5 (DEL-08-01 Design `report-section-composer.md` §2.7): on route
+/// 010, on the pressure-free and both exact routes, the derived request's
+/// model-input tables are admitted and saved, and an edited cell, an extra
+/// row, tables without a listing id and a listing id without tables are
+/// refused with REPORT-COMPOSITION-MODEL-INPUT-UNBOUND, naming no value.
+#[test]
+fn route_010_binds_model_input_tables_to_its_model() {
+    use crate::object_form_tests::{forged_model_input_reports, model_input_composition, FORGED_CELL};
+    for (name, args, registry, exact) in route_010_cases_with(Some(model_input_composition())) {
+        let request: Value = serde_json::from_str(&args.request_text).unwrap();
+        assert!(request["report"]["model_input_tables"].is_object(), "{name}");
+        let model: Value = serde_json::from_str(&args.model_text).unwrap();
+        let manifest: Value = serde_json::from_str(&args.input_manifest_text).unwrap();
+        let custody = |id: &str| exact.as_ref().and_then(|vector| {
+            (vector["request"]["report"]["exact_route"]["admission"]["native_job_id"].as_str() == Some(id)).then(|| d6_custody(vector))
+        });
+        let admit_with = |args: ReportPackageSaveRequest| {
+            let mut lease = registry.acquire_interactive_ingress(1024).unwrap();
+            lease.grow_to(1024 + ingress_lease_bytes(&args).unwrap()).unwrap();
+            let mut session = UserReleaseSession { registry: &registry, lease: &mut lease };
+            admit_report_package_session(args, &software(), &mut no_store, &custody, Some(&mut session)).map(|admitted| !admitted.package.export_blocked)
+        };
+        let rebuilt = |request: &Value| match &exact {
+            Some(vector) => d6_args(vector, request),
+            None => basis().args_for(request, &model, &manifest),
+        };
+        match admit_with(rebuilt(&request)) {
+            Ok(unblocked) => assert!(unblocked, "{name}: the genuine package is unblocked"),
+            Err(refusal) => panic!("{name}: the genuine projection is refused: {refusal:?}"),
+        }
+        for (forgery, report) in forged_model_input_reports(&request["report"]) {
+            let mut forged = request.clone();
+            forged["report"] = report;
+            match admit_with(rebuilt(&forged)) {
+                Ok(_) => panic!("{name} {forgery}: admitted"),
+                Err(SaveRefusal::Resource(refusal)) => panic!("{name} {forgery}: resource {refusal:?}"),
+                Err(SaveRefusal::Command(error)) => {
+                    assert_eq!(error.code, "REPORT-COMPOSITION-MODEL-INPUT-UNBOUND", "{name} {forgery}: {}", error.message);
+                    assert!(!error.message.contains(FORGED_CELL), "{name} {forgery}: {}", error.message);
+                }
+            }
+        }
     }
 }

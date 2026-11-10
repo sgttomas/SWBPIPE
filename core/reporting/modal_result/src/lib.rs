@@ -21,7 +21,9 @@
 //!   the cluster error estimates;
 //! - `sturm`: the count against the reported set, the placement in its gap,
 //!   each candidate's decision against its premises and the parameters;
-//! - `evidence`: e_λ = η·κ_λ, the census and the identity discrepancies;
+//! - `evidence`: e_λ = η·κ_λ, the census, the identity discrepancies and
+//!   the subject census (`census`) against the identity, discretization and
+//!   supports tables;
 //! - `standing`: the Sensitive standing re-derived from η, τ_r and τ_o;
 //! - `units`: every value's unit against modal-1, and every
 //!   `equilibrated_basis` value's kind against modal-1's closed list.
@@ -30,7 +32,10 @@
 //! to the mass the request's model implies (`model_mass`): the full global M
 //! entry by entry, T_k, the free-DOF mass, the mass centre, m_i, Γ, m_eff and
 //! the fractions from the published shapes. Without it, or beyond that
-//! derivation's basis, both standings are scoped unsupported by name.
+//! derivation's basis, both standings are scoped unsupported by name. With
+//! it, `evidence` also re-derives the subject list from the model and holds
+//! the census's counts, its digest and every table's subjects to it; without
+//! it, the identities are not re-derived and `evidence` stays scoped.
 //!
 //! Each standing is passed, failed (with the first difference), scoped
 //! unsupported (with its scope) or not checked. A withheld authoritative
@@ -60,7 +65,11 @@ use serde_json::{json, Map, Value};
 use sha2::{Digest, Sha256};
 use std::collections::{HashMap, HashSet};
 
+mod census;
 mod model_mass;
+mod working_bound;
+
+pub use working_bound::{modal_reader_working_bound, modal_reader_working_terms};
 
 pub const MODAL_RESULT_FAMILY: &str = "openpipestress.modal_result";
 pub const MODAL_RESULT_SCHEMA_VERSION: &str = "0.1.0";
@@ -76,7 +85,7 @@ pub const MODAL_RESULT_LIMITATIONS: [&str; 2] = [
 /// Why public engineering-result admission stays disabled (Design §5.3).
 pub const MODAL_RESULT_ADMISSION_CONDITIONS: [&str; 6] = [
     "production integrity parameters are not pinned (O-6, D-TOL): every document is formed with a labelled test-local set",
-    "a document is fully validated only when every mandatory relation passes: an unresolved Bessel relation (interim contract) and the missing subject census leave it unmet, whatever the units",
+    "a document is fully validated only when every mandatory relation passes: an unresolved Bessel relation (interim contract), a subject census not re-derived from the bound request, or a partition from reported nonlinear support states leaves it unmet, whatever the units",
     "the dense work budget is unmeasured and no work guard is applied (O-4)",
     "no native, worker or custody path forms, stores or transports the document",
     "no published piping benchmark is compared (FR-SOL-016 partial; O-3 held)",
@@ -246,9 +255,7 @@ pub fn modal_reader_catalog_differences() -> Vec<String> {
 
 /// SHA-256 (lowercase hex) of the checked canonical text, or `None`.
 pub fn modal_reader_sha256(value: &Value) -> Option<String> {
-    let text = serde_json::to_string(value).ok()?;
-    let canonical = canonical_json_checked_v1_text(&text).ok()?;
-    Some(Sha256::digest(canonical.as_bytes()).iter().map(|b| format!("{b:02x}")).collect())
+    mr_sha256_text(&serde_json::to_string(value).ok()?)
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -448,33 +455,31 @@ fn mr_hex(value: &Value, path: &str) -> R<()> {
     }
 }
 
-/// One parsed value object.
-#[derive(Debug, Clone)]
-struct Vo {
-    kind: String,
+/// One parsed value object: what the relations read of it. Its kind and unit
+/// are read again from the document by the units relation ([`Unitized`]), so
+/// nothing of the document is copied.
+#[derive(Debug, Clone, Copy)]
+struct Vo<'v> {
     value: Option<f64>,
-    unit: Option<String>,
-    unit_status: String,
     below_normal: bool,
-    exponents: Option<[i64; 5]>,
-    undefined: Option<String>,
+    undefined: Option<&'v str>,
 }
 
-fn mr_vo(value: &Value, path: &str, kinds: &[&str]) -> R<Vo> {
+fn mr_vo<'v>(value: &'v Value, path: &str, kinds: &[&str]) -> R<Vo<'v>> {
     let map = value.as_object().ok_or_else(|| format!("{path}: not a value object"))?;
-    let status = mr_text(map.get("unit_status").unwrap_or(&Value::Null), &mr_at(path, "unit_status"))?.to_string();
+    let status = mr_text(map.get("unit_status").unwrap_or(&Value::Null), &mr_at(path, "unit_status"))?;
     let mut keys = vec!["kind", "value", "unit", "unit_status", "below_normal", "undefined_reason"];
     if status == "catalog_family_absent" {
         keys.push("dimension_exponents");
     }
     mr_object(value, path, &keys)?;
-    let kind = mr_text(&map["kind"], &mr_at(path, "kind"))?.to_string();
-    if !kinds.contains(&kind.as_str()) {
+    let kind = mr_text(&map["kind"], &mr_at(path, "kind"))?;
+    if !kinds.contains(&kind) {
         return Err(format!("{path}: kind `{kind}` is not {kinds:?}"));
     }
     let undefined = match &map["undefined_reason"] {
         Value::Null => None,
-        other => Some(mr_text(other, &mr_at(path, "undefined_reason"))?.to_string()),
+        other => Some(mr_text(other, &mr_at(path, "undefined_reason"))?),
     };
     let number = match (&map["value"], &undefined) {
         (Value::Null, Some(_)) => None,
@@ -486,18 +491,17 @@ fn mr_vo(value: &Value, path: &str, kinds: &[&str]) -> R<Vo> {
     if below_normal && number != Some(0.0) {
         return Err(format!("{path}: a below-normal value is published as 0"));
     }
-    let unit = match &map["unit"] {
-        Value::Null => None,
-        other => Some(mr_text(other, &mr_at(path, "unit"))?.to_string()),
-    };
-    let exponents = if status == "catalog_family_absent" {
+    if !map["unit"].is_null() {
+        mr_text(&map["unit"], &mr_at(path, "unit"))?;
+    }
+    if status == "catalog_family_absent" {
         let e = mr_object(&map["dimension_exponents"], &mr_at(path, "dimension_exponents"), &["length", "mass", "time", "temperature", "angle"])?;
         let read = |k: &str| e[k].as_i64().ok_or_else(|| format!("{path}/dimension_exponents/{k}: not an integer"));
-        Some([read("length")?, read("mass")?, read("time")?, read("temperature")?, read("angle")?])
-    } else {
-        None
-    };
-    Ok(Vo { kind, value: number, unit, unit_status: status, below_normal, exponents, undefined })
+        for k in ["length", "mass", "time", "temperature", "angle"] {
+            read(k)?;
+        }
+    }
+    Ok(Vo { value: number, below_normal, undefined })
 }
 
 /// A published table's rows, or `None` when withheld.
@@ -509,18 +513,24 @@ fn mr_rule_of(kind: &str, key: &str) -> Option<Rule> {
     KINDS.iter().find(|(k, ..)| *k == kind).and_then(|(.., rules)| rules.iter().find(|(k, _)| *k == key)).map(|(_, r)| *r)
 }
 
-/// Units: one value object against its rule (`key` the selector key).
-fn mr_unit_check(vo: &Vo, key: &str, path: &str) -> R<()> {
-    if !UNIT_STATUSES.contains(&vo.unit_status.as_str()) {
-        return Err(format!("{path}: `{}` is not a modal-1 unit status", vo.unit_status));
+/// Units: one value object against its rule (`key` the selector key). The
+/// value object passed closure ([`mr_vo`]), so its kind and unit status are
+/// strings and its unit a string or null; it carries dimension exponents
+/// exactly when its status is `catalog_family_absent`.
+fn mr_unit_check(vo: &Value, key: &str, path: &MrPath) -> R<()> {
+    let kind = vo["kind"].as_str().unwrap_or("");
+    let unit_status = vo["unit_status"].as_str().unwrap_or("");
+    let unit = vo["unit"].as_str();
+    if !UNIT_STATUSES.contains(&unit_status) {
+        return Err(format!("{path}: `{unit_status}` is not a modal-1 unit status"));
     }
-    if vo.unit_status == "equilibrated_basis" && !EQUILIBRATED_BASIS_KINDS.contains(&vo.kind.as_str()) {
-        return Err(format!("{path}: `{}` is not in modal-1's closed equilibrated_basis list", vo.kind));
+    if unit_status == "equilibrated_basis" && !EQUILIBRATED_BASIS_KINDS.contains(&kind) {
+        return Err(format!("{path}: `{kind}` is not in modal-1's closed equilibrated_basis list"));
     }
-    let rule = mr_rule_of(&vo.kind, key).ok_or_else(|| format!("{path}: modal-1 has no `{key}` rule for `{}`", vo.kind))?;
+    let rule = mr_rule_of(kind, key).ok_or_else(|| format!("{path}: modal-1 has no `{key}` rule for `{kind}`"))?;
     let Rule::Catalog(id, ..) = rule;
-    if vo.unit_status != "catalog" || vo.unit.as_deref() != Some(id) || vo.exponents.is_some() {
-        return Err(format!("{path}: unit {:?} ({}) is not modal-1's {id}", vo.unit, vo.unit_status));
+    if unit_status != "catalog" || unit != Some(id) || unit_status == "catalog_family_absent" {
+        return Err(format!("{path}: unit {unit:?} ({unit_status}) is not modal-1's {id}"));
     }
     Ok(())
 }
@@ -576,7 +586,8 @@ pub fn read_modal_result(doc: &Value, supplied: ModalSupplied<'_>) -> ModalReadV
     let (binding, not_checked) = mr_binding(doc, supplied);
     // The model-derived mass (module docs), from the supplied request only
     // when it is the bound one.
-    let model = model_mass::mm_derive(&parsed, supplied.request, binding.status != ModalReadStatus::Failed);
+    let bound = binding.status != ModalReadStatus::Failed;
+    let model = model_mass::mm_derive(&parsed, supplied.request, bound);
     let relations = vec![
         ModalReadStanding::mr_of(mr_mass(&parsed).and_then(|items| model_mass::mm_mass_relation(&parsed, &model, items))),
         ModalReadStanding::mr_of(mr_normalization(&parsed)),
@@ -584,7 +595,7 @@ pub fn read_modal_result(doc: &Value, supplied: ModalSupplied<'_>) -> ModalReadV
         ModalReadStanding::mr_of(mr_counts(&parsed)),
         ModalReadStanding::mr_of(mr_clusters(&parsed)),
         ModalReadStanding::mr_of(mr_sturm(&parsed)),
-        ModalReadStanding::mr_of(mr_evidence(&parsed)),
+        ModalReadStanding::mr_of(mr_evidence(&parsed).and_then(|items| census::cs_relation(&parsed, supplied.request, bound, &model, items))),
         ModalReadStanding::mr_of(mr_standing(&parsed)),
         ModalReadStanding::mr_of(mr_units(&parsed)),
     ];
@@ -639,14 +650,17 @@ fn mr_identity(doc: &Value) -> R<()> {
     mr_text(&run["run_id"], "/run/run_id")?;
     mr_const(&run["mode_id_scope"], "/run/mode_id_scope", "run_local")?;
     mr_const(&run["solver_path"], "/run/solver_path", "dense_scrutiny")?;
-    mr_binding_closure(&doc["binding"])
+    mr_binding_closure(&doc["binding"], doc["status"] != "refused")
 }
 
-fn mr_binding_closure(binding: &Value) -> R<()> {
+/// The binding's shape; `solved` is whether the document is read as solved
+/// (its subject census is then an object, else null).
+fn mr_binding_closure(binding: &Value, solved: bool) -> R<()> {
     let b = mr_object(binding, "/binding", &[
         "request_sha256", "model_sha256", "materials_sha256", "materials_member", "options", "undeclared_members", "state_case",
-        "integrity_parameters_sha256", "integrity_parameters",
+        "integrity_parameters_sha256", "integrity_parameters", "subject_census",
     ])?;
+    census::cs_shape(&b["subject_census"], solved)?;
     mr_hex(&b["request_sha256"], "/binding/request_sha256")?;
     if !b["model_sha256"].is_null() {
         mr_hex(&b["model_sha256"], "/binding/model_sha256")?;
@@ -692,11 +706,25 @@ fn mr_binding_closure(binding: &Value) -> R<()> {
     Ok(())
 }
 
+/// SHA-256 (lowercase hex) of the checked canonical text of a JSON text.
+fn mr_sha256_text(text: &str) -> Option<String> {
+    let canonical = canonical_json_checked_v1_text(text).ok()?;
+    Some(Sha256::digest(canonical.as_bytes()).iter().map(|b| format!("{b:02x}")).collect())
+}
+
+/// A row's checksum: [`modal_reader_sha256`] of the row less its `checksum`
+/// member, serialized from a map of references (the same text a copy of the
+/// row would serialize to), so the row itself is not copied.
+fn mr_row_checksum(row: &Map<String, Value>) -> Option<String> {
+    let body: std::collections::BTreeMap<&str, &Value> = row.iter().filter(|(k, _)| k.as_str() != "checksum").map(|(k, v)| (k.as_str(), v)).collect();
+    mr_sha256_text(&serde_json::to_string(&body).ok()?)
+}
+
 /// A published or withheld table, its rows' checksums, digest, ordinals and
-/// globally unique ids (closure).
-fn mr_table<'v>(tables: &'v Value, name: &str, ids: &mut HashSet<String>) -> R<Table<'v>> {
+/// globally unique ids (closure). `table` is the `/tables/{name}` member.
+fn mr_table<'v>(table: Option<&'v Value>, name: &str, ids: &mut HashSet<&'v str>) -> R<Table<'v>> {
     let path = format!("/tables/{name}");
-    let table = tables.get(name).ok_or_else(|| format!("{path}: missing"))?;
+    let table = table.ok_or_else(|| format!("{path}: missing"))?;
     let status = mr_text(table.get("status").unwrap_or(&Value::Null), &mr_at(&path, "status"))?;
     if status == "withheld" {
         if !WITHHOLDABLE.contains(&name) {
@@ -720,18 +748,17 @@ fn mr_table<'v>(tables: &'v Value, name: &str, ids: &mut HashSet<String>) -> R<T
         if mr_count(map.get("ordinal").unwrap_or(&Value::Null), &mr_at(&rpath, "ordinal"))? != i {
             return Err(format!("{rpath}/ordinal: not its position"));
         }
-        if !ids.insert(id.to_string()) {
+        if !ids.insert(id) {
             return Err(format!("{rpath}/row_id: `{id}` is not unique"));
         }
         let checksum = mr_text(map.get("checksum").unwrap_or(&Value::Null), &mr_at(&rpath, "checksum"))?;
-        let mut body = map.clone();
-        body.remove("checksum");
-        if modal_reader_sha256(&Value::Object(body)).as_deref() != Some(checksum) {
+        if mr_row_checksum(map).as_deref() != Some(checksum) {
             return Err(format!("{rpath}/checksum: not the row's checksum"));
         }
-        checksums.push(Value::from(checksum));
+        checksums.push(checksum);
     }
-    if modal_reader_sha256(&Value::Array(checksums)).as_deref() != t["digest"].as_str() {
+    // The digest of the checksums' array: the same text as an array of string values.
+    if serde_json::to_string(&checksums).ok().and_then(|text| mr_sha256_text(&text)).as_deref() != t["digest"].as_str() {
         return Err(format!("{path}/digest: not the digest of its rows' checksums"));
     }
     Ok(Table { rows: Some(rows) })
@@ -751,14 +778,43 @@ fn mr_id_is(row: &Map<String, Value>, path: &str, expected: &str) -> R<()> {
     }
 }
 
-/// A unit-checked value object, kept for the units relation.
-struct Unitized {
-    vo: Vo,
-    key: String,
-    path: String,
+/// Where a value object is, for the units relation's difference: `head`,
+/// then `/rows/{row}` when it is a table row's, then `/{field}`.
+#[derive(Debug, Clone, Copy)]
+struct MrPath {
+    head: &'static str,
+    row: Option<usize>,
+    field: &'static str,
 }
 
-struct Mode {
+impl MrPath {
+    fn mr_row(head: &'static str, row: usize, field: &'static str) -> Self {
+        MrPath { head, row: Some(row), field }
+    }
+    fn mr_header(head: &'static str, field: &'static str) -> Self {
+        MrPath { head, row: None, field }
+    }
+}
+
+impl std::fmt::Display for MrPath {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self.row {
+            Some(row) => write!(f, "{}/rows/{row}/{}", self.head, self.field),
+            None => write!(f, "{}/{}", self.head, self.field),
+        }
+    }
+}
+
+/// A value object that passed closure, kept for the units relation: the
+/// document's own value object (read there by reference), its selector key
+/// and where it is.
+struct Unitized<'v> {
+    value: &'v Value,
+    key: &'static str,
+    path: MrPath,
+}
+
+struct Mode<'v> {
     case: usize,
     reference: usize,
     sensitive: bool,
@@ -766,54 +822,55 @@ struct Mode {
     omega: Option<f64>,
     frequency: Option<f64>,
     period: Option<f64>,
-    generalized_mass: Vo,
-    cluster_estimate: Num,
+    generalized_mass: Vo<'v>,
+    cluster_estimate: Num<'v>,
     cluster: usize,
 }
 
-struct Participation {
-    gamma: Vo,
-    effective: Vo,
-    fraction: Vo,
-    cumulative: Vo,
+struct Participation<'v> {
+    gamma: Vo<'v>,
+    effective: Vo<'v>,
+    fraction: Vo<'v>,
+    cumulative: Vo<'v>,
 }
 
-struct Computed {
+struct Computed<'v> {
     cluster: usize,
     reported: bool,
     mode: Option<usize>,
     omega: Option<f64>,
     frequency: Option<f64>,
-    eta: Num,
-    condition: Num,
-    estimate: Num,
+    eta: Num<'v>,
+    condition: Num<'v>,
+    estimate: Num<'v>,
 }
 
-struct Candidate {
-    decision: String,
+struct Candidate<'v> {
+    decision: &'v str,
     pivots: Option<usize>,
-    shift: Num,
-    formation_term: Num,
+    shift: Num<'v>,
+    formation_term: Num<'v>,
     /// Plain binary64 at the producer and never flagged; not re-derived (a stated
     /// limit), but its domain is enforced in the sturm relation like every other value.
-    formation_separation: Num,
-    factor_term: Num,
-    backward_error: Num,
-    inverse_norm: Num,
-    product: Num,
-    separation: Num,
-    growth: Num,
+    formation_separation: Num<'v>,
+    factor_term: Num<'v>,
+    backward_error: Num<'v>,
+    inverse_norm: Num<'v>,
+    product: Num<'v>,
+    separation: Num<'v>,
+    growth: Num<'v>,
     /// max|L|, max|d|, max|ã|: on a factored candidate, published or
     /// outside the profile.
-    maxima: [Num; 3],
+    maxima: [Num<'v>; 3],
 }
 
 /// A published number with what its null states (Design §5.3.4's dependency
-/// table): its value, its null reason and its below-normal flag.
-#[derive(Debug, Clone, PartialEq)]
-struct Num {
+/// table): its value, its null reason (the document's string) and its
+/// below-normal flag.
+#[derive(Debug, Clone, Copy, PartialEq)]
+struct Num<'v> {
     value: Option<f64>,
-    reason: Option<String>,
+    reason: Option<&'v str>,
     below: bool,
 }
 
@@ -822,9 +879,9 @@ const PROFILE_FLOOR: f64 = 9_007_199_254_740_992.0;
 /// 2⁻¹⁰⁷⁴: the smallest subnormal binary64.
 const SUB_LOW: f64 = 4.940_656_458_412_465_4e-324;
 
-impl Num {
-    fn mr_from(vo: &Vo) -> Self {
-        Num { value: vo.value, reason: vo.undefined.clone(), below: vo.below_normal }
+impl<'v> Num<'v> {
+    fn mr_from(vo: &Vo<'v>) -> Self {
+        Num { value: vo.value, reason: vo.undefined, below: vo.below_normal }
     }
 }
 
@@ -1189,70 +1246,74 @@ fn mr_excitation_terms(free: &[bool], entries: &[(usize, usize)], phi: &[f64]) -
 
 
 /// One identity row: what it compares and its relative discrepancy.
-struct IdentityRow {
-    subject_kind: String,
-    subject: String,
+struct IdentityRow<'v> {
+    subject_kind: &'v str,
+    subject: &'v str,
     axis: usize,
-    comparison: String,
-    relative: Num,
+    comparison: &'v str,
+    relative: Num<'v>,
 }
 
 /// One support row of a linearized state case.
-struct SupportRow {
-    id: String,
-    behavior: String,
+struct SupportRow<'v> {
+    id: &'v str,
+    behavior: &'v str,
     dof: usize,
-    state: String,
-    treatment: String,
+    state: &'v str,
+    treatment: &'v str,
 }
 
-/// Everything the relations read, after closure.
-struct Parsed {
+/// Everything the relations read, after closure. Every string is the
+/// document's own, borrowed: nothing of the document is copied.
+struct Parsed<'v> {
     nodes: Vec<[Option<f64>; 3]>,
     /// The node ids, in node order.
-    node_ids: Vec<String>,
+    node_ids: Vec<&'v str>,
     /// `pressure_free` or `exact_pressure`.
-    route: String,
+    route: &'v str,
     /// The published mass centre, when stated.
-    mass_center: Option<[Num; 3]>,
+    mass_center: Option<[Num<'v>; 3]>,
     /// The support rows, in row order.
-    support_rows: Vec<SupportRow>,
+    support_rows: Vec<SupportRow<'v>>,
     /// Per global DOF, its free index.
     free: Vec<Option<usize>>,
     /// (row, col, value); `None` when withheld.
-    mass: Option<Vec<(usize, usize, Num)>>,
-    totals: [Num; 3],
-    free_totals: [Num; 3],
-    modes: Vec<Mode>,
+    mass: Option<Vec<(usize, usize, Num<'v>)>>,
+    totals: [Num<'v>; 3],
+    free_totals: [Num<'v>; 3],
+    modes: Vec<Mode<'v>>,
     /// Per mode, per global DOF; `None` when withheld.
-    shapes: Option<Vec<Vec<Num>>>,
-    participation: Vec<[Participation; 3]>,
-    clusters: Vec<(usize, usize, bool, Num)>,
-    computed: Vec<Computed>,
-    candidates: Vec<Candidate>,
+    shapes: Option<Vec<Vec<Num<'v>>>>,
+    participation: Vec<[Participation<'v>; 3]>,
+    clusters: Vec<(usize, usize, bool, Num<'v>)>,
+    computed: Vec<Computed<'v>>,
+    candidates: Vec<Candidate<'v>>,
     /// The identity rows, in row order.
-    identity: Vec<IdentityRow>,
+    identity: Vec<IdentityRow<'v>>,
     /// The straight members of the discretization table, in row order.
-    members: Vec<String>,
+    members: Vec<&'v str>,
+    /// The binding's subject census.
+    census: census::Census<'v>,
     /// The state case's linearization: `None` without a state case.
     linearized: Option<bool>,
     restrained_refs: Vec<usize>,
     /// (DOF, treatment) of each support row.
-    supports: Vec<(usize, String)>,
+    supports: Vec<(usize, &'v str)>,
     /// (text, source) of each disclosure.
-    disclosures: Vec<(String, String)>,
-    params: Map<String, Value>,
-    unitized: Vec<Unitized>,
+    disclosures: Vec<(&'v str, &'v str)>,
+    /// The bound integrity parameters (an object, by closure).
+    params: Option<&'v Map<String, Value>>,
+    unitized: Vec<Unitized<'v>>,
     tau_t: Option<f64>,
     ell: Option<f64>,
     mode_count: Option<usize>,
     cutoff: Option<f64>,
-    stopped_by: String,
+    stopped_by: &'v str,
     bounded: usize,
     extension: usize,
     count: usize,
     computed_count: usize,
-    endpoint: String,
+    endpoint: &'v str,
     next_computed: Option<usize>,
     established_endpoint: Option<usize>,
     census_established: Option<usize>,
@@ -1260,7 +1321,7 @@ struct Parsed {
     set_reasons: usize,
     sturm_count: usize,
     sturm_reported: usize,
-    placement: String,
+    placement: &'v str,
     placement_lower: Option<f64>,
     placement_upper: Option<f64>,
     placement_established: Option<usize>,
@@ -1268,7 +1329,7 @@ struct Parsed {
     limit: Option<f64>,
     kappa_s: Option<f64>,
     growth_limit: Option<f64>,
-    ortho: Num,
+    ortho: Num<'v>,
     ortho_pair: bool,
     formation: Vec<Option<f64>>,
 }
@@ -1280,23 +1341,23 @@ fn mr_index(text: &str, prefix: &str, path: &str) -> R<usize> {
         .ok_or_else(|| format!("{path}: `{text}` is not a `{prefix}<n>` reference"))
 }
 
-fn mr_unitize(out: &mut Vec<Unitized>, vo: &Vo, key: &str, path: &str) {
-    out.push(Unitized { vo: vo.clone(), key: key.to_string(), path: path.to_string() });
+fn mr_unitize<'v>(out: &mut Vec<Unitized<'v>>, value: &'v Value, key: &'static str, path: MrPath) {
+    out.push(Unitized { value, key, path });
 }
 
 /// Closure of a solved document; returns what the relations read.
-fn mr_closure(doc: &Value) -> R<Parsed> {
+fn mr_closure<'v>(doc: &'v Value) -> R<Parsed<'v>> {
     mr_object(doc, "", &SOLVED_KEYS)?;
     mr_identity(doc)?;
     mr_const(&doc["status"], "/status", "solved")?;
     let mut unitized = Vec::new();
-    let params = doc["binding"]["integrity_parameters"].as_object().cloned().unwrap_or_default();
+    let params = doc["binding"]["integrity_parameters"].as_object();
+    let census = census::cs_shape(&doc["binding"]["subject_census"], true)?.ok_or("/binding/subject_census: not an object")?;
 
     // Tables first: the headers refer into them.
     let tables = mr_object(&doc["tables"], "/tables", &TABLES)?;
-    let tables_value = Value::Object(tables.clone());
     let mut ids = HashSet::new();
-    let mut get = |name: &str| mr_table(&tables_value, name, &mut ids).map(|t| t.rows);
+    let mut get = |name: &str| mr_table(tables.get(name), name, &mut ids).map(|t| t.rows);
 
     let node_rows = get("nodes")?.ok_or("/tables/nodes: withheld")?;
     let mut node_index = HashMap::new();
@@ -1311,10 +1372,11 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
         for (k, axis) in ["x", "y", "z"].iter().enumerate() {
             let vo = mr_vo(&r[*axis], &mr_at(&path, axis), &["node_coordinate"])?;
             c[k] = vo.value;
-            mr_unitize(&mut unitized, &vo, "fixed", &mr_at(&path, axis));
+            mr_unitize(&mut unitized, &r[*axis], "fixed", MrPath::mr_row("/tables/nodes", i, *axis));
         }
-        node_index.insert(format!("node:{id}"), i);
-        node_ids.push(id.to_string());
+        // Keyed by the row's own id, which is `node:{id}` (checked above).
+        node_index.insert(r["row_id"].as_str().unwrap_or(""), i);
+        node_ids.push(id);
         nodes.push(c);
     }
     let ndof = 6 * nodes.len();
@@ -1333,9 +1395,9 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
         if 6 * node + c != i {
             return Err(format!("{path}: not DOF {i} in node-major order"));
         }
-        let id = format!("dof:{}:{component}", node_ids[node]);
-        mr_id_is(r, &path, &id)?;
-        dof_index.insert(id, i);
+        mr_id_is(r, &path, &format!("dof:{}:{component}", node_ids[node]))?;
+        // Keyed by the row's own id, which is `dof:{node}:{component}` (checked above).
+        dof_index.insert(r["row_id"].as_str().unwrap_or(""), i);
         free.push(if r["free_index"].is_null() { None } else { Some(mr_count(&r["free_index"], &mr_at(&path, "free_index"))?) });
     }
     let mut expected_free = 0;
@@ -1373,7 +1435,7 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
                 mr_const(&r["pair_class"], &mr_at(&path, "pair_class"), pair)?;
                 mr_id_is(r, &path, &format!("mass:{}|{}", r["row_dof_ref"].as_str().unwrap_or(""), r["col_dof_ref"].as_str().unwrap_or("")))?;
                 let vo = mr_vo(&r["value"], &mr_at(&path, "value"), &["mass_matrix_entry"])?;
-                mr_unitize(&mut unitized, &vo, pair, &mr_at(&path, "value"));
+                mr_unitize(&mut unitized, &r["value"], pair, MrPath::mr_row("/tables/mass_matrix", i, "value"));
                 out.push((a, b, Num::mr_from(&vo)));
             }
             Some(out)
@@ -1397,8 +1459,8 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
         let f = mr_vo(&r["free_dof_mass"], &mr_at(&path, "free_dof_mass"), &["modal_free_dof_mass"])?;
         totals[k] = Num::mr_from(&t);
         free_totals[k] = Num::mr_from(&f);
-        mr_unitize(&mut unitized, &t, "fixed", &mr_at(&path, "total_mass"));
-        mr_unitize(&mut unitized, &f, "fixed", &mr_at(&path, "free_dof_mass"));
+        mr_unitize(&mut unitized, &r["total_mass"], "fixed", MrPath::mr_row("/tables/mass_totals", k, "total_mass"));
+        mr_unitize(&mut unitized, &r["free_dof_mass"], "fixed", MrPath::mr_row("/tables/mass_totals", k, "free_dof_mass"));
     }
 
     // Computed modes and clusters (modes refer to both).
@@ -1434,7 +1496,7 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
         for (field, kind) in [("circular_frequency", "computed_circular_frequency"), ("frequency", "computed_frequency"),
             ("backward_error", "residual_backward_error"), ("condition", "eigenvalue_condition_estimate"), ("error_estimate", "eigenvalue_error_estimate")] {
             let vo = mr_vo(&r[field], &mr_at(&path, field), &[kind])?;
-            mr_unitize(&mut unitized, &vo, "fixed", &mr_at(&path, field));
+            mr_unitize(&mut unitized, &r[field], "fixed", MrPath::mr_row("/tables/computed_modes", i, field));
             vos.push(vo);
         }
         computed.push(Computed { cluster, reported, mode, omega: vos[0].value, frequency: vos[1].value, eta: Num::mr_from(&vos[2]),
@@ -1455,7 +1517,7 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
         }
         let reported = mr_flag(&r["reported"], &mr_at(&path, "reported"))?;
         let vo = mr_vo(&r["error_estimate"], &mr_at(&path, "error_estimate"), &["cluster_error_estimate"])?;
-        mr_unitize(&mut unitized, &vo, "fixed", &mr_at(&path, "error_estimate"));
+        mr_unitize(&mut unitized, &r["error_estimate"], "fixed", MrPath::mr_row("/tables/clusters", i, "error_estimate"));
         clusters.push((first, last, reported, Num::mr_from(&vo)));
     }
     let mut modes = Vec::with_capacity(n);
@@ -1478,9 +1540,9 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
         for (j, reason) in reasons.iter().enumerate() {
             mr_text(reason, &format!("{path}/standing/reasons/{j}"))?;
         }
-        let mut get_vo = |field: &str, kind: &str, key: &str| -> R<Vo> {
+        let mut get_vo = |field: &'static str, kind: &str, key: &'static str| -> R<Vo> {
             let vo = mr_vo(&r[field], &mr_at(&path, field), &[kind])?;
-            mr_unitize(&mut unitized, &vo, key, &mr_at(&path, field));
+            mr_unitize(&mut unitized, &r[field], key, MrPath::mr_row("/tables/modes", i, field));
             Ok(vo)
         };
         let omega = get_vo("circular_frequency", "modal_circular_frequency", "fixed")?.value;
@@ -1510,7 +1572,7 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
                 mr_id_is(r, &path, &format!("shape:mode:{}:{}", m + 1, r["dof_ref"].as_str().unwrap_or("")))?;
                 let kind = if dof % 6 < 3 { "mode_shape_translation" } else { "mode_shape_rotation" };
                 let vo = mr_vo(&r["value"], &mr_at(&path, "value"), &[kind])?;
-                mr_unitize(&mut unitized, &vo, CASES[modes[m].case], &mr_at(&path, "value"));
+                mr_unitize(&mut unitized, &r["value"], CASES[modes[m].case], MrPath::mr_row("/tables/shapes", i, "value"));
                 out[m][dof] = Num::mr_from(&vo);
             }
             Some(out)
@@ -1531,9 +1593,9 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
             mr_const(&r["mode_ref"], &mr_at(&path, "mode_ref"), &format!("mode:{}", m + 1))?;
             mr_const(&r["direction"], &mr_at(&path, "direction"), DIRECTIONS[k])?;
             mr_id_is(r, &path, &format!("participation:mode:{}:{}", m + 1, DIRECTIONS[k]))?;
-            let mut read = |field: &str, kind: &str, key: &str| -> R<Vo> {
+            let mut read = |field: &'static str, kind: &str, key: &'static str| -> R<Vo> {
                 let vo = mr_vo(&r[field], &mr_at(&path, field), &[kind])?;
-                mr_unitize(&mut unitized, &vo, key, &mr_at(&path, field));
+                mr_unitize(&mut unitized, &r[field], key, MrPath::mr_row("/tables/participation", i, field));
                 Ok(vo)
             };
             let gamma = read("participation_factor", "modal_participation_factor", CASES[modes[m].case])?;
@@ -1557,17 +1619,17 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
             return Err(format!("{path}/candidate_index: not {}", i + 1));
         }
         mr_id_is(r, &path, &format!("sturm-candidate:{}", i + 1))?;
-        let decision = mr_one_of(&r["decision"], &mr_at(&path, "decision"), &DECISIONS)?.to_string();
+        let decision = mr_one_of(&r["decision"], &mr_at(&path, "decision"), &DECISIONS)?;
         if mr_flag(&r["accepted"], &mr_at(&path, "accepted"))? != (decision == "accepted") {
             return Err(format!("{path}/accepted: not its decision"));
         }
         let pivots = if r["negative_pivot_count"].is_null() { None } else { Some(mr_count(&r["negative_pivot_count"], &mr_at(&path, "negative_pivot_count"))?) };
-        let mut read = |field: &str, kind: &str| -> R<Vo> {
+        let mut read = |field: &'static str, kind: &str| -> R<Vo> {
             let vo = mr_vo(&r[field], &mr_at(&path, field), &[kind])?;
-            mr_unitize(&mut unitized, &vo, "fixed", &mr_at(&path, field));
+            mr_unitize(&mut unitized, &r[field], "fixed", MrPath::mr_row("/tables/sturm_candidates", i, field));
             Ok(vo)
         };
-        let mut num = |field: &str, kind: &str| -> R<Num> { Ok(Num::mr_from(&read(field, kind)?)) };
+        let mut num = |field: &'static str, kind: &str| -> R<Num> { Ok(Num::mr_from(&read(field, kind)?)) };
         let shift = num("shift", "sturm_shift_circular_frequency")?;
         let formation_term = num("formation_term", "sturm_formation_term")?;
         let formation_separation = num("formation_separation_ratio", "sturm_formation_separation_ratio")?;
@@ -1590,15 +1652,15 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
         let path = format!("/tables/identity/rows/{i}");
         let r = mr_fields(row, &path, &["subject", "subject_kind", "axis", "comparison", "relative"])?;
         mr_id_is(r, &path, &format!("identity:{i}"))?;
-        let subject = mr_text(&r["subject"], &mr_at(&path, "subject"))?.to_string();
-        let subject_kind = mr_one_of(&r["subject_kind"], &mr_at(&path, "subject_kind"), &["member", "component_body", "model"])?.to_string();
+        let subject = mr_text(&r["subject"], &mr_at(&path, "subject"))?;
+        let subject_kind = mr_one_of(&r["subject_kind"], &mr_at(&path, "subject_kind"), &["member", "component_body", "model"])?;
         if subject_kind == "model" && subject != "model" {
             return Err(format!("{path}: the aggregate subject is `model`"));
         }
         let axis = mr_one_of(&r["axis"], &mr_at(&path, "axis"), &DIRECTIONS)?;
-        let comparison = mr_one_of(&r["comparison"], &mr_at(&path, "comparison"), &["nodal", "resultant"])?.to_string();
+        let comparison = mr_one_of(&r["comparison"], &mr_at(&path, "comparison"), &["nodal", "resultant"])?;
         let vo = mr_vo(&r["relative"], &mr_at(&path, "relative"), &["identity_relative_discrepancy"])?;
-        mr_unitize(&mut unitized, &vo, "fixed", &mr_at(&path, "relative"));
+        mr_unitize(&mut unitized, &r["relative"], "fixed", MrPath::mr_row("/tables/identity", i, "relative"));
         let axis = DIRECTIONS.iter().position(|d| *d == axis).unwrap_or(0);
         identity.push(IdentityRow { subject_kind, subject, axis, comparison, relative: Num::mr_from(&vo) });
     }
@@ -1613,19 +1675,19 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
         let dof = dof_of(&r["dof_ref"], &mr_at(&path, "dof_ref"))?;
         let state = mr_one_of(&r["state"], &mr_at(&path, "state"), &["active", "inactive", "sticking", "sliding"])?;
         let treatment = mr_one_of(&r["treatment"], &mr_at(&path, "treatment"), &["restrained", "already_restrained", "free", "free_frozen_friction"])?;
-        supports.push((dof, treatment.to_string()));
-        support_rows.push(SupportRow { id: id.to_string(), behavior: behavior.to_string(), dof, state: state.to_string(), treatment: treatment.to_string() });
+        supports.push((dof, treatment));
+        support_rows.push(SupportRow { id, behavior, dof, state, treatment });
     }
     let mut members = Vec::new();
     for (i, row) in get("discretization")?.ok_or("/tables/discretization: withheld")?.iter().enumerate() {
         let path = format!("/tables/discretization/rows/{i}");
         let r = mr_fields(row, &path, &["member_ref", "length", "fixed_fixed_frequency", "ratio_to_highest_reported"])?;
         let id = mr_text(&r["member_ref"], &mr_at(&path, "member_ref"))?;
-        members.push(id.to_string());
+        members.push(id);
         mr_id_is(r, &path, &format!("member:{id}"))?;
         for (field, kind) in [("length", "member_length"), ("fixed_fixed_frequency", "member_fixed_fixed_frequency"), ("ratio_to_highest_reported", "member_frequency_ratio")] {
-            let vo = mr_vo(&r[field], &mr_at(&path, field), &[kind])?;
-            mr_unitize(&mut unitized, &vo, "fixed", &mr_at(&path, field));
+            mr_vo(&r[field], &mr_at(&path, field), &[kind])?;
+            mr_unitize(&mut unitized, &r[field], "fixed", MrPath::mr_row("/tables/discretization", i, field));
         }
     }
     let mut disclosures = Vec::new();
@@ -1635,7 +1697,7 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
         mr_id_is(r, &path, &format!("disclosure:{i}"))?;
         let text = mr_text(&r["text"], &mr_at(&path, "text"))?;
         let source = mr_one_of(&r["source"], &mr_at(&path, "source"), &["modal", "weight_basis"])?;
-        disclosures.push((text.to_string(), source.to_string()));
+        disclosures.push((text, source));
     }
     for (i, row) in get("diagnostics")?.ok_or("/tables/diagnostics: withheld")?.iter().enumerate() {
         let path = format!("/tables/diagnostics/rows/{i}");
@@ -1645,24 +1707,24 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
     // Headers.
     let basis = mr_object(&doc["basis"], "/basis", &["route", "no_translation_threshold", "bounding_box_diagonal", "weight_to_mass_acceleration",
         "identity_acceleration", "mass_center", "state_case"])?;
-    let route = mr_one_of(&basis["route"], "/basis/route", &["pressure_free", "exact_pressure"])?.to_string();
-    let mut header_vo = |value: &Value, path: &str, kind: &str| -> R<Vo> {
-        let vo = mr_vo(value, path, &[kind])?;
-        mr_unitize(&mut unitized, &vo, "fixed", path);
+    let route = mr_one_of(&basis["route"], "/basis/route", &["pressure_free", "exact_pressure"])?;
+    let mut header_vo = |value: &'v Value, path: MrPath, kind: &str| -> R<Vo<'v>> {
+        let vo = mr_vo(value, &path.to_string(), &[kind])?;
+        mr_unitize(&mut unitized, value, "fixed", path);
         Ok(vo)
     };
-    let tau_t = header_vo(&basis["no_translation_threshold"], "/basis/no_translation_threshold", "basis_no_translation_threshold")?.value;
-    let ell = header_vo(&basis["bounding_box_diagonal"], "/basis/bounding_box_diagonal", "basis_bounding_box_diagonal")?.value;
+    let tau_t = header_vo(&basis["no_translation_threshold"], MrPath::mr_header("/basis", "no_translation_threshold"), "basis_no_translation_threshold")?.value;
+    let ell = header_vo(&basis["bounding_box_diagonal"], MrPath::mr_header("/basis", "bounding_box_diagonal"), "basis_bounding_box_diagonal")?.value;
     if !basis["weight_to_mass_acceleration"].is_null() {
-        header_vo(&basis["weight_to_mass_acceleration"], "/basis/weight_to_mass_acceleration", "request_weight_to_mass_acceleration")?;
+        header_vo(&basis["weight_to_mass_acceleration"], MrPath::mr_header("/basis", "weight_to_mass_acceleration"), "request_weight_to_mass_acceleration")?;
     }
-    header_vo(&basis["identity_acceleration"], "/basis/identity_acceleration", "identity_acceleration")?;
+    header_vo(&basis["identity_acceleration"], MrPath::mr_header("/basis", "identity_acceleration"), "identity_acceleration")?;
     let mut mass_center = None;
     if !basis["mass_center"].is_null() {
         let c = mr_object(&basis["mass_center"], "/basis/mass_center", &["x", "y", "z"])?;
         let mut center = [none(), none(), none()];
         for (k, axis) in ["x", "y", "z"].into_iter().enumerate() {
-            center[k] = Num::mr_from(&header_vo(&c[axis], &format!("/basis/mass_center/{axis}"), "basis_mass_center")?);
+            center[k] = Num::mr_from(&header_vo(&c[axis], MrPath::mr_header("/basis/mass_center", axis), "basis_mass_center")?);
         }
         mass_center = Some(center);
     }
@@ -1685,14 +1747,14 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
     let x = mr_object(&doc["extraction"], "/extraction", &["mode_count", "frequency_cutoff", "stopped_by", "bounded_count", "extension_count",
         "count", "computed_count", "endpoint"])?;
     let mode_count = if x["mode_count"].is_null() { None } else { Some(mr_count(&x["mode_count"], "/extraction/mode_count")?) };
-    let cutoff = if x["frequency_cutoff"].is_null() { None } else { header_vo(&x["frequency_cutoff"], "/extraction/frequency_cutoff", "request_frequency_cutoff")?.value };
+    let cutoff = if x["frequency_cutoff"].is_null() { None } else { header_vo(&x["frequency_cutoff"], MrPath::mr_header("/extraction", "frequency_cutoff"), "request_frequency_cutoff")?.value };
     if mode_count.is_none() && x["frequency_cutoff"].is_null() {
         return Err("/extraction: a modal result states its bound".into());
     }
     let stopped_by = mr_one_of(&x["stopped_by"], "/extraction/stopped_by", &["mode_count", "frequency_cutoff", "mode_count_and_frequency_cutoff",
-        "spectrum_exhausted"])?.to_string();
+        "spectrum_exhausted"])?;
     let e = mr_object(&x["endpoint"], "/extraction/endpoint", &["kind", "next_computed_ref", "established_finite_mode_count"])?;
-    let endpoint = mr_one_of(&e["kind"], "/extraction/endpoint/kind", &["below_computed_cluster", "below_lowest_mode", "whole_finite_spectrum"])?.to_string();
+    let endpoint = mr_one_of(&e["kind"], "/extraction/endpoint/kind", &["below_computed_cluster", "below_lowest_mode", "whole_finite_spectrum"])?;
     let next_computed = if e["next_computed_ref"].is_null() { None } else {
         Some(mr_index(mr_text(&e["next_computed_ref"], "/extraction/endpoint/next_computed_ref")?, "computed:", "/extraction/endpoint/next_computed_ref")?)
     };
@@ -1728,24 +1790,24 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
     let s = mr_object(&doc["sturm"], "/sturm", &["count", "reported", "placement", "conditioning_multiple", "conditioning_limit",
         "separation_multiple", "growth_limit"])?;
     let p = mr_object(&s["placement"], "/sturm/placement", &["kind", "lower", "upper", "established_finite_mode_count"])?;
-    let placement = mr_one_of(&p["kind"], "/sturm/placement/kind", &["given", "gap", "above_spectrum"])?.to_string();
-    let mut optional_vo = |value: &Value, path: &str, kind: &str| -> R<Option<f64>> {
+    let placement = mr_one_of(&p["kind"], "/sturm/placement/kind", &["given", "gap", "above_spectrum"])?;
+    let mut optional_vo = |value: &'v Value, path: MrPath, kind: &str| -> R<Option<f64>> {
         if value.is_null() {
             return Ok(None);
         }
         Ok(header_vo(value, path, kind)?.value)
     };
-    let placement_lower = optional_vo(&p["lower"], "/sturm/placement/lower", "placement_circular_frequency")?;
-    let placement_upper = optional_vo(&p["upper"], "/sturm/placement/upper", "placement_circular_frequency")?;
+    let placement_lower = optional_vo(&p["lower"], MrPath::mr_header("/sturm/placement", "lower"), "placement_circular_frequency")?;
+    let placement_upper = optional_vo(&p["upper"], MrPath::mr_header("/sturm/placement", "upper"), "placement_circular_frequency")?;
     let placement_established = if p["established_finite_mode_count"].is_null() { None } else {
         Some(mr_count(&p["established_finite_mode_count"], "/sturm/placement/established_finite_mode_count")?)
     };
-    let kappa_c = header_vo(&s["conditioning_multiple"], "/sturm/conditioning_multiple", "sturm_premise_parameter")?.value;
-    let limit = header_vo(&s["conditioning_limit"], "/sturm/conditioning_limit", "sturm_premise_parameter")?.value;
-    let kappa_s = header_vo(&s["separation_multiple"], "/sturm/separation_multiple", "sturm_premise_parameter")?.value;
-    let growth_limit = header_vo(&s["growth_limit"], "/sturm/growth_limit", "sturm_premise_parameter")?.value;
+    let kappa_c = header_vo(&s["conditioning_multiple"], MrPath::mr_header("/sturm", "conditioning_multiple"), "sturm_premise_parameter")?.value;
+    let limit = header_vo(&s["conditioning_limit"], MrPath::mr_header("/sturm", "conditioning_limit"), "sturm_premise_parameter")?.value;
+    let kappa_s = header_vo(&s["separation_multiple"], MrPath::mr_header("/sturm", "separation_multiple"), "sturm_premise_parameter")?.value;
+    let growth_limit = header_vo(&s["growth_limit"], MrPath::mr_header("/sturm", "growth_limit"), "sturm_premise_parameter")?.value;
     let o = mr_object(&doc["orthogonality"], "/orthogonality", &["max_ratio", "pair"])?;
-    let ortho = Num::mr_from(&header_vo(&o["max_ratio"], "/orthogonality/max_ratio", "orthogonality_max_ratio")?);
+    let ortho = Num::mr_from(&header_vo(&o["max_ratio"], MrPath::mr_header("/orthogonality", "max_ratio"), "orthogonality_max_ratio")?);
     let ortho_pair = !o["pair"].is_null();
     if ortho_pair {
         let pair = mr_list(&o["pair"], "/orthogonality/pair")?;
@@ -1763,7 +1825,7 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
     let mut formation = Vec::new();
     for (field, kind) in [("stiffness_difference", "stiffness_formation_difference"), ("mass_difference", "mass_formation_difference"),
         ("reformed_stiffness_norm", "reformed_stiffness_norm"), ("reformed_mass_norm", "reformed_mass_norm")] {
-        formation.push(header_vo(&f[field], &format!("/formation/{field}"), kind)?.value);
+        formation.push(header_vo(&f[field], MrPath::mr_header("/formation", field), kind)?.value);
     }
     for field in ["stiffness_row_ref", "mass_row_ref"] {
         if !f[field].is_null() {
@@ -1775,7 +1837,7 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
     if !f["section"].is_null() {
         let sec = mr_object(&f["section"], "/formation/section", &["area", "second_moment", "torsion_constant"])?;
         for field in ["area", "second_moment", "torsion_constant"] {
-            formation.push(header_vo(&sec[field], &format!("/formation/section/{field}"), "section_derivation_difference")?.value);
+            formation.push(header_vo(&sec[field], MrPath::mr_header("/formation/section", field), "section_derivation_difference")?.value);
         }
     }
     let g = mr_object(&doc["guard"], "/guard", &["global_dimension", "free_dimension", "static_estimate_bytes", "ceiling_bytes", "eigen_core_bytes",
@@ -1815,6 +1877,7 @@ fn mr_closure(doc: &Value) -> R<Parsed> {
         candidates,
         identity,
         members,
+        census,
         linearized: linearized_state,
         restrained_refs,
         supports,
@@ -1874,8 +1937,7 @@ fn mr_read_refused(doc: &Value, supplied: ModalSupplied<'_>) -> ModalReadVerdict
         mr_object(doc, "", &REFUSED_KEYS)?;
         mr_identity(doc)?;
         let mut ids = HashSet::new();
-        let wrapper = json!({"refusals": doc["refusals"]});
-        let rows = mr_table(&wrapper, "refusals", &mut ids)?.rows.ok_or("/refusals: withheld")?;
+        let rows = mr_table(Some(&doc["refusals"]), "refusals", &mut ids)?.rows.ok_or("/refusals: withheld")?;
         let mut codes = Vec::new();
         for (i, row) in rows.iter().enumerate() {
             let tagged = mr_diagnostic_row(row, &format!("/refusals/rows/{i}"), &format!("refusal:{i}"), &["modal"])?;
@@ -1975,8 +2037,10 @@ fn mr_binding(doc: &Value, supplied: ModalSupplied<'_>) -> (ModalReadStanding, V
                 if model.as_deref() != b["model_sha256"].as_str() {
                     return Err("/binding/model_sha256: not the supplied model's".into());
                 }
-                let materials = request.get("materials").cloned().unwrap_or_else(|| json!([]));
-                if modal_reader_sha256(&materials).as_deref() != b["materials_sha256"].as_str() {
+                // An absent member hashes as `[]` (borrowed, not copied).
+                let empty = Value::Array(Vec::new());
+                let materials = request.get("materials").unwrap_or(&empty);
+                if modal_reader_sha256(materials).as_deref() != b["materials_sha256"].as_str() {
                     return Err("/binding/materials_sha256: not the supplied materials'".into());
                 }
                 for member in OPTION_MEMBERS {
@@ -2001,7 +2065,7 @@ fn mr_binding(doc: &Value, supplied: ModalSupplied<'_>) -> (ModalReadStanding, V
 }
 
 fn mr_param(p: &Parsed, name: &str) -> Option<f64> {
-    p.params.get(name).and_then(Value::as_f64)
+    p.params.and_then(|m| m.get(name)).and_then(Value::as_f64)
 }
 
 fn mr_tol_close(published: f64, derived: f64, tolerance: f64) -> bool {
@@ -2641,7 +2705,7 @@ fn mr_clusters(p: &Parsed) -> R<Vec<String>> {
 const MR_FACTORED: [&str; 9] = ["factor term", "backward error", "inverse-norm estimate", "conditioning product", "separation ratio", "growth",
     "max|L|", "max|d|", "max|ã|"];
 
-fn mr_factored(c: &Candidate) -> [&Num; 9] {
+fn mr_factored<'a, 'v>(c: &'a Candidate<'v>) -> [&'a Num<'v>; 9] {
     [&c.factor_term, &c.backward_error, &c.inverse_norm, &c.product, &c.separation, &c.growth, &c.maxima[0], &c.maxima[1], &c.maxima[2]]
 }
 
@@ -2675,7 +2739,7 @@ fn mr_candidate(scope: &mut Vec<String>, c: &Candidate, label: usize, sturm_coun
                 return Err(format!("candidate {label}: not factored, but its {name} is not null `not_factored`"));
             }
         }
-        if matches!(c.decision.as_str(), "accepted" | "growth_limit" | "ill_conditioned") {
+        if matches!(c.decision, "accepted" | "growth_limit" | "ill_conditioned") {
             return Err(format!("candidate {label}: decision `{}` needs a factorization", c.decision));
         }
         return Ok(());
@@ -2706,7 +2770,7 @@ fn mr_candidate(scope: &mut Vec<String>, c: &Candidate, label: usize, sturm_coun
         separation.parts.iter().any(|p| p.0 < ks * (1.0 + 8.0 * U)));
     let within = growth.mr_can(|g| g <= g_max, (false, true));
     let conditioned = product.mr_can(|x| x <= limit, (false, true));
-    match c.decision.as_str() {
+    match c.decision {
         "accepted" => {
             if pivots != sturm_count {
                 return Err(format!("the accepted candidate's negative-pivot count {pivots} is not the Sturm count {sturm_count}"));
@@ -2734,7 +2798,7 @@ fn mr_candidate(scope: &mut Vec<String>, c: &Candidate, label: usize, sturm_coun
 /// Sturm: the candidates, the accepted shift's premises and placement.
 fn mr_sturm(p: &Parsed) -> R<Vec<String>> {
     let mut scope = Vec::new();
-    let s_max = p.params.get("sturm_max_candidates").and_then(Value::as_u64).ok_or("s_max: not bound")? as usize;
+    let s_max = p.params.and_then(|m| m.get("sturm_max_candidates")).and_then(Value::as_u64).ok_or("s_max: not bound")? as usize;
     let kc = p.kappa_c.ok_or("κ_c: not published")?;
     let limit = p.limit.ok_or("1/κ_c: not published")?;
     let ks = p.kappa_s.ok_or("κ_s: not published")?;
@@ -2768,7 +2832,7 @@ fn mr_sturm(p: &Parsed) -> R<Vec<String>> {
     if shift.as_ref().is_some_and(|(s, _)| s.parts.is_empty()) {
         return Err("the accepted shift is not finite".into());
     }
-    match p.endpoint.as_str() {
+    match p.endpoint {
         "below_computed_cluster" | "below_lowest_mode" => {
             if p.placement != "gap" || p.placement_established.is_some() {
                 return Err("a set below a computed cluster is counted in a gap".into());
@@ -2867,12 +2931,18 @@ fn mr_evidence(p: &Parsed) -> R<Vec<String>> {
             return Err(format!("computed mode {}: e_λ = {e:e} is not η·κ_λ = {product:e}", i + 1));
         }
     }
-    scope.extend(mr_identity_coverage(p)?);
+    mr_identity_coverage(p)?;
     mr_state_coverage(p)?;
-    if !p.disclosures.iter().any(|(text, source)| source == "modal" && text.starts_with("numerical integrity does not establish physical correctness")) {
+    if p.linearized == Some(true) {
+        // The supports table's states, and the partition the identity rows are
+        // formed on, are reported: no payload qualifies them (as for the
+        // model-derived mass and participation).
+        scope.push("supports: the reported nonlinear support states are conditional on their qualification as the static solve's converged, confirmed states, which no payload establishes".to_string());
+    }
+    if !p.disclosures.iter().any(|(text, source)| *source == "modal" && text.starts_with("numerical integrity does not establish physical correctness")) {
         return Err("disclosures: the fixed numerical-integrity disclosure is missing".into());
     }
-    let tolerance = p.params.get("identity_tolerance");
+    let tolerance = p.params.and_then(|m| m.get("identity_tolerance"));
     let relative = tolerance.and_then(|t| t["relative"].as_f64()).ok_or("the identity tolerance is not bound")?;
     let absolute = tolerance.and_then(|t| t["absolute"].as_f64()).ok_or("the identity tolerance is not bound")?;
     // The relative discrepancy's producer domain (plain binary64, never flagged)
@@ -2926,10 +2996,9 @@ fn mr_evidence(p: &Parsed) -> R<Vec<String>> {
 /// straight member of the discretization table (and no other nodal row),
 /// `resultant` rows for other subjects (arcs, bodies) and the aggregate (kind
 /// `model`) last and once; the same (kind, subject) list along every axis. The
-/// kind keeps a member named `model` apart from the aggregate. The document
-/// carries no census of mass-bearing subjects, so coverage holds for what is
-/// listed only: that limit is scoped.
-fn mr_identity_coverage(p: &Parsed) -> R<Vec<String>> {
+/// kind keeps a member named `model` apart from the aggregate. Whether the
+/// listed subjects are the model's is the subject census's (`census`).
+fn mr_identity_coverage(p: &Parsed) -> R<()> {
     let mut per_axis: [Vec<(&str, &str, &str)>; 3] = Default::default();
     let mut last_axis = 0;
     for (i, row) in p.identity.iter().enumerate() {
@@ -2937,9 +3006,9 @@ fn mr_identity_coverage(p: &Parsed) -> R<Vec<String>> {
             return Err(format!("identity row {i}: rows are in axis order"));
         }
         last_axis = row.axis;
-        per_axis[row.axis].push((row.subject_kind.as_str(), row.subject.as_str(), row.comparison.as_str()));
+        per_axis[row.axis].push((row.subject_kind, row.subject, row.comparison));
     }
-    let straights: HashSet<&str> = p.members.iter().map(String::as_str).collect();
+    let straights: HashSet<&str> = p.members.iter().copied().collect();
     let first: Vec<(&str, &str)> = per_axis[0].iter().map(|(kind, s, _)| (*kind, *s)).collect();
     for (k, rows) in per_axis.iter().enumerate() {
         let axis = DIRECTIONS[k];
@@ -2963,7 +3032,7 @@ fn mr_identity_coverage(p: &Parsed) -> R<Vec<String>> {
             }
         }
         for member in &p.members {
-            if !seen.contains(&("member", member.as_str())) {
+            if !seen.contains(&("member", *member)) {
                 return Err(format!("identity: straight member {member} has no nodal row along {axis}"));
             }
         }
@@ -2972,7 +3041,7 @@ fn mr_identity_coverage(p: &Parsed) -> R<Vec<String>> {
             return Err(format!("identity: the subjects along {axis} are not those along x"));
         }
     }
-    Ok(vec!["identity: coverage is established for the listed straight members and the aggregate only; the document carries no census of mass-bearing members, arcs or component bodies, so a subject absent from every axis (and, for a straight member, from the discretization table too) is not detectable".to_string()])
+    Ok(())
 }
 
 /// The nonlinear states against the partition: a linearized state case lists
@@ -2990,7 +3059,7 @@ fn mr_state_coverage(p: &Parsed) -> R<()> {
                 return Err("supports: the linearized restrained set is not the document's restrained DOFs".into());
             }
             for (dof, treatment) in &p.supports {
-                if (treatment == "restrained" || treatment == "already_restrained") && !listed.contains(dof) {
+                if (*treatment == "restrained" || *treatment == "already_restrained") && !listed.contains(dof) {
                     return Err(format!("supports: a {treatment} support's DOF {dof} is free"));
                 }
             }
@@ -3042,7 +3111,7 @@ fn mr_standing(p: &Parsed) -> R<Vec<String>> {
 /// unit, so nothing is scoped.
 fn mr_units(p: &Parsed) -> R<Vec<String>> {
     for u in &p.unitized {
-        mr_unit_check(&u.vo, &u.key, &u.path)?;
+        mr_unit_check(u.value, u.key, &u.path)?;
     }
     Ok(Vec::new())
 }

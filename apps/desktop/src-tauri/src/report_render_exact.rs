@@ -38,6 +38,10 @@
 //! `exact_route` refuses. Standard claim fence applies (claims taxonomy per
 //! DEC-081).
 //!
+//! Slice C5: behind the source binding, the input's `model_input_tables` must
+//! be the projection `P(M, C)` of the bound intake model and the input's own
+//! composition (`report_package::model_input::check_model_input_tables`).
+//!
 //! The pressure-free Timoshenko projection (DEL-05-03 Design `pf-timoshenko.md`
 //! §4, "Source binding on PF") is bound the same way: an input with a top-level
 //! `pf_timoshenko` section (`{semantic_contract_id, admission}`, the admission
@@ -283,7 +287,11 @@ fn bind_render_admission(
     crate::report_package_save::check_manifest_model(&manifest, &bound.model, &bound.model_sha256)
         .map_err(|_| refused(sections_mismatch("input_manifest.model_basis")))?;
     drop(manifest);
-    rederive(input, &bound.source, &bound.model_sha256, &digests).map_err(|section| refused(sections_mismatch(&section)))
+    rederive(input, &bound.source, &bound.model_sha256, &digests).map_err(|section| refused(sections_mismatch(&section)))?;
+    // Slice C5 (DEL-08-01 Design `report-section-composer.md` §2.7): the
+    // model-input tables are P(M, C) of the bound intake model and the input's
+    // own composition; the refusal names a JSON pointer, never a value.
+    open_pipe_stress_report_package::model_input::check_model_input_tables(&bound.model, input).map_err(CommandError::Command)
 }
 
 /// The re-derivation (§3.6) with the functions the package's items 5, 6 and 9

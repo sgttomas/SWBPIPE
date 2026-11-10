@@ -2,15 +2,26 @@ import families from "../../../../../fixtures/reports/invented/report_compositio
 import { canonicalDecimal } from "./reportQuantityDisplay";
 import type { ReportResultRow } from "./reportResultRows";
 
-/** Session-only report settings. Values always come from the complete bound row list. */
+/** Session-only report settings. Values always come from the complete bound row list and,
+ * for the model-input sections (slice C5, §2.7), from the bound model. */
 export const REPORT_COMPOSITION_CATALOGUE = [
-  { id: "result_rows_all", title: "All result rows", views: ["all"] },
-  { id: "result_displacements", title: "Displacements", views: ["all", "extremes"] },
-  { id: "result_forces_moments", title: "Forces and moments", views: ["all"] },
-  { id: "result_stresses", title: "Stresses", views: ["all", "largest"] },
-  { id: "result_support_loads", title: "Support loads", views: ["all"] },
-  { id: "result_other_rows", title: "Other result rows", views: ["all"] }
+  { id: "result_rows_all", title: "All result rows", views: ["all"], parent: "results" },
+  { id: "result_displacements", title: "Displacements", views: ["all", "extremes"], parent: "results" },
+  { id: "result_forces_moments", title: "Forces and moments", views: ["all"], parent: "results" },
+  { id: "result_stresses", title: "Stresses", views: ["all", "largest"], parent: "results" },
+  { id: "result_support_loads", title: "Support loads", views: ["all"], parent: "results" },
+  { id: "result_other_rows", title: "Other result rows", views: ["all"], parent: "results" },
+  { id: "load_combinations", title: "Load combinations", views: ["all"], parent: "load_cases" },
+  { id: "input_geometry", title: "Geometry", views: ["all"], parent: "model_input_summary" },
+  { id: "input_materials_sections", title: "Materials and sections", views: ["all"], parent: "model_input_summary" },
+  { id: "input_supports", title: "Supports and restraints", views: ["all"], parent: "model_input_summary" },
+  { id: "input_loads", title: "Applied loads", views: ["all"], parent: "model_input_summary" }
 ] as const;
+
+/** The family sections, which `result_rows_all` excludes (§2.3, overlap). */
+export const FAMILY_SECTION_IDS: readonly string[] = [
+  "result_displacements", "result_forces_moments", "result_stresses", "result_support_loads", "result_other_rows"
+];
 
 export type ReportCompositionSectionId = typeof REPORT_COMPOSITION_CATALOGUE[number]["id"];
 export type ReportCompositionSection = {
@@ -77,6 +88,12 @@ export function composeReportRows(rows: ReportResultRow[], composition: ReportCo
     if (!entry) { fail("SECTION-UNKNOWN"); continue; }
     if (listed.has(section.section_id)) fail("SECTION-DUPLICATE");
     listed.add(section.section_id);
+    if (entry.parent !== "results") {
+      // A model-input section shows no result row: all cases and the all view only (§2.7).
+      if (section.view.kind !== "all" || section.view.limit !== undefined) fail("OPTION-INVALID");
+      if (section.cases !== "all") fail("OPTION-INVALID");
+      continue;
+    }
     if (!(entry.views as readonly string[]).includes(section.view.kind)) fail("OPTION-INVALID");
     else if (section.view.kind === "largest") {
       if (!Number.isInteger(section.view.limit) || section.view.limit! < 1 || section.view.limit! > 1000) fail("OPTION-INVALID");
@@ -91,7 +108,7 @@ export function composeReportRows(rows: ReportResultRow[], composition: ReportCo
       }
     }
   }
-  if (listed.has("result_rows_all") && listed.size > 1) fail("ROWS-OVERLAP");
+  if (listed.has("result_rows_all") && FAMILY_SECTION_IDS.some((id) => listed.has(id))) fail("ROWS-OVERLAP");
   if (refusals.length) throw new Error(refusals.join("; "));
   type Bound = typeof bound[number];
   const compare = (left: Bound, right: Bound) => {
@@ -109,7 +126,8 @@ export function composeReportRows(rows: ReportResultRow[], composition: ReportCo
     return groups;
   }
   const sections = composition.sections.map((section) => {
-    let selected = bound.filter((item) => (section.section_id === "result_rows_all" || item.family === section.section_id) &&
+    const parent = REPORT_COMPOSITION_CATALOGUE.find((item) => item.id === section.section_id)!.parent;
+    let selected = parent !== "results" ? [] : bound.filter((item) => (section.section_id === "result_rows_all" || item.family === section.section_id) &&
       (section.cases === "all" || section.cases.includes(item.row.case_ref)));
     if (section.view.kind === "extremes") {
       selected = [...group(selected, (item) => JSON.stringify([item.row.case_ref, item.row.label, item.displayUnit])).values()]

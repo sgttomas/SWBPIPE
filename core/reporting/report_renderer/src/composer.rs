@@ -29,6 +29,11 @@
 //!   with the SHA-256 of the composition's RFC 8785 bytes in the Audit
 //!   Manifest section.
 //!
+//! Model-input sections (slice C5, §2.7) join the closed catalogue under
+//! the Load Cases and Model Input Summary parents. They take all cases and
+//! the `all` view only and show no result row; their tables are the input's
+//! `model_input_tables` ([`crate::model_input`]).
+//!
 //! Contexts (slice C4). A composition is admitted under `local_private` and
 //! under `user_released_report`; every other context refuses it. On the
 //! user-released route the native derivation copies the closed composition
@@ -38,8 +43,8 @@
 //! Standard claim fence applies (claims taxonomy per DEC-081).
 
 use crate::{
-    meta_paragraph, paragraph, subheading, table, RenderableReportInput, ReportExportContext,
-    ResultRow, SectionBlock,
+    meta_paragraph, model_input, paragraph, subheading, table, RenderableReportInput,
+    ReportExportContext, ResultRow, SectionBlock,
 };
 use serde::de::{self, Deserializer, SeqAccess, Visitor};
 use serde::ser::Serializer;
@@ -92,46 +97,89 @@ pub const VIEW_LARGEST: &str = "largest";
 pub const LARGEST_LIMIT_MIN: u64 = 1;
 pub const LARGEST_LIMIT_MAX: u64 = 1000;
 
+/// The governed parents of composable sections (`SECTION_ORDER` keys).
+pub const PARENT_MODEL_INPUT_SUMMARY: &str = "model_input_summary";
+pub const PARENT_LOAD_CASES: &str = "load_cases";
+pub const PARENT_RESULTS: &str = "results";
+
 /// One composable section of the closed catalogue (§2.2).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct CatalogueEntry {
     pub id: &'static str,
     pub title: &'static str,
     pub views: &'static [&'static str],
+    /// The governed section it is a subsection of.
+    pub parent: &'static str,
 }
 
-/// The closed catalogue of composable result sections, in catalogue order
-/// (§2.2; slice C5's model-input sections join later).
-pub const CATALOGUE: [CatalogueEntry; 6] = [
+/// The closed catalogue of composable sections, in catalogue order (§2.2):
+/// the result sections, then the model-input sections (slice C5, §2.7).
+pub const CATALOGUE: [CatalogueEntry; 11] = [
     CatalogueEntry {
         id: RESULT_ROWS_ALL,
         title: "All result rows",
         views: &[VIEW_ALL],
+        parent: PARENT_RESULTS,
     },
     CatalogueEntry {
         id: RESULT_DISPLACEMENTS,
         title: "Displacements",
         views: &[VIEW_ALL, VIEW_EXTREMES],
+        parent: PARENT_RESULTS,
     },
     CatalogueEntry {
         id: RESULT_FORCES_MOMENTS,
         title: "Forces and moments",
         views: &[VIEW_ALL],
+        parent: PARENT_RESULTS,
     },
     CatalogueEntry {
         id: RESULT_STRESSES,
         title: "Stresses",
         views: &[VIEW_ALL, VIEW_LARGEST],
+        parent: PARENT_RESULTS,
     },
     CatalogueEntry {
         id: RESULT_SUPPORT_LOADS,
         title: "Support loads",
         views: &[VIEW_ALL],
+        parent: PARENT_RESULTS,
     },
     CatalogueEntry {
         id: RESULT_OTHER_ROWS,
         title: "Other result rows",
         views: &[VIEW_ALL],
+        parent: PARENT_RESULTS,
+    },
+    CatalogueEntry {
+        id: model_input::LOAD_COMBINATIONS,
+        title: "Load combinations",
+        views: &[VIEW_ALL],
+        parent: PARENT_LOAD_CASES,
+    },
+    CatalogueEntry {
+        id: model_input::INPUT_GEOMETRY,
+        title: "Geometry",
+        views: &[VIEW_ALL],
+        parent: PARENT_MODEL_INPUT_SUMMARY,
+    },
+    CatalogueEntry {
+        id: model_input::INPUT_MATERIALS_SECTIONS,
+        title: "Materials and sections",
+        views: &[VIEW_ALL],
+        parent: PARENT_MODEL_INPUT_SUMMARY,
+    },
+    CatalogueEntry {
+        id: model_input::INPUT_SUPPORTS,
+        title: "Supports and restraints",
+        views: &[VIEW_ALL],
+        parent: PARENT_MODEL_INPUT_SUMMARY,
+    },
+    CatalogueEntry {
+        id: model_input::INPUT_LOADS,
+        title: "Applied loads",
+        views: &[VIEW_ALL],
+        parent: PARENT_MODEL_INPUT_SUMMARY,
     },
 ];
 
@@ -547,6 +595,14 @@ fn check_in(composition: &ReportComposition, carried: Option<&BTreeSet<&str>>) -
             refusals.push(format!("{COMPOSITION_OPTION_INVALID}: {at}.view.limit applies only to the {VIEW_LARGEST} view"));
         }
         if let CaseSelection::Cases(cases) = &section.cases {
+            // A model-input section shows no result row: all cases only (§2.7).
+            if model_input::is_model_input(entry.id) {
+                refusals.push(format!(
+                    "{COMPOSITION_OPTION_INVALID}: {at}.cases is not all, the only cases {} takes",
+                    entry.id
+                ));
+                continue;
+            }
             if cases.is_empty() {
                 refusals.push(format!(
                     "{COMPOSITION_OPTION_INVALID}: {at}.cases is an empty list"
@@ -591,6 +647,9 @@ fn select(
     view: &CompositionView,
     bound: &[BoundRow<'_>],
 ) -> Vec<usize> {
+    if entry.parent != PARENT_RESULTS {
+        return Vec::new();
+    }
     let selected: Vec<&BoundRow<'_>> = bound
         .iter()
         .filter(|row| entry.id == RESULT_ROWS_ALL || row.section == entry.id)
@@ -683,11 +742,14 @@ pub fn compose(
     })
 }
 
-/// The input's composition refusals, each a blocking reason: none without a
-/// composition.
+/// The input's composition refusals, each a blocking reason: without a
+/// composition, only model-input tables carried without one (§2.7).
 pub fn composition_blocking_reasons(input: &RenderableReportInput) -> Vec<String> {
     match applied(input) {
-        None | Some(Ok(_)) => Vec::new(),
+        None => model_input::unlisted_tables_refusal(input.model_input_tables.as_ref())
+            .into_iter()
+            .collect(),
+        Some(Ok(_)) => Vec::new(),
         Some(Err(refusals)) => refusals,
     }
 }
@@ -720,7 +782,15 @@ fn applied(input: &RenderableReportInput) -> Option<Result<Composed, Vec<String>
             "{COMPOSITION_CONTEXT_NOT_ADMITTED}: composition requires a local private or user-released report"
         )]));
     }
-    Some(compose(&input.result_rows, composition))
+    let listing = model_input::listing_refusals(composition, input.model_input_tables.as_ref());
+    Some(match compose(&input.result_rows, composition) {
+        Ok(composed) if listing.is_empty() => Ok(composed),
+        Ok(_) => Err(listing),
+        Err(mut refusals) => {
+            refusals.extend(listing);
+            Err(refusals)
+        }
+    })
 }
 
 // ---------------------------------------------------------------------------
@@ -819,6 +889,7 @@ pub fn view_text(section_id: &str, view: &CompositionView) -> String {
             format!("largest {limit} by magnitude within each display unit")
         }
         (RESULT_SUPPORT_LOADS, _, _) => "all rows, grouped by support, then case".to_string(),
+        (id, _, _) if model_input::is_model_input(id) => "all entries, as entered, in model order".to_string(),
         _ => "all rows, in source order".to_string(),
     }
 }
@@ -830,6 +901,9 @@ const NOT_RECORDED: &str = "not recorded";
 pub(crate) fn results_blocks(rows: &[ResultRow], composed: &Composed) -> Vec<SectionBlock> {
     let mut blocks = vec![paragraph(&coverage_text(composed))];
     for section in &composed.sections {
+        if section.entry.parent != PARENT_RESULTS {
+            continue;
+        }
         blocks.push(subheading(section.entry.title));
         let mut statement = format!(
             "Cases: {}. View: {}. Result rows shown in this subsection: {}.",
@@ -901,6 +975,16 @@ pub(crate) fn results_blocks(rows: &[ResultRow], composed: &Composed) -> Vec<Sec
         blocks.push(table(&["Disclosure", "Case", "Value", "Source"], cells));
     }
     blocks
+}
+
+/// The model-input subsections of governed section `parent` (§2.7), in list
+/// order within it.
+pub(crate) fn model_input_blocks(
+    parent: &str,
+    composed: &Composed,
+    tables: Option<&model_input::ModelInputTables>,
+) -> Vec<SectionBlock> {
+    model_input::parent_blocks(parent, &composed.sections, tables)
 }
 
 /// The Audit Manifest's Report Composition table (§2.6): every catalogue

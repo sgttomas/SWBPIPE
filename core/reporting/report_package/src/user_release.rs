@@ -38,7 +38,10 @@
 //! member at any depth) with no form refusal, and the derived request carries
 //! its typed form; so whole-request equality binds `C`, and `C` can only select
 //! among the attested rows. Its cases are checked against the rows when the
-//! producer renders.
+//! producer renders. When `C` lists a model-input section (slice C5, §2.7),
+//! the derived request also carries `P(M, C)`
+//! ([`crate::model_input::model_input_tables`]) as `model_input_tables`, so
+//! whole-request equality binds those tables to `M`.
 //!
 //! The record `U` is the typed `report_renderer::UserReleaseRecord`, carried
 //! as given; its form and bound members are checked by native admission
@@ -972,6 +975,11 @@ fn derive_in(basis: &UserReleaseBasis<'_>, custody: Option<(&str, &str)>) -> Res
     if let Some(composition) = composition {
         report["report_composition"] = derived_composition(composition)?;
     }
+    // Slice C5 (§2.7): `P(M, C)` for the derived composition, so whole-request
+    // equality binds the model-input tables to M.
+    if let Some(tables) = crate::model_input::model_input_tables(model, report.get("report_composition"))? {
+        report["model_input_tables"] = tables;
+    }
     check_report_result_refs(&report, source)?;
     check_unit_display_summary(&report, source)?;
 
@@ -1192,7 +1200,7 @@ pub fn first_difference(expected: &Value, found: &Value) -> Option<String> {
 /// the root as `/`, a long pointer cut to its first 240 characters. Only
 /// those characters are written, so a refusal holds no more of a long
 /// pointer than it shows (Codex round 1 at #1682, P1).
-fn first_difference_shown(expected: &Value, found: &Value) -> Option<String> {
+pub(crate) fn first_difference_shown(expected: &Value, found: &Value) -> Option<String> {
     difference_at(expected, found, None, &mut |path| match path {
         None => "/".to_string(),
         path => pointer_text(path, Some(240)),

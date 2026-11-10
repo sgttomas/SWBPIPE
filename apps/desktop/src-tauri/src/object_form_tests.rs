@@ -214,9 +214,12 @@ fn the_object_form_check_is_priced_within_the_existing_leases() {
         {"section_id": "result_displacements", "cases": "all", "view": {"kind": "extremes"}},
         {"section_id": "result_stresses", "cases": "all", "view": {"kind": "largest", "limit": 25}}
     ]});
-    for (variant, composition) in [("default", None), ("full", Some(full)), ("ranked", Some(ranked))] {
+    // Slice C5: every model-input section beside all result rows, with P(M, C).
+    let model_input = model_input_composition();
+    for (variant, composition) in [("default", None), ("full", Some(full)), ("ranked", Some(ranked)), ("model-input", Some(model_input))] {
         let mut request = request();
         if let Some(composition) = composition {
+            with_model_input_tables(&mut request["report"], &model(), &composition);
             request["report"]["report_composition"] = composition;
         }
         // The render.
@@ -274,4 +277,71 @@ fn the_pressure_free_save_grows_within_the_budget() {
         Err(CommandError::Ingress(error)) => Err(error),
         Err(other) => panic!("the save failed otherwise: {other:?}"),
     });
+}
+
+/// Slice C5 (DEL-08-01 Design `report-section-composer.md` §2.7): a
+/// composition listing every model-input section beside all result rows.
+pub(crate) fn model_input_composition() -> Value {
+    json!({"composition_version": "1.0.0", "sections": [
+        {"section_id": "load_combinations", "cases": "all", "view": {"kind": "all"}},
+        {"section_id": "result_rows_all", "cases": "all", "view": {"kind": "all"}},
+        {"section_id": "input_geometry", "cases": "all", "view": {"kind": "all"}},
+        {"section_id": "input_materials_sections", "cases": "all", "view": {"kind": "all"}},
+        {"section_id": "input_supports", "cases": "all", "view": {"kind": "all"}},
+        {"section_id": "input_loads", "cases": "all", "view": {"kind": "all"}}
+    ]})
+}
+
+/// `report` with `P(model, composition)` as its `model_input_tables`, when the
+/// composition lists a model-input section.
+pub(crate) fn with_model_input_tables(report: &mut Value, model: &Value, composition: &Value) {
+    if let Some(tables) = open_pipe_stress_report_package::model_input::model_input_tables(model, Some(composition)).unwrap() {
+        report["model_input_tables"] = tables;
+    }
+}
+
+/// The forged model-input variants of a genuine composed `report` (§2.7): an
+/// edited cell, an extra row, tables without a listing id, and a listing id
+/// without tables. Each is named, and carries a marker no refusal may echo.
+pub(crate) const FORGED_CELL: &str = "forged-model-input-cell";
+
+pub(crate) fn forged_model_input_reports(report: &Value) -> Vec<(&'static str, Value)> {
+    let mut edited = report.clone();
+    edited["model_input_tables"]["input_geometry"]["nodes"][0]["label"] = json!(FORGED_CELL);
+    let mut extra = report.clone();
+    extra["model_input_tables"]["input_supports"].as_array_mut().unwrap().push(json!({
+        "id": FORGED_CELL, "label": null, "node": null, "family": null, "restraints": null, "stiffness": null, "nonlinear_behavior": null
+    }));
+    let mut unlisted = report.clone();
+    unlisted["report_composition"]["sections"] = json!([{"section_id": "result_rows_all", "cases": "all", "view": {"kind": "all"}}]);
+    let mut untabled = report.clone();
+    untabled.as_object_mut().unwrap().remove("model_input_tables");
+    vec![("an edited cell", edited), ("an extra row", extra), ("tables without a listing id", unlisted), ("a listing id without tables", untabled)]
+}
+
+/// Slice C5: the local-private pressure-free save (route 009) binds the
+/// model-input tables to its model: the genuine projection is admitted, and
+/// each forged variant is refused with REPORT-COMPOSITION-MODEL-INPUT-UNBOUND,
+/// naming no forged value.
+#[test]
+fn route_009_binds_model_input_tables_to_its_model() {
+    let model = model();
+    let mut genuine = request();
+    let composition = model_input_composition();
+    with_model_input_tables(&mut genuine["report"], &model, &composition);
+    genuine["report"]["report_composition"] = composition;
+    let admitted = admit_report_package(save_request(&genuine, &model), &software(), &mut no_store)
+        .unwrap_or_else(|error| panic!("the genuine projection is admitted: {} {}", error.code, error.message));
+    assert!(!admitted.package.export_blocked, "{:?}", admitted.package.blocking_reasons);
+    for (name, report) in forged_model_input_reports(&genuine["report"]) {
+        let mut forged = genuine.clone();
+        forged["report"] = report;
+        match admit_report_package(save_request(&forged, &model), &software(), &mut no_store) {
+            Ok(_) => panic!("{name}: admitted"),
+            Err(error) => {
+                assert_eq!(error.code, "REPORT-COMPOSITION-MODEL-INPUT-UNBOUND", "{name}: {}", error.message);
+                assert!(!error.message.contains(FORGED_CELL), "{name}: {}", error.message);
+            }
+        }
+    }
 }

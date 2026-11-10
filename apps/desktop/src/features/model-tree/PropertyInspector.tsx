@@ -1,6 +1,6 @@
 import { CompactSelect } from "../workspace/CompactSelect";
 import { QuantityReadout } from "../display-units";
-import { SupportConfigurationForm } from "../support-configuration/SupportConfigurationForm";
+import { FAMILIES as SUPPORT_FAMILIES, SupportConfigurationForm } from "../support-configuration/SupportConfigurationForm";
 import { MaterialTemperatureForm } from "../material-temperature/MaterialTemperatureForm";
 import { BendAuthoringForms } from "../bend-authoring/BendAuthoringForms";
 import { JointPressureModelEditor } from "../pressure-authoring/JointPressureModelEditor";
@@ -32,7 +32,7 @@ import {
   type UnitCatalogEntry,
   type UnitCatalogRoute
 } from "../../services/unitCatalogService";
-import { entityLabel, selectedProperties, selectedPropertyRows } from "../model-workspace/modelView";
+import { entityLabel, selectedProperties, selectedPropertyRows, type PropertyReadout } from "../model-workspace/modelView";
 import {
   composedDefault,
   declaredOrComposedDefault,
@@ -60,6 +60,7 @@ import {
   type ComponentDraft,
   type CreatableComponentKind
 } from "../component-creation/componentIntent";
+import "./modelTree.css";
 
 export function PropertyInspector({
   getPreparationEpoch,
@@ -67,6 +68,7 @@ export function PropertyInspector({
   onQueueIntent,
   onValidateIntent,
   onApplyIntent,
+  onSelectReference,
   operationBusy = false,
   operationOutcomes = {},
   queuedIntents = [],
@@ -80,6 +82,8 @@ export function PropertyInspector({
   onQueueIntent: (intent: EditorOperationIntent) => void;
   onValidateIntent?: (intent: EditorOperationIntent) => void;
   onApplyIntent?: (intent: EditorOperationIntent) => Promise<boolean>;
+  /** Selects a resolved node or material reference through the host's ordinary selection route. Without it, references are text. */
+  onSelectReference?: (entity: EntityRef) => void;
   operationBusy?: boolean;
   operationOutcomes?: Record<string, OperationOutcome>;
   queuedIntents?: EditorOperationIntent[];
@@ -89,6 +93,17 @@ export function PropertyInspector({
   taskRequest?: Readonly<{ sequence: number; target: EntityRef; view: "properties" | "task"; focusTestId: string; elementId?: string }> | null;
 }) {
   const [inspectorView, setInspectorView] = useState<"properties" | "task">("properties");
+  // The user's open/closed choice for "All properties" holds across selection changes (component state only).
+  const [allPropertiesOpen, setAllPropertiesOpen] = useState(false);
+  const references = useMemo(() => propertyReferences(model), [model]);
+  const propertiesPanelRef = useRef<HTMLDivElement>(null);
+  // Only the selection moves; drafts keep their pinned targets. Focus moves first, to the Properties
+  // panel, which stays mounted and then shows the referenced entity: the pressed reference unmounts,
+  // and a click need not focus it (WebKit), so focus must not be left in the tree, where the tree
+  // would take the selection as its own and not reveal it.
+  const selectReference = onSelectReference
+    ? (entity: EntityRef) => { propertiesPanelRef.current?.focus(); onSelectReference(entity); }
+    : undefined;
   const [taskActive, setTaskActive] = useState(false);
   const taskGenerationRef = useRef(0);
   const [propertiesTarget, setPropertiesTarget] = useState<EntityRef>(() => ({ ...selection }));
@@ -435,15 +450,16 @@ export function PropertyInspector({
   for (const ref of aggregateRefs) aggregateCounts.set(ref.type, (aggregateCounts.get(ref.type) ?? 0) + 1);
   const aggregateProperties = multiSelection && inspectorView === "properties";
   const inspectorTarget = inspectorView === "task" && taskActive ? draftTarget : propertiesTarget;
+  const propertyRows = selectedPropertyRows(model, propertiesTarget);
 
   return (
     <div className="panel inspector" data-testid="property-inspector" role="region" aria-label="Property inspector">
-      <h2>{aggregateProperties ? `${aggregateRefs.length} selected items` : <>{entityLabel(model, inspectorTarget)} <span className="typed-identity">— {inspectorTarget.type}: {inspectorTarget.id}</span></>}</h2>
+      <h2>{aggregateProperties ? `${aggregateRefs.length} selected items` : <>{entityLabel(model, inspectorTarget)} <span className="typed-identity">— {typedIdentityText(inspectorTarget)}</span></>}</h2>
       <div className="inspector-view-tabs" role="tablist" aria-label="Inspector views">
         <button aria-controls="inspector-properties-view" aria-selected={inspectorView === "properties"} onClick={() => setInspectorView("properties")} role="tab" type="button">Properties</button>
         <button aria-controls="inspector-task-view" aria-selected={inspectorView === "task"} onClick={() => setInspectorView("task")} role="tab" type="button">Task</button>
       </div>
-      <div hidden={inspectorView !== "properties"} id="inspector-properties-view" role="tabpanel" tabIndex={0}>
+      <div hidden={inspectorView !== "properties"} id="inspector-properties-view" ref={propertiesPanelRef} role="tabpanel" tabIndex={0}>
       {aggregateProperties ? <div className="aggregate-inspector" data-testid="aggregate-property-inspector">
         <p role="status">Aggregate inspection is read-only. Existing Properties drafts remain attached to their typed target.</p>
         <button disabled type="button" aria-describedby="aggregate-property-task-reason">Start property task</button>
@@ -453,13 +469,23 @@ export function PropertyInspector({
           <div><dt>Primary</dt><dd>{selection.type}: {selection.id}</dd></div>
         </dl>
       </div> : <>
-      <details className="inspector-details">
+      {/* The selected entity's identity, connections, material and size stay visible;
+          every property, provenance and review field remains in "All properties". */}
+      <dl className="inspector-overview" data-testid="inspector-overview" aria-label="Overview">
+        {propertyRows.filter(([label]) => OVERVIEW_LABELS.has(label)).map(([label, value]) => (
+          <div key={label} data-testid={`inspector-overview-${label.toLowerCase().replaceAll(" ", "-")}`}>
+            <dt>{label}</dt>
+            <dd><PropertyValue label={label} value={value} references={references} onSelect={selectReference} /></dd>
+          </div>
+        ))}
+      </dl>
+      <details className="inspector-details" open={allPropertiesOpen} onToggle={(event) => setAllPropertiesOpen(event.currentTarget.open)}>
         <summary>All properties</summary>
         <dl>
-        {selectedPropertyRows(model, propertiesTarget).map(([label, value]) => (
+        {propertyRows.map(([label, value]) => (
           <div key={label}>
             <dt>{label}</dt>
-            <dd>{value.quantities ? value.quantities.map((quantity, index) => <span key={index}>{quantity.label ? `${quantity.label}=` : ""}<QuantityReadout quantity={quantity} />{index < value.quantities!.length - 1 ? ", " : ""}</span>) : value.text}</dd>
+            <dd><PropertyValue label={label} value={value} references={references} onSelect={selectReference} /></dd>
           </div>
         ))}
         </dl>
@@ -1088,6 +1114,79 @@ export function PropertyInspector({
       </div>
     </div>
   );
+}
+
+/**
+ * The heading's typed identity: the exact, unmodified id, after its kind. An id that already begins with
+ * its own kind ("pipe:P-110") states it, so the kind is not repeated; any other id ("n/1", or a node whose
+ * id is "pipe:X") keeps the explicit kind before it ("node: n/1", "node: pipe:X").
+ */
+function typedIdentityText(ref: EntityRef): string {
+  return ref.id.startsWith(`${ref.type}:`) ? ref.id : `${ref.type}: ${ref.id}`;
+}
+
+/** Rows shown in the inspector's always-visible overview: identity, connections, size and material. */
+const OVERVIEW_LABELS: ReadonlySet<string> = new Set([
+  "Project ID", "Schema", "ID", "Label", "Name", "Type", "Kind", "Family", "Hanger type", "From", "To", "Node", "Position",
+  "OD", "Wall", "Material", "Restraints", "Condition set"
+]);
+
+/** Property rows that name another entity, and the entity type each must resolve to. */
+const REFERENCE_LABELS: Readonly<Record<string, "node" | "material">> = { From: "node", To: "node", Node: "node", Material: "material" };
+
+/** Rows holding a support family enum, shown by its product label. */
+const ENUM_LABEL_ROWS: ReadonlySet<string> = new Set(["Family", "Hanger type"]);
+
+type PropertyReferences = Readonly<Record<"node" | "material", ReadonlyMap<string, string>>>;
+
+/** Labels by id, per entity type, so a node and a material sharing an id never supply each other's name. */
+function propertyReferences(model: PreviewModel): PropertyReferences {
+  return {
+    node: new Map(model.nodes.map((node) => [node.id, node.label ?? ""])),
+    material: new Map((model.materials ?? []).map((material) => [material.id, material.label ?? ""]))
+  };
+}
+
+function PropertyValue({ label, value, references, onSelect }: {
+  label: string; value: PropertyReadout; references: PropertyReferences; onSelect?: (entity: EntityRef) => void;
+}) {
+  if (value.quantities) {
+    return <>{value.quantities.map((quantity, index) => <span key={index}>{quantity.label ? `${quantity.label}=` : ""}<QuantityReadout quantity={quantity} />{index < value.quantities!.length - 1 ? ", " : ""}</span>)}</>;
+  }
+  if (ENUM_LABEL_ROWS.has(label)) {
+    const product = SUPPORT_FAMILIES.find((family) => family.value === value.text)?.label;
+    // The product label leads; the stored value stays visible beneath it.
+    return product
+      ? <span className="property-enum" data-testid="property-enum"><span className="property-enum-label">{product}</span> <span className="property-enum-value">{value.text}</span></span>
+      : <>{value.text}</>;
+  }
+  const type = REFERENCE_LABELS[label];
+  if (!type || !value.text) return <>{value.text}</>;
+  const name = references[type].get(value.text);
+  if (name === undefined) {
+    // Only a typed id that is absent is reported; any other text (such as TBD) is shown as stated.
+    return value.text.startsWith(`${type}:`)
+      ? <>{value.text} <span className="property-reference-missing" data-testid="property-reference-missing">(no {type} with this id in the model)</span></>
+      : <>{value.text}</>;
+  }
+  const named = Boolean(name) && name !== value.text;
+  const content = named
+    ? <><span className="property-reference-name">{name}</span> <span className="property-reference-id">{value.text}</span></>
+    : <>{value.text}</>;
+  // Only a reference that resolves to an entity of its own type can be selected.
+  if (onSelect) {
+    const id = value.text;
+    return (
+      <button
+        aria-label={named ? `Select ${type} ${name} (${id})` : `Select ${type} ${id}`}
+        className="property-reference property-reference-link"
+        data-testid="property-reference"
+        onClick={() => onSelect({ type, id })}
+        type="button"
+      >{named ? content : <span className="property-reference-name">{value.text}</span>}</button>
+    );
+  }
+  return named ? <span className="property-reference" data-testid="property-reference">{content}</span> : content;
 }
 
 function InlineValidationPreview({

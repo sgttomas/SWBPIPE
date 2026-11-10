@@ -18,6 +18,10 @@ from software_workflow_common import load_profile, matches
 ROOT = Path(__file__).resolve().parents[2]
 PROFILE = ROOT / "tools/hosted-ci-routing.json"
 SUITES = ("piping", "piping-desktop", "piping-desktop-rust", "piping-numerical", "piping-python")
+# Events whose candidate is a complete diff against a target base: a pull
+# request, and a merge-queue group (its temporary merge commit against the
+# queue's base). Both select from that diff alike; any other event is full.
+CANDIDATE_EVENTS = frozenset({"pull_request", "merge_group"})
 PIPING = ""
 # Repository-level execution controls are shared inputs even after the
 # product directory is promoted to repository root.
@@ -605,7 +609,7 @@ def repository_plan(root: Path, event: str, base: str, head: str) -> dict:
     resolved_head = git(root, "rev-parse", "--verify", head + "^{commit}").strip()
     plan = {"schema": "chirality-repository-ci/v1", "event": event, "head": resolved_head,
             "paths": [], "mode": "full", "deselect": [], "reason": "Not a pull request; every regression"}
-    if event != "pull_request":
+    if event not in CANDIDATE_EVENTS:
         return plan
     try:
         if not base:
@@ -646,7 +650,7 @@ def make_plan(root: Path, profile: dict, event: str, base: str, head: str) -> di
             "piping_desktop_rust_selection": {"classification": "full-fallback", "reasons": [],
                                               "fallback_reasons": ["Full product coverage"]},
             "piping_browser_selection": browser_full(profile, "Full product coverage")}
-    if event != "pull_request":
+    if event not in CANDIDATE_EVENTS:
         return plan
     try:
         if not base:

@@ -45,6 +45,21 @@ describe("session report composer", () => {
     expect(current()).toBeNull();
   });
 
+  it("adds model-input sections beside the result rows without an overlap and offers no case choice for them", () => {
+    render(<Composer />);
+    fireEvent.click(screen.getByRole("checkbox", { name: "Applied loads" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Load combinations" }));
+    expect(current()?.sections.map((section) => section.section_id)).toEqual(["result_rows_all", "input_loads", "load_combinations"]);
+    expect(screen.getByText("Result rows shown: 2 of 2.")).toBeTruthy();
+    expect(screen.queryByLabelText("Cases for Applied loads")).toBeNull();
+    expect(screen.getByLabelText("Cases for All result rows")).toBeTruthy();
+    // A family section replaces all result rows and keeps the model-input sections.
+    fireEvent.click(screen.getByRole("checkbox", { name: "Stresses" }));
+    expect(current()?.sections.map((section) => section.section_id)).toEqual(["input_loads", "load_combinations", "result_stresses"]);
+    fireEvent.click(screen.getByRole("checkbox", { name: "All result rows" }));
+    expect(current()?.sections.map((section) => section.section_id)).toEqual(["input_loads", "load_combinations", "result_rows_all"]);
+  });
+
   it("retains unknown cases visibly after re-solve so they cannot become an empty filter", () => {
     const composition: ReportComposition = { composition_version: "1.0.0", sections: [
       { section_id: "result_stresses", cases: ["load_case:retired"], view: { kind: "all" } }

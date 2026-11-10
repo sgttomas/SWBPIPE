@@ -702,6 +702,38 @@ def _secondary(settings: dict[str, Any] | None, where: str, error: BaseException
 REG_WRITE_OK = "The operation completed successfully"
 
 
+# The stderr text a failed or unknown write keeps in the records, at most this many UTF-8 bytes (diagnostics only).
+FAILED_WRITE_STDERR_CAP_BYTES = 2048
+
+
+def _failed_write_stderr(item: Mapping[str, Any]) -> dict[str, Any]:
+    """The capped stderr text of a mutating step that did not complete, for the records; empty for any other step.
+
+    Only a write (`mutating`) whose outcome is not `completed` keeps text: no successful step's output and no
+    stdout. The text is cut to `FAILED_WRITE_STDERR_CAP_BYTES` UTF-8 bytes at a character boundary;
+    `stderr_truncated` says whether anything was cut. Nothing here affects any check, attempt or decision."""
+
+    if not item.get("mutating") or item.get("outcome") == "completed":
+        return {}
+    raw = item.get("stderr") or ""
+    data = (raw if isinstance(raw, str) else _text(raw)).encode("utf-8", errors="replace")
+    return {"stderr_text": data[:FAILED_WRITE_STDERR_CAP_BYTES].decode("utf-8", errors="ignore"),
+            "stderr_truncated": len(data) > FAILED_WRITE_STDERR_CAP_BYTES}
+
+
+def _note_failed_write(state: dict[str, Any] | None, record: dict[str, Any]) -> None:
+    """Keep a failed or unknown write's capped stderr in `state["failed_write_stderr"]`, which every guard result
+    built from `state` carries (success, failure path, live result for an interruption)."""
+
+    if state is not None:
+        diagnostic = _failed_write_stderr(record)
+        if diagnostic:
+            state.setdefault("failed_write_stderr", []).append(
+                {"step": record["name"], "exit_status": record["exit_status"],
+                 "outcome": record.get("outcome", "not_returned"),
+                 "stderr_chars": len(record.get("stderr") or "")} | diagnostic)
+
+
 class RestoreWriteFailed(RuntimeError):
     """A registry write of the restore did not complete: `outcome` is `failed` (the command reported failure) or
     `unknown` (the transport failed, or the output was not the expected one; the write may or may not have taken)."""
@@ -739,6 +771,7 @@ def _guest_write(config: HarnessConfig, runner: Callable[..., subprocess.Complet
         try:
             record.update(exit_status=type(error).__name__, stdout=_text(getattr(error, "stdout", None)),
                           stderr=_text(getattr(error, "stderr", None)) or str(error), finished=_now())
+            _note_failed_write(state, record)
         except BaseException as late:
             if state is not None:
                 state.setdefault("secondary_errors", []).append(late)
@@ -753,6 +786,7 @@ def _guest_write(config: HarnessConfig, runner: Callable[..., subprocess.Complet
         return record
     transport = completed.returncode == 255 and "PrlJob_" in record["stderr"]
     record["outcome"] = "unknown" if transport or completed.returncode == 0 else "failed"
+    _note_failed_write(state, record)
     raise RestoreWriteFailed(name, record["outcome"], completed.returncode)
 
 
@@ -1246,7 +1280,7 @@ def _restore_recent_files(config: HarnessConfig, step: Callable[[str, str], dict
             check("restore_check_before_success")
             done = {"status": "settings_restored" if guard.restores_whole_key else "recent_files_restored",
                     "write_log": log, "restored_values": len(plan)}
-            for key in ("signal_deferral", "deferred_signals"):
+            for key in ("signal_deferral", "deferred_signals", "failed_write_stderr"):
                 if key in state:
                     done[key] = state[key]
             return done, None
@@ -1265,7 +1299,7 @@ def _restore_log_summary(result: dict[str, Any], state: dict[str, Any]) -> None:
     result["write_log"] = log
     result["writes_completed"] = sum(1 for entry in log if entry["completed"])
     for key in ("stopped_by", "remaining_differences", "signal_deferral", "deferred_signals", "section_budget_s",
-                "section_budget_exceeded"):
+                "section_budget_exceeded", "failed_write_stderr"):
         if key in state:
             result[key] = state[key]
 
@@ -1366,6 +1400,8 @@ def _live_guard_result(live: dict[str, Any]) -> dict[str, Any]:
     if log or "write_log" in result or state.get("restore_entered"):
         result.setdefault("write_log", log)
         result.setdefault("writes_completed", sum(1 for entry in result["write_log"] if entry["completed"]))
+    if state.get("failed_write_stderr"):
+        result.setdefault("failed_write_stderr", state["failed_write_stderr"])
     return result
 
 
@@ -1499,7 +1535,7 @@ def restore_recorded_settings(config: HarnessConfig, changed_values: list[Mappin
 
     def finish(result: dict[str, Any]) -> dict[str, Any]:
         result["steps"] = [{key: value for key, value in item.items() if key not in ("stdout", "stderr")}
-                           for item in steps]
+                           | _failed_write_stderr(item) for item in steps]
         return result
 
     live: dict[str, Any] = {"guard_state": state}
@@ -1704,6 +1740,8 @@ def _round_trip_body(config: HarnessConfig, case_id: str, mbf_text: str, paths: 
             if log or settings or guard_state.get("restore_entered"):
                 settings.setdefault("write_log", log)
                 settings.setdefault("writes_completed", sum(1 for entry in log if entry["completed"]))
+                if guard_state.get("failed_write_stderr"):
+                    settings.setdefault("failed_write_stderr", guard_state["failed_write_stderr"])
                 settings["status"] = "settings_restore_failed"
                 settings.setdefault("reason", f"interrupted ({type(caught).__name__}) during the restore; "
                                               f"{settings['writes_completed']} of {len(log)} attempted writes "
@@ -1838,6 +1876,7 @@ def _round_trip_body(config: HarnessConfig, case_id: str, mbf_text: str, paths: 
             },
             "steps": [{key: value for key, value in item.items() if key not in ("stdout", "stderr")}
                       | {"stdout_chars": len(item.get("stdout") or ""), "stderr_chars": len(item.get("stderr") or "")}
+                      | _failed_write_stderr(item)
                   for item in steps],
             "working_directory": work,
             "expected_batch_csv_path": _win(work, "model.csv"),
