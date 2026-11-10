@@ -22,7 +22,8 @@ def test_last_successful_sha_is_the_newest_success_on_main():
     assert nightly_ci.last_successful_sha(history((B, "main", "failure"), (A, "main", "success"))) == A
     assert nightly_ci.last_successful_sha(history((B, "feature", "success"), (A, "main", "success"))) == A
     assert nightly_ci.last_successful_sha(history((B, "main", "success"), (A, "main", "success"))) == B
-    for malformed in ({}, {"workflow_runs": None}, {"workflow_runs": ["x"]}, history(("HEAD", "main", "success"))):
+    for malformed in ({}, None, [], "x", {"workflow_runs": None}, {"workflow_runs": ["x"]},
+                      history(("HEAD", "main", "success"))):
         with pytest.raises(ValueError):
             nightly_ci.last_successful_sha(malformed)
 
@@ -55,3 +56,27 @@ def test_cli_writes_the_decision_and_fails_toward_running_without_history(tmp_pa
         return output.read_text()
     assert run("schedule") == "run=true\n"
     assert run("workflow_dispatch") == "run=true\n"
+
+
+def test_any_history_lookup_failure_fails_toward_running(tmp_path, monkeypatch):
+    import http.client
+    failures = [http.client.IncompleteRead(b"{"), ValueError("bad JSON"), OSError("network"),
+                AttributeError("x"), TypeError("x")]
+    for failure in failures:
+        def fetch(*_args, _failure=failure):
+            raise _failure
+        output = tmp_path / "out"
+        output.write_text("")
+        monkeypatch.setattr(nightly_ci, "fetch_history", fetch)
+        monkeypatch.setenv("GITHUB_REPOSITORY", "o/r")
+        monkeypatch.setenv("GH_TOKEN", "t")
+        monkeypatch.setenv("GITHUB_OUTPUT", str(output))
+        monkeypatch.setattr(sys, "argv", ["nightly_ci.py", "--event", "schedule", "--sha", A,
+                                          "--workflow", "nightly-full-ci.yml"])
+        assert nightly_ci.main() == 0
+        assert output.read_text() == "run=true\n", type(failure).__name__
+    for document in (None, []):
+        monkeypatch.setattr(nightly_ci, "fetch_history", lambda *_a, _d=document: _d)
+        output.write_text("")
+        nightly_ci.main()
+        assert output.read_text() == "run=true\n"

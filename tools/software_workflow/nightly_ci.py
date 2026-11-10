@@ -20,6 +20,8 @@ SHA = re.compile(r"[0-9a-f]{40}|[0-9a-f]{64}")
 
 def last_successful_sha(history: dict, branch: str = BRANCH) -> str | None:
     """Head SHA of the newest successful run on `branch` in a workflow-runs listing (newest first)."""
+    if not isinstance(history, dict):
+        raise ValueError("Malformed workflow run history")
     runs = history.get("workflow_runs")
     if not isinstance(runs, list):
         raise ValueError("Malformed workflow run listing")
@@ -72,7 +74,7 @@ def main() -> int:
             history = fetch_history(os.environ.get("GITHUB_API_URL", "https://api.github.com"),
                                     os.environ["GITHUB_REPOSITORY"], args.workflow, os.environ["GH_TOKEN"])
             last = last_successful_sha(history)
-        except (OSError, KeyError, ValueError) as exc:
+        except Exception as exc:  # any lookup failure (truncated read, malformed JSON, ...) fails toward running
             error = f"{type(exc).__name__}: {exc}"
     run, reason = decide(args.event, args.sha, last, error)
     print(reason)
