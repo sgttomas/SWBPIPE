@@ -182,9 +182,11 @@ needs:
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
   evidence: execution/PKG-07/DEL-07-01/ScopeOfWork.md
-- from: doc:execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/staged-contracts/PALETTE_ORGANIZATION.md
-  condition: 'Palette implementation conforms to the versioned organization contract owned by DEL-07-09;
-    subsequent DEL-07-09 coverage assessment consumes viewport/tree implementation evidence.
+- from: doc:execution/PKG-07/DEL-07-09/Palette_Organization_Contract.md
+  condition: 'DEL-07-01''s palette rendering and routing conform to the single palette organization contract
+    owned by DEL-07-09 (`Palette_Organization_Contract.md`, with command routes in `Palette_Operation_Routing.md`
+    and `Capability_Comparison.csv`). DEL-07-09''s coverage assessment consumes DEL-07-01''s implementation
+    evidence; no prerequisite from DEL-07-01 on that assessment is implied.
 
 
     Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
@@ -199,11 +201,7 @@ needs:
     original_source_ref=Contract stages and readiness / negative witnesses; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
 
 
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: SCA011-IF-PALETTE-ORGANIZATION; TargetRefID: SCA011-IF-PALETTE-ORGANIZATION;
-    TargetLocation: execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/staged-contracts/PALETTE_ORGANIZATION.md'
+    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   evidence: execution/PKG-07/DEL-07-01/ScopeOfWork.md
 code_paths:
 - apps/desktop/e2e/c3-viewport-visibility.spec.ts
