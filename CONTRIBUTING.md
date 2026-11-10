@@ -16,8 +16,8 @@ New contributors should start with the tutorial path in
 agentic workflow map in
 [`docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`](docs/AGENTIC_DEVELOPMENT_WORKFLOW.md)
 before changing files. These onboarding documents are navigation aids only;
-the governance documents above, an assigned sealed brief, the approved graph
-selected by `execution/_DAG/_LATEST.md`,
+the governance documents above, an assigned sealed brief, the dependency
+declarations in each deliverable's `deliverable.yaml`,
 deliverable-local lifecycle files, review dispositions, and human
 project-authority decisions remain controlling when they conflict.
 
@@ -28,8 +28,7 @@ code-compliance determination.
 ## Current Authority Basis
 
 This draft contributor workflow is aligned to
-the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md` and the approved
-graph selected by `execution/_DAG/_LATEST.md`. The project license has been selected as
+the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md`. The project license has been selected as
 `MIT`; this is a project governance notice, not legal
 advice or a contributor legal mechanism.
 

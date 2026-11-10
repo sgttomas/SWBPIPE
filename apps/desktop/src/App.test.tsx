@@ -2550,7 +2550,7 @@ describe("SWBPIPE desktop preview", () => {
       within(validationEvidence).getByTestId(
         "validation-evidence-release-checks",
       ).textContent,
-    ).toContain("skeleton_checks=2");
+    ).toContain("skeleton_checks=1");
     expect(
       within(validationEvidence).getByTestId("validation-evidence-gates")
         .textContent,
@@ -2588,9 +2588,9 @@ describe("SWBPIPE desktop preview", () => {
     expect(validationEvidencePacket.summary.evidence_area_count).toBe(7);
     expect(validationEvidencePacket.summary.release_profile_count).toBe(5);
     expect(validationEvidencePacket.summary.required_release_path_count).toBe(
-      6,
+      5,
     );
-    expect(validationEvidencePacket.summary.skeleton_check_count).toBe(2);
+    expect(validationEvidencePacket.summary.skeleton_check_count).toBe(1);
     // C-120 fix: the demo model drops the tee component:C-120 and its 6 quantities (3 geometry, 3 modifiers).
     expect(validationEvidencePacket.summary.unit_bearing_record_count).toBe(28);
     expect(
@@ -2645,10 +2645,6 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       validationEvidencePacket.release_readiness_tool.browser_panel_runs_tool,
     ).toBe(false);
-    expect(
-      validationEvidencePacket.release_readiness_tool
-        .latest_dag_dependency_edges,
-    ).toBe("execution/_DAG/DAG-011/DependencyEdges.csv");
     expect(
       validationEvidencePacket.release_quality_gates
         .release_publication_authorized,
@@ -8159,8 +8155,8 @@ describe("SWBPIPE desktop preview", () => {
     expect(validationEvidenceExport.manual_section_count).toBe(10);
     expect(validationEvidenceExport.evidence_area_count).toBe(7);
     expect(validationEvidenceExport.release_profile_count).toBe(5);
-    expect(validationEvidenceExport.required_release_path_count).toBe(6);
-    expect(validationEvidenceExport.skeleton_check_count).toBe(2);
+    expect(validationEvidenceExport.required_release_path_count).toBe(5);
+    expect(validationEvidenceExport.skeleton_check_count).toBe(1);
     expect(validationEvidenceExport.validation_manual_open_decision_count).toBe(
       5,
     );

@@ -21,12 +21,7 @@ REQUIRED_PATHS = (
     "docs/RELEASE_QUALITY_GATES.md",
     "docs/VALIDATION_STRATEGY.md",
     "docs/IP_AND_DATA_BOUNDARY.md",
-    "execution/_DAG/_LATEST.md",
 )
-# The monorepo's approved dependency graph. The public export
-# (the historical sanitized export, now retired) leaves out `loop/` and
-# `execution/`, so there neither the path nor its schema check applies.
-DAG_POINTER = "execution/_DAG/_LATEST.md"
 
 CARGO_SEARCH_ROOTS = (
     "core",
@@ -41,48 +36,8 @@ class CheckStep:
     description: str
 
 
-def is_public_export(root: Path = ROOT) -> bool:
-    """True in the staged public export: outside a monorepo checkout (where the
-    project sits at `projects/<name>` under a repository root holding `.git` or
-    `AGENTS.md`, the project having no `.git` of its own), and with neither
-    `loop/` nor `execution/`. A sparse monorepo clone is not it; the export,
-    a repository of its own, is it even inside another repository."""
-    root = root.resolve()
-    repository = root.parent.parent
-    in_monorepo = not (root / ".git").exists() and root.parent.name == "projects" and (
-        (repository / ".git").exists() or (repository / "AGENTS.md").is_file())
-    return not in_monorepo and not (root / "loop").is_dir() and not (root / "execution").is_dir()
-
-
 def check_required_paths(root: Path = ROOT) -> list[str]:
-    export = is_public_export(root)
-    return [path for path in REQUIRED_PATHS
-            if not (export and path == DAG_POINTER) and not (root / path).exists()]
-
-
-def latest_dag_dependency_edges(root: Path = ROOT) -> Path:
-    latest_path = root / "execution" / "_DAG" / "_LATEST.md"
-    try:
-        lines = latest_path.read_text(encoding="utf-8").splitlines()
-    except FileNotFoundError as exc:
-        raise FileNotFoundError(f"missing latest DAG pointer: {latest_path}") from exc
-
-    dag_dir: str | None = None
-    for line in lines:
-        if line.startswith("- Approved graph authority:"):
-            _, value = line.split(":", maxsplit=1)
-            dag_dir = value.strip().strip("`")
-            break
-
-    if dag_dir is None:
-        raise ValueError(f"approved graph authority not found in {latest_path}")
-
-    dependency_edges = Path(dag_dir) / "DependencyEdges.csv"
-    if not (root / dependency_edges).exists():
-        raise FileNotFoundError(
-            f"approved graph dependency file not found: {dependency_edges}"
-        )
-    return dependency_edges
+    return [path for path in REQUIRED_PATHS if not (root / path).exists()]
 
 
 def discover_cargo_manifests(root: Path = ROOT) -> list[Path]:
@@ -141,18 +96,6 @@ def build_plan(profile: str, root: Path = ROOT) -> list[CheckStep]:
     steps: list[CheckStep] = []
 
     if profile in {"skeleton", "python", "all"}:
-        if not is_public_export(root):
-            dag_dependency_edges = latest_dag_dependency_edges(root)
-            steps.append(
-                CheckStep(
-                    name="dag dependency schema",
-                    command=python_cmd(
-                        "tools/validation/validate_dependencies_schema.py",
-                        dag_dependency_edges.as_posix(),
-                    ),
-                    description="Validate the approved latest DAG dependency register schema.",
-                )
-            )
         steps.append(
             CheckStep(
                 name="release readiness script tests",
@@ -240,8 +183,6 @@ def print_plan(steps: list[CheckStep], root: Path, execute: bool) -> None:
     mode = "execute" if execute else "dry-run"
     print(f"SWBPIPE release readiness profile ({mode})")
     print(f"repo: {root}")
-    if is_public_export(root):
-        print("public export: the DAG dependency schema check reads the monorepo's execution/_DAG and is not planned")
     print("")
 
     manifests = discover_cargo_manifests(root)

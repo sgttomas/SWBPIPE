@@ -270,14 +270,14 @@ def test_invalid_declarative_specifications_fail_document_checks(repo, path, tex
 
 def test_boundary_failure_and_selected_consumers_fail_the_document_route(repo, monkeypatch):
     root, base = repo
-    (root / "execution/_DAG").mkdir(parents=True)
-    (root / "execution/_DAG/_LATEST.md").write_text("pointer\n")
+    (root / "execution/_Fixture").mkdir(parents=True)
+    (root / "execution/_Fixture/note.md").write_text("note\n")
     selected = docs.plan(root, "pull_request", base, commit(root, refresh=False))
     assert selected["mode"] == "documentation"
-    monkeypatch.setitem(docs.DOCUMENT_TESTS, "execution/_DAG/", ["-c", "raise SystemExit(1)"])
+    monkeypatch.setitem(docs.DOCUMENT_TESTS, "execution/_Fixture/", ["-c", "raise SystemExit(1)"])
     with pytest.raises(subprocess.CalledProcessError):
         docs.verify(root, selected)
-    monkeypatch.setitem(docs.DOCUMENT_TESTS, "execution/_DAG/", ["-c", "pass"])
+    monkeypatch.setitem(docs.DOCUMENT_TESTS, "execution/_Fixture/", ["-c", "pass"])
 
     def fail(root):
         raise subprocess.CalledProcessError(1, "execution_boundary")
