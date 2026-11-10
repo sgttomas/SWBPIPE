@@ -10,7 +10,7 @@ Dependency direction: one-way — project packages depend on this member; this m
 
 Repository/module ownership boundaries and dependency direction: the layer map, module ownership table, dependency-direction rules, and adapter governance boundary that prevent later packages from making incompatible local choices about services, storage, diagnostics, GUI state, APIs, and acceptance gates. This member defines architecture contracts only; it does not itself create modules, source files, build scripts, package manifests, or implementation code. Identity: DEL-00-02, PKG-00 (Software Architecture Runway), type API_CONTRACT, scope items SOW-057 and SOW-062, objective OBJ-013.
 
-The repository/module boundary kit and its executable gate now exist. Current upstream authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` and its accepted decision register; approved graph coordination is resolved through `execution/_DAG/_LATEST.md`. PDU-007 retains the formal review hold on evidence sufficiency and module-boundary acceptance (see Open holds); this reference does not convert that hold into approval.
+The repository/module boundary kit and its executable gate now exist. Current upstream authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` and its accepted decision register; dependency conditions are declared in this deliverable's `deliverable.yaml`. PDU-007 retains the formal review hold on evidence sufficiency and module-boundary acceptance (see Open holds); this reference does not convert that hold into approval.
 
 ## Normative requirements
 

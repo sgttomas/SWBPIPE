@@ -15,8 +15,8 @@ This file defines the current maintainer policy for SWBPIPE. It is a governance 
 ## Authority Basis
 
 This draft maintainer policy is aligned to
-the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md` and the approved
-graph selected by `execution/_DAG/_LATEST.md`. Those artifacts define current package and
+the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md` and the dependency
+declarations in each deliverable's `deliverable.yaml`. Those artifacts define current package and
 deliverable scope and active dependency relationships; they do not by
 themselves approve releases, lifecycle transitions, professional reliance,
 code-compliance claims, or final governance decisions.
@@ -27,7 +27,7 @@ code-compliance claims, or final governance decisions.
 |---|---|
 | Project intent | Free and open-source (MIT) piping stress analysis platform |
 | Decomposition authority | Accepted `execution/_Decomposition/SOFTWARE_DECOMP.md` |
-| Coordination graph authority | Approved graph selected by `execution/_DAG/_LATEST.md`; candidate rows remain non-gating |
+| Coordination graph authority | Dependency declarations in each deliverable's `deliverable.yaml`; candidate rows remain non-gating |
 | License | `MIT`; see `LICENSE.md` |
 | Contributor certification mechanism | Interim project certification template in `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md`; final DCO/CLA/other mechanism remains `TBD` |
 | Maintainer roster and quorum | Sole human project authority is sole developer and maintainer; quorum one (DEC-027) |

@@ -30,8 +30,7 @@ const REQUIRED_RELEASE_PATHS = [
   "docs/RELEASE_NOTES_TEMPLATE.md",
   "docs/RELEASE_QUALITY_GATES.md",
   "docs/VALIDATION_STRATEGY.md",
-  "docs/IP_AND_DATA_BOUNDARY.md",
-  "execution/_DAG/_LATEST.md"
+  "docs/IP_AND_DATA_BOUNDARY.md"
 ] as const;
 
 const OPEN_VALIDATION_DECISIONS = [
@@ -156,7 +155,7 @@ function buildValidationEvidencePacket(model: PreviewModel) {
       evidence_area_count: EVIDENCE_AREAS.length,
       release_profile_count: RELEASE_PROFILES.length,
       required_release_path_count: REQUIRED_RELEASE_PATHS.length,
-      skeleton_check_count: 2,
+      skeleton_check_count: 1,
       open_validation_decision_count: OPEN_VALIDATION_DECISIONS.length,
       release_gate_family_count: RELEASE_GATE_FAMILIES.length,
       unit_bearing_record_count: unitPolicyEvidence.unit_bearing_record_count
@@ -184,8 +183,7 @@ function buildValidationEvidencePacket(model: PreviewModel) {
       execute_command: "python3 tools/release/check_release_readiness.py --profile skeleton --execute",
       profiles: RELEASE_PROFILES,
       required_paths: REQUIRED_RELEASE_PATHS,
-      skeleton_check_count: 2,
-      latest_dag_dependency_edges: "execution/_DAG/DAG-011/DependencyEdges.csv",
+      skeleton_check_count: 1,
       browser_panel_runs_tool: false,
       dry_run_default: true,
       external_services_required: false
