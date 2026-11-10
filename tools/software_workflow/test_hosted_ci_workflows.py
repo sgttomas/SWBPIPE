@@ -73,10 +73,66 @@ def test_merge_group_candidate_is_checked_out_and_selected_as_a_pull_request():
 
 
 def test_merge_group_runs_neither_cancel_nor_are_cancelled():
-    for name, prefix in [('governance-harness.yml', 'governance-harness'), ('piping-desktop-e2e.yml', 'piping-desktop-e2e')]:
+    # The product workflow's extra term gives a push to main its own group per commit (the after-merge run).
+    for name, prefix, push in [('governance-harness.yml', 'governance-harness', ''),
+                               ('piping-desktop-e2e.yml', 'piping-desktop-e2e', "(github.event_name == 'push' && github.sha) || ")]:
         concurrency = workflow(name)['concurrency']
-        assert concurrency['group'] == prefix + '-${{ github.event.pull_request.number || github.event.merge_group.head_ref || github.ref }}'
+        assert concurrency['group'] == (prefix + '-${{ github.event.pull_request.number || github.event.merge_group.head_ref || '
+                                        + push + 'github.ref }}')
         assert concurrency['cancel-in-progress'] == "${{ github.event_name == 'pull_request' }}"
+
+
+def concurrency_group(expression, github):
+    """A group as GitHub evaluates it, for expressions of context names, quoted
+    strings, `==`, `&&`, `||` and parentheses. As in Python, `&&` and `||`
+    return an operand, and null, '' and false are false."""
+    import re
+    assert all("'" not in str(value) and '}' not in str(value) for value in github.values())
+
+    def value(match):
+        assert re.fullmatch(r"[A-Za-z_.'=&|() -]*", match.group(1)), match.group(1)
+        names = re.sub(r"github((?:\.\w+)+)", lambda name: f"lookup({name.group(1)[1:]!r})", match.group(1))
+        return str(eval(names.replace('&&', ' and ').replace('||', ' or '), {'__builtins__': {}},
+                        {'lookup': lambda dotted: github.get(dotted)}))
+    return re.sub(r"\$\{\{(.*?)\}\}", value, expression)
+
+
+def test_after_merge_runs_get_one_group_per_commit_and_candidate_groups_are_unchanged():
+    """GitHub keeps one pending run per concurrency group and cancels the one it
+    replaces, so a group shared by pushes to main would cancel the pending run
+    of an earlier merge. The called product workflow has its own group."""
+    a, b = 'a' * 40, 'b' * 40
+    main = {'ref': 'refs/heads/main'}
+    pull = {'event_name': 'pull_request', 'ref': 'refs/pull/7/merge', 'sha': a, 'event.pull_request.number': 7}
+    queue = {'event_name': 'merge_group', 'ref': 'refs/heads/gh-readonly-queue/main/pr-7-x', 'sha': a,
+             'event.merge_group.head_ref': 'refs/heads/gh-readonly-queue/main/pr-7-x'}
+    product = workflow('piping-desktop-e2e.yml')['concurrency']['group']
+    nightly = workflow('nightly-full-ci.yml')['concurrency']
+    assert nightly['cancel-in-progress'] == 'false'
+    report = workflow('nightly-full-ci.yml')['jobs']['report']['concurrency']
+    assert report['cancel-in-progress'] == 'false'
+    groups = set()
+    for expression in (product, nightly['group'], report['group']):
+        pushes = [concurrency_group(expression, {**main, 'event_name': 'push', 'sha': sha}) for sha in (a, b)]
+        # One group per pushed commit, never the ref's group that scheduled and manual runs of main use.
+        assert pushes[0] != pushes[1] and pushes[0].endswith('-' + a) and pushes[1].endswith('-' + b)
+        groups.update(pushes)
+    assert len(groups) == 6
+    for event in ('schedule', 'workflow_dispatch'):
+        scheduled = {**main, 'event_name': event, 'sha': a}
+        assert concurrency_group(product, scheduled) == 'piping-desktop-e2e-refs/heads/main'
+        assert concurrency_group(nightly['group'], scheduled) == 'nightly-full-ci-refs/heads/main'
+    # A pull request and a merge-queue group keep the groups they had, in both candidate workflows,
+    # and a pull-request run is still the only kind that cancels its predecessor.
+    harness = workflow('governance-harness.yml')['concurrency']
+    assert concurrency_group(product, pull) == 'piping-desktop-e2e-7'
+    assert concurrency_group(harness['group'], pull) == 'governance-harness-7'
+    assert concurrency_group(product, queue) == 'piping-desktop-e2e-refs/heads/gh-readonly-queue/main/pr-7-x'
+    assert concurrency_group(harness['group'], queue) == 'governance-harness-refs/heads/gh-readonly-queue/main/pr-7-x'
+    assert not {concurrency_group(product, pull), concurrency_group(product, queue)} & groups
+    cancel = workflow('piping-desktop-e2e.yml')['concurrency']['cancel-in-progress']
+    assert [concurrency_group(cancel, {'event_name': event}) for event in ('pull_request', 'merge_group', 'push', 'schedule')] == [
+        'True', 'False', 'False', 'False']
 
 
 def test_merge_group_runs_exactly_the_pull_request_jobs():
@@ -85,16 +141,17 @@ def test_merge_group_runs_exactly_the_pull_request_jobs():
     assert matrix['if'] == "github.event_name != 'pull_request' && github.event_name != 'merge_group' && needs.selection.outputs.mode == 'full'"
 
 
-def test_nightly_full_run_reuses_the_product_workflow_and_is_advisory():
+def test_full_runs_of_main_reuse_the_product_workflow_and_are_advisory():
     nightly = workflow('nightly-full-ci.yml')
-    assert nightly['on'] == {'schedule': [{'cron': '0 9 * * *'}], 'workflow_dispatch': ''}
+    # Nightly, after every push to main (the after-merge run) and by hand; never on a candidate.
+    assert nightly['on'] == {'schedule': [{'cron': '0 9 * * *'}], 'push': {'branches': ['main']}, 'workflow_dispatch': ''}
     assert nightly['permissions'] == {'contents': 'read'}
-    assert nightly['concurrency']['cancel-in-progress'] == 'false'
     jobs = nightly['jobs']
-    assert set(jobs) == {'changed', 'full-suite'}
+    assert set(jobs) == {'changed', 'full-suite', 'report'}
     # Neither the job ids nor the check names can be taken for the required `harness` context.
     for job_id, job in jobs.items():
         assert 'harness' not in job_id.lower() and 'harness' not in job['name'].lower()
+        assert '${{' not in job['name']
     assert jobs['changed']['permissions'] == {'contents': 'read', 'actions': 'read'}
     [gate] = [s for s in jobs['changed']['steps'] if s.get('id') == 'decide']
     assert gate['env'] == {'GH_TOKEN': '${{ github.token }}', 'EVENT': '${{ github.event_name }}', 'SHA': '${{ github.sha }}'}
@@ -107,14 +164,47 @@ def test_nightly_full_run_reuses_the_product_workflow_and_is_advisory():
     # Reuse, not copies: the product workflow with full selection, keeping the routing suite in its Python shards.
     assert full['uses'] == './.github/workflows/piping-desktop-e2e.yml'
     assert full['with'] == {'repository-checks-run': 'false'}
-    assert 'steps' not in full
+    assert 'steps' not in full and 'permissions' not in full and 'secrets' not in full
     # The required harness gains no trigger and calls no nightly work.
-    assert 'schedule' not in workflow('governance-harness.yml')['on']
+    harness = workflow('governance-harness.yml')
+    assert set(harness['on']) == {'pull_request', 'merge_group', 'workflow_dispatch'}
     assert 'nightly' not in (ROOT / '.github/workflows/governance-harness.yml').read_text()
-    # The broad matrix runs on the nightly's events and not on candidates.
+    assert [name for name in harness['jobs'] if 'uses' in harness['jobs'][name]] == ['piping']
+    # The broad matrix runs on the full run's events and not on candidates.
     matrix = workflow('piping-desktop-e2e.yml')['jobs']['browser-matrix']['if']
-    for event in ('schedule', 'workflow_dispatch'):
+    for event in ('schedule', 'workflow_dispatch', 'push'):
         assert f"'{event}'" not in matrix
+    # The product workflow selects from the caller's event, so a push reaches the planner as `push`.
+    [select] = [s for s in workflow('piping-desktop-e2e.yml')['jobs']['selection']['steps'] if s.get('id') == 'plan']
+    assert select['env']['EVENT'] == '${{ github.event_name }}' and '--event "$EVENT"' in select['run']
+
+
+def test_only_the_report_job_may_write_issues_and_it_interpolates_nothing_into_its_command():
+    text = (ROOT / '.github/workflows/nightly-full-ci.yml').read_text()
+    nightly = workflow('nightly-full-ci.yml')
+    report = nightly['jobs']['report']
+    # It runs whatever became of the run, and decides from the job results in Python: a job stopped
+    # by its time limit is reported as cancelled while the run is not, which failure() and cancelled() both miss.
+    assert report['if'] == 'always()'
+    assert set(report['needs']) == {'changed', 'full-suite'}
+    assert report['permissions'] == {'contents': 'read', 'actions': 'read', 'checks': 'read', 'pull-requests': 'read',
+                                     'issues': 'write'}
+    for name in ('nightly-full-ci.yml', 'governance-harness.yml', 'piping-desktop-e2e.yml'):
+        config = workflow(name)
+        holders = [config.get('permissions', {})] + [job.get('permissions', {}) for job_id, job in config['jobs'].items()
+                                                     if (name, job_id) != ('nightly-full-ci.yml', 'report')]
+        assert all(set(held.values()) <= {'read'} for held in holders), name
+    assert text.count('write') == 1 and 'secrets.' not in text and 'write-all' not in text
+    [step] = [s for s in report['steps'] if 'run' in s]
+    assert step['env'] == {'GH_TOKEN': '${{ github.token }}', 'RESULTS': '${{ toJSON(needs) }}'}
+    assert step['run'] == 'python3 tools/software_workflow/nightly_report.py'
+    # No expression reaches a shell, and no event text (a title, branch or message) is named anywhere in the workflow.
+    for job in nightly['jobs'].values():
+        for entry in job.get('steps', []):
+            assert '${{' not in entry.get('run', '')
+            if str(entry.get('uses', '')).startswith('actions/checkout@'):
+                assert entry['with']['ref'] == '${{ github.sha }}'
+    assert 'github.event.' not in text and 'github.head_ref' not in text and 'github.ref_name' not in text
 
 
 def test_single_required_result_fails_for_any_unsuccessful_child(tmp_path):

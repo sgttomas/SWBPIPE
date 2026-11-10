@@ -300,9 +300,12 @@ class HostedCITests(unittest.TestCase):
                 repository = hosted_ci.repository_plan(self.root, 'merge_group', base, 'HEAD')
                 self.assertEqual((repository['mode'], repository['deselect']), ('full', []))
 
-    def test_scheduled_and_dispatched_runs_select_full_coverage_with_no_range(self):
-        """The nightly run has no candidate base: even a base it is handed is not
-        a diff range, so every suite and spec is selected over the whole tree."""
+    def test_scheduled_dispatched_and_after_merge_runs_select_full_coverage_with_no_range(self):
+        """A full run of main has no candidate base: even a base it is handed is
+        not a diff range, so every suite and spec is selected over the whole
+        tree. A push to main (the after-merge run) is one of them by name."""
+        self.assertEqual(set(hosted_ci.FULL_COVERAGE_EVENTS), {'schedule', 'workflow_dispatch', 'push'})
+        self.assertFalse(set(hosted_ci.FULL_COVERAGE_EVENTS) & hosted_ci.CANDIDATE_EVENTS)
         queue_base, _ = self.queue_candidate()
         self.assertEqual(make_plan(self.root, PROFILE, 'pull_request', queue_base, 'HEAD')['paths'], ['README.md'])
         for event, reason in hosted_ci.FULL_COVERAGE_EVENTS.items():
@@ -317,7 +320,7 @@ class HostedCITests(unittest.TestCase):
                     validate_plan(self.root, plan)
                     repository = hosted_ci.repository_plan(self.root, event, base, 'HEAD')
                     self.assertEqual((repository['mode'], repository['deselect'], repository['paths']), ('full', [], []))
-        self.assertIn('No candidate diff', make_plan(self.root, PROFILE, 'push', queue_base, 'HEAD')['selection_reason'])
+        self.assertIn('No candidate diff', make_plan(self.root, PROFILE, 'release', queue_base, 'HEAD')['selection_reason'])
 
     def test_merge_group_repository_regressions_follow_the_queued_diff(self):
         queue_base, _ = self.queue_candidate()

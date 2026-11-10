@@ -106,7 +106,8 @@ unmatched project input or full coverage adds every group. The core specs,
 groups and paths are declared in `piping_browser_journeys` in
 `tools/hosted-ci-routing.json`. The product job runs the plan's spec list, and
 the plan's reasons name the path and group behind each added spec. The browser
-matrix runs only by explicit workflow dispatch and in the nightly full run.
+matrix runs only by explicit workflow dispatch and in the full runs of `main`
+(nightly and after each merge).
 
 The `piping-desktop` selection adds the full desktop Vitest suite, run in two
 shards (`vitest --shard=1/2` and `2/2`) as jobs beside the product job, under
@@ -333,11 +334,12 @@ or installing browsers in the warmer.
 
 Pull-request selection follows paths, so it can miss a test that a change
 breaks elsewhere. `nightly-full-ci.yml` closes that gap on `main`. It runs at
-09:00 UTC on a schedule (`0 9 * * *`) and also by manual `workflow_dispatch`.
-It calls the product workflow, `piping-desktop-e2e.yml`, as `harness` does.
-Its events have no candidate base, so the planner gives them full coverage
-(`hosted_ci.FULL_COVERAGE_EVENTS`). It never computes a diff range from them
-and never falls back to `HEAD^1`. The run therefore covers:
+09:00 UTC on a schedule (`0 9 * * *`), after every push to `main` (the
+[after-merge full run](#after-merge-full-run)) and by manual
+`workflow_dispatch`. It calls the product workflow, `piping-desktop-e2e.yml`,
+as `harness` does. Its events have no candidate base, so the planner gives them
+full coverage (`hosted_ci.FULL_COVERAGE_EVENTS`). It never computes a diff
+range from them and never falls back to `HEAD^1`. The run therefore covers:
 
 - the broad browser matrix;
 - the core browser journey with every spec group;
@@ -347,20 +349,74 @@ and never falls back to `HEAD^1`. The run therefore covers:
 
 The run does not reuse or record verified results. The repository
 tool/routing suite is not path-selected, so it runs whole on every product PR
-in `harness` and has no nightly job.
+in `harness` and has no job here.
 
 A scheduled run first compares `main`'s head with the head of the last
-successful nightly run on `main` (`tools/software_workflow/nightly_ci.py`). If
-the two are equal, it skips the suite and succeeds. If the history cannot be
-read, it runs. A failed run does not count as successful, so the suite runs
-again the next night until it passes. A manual dispatch always runs.
+successful run of this workflow on `main`
+(`tools/software_workflow/nightly_ci.py`). That history holds scheduled, manual
+and after-merge runs alike, so a successful after-merge run of the same head is
+enough. If the two are equal, it skips the suite and succeeds. If the history
+cannot be read, it runs. A failed, cancelled or timed-out run does not count as
+successful, so the suite runs again the next night until it passes. A push and
+a manual dispatch always run.
 
-The run adds no GitHub required check. Its check names (`Nightly change
-check`, `Nightly full suite / …`) cannot be taken for the required `harness`
-context. An external check, kept outside this repository, reads the run at
-about 15:00 UTC and opens a GitHub issue labelled `nightly` when the run
-failed. Before merging, Agent 0 triages any open `nightly` issue
+The run adds no GitHub required check. Its check names (`Full run change
+check`, `Full suite of main / …`, `Full run report`) cannot be taken for the
+required `harness` context.
+
+## After-merge full run
+
+`main` does not require an up-to-date branch (ruleset `main-required-harness`,
+by the owner's decision of 2026-11-10). A PR merges on its own green `harness`
+run, so two PRs that each pass alone can break `main` together. The full run
+that follows every push to `main` is what detects such a combination. It is
+the same workflow and the same full coverage as the nightly run. It adds no
+required check and changes nothing that runs on a pull request or a
+merge-queue group.
+
+Each pushed commit gets its own concurrency group, in the calling workflow and
+in the product workflow it calls. GitHub keeps one pending run per group and
+cancels the one a newer run replaces, so a group shared by merges would cancel
+the run of an earlier merge. Runs for different merges therefore neither
+cancel nor wait for one another, and a failure belongs to one merge. Scheduled
+and manual runs keep the group of their ref.
+
+## Reporting a full run that did not pass
+
+The workflow's last job (`Full run report`,
+`tools/software_workflow/nightly_report.py`) runs after every full run:
+after-merge, nightly and manual. When a run of `main` passed, or a scheduled
+run skipped an unchanged `main`, it does nothing. Otherwise (a job failed, was
+cancelled or timed out, or the results cannot be read) it opens a GitHub issue
+labelled `nightly`. Nothing outside the repository is needed to open it. The
+issue names:
+
+- the commit;
+- the merged pull request, when the commit is a PR merge;
+- the trigger and the run URL;
+- each job that did not succeed, with its elapsed time.
+
+A job that a test failed in is named with its failed step. A job stopped by
+its time limit is named as timed out, and a cancelled job as cancelled, each
+with "no step failed", so triage can tell a stopped run from a broken test.
+GitHub gives a timed-out job the conclusion `cancelled`; the report reads the
+job's annotation to tell the two apart, and says so when it cannot.
+
+One commit has at most one open issue: a later failed run of the same commit
+(a rerun, or the nightly run after a failed after-merge run) adds a comment to
+it. A failure at another commit opens its own issue. A manual run of another
+branch reports nothing. `issues: write` is granted to this job alone, and it
+uses no secret other than `GITHUB_TOKEN`.
+
+Before merging, Agent 0 triages any open `nightly` issue
 ([AGENTS.md, Standing Git grant](../AGENTS.md#standing-git-grant)): it finds
 the cause and repairs it, or assigns the repair, before merging unrelated work.
-The PR that repairs a finding may merge. Agent 0 acts on a failed nightly run
-it sees itself and does not wait for the issue.
+The PR that repairs a finding may merge. Agent 0 acts on a failed full run it
+sees itself and does not wait for the issue.
+
+The product, desktop behaviour, desktop Rust and browser-matrix jobs have a
+90-minute limit (45 before 2026-11-10). Agent 0 measured the longest
+successful pull-request jobs over 45 `harness` runs at 25.1, 29.2 and 38.9
+minutes for the first three; the product job's full-coverage time and the
+matrix's time were unmeasured. The limit is an execution allowance, not a
+performance bound.

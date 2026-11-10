@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
-"""Decide whether the nightly full run has a new main commit to verify.
+"""Decide whether a full run of main has a commit to verify.
 
 A scheduled run proceeds only when main's head differs from the head of the
-last successful run of the nightly workflow on main. A manual dispatch always
-runs. An unavailable or malformed run history fails toward running.
+last successful run of the full-run workflow on main. That history holds the
+workflow's scheduled, manual and after-merge (push) runs alike, so a
+successful after-merge run of the same head is enough. A push and a manual
+dispatch always run. An unavailable or malformed run history fails toward
+running.
 """
 from __future__ import annotations
 
@@ -41,14 +44,16 @@ def decide(event: str, sha: str, last_success: str | None, lookup_error: str | N
         raise ValueError(f"Not a commit SHA: {sha!r}")
     if event == "workflow_dispatch":
         return True, "Manual dispatch always runs the full suite"
+    if event == "push":
+        return True, "A push to main always runs the full suite"
     if event != "schedule":
-        raise ValueError(f"Unsupported nightly event {event!r}")
+        raise ValueError(f"Unsupported full-run event {event!r}")
     if lookup_error:
         return True, f"Last successful run unavailable ({lookup_error}); running the full suite"
     if last_success is None:
-        return True, "No earlier successful nightly run on main; running the full suite"
+        return True, "No earlier successful full run on main; running the full suite"
     if last_success == sha:
-        return False, f"main is unchanged at {sha} since the last successful nightly run; skipped"
+        return False, f"main is unchanged at {sha} since the last successful full run; skipped"
     return True, f"main moved from {last_success} to {sha}; running the full suite"
 
 
@@ -83,7 +88,7 @@ def main() -> int:
             stream.write(f"run={'true' if run else 'false'}\n")
     if os.getenv("GITHUB_STEP_SUMMARY"):
         with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as stream:
-            stream.write(f"### Nightly full suite: {'runs' if run else 'skipped'}\n\n{reason}.\n")
+            stream.write(f"### Full suite of main: {'runs' if run else 'skipped'}\n\n{reason}.\n")
     return 0
 
 
