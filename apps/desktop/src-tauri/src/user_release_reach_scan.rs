@@ -602,8 +602,13 @@ const ENTRY_RULES: [(&str, &str, Entry); 6] = [
 /// already named; still one `Reader` literal each).
 /// RT-U3 adds only the two ordinary backup handler entries; the prior
 /// 5d3090f6… digest was reproduced before deriving this candidate pin.
+/// DEL-17-04's designated-source check (`desktop-mbf-export-import.md` §5.4)
+/// adds one ordinary handler entry, `designate_mbf_import_source`, after
+/// `adopt_mbf_import` (the previous digest `d01b1ab8…08f9cf1b` reproduced
+/// first; the macro's only change is that line; reviewed likewise: no `mod`,
+/// no `$parameter ::`, no scanned name).
 const MACRO_DEFINITIONS: [(&str, &str, &str); 3] = [
-    ("src-tauri/src/lib.rs", "app_invoke_handler", "d01b1ab888fab29d6b718456460154140a243891f0f39f52b48676ec08f9cf1b"),
+    ("src-tauri/src/lib.rs", "app_invoke_handler", "d4ab78a96c031f758f4476e3052dfec2f7981dd015509d2bac19f6621718f9bf"),
     ("headless/src/reader_binding.rs", "base", "d80e766036e0f651522ebfe11ebc6ba1fc32ec2b9c2b3702e0b978eb86558cb2"),
     ("headless/src/reader_binding.rs", "transport", "057aa56311a7531f094632a3fe9f2d781b9364ab4865add6c7d257403732169a"),
 ];

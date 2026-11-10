@@ -440,11 +440,36 @@ impl<'a> Importer<'a> {
             assumption_facts: self.assumption_facts.clone(),
             recorded_material_origins: if refused { 0 } else { self.recorded_material_origins },
             identity_recovery: self.identity_recovery,
+            derivation: if refused { None } else { self.derivation() },
             target_options: self.target_options.clone(),
             id_map: if refused { Value::Dict(Dict::new()) } else { id_map },
             source,
             summary: Value::Dict(summary),
         }
+    }
+
+    /// A bound format-6 sidecar's derivation, as it declares it (Design §15, Format 6); None otherwise.
+    fn derivation(&self) -> Option<crate::SidecarDerivation> {
+        if !self.bound || self.sidecar_format != Some(crate::sidecar::SIDECAR_FORMAT) {
+            return None;
+        }
+        let recorded = self.maps.get("derivation").filter(|value| value.as_dict().is_some())?;
+        let settings = recorded.get_or_null("export_settings");
+        let reference = settings.get_or_null("reference_temperature");
+        let unit = match reference.get_or_null("unit").as_str() {
+            Some("degF") => "degF",
+            _ => "degC",
+        };
+        Some(crate::SidecarDerivation {
+            source_model_sha256: recorded.get_or_null("source_model_sha256").as_str().unwrap_or_default().to_string(),
+            export_settings: crate::SidecarExportSettings {
+                title: settings.get_or_null("title").as_str().unwrap_or_default().to_string(),
+                reference_temperature: reference.get_or_null("value").as_f64().unwrap_or(0.0),
+                reference_temperature_unit: unit,
+                max_layout_rows: crate::value::small_int(settings.get_or_null("max_layout_rows")),
+                piping_code: settings.get_or_null("piping_code").as_str().map(String::from),
+            },
+        })
     }
 
     // -- run -------------------------------------------------------------

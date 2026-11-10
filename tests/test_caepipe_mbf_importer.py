@@ -1876,8 +1876,8 @@ def test_every_emitted_number_lies_in_the_solves_checked_json_domain(row, path):
 
 # --- sidecar format 4: section identities (Design §15, Format 4) -----------------------------------------------------
 def sectioned_parts():
-    """The writer's text and format-4 sidecar of the invented sectioned L (test_caepipe_mbf_si_writer): records P1
-    (section:A), P2 (section:B) and P3 (none), one OD and wall."""
+    """The writer's text and format-6 sidecar (format 4's section_map included) of the invented sectioned L
+    (test_caepipe_mbf_si_writer): records P1 (section:A), P2 (section:B) and P3 (none), one OD and wall."""
     if str(ROOT / "tests") not in sys.path:
         sys.path.insert(0, str(ROOT / "tests"))
     import test_caepipe_mbf_si_writer as writer_tests
@@ -1894,6 +1894,23 @@ def edited(sidecar: dict, change) -> dict:
     if "sidecar_sha256" in copy:
         copy["sidecar_sha256"] = sidecar_self_digest(copy)
     return copy
+
+
+def as_format(sidecar: dict, number: int, *, keep_section_map: bool = False) -> dict:
+    """The writer's format-6 `sidecar` as an earlier writer recorded it: format 4 without `derivation` and each bend
+    entry's `node`; format 3 also without `section_map` (unless `keep_section_map`); format 2 also without the
+    self-digest. The self-digest of formats 3 and 4 is recomputed."""
+    def change(copy: dict) -> None:
+        copy.pop("derivation")
+        for entry in copy["element_map"].values():
+            if "bend" in entry:
+                entry["bend"].pop("node")
+        copy["sidecar_format"] = number
+        if number < 4 and not keep_section_map:
+            copy.pop("section_map")
+        if number == 2:
+            copy.pop("sidecar_sha256")
+    return edited(sidecar, change)
 
 
 def errors(result) -> set[tuple[str, str]]:
@@ -1929,11 +1946,11 @@ def test_a_format_3_sidecar_restores_no_section_and_imports_as_before():
     written = render_caepipe_mbf_si(run(data, material_provenance=INVENTED).model, title="X")
     text = written.text.encode("ascii")
     sidecar = written.sidecar(hashlib.sha256(text).hexdigest())
-    four = run(text, sidecar=sidecar, material_provenance=INVENTED)
-    three = run(text, sidecar=edited(sidecar, lambda s: (s.pop("section_map"), s.update(sidecar_format=3))),
-                material_provenance=INVENTED)
-    assert three.status == four.status == "imported", three.diagnostics
-    assert three.model_bytes() == four.model_bytes() and "sections" not in three.model
+    four = run(text, sidecar=as_format(sidecar, 4), material_provenance=INVENTED)
+    three = run(text, sidecar=as_format(sidecar, 3), material_provenance=INVENTED)
+    six = run(text, sidecar=sidecar, material_provenance=INVENTED)
+    assert three.status == four.status == six.status == "imported", three.diagnostics
+    assert three.model_bytes() == four.model_bytes() == six.model_bytes() and "sections" not in three.model
 
 
 @pytest.mark.parametrize("location, change", [
@@ -1955,14 +1972,118 @@ def test_a_malformed_format_4_section_map_is_refused_by_path(location, change):
         assert errors(result) == {("MBF-IMPORT-SIDECAR-INVALID", location)}, (options, result.diagnostics)
 
 
+# --- sidecar format 6: derivation and bend nodes (Design §15, Format 6) ----------------------------------------------
+def _settings(s: dict) -> dict:
+    return s["derivation"]["export_settings"]
+
+
+@pytest.mark.parametrize("location, change", [
+    ("derivation", lambda s: s.pop("derivation")),
+    ("derivation", lambda s: s.update(derivation=None)),
+    ("derivation.zz", lambda s: s["derivation"].update(zz=1)),
+    ("derivation.source_model_sha256", lambda s: s["derivation"].pop("source_model_sha256")),
+    ("derivation.source_model_sha256", lambda s: s["derivation"].update(source_model_sha256=None)),
+    ("derivation.source_model_sha256", lambda s: s["derivation"].update(source_model_sha256=7)),
+    ("derivation.source_model_sha256", lambda s: s["derivation"].update(source_model_sha256="A" * 64)),
+    ("derivation.source_model_sha256", lambda s: s["derivation"].update(source_model_sha256="a" * 63)),
+    ("derivation.source_model_sha256", lambda s: s["derivation"].update(source_model_sha256="a" * 65)),
+    ("derivation.export_settings", lambda s: s["derivation"].pop("export_settings")),
+    ("derivation.export_settings", lambda s: s["derivation"].update(export_settings=[])),
+    ("derivation.export_settings.zz", lambda s: _settings(s).update(zz=None)),
+    ("derivation.export_settings.title", lambda s: _settings(s).pop("title")),
+    ("derivation.export_settings.title", lambda s: _settings(s).update(title=None)),
+    ("derivation.export_settings.title", lambda s: _settings(s).update(title=7)),
+    ("derivation.export_settings.title", lambda s: _settings(s).update(title="")),
+    ("derivation.export_settings.title", lambda s: _settings(s).update(title=" SECTIONS")),
+    ("derivation.export_settings.title", lambda s: _settings(s).update(title="A,B")),
+    ("derivation.export_settings.title", lambda s: _settings(s).update(title="X" * 71)),
+    ("derivation.export_settings.reference_temperature", lambda s: _settings(s).pop("reference_temperature")),
+    ("derivation.export_settings.reference_temperature", lambda s: _settings(s).update(reference_temperature=None)),
+    ("derivation.export_settings.reference_temperature", lambda s: _settings(s).update(reference_temperature=20.0)),
+    ("derivation.export_settings.reference_temperature.zz",
+     lambda s: _settings(s)["reference_temperature"].update(zz=1)),
+    ("derivation.export_settings.reference_temperature.value",
+     lambda s: _settings(s)["reference_temperature"].pop("value")),
+    ("derivation.export_settings.reference_temperature.value",
+     lambda s: _settings(s)["reference_temperature"].update(value=None)),
+    ("derivation.export_settings.reference_temperature.value",
+     lambda s: _settings(s)["reference_temperature"].update(value="20")),
+    ("derivation.export_settings.reference_temperature.value",
+     lambda s: _settings(s)["reference_temperature"].update(value=True)),
+    ("derivation.export_settings.reference_temperature.unit",
+     lambda s: _settings(s)["reference_temperature"].pop("unit")),
+    ("derivation.export_settings.reference_temperature.unit",
+     lambda s: _settings(s)["reference_temperature"].update(unit=None)),
+    ("derivation.export_settings.reference_temperature.unit",
+     lambda s: _settings(s)["reference_temperature"].update(unit="K")),
+    ("derivation.export_settings.reference_temperature.unit",
+     lambda s: _settings(s)["reference_temperature"].update(unit="degc")),
+    ("derivation.export_settings.max_layout_rows", lambda s: _settings(s).pop("max_layout_rows")),
+    ("derivation.export_settings.max_layout_rows", lambda s: _settings(s).update(max_layout_rows=-1)),
+    ("derivation.export_settings.max_layout_rows", lambda s: _settings(s).update(max_layout_rows=1.5)),
+    ("derivation.export_settings.max_layout_rows", lambda s: _settings(s).update(max_layout_rows=True)),
+    ("derivation.export_settings.max_layout_rows", lambda s: _settings(s).update(max_layout_rows=2 ** 53 + 2)),
+    ("derivation.export_settings.piping_code", lambda s: _settings(s).pop("piping_code")),
+    ("derivation.export_settings.piping_code", lambda s: _settings(s).update(piping_code="B31.3")),
+    ("derivation.export_settings.piping_code", lambda s: _settings(s).update(piping_code=7)),
+    ("derivation.export_settings.piping_code", lambda s: _settings(s).update(piping_code="")),
+    ("element_map[BEND].bend.node", lambda s: s["element_map"]["BEND"]["bend"].pop("node")),
+    ("element_map[BEND].bend.node", lambda s: s["element_map"]["BEND"]["bend"].update(node=None)),
+    ("element_map[BEND].bend.node", lambda s: s["element_map"]["BEND"]["bend"].update(node=7)),
+    ("element_map[BEND].bend.node", lambda s: s["element_map"]["BEND"]["bend"].update(node=" ")),
+    ("element_map[BEND].bend.zz", lambda s: s["element_map"]["BEND"]["bend"].update(zz="T1")),
+])
+def test_a_malformed_format_6_sidecar_is_refused_by_path(location, change):
+    # The strict parser (Design §15): format 6 is format 4 plus `derivation` and each bend entry's `node`, every
+    # field required, nothing null but the row limit and the piping code, nothing outside the closed field list. Each
+    # edit has its self-digest recomputed (a deliberate editor), on the bound and the rebind route.
+    data, sidecar = sectioned_parts()
+    assert sidecar["sidecar_format"] == 6 and sidecar["element_map"]["BEND"]["bend"]["node"] == "T1"
+    for options in ({}, {"rebind_by_node_number": True}):
+        result = run(data, sidecar=edited(sidecar, change), material_provenance=INVENTED, **options)
+        assert errors(result) == {("MBF-IMPORT-SIDECAR-INVALID", location)}, (options, result.diagnostics)
+        assert result.status == "refused" and result.derivation is None
+
+
+def test_format_5_the_held_route_1_format_stays_refused():
+    # Format 5 is the held Route 1 design (§20.4.5): not read, whatever it holds, and never read as format 6.
+    data, sidecar = sectioned_parts()
+    for change in (lambda s: s.update(sidecar_format=5),
+                   lambda s: (s.update(sidecar_format=5), s.pop("derivation"))):
+        result = run(data, sidecar=edited(sidecar, change), material_provenance=INVENTED)
+        assert result.status == "refused" and result.derivation is None
+        (refusal,) = [item for item in result.diagnostics if item["location"] == "sidecar_format"]
+        assert refusal["code"] == "MBF-IMPORT-SIDECAR-INVALID"
+        assert "must be 2 or 3 or 4 or 6, a format this importer reads" in refusal["message"]
+
+
+def test_only_a_bound_format_6_import_exposes_its_derivation():
+    # The derivation, as the sidecar declares it, for a later check against a designated source; none for an
+    # unbound, a not-applied, a rebound, a refused or an earlier-format import.
+    data, sidecar = sectioned_parts()
+    bound = run(data, sidecar=sidecar)
+    assert bound.status == "imported" and bound.source["binding"] == "bound", bound.diagnostics
+    settings = sidecar["derivation"]["export_settings"]
+    assert bound.derivation == importer_module.SidecarDerivation(
+        source_model_sha256=sidecar["derivation"]["source_model_sha256"],
+        export_settings=importer_module.SidecarExportSettings(
+            title="SECTIONS", reference_temperature=20.0, reference_temperature_unit="degC",
+            max_layout_rows=settings["max_layout_rows"], piping_code=None))
+    assert "source_model_sha256" not in json.dumps(bound.to_dict())  # not part of the report
+    for result in (run(data), run(data, sidecar=edited(sidecar, lambda s: s.update(mbf_sha256="0" * 64))),
+                   run(data, sidecar=sidecar, rebind_by_node_number=True),
+                   run(data, sidecar=as_format(sidecar, 4)), run(data, sidecar=as_format(sidecar, 3)),
+                   run(data, sidecar=as_format(sidecar, 2))):
+        assert result.status == "imported", result.diagnostics
+        assert result.derivation is None
+    refused = run(data, sidecar=edited(sidecar, lambda s: s["node_map"].update(A="99")))
+    assert refused.status == "refused" and refused.derivation is None
+
+
 def test_a_format_2_or_3_sidecar_carrying_section_map_is_refused_by_path():
     data, sidecar = sectioned_parts()
     for number in (2, 3):
-        def change(s, number=number):
-            s.update(sidecar_format=number)
-            if number == 2:
-                s.pop("sidecar_sha256")
-        result = run(data, sidecar=edited(sidecar, change), material_provenance=INVENTED)
+        result = run(data, sidecar=as_format(sidecar, number, keep_section_map=True), material_provenance=INVENTED)
         assert errors(result) == {("MBF-IMPORT-SIDECAR-INVALID", "section_map")}, number
 
 

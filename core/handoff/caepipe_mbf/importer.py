@@ -47,12 +47,14 @@ from .si_writer import (
     LOAD_CASE_LABELS,
     MATERIAL_ORIGINS,
     MBF_VERSION,
+    REFERENCE_TEMPERATURE_UNITS,
     SIDECAR_DIGEST_KEY,
     SIDECAR_FORMAT,
     STANDARD_GRAVITY,
     USER_SUPPLIED_CERTIFICATION,
     _BEND_RELATIVE_TOLERANCE,
     _KEYED_MAPS,
+    _title,
     SidecarNotCanonical,
     current_model_schema_version,
     regenerate_caepipe_sidecar,
@@ -273,6 +275,29 @@ class IdentityRecoveryFacts:
 
 
 @dataclass(frozen=True)
+class SidecarExportSettings:
+    """A format-6 sidecar's `derivation.export_settings` (Design §15, Format 6): the writer inputs outside the model
+    document that can change the MBF bytes, as the writer used them. Rust `SidecarExportSettings`."""
+
+    title: str  # the printed title line
+    reference_temperature: float
+    reference_temperature_unit: str  # "degC" or "degF", the argument the writer used
+    max_layout_rows: int | None
+    piping_code: str | None
+
+
+@dataclass(frozen=True)
+class SidecarDerivation:
+    """A bound format-6 sidecar's `derivation` (Design §15, Format 6), as the sidecar declares it: the SHA-256 of the
+    canonical model document the writer read, and the export settings. Held at the sidecar's source-free trust level
+    for a later check against a designated source document; the import neither verifies nor uses it. Rust
+    `SidecarDerivation`."""
+
+    source_model_sha256: str
+    export_settings: SidecarExportSettings
+
+
+@dataclass(frozen=True)
 class MbfImportResult:
     status: str
     model: dict[str, Any] | None
@@ -285,6 +310,9 @@ class MbfImportResult:
     summary: dict[str, Any] = field(default_factory=dict)
     # The importer's identity-recovery counts, carried on refused results too (not part of to_dict()).
     identity_recovery: IdentityRecoveryFacts = field(default_factory=IdentityRecoveryFacts)
+    # A bound format-6 import's sidecar derivation; None for formats 2 to 4, legacy, rebound, unbound and refused
+    # imports (not part of to_dict()).
+    derivation: SidecarDerivation | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """The import report; it carries no model values from refused or omitted records."""
@@ -826,11 +854,13 @@ def runtime_bend_tangents(start_m, end_m, radius_m: float, y_reference) -> tuple
 # the sidecar (Design §15)
 # ---------------------------------------------------------------------------
 _SHA256 = re.compile(r"[0-9a-f]{64}\Z")
-# The sidecar formats this importer reads (Design §15): 2; 3, which is 2 with its self-digest; and the current
-# writer's 4, which is 3 with `section_map` (Format 4: section identities). Formats 3 and 4 carry the self-digest and
-# may record springs.
-SIDECAR_FORMATS = (2, 3, SIDECAR_FORMAT)
-DIGESTED_FORMATS = (3, SIDECAR_FORMAT)
+# The sidecar formats this importer reads (Design §15): 2; 3, which is 2 with its self-digest; 4, which is 3 with
+# `section_map` (Format 4: section identities); and the current writer's 6, which is 4 with `derivation` and each bend
+# entry's `node` (Format 6). Formats 3, 4 and 6 carry the self-digest and may record springs. Format 5, the held
+# Route 1 design (§20.4.5), is not read: it is refused as any other unknown format.
+SIDECAR_FORMATS = (2, 3, 4, SIDECAR_FORMAT)
+DIGESTED_FORMATS = (3, 4, SIDECAR_FORMAT)
+SECTION_FORMATS = (4, SIDECAR_FORMAT)  # the formats with `section_map` of library section ids
 _LOAD_CATEGORIES = ("concentrated_force", "concentrated_moment", "weight", "thermal", "imposed_displacement")
 _RIGID_FAMILIES = RESTORABLE_SUPPORT_FAMILIES[1:]
 _BAD = object()
@@ -966,8 +996,10 @@ class _SidecarParser:
     type (a bool is not a number, null is not a default), an allowed vocabulary, a non-empty value where an id or
     name is required, and finite binary64 range for numbers; unknown keys and wrong shapes are refused by JSON path.
     A sidecar with `sidecar_format` 2, 3 (2 with its self-digest `sidecar_sha256`, which _Importer.self_digest
-    verifies before this parser runs) or 4 (the current writer's: 3 with `section_map`) must hold every field, each
-    with its effective value (never null, but a record's null library section); one without it is legacy, from
+    verifies before this parser runs), 4 (3 with `section_map`) or 6 (the current writer's: 4 with `derivation` and each
+    bend entry's `node`) must hold every field, each with its effective value (never null, but a record's null library
+    section and format 6's null row limit or piping code); format 5, the held Route 1 design, is refused; one without
+    it is legacy, from
     main's tranche-1 writer, and holds what that writer recorded (some fields absent in its earlier versions) and no
     pressure_map. `parse` returns the typed copy that the
     importer reads, or None with `errors` [(path, reason)]."""
@@ -975,7 +1007,7 @@ class _SidecarParser:
     def __init__(self) -> None:
         self.errors: list[tuple[str, str]] = []
         self.current = False
-        self.format_number: int | None = None  # 2, 3 or 4 once parsed; None for a legacy sidecar
+        self.format_number: int | None = None  # 2, 3, 4 or 6 once parsed; None for a legacy sidecar
 
     def fail(self, path: str, reason: str) -> object:
         self.errors.append((path, reason))
@@ -1073,8 +1105,9 @@ class _SidecarParser:
         if self.current:  # a straight records its effective orientation and whether it was authored
             common = {"from": self.text, "to": self.text, "reversed": self.flag}
             if type(value) is dict and "bend" in value:
-                return self.record(value, path, {**common, "bend": lambda item, where: self.record(
-                    item, where, {"component": self.text})})
+                # Format 6 also records the tangent node the bend's source component names.
+                bend = {"component": self.text, **({"node": self.text} if self.format_number == SIDECAR_FORMAT else {})}
+                return self.record(value, path, {**common, "bend": lambda item, where: self.record(item, where, bend)})
             return self.record(value, path, {**common, "y_reference": self.vector, "y_reference_authored": self.flag})
         common = {"from": self.text, "to": self.text, "reversed": self.flag, "layout_order": self.count,
                   "layout_row": self.count, "material": self.text, "section": self.text, "load": self.text}
@@ -1188,6 +1221,27 @@ class _SidecarParser:
                              "is no region")
         return entry
 
+    def title_line(self, value: Any, path: str) -> Any:
+        if type(value) is not str:
+            return self.fail(path, "must be a string")
+        return value if _title(value) == value else self.fail(
+            path, "must be a title line as the writer prints it (printable ASCII without commas, trimmed, 1 to 70 "
+            "characters)")
+
+    def row_limit(self, value: Any, path: str) -> Any:
+        return None if value is None else self.count(value, path)
+
+    def derivation(self, value: Any, path: str) -> Any:
+        """Format 6 (Design §15): the SHA-256 of the canonical model document the writer read, and the export settings
+        the writer used: the printed title, the reference temperature argument with its unit, the row limit or null,
+        and the piping code, null or a documented OPTIONS token the writer writes."""
+        reference = lambda item, where: self.record(item, where, {  # noqa: E731
+            "value": self.number, "unit": self.choice(REFERENCE_TEMPERATURE_UNITS)})
+        settings = lambda item, where: self.record(item, where, {  # noqa: E731
+            "title": self.title_line, "reference_temperature": reference, "max_layout_rows": self.row_limit,
+            "piping_code": self.choice((None, *PIPING_CODE_OPTIONS))})
+        return self.record(value, path, {"source_model_sha256": self.digest, "export_settings": settings})
+
     def digest(self, value: Any, path: str) -> Any:
         if (value is None and not self.current) or (type(value) is str and _SHA256.match(value)):
             return value
@@ -1214,14 +1268,16 @@ class _SidecarParser:
         self.current = "sidecar_format" in sidecar
         self.format_number = sidecar["sidecar_format"] if self.current and type(sidecar["sidecar_format"]) is int \
             else None
-        if self.current:  # every map but the legacy section_map, the digest and the format; formats 3 and 4 their
-            # self-digest; format 4 its section_map of library section ids
+        if self.current:  # every map but the legacy section_map, the digest and the format; formats 3, 4 and 6 their
+            # self-digest; formats 4 and 6 their section_map of library section ids; format 6 its derivation
             current = {name: parse for name, parse in maps.items() if name != "section_map"}
             current.update(mbf_sha256=self.digest, sidecar_format=self.format)
             if self.format_number in DIGESTED_FORMATS:
                 current[SIDECAR_DIGEST_KEY] = self.digest
-            if self.format_number == SIDECAR_FORMAT:
+            if self.format_number in SECTION_FORMATS:
                 current["section_map"] = lambda value, path: self.mapping(value, path, self.section_identity)
+            if self.format_number == SIDECAR_FORMAT:
+                current["derivation"] = self.derivation
             parsed = self.record(sidecar, "", current)
         else:  # main's run_pilot wrote the seven maps; earlier runs kept the digest in mbf_render.json
             legacy = {name: parse for name, parse in maps.items() if name != "pressure_map"}
@@ -1231,6 +1287,7 @@ class _SidecarParser:
         self.format_number = parsed.get("sidecar_format")
         out = {name: parsed.get(name, {}) for name in maps}
         out["mbf_sha256"] = parsed.get("mbf_sha256")
+        out["derivation"] = parsed.get("derivation")  # format 6 only; None otherwise
         # The importer reads the restored pressure state as the contract (with its shear model) and regions, or None.
         state = parsed.get("pressure_map")
         out["pressure_map"] = None if state is None or state["contract"] == "none" else {
@@ -1257,7 +1314,7 @@ class _SidecarParser:
                 self.fail(f"node_map[{swb_id}]", f"names CAEPIPE node {name} as {names[name]} does; it must be "
                           "one-to-one")
             names[name] = swb_id
-        if self.format_number == SIDECAR_FORMAT:
+        if self.format_number in SECTION_FORMATS:
             sections: dict[str, str] = {}
             for name, entry in out["section_map"].items():
                 swb_id = entry["swbpipe_section"]
@@ -1453,7 +1510,22 @@ class _Importer:
             source=source,
             summary=self.summary,
             identity_recovery=replace(self.identity_recovery),
+            derivation=None if refused else self.derivation(),
         )
+
+    def derivation(self) -> SidecarDerivation | None:
+        """A bound format-6 sidecar's derivation, as it declares it (Design §15, Format 6); None otherwise."""
+        recorded = self.maps.get("derivation") if self.bound and self.sidecar_format == SIDECAR_FORMAT else None
+        if recorded is None:
+            return None
+        settings = recorded["export_settings"]
+        reference = settings["reference_temperature"]
+        return SidecarDerivation(
+            source_model_sha256=recorded["source_model_sha256"],
+            export_settings=SidecarExportSettings(
+                title=settings["title"], reference_temperature=reference["value"],
+                reference_temperature_unit=reference["unit"], max_layout_rows=settings["max_layout_rows"],
+                piping_code=settings["piping_code"]))
 
     # -- run -------------------------------------------------------------
     def run(self) -> MbfImportResult:
@@ -1718,7 +1790,7 @@ class _Importer:
         self.ambiguous()
 
     def self_digest(self) -> bool:
-        """Design §15: a sidecar claiming format 3 or 4 must carry its self-digest `sidecar_sha256`, the SHA-256 of
+        """Design §15: a sidecar claiming format 3, 4 or 6 must carry its self-digest `sidecar_sha256`, the SHA-256 of
         its canonical content without it (si_writer.sidecar_canonical_bytes), and that digest must be the content's, or
         the import is refused, before the parser or any route reads it. It catches an accidental or partial edit; a
         deliberate editor can recompute it, so the parser, the agreement rule and the regeneration identity still
@@ -2382,29 +2454,47 @@ class _Importer:
 
     def regeneration_identity(self, model: dict[str, Any], id_map: dict[str, Any]) -> None:
         """The exact-digest route's guard of record (Design §14, VER-002 r13): the writer regenerates the sidecar
-        from the imported model (no MBF is written), and the format-2, -3 or -4 sidecar given must equal it after
+        from the imported model (no MBF is written), and the format-2, -3, -4 or -6 sidecar given must equal it after
         canonicalisation (sidecar_difference); otherwise MBF-IMPORT-SIDECAR-NOT-REPRODUCED names the first differing
         JSON path. The one input beyond the model is the import's record of which straights' y_reference it derived
-        (id_map y_reference_derived). Only the identity of a primitive the MBF sums is not compared: each sidecar
-        entry this import reported as summed into it is compared, field by field, with its regenerated entry under
-        its formed id (summed_entries)."""
+        (id_map y_reference_derived). Not compared: the identity of a primitive the MBF sums (each sidecar entry this
+        import reported as summed into it is compared, field by field, with its regenerated entry under its formed
+        id, summed_entries), and format 6's `derivation`, which no regeneration from the restored model reproduces
+        (below)."""
         reference = ({} if self.t_ref is None else {"reference_temperature_c": self.t_ref.value} if self.si
                      else {"reference_temperature_f": self.t_ref.value})
         regenerated, refusals = regenerate_caepipe_sidecar(model, mbf_sha256=self.sha,
                                                            derived_y_reference=id_map["y_reference_derived"],
                                                            **reference)
-        if regenerated is not None:  # compared in the given format: format 3 is 4 without section_map (its import
-            # binds no library section, so the writer keys records by OD and wall as the writer of format 3 did), and
-            # format 2 is 3 without the self-digest
+        given = self.sidecar
+        if regenerated is not None:  # compared in the given format: format 4 is 6 without derivation and bend nodes
+            # (its import restores the near tangent node, so a regenerated node is not compared), format 3 is 4
+            # without section_map (its import binds no library section, so the writer keys records by OD and wall as
+            # the writer of format 3 did), and format 2 is 3 without the self-digest
             regenerated = {**regenerated, "sidecar_format": self.sidecar["sidecar_format"]}
-            if self.sidecar_format != SIDECAR_FORMAT:
+            # Formats 2 to 4 have no `derivation` (removed from the regenerated sidecar, as section_map is for formats
+            # 2 and 3). A format-6 `derivation` is excluded from the comparison on both sides, explicitly and only
+            # here: it records the source document the writer read and the writer's settings, and the restored model
+            # is not that document (its project, labels, provenance and every member the writer does not export
+            # differ) and the regeneration has no export settings, so no derivation can be regenerated from it. It is
+            # held as recorded, at the sidecar's source-free trust level, for a later check against a designated
+            # source (Design §15, Format 6). Each format-6 bend's `node` is compared: it regenerates from the restored
+            # component.
+            regenerated.pop("derivation", None)
+            if self.sidecar_format == SIDECAR_FORMAT:
+                given = {key: value for key, value in self.sidecar.items() if key != "derivation"}
+            else:
+                for entry in regenerated.get("element_map", {}).values():
+                    if isinstance(entry, dict) and isinstance(entry.get("bend"), dict):
+                        entry["bend"] = {key: value for key, value in entry["bend"].items() if key != "node"}
+            if self.sidecar_format not in SECTION_FORMATS:
                 regenerated.pop("section_map", None)
         if regenerated is None:
             self.refuse("MBF-IMPORT-SIDECAR-NOT-REPRODUCED", 0, "sidecar",
                         "the bound sidecar is not the writer's record of the model it yields: the writer does not "
                         "write the imported model (" + ", ".join(sorted({item["code"] for item in refusals})) + ")")
             return
-        found = sidecar_difference(self.sidecar, regenerated, summed=summed_entries(id_map))
+        found = sidecar_difference(given, regenerated, summed=summed_entries(id_map))
         if found is not None:
             path, given, again = found
             self.refuse("MBF-IMPORT-SIDECAR-NOT-REPRODUCED", 0, path,
@@ -3162,8 +3252,8 @@ class _Importer:
                                     "local y on the MBF's positions in m (they differ in direction from the file's "
                                     "own values), and the MBF states no other")
                 if bend is not None:
-                    components.append(self.bend_component(element, swb_id, node_id[a], length_unit, provenance,
-                                                          unresolved, id_map, claim))
+                    components.append(self.bend_component(element, swb_id, node_id[a], node_id[b], length_unit,
+                                                          provenance, unresolved, id_map, claim))
                 pipes.append(pipe)
                 self.carriers.setdefault(("material", element.material), []).append(swb_id)
                 self.carriers.setdefault(("section", element.section), []).append(swb_id)
@@ -3317,10 +3407,12 @@ class _Importer:
         id_map["y_reference_derived"] = derived_y
         return model, id_map
 
-    def bend_component(self, element: _Element, pipe_id: str, near_id: str, length_unit: str, provenance: Any,
-                       unresolved: list[dict[str, Any]], id_map: dict[str, Any], claim: Any) -> dict[str, Any]:
+    def bend_component(self, element: _Element, pipe_id: str, near_id: str, far_id: str, length_unit: str,
+                       provenance: Any, unresolved: list[dict[str, Any]], id_map: dict[str, Any],
+                       claim: Any) -> dict[str, Any]:
         n = element.end
         component_id = f"component:bend-{n}"
+        node = near_id
         if self.bound or self.rebound:
             entry = self.maps.get("element_map", {}).get(pipe_id)
             bend = entry.get("bend") if entry is not None else None
@@ -3328,7 +3420,17 @@ class _Importer:
                 component_id = bend["component"]
                 if self.rebound:
                     self.unconfirmed.append(component_id)
-            if self.bound:
+            if self.bound and self.sidecar_format == SIDECAR_FORMAT:
+                # Format 6 records the tangent node the source component names (Design §15, Format 6). It is
+                # restored as the byte-bound pair declares it, at the sidecar's source-free trust level: consistent
+                # with this file, not independently verified. It must be one of this bend's own tangent nodes.
+                if bend is not None and bend["node"] in (near_id, far_id):
+                    node = bend["node"]
+                elif bend is not None:
+                    self.refuse("MBF-IMPORT-SIDECAR-CONFLICT", element.line, f"element_map[{pipe_id}].bend.node",
+                                f"the sidecar names {bend['node']} as the node of bend {n}'s component, but the bend's "
+                                f"tangent nodes are {near_id} ({n}A) and {far_id} ({n}B)")
+            elif self.bound:
                 # The component id is restored; its original .node choice is the reference not recovered.
                 self.listed("approximated", "MBF-IMPORT-REFERENCE-UNRECOVERABLE", element.line, f"{component_id}.node",
                             f"the sidecar does not record which tangent node bend {n}'s component names; the "
@@ -3337,7 +3439,7 @@ class _Importer:
         claim(component_id, f"CAEPIPE bend {n}", element.line)
         id_map["bend_map"][str(n)] = component_id
         component: dict[str, Any] = {
-            "id": component_id, "label": f"bend {n}", "kind": "bend", "node": near_id,
+            "id": component_id, "label": f"bend {n}", "kind": "bend", "node": node,
             "geometry": {"bend_pipe_ref": pipe_id,
                          "bend_radius": {"value": element.radius.value, "unit": length_unit},
                          "bend_geometry_source_reference": f"MBF sha256:{self.sha}, line {element.line}"},
@@ -3479,13 +3581,13 @@ class _Importer:
         return materials, material_ids
 
     def assemble_sections(self, id_map: dict[str, Any], provenance: Any, claim: Any, length_unit: str):
-        """Design §15, Format 4: a format-4 sidecar's `section_map` restores, for each PIPE record with a library
+        """Design §15, Format 4: a format-4 or format-6 sidecar's `section_map` restores, for each PIPE record with a library
         section id, one `sections` entry (type pipe, OD and wall as the record's pipes get them, named by the record,
         its line as provenance) and the pipes' `section_ref`; bound by digest, or rebound by record name, unconfirmed.
         Returns the entries and the id by record name. Other formats and unbound imports form none."""
         used = list(dict.fromkeys(element.section for element in self.elements))
-        entries = self.maps.get("section_map", {}) if self.sidecar_format == SIDECAR_FORMAT else {}
-        if self.bound and self.sidecar_format == SIDECAR_FORMAT:
+        entries = self.maps.get("section_map", {}) if self.sidecar_format in SECTION_FORMATS else {}
+        if self.bound and self.sidecar_format in SECTION_FORMATS:
             self.incomplete("section_map", used, entries, "sections")
         sections, section_of = [], {}
         for name in used:

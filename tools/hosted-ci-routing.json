@@ -258,8 +258,8 @@
     "source_trees": {
       "core/analysis/hanger_sizing/Cargo.toml": "cc233e138b7f2b92e3cfc7ab05430e2416a5feb6f0c9fc44e3b6e343940293fb",
       "core/gui/viewport_editor/Cargo.toml": "32de48e1e1afd2bc77f84655a69561bdc96074a31fe17f705e7b3a0d8aa6eddf",
-      "core/handoff/caepipe_mbf_engine/Cargo.toml": "cf72b59df97700d443dc65e60779bf5ca9ec2810213d3edf376b7410e50a55db",
-      "core/handoff/caepipe_mbf_wasm/Cargo.toml": "0a7ff532a9caff6ec74bf06d79fd022e03416f544bb040dfca10aa32345cf427",
+      "core/handoff/caepipe_mbf_engine/Cargo.toml": "14d210633ce6194815544b5a6961c41de50df70a0ff8d2cdd027c2355808ff6c",
+      "core/handoff/caepipe_mbf_wasm/Cargo.toml": "26ee5f7833006eccfbccf2633c6f785d6f25b282cd7043f48f0078a9efa4f39d",
       "core/library_import/library_import_document/Cargo.toml": "1266b55acbe148e4c9a3f65581ad68b32b2da3f3e7af39291e5a73ec8e528ae8",
       "core/loads/load_case_algebra/Cargo.toml": "85867a6b0fb4b5f12db5cb7ee7499c80ecbb601182b7bbd0899352dc0d6df42b",
       "core/loads/primitive_loads/Cargo.toml": "c62ebd4ac6ad01fe673db598aa412b29c6338fdd25d4d21385c51323d7709818",
@@ -2604,8 +2604,10 @@
               "core/gui/viewport_editor/src/lib.rs",
               "core/handoff/caepipe_mbf_engine/src/correctly_rounded.rs",
               "core/handoff/caepipe_mbf_engine/src/decimal90.rs",
+              "core/handoff/caepipe_mbf_engine/src/designation.rs",
               "core/handoff/caepipe_mbf_engine/src/export_review.rs",
               "core/handoff/caepipe_mbf_engine/src/export_settings.rs",
+              "core/handoff/caepipe_mbf_engine/src/identity_inventory.rs",
               "core/handoff/caepipe_mbf_engine/src/import_review.rs",
               "core/handoff/caepipe_mbf_engine/src/importer/assemble.rs",
               "core/handoff/caepipe_mbf_engine/src/importer/build.rs",
@@ -6096,7 +6098,7 @@
         ]
       },
       "core/handoff/caepipe_mbf_wasm/tests/export.rs": {
-        "sha256": "40484a36098b47ba5dff806d54c219473b86b2c8e0c962809dbfea59d17f0609",
+        "sha256": "cfb91f65104c29fbb811c53bea24cc88a8be67cb3a400996d461c647b5b26eb4",
         "source_trees": [
           "core/handoff/caepipe_mbf_wasm/Cargo.toml"
         ],
