@@ -201,16 +201,16 @@ eccentric reducer steps (each step's thrust unchanged from today).
     the closed-end free strain (1 − 2ν)·p·A_i/(E·A_s), with A_i on the pressure bore and
     A_s the nominal section area; it is not a thin-wall mean-diameter form."
   - The setting names cases but none of them carries pressure: "Pressure elongation is
-    set for <cases>, which carry no pressure; it has no effect." (`<cases>` is the named
-    case ids.)
+    set, but none of the cases it names carries pressure; it has no effect." The named
+    cases appear where the setting itself is reported, so the statement does not repeat
+    them.
 
-  The first two are fixed strings in the report's hash-pinned statement table
+  All three are whole fixed strings, so the report's hash-pinned statement table
   (`exactReportLimitations.ts`, `fixtures/reports/exact_route_limitations.json`,
-  `exact_report_statements.json`). The third carries case ids, so it is not a fixed
-  string: its implementation must settle how the statement table and the engine's
-  whole-static-string rule (`exact_admission.rs`) admit it, and that choice goes to
-  Agent 0 before code. Until this is implemented the engine publishes the second
-  statement whenever the setting names any case. PDF text encoding: '-' for
+  `exact_report_statements.json`) gains exactly these three and the engine's rule that
+  limitations are not substituted at run time (`exact_admission.rs`) holds. Until the
+  selection is implemented the engine publishes the second statement whenever the setting
+  names any case. PDF text encoding: '-' for
   U+2212 and 'nu' for ν, because WinAnsi cannot encode them (a practical engineering
   resolution; the producer string and its hash are unchanged).
 - **Bend statement.** `BEND_LIMITATION` (`bend_pressure.rs` ~35, published whenever a bend
