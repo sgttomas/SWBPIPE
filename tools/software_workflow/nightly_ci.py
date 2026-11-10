@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """Decide whether a full run of main has a commit to verify.
 
-A scheduled run is skipped only when the newest completed run of the full-run
-workflow on main succeeded on main's current head. That history holds the
-workflow's scheduled, manual and after-merge (push) runs alike, so a successful
-after-merge run of the same head is enough, and a later failure of that head
-means the suite runs again. A push and a manual dispatch always run. An unavailable or malformed run history fails toward
+A scheduled run is skipped only when the most recently finished after-merge
+(push) or manual run of the full-run workflow on main succeeded on main's current
+head. Scheduled runs are not evidence, because one that skipped the suite also
+concludes success. A push and a manual dispatch always run. An unavailable or malformed run history fails toward
 running.
 """
 from __future__ import annotations
@@ -22,12 +21,11 @@ SHA = re.compile(r"[0-9a-f]{40}|[0-9a-f]{64}")
 
 
 def last_successful_sha(history: dict, branch: str = BRANCH) -> str | None:
-    """Head SHA of the most recently finished run on `branch` if it succeeded, else None.
+    """Head SHA of the most recently finished push or manual run on `branch` if it succeeded, else None.
 
     Runs are ordered by when they last finished, because GitHub lists them by
-    creation and a re-run keeps its place. A scheduled run that skipped the suite
-    concludes success, but only ever follows a success of the same head, so
-    anything that fails after it is newer and decides.
+    creation and a re-run keeps its place. Scheduled runs are ignored: one that
+    skipped the suite concludes success without having verified anything.
     """
     if not isinstance(history, dict):
         raise ValueError("Malformed workflow run history")
@@ -40,7 +38,7 @@ def last_successful_sha(history: dict, branch: str = BRANCH) -> str | None:
         if not isinstance(run.get("updated_at", ""), str):
             raise ValueError("Malformed run time in workflow run listing")
     for run in sorted(runs, key=lambda entry: entry.get("updated_at", ""), reverse=True):
-        if run.get("head_branch") != branch or run.get("conclusion") is None:
+        if run.get("head_branch") != branch or run.get("conclusion") is None or run.get("event") == "schedule":
             continue
         if run.get("conclusion") != "success":
             return None
@@ -70,7 +68,7 @@ def decide(event: str, sha: str, last_success: str | None, lookup_error: str | N
 
 
 def fetch_history(api: str, repository: str, workflow: str, token: str) -> dict:
-    query = urllib.parse.urlencode({"branch": BRANCH, "status": "completed", "exclude_pull_requests": "true", "per_page": "20"})
+    query = urllib.parse.urlencode({"branch": BRANCH, "status": "completed", "exclude_pull_requests": "true", "per_page": "100"})
     url = f"{api}/repos/{repository}/actions/workflows/{urllib.parse.quote(workflow, safe='')}/runs?{query}"
     request = urllib.request.Request(url, headers={"Accept": "application/vnd.github+json",
                                                    "Authorization": f"Bearer {token}",

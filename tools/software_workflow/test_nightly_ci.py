@@ -58,6 +58,11 @@ def test_a_successful_after_merge_run_of_the_same_head_lets_the_schedule_skip():
         {"head_sha": A, "head_branch": "main", "conclusion": "success", "event": "schedule", "updated_at": "2026-11-10T09:01:00Z"},
         {"head_sha": A, "head_branch": "main", "conclusion": "failure", "event": "push", "updated_at": "2026-11-10T11:00:00Z"}]}
     assert nightly_ci.decide("schedule", A, nightly_ci.last_successful_sha(rerun))[0] is True
+    # A scheduled run is never evidence, even when it finishes after the failed re-run.
+    rerun["workflow_runs"][0]["updated_at"] = "2026-11-10T12:00:00Z"
+    assert nightly_ci.decide("schedule", A, nightly_ci.last_successful_sha(rerun))[0] is True
+    skip_only = runs((A, "success", "schedule"))
+    assert nightly_ci.decide("schedule", A, nightly_ci.last_successful_sha(skip_only))[0] is True
     # Nor does a success of an earlier merge when a later merge has moved main.
     assert nightly_ci.decide("schedule", A, nightly_ci.last_successful_sha(runs((B, "success", "push"))))[0] is True
 
