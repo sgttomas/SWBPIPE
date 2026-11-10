@@ -380,3 +380,40 @@ fn d6_exact_derivation_vectors_match_typescript() {
         assert_eq!(first_difference(&v["request"], &derived.request), None, "{}", v["shape"]);
     }
 }
+
+/// Slice C5 (DEL-08-01 Design `report-section-composer.md` §2.7): the composed
+/// vector that lists model-input sections carries `P(M, C)` in its derived
+/// request, and whole-request equality refuses a forged table or a removed
+/// one, naming the pointer only.
+#[test]
+fn the_model_input_vector_derives_and_binds_its_tables() {
+    use open_pipe_stress_report_package::model_input::model_input_tables;
+    let cases = cases();
+    let case = cases
+        .iter()
+        .find(|case| case.vector["name"] == "composed_model_input_sparse_interactive")
+        .expect("slice C5: a composed vector listing model-input sections");
+    let derived = case.derived();
+    let tables = &derived.request["report"]["model_input_tables"];
+    let expected = model_input_tables(&case.model, case.vector.get("report_composition")).unwrap().unwrap();
+    assert_eq!(first_difference(&expected, tables), None);
+    assert_eq!(
+        tables.as_object().unwrap().keys().collect::<Vec<_>>(),
+        ["input_geometry", "input_loads", "input_materials_sections", "input_supports", "load_combinations"]
+    );
+    let document = derived.request["result_documents"][0].clone();
+    let genuine = case.expected_request(&document);
+    assert_eq!(check_matches_derivation(&derived, &case.vector["input_manifest"], &genuine), Ok(()));
+    let mut edited = genuine.clone();
+    edited["report"]["model_input_tables"]["input_geometry"]["nodes"][0]["x"] = json!("0.5");
+    let refusal = check_matches_derivation(&derived, &case.vector["input_manifest"], &edited).unwrap_err();
+    assert_eq!(refusal, format!("{CONTENT_NOT_DERIVED}: the request differs from its derivation at /report/model_input_tables/input_geometry/nodes/0/x"));
+    let mut removed = genuine;
+    removed["report"].as_object_mut().unwrap().remove("model_input_tables");
+    let refusal = check_matches_derivation(&derived, &case.vector["input_manifest"], &removed).unwrap_err();
+    assert!(refusal.ends_with("at /report/model_input_tables"), "{refusal}");
+    // Without a model-input id the derived request carries no tables.
+    for other in cases.iter().filter(|other| other.vector["name"] != "composed_model_input_sparse_interactive") {
+        assert!(other.derived().request["report"].get("model_input_tables").is_none());
+    }
+}

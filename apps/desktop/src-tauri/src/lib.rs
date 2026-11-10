@@ -2256,6 +2256,31 @@ async fn adopt_mbf_import(
     .unwrap_or_else(|_| Ok(mbf_import::worker_failed(true)))
 }
 
+/// File > Import MBF…'s Designate original source… (§5.4): `{expectedEpoch,
+/// requestSequence, sourceId, declaration, reviewSha256}` as a raw body of at
+/// most 1 MiB, over the review shown. It opens the native model-document
+/// chooser, reads the designated file once into the worker's request (the host
+/// keeps no byte of it), re-reads the pinned pair and runs task 5 in
+/// `designate` mode. The reply is `designated` (the review stating the
+/// designation, and the base review's digest), `cancelled` or `refused`. It
+/// takes no path and writes nothing.
+#[tauri::command]
+async fn designate_mbf_import_source(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+    imports: tauri::State<'_, mbf_import::MbfImports>,
+) -> Result<tauri::ipc::Response, mbf_worker::MbfCommandError> {
+    let (raw, copy) = mbf_import::reserve(&registry, invoke.body(), invoke.headers(), mbf_import::DESIGNATE_COMMAND)?;
+    let (registry, imports) = (registry.inner().clone(), imports.inner().clone());
+    tauri::async_runtime::spawn_blocking(move || {
+        mbf_import::designate_command(&registry, &imports, raw, copy, mbf_import::START_WAIT, || choose_model_document_path(&app), |text| tauri::ipc::Response::new(text))
+            .map_err(CommandError::Ingress)
+    })
+    .await
+    .unwrap_or_else(|_| Ok(mbf_import::worker_failed(false)))
+}
+
 /// Retires File > Import MBF… (§4.8.6): `{retirementId: {page, sequence}}` as
 /// Tauri's JSON arguments or a raw body, applied once per id; it cancels the
 /// import run in progress and drops the chosen source. The reply is
@@ -2273,6 +2298,10 @@ fn cancel_mbf_import(
 /// The native read-only open chooser for an `.mbf` (§4.8.8: the only source of
 /// the import's paths).
 fn choose_mbf_import_path(app: &AppHandle) -> Result<Option<PathBuf>, String> {
+    #[cfg(feature = "native-smoke")]
+    if let Some(path) = native_smoke::take_chosen_path(app) {
+        return Ok(Some(path));
+    }
     let Some(selected) = app.dialog().file().add_filter("Model batch file", &["mbf"]).blocking_pick_file() else {
         return Ok(None);
     };
@@ -5447,6 +5476,7 @@ const NATIVE_FILE_MENU: &[Option<(&str, &str, Option<&str>)>] = &[
     Some(("file.save-handoff", "Save Handoff…", None)),
     Some(("file.export-mbf", "Export MBF…", None)),
     Some(("file.save-report-package", "Save Report Package…", None)),
+    Some(("file.save-shareable-report-package", "Save Shareable Report Package…", None)),
 ];
 
 // Native macOS menu bar (TP-R3UX-CADSHELL). Each custom item carries the same
@@ -6214,6 +6244,7 @@ macro_rules! app_invoke_handler {
             open_mbf_import,
             review_mbf_import,
             adopt_mbf_import,
+            designate_mbf_import_source,
             cancel_mbf_import,
             size_hangers,
             cancel_hanger_sizing,
@@ -6950,6 +6981,33 @@ mod tests {
         assert_eq!(items[open + 1], ("file.import-mbf", "Import MBF…"));
         assert_eq!(items.iter().filter(|(id, _)| *id == "file.import-mbf").count(), 1);
         assert!(native_menu_dispatch_script("file.import-mbf").contains("detail: \"file.import-mbf\""));
+    }
+
+    /// W-18b (DEL-08-01 Design `report-user-release.md` §2.2): File > Save Shareable Report
+    /// Package… follows Save Report Package…, is enabled exactly as it is (neither is in
+    /// the shell state's enablement list; the webview's command sink decides), and
+    /// dispatches its id to the webview.
+    #[test]
+    fn native_file_menu_offers_save_shareable_report_package_after_save_report_package() {
+        let items: Vec<(&str, &str)> = NATIVE_FILE_MENU
+            .iter()
+            .flatten()
+            .map(|(id, label, _)| (*id, *label))
+            .collect();
+        let package = items.iter().position(|(id, _)| *id == "file.save-report-package").unwrap();
+        assert_eq!(items[package + 1], ("file.save-shareable-report-package", "Save Shareable Report Package…"));
+        assert_eq!(items.iter().filter(|(id, _)| *id == "file.save-shareable-report-package").count(), 1);
+        let enabled_ids: Vec<&str> = native_menu_mutations(&sample_native_shell_state())
+            .into_iter()
+            .filter_map(|mutation| match mutation {
+                NativeMenuMutation::Enabled(id, _) => Some(id),
+                NativeMenuMutation::Checked(..) => None,
+            })
+            .collect();
+        for id in ["file.save-report-package", "file.save-shareable-report-package"] {
+            assert!(!enabled_ids.contains(&id), "{id} is not enablement-synced");
+        }
+        assert!(native_menu_dispatch_script("file.save-shareable-report-package").contains("detail: \"file.save-shareable-report-package\""));
     }
 
     #[test]

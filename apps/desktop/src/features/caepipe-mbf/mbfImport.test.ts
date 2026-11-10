@@ -85,8 +85,8 @@ describe("the import review's product presentation", () => {
   it("rejects prior and unknown review versions before interpreting metrics or capturing Adopt", () => {
     const bound = reviewed("bound-open");
     expect(importReviewFormatCurrent(bound.review)).toBe(true);
-    for (const format of [1, 0, 3, "2", null]) {
-      // Deliberately foreign payload at the transport boundary, with no format-2 members to accidentally read.
+    for (const format of [1, 2, 0, 4, "3", null]) {
+      // Deliberately foreign payload at the transport boundary, with no format-3 members to accidentally read.
       const foreign = { document_kind: "swbpipe.mbf_import_review", format, adoptable: true } as unknown as MbfImportReviewPayload;
       expect(importReviewFormatCurrent(foreign)).toBe(false);
       expect(importBlockingCodes(foreign)).toEqual(["MBF-IMPORT-WORKER-PROTOCOL"]);

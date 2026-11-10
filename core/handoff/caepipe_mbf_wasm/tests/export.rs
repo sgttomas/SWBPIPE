@@ -73,9 +73,11 @@ fn the_fixture_is_written_with_its_identity_file_and_digests() {
     let sidecar = outcome["sidecar_text"].as_str().unwrap();
     assert_eq!(outcome["mbf_sha256"], sha256_hex(text.as_bytes()));
     assert_eq!(outcome["sidecar_sha256"], sha256_hex(sidecar.as_bytes()));
-    // The identity file is the writer's format-4 sidecar for exactly this text.
+    // The identity file is the writer's format-6 sidecar for exactly this text, recording the source it was written from.
     let parsed: Value = serde_json::from_str(sidecar).unwrap();
-    assert_eq!(parsed["sidecar_format"], 4);
+    assert_eq!(parsed["sidecar_format"], 6);
+    assert_eq!(parsed["derivation"]["source_model_sha256"].as_str().map(str::len), Some(64));
+    assert_eq!(parsed["derivation"]["export_settings"]["title"], "Invented MBF export");
     assert_eq!(parsed["mbf_sha256"], outcome["mbf_sha256"]);
     assert_eq!(parsed["section_map"]["P1"]["swbpipe_section"], "section:invented-a");
     assert_eq!(parsed["material_map"]["M1"]["origin"], "project_invented");

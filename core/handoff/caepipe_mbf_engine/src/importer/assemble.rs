@@ -271,8 +271,9 @@ impl<'a> Importer<'a> {
                     }
                 }
                 if is_bend {
-                    let near_id = id_a.clone();
-                    let component = self.bend_component(element, &swb_id, &near_id, length_unit, &mut unresolved, &mut id_map, &mut claims);
+                    let (near_id, far_id) = (id_a.clone(), id_b.clone());
+                    let component =
+                        self.bend_component(element, &swb_id, &near_id, &far_id, length_unit, &mut unresolved, &mut id_map, &mut claims);
                     components.push(component);
                 }
                 pipes.push(Value::Dict(pipe));
@@ -584,6 +585,7 @@ impl<'a> Importer<'a> {
         element: &Element,
         pipe_id: &str,
         near_id: &str,
+        far_id: &str,
         length_unit: &str,
         unresolved: &mut Vec<Value>,
         id_map: &mut Dict,
@@ -591,15 +593,33 @@ impl<'a> Importer<'a> {
     ) -> Value {
         let n = element.end;
         let mut component_id = format!("component:bend-{n}");
+        let mut node = near_id.to_string();
         if self.bound || self.rebound {
             let bend = self.map("element_map").get(&pipe_id.to_string()).and_then(|entry| entry.get("bend").cloned());
-            if let Some(bend) = bend.filter(|bend| !bend.is_null()) {
+            let bend = bend.filter(|bend| !bend.is_null());
+            if let Some(bend) = &bend {
                 component_id = bend.get_or_null("component").as_str().unwrap_or_default().to_string();
                 if self.rebound {
                     self.unconfirmed.push(component_id.clone());
                 }
             }
-            if self.bound {
+            if self.bound && self.sidecar_format == Some(crate::sidecar::SIDECAR_FORMAT) {
+                // Format 6 records the tangent node the source component names (Design §15, Format 6). It is restored
+                // as the byte-bound pair declares it, at the sidecar's source-free trust level: consistent with this
+                // file, not independently verified. It must be one of this bend's own tangent nodes.
+                if let Some(bend) = &bend {
+                    let recorded = bend.get_or_null("node").as_str().unwrap_or_default().to_string();
+                    if recorded == near_id || recorded == far_id {
+                        node = recorded;
+                    } else {
+                        let message = format!(
+                            "the sidecar names {recorded} as the node of bend {n}'s component, but the bend's tangent \
+                             nodes are {near_id} ({n}A) and {far_id} ({n}B)"
+                        );
+                        self.refuse("MBF-IMPORT-SIDECAR-CONFLICT", element.line, &format!("element_map[{pipe_id}].bend.node"), &message);
+                    }
+                }
+            } else if self.bound {
                 let message = format!(
                     "the sidecar does not record which tangent node bend {n}'s component names; the importer uses the \
                      near tangent node {n}A"
@@ -616,7 +636,7 @@ impl<'a> Importer<'a> {
         component.insert("id".into(), Value::str(component_id.clone()));
         component.insert("label".into(), Value::Str(format!("bend {n}")));
         component.insert("kind".into(), Value::str("bend"));
-        component.insert("node".into(), Value::str(near_id));
+        component.insert("node".into(), Value::Str(node));
         component.insert(
             "geometry".into(),
             dict![
@@ -841,7 +861,7 @@ impl<'a> Importer<'a> {
         Ok((materials, material_ids))
     }
 
-    /// Design §15, Format 4: a format-4 sidecar's `section_map` restores, for each PIPE record with a library
+    /// Design §15, Format 4: a format-4 or format-6 sidecar's `section_map` restores, for each PIPE record with a library
     /// section id, one `sections` entry (type pipe, OD and wall as the record's pipes get them, named by the record,
     /// its line as provenance) and the pipes' `section_ref`; bound by digest, or rebound by record name, unconfirmed.
     /// Returns the entries and the id by record name. Other formats and unbound imports form none.
@@ -857,7 +877,7 @@ impl<'a> Importer<'a> {
                 used.push(element.section.clone());
             }
         }
-        let format4 = self.sidecar_format == Some(crate::sidecar::SIDECAR_FORMAT);
+        let format4 = self.sidecar_format.is_some_and(|number| crate::sidecar::SECTION_FORMATS.contains(&number));
         let entries = if format4 { self.map("section_map") } else { Dict::new() };
         if self.bound && format4 {
             let in_sidecar: Vec<String> = entries.keys().cloned().collect();

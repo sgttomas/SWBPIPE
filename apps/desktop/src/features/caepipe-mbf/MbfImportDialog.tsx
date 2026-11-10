@@ -6,6 +6,7 @@ import {
   assumptionText,
   declarationFor,
   declarationKey,
+  designationReasonText,
   fieldText,
   fieldWhole,
   importAdoptable,
@@ -15,6 +16,8 @@ import {
   importReviewFormatCurrent,
   type MbfAdoptCapture,
   type MbfDeclarationEntry,
+  type MbfDesignateImportArgs,
+  type MbfImportDesignateOutcome,
   type MbfImportDiagnostic,
   type MbfImportOpenOutcome,
   type MbfImportReviewOutcome,
@@ -36,15 +39,20 @@ export type MbfImportDialogRequest = {
   open: () => Promise<MbfImportStarted<MbfImportOpenOutcome>>;
   /** A declaration re-run. */
   review: (args: MbfReviewImportArgs, stillCurrent?: () => boolean) => Promise<MbfImportStarted<MbfImportReviewOutcome>>;
+  /** Designate original source… (§5.4): the model-document chooser and the review stating the designation, formed over
+   * the review shown and the declaration it was formed for. */
+  designate: (args: MbfDesignateImportArgs, stillCurrent?: () => boolean) => Promise<MbfImportStarted<MbfImportDesignateOutcome>>;
   /** Adopt: the session releases the modal hold and adopts through the Open transaction; the request's retirement is
    * then the import flow's. */
   adopt: (capture: MbfAdoptCapture) => void;
 };
 
 type Reviewed = Extract<MbfImportReviewOutcome, { outcome: "reviewed" }>;
+/** A reviewed state: the review shown (`reviewed`, X when designated), the declaration it was formed for, and the
+ * digest of the ordinary review Y it rests on (the review's own digest unless designated). */
 type State =
   | { phase: "choosing" }
-  | { phase: "reviewed"; reviewed: Reviewed; key: string }
+  | { phase: "reviewed"; reviewed: Reviewed; key: string; base: string }
   | { phase: "refused"; fileName: string; diagnostics: MbfImportDiagnostic[]; sourceId: number | null };
 
 type Choice = { choice: "none" | "invented" | "user"; name: string };
@@ -67,6 +75,9 @@ export function MbfImportDialog({ request }: { request: MbfImportDialogRequest |
   const [materials, setMaterials] = useState<string[]>([]);
   const [uncut, setUncut] = useState<string[]>([]);
   const [form, setForm] = useState<Record<string, Choice>>({});
+  const [designationRefusal, setDesignationRefusal] = useState<MbfImportDiagnostic[] | null>(null);
+  /** Bumped to send the ordinary review again (a designation shown is no longer current natively). */
+  const [refresh, setRefresh] = useState(0);
   const generation = useRef(0);
   const live = useRef<MbfImportDialogRequest | null>(null);
   const reviewOwner = useRef<MbfImportDialogRequest | null>(null);
@@ -79,6 +90,7 @@ export function MbfImportDialog({ request }: { request: MbfImportDialogRequest |
       setUncut([]);
       setForm({});
       setPending(false);
+      setDesignationRefusal(null);
       return;
     }
     live.current = request;
@@ -89,6 +101,7 @@ export function MbfImportDialog({ request }: { request: MbfImportDialogRequest |
     setMaterials([]);
     setUncut([]);
     setForm({});
+    setDesignationRefusal(null);
     const opener = request.opener;
     const hold = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -132,7 +145,7 @@ export function MbfImportDialog({ request }: { request: MbfImportDialogRequest |
         setMaterials(needed.filter(fieldWhole));
         setUncut(needed.filter((name) => !fieldWhole(name)).map(fieldText));
         reviewOwner.current = request;
-        setState({ phase: "reviewed", reviewed: outcome, key: declarationKey(null) });
+        setState({ phase: "reviewed", reviewed: outcome, key: declarationKey(null), base: outcome.reviewSha256 });
       },
       (error: unknown) => {
         if (generation.current !== mine || live.current !== request) return;
@@ -171,7 +184,7 @@ export function MbfImportDialog({ request }: { request: MbfImportDialogRequest |
         const outcome = started.outcome;
         if (outcome.outcome === "reviewed" && !importReviewFormatCurrent(outcome.review)) {
           setState({ phase: "refused", fileName: outcome.fileName, diagnostics: [importFailureDiagnostic("MBF-IMPORT-WORKER-PROTOCOL")], sourceId: null });
-        } else if (outcome.outcome === "reviewed") setState({ phase: "reviewed", reviewed: outcome, key });
+        } else if (outcome.outcome === "reviewed") setState({ phase: "reviewed", reviewed: outcome, key, base: outcome.reviewSha256 });
         else setState({ phase: "refused", fileName: outcome.fileName, diagnostics: outcome.diagnostics, sourceId });
       },
       (error: unknown) => {
@@ -180,8 +193,9 @@ export function MbfImportDialog({ request }: { request: MbfImportDialogRequest |
         setState({ phase: "refused", fileName: "", diagnostics: [importFailureDiagnostic(error)], sourceId });
       }
     );
-    // `form` also invalidates work when an edit returns to the already displayed declaration.
-  }, [request, sourceId, key, form]);
+    // `form` also invalidates work when an edit returns to the already displayed declaration; `refresh` re-sends the
+    // ordinary review when a designation shown is no longer current.
+  }, [request, sourceId, key, form, refresh]);
 
   if (!request) return null;
   const reviewed = state.phase === "reviewed" ? state.reviewed : null;
@@ -199,7 +213,47 @@ export function MbfImportDialog({ request }: { request: MbfImportDialogRequest |
 
   const changeForm = (next: Parameters<typeof setForm>[0]) => {
     generation.current += 1; // Invalidate replies/retries synchronously, before the next effect runs.
+    setDesignationRefusal(null);
     setForm(next);
+  };
+
+  // Designate original source… (§5.4). The native start retires any designation shown before its chooser opens, so
+  // whatever it returns other than a new designation leaves the ordinary review to be formed again when X was shown.
+  const designated = reviewed !== null && reviewed.review.identity.designation !== null;
+  const designate = () => {
+    if (!current || reviewed === null || state.phase !== "reviewed") return;
+    generation.current += 1;
+    const mine = generation.current;
+    const shown = state;
+    const isCurrent = () => generation.current === mine && live.current === request;
+    const resetOrdinary = () => {
+      if (!designated) return;
+      setState({ ...shown, key: "", reviewed: shown.reviewed });
+      setRefresh((value) => value + 1);
+    };
+    setPending(true);
+    setDesignationRefusal(null);
+    void request.designate({ sourceId: reviewed.sourceId, declaration, reviewSha256: shown.base }, isCurrent).then(
+      (started) => {
+        if (!isCurrent() || !started.current()) return;
+        setPending(false);
+        const outcome = started.outcome;
+        if (outcome.outcome === "designated" && importReviewFormatCurrent(outcome.review) && outcome.baseReviewSha256 === shown.base) {
+          const asReviewed: Reviewed = { outcome: "reviewed", sourceId: outcome.sourceId, fileName: outcome.fileName, reviewSha256: outcome.reviewSha256, review: outcome.review };
+          setState({ phase: "reviewed", reviewed: asReviewed, key: shown.key, base: outcome.baseReviewSha256 });
+          return;
+        }
+        if (outcome.outcome === "refused") setDesignationRefusal(outcome.diagnostics);
+        else if (outcome.outcome === "designated") setDesignationRefusal([importFailureDiagnostic("MBF-IMPORT-WORKER-PROTOCOL")]);
+        resetOrdinary();
+      },
+      (error: unknown) => {
+        if (!isCurrent()) return;
+        setPending(false);
+        setDesignationRefusal([importFailureDiagnostic(error)]);
+        resetOrdinary();
+      }
+    );
   };
   const setAll = (choice: Choice["choice"], name = "") => changeForm(Object.fromEntries(materials.map((material) => [material, { choice, name }])));
 
@@ -222,6 +276,11 @@ export function MbfImportDialog({ request }: { request: MbfImportDialogRequest |
           </ul>
         ) : null}
         {reviewed ? <ImportReview reviewed={reviewed} /> : null}
+        {designationRefusal ? (
+          <ul role="alert" data-testid="mbf-import-designation-refusal">
+            {designationRefusal.map((item, index) => <li key={`${item.code}-${index}`}>{item.code}: {importCodeText(item.code)}</li>)}
+          </ul>
+        ) : null}
         {materials.length > 0 || uncut.length > 0 ? (
           <fieldset className="mbf-export-settings" data-testid="mbf-import-declaration">
             <legend>Material provenance</legend>
@@ -269,6 +328,7 @@ export function MbfImportDialog({ request }: { request: MbfImportDialogRequest |
         <p role="status" data-testid="mbf-import-pending">{pending && state.phase !== "choosing" ? "Reviewing…" : ""}</p>
         <p data-testid="mbf-import-boundary">{MBF_IMPORT_BOUNDARY_SENTENCE}</p>
         <div className="report-actions">
+          <button type="button" data-testid="mbf-import-designate" disabled={!current} onClick={designate}>Designate original source…</button>
           <button type="button" data-testid="mbf-import-adopt" disabled={!adoptable} onClick={adopt}>Adopt</button>
           <button type="button" data-testid="mbf-import-close" onClick={() => request.close()}>Close</button>
         </div>
@@ -372,13 +432,21 @@ function ImportReview({ reviewed }: { reviewed: Reviewed }) {
       <section data-testid="mbf-import-identity">
         <h3>Identities</h3>
         <p>{review.identity.basis === "restored_from_identity_file" ? "Identity file applied; each class lists restored and formed ids." : "Ids formed from node numbers."}</p>
-        <p>These counts describe this import. They do not establish that every original source identity was preserved. The loss report also includes fields and other information the file cannot recover.</p>
+        {review.identity.source_completeness === "established_for_identity_set" ? (
+          <p data-testid="mbf-import-source-completeness">
+            Established for the identity set: the designated document has exactly the same ids as this import in each class. This concerns ids only; it does not
+            establish that the two models are equivalent, and the loss report still applies.
+          </p>
+        ) : (
+          <p data-testid="mbf-import-source-completeness">These counts describe this import. They do not establish that every original source identity was preserved. The loss report also includes fields and other information the file cannot recover.</p>
+        )}
         <ul>
           {review.identity.classes.filter((item) => item.count > 0).map((item) => (
             <li key={item.class}>{item.class.replace(/_/g, " ")}: {item.count} ({item.restored} restored, {item.formed_from_mbf_names} formed)</li>
           ))}
         </ul>
       </section>
+      {review.identity.designation ? <Designation designation={review.identity.designation} /> : null}
       <section data-testid="mbf-import-units">
         <h3>Units</h3>
         <p>
@@ -389,5 +457,28 @@ function ImportReview({ reviewed }: { reviewed: Reviewed }) {
         </p>
       </section>
     </div>
+  );
+}
+
+/** The designated source the review states (§5.4): the file, the outcome and why it is not established. */
+function Designation({ designation }: { designation: NonNullable<MbfImportReviewPayload["identity"]["designation"]> }) {
+  return (
+    <section data-testid="mbf-import-designation">
+      <h3>Designated original source</h3>
+      <p>
+        {fieldText(designation.file_name)} ({designation.bytes} bytes):{" "}
+        {designation.outcome === "established_for_identity_set"
+          ? "this MBF and its identity file are exactly what SWBPIPE writes from it, and the import has the same ids in each class."
+          : "the identity set is not established."}
+      </p>
+      {designation.reasons.length > 0 ? (
+        <ul data-testid="mbf-import-designation-reasons">
+          {designation.reasons.map((reason) => <li key={reason} data-reason={reason}>{designationReasonText(reason)}</li>)}
+        </ul>
+      ) : null}
+      {designation.differing_classes.length > 0 ? (
+        <p data-testid="mbf-import-designation-classes">Classes whose ids differ: {designation.differing_classes.map((name) => name.replace(/_/g, " ")).join(", ")}.</p>
+      ) : null}
+    </section>
   );
 }

@@ -624,6 +624,21 @@ pub(super) struct Formed {
     pub(super) subjects: Vec<(&'static str, String)>,
 }
 
+/// The sizes of this pass's private types that the working-memory bound
+/// prices (`working_bound`, which pins each against a literal):
+/// `Member`, an `acc` entry `((usize, usize), Acc)`, a `section_mass` entry
+/// `(usize, SectionMass)`, a `bodies` entry, an `entries` entry
+/// `((usize, usize), Iv)`, `Formed` (boxed) and a `subjects` element.
+pub(super) const MM_SIZES: [usize; 7] = [
+    std::mem::size_of::<Member>(),
+    std::mem::size_of::<((usize, usize), Acc)>(),
+    std::mem::size_of::<(usize, SectionMass)>(),
+    std::mem::size_of::<(&str, (String, usize, Iv, [f64; 3]))>(),
+    std::mem::size_of::<((usize, usize), Iv)>(),
+    std::mem::size_of::<Formed>(),
+    std::mem::size_of::<(&'static str, String)>(),
+];
+
 /// The model-derived basis, or why it is not available.
 pub(super) enum Derived {
     Formed(Box<Formed>),
@@ -1187,14 +1202,14 @@ fn mm_states(p: &Parsed, nonlinear: &[(&str, &str, usize)], restrained: &mut [bo
         if row.behavior != *behavior || row.dof != *dof {
             return mm_fail(format!("nonlinear support {id}: the reported behaviour or DOF is not the model's"));
         }
-        let rigid = match (*behavior, row.state.as_str()) {
+        let rigid = match (*behavior, row.state) {
             ("one_way" | "lift_off" | "gap", "active") => true,
             ("one_way" | "lift_off" | "gap", "inactive") => false,
             ("friction", "sticking") => true,
             ("friction", "sliding" | "inactive") => false,
             (b, s) => return mm_fail(format!("nonlinear support {id}: state `{s}` is not a state of a {b} support")),
         };
-        let treatment = match (rigid, base[*dof], *behavior, row.state.as_str()) {
+        let treatment = match (rigid, base[*dof], *behavior, row.state) {
             (true, true, _, _) => "already_restrained",
             (true, false, _, _) => "restrained",
             (false, _, "friction", "sliding") => "free_frozen_friction",

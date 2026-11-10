@@ -80,7 +80,9 @@ export const INGRESS_COMMANDS: ReadonlySet<string> = new Set([
   // DEL-17-04 slice 5: Import MBF…'s starts (`cancel_mbf_import` is sent as JSON arguments).
   "open_mbf_import",
   "review_mbf_import",
-  "adopt_mbf_import"
+  "adopt_mbf_import",
+  // DEL-17-04 §5.4: Import MBF…'s Designate original source….
+  "designate_mbf_import_source"
 ]);
 
 type InvokeOptions = { headers?: Record<string, string> } | undefined;

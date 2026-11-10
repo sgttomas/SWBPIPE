@@ -107,6 +107,7 @@ import { AUTOSAVE_DESKTOP_ONLY, AutosaveRecoveryPrompt } from "./features/autosa
 import { ProjectUnitsDialog } from "./features/project-units/ProjectUnitsDialog";
 import { ModelDocumentSaveDialog } from "./features/model-file/ModelDocumentSaveDialog";
 import { HandoffSaveDialog } from "./features/handoff/HandoffSaveDialog";
+import { UserReleaseDialog } from "./features/report/UserReleaseDialog";
 import { MbfExportDialog } from "./features/caepipe-mbf/MbfExportDialog";
 import { MbfImportDialog } from "./features/caepipe-mbf/MbfImportDialog";
 import { ProjectValidationPanel } from "./features/project-validation/ProjectValidationPanel";
@@ -245,7 +246,9 @@ function AppSession() {
     handleProposal,
     handleSelectResult,
     handleSelectDiagnostic,
-    handleSaveReportPackage
+    handleSaveReportPackage,
+    requestSaveShareableReportPackage,
+    userReleaseRequest
   } = session.results;
   // Save Report Package… (DEL-08-01 Design `report-package-current-results.md` §2.1):
   // enablement is synchronous, the output policy's route gate plus the presence
@@ -425,7 +428,7 @@ function AppSession() {
       data-theme-preference={uiPreferences.theme}
       data-testid="desktop-preview-shell"
       // The replace prompt, the unsaved-changes prompt, the units dialog and the model-document save dialog are modal: the workspace takes no focus or input meanwhile.
-      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null || unsavedChangesPrompt !== null || quitWhileBusyPrompt !== null || modelDocumentSaveRequest !== null || handoffSaveRequest !== null || mbfExportRequest !== null || mbfImportRequest !== null || autosave.recoveryPrompt !== null}
+      inert={replaceProjectPrompt !== null || blankProjectUnitsRequest !== null || unsavedChangesPrompt !== null || quitWhileBusyPrompt !== null || modelDocumentSaveRequest !== null || handoffSaveRequest !== null || userReleaseRequest !== null || mbfExportRequest !== null || mbfImportRequest !== null || autosave.recoveryPrompt !== null}
       ref={workspaceShellRef}
       onFocusCapture={rememberShellFocus}
       onPointerDownCapture={rememberShellFocus}
@@ -924,6 +927,7 @@ function AppSession() {
                     packageRoute={reportPackageRoute}
                     onPackagePrivateIntentChange={setReportPackagePrivateIntent}
                     onSaveReportPackage={reportPackageUnavailable ? undefined : () => void handleSaveReportPackage()}
+                    onSaveShareableReportPackage={reportPackageUnavailable ? undefined : () => void requestSaveShareableReportPackage()}
                   />
                 )}
               </C2ResultGate>
@@ -1376,6 +1380,7 @@ function AppSession() {
       <ProjectUnitsDialog request={blankProjectUnitsRequest} />
       <ModelDocumentSaveDialog request={modelDocumentSaveRequest} />
       <HandoffSaveDialog request={handoffSaveRequest} />
+      <UserReleaseDialog request={userReleaseRequest} />
       <MbfExportDialog request={mbfExportRequest} />
       <MbfImportDialog request={mbfImportRequest} />
     </main>
@@ -1495,7 +1500,8 @@ function MenuBar({
         { kind: "command", id: "file.save-model-document", label: "Save Model Document…", disabled: !modelDocumentSaveReady },
         { kind: "command", id: "file.save-handoff", label: "Save Handoff…", disabled: !modelDocumentSaveReady },
         { kind: "command", id: "file.export-mbf", label: "Export MBF…", disabled: !modelDocumentSaveReady },
-        { kind: "command", id: "file.save-report-package", label: "Save Report Package…", disabled: !reportPackageReady }
+        { kind: "command", id: "file.save-report-package", label: "Save Report Package…", disabled: !reportPackageReady },
+        { kind: "command", id: "file.save-shareable-report-package", label: "Save Shareable Report Package…", disabled: !reportPackageReady }
       ]
     },
     {

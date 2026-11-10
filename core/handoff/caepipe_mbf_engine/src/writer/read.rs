@@ -619,9 +619,10 @@ impl<'m> Writer<'m> {
             return Ok(());
         }
         let component_id = component.get_or_null("id").clone();
+        let node = component.get_or_null("node").clone();
         self.bends.insert(
             pipe_id,
-            Bend { component: component_id, entity, radius, k: factor, angle, sifs, ti: None, theta: None },
+            Bend { component: component_id, node, entity, radius, k: factor, angle, sifs, ti: None, theta: None },
         );
         Ok(())
     }
