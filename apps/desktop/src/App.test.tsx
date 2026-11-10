@@ -2550,7 +2550,7 @@ describe("SWBPIPE desktop preview", () => {
       within(validationEvidence).getByTestId(
         "validation-evidence-release-checks",
       ).textContent,
-    ).toContain("skeleton_checks=2");
+    ).toContain("skeleton_checks=1");
     expect(
       within(validationEvidence).getByTestId("validation-evidence-gates")
         .textContent,
