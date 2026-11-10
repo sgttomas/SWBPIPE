@@ -122,10 +122,10 @@ quotes the option's drafted text; the owner's own words are quoted as such.
 **Must**: required by the exit criteria; a gap ships only as a limitation the
 owner accepts (§4 item 3). **Should**: expected; may ship
 declared as a limitation with the owner's acceptance. **Later**: after v1.0.
-The "Current" and "Open work" columns are an informational snapshot, refreshed
-when the owner requests it. Last surveyed on 2026-11-06 against `main` at
-`bbc9ac07c` (through #155), after the development lanes' graceful pause.
-They summarize implementation evidence and remaining work; they do not amend
+The "Current" and "Open work" columns state each row's standing. The PR that
+changes a row's state edits that row in the same change. Cells stay short: what
+is built, what is open and the owning deliverable; the detail is in that
+deliverable's `Work/`. They summarize implementation evidence and remaining work; they do not amend
 scope, accept limitations, establish release readiness or schedule work.
 "Owner" is the owning deliverable; "new" means a scope change assigns it.
 

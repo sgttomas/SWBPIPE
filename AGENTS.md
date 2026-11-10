@@ -210,7 +210,7 @@ review, and a change of numerical meaning gets targeted regression checks and
 independent scrutiny. Scope beyond this delegation, release, acceptance and
 issuance, risk acceptance, holds, purchases, the native-smoke `expected.json`
 values and the reservations in `docs/RELEASE_TARGET_v1.0.md` §5 stay with the
-owner. The product and data boundaries (`docs/PRODUCT_BOUNDARIES.md`,
+owner. The product and data boundaries (`docs/PRD.md` §4.3,
 `docs/IP_AND_DATA_BOUNDARY.md`) are unchanged.
 
 ## Standing Git grant

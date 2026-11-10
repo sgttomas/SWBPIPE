@@ -12,7 +12,7 @@ expressions, allowables, load mappings, and blocking conditions." The owner
 placed all three in v0.1 under a new rule-pack format version (2026-10-24: "I
 approve your recommended option A.").
 
-**Boundary.** Rule packs are user-supplied content (`docs/PRODUCT_BOUNDARIES.md`;
+**Boundary.** Rule packs are user-supplied content (`docs/PRD.md` §4.3;
 PRD §17.1, §17.4). The format carries the user's own category names,
 descriptions and mappings. The repository adds no code-standard text, table,
 allowable or category definition. Public examples and fixtures are invented and
