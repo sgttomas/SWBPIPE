@@ -37,7 +37,7 @@ export type ResolvedReference = {
   shadowsCombination: boolean;
 };
 
-/** (r1 F3): a bare reference names the load case with the id, else the combination. */
+/** §2 (r1 F3): a bare reference names the load case with the id, else the combination. */
 export function resolveReference(model: PreviewModel, id: string): ResolvedReference {
   const loadCase = hasLoadCase(model, id);
   const combination = Boolean(findCombination(model, id));

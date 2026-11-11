@@ -66,7 +66,7 @@ const MAX_B: &str = "result:elastic-maximum:10:load:L-200:10:pipe:P-100";
 const CE: &str = "support:CE-120";
 const COMB: &str = "combination:C-OPER-ALT";
 
-/// the notices the producer states for an
+/// RT-A3 §4 (the closed combination-diagnostic roster): the notices the producer states for an
 /// admitted combination on this document, whose maximum and intensified rows no combination
 /// combines (`preview_physics.rs` `append_combination_results`), and its place in the headline scope.
 fn admit_notices(raw: &mut Value, id: &str) {
@@ -90,7 +90,7 @@ fn admit_notices(raw: &mut Value, id: &str) {
 /// the reader checks structure and representation only, not the sums.
 fn with_admitted_combination() -> Value {
     let mut raw = invented();
-    // a
+    // Operating-case slice 1a (DEL-05-02 `pf-nonlinear-operand-standing.md` §3): a
     // document that admits a mechanics combination is a linear one, since a nonlinear
     // model withholds every mechanics combination. The invented document's nonlinear
     // state rows, which mark it nonlinear, are removed from this synthetic copy.
@@ -586,7 +586,7 @@ fn numerical_standing_progression_on_a_fresh_identity() {
 
 #[test]
 fn rule_binding_refusal_is_limited_to_the_source_blocks_summary() {
-    // the regenerated fixture's valve C-130
+    // W-15 slice d (DEL-03-05 Design §5): the regenerated fixture's valve C-130
     // body (pipe:P-130, scale 15) is the only refusal; every other row binds.
     let raw = invented();
     let mut bodies = 0;

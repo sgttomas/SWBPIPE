@@ -320,7 +320,7 @@ fn checked_solves(case: &Case, b: i32) -> Vec<(String, SolveQuality, String, boo
         .collect::<Vec<_>>();
     let macros = built.curved_bend_elements.iter().map(|e| e.macro_element).collect::<Vec<_>>();
     let mut out = Vec::new();
-    // the product's source names each frame's member.
+    // T4-U8 (Design §4 item 2): the product's source names each frame's member.
     let members = crate::frame_member_identities(built);
     for mode in MODES {
         let assembly = AssemblyEvidence::new(built.nodes.len(), &built.frame_elements, &built.connectors, &curved, &[])

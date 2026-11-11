@@ -170,7 +170,7 @@ pub(crate) const HARDWARE_LAW_UNSUPPORTED: &str = "JOINT_HARDWARE_LAW_UNSUPPORTE
 pub(crate) const PRESSURE_INTERFACE_UNRESOLVED: &str = "JOINT_PRESSURE_INTERFACE_UNRESOLVED";
 pub(crate) const PRESSURE_AREA_MISSING: &str = "JOINT_PRESSURE_AREA_MISSING";
 pub(crate) const SPAN_LOAD_UNOWNED: &str = "JOINT_REPLACED_SPAN_LOAD_UNOWNED";
-/// a tie-rod
+/// T4-U5b (DEL-04-07 Design `u4b-u5b-implementation.md` §3.1): a tie-rod
 /// hardware record that is incomplete, contradictory or out of range.
 pub(crate) const TIE_ROD_INPUT_INVALID: &str = "JOINT_TIE_ROD_INPUT_INVALID";
 /// a rod whose represented length is degenerate (the FK
@@ -1053,7 +1053,7 @@ pub(crate) fn connector_rows(
     ]
 }
 
-/// The disclosure that no joint temperature law is provided (the
+/// The disclosure that no joint temperature law is provided (JR §6 J3: the
 /// replaced pipe's thermal expansion cannot supply one).
 pub(crate) const TEMPERATURE_LAW_CODE: &str = "CONNECTOR_TEMPERATURE_LAW_NOT_PROVIDED";
 
@@ -1108,7 +1108,7 @@ pub(crate) fn disclose_connector_temperature_law(model: &PreviewModel, diagnosti
 }
 
 /// `contract_evidence.connector` on a v3 envelope: one record per admitted
-/// objective connector, in model order (topology and replaced span,
+/// objective connector, in model order (JR §7: topology and replaced span,
 /// frame, reference temperature and q_ref, matrix scale and provenance), in
 /// SI. The readers bind every connector row to its record. Empty on any
 /// other contract.

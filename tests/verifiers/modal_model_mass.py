@@ -86,7 +86,7 @@ from tests.verifiers.modal_model_mass_interval import (
     exact, pi, published_image, relative, scaled, sqrt,
 )
 
-# The model document version this reader's basis covers (named only here).
+# The model document version this reader's basis covers (MD8 §5: named only here).
 MODEL_VERSION = "0.9.0"
 UNRESOLVED = "unresolved: "
 COMPONENTS = ("ux", "uy", "uz", "rx", "ry", "rz")
@@ -501,7 +501,7 @@ def _body_block(mass: Iv, cog, floors: list) -> dict:
 
 
 def _arc_lumps(xi, xj, radius, y, mbar: Iv, ibar: Iv, jbar: Iv, trig, floors: list):
-    """two rigid half-arcs (half-angle α, mass m̄Rα each) about their end
+    """Design §2.4: two rigid half-arcs (half-angle α, mass m̄Rα each) about their end
     nodes, with first moment ∫m̄ρ ds and second moment ∫m̄(|ρ|²I − ρρᵀ) ds + ∫(j̄ttᵀ +
     ī(I − ttᵀ)) ds. In the half's own frame (e1 radial outward at the node, e2 the
     tangent into the half, e3 = e1 × e2), ρ(θ) = R((cos θ − 1)e1 + sin θ e2), θ ∈ [0, α]:
@@ -939,7 +939,7 @@ def _component_bodies(model, components, pipes, selected, curved, replaced, requ
 
 
 def _body_range(weight, a, cog, pipe_id):
-    """four-part binary64 premise, in binary64 and in the order the
+    """Design §2.3 item 6's four-part binary64 premise, in binary64 and in the order the
     producer evaluates it (`component_range`): first = m·r_i, then first·r_j, each
     zero or normal, and a nonzero exact product that rounds to zero is out of range;
     then the rotational diagonal's sums are finite. The producer refuses a body
@@ -971,7 +971,7 @@ def _body_range(weight, a, cog, pipe_id):
 
 
 def _applied_acceleration_agreement(model, acceleration):
-    """an applied component-weight primitive's recorded acceleration
+    """Design §2.3 item 5: an applied component-weight primitive's recorded acceleration
     must equal a, unless that primitive is stale or overridden. Staleness is not decided
     here, so only a disagreeing record is scoped."""
     for case in model.get("load_cases") or []:
@@ -1568,7 +1568,7 @@ def _centre(model: ModelMass, view, rounded, n_dofs, items):
 
 def participation_items(model: ModelMass, view) -> list[str]:
     """m_i, Γ, m_eff, the fractions and their cumulative sums from the model-derived M
-    and the published shapes (D-v): m = φᵀM_ffφ summed exactly and published
+    and the published shapes (Design §1.5, D-v): m = φᵀM_ffφ summed exactly and published
     once; p_k = (M R_k)_f, each row a double-word sum rounded to binary64, so the
     restrained-point coupling M_fc stays in it; φᵀp_k summed exactly; Γ = φᵀp_k/m,
     m_eff = (φᵀp_k)²/m and the fraction (φᵀp_k)²/(m·T_k) in double word, each published

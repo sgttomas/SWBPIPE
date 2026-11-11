@@ -1,7 +1,7 @@
-// Run-sheet entry: the row
-// types, the inheritance resolution, id assignment and the sheet's
-// own rules. Pure and synchronous: unit conversions arrive as a table the
-// caller fills through the engine's display-conversion facade, and the
+// Run-sheet entry, slice S1 (DEL-07-02 Design `run-sheet-entry.md`): the row
+// types, the inheritance resolution (§2), id assignment (§3.2) and the sheet's
+// own rules (§4.2). Pure and synchronous: unit conversions arrive as a table the
+// caller fills through the engine's display-conversion facade (§6.2), and the
 // resolver lists any conversion it still needs. The batch builder
 // (`runSheetBatch.ts`) reads only this module's output.
 //
@@ -18,12 +18,12 @@ import { COMPONENT_FIELDS, componentRowDraft, componentRowIssues, type Component
 export type Vec3 = { x: number; y: number; z: number };
 export type Quantity = { value: number; unit: string };
 
-/** Kind codes; blank is a run. */
+/** §1.1 Kind codes; blank is a run. */
 export type RunSheetKind = "run" | "bend" | "support" | "from" | "point" | "valve" | "flange";
 export const KIND_CODES: Readonly<Record<string, RunSheetKind>> = { R: "run", B: "bend", S: "support", F: "from", P: "point", V: "valve", L: "flange" };
 export const isPipeRowKind = (kind: RunSheetKind | null): kind is "run" | "bend" | "valve" | "flange" => kind === "run" || kind === "bend" || kind === "valve" || kind === "flange";
 export const isRigidRowKind = (kind: RunSheetKind | null): kind is "valve" | "flange" => kind === "valve" || kind === "flange";
-/** Support codes and the `family` each writes. */
+/** §5.2 Support codes and the `family` each writes. */
 export const SUPPORT_CODES: Readonly<Record<string, string>> = { A: "anchor", G: "guide", L: "line_stop", V: "vertical_support" };
 /** The restraint vocabulary (`operation_applier` `RESTRAINT_TOKENS`); `*` is all six. */
 export const RESTRAINT_TOKENS = ["UX", "UY", "UZ", "RX", "RY", "RZ"] as const;
@@ -47,7 +47,7 @@ export const QUANTITY_COLUMNS: Readonly<Record<QuantityColumn, { label: string; 
 export const OPTIONAL_SECTION_COLUMNS = [
   "insulationThickness", "insulationDensity", "contentsDensity", "materialDensity", "millTolerance", "corrosionAllowance",
 ] as const satisfies readonly QuantityColumn[];
-/** The cells that inherit. */
+/** §2.1 The cells that inherit. */
 export const INHERITING_CELLS = ["section", "od", "wall", "material", "conditionSet", "orientation", ...OPTIONAL_SECTION_COLUMNS, "bendRadius"] as const;
 export type InheritingCell = typeof INHERITING_CELLS[number];
 
@@ -61,7 +61,7 @@ export type RunSheetRowInput = {
   section?: string;
   od?: string; wall?: string;
   material?: string;
-  /** an existing condition set id, or `-` for none. */
+  /** Model document 0.9.0 (§4.1): an existing condition set id, or `-` for none. */
   conditionSet?: string;
   orientation?: string;
   insulationThickness?: string; insulationDensity?: string; contentsDensity?: string;
@@ -105,7 +105,7 @@ export type RunSheetRowInput = {
   storedPipeEndMissing?: string;
 };
 
-/** Which node a derived pipe id takes its number from: its end node (the row's own
+/** §3.2 Which node a derived pipe id takes its number from: its end node (the row's own
  * number) or its start node. */
 export type PipeNumberFrom = "end" | "start";
 export type RunSheetNumbering = {
@@ -122,7 +122,7 @@ export const MAX_PAD_DIGITS = 16;
 export type RunSheetInput = {
   sheetKey: string;
   batchSeq: number;
-  /** The increments' unit; default `project.units.length` (sheet header). */
+  /** The increments' unit; default `project.units.length` (§1.2 sheet header). */
   lengthUnit?: string;
   /** Header Source: the provenance of every created entity. */
   source: string;
@@ -132,7 +132,7 @@ export type RunSheetInput = {
   rows: RunSheetRowInput[];
 };
 
-/** The counter: numbers only move forward and are never reused. `refused`
+/** §3.2 The counter: numbers only move forward and are never reused. `refused`
  * holds, per row, why no number could be assigned. `pipes` holds, per row, a pipe id
  * numbered by its start node, fixed the first time it was shown, with the rule it followed. */
 export type RunSheetIdState = {
@@ -314,7 +314,7 @@ export function parseNumber(raw: string): number | null {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : null;
 }
-/** −0 cannot cross JSON, so every computed coordinate is normalized before use. */
+/** §6.2 −0 cannot cross JSON, so every computed coordinate is normalized before use. */
 export const normalizeZero = (x: number) => (x === 0 ? 0 : x);
 /** The id's token: the id without its `type:` prefix (as `InsertBendAtCornerForm`). */
 export const idToken = (id: string) => id.replace(/^[^:]*:/, "");
@@ -346,7 +346,7 @@ export function initialIdState(numbering: RunSheetNumbering = DEFAULT_NUMBERING)
   return { next: numbering.start, assigned: {} };
 }
 
-/** Assign a row its number once, skipping any number that yields a reserved id.
+/** §3.2 Assign a row its number once, skipping any number that yields a reserved id.
  * The counter only moves forward, so a released number is never reused. */
 export function assignRowNumber(state: RunSheetIdState, numbering: RunSheetNumbering, rowKey: string, reserved: ReadonlySet<string>): RunSheetIdState {
   if (state.assigned[rowKey] !== undefined) return state;
@@ -393,7 +393,7 @@ export function modelIds(model: PreviewModel): Set<string> {
   return ids;
 }
 
-/** Reservations from pending intents and queued batches: create, connect
+/** §3.2 Reservations from pending intents and queued batches: create, connect
  * and insert targets (the rule of `routeDraft.ts` `reservedIds`, widened to
  * queued batches), and the new ids a queued bend insertion names. */
 export function reservedOperationIds(operations: ReadonlyArray<unknown>): Set<string> {
@@ -429,7 +429,7 @@ function converter(table: RunSheetConversions | undefined): Converter {
   return {
     missing,
     convert(value, from, to, dimension) {
-      // c(v) = v when the sheet and stored units are the same unit: the
+      // §6.2 c(v) = v when the sheet and stored units are the same unit: the
       // identity branch of `convert_for_dimension`, taken here without a call.
       if (from === to) return value;
       const key = conversionKey(value, from, to, dimension);
@@ -478,7 +478,7 @@ const blankCells = (): ResolvedCells => ({
   bendRadius: { origin: { kind: "blank" } },
 });
 
-/** A blank cell takes the predecessor's effective value; the origin names
+/** §2.2 A blank cell takes the predecessor's effective value; the origin names
  * the row the value was entered on, or the stored pipe it came from. */
 function inherit<T>(cell: ResolvedCell<T>, predecessorNumber: number): ResolvedCell<T> {
   if (cell.value === undefined && !cell.absent) return { origin: { kind: "blank" } };
@@ -538,7 +538,7 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
   const rows: ResolvedRunSheetRow[] = [];
   /** Nodes drafted by earlier rows: id -> the drafting row. */
   const drafted = new Map<string, ResolvedRunSheetRow>();
-  // Pipes numbered by their start node: the nodes whose id is their row's number, the
+  // §3.2 Pipes numbered by their start node: the nodes whose id is their row's number, the
   // pipe ids already taken (applied rows' own pipes and every pipe id fixed when it was first
   // shown, deleted rows' included, then each numbered node's first pipe in sheet order), and
   // the rows that fall back to their own number once every claim is known.
@@ -646,7 +646,7 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
     }
     const materialTyped = enteredValue("material");
     if (materialTyped) cells.material = { value: materialTyped, origin: { kind: "entered" } };
-    // `-` means absent and ends inheritance, like an optional member.
+    // §4.1: `-` means absent and ends inheritance, like an optional member (§2.4).
     const conditionSetTyped = enteredValue("conditionSet");
     if (conditionSetTyped === "-") cells.conditionSet = { absent: true, origin: { kind: "entered" } };
     else if (conditionSetTyped) cells.conditionSet = { value: conditionSetTyped, origin: { kind: "entered" } };
@@ -715,7 +715,7 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
         const id = text(overrides.node) || derivedIds?.node || "";
         end = { id, position: { x: normalizeZero(raw.storedEnd.x), y: normalizeZero(raw.storedEnd.y), z: normalizeZero(raw.storedEnd.z) }, existing: false };
       } else if (converted) {
-        // x_P = c(X), normalized.
+        // §6.2 x_P = c(X), normalized.
         const id = text(overrides.node) || derivedIds?.node || "";
         end = { id, position: { x: normalizeZero(converted.x), y: normalizeZero(converted.y), z: normalizeZero(converted.z) }, existing: false };
       }
@@ -741,7 +741,7 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
           if (increments.x === 0 && increments.y === 0 && increments.z === 0) refusals.push({ rule: "zero-length", message: MESSAGES.zeroLength });
           const converted = convertAll(increments);
           if (converted) {
-            // x_k = x_{k−1} + c(dx_k), one rounding in the conversion and one in the addition.
+            // §6.2 x_k = x_{k−1} + c(dx_k), one rounding in the conversion and one in the addition.
             const x = normalizeZero(startPosition.x + converted.x);
             const y = normalizeZero(startPosition.y + converted.y);
             const z = normalizeZero(startPosition.z + converted.z);
@@ -960,7 +960,7 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
     }
   });
 
-  // A pipe whose start node gives no free number takes its own row's number, unless
+  // §3.2 A pipe whose start node gives no free number takes its own row's number, unless
   // that id names the first pipe from its own end node; then its id is entered.
   for (const { row, own, rule } of fallbackPipes) {
     if (claimedPipes.has(own)) {
@@ -1110,7 +1110,7 @@ export function buildGap(row: ResolvedRunSheetRow): string | null {
 }
 
 /** Resolve with every unit conversion taken from the engine's display-conversion
- * facade (`convert_for_dimension`, never a reimplemented factor). */
+ * facade (§6.2: `convert_for_dimension`, never a reimplemented factor). */
 export async function resolveRunSheetWithEngine(input: RunSheetInput, context: Omit<RunSheetContext, "conversions"> & { conversions?: Map<string, number | null> }): Promise<{ resolved: ResolvedRunSheet; conversions: Map<string, number | null> }> {
   const conversions = new Map(context.conversions ?? []);
   for (let pass = 0; pass < 3; pass += 1) {

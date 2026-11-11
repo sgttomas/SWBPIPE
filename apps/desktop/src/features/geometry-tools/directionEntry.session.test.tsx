@@ -1,4 +1,4 @@
-/** the computed end point through the
+/** B5 (DEL-07-01 Design `split-and-slope-entry.md` §3): the computed end point through the
  * session and the actual wasm engine, on both routes that take it: a new route end (create_node +
  * connect_pipe_run, the viewport builder) and a reconnect to a new point (create_node +
  * reconnect_pipe_run, the Geometry builder). The stored coordinates are bit-identical to the

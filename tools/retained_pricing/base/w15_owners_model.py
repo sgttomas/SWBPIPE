@@ -1,4 +1,4 @@
-"""W-15 D3 (§8.21): the positive
+"""W-15 D3 (DEL-03-05 Design rigid-component-stiffness-scaling.md §2.8; retained-pricing-rules.md §8.21): the positive
 owners the rigid-component stiffness scaling (slice a) and the reference-section identification (slice d) add outside
 the chain's TEXT inventory. D1 admits no component (P2), so no member is scaled, no row carries `component_body` and no
 coverage entry lists bodies; what remains on D1 is the predicate's and the readers' working sets, priced here.

@@ -373,7 +373,7 @@ pub fn run_rule_checks(input: &RuleCheckRunInput) -> RuleCheckRunResult {
 }
 
 /// [`run_rule_checks`] with verified absolute bounds for some `solver_result`
-/// inputs (conservative interval binding).
+/// inputs (T3 D2 §4.11, option C: conservative interval binding).
 ///
 /// A check whose formula binds no interval input follows [`run_rule_checks`]'s
 /// point path unchanged. A check with at least one interval input is evaluated
@@ -422,7 +422,7 @@ pub fn run_rule_checks_with_bounds(
         .map(Vec::as_slice)
         .unwrap_or(&[]);
 
-    // one outcome per check and basis, in check order and then
+    // Design §2.7: one outcome per check and basis, in check order and then
     // mapping order. Each basis gets its own context: only the solver values,
     // refusals and bounds of that basis are visible to it, so nothing binds
     // or is reported on a basis it did not come from.
@@ -786,7 +786,7 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
         };
         let (raw_value, raw_unit, note, interval_source) = match bound {
             None => (raw_value, raw_unit, note, None),
-            // a bound without a basis is refused; the input is
+            // Design §2.8: a bound without a basis is refused; the input is
             // unsupplied on every basis rather than bound unwidened.
             Some(BoundEntry::NoBasis) => {
                 completeness_findings.push(RunFinding {
@@ -1599,7 +1599,7 @@ fn blocked_after_completeness(
 }
 
 // ---------------------------------------------------------------------------
-// Interval mode (conservative interval binding)
+// Interval mode (T3 D2 §4.11, option C: conservative interval binding)
 // ---------------------------------------------------------------------------
 
 /// The records an interval-mode check carries to its outcome.
@@ -1678,7 +1678,7 @@ impl CheckRecords {
 const FORMULA_ENCLOSURE_VARIABLE: &str = "interval_formula_value";
 
 /// One check with at least one interval input, evaluated in interval mode
-/// and mapped to the three-valued outcome. Every
+/// (D2 §4.11.3) and mapped to the three-valued outcome (D2 §4.11.5). Every
 /// structural failure is reported exactly as the point path reports it.
 #[allow(clippy::too_many_arguments)]
 fn run_interval_check(

@@ -19,7 +19,7 @@ PINS = {
         # T4-U6/U8: D-5's stress rows, per-basis maxima, extrema and coverage (priced at their own sites and by the
         # U6 rules); its carriers, staging and prepared-pressure calls are unchanged. Epoch addbdc030e: the case
         # evidence's `pipe_sections` is `exact_pipe_sections(built)`, the same entries plus the realized-arc marker
-        # (no realized arc on D1). O4 S5 (§8.9, O4-SR): a selected case's maximum is one
+        # (no realized arc on D1). O4 S5 (retained-pricing-rules.md §8.9, O4-SR): a selected case's maximum is one
         # composite_member_maximum call per basis where the two stress sections differ (the reduced one on its own
         # section) and SOURCE_MAXIMUM_BASES_DISTINCT is deleted; the warning pushes the error by clone. Carriers,
         # staging and the prepared-pressure calls are unchanged.
@@ -46,7 +46,7 @@ PINS = {
         # Staging and prepared-pressure calls unchanged.
         # I2b-2 layout (§8.43, cc160d28d; Agent 0): ordinary layout of the same hunks (token-equal but for
         # block-wrapped arms and trailing commas); carriers, counts, staging and prepared-pressure calls unchanged.
-        # D3 (§8.53): LoadCaseSolve.certificate_operand (None at every early return) and, on a model with a
+        # RT-A3 §4 D3 (§8.53): LoadCaseSolve.certificate_operand (None at every early return) and, on a model with a
         # combination whose case formed its member bound, combination_certificate::operand over the case's recovery
         # records. The carrier set and counts are unchanged; the two Result<LoadCaseSolve, _> carriers stay bound to
         # their in-build size (the field's bytes reach the profile through the in-build atoms). Staging and

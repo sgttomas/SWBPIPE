@@ -1,4 +1,4 @@
-// Run-sheet entry: the
+// Run-sheet entry, slice S2 (DEL-07-02 Design `run-sheet-entry.md` §3.6): the
 // sheet's state, the session events it follows, the history ledger and the
 // reconciliation. Every function here is pure: the workspace session computes a
 // staged transition from an event in its Prepare phase (a throw changes

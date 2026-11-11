@@ -1376,7 +1376,7 @@ def _g5_preparation_members(a, prefix_ok, fail, wf):
                 outcome = conversion["outcome"]
                 idx = k // 2 if k < 8 else 4
                 fail(outcome["kind"] == "normal" and outcome["value"] == m["result"]["section"][idx] and from_bits(outcome["value"]) >= 2.0 ** -1022)
-        # a distinct-basis member's reduced record is a preparation
+        # O4 (DEL-04-08 Design o4-source-extension.md §4.6): a distinct-basis member's reduced record is a preparation
         # record like the member's own, read by the same rules: present only beside a prepared member; conversions in
         # property order, each of an admitted kind; a prepared result's nine normal, positive conversions equal to its
         # section; a refused reduced annulus ends the preparation (the last member); its conversion count is WORK.
@@ -2011,7 +2011,7 @@ def _preview_namespace(model):
 
 
 EXACT_PRESSURE_CONTRACT = {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"}
-# either shear model is admitted on the exact route.
+# O4 (DEL-04-08 Design o4-source-extension.md §4.7): either shear model is admitted on the exact route.
 EXACT_SHEAR_MODELS = (sb.EULER_BERNOULLI, sb.TIMOSHENKO)
 
 
@@ -2182,7 +2182,7 @@ def _g8(body, source, invocation, route=PREVIEW_ROUTE):
     # The model scope, as PP accepts it (the alignment set, item 2): no reference_configurations member (null
     # included); the route's namespace (branch L; B3b's exact one); combinations and components absent or [] (on the
     # exact route a combination is ruling 4's expected refusal).
-    # G8 invocation: on the preview route model combinations are admitted, the entries
+    # B2-C §10.1 G8 invocation (REVISION_01 §4.1 #12): on the preview route model combinations are admitted, the entries
     # being the invocation's in order, id and expression. The exact route still admits none (B3b; RR "PR-B1 cut …", 2).
     need((_exact_namespace(model) if exact else _preview_namespace(model)) and (model.get("combinations", []) == [] if exact else _model_combinations_match(body, model)), "INVOCATION_MISMATCH")
     need(model.get("components", []) == [] and "reference_configurations" not in model, "INVOCATION_MISMATCH")
@@ -2202,7 +2202,7 @@ def _g8(body, source, invocation, route=PREVIEW_ROUTE):
     def selected_material(material, case):
         if exact:
             # D1.5-exact: the base common E/nu only. G_hat is the producer's RN64(E/(2*RN64(1+nu))), positive and
-            # normal (B3D-7; RV116 N-1); binary64 evaluates exactly that expression.
+            # normal (B3-D §1.2, B3D-7; RV116 N-1); binary64 evaluates exactly that expression.
             need(case.get("modulus_basis_ref") is None and case.get("modulus_basis_temperature") is None)
             e = unit(material["elastic_modulus"], "stress"); g = e / (2.0 * (1.0 + poisson(material)))
             need(math.isfinite(e) and e > 0 and math.isfinite(g) and g >= 2.0 ** -1022)
@@ -2236,7 +2236,7 @@ def _g8(body, source, invocation, route=PREVIEW_ROUTE):
         axial = (x[6]*x[8])/length; torsion = (x[7]*x[9])/length
         need(math.isfinite(axial) and math.isfinite(torsion) and abs(axial) >= 2.0**-1022 and abs(torsion) >= 2.0**-1022)
         return {"kind":"ready","length":bits(length),"axial_stiffness":bits(axial),"torsional_stiffness":bits(torsion),"normalization":[bits(d*inverse) for d in delta]}
-    # after the invocation, project and
+    # DESIGN_v2 §3.3 (decision 9) and F-1 text B (§3.2, decision 8): after the invocation, project and
     # model-scope checks, one loop in request order over every case (selected, unavailable or
     # not_required: every case's rows come from the one ordinary run). G3 binds case i to ordinary
     # attempt i and to the invocation's case i. Each check is PREPARATION_MISMATCH.
@@ -2254,7 +2254,7 @@ def _g8(body, source, invocation, route=PREVIEW_ROUTE):
         named, temperature = raw_case.get("modulus_basis_ref"), raw_case.get("modulus_basis_temperature")
         need(named is None or temperature is None)
         selector = {"kind":"named","id":named} if named is not None else {"kind":"temperature","kelvin":bits(unit(temperature,"temperature"))} if temperature is not None else {"kind":"base"}
-        need(not exact or selector == {"kind":"base"})
+        need(not exact or selector == {"kind":"base"})  # B3-D REVISION_01 §4.2 step 3
         if selector not in selectors: selectors.append(selector)
         case_bases.append(selectors.index(selector))
         need(o["material_basis_ref"] == case_bases[i])
@@ -2515,7 +2515,7 @@ def _needs_operands(entry):
 
 
 def _source_unusable(case):
-    """CONTRACT §2.4 (i): an `unavailable` operand case with no CaseSource, or whose Run refused
+    """CONTRACT §2.4 (i), REVISION_01 §3.3 N-1: an `unavailable` operand case with no CaseSource, or whose Run refused
     `ledger_unavailable`, has no usable operand source."""
     run = case.get("run")
     ledger = run is not None and run["kernel_terminal"]["kind"] == "refused" and (run["kernel_terminal"]["reason"] or {}).get("tag") == "ledger_unavailable"
@@ -2588,7 +2588,7 @@ def _g3_combinations(snapshot, body, ids, crows):
     cids = [c["basis_ref"]["ref_id"] for c in combos]
     case_at = {cid: i for i, cid in enumerate(ids)}
     # (a) One entry per gate-evidence entry, in order and by id. It binds once the receipt has an entry or an
-    # `operand_preparations` member (PR-B2 ruling 1; today's predicate at z = 0): with neither, the
+    # `operand_preparations` member (PR-B2 ruling 1; REVISION_01 §4.1: today's predicate at z = 0): with neither, the
     # receipt is today's (07n's `t_gate_*` entries carry gate evidence for a combination outside the model).
     b2 = bool(combos) or "operand_preparations" in body
     if b2:
@@ -2893,7 +2893,7 @@ def _numeric_source(body, kind, ref):
 
 
 def _r_comb_1(body, rows_by_case):
-    """CONTRACT §5 (R): every row of a `retained_unavailable` combination, and
+    """CONTRACT §5 (R) with REVISION_01 §2 and REVISION_02 §4.1: every row of a `retained_unavailable` combination, and
     of an `ordinary` one whose expression names a case that is not `not_required`, is withheld from binding with its
     value unchanged: `not_covered` for a quantity row, `non_quantity` for a record row; `normalized_bits` from the
     row's value, `scale_bits` null. Combinations in authored order, rows in publication order. A derivation, not a check."""
@@ -3015,10 +3015,10 @@ def _transport_base(snapshot: dict[str, Any], route: Route = PREVIEW_ROUTE) -> N
 
 
 def _g0_exact(receipt):
-    """G0 on the exact branch: the packaged
+    """G0 on the exact branch, B3-D §2.4 steps 3 to 9 (step 1 is the dispatch, step 2 the envelope): the packaged
     physics-retained-1 table and DEF-E, the table/constant cross-check, then the receipt's bound values and
     definition ids read from the table (decision 31, N-12). Every failure is SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
-    except DEF-E's binding, RETAINED_PRECISION_FORMATION_MISMATCH."""
+    except DEF-E's binding (step 4), RETAINED_PRECISION_FORMATION_MISMATCH."""
     need = lambda ok, code="SOURCE_PRODUCER_CONTRACT_UNSUPPORTED": _need(ok, "G0", code)
     results = ROOT / "fixtures/results"
     table_bytes = (results / "semantic_contract_v0_3_physics_retained_1.json").read_bytes()
@@ -3048,7 +3048,7 @@ def _g0_exact(receipt):
         need(type(b.get(key)) is str and b[key] == value)
     w = b.get("work")
     need(type(w) is dict and _integral(w.get("case_limit")) == bound["work"]["case_limit"] and _integral(w.get("invocation_limit")) == bound["work"]["invocation_limit"])
-    # 9. Every attempt's definition is the table's (and every operand preparation's: the exact table
+    # 9. Every attempt's definition is the table's (and every operand preparation's: B2-C §8 row 9; the exact table
     # binds DEF-E only, so an operand preparation, which carries DEF-O's id, is refused on this route).
     for attempt in _definition_bearers(b):
         need(attempt.get("definition_id") == table["product_formation_definitions"][0]["id"])
@@ -3177,7 +3177,7 @@ def _gates_after_g0(snapshot, receipt, schema, invocation, route, raw=True, stat
         ids=[c["basis_ref"]["ref_id"] for c in cases]
         _need(len(set(ids))==len(ids) and [c["basis_ref"] for c in cases]==[q["basis_ref"] for q in quality] and any(c["status"]=="selected" for c in cases),state["gate"],"COVERAGE_MISMATCH")
         if invocation is not None:_need(ids==[c["id"] for c in invocation["request"]["model"]["load_cases"]],state["gate"],"COVERAGE_MISMATCH")
-        # G3 (c): a row's basis names a case or a combination entry (at z = 0, a case).
+        # B2-C §10.1 G3 (c), REVISION_01 §4.1 #5: a row's basis names a case or a combination entry (at z = 0, a case).
         combos=body["combinations"];cids=[c["basis_ref"]["ref_id"] for c in combos]
         rows={cid:[] for cid in ids};crows={cid:[] for cid in cids};seen=set()
         for row in snapshot["results"]:
@@ -3214,7 +3214,7 @@ def _gates_after_g0(snapshot, receipt, schema, invocation, route, raw=True, stat
         _need(sorted(refs)==list(range(len(body["product_attempts"]))),state["gate"],"COVERAGE_MISMATCH")
         for ai,a in enumerate(body["product_attempts"]):
             if a["owner_ref"]["kind"]=="combination":
-                _g3_combination_attempt(body,a,ai,crows);continue
+                _g3_combination_attempt(body,a,ai,crows);continue  # REVISION_01 §4.1 #3
             _need(a["id"]==ai and a["owner_ref"]["kind"]=="case" and a["owner_ref"]["index"]<len(cases),state["gate"],"COVERAGE_MISMATCH")
             c=cases[int(a["owner_ref"]["index"])]
             _need(c["product_attempt_ref"]==ai,state["gate"],"COVERAGE_MISMATCH")
@@ -3240,7 +3240,7 @@ def _gates_after_g0(snapshot, receipt, schema, invocation, route, raw=True, stat
                     inventory=[b["body"] for b in body["sources"][si]["body_membership"]]
                     _need(bool(inventory) and [x["body"] for x in coverage]==inventory==list(range(len(inventory))),state["gate"],"COVERAGE_MISMATCH")
         # D1 (C2:117; C1:146): each run id is its execution-order position; the order is a bijection.
-        # B2-C G3 (f): the case Runs, then the combination Runs in Call order (at z = 0, the cases' only).
+        # B2-C G3 (f), REVISION_01 §4.1 #2: the case Runs, then the combination Runs in Call order (at z = 0, the cases' only).
         order=body["work"]["execution_order"];with_run=[i for i,c in enumerate(cases) if c.get("run") is not None]
         n=next((k for k,e in enumerate(order) if e["kind"]!="case"),len(order));head,tail=order[:n],order[n:]
         _need(all(e["kind"]=="case" for e in head) and sorted(e["index"] for e in head)==with_run and all(cases[e["index"]]["run"]["id"]==k for k,e in enumerate(head)),state["gate"],"COVERAGE_MISMATCH")

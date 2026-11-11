@@ -15,7 +15,7 @@ import {
 } from "../workspace/solveJobAudit";
 import { SolveProgressPanel } from "./SolveProgressPanel";
 
-// the panel shows the solve-job
+// DEL-07-07 Design `solve-progress-panel.md`: the panel shows the solve-job
 // record the session already keeps, from invented native job reports.
 const GiB = 1024 ** 3;
 const MiB = 1024 ** 2;

@@ -29,7 +29,7 @@ import {
 } from "./features/caepipe-mbf/mbfExport";
 import { isMenuCommandId } from "./features/workspace/menuCommands";
 
-// DEL-17-04 (slice 4b.2b): File > Export MBF… and the
+// DEL-17-04 Design `desktop-mbf-export-import.md` §3.1, §3.7 and §3.9.5 (slice 4b.2b): File > Export MBF… and the
 // Exports section's Model batch file panel open the mounted export dialog on the session's model, with the barrier's
 // native review and save (`mbfExportCancel.ts`). These run the real App: its menu, its Exports section, the dialog's
 // close and the workspace's lifecycle, against a mocked native host.

@@ -1328,7 +1328,7 @@ fn general_pointmass_negative_generalized_mass_cannot_resolve_the_census() {
     }
 }
 
-/// S1 on the eigen cases: with no allotment, a generous one
+/// Design §5.3.8 S1 on the eigen cases: with no allotment, a generous one
 /// or one exactly at the counts, the outcome is `solve_dense_pencil`'s bit
 /// for bit (equality, Debug text and the bits of λ, μ and the shapes), and
 /// the exposed counts agree with the screened records.

@@ -1,4 +1,4 @@
-/** the contract
+/** Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §4.2, §4.3, §6.1): the contract
  * mutations of the exact identities' result JSON document and stress-neutral package,
  * each refused by name. The bases are the committed cross-language twins (Rust's
  * `*.document.json`, Python's `*.stress_neutral.json` and `*.analysis_run.json`) with

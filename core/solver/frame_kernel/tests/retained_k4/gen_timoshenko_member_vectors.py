@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Independent 1200-bit outward reference for the retained Timoshenko member.
 
-the
+O4 (DEL-04-08 Design o4-source-extension.md section 4.4 item 7, section 6): the
 exact Timoshenko element of the exact binary64 leaves at the exact frame,
 (EI/(L(1+phi)))[[4+phi, 2-phi], [2-phi, 4+phi]] per bending plane with
 phi = 12EI/(G*A_s*L^2), its global element stiffness K* = B*^T D* B*, and the

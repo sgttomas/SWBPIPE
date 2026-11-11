@@ -42,7 +42,7 @@ def test_the_entry_edges_are_zero(monkeypatch, route):
     zero = lambda label: {(short(a), short(b)) for a, b, why in d["O10_EDGE_ZERO"] if label + ":" in why}
     assert zero("W16B-CB") == {("run_linear_static_preview_observed_inner", "append"),
                                ("run_linear_static_preview_observed_inner", "state_operand_standing")}
-    # (§8.53, RTA3C-WC): the combination dispatch is the uncertified pass, which the certificate's wrapper
+    # RT-A3 §4 (§8.53, RTA3C-WC): the combination dispatch is the uncertified pass, which the certificate's wrapper
     # reaches through one of two exclusive arms.
     assert zero("W16B-RD") == {("validate_pressure_evidence_uncertified", "direct_view"),
                                ("validate_pressure_evidence_uncertified", "validate")}

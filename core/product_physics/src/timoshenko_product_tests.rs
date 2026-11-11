@@ -268,7 +268,8 @@ fn records_with<'a>(value: &'a Value, key: &str, out: &mut Vec<&'a Value>) {
     }
 }
 
-/// on a mixed L-line under
+/// Design §3.6, §8 ("Shear deformation applied to a realized arc, or arc
+/// evidence claiming Timoshenko"): on a mixed L-line under
 /// timoshenko_annulus_energy_v1 every realized arc's element stiffness is the
 /// Euler-Bernoulli document's, bit for bit, and its evidence names
 /// euler_bernoulli; the straight members carry the Timoshenko leaf.
@@ -313,7 +314,7 @@ fn timoshenko_realized_arcs_stay_euler_bernoulli() {
     }
 }
 
-/// a straight member's `pipe_sections` entry has exactly these keys; a realized
+/// Design §2.5: a straight member's `pipe_sections` entry has exactly these keys; a realized
 /// arc's has these and `member_kind`.
 const PIPE_SECTION_KEYS: [&str; 11] = ["pipe_id", "geometry_basis", "outside_diameter_m", "ro_m", "wall_thickness_m",
     "mill_tolerance_m", "corrosion_allowance_m", "nominal_section", "reduced_section", "pressure_bore", "beam_theory"];
@@ -350,7 +351,7 @@ fn checked_pipe_sections<'a>(case: &'a Value, arcs: &std::collections::BTreeSet<
     by_id
 }
 
-/// a Timoshenko document whose realized arc lies outside every
+/// Design §2.5 (the arc marker): a Timoshenko document whose realized arc lies outside every
 /// pressure region (explicitly empty regions, so no region geometry names any member) still
 /// marks the arc's `pipe_sections` entry `member_kind = "realized_arc"` with Euler-Bernoulli beam
 /// theory, and each straight member's entry has exactly the D-5 keys and its Timoshenko leaf.
@@ -387,7 +388,7 @@ fn pipe_sections_mark_a_realized_arc_outside_every_pressure_region() {
     }
 }
 
-/// with the arc inside a pressure region, under either shear model, the region
+/// Design §2.5: with the arc inside a pressure region, under either shear model, the region
 /// geometry and `pipe_sections` mark the same members, exactly the realized arcs, and each region
 /// geometry record's section part (without its traversal and tangent keys) is its member's
 /// `pipe_sections` entry, marker included.
@@ -431,7 +432,8 @@ fn pipe_sections_and_region_geometry_mark_the_same_realized_arcs() {
     }
 }
 
-/// at the product level: a member with no load primitive
+/// Design §4 item 2, §8 ("Timoshenko leaf missing from a recovery or
+/// primitive frame"), at the product level: a member with no load primitive
 /// has nothing to bind its recovery frame to but its formation-source frame.
 /// The product's certified member recovery binds it there by member identity:
 /// the unmutated frame certifies; the same member's frame with its Timoshenko

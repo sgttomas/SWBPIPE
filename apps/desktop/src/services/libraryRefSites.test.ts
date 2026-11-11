@@ -1,4 +1,4 @@
-// The one walk of the model's `library_ref`s (W-6a): the open-time
+// The one walk of the model's `library_ref`s (W-13 §3.5; W-6a): the open-time
 // store check and the save screen both read it, and the native save's walk is
 // pinned to the same table (`model_document_save.rs`
 // `library_ref_walk_matches_the_shared_site_table`). Invented data.

@@ -148,7 +148,7 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any, contr
     straight_models: set[str] = set()
     extrema_ids: set[str] = set()
     for cid, case in cases.items():
-        # a generating case's closed record,
+        # W-16 slice c (DEL-05-01 Design exact-equivalent-static.md §2): a generating case's closed record,
         # never on a selected retained case.
         generation = isinstance(case, Mapping) and "equivalent_static" in case
         if generation:

@@ -1,4 +1,4 @@
-// the history commands take 256 KiB of
+// W-12 S2 repair r7 (DEL-14-01 Design §3): the history commands take 256 KiB of
 // arguments, so a project id of any length the app keeps up to that limit lists;
 // a longer one is refused at ingress, and the History panel shows that named
 // refusal (`INGRESS-ARGS-TOO-LARGE`), not a bare "List failed". The native

@@ -1,4 +1,4 @@
-/** the equal-part split planner and batch.
+/** B5 (DEL-07-01 Design `split-and-slope-entry.md` §2): the equal-part split planner and batch.
  * The generated batch equals a hand-built batch; the request checks and the mirrored applier
  * refusals queue nothing. Invented model; project unit ft. */
 import { describe, expect, it } from "vitest";

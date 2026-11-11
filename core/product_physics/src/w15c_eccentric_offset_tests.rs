@@ -95,7 +95,7 @@ fn two_rounded_parallel_hundred_millimetre_spans_agree() {
     assert_eq!(outcome_name(&outcome), "realized", "{outcome:?}");
 }
 
-/// The geometry: 1 m runs on X, the body chord (0.12, −0.05, 0) m.
+/// The §7.1 geometry: 1 m runs on X, the body chord (0.12, −0.05, 0) m.
 fn axis_x() -> (EndStatus, EndStatus, [f64; 3], [f64; 3]) {
     let (n0, a, b, c) = ([0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.12, -0.05, 0.0], [2.12, -0.05, 0.0]);
     (run(n0, a), run(b, c), a, b)
@@ -152,7 +152,7 @@ fn bits(o: &OffsetOutcome) -> Vec<u64> {
     [m.axial_length, m.offset_axial, m.allowance, m.residual, m.beta_run].iter().map(|v| v.to_bits()).collect()
 }
 
-/// Codex: a sign-only convention change (the ends' names swapped and the
+/// §3.3, Codex: a sign-only convention change (the ends' names swapped and the
 /// offset negated, as option A against option B with the member reversed) gives
 /// the same outcome and bit-identical measures, because the axis is chosen
 /// independently of endpoint naming and oriented by D.

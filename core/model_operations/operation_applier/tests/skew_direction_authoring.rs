@@ -55,7 +55,7 @@ fn exact_route_and_range_are_refused_by_name() {
     assert!(codes(&out).contains(&"SUPPORT_DIRECTION_SKEW_EXACT_UNSUPPORTED".to_string()), "{:?}", codes(&out));
     // An axis-aligned direction is not a skewed record: no exact-route refusal from it.
     assert!(!codes(&create(&exact, &stop(json!({"x":0,"y":-1,"z":0})))).contains(&"SUPPORT_DIRECTION_SKEW_EXACT_UNSUPPORTED".to_string()));
-    // (1, 2^-1023, 0) has a subnormal canonical component.
+    // §4.2: (1, 2^-1023, 0) has a subnormal canonical component.
     let out = create(&model(), &stop(json!({"x":1.0,"y":1.1125369292536007e-308,"z":0})));
     assert!(out.applied_model.is_none());
     assert!(codes(&out).contains(&"SUPPORT_DIRECTION_RANGE_UNSUPPORTED".to_string()), "{:?}", codes(&out));

@@ -25,7 +25,7 @@ use crate::ValidationFinding;
 /// refused by [`RULE_PACK_SCHEMA_VERSION_UNSUPPORTED`], with no migration.
 pub const RULE_PACK_SCHEMA_VERSION: &str = "0.5.0";
 
-// --- Static (validation) finding codes ---------
+// --- Static (validation) finding codes, design §2.1, §2.5 and §2.9 ---------
 
 /// A pack declaring any version other than [`RULE_PACK_SCHEMA_VERSION`]
 /// (absent, `0.4.0`, or a top-level value differing from
@@ -53,7 +53,7 @@ pub const RULE_PACK_RECORD_INCOMPLETE: &str = "RULE_PACK_RECORD_INCOMPLETE";
 /// (`schemas/rule_pack.schema.yaml` `ProvenanceRecord`).
 pub const RULE_PACK_PROVENANCE_INCOMPLETE: &str = "RULE_PACK_PROVENANCE_INCOMPLETE";
 
-// --- Run-time finding codes ---------------------------
+// --- Run-time finding codes, design §2.5 and §2.6 ---------------------------
 
 /// A required load case absent from the model's `load_cases` or
 /// `combinations`.

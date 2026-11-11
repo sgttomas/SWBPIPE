@@ -28,7 +28,7 @@ mod integrity;
 mod mass;
 mod outcome;
 mod prepare;
-mod request; mod resource; // on this line so that no line moves.
+mod request; mod resource; // design §5.3.8 P0, on this line so that no line moves.
 mod state;
 mod stiffness; mod skew_pencil;
 mod weight_basis;

@@ -306,7 +306,7 @@ fn standing_findings(standing: &Value) -> Vec<String> {
     standing["findings"].as_array().map(|items| items.iter().filter_map(Value::as_str).map(str::to_string).collect()).unwrap_or_default()
 }
 
-/// `recordedPreRtA4RecordBinding(record)`: the registry variant a
+/// RT-A4 §10.4 `recordedPreRtA4RecordBinding(record)`: the registry variant a
 /// record's `analysis_run.reproducibility.semantic_contract` names by exact
 /// `{id, sha256}`, or none.
 pub(crate) fn recorded_record_binding(record: &Value) -> Option<&'static RecordedVariant> {
@@ -1021,13 +1021,13 @@ pub(crate) struct SavedProject<'a> {
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub(crate) struct HistoricalFindings {
     pub(crate) findings: Vec<String>,
-    /// (`checkFindings`): the findings of the reopen's checks
+    /// RT-A4 §10.4 (`checkFindings`): the findings of the reopen's checks
     /// alone, every entry of `findings` but the current standing's.
     pub(crate) check_findings: Vec<String>,
-    /// (`recordedTableRead`): the registry variant `{id, sha256}`
+    /// RT-A4 §10.4 (`recordedTableRead`): the registry variant `{id, sha256}`
     /// a run recorded before RT-A4 was read under, or null.
     pub(crate) recorded_table_read: Option<Value>,
-    /// (`historicalReaderFindings`): the findings the historical
+    /// RT-A4 §10.4 (`historicalReaderFindings`): the findings the historical
     /// reader computed under `recorded_table_read`; empty without one.
     pub(crate) historical_reader_findings: Vec<String>,
     pub(crate) run_id: String,

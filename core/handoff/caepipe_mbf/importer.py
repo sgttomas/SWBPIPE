@@ -461,7 +461,7 @@ def fraction_of(text: str) -> Fraction:
 
 
 def half_unit(text: str) -> Fraction:
-    """Half a unit in the last printed digit of a decimal (conflict bound); 0 for an exact zero."""
+    """Half a unit in the last printed digit of a decimal (§10.1 conflict bound); 0 for an exact zero."""
     mantissa, _, exponent = text.lstrip("+-").lower().partition("e")
     if exact_decimal(mantissa or "0") == 0:
         return Fraction(0)
@@ -1560,7 +1560,7 @@ class _Importer:
         self.add_assumptions()
         return self.result(model, id_map)
 
-    # -- bytes, lines and encoding ----------------------------------
+    # -- §4.1 bytes, lines and encoding ----------------------------------
     def decode(self) -> None:
         try:
             text = bytes(self.data).decode("utf-8", errors="strict")
@@ -1584,7 +1584,7 @@ class _Importer:
             parts.pop()
         self.lines = [(index + 1, part.rstrip(" \t")) for index, part in enumerate(parts)]
 
-    # -- heading and sections -----------------------------------------
+    # -- §4.2 heading and sections -----------------------------------------
     def keyword(self, text: str, line: int) -> str | None:
         if text in SECTION_KEYWORDS:
             return text
@@ -1790,7 +1790,7 @@ class _Importer:
         self.ambiguous()
 
     def self_digest(self) -> bool:
-        """a sidecar claiming format 3, 4 or 6 must carry its self-digest `sidecar_sha256`, the SHA-256 of
+        """Design §15: a sidecar claiming format 3, 4 or 6 must carry its self-digest `sidecar_sha256`, the SHA-256 of
         its canonical content without it (si_writer.sidecar_canonical_bytes), and that digest must be the content's, or
         the import is refused, before the parser or any route reads it. It catches an accidental or partial edit; a
         deliberate editor can recompute it, so the parser, the agreement rule and the regeneration identity still
@@ -1860,7 +1860,7 @@ class _Importer:
                     f"version {self.version}")
         return False
 
-    # -- analysis options -------------------------------------------------
+    # -- §6 analysis options -------------------------------------------------
     def read_analysis_options(self) -> None:
         if "OPTEMP" in self.sections:
             lines = self.data_lines("OPTEMP")
@@ -1966,7 +1966,7 @@ class _Importer:
                     + (" (the file's -Z, rotated)" if self.z_vertical else ""))
         self.used_conventions.add(("gravity", "the earth gravity setting"))
 
-    # -- MATERIAL -----------------------------------------------------------
+    # -- §7 MATERIAL -----------------------------------------------------------
     def read_materials(self) -> None:
         order: list[str] = []
         for line, text in self.sections.get("MATERIAL", (0, []))[1]:
@@ -2081,7 +2081,7 @@ class _Importer:
             return
         record["rows"].append((modulus, alpha, temperature))
 
-    # -- PIPE -------------------------------------------------------------
+    # -- §8 PIPE -------------------------------------------------------------
     def read_pipes(self) -> None:
         for line, text in self.data_lines("PIPE"):
             fields = self.fields(line, text, "PIPE")
@@ -2121,7 +2121,7 @@ class _Importer:
             if ok:
                 record.update(refused=False, od=od, thk=thk, allowance_given=allowance_given)
 
-    # -- LOADS ------------------------------------------------------------
+    # -- §9 LOADS ------------------------------------------------------------
     def read_loads(self) -> None:
         for line, text in self.data_lines("LOADS"):
             fields = self.fields(line, text, "LOADS")
@@ -2204,7 +2204,7 @@ class _Importer:
                                  "message": f"load {name}: thermal load {n} (T{n}, P{n}) is inactive and dropped: "
                                             f"{reason}"})
 
-    # -- other sections -------------------------------------------------
+    # -- §14 other sections -------------------------------------------------
     def read_other_sections(self) -> None:
         for name, (header, entries) in self.sections.items():
             kind = SECTION_KEYWORDS[name]
@@ -2234,7 +2234,7 @@ class _Importer:
             if required not in self.sections:
                 self.refuse("MBF-IMPORT-SECTION-MISSING", 0, required, f"the MBF has no {required} section")
 
-    # -- layout rows -------------------------------------------------------
+    # -- §4.4 layout rows -------------------------------------------------------
     def read_layout_rows(self) -> list[_Row | tuple[int, str]]:
         rows: list[_Row | tuple[int, str]] = []
         entries = [(line, text) for line, text in self.sections.get("LAYOUT", (0, []))[1] if text]
@@ -2326,7 +2326,7 @@ class _Importer:
             row.keys[letter] = value[1:]
         return row
 
-    # -- lengths ------------------------------------------------------------
+    # -- §5.4 lengths ------------------------------------------------------------
     def length(self, text: str, line: int, location: str) -> tuple[Fraction, Fraction] | None:
         """(exact value, half-unit bound) in the length unit (in or mm)."""
         if self.si:
@@ -2340,7 +2340,7 @@ class _Importer:
             return None
         return value, english_length_bound(text)
 
-    # -- the model -----------------------------------------------------------
+    # -- §10-§13 the model -----------------------------------------------------------
     def build(self, rows: list[_Row | tuple[int, str]]) -> tuple[dict[str, Any], dict[str, Any]]:
         self.nodes: dict[int, dict[str, Any]] = {}
         self.node_order: list[int] = []
@@ -2418,7 +2418,7 @@ class _Importer:
         return model, id_map
 
     def checked_json_domain(self, model: dict[str, Any]) -> None:
-        """every number of the emitted document lies in the checked-JSON numeric domain the
+        """Design §9.4 guard map: every number of the emitted document lies in the checked-JSON numeric domain the
         solve reads it under (canonical_json `validate_checked_value`, profile openpipestress_jcs_ijson_v1): an
         integer within +-(2^53 - 1) (CHECKED-JSON-UNSAFE-INTEGER), a finite number (CHECKED-JSON-NON-FINITE), and no
         integral float beyond 2^53 - 1 (CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT). The importer writes each number as
@@ -2844,7 +2844,7 @@ class _Importer:
 
     def row_supports(self, record: dict[str, Any], data: dict[str, tuple[str | None, str | None, int, str]],
                      location: str) -> None:
-        """the guide (G), limit stop (LS) or skewed restraint (K) one row carries, with its data
+        """Design §12, tranche 3: the guide (G), limit stop (LS) or skewed restraint (K) one row carries, with its data
         comments. Each is read only rigid and axis-aligned, or as a spring along one global axis; gaps, friction and
         skewed directions are refused by name."""
         start = self.errors()
@@ -2959,7 +2959,7 @@ class _Importer:
                                 "a location row, support or load at a tangent-intersection node is not read")
 
     def check_flexible_anchor(self, number: int, record: dict[str, Any]) -> None:
-        """KA with TRAK(kx,ky,kz) and ROTK(kxx,kyy,kzz) is a flexible anchor, one stiffness per
+        """Design §12, tranche 3: KA with TRAK(kx,ky,kz) and ROTK(kxx,kyy,kzz) is a flexible anchor, one stiffness per
         global DOF; 0 leaves the DOF free (documented: technical reference, Anchor). Its translational stiffnesses
         become springs; ROTK is read only as all zero, its unit being open (TBD-17-04-010)."""
         location = f"node {number}"
@@ -3023,7 +3023,7 @@ class _Importer:
             return None
         return along[0]
 
-    # -- bends ---------------------------------------------------------------
+    # -- §11 bends ---------------------------------------------------------------
     def resolve_bends(self) -> None:
         self.positions = {number: tuple(self.binary64(value, node["line"], f"node {number}", "node coordinate")
                                         for value in node["exact"]) for number, node in self.nodes.items()}
@@ -3581,7 +3581,7 @@ class _Importer:
         return materials, material_ids
 
     def assemble_sections(self, id_map: dict[str, Any], provenance: Any, claim: Any, length_unit: str):
-        """a format-4 or format-6 sidecar's `section_map` restores, for each PIPE record with a library
+        """Design §15, Format 4: a format-4 or format-6 sidecar's `section_map` restores, for each PIPE record with a library
         section id, one `sections` entry (type pipe, OD and wall as the record's pipes get them, named by the record,
         its line as provenance) and the pipes' `section_ref`; bound by digest, or rebound by record name, unconfirmed.
         Returns the entries and the id by record name. Other formats and unbound imports form none."""
@@ -3921,7 +3921,7 @@ class _Importer:
                             list(self.maps["load_case_map"].values()), "load cases")
         return load_cases
 
-    # -- pressure ----------------------------------------------------------
+    # -- §9.4 pressure ----------------------------------------------------------
     def assemble_pressure(self, pipes, pressures, arcs, point_of, id_map, claim):
         """(contract, regions) from LOADS Pressure 1, or None when the model has no pressure."""
         active = {pipe_id: number for pipe_id, (number, _) in pressures.items()

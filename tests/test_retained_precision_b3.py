@@ -275,7 +275,7 @@ def m3x_invocation(invocation, nu=NU):
 
 
 def _d5_id(row_id, basis):
-    """ids: `result:elastic-maximum:…` and `result:pressure-exact:…` end in the underscore basis, others in the
+    """§2.5 ids: `result:elastic-maximum:…` and `result:pressure-exact:…` end in the underscore basis, others in the
     hyphenated one."""
     underscore = row_id.startswith(("result:elastic-maximum:", "result:pressure-exact:"))
     return row_id + ":" + (basis if underscore else sb.hyphenated(basis))
@@ -982,7 +982,7 @@ def test_b3b_transport(kind, mode):
 
 
 def _packaged(tmp_path, monkeypatch, edit_table=None, edit_definition=None):
-    """A test-only packaged copy of the exact route's three statics (a corpus entry cannot change a
+    """A test-only packaged copy of the exact route's three statics (B3-D §2.4; REV §2: a corpus entry cannot change a
     table), with the reader's ROOT pointed at it and its table constant pinned to the copy's bytes."""
     results = tmp_path / "fixtures/results"
     results.mkdir(parents=True)

@@ -130,7 +130,7 @@ fn solved(result: &MechanicsEnvelope) {
     assert!(result.results.iter().all(|r| r.value.is_finite()));
 }
 
-/// a stress row is published on the nominal and
+/// D-5 (DEL-05-03 Design §2.1): a stress row is published on the nominal and
 /// the reduced section; the lookup takes the basis as a key. These documents
 /// have zero mill tolerance and allowance, so the bases coincide and the
 /// reduced twin must equal the nominal row bit for bit.
@@ -249,7 +249,7 @@ fn geometry<'a>(result: &'a MechanicsEnvelope, pressurized: bool) -> &'a Value {
     section
 }
 
-/// with zero mill tolerance and allowance the nominal and
+/// D-5 (§2.3, §2.5): with zero mill tolerance and allowance the nominal and
 /// reduced sections are the one source section, and the pressure bore is its
 /// bore; each is checked against the same independent source reference.
 fn check_geometry(result: &MechanicsEnvelope, case: &Value, pressurized: bool) {

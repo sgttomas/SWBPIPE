@@ -1,4 +1,4 @@
-// `minuend_final`: the desktop's display classification
+// RT-A5 `minuend_final` (DEL-05-02 `operating-case.md` §7.6): the desktop's display classification
 // of a held-constraint comparison, over the producer's reader corpus. Held-operand rows are the held
 // system's, never one solved state of a case, so they are never drawn; the difference rows are drawn
 // as a plain subtraction's and the navigator names them; the held standing is stated as a notice.

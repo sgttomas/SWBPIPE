@@ -222,7 +222,7 @@ def _shift_binding_force(e):
     _shift(row, 1.0)
 
 
-# the same rod mutations as the Rust reader's test.
+# T4-U5b (DEL-04-07 Design u4b-u5b-implementation.md §5.1): the same rod mutations as the Rust reader's test.
 ROD_MUTATIONS = [
     ("rod record without rows", lambda e: e.__setitem__("results", [r for r in e["results"] if r["kind"] != "connector_tie_rod_force_v1"]), "connector tie-rod rows missing"),
     ("rod rows without a record", _rows_without_record, "connector tie-rod row unbound"),
@@ -512,7 +512,7 @@ def test_the_source_route_refuses_connector_evidence(family, path, code):
 
 
 def test_a_joint_axis_component_just_above_one_binds_exactly():
-    """an authored connector axis may carry a
+    """DEL-04-07 `pressure-contract.md` "Direction magnitudes of arc tangents": an authored connector axis may carry a
     component just above 1 (the frame kernel's orthonormality guard admits it); a joint-area group's magnitude binds
     exactly to that component and is not refused for exceeding 1, while a magnitude off the axis still is."""
     envelope = deepcopy(json.loads((PROJECT / "fixtures/results/pressure_v3_joint_reader_control.json").read_text())["envelope"])

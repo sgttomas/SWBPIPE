@@ -1,4 +1,4 @@
-// the user-release
+// W-18b desktop slice (DEL-08-01 Design `report-user-release.md` §2.2, §2.3): the user-release
 // dialog. The statement is the record's `statement`, verbatim; the checkbox starts unticked at
 // every opening; the save is disabled until it is ticked and while a refusal stands; Escape and
 // Cancel discard the selection. All data here is invented; no user release is recorded.

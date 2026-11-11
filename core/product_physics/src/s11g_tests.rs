@@ -2302,7 +2302,7 @@ fn udl_body(model: &mut Value, prefix: &str, origin: f64) {
 /// A body like `udl_body` with a soft 10 m cantilever branch from S1 (OD
 /// 2 mm, wall 0.2 mm) carrying a 2e-6 N tip force. The branch tip's rotation
 /// (about 1e-3 rad) sets the body's rotation scale, so K-D5's per-DOF rule
-/// (D5C-1 on the closed w) passes
+/// (DEL-04-01 kd5-member-relative-bound.md §1, D5C-1 on the closed w) passes
 /// the S1:RZ formation defect, while the tiny tip force leaves the load-row
 /// guard's coupled moment scale (about 0.2 N*m) unchanged, so the guard still
 /// fires there: a Passed report with a load-row finding.
@@ -3222,7 +3222,7 @@ fn t21_selection_is_declined_for_a_formation_finding() {
 /// ordinary route never attempts a Passed case, so nothing is charged, no
 /// attempt is counted and nothing fails. Kills restoring the charged attempt
 /// (M23). UDL-W1e8 itself is now Sensitive at the solve (K-D5's closure,
-/// T1), so the Passed
+/// DEL-04-01 kd5-member-relative-bound.md §§1, 4.2; T1), so the Passed
 /// guard-fired case is the same body with a soft branch
 /// (`udl_body_with_soft_branch`), whose RZ row still fires the load-row guard.
 #[test]

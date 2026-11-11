@@ -31,7 +31,7 @@ STRESS_INPUT_RELATIVE_LIMIT = (1.0e-9 - STRESS_ARITHMETIC_BOUND) / (1.0 + STRESS
 EXACT = "retained_source_blocks_exact_v1"
 MODES = {"dense_scrutiny": "ordinary_dense_structural_v1", "sparse_interactive": "ordinary_sparse_structural_v1"}
 COMPONENTS = ("Fx", "Fy", "Fz", "Mx", "My", "Mz")
-# the treatment of the section normal-stress
+# T4-U4b (DEL-04-07 Design u4b-u5b-implementation.md §4.3): the treatment of the section normal-stress
 # extremes and transverse-shear maxima a selected source case publishes beside its qualified rows.
 NOT_QUALIFIED = "derived_not_qualified"
 NOT_QUALIFIED_KINDS = ("element_local_normal_stress_extreme", "element_local_transverse_shear_stress_maximum")

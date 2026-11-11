@@ -1,4 +1,4 @@
-"""the Python mirror of the held-status
+"""RT-A5 ``minuend_final`` (DEL-05-02 Work ``operating-case.md`` section 7.6): the Python mirror of the held-status
 readers over the shared corpus (``fixtures/results/preview_physics_held_status_corpus.json``, written by PP
 ``op_mf_held_status.rs``). Every producer document reads with its model and without it; each forgery is refused with
 the Rust reader's code (RE ``preview_held_status_tests.rs``)."""

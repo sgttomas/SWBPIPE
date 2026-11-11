@@ -1,3 +1,6 @@
+//! RT-A3 increment 4 (DEL-04-07 Design `route-unification-r4.md` §3.5 S5,
+//! §2.1-§2.4 and §00; DEL-04-01 `kd5-nonlinear-active-set.md`; DEL-04-07
+//! `pressure-contract.md`, "Nonlinear supports on EX (RT-A3 increment 4)"):
 //! gap, one-way and friction supports on the exact pressure route against the
 //! frozen independent references (`validation/references/rt_a3_nonlinear/`),
 //! through PP's public entry in both solver modes.

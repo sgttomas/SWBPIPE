@@ -36,7 +36,7 @@ CLASSIFICATIONS = (WITHIN, FINDING, UNMATCHED, STATUS_MISMATCH)
 
 EXACT = "exact"
 NAMED_INEXACT = "named_inexact"
-# screening profile (docs/RELEASE_TARGET_v1.0.md): relative tolerance by class, plus one printed unit of
+# RT-V2 §3 screening profile (docs/RELEASE_TARGET_v1.0.md): relative tolerance by class, plus one printed unit of
 # each result kind as the floor, with scalars below eta of their kind's case maximum judged against that scale.
 SCREENING_PROFILE = {
     "basis": ("RT-V2 section 3 screening profile, proposed by the validation lane; the owner's review of the full "

@@ -55,7 +55,7 @@ EXPORT_MISSING_INPUT = (
 # one edit each, as validation/witness/inputs/generate_del1005_export_results_inputs.py
 # derives them; they are made in memory rather than committed.
 EXPORT_MISMATCH_INPUT = "binding_mismatch"
-# the committed
+# W-18b (DEL-08-01 Design report-user-release.md §2.8, §6): the committed
 # derivation of the first user-release vector, a coherent user-released
 # request that only the desktop's route DREP-PACKAGE-USER-RELEASE-010 admits.
 USER_RELEASE_REQUEST = (
@@ -979,7 +979,7 @@ def _user_release_markers():
 
 
 def test_user_release_runner_refused(runner_binaries, tmp_path):
-    """the
+    """W-18b (DEL-08-01 Design report-user-release.md §2.8 refusal 1, §6): the
     headless runner's export-results packages no user-released report. The
     coherent request and each user-release marker alone exit 1 with no
     report_package and no --output file, with and without the local-private

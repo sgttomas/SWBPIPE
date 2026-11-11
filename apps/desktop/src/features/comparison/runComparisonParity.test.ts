@@ -1,4 +1,4 @@
-// the
+// W-12 S3b (DEL-14-01 Design `desktop-states-runs-comparison.md` §4.2, §6): the
 // writer of the run-comparison parity golden. It flattens committed producer
 // results (and invented edits of one) with the desktop's `flattenRunResult`,
 // builds each run's context with `runContext`, compares pairs with

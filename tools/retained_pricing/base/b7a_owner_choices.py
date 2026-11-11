@@ -73,7 +73,7 @@ ROWS_ERROR_LINE = 2803          # the one error site owned by bind_rows_subject 
 # the wiring's lib.rs additions precede them).
 # I2b-2 on RT-U4's candidate (§8.48): both moves, 15014/15015 -> 15119/15120 and 15487/15488 -> 15592/15593, mapped
 # line by line from the merge base 6c3cb46d3 through each side's hunks; unchanged text.
-# D3 (§8.53): the helpers move +27 with unchanged text (15119/15120 -> 15146/15147, 15592/15593 -> 15619/15620).
+# RT-A3 §4 D3 (§8.53): the helpers move +27 with unchanged text (15119/15120 -> 15146/15147, 15592/15593 -> 15619/15620).
 # RT-S3 CE fallback publication: the maintained line mapper carries the unchanged
 # lib.rs owner/site text +6 after the support loop; counts, bounds and caller sets stay.
 HELPER_FNS = (PP + "lib.rs:15303:qualified_load_case_result_id", PP + "lib.rs:15812:stable_suffix")

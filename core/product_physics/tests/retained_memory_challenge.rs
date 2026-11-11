@@ -1,4 +1,4 @@
-//! U4 G5 part 2, re-qualified by B1 SQ (RV107's A1-S-1 and A1-N-9): the
+//! U4 G5 part 2, re-qualified by B1 SQ (PLAN_v2 §3.5, with RV107's A1-S-1 and A1-N-9): the
 //! allocation challenge. A challenge only, not a proof and not a production guard.
 //!
 //! This binary's own global allocator records the peak of live requested heap bytes (the

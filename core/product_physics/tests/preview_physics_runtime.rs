@@ -811,7 +811,7 @@ fn nonlinear_mechanics_combinations_are_withheld_subtraction_kept() {
         }
         assert_eq!(gate(&v, "comb:diff")["withheld"], false);
         assert!(!combination_rows(&v, "comb:diff").is_empty());
-        // the admitted subtraction states its operands, each with its
+        // Slice 1a §2.1: the admitted subtraction states its operands, each with its
         // case's own numerical-quality record; the withheld mechanics one has none.
         let quality = |case: &str| v["numerical_quality"]["cases"].as_array().unwrap().iter().find(|c| c["basis_ref"]["ref_id"] == case).unwrap().clone();
         let operand = |case: &str| json!({"load_case_id": case, "modulus_basis_ref": null, "modulus_basis_temperature": null, "numerical_quality": quality(case)});
@@ -1156,7 +1156,7 @@ fn high_displacement_review_uses_the_all_case_headline() {
     assert!(v["summary"]["max_displacement"]["result_ref"].as_str().unwrap().contains("case-large"));
 }
 
-/// the support-targeted
+/// W-16 slice a (DEL-04-03 Design `pf-imposed-displacement.md`): the support-targeted
 /// primitive that `IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL` refused now enters the
 /// prescribed boundary. Moving the cantilever's only anchor is a rigid-body motion: the
 /// support actions and member forces are the force-only case's, and every node moves by

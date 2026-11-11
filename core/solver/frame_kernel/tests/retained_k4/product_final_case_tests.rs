@@ -472,7 +472,7 @@ fn i61_check(owner:&adaptive::RetainedSolve,coverage:Vec<ProductSummaryCoverage>
 }
 #[test]
 fn i61_actual_native_coverage_is_borrowed_and_all_nine_flags_rederive() {
-    // controls: zero/no-data body (ALL-ZERO-BODY body 1); native p512 (SKEW-K1E-60)
+    // §5 controls: zero/no-data body (ALL-ZERO-BODY body 1); native p512 (SKEW-K1E-60)
     // charge = force/moment stop; native p128/p256 charge = estimate. Actual native runs.
     let mut seen=std::collections::BTreeSet::new();
     for name in ["ALL-ZERO-BODY","SKEW-K1E-60","SKEW-K1E-28","SKEW6-K1E-12","TWO-SPAN","PRESCRIBED","REACTIONS-ONLY","ZERO-TORSION-345"] {
@@ -957,7 +957,7 @@ fn b3k_restored_material_gate_fails_stress_and_maximum_rows_with_represented_z()
     }
 }
 
-// the recipe-free
+// T4-U4b (DEL-04-07 Design u4b-u5b-implementation.md §4.1): the recipe-free
 // not-covered passthrough. Its rows enter no lane, scale, bound or coverage
 // set; PP completes each value after projection; its verdict is class None.
 #[test]
@@ -1436,7 +1436,7 @@ fn b2k_c05_the_combination_coverage_rule() {
     let mut derived = rows.clone();
     derived.push(("derived".into(), ProductUnit::Megapascal, 0, ProductRecipe::NotCovered { row: rows.len() as u32 }));
     assert_eq!(begin(&derived), Some("combination row family"), "a not-covered derived row");
-    // a not-covered force or moment row (a member's
+    // W-7 (DEL-04-01 Design global-end-actions.md): a not-covered force or moment row (a member's
     // global end action, signed linear) is combined, so a combination admits it.
     for unit in [ProductUnit::Newton, ProductUnit::NewtonMetre] {
         let mut global = rows.clone();
@@ -1915,14 +1915,14 @@ fn n06_seeded_congruence_lane_encloses_the_closed_form() {
     }
 }
 
-/// the certified proof's final scales are exactly
+/// W1 coverage repair §2.2 (corner 2): the certified proof's final scales are exactly
 /// the coupled (and, at p = 512, floored) scales its gate judged with. Every native and
 /// support row's verdict records the scale it was judged at; that scale must be the
 /// proof's final scale for its body and kind, and the coupling must be active (the
 /// final moment scale exceeds every published moment, from the extent times the force
 /// scale), so a receipt stating uncoupled maxima would differ. The floor is applied in
 /// place on the same vector before any row is judged; no product input selects p = 512
-/// (the W1 coverage census), so this control runs at the selected precision.
+/// (the W1 coverage census, §3.5), so this control runs at the selected precision.
 #[test]
 fn w1_receipt_scales_are_the_gate_scales() {
     let (invocation, case) = b3k_case(80e9);
@@ -2001,7 +2001,7 @@ fn w1_certified(invocation: &super::super::super::origins::RecordedInvocation, c
             e.work().verdicts().iter().filter(|v| !v.passed).map(|v| (&rows[v.row].0, v.failed)).collect::<Vec<_>>()),
     }
 }
-/// at p = 512 the gate
+/// W1 coverage repair §2.2 and §5 (corner 2, the p = 512 floor): at p = 512 the gate
 /// floors each body's coupled force and moment scales by the solve's Φ in place before
 /// judging any row; the certified proof must state those floored scales, not the coupled
 /// maxima. Input: `w1_floor_source`, the b3k cantilever (one body, extent 1) with its
@@ -2072,7 +2072,7 @@ fn w1_receipt_scales_keep_the_p512_floor() {
     }
     assert_eq!(bound, [true, true], "the floor binds the force and the moment scale");
 }
-/// (layout pin): the certified proof's final scales are the
+/// W1 coverage repair §2.2 (layout pin): the certified proof's final scales are the
 /// vector `row_scales_reduced` reserved, moved, not copied, so its capacity is the
 /// serialized `capacities[6]` (the body count). The public API exposes the scales as a
 /// slice only; the vector's capacity is read here through the field, from the kernel's

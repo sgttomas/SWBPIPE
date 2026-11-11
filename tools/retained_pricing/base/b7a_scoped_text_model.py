@@ -65,7 +65,7 @@ LN = {
     # RT-A4 D3 (§8.46): +7 (unit_message: the `mod combination_plan;` line and the derivation call's six lines precede
     # it) and +79 (the three helpers: the wiring's lib.rs additions precede them), unchanged text.
     # I2b-2 on RT-U4's candidate (§8.48): both moves, +33 (unit_message) and +105 (the three helpers), unchanged text.
-    # D3 (§8.53): all four lib.rs sites +27, unchanged text (the certificate's module lines, LoadCaseSolve
+    # RT-A3 §4 D3 (§8.53): all four lib.rs sites +27, unchanged text (the certificate's module lines, LoadCaseSolve
     # field, operand map, take, publish call, seven early-return `certificate_operand: None` lines and the operand's
     # formation precede them).
     # RT-A3 S6 D3 (§8.59): +16 (unit_message: the S6 formulation-basis bindings and the case solve's motion lines

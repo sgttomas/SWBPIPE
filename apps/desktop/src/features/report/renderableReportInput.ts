@@ -207,7 +207,7 @@ export function diagnosticsForSections(
   }));
 }
 
-/** the
+/** RT-A3 §4 (DEL-05-02 Work `combination-certificate.md` §2, the residual text boundary): the
  * report quotes a diagnostic message by the Diagnostics panel's classification
  * (`../results/suppliedDiagnostics`), taking the roster as checked, because the exact and PF
  * report routes are admitted by the reader before assembly (`checkExactReportAdmission`).
@@ -248,7 +248,7 @@ function componentProvenanceRecord(
   };
 }
 
-// (FR-REP-003 on
+// W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md` §4.1, FR-REP-003 on
 // every route): the provenance of materials, sections, components and supports.
 
 type ReportProvenanceRecord = ReturnType<typeof sessionProvenance>;
@@ -786,12 +786,12 @@ type RenderableReportInputArgs = {
   renderContext: ReportRenderContext;
   inputManifest?: CurrentSessionInputManifestEvidence | null;
   ruleCheckRun?: SessionRuleCheckRun | null;
-  /** the rendered report's one line per load case,
+  /** DEL-07-05 numerical health §5: the rendered report's one line per load case,
    * placed after the result rows and so before the diagnostics section, on the generic
    * route only. Absent, the input is unchanged (the report package passes none). No
    * figure is exported. */
   numericalHealth?: NumericalHealthView | null;
-  /** the recorded Export
+  /** W-11 (DEL-08-01 Design `exact-route-report-sections.md` §3.1): the recorded Export
    * Result JSON admission of an exact-route source (`admitExactReportSource`), required
    * for an exact source and refused for any other. A pressure-free source takes none, so
    * its input is unchanged. */
@@ -1103,7 +1103,7 @@ async function renderableReportInput(
 
   const resultRows = reportResultRows(result);
   if (reportComposition) composeReportRows(resultRows, reportComposition);
-  // `P(M, C)` when the
+  // Slice C5 (DEL-08-01 Design `report-section-composer.md` §2.7): `P(M, C)` when the
   // composition lists a model-input section; every native boundary that holds the model
   // re-derives it and requires equality.
   const tables = modelInputTables(model, reportComposition);
@@ -1113,7 +1113,7 @@ async function renderableReportInput(
     report_title: `${model.project.name} — Calculation Report`,
     calculation_report: calculationReport,
     report_sections: reportSections,
-    // an exact-route
+    // W-11 (DEL-08-01 Design `exact-route-report-sections.md` §6.1): an exact-route
     // report carries no numerical-health line until the native render can re-derive it
     // from the delivered result; its rows are exactly the source rows' projection.
     result_rows: resultRows.concat((numericalHealth?.route === "generic" && !exactInputs ? numericalHealth.cases : []).map((item) => ({

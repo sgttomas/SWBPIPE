@@ -402,11 +402,11 @@ pub(crate) struct ResolvedCase {
     /// restrained DOFs are explicit zero. Includes the rigid restraints of a
     /// mixed nonlinear record (W-16 R-d's semantics).
     pub prescribed: BTreeMap<usize, f64>,
-    /// (W-16 R-b's semantics): each active nonlinear support's
+    /// R-4 §3.7 S6 (W-16 R-b's semantics): each active nonlinear support's
     /// moved ground g_s (m or rad) from `boundary_motion` on its own DOF, by
     /// support id, in support-state order; an absent support's ground is 0.
     pub ground_motion: Vec<(String, f64)>,
-    /// (W-16 R-c's semantics): each active spring or variable
+    /// R-4 §3.7 S6 (W-16 R-c's semantics): each active spring or variable
     /// spring hanger's base motion g_k (m or rad) from `base_motion` on its
     /// stiffness axis, as (support id, DOF, value); an absent base is 0.
     pub spring_base: Vec<(String, FrameDof, f64)>,

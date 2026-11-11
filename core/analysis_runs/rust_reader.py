@@ -144,7 +144,7 @@ def read(reader: str, payload: Mapping[str, Any]) -> dict[str, Any]:
 
 
 def retained_precision(source: Mapping[str, Any], invocation: Any = None, *, recorded_binding: Any = None) -> dict[str, Any]:
-    """`retained_precision::validate`: G0-G8 on a successor, bound to `invocation` when one is given.
+    """`retained_precision::validate`: G0-G8 on a successor, bound to `invocation` when one is given. RT-A4 §10.4:
     `recorded_binding`, the recorded-run read's record binding (`reader_verdict::retained_recorded`)."""
     return read(RETAINED_PRECISION, _optional({"source": source, "invocation": invocation}, recorded_binding=recorded_binding))
 
@@ -162,7 +162,7 @@ def _optional(payload: dict[str, Any], **members: Any) -> dict[str, Any]:
 def dispatch(source: Any, model: Any = None, invocation: Any = None, *, recorded_binding: Any = None) -> dict[str, Any]:
     """`reader_verdict::dispatch`: `{ok, route, binding, error, standing}`. A header the
     dispatch refuses is returned too (`ok` false, route unsupported, `error` {code, detail}),
-    since its standing is still the reader's; it does not raise. `recorded_binding`, the recorded-run
+    since its standing is still the reader's; it does not raise. RT-A4 §10.4: `recorded_binding`, the recorded-run
     read's record binding (`reader_verdict::dispatch_recorded`), whose binding the outcome then names."""
     passed, outcome = _run(DISPATCH, _optional({"source": source}, model=model, invocation=invocation, recorded_binding=recorded_binding))
     binding, error, standing = outcome.get("binding"), outcome.get("error"), outcome.get("standing")

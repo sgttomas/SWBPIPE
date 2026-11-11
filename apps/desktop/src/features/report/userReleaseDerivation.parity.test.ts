@@ -1,4 +1,4 @@
-// the derivation of
+// W-18b slice (r2b) (DEL-08-01 Design `report-user-release.md` §2.6, §6): the derivation of
 // a user-released report package request, held equal across the layers. The desktop's
 // builders (`assembleUserReleasedReportPackageRequest`, `userReleasedRenderableReportInput`)
 // build each vector's expected request from its inputs M, S, m, I, R, H and U; the native
@@ -112,7 +112,7 @@ const COMPOSITION = {
   ]
 } as const;
 
-/** a composition listing every model-input section beside all result rows;
+/** Slice C5 (§2.7): a composition listing every model-input section beside all result rows;
  * the derived request carries P(M, C) as `model_input_tables`. */
 const MODEL_INPUT_COMPOSITION = {
   composition_version: "1.0.0",

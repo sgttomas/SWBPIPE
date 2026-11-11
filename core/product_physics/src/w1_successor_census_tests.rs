@@ -328,7 +328,7 @@ fn w1_final_scales_equal_reader_scales() {
             Some(other) if other.starts_with("o4_w1e_unavailable_") => hooks::fail_freeze_of_case(1),
             _ => (),
         }
-        // the genuine-exhaustion control is hook-driven
+        // W1 coverage repair §1.4, option 2: the genuine-exhaustion control is hook-driven
         // at reduced search limits. Its hook exists only under `loaded-maximum-hooks`, so the
         // ordinary build cannot produce it and that command covers it.
         let exhaustion = hook.as_deref().is_some_and(|h| h.starts_with("w1_member_exhaustion_"));

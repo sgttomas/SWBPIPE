@@ -64,7 +64,7 @@ type Props = {
   treeRecords?: React.ReactNode;
   /** Pending intents, for the Condition sets section's pending-change check (optional). */
   queuedIntents?: EditorOperationIntent[];
-  /** Run sheet: the Grid mode's "Run sheet" tab. */
+  /** Run sheet S2 (DEL-07-02 Design `run-sheet-entry.md`): the Grid mode's "Run sheet" tab. */
   runSheet?: RunSheetHost;
 };
 
@@ -423,7 +423,7 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
         )
       ) : null}
       {treeRecords || onQueueIntent ? <div className="model-tree-records" hidden={layoutMode === "grid"} inert={layoutMode === "grid"}>
-        {/* Condition sets in the model tree, beside the Lines section. */}
+        {/* Model document 0.9.0 S3b (§4.2): Condition sets in the model tree, beside the Lines section. */}
         {onQueueIntent ? <ConditionSetsSection key={`condition-sets:${projectSessionGeneration}`} model={model} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy} /> : null}
         {treeRecords}
       </div> : null}
@@ -1967,7 +1967,7 @@ function composedGridColumn(
   };
 }
 
-/** a pipe's condition set, chosen from the model's sets or
+/** Model document 0.9.0 S3b (§4.2): a pipe's condition set, chosen from the model's sets or
  * cleared (blank). The cell queues `assign_condition_set` (buildGridOperationIntent). */
 function conditionSetGridColumn(model: PreviewModel): GridColumn {
   return {

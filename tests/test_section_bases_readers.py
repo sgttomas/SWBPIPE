@@ -1,7 +1,7 @@
 """the test-only verifiers read the D-5
 section bases and the D-6 beam theory, and refuse each reader mutant.
 
-The documents are the regenerated committed pressure-2 fixtures, which are the producer's output (both stress
+The documents are the regenerated committed pressure-2 fixtures, which are the producer's §2.5 output (both stress
 families, basis tokens and id segments, the D-5 `pipe_sections` with each realized arc's marker, per-basis maximum
 records and headlines): `pressure_connected_mechanics_dense` (coincident bases) and the arc corpus's envelopes (their
 I7 sketches carry a mill tolerance, so their bases differ). Each is then given distinct bases (a nonzero corrosion
@@ -499,8 +499,8 @@ def test_pressure_1_reader_refuses_beam_theory_contradicting_the_contract(base):
 
 
 def test_pressure_1_model_checks_take_realized_arcs_from_the_model():
-    """a realized arc is Euler-Bernoulli under either contract. The model names the arcs, including one no pressure
-    region marks (the L line with a connector has explicitly empty regions); the marked case sections are exactly
+    """§3.6: a realized arc is Euler-Bernoulli under either contract. The model names the arcs, including one no pressure
+    region marks (the L line with a connector has explicitly empty regions); §2.5: the marked case sections are exactly
     those arcs."""
     eb, tim = sb.EULER_BERNOULLI, sb.TIMOSHENKO
     entry = _arc_corpus_entry("L line with connector")
@@ -780,7 +780,7 @@ def test_pressure_source_1_admits_mill_tolerance_and_physics_retained_1_refuses_
 
 
 # ----------------------------------------------------------------------------------------------------------------------
-# arc markers, on documents built in memory in the current D-5 shape: two exact cases, a straight member and a
+# §2.5 arc markers, on documents built in memory in the current D-5 shape: two exact cases, a straight member and a
 # realized arc with explicitly empty pressure regions, distinct section bases (a nonzero corrosion allowance), a bending
 # row pair per member and per case, and the straight member's maximum on both bases (the arc's is withheld).
 # ----------------------------------------------------------------------------------------------------------------------

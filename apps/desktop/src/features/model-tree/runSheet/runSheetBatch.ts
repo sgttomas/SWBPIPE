@@ -1,8 +1,8 @@
-// Run-sheet entry: the
+// Run-sheet entry, slice S1 (DEL-07-02 Design `run-sheet-entry.md` §3.3): the
 // row-to-operation mapping and the record projection. Its only input is the
 // resolver's output (`runSheetModel.ts`). It emits ordinary operations of the
 // existing vocabulary and computes no number: coordinates are the resolver's
-// normalized values, and tangent points are the engine's.
+// normalized values (§6.2), and tangent points are the engine's.
 //
 // The record projection is the basis model plus the records this batch's own
 // earlier steps write, by id and verbatim payload only (O10). It forms the
@@ -34,7 +34,7 @@ const CURVED = "curved_bend_macro_element";
 export type RunSheetRowBuild = {
   key: string;
   operationIds: string[];
-  /** ownership: the ids this row's operations leave in the model. Never a node the row did not create. */
+  /** §3.4 ownership: the ids this row's operations leave in the model. Never a node the row did not create. */
   ownedIds: string[];
 };
 export type RunSheetBuild = { batch: OperationBatch; rows: RunSheetRowBuild[]; projection: PreviewModel };
@@ -173,7 +173,7 @@ export async function buildRunSheetBatch(resolved: ResolvedRunSheet): Promise<Ru
       stored.section.outside_diameter = clone(section.properties.outside_diameter!);
       stored.section.wall_thickness = clone(section.properties.wall_thickness!);
     }
-    // one `assign_condition_set` after `connect_pipe_run` (and
+    // Model document 0.9.0 §4.1: one `assign_condition_set` after `connect_pipe_run` (and
     // `assign_section`), only when the effective value is present. `connect_pipe_run` never
     // carries `condition_set_ref`, so `before` is `not_present`; the projection adds the
     // reference, since a later bend's `before` context holds full pipe records.
@@ -318,7 +318,7 @@ export type RunSheetRowCheck =
   | { status: "refused"; diagnostics: OperationOutcomeDiagnostic[] }
   | { status: "not_checked"; message: string };
 
-/** Map an engine outcome to rows through the `rowKey` in each `operation_id`.
+/** §4.2 Map an engine outcome to rows through the `rowKey` in each `operation_id`.
  * The batch stops at its first blocked step, so a row with an operation the
  * engine did not reach, or a row after the refused one, is "not checked". */
 export function mapOutcomeToRows(outcome: Pick<OperationBatchOutcome, "operation_outcomes">, build: Readonly<{ batch: OperationBatch; rows: readonly RunSheetRowBuild[] }>): Map<string, RunSheetRowCheck> {

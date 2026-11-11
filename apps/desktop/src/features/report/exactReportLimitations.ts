@@ -1,4 +1,4 @@
-/** the
+/** W-11 (DEL-08-01 Design `exact-route-report-sections.md` §2.1 and §2.3): the
  * closed statement table of the exact-route reports. Each entry is one producer
  * limitation string, named by the SHA-256 of its UTF-8 bytes, with the report's
  * reviewed statement for it. A statement is the producer string verbatim,

@@ -674,7 +674,7 @@ fn mm_form(p: &Parsed, request: &Value) -> S<Formed> {
     }
     let mut scope = Vec::new();
 
-    // The route (D-r) and the shear model (Timoshenko is refused).
+    // The route (Design §2.1, D-r) and the shear model (Timoshenko is refused).
     let contract = model.get("pressure_contract").filter(|c| !c.is_null());
     let exact = match contract {
         None => false,
@@ -894,7 +894,7 @@ fn mm_form(p: &Parsed, request: &Value) -> S<Formed> {
         let Some(a) = acceleration else {
             return mm_fail(format!("component {id}'s weight enters the mass, but the request names no weight_to_mass_acceleration (MODAL_WEIGHT_ACCELERATION_REQUIRED)"));
         };
-        // The binary64 range premise, in the producer's stated order
+        // The §2.3 item 6 binary64 range premise, in the producer's stated order
         // (`component_range`): a body outside it is refused
         // (MODAL_COMPONENT_MASS_OUT_OF_RANGE), so a solved document bound to it is a
         // contradiction. A nonzero exact product that rounds to zero is out of range.

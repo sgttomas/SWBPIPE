@@ -22,7 +22,7 @@ import { App } from "./App";
 import { retireMbfImportSession } from "./features/caepipe-mbf/mbfImportCancel";
 import { MBF_IMPORT_DESCRIPTIONS } from "./features/caepipe-mbf/mbfImport";
 
-// File > Import MBF… in the
+// DEL-17-04 Design `desktop-mbf-export-import.md` §4.1, §4.8.5–§4.8.7 and §4.8.9 (slice 5): File > Import MBF… in the
 // real App, against a native host whose replies are the actual native replies for the export's saved pair
 // (`import_replies.json` captures verbatim response strings, held to task 5's bytes by `mbf_import_tests.rs`;
 // its companion explicitly covers the invented transcript and inputs, not the inner runtime provenance).

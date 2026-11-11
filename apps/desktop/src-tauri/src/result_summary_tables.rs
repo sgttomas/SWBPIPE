@@ -63,6 +63,7 @@ pub(crate) fn derived_row_note(row: &Value) -> Option<&'static str> {
     (sign == Some(SOLVED_STATE_PLUS_INCREMENTS_SIGN)).then_some("solved state plus derived bounds")
 }
 
+/// Operating-case slice 1b (DEL-05-02 `operating-case.md` §1.3 c5, §5 B option 3):
 /// `OPERATING_MINUS_SUSTAINED_SIGN` of `resultColourOverlay.ts`, the sign convention a subtraction
 /// declaring `difference_basis = "operating_minus_sustained"` states. Its rows are a signed
 /// difference of two independently solved states, as a plain subtraction's are, so

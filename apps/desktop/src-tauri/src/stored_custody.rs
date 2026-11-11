@@ -420,7 +420,7 @@ pub(crate) fn open_project_in_store(memory: &NativeLeaseMemory<'_>, path: PathBu
     }
     let model_hash = parse(&model_hash_json)?;
     let project_envelope_hash = parse(&envelope_json)?;
-    // DEL-02-05 CLM-003, as `open_local_project`.
+    // DEL-02-05 CLM-003 and W-13 §5.3, as `open_local_project`.
     let status = crate::evaluate_model_document(&model);
     if status.is_refused() {
         return Err(crate::refuse_model_document(&status));

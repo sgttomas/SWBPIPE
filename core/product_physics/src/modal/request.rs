@@ -4,7 +4,7 @@
 //! acceleration. No value is defaulted: an absent input is refused by name
 //! where it is required, and recorded as absent otherwise.
 //!
-//! Every member is a request member, as `solver_mode` is (D-h);
+//! Every member is a request member, as `solver_mode` is (Design §1.4, D-h);
 //! none is a model-document member, so no document version changes.
 use super::{
     MODAL_EXTRACTION_BOUND_INVALID, MODAL_EXTRACTION_BOUND_REQUIRED, MODAL_MODULUS_BASIS_CONFLICT,

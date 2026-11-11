@@ -29,7 +29,7 @@ fn frame() -> FrameElement {
     )
     .unwrap()
 }
-/// a certified straight recovery is bound to its
+/// T4-U8 (Design §4 item 2): a certified straight recovery is bound to its
 /// member's formation-source frame. These controls' one member is `MEMBER`.
 const MEMBER: &str = "member:1:m:";
 fn member_source(frame: &FrameElement) -> FormationSource<'static> {
@@ -1206,6 +1206,7 @@ fn source_control_resource_atoms_are_in_build_type_sizes() {
 }
 
 // ---------------------------------------------------------------- nonlinear K-D5
+// DEL-04-01 kd5-nonlinear-active-set.md §1.3, §1.6, §2.1, §2.2.
 
 fn friction_primitive(formula: LoadFormula) -> LoadPrimitive {
     LoadPrimitive {

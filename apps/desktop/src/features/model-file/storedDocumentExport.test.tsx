@@ -1,4 +1,4 @@
-// a
+// W-17 recovery export (DEL-02-02 Design `project-unit-selection.md` §3): a
 // stored project refused at open for lacking `project.units` is offered "Save
 // the stored document to a file…", behind the explicit intent. The webview
 // sends only the stored row's identity; the native command writes the stored

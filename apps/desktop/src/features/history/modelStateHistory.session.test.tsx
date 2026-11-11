@@ -11,7 +11,7 @@ import { LABELS_DO_NOT_CHANGE_STATE, MODEL_STATE_STORE_UNAVAILABLE, type ModelSt
 import type { StoredProjectEntry } from "../../services/projectService";
 import type { LocalProjectEnvelope, PreviewModel } from "../../types";
 
-// the
+// W-12 S1 (DEL-14-01 Design `desktop-states-runs-comparison.md` §2): the
 // session's Save Model State…, Open State, label edit and delete flows, against
 // a fake of the native store's commands. The store's own checks (hashes,
 // immutability, blockers, transactions) are the Rust tests in model_states.rs.

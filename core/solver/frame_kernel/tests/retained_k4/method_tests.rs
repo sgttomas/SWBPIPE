@@ -687,7 +687,7 @@ fn every_control_follows_gens_schedule_and_r7s_expectations_honestly() {
             .fold(0.0f64, f64::max);
         (relative(&plain), relative(floored), worst_b)
     };
-    // DEMOTION2 (relative rows 7 → 4, b ≤ 4.7e-6 over both kinds, two
+    // DEMOTION2 (R7 §7: relative rows 7 → 4, b ≤ 4.7e-6 over both kinds, two
     // figures): item 6a demotes three rows, K4's layout counting its node
     // magnitudes as well.
     let (before, after, b) = classes("DEMOTION2");

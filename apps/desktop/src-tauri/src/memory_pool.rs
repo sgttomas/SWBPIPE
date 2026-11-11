@@ -1054,9 +1054,9 @@ impl Drop for Lease {
 // ---------------------------------------------------------------------------
 
 /// One C1 native command's running total against its per-invocation budget
-/// (the budget
+/// (DEL-14-01 `desktop-states-runs-comparison.md` §3, repair r4: the budget
 /// bounds the command's live leases together, starting from its argument
-/// lease; no new budget or
+/// lease; DEL-04-05 `c1-native-custody-plan.md` slice 5; no new budget or
 /// rule). Record Run, Save or Create Project, a restored run's re-save, the
 /// native reopen of a project or a recorded run and the analysis-run
 /// preview each keep one (`stored_read::NativeLeaseMemory`).

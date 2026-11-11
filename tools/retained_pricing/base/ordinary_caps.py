@@ -61,7 +61,7 @@ if _snapshot:
 import w1_reductions_model as _w1_reductions_model
 _w1_reduced = _w1_reductions_model.inspect(_snapshot) if _snapshot else False
 force_q = 12 * l if _wide else l
-# the D-5/D-6 resident owners, each priced
+# T4-U6/U8 D3 (retained-pricing-rules.md, "T4-U6/U8: actual-source D3"): the D-5/D-6 resident owners, each priced
 # positively where its source exists (u6_owners_model checks the source text): U6-ES (BuiltModel.exact_sections),
 # U6-WS (the case solve's reduced stresses, stress sites and reduced spans), U8-FM (FormationSource.frame_members).
 import u6_owners_model as _u6_model
@@ -144,7 +144,7 @@ if _o4:
 import rta4_owners_model as _rta4_pv
 if _snapshot and _rta4_pv.inspect(_snapshot) and which == "caps":
     PREVIEW = PREVIEW + value_tree(*_rta4_pv.derivation_value(__import__("g3lib").g4_caps().get("z", 0)))
-# D3 (§8.53, RTA3C-MV): the combination certificate member in the envelope evidence at z >= 1.
+# RT-A3 §4 D3 (§8.53, RTA3C-MV): the combination certificate member in the envelope evidence at z >= 1.
 import rta3c_owners_model as _rta3c_pv
 if _snapshot and _rta3c_pv.inspect(_snapshot) and which == "caps":
     _c3_mv = _rta3c_pv.member_value(__import__("g3lib").g4_caps().get("lc", CC), __import__("g3lib").g4_caps().get("z", 0), m, g, 64)
@@ -585,7 +585,7 @@ if _snapshot and _rta4_model.inspect(_snapshot):
         add("Combination callee plan, buffers and published operand rows (RT-A4-CB)", "AggregationSuffix",
             _rta4_model.callee(_a4_c, _a4_z, P, g))
         add("Combination derivation evidence transient (RT-A4-DV)", "AggregationSuffix", _rta4_model.derivation(_a4_c, _a4_z))
-# D3 (§8.53): the certificate's case-id vector (RTA3C-CI, every z) and, on route L with
+# RT-A3 §4 D3 (retained-pricing-rules.md §8.53): the certificate's case-id vector (RTA3C-CI, every z) and, on route L with
 # combinations, the formed operands (RTA3C-OP, held from the case solves to aggregation: priced in each later phase) and
 # publish's transient (RTA3C-PB) (rta3c_owners_model binds the modules and statements).
 import rta3c_owners_model as _rta3c_model

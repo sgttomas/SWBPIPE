@@ -213,7 +213,7 @@ fn o4_dual_basis_source_case_selects() {
     }
 }
 
-/// each reduced `section_stress_checks` entry binds
+/// O4 §3.2 (stress checks): each reduced `section_stress_checks` entry binds
 /// its nominal twin's functional and action bit for bit, with the reduced
 /// section's parameters (A_r, Z_r, J_r, r_o), and its row value is the
 /// existing recipe on those parameters. The private plan's reduced recipes
@@ -299,7 +299,7 @@ fn o4_source_reduced_checks_bind_the_reduced_section() {
     assert_eq!(refused(&full, &request, mode), "SOURCE_PHYSICS_ROW_BASIS_SECTION");
 }
 
-/// each basis's maximum is evaluated
+/// O4 §3.2 (endpoint maximum) and §3.5: each basis's maximum is evaluated
 /// from the same retained endpoint functionals on its own section, the
 /// reduced call taking the reduced section explicitly: the reduced
 /// extremum's A and Z are the reduced section's bits, its endpoint values are
@@ -446,7 +446,7 @@ fn o4_source_payload_members_are_conditional() {
     }
 }
 
-/// O4 (MJ6/MJ9's twelve requests): every committed
+/// O4 §3.2, §3.5 and §6 (MJ6/MJ9's twelve requests): every committed
 /// Euler-Bernoulli, zero-allowance source control keeps its numbers, work and
 /// bytes: in both modes the producer's exact serialization equals the
 /// committed raw fixture, and its private payload carries no O4 member.
@@ -601,7 +601,7 @@ fn predicted_identity_delta(a: &Captured, b: &Captured) -> i128 {
     delta
 }
 
-/// O4 (the D5/MJ9 law; no charging rule changes), as measured here: for
+/// O4 §3.5 (the D5/MJ9 law; no charging rule changes), as measured here: for
 /// a document newly admitted under O4 against its Euler-Bernoulli,
 /// zero-allowance twin, every term is derived from the actual inputs and the
 /// actual charging sites, and the sum reconciles with the case, publication
@@ -735,7 +735,7 @@ fn o4_source_work_deltas_follow_the_d5_law() {
     }
 }
 
-/// O4 (`shear_area_changed`, `kappa_changed`): the reader binds
+/// O4 §3.4 and §6 (`shear_area_changed`, `kappa_changed`): the reader binds
 /// each section's beam theory to its rederivation. On the Timoshenko control
 /// a one-ulp A_s or κ_E (resealed) is refused by the transport rederivation,
 /// and a dropped Timoshenko leaf by the contract's selection; on the
@@ -775,7 +775,7 @@ fn o4_source_shear_area_and_kappa_mutations_are_refused() {
     assert_eq!(refused(&stated, &request, mode), "PHYSICS_SOURCE_ACTUAL_SHEAR_MODEL");
 }
 
-/// O4 (MJ9's both-bases tamper, revised): on a member whose sections
+/// O4 §6 (MJ9's both-bases tamper, revised): on a member whose sections
 /// differ each basis is judged on its own, so a one-ulp τ_v,max on one basis
 /// alone (resealed) is refused by that basis's own shear check, the twin rule
 /// not standing in; on the bit-equal member today's both-bases tamper keeps

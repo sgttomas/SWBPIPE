@@ -1,4 +1,4 @@
-/** Record Run in the
+/** W-12 S2 (DEL-14-01 Design `desktop-states-runs-comparison.md` §3): Record Run in the
  * actual workspace session, against a fake of the native store's commands. The solve is
  * the native job transport replay of committed producer bytes (unit transport replay;
  * NOT a native UI qualification witness). The store's own checks (the binding, the

@@ -135,7 +135,7 @@ fn abs3(a: [f64; 3]) -> f64 {
     a[0].abs() + a[1].abs() + a[2].abs()
 }
 
-/// "CoG at the body midpoint", entered from the component's node in
+/// Spec §5 "CoG at the body midpoint", entered from the component's node in
 /// global axes (R10): the decimal midpoint (6, 20.2, 6.9875) m less RS-160
 /// (6, 20.4, 6.975) m, as the generator converts it (exact decimals, then
 /// binary64). `check_overlay_identity` checks it against the node geometry.

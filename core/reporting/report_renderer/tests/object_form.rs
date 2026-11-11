@@ -1,5 +1,5 @@
-//! The shared object-form comparison (W-11,
-//! Codex review round 3 of #1648): a
+//! The shared object-form comparison (W-11, DEL-08-01 Design
+//! `exact-route-report-sections.md` §6.3; Codex review round 3 of #1648): a
 //! struct written positionally at any depth is found, with its fixed path;
 //! collections and tuples pass; nothing in the path echoes input text.
 //! Invented data only. Standard claim fence applies (claims taxonomy per

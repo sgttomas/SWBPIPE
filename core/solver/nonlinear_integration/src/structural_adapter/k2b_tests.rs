@@ -1536,6 +1536,8 @@ fn k2b_nonlinear_loop_reaches_no_force_scaled_entry() {
 }
 
 // ------------------------------------------------------------------ RV11 fixes
+// (T3 `ROOT_RULINGS_V1.md`, "K2b: rulings on RV11's review (ROOT)"; RV11's
+// review `REVIEW/K2B_REVIEW.md`, findings RV11-1 and RV11-4.)
 
 /// RV11's probe F-A2: a long member W (N0 -> N1 along x, L = 2^300 m,
 /// E = G = 2^200 Pa, A = I = J = 1) with only N0 RZ free, loaded with a moment

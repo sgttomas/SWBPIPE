@@ -1,4 +1,4 @@
-/** the results panel for a
+/** C1 native custody, slice 4 (DEL-04-05 `c1-native-custody-plan.md`): the results panel for a
  * result held natively. Its counts, frames and cases are S's (`results_panel`, the ports of
  * `countResultFamilies`, `countResultFrames` and `navigatorCases`); its rows are one bounded native
  * page under the panel's filters (`panelDetailFilter`), clamped to the last page from the query's

@@ -531,7 +531,7 @@ fn within(observed: f64, expected: f64) -> bool {
 
 // ------------------------------------------------------------------ tests
 
-/// PHYS-R4 (ROOT Q10 as approved): the public fixture is not solved
+/// Scope §6, PHYS-R4 (ROOT Q10 as approved): the public fixture is not solved
 /// with K2b's census. Its exact-pressure end-cap operand is subnormal at
 /// formation, so the census refuses it, by name, with M03's step-1 trigger and
 /// no b. Both entries (F1b adds the captured one) and both modes.
@@ -547,7 +547,7 @@ fn f1b_w2_phys_r4_fixture_is_refused_by_the_census() {
     );
 }
 
-/// PHYS-R4 without pressure: published at b = 536 on both entries
+/// Scope §6, PHYS-R4 without pressure: published at b = 536 on both entries
 /// and in both modes. u_y, theta_z and theta_x at the tip are within 1e-9 of
 /// the exact cantilever values from the product's binary64 section
 /// (Iz = 1.178097245096172e-307 m^4, J = 2.356194490192344e-307 m^4,
@@ -610,7 +610,7 @@ fn f1b_w2_phys_r4_without_pressure_is_published_at_b_536() {
     }
 }
 
-/// K2b's documented limitation (not fixed): the product analogue of
+/// Scope §6, K2b's documented limitation (not fixed): the product analogue of
 /// the E = 2^440 chain is refused at the rule's b (census span [-1010, 443],
 /// b = 312) by name, with M03's trigger and no b (OQ1, c2). The captured
 /// entry refuses 2^440 at capture. (F1b's forced-even-b probe records that

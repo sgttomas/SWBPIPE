@@ -11,7 +11,7 @@
 // `provenance_record`; library metadata, other records, allowables,
 // non-copied slots and record snapshots never enter it.
 //
-// Material modes (reconciled with the HELP_HUMAN E/nu rule,
+// Material modes (§2.3a as reconciled with the HELP_HUMAN E/nu rule,
 // 2026-10-23): the user chooses E/nu or E/G; nothing is inferred.
 // - E/nu writes E, nu (unit 1), G and the exact basis. G is the record's
 //   stored G when it holds one (copied, never overwritten) or is derived
@@ -770,7 +770,7 @@ export async function buildComponentApply(input: ApplyComponentInput): Promise<L
   return applyPlan(ctx, input.model, "Component", input.targetId, entity, after, { copies: used, notCopied, notes: [], members: {} }, retained, removed, [], replaceAllClears);
 }
 
-// ---- hanger (the hanger path moves to the same rule) ----------------
+// ---- hanger (§2.6: the hanger path moves to the same rule) ----------------
 
 /** The short provenance string and combined `provenance_record` of a hanger
  * selection: library metadata, record and every copied quantity's own

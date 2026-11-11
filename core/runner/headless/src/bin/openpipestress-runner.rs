@@ -600,7 +600,7 @@ fn execute_export_results(
         }
     };
 
-    // the
+    // W-11 (DEL-08-01 Design `exact-route-report-sections.md` §5.4): the
     // headless runner stays refused for exact-route results after the owner
     // opened the desktop's rendered report and report package (2026-10-26).
     // Only the desktop has the Export Result JSON admission and the native
@@ -615,7 +615,7 @@ fn execute_export_results(
             format!("export_results payload is invalid: {ROUTE_NOT_ADMITTED}: the headless runner packages no exact-route result; only the desktop builds and binds their sections; found {id}"),
         ));
     }
-    // the
+    // W-18b (DEL-08-01 Design `report-user-release.md` §2.8, refusal 1): the
     // headless runner packages no user-released report. Only the desktop's
     // route DREP-PACKAGE-USER-RELEASE-010 builds one, after its model and
     // reference screening, its solve attestation and its whole-request
@@ -1447,7 +1447,7 @@ mod tests {
         assert!(output.report_package.is_none());
     }
 
-    /// a disclosed request alias is
+    /// W-18 slice (a), DEL-08-01 Design §2.7: a disclosed request alias is
     /// accepted against `request_model_ref`, and a runner model naming neither
     /// that alias nor (without an alias) the actual model is refused. The
     /// actual identity alone does not satisfy the alias case.

@@ -10,7 +10,8 @@ B7b (A4/A5): the retained-source composite has one current contract, `pressure-s
 the header (`compatibility.py`, `reader_verdict.py`). Actual numerical eligibility additionally requires the
 independently captured full invocation, a current model document 0.9.0 with the exact contract.
 
-the retained-source route admits both shear models
+T4-U6 (DEL-05-03 ``section-bases-and-timoshenko.md`` §2.3, §5) and O4 (DEL-04-08 Design
+``o4-source-extension.md`` §3.4): the retained-source route admits both shear models
 (``euler_bernoulli``, ``timoshenko_annulus_energy_v1``) and any length-valued corrosion allowance c_a >= 0 with
 c_m + c_a < t. Each transported ``pipe_sections`` entry is its D-5 and Timoshenko rederivation
 (``section_basis.section``/``beam_theory``); each basis's stress checks and maximum bind that basis's own

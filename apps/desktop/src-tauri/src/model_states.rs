@@ -1,5 +1,5 @@
-//! Named immutable model states in the desktop store (W-12 S1;
-//! FR-CMP-001 and FR-MOD-006's
+//! Named immutable model states in the desktop store (W-12 S1; DEL-14-01
+//! Design `desktop-states-runs-comparison.md` §2; FR-CMP-001 and FR-MOD-006's
 //! state level).
 //!
 //! A state is the canonical RFC 8785 JCS text of one model document (the

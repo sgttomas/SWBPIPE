@@ -396,8 +396,8 @@ fn evaluations_take_the_loops_displacement_and_only_the_influence_is_unjudged() 
     assert!(!code.contains("gate.displacements"));
 }
 
-// ------------------------------------------------
-// rigid anchors
+// ------------------------------------------------ W-16 stage 2, R-a
+// (DEL-04-03 Design pf-nonlinear-imposed-motion.md §1, §2.4): rigid anchors
 // and restraints carry the case's motion as base prescribed values.
 
 /// The 2 m cantilever with a tip one-way prop on UZ (pushing up), a 100 N
@@ -523,8 +523,8 @@ fn the_intended_map_binds_the_loops_boundary_bit_for_bit() {
     assert!(prescribed_map_mismatch(None, &actual));
 }
 
-// ------------------------------------------------
-// a primitive on a
+// ------------------------------------------------ W-16 stage 2, R-b
+// (DEL-04-03 Design pf-nonlinear-imposed-motion.md §1-§2): a primitive on a
 // nonlinear support's own DOF moves its ground by g_s.
 
 /// The 2 m cantilever with a tip lift-off on UZ (pushing up), a 100 N

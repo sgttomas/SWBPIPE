@@ -216,7 +216,7 @@ def _arc_pipes(e):
 
 @pytest.mark.parametrize("label,envelope", CASES)
 def test_a_straight_group_above_one_is_refused(label, envelope):
-    """a group with no arc term keeps the
+    """DEL-04-07 `pressure-contract.md` "Direction magnitudes of arc tangents": a group with no arc term keeps the
     bound 1 (a straight member's frame axis is at most 1)."""
     arcs = _arc_pipes(envelope)
     straight = [i for i, g in enumerate(_groups(envelope)) if not any(t["pipe_id"] in arcs for t in g["terms"]) and "effective_area_bits" not in g]

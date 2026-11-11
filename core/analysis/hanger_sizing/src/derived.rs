@@ -165,7 +165,7 @@ pub fn check_cases(request_doc: &Value, request: &SizingRequest) -> Vec<Refusal>
 
 /// A `support_ref` or `support_id` naming `id` anywhere in an analysis state, other
 /// than the support's own entry in `support_states` (its participation declaration,
-/// handled with the exact route in increment 4).
+/// Design §3, handled with the exact route in increment 4).
 fn state_refers(value: &Value, id: &str, in_support_states: bool) -> bool {
     match value {
         Value::Object(map) => map.iter().any(|(key, v)| {

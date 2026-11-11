@@ -10,7 +10,7 @@ struct Reference {
     request: &'static str,
     oracle: &'static str,
     /// Each load case's expected standing: `None` is Passed, `Some(reason)`
-    /// the named reason in the integrity sentence.
+    /// the named §2.4 reason in the integrity sentence.
     expected: &'static [(&'static str, Option<&'static str>)],
 }
 

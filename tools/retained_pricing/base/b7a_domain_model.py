@@ -560,7 +560,7 @@ def text_decisions(snapshot, resolved):
         # line from the CE head to the RT-A4 head.
         # I2b-2 on RT-U4's candidate (§8.48): both moves, +36 here, +33 for the two generated-id arms and +1/+9/+27/+27
         # for the four later sites, mapped line by line from the merge base 6c3cb46d3 through each side's hunks.
-        # D3 (§8.53): every lib.rs key below moved with unchanged text (+2 after the certificate's module
+        # RT-A3 §4 D3 (§8.53): every lib.rs key below moved with unchanged text (+2 after the certificate's module
         # lines, +11 after the LoadCaseSolve field, +22 after the early-return fields, +27 after the operand map,
         # take and publish); retained_precision.rs +1 (G4's comment line), unchanged text.
         (pp + "lib.rs:12471", {"load_case_id": inp}),

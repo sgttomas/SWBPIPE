@@ -1,4 +1,4 @@
-"""the independent retained reader recomputes
+"""T4-U4b S4 round 2 (DEL-04-07 Design u4b-u5b-implementation.md §4.1, §5.1): the independent retained reader recomputes
 route L's τ with the invocation.
 
 The preview base read at G7 is model-free; with the invocation the reader then runs the preview model checks on its

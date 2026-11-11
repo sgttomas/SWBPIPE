@@ -84,7 +84,7 @@ const ROD_COLUMNS: [keyof TieRodDraft, string, string][] = [
   ["sourceReference", "Rod source reference", "source"]
 ];
 
-/** the
+/** T4-U5b (DEL-04-07 Design u4b-u5b-implementation.md §3.1, §5.2): the
  * explicit tie rods of `explicit_axial_rods_v1`, one row per rod between the
  * connector's end nodes, law bilateral linear. Offsets are three numbers in
  * the connector axes; nothing is defaulted. */

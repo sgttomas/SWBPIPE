@@ -1,4 +1,4 @@
-// DEL-07-05 (C1 review F2, F3 and test strength): a reopened run is shown the same
+// RT-A4 §10.4 and DEL-07-05 (C1 review F2, F3 and test strength): a reopened run is shown the same
 // whether the webview holds it whole or natively. The same stored envelope is reopened both ways:
 // whole (`buildHistoricalRunContext`, the webview's own readers over the full rows) and natively
 // (the session's native open through `nativeReopenEmulation.ts`, whose restored handle's S, pages,

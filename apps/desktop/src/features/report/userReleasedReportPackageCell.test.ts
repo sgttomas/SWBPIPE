@@ -1,4 +1,4 @@
-// the
+// W-18b desktop slice (DEL-08-01 Design `report-user-release.md` §2.2, §2.3, §2.7, §11): the
 // route-010 cell, the webview's early model check and the record's version. The cell admits a
 // pressure-free preview-physics-2 result and the exact pressure routes (pressure-2,
 // pressure-source-1) that native route 010 admits since D-6; it refuses what the package cell

@@ -244,7 +244,7 @@ const HANDOFF_SAVE = { path: path.join(savedHandoffs, "saved-demo.swbhandoff") }
 const savedReportPackages = path.join(root, "saved-report-packages");
 mkdirSync(savedReportPackages);
 const REPORT_PACKAGE_SAVE = { path: path.join(savedReportPackages, "saved-demo.opsproj") };
-// the exact route's package.
+// W-11 (DEL-08-01 Design exact-route-report-sections.md §5.1): the exact route's package.
 const EXACT_REPORT_PACKAGE_SAVE = { path: path.join(savedReportPackages, "saved-exact.opsproj") };
 const documents = expected.cases.map((entry) => {
   const source = path.join(project, entry.fixture);
@@ -332,16 +332,16 @@ function checkObservation(prefix, seen, want, modelHash, supportCount) {
   check(`${prefix}: solve proof model_sha256`, seen.proof_model_sha256 === modelHash, seen.proof_model_sha256);
   check(`${prefix}: solve proof identity`, seen.solve_proof?.includes("identity=match") && seen.proof_project === seen.project_id, seen.proof_project);
   check(`${prefix}: no retained-precision diagnostics`, seen.retained_precision_codes.length === 0 && seen.retained_precision_elements === 0, seen.retained_precision_codes);
-  // structure only; the support count is the opened model's.
+  // A2 (DEL-07-05 Design support-load-summary.md): structure only; the support count is the opened model's.
   const loads = seen.support_load;
   check(`${prefix}: support load summary, one support of the model's ${supportCount} with every row stated and the extreme rows`,
     loads?.table && new RegExp(`^Support \\d+ of ${supportCount}$`).test(loads.position ?? "") && loads.rows > 0 && loads.rows_stated === loads.rows && loads.extreme_rows === 2, loads);
-  // structure only. With no rule-check run the table
+  // A3 (DEL-07-05 Design stress-ratio-table.md): structure only. With no rule-check run the table
   // lists emitted stress kinds, sorted by magnitude, and offers no ratio.
   const table = seen.stress_ratio;
   check(`${prefix}: stress and ratio table lists emitted stresses with no ratio while no rule-check run is held`,
     table?.table && table.mode === "stress" && table.ratio_disabled && table.rule_groups === 0 && table.stress_groups > 0 && table.rows > 0, table);
-  // structure only. Either the admitted cases are
+  // A8 (DEL-07-05 Design displacement-extremes.md): structure only. Either the admitted cases are
   // chosen and one page of node rows lists twelve extreme cells each, or no case is admitted and
   // the panel says so with every case disabled. A model with supports offers support filters.
   const extremes = seen.displacement_extremes;
@@ -350,7 +350,7 @@ function checkObservation(prefix, seen, want, modelHash, supportCount) {
       ? extremes.cases_chosen > 0 && extremes.rows > 0 && extremes.rows <= 50 && extremes.cells_per_row.every((count) => count === 12)
         && /^Nodes 1–\d+ of \d+$/.test(extremes.page ?? "") && !extremes.no_case
       : extremes.no_case && extremes.cases_chosen === 0 && extremes.cases_disabled === extremes.cases), extremes && { ...extremes, cells_per_row: [...new Set(extremes.cells_per_row)] });
-  // structure only. With an entered gravity the summary
+  // A9 (DEL-07-05 Design weight-cog-summary.md): structure only. With an entered gravity the summary
   // either lists its three category rows, with a centre of gravity or the reason none is formed, and
   // either every pipe counted or the pipes not counted; or it states the generator's refusal.
   const weight = seen.weight_summary;

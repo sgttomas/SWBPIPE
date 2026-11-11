@@ -17,7 +17,7 @@ export type HangerSizingFormState = Readonly<{
   weightCase: string;
   designOperatingCase: string;
   checkOperatingCases: readonly string[];
-  /** The person stated that no further operating case is checked (may be empty, but must be stated). */
+  /** The person stated that no further operating case is checked (§2: may be empty, but must be stated). */
   noCheckOperatingCases: boolean;
   loadDesign: "" | "hot" | "cold";
   variationReference: "" | "operating_load" | "design_load";

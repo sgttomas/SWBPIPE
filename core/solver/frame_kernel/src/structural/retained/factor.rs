@@ -28,10 +28,10 @@
 //!   unresolved at p and escalates." It is model information: "sensitivity to
 //!   matrix-entry perturbation, not to authored parameters".
 //!
-//!   **The estimate's role.** The estimate est
+//!   **The estimate's role (D1 revision 5a.3, R7 §5.9).** The estimate est
 //!   serves availability only. It screens ill-conditioned candidates early
-//!   (rcond ≤ 2^-(p−1), unchanged), and its solves choose the shift σ_c
-//!   (`bound.rs`: an optional read-only observer collects the
+//!   (rcond ≤ 2^-(p−1), unchanged), and its solves choose the shift σ_c of
+//!   §4.1.6.3 item 7c (`bound.rs`: an optional read-only observer collects the
 //!   per-block ratios est_c; ROOT's A3-0 ruling Q4). It carries no part of the
 //!   honesty argument.
 //!
@@ -700,7 +700,7 @@ where
     }
 
     /// `condition`, with an optional read-only observer that sees each of the
-    /// screen's solves y = K̃⁻¹x (est_c). The observer
+    /// screen's solves y = K̃⁻¹x (R7 §4.1.6.3 item 7c's est_c). The observer
     /// changes nothing the screen computes.
     pub(crate) fn condition_observed(
         &self,

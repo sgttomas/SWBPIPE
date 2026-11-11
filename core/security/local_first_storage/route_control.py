@@ -54,7 +54,7 @@ CSV_TABLE_ROUTE_ID = "DOTH-CSV-011"
 MBF_EXPORT_ROUTE_ID = "DOTH-MBF-012"
 LOCAL_PRIVATE_ONLY_ROUTE_IDS = frozenset({CSV_TABLE_ROUTE_ID, MBF_EXPORT_ROUTE_ID})
 
-# the user-release route and its
+# W-18b (DEL-08-01 Design `report-user-release.md` §3.3): the user-release route and its
 # context.  A user-released report is written to the user's own local path by the same
 # atomic save, so its route metadata is guarded under the existing ``private_report``
 # storage context; the storage vocabulary does not change.  No Python route uses them.

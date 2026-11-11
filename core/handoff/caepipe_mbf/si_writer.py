@@ -1530,7 +1530,7 @@ class _Writer:
         self.sweep_fields()
 
     def sweep_fields(self) -> None:
-        """every non-empty model member and field no reader writes, checks or refuses is listed, one
+        """Design §17.1: every non-empty model member and field no reader writes, checks or refuses is listed, one
         omitted loss entry per member or field naming its entities, never dropped silently."""
         for name, value in self.model.items():
             if name not in _HANDLED_MEMBERS and _present(value):
@@ -1988,7 +1988,7 @@ class _Writer:
         return result
 
     def survives_reimport(self, result: MbfSiResult) -> bool:
-        """every export as the printed MBF gives it back. The writer's own bound re-import
+        """Design §9.4, §12 and §14: every export as the printed MBF gives it back. The writer's own bound re-import
         reads the printed values exactly as an import will (positions summed from the printed offsets, bend tangent
         nodes rebuilt, OD and wall as printed) and applies the exact route's whole-region checks to the restored
         regions in their declared order. The export stands only if that re-import succeeds completely and checks

@@ -61,7 +61,7 @@ fn t15_body(k: f64) -> CurvedFormation {
     }
 }
 
-/// class of a failure.
+/// DESIGN_R01 §3.5 class of a failure.
 fn class_of(failure: &ArcCertificateFailure) -> u8 {
     match failure {
         ArcCertificateFailure::DivisorReachesZero { .. } => 2,

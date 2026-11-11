@@ -494,7 +494,7 @@ pub fn lame_station(values: &HashMap<&str, f64>, annulus: &Annulus, p: f64) -> C
     )
 }
 
-/// per-basis records: a case's `stress_maximum_coverage`, the nominal
+/// §2.5 per-basis records: a case's `stress_maximum_coverage`, the nominal
 /// entry then the reduced entry; returns each basis's unavailable pipes.
 pub fn coverage(v: &Value) -> Result<[(Vec<&str>, bool); 2], String> {
     let entries = v.as_array().ok_or("SOURCE_PHYSICS_STRESS_COVERAGE_SHAPE")?;

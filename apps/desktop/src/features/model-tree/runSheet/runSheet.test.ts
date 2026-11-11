@@ -1,4 +1,4 @@
-// Run-sheet entry: the resolver,
+// Run-sheet entry S1 (DEL-07-02 Design `run-sheet-entry.md` §7): the resolver,
 // the builder and the record projection against the hand-built fixture
 // `fixtures/model_operations/run_sheet_authoring.json`, applied by the wasm
 // engine. The native lane applies the same batches in

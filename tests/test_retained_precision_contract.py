@@ -1872,18 +1872,18 @@ def test_i4p_ruling5_kernel_reason_without_a_run_is_g5_attempt_in_the_reader():
 
 
 # ---------------------------------------------------------------------------------------------
-# Snapshot 07n (B1 SC, I100), appended to 07m: W-C2's two producer-solved
+# Snapshot 07n (B1 SC, I100; R/BRIEFS/B1_SC.md; PLAN_v2 §2.5), appended to 07m: W-C2's two producer-solved
 # bases, `d38_beside_selected`, the out-of-order-authored and SF-2 successors, and 290 entries. Every new
 # entry states its bound expectation (per reader only in a declared class: Rust's own raw G7 code where
-# Python and TS share one), and its unbound and transport reads: `expected_unbound`
+# Python and TS share one; B1_SC items 12-14), and its unbound and transport reads: `expected_unbound`
 # (or, for a per-reader entry, `expected_unbound_by_reader`) and `expected_transport`, each "pass"
 # (admitted, not eligible) or a gate and code. An admitted rewrite that changes the classes states its own
 # `expected_classifications`. Detail texts are not pinned.
 # ---------------------------------------------------------------------------------------------
 # W-8 topology warning added; no number moved.
-# Model 0.9.0 re-pin (S1): read from the regenerated producer bytes on the
+# Model 0.9.0 re-pin (S1; DEL-02-01 Design model-document-0.9.0.md §3.6): read from the regenerated producer bytes on the
 # registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-# RT-A4 D3 re-pin (DEL-04-08 §8.46): the regenerated carriers move only formulation_basis.limitations[6] and the
+# RT-A4 D3 re-pin (DEL-04-08 §8.46): the regenerated carriers move only formulation_basis.limitations[6] (§10.2) and the
 # digests binding it; each restated to the former sentence and resealed (Python 07e) reproduces its former pin.
 N07_W_C2 = {"sparse_interactive": ("083feb1b4f1f4af1dbf69bd264c66e33068ef650667dbe4b8c1fddbf93988e55", "439b06eeb65e475bb1f7de5885e5accd300299c332dcfb89e2f4db43a87f103b"),
             "dense_scrutiny": ("f783ddf4ed4af2e30600cb320db004caa44907949a7357eae9446468f8d6b194", "bb155a2605521346b3f21a1119a7862228e79dbc174070cdc817294444b8018b")}
@@ -1926,7 +1926,7 @@ def _n07_read(read, source):
 
 
 # ---------------------------------------------------------------------------------------------
-# Snapshot 07o (B2, lane C's SC2 corpus; B2-C CONTRACT §10.2-§10.3): 19 bases
+# Snapshot 07o (B2, lane C's SC2 corpus; B2-C CONTRACT §10.2-§10.3 with REVISION_01 §5 and REVISION_02 §4): 19 bases
 # (15 producer-solved, 2 hook-produced, 2 synthetic), 69 mutations with their designed first failures (one per-reader
 # expectation, m69's G7 base code) and one must-pass entry per base, rehashed by S-6 (`format_rule`, `apply_mutation`).
 # Each mutation's first failure is pinned by `test_shared_draft_first_failure_controls`; this slice's tally below.

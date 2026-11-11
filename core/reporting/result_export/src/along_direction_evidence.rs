@@ -44,7 +44,7 @@ pub(crate) fn row_semantics(row: &Value, direct: bool) -> Check {
 /// axis-aligned direction is lowered and publishes no row).
 /// Whether the document or its model has anything for `check_case` to read: an
 /// along-direction row, or a skewed record in the model. Without either every case's
-/// check is a no-op, so the reader groups nothing (nothing is formed on D1).
+/// check is a no-op, so the reader groups nothing (§12: nothing is formed on D1).
 pub(crate) fn applies(rows: &[Value], model: Option<&Value>) -> bool {
     rows.iter().any(|row| row["kind"] == KIND)
         || model.is_some_and(|m| m["supports"].as_array().into_iter().flatten().any(|s| skewed_direction(s).is_some()))

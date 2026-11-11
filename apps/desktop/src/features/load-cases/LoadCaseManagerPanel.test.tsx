@@ -176,7 +176,7 @@ describe("LoadCaseManagerPanel load-case metadata and deletion", () => {
     type("load-manager-metadata-value", "reviewed");
     type("load-manager-metadata-field", "kind");
     expect(byId("load-manager-metadata-value")).toHaveValue("sustained");
-    // "operating" is offered among the kind suggestions.
+    // Model document 0.9.0 §2.3: "operating" is offered among the kind suggestions.
     expect(optionValues("load-manager-metadata-value")).toEqual(["sustained", "operating", "primitive_user_load", "thermal", "TBD"]);
     expect(byId("queue-load-metadata-intent")).toBeDisabled();
     expect(byId("load-manager-metadata-preview")).toHaveTextContent("current=sustained; no changed kind queued");

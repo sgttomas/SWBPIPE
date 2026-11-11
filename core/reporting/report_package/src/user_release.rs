@@ -121,7 +121,7 @@ pub const RUNNER_NOT_ADMITTED: &str = "REPORT-USER-RELEASE-RUNNER-NOT-ADMITTED";
 /// refusal 2).
 pub const PACKAGE_NOT_ADMITTED: &str = "REPORT-PACKAGE-USER-RELEASE-NOT-ADMITTED";
 /// Under the admitting entry, the request is not a user-released request, or
-/// its record differs from the request's members (items 8 and 10, the
+/// its record differs from the request's members (§2.8 items 8 and 10, the
 /// handoff rule).
 pub const PACKAGE_UNBOUND: &str = "REPORT-PACKAGE-USER-RELEASE-UNBOUND";
 

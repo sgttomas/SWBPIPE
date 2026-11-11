@@ -1,4 +1,4 @@
-// (DEL-08-04-R14): the "Export CSV" control of a results
+// RT-R6 (DEL-08-04-R14; Design `csv-export.md` §4): the "Export CSV" control of a results
 // table. Pressing it is the user's explicit local-private intent: the table's adapter builds
 // the file from the view model the panel renders, the serializer writes it, and `saveCsvTable`
 // saves it on the governed local-first route `DOTH-CSV-011`. The status line names the file.

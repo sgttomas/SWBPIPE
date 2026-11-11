@@ -257,7 +257,8 @@ pub struct NonlinearFrameSolveInput {
     pub curved_bend_elements: Vec<CurvedBendStiffnessElement>,
     pub force: DenseVector,
     pub base_restrained_dofs: Vec<usize>,
-    /// the case's prescribed value g_b of base-restrained DOFs, sparse;
+    /// W-16 stage 2, R-a (DEL-04-03 Design `pf-nonlinear-imposed-motion.md`
+    /// §1): the case's prescribed value g_b of base-restrained DOFs, sparse;
     /// an absent DOF is prescribed at +0. Each entry must lie on
     /// `base_restrained_dofs`, appear once and be finite.
     pub base_prescribed: Vec<(usize, f64)>,
@@ -1871,7 +1872,7 @@ fn solve_iteration_with_sliding_friction_evidence(
     })
 }
 
-/// `minuend_final`: what
+/// RT-A5 `minuend_final` (DEL-05-02 Work `operating-case.md` §7.1, §7.3): what
 /// confirming a held solve needs, exactly the arguments of
 /// `confirmation::confirm_converged_state` that the loop's input does not carry.
 pub struct HeldConfirmation<'a> {
@@ -1905,7 +1906,7 @@ pub struct HeldStatusSolve {
     pub confirmation: confirmation::Confirmation,
 }
 
-/// `minuend_final`: the
+/// RT-A5 `minuend_final` (DEL-05-02 Work `operating-case.md` §7.1-§7.3): the
 /// target system with each nonlinear support held at `held`, solved by one step
 /// of the loop's own unit and completed by the loop's own tail, never iterated
 /// and never recovered, then one unchanged confirmation attempt.

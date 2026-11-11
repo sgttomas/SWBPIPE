@@ -3519,7 +3519,7 @@ describe("SWBPIPE desktop preview", () => {
         "export-review-record-validation_release_evidence_review",
       ).textContent,
     ).toContain("available");
-    // Human · Human review required is a chip of the
+    // Slice B3, specification §5.4 rule 4: Human · Human review required is a chip of the
     // Review page after a solved run and of no other page. The recorded value stays readable
     // in the Analyze page's readiness summary.
     expect(screen.queryByTestId("status-pill-professional")).not.toBeInTheDocument();
@@ -7112,7 +7112,7 @@ describe("SWBPIPE desktop preview", () => {
     const nodeCount = new Set(displacements.map(row => row.entity_ref)).size;
     expect(new Set(displacements.map(row => row.unit))).toEqual(new Set(["mm"]));
     const referenceOverlay = buildDeformationOverlay(referenceModel, fixtureResult);
-    // the regenerated demo solves valve C-130's member with its scale 15
+    // W-15 (DEL-03-05 Design §6): the regenerated demo solves valve C-130's member with its scale 15
     // (was 7.635384 unscaled).
     expect(maximum.toFixed(6)).toBe("7.624972");
     expect(referenceOverlay.summary).toContain(`available; nodes=${nodeCount}; max=7.624972 mm`);
@@ -9102,7 +9102,7 @@ describe("SWBPIPE desktop preview", () => {
     );
     expect(screen.getByText("Blank Local Model", { selector: ".titlebar p" })).toBeInTheDocument();
     expectStatusChip("status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
-    // before any run the status bar carries one chip,
+    // Slice B3, specification §5.4 rule 1: before any run the status bar carries one chip,
     // Solver · Model incomplete. The other two recorded values stay readable in the Analyze
     // page's readiness summary.
     expect(screen.queryByTestId("status-pill-rule-check")).not.toBeInTheDocument();

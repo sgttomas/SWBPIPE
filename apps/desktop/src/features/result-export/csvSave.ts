@@ -1,4 +1,4 @@
-// CSV save (DEL-08-04-R14). The one save function the
+// RT-R6 CSV save (DEL-08-04-R14; Design `csv-export.md` §4). The one save function the
 // table export controls call. The CSV text is screened on the governed local-first route
 // `DOTH-CSV-011`, admitted only for `local_private` output with explicit user intent. In the
 // desktop app it is written by the native save command (`save_local_result_json`, CSV

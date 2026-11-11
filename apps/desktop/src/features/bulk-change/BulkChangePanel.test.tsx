@@ -1,4 +1,4 @@
-/** the panel's preview counts and per-entity list, the
+/** B2 (DEL-07-02 Design `bulk-change.md`): the panel's preview counts and per-entity list, the
  * all-or-nothing queue, and the refusal to queue on a changed basis. */
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";

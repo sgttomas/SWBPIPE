@@ -43,7 +43,7 @@ import type { CurrentSessionInputManifestEvidence } from "../../services/inputMa
 // while the selection that produced it is still current; clearing the
 // selection discards it.
 //
-// the panel's
+// W-11 slice (b) (DEL-08-01 Design `exact-route-report-sections.md` §3.1): the panel's
 // check is the surface's own (`surfaceOutputRefusal` on `rendered-report`), which refuses
 // exactly as the route-level check did while the cell refuses an exact result (ruling
 // 10A). Behind it, an exact source is built with its Export Result JSON admission, which
@@ -96,7 +96,7 @@ export function RenderedReportPanel({
   packageRoute?: ReportPackageSaveRoute | null;
   onPackagePrivateIntentChange?: (value: boolean) => void;
   onSaveReportPackage?: () => void;
-  /** opens the user-release dialog. */
+  /** W-18b (DEL-08-01 Design `report-user-release.md` §2.2): opens the user-release dialog. */
   onSaveShareableReportPackage?: () => void;
 }) {
   const [panelComposition, setPanelComposition] = useState<ReportComposition | null>(null);

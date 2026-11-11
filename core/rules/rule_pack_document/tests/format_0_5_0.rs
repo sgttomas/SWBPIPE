@@ -117,7 +117,7 @@ fn other_versions_are_refused_by_name_and_the_checksum_is_still_computed() {
     assert!(message.contains("'0.4.0'"), "{message}");
 }
 
-/// Each finding, reached by one edit of the valid demo pack.
+/// Each §2.9 finding, reached by one edit of the valid demo pack.
 #[test]
 fn each_static_finding_is_reached() {
     type Edit = fn(&mut Value);

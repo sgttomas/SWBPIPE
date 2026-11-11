@@ -163,12 +163,12 @@ describe("joined composite (pressure-source-1) native transport unit simulation"
     for (const surface of OUTPUT_SURFACES) {
       expect(surfaceOutputRefusal(source,model,surface),surface).toBe(["result-export","stress-neutral","rule-check","rendered-report","report-package"].includes(surface)?null:PRESSURE_SOURCE_OUTPUT_REFUSAL);
     }
-    // the eligible result exports, carrying its contract evidence and received
+    // Design §4.2: the eligible result exports, carrying its contract evidence and received
     // receipt whole, as Rust's derivative does.
     const document = await buildCurrentResultExport({model,result:source,analysisRun,inputManifest}) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
     expect(document.result_envelope.contract_evidence).toEqual(source.contract_evidence);
     expect(document.result_envelope.source_block_recovery).toEqual(source.source_block_recovery);
-    // the stress-neutral package likewise, and it validates against its source.
+    // Design §4.3: the stress-neutral package likewise, and it validates against its source.
     const packet = await buildStressNeutralExportPacket({model,result:source,analysisRun});
     expect(packet.contract_evidence).toEqual(source.contract_evidence);
     expect(packet.source_block_recovery).toEqual(source.source_block_recovery);

@@ -81,7 +81,7 @@ function joined(object: JsonObject, pointer: string, key: string, separator: str
   }).join(separator);
 }
 
-/** by the combination's basis: `result_state_subtraction` as `"<minuend_id> − <subtrahend_id>"`
+/** §2.7, by the combination's basis: `result_state_subtraction` as `"<minuend_id> − <subtrahend_id>"`
  * (null unless both are stored); `range_envelope` as `operand_ids` joined by `", "`; any other
  * basis as each term `"<factor> × <load_case or combination>"` joined by `"; "` (null when no
  * `terms` is stored). A stored member the basis does not use is not shown. */

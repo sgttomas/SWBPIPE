@@ -1306,19 +1306,19 @@ fn opt_in_feature_is_named_only_by_its_definition_and_forward(feature: &str) {
     assert!(violations.is_empty(), "{feature} named outside its definition and forward: {violations:#?}");
     assert_eq!((definitions, forwards), (1, 1), "the kernel defines {feature} and product_physics forwards it, once each");
 }
-/// the census probe's feature.
+/// W1 coverage repair §3.2 (revision 8): the census probe's feature.
 #[test]
 fn census_probe_is_named_only_by_its_definition_and_forward() {
     opt_in_feature_is_named_only_by_its_definition_and_forward("census-probe");
 }
-/// the loaded-maximum capacity hook follows the same
+/// W1 coverage repair §1.4, option 2: the loaded-maximum capacity hook follows the same
 /// rule. Only the genuine-exhaustion control's maintained command passes it.
 #[test]
 fn loaded_maximum_hooks_are_named_only_by_their_definition_and_forward() {
     opt_in_feature_is_named_only_by_its_definition_and_forward("loaded-maximum-hooks");
 }
 
-/// the census probe is opt-in. No dev-dependency enables it,
+/// W1 coverage repair §3.2: the census probe is opt-in. No dev-dependency enables it,
 /// so the ordinary test build (and the stack-witness build) compiles the kernel without
 /// it. A census command, which passes `--features census-probe`, does not run this test.
 #[test]
@@ -1327,7 +1327,7 @@ fn census_probe_is_off_in_the_ordinary_test_build() {
         "the frame kernel was compiled with the census probe in an ordinary test build");
 }
 
-/// the loaded-maximum capacity hook is opt-in. No
+/// W1 coverage repair §1.4, option 2: the loaded-maximum capacity hook is opt-in. No
 /// dev-dependency enables it, so the ordinary test build (and the stack-witness build)
 /// compiles the kernel without it and every search runs at its production limits. The
 /// genuine-exhaustion control's command, which passes `--features loaded-maximum-hooks`,
@@ -1339,7 +1339,7 @@ fn loaded_maximum_hooks_are_off_in_the_ordinary_test_build() {
         "the frame kernel was compiled with the loaded-maximum capacity hook in an ordinary test build");
 }
 
-/// the failed-ordinary manifest
+/// T4-U4b S4 (DEL-04-07 Design u4b-u5b-implementation.md §4.1): the failed-ordinary manifest
 /// carries each member's 15 derived rows after its circular maximum (66 rows per member, in
 /// preview-physics-2's order) as placeholders, and the freeze forms them from the projected rows.
 /// CX-F and the two committed N06 controls stay selected, bound and eligible in both modes; every

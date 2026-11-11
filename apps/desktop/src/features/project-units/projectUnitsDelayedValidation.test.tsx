@@ -1,3 +1,4 @@
+// W-17 slice (b), DEL-02-02 Design `project-unit-selection.md` §3 "Editing":
 // a choice is validated against the model it was made on. When the model
 // changes while that validation is in flight, the stale response queues
 // nothing and the section asks for the unit to be chosen again. The engine's

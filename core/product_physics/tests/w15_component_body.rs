@@ -251,7 +251,7 @@ fn carriers(value: &Value, path: String, out: &mut Vec<(String, Value)>) {
     }
 }
 
-/// the Rust derivative exporter copies the record verbatim onto the
+/// §5 Exports: the Rust derivative exporter copies the record verbatim onto the
 /// body's quantity rows and source annotations and validates it against the
 /// source row; a dropped, forged or altered copy is refused.
 #[test]
@@ -309,7 +309,7 @@ fn row_mut<'a>(source: &'a mut Value, pick: impl Fn(&Value) -> bool) -> &'a mut 
     source["results"].as_array_mut().unwrap().iter_mut().find(|r| pick(r)).expect("a matching row")
 }
 
-/// missing, forged and inconsistent records, a basis twin's
+/// §5 Row record: missing, forged and inconsistent records, a basis twin's
 /// disagreement, a coverage disagreement, a headline on a body and a model
 /// mismatch are each refused.
 #[test]
@@ -423,7 +423,7 @@ fn w15_missing_forged_and_inconsistent_records_are_refused() {
     }
 }
 
-/// a case whose every member is a body has a null headline, with
+/// §5 Maximum: a case whose every member is a body has a null headline, with
 /// every member's maximum and extremum still published and coverage complete.
 #[test]
 fn w15_an_all_body_case_has_a_null_headline() {
@@ -477,7 +477,7 @@ fn w15_an_unsolved_result_carries_no_body_whatever_the_model_declares() {
     }
 }
 
-/// on combination rows (#1573's preview combination rows; the
+/// §5 Row record, on combination rows (#1573's preview combination rows; the
 /// exact route refuses a combination by name, EXACT_PRESSURE_FAMILY_NOT_ADMITTED):
 /// a combination of the case publishes the body's combined stress rows with its
 /// record, the headline stays off the body, and the readers admit the result

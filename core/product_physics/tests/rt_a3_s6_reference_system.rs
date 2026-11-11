@@ -125,7 +125,7 @@ fn r1() -> Value {
         "provenance": fixture()["components"][0]["provenance"].clone()})
 }
 
-/// The support records this stage overlays, keyed by the fixture support
+/// The spec §6 support records this stage overlays, keyed by the fixture support
 /// each follows. `intended` replaces RS-FR1V by its intended `one_way` form.
 fn supports(intended: bool, nonlinear: bool) -> Vec<(&'static str, Value)> {
     let p = provenance();
@@ -157,7 +157,7 @@ fn weighted_pipes(model: &Value) -> Vec<String> {
     model["pipe_segments"].as_array().unwrap().iter().map(|p| p["id"].as_str().unwrap().to_string()).filter(|p| p != "pipe:RS-P180").collect()
 }
 
-/// The fixture with RS-R1 and the supports overlaid, a support state for each
+/// The fixture with RS-R1 and the §6 supports overlaid, a support state for each
 /// in every case, and W regenerated on the result. `intended`: RS-FR1V in its
 /// intended `one_way` form (the S7 control).
 fn overlay(intended: bool) -> Value {

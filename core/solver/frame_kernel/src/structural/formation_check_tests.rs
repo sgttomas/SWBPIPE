@@ -2549,7 +2549,7 @@ fn kd5_positive_w2_lambda_sigma_unscale_mutant_underbounds_actual_reference_erro
     );
     eprintln!("positive W2 b={exponent}: actual={actual:e}, R={correct:e}, mutant={mutant:e}, R/actual={}, mutant/actual={}",correct/actual,mutant/actual);
 }
-/// Λ = 2^10·est/(1 − 2^10·est·ε_E). A
+/// §2 step 7 and §7 ("drop the 2^10"): Λ = 2^10·est/(1 − 2^10·est·ε_E). A
 /// seeded inexact solve leaves the exact second residual s₂ = −2^-89 (σ = 2^-89,
 /// ψ = 0, ε_E = 0), so Λσ is 2^10·est·2^-89 within its few upward roundings; and
 /// est·ε_E < 1 ≤ 2^10·est·ε_E must fail closed on the Neumann condition.

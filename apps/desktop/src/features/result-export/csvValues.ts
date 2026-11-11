@@ -1,4 +1,4 @@
-// (DEL-08-04-R14): the cells a table adapter writes for its
+// RT-R6 (DEL-08-04-R14; Design `csv-export.md` §3): the cells a table adapter writes for its
 // numeric columns. A value is the display rule's exact step (`exactDisplayQuantity`), the same
 // conversion the panel's `displayQuantityParts` rounds for the screen, so CSV and screen never
 // disagree beyond display rounding. It is written as the shortest binary64 decimal when that

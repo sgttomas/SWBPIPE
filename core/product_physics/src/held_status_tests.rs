@@ -1,4 +1,4 @@
-//! `minuend_final`: the
+//! RT-A5 `minuend_final` (DEL-05-02 Work `operating-case.md` §7.4, §7.6, §7.9 H-8): the
 //! binding's nine checks in order, each refused by its own name (and each mutant of a check
 //! killed), and the evidence's outcomes on real held solves.
 use super::*;

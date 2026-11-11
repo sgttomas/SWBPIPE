@@ -412,7 +412,7 @@ fn o4_reduced_rows_are_refused_by_kernel_cause() {
     assert_eq!(proof.work().capacities[4], 21);
 }
 
-// ------------------------------------------------- the D-entry gaps
+// ------------------------------------------------- §4.3: the D-entry gaps
 
 /// A skew cantilever with a deliberately inconsistent binary64 G (1e-6 above
 /// E/(2(1+ν))): the two lanes' shear rigidities differ by about 1e-6 while

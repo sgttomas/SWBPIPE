@@ -207,8 +207,8 @@ where
             return Err(Failure::Shape("spring contribution binding"));
         }
     }
-    // each skew spring block, nine contributions row-major after the
-    // springs, bound to its bits; its intended entries are p-formed.
+    // §10.3: each skew spring block, nine contributions row-major after the
+    // springs, bound to its §6.1 bits; its intended entries are p-formed.
     let mut arith = WideArith::new(FORMATION_PRECISION)?;
     for (s, spring) in basis.springs().iter().enumerate() {
         let intended = skew_spring_matrix(&mut arith, spring.direction.authored(), spring.stiffness)?;

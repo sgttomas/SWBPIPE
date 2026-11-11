@@ -116,7 +116,7 @@ describe("the route gate (§2.1): the output policy's report-package cell", () =
     expect(reportPackageUnavailableReason(null)).toBeNull();
   });
 
-  // (owner, 2026-10-26):
+  // W-11 (DEL-08-01 Design `exact-route-report-sections.md` §5.1; owner, 2026-10-26):
   // the cell admits the exact routes to the builder's Export Result JSON admission.
   it("admits a genuine exact-route source (pressure-2) to the builder's own checks (W-11 opening)", async () => {
     const { model } = nativeMechanicsReplayPair("sparse_interactive", { profile: "pressure" });
@@ -450,7 +450,7 @@ describe("the report input the package carries", () => {
     expect(JSON.stringify(session)).toBe(before);
   });
 
-  // the local-private input
+  // Slice C5 (DEL-08-01 Design `report-section-composer.md` §2.7): the local-private input
   // carries P(M, C) exactly when the composition lists a model-input section.
   it("carries the model-input tables P(M, C) only when the composition lists a model-input section", async () => {
     const session = await syntheticPreviewSession(structuredClone(inventedPreviewModel) as unknown as PreviewModel);

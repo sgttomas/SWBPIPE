@@ -1,3 +1,4 @@
+// W-12 S3a (DEL-14-01 Design `desktop-states-runs-comparison.md` §4.1, §4.3):
 // Compare… of two saved states. The History panel offers it for two selected
 // readable states and disables it, with the stated reason, while the session is
 // busy, before two are selected, and for a row the store cannot read. The
@@ -128,7 +129,7 @@ describe("Compare… in the History panel", () => {
     const history = slice({ stateComparison: result() });
     renderPanel(history);
     const view = screen.getByTestId("state-comparison");
-    // the one export is the table's local-private
+    // RT-R6 (DEL-08-04 Design `csv-export.md` §1 C1): the one export is the table's local-private
     // CSV; the comparison envelope export stays later (FR-CMP-010).
     expect(within(view).getAllByRole("button", { name: /export|download|save/i }).map((button) => button.getAttribute("aria-label"))).toEqual(["Export CSV: Saved state comparison"]);
     expect(screen.getByTestId("model-history-panel").textContent).not.toMatch(/certif|accept|approv/i);

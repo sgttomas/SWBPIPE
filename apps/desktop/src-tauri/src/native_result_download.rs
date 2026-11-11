@@ -19,7 +19,7 @@ pub(super) const CSV_ROUTE: &str = "DOTH-CSV-011";
 const CSV_PREFIX: &str = "data:text/csv;charset=utf-8,";
 const CSV_FILE_PREFIX: &str = "swbpipe-";
 pub(super) const UTF8_BOM: &[u8] = b"\xEF\xBB\xBF";
-/// CSV kinds, as tokens. `results-<group>` is `results`
+/// DEL-07-01 `export-file-names.md` CSV kinds, as tokens. `results-<group>` is `results`
 /// followed by at least one token; the longer kinds (`support-loads-all`, `weight-cog`)
 /// are a shorter kind followed by qualifier tokens.
 const CSV_KINDS: &[&[&str]] = &[
@@ -119,7 +119,7 @@ fn valid_tokens(name: &str, prefix: &str, ext: &str) -> Option<Vec<String>> {
     ok.then(|| token.split('-').map(str::to_owned).collect())
 }
 fn valid_name(name: &str, prefix: &str) -> bool { valid_tokens(name, prefix, ".json").is_some() }
-/// `swbpipe-<csv kind>[-<qualifier>].csv` under the token rule.
+/// `swbpipe-<csv kind>[-<qualifier>].csv` under the token rule of `export-file-names.md`.
 pub(super) fn valid_csv_name(name: &str) -> bool {
     let Some(tokens) = valid_tokens(name, CSV_FILE_PREFIX, ".csv") else { return false; };
     (tokens[0] == "results" && tokens.len() >= 2)

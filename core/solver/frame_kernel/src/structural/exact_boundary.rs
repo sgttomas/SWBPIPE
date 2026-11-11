@@ -62,7 +62,7 @@ pub enum ForceLevel {
     DeclaredVector,
     IdentifiedRepresentedContributions,
 }
-/// one member of the functional
+/// RF source-method design §3.1 and §3.3: one member of the functional
 /// entry's exact-congruence list. A member whose transform is not a signed
 /// permutation has no exactly declared global entries: its rounded global
 /// contributions fl(Tᵀ·fl(K_local·T)) stay in `StructuralSystem::contributions`,
@@ -152,13 +152,13 @@ fn congruence_order(
     }
     Ok(order)
 }
-/// the exact congruence
+/// RF source-method design §3.3 and §3.5: the exact congruence
 /// G[i][j] = Σ_k Σ_l T[k][i]·K[k][l]·T[l][j] of the declared binary64 K and T,
 /// through `Work` (metered), in the two-stage order Tᵀ·(K·T): first
 /// KT[k][j] = Σ_l K[k][l]·T[l][j], then G[i][j] = Σ_k T[k][i]·KT[k][j]. Every
 /// product with a zero factor is skipped, each sum runs in ascending index
 /// order and starts from its first product. Values equal the direct triple
-/// sum's; the work is the specified form's. G is exactly symmetric
+/// sum's (§3.5); the work is the specified form's. G is exactly symmetric
 /// when K is (the Context's exact symmetry check decides).
 fn congruence_entries(
     k: &Matrix12,
@@ -250,7 +250,7 @@ impl Default for Limits {
 /// lo and hi (|ea + eb| ≤ 2148), 4 per iteration; and the product with its
 /// fused residual (2). That is at most 66, leaving a margin of 30.
 const PAIR_CHARGE: usize = 96;
-/// the largest free block order each Context
+/// RF source-method design §2.1: the largest free block order each Context
 /// entry admits. The functional entry (`Context::prepare_with_budget`) and its
 /// replay (`RetainedFunctionalSet::replay_against`) admit 4. The legacy entries
 /// (`Context::new` and the legacy `RetainedResponse::replay_against`, which the
@@ -554,7 +554,7 @@ fn cofactor_sign(p: usize, q: usize) -> f64 {
         -1.0
     }
 }
-/// exact arithmetic over one free block of
+/// RF source-method design §2.3–2.4: exact arithmetic over one free block of
 /// order 3 or 4, all through `Work` and without division. Every entry
 /// a[p][q] = k[block[p]][block[q]] is read from the upper triangle (p <= q):
 /// the Context's exact symmetry check makes a[p][q] = a[q][p], so a 2×2 minor
@@ -693,7 +693,7 @@ pub struct Context {
     f: Vec<Expansion>,
     blocks: Vec<Vec<usize>>,
     witnesses: Vec<BlockWitness>,
-    /// per block: an order-3/4 block's adjugate upper
+    /// RF design §2.4, per block: an order-3/4 block's adjugate upper
     /// triangle (`BlockMinors::adjugate`), computed once in Preparation;
     /// empty for orders 1 and 2. Its denominator Δo is the witness's last
     /// minor.
@@ -915,7 +915,7 @@ impl Context {
                 witness.c = Some(k[j][j].terms.clone());
                 witness.determinant = Some(determinant.terms);
             } else if block.len() > 2 {
-                // orders 3 and 4 (the cap admits no more).
+                // RF design §2.3–2.6, orders 3 and 4 (the cap admits no more).
                 assert!(block.len() <= FUNCTIONAL_ORDER_CAP, "exact block order cap");
                 let order = block.len();
                 let mut m = BlockMinors::new(&k, &block);

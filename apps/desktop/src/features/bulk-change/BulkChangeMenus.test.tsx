@@ -1,4 +1,4 @@
-/** Change selected… in the B9 entity menus of the tree,
+/** B2 (DEL-07-02 Design `bulk-change.md`): Change selected… in the B9 entity menus of the tree,
  * the bulk grid, the engineering tables and the viewport. It opens Bulk change on the selection,
  * follows the B9 selection rule, and is absent where no Bulk change is wired. Invented fixtures. */
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";

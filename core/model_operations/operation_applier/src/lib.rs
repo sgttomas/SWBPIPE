@@ -660,6 +660,7 @@ fn field_rules(object_type: &str) -> &'static [FieldRule] {
                 field_path: "geometry.center_of_gravity",
                 kind: FieldKind::OptionalVectorQuantity { dimension: "length" },
             },
+            // W-15 slice c (DEL-03-05 Design `eccentric-reducer-offset.md` §4):
             // a reducer's eccentric offset, an explicit length vector like the
             // centre of gravity; refused on other kinds in `resolve_field`. The
             // solve checks it against the node geometry, which governs.
@@ -1057,7 +1058,7 @@ pub fn reader_row_semantics_each_json(rows_json: &str, source_json: Option<&str>
     Ok(rv::row_semantics_each(&rows, source.as_ref()).to_string())
 }
 
-/// [`reader_row_semantics_each_json`] of a recorded statement under its record's
+/// RT-A4 §10.4: [`reader_row_semantics_each_json`] of a recorded statement under its record's
 /// binding (`reader_verdict::row_semantics_each_recorded`): a registry variant's rows read
 /// under that variant's table, for the recorded-run display and compare paths only.
 pub fn reader_recorded_row_semantics_each_json(binding_json: &str, rows_json: &str, source_json: &str) -> Result<String, String> {
@@ -1070,7 +1071,8 @@ pub fn reader_recorded_row_semantics_each_json(binding_json: &str, rows_json: &s
     Ok(rv::row_semantics_each_recorded(&rows, &source, &binding).to_string())
 }
 
-/// the recorded-run read entries (`reader_verdict::*_recorded`) over JSON
+/// RT-A4 §10.4 (DEL-05-02 `absolute-sum-srss-combinations.md`, "Recorded results from
+/// before RT-A4"): the recorded-run read entries (`reader_verdict::*_recorded`) over JSON
 /// text, under the record's binding `{id, sha256}`: `dispatch`, `preview-physics`,
 /// `preview-physics-transport`, `retained-precision` and `retained-precision-transport`.
 /// Each returns its current entry's outcome shape. The desktop calls this only from its
@@ -1707,7 +1709,7 @@ fn run_with_context(
             }
         }
     }
-    // reconnect one pipe end.
+    // W-10 (DEL-16-06 Design `pipe-reconnect.md` §1): reconnect one pipe end.
     // Its typed warnings are pushed in validate and apply mode alike, so the
     // preview reports exactly what apply will; warnings never block.
     if change_kind == pipe_reconnect::CHANGE_KIND {
@@ -1795,7 +1797,7 @@ fn run_with_context(
         }
     }
 
-    // Model document 0.9.0:
+    // Model document 0.9.0 S3a (DEL-02-01 Work `model-document-0.9.0.md` §11):
     // condition sets, pipe assignment and case condition use. The solve's
     // judgement of the candidate is classified (staged findings warn, all else
     // blocks) in validate and apply mode alike.
@@ -1850,7 +1852,7 @@ fn run_with_context(
         }
     }
 
-    // a library
+    // W-17 (DEL-03-01 Design apply-library-records.md §2.2): a library
     // record applied to an existing material, section or component. The
     // change names every member it writes; a section carries its bound pipes.
     if change_kind == library_apply::CHANGE_KIND && !checker.schema_blocked {
@@ -3308,7 +3310,7 @@ fn resolve_expansion_joint_creation(
         // U5a does not activate a document version. T3 owns the v3 selector
         // above; this new-kind validation becomes reachable when B7b adds0.5.
         if let Some(connector) = connector {
-            // connector
+            // T4-U5b (DEL-04-07 Design u4b-u5b-implementation.md §5.2): connector
             // creation validates its hardware as the solver classifies it, as it
             // validates a constant-effective-area pressure model.
             let pressure = connector.pointer("/pressure_model/kind").and_then(Value::as_str) == Some("constant_effective_area_reference_v1");
@@ -3799,7 +3801,7 @@ fn resolve_rigid_creation_geometry(
     ) {
         return None;
     }
-    // a reducer may be
+    // W-15 slice c (Design `eccentric-reducer-offset.md` §4): a reducer may be
     // created with an optional explicit offset vector; it is never defaulted,
     // and no other kind accepts one.
     let eccentric_offset = match geometry.get("eccentric_offset") {
@@ -6942,7 +6944,7 @@ fn resolve_create_combination_term(
         );
         return None;
     };
-    // a term may name a combination (exactly one of load_case and
+    // absolute-sum-srss §2: a term may name a combination (exactly one of load_case and
     // combination); the document validator refuses a cycle in the result.
     if record.contains_key("combination") {
         let operand = record.get("combination").and_then(Value::as_str).unwrap_or("").trim();

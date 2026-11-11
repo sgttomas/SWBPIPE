@@ -1,4 +1,4 @@
-"""RT-A4 (DEL-05-02; review r1 P2): test-only
+"""RT-A4 (DEL-05-02 ``absolute-sum-srss-combinations.md`` sections 4-5 and 10; review r1 P2; section 10.3): test-only
 mirror of RE ``preview_combination_gates.rs``. Re-derives preview-physics-2's combination gates and unsigned rows from the
 received document and, when it is supplied, from its model.
 

@@ -14,7 +14,7 @@ const REFERENCES: &str =
     include_str!("../../../../validation/references/skew_restraints/references.json");
 
 
-/// M-1: the adopted strings, test-local; the product's one source is PP
+/// M-1: the adopted §2.2 strings, test-local; the product's one source is PP
 /// `document_members::skew_code` (the product references test asserts them by name,
 /// against the references).
 fn code_text(code: SkewCode) -> &'static str {
@@ -452,7 +452,7 @@ struct Run {
     r: [f64; 3],
 }
 
-/// single-node model: a 6×6 node, translations diag(tip) plus
+/// §15 step 1's single-node model: a 6×6 node, translations diag(tip) plus
 /// the skewed spring blocks (after any axis spring), rotations 1 and
 /// restrained; the coordinate solve by Cholesky; the lift; the residual rows.
 fn run(
@@ -1479,7 +1479,7 @@ fn ground_rows_and_identity_capacity() {
     );
 }
 
-// ------------------------------------------------------------------ certified attribution
+// ------------------------------------------------------------------ §10.5 certified attribution
 
 /// The kernel node as K-D5's certified source: the tip's axis springs (the
 /// translations' diag(tip)); the skewed spring blocks come from the basis.

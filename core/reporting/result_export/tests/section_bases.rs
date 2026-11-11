@@ -591,9 +591,9 @@ fn pressure_1_reader_refuses_beam_theory_contradicting_the_contract() {
 
 #[test]
 fn pressure_1_model_checks_take_realized_arcs_from_the_model() {
-    // a realized arc is Euler-Bernoulli under either contract. The model
+    // §3.6: a realized arc is Euler-Bernoulli under either contract. The model
     // names the arcs, including one no pressure region marks (the L line with
-    // a connector has explicitly empty regions); the marked case sections
+    // a connector has explicitly empty regions); §2.5: the marked case sections
     // are exactly those arcs.
     let (n, eb, tim) = (sb::NOMINAL, sb::EULER_BERNOULLI, sb::TIMOSHENKO);
     let entry = arc_corpus_entry("L line with connector");
@@ -720,7 +720,7 @@ fn the_d5_geometry_is_rederived_in_its_fixed_order() {
     assert_eq!(refused(&doc), "SOURCE_PHYSICS_SECTION_BASES");
 }
 
-/// `PHYSICS_SOURCE_ACTUAL_MILL_TOLERANCE`
+/// O4 (DEL-04-08 Design `o4-source-extension.md` §3.4): `PHYSICS_SOURCE_ACTUAL_MILL_TOLERANCE`
 /// is retired. The invocation check no longer refuses a nonzero mill tolerance; it binds
 /// by value through `ACTUAL_SOURCE_GEOMETRY` and its range through the D-5 rederivation. A
 /// present mill tolerance that is not a finite length >= 0, or that with the allowance

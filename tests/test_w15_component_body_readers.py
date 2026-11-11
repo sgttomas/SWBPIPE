@@ -1,4 +1,4 @@
-"""each slice-d member is permitted on
+"""W-15 slice d (DEL-03-05 Design ``rigid-component-stiffness-scaling.md`` §5): each slice-d member is permitted on
 one evidence object only, through the Python verifiers and the Rust readers, on both routes.
 
 A stress-maximum coverage entry may carry ``component_body_pipe_ids`` and a stress extremum ``component_body``; the

@@ -126,7 +126,7 @@ import rta4_owners_model as _rta4_env
 if _rta4_env.inspect(SNAP) and which == "caps":
     _a4_dv = _rta4_env.derivation_value(CAPS.get("z", 0))
     ENV_S = ENV_S + VF(arr=_a4_dv[0], obj=_a4_dv[1], ent=_a4_dv[2], strb=_a4_dv[3], keyb=_a4_dv[4], nums=3 * CAPS.get("z", 0), depth=6)
-# D3 (§8.53, RTA3C-MV): the combination certificate member in the envelope evidence at z >= 1 (carried into the
+# RT-A3 §4 D3 (§8.53, RTA3C-MV): the combination certificate member in the envelope evidence at z >= 1 (carried into the
 # successor).
 import rta3c_owners_model as _rta3c_env
 if _rta3c_env.inspect(SNAP) and which == "caps":
@@ -445,7 +445,7 @@ if _rta4 and _RTA4_ROUTE_L:
     _a4_z = CAPS.get("z", 0) if which == "caps" else 0
     _RTA4_RD = _rta4_model.reader(_actual_cases, _a4_z, P, g, PA, DENV,
                                   VF(arr=5, obj=3, ent=15, strb=ROW, keyb=15 * 24, nums=1).tree())
-# D3 (§8.53, RTA3C-RD): the G7 base read's certificate member check at z >= 1 (route L; route E has no member).
+# RT-A3 §4 D3 (§8.53, RTA3C-RD): the G7 base read's certificate member check at z >= 1 (route L; route E has no member).
 import rta3c_owners_model as _rta3c_model
 _RTA3C_RD = X()
 if _rta3c_model.inspect(SNAP) and _RTA4_ROUTE_L:

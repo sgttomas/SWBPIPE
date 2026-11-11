@@ -1,4 +1,4 @@
-//! Run-sheet entry: the native
+//! Run-sheet entry S1 (DEL-07-02 Design `run-sheet-entry.md` §7): the native
 //! lane of native/wasm equivalence (DEL-16-06 CLM-003). The hand-built batches of
 //! `fixtures/model_operations/run_sheet_authoring.json` are applied natively to
 //! the fixture's basis model and must give its expected applied models, the same

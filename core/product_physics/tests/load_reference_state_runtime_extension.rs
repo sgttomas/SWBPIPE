@@ -1774,13 +1774,13 @@ fn dilation_datum_zero_is_consulted_not_consumed() {
                 consulted.contains(&0),
                 "{ctx}: datum-zero point is consulted: {consulted:?}"
             );
-            // engineering_dilation:
+            // CP3_WIRE_ADDENDUM.md (sha256 f69043b6...) section 2, engineering_dilation:
             // - consumed: a sample at T_i and at T, plus one integration_interval
             //   for every segment piece of [min(T_i,T), max(T_i,T)];
             // - consulted: the datum sample, plus positivity samples at the
             //   interval ends, T_m, T_i, T and the table points inside. There is
             //   never a consulted integration_interval.
-            // Consumed and consulted are independent and may overlap.
+            // Consumed and consulted are independent and may overlap (section 1).
             //
             // Table (fixture inputs): 0 = T_m (20 degC), 1 = T_i (50 degC),
             // 2 = 150 degC. T_i is point 1, so [T_i, T] spans only segment 1-2.

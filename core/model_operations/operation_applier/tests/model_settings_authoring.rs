@@ -364,7 +364,7 @@ fn euler_bernoulli_is_set_and_cleared_and_the_default_is_never_written() {
     assert_eq!(tolerance_only["model_settings"], json!({"node_proximity_tolerance": {"value": 2.0, "unit": "mm"}}));
 }
 
-/// the 0.8.0 interim refusal is lifted. An explicit set of
+/// DEL-05-03 Design `pf-timoshenko.md` §1: the 0.8.0 interim refusal is lifted. An explicit set of
 /// `timoshenko_annulus_energy_v1` on a pressure-free document writes the member, as an explicit
 /// user set; the validator admits it; switching to `euler_bernoulli` writes that explicit value;
 /// clear restores the absent form byte for byte.

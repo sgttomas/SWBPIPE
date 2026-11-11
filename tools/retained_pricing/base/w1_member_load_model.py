@@ -20,7 +20,7 @@ import re
 import runpy
 
 # Full raw pins bind the implementation and complete helper call chains.
-# T4-S5 D3 (§8.8): the epoch's member-path files are re-bound after their diffs were read.
+# T4-S5 D3 (retained-pricing-rules.md §8.8): the epoch's member-path files are re-bound after their diffs were read.
 # The member-load custody, ledger, recovery, maxima and reader call chains are unchanged; the additions are the
 # not-covered passthrough (retained_product.rs capture, failed manifest and prepared_not_covered; final_case.rs
 # ProductRecipe::NotCovered and complete_not_covered; retained_precision.rs derived_kind and route L's G7
@@ -29,10 +29,10 @@ import runpy
 # T4-S6 D3 (§8.8, S6-HS): retained_wire.rs's domain_hash streams its digest and retained_precision.rs's G1 hashes the
 # publication without cloning the source; neither touches a member-path owner. T4-S7: retained_wire.rs's
 # domain_hash doc comment only.
-# Stack-headroom repair D3 (§8.10): read 27e4dfa972;
+# Stack-headroom repair D3 (b7-plan 5a, retained-pricing-rules.md §8.10): read 27e4dfa972;
 # freeze_case's closure is split into six phase functions, with unchanged calls, order, errors,
 # drops and allocation. Only stack placement changes; no owner this model prices changes.
-# W1 coverage repair D3 (§8.11): read 3bbfdd5080. loaded_maximum.rs: search takes
+# W1 coverage repair D3 (retained-pricing-rules.md §8.11): read 3bbfdd5080. loaded_maximum.rs: search takes
 # `driven` and, when set, runs on Enclosure::point(z.lo) with one more point_max per evaluated point for lower_hull,
 # inside the unchanged loop and limits (frame growth: loaded_inventory's driven_slots, W1R-LM); recipe_reduced
 # passes driven = corner1() && .., false without the census-probe feature. final_case.rs: check_intervals returns
@@ -69,7 +69,7 @@ import runpy
 # text other than the identity is added.
 # RT-A3 increment 4 D3 (§8.49, RTA3NL-PIN): RE lib.rs declares `mod nonlinear_support_evidence` (one line);
 # retained_precision.rs moves its EXACT_TABLE_HASH constant (physics-retained-1). No member-load owner changes.
-# D3 (§8.53): retained_product.rs's preview freeze admits the certificate's optional member in its closed
+# RT-A3 §4 D3 (§8.53): retained_product.rs's preview freeze admits the certificate's optional member in its closed
 # evidence-key list (two lines rewritten in place); RE lib.rs declares combination_certificate and retained_precision.rs
 # wraps G7's for_source in the base-read context. No member-load owner changes.
 SOURCE_FILES = {
@@ -168,7 +168,7 @@ def loaded_inventory():
     Returned hulls, boxed refusal diagnostic, PP spans/evidence and caller
     NumericWork records are independent positive rows below.
 
-    W1R-LM (§8.11): the
+    W1R-LM (W1 coverage repair §1.2, retained-pricing-rules.md §8.11): the
     driven search's frame keeps the represented hull (hull_z, two endpoints)
     beside its z_lo point, the hull-valid lower (lower_hull) and the named
     point value: four more endpoint slots, added to the rounded union rather

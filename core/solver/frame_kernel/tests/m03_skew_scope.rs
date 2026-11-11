@@ -1,4 +1,7 @@
-//! I9: the skew M03 pin (T3; tests only).
+//! I9: the skew M03 pin (T3; tests only). RV7's review of K2a, finding B1
+//! (`T3/REVIEW/K2A_REVIEW.md`), and K2a's `RETURN_ADDENDUM_1.md` §1 and §1.4
+//! (`T3/IMPLEMENTATION/K2A/`), where `T3/` is the numerical-integrity folder
+//! under `projects/chirality-piping/execution/_Coordination/`.
 //!
 //! **M03's element-entry floor.** `transform_roundoff` bounds each global
 //! entry (i, j) of T^T (K T) by g·(inherited/(1 − g) + second)·(1 + 64ε),

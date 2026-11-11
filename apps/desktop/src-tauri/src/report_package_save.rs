@@ -150,8 +150,8 @@ pub const REQUEST_POSITIONAL: &str = "REPORT-PACKAGE-SAVE-REQUEST-POSITIONAL";
 /// The webview screener's code for a blocked disposition (`redactionExportControls.ts`).
 pub use crate::export_disposition_screen::PROTECTED_CONTENT_BLOCKED;
 
-/// Route 010's refusal bounds (W-18b,
-/// Codex round 1 at #1682, P1): a route-010
+/// Route 010's refusal bounds (W-18b, DEL-08-01 Design `report-user-release.md`
+/// §2.5, "Refusals on route 010"; Codex round 1 at #1682, P1): a route-010
 /// refusal carries at most one diagnostic, whose path is at most this many
 /// bytes (the finding's JSON pointer, or its nearest enclosing pointer within
 /// that length) ...
@@ -769,8 +769,8 @@ fn screen_content(request: &Value, model: &Value, project_id: &str, lookup: &mut
     if blocking.is_empty() { Ok(warnings) } else { Err(ReportPackageSaveCommandError::refused(blocking)) }
 }
 
-/// Route 010's disposition screen (W-18b,
-/// Codex round 1 at
+/// Route 010's disposition screen (W-18b, DEL-08-01 Design
+/// `report-user-release.md` §2.5, "Refusals on route 010"; Codex round 1 at
 /// #1682, P1): [`screen_content`]'s rules over the same two values, in its
 /// order, refused at the first finding, which is named as
 /// [`screen_content`] names it:
@@ -943,7 +943,7 @@ pub(crate) fn check_manifest_model(input_manifest: &Value, model: &Value, model_
     Ok(())
 }
 
-/// One rule pack's identity in the comparison: `{rule_pack_id, version,
+/// One rule pack's identity in the §2.5 comparison: `{rule_pack_id, version,
 /// checksum value}`.
 type RulePackIdentity = (String, String, String);
 
@@ -1202,8 +1202,8 @@ pub enum SaveRoute {
     UserReleased,
 }
 
-/// The save command's error as the command returns it (W-18b,
-/// Codex round
+/// The save command's error as the command returns it (W-18b, DEL-08-01
+/// Design `report-user-release.md` §2.5, "Refusals on route 010"; Codex round
 /// 2 at #1682, P2). Only [`SaveRoute::exit`] makes one, so every command
 /// error of the save leaves through that one step, whatever stage refused:
 /// the outer command's pricing, admission, the save dialog, the custody
@@ -1305,8 +1305,8 @@ fn elided(text: &str, limit: usize) -> String {
     out
 }
 
-/// A route-010 refusal within its bounds (W-18b,
-/// Codex round 1 at
+/// A route-010 refusal within its bounds (W-18b, DEL-08-01 Design
+/// `report-user-release.md` §2.5, "Refusals on route 010"; Codex round 1 at
 /// #1682, P1, and round 2, P2), so the error the command returns has a fixed
 /// bound, [`ROUTE_010_REFUSAL_TEXT_BYTES`] of text, whatever stage refused:
 /// - at most one diagnostic, the first (route 010's checks refuse at their
@@ -1477,7 +1477,7 @@ fn admit_both_routes(
         )
         .into());
     }
-    // the
+    // Slice C5 (DEL-08-01 Design `report-section-composer.md` §2.7): the
     // report's model-input tables are P(M, C) of this bound model and the
     // report's own composition, on both routes; tables without a listing id,
     // or a listing id without tables, are refused. The refusal names a JSON

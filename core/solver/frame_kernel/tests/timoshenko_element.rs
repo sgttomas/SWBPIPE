@@ -407,7 +407,7 @@ fn timoshenko_recovered_end_actions_use_the_timoshenko_matrix() {
         let [f, m] = root_actions(&model[0], &u);
         close(f, root_force, 1e-14, &format!("{what} root force"));
         close(m, root_moment, 1e-14, &format!("{what} root moment"));
-        // the recovery is bound to the member's
+        // T4-U8 (Design §4 item 2): the recovery is bound to the member's
         // formation-source frame (the model's own root element).
         let source = open_pipe_stress_frame_kernel::structural::FormationSource {
             node_count: 3,
@@ -807,7 +807,7 @@ fn timoshenko_section_constructors_and_leaf() {
 
 // --------------------------------------------------------------- K2b
 
-/// A_s is an area, so phi is bit-invariant under the
+/// K2b (Design §4 item 3): A_s is an area, so phi is bit-invariant under the
 /// exact 2^b scaling of E and G and the formed K is 2^b times K; the census
 /// uses the actual phi, excludes an exact zero 2 - phi, and its b forms a
 /// Timoshenko element that is out of range at b = 0.
@@ -955,6 +955,7 @@ fn timoshenko_k2b_census_uses_the_actual_phi_exponents() {
 
 // --------------------------------------------- the W1 retained assembler
 
+/// Design §3.6 and O4 §4.2 (DEL-04-08 `o4-source-extension.md`):
 /// `StraightMember::from_frame` refuses a Timoshenko leaf by name; the
 /// retained Timoshenko member is formed only with its sidecar entry
 /// (`from_frame_with_leaf`), and the text stays the association refusal.

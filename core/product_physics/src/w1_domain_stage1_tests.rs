@@ -503,7 +503,7 @@ fn w1_member_interior_publications_bind_the_actual_direct_entry() {
     }
 }
 
-/// (corner 2): native quantity scales and published-row maxima
+/// W1 coverage repair §2.2 (corner 2): native quantity scales and published-row maxima
 /// straddle an exact binary64 halfway in this input (force maximum (7/2)Z, coupled
 /// moment 7Z). The receipt now states the final scales the product gate judged every
 /// row with, so precommit G5b holds and the successor publishes in both modes; the
@@ -564,7 +564,7 @@ fn w1_loaded_scale_halfway_publishes() {
     }
 }
 
-/// only the receipt's `body_scales` change provenance. The
+/// W1 coverage repair §2.2 and §5: only the receipt's `body_scales` change provenance. The
 /// native publication keeps its own scales, the coupled maxima of its own rows, which its
 /// certificate judged with. On the 73/24 Pa control they differ from the gate's final scales
 /// at the loaded body, so a native scale replaced by a final one is visible here.
@@ -629,11 +629,11 @@ fn w1_loaded_publication_request(d:f64,t:f64)->Value {
     raw
 }
 
-/// (corner 1). The stage-2 boundary member's represented
+/// W1 coverage repair §1.2 and §5 (corner 1). The stage-2 boundary member's represented
 /// Z is a non-point hull, so the admitted lane's search is driven at z_lo: it converges
 /// under the unchanged stop rule and limits, and the unchanged gate decides the case.
 /// The expected outcome is the gate's own, derived here from its verdicts in each mode
-/// (the census found it passing). Formerly
+/// (the census, §3.5, found it passing). Formerly
 /// `w1_loaded_maximum_refuses_irreducible_represented_section_width`, which pinned the
 /// search's exhaustion on this member: the cause it recorded, a convergence rule applied
 /// to the input hull's own width, is repaired, and no gate, tolerance or limit changed.
@@ -737,7 +737,7 @@ fn corpus_successor(case:&Value,hook:&dyn Fn())->Value {
     retained.map(|s|s.value().clone()).ok().or(precommit).unwrap_or_else(|| panic!("{}: no successor",case["id"]))
 }
 
-/// a represented-Z hull that is a point (D/2 a power of
+/// W1 coverage repair §1.2 and §5: a represented-Z hull that is a point (D/2 a power of
 /// two) takes exactly today's search, with the same operations, work and bytes. The four
 /// committed `w1_member_interior_*` records, and the two `w1_member_halfway_*` records on
 /// the same point-hull section, are reproduced byte for byte, work counters included.
@@ -819,9 +819,9 @@ fn w1_member_load_product_consuming_successor() {
     }
 }
 
-/// The genuine-exhaustion control, hook-driven. After
+/// The genuine-exhaustion control, hook-driven (W1 coverage repair §1.4, option 2). After
 /// the corner-1 repair no committed or census input exhausts the loaded-maximum search at
-/// its production limits (census), so a real member, T18's transverse `case-b` on
+/// its production limits (census §3.5), so a real member, T18's transverse `case-b` on
 /// the D = 0.2 m section, is driven to exhaustion by the kernel's capacity hook at a
 /// reduced split limit (0, with the production 256 live nodes and depth 64; the member's
 /// driven search needs one split). Its exact diagnostic and all spent arithmetic survive
@@ -969,7 +969,7 @@ const PRE_REPAIR_WORK_MASKED:[(&str,&str);8]=[
     ("w1_member_combination_sparse_interactive","4f3ea1f8f4ccdac84ccff3c0908a245dcf00ace277899e99f73cf29ce8bd989e"),
     ("w1_member_combination_dense_scrutiny","5e6426daeeb9050cbd6725a5daf1c94a0b2188ce1884b8bc8c20bf2e516c5f7e"),
 ];
-/// the committed loaded members on the D = 0.2 m
+/// W1 coverage repair §1.4 and §5: the committed loaded members on the D = 0.2 m
 /// interval-hull section that converged before the repair (axial loads, so the bending
 /// lower bound is zero at every evaluated point) take the driven path, whose hull-valid
 /// evaluations are metered. On the regenerated `w1_member_load_*`, `w1_member_multi_*`,
@@ -979,7 +979,7 @@ const PRE_REPAIR_WORK_MASKED:[(&str,&str);8]=[
 /// (with W-8's warning, where it applies).
 /// The live producer reproduces each committed entry byte for byte.
 /// The model version the pre-repair documents' requests were authored at. Model 0.7.0
-/// (W-13 S1b) re-authored the corpus
+/// (DEL-02-01 Design `model-document-0.7.0.md` §2; W-13 S1b) re-authored the corpus
 /// requests by their version token alone, which moves only the successor's invocation
 /// digest. The pins stay the pre-repair documents': the successor is compared with its
 /// invocation digest restored to that of the same request at the pre-repair version, so
@@ -1015,7 +1015,7 @@ fn w1_hull_repair_moves_only_work_on_converging_members() {
 /// REQ-006 (f) (the owner's ruling of 2026-10-20 on the W1 coverage repair): a loaded
 /// member's maximum whose certified hull is too wide for the unchanged gate keeps its
 /// ordinary result, and the case is unavailable with its named cause. The appended simply
-/// supported member on the 0.12 m × 0.01 m section (census, C1-b: a *Z-hull only*
+/// supported member on the 0.12 m × 0.01 m section (census §3.5, C1-b: a *Z-hull only*
 /// failure) converges at the represented hull's binding endpoint, but its maximum row's
 /// enclosure fails the unchanged SharperExact predicate in both modes (beside the inherited
 /// two-readout corner on its midspan bending stress). No search or gate refusal is

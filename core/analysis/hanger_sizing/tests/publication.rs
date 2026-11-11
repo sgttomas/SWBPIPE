@@ -539,7 +539,7 @@ fn the_schema_states_the_crates_fixed_members() {
     assert_eq!(defs["Identity"]["properties"]["route"]["const"], publish::ROUTE);
 }
 
-// --- the existing readers' actual handling ----------------------------
+// --- §8.3.8: the existing readers' actual handling ----------------------------
 
 #[test]
 fn the_mechanics_route_reader_and_the_result_export_derivative_refuse_the_document() {

@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { attachBrowserIdentity, gotoModel } from "./ui-foundation-workflows";
 import { chooseVirtualMultiTarget, chooseVirtualTarget, ensureTreeExpanded } from "./workspace-driver";
 
-// reconnect one pipe end through
+// W-10 (DEL-16-06 Design `pipe-reconnect.md` §4): reconnect one pipe end through
 // Geometry tools and batch review; Apply waits for a clean Validate; From/To in
 // the table, undo and redo; then a component-attached pipe is refused by name
 // with the model unchanged. Invented model: A -P- B -Q- D -R- C, and S from D

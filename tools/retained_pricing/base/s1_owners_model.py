@@ -1,4 +1,4 @@
-"""Model document 0.9.0 S1 D3 (§8.36): the positive
+"""Model document 0.9.0 S1 D3 (DEL-02-01 Design model-document-0.9.0.md; retained-pricing-rules.md §8.36): the positive
 owners the 0.9.0 lowering and withholding add outside the chain's TEXT inventory, on D1.
 
 D1.3 refuses a non-empty condition_sets or spectra and any pipe's condition_set_ref, D1.4 a difference basis, a

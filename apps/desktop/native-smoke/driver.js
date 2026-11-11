@@ -236,7 +236,7 @@
     return record;
   }
 
-  // the stress and ratio table's structure; no values are read.
+  // A3 (DEL-07-05 Design stress-ratio-table.md): the stress and ratio table's structure; no values are read.
   function stressRatioStructure() {
     const panel = byTestId("stress-ratio-panel");
     if (!panel) return null;
@@ -257,7 +257,7 @@
     };
   }
 
-  // the displacement extremes panel's structure; no values are read.
+  // A8 (DEL-07-05 Design displacement-extremes.md): the displacement extremes panel's structure; no values are read.
   function displacementExtremesStructure() {
     const panel = byTestId("displacement-extremes-panel");
     if (!panel) return null;
@@ -277,7 +277,7 @@
     };
   }
 
-  // the weight summary is model data, computed on
+  // A9 (DEL-07-05 Design weight-cog-summary.md): the weight summary is model data, computed on
   // request with an entered gravity (an invented smoke input; no value is read or pinned).
   async function weightSummaryStructure() {
     if (!byTestId("weight-summary-panel")) return null;

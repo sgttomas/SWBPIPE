@@ -189,7 +189,7 @@ fn annulus(d: f64, t: f64) -> (f64, f64) {
     let z = std::f64::consts::PI * (d.powi(4) - di.powi(4)) / (32.0 * d);
     (a, z)
 }
-/// C1-b's five shapes on one section: (shape, request). UDL 3.5 N/m, length 2 m.
+/// §3.2 C1-b's five shapes on one section: (shape, request). UDL 3.5 N/m, length 2 m.
 fn c1b_shapes(d: f64, t: f64, mill: Option<f64>) -> Vec<(&'static str, Value)> {
     let w = 3.5;
     let skew = [2.0 * 3.0 / 13.0, 2.0 * 4.0 / 13.0, 2.0 * 12.0 / 13.0];
@@ -343,7 +343,7 @@ fn abs_max(a: (i128, i32), b: (i128, i32)) -> (i128, i32) {
     let (x, y) = (a.0.abs() << (a.1 - e), b.0.abs() << (b.1 - e));
     (x.max(y), e)
 }
-/// C2-b's constructed halfways on the point-hull section, length 2, each verified
+/// §3.2 C2-b's constructed halfways on the point-hull section, length 2, each verified
 /// exactly: the coupled body force or moment maximum of the loaded member's body is a
 /// binary64 halfway. Simply supported (pins) with a UDL and end moments: reactions
 /// |w ± (M_r + M_t)/2|, end moments |M_r|, |M_t|. Cantilever (fixed root) with a UDL,
@@ -394,7 +394,7 @@ fn c2b_halfways() -> Vec<(String, Value)> {
     }
     ss.into_iter().chain(cant).collect()
 }
-/// C2-b's 32 decimal controls: both shapes, lengths {1.5, 2.5, 3.7, 6.1} m and
+/// §3.2 C2-b's 32 decimal controls: both shapes, lengths {1.5, 2.5, 3.7, 6.1} m and
 /// forces {1.1, 2.3, 4.7, 9.9} kN on the committed 0.168 m, t = 0.007 m section
 /// (cantilever tip force F; simply supported UDL of total F).
 fn c2b_decimals() -> Vec<(String, Value)> {
@@ -470,7 +470,7 @@ fn w1_coverage_census_c1a_cap_inputs() {
         .unwrap().join().unwrap();
 }
 
-// ---------------------------------------------------------------- the annular lane is unchanged
+// ---------------------------------------------------------------- §5: the annular lane is unchanged
 
 /// The annular lane's loaded-maximum searches of one input in one mode, from a run with
 /// `switches`: (phase, row, member, driven, outcome, splits, max_live, max_depth, the
@@ -506,7 +506,7 @@ fn annular_lane_unchanged(inputs: Vec<Input>, hook: &dyn Fn(&str)) -> (usize, us
     (undriven, compared)
 }
 
-/// the annular lane keeps today's search on its tight z;
+/// W1 coverage repair §1.2 and §5: the annular lane keeps today's search on its tight z;
 /// the drive-and-hull split never applies to it. Its work and enclosures are byte-identical
 /// to today's on every committed loaded input: the group-3 trials, every corpus member-load
 /// base (`w1_member_*`) and the two 128-term member-cap witnesses' inputs, in both modes.

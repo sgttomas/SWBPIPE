@@ -1,4 +1,4 @@
-"""the independent Python verifier, beside the Rust reader
+"""O4 (DEL-04-08 Design ``o4-source-extension.md`` §3.4, §6): the independent Python verifier, beside the Rust reader
 (``openpipestress-runner read``), on genuine Timoshenko and dual-basis pressure-source-1 publications.
 
 The controls are the test-only fixture ``fixtures/product_preview/pressure_source/o4/o4_source_controls.json``, which

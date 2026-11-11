@@ -208,7 +208,7 @@ fn container_outcome(request: &Value) -> ReportPackageContainerOutcome {
     assemble_report_package_container(&input)
 }
 
-/// every production entry point admits each
+/// W-11 opening (§5.1 item 8): every production entry point admits each
 /// witness request; the container assembly yields the same package identity
 /// as the wire assembly.
 #[test]
@@ -360,7 +360,7 @@ fn positional_members_refuse_and_a_positional_request_assembles_the_same_package
     }
 }
 
-/// on an
+/// DEL-08-01 Design `exact-route-report-sections.md` §3.6, §6.3 item 4: on an
 /// exact identity the report's Diagnostics are the source's projection
 /// (`bindings::check_report_diagnostics`, item 9), so the standing line's
 /// integrity lead is the result's. Through the production roots, each witness

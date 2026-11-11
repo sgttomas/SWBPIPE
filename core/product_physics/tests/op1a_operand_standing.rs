@@ -1,3 +1,4 @@
+//! Operating-case slice 1a (DEL-05-02 Design `pf-nonlinear-operand-standing.md`):
 //! a subtraction or range envelope of a pressure-free model with nonlinear supports
 //! states each operand's numerical standing and names the supports whose reported
 //! state differs between its operands. Every model goes through the captured value

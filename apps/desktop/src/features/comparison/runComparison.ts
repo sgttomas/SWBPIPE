@@ -1,5 +1,5 @@
-// Comparison of two analysis runs of one project (W-12 S3b;
-// FR-CMP-004, and FR-CMP-006 for
+// Comparison of two analysis runs of one project (W-12 S3b; DEL-14-01 Design
+// `desktop-states-runs-comparison.md` §4.2; FR-CMP-004, and FR-CMP-006 for
 // runs). Deterministic and automatic: result rows are mapped when their whole
 // identity is equal, with no manual mapping (FR-CMP-005/007 stay v0.2), and no
 // tolerance profile or unit conversion (FR-CMP-008 stays v0.2). The reference

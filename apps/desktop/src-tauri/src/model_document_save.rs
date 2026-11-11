@@ -426,8 +426,8 @@ pub fn write_admitted_model_document(destination: &Path, admitted: AdmittedModel
 }
 
 /// The save after its ingress and its route-evidence check (`lib.rs`
-/// `save_model_document_decoded`), on one blocking worker: the admission
-/// with each referenced library read from the local store (`open_store`,
+/// `save_model_document_decoded`), on one blocking worker: the admission of
+/// §2, with each referenced library read from the local store (`open_store`,
 /// opened only if the document references one) within the command's memory
 /// (`StoreLibraryReads`: started from the ingress lease `ingress`, so every
 /// library reservation is counted with it against the per-invocation budget);

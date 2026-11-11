@@ -521,7 +521,7 @@ impl<'a> Importer<'a> {
         Ok(Some((model, id_map)))
     }
 
-    // -- bytes, lines and encoding ----------------------------------
+    // -- §4.1 bytes, lines and encoding ----------------------------------
     fn decode(&mut self) -> R<()> {
         let text = match std::str::from_utf8(self.data) {
             Ok(text) => text,
@@ -565,7 +565,7 @@ impl<'a> Importer<'a> {
         Ok(())
     }
 
-    // -- heading and sections -----------------------------------------
+    // -- §4.2 heading and sections -----------------------------------------
     fn keyword(&mut self, text: &str, line: usize) -> R<Option<String>> {
         if section_kind(text).is_some() {
             return Ok(Some(text.to_string()));
@@ -1014,7 +1014,7 @@ impl<'a> Importer<'a> {
         }
     }
 
-    // -- analysis options -------------------------------------------------
+    // -- §6 analysis options -------------------------------------------------
     fn read_analysis_options(&mut self) -> R<()> {
         if self.sections.contains_key(&"OPTEMP".to_string()) {
             let lines = self.data_lines("OPTEMP");
@@ -1195,7 +1195,7 @@ impl<'a> Importer<'a> {
         Ok(())
     }
 
-    // -- MATERIAL -----------------------------------------------------------
+    // -- §7 MATERIAL -----------------------------------------------------------
     fn read_materials(&mut self) -> R<()> {
         let mut order: Vec<String> = Vec::new();
         let entries = self.sections.get(&"MATERIAL".to_string()).map(|(_, entries)| entries.clone()).unwrap_or_default();
@@ -1362,7 +1362,7 @@ impl<'a> Importer<'a> {
         Ok(())
     }
 
-    // -- PIPE -------------------------------------------------------------
+    // -- §8 PIPE -------------------------------------------------------------
     fn read_pipes(&mut self) -> R<()> {
         for (line, text) in self.data_lines("PIPE") {
             let Some(fields) = self.fields(line, &text, "PIPE") else { continue };
@@ -1424,7 +1424,7 @@ impl<'a> Importer<'a> {
         Ok(())
     }
 
-    // -- LOADS ------------------------------------------------------------
+    // -- §9 LOADS ------------------------------------------------------------
     fn read_loads(&mut self) -> R<()> {
         let tail_names = loads_tail();
         for (line, text) in self.data_lines("LOADS") {
@@ -1559,7 +1559,7 @@ impl<'a> Importer<'a> {
         self.info("MBF-IMPORT-LOAD-SLOT-INACTIVE", line, &format!("{location} T{n}/P{n}"), &message);
     }
 
-    // -- other sections -------------------------------------------------
+    // -- §14 other sections -------------------------------------------------
     fn read_other_sections(&mut self) -> R<()> {
         let sections: Vec<(String, (usize, Vec<(usize, String)>))> =
             self.sections.iter().map(|(name, value)| (name.clone(), value.clone())).collect();
@@ -1609,7 +1609,7 @@ impl<'a> Importer<'a> {
         Ok(())
     }
 
-    // -- layout rows -------------------------------------------------------
+    // -- §4.4 layout rows -------------------------------------------------------
     fn read_layout_rows(&mut self) -> R<Vec<LayoutEntry>> {
         let mut rows = Vec::new();
         let entries: Vec<(usize, String)> = self

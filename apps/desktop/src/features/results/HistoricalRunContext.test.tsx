@@ -292,7 +292,7 @@ describe("bundled reference inspection", () => {
   });
 });
 
-// a project saved before RT-A4 reopens with its standing as recorded under
+// RT-A4 §10.4 display rule: a project saved before RT-A4 reopens with its standing as recorded under
 // its table, shown apart from the reopen's own findings; a failed reopen check stays an ordinary
 // finding beside it.
 describe("a project saved before RT-A4 (historical read)", () => {

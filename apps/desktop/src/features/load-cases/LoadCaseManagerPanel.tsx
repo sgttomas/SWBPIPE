@@ -1644,7 +1644,7 @@ function loadMetadataOptions(model: PreviewModel, field: LoadMetadataField, curr
   if (field === "status") values.add("preview_only");
   if (field === "kind") {
     values.add("primitive_user_load");
-    // a suggestion only; `kind` stays a free string the solver
+    // Model document 0.9.0 §2.3: a suggestion only; `kind` stays a free string the solver
     // ignores, and `operating` implies no composition or other meaning.
     values.add("operating");
   }
@@ -2876,7 +2876,7 @@ function unitOptions(route: UnitCatalogRoute | null, dimensionId: string, fallba
     ? { symbol: "", label: "Choose a unit" }
     : { symbol: fallbackSymbol, label: `${fallbackSymbol} (model metadata)` };
   // An undeclared project unit (TBD) has no default; with the catalog loaded the
-  // field still offers its catalog units to choose from (the moment
+  // field still offers its catalog units to choose from (W-17 §2.4: the moment
   // default is project.units.moment, never composed).
   if (route?.route !== "tauri_unit_catalog" || !Array.isArray(route.catalog?.entries)) return [fallback];
   const options = acceptedUnits(route.catalog)

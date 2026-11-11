@@ -1135,7 +1135,7 @@ function aggregateLabel(status: string): string {
   }
 }
 
-// the counts count outcomes, one per check and basis.
+// Design §2.7: the counts count outcomes, one per check and basis.
 export const RULE_CHECK_COUNT_SCOPE_NOTE =
   "Counts are per check and load case or combination; one check can contribute more than once.";
 

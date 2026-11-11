@@ -265,7 +265,7 @@ def isolated_torsion_recipe(action, radius, constant):
     station["actions"][3]={"value":action,"interval":[action,action]}
     check["action"]=station["actions"][3]
     section.update(ro_m=radius)
-    for basis in sb.BASES:  # the one source section binds both bases
+    for basis in sb.BASES:  # T4-U6 (§2.3): the one source section binds both bases
         section[basis]["J_m4"]=constant
     check["parameters"].update(torsion_radius_m=radius,torsion_constant_m4=constant)
     row["value"]=action*radius/constant/1e6

@@ -126,7 +126,7 @@ CONNECTOR_KINDS = {
     "connector_endpoint_moment_v1": ("N*m", ("Mx", "My", "Mz"), ("end_i", "end_j")),
     "connector_pressure_force_v1": ("N", ("pe_x",), ("connector_local",)),
     "connector_effective_axial_force_v1": ("N", ("s_x",), ("connector_local",)),
-    # one force row per tie rod, bound by row ID.
+    # T4-U5b (DEL-04-07 Design u4b-u5b-implementation.md §3.3): one force row per tie rod, bound by row ID.
     "connector_tie_rod_force_v1": ("N", ("t_r",), ("tie_rod",)),
 }
 CONNECTOR_ROWS_PER_CASE = 24
@@ -495,7 +495,7 @@ def _physics(source: Mapping[str, Any]) -> None:
     evidence = source.get("contract_evidence")
     _shape(evidence, EVIDENCE_KEYS_0_3_0, "namespace")
     _finite_tree(evidence)
-    # the component bodies and their reference-section records.
+    # W-15 slice d (DEL-03-05 Design §5): the component bodies and their reference-section records.
     bodies = component_body.source_bodies(source, pressure_table())
     _require(isinstance(evidence["connector"], list) and isinstance(evidence["pressure"], list), "unsupported connector")
     cases = _indexed(evidence["exact_cases"], "load_case_id", "exact cases")
@@ -531,7 +531,7 @@ def _physics(source: Mapping[str, Any]) -> None:
         # intensified_measures only when non-empty.
         directional = "intensified_measures" in case
         _require(not directional or (isinstance(case["intensified_measures"], list) and case["intensified_measures"]), "case shape")
-        # a generating case's closed record.
+        # W-16 slice c (DEL-05-01 Design exact-equivalent-static.md §2): a generating case's closed record.
         generation = "equivalent_static" in case
         if generation:
             equivalent_static_record(cid, case["equivalent_static"])
@@ -551,8 +551,8 @@ def _physics(source: Mapping[str, Any]) -> None:
             _require(type(material["thermal_consumed"]) is bool and (_number(material["alpha_per_kelvin"]) if material["thermal_consumed"] else material["alpha_per_kelvin"] is None), "thermal alpha")
         case_arcs: set[str] = set()
         for pid, geometry in geometries[cid].items():
-            # T4-U6 (D-5): the three geometries rederived from the captured authored values; kappa_E
-            # from this case's nu; an arc is known by its marker, a region records a member as an arc exactly
+            # T4-U6 (D-5): the three geometries rederived from the captured authored values; T4-U8 (§3.1): kappa_E
+            # from this case's nu; §2.5: an arc is known by its marker, a region records a member as an arc exactly
             # when its case section is marked, and an arc is Euler-Bernoulli.
             parsed, arc = _basis(sb.marked_section, geometry)
             _require((cid, pid) not in region_members or arc == (pid in arcs_by_case.get(cid, set())), "arc marker")
@@ -721,7 +721,7 @@ def _physics(source: Mapping[str, Any]) -> None:
             metadata = row.get("metadata") or {}
             _require(len([entry for entry in table["rows"] if entry["kind"] == row["kind"] and entry["unit"] == row.get("unit") and entry["component"] == metadata.get("component") and entry.get("source_basis") == metadata.get("basis")]) == 1, "physical signature")
             u4b.row_semantics(row, True, row["entity_ref"] in marked)
-        # the global end actions, the wall basis admitted.
+        # W-7 (DEL-04-01 Design global-end-actions.md): the global end actions, the wall basis admitted.
         if row.get("kind") in global_end.KINDS:
             metadata = row.get("metadata") or {}
             _require(len([entry for entry in table["rows"] if entry["kind"] == row["kind"] and entry["unit"] == row.get("unit") and entry["component"] == metadata.get("component")]) == 1, "physical signature")
@@ -794,7 +794,7 @@ def _physics(source: Mapping[str, Any]) -> None:
 
 def _u4b(source: Mapping[str, Any], evidence: Mapping[str, Any], rows: Mapping[str, Any], sections: Mapping[tuple[str, str], Any],
          marked: set[str], arc_extrema: list[tuple[str, str, Any, Any]]) -> None:
-    """on pressure-2: σ±, τ (bit for bit with the case's ν and basis sections), hoop and radial
+    """T4-U4b (§5.1) on pressure-2: σ±, τ (bit for bit with the case's ν and basis sections), hoop and radial
     (bit-equal from the region's p and R); the arc maxima with their station cover; the directional and branch records."""
     results = source.get("results", [])
     index = u4b.Rows(results)
@@ -1101,8 +1101,8 @@ def _validate_rhs(rhs: Any, cid: str, arc_tangents: Mapping[tuple[Any, Any], Any
     """``arc_tangents``: the case's realized-arc members' published end tangents by (region, pipe). A realized arc's
     end tangent t = c*d + s*n is formed without renormalizing, so a component can round above 1; an arc term binds its
     group's direction magnitude exactly to one of its arc's end tangent components on the group's axis, and a group
-    with no arc term keeps the bound 1 (a straight member's frame axis is at most 1).
-    Rust `physics_evidence::assembly`."""
+    with no arc term keeps the bound 1 (a straight member's frame axis is at most 1). DEL-04-07 Work
+    `pressure-contract.md`, "Direction magnitudes of arc tangents"; Rust `physics_evidence::assembly`."""
     arc_tangents = arc_tangents or {}
     _shape(rhs, {"method", "load_case_id", "node_order", "dof_order", "dof_units", "assembled_pressure_rhs_global", "groups", "rounded_cap_rhs_global", "rounded_poisson_rhs_global", "rounded_cap_and_eigen_ledgers_are_observational", "cancellation_screen", "screen_limit", "screen_roundoff_multiplier", "screen_is_not_numerical_qualification"}, "pressure RHS shape")
     _require(rhs["method"] == "source_factor_grouped_pressure_rhs_v1" and rhs["load_case_id"] == cid and _strings(rhs["node_order"], True) and rhs["dof_order"] == ["Fx", "Fy", "Fz", "Mx", "My", "Mz"] and rhs["dof_units"] == ["N", "N", "N", "N*m", "N*m", "N*m"], "pressure RHS basis")
@@ -1225,7 +1225,7 @@ def _transport(source: Mapping[str, Any]) -> None:
         materials = _indexed(case["pipe_materials"], "pipe_id", "transport materials")
         sections = _indexed(case["pipe_sections"], "pipe_id", "transport sections")
         _require((bool(materials) or has_connector) and set(materials) == set(sections), "transport member coverage")
-        # one coverage record and one maximum per pipe per basis (realized arcs carry
+        # T4-U6 (§2.5): one coverage record and one maximum per pipe per basis (T4-U4b §2.1: realized arcs carry
         # theirs too).
         for basis, (missing, _) in zip(sb.BASES, _basis(sb.coverage, case["stress_maximum_coverage"])):
             _require(missing <= set(sections), "transport maximum coverage")

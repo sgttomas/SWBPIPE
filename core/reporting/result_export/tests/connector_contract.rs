@@ -169,7 +169,7 @@ fn binding_rod(e: &mut Value) -> usize {
     }).unwrap()
 }
 
-/// tamper forms of
+/// T4-U5b (DEL-04-07 Design u4b-u5b-implementation.md §5.1): tamper forms of
 /// a connector with tie rods, each refused by name.
 #[allow(clippy::type_complexity)]
 fn rod_mutations() -> Vec<(&'static str, Box<dyn Fn(&mut Value)>, &'static str)> {
@@ -332,7 +332,8 @@ fn the_source_route_refuses_connector_evidence() {
     }
 }
 
-/// an authored connector axis may carry a component just above 1
+/// DEL-04-07 Work `pressure-contract.md`, "Direction magnitudes of arc
+/// tangents": an authored connector axis may carry a component just above 1
 /// (FK's orthonormality guard admits it); a joint-area group's magnitude binds
 /// exactly to that component and is not refused for exceeding 1, and a
 /// magnitude off the axis is still refused.

@@ -1,4 +1,4 @@
-"""DEL-04-09: the
+"""DEL-04-09 I3a (design §5.3): the
 independent Python modal reader (`tests/verifiers/modal_evidence.py`) over the
 committed corpus (`fixtures/results/modal_corpus.json`) and fixtures
 (`fixtures/results/modal_*.json`).
@@ -244,7 +244,7 @@ def test_every_solved_fixture_is_validated_up_to_its_stated_scope():
 
 
 def test_the_equilibrated_basis_list_is_closed_and_states_every_such_rule():
-    """a kind whose rule is `equilibrated_basis` is in modal-1's closed list,
+    """Design §5.3.5: a kind whose rule is `equilibrated_basis` is in modal-1's closed list,
     and every listed kind has that rule; the trace leaves the list empty."""
     listed = {kind for kind, _, _, rules in me.KINDS
               if any(rule["unit_status"] == "equilibrated_basis" for rule in rules.values())}

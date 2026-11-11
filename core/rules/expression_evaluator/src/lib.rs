@@ -2162,7 +2162,7 @@ impl Enclosure {
 }
 
 /// Forms the binding enclosure of a verified row from its published value
-/// `value` (q) and its listed bound `bound` (b):
+/// `value` (q) and its listed bound `bound` (b), D2 §4.11.2:
 /// `[next_down(fl(q - b)), next_up(fl(q + b))]`.
 ///
 /// `bound == 0` binds the exact point `q` with no widening. Returns `None`

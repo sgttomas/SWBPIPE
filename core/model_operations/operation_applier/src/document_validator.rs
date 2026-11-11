@@ -562,7 +562,7 @@ impl Validator {
         self.warn(ASSUMPTION_SUBJECT_MISSING, path, format!("{path} names {kind} `{id}`, which this document does not have; the record is kept as authored."), affected);
     }
 
-    // ---- lines ----------------------------------------------------------
+    // ---- §3.2 lines ----------------------------------------------------------
 
     fn lines(&mut self, root: &Map<String, Value>, known: &Entities) {
         let records = self.collection(root, "lines");
@@ -605,7 +605,7 @@ impl Validator {
         }
     }
 
-    // ---- unresolved assumptions -----------------------------------------
+    // ---- §3.3 unresolved assumptions -----------------------------------------
 
     fn assumptions(&mut self, root: &Map<String, Value>, known: &Entities) {
         let records = self.collection(root, "unresolved_assumptions");
@@ -634,7 +634,7 @@ impl Validator {
         }
     }
 
-    // ---- constraints and equipment interfaces ---------------------------
+    // ---- §3.6 constraints and equipment interfaces ---------------------------
 
     fn constraints(&mut self, root: &Map<String, Value>, known: &Entities) {
         let records = self.collection(root, "constraints");
@@ -678,7 +678,7 @@ impl Validator {
         }
     }
 
-    // ---- rule-pack references -------------------------------------------
+    // ---- §3.4 rule-pack references -------------------------------------------
 
     fn rule_pack_refs(&mut self, root: &Map<String, Value>) {
         let records = self.collection(root, "rule_pack_refs");
@@ -746,7 +746,7 @@ impl Validator {
         }
     }
 
-    // ---- model settings ------------------------------------------------
+    // ---- §3.8 model settings ------------------------------------------------
 
     /// `model_settings`: a closed record. `node_proximity_tolerance` is a length quantity
     /// `{value, unit}`: finite, greater than zero, in a catalog length unit; `shear_model`
@@ -820,7 +820,7 @@ impl Validator {
         }
     }
 
-    // ---- structured provenance ------------------------------------------
+    // ---- §3.5 structured provenance ------------------------------------------
 
     fn provenance_record(&mut self, value: &Value, at: &str, refs: &[String]) {
         let code = PROVENANCE_RECORD_INVALID;

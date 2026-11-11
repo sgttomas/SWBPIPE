@@ -1,5 +1,5 @@
 """T4-U6/U8 D3: resident owners the D-5/D-6 source adds outside the chain's TEXT inventory, priced positively
-(U6-ES, U6-WS, U6-RS, U8-FM). Each owner is detected
+(retained-pricing-rules.md, "T4-U6/U8: actual-source D3": U6-ES, U6-WS, U6-RS, U8-FM). Each owner is detected
 by its exact source text and a half-changed form stops the run; a snapshot without it adds nothing, so earlier
 registered trees keep their coefficients. No zero and no reuse credit is taken."""
 import os

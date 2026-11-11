@@ -24,7 +24,7 @@ export type RedactionExportContext =
   | "downstream_tool"
   | "local_private";
 
-/** a report of the user's own
+/** W-18b (DEL-08-01 Design `report-user-release.md` §3.1): a report of the user's own
  * session in which the user releases their own project data for sharing, for that one
  * report, with their statement that they hold the redistribution right. It is admitted only on route
  * `DREP-PACKAGE-USER-RELEASE-010` with the wrapper's user-release intent; payload content

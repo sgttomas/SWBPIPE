@@ -1,4 +1,5 @@
-//! generated self-weight on an exact-contract document. These are
+//! T4-U6 (DEL-05-03 Design `section-bases-and-timoshenko.md` §1, "D-5
+//! mass"): generated self-weight on an exact-contract document. These are
 //! product checks of the mass basis (which wall, which bore, which method,
 //! which inputs, which validation) against independent binary64 arithmetic in
 //! the test; they do not compare product output with the frozen references.
@@ -110,7 +111,7 @@ fn preview_mass(mill: f64) -> f64 {
     ((PI * wall) * (OD - wall)) * STEEL + ((PI * bore_radius) * bore_radius) * WATER
 }
 
-/// on an exact
+/// Design §1 ("`stable_mass_per_length`, FK `MassPrimitive`"): on an exact
 /// document the generated mass puts the metal on the nominal wall and the
 /// contents on the pressure bore, under `EXACT_MASS_METHOD`, with the
 /// allowance among the record's inputs and dependencies; with c_m = c_a = 0 it
@@ -147,7 +148,7 @@ fn d5_generated_self_weight_uses_the_exact_mass_basis() {
     assert!(refused.iter().any(|d| d.message.contains("corrosion allowance")), "{refused:?}");
 }
 
-/// the applied-weight validation: an exact record is Fresh on
+/// Design §1 and the applied-weight validation: an exact record is Fresh on
 /// its own document, Stale when the allowance (a consumed input) or the mass
 /// method (the document moved off the exact contract) changes, and Invalid
 /// when its allowance or method is not the one its mass was formed with.

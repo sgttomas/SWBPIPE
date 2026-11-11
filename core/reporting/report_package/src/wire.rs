@@ -738,7 +738,7 @@ mod tests {
         assert!(audit_error.contains("REPORT-PACKAGE-SHA256-INVALID"));
     }
 
-    /// the two recorded bases decode; other labels
+    /// DEL-08-01 Design §2.4: the two recorded bases decode; other labels
     /// (the report's own `JCS` declaration among them) do not.
     #[test]
     fn recorded_checksum_bases_decode_by_their_tokens() {

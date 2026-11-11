@@ -1,4 +1,4 @@
-// the chip and the rail
+// DEL-07-05 numerical health §3 "Replacing 'Needs recompute'": the chip and the rail
 // show the health header (rail: short form) only with the session's verdict-only hold;
 // every other case keeps "Needs recompute". The hold itself is `numericalHealthHold`
 // (numericalHealth.test.ts covers its generic, pressure-source and retained cases).

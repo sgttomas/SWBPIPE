@@ -958,6 +958,8 @@ fn k2b_unscaled_error_payloads() {
 }
 
 // ------------------------------------------------------------------ RV11 fixes
+// (T3 `ROOT_RULINGS_V1.md`, "K2b: rulings on RV11's review (ROOT)"; RV11's
+// review `REVIEW/K2B_REVIEW.md`, findings RV11-1, RV11-2 and RV11-4.)
 
 /// RV11-2: a scaled value is accepted only when the **exact** result is
 /// normal. RV11's probe F-B: (2 - 2^-52)*2^-1021 at b = -2 is exactly

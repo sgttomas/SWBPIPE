@@ -567,7 +567,7 @@ def test_b2_g5a_combination_data_facts_come_from_the_nonzero_operands():
 
 
 def test_b2_r_comb_1_classes_reader_logic():
-    """CONTRACT §5 (R): a retained_unavailable combination's rows, and an ordinary
+    """CONTRACT §5 (R), REVISION_01 §2, REVISION_02 §4.1: a retained_unavailable combination's rows, and an ordinary
     combination's naming a case that is not not_required, are not_covered (records non_quantity), scale_bits null and
     normalized_bits from the value; an ordinary combination over not_required cases only adds nothing."""
     source, _ = base()
@@ -693,7 +693,7 @@ def test_b2_n1_negative_extrema_values(field):
 # Entry 22 (COMMON ruling 3) on the preview route, and the 07e index rule at B2's new reference sites.
 
 def test_b2_entry_22_preview_twin_invocation_combination_without_its_entry():
-    """G8 invocation admits model combinations; an invocation combination with no receipt entry fails the
+    """B2-C §10.1 G8 invocation admits model combinations; an invocation combination with no receipt entry fails the
     entries' equality, still at G8 INVOCATION_MISMATCH (the exact route keeps refusing any combination: B3b)."""
     extra = lambda m: m["combinations"].append({"id": "combination:x", "basis": "mechanics", "label": "x", "terms": [{"load_case": "case:a", "factor": 1.0}]})
     assert verdict(*edited([], invocation_change=extra)) == INVOCATION

@@ -340,7 +340,7 @@ function reportDiagnostics({
   return [...model.diagnostics, ...(knowledge?.diagnostics ?? []), ...result.diagnostics];
 }
 
-/** a reducer with a
+/** W-15 slice c (Design `eccentric-reducer-offset.md` §4, P11): a reducer with a
  * declared eccentric offset reports the entered offset, its convention and the
  * reference-section meaning of its body's stress rows, scaled or not. Other
  * components keep their record unchanged. */

@@ -1,4 +1,4 @@
-"""the subject census (`binding.subject_census`), in the Python modal
+"""DEL-04-09 §5.3.2, the subject census (`binding.subject_census`), in the Python modal
 reader: the record's shape (closure), its counts against the tables on every solved
 document (evidence), and, with the bound request, the subject rule's own list
 (`modal_model_mass.census`) against the counts, the digest and each table's subject set.

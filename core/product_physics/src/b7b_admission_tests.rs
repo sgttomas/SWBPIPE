@@ -135,7 +135,7 @@ fn public_codes(raw: Value) -> Vec<String> {
         .unwrap().diagnostics.into_iter().map(|diagnostic| diagnostic.code).collect()
 }
 
-/// `EXACT_PRESSURE_CORROSION_ALLOWANCE_UNSUPPORTED`
+/// T4-U6 (DEL-05-03 Design §5): `EXACT_PRESSURE_CORROSION_ALLOWANCE_UNSUPPORTED`
 /// is removed, so the former nonzero-allowance refusal is now an admission with
 /// the D-5 geometry; every other allowance refusal, and its priority, stays.
 #[test]
@@ -188,7 +188,7 @@ fn b7b_shear_required_and_unknown_have_named_public_refusals() {
     let mut raw = current_joint_request();
     raw["model"]["pressure_contract"].as_object_mut().unwrap().remove("shear_model");
     assert!(public_codes(raw).iter().any(|code| code == "EXACT_PRESSURE_SHEAR_MODEL_REQUIRED"));
-    // EXACT_PRESSURE_SHEAR_MODEL_UNSUPPORTED is
+    // T4-U8 (DEL-05-03 Design §5): EXACT_PRESSURE_SHEAR_MODEL_UNSUPPORTED is
     // removed; timoshenko_annulus_energy_v1 is admitted, no shear refusal.
     let mut raw = current_joint_request();
     raw["model"]["pressure_contract"]["shear_model"] = json!("timoshenko_annulus_energy_v1");

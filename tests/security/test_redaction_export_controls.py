@@ -712,7 +712,7 @@ def test_handoff_package_save_route_is_governed_local_private_with_explicit_inte
 
 
 def test_mbf_export_route_is_governed_local_private_lossless_with_explicit_intent():
-    """File > Export MBF… is DOTH-MBF-012."""
+    """DEL-17-04 Design `desktop-mbf-export-import.md` A-4: File > Export MBF… is DOTH-MBF-012."""
     from core.security.local_first_storage.route_control import (
         GOVERNED_LOCAL_FIRST_ROUTE_IDS,
         enforce_local_first_route,
@@ -997,7 +997,7 @@ def test_changed_files_do_not_embed_disallowed_example_content():
         assert forbidden not in combined
 
 
-# W-18b (r1): the user-released
+# W-18b (r1), DEL-08-01 Design `report-user-release.md` §3 and §6: the user-released
 # context.  Twins of the vitest checks in `redactionExportControls.test.ts`.
 
 EXISTING_CONTEXTS = (

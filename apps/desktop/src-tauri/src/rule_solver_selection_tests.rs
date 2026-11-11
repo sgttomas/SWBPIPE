@@ -304,7 +304,7 @@ fn record_rod(envelope: &mut Value, index: usize) -> &mut Value {
     &mut envelope["contract_evidence"]["connector"][0]["tie_rods"][index]
 }
 
-/// (PR #1629 review r1 finding 1): a row id encodes its rod lossily
+/// §2.5 (PR #1629 review r1 finding 1): a row id encodes its rod lossily
 /// (`:` becomes `-`), so a selector binds a rod row only when its `tie_rod`
 /// equals, exactly, the rod id the connector record holds for that row. An
 /// alias that encodes to the same row id, a rod the record no longer holds,

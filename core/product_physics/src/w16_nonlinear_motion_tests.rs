@@ -35,7 +35,7 @@ pub(super) struct Request {
 pub(super) enum Expect {
     /// Passed with the confirmation; one strict state.
     Passed,
-    /// The confirmation fails closed with this named reason (a weak
+    /// The confirmation fails closed with this named §2.4 reason (a weak
     /// boundary the loop converges on).
     NotEstablished(&'static str),
     /// As `NotEstablished`, with either reason: at a weak unilateral boundary
@@ -373,7 +373,7 @@ pub(super) fn run_case(
     (output, records)
 }
 
-/// R-a: A-1, A-2, A-3 and the translated A-2, both modes.
+/// §5 R-a: A-1, A-2, A-3 and the translated A-2, both modes.
 #[test]
 fn r_a_references_bind_and_match_in_both_modes() {
     for request in &R_A {
@@ -600,7 +600,7 @@ pub(super) const R_B: [Request; 12] = [
     },
 ];
 
-/// R-d: the rigid restraints of a mixed nonlinear record take base
+/// §10.4 R-d: the rigid restraints of a mixed nonlinear record take base
 /// values. D-1 (a mixed tip record, a rotational lift-off with rigid UY and
 /// UZ; UZ drops), D-3 (one record moving its lift-off ground and its rigid
 /// UZ, each alone and together) and D-1 translated rigidly in Y (the
@@ -628,7 +628,7 @@ const TIP_WEAK: &[&str] = &["support support:TIP: separation not established", "
 // weak state and the confirmation fails closed (R3).
 const D1: &[(&str, Expect)] = &[("load:ACTIVE", Passed), ("load:LIFTED", Passed), ("load:BOUNDARY", NotEstablishedAny(TIP_WEAK))];
 
-/// R-b: B-1 (with its spring and rotational twins), B-2 (both senses, the
+/// §5 R-b: B-1 (with its spring and rotational twins), B-2 (both senses, the
 /// equality, cancellation and a negative effective clearance), B-3 (both
 /// signs, the weak sticking boundary, an explicit normal and P_x != 0) and the
 /// property (B-1, B-2 and B-3 translated rigidly with every relevant ground),
@@ -735,7 +735,7 @@ fn an_authored_zero_ground_motion_adds_only_its_relative_row() {
 }
 
 
-/// registration: the actual Rust reader (`semantic_contract::for_source`)
+/// §4 registration: the actual Rust reader (`semantic_contract::for_source`)
 /// admits each R-b output with its relative-displacement rows, and refuses one
 /// whose relative row names an unlisted support.
 #[test]
@@ -759,7 +759,7 @@ fn the_rust_reader_admits_the_relative_rows() {
     }
 }
 
-/// R-d, both modes; each mixed record's signed support components
+/// §10.4 R-d, both modes; each mixed record's signed support components
 /// (its rigid restraints' reactions and its nonlinear slot) within 1e-9
 /// relative of the exact rows.
 #[test]
@@ -830,7 +830,7 @@ fn a_mixed_record_restraint_moves_as_a_separate_rigid_record() {
     }
 }
 
-/// R-d admission: what stays refused on a nonlinear record, and the
+/// §10.3 R-d admission: what stays refused on a nonlinear record, and the
 /// coincident-restraint count that now includes a mixed record's restraints.
 #[test]
 fn r_d_refusals_are_named() {
@@ -1196,7 +1196,7 @@ fn spring_base_closure_mutants_fail_closed() {
     }
 }
 
-/// R-c admission: what stays refused, the per-spring duplicate key,
+/// §11.3 R-c admission: what stays refused, the per-spring duplicate key,
 /// parallel springs moving independently, and combinations.
 #[test]
 fn r_c_admission_and_combinations() {

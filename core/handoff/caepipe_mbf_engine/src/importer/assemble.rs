@@ -861,7 +861,7 @@ impl<'a> Importer<'a> {
         Ok((materials, material_ids))
     }
 
-    /// Format 4: a format-4 or format-6 sidecar's `section_map` restores, for each PIPE record with a library
+    /// Design §15, Format 4: a format-4 or format-6 sidecar's `section_map` restores, for each PIPE record with a library
     /// section id, one `sections` entry (type pipe, OD and wall as the record's pipes get them, named by the record,
     /// its line as provenance) and the pipes' `section_ref`; bound by digest, or rebound by record name, unconfirmed.
     /// Returns the entries and the id by record name. Other formats and unbound imports form none.

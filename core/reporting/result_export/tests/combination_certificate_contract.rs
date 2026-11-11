@@ -76,7 +76,7 @@ fn forged_model(model: &Value, forgery: &Value) -> Value {
     model
 }
 
-/// Any certificate claim a document still makes: the member, or a diagnostic in the
+/// Any §4 certificate claim a document still makes: the member, or a diagnostic in the
 /// certificate's vocabulary, restated independently of the reader (the Python test's
 /// `_claims_survive` alike). W-16b's derived-rows notice is conditional on the member.
 fn claims_survive(document: &Value) -> Vec<String> {
@@ -97,7 +97,7 @@ fn claims_survive(document: &Value) -> Vec<String> {
 }
 
 /// Absence of the member (member and notices both dropped, the current identity kept)
-/// is admitted as no certificate claim: no member, no certificate notice under any
+/// is admitted as no §4 certificate claim: no member, no certificate notice under any
 /// id, and no eligibility effect (decision (b)): numerical_quality and the standing are
 /// the certified document's.
 #[test]

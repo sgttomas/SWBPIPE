@@ -101,7 +101,7 @@ def loads_of(result) -> list[tuple]:
             for case in result.model["load_cases"] for load in case["primitive_loads"]]
 
 
-# --- English lengths ---------------------------------------------------------------------------------
+# --- §5.4 English lengths ---------------------------------------------------------------------------------
 @pytest.mark.parametrize("text, inches", [
     ("7", Fraction(84)), ("-2", Fraction(-24)), ("4.25", Fraction(51)), (".5", Fraction(6)),
     ("7'3", Fraction(87)), ("7-3", Fraction(87)), ("7'3\"", Fraction(87)), ("7\u20193\u201d", Fraction(87)),
@@ -145,7 +145,7 @@ def test_half_unit_of_the_last_printed_digit():
     assert half_unit("2.5E-3") == Fraction(1, 20000)
 
 
-# --- fields, numbers, comments and continuation -------------------------------------------------------------
+# --- §4 fields, numbers, comments and continuation -------------------------------------------------------------
 def test_fields_keep_commas_inside_parentheses():
     assert split_fields("T20,X5,CFIXD(1,0,1),FOR( 1, 2 ,3)") == ["T20", "X5", "CFIXD(1,0,1)", "FOR( 1, 2 ,3)"]
     assert split_fields("A , B") == ["A", "B"]
@@ -196,7 +196,7 @@ def test_a_documented_comment_with_an_empty_value_is_counted_and_carries_nothing
     assert result.status == "imported" and result.summary["empty_comments"] == 2
 
 
-# --- encoding and line ends --------------------------------------------------------------------------------
+# --- §4.1 encoding and line ends --------------------------------------------------------------------------------
 def test_a_non_utf8_byte_is_refused_naming_its_offset():
     data = mbf()
     broken = data.replace(b"invented steel", b"invented st\xe9el")
@@ -230,7 +230,7 @@ def test_non_ascii_is_read_only_in_free_text_and_length_marks():
     refused(run(data), "MBF-IMPORT-CHARACTER-UNSUPPORTED", layout_line(data, "T20"))
 
 
-# --- keywords, version and sections ---------------------------------------------------------------------------
+# --- §4.2 keywords, version and sections ---------------------------------------------------------------------------
 def test_three_character_keywords_are_read_when_they_name_one_section():
     text = mbf().decode("utf-8")
     for full, short in (("MATERIAL", "MAT"), ("PIPE", "PIP"), ("LOADS", "LOA"), ("LAYOUT", "LAY")):
@@ -272,7 +272,7 @@ def test_all_zero_load_sections_are_omitted_and_check_sections_delegated():
     assert "FC1" not in json.dumps(result.to_dict())  # the delegated values are not copied
 
 
-# --- options ------------------------------------------------------------------------------------------------
+# --- §5, §6 options ------------------------------------------------------------------------------------------------
 def test_unknown_option_tokens_are_refused():
     # The vertical-axis option Z is read since tranche 2 (Z-vertical tests below).
     data = mbf(options="HGRA,SI,QQ")
@@ -460,7 +460,7 @@ def test_the_gravitational_direction_is_refused_in_a_bound_import_too():
     refused(run(data, sidecar=sidecar), "MBF-IMPORT-TBD-17-04-005")
 
 
-# --- materials ---------------------------------------------------------------------------------------------------
+# --- §7 materials ---------------------------------------------------------------------------------------------------
 def test_material_records():
     data = mbf(material=("M1,0,0.3,1,1,FR,invented frp", "M1,20,1,2,3,4"))
     refused(run(data), "MBF-IMPORT-MATERIAL-FRP-UNSUPPORTED", layout_line(data, "M1,0"))
@@ -539,7 +539,7 @@ def test_material_description_is_the_label_and_unused_records_are_listed():
     assert unused == {"MATERIAL M9", "PIPE P9", "LOADS L9"}
 
 
-# --- sections, loads ------------------------------------------------------------------------------------------
+# --- §8 sections, §9 loads ------------------------------------------------------------------------------------------
 @pytest.mark.parametrize("pipe, code", [
     ("P1,168.3,7.11,1.5", "MBF-IMPORT-SECTION-FIELD-UNSUPPORTED"),
     ("P1,168.3,7.11,0,12.5", "MBF-IMPORT-SECTION-FIELD-UNSUPPORTED"),
@@ -579,7 +579,7 @@ def test_a_second_thermal_load_at_the_reference_is_inactive_and_peak_values_dele
     assert ("case:mbf-expansion-t1", "thermal", "pipe:10-20", "global_x", 80.0, "degC") in loads_of(result)
 
 
-# --- layout -----------------------------------------------------------------------------------------------------
+# --- §10 layout -----------------------------------------------------------------------------------------------------
 @pytest.mark.parametrize("rows, code, at", [
     (("T20,X3000",), "MBF-IMPORT-ROW-SYNTAX-INVALID", "T20"),
     (("F10,KA,MM1,PP1,CL=L1", "T20A,X3000"), "MBF-IMPORT-NODE-NUMBER-INVALID", "T20A"),
@@ -650,7 +650,7 @@ def test_unbound_imports_follow_the_base_rule_without_pd1(monkeypatch):
     assert run(mbf("F10,KA,MM1,PP1", "T20,X3000,CFOR(0,-1,0),FLC=1", loads=None, optemp=None)).status == "imported"
 
 
-# --- supports, point loads -------------------------------------------------------------------------------------
+# --- §12 supports, §13 point loads -------------------------------------------------------------------------------------
 def test_supports():
     result = run(mbf("F10,KA,MM1,PP1,CL=L1,LA=0", "T20,X3000,CFIXD(1,0,1),TAG=invented guide-like"))
     assert [(item["id"], item["restraints"], item.get("family"), item["label"]) for item in result.model["supports"]] == [
@@ -711,7 +711,7 @@ def test_point_loads_displacements_and_their_cases():
     assert "combinations" not in result.model
 
 
-# --- bends -------------------------------------------------------------------------------------------------------
+# --- §11 bends -------------------------------------------------------------------------------------------------------
 L_BEND = ("F10,KA,MM1,PP1,CL=L1", "T20,KI,B250,X4000,CFF=1", "T30,KA,Z3000")
 
 
@@ -1243,7 +1243,7 @@ def test_the_export_layout_alone_reads_386_4():
     refused(run(export_shaped(opmisc="33,20,1,1,1,2,2,2,0,9.80665,0.00,-1.00,0.00")), "MBF-IMPORT-GRAVITY-UNSUPPORTED")
 
 
-# --- pressure (tranche 2) --------------------------------------------------------------------------------------
+# --- §9.4 pressure (tranche 2) --------------------------------------------------------------------------------------
 CLOSURE = {"closure_transfer": "transfers_to_wall", "provenance": "invented importer test declaration"}
 
 
@@ -1371,7 +1371,7 @@ def test_pressure_refusals():
     assert run(mbf("F10,KA,MM1,PP1,CL=L1", "T20,KA,X3000,CD(0,5,0)")).status == "imported"  # without pressure
 
 
-# --- Z vertical (tranche 2) ------------------------------------------------------------------------------------
+# --- §5.1 Z vertical (tranche 2) ------------------------------------------------------------------------------------
 def z_file(*rows: str, **options) -> bytes:
     return mbf(*rows, options="HGRA,SI,Z", **options)
 
@@ -1484,7 +1484,7 @@ def test_a_z_vertical_file_and_its_hand_rotated_y_vertical_twin_import_alike():
     assert unprovenanced(strip(z.model)) == unprovenanced(strip(y.model))  # bit-equal positions, bend and loads
 
 
-# --- regions by the exact route's own collinearity check (VER-002 r1, item 1) ------------------------------------
+# --- §9.4 regions by the exact route's own collinearity check (VER-002 r1, item 1) ------------------------------------
 # Codex's reproduction: 16 rows each 1000 mm along X, with Y offsets k e-11 mm (k = 1..16). Each adjacent pair turns
 # by about 1e-14 rad, below 64 eps = 1.42e-14, but the run bows: its whole-span residual is about 2e-14.
 DRIFT = tuple(f"T{10 * (k + 1)},X1000,Y{k}e-11" for k in range(1, 16)) + ("T170,KA,X1000,Y16e-11",)
@@ -1570,7 +1570,7 @@ def test_straight_runs_between_bends_are_checked_each_whole():
                                                               "pipe:30B-40"]]
 
 
-# --- corrosion allowance: field presence (VER-002 r1, item 2) ------------------------------------------------------
+# --- §9.4 corrosion allowance: field presence (VER-002 r1, item 2) ------------------------------------------------------
 @pytest.mark.parametrize("record", ["P1,168.3,7.11", "P1,168.3,7.11,,0"])
 def test_a_section_without_a_corrosion_allowance_is_refused_under_pressure(record):
     # The manual's PIPE record documents no default for an omitted field, so none is supplied.

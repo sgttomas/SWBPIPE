@@ -1095,7 +1095,7 @@ test("F1: without C1, a mark one poll past the gate is a timeout and one just wi
   assert.equal(timely.report.solve.gate.first_paint_at_ms, 299_999);
 });
 
-// the attempt's page was not shown (WebKit
+// RT-U4 A+B diagnosis (`c1-slice7-run-proposal.md`): the attempt's page was not shown (WebKit
 // aligned the driver's timers to 1 s, its hidden-page throttling), and a page that is not shown
 // runs no animation frame, so its first paint could not be observed. The driver now refuses to
 // start a solve on such a page, and journals what the page showed during the solve.

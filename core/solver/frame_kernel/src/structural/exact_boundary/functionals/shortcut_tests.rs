@@ -587,7 +587,7 @@ fn b2_window_keeps_every_refusal() {
 
 #[test]
 fn b2_declined_scans_charge_exactly_their_overhead() {
-    // the window's charges are paid whether or not a
+    // §3.1 ("Consequence"): the window's charges are paid whether or not a
     // recipe is skipped. This recipe is immediately outside the exponent
     // window, so the long path's work still runs, plus exactly the window's
     // overhead from the as-built schedule: at the start, 3n + |prescribed| +

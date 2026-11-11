@@ -1001,7 +1001,8 @@ fn verify_members(
                             document["model_hash"]["value"].as_str().map(str::to_string),
                         ));
                     }
-                    // the complete 0.3.0 form, the
+                    // DEL-08-01 Design `report-package-current-results.md`
+                    // §2.3, "The reader": the complete 0.3.0 form, the
                     // transported header and the self-hash for every package;
                     // the admitted identity and the audit equalities for an
                     // unblocked one. Equality checks, not signatures.

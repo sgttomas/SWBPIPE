@@ -152,7 +152,7 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
         ("connector_pressure_force_v1", "N", "pe_x"),
         ("connector_effective_axial_force_v1", "N", "s_x"),
     ];
-    // one more
+    // T4-U5b (DEL-04-07 Design u4b-u5b-implementation.md §3.3): one more
     // signature, the tie-rod force, at its own location and basis; its frame
     // `element_local` is already in the straight vocabulary.
     const U5B_SIGNATURE: (&str, &str, &str) = ("connector_tie_rod_force_v1", "N", "t_r");
@@ -172,8 +172,8 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     assert_eq!(s::CONNECTOR_ROW_BASIS, BASIS);
     assert_eq!(s::CONNECTOR_VOCABULARY_BASES, [BASIS, ROD_BASIS]);
     // The vocabulary is the source family's (without its source-only maximum
-    // bases) plus the connector components, frame, location and basis.
-    // the connector basis takes the source-only maximum basis's
+    // bases) plus the connector components, frame, location and basis. T4-U6
+    // (D-5, §2.4): the connector basis takes the source-only maximum basis's
     // place, ahead of the per-section-basis tokens both tables append.
     let max_basis = open_pipe_stress_result_export::physics_source::MAX_BASIS;
     let mut vocabulary = source["canonical_metadata_vocabulary"].clone();
@@ -214,7 +214,7 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
         .flat_map(|t| ["nominal_section", "reduced_section"].map(|b| format!("{t}; section_basis={b}")))
         .collect();
     extend(&mut vocabulary, "basis", &u4b_bases.iter().map(String::as_str).collect::<Vec<_>>());
-    // the global end actions' two bases (the
+    // W-7 (DEL-04-01 Design global-end-actions.md): the global end actions' two bases (the
     // wall basis on pressure members), which the source family does not carry.
     const W7_BASES: [&str; 2] = ["rotated_from_published_element_local_end_actions_v1",
         "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action"];
@@ -222,7 +222,7 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     // RT-A3 increment 1: the branch intensified rows' token on both section bases.
     extend(&mut vocabulary, "basis", &["user_branch_sif_times_basis_bending_stress_rows_v1; section_basis=nominal_section",
         "user_branch_sif_times_basis_bending_stress_rows_v1; section_basis=reduced_section"]);
-    // the absolute-sum and
+    // RT-A4 (DEL-05-02 Design absolute-sum-srss-combinations.md §10.2): the absolute-sum and
     // SRSS bases follow the range envelope's, and the displacement-magnitude component (the
     // derivation metadata of a nested or unsigned combination's magnitude row) follows the
     // moment magnitude, as in the result schema.

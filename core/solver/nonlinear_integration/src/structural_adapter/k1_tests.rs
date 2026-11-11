@@ -814,7 +814,7 @@ fn k1_t0r_reactions_from_sparse_rows_match_the_references() {
 
 #[test]
 fn k1_relabelled_model_gives_the_same_answers() {
-    // mutation 10: a skew chain with a connector and springs,
+    // §4.8 item 6 / mutation 10: a skew chain with a connector and springs,
     // numbered forwards and backwards (every member reversed). The pattern
     // path is byte-identical to the dense-derived path in both numberings, and
     // the two numberings agree within the protected criterion.

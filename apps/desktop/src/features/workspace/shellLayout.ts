@@ -270,7 +270,7 @@ export type RunPresence = {
   /** Derived eligibility only; never written into the received result. */
   needsRecompute?: boolean;
   /**
-   * present only with `needsRecompute` when the
+   * DEL-07-05 numerical health §3: present only with `needsRecompute` when the
    * result is held back by its numerical verdict alone (`numericalHealthHold`). The
    * chip shows its headline and the rail its short form instead of "Needs recompute";
    * nothing else about the run's standing changes.

@@ -1,4 +1,4 @@
-// the
+// W-12 S3a (DEL-14-01 Design `desktop-states-runs-comparison.md` §4.1, §6): the
 // writer of the state-comparison parity golden. It flattens invented state
 // pairs with the desktop's `flattenModelDocument`, compares them with
 // `compareFlattened` and records both the flattened lists and the desktop's

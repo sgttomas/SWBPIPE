@@ -1,7 +1,7 @@
 //! T4-U4b: the section quantities against the frozen t4_u4b references
 //! (`validation/references/t4_u4b/oracle.json`, read as data), at the README
 //! criterion |obs − exp| ≤ 1e-9·max(|exp|, zero_scale), with the field-level
-//! discriminators shown separated.
+//! discriminators of the U4b design §7.1 shown separated.
 use super::fields::{fibre_normal, saint_venant_field, toroidal_hoop_at};
 use super::*;
 use std::collections::HashMap;

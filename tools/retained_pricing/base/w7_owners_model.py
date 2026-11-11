@@ -1,4 +1,4 @@
-"""W-7 D3 (§8.20): the positive owners the member end
+"""W-7 D3 (DEL-04-01 Design global-end-actions.md; retained-pricing-rules.md §8.20): the positive owners the member end
 actions in global coordinates add outside the chain's TEXT inventory.
 
 W7-NC: prepared_not_covered (freeze_case and, since W-7, freeze_combination: one result set at a time) reserves one

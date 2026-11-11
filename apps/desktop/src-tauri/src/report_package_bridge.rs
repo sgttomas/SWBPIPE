@@ -4,6 +4,7 @@
 //! [`assemble_request`], which refuses every user-release marker; route 010's
 //! branch reaches it only through [`assemble_user_released_request`], the one
 //! caller of `report_package::user_release::assemble_derived` (W-18b,
+//! DEL-08-01 Design `report-user-release.md` §2.5 step 9, §2.8;
 //! `user_release_reach_scan`). Standard claim fence applies (claims taxonomy
 //! per DEC-081).
 

@@ -948,7 +948,7 @@ async function validateNeutralTransportEvidence(header: MechanicsResult, source?
   if (route === "preview_physics") readerTransport("preview-physics", header);
   else if (route === "pressure_source") {
     readerTransport("pressure-source", header);
-    // a supplied pressure-source-1 source is read through the full raw reader
+    // Design §3: a supplied pressure-source-1 source is read through the full raw reader
     // (no invocation), as Rust's derivative and Python's record builder read it; the
     // shallow source-recovery check omits raw-row validation.
     if (source !== undefined) readerValidate("pressure-source", source);

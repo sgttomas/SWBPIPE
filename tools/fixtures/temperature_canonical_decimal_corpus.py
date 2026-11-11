@@ -2,8 +2,8 @@
 """Write the canonical-decimal corpus for the temperature identity's Rust test.
 
 Each line is a binary64 bit pattern (hex) and Python's ``repr`` of it, which is
-the canonical decimal
-(closest shortest round-trip decimal, exact ties to even). Rows: every
+the canonical decimal of DEL-02-01 Design ``model-document-0.9.0.md`` section
+1.5.1 (closest shortest round-trip decimal, exact ties to even). Rows: every
 in-domain power of two (the B = 2^52 lower end), tie binaries (16- or 17-digit
 shortest decimals whose exact value has one more digit, a final 5), and random
 values, all inside the domain |v| <= 1e6 with a canonical exponent >= -24.

@@ -15,7 +15,7 @@
 //! - `after`: the canonical catalog symbol; there is no remove form.
 //! - `unit`: the `after` symbol; `dimension`: the key's dimension.
 //!
-//! Refusals run in order, so a stale `before` is reported
+//! Refusals run in the Design's §2.7 order, so a stale `before` is reported
 //! before the length lock:
 //! `OP-PROJECT-UNIT-SHAPE-INVALID`, `OP-TARGET-NOT-FOUND`,
 //! `OP-PROJECT-UNIT-DOCUMENT-INVALID`, `OP-PROJECT-UNIT-UNKNOWN-KEY`,

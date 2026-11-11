@@ -793,7 +793,7 @@ function ResultDetail({ interpretation, result, recordedTableRead, exportEndpoin
         <DetailLine label="Recovery basis" value={interpretation.recovery_basis} testId="selected-result-recovery-basis" />
         <DetailLine label="Sign convention" value={interpretation.sign_convention} testId="selected-result-sign-convention" />
         {(() => {
-          // a component body's row is a reference-section stress.
+          // W-15 slice d (DEL-03-05 Design §5): a component body's row is a reference-section stress.
           const body = result?.results.find((row) => row.id === interpretation.result_id)?.component_body;
           return body ? <DetailLine label="Component body" value={componentBodyNotice(interpretation.entity_ref, body)} testId="selected-result-component-body" /> : null;
         })()}
@@ -1143,7 +1143,7 @@ function filterResults(
 function resultFamilyKey(result: MechanicsResult["results"][number], labels: RowLabels): ResultFamily {
   return labels.family(result) as ResultFamily;
 }
-/** A row's readout, its dimension read under the run's table (a reopened run recorded
+/** A row's readout, its dimension read under the run's table (RT-A4 §10.4: a reopened run recorded
  * before RT-A4 passes its recorded table; a current result passes none). */
 function SemanticResultQuantity({result,recordedTableRead,id,fallback}:{result:MechanicsResult|null;recordedTableRead:RecordedBinding|null;id:string;fallback:string}) {
   const row=result?.results.find(x=>x.id===id);

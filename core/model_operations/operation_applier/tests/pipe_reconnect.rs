@@ -1,5 +1,5 @@
 //! W-10 pipe reconnect (`reconnect_pipe_run`, FR-GUI-004): the applier rules
-//! of DEL-16-06. Every
+//! of DEL-16-06 Design `pipe-reconnect.md` §1-§2 and §4 "Applier rules". Every
 //! model is an inline invented fixture built from `MODEL_SCHEMA_VERSION`; no
 //! value is library, catalog or code-rule data.
 //!
@@ -266,7 +266,7 @@ fn r6_degenerate_or_nonfinite_chord() {
 
 #[test]
 fn r7_kernel_orientation_and_y_reference_rules() {
-    // counterexample: chord (1,1,0) with the kept y_reference
+    // Design §2.3 counterexample: chord (1,1,0) with the kept y_reference
     // (1.00001,1,0). The y-projection check alone passes it.
     let mut model = base();
     model["nodes"].as_array_mut().unwrap().push(node("node:E", 1.0, 1.0, 0.0));
@@ -408,7 +408,7 @@ fn r10_member_and_r11_internal_branch() {
 fn primitive(id: &str, category: &str, target: Value) -> Value {
     json!({"id": id, "category": category, "target": target, "direction": "global_z", "magnitude": {"value": -100.0, "unit": "N/m"}, "dimension": "force_per_length", "provenance": PROV})
 }
-/// Every allowed slot naming P, with its exact supported shape.
+/// Every §2.2 allowed slot naming P, with its exact supported shape.
 fn slots_model() -> Value {
     let mut model = base();
     model["load_cases"] = json!([{"id": "case:w", "provenance": PROV,
@@ -485,7 +485,7 @@ fn r12_unknown_slots_refuse_and_stored_diagnostics_are_skipped() {
     m["extension"] = json!({"required_input_refs": [{"id": "pipe:P"}]});
     let refusal = refused(&m, &intent, "OP-RECONNECT-ATTACHMENT-UNSUPPORTED");
     assert_eq!(refusal[0].message, "Cannot reconnect pipe:P: pipe:P is named at extension.required_input_refs[0].id, which reconnect does not carry across a geometry change.");
-    // the scan does not read the model-data
+    // S2 (0.7.0 design §6; §2.2 here): the scan does not read the model-data
     // collections. A line keeps P by id across the reconnect; an assumption, a
     // constraint or an equipment interface naming P or O never blocks; tags and
     // notes are annotations, not links.
@@ -805,7 +805,7 @@ fn parts(model: &Value) -> usize {
     }
     count
 }
-/// The warnings this random family can raise, recomputed independently.
+/// The §2.4 warnings this random family can raise, recomputed independently.
 fn expected_warnings(before: &Value, after: &Value, pipe_id: &str, old: &str) -> BTreeSet<String> {
     let mut out = BTreeSet::new();
     let p = record(after, "pipe_segments", pipe_id);
@@ -901,7 +901,7 @@ fn property_random_graphs_every_pipe_end_and_target() {
 
 // ------------------------------------------------------------------ physics
 //
-// each physical expectation is stated independently
+// §4 "Numerical scrutiny": each physical expectation is stated independently
 // of the product (closed-form beam statics, wind and fit equations), every
 // solve asserts its status, and both solver modes run. Canonical equality with
 // a directly authored model is an identity check only.

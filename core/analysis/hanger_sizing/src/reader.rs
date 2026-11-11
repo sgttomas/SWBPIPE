@@ -802,7 +802,7 @@ fn compare_counts(published: &Value, expected: &Option<std::collections::BTreeMa
     }
 }
 
-/// The arithmetic recomputed from the published W and positions with
+/// The §8.3.6 arithmetic recomputed from the published W and positions with
 /// the request and the library, compared by numeric equality.
 fn arithmetic(doc: &Value, request: &SizingRequest, library_doc: &Value) -> R<()> {
     let method = &request.method;

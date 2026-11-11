@@ -16,7 +16,7 @@ export const PRESSURE_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.
 /** T4-U2: the ordinary exact identity (3.0.0/exact_pressure_v3). */
 export const PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-2";
 export const PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2";
-/** the pressure-free Timoshenko identity, a second
+/** DEL-05-03 Design `pf-timoshenko.md` §4: the pressure-free Timoshenko identity, a second
  * complete identity on the `preview_physics` route (a document whose
  * `model_settings.shear_model` selects `timoshenko_annulus_energy_v1`). Its table is
  * preview-physics-2's with the identity, the profile and limitation 0 replaced. */

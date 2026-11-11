@@ -43,7 +43,7 @@ export type HistoricalRunContext = {
   /** The findings of the reopen's checks alone: every entry of `findings` but the current
    * standing's. A recorded run with any is not compared (`recordedRunBindingFindings`). */
   checkFindings: string[];
-  /** the registry variant a run recorded before RT-A4 was read under
+  /** RT-A4 §10.4 display rule: the registry variant a run recorded before RT-A4 was read under
    * (`{id, sha256}`), or null for a run read under the current tables. */
   recordedTableRead: RecordedBinding | null;
   /** The findings the historical reader computed under `recordedTableRead` (the standing of the

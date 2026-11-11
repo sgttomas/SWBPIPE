@@ -1,3 +1,4 @@
+//! Operating-case slice 1a (DEL-05-02 Design `pf-nonlinear-operand-standing.md` §3):
 //! the preview-physics-2 reader's `combination_operands` checks over the shared
 //! corpus (`fixtures/results/preview_physics_nonlinear_operands_corpus.json`,
 //! written by PP `op1a_operand_standing.rs`). The actual producer documents are

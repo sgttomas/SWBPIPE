@@ -376,7 +376,8 @@ fn a_recorded_rule_fail_with_a_blocked_check_is_bannered_incomplete() {
 }
 
 // ---------------------------------------------------------------------------
-// the exact-route block and Library Records are emitted from the
+// W-11 (DEL-08-01 Design `exact-route-report-sections.md` §3.2, §4.2 and §7,
+// slice (a)): the exact-route block and Library Records are emitted from the
 // one assembled section model, and inputs without them keep their bytes.
 // ---------------------------------------------------------------------------
 
@@ -436,7 +437,8 @@ fn exact_block_and_library_records_emit_in_the_pdf() {
     assert!(pdf_contains(&blocked.pdf_bytes, "EXPORT BLOCKED"));
 }
 
-// a report provenance record the renderer refuses blocks the PDF too.
+// W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md` §4.3,
+// §6.2): a report provenance record the renderer refuses blocks the PDF too.
 #[test]
 fn a_quarantined_or_rejected_provenance_record_blocks_the_pdf() {
     for (status, value) in [(sections::ReviewStatus::Quarantined, "quarantined"), (sections::ReviewStatus::Rejected, "rejected")] {
@@ -458,7 +460,7 @@ fn a_quarantined_or_rejected_provenance_record_blocks_the_pdf() {
     }
 }
 
-/// builder to render to PDF: the desktop builder's
+/// W-11 slice (c) (§6.2), builder to render to PDF: the desktop builder's
 /// representative records (`renderedReport.test.tsx` writes them), with
 /// blocking dispositions nested in structured notes and records carried into
 /// their report records, block the PDF as they block the HTML; without the
@@ -658,7 +660,7 @@ fn composed_sections_emit_in_the_pdf_alike() {
     assert!(assemble_full_report_package(&refused).export_blocked);
 }
 
-/// model-input
+/// Slice C5 (DEL-08-01 Design `report-section-composer.md` §2.7): model-input
 /// subsections are emitted in the PDF as in the HTML, under their governed
 /// parents.
 #[test]

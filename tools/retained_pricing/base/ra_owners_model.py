@@ -1,5 +1,5 @@
-"""the positive owners the source route's
-work reduction adds outside the chain's TEXT inventory (§8.13, RA-HS, RA-SC).
+"""R-A D3 (DEL-04-08 Design source-work-nondyadic-inputs.md §3.1 and §4 "D3"): the positive owners the source route's
+work reduction adds outside the chain's TEXT inventory (retained-pricing-rules.md §8.13, RA-HS, RA-SC).
 
 B1 carries one optional source-row index per functional descriptor (`Vec<Option<u32>>`). product_physics passes only an
 index rule (`Sources::hint`, arithmetic on the descriptor index, borrowed as a `&dyn Fn` closure on the stack); the

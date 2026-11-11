@@ -126,7 +126,7 @@ fn every_friction_case_starts_from_the_authored_seed_in_every_order() {
     check(shoe, cases, &[&[0, 1, 2], &[1, 0, 2], &[2, 0, 1]], "sticking");
 }
 
-/// a sliding support's slip sense is read from the
+/// Codex r1 finding 1 (§2.2): a sliding support's slip sense is read from the
 /// relative-displacement row when the case publishes one, and otherwise from the
 /// zero-ground displacement row; a zero or absent sense is unavailable, and an
 /// unavailable sense never establishes equal states.

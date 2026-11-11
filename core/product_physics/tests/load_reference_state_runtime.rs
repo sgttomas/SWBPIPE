@@ -2,7 +2,7 @@
 //! load/reference-state route (checkpoint 2).
 //!
 //! Authored by the CP2_RUNTIME_TESTS TASK (not the implementer) from the frozen
-//! wire, the reviewed design at Git
+//! wire `LOAD_STATE_IMPLEMENTATION/CP2_WIRE.md`, the reviewed design at Git
 //! `9e8a55d` and the manager's stated evidence-record keys. Every request is
 //! built to that wire and driven through
 //! `run_linear_static_preview_value_with_mode` in both solver modes. No

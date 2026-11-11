@@ -1181,7 +1181,8 @@ fn the_recorded_run_witness_is_what_the_record_path_emits_for_a_typescript_built
     compare_or_write_witness(&text, WITNESS, WITNESS_PATH_ENV);
 }
 
-/// main's preview-physics-2 run recorded before RT-A4 (main 6c3cb46d3, verbatim under
+/// RT-A4 §10.4 (DEL-05-02 `absolute-sum-srss-combinations.md`, "Recorded results from before
+/// RT-A4"): main's preview-physics-2 run recorded before RT-A4 (main 6c3cb46d3, verbatim under
 /// `fixtures/persistence/recorded_pre_rt_a4_pf/preview_physics_2`) is stored and read back by
 /// this store as main's store emitted it, byte for byte: the record path reads hashes and
 /// bytes, never a semantic table, so its binding to the pre-RT-A4 table (1ccc9561…), its
@@ -3192,7 +3193,7 @@ fn a_model_without_references_excludes_nothing_whatever_the_manifest_holds() {
 }
 
 // ---------------------------------------------------------------------------
-// a run recorded before rule-pack resolution is
+// W-12 (DEL-14-01 Design §2, §3): a run recorded before rule-pack resolution is
 // refused by name; the history lists show each unreadable row by its id and
 // refusal only, and the other rows as usual; an unreadable run, or an
 // unreadable state nothing depends on, may be deleted.

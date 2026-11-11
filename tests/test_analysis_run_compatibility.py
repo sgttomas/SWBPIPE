@@ -331,7 +331,7 @@ def test_a_pressure_2_run_recorded_before_constant_effort_reads_as_before():
         c.validate_analysis_run_v0_3(mixed, source, expected_basis_refs=mixed["analysis_run"]["load_basis_refs"])
 
 
-# the pressure-2 table restates its combination
+# RT-A4 (DEL-05-02 Design absolute-sum-srss-combinations.md §10.2): the pressure-2 table restates its combination
 # policy (v2) and adds three vocabulary tokens, rows unchanged, so its digest moves (be29fabc… -> current). A pressure-2
 # run recorded under the constant-effort table, RT-A3's final candidate's record at 01e05a486 verbatim with its source
 # and request (fixtures/persistence/recorded_model_0_9_0_pre_rt_a4, outside semantic_contract_tables.py repin's
@@ -359,7 +359,7 @@ def test_a_pressure_2_run_recorded_before_rt_a4_reads_as_before():
         c.validate_analysis_run_v0_3(mixed, source, expected_basis_refs=mixed["analysis_run"]["load_basis_refs"])
 
 
-# the
+# RT-A3 increment 4 (DEL-04-07 Design pressure-contract.md, "Nonlinear supports on EX (RT-A3 increment 4)"): the
 # pressure-2 table restates its admitted-families and combinations limitations, rows and gates unchanged, so its digest
 # moves (10455bf3… -> current). A pressure-2 run recorded under the RT-A4 table, main's record at bbf384dec verbatim with
 # its source and request (fixtures/persistence/recorded_model_0_9_0_pre_nl, outside semantic_contract_tables.py repin's

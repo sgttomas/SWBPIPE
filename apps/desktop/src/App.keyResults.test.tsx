@@ -1,4 +1,4 @@
-// in the app, the key-results panel opens
+// A6 (DEL-07-05 Design `key-results-panel.md` §3, §6, §7): in the app, the key-results panel opens
 // by itself on the session's first solve without taking focus from the field being edited, opens on
 // demand afterwards, and its actions set the existing view state (the viewport's deformation case,
 // the Results section, the Model stage) with no model edit, queued operation or undo entry. The

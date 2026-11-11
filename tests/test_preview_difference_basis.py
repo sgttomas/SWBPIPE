@@ -1,4 +1,4 @@
-"""the Python mirror of
+"""Operating-case slice 1b (DEL-05-02 Work ``operating-case.md`` section 1.2 and "As built (1b)"): the Python mirror of
 the declared-difference readers over the shared corpus (``fixtures/results/preview_physics_difference_basis_corpus.json``,
 written by PP ``op1b_difference_basis.rs``). Every producer document reads with its model and without it (option A,
 re-derived from the published evidence); each forgery is refused with the Rust reader's code

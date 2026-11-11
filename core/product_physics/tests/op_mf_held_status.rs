@@ -329,7 +329,7 @@ fn held_bar_cases_match_the_references_in_both_modes() {
     }
 }
 
-/// The mutants: the product's held solve is not the frozen source normal, an
+/// The mutants §7.9 names: the product's held solve is not the frozen source normal, an
 /// uncoupled normal, or a hold of the source's displacement.
 #[test]
 fn the_held_solve_kills_the_reference_mutants() {
@@ -547,7 +547,7 @@ fn a_released_held_result_is_published_unconverged_and_never_promoted() {
 }
 
 /// Repeat calls are byte-identical, and the target case's own rows are the rows of the
-/// document without the combination (it never fakes case rows).
+/// document without the combination (§7.6: it never fakes case rows).
 #[test]
 fn repeat_calls_are_identical_and_the_case_rows_are_untouched() {
     for name in ["H-2", "H-4", "H-13"] {

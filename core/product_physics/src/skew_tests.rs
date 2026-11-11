@@ -80,7 +80,7 @@ fn skewed_records_publish_available_certified_records() {
     }
 }
 
-/// a coordinate-transform product below the split range (a
+/// RT-A3 condition 1 (§6.2): a coordinate-transform product below the split range (a
 /// UZ guide and a stop (1, 2^-600, 0): k·q·q < 2^-969) is refused on the existing
 /// `NumericallyUnresolved` arm with its exact reason, never the pivot-screen special
 /// case (`append_short_bend_refusal`, keyed on `PIVOT_SCREEN_REASON`) and never the

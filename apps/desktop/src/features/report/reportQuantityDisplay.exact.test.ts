@@ -1,4 +1,4 @@
-// the display rule is split into an exact step and a
+// RT-R6 (DEL-08-04 Design `csv-export.md` §3): the display rule is split into an exact step and a
 // rounding step. The composed form must stay byte-identical to the rule before the split, which
 // is pinned here verbatim as `legacyDisplayNumber`; the shared parity vectors are checked by
 // `reportQuantityDisplay.parity.test.ts` and the Rust producer by `quantity_display_parity.rs`.

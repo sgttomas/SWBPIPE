@@ -1,8 +1,8 @@
-"""DEL-04-11: the
+"""DEL-04-11 slice 1d-α (design §8.3): the
 independent Python verifier (`tests/verifiers/hanger_sizing_evidence.py`) over the committed
 corpus (`fixtures/results/hanger_sizing_*.json`), the closed schema
 (`schemas/hanger_sizing_result.schema.json`), the headless `size-hangers` verb's documents, and
-the analysis-run builder's actual handling of the document.
+the analysis-run builder's actual handling of the document (§8.3.8).
 
 Verdict parity: the corpus states the expected standings once; the Rust reader is held to all
 five (`core/analysis/hanger_sizing/tests/publication.rs`), this verifier to `closure`, `binding`

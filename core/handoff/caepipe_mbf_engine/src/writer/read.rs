@@ -1331,7 +1331,7 @@ impl<'m> Writer<'m> {
         self.sweep_fields()
     }
 
-    /// every non-empty model member and field no reader writes, checks or refuses is listed.
+    /// Design §17.1: every non-empty model member and field no reader writes, checks or refuses is listed.
     pub fn sweep_fields(&mut self) -> R<()> {
         let model = self.model;
         for (name, value) in model.as_dict().expect("dict").iter() {

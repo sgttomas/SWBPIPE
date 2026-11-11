@@ -1,4 +1,4 @@
-"""combination certificate: the Python consumer.
+"""RT-A3 §4 combination certificate (DEL-05-02 Work ``combination-certificate.md`` §3): the Python consumer.
 
 Over the shared corpus (``fixtures/results/combination_certificate_corpus.json``, written by PP
 ``tests/combination_certificate.rs``):
@@ -399,7 +399,7 @@ def _forgery(document: str, what: str) -> dict:
 
 
 def _claims_survive(document: dict) -> list:
-    """Any certificate claim the document still makes: the member (its bounds and verdicts), or a diagnostic in the
+    """Any §4 certificate claim the document still makes: the member (its bounds and verdicts), or a diagnostic in the
     certificate's vocabulary, restated here independently of the readers (id namespace, the `COMBINATION_ROWS_` code
     family, or a sentence placing rows within, or assessing them against, a stated bound). W-16b's derived-rows
     notice ("only the derived row groups that contract_evidence.combination_certificate establishes carry a stated
@@ -417,7 +417,7 @@ def _claims_survive(document: dict) -> list:
 @pytest.mark.parametrize("with_model", [False, True], ids=["without-model", "with-model"])
 @pytest.mark.parametrize("name", ["ex_cantilever", "pf_cantilever"])
 def test_absence_is_inspection_only_with_no_certificate_claim(name, with_model):
-    """Absence of the member (member and notices both dropped, the current identity kept) is admitted as no
+    """Absence of the member (member and notices both dropped, the current identity kept) is admitted as no §4
     certificate claim: no member, no certificate notice under any id, and no eligibility effect, the document's
     numerical_quality and its desktop standing being those of the certified document (decision (b))."""
     e = entry(name)
@@ -443,7 +443,7 @@ W_CB3 = {
 def test_legacy_w_cb3_successors_are_accepted_with_their_own_receipt_and_no_certificate_claim(mode):
     """The registered W-CB3 retained combination successors (recorded before the certificate, bytes untouched) are
     accepted with and without their invocation; their retained-precision standing is their own receipt's, and they
-    make no certificate claim (Rust `legacy_w_cb3_successors_are_accepted` alike)."""
+    make no §4 certificate claim (Rust `legacy_w_cb3_successors_are_accepted` alike)."""
     import hashlib
 
     from tests.verifiers import retained_precision

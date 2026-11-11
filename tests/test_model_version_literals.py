@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """No stray model-document version literal in desktop or applier production code.
 
-the current model
+DEL-02-01 Design model-document-0.7.0.md §2 ("Guard test"): the current model
 document version and the retired list are defined once per language
 (`core/product_physics/src/model_format.rs`, which the desktop's Rust side and the
 operation applier import, and `apps/desktop/src/services/modelSchemaVersion.ts`).
@@ -30,10 +30,10 @@ TS_DEFINITION = ROOT / "apps" / "desktop" / "src" / "services" / "modelSchemaVer
 DESKTOP_TS = ROOT / "apps" / "desktop" / "src"
 DESKTOP_RS = ROOT / "apps" / "desktop" / "src-tauri" / "src"
 APPLIER_RS = ROOT / "core" / "model_operations" / "operation_applier" / "src"
-# the product-physics
+# W-15 slice c (DEL-02-01 Design model-document-0.8.0.md §2, §5): the product-physics
 # and result-export production sources are scanned too. Their production code names the
 # current version through `crate::MODEL_SCHEMA_VERSION`, except the independent readers'
-# gates and texts, which the version ripple edits by token (they are priced
+# gates and texts, which the version ripple edits by token (MD8 §2, §7: they are priced
 # and do not depend on the producer crate). Those sites are listed here, tied to the
 # version they were taken at: the test fails when a file gains or loses one, and when the
 # current version moves while the list still names the old one, so the next ripple

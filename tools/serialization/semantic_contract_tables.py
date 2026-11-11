@@ -81,7 +81,7 @@ sys.path.insert(0, str(PROJECT / "tools"))
 from repository_history import source_spec
 PRESSURE = "fixtures/results/semantic_contract_v0_3_pressure_2.json"
 RETAINED = "fixtures/results/semantic_contract_v0_3_physics_retained_1.json"
-# the pressure-free Timoshenko identity, preview-physics-2
+# DEL-05-03 Design pf-timoshenko.md §4: the pressure-free Timoshenko identity, preview-physics-2
 # with its identity, profile and limitation 0 replaced. Never hand-edited.
 PREVIEW = "fixtures/results/semantic_contract_v0_3_preview_physics_2.json"
 TIMOSHENKO = "fixtures/results/semantic_contract_v0_3_preview_physics_timoshenko_1.json"
@@ -121,10 +121,10 @@ EXCLUDED = ("validation/references/", "execution/",
             # runs recorded before RT-A4 and the
             # pre-RT-A4 table variants they bind, kept verbatim; their digests are history, never repinned.
             "fixtures/persistence/recorded_pre_rt_a4_pf/", "fixtures/results/recorded_pre_rt_a4/",
-            # main's runs and tables
+            # Operating-case slice 1b (DEL-05-02 operating-case.md "As built (1b)"): main's runs and tables
             # before 1b's combination-policy restatement, kept verbatim.
             "fixtures/persistence/recorded_pre_rt_a5_1b_pf/", "fixtures/results/recorded_pre_rt_a5_1b/",
-            # main's runs and tables before the
+            # RT-A5 minuend_final (DEL-05-02 operating-case.md §7.6): main's runs and tables before the
             # combination policy's v4 restatement, kept verbatim.
             "fixtures/persistence/recorded_pre_rt_a5_mf_pf/", "fixtures/results/recorded_pre_rt_a5_mf/",
             # the S-K1 base's tables before the
@@ -238,7 +238,7 @@ def carrier_registrations(consumer: str) -> list[tuple[str, str]]:
 
 
 # ---------------------------------------------------------------- apply-u4b
-# the U4b contract, applied
+# T4-U4b (DEL-04-07 Design u4b-u5b-implementation.md §2.2-§2.8, §5.1): the U4b contract, applied
 # idempotently on top of whatever else the tables carry. pressure-2 and preview-physics-2 gain
 # the U4b signatures (sigma+/sigma-, the transverse shear maximum on its straight and arc tokens,
 # the directional intensified station and maximum rows and, on pressure-2, the toroidal hoop and
@@ -246,7 +246,7 @@ def carrier_registrations(consumer: str) -> list[tuple[str, str]]:
 # pressure-2 stress signature adds `-<token>-<basis>`, a preview arc variant is
 # `preview-physics-arc-<number>`. Existing U4b rows are removed first, so a re-run on a table that
 # gained other rows renumbers U4b after them. Every row of the four marked tables carries
-# `combination_algebra`; vocabularies, limitation texts and the result
+# `combination_algebra` (§2.7); vocabularies, limitation texts (§2.5, §2.8) and the result
 # schemas (closed arc and directional records, the extrema token triples as a oneOf, the region
 # statement, the preview limitation consts, the component field catalog) follow.
 
@@ -466,7 +466,7 @@ def u4b_tables(files: dict) -> None:
 
 
 # ---------------------------------------------------------------- apply-w7
-# member end actions in global coordinates. Six
+# W-7 (DEL-04-01 Design global-end-actions.md): member end actions in global coordinates. Six
 # signatures (Fx, Fy, Fz in N; Mx, My, Mz in N*m) on the two ordinary tables whose producers
 # publish member rows (pressure-2, preview-physics-2), appended and numbered after each table's
 # highest id (apply-u4b keeps them after its rows and numbers U4b without them). The
@@ -550,7 +550,7 @@ def apply_w7(check: bool) -> int:
 
 
 # ---------------------------------------------------------------- apply-w16
-# each support whose
+# W-16 stage 2, R-b (DEL-04-03 Design pf-nonlinear-imposed-motion.md §4): each support whose
 # ground the case moves publishes `nonlinear_support_final_relative_displacement`, an observation
 # row, in the two families of `nonlinear_support_final_displacement` (mm, length; rad, angle).
 # Two signatures on preview-physics-2, appended after the W-7 rows and numbered after the table's
@@ -604,7 +604,7 @@ def apply_w16(check: bool) -> int:
 
 
 # ---------------------------------------------------------------- apply-branch
-# a
+# RT-A3 increment 1 (DEL-04-07 Design pressure-contract.md, "Tees and pressure junctions"): a
 # branch connection's intensified row on the exact route, `branch_intensified_bending_stress_v1`
 # (Pa, intensified_bending), one signature number with a nominal and a reduced basis variant on
 # pressure-2 only, appended after the W-7 rows and numbered after the table's highest id; derive
@@ -814,7 +814,7 @@ def results_schema(schema, preview_limitations: list) -> None:
         if identity in PREVIEW_IDENTITIES:
             branch["properties"]["formulation_basis"]["properties"]["limitations"] = {"const": list(preview_limitations)}
         elif identity == TIMOSHENKO_ID:
-            # preview-physics-2's texts with limitation 0 replaced, as the table.
+            # pf-timoshenko.md §4: preview-physics-2's texts with limitation 0 replaced, as the table.
             branch["properties"]["formulation_basis"]["properties"]["limitations"] = {
                 "const": [TIMOSHENKO_LIMITATION_0] + list(preview_limitations[1:])}
 

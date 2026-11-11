@@ -12,7 +12,7 @@ describe("report-row contract parity", () => {
     expect(reportResultRows(source)).toEqual(vectors.expected_rows);
   });
 
-  // the section-basis suffix.
+  // W-11 (DEL-08-01 Design `exact-route-report-sections.md` §3.4): the section-basis suffix.
   it("adds the section-basis suffix to exact-route rows and none to the others", () => {
     const source = vectors.exact_route_source_results as unknown as Pick<MechanicsResult, "results">;
     expect(reportResultRows(source)).toEqual(vectors.exact_route_expected_rows);

@@ -156,7 +156,7 @@ if U6_D5:
     CENSUS["json"] = os.path.join(os.path.dirname(H), "data", "census_u4b_7c77bf8072.json")
     if json.load(open(CENSUS["json"]))["rows_per_member"] != 51 + 21 + 30:
         raise SystemExit("U6-RP: the U4b census no longer measures 102 rows per member; re-review")
-    # W7-RP (W-7, §8.20): the census is taken on the
+    # W7-RP (W-7, DEL-04-01 Design global-end-actions.md; retained-pricing-rules.md §8.20): the census is taken on the
     # pressure-source-1 producer fixtures, which omit the global end rows by the named rule `global_end_rows_published`
     # (a source-recovery publication); route E's ordinary pressure-2 envelope carries them on every run, twelve per
     # member and case, so route E's P_final and R0 take 102 + 12 = 114 rows per member. Guard: the rule and the producer

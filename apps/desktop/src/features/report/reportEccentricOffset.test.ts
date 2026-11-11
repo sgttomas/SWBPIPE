@@ -1,4 +1,4 @@
-// the report's
+// W-15 slice c (DEL-03-05 Design `eccentric-reducer-offset.md` §4, P11): the report's
 // component provenance carries a reducer's entered eccentric offset, its convention
 // and the reference-section meaning of the body's stress rows, scaled or not; other
 // components keep their record unchanged. Every value is invented.

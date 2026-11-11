@@ -1,6 +1,6 @@
 //! T4-U3 (S14): the objective connector's evidence on `pressure-2`
 //! (`3.0.0/exact_pressure_v3`) only. `contract_evidence.connector` holds one
-//! record per connector (topology and replaced span, frame, installed
+//! record per connector (JR §7: topology and replaced span, frame, installed
 //! reference temperature and q_ref, matrix scale and provenance), and every
 //! `connector_*` row is bound to exactly one record. Any other contract
 //! refuses both (`CONNECTOR_UNSUPPORTED`).

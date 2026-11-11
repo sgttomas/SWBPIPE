@@ -1,4 +1,4 @@
-// Split into equal parts. It previews the
+// B5 (DEL-07-01 Design `split-and-slope-entry.md` §2): Split into equal parts. It previews the
 // plan for one pipe and queues it as one batch through the session's existing batch queue, where
 // it is validated, applied whole and reverted by one Undo.
 import { useEffect, useMemo, useRef, useState } from "react";

@@ -1,4 +1,4 @@
-//! DEC-068
+//! W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md` §5): DEC-068
 //! equivalent-static generation on the exact pressure route (EX), beside the
 //! pressure-free route (PF).
 //!

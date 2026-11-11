@@ -1162,7 +1162,7 @@ export type EditorOperationObjectType =
   | "Constraint"
   | "EquipmentInterface"
   | "RulePackRef"
-  // operating-condition sets.
+  // Model document 0.9.0 §11: operating-condition sets.
   | "ConditionSet";
 
 export type EditorOperationSource = {
@@ -1236,7 +1236,7 @@ export type EditorOperationIntent = {
       | "clear_model_setting"
       // Project units.
       | "set_project_unit"
-      // Model document 0.9.0 (S3a): condition sets, pipe assignment and case use.
+      // Model document 0.9.0 §11 (S3a): condition sets, pipe assignment and case use.
       | "create_condition_set"
       | "update_condition_set"
       | "delete_condition_set"

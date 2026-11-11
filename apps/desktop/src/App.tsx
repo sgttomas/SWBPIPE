@@ -292,7 +292,7 @@ function AppSession() {
     handleRedoSessionModelEdit,
     invalidateDirectDraftContext
   } = session.operations;
-  // Run sheet: the sheet's
+  // Run sheet S2 (DEL-07-02 Design `run-sheet-entry.md` §3.6): the sheet's
   // transient state follows the session's events whichever surface is shown.
   const runSheetStore = useRunSheetStore(sessionEvents, activeModelIndex, model?.project.id ?? null);
   const runSheetHost: RunSheetHost = { store: runSheetStore, queuedBatches, editorIntents, registerBatch: registerOperationBatch };
@@ -362,7 +362,7 @@ function AppSession() {
   // "Show solver diagnostic": the Issues drawer's
   // Diagnostics panel opens filtered to exactly that diagnostic, once.
   const { filterRequest: diagnosticFilterRequest, requestDiagnosticFilter } = useDiagnosticFilterRequest({ issuesDrawerOpen, result, analysisRun });
-  // the key-results panel's open state, auto-open
+  // A6 (DEL-07-05 Design `key-results-panel.md`): the key-results panel's open state, auto-open
   // rule and actions, each through an existing setter. The rule-check run follows the A3 rule.
   const keyResults = useKeyResultsSession({
     result,
@@ -382,7 +382,7 @@ function AppSession() {
   // renders and remains the navigable, tested source of truth.
   const showInAppMenuBar = !isTauriRuntime();
 
-  // Bulk change acts on the ordered selection. Change
+  // B2 (DEL-07-02 Design `bulk-change.md`): Bulk change acts on the ordered selection. Change
   // selected… in the entity menus opens its tab and moves focus to the panel.
   const bulkChangeScope = useMemo(
     () => orderedSelection.orderedKeys.flatMap((key) => { const ref = entityRefFromKey(key); return ref ? [ref] : []; }),
@@ -395,7 +395,7 @@ function AppSession() {
     setOperationTab("bulk");
     setBulkChangeFocusRequest((current) => current + 1);
   };
-  // Split into N… in the entity menus opens
+  // B5 (DEL-07-01 Design `split-and-slope-entry.md`): Split into N… in the entity menus opens
   // Split into equal parts on the pipe, under the Geometry tab, with focus on its parts field.
   const [splitPartsRequest, setSplitPartsRequest] = useState<SplitPartsOpenRequest | null>(null);
   const openSplitIntoParts = (pipeId: string) => {
@@ -414,7 +414,7 @@ function AppSession() {
   const tableDrawer = tableDrawerState(stageView, narrowWindow, treeCollapsed);
   const issueCount = issueCountFor(model, knowledge, result, operationOutcomes);
   const pendingOperationCount = editorIntents.length + queuedBatches.reduce((count, entry) => count + (Array.isArray(entry.batch?.operations) ? entry.batch.operations.length : 1), 0);
-  // The solve proof left the status bar (no hashes, no proofs there).
+  // The solve proof left the status bar (specification §5.5: no hashes, no proofs there).
   // It is read on the Results stage's Evidence tab, in the same words as before.
   const visibleSolveProof = solveProofStatus(model, modelHash, result, solveJob, solveProof);
 

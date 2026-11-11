@@ -389,7 +389,7 @@ mod tests {
         );
     }
 
-    /// with a recorded binding, each recorded-run reader is its
+    /// RT-A4 §10.4: with a recorded binding, each recorded-run reader is its
     /// `reader_verdict::*_recorded` entry; a null binding reads as absent.
     #[test]
     fn a_recorded_binding_runs_the_recorded_entry() {

@@ -279,7 +279,7 @@ fn the_pressure_free_save_grows_within_the_budget() {
     });
 }
 
-/// a
+/// Slice C5 (DEL-08-01 Design `report-section-composer.md` §2.7): a
 /// composition listing every model-input section beside all result rows.
 pub(crate) fn model_input_composition() -> Value {
     json!({"composition_version": "1.0.0", "sections": [

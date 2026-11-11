@@ -9,8 +9,8 @@ import type { ReportComposition } from "./reportComposition";
 // and the shared producer binds its members (`report_package::bindings`).
 //
 // A Current pressure-free (preview-physics-2) result is admitted, and, since the owner
-// opened exact-route packages (W-11,
-// owner, 2026-10-26), an eligible pressure-2 or pressure-source-1 result: the
+// opened exact-route packages (W-11, DEL-08-01 Design `exact-route-report-sections.md`
+// §5.1; owner, 2026-10-26), an eligible pressure-2 or pressure-source-1 result: the
 // output policy's `report-package` cell admits the three routes, the identity check
 // admits `REPORT_PACKAGE_ADMITTED_CONTRACT_IDS`, and the producer's Rust boundary admits
 // the same three identities. The retained successors stay refused by the cell.

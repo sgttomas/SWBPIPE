@@ -333,7 +333,7 @@ fn u1_stage_slots_require_an_exact_status() {
     assert_eq!(failures, vec![wire::ReceiptFailure { check: wire::ReceiptCheck::WorkCounter(k::WorkFault::Overflow), field_path: "stages" }]);
 }
 
-/// the producer checks conservation before emission
+/// D-4 §3 item 5: the producer checks C1 §1 conservation before emission
 /// (record: own = W+K, own stages = O, shared stages = S+V, D+Q <= O; run:
 /// the logical partition and after = before + increment).
 #[test]
@@ -655,7 +655,7 @@ fn u2_failure_path_foreign_owner_refused() {
     assert_eq!(refused.err(), Some(wire::ReceiptFailure { check: wire::ReceiptCheck::Association, field_path: "product_attempts[].proof.owner" }));
 }
 
-/// (grant 2): a failed verification keeps its translated failure
+/// C1 §1 item 2 (grant 2): a failed verification keeps its translated failure
 /// reason; a completed one has none. The milestone's records, with the
 /// verification outcome replaced (a projection control, not a native run).
 #[test]
@@ -677,7 +677,7 @@ fn u1g2_failed_verification_keeps_its_reason() {
     assert_eq!(failures.iter().map(|f| f.field_path).collect::<Vec<_>>(), vec!["run.attempts[].verification.phase"]);
 }
 
-/// Run.kernel_terminal for each kernel outcome (grant 2).
+/// C1 §4 Run.kernel_terminal for each kernel outcome (grant 2).
 #[test]
 fn u1g2_kernel_terminals() {
     let (candidate, _, _) = milestone_candidate(PreviewSolverMode::SparseInteractive);

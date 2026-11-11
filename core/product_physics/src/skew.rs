@@ -145,7 +145,7 @@ pub(crate) fn physical_free(basis: &RestraintBasis) -> Vec<usize> {
     (0..basis.dimension()).filter(|dof| basis.axis_restrained().binary_search(dof).is_err()).collect()
 }
 
-/// before reduction: a nonzero prescribed translation at a stop's node.
+/// §2.2 item 9 before reduction: a nonzero prescribed translation at a stop's node.
 pub(crate) fn prescribed_motion_refusal(basis: &RestraintBasis, prescribed: &[(usize, f64)], case_id: &str) -> Option<Diagnostic> {
     let dofs = basis.judge_prescribed(prescribed);
     (!dofs.is_empty()).then(|| diag(

@@ -169,7 +169,7 @@ fn retained_timoshenko_entries_follow_the_fixed_schedule() {
     assert!(eb[0].bounded().dbar.is_none());
 }
 
-// ------------------------------------------- exact/directed controls
+// ------------------------------------------- §4.4 item 7: exact/directed controls
 
 #[allow(dead_code)]
 #[path = "support.rs"]
@@ -519,7 +519,7 @@ fn retained_timoshenko_d_bar_path_through_e_and_the_512_floor() {
         stiff.evidence().resolution_scale.iter().map(|e| f64::from_bits(e.2)).collect::<Vec<_>>());
 }
 
-// ------------------------------------------- the sidecar and its identity
+// ------------------------------------------- §4.2: the sidecar and its identity
 
 /// association of the member-only sidecar. A sidecar entry without its
 /// member, a Timoshenko document's member without its entry and a repeated

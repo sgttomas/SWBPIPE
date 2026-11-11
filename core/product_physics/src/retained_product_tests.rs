@@ -2933,8 +2933,8 @@ fn prepared_trace_prior_owned_cause_precedes_sticky_adapter_and_fresh_prelude_er
 }
 
 // ---------------------------------------------------------------- I61 summary coverage
-// The typed C3 seam borrows the proof's own vector. Every test names
-// its control; "actual" means a producer run of an existing fixture.
+// The typed C3 seam borrows the proof's own vector (I57 §1–§3). Every test names
+// its I57 §5 control; "actual" means a producer run of an existing fixture.
 fn i61_owner(capture:&ProductCapture)->&k::RetainedSolve {
     match &capture.native_pair().unwrap().1.outcome {k::ExecutionOutcome::Selected(v)=>v,_=>panic!("native owner")}
 }

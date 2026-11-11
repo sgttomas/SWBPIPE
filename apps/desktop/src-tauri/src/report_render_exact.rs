@@ -288,7 +288,7 @@ fn bind_render_admission(
         .map_err(|_| refused(sections_mismatch("input_manifest.model_basis")))?;
     drop(manifest);
     rederive(input, &bound.source, &bound.model_sha256, &digests).map_err(|section| refused(sections_mismatch(&section)))?;
-    // the
+    // Slice C5 (DEL-08-01 Design `report-section-composer.md` §2.7): the
     // model-input tables are P(M, C) of the bound intake model and the input's
     // own composition; the refusal names a JSON pointer, never a value.
     open_pipe_stress_report_package::model_input::check_model_input_tables(&bound.model, input).map_err(CommandError::Command)

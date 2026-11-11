@@ -1,4 +1,4 @@
-"""test-only: the reference-section
+"""W-15 slice d (DEL-03-05 Design ``rigid-component-stiffness-scaling.md`` §5), test-only: the reference-section
 identification of a component body's results, checked independently of the Rust reader
 (``core/reporting/result_export/src/component_body.rs``). Standard library only.
 

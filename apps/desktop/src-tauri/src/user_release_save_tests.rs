@@ -250,7 +250,7 @@ fn route_010_refuses_forged_evidence() {
     refused(args, &registry, crate::report_package_save::EVIDENCE_UNBOUND);
 }
 
-/// No replay, native rows, and the record's form.
+/// No replay (§2.10), native rows, and the record's form (§2.5 step 4).
 #[test]
 fn route_010_binds_the_record() {
     let basis = basis();
@@ -1407,7 +1407,7 @@ fn d6_ineligible_delivered_exact_source_is_refused() {
     }
 }
 
-/// on route
+/// Slice C5 (DEL-08-01 Design `report-section-composer.md` §2.7): on route
 /// 010, on the pressure-free and both exact routes, the derived request's
 /// model-input tables are admitted and saved, and an edited cell, an extra
 /// row, tables without a listing id and a listing id without tables are

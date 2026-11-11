@@ -375,15 +375,15 @@ def validate(reader: str, source: Any, model: Any = None, invocation: Any = None
             # RT-A4 (review r1 P2): with the model, the combination gates and unsigned rows are re-derived from it.
             preview_physics_evidence.validate_preview_physics_evidence(source, model)
             if model is not None:
-                # with the model, a crossed identity is refused first.
+                # pf-timoshenko.md §4: with the model, a crossed identity is refused first.
                 bind_preview_shear_model(source, model)
                 # τ bit for bit with the captured model (G2).
                 from . import u4b_model
                 u4b_model.preview_model_checks(source, model)
-                # the model's bodies and their records.
+                # W-15 slice d (DEL-03-05 Design §5): the model's bodies and their records.
                 from . import component_body
                 component_body.model_checks(source, model, preview_physics_evidence.TABLE)
-                # the operand records bound to the model's combinations.
+                # Operating-case slice 1a (§3): the operand records bound to the model's combinations.
                 from . import preview_combination_operands
                 preview_combination_operands.model_checks(source, model)
                 # RT-A4 (review r1 P2): the gates and unsigned rows, re-derived from the model.
@@ -398,14 +398,14 @@ def validate(reader: str, source: Any, model: Any = None, invocation: Any = None
             if model is None:
                 pressure_2.validate_pressure_evidence(source)
             else:
-                # with the model, the certificate is read after the model checks.
+                # RT-A3 §4: with the model, the certificate is read after the model checks.
                 pressure_2.validate_pressure_evidence_without_certificate(source)
             if model is not None:
                 physics_model_checks(source, model)
                 # T4-U4b review item 1: the directional binding (the pressure-2 reader only).
                 from . import u4b
                 u4b.directional_model_checks(source, model, True)
-                # the model's bodies and their records.
+                # W-15 slice d (DEL-03-05 Design §5): the model's bodies and their records.
                 from . import component_body
                 component_body.model_checks(source, model, pressure_2.pressure_table())
                 # RT-A3 increment 1: the branch rows bound to the model's tee associations (Rust `exact_model_checks`).

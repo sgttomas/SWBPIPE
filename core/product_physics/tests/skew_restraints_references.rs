@@ -247,7 +247,7 @@ fn s_k1_product_cases_match_references_in_both_modes() {
     }
 }
 
-/// on the static product path (the modal review asked for every direction
+/// §4.3 I1 on the static product path (the modal review asked for every direction
 /// consumer): a stop or a spring authored at d·2^600, d·2^-600, d·2^-1020, or as the
 /// subnormal pair (2^-1074, 2^-1074, 0) against (1, 1, 0), publishes its twin's result
 /// rows and diagnostics bit for bit, in both modes, through the typed entry (2^600 is
@@ -300,7 +300,7 @@ fn axis_aligned_twins_are_byte_identical() {
     }
 }
 
-/// Each code of S-K1, named on its object, with the whole document withheld.
+/// Each §2.2 code of S-K1, named on its object, with the whole document withheld.
 #[test]
 fn s_k1_refusals_are_named() {
     let refused = |doc: &Value, code: &str, what: &str| {
@@ -360,7 +360,7 @@ fn s_k1_refusals_are_named() {
     refused(&ground, "IMPOSED_DISPLACEMENT_SKEW_SUPPORT_UNSUPPORTED", "skew ground motion");
 }
 
-/// RT-A3's condition on hunk 02 (`InvalidInput` is a backstop only): the named
+/// RT-A3's condition on hunk 02 (`InvalidInput` is a backstop only): the named §2.2
 /// codes for an unconnected skewed node (item 6) and a force-scaled skew case
 /// (item 10) are what the product reports, never the backstop's "invalid input".
 #[test]

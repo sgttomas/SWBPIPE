@@ -769,7 +769,7 @@ fn u4b_torus_domain_guard() {
     }
 }
 
-/// the directional rows and records are bound to the
+/// Review item 1 (§2.6, §5.1): the directional rows and records are bound to the
 /// captured model on both routes. Model-free reads cannot see a whole dropped
 /// family or consistently changed factors; the model-holding readers refuse
 /// both. One dropped basis is refused either way (the twin rule).
@@ -847,7 +847,7 @@ fn u4b_directional_rows_bind_to_the_captured_model() {
     }
 }
 
-/// the Poisson exemption is bound. pressure-2 admits only
+/// Review item 3 (§2.4): the Poisson exemption is bound. pressure-2 admits only
 /// −1 < ν < 1/2, so a forged warning with the member's τ rows deleted is
 /// refused by the envelope reader; on preview-physics-2 in the domain the
 /// same tamper passes a model-free read (custody, as designed) and is refused
@@ -879,7 +879,7 @@ fn u4b_forged_poisson_warnings_are_refused() {
     }
 }
 
-/// the preview readers no longer exempt load-state cases
+/// Review item 4 (§2.4): the preview readers no longer exempt load-state cases
 /// from the bit-for-bit τ check. No such case exists on preview-physics-2: the
 /// producer refuses `analysis_state` without the exact pressure contract, by
 /// name and with no row, so only interpolated moduli keep the model-free checks.
@@ -1266,7 +1266,7 @@ const G_ABOVE_E_DOCUMENTS: [(&str, f64, f64, f64, u64, u64); 2] = [
     ("moderate_q_0_1", 200.0, 1000.0, 1500.0, 0x407feecc3359c847, 0xbd07ffe48fdbe857),
 ];
 
-/// on documents: each τ_v,max row of a G > E preview member is within 11.5u of |V|·c*/1e6; forming
+/// DEL-04-07 §2.4 on documents: each τ_v,max row of a G > E preview member is within 11.5u of |V|·c*/1e6; forming
 /// 1 + ν from the rounded ν published Codex's 1.584022414149910e-7 MPa, 33.3% low (Codex's independent value
 /// 2.376033621224861803e-7 MPa at |V| = 1e-18 N, with an exact I, agrees to 1e-14). Euler–Bernoulli only: this base
 /// refuses `timoshenko_annulus_energy_v1` at solve. The Rust preview-physics reader recomputes the same bits; the

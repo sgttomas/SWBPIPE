@@ -538,7 +538,7 @@ def recorded_run_semantic_binding(recorded: Any, contract_id: str, contract_hash
 PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
 PREVIEW_PHYSICS_CONTRACT_SHA256 = "16eeb49cb298c6d3634594bbd9ebf6bf86be8f114e2e524dbd624e401e31a729"
 _PREVIEW_PHYSICS_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_2.json"
-# the pressure-free Timoshenko identity, beside preview-physics-2 on the
+# DEL-05-03 Design pf-timoshenko.md §4: the pressure-free Timoshenko identity, beside preview-physics-2 on the
 # preview-physics route. Its own table and hash; preview-physics-2's are unchanged, so existing records stay compatible.
 PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1"
 PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_SHA256 = "8a0abaeac93729b5d6ee6c922f2a60f0caf9332948622bb8b5896747ce41442d"
@@ -587,7 +587,8 @@ _TABLES = {PRESSURE_SOURCE_CONTRACT_ID: (PRESSURE_SOURCE_CONTRACT_SHA256, _PRESS
            PRESSURE_CONTRACT_ID: (PRESSURE_CONTRACT_SHA256, _PRESSURE_CONTRACT_PATH),
            **RETAINED_CONTRACTS}
 
-# the closed registry of the tables a result recorded before RT-A4 binds, each the main line's bytes verbatim
+# RT-A4 §10.4 (DEL-05-02 Design absolute-sum-srss-combinations.md, "Recorded results from before RT-A4 (historical
+# read)"): the closed registry of the tables a result recorded before RT-A4 binds, each the main line's bytes verbatim
 # (fixtures/results/recorded_pre_rt_a4), its SHA-256 checked when read. The Rust reader's twin is
 # result_export recorded_tables::VARIANTS; the desktop's, analysisRunCompatibility.ts RECORDED_PRE_RT_A4_TABLES. A
 # variant is selected only by a record's exact binding {id, sha256} on the recorded-run read

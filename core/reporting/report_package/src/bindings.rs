@@ -285,7 +285,7 @@ fn supplemental_message(diagnostic: &Value, message: &str, combinations: &std::c
 /// `fixtures/reports/invented/report_diagnostics_parity.json`.
 pub fn expected_report_diagnostics(source: &Value) -> Result<Vec<Value>, String> {
     let diagnostics = source["diagnostics"].as_array().ok_or_else(|| mismatch("report diagnostics: the source has no diagnostics"))?;
-    // on a
+    // RT-A3 §4 (DEL-05-02 Work `combination-certificate.md` §2, the residual text boundary): on a
     // source with combinations, a diagnostic naming none of them is no entry of the reader's closed
     // combination-diagnostic roster, and its message is quoted as supplied text (desktop
     // `suppliedDiagnosticMessage`). The source's population is always within the reader's with
@@ -438,7 +438,7 @@ pub(crate) fn check_request_in(
     // only the desktop builds exact sections, so the runner profile
     // does not package an exact identity, whatever the report carries.
     exact_sections::check_runner_profile(&request.export_profile_id, document)?;
-    // a general entry builds no user-released package.
+    // W-18b §2.8, refusal 2: a general entry builds no user-released package.
     let user_release = entry.is_user_release();
     if !user_release {
         if let Some(marker) = user_release::user_release_marker(&request.export_profile_id, &request.report) {

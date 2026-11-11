@@ -56,7 +56,7 @@ SCHEMA_ID = "https://openpipestress.org/schemas/model.schema.yaml"
 DOCUMENT_KIND = "openpipestress.product_preview.model"
 CURRENT_VERSION = "0.9.0"
 RETIRED_VERSIONS = {"0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0", "0.8.0"}
-# a retired version
+# W-15 slice c (DEL-02-01 Design model-document-0.8.0.md §5): a retired version
 # listed here classifies a non-frozen committed document as a refusal control only
 # when the document is listed under it. Any other document at that version is
 # unclassified, and the test fails, so a current fixture the version ripple did not
@@ -64,7 +64,7 @@ RETIRED_VERSIONS = {"0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0
 # retires with its explicit controls; earlier versions keep the open rule. The 0.8.0
 # ripple's one committed 0.7.0 control is the handoff witness package as the 0.7.0
 # producer wrote it: its bytes still verify, and its model is refused by the open and
-# solve paths. The second (r6) is the model of a pressure-2 run
+# solve paths (MD8 §3.4, §12). The second (r6, MD8 §3.2) is the model of a pressure-2 run
 # recorded at 0.7.0, main's request at 2e4748eada verbatim beside its record and source:
 # the run keeps its read and compare, while the model itself is refused. Every other 0.7.0
 # refusal control is built in memory.
@@ -470,7 +470,7 @@ PROVENANCE_RECORD_COLLECTIONS = ("materials", "sections", "components", "support
 
 
 def test_the_invented_annotated_model_carries_every_new_member():
-    """one committed invented document authors every slot."""
+    """DEL-02-01 Design model-document-0.7.0.md §3: one committed invented document authors every slot."""
     rows = [(bucket, document) for bucket, relative, pointer, document in classify()
             if relative == ANNOTATED_FIXTURE and pointer == ""]
     assert [bucket for bucket, _ in rows] == ["format"]

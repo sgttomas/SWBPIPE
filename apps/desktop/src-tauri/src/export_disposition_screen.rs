@@ -1,7 +1,8 @@
 //! The native export disposition screens, shared by File > Save Model
 //! Document… (W-6a, `model_document_save`), File > Save Handoff… (W-6b,
 //! `handoff_package`) and File > Save Report Package… (W-18a slice (b1),
-//! `report_package_save`).
+//! `report_package_save`). DEL-08-01 Design `report-package-current-results.md`
+//! §2.6, "Sharing with W-6a"; DEL-15-01 Design `canonical-model-export.md`.
 //!
 //! Two screens, moved here unchanged from their first callers:
 //! - the store-resolved screen of W-6a ([`screen_model_document_dispositions`],

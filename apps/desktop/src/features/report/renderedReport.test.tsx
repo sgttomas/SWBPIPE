@@ -1277,7 +1277,7 @@ describe("pending render work is owned by the panel instance and its source (W-3
   });
 });
 
-// one line per load case before the diagnostics section
+// DEL-07-05 numerical health §5: one line per load case before the diagnostics section
 // in the rendered report's emitted renderer input, on the generic route only; the
 // report package's input (built without the indicator) is unchanged; no conditioning
 // figure is exported. The indicators are the wasm export's readings of committed
@@ -1305,7 +1305,7 @@ describe("numerical health report line", () => {
     expect(JSON.stringify(withHealth)).not.toMatch(/roughly|decimal digits|rcond/);
   });
 
-  // an exact-route
+  // W-11 slice (b) (DEL-08-01 Design `exact-route-report-sections.md` §3.1): an exact-route
   // source is built only with its Export Result JSON admission, so the builder refuses this
   // unadmitted pressure-source result whether or not the line is supplied (it formerly
   // built a generic input). The exact path's rows are pinned below the gate in
@@ -1361,6 +1361,7 @@ describe("numerical health report line", () => {
 });
 
 // ---------------------------------------------------------------------------
+// W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md` §4, §6.2, §7):
 // FR-REP-003 on every route. Material, section, component and support records under
 // one provenance predicate, library references and the store's findings, and the
 // disposition and context boundary. Targeted regression checks for a data-boundary

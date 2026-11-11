@@ -550,7 +550,7 @@ fn f1a_composition_with_s11g_layout_and_no_op_rule() {
 
 /// ROOT's condition (a): each `reason=` token is K-D5's own identifier. K-D5
 /// has no string form for `FormationCheckReason`, so the token is the
-/// snake_case of the variant name (the names its doc comments
+/// snake_case of the variant name (the names its doc comments and D1 §4.3.1
 /// give: `estimate`, `formation_check_unavailable`). The variant name is
 /// read from the enum's Debug form, so a rename breaks this test, and the
 /// exhaustive match breaks the build when a variant is added.

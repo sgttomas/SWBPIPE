@@ -153,7 +153,7 @@ fn kind_of(kind: &str) -> Option<Kind> {
 }
 
 /// S\* of a compared row from the case's reference values (one body per case,
-/// with K4's functions; twist and extension from the
+/// D1 §4.1.6.1 items 4–6 with K4's functions; twist and extension from the
 /// member's k_t and k_a, variant F).
 fn floor_scale(case: &R1Case, s_star: &[f64; 4], row: &RefRow) -> f64 {
     match kind_of(&row.kind) {

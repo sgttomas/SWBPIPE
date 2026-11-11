@@ -98,7 +98,7 @@
   const timeline = () => globalThis.__openPipeStressSolveTimelineV1?.readCurrent?.() ?? null;
   const elapsed = (started) => Math.round(now() - started);
 
-  // WebKit runs no rendering update, so no
+  // RT-U4 (A+B diagnosis, `c1-slice7-run-proposal.md`): WebKit runs no rendering update, so no
   // animation frame, for a page it does not consider shown (window occluded, display asleep,
   // screen locked), and aligns that page's nested timers to 1 s. The smoke window's
   // `backgroundThrottling: "disabled"` only sets WKPreferences.inactiveSchedulingPolicy (wry), not

@@ -45,7 +45,7 @@ export type RunComparisonSide = {
   /** The saved state a recorded run is tied to (`"<name>" (<state id>)`), or null. */
   state: string | null;
   standing: NumericalStanding;
-  /** display rule: for a run recorded before RT-A4, the registry variant `standing`
+  /** RT-A4 §10.4 display rule: for a run recorded before RT-A4, the registry variant `standing`
    * was read under (its standing as recorded, displayed as such and never as a current one);
    * null for a side read under the current tables. */
   recordedTableRead: RecordedBinding | null;

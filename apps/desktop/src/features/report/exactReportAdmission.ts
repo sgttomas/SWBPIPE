@@ -1,4 +1,4 @@
-/** the Export
+/** W-11 slice (b) (DEL-08-01 Design `exact-route-report-sections.md` §3.1): the Export
  * Result JSON admission of an exact-route report's source, bound to the admitted bytes.
  *
  * Equal identities and runs do not show that Export Result JSON admitted these result

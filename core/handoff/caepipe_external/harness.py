@@ -386,7 +386,7 @@ def write_private(root: Path, path: Path, data: bytes | str) -> None:
 
 
 def case_paths(config: HarnessConfig | Path, case_id: str) -> dict[str, Path]:
-    """The run directory of one case, created on demand inside the exchange folder."""
+    """The Design §5 run directory of one case, created on demand inside the exchange folder."""
 
     if not isinstance(case_id, str) or not CASE_ID_PATTERN.match(case_id):
         raise ValueError(f"case id {case_id!r} must match {CASE_ID_PATTERN.pattern}")

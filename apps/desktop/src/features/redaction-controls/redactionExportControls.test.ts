@@ -661,7 +661,7 @@ describe("route projection", () => {
   });
 });
 
-// the user-released
+// W-18b (r1), DEL-08-01 Design `report-user-release.md` §3 and §6: the user-released
 // context. Twins of the python checks in `tests/security/test_redaction_export_controls.py`.
 
 /** Keys sorted, no whitespace: the same text as python's
@@ -1914,7 +1914,7 @@ describe("DOTH-CSV-011 route catalogue", () => {
   });
 });
 
-// File > Export MBF… (twin of the python
+// DEL-17-04 Design `desktop-mbf-export-import.md` A-4: File > Export MBF… (twin of the python
 // `test_mbf_export_route_is_governed_local_private_lossless_with_explicit_intent` and
 // `test_mbf_export_route_agrees_across_python_typescript_and_rust`).
 describe("DOTH-MBF-012 route catalogue", () => {

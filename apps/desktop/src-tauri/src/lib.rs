@@ -1884,6 +1884,7 @@ fn get_unit_catalog() -> UnitCatalogResponse {
 /// camelCase arguments. Each command's arguments are decoded by its `*_args`
 /// function; the response is serialized while the lease is held.
 ///
+/// W-11 slice (b) (DEL-08-01 Design `exact-route-report-sections.md` §3.6):
 /// the render runs on a blocking worker thread, as the save does, because an
 /// exact input's native source binding parses and re-derives under the held
 /// lease; every other input renders there unchanged.
@@ -1946,6 +1947,7 @@ fn render_calculation_report_value(input: Value) -> Result<Value, String> {
     // offending value (W-11 slice (c), Codex review round 3 of #1639).
     let renderable = open_pipe_stress_report_renderer::decode_renderable_report_input(input)?;
     let outcome = open_pipe_stress_report_renderer::render_calculation_report(&renderable);
+    // W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md` §6.2):
     // a render refused for its provenance records is metadata-only, so no
     // print view is derived from it either.
     let derived_print_html = if outcome.content_withheld {
@@ -6951,7 +6953,7 @@ mod tests {
         assert_eq!(accelerated, vec![("file.save-local", "CmdOrCtrl+S")]);
     }
 
-    /// File > Export MBF… follows Save Handoff…
+    /// DEL-17-04 slice 4b.2b (Design `desktop-mbf-export-import.md` §3.1): File > Export MBF… follows Save Handoff…
     /// and dispatches its id to the webview like every other File item.
     #[test]
     fn native_file_menu_offers_export_mbf_after_save_handoff() {
@@ -6966,7 +6968,7 @@ mod tests {
         assert!(native_menu_dispatch_script("file.export-mbf").contains("detail: \"file.export-mbf\""));
     }
 
-    /// File > Import MBF… follows Open Model
+    /// DEL-17-04 slice 5 (Design `desktop-mbf-export-import.md` §4.1): File > Import MBF… follows Open Model
     /// Document…, is disabled while a project operation is busy, and dispatches its id to the webview.
     #[test]
     fn native_file_menu_offers_import_mbf_after_open_model_document() {
@@ -6981,7 +6983,7 @@ mod tests {
         assert!(native_menu_dispatch_script("file.import-mbf").contains("detail: \"file.import-mbf\""));
     }
 
-    /// File > Save Shareable Report
+    /// W-18b (DEL-08-01 Design `report-user-release.md` §2.2): File > Save Shareable Report
     /// Package… follows Save Report Package…, is enabled exactly as it is (neither is in
     /// the shell state's enablement list; the webview's command sink decides), and
     /// dispatches its id to the webview.
@@ -9334,7 +9336,7 @@ mod tests {
         std::fs::remove_dir_all(root).unwrap();
     }
 
-    /// at project load: a stored document carrying every model-data
+    /// W-13 §5.3 at project load: a stored document carrying every model-data
     /// slot opens exactly as stored with its model hash; a stored document with
     /// a malformed slot is refused by name and its stored bytes are untouched.
     #[test]
@@ -11552,7 +11554,8 @@ mod tests {
         }
     }
 
-    /// a force-key change applied through the apply command changes
+    /// DEL-02-02 Design `project-unit-selection.md` §2.8, §4 "Through the apply
+    /// command": a force-key change applied through the apply command changes
     /// `project.units.force` and nothing else, and the same model solves to the
     /// same rows (the solver reads only the length key). Invented data only.
     #[test]

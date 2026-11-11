@@ -99,7 +99,7 @@ pub(crate) const ASSUMPTION_UNAVAILABLE: &str = mbf::ASSUMPTION_UNAVAILABLE;
 const CANCELLED_MESSAGE: &str = "The import was cancelled. Nothing was imported and your model is unchanged.";
 const CHANGED_MESSAGE: &str = "The chosen file or its identity file changed since it was chosen. Choose it again.";
 
-/// The import route's own bounds (new payload bounds on new commands; no budget, ceiling or pricing moves).
+/// The import route's own bounds (§4.8.4: new payload bounds on new commands; no budget, ceiling or pricing moves).
 pub(crate) const MBF_MAX_BYTES: u64 = 16 << 20;
 pub(crate) const IDENTITY_MAX_BYTES: u64 = MAX_MODEL_DOCUMENT_BYTES;
 /// A designated source document's cap: the Open cap.

@@ -11,12 +11,12 @@
 //! witnesses are `#[ignore]` and run explicitly, one invocation each; G6 records them per
 //! qualified build identity.
 //!
-//! B1 SQ (RV107 SF-5): each witness has one entry point per mode, run as its own
+//! B1 SQ (PLAN_v2 §3.4, RV107 SF-5): each witness has one entry point per mode, run as its own
 //! process: `<lib test binary> <witness>::sparse --exact --ignored --test-threads=1 --nocapture`
 //! (and `::dense`). W7's fault controls run in one mode, as before. The B1 inputs (W2b's
 //! replacement, the c = 1 publishing input, the three-case input) are shared with the challenge
 //! through `tests/common/b1_sq_inputs.rs`, pinned by I86's input hashes. The `control_*` entries
-//! are controls in this build: the ordinary value route alone, and the process floor.
+//! are RSS_TIME.md's controls in this build: the ordinary value route alone, and the process floor.
 use super::*;
 use crate::source_receipt::CapturedInvocation;
 use crate::{PreviewSolverMode, SourceRecoveryBudget};
@@ -828,7 +828,7 @@ fn f1_check_complete_reads_the_observer_route() {
 
 // ---- U6-RP (T4-U6/U8): route E's G-C bounds are the priced D-5 census premise -------------------
 
-/// U6-RP: `P_FINAL_EXACT` and
+/// U6-RP and "Gate bounds (registration)" (retained-pricing-rules.md): `P_FINAL_EXACT` and
 /// `evidence_caps` are written by hand outside the generated block, so they are tied here to the
 /// committed census the pricing tool charges (`tools/retained_pricing/data/census_u4b_7c77bf8072.json`).
 /// The tool's chain (`lib/census_patch.py`) charges route E's P_final = 7n + R·m + 8g + 3, with R the
@@ -1098,7 +1098,7 @@ fn b1_sq_inputs_are_i86s_and_the_committed_helpers() {
     assert_eq!(inputs::depth_16_value(), depth_16_value());
 }
 
-// ---- B1 SQ: controls in this build ------------------------------
+// ---- B1 SQ (PLAN_v2 §3.6): RSS_TIME.md's controls in this build ------------------------------
 
 /// The ordinary value route alone on the witness stack (W1's increment is the witness's peak
 /// over this one), for each RSS_TIME input.

@@ -93,7 +93,7 @@ export async function deriveResultDocument(base:JsonObject,model:PreviewModel,so
   // T6S-4 (D-U6-2; Rust `retained_row_classes`): the successor's validated classes, from the
   // accepted reader run on these bytes without an invocation; null for every other identity.
   const classes=await retainedRowClassesFromReader(source);
-  // the exact routes read
+  // Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §4.2): the exact routes read
   // the full Rust reader, as Rust's `derive_document` does: pressure-2 with the model,
   // pressure-source-1 through its raw reader without an invocation (never the shallow
   // source-recovery check). The retired v2 arms went with v2.
@@ -129,7 +129,7 @@ export async function deriveResultDocument(base:JsonObject,model:PreviewModel,so
     const rowHash=await scopedChecksum(row,rowScope,origin.received_carrier_checksum.payload_ref),original=origin.authentic_producer_available?await scopedChecksum(row,'raw_source_row',origin.original_producer_checksum.payload_ref):null;
     const annotation_ref=ref('source_annotation',`source-annotation:${index}`),object_ref=ref('preview_entity',row.entity_ref);
     const basis_ref=row.basis_ref??(disposition==='exported_review'?ref('source_basis',row.metadata!.basis):e.run_ref);
-    // a component body's record travels verbatim.
+    // W-15 slice d (DEL-03-05 Design §5): a component body's record travels verbatim.
     const annotation:JsonObject={annotation_id:annotation_ref.ref_id,source_row_index:index,source_result_id:row.id,metadata:row.metadata??null,basis_ref:row.basis_ref??null,source_result_refs:row.source_result_refs??[],observed_carrier_dimension:observed,source_physical_semantic_dimension:math,derivative_target_dimension:dimension,source_origin_ref};
     if(row.component_body!==undefined)annotation.component_body=structuredClone(row.component_body);
     annotations.push(annotation);
@@ -242,9 +242,9 @@ export async function currentReceivedOrigin(model:PreviewModel,result:MechanicsR
   const scope='received_current_dimension_absent_carrier';
   return {origin_id:'source-origin:current-received',origin_class:'received_current_dimension_absent',qualification_ref:ref('current_manifest',manifestRef),authentic_producer_available:false,received_carrier_checksum:await scopedChecksum(result,scope,ref('received_current_carrier',result.run_id)),original_producer_checksum:null,origin_limit:originLimit,actual_model_ref:ref('model_payload',model.project.id),mechanics_run_ref:ref('mechanics_run',result.run_id),request_model_ref:null,request_run_ref:null,request_alias_disclosure:null};
 }
-/** an exact-route
+/** Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §4.2, §6.2): an exact-route
  * document names its load bases `load_case`, as Rust's derivative does. Other identities
- * keep the record's `object_type`, so their documents are unchanged. */
+ * keep the record's `object_type`, so their documents are unchanged (§10). */
 function exactLoadCase(result:MechanicsResult,objectType:string):boolean{
   if(objectType!=='LoadCase')return false;
   try{const route=sourceContract(result);return route==='pressure'||route==='pressure_source';}catch{return false;}

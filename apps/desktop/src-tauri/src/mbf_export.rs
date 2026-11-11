@@ -45,7 +45,7 @@
 //! that would alter the payload blocks the save instead.
 //!
 //! The review ([`MbfReviewRequest`]: the text, its claimed hash and the settings text) takes the same settings
-//! mapping and steps 2 and 3, then task 3 in `review` mode, and replies with the bounded review. It holds no route
+//! mapping and §3.6 steps 2 and 3, then task 3 in `review` mode, and replies with the bounded review. It holds no route
 //! evidence and opens no store, file, destination or chooser.
 //!
 //! Task 3's request is `u32 mode ‖ u32 settings_len ‖ settings JSON ‖ model canonical text` (little-endian; mode 1
@@ -804,7 +804,7 @@ impl WriterOutput {
     }
 }
 
-/// How step 5 and the review run task 3: the capped worker process ([`CappedWorkerRun`], the only production
+/// How §3.6 step 5 and the review run task 3: the capped worker process ([`CappedWorkerRun`], the only production
 /// run), or in process through the test seam.
 pub(crate) trait MbfWriterRun {
     fn run(&mut self, request: &WorkerRequest<'_>) -> Result<WriterOutput, WriterRunFailure>;
@@ -1515,7 +1515,7 @@ fn save_mbf_export_with<R>(
 }
 
 /// The production entry point, everything after the arguments are decoded (`save_mbf_export`, `mbf_worker.rs`):
-/// within `memory`, the command's ledger seeded with its argument lease and held by the caller (`args`), steps 1
+/// within `memory`, the command's ledger seeded with its argument lease and held by the caller (`args`), §3.6 steps 1
 /// to 10 with step 5's task 3 in `save` mode run in the capped worker ([`CappedWorkerRun`]), registered in `runs` for
 /// the command that entered at `entry` (cancelled from the start if a retirement came since). A review is no
 /// authorization: this run re-forms the review and refuses a truncated one itself.
@@ -1608,7 +1608,7 @@ fn review_memory_refusal(error: String) -> MbfReviewOutcome {
     MbfReviewOutcome::refused_one(REVIEW_MEMORY_UNAVAILABLE, stored_read::capped(error))
 }
 
-/// The review within `memory`: the settings by the engine's one mapping, steps 2 and 3 (the cap, the
+/// The review within `memory` (§3.9.5): the settings by the engine's one mapping, §3.6 steps 2 and 3 (the cap, the
 /// canonical text and its hash against the claim, the open path's checks), then task 3 in `review` mode, and the
 /// bounded review. It opens no store, file, destination or chooser and writes nothing; a review is not an
 /// authorization.

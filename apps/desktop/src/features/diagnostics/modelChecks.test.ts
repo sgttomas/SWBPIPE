@@ -13,7 +13,7 @@ afterEach(() => {
   delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
 });
 
-// the on-demand checks run the
+// DEL-04-06 Design `on-demand-model-checks.md`: the on-demand checks run the
 // solve's own pre-formation checks through the wasm engine, beside the
 // document validator's slot checks; invented changes to the bundled demo.
 function clone(model: PreviewModel): PreviewModel {

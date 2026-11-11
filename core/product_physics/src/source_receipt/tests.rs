@@ -599,7 +599,7 @@ fn retired_legacy_pressure_label_is_refused_on_the_retained_entry() {
     }
 }
 
-/// the congruence closure's
+/// RF-18 (RF source-method design §3.2 (1), §7): the congruence closure's
 /// transform decline keeps the receipt code `unsupported_source_closure`, in
 /// every stage it can be reported from, and `Budget` (the unit precheck)
 /// keeps `budget`.

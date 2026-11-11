@@ -1406,7 +1406,7 @@ fn assert_same_dense_outcome(
     }
 }
 
-/// S1: with no allotment, a generous one, or one exactly at
+/// Design §5.3.8 S1: with no allotment, a generous one, or one exactly at
 /// the counts, every fixture pencil (cases and witnesses) and the
 /// overflowing reduction give `solve_dense_pencil`'s outcome bit for bit,
 /// refusals included; one below a nonzero count refuses by its own name.

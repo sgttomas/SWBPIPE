@@ -908,7 +908,7 @@ impl<'m> Writer<'m> {
         Ok(result)
     }
 
-    /// every export as the printed MBF gives it back (the writer's own bound re-import).
+    /// Design §9.4, §12 and §14: every export as the printed MBF gives it back (the writer's own bound re-import).
     fn survives_reimport(&mut self, result: &WriterResult) -> R<bool> {
         let data = result.text.as_ref().expect("text").as_bytes();
         let sha = crate::sidecar::hex(&Sha256::digest(data));

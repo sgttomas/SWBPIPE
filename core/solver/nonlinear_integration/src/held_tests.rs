@@ -1,10 +1,10 @@
-//! `minuend_final`:
+//! RT-A5 `minuend_final` (DEL-05-02 Work `operating-case.md` §7.3, §7.9 H-10):
 //! the held-status wrapper against the loop it shares its step and tail with.
 //!
 //! H-10 (the wrapper against the loop): a case held at its own final states,
 //! oriented by its own penultimate iterate (the loop's previous iterate for its
 //! final step), and separately by its own final iterate, reproduces the loop's
-//! final iterate under the projection, in both modes:
+//! final iterate under the projection §7.9 names, in both modes:
 //! - compared bit for bit: the boundary (DOFs and prescribed values), the
 //!   applied sliding forces, the displacements and reactions, the final solve's
 //!   reports and sparse evidence, the classifier's decisions (the active-set

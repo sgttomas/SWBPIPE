@@ -1,4 +1,4 @@
-// CSV save tests (DEL-08-04 AC-002, VER-002).
+// RT-R6 CSV save tests (DEL-08-04 AC-002, VER-002; Design `csv-export.md` §4).
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { invoke } from "@tauri-apps/api/core";
 import { ingressArgs } from "../../test/nativeIngress";

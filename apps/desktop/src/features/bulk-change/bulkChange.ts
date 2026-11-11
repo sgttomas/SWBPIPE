@@ -1,4 +1,4 @@
-// bulk change and replace over a selection. A plan
+// B2 (DEL-07-02 Design `bulk-change.md`): bulk change and replace over a selection. A plan
 // reads the selection in the change's own family and sorts every entity it reaches into
 // affected, unchanged, not matched and refused. The batch holds one existing operation per
 // affected entity, with the wire fields its existing editor writes:
@@ -9,7 +9,7 @@
 // - bend radius: `set_field` Component `geometry.bend_radius.value` (the inspector's field);
 // - tag: the family's annotation kind on `tags` (model-data/modelDataIntents.ts, reused);
 // - condition set: `assign_condition_set` Element `condition_set_ref`
-//   (condition-sets/conditionSetIntents.ts, reused).
+//   (condition-sets/conditionSetIntents.ts, reused; model document 0.9.0 §4.2, §11).
 // Nothing here writes the model, and nothing is inferred: restraints are kept or entered.
 import type { OperationBatch } from "../../services/operationBatchService";
 import type { EditorOperationIntent, EditorOperationSource, EntityRef, PreviewModel } from "../../types";

@@ -58,7 +58,7 @@ pub(crate) const SET_SETTINGS_COMMAND: &str = "set_autosave_settings";
 
 /// The record commands' argument budget: the history commands'.
 pub(crate) const RECORD_COMMAND_MAX_ARGS_BYTES: usize = crate::model_states::HISTORY_COMMAND_MAX_ARGS_BYTES;
-/// The settings commands' argument budget (scalars).
+/// The settings commands' argument budget (§6: scalars).
 pub(crate) const SETTINGS_COMMAND_MAX_ARGS_BYTES: usize = 4 * 1024;
 
 /// A worker that did not complete.
@@ -529,7 +529,7 @@ pub(crate) fn set_settings_at(data: Result<PathBuf, String>, autosave_minutes: u
 // The Tauri commands.
 // ---------------------------------------------------------------------------
 
-/// A command's memory: the pool, counted from its ingress lease ("seeded
+/// A command's memory: the pool, counted from its ingress lease (§6: "seeded
 /// with the lease"), so each reservation is admitted with the lease held.
 pub(crate) fn seeded_memory<'a>(registry: &'a SolveJobRegistry, lease: &Lease) -> PoolReadMemory<'a> {
     PoolReadMemory::new(registry, lease)

@@ -43,7 +43,7 @@ describe("the disclosure texts (§5.4)", () => {
     expect(N_LOAD_REFERENCE_EXPORT).toBe(`${N_LOAD_REFERENCE_INCLUDED} The export carries them in contract_evidence.load_reference_states, with the producer's limitations.`);
     expect(N_LOAD_REFERENCE_PACKAGE).toBe(`${N_LOAD_REFERENCE_INCLUDED} The package carries them in contract_evidence.load_reference_states, with the producer's limitations.`);
     expect(N_LOAD_REFERENCE_RULE_CHECK).toBe(`${N_LOAD_REFERENCE_INCLUDED} Rules bind the published rows of these load cases, which are solved with these states' resolved contributions.`);
-    // the report package's Rust producer composes the same text (`LOAD_REFERENCE_TEMPLATE`).
+    // W-11 §3.2; the report package's Rust producer composes the same text (`LOAD_REFERENCE_TEMPLATE`).
     expect(N_LOAD_REFERENCE_RENDERED_REPORT).toBe(`${N_LOAD_REFERENCE_INCLUDED} Their published limitations are listed under Limitations.`);
     // A deliverable-specific scope statement in ordinary prose (docs/claims_registry.md §4):
     // no boundary statement, status label or finding about the result.

@@ -126,7 +126,7 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
     return () => { active = false; clearTimeout(timer); };
   }, [baseView, model, version, queueing]);
 
-  // A pipe id numbered by its start node is fixed the first time it is shown.
+  // §3.2 A pipe id numbered by its start node is fixed the first time it is shown.
   useLayoutEffect(() => {
     if (store.current() !== state) return;
     const next = recordShownPipeIds(state, baseView);
@@ -202,7 +202,7 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
     const row = after.rows.find((item) => item.sheetRow.key === rowKey);
     if (row?.refusals.length) announce(`Row ${row.resolved.number} refused: ${sentenceFragment(row.refusals[0].message)}.`);
   }
-  /** Later cells whose effective value the edit changed read "changed by row ⟨n⟩". */
+  /** §2.5 Later cells whose effective value the edit changed read "changed by row ⟨n⟩". */
   function markChanges(before: SheetView, after: SheetView, editedKey: string) {
     const edited = after.rows.find((row) => row.sheetRow.key === editedKey);
     if (!edited) return;
@@ -322,8 +322,8 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
     }
   }
 
-  // ---- Keys.
-  /** The next or previous editable cell in column order, wrapping rows, from any cell (Tab). */
+  // ---- Keys (§5.1, §5.2).
+  /** The next or previous editable cell in column order, wrapping rows, from any cell (§5.1 Tab). */
   function tabTarget(address: Address, backwards: boolean): Address | "footer" | null {
     const order = view.rows.flatMap((row) => columns.map((column) => ({ rowKey: row.sheetRow.key, column: column.key, editable: editableAt(row, column) })));
     const at = order.findIndex((item) => item.rowKey === address.rowKey && item.column === address.column);

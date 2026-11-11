@@ -1,4 +1,4 @@
-/** the length-and-direction, angle and
+/** B5 (DEL-07-01 Design `split-and-slope-entry.md` §3): the length-and-direction, angle and
  * "1 in n" slope conversions, checked against independent hand values. The unit conversion is
  * the engine's (wasm display facade). */
 import { describe, expect, it } from "vitest";

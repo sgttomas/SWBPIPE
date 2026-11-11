@@ -1,4 +1,4 @@
-"""test-only mirror of RE
+"""Operating-case slice 1a (DEL-05-02 Design ``pf-nonlinear-operand-standing.md`` §3): test-only mirror of RE
 ``preview_combination_operands.rs``. Re-derives the preview-physics-2 ``combination_operands`` statement of a model
 with nonlinear supports and its two notices from the received document; it checks the statement's internal
 consistency, not any case's standing (each operand's quality record is the document's own, compared bit for bit).

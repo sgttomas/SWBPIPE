@@ -787,7 +787,7 @@ describe("the declared differences, with TypeScript's expectations", () => {
         if (expected.notice) {
           // The display-only precheck shows the declared notice on every row a
           // 0.5.0 selector can bind. Only rows without a basis_ref are out of
-          // scope (never selected); every other row must have a
+          // scope (design §2.5: never selected); every other row must have a
           // selector that names it alone, so a selector regression fails here
           // instead of shrinking the rows the notice is asserted on.
           const eligible = rows.filter(row => row.basis_ref !== undefined && row.basis_ref !== null);

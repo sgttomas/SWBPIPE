@@ -131,7 +131,7 @@ def envelope():
         value = math.hypot(math.hypot(sums[names[0]], sums[names[1]]), sums[names[2]])
         combined.append({"id": f"result:combination:C-OK:support-action:{R('support:S1')}:{component}", "kind": kind, "value": value, "unit": unit, "entity_ref": "support:S1", "basis_ref": {"ref_type": "combination", "ref_id": comb}, "source_result_refs": [f"result:combination:C-OK:support-action:{R('support:S1')}:{name}" for name in names], "metadata": meta(component, "global", "node", linear)})
     results.extend(combined)
-    # the producer's notices for the two combinations, in its
+    # RT-A3 §4 (the closed combination-diagnostic roster): the producer's notices for the two combinations, in its
     # canonical form: the headline scope, the admitted combination's maximum and intensified notices, and the gate's.
     diagnostics.append({"id": "diagnostic:preview-physics:headline-scope", "code": "PREVIEW_HEADLINE_SCOPE_LOAD_CASES", "severity": "info",
                         "message": "headlines cover the load cases only; combinations are excluded", "source": "core/product_physics",
@@ -562,12 +562,12 @@ def _nonlinear_row(support, kind="nonlinear_support_final_displacement", unit="m
 
 def test_a1_b_per_support_nonlinear_rows_name_listed_supports():
     source = envelope()
-    # a document that publishes a
+    # Operating-case slice 1a (DEL-05-02 `pf-nonlinear-operand-standing.md` §3): a document that publishes a
     # nonlinear state row withholds every mechanics combination, so this copy withholds the admitted one.
     source["results"] = [row for row in source["results"] if (row.get("basis_ref") or {}).get("ref_type") != "combination"]
     for gate in source["contract_evidence"]["combination_gates"]:
         gate.update(withheld=True, reason="NONLINEAR_COMBINATION_REQUIRES_SOLVE")
-    # a withheld combination has the producer's gate notice and no maximum or
+    # RT-A3 §4 (the closed roster): a withheld combination has the producer's gate notice and no maximum or
     # intensified notice.
     source["diagnostics"] = [d for d in source["diagnostics"] if d["affected_refs"] != ["combination:C-OK"]]
     source["diagnostics"].append({"id": f"diagnostic:preview-physics:combination-gate:{L('combination:C-OK')}", "code": "NONLINEAR_COMBINATION_REQUIRES_SOLVE",
@@ -1193,7 +1193,7 @@ def test_factor_sum_bound_is_closed_and_the_next_dyadic_is_refused():
 def test_contract_tables_state_the_unit_factor_sum_rule(table):
     policy = json.loads((PROJECT / f"fixtures/results/semantic_contract_v0_3_{table}.json").read_text(encoding="utf-8"))["combination_policy"]
     (gate,) = [g for g in policy["mechanics_gates"] if g["code"] == "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE"]
-    # the rule reads the combination's
+    # RT-A4 (DEL-05-02 Design absolute-sum-srss-combinations.md §10.2): the rule reads the combination's
     # fixed-load count κ, which over load cases is the exact sum of the binary64 factors.
     assert gate["condition"] == (
         "the model has a consuming constant-effort support and the combination's own \u03ba is undefined or "

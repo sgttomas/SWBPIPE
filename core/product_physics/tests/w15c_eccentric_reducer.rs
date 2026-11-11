@@ -1,3 +1,4 @@
+//! W-15 slice c (DEL-03-05 Design `eccentric-reducer-offset.md` §3.2-§3.4, §12):
 //! the eccentric offset check through the public solve, on both routes. Every
 //! model is invented: a cantilever from an anchor at N0 through a reducer body
 //! to a free tip, sections and material chosen for the benchmark family, no
@@ -121,7 +122,7 @@ fn assert_refused(m: &Model, code: &str, needle: &str) {
     }
 }
 
-/// The cantilever in metres: N0 → A on X, the reducer body A → B with
+/// The §7.1 cantilever in metres: N0 → A on X, the reducer body A → B with
 /// chord (0.12, b_y, 0), the downstream pipe B → C on X.
 fn cantilever(b_y: f64, offset: Option<[f64; 3]>) -> Model {
     Model {

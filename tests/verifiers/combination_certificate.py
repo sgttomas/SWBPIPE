@@ -446,7 +446,7 @@ def _member_check(source: Mapping[str, Any]) -> None:
     solved = isinstance(source.get("status"), Mapping) and source["status"].get("mechanics") == "MECHANICS_SOLVED"
     gate_list = _gates(evidence) or []
     member = evidence.get(MEMBER)
-    # Absence of the member is no certificate claim, whatever the document's age; it selects no historical
+    # Absence of the member is no §4 certificate claim, whatever the document's age; it selects no historical
     # semantics. No certificate notice may then stand, under any id. A stated member is read in full, and only on a
     # solved document with a combination; a partial or malformed one is refused, never read as absence (Rust alike).
     if MEMBER not in evidence:

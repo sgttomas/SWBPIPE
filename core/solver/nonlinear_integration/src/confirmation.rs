@@ -82,7 +82,7 @@ pub fn confirm_converged_state(
     solve: &NonlinearFrameSolveResult,
     force: &AssembledForce,
     curved_sources: &[CurvedBendMacroElement],
-    // each of `input.elements`' member
+    // T4-U8 (DEL-05-03 Design §4 item 2): each of `input.elements`' member
     // identity (`AssemblyEvidence::with_frame_members`).
     frame_members: &[String],
     mode: LinearSolveMode,
@@ -118,7 +118,7 @@ pub(crate) fn confirm_with_applied(
     solve: &NonlinearFrameSolveResult,
     force: &AssembledForce,
     curved_sources: &[CurvedBendMacroElement],
-    // each of `input.elements`' member
+    // T4-U8 (DEL-05-03 Design §4 item 2): each of `input.elements`' member
     // identity (`AssemblyEvidence::with_frame_members`).
     frame_members: &[String],
     mode: LinearSolveMode,
@@ -845,7 +845,7 @@ fn slip_established(tangential: &CertifiedRow, direction: f64, ground: f64) -> b
     }
 }
 
-/// The pure predicate: `None` when the support's state is established,
+/// The pure §2.2 predicate: `None` when the support's state is established,
 /// otherwise the named reason's suffix.
 pub(crate) fn support_reason(evidence: &SupportEvidence) -> Option<&'static str> {
     match *evidence {

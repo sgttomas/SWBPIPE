@@ -96,7 +96,7 @@ const CAP_MAXIMAL_RING: [(u64, u64); 32] = [
     (0x40227a43617f984a, 0xc00e9d5b505a53ca), (0x40239d9ee1fa99ed, 0xbfff36e64b840fa2),
 ];
 
-/// A cap-maximal D1 request (W2's counts at `l ≤ 128`):
+/// A cap-maximal D1 request (STACK_INVENTORY.md §3 W2's counts at `l ≤ 128`):
 /// 32 nodes, a 32-member ring, 32 supports with 6 restraints each (r = 192) and a
 /// scalar spring on each (s = 32), 128 nodal loads, 4 + 4 materials with 16
 /// temperature points each, and one 128-byte identifier.
@@ -1013,7 +1013,7 @@ fn admit_grants_a_permit_for_the_milestone_in_the_registered_build() {
         let id = String::from("g6");
         let headless = admit(&capture, &request, Entry::Headless(RetainedHeadlessContext::from_borrowed_roots(&raw, &invocation, &id)), RETAINED_LIMIT);
         assert_eq!(headless.err().unwrap().law().refusal, Some(AdmissionRefusal::Caller(RetainedCaller::Headless)));
-        // An out-of-domain request (B1, RV107 SF-2: C + 1 load cases) is
+        // An out-of-domain request (B1, PLAN_v2 §2.3 and RV107 SF-2: C + 1 load cases) is
         // refused at its D1 clause, D1.4. (G6: the blocked examples and the failed attempt
         // are in `registered_g_c_declines_only_unattempted_solves`.)
         let (request, capture) = CapturedInvocation::parse(milestone_cases(caps::LOAD_CASES + 1), mode).unwrap();
@@ -1166,7 +1166,7 @@ fn every_family_clause_refuses_with_its_fact() {
     assert_eq!(with(&|r| r["model"]["sections"] = json!([{"id": "s", "name": "s", "section_type": "pipe", "properties": {}, "provenance": null}])),
         family(C::Namespace, F::Sections));
     assert_eq!(with(&|r| r["model"]["pipe_segments"][0]["section_ref"] = json!("s")), family(C::Namespace, F::SectionRef));
-    // D1.4 (B1 SA, RV107 SF-2): C + 1 cases and 0 cases refuse.
+    // D1.4 (B1 SA, PLAN_v2 §2.3 and RV107 SF-2): C + 1 cases and 0 cases refuse.
     assert_eq!(with(&|r| *r = with_cases(r.clone(), caps::LOAD_CASES + 1)), family(C::Invocation, F::LoadCases), "C + 1 cases");
     assert_eq!(with(&|r| r["model"]["load_cases"] = json!([])), family(C::Invocation, F::LoadCases), "0 cases");
     // B2-A: a combination is inside D1.4; one whose id is a load case's is not (C-9).
@@ -2329,7 +2329,7 @@ fn profile_batch5_carriers_bind_actual_layouts_and_all_case_owners() {
 fn profile_laws_hold_in_this_build() {
     use profile::btree_node_upper;
     use std::mem::{align_of, size_of};
-    // (String, Value) is Leaf_up 640 and Internal_up 736 on a 64-bit build.
+    // BUILD.md §4's check: (String, Value) is Leaf_up 640 and Internal_up 736 on a 64-bit build.
     assert_eq!(btree_node_upper(size_of::<String>(), align_of::<String>(), size_of::<Value>(), align_of::<Value>()), 736);
     assert_eq!(btree_node_upper(8, 8, 0, 1), 208, "a usize-keyed set node: leaf 112, internal 208");
     assert_eq!(btree_node_upper(4, 4, 0, 1), 168, "A is at least 8: leaf 72, internal 168");

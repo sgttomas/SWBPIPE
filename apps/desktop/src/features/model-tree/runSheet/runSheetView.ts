@@ -1,4 +1,4 @@
-// Run sheet: the
+// Run sheet S2 (DEL-07-02 Design `run-sheet-entry.md` §1–§2, §3.4, §4): the
 // sheet's view, pure. It resolves every shown row with S1's resolver and lists
 // what each cell shows and why. Applied rows are views of the model: their
 // values are the entered values their checkpoint put in effect, resolved
@@ -80,7 +80,7 @@ export const SHEET_COLUMNS: readonly SheetColumn[] = [
   { key: "position", label: "Position", editable: false },
   { key: "length", label: "Length", editable: false },
 ];
-/** The Enter fast path: dX → dY → dZ → Kind → Support → the next row's dX. */
+/** §5.1 The Enter fast path: dX → dY → dZ → Kind → Support → the next row's dX. */
 export const FAST_PATH: readonly SheetColumnKey[] = ["dx", "dy", "dz", "kind", "support"];
 export const KIND_NAMES: Readonly<Record<string, string>> = { run: "run", bend: "bend run", support: "support only", from: "start from node", point: "start at point", valve: "valve run", flange: "flange run" };
 /** The id cells and the row input's `ids` member each writes. */
@@ -322,7 +322,7 @@ function modelLookup(model: PreviewModel): RecordLookup {
   return (ref) => ref.type === "node" ? nodes.get(ref.id) : ref.type === "component" ? components.get(ref.id) : undefined;
 }
 
-/** A pipe id numbered by its start node is fixed the first time it is shown: each draft or
+/** §3.2 A pipe id numbered by its start node is fixed the first time it is shown: each draft or
  * queued row that shows one, with a start node and no entered or stored id, records it in the
  * id state. Nothing is recorded while a conversion is pending, since positions decide starts. */
 export function recordShownPipeIds(state: RunSheetState, view: SheetView): RunSheetState {
@@ -618,7 +618,7 @@ export function setCell(state: RunSheetState, rowKey: string, column: SheetColum
   };
 }
 
-/** New F/S rows need no entity number. Existing assignments are never changed. */
+/** §3.2 New F/S rows need no entity number. Existing assignments are never changed. */
 export function assignIds(state: RunSheetState, rowKey: string, model: PreviewModel, reserved: Iterable<string>): RunSheetState {
   if (state.idState.assigned[rowKey] !== undefined) return state;
   const row = state.rows.find((item) => item.key === rowKey);

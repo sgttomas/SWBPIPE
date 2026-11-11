@@ -15,7 +15,7 @@ use super::source::PrimitiveSource;
 use super::wide::{Wide2, WideArith};
 use std::sync::OnceLock;
 
-/// The seeded faults (VK-F05 added by ROOT's ruling on
+/// The seeded faults of V-K's plan §10.4 (VK-F05 added by ROOT's ruling on
 /// I17's A1 stop).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Fault {
@@ -35,7 +35,7 @@ pub(crate) enum Fault {
     F07,
     /// member 1's i–j coupling block left out, sparse mode only.
     F08,
-    /// (list-order form): the canonical sort skipped.
+    /// §7.3-10 (list-order form): the canonical sort skipped.
     F10,
     /// the loads folded at p = 128 in listed order.
     F13,

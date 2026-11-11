@@ -1,4 +1,4 @@
-"""the independent mirror of the Rust reader's checks of the member end
+"""W-7 (DEL-04-01 Design global-end-actions.md): the independent mirror of the Rust reader's checks of the member end
 actions in global coordinates (`core/reporting/result_export/src/global_end_evidence.rs`), shared by the pressure-2 and
 preview-physics-2 verifiers.
 

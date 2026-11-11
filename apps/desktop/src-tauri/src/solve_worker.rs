@@ -2251,7 +2251,7 @@ pub(crate) mod tests {
         assert_eq!(pool.reserved_total(), 0);
     }
 
-    /// W-18b (r2a): the `ATST` frame carries the worker's attestation
+    /// W-18b (r2a), §2.4: the `ATST` frame carries the worker's attestation
     /// into the outcome, read into a fixed buffer before the result; status 0
     /// carries none and leaves the result unchanged.
     #[test]

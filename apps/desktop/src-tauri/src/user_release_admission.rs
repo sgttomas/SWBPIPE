@@ -156,7 +156,8 @@ pub(crate) fn pointer_bound(text_bytes: u64) -> u64 {
 }
 
 /// The refusal formatting allowance of route 010's ingress lease (W-18b,
-/// Codex round 2 at #1673 and round 1 at #1682): every route-010
+/// DEL-08-01 Design `report-user-release.md` §2.5 "Refusals on route 010" and
+/// §2.7 "Cost"; Codex round 2 at #1673 and round 1 at #1682): every route-010
 /// check refuses at its first finding, and its walks allocate nothing per
 /// level and build only the reported site, which the growth-plus-site bound
 /// covers. Formatting one refusal then holds, at once, at most four strings

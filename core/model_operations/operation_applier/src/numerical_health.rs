@@ -1075,7 +1075,7 @@ fn resolve<'a>(
     unreachable!("the start row is popped last")
 }
 
-/// a combination inherits the worst badge of the load cases
+/// §2 decision 5: a combination inherits the worst badge of the load cases
 /// its rows are formed from (red > grey > green); a named case without a
 /// state, or an unresolved branch, reads not assessed. A withheld combination
 /// publishes no rows and gets no state.

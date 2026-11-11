@@ -207,6 +207,7 @@ fn refusal_text(outcome: Result<impl std::fmt::Debug, CommandError>) -> String {
     }
 }
 
+/// W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md` §6.2),
 /// Codex review round 1 of #1639: the production native command, called
 /// directly with a pressure-free input that carries a private FR-REP-003
 /// record, renders it only under `local_private`; under `public_report` or
@@ -1000,7 +1001,7 @@ mod direct_native {
         }
     }
 
-    /// W-11 opening, evidence for the owner (test-only write mode): with
+    /// W-11 opening, §5.5 evidence for the owner (test-only write mode): with
     /// `OPENPIPESTRESS_WRITE_EXACT_REPORT_EVIDENCE=<dir>`, each witness shape's
     /// local-private report through the production roots is written outside
     /// the repository: `<shape>.html`, the native render command's canonical
@@ -2119,7 +2120,7 @@ mod direct_native {
         }
     }
 
-    /// on every
+    /// Slice C5 (DEL-08-01 Design `report-section-composer.md` §2.7): on every
     /// exact witness, the exact render binds the model-input tables to its bound
     /// intake model and the local-private save (route 009) to its model; the
     /// genuine projection is admitted at both, and an edited cell, an extra

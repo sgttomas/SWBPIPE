@@ -2762,10 +2762,10 @@ fn d30_native_run_ref_on_nonselected_run() {
     assert_eq!((got.gate, got.code.as_str()), ("G5", PRODUCT));
 }
 
-/// D31, as B7a keys it: G8's preview
+/// D31, as B7a keys it (b7-plan "Model format, pressure-free half"): G8's preview
 /// namespace is the current model version 0.9.0 without a pressure contract; the
-/// retired 0.1.0 and 0.2.0 are refused, and 0.4.0 stays excluded.
-/// 0.3.0 without a contract is outside D1.3 (the producer cannot
+/// retired 0.1.0 and 0.2.0 are refused, and 0.4.0 stays excluded. B3a (B3-D §6.3,
+/// decision B3D-10): 0.3.0 without a contract is outside D1.3 (the producer cannot
 /// emit it, `PRESSURE_CONTRACT_REQUIRED`), so it is G8 INVOCATION_MISMATCH; 0.3.0
 /// with the legacy contract is `b3a_legacy_pressure_contract_namespace_at_g8`'s.
 /// The invocation edit rebinds the receipt's invocation digest. The verifier's
@@ -3294,7 +3294,7 @@ const PREP: &str = "RETAINED_PRECISION_PREPARATION_MISMATCH";
 const NOT_REQUIRED: &str = "not_required_second_case_checks_passed";
 const UNAVAILABLE_ROW: &str = "case:unavailable-row";
 
-/// R-D38 (4b), on F_BASE: case 1 (unavailable, with its own CaseSource and a
+/// R-D38 (4b), DESIGN_v2 §2, on F_BASE: case 1 (unavailable, with its own CaseSource and a
 /// prepared attempt) is rewritten so that its native stage failed before any Run, beside
 /// selected case 0, as SC's `d38_beside_selected` rewrites W-C2's case C: no Run, no
 /// `execution_order`, Call or Group entry, the call's after-value and `charged` recomputed
@@ -6398,7 +6398,7 @@ fn b2_combination_reason_table_rows() {
     assert!(!ok(entry("combination_unresolved", "preparation", "unresolved"), attempt(json!({"kind": "preparation"}))), "a preparation error is refused");
 }
 
-/// G5 products: each `retained_unavailable` entry's cause (reader
+/// B2-C §10.1 G5 products: each `retained_unavailable` entry's cause (reader
 /// logic, on a two-case body: A selected, B as the row states).
 #[test]
 fn b2_combination_cause_rows() {
@@ -6543,7 +6543,7 @@ fn n1_negative_extrema_numbers_refused_zero_accepted() {
     }
 }
 
-/// 07o (B2-C CONTRACT §10.2-§10.3; lane C's
+/// 07o (B2-C CONTRACT §10.2-§10.3 with REVISION_01 §5 and REVISION_02 §4; lane C's
 /// corpus, appended after 07n): 19 bases (45), 69 mutations (603) and 19 must-pass
 /// entries (97), ids unique; the format rule states S-6's seven steps; each 07o
 /// must-pass entry's standing (`expected_eligibility.standing`) is this reader's.
@@ -7164,7 +7164,7 @@ fn b7b_corrosion_allowance_namespace_at_g8() {
                 "{name}: {what}"
             );
         }
-        // a nonzero allowance is inside
+        // O4 (DEL-04-08 Design `o4-source-extension.md` §4.7): a nonzero allowance is inside
         // the namespace; G8's D-5 rederivation refuses this receipt, whose section term has no
         // `reduced` for the now distinct reduced wall.
         let (source, invocation) = reseal(&doc, vec![set(ca.clone(), json!({"value": 0.001, "unit": "m"}))]);

@@ -1,4 +1,4 @@
-// the run
+// W-12 S3b (DEL-14-01 Design `desktop-states-runs-comparison.md` §4.2): the run
 // comparison's row identity and automatic mapping, each condition of the
 // standing gate, the context deltas, the solve diagnostics added and removed,
 // and the unmatched rows. The reader-backed parts (family, dimension, route,

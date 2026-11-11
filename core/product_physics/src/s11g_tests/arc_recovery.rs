@@ -521,10 +521,11 @@ fn end_rows(envelope: &MechanicsEnvelope, member: &str) -> [f64; 12] {
     std::array::from_fn(|k| value(kinds[k % 6], if k < 6 { "end_i" } else { "end_j" }))
 }
 
-/// O-13's short-bend rule and its 1.6e-2 Passed
+/// DEL-04-01 `kd5-member-relative-bound.md`, "Superseded by this unit"
+/// items 1-2 and section 4.3: O-13's short-bend rule and its 1.6e-2 Passed
 /// limit are removed, and a short bend's verdict is the solver's gate and the
 /// unified predicate's outcome on its certified rows. R-1's cases, the L line
-/// at 5 and 8 degrees (Passed torsion and shear breaches
+/// at 5 and 8 degrees (T4-I34 section 4.5: Passed torsion and shear breaches
 /// up to 4.9 times the criterion before K-D5), and the cases either side of
 /// the former limit, publish Passed with no short-bend sentence; on the two
 /// referenced lines every published arc end group lies within RD(1e-9) of its
@@ -616,7 +617,7 @@ fn p7_source_pin_ties_the_call_site_to_the_tested_predicate() {
     assert!(wrapper_compact.contains("letexact_pressure=pressure_runtime::build_pressure_case_with_members(model,built,materials,load_case,load_state.map(|state|&state.pairs),diagnostics,);"));
     assert!(wrapper_compact.contains("solve_prepared_load_case(model,built,materials,stiffness,restrained_dofs,spring_entries,load_case,modulus_basis_record,solver_mode,capture,source_budget,load_state,exact_pressure,diagnostics,product,role)"));
     let solve = body(&lib, "solve_prepared_load_case");
-    // the member's recovery frame binds
+    // T4-U8 (DEL-05-03 Design §4 item 2): the member's recovery frame binds
     // to its formation source, passed at the call.
     assert!(solve.contains("certified_publication::member(pipe, macro_bend, &force, source, &displacements, bound)"));
     let site = &solve[solve.find("let scales = formation_guard::member_scales(&recovery_records, &formation_bodies);").expect("the decision site")..];

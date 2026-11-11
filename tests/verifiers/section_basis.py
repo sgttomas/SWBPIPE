@@ -377,7 +377,7 @@ def headlines(summary: Any, rows: Mapping[str, Any], complete: Mapping[str, bool
     maximum of that basis."""
     _require(isinstance(summary, Mapping) and "max_open_formula_stress" in summary and summary["max_open_formula_stress"] is None
              and all(f"max_open_formula_stress_{b}" in summary for b in BASES), "stress maximum headline bases")
-    # the headlines range over the non-body members.
+    # W-15 slice d (DEL-03-05 Design §5): the headlines range over the non-body members.
     maxima = [row for row in rows.values() if row.get("kind") == "pipe_elastic_normal_stress_maximum_v2" and row.get("entity_ref") not in bodies]
     for basis in BASES:
         headline = summary[f"max_open_formula_stress_{basis}"]

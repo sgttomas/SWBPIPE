@@ -145,7 +145,7 @@ fn s4_w1l_derived_rows_are_a_not_covered_passthrough_formed_from_own_rows() {
 
 /// The kernel side of the same transaction: each derived row binds a `NotCovered { row }` recipe at
 /// its own position, its verdict is class `None` and passed, and every other verdict is exactly
-/// the one the case's verified rows had without it (no not-covered entry changes a
+/// the one the case's verified rows had without it (§7.8: no not-covered entry changes a
 /// verified row's class, bound or scale).
 #[test]
 fn s4_w1l_not_covered_recipes_are_position_bound_class_none_verdicts() {

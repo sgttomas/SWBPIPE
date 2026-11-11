@@ -39,15 +39,15 @@ pub(crate) const STANDING: &str = "derived_from_case_results";
 pub(crate) const RECOVERY_METHOD: &str = "pressure_free_operand_recovery";
 /// `exact_combinations[].source_recovery`.
 pub(crate) const SOURCE_RECOVERY_EXCLUSION: &str = "excluded: a document with a load combination attempts no retained-source recovery for any of its cases, primitive cases included; every case publishes ordinary structural recovery";
-/// gate 1, as on PF.
+/// §4 gate 1, as on PF.
 pub(crate) const MODULUS_BASIS_MIXED: &str = "COMBINATION_MODULUS_BASIS_MIXED";
-/// gate 2.
+/// §4 gate 2.
 pub(crate) const RESOLVED_STIFFNESS_MIXED: &str = "COMBINATION_RESOLVED_STIFFNESS_MIXED";
 /// absolute-sum-srss §5.2 on this route.
 pub(crate) const NONLINEAR: &str = "NONLINEAR_COMBINATION_REQUIRES_SOLVE";
-/// gate 3.
+/// §4 gate 3.
 pub(crate) const INSTALLED_REFERENCE: &str = "COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE";
-/// gate 3 for an absolute sum or SRSS whose operands' κ is
+/// absolute-sum-srss §5.1: gate 3 for an absolute sum or SRSS whose operands' κ is
 /// not exactly 0.
 pub(crate) const INSTALLED_REFERENCE_UNSIGNED: &str = "INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND";
 /// §4 gate 4 (RT-A3 increment 3; DEL-04-07 `pressure-contract.md`,
@@ -62,10 +62,10 @@ pub(crate) const INSTALLED_REFERENCE_UNSIGNED: &str = "INSTALLED_REFERENCE_UNSIG
 /// connector gates and orders this reason before its modulus gate; where both
 /// hold the two routes name different reasons for the same withholding.
 pub(crate) const CONSTANT_EFFORT: &str = "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE";
-/// gate 4 for an absolute sum or SRSS whose operands' κ is
+/// absolute-sum-srss §5.1: gate 4 for an absolute sum or SRSS whose operands' κ is
 /// not exactly 0, in a model with a consuming constant-effort support (PF's code).
 pub(crate) const CONSTANT_EFFORT_UNSIGNED: &str = "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND";
-/// gate 4 for a `mechanics` combination naming an operand
+/// absolute-sum-srss §5.1: gate 4 for a `mechanics` combination naming an operand
 /// whose κ is undefined, in a model with a consuming constant-effort support (PF's
 /// code and text).
 pub(crate) const CONSTANT_EFFORT_OPERAND_MIXED: &str = preview_physics::CONSTANT_EFFORT_OPERAND_MIXED;
@@ -295,7 +295,7 @@ fn case_facts<'a>(facts: &Facts<'a>, case: &str) -> CaseFacts<'a> {
     }
 }
 
-/// gate 2: a member's resolved stiffness in one case, from the case's published
+/// §4 gate 2: a member's resolved stiffness in one case, from the case's published
 /// evidence: its selected E/nu/G and material, its property-temperature selection
 /// (the case's material basis and, on a load/reference-state document, the member's
 /// selection kind, temperature and interpolation), and its section record (both
@@ -320,7 +320,7 @@ fn stiffness(case: &CaseFacts<'_>, pipe: &str) -> Value {
     })
 }
 
-/// gate 3's model condition: a connector whose raw installed reference is
+/// §4 gate 3's model condition: a connector whose raw installed reference is
 /// nonzero (q_ref, a null-space reference included) or a tie rod whose reference
 /// extension is nonzero.
 fn installed_reference(connector: &Value) -> bool {
@@ -357,7 +357,7 @@ fn gate_reason(
     if !matches!(basis, "mechanics" | "absolute_sum" | "srss") {
         return None;
     }
-    // as on PF: in a model with nonlinear supports a mechanics
+    // absolute-sum-srss §5.2, as on PF: in a model with nonlinear supports a mechanics
     // combination is withheld unless decision OQ-1's predicate admits it. Plain EX
     // admits nonlinear supports; S6 extends their connector and load-state reachability.
     if basis == "mechanics" && has_nonlinear_support(model) && !plan.solved_state_plus_increments(combination) {
@@ -1108,7 +1108,7 @@ mod tests {
         assert_eq!(listed("linear_state_kinds"), SIGNED_LINEAR_KINDS.to_vec());
         assert_eq!(listed("recomputed_magnitude_kinds"), RECOMPUTED_KINDS.to_vec());
         let codes = |key: &str| policy[key].as_array().unwrap().iter().map(|g| g["code"].as_str().unwrap()).collect::<Vec<_>>();
-        // `gate_reason`'s order. The operand gate comes first; then,
+        // RT-A4 (absolute-sum-srss §10.2): `gate_reason`'s order. The operand gate comes first; then,
         // for a mechanics combination, the nonlinear gate (reached once the route admits nonlinear
         // supports) before gates 1 to 3 and gate 4's two codes, and for an absolute sum or SRSS the
         // unsigned list.

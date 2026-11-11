@@ -46,7 +46,7 @@ BODY_PINS = {
     (RP, "prepared_not_covered"): "697dd47f3ab31b2f8b7aca8b1711426dad26cc4411187f30091afa453bec710c",
     (RP, "prepared_maxima"): "10f81029578641e0c05914cab95b3a8cfefc0a45cb9b21fd94fbd27aba8adaa0",
     (RP, "prepared_sections"): "9b5b2b6a6094db92c72790e22d7c956f2a5215ae08e25aa3990f32a38eed9ed2",
-    # Stack-headroom repair D3 (§8.10): read 27e4dfa972;
+    # Stack-headroom repair D3 (b7-plan 5a, retained-pricing-rules.md §8.10): read 27e4dfa972;
     # freeze_case's closure is split into six phase functions, with unchanged calls, order, errors,
     # drops and allocation. Only stack placement changes; no owner this model prices changes.
     (RP, "freeze_case"): "4fd4525e76ae31f8babbe6384cfd56568018a44dddacece26e056070555cd0da",
@@ -74,8 +74,8 @@ BODY_PINS = {
     # O4-SR (the source route's second maximum) and O4-SP (its payload keys and per-station components)
     # Pre-0.4 failure unification D3 (§8.14): the screen and withheld decline on both exact routes, the support-norm
     # cause String and the route-neutral cause records (PU-TX). The second maximum and the payload keys are unchanged.
-    # W-7 D3 (§8.20): solve_prepared_load_case appends the member's global end rows or one blocking diagnostic (W7-GE); the second composite maximum it prices is unchanged.
-    # W-16 slice a D3 (§8.23): a pressure-free case (no load state) forms its support-targeted
+    # W-7 D3 (retained-pricing-rules.md §8.20): solve_prepared_load_case appends the member's global end rows or one blocking diagnostic (W7-GE); the second composite maximum it prices is unchanged.
+    # W-16 slice a D3 (retained-pricing-rules.md §8.23): a pressure-free case (no load state) forms its support-targeted
     # primitives' prescribed map (imposed_motion::case_prescribed, W16-NI) and returns an empty LoadCaseSolve on a
     # blocking finding there (none on D1: D1.7 refuses the support target, W16-NS); the prescribed values read that
     # map when present. The second composite maximum and its payload keys are unchanged.
@@ -93,7 +93,7 @@ BODY_PINS = {
     # maxima are unchanged.
     # I2b-2 layout (§8.43, cc160d28d; Agent 0): ordinary layout of the same hunks (token-equal but for block-wrapped
     # arms and trailing commas); O4-ID/O4-SR's blocks and maxima are unchanged.
-    # D3 (§8.53): LoadCaseSolve.certificate_operand (None at every early return; the operand's groups on a model
+    # RT-A3 §4 D3 (§8.53): LoadCaseSolve.certificate_operand (None at every early return; the operand's groups on a model
     # with a combination and a formed member bound); O4-ID/O4-SR's Timoshenko blocks and maxima are unchanged.
     # RT-A5 minuend_final D3 (§8.54): the case's role (`held = role.held()`, false for the case's own loop),
     # LoadCaseSolve.held_status_source (None at every early return; captured only when `wanted`, never on D1, RTA5-DZ),

@@ -112,7 +112,7 @@ BIND = {
     "s(GateRecord)": upr("3 * size_of::<&'static str>() + 2 * size_of::<Vec<u8>>()",
                          "RT-A4-RD: preview_combination_gates' private Record (id, basis: &str; operands, terms: Vec; mode: Option<&str>, the size of a &str)"),
     "Node(String,(String,CaseRows))": node("String", "(String, std::collections::HashMap<&'static str, &'static Value>)"),   # RT-A4-RD
-    # D3 (§8.53): the certificate's owners (rta3c_owners_model.py). The RE reader's and
+    # RT-A3 §4 D3 (retained-pricing-rules.md §8.53): the certificate's owners (rta3c_owners_model.py). The RE reader's and
     # the producer's private structs are bounded by their fields' sizes (all 8-aligned; the modules are pinned).
     "s(C3OperandGroup)": sz("crate::combination_certificate::OperandGroup"),   # RTA3C-OP
     "s(C3OperandEntry)": sz("(String, crate::combination_certificate::Operand)"),   # RTA3C-OP

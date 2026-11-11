@@ -309,8 +309,8 @@ def k4src_from_model_json(mj, basis, pi_q):
 # ----------------------------------------------------------------------------- the floor check (generator's own)
 
 def s_star(rows, adapted):
-    """S* per kind and per member (variant F) from the reference values
-    in binary64 (Python floats are IEEE binary64, math.sqrt correctly rounded)."""
+    """S* per kind and per member (variant F) from the reference values, D1 §4.1.6.1 items
+    4-7 in binary64 (Python floats are IEEE binary64, math.sqrt correctly rounded)."""
     s = {k: 0.0 for k in KINDS}
     for key, value, cls, _scale in rows:
         base = cls.split('@')[0]

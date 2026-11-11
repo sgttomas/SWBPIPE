@@ -1,4 +1,5 @@
-// the seven keys, the length lock, the
+// W-17 slice (b), DEL-02-02 Design `project-unit-selection.md` §3 "A Project
+// units section" and §4 "Vitest, section": the seven keys, the length lock, the
 // missing-key notices, a refusal shown with nothing queued and a second change
 // for one key refused. Each queued change is checked and applied through the
 // wasm applier, the browser-mode engine. Invented data only.

@@ -28,6 +28,6 @@ serde = "1"
 sha2 = "0.10"
 
 [dev-dependencies]
-# the existing readers' actual handling of the document is tested,
+# Design §8.3.8: the existing readers' actual handling of the document is tested,
 # not presumed. Already a dependency of product_physics.
 open_pipe_stress_result_export = { path = "../../reporting/result_export" }

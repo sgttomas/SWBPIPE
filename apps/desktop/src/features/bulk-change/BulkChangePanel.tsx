@@ -1,4 +1,4 @@
-// the Bulk change panel. It previews the plan for the
+// B2 (DEL-07-02 Design `bulk-change.md`): the Bulk change panel. It previews the plan for the
 // current selection and queues it as one batch through the session's existing batch queue.
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { OperationBatch } from "../../services/operationBatchService";

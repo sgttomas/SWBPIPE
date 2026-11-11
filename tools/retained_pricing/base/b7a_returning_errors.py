@@ -210,7 +210,7 @@ MODE_SOURCE = {
            "f46428f2d45e7f8b0eeb8146088dbcba51de859df59254b47f0115d62bd13eff",
            # DEL-04-09 I2b-2 on RT-U4's candidate (§8.48): only retained_w1 moves 4093 -> 4102 (both of the above).
            "5e0e619dd96c9c104cfb90bc952736836e4618f5a86d87c48e500717a5920b6d",
-           # D3 (§8.53): only retained_w1 moves 4102 -> 4117 (the certificate's module lines, LoadCaseSolve
+           # RT-A3 §4 D3 (§8.53): only retained_w1 moves 4102 -> 4117 (the certificate's module lines, LoadCaseSolve
            # field, operand map, take and publish call precede it).
            "811786a5d537254c6d7b5838b1302ef1c3576297b63262a9a6eae1b76fe91326",
            # RT-A5 minuend_final D3 (§8.54): only retained_w1 moves 4117 -> 4200 (the held-status module, its invocation

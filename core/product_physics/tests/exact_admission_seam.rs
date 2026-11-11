@@ -455,7 +455,8 @@ fn each_family_not_yet_admitted_is_refused_by_name_on_v3() {
     }
 }
 
-/// the seam admits a constant-effort support
+/// RT-A3 increment 3 (DEL-04-07 `pressure-contract.md`, "Constant-effort
+/// supports (RT-A3 increment 3)"): the seam admits a constant-effort support
 /// on the plain document and on the load/reference-state document (D-2: a
 /// device action of the active support in every state), so the family
 /// refusal never names it. The consuming record (one translational DOF, a
@@ -483,7 +484,8 @@ fn a_constant_effort_support_is_admitted_at_the_seam() {
     }
 }
 
-/// the seam
+/// RT-A3 increment 4 (R-4 §3.5 S5; DEL-04-07 `pressure-contract.md`,
+/// "Nonlinear supports on EX (RT-A3 increment 4)") and S6 (R-4 §3.7): the seam
 /// admits a nonlinear support on the plain document and on the
 /// load/reference-state document, which solve through the shared active-set
 /// loop (an open gap here, R1's unqualified standing). On the
@@ -519,7 +521,7 @@ fn a_nonlinear_support_is_admitted_on_plain_and_load_state_documents() {
     }
 }
 
-/// the seam admits a
+/// W-16 slice b (DEL-05-02 Design `exact-combinations.md`): the seam admits a
 /// model-authored combination, so the family refusal never names it. On both
 /// bases the document solves and states the combination's evidence record.
 #[test]
@@ -539,7 +541,7 @@ fn a_load_combination_is_admitted_at_the_seam() {
     }
 }
 
-/// the seam
+/// W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md`): the seam
 /// admits a case's `equivalent_static`, so the family refusal never names it.
 /// On the plain document a wind generation solves and publishes its record;
 /// on the load/reference-state document the route refuses generation by name,
@@ -778,7 +780,7 @@ fn the_pressure_1_table_is_a_reviewed_input() {
     assert!(identity.contains("\"../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json\""));
 }
 
-/// a
+/// W-15 (DEL-03-05 Design `rigid-component-stiffness-scaling.md` §2.7): a
 /// rigid-family component, `kind` at `node`, mapping `pipe` with scale `s`.
 fn rigid(id: &str, kind: &str, node: &str, pipe: &str, s: f64) -> Value {
     json!({"id":id,"kind":kind,"node":node,
@@ -886,7 +888,7 @@ fn w15_scaled_body_in_a_region_keeps_its_wall_force() {
     }
 }
 
-/// RT-A3 reducer 2a: a reducer whose mapped member belongs to a
+/// W-15 §2.7 with RT-A3 reducer 2a: a reducer whose mapped member belongs to a
 /// pressure region is refused case by case by name unless it is the
 /// concentric pressure-bore step (its own single-member region joined at both
 /// ends to one collinear straight member of another region,

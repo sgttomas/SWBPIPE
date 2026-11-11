@@ -1,4 +1,4 @@
-/** (owner ruling
+/** Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §5.4, §6.1, §6.2; owner ruling
  * 11B, 2026-10-21): the committed load/reference-state twins on the desktop's result JSON
  * export and stress-neutral export.
  *
@@ -273,7 +273,7 @@ const desktopShaped = (input: Input, member: "stress_neutral" | "analysis_run") 
 const desktopText = (value: unknown) => `${JSON.stringify(value)}\n`;
 
 /* -------------------------------------------------------------------------- *
- * validator acceptance: every committed twin, both modes
+ * §6.2 validator acceptance: every committed twin, both modes
  * -------------------------------------------------------------------------- */
 describe.each([["pressure-2 load/reference-state", ORDINARY], ["pressure-source-1 load/reference-state", JOINED], ["plain", PLAIN]] as const)("%s: the desktop validators accept the committed twins with their source (§6.2)", (_, family) => {
   it.each(family)("$label: Rust's document, and Python's package with its record", async (input) => {
@@ -295,7 +295,7 @@ describe.each([["pressure-2 load/reference-state", ORDINARY], ["pressure-source-
 });
 
 /* -------------------------------------------------------------------------- *
- * the admitted-case oracles, and the panels
+ * §6.2 the admitted-case oracles, and §5.4 the panels
  * -------------------------------------------------------------------------- */
 describe("pressure-2 load/reference-state results: the Current builders equal the committed twins (§6.2)", () => {
   it.each(ORDINARY)("$label: the document and the package equal the twins' source-derived members", async (input) => {
@@ -388,7 +388,7 @@ describe("plain exact results: the Current builders equal the committed plain tw
   }, 240_000);
 });
 
-/** a preview-physics-2 document keeps its bytes, so its `load_basis_refs`
+/** Design §10: a preview-physics-2 document keeps its bytes, so its `load_basis_refs`
  * keep the record's `object_type` as `ref_type` (`currentResultDocumentBase`); only the
  * exact routes name them `load_case`, as Rust's derivative does (checked in the oracles). */
 describe("a preview-physics-2 document's load_basis_refs keep the record's object_type", () => {
@@ -455,7 +455,7 @@ describe("the stress-neutral CSV value text", () => {
 });
 
 /* -------------------------------------------------------------------------- *
- * the pressure-source-1 twins stay refusal fixtures at the builders; the fallback
+ * §6.2 the pressure-source-1 twins stay refusal fixtures at the builders; the fallback
  * -------------------------------------------------------------------------- */
 describe("pressure-source-1 load/reference-state results are refused by each builder's standing (§5.4, §6.2)", () => {
   it.each(JOINED)("$label: registered with its invocation, Rust's T1 finding; each builder refuses; the panels offer nothing", async (input) => {

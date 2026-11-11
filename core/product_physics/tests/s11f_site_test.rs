@@ -162,7 +162,7 @@ const KERNEL: &[Source] = &[
         name: "FK/structural/certified_recovery.rs",
         text: include_str!("../../solver/frame_kernel/src/structural/certified_recovery.rs"),
     },
-    // the
+    // Nonlinear K-D5 (DEL-04-01 kd5-nonlinear-active-set.md §1.6): the
     // confirmation appends the sliding-friction terms to the case ledger;
     // appended so the indices above are unchanged.
     Source {
@@ -288,7 +288,7 @@ const PRODUCERS: &[(&str, &str, &str)] = &[
     ("PP/certified_loads.rs", "spring_base_motion", "W-16 R-c (DEL-04-03 pf-nonlinear-imposed-motion.md §11.1; called from `solve_prepared_load_case`): each moved spring's fl(k*g), a formed RoundedProduct term with its NodalProduct summand; no term when g compares equal to zero"),
     ("PP/certified_loads.rs", "attach", "closure metadata (§1 complete summands): installs the term's source-enumerated manifest, then attaches the supplied primitives; pushes no term"),
     ("PP/certified_loads.rs", "attach_last", "closure metadata: `attach` on the last pushed term (forwards its ledger)"),
-    // the
+    // Nonlinear K-D5 (DEL-04-01 kd5-nonlinear-active-set.md §1.4, §1.6): the
     // confirmation's appended ledgers, never the case force the loop solves.
     ("nonlinear_integration/confirmation.rs", "appended_ledger", "the sliding-friction terms appended after the case ledger: a formed RoundedProduct (explicit) or Bounded (coupled Stage-B ball) term with its source-enumerated manifest, or the Stage-A input φ⁰"),
     ("nonlinear_integration/confirmation.rs", "stage_a", "the influence system's unit right-hand side e_d, an input term of its own ledger"),
@@ -589,7 +589,7 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
     ("FK/structural/formation_check.rs", "mass_binding", "K-D5 §1: exact operand bits of a mass primitive; read-only"),
     ("FK/structural/formation_check.rs", "points_binding", "K-D5 §1: exact operand bits of a thermal table; read-only"),
     ("FK/structural/formation_check.rs", "strain_binding", "K-D5 §1: exact operand bits of an eigenstrain; read-only"),
-    // the frame-binding check of the
+    // T4-U8 (DEL-05-03 Design §4 item 2): the frame-binding check of the
     // closure. Each names a load primitive or formula in its signature and
     // reads only its frame's bits and its source identity; none forms, folds or
     // reads a force value.
@@ -822,7 +822,7 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("PP/retained_product.rs", "apply_prepared_overlay", 1, "integer: the reduced twins passed (D-5 published-to-bound row index)"),
     // the not-covered derived rows' formation; no f64 accumulation.
     ("PP/retained_product.rs", "prepared_not_covered", 2, "integer: the pending not-covered rows' count and the published-to-bound row index"),
-    // locating a recipe's nth bound row
+    // O4 (DEL-04-08 Design `o4-source-extension.md` §4.5): locating a recipe's nth bound row
     // (a distinct-basis member's maximum on its reduced section); no f64 accumulation.
     ("PP/retained_product.rs", "prepared_row_index_nth", 1, "integer: the matching recipes passed (the nth bound row of a recipe)"),
     // ---- PP/self_weight.rs
@@ -1589,7 +1589,7 @@ const FORCE_SIGNATURE_TOKENS: &[&str] = &[
     "RowLoad",
 ];
 
-/// Rule 6: a parameter of these names carries a recovered row's
+/// Rule 6, K-D5 §3.1: a parameter of these names carries a recovered row's
 /// load addend(s) into the row's exact sum (`evaluate_row`'s `load`,
 /// `evaluate_ends`'s `loads`), so the function is a force site whatever the
 /// parameter's type.
@@ -2269,7 +2269,7 @@ fn t8_every_case_force_producer_is_classified() {
         .chain([("PP/certified_loads.rs".to_string(), "nodal".to_string())])
         // W-16 R-c: the spring-base producer, a formed product per moved spring.
         .chain([("PP/certified_loads.rs".to_string(), "spring_base_motion".to_string())])
-        // the confirmation's
+        // Nonlinear K-D5 (kd5-nonlinear-active-set.md §1.6): the confirmation's
         // appended sliding-friction terms, outside the case force.
         .chain([("nonlinear_integration/confirmation.rs".to_string(), "appended_ledger".to_string())])
         .collect();

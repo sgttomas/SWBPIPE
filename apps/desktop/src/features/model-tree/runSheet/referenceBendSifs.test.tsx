@@ -23,7 +23,7 @@ afterEach(() => { cleanup(); vi.restoreAllMocks(); RUN_SHEET_TIMING.engineCheckD
 useModelledVisibility();
 
 const reference = referenceJson as unknown as PreviewModel;
-/** The project's records the sheet does not create (sections and the material are created first). */
+/** The project's records the sheet does not create (spec §2: sections and the material are created first). */
 function basisModel(): PreviewModel {
   const model = structuredClone(reference);
   for (const key of ["nodes", "pipe_segments", "components", "supports", "load_cases", "combinations", "reference_configurations", "diagnostics"] as const) (model as unknown as Record<string, unknown>)[key] = [];

@@ -1,4 +1,4 @@
-"""RT-A4 D3 (§8.46): the positive owners
+"""RT-A4 D3 (DEL-05-02 Work absolute-sum-srss-combinations.md §10; retained-pricing-rules.md §8.46): the positive owners
 RT-A4 adds outside the chain's TEXT inventory on D1, and the owners it changes.
 
 D1.4 refuses on both routes every absolute_sum and srss basis and every term naming a combination, on route E every

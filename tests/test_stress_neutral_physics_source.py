@@ -42,7 +42,7 @@ ACTUAL_PATHS = [
 ]
 COMPOSITE_DIR = PROJECT / "fixtures/product_preview/pressure_source/physics_source"
 PRESSURE_TRANSPORT_UNSUPPORTED = "SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED"
-# an exact stress row's token is its recovery token followed by its
+# T4-U6 (DEL-05-03 Design §2.1, §2.5): an exact stress row's token is its recovery token followed by its
 # section basis, and its id ends in that basis.
 SECTION_BASES = ("nominal_section", "reduced_section")
 

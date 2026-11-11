@@ -201,7 +201,7 @@ fn axis_aligned_directions_solve_as_their_twins_byte_for_byte() {
     assert_ne!(text(&solve(&uy_twin("spring"), MODES[0])), text(&solve(&model(), MODES[0])));
 }
 
-/// an id that names both a load case and a combination
+/// absolute-sum-srss §2 (r1 F3): an id that names both a load case and a combination
 /// resolves to the load case, as every reference did before 0.9.0, with no diagnostic. The
 /// subtraction over `L1` solves exactly as when the shadowing combination has another id.
 #[test]

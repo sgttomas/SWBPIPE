@@ -309,8 +309,8 @@ pub struct DenseEigenSolution {
     pub screened_pair_count: u64,
     /// Of those, at or below the hard threshold: never recovered, O(1) each.
     pub hard_rejected_pair_count: u64,
-    /// Of those, in the band: the pairs whose recovery was attempted,
-    /// counted exactly before the formed scaling.
+    /// Of those, in the band: the pairs whose recovery was attempted, p of
+    /// design §5.3.8 T4, counted exactly before the formed scaling.
     pub attempted_band_pair_count: u64,
     /// min over j of R_jj² / K_jj, a Cholesky pivot-ratio observation (not a
     /// condition number).
@@ -351,8 +351,8 @@ pub fn solve_dense_pencil(
     solve_dense_pencil_with_allotments(stiffness, mass, options, &DenseAllotments::default())
 }
 
-/// [`solve_dense_pencil`] under the opt-in resource allotments of
-/// stage S1 ([`DenseAllotments`]). With no allotment the arithmetic,
+/// [`solve_dense_pencil`] under the opt-in resource allotments of design
+/// §5.3.8 stage S1 ([`DenseAllotments`]). With no allotment the arithmetic,
 /// the outcome and every refusal are those of [`solve_dense_pencil`]; an
 /// allotment adds only its own refusal, checked before the work it bounds.
 pub fn solve_dense_pencil_with_allotments(

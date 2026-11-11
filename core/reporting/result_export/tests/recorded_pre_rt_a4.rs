@@ -1,4 +1,5 @@
-//! main's statements recorded before RT-A4 read under their
+//! RT-A4 §10.4 (DEL-05-02 Design `absolute-sum-srss-combinations.md`, "Recorded results from
+//! before RT-A4 (historical read)"): main's statements recorded before RT-A4 read under their
 //! recorded table variants on the recorded-run read entries only, and stay refused on every
 //! current entry. Fixtures: `fixtures/persistence/recorded_pre_rt_a4_pf` (main 6c3cb46d3,
 //! #101 01e05a486 and, for the exact successor RT-A3 increment 4 makes history, main

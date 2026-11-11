@@ -165,7 +165,7 @@ fn row<'a>(
     ))
 }
 
-/// a stress row is published on the nominal
+/// D-5 (DEL-05-03 Design §2.1, §2.5): a stress row is published on the nominal
 /// section and is immediately followed by its reduced-section twin. These
 /// documents author no mill tolerance and a zero allowance, so the two bases
 /// coincide and the twins are bit-equal: the nominal row stands for both.

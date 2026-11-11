@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Parity of the desktop's model-state comparison with the reference engine.
 
+W-12 S3a (DEL-14-01 Design ``desktop-states-runs-comparison.md`` section 4.1):
 ``fixtures/comparison/model_state_comparison_golden.json`` holds invented state
 pairs as the desktop flattened them, with the desktop's comparison of each. It
 is written by ``apps/desktop/src/features/comparison/stateComparisonParity.test.ts``.

@@ -1,4 +1,4 @@
-"""the Python mirror of the
+"""Operating-case slice 1a (DEL-05-02 Design ``pf-nonlinear-operand-standing.md`` §3): the Python mirror of the
 preview-physics-2 ``combination_operands`` checks over the shared corpus
 (``fixtures/results/preview_physics_nonlinear_operands_corpus.json``, written by PP ``op1a_operand_standing.rs``).
 The producer documents are admitted with and without their models; every forgery is an in-memory copy and is refused

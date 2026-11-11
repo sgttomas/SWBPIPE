@@ -462,7 +462,7 @@ else:
         O10_ID_AUDIT += [(site("recovery_finding", _FG, _text, full=True, row="format!("), {"record.member": IN})]
 if not fnkey("member_record", _CP):
     O10_ID_AUDIT += [(site(_CASE_FN, PP_ + "lib.rs", "member: pipe.element_id.clone()", full=True), {"pipe.element_id": IN})]
-# the
+# Nonlinear K-D5 (DEL-04-01 kd5-nonlinear-active-set.md section 1.5): the
 # unavailable-family label moved, unchanged, from `check` into its callee `check_at`.
 O10_ID_AUDIT += [(site("check_at" if fnkey("check_at", FK_ + "structural/formation_check.rs") else "check",
                        FK_ + "structural/formation_check.rs", "family.clone()", full=True), {"family": ST})]
@@ -1885,7 +1885,7 @@ if fnkey("append_station_quantities", _U4R) and fnkey("member_stations", _U4E):
         ("for &(_, pipe, record, row) in arc_extrema.iter().filter(|e| e.0 == case_id)", "cases*m", _U4L + "preview arc extrema: at most one per case and member", ["preview_physics_evidence.rs:validate_preview_physics_evidence",
          # RT-A4 D3 (§8.46): the reader's body moved unchanged into validate_with (validate_preview_physics_evidence
          # now calls validate_with(source, None)); the loop and its bound move with it.
-         # D3 (§8.53): and again, unchanged, into validate_uncertified_with (validate_with reads the certificate
+         # RT-A3 §4 D3 (§8.53): and again, unchanged, into validate_uncertified_with (validate_with reads the certificate
          # after it); the loop and its bound move with it.
          "preview_physics_evidence.rs:validate_with", "preview_physics_evidence.rs:validate_uncertified_with"]),
         ('for row in results.iter().filter(|r| r[" "][" "] == case_id)', "Pall", _U4L + "one pass over the envelope's rows", ["physics_evidence.rs:u4b_cases"]),
@@ -2158,7 +2158,7 @@ if fnkey("stress_operands", PP_ + "source_receipt/source.rs"):
                            'let path = |key: &str| format!("/frames/{i}/reduced_recovery_section/{key}");', full=True),
                       {"key": {"bytes": max(len(k) for k in _SO_KEYS), "source": O10 + "O4-A2: one of four static path keys"}})]
 
-# ---- The W1 coverage repair (§8.11). Each
+# ---- The W1 coverage repair (DEL-04-08 Design w1-coverage-repair.md §2.2 and §6; retained-pricing-rules.md §8.11). Each
 # rule applies only where the repair's code exists, so earlier revisions price as before.
 # W1R-L1: selection writes `body_scales` from the certified proof's final scales, one [f64;4] per body. They are the
 # vector row_scales_reduced reserves and resizes to the source's body_count (<= n, a body is a set of nodes), coupled and
@@ -2248,7 +2248,7 @@ if fnkey("republication", _PU_LIB) and fnkey("fail_closed_form", _PU_LIB):
     if not all(_pu_guards):
         raise SystemExit(f"PU-R1: the republication's run order changed; re-review G4's one-run cap: {_pu_guards}")
 
-# ---- The W-8 topology warnings (§8.16). Each rule
+# ---- The W-8 topology warnings (DEL-04-06 Design model-topology-checks.md; retained-pricing-rules.md §8.16). Each rule
 # applies only where W-8's code exists, so earlier revisions price as before. `append_topology_diagnostics` runs once
 # per ordinary run (run_linear_static_preview_observed_inner, after the build), on both routes; its heap owners outside
 # the TEXT inventory are priced positively by base/w8_topology_model.py (W8-TW, W8-ND).
@@ -2436,7 +2436,7 @@ if fnkey("state_applied_branch_factors", _W8V):
         (site("state_applied_branch_factors", _W8V, _w8_bf_all_t),
          {"class": _W8_BF_ALL, "why": O10 + "W8-BF: the statement, its literal around <= 2 sides (multiplicity 0)"})]
 
-# NP-MS (§8.18): validate_model_settings refuses a malformed
+# NP-MS (retained-pricing-rules.md §8.18): validate_model_settings refuses a malformed
 # `model_settings.node_proximity_tolerance` with one blocking diagnostic carrying the accessor's code and message. D1
 # admits the record (no D1.3-D1.8 clause names it; its unit is raw text within RawTextBytes, l <= 128), and a finite
 # value that is not positive, a unit outside the catalog's lengths or a conversion that over- or underflows
@@ -2447,7 +2447,7 @@ if fnkey("state_applied_branch_factors", _W8V):
 # Debug (24) by the inherited f64 classes. The diagnostic's message `error.message` is one of those texts, at most
 # 39 + 58 + 327 = 424 B, priced by its inherited class (8,192 B); its refs are the one path String (the default
 # vec! element, 24 + 128 B; the to_string site at the literal's bytes).
-# SM-MS (§8.26): model document 0.8.0's
+# SM-MS (retained-pricing-rules.md §8.26, "The shear-model member"): model document 0.8.0's
 # `model_settings.shear_model` adds validate_model_settings' second blocking diagnostic, pushed when
 # `shear_model_refusal` refuses the authored member. D1 admits it as it admits the tolerance (no D1 clause names
 # `model_settings`; the decoder accepts any JSON value and allocates nothing), so the site keeps the chain's
@@ -3484,7 +3484,7 @@ if fnkey("case_prescribed", _W16_IM):
          {"load_case.id": IN}),
     ]
 
-# ---- W-16 stage 2 (§8.29):
+# ---- W-16 stage 2 (DEL-04-03 Design `pf-nonlinear-imposed-motion.md` §7, §10.4, §11.5; retained-pricing-rules.md §8.29):
 # R-a/R-b/R-d/R-c add per-target checks after validate_pressure_free's let-else (validate_ground_motion,
 # validate_rigid_base, validate_spring_base, dimension_valid), the resolvers case_ground_motion and case_spring_ground,
 # and the loop's relative-displacement rows. D1.7 refuses every support target and D1.6 every nonlinear support, so none
@@ -3605,7 +3605,7 @@ if fnkey("append", _W16B_EC):
          _W16B_CB + " (state_operand_standing runs only on that member)"),
     ]
 if fnkey("validate", _W16B_EV) and fnkey("validate_direct_pressure_evidence", RE_ + "physics_evidence.rs"):
-    # (§8.53): the certificate moves the dispatch into validate_pressure_evidence_uncertified, which
+    # RT-A3 §4 (§8.53): the certificate moves the dispatch into validate_pressure_evidence_uncertified, which
     # validate_pressure_evidence reaches through validate_pressure_evidence_without_certificate (W16B-RD's three keys).
     _W16B_PE = RE_ + "physics_evidence.rs"
     _W16B_DISPATCH = "validate_pressure_evidence_uncertified" if fnkey("validate_pressure_evidence_uncertified", _W16B_PE) else "validate_pressure_evidence"
@@ -4194,7 +4194,7 @@ if fnkey("append_branch_intensified", _A3_U4R):
                         "inside the association loop over model.components (0 by D1.4)", ["u4b_rows.rs:append_branch_intensified"])]
 
 
-# ---- Model document 0.9.0 S1 (§8.36). D1.3 declines
+# ---- Model document 0.9.0 S1 (DEL-02-01 Design model-document-0.9.0.md; retained-pricing-rules.md §8.36). D1.3 declines
 # a non-empty condition_sets or spectra and any pipe's condition_set_ref; D1.4 a difference basis, a subtrahend support
 # state, an unsigned basis and a term's combination operand; D1.5 a case's condition_use and test_condition; D1.6 a
 # support's direction and the snubber family. On D1 the lowering (operating_conditions::lower) and the withholding
@@ -4477,7 +4477,7 @@ if fnkey("withhold_interim_combinations", _S1_DM):
         (_s1_at("combinations_findings", _S1_DM, 'names.join(", ")'), {"class": 262, "why": O10 + "S1-MS: <= z back-quoted ids joined by ', '"})]
 
 
-# ---- Model document 0.9.0 S2 (§8.40).
+# ---- Model document 0.9.0 S2 (DEL-02-01 Design model-document-0.9.0.md §1.5, §4.2; retained-pricing-rules.md §8.40).
 # S2 splits the lowering into a read-only judge (operating_conditions::judge) that lower applies, adds the
 # pressure-free resolution (operating_conditions/resolution.rs: plan -> resolve_case, ResolutionPlan::apply) and a
 # read-only preview (preview_operating_conditions, reached only from the applier's wasm entry, outside the priced
@@ -5049,7 +5049,7 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
              O10 + "MODAL-ID support proposal: no retained root reaches modal; moved, fully classed Sturm construction diagnostic"),
         ]
 
-# ---- RT-A4 (§8.46): absolute sums, SRSS
+# ---- RT-A4 (DEL-05-02 Work absolute-sum-srss-combinations.md §10; retained-pricing-rules.md §8.46): absolute sums, SRSS
 # and nested combinations on both routes. D1.4 (retained_memory.rs family_clauses) refuses on both routes every absolute_sum
 # and srss basis and every term naming a combination (F::CombinationMember), route E every combination, and every
 # difference basis and subtrahend support state; D1.6 refuses nonlinear supports and every constant-effort support.
@@ -5186,7 +5186,7 @@ if fnkey("solved_state_plus_increments", _A4_PLAN):
     # model-bound preview dispatch (outside every retained root, §8.35/§8.44). The retained graph reaches it only through
     # validate_preview_physics_evidence -> validate_with(source, None) -> `None => check(source, None)` (G7's for_source).
     _A4_CHECK = _fn_text("check", _A4_GATES)
-    # (§8.53): validate_with runs validate_uncertified_with (the former body, RT-A4-RM's key) once, then
+    # RT-A3 §4 (§8.53): validate_with runs validate_uncertified_with (the former body, RT-A4-RM's key) once, then
     # the certificate only without the model.
     _A4_UW = "validate_uncertified_with" if fnkey("validate_uncertified_with", _A4_PEV) else "validate_with"
     _A4_VW = _fn_text(_A4_UW, _A4_PEV)
@@ -5389,7 +5389,7 @@ if fnkey("read_recorded", _A4_RT):
     _a4_re_prod = "\n".join(_re.sub(r"//[^\n]*", "", _production(RE_ + _f)) for _f in __import__("os").listdir(_os.path.join(_SNAP, RE_))
                             if _f.endswith(".rs"))
     _a4_hs = (
-        # (91329e840): read_recorded's current-binding branch also clears the selection under a
+        # RT-A4 §10.4 review r5 (91329e840): read_recorded's current-binding branch also clears the selection under a
         # Restore guard, so the writes are read_recorded's two and Restore::drop's one.
         # RT-A4 entry scope (26278a4ce): entry_scope's one write clears the selection (None) under a Restore guard.
         _a4_rt.count("SELECTED.with(|s| s.set(") == 4 and _a4_rt.count("SELECTED.with(") == 5
@@ -5695,7 +5695,7 @@ if fnkey("derivation", _B1_DB):
          {"code": {"bytes": max(len(_c) for _c in _B1_CODES), "source": O10 + "PF1B-ID: a static refusal code of the module (the longest)"}}),
     ]
 
-# ---- §8.53: the combination certificate, with RT-A3 P.
+# ---- §8.53: RT-A3 §4, the combination certificate (DEL-05-02 Work combination-certificate.md), with RT-A3 P.
 # The producer (PP combination_certificate.rs) forms each eligible case's operand groups (`operand`, only on a model with
 # a combination and a formed member bound) and publishes the member and one notice per combination (`publish`, which
 # returns before any allocation without a combination). The reader (RE combination_certificate.rs) runs inside every
@@ -5963,7 +5963,7 @@ if fnkey("publish", _C3_PP) and fnkey("member_check", _C3_RE):
             r"const WITHHELD_REASONS: \[&str; 3\] = \[([^\]]*)\]", _text_of(_C3_RE)).group(1))) > 46:
         raise SystemExit("RTA3C-ID: a static code or reason grew; re-review its class")
 
-# ---- §8.54: the held-status solve. The producer
+# ---- §8.54: RT-A5 minuend_final (DEL-05-02 operating-case.md §7): the held-status solve. The producer
 # (PP held_status.rs) solves a declared `minuend_final` subtraction's subtrahend with each nonlinear support held at the
 # minuend's final status, after its G-1 and G-2; the reader (RE preview_held_status.rs) checks the held-status record,
 # rows and notices. D1.4 refuses every difference basis (PF1B-DZ's guard), so `difference_basis::declared` is false and

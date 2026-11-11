@@ -1,6 +1,6 @@
 import type { ComponentBodyRecord, MechanicsResult } from "../../types";
 
-/** the
+/** W-15 slice d (DEL-03-05 Design `rigid-component-stiffness-scaling.md` §5): the
  * component bodies of a result. A member solved with a rigid-family component's DEC-045
  * stiffness scale carries `component_body` on each of its stress rows; those rows are
  * stresses of the mapped pipe section as a reference section, not of the body. The

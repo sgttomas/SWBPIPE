@@ -1,9 +1,10 @@
-//! the product against the frozen independent references in
+//! T4-U6 (DEL-05-03 Design `section-bases-and-timoshenko.md` §§1, 2.1, 2.5, 7
+//! and 8): the product against the frozen independent references in
 //! `validation/references/t4_u6/` (and T4-I8's MILLTOL re-freeze), through
 //! the captured entry in both solver modes, under the references' own
 //! criteria. Every expected and wrong value is read from a reference file;
 //! none is computed through the product. A disagreement goes back to the
-//! reference owner and its refuter, never to an edited expectation.
+//! reference owner and its refuter, never to an edited expectation (§7).
 
 use open_pipe_stress_product_physics::PreviewSolverMode;
 use serde_json::{json, Value};

@@ -28,7 +28,7 @@ ROOT = Path(__file__).resolve().parents[2]
 TABLE_PATH = ROOT / "fixtures/results/semantic_contract_v0_3_preview_physics_2.json"
 TABLE = json.loads(TABLE_PATH.read_text(encoding="utf-8"))
 LIMITATIONS = list(TABLE["supported_profile_limitations"])
-# the pressure-free Timoshenko identity. Its table is
+# DEL-05-03 Design pf-timoshenko.md §4: the pressure-free Timoshenko identity. Its table is
 # preview-physics-2's rows, vocabulary and policies with the identity, the profile and
 # limitation 0 replaced, so the row checks below read either table alike; the header admits
 # either complete identity (identity, profile and limitation array together).
@@ -250,9 +250,9 @@ def _header(source: Mapping[str, Any]) -> None:
     _shape(formulation, {"profile_id", "limitations"}, "formulation basis")
     _require(formulation["profile_id"] == profile and formulation["limitations"] == limitations, "formulation profile or limitations")
     evidence = source.get("contract_evidence")
-    # Operating-case slice 1a: `combination_operands` only beside a nonlinear model's admitted combinations.
-    # `combination_derivation` beside an unsigned or nested combination (`preview_combination_gates`).
-    # `combination_certificate` beside a solved document's combinations (`combination_certificate`).
+    # Operating-case slice 1a: `combination_operands` only beside a nonlinear model's admitted combinations. RT-A4
+    # section 10.3: `combination_derivation` beside an unsigned or nested combination (`preview_combination_gates`).
+    # RT-A3 §4: `combination_certificate` beside a solved document's combinations (`combination_certificate`).
     _require(isinstance(evidence, Mapping) and {"preview_cases", "combination_gates"} <= set(evidence)
              <= {"preview_cases", "combination_gates", "combination_operands", "combination_derivation", "difference_basis_derivation",
                     "held_status_derivation", "combination_certificate"},
@@ -521,7 +521,7 @@ def _validate(source: Mapping[str, Any]) -> None:
         if isinstance(headline, Mapping) and headline.get("result_ref") is not None:
             _require(headline["result_ref"] in rows, f"dangling summary result reference {field}")
 
-    # the operand records and their notices.
+    # Operating-case slice 1a (DEL-05-02 `pf-nonlinear-operand-standing.md` §3): the operand records and their notices.
     from . import preview_combination_operands
     preview_combination_operands.check(source, source.get("status", {}).get("mechanics") == "MECHANICS_SOLVED")
 
@@ -539,7 +539,7 @@ def _validate(source: Mapping[str, Any]) -> None:
         _require(not results, "blocked envelope carries result rows")
         _require(summary.get("max_displacement") is None and summary.get("max_open_formula_stress") is None, "blocked envelope carries a headline")
         _require("component_stress_modifier_count" not in summary or (_integer(summary["component_stress_modifier_count"]) and summary["component_stress_modifier_count"] == 0), "blocked envelope counts intensified rows")
-    # the component bodies and their reference-section records
+    # W-15 slice d (DEL-03-05 Design §5): the component bodies and their reference-section records
     # (after the blocked-envelope rule, as the Rust reader).
     bodies = component_body.source_bodies(source, TABLE)
     for row in results:
@@ -656,7 +656,7 @@ def _validate(source: Mapping[str, Any]) -> None:
             _require(_consistent_norm(slots["force_magnitude"]["value"], [slots[c]["value"] for c in SUPPORT_COMPONENTS[:3]]), "support force magnitude inconsistent with components")
             _require(_consistent_norm(slots["moment_magnitude"]["value"], [slots[c]["value"] for c in SUPPORT_COMPONENTS[3:]]), "support moment magnitude inconsistent with components")
         # A1 b: in every case the withheld records equal the withholding
-        # diagnostics (support = affected_refs[0], reason = code, ids).
+        # diagnostics (support = affected_refs[0], reason = code, §8 ids).
         records = {(record["support_id"], record["reason"]) for record in attribution["withheld"]}
         _require(len(records) == len(attribution["withheld"]) and records == withheld_diagnostics, "withheld support record and diagnostic disagree")
         listed = set(attribution["attributed_support_ids"]) | {support for support, _ in records}

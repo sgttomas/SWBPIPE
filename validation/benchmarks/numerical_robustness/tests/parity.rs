@@ -1,5 +1,5 @@
 //! The binary64 sparse gate's parity on RF-MECH and RF-LARGE (brief Scope 3;
-//! ROOT's C4 ruling, up to 100 members):
+//! T3 D1 §4.8 items 1–3; ROOT's C4 ruling, up to 100 members; plan §5.3):
 //! bitwise K and the M03 outcome class in both modes, and the DEC-053 delta
 //! asserted where both modes are Passed. RF-MECH's models of up to 100
 //! members must be refused in both modes. RF-MECH-DISC-CHAIN100 and -SPRING

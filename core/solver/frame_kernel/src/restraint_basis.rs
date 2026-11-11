@@ -388,7 +388,7 @@ impl SkewDirection {
 
 // ------------------------------------------------------------------ codes and judge
 
-/// The codes this module decides or carries. Their strings have one source,
+/// The §2.2 codes this module decides or carries. Their strings have one source,
 /// PP `document_members` (`skew_code`, M-1); the kernel names no code string.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SkewCode {
@@ -403,7 +403,7 @@ pub enum SkewCode {
     /// §2.2 item 5, `imposed_motion::validate` (S-K3 removes it). The kernel's
     /// records carry no ground motion, so the product decides it.
     ImposedDisplacementSkewSupport,
-    /// boundary preparation (the product's pattern check;
+    /// §2.2 item 6, boundary preparation (the product's pattern check;
     /// `transform_stiffness` refuses the same condition as `Shape`).
     NodeUnconnected,
     /// §2.2 item 7 (S-K2 removes it).
@@ -681,7 +681,7 @@ pub struct NodeAttribution {
     pub axis: Vec<(usize, f64)>,
 }
 
-/// intermediates, for the references' `attribution_range` bits.
+/// §7.2 intermediates, for the references' `attribution_range` bits.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct AttributionTrace {
     pub k: i32,

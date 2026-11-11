@@ -20,7 +20,7 @@ Oracles:
 - the §4.1.6.1 formulas are reimplemented with Python floats (IEEE-exact
   + - * / sqrt and max).
 
-D1 revision 5a.3 (ROOT's A3-0 rulings; this generator is the bit
+D1 revision 5a.3 (R7 §5; ROOT's A3-0 rulings; this generator is the bit
 oracle, DS1's emu7 the selection-level cross-check), checkpoint A3a:
 - `directed.txt`: R7 7b's directed roundings (nearest, then one step when on
   the wrong side of the exact Fraction) and the least binary64 not below x;
@@ -1353,7 +1353,7 @@ def models():
         load(m, 1, 1, 1000.0)
         load(m, 1, 5, 300.0)
         out.append(m)
-    # duplicate-operand control: two identical collinear members meet
+    # §7.3-16's duplicate-operand control: two identical collinear members meet
     # at node 1 (their node-1 translation-rotation couplings cancel exactly) and
     # a third member, 2^-300 as stiff, leaves node 1 along (3,4,0), so it adds
     # to the same entries. The weak member's id sorts between the two (the

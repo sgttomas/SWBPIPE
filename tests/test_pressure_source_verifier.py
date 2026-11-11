@@ -172,7 +172,7 @@ def _ca_statement(family, name, mode, change):
 @pytest.mark.parametrize("name", ["n05", "n06"])
 @pytest.mark.parametrize("family", sorted(CA_FAMILIES))
 def test_the_captured_exact_document_carries_an_admitted_corrosion_allowance(family, name, mode, label):
-    """a resealed pressure-source-1 statement whose
+    """B7b review finding (b7-plan "Exact-contract fields") and O4 (§3.4): a resealed pressure-source-1 statement whose
     captured invocation's allowance was absent, null, non-length, negative or over the wall is refused first by Rust
     `SourceContract::check_invocation` and the verifier, PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE; zero in any length
     unit keeps the statement's own standing (eligible on 0.3, never on a load/reference state). An admitted nonzero

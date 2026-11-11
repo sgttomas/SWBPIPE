@@ -61,7 +61,7 @@ fn row<'a>(
         .collect();
     basis_pair(rows).unwrap_or_else(|| panic!("{entity}/{kind}/{component:?}/{case}"))
 }
-/// a stress row is published on the nominal
+/// D-5 (DEL-05-03 Design §2.1, §2.5): a stress row is published on the nominal
 /// section and immediately followed by its reduced twin. The source family
 /// admits zero mill tolerance and zero allowance only, so the twins are
 /// bit-equal and the nominal row stands for both. `None` unless exactly one

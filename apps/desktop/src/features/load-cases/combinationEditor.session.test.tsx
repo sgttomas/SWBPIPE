@@ -1,4 +1,4 @@
-// RT-A4 on the desktop (DEL-07-03):
+// RT-A4 on the desktop (DEL-05-02 Work `absolute-sum-srss-combinations.md` §2, §5.1; DEL-07-03):
 // the three-axis static seismic template's four changes through the workspace session's one
 // operation route (queued singly and applied in order, or moved to batch review and applied as
 // one batch), Undo through the session checkpoint, and a saved and reopened model whose nested

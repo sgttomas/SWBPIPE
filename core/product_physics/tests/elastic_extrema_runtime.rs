@@ -65,7 +65,7 @@ fn actual_x1_loads_find_peak_missed_by_old_signed_sum_candidates() {
         close(maximum.value, expected, 0.0);
         assert!(maximum.value > 1e6 * 325.0_f64.sqrt() / 16.0);
         assert_eq!(maximum.unit, "Pa");
-        // the maximum is published on the
+        // D-5 (DEL-05-03 Design §2.2, §2.5): the maximum is published on the
         // nominal section, then on the reduced one (bit-equal here: no mill
         // tolerance or allowance), each with its own headline and extremum.
         let reduced = output

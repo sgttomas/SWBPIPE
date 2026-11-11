@@ -1180,7 +1180,7 @@ def test_delta_is_half_a_unit_in_the_tenth_significant_digit():
 
 
 def test_small_delta_t_has_an_absolute_bound_only():
-    # example: dT 0.123456789 C at 20 C prints T1 = 20.12345679; the import returns about 1e-9 C off.
+    # Design §18.2 example: dT 0.123456789 C at 20 C prints T1 = 20.12345679; the import returns about 1e-9 C off.
     model = writer_tests.cantilever()
     model["load_cases"].append({"id": "case:th", "primitive_loads": [
         {"id": "dt", "category": "thermal", "target": {"type": "element", "pipe": "S1"}, "direction": "global_x",
@@ -2078,7 +2078,7 @@ def test_every_mutated_sidecar_is_refused_by_name_or_restores_the_same_model(bas
     # VER-002 r12, r13: each field set to a different well-formed value. A value the MBF or a derivation determines
     # must agree with it, and the regeneration identity alone refuses it too. A value the writer copies from the model
     # unchanged (an id, `reversed`, an authored orientation or family, an origin, a thermal direction, the shear
-    # model, a closure) regenerates as given: a consistent edit, which imports as stated (the guard
+    # model, a closure) regenerates as given: a consistent edit, which imports as stated (Design §14: the guard
     # proves consistency, not authorship).
     replaced = sidecar_replacements(base, data)
     for label, sidecar, expected in replaced:
@@ -2142,7 +2142,7 @@ def test_nested_sidecar_values_are_refused_by_path_and_the_writer_reads_no_unhas
     assert written.status == "refused" and "MBF-SI-INPUT-INVALID" in {item["code"] for item in written.diagnostics}
 
 
-# --- rulings (Agent 0's decisions under the owner's delegation, 2026-10-27) -------------------------------------
+# --- §9.4 rulings (Agent 0's decisions under the owner's delegation, 2026-10-27) -------------------------------------
 def terminal_transfers(output: Any, node: str) -> list[list[float]]:
     """Every region terminal at `node` in the solve's pressure evidence: its pipe cap transfer, in N."""
     found = []
@@ -2585,7 +2585,7 @@ def test_the_regeneration_identity_refuses_what_no_other_check_reads():
 
 
 def test_the_rebind_route_is_taken_on_request_whatever_the_digest():
-    # rebind_by_node_number applies the sidecar by CAEPIPE name and marks every restored identity
+    # Design §15: rebind_by_node_number applies the sidecar by CAEPIPE name and marks every restored identity
     # unconfirmed, also for a sidecar whose digest is this file's; it is where a sidecar the exact-digest route
     # refuses can be applied. The rebind route does not run the regeneration identity.
     data, sidecar = bound_parts(writer_tests.cantilever())

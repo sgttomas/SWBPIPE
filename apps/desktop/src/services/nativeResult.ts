@@ -159,7 +159,7 @@ export function createNativeResult(custody: NativeCustody): NativeResult {
 }
 
 /* -------------------------------------------------------------------------- *
- * The diagnostics presentation facts (on a native handle)
+ * The diagnostics presentation facts (RT-A3 §4 on a native handle)
  * -------------------------------------------------------------------------- */
 
 /** S's header member carrying the diagnostics presentation facts (Rust `diagnostics_presentation`). */

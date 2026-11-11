@@ -82,7 +82,7 @@ fn blocking(out: &Value) -> Vec<String> {
     diagnostics(out).iter().filter(|d| d["severity"] == "blocking").map(|d| format!("{}: {}", d["code"], d["message"])).collect()
 }
 /// A solved envelope that the product reader admits with its model and without it
-/// (preview-physics-2 publishes `combination_derivation`, so a document
+/// (design §10.3: preview-physics-2 publishes `combination_derivation`, so a document
 /// verifies its combinations without its model).
 fn read_solved(out: Value, wire: &Value, what: &str) -> Value {
     assert_eq!(out["status"]["mechanics"], "MECHANICS_SOLVED", "{what}: {:?}", blocking(&out));
@@ -614,7 +614,7 @@ fn v6_gate_4_forgeries_are_refused_on_the_exact_route() {
     }
 }
 
-/// The fixed-load withholdings, by EX source: an operand with an
+/// The fixed-load withholdings that §5.1 distinguishes, by EX source: an operand with an
 /// undefined κ (`mech-env`) and a combination whose own κ is undefined although its operands'
 /// are defined (`M3`, `Q`: V-10's chain, κ(M3) = 1 + t⁴ needs more than 4,096 bits).
 const GATE_TEXTS: [(&str, &str); 3] = [
@@ -909,7 +909,7 @@ fn overflow_model(exact: bool, combinations: Value) -> Value {
     wire
 }
 
-/// an unsigned combination whose recomputed
+/// P2 r1 (absolute-sum-srss §3, §6): an unsigned combination whose recomputed
 /// magnitude leaves the binary64 range from finite combined components withholds
 /// that row, or its whole support group, as "load-case algebra refused", and every
 /// other result publishes. Before the fix the norm published as an infinity and the
@@ -1376,7 +1376,7 @@ fn pf_readers_re_derive_unsigned_combination_rows() {
     }
 }
 
-/// V-8: a document with flat combinations only publishes no derivation, and
+/// §10.3, V-8: a document with flat combinations only publishes no derivation, and
 /// one stated on it is refused.
 #[test]
 fn pf_flat_documents_publish_no_derivation() {

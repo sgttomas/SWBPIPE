@@ -2241,7 +2241,7 @@ const F1B_PRODUCT_SITES: &[(&str, &str, &str, usize)] = &[
         "ForceScale",
         1,
     ),
-    // S-K1 M-1: the code strings' one source (`SkewCode::ForceScaledUnsupported`).
+    // S-K1 M-1: the §2.2 code strings' one source (`SkewCode::ForceScaledUnsupported`).
     ("document_members.rs", "fn skew_code", "ForceScale", 1),
 ];
 

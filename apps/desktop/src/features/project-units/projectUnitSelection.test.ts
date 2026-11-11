@@ -212,8 +212,8 @@ describe("the catalog fixture against the core unit engine", () => {
     expect(accepted.filter((item) => item.status !== "converted")).toEqual([]);
     const misses: Array<[string, string]> = [
       ["N*mm", "moment"], ["kN*mm", "moment"], ["N/in", "force_per_length"], ["kN/in", "force_per_length"], ["1/C", "thermal_expansion_coefficient"],
-      // Slice (c): the acceleration entries revised (ii) needs are not yet in the core catalog;
-      // nor is the US rotational stiffness. This expectation moves when they are added.
+      // Slice (c) §7.3: the acceleration entries revised (ii) needs are not yet in the core catalog;
+      // §7.6: nor is the US rotational stiffness. This expectation moves when they are added.
       ["mm/s^2", "acceleration"], ["in/s^2", "acceleration"], ["ft/s^2", "acceleration"], ["lbf*in/deg", "rotational_stiffness"]
     ];
     const refused = await convertDisplayQuantities(misses.map(([symbol, dimension], index) => ({

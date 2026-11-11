@@ -293,7 +293,7 @@ fn base_readers_read_through_the_cli_as_reader_verdict() {
     }
 }
 
-/// a document with a declared
+/// Operating-case slice 1b (DEL-05-02 `operating-case.md` §6.5): a document with a declared
 /// operating comparison through `openpipestress-runner read preview-physics`. Without its model
 /// the G-1 verdict is re-derived from the published evidence (option A), so a valid document
 /// reads and a forged one is refused by name; with the model it reads too.

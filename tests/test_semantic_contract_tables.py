@@ -226,7 +226,7 @@ def test_repin_leaves_the_registered_profile_record_unchanged():
 
 
 def test_timoshenko_table_is_preview_physics_2_with_its_identity_profile_and_limitation_0():
-    """the derived table differs from preview-physics-2 in exactly three
+    """DEL-05-03 Design pf-timoshenko.md §4: the derived table differs from preview-physics-2 in exactly three
     members (identity, profile, limitation 0), member order kept; `derive --check` holds it current."""
     import json
     tool = _tool()

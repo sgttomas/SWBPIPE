@@ -82,9 +82,9 @@ const LINEAR_SIGN: &str = "positive value follows explicit user linear combinati
 const SUBTRACTION_SIGN: &str = "positive value follows explicit user result-state subtraction (minuend minus subtrahend) of matching source result sign conventions; a signed difference of solved states, not an equilibrium state";
 const MODULUS_SIGN: &str = "presence record; each range operand's solve basis is recorded explicitly";
 const INSTALLED_REFERENCE_UNSIGNED: &str = "INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND";
-/// gate 4 on an absolute sum or SRSS (PF's code and text).
+/// absolute-sum-srss §5.1: gate 4 on an absolute sum or SRSS (PF's code and text).
 const CONSTANT_EFFORT_UNSIGNED: &str = "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND";
-/// gate 4 on a `mechanics` combination naming an operand whose
+/// absolute-sum-srss §5.1: gate 4 on a `mechanics` combination naming an operand whose
 /// κ is undefined (PF's code and text).
 const CONSTANT_EFFORT_OPERAND_MIXED: &str = "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED";
 const NONLINEAR: &str = "NONLINEAR_COMBINATION_REQUIRES_SOLVE";
@@ -329,8 +329,8 @@ impl ExactProducts {
     }
 }
 
-/// gates 3 and 4's rule over flat factors: the exact sum of the factors is within 2^-46
-/// of 1, compared exactly and inclusively. Gates 3 and 4 read κ,
+/// §4 gates 3 and 4's rule over flat factors: the exact sum of the factors is within 2^-46
+/// of 1, compared exactly and inclusively. Gates 3 and 4 read κ (absolute-sum-srss §5.1),
 /// which equals this sum for a flat combination; the test below pins the rule.
 #[cfg(test)]
 fn unit_factor_sum(factors: &[f64]) -> bool {
@@ -796,7 +796,7 @@ fn gate(
     if !graph::term_basis(basis) {
         return Ok(None);
     }
-    // with nonlinear supports, a mechanics combination outside
+    // absolute-sum-srss §5.2: with nonlinear supports, a mechanics combination outside
     // decision OQ-1 is withheld.
     if let Expression::Terms("mechanics", terms) = expression {
         if nonlinear && !graph.solved_state_plus_increments(terms) {
@@ -1220,7 +1220,7 @@ pub(crate) fn validate(source: &Value) -> Check {
     let mut expected_diagnostics: Vec<Value> = Vec::new();
     let mut modulus_rows: Vec<Value> = Vec::new();
     let mut ids: Vec<&str> = Vec::new();
-    // the records in evaluation order, κ and the reached load
+    // absolute-sum-srss §2-§5: the records in evaluation order, κ and the reached load
     // cases of each, the modulus key of every load-case operand stated so far, and
     // the combinations withheld whole with their codes.
     let mut combination_graph = Graph::default();
@@ -1385,7 +1385,7 @@ fn gate_message(code: &str) -> &'static str {
 
 /// G2: each record's expression and its operands' modulus selections are the
 /// captured model's, one record per model combination in the model's evaluation
-/// order (topological, the earliest ready in the array first).
+/// order (absolute-sum-srss §2: topological, the earliest ready in the array first).
 /// A supplied model is complete: an absent or null `combinations` is the input's
 /// default, none, so the document then states no combination record.
 pub(crate) fn model_checks(source: &Value, model: &Value) -> Check {

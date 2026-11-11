@@ -1,4 +1,5 @@
-//! a realized arc's end tangent t = c*d + s*n is formed without
+//! DEL-04-07 Work `pressure-contract.md`, "Direction magnitudes of arc
+//! tangents": a realized arc's end tangent t = c*d + s*n is formed without
 //! renormalizing, so a component can round above 1. This is the RT-U4
 //! linear-ex rack's 90-degree bend (#31's generator, `--profile linear-ex
 //! --nodes 82`, pipe RK-H0022: chord (0.405, 0.405, 0) m, R = 405 mm, y

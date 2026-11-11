@@ -1,4 +1,4 @@
-//! P0 and S1 in the product (`resource`, `eigen`, `outcome`).
+//! Design §5.3.8 P0 and S1 in the product (`resource`, `eigen`, `outcome`).
 //! Every budget here is **TEST-LOCAL**: no weight, allotment or ceiling is
 //! adopted, and none of these values is a proposal. The tests check:
 //! - the counts against their formulas evaluated independently;

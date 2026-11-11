@@ -1,4 +1,4 @@
-/** the C2 consumers (reports,
+/** C1 interim (DEL-04-05 `c1-native-custody-plan.md` slice 4): the C2 consumers (reports,
  * comparisons, rule checks, stress-neutral and JSON derivative exports, the handoff panels) keep
  * full rows until C2 lands. For a native result they get them only through this gate: lazily, when
  * the panel is shown (or, with `explicit`, when the person asks), copied once per result at or under

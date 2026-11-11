@@ -29,7 +29,7 @@ const STAGED: [&str; 8] = [
     "EQUIVALENT_STATIC_INPUT_MISSING",
 ];
 
-/// (1, 2^-1023, 0), a skewed direction with a subnormal canonical
+/// S-K1 (§2.2 item 4): (1, 2^-1023, 0), a skewed direction with a subnormal canonical
 /// component: admitted by the document rules, refused by name at the solve.
 static RANGE_DIRECTION: std::sync::LazyLock<Value> = std::sync::LazyLock::new(|| json!({"x": 1.0, "y": f64::from_bits(1u64 << 51), "z": 0.0}));
 
@@ -561,9 +561,9 @@ fn every_s1_authoring_refusal_is_preserved() {
         }
         op("create", "create_combination", "Combination", "C-NEW", "combinations", "not_present", &payload.to_string())
     };
-    // a declared difference is
+    // Operating-case slice 1b and RT-A5 (0.9.0 §2.2, §3.8): a declared difference is
     // authored on the pressure-free route, as authored, with `own` (which behaves as absence)
-    // or `minuend_final`; an unknown or misplaced member is the document
+    // or `minuend_final` (operating-case §7); an unknown or misplaced member is the document
     // validator's.
     for extra in [
         json!({"difference_basis": "operating_minus_sustained"}),

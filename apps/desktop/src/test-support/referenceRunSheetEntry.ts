@@ -78,7 +78,7 @@ export function enterReferenceHeader(store: Store, model: PreviewModel): void {
 export const runSheetCell = (rowKey: string, column: string) => screen.getByTestId(`run-sheet-cell-${rowKey}-${column}`);
 
 /**
- * Enters 26 rows in table order on the mounted `RunSheet` whose store `store()` returns.
+ * Enters §3.4's 26 rows in table order on the mounted `RunSheet` whose store `store()` returns.
  * `grid` rows are typed through the real cells (a code key in a code cell; otherwise a printable
  * key opens the editor and Enter commits); the other rows go through the commit path's own
  * functions, cell by cell (`RunSheet` commit and its shown-id recording). `extra` adds cells to a

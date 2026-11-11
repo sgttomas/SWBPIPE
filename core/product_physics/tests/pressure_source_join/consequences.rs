@@ -489,7 +489,7 @@ fn add_control_entries(control: &Control, entries: &mut Vec<Value>) {
         "PHYSICS_SOURCE_ACTUAL_LOAD_REFERENCE_CONTEXT",
         entries,
     );
-    // every
+    // B7b F1 and O4 (DEL-04-08 Design `o4-source-extension.md` §3.4): every
     // pipe section of the captured exact document declares an explicit
     // length-valued, finite corrosion allowance c_a >= 0 with c_m + c_a < t.
     // A genuine statement coherently bound to an invocation whose allowance is

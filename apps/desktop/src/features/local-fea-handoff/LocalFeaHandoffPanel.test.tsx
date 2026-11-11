@@ -258,7 +258,7 @@ describe("Local FEA received-result hash binding", () => {
   });
 });
 
-// W-17 slice (c): the manifest's stress_unit and
+// W-17 slice (c), DEL-02-02 Design §7.7 (Agent 0's B-c): the manifest's stress_unit and
 // force_unit are declared from the result rows they label, the governing row first (the
 // summary maximum, for stress); only rows in the declared unit are referenced, and a
 // candidate in another unit is named in a non-blocking diagnostic. Where no governing

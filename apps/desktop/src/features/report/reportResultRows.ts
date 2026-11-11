@@ -44,7 +44,7 @@ export type ReportResultRow = {
  * `fixtures/reports/invented/report_result_rows_parity.json`. A change here
  * changes the contract, the Rust helper and the vectors together.
  *
- * a row whose
+ * W-11 (DEL-08-01 Design `exact-route-report-sections.md` §3.4): a row whose
  * `metadata.basis` names its section basis adds it to the label (`sectionBasisSuffix`);
  * no preview-physics-2 row carries the token, so its rows are unchanged.
  *

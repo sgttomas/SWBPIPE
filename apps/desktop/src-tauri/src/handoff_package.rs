@@ -305,7 +305,7 @@ fn rank(order: &[&str], value: &str) -> usize {
 }
 
 /// The least permissive of the redistribution dispositions a record includes
-/// (`redistribution_classification`).
+/// (design §3 `redistribution_classification`).
 fn least_permissive<'a>(values: impl IntoIterator<Item = &'a str>) -> &'a str {
     values.into_iter().max_by_key(|value| rank(&REDISTRIBUTION_ORDER, value)).unwrap_or("TBD")
 }
