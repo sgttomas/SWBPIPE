@@ -1,133 +1,126 @@
 id: DEL-02-05
 name: Project persistence and round-trip serialization
 needs:
-- from: DEL-00-01
-  condition: 'DEL-02-05 applies AB-00-01 as an upstream architecture-basis prerequisite for decision-record
-    discipline.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-02-05 applies AB-00-02 as an upstream architecture-basis prerequisite for module and
-    boundary constraints.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-00-04
+  condition: >-
+    Each kind of persisted document has one current version, a reader refuses every other version
+    by name without rewriting the document, a JSON payload is hashed as SHA-256 over its RFC 8785
+    canonical form, and storage is a local SQLite project store changed only through application
+    services.
   gating: true
 - from: DEL-00-03
-  condition: 'DEL-02-05 applies AB-00-03 as an upstream prerequisite for schema-first service/result-envelope
-    behavior.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A caller changes durable state only through an application-service command, and every command
+    returns a result envelope with its diagnostics.
   gating: true
-  evidence: execution/PKG-02/DEL-02-05/ScopeOfWork.md
-- from: DEL-00-04
-  condition: 'DEL-02-05 applies AB-00-04 as the direct persistence schema versioning canonicalization
-    and round-trip prerequisite.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-02/DEL-02-05/ScopeOfWork.md
 - from: DEL-00-06
-  condition: 'DEL-02-05 applies AB-00-06 as an upstream prerequisite for persistence diagnostics and result-envelope
-    coverage.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The diagnostic contract fixes the fields a diagnostic record carries (code, class, severity,
+    source, affected object, message, remediation, provenance) and the warning classes to which a
+    local class is mapped.
   gating: true
-  evidence: execution/PKG-02/DEL-02-05/ScopeOfWork.md
-- from: DEL-00-07
-  condition: 'DEL-02-05 applies AB-00-07 as an upstream prerequisite for adapter validation and public/private
-    boundary constraints.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-02/DEL-02-05/ScopeOfWork.md
-- from: DEL-00-08
-  condition: 'DEL-02-05 applies AB-00-08 as an upstream prerequisite for its round-trip, schema, hash,
-    version-refusal and protected-content test obligations. There is no migration to test: older model
-    documents are refused by name (owner, 2026-10-10; ScopeOfWork CLM-003).'
-  gating: true
-  evidence: execution/PKG-02/DEL-02-05/ScopeOfWork.md
 - from: DEL-02-01
-  condition: 'DEL-02-05 interfaces with DEL-02-01 because persistence serializes and round-trips the canonical
-    model and schema-backed objects.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The model document has one current version, named once per language, and one validator that
+    refuses a malformed document by name wherever a document enters, without repairing it.
   gating: true
-  evidence: execution/PKG-02/DEL-02-05/ScopeOfWork.md
 - from: DEL-02-02
-  condition: 'DEL-02-05 interfaces with DEL-02-02 because persistence must preserve explicit units and
-    unit-system references for downstream dimensional checks.
-
-
-    Notes: retained conservatively as interface rather than prerequisite.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The unit catalog names each unit's dimension, so that a missing or incompatible unit in a
+    persisted document is found and never defaulted.
   gating: true
-  evidence: execution/PKG-02/DEL-02-05/ScopeOfWork.md
+- from: DEL-08-02
+  condition: >-
+    Canonical JSON has one implementation of RFC 8785 with SHA-256 hashing, and the model hash is
+    computed by it.
+  gating: true
 - from: DEL-02-03
-  condition: 'DEL-02-05 interfaces with DEL-02-03 because persisted statuses and optional review records
-    must preserve the mechanics rule-check and human-review boundary.
-
-
-    Notes: retained conservatively as interface rather than prerequisite.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: Storing a review record
+  condition: >-
+    Human acceptance is a record outside the automatic statuses, bound to the hashes of the
+    content it concerns, and no status asserts code compliance.
   gating: true
-  evidence: execution/PKG-02/DEL-02-05/ScopeOfWork.md
-- from: doc:execution/PKG-04/DEL-04-08/Work/b7-plan.md
-  condition: 'DEL-02-05''s one current model-document version is 0.9.0 as DEL-04-08 Design `b7-plan.md`
-    ("Current model format") defines it: `pressure_contract` optional, its absence making the document pressure-free,
-    and every non-current model document refused for editing and solving, with the named re-author refusal for
-    older parsed versions and no migration. DEL-02-05''s version
-    check and persistence round trips follow that definition.'
+- from: DEL-14-02
+  when: Opening the runs of a project whose model document is retired
+  condition: >-
+    A recorded run keeps its own format and is listed, read and compared by the project's identity
+    without a model-document version check.
   gating: true
-  evidence: core/product_physics/src/model_format.rs
+- from: DEL-12-01
+  when: Writing a recovery record or a backup copy
+  condition: >-
+    Project, transient and backup data are kept in local paths under the user's control that are
+    private by default, and nothing in them is transmitted.
+  gating: true
+- from: DEL-08-01
+  when: Writing a recovery record
+  condition: >-
+    The atomic file writer writes beside its target, flushes and syncs the file, renames it into
+    place, and reports whether the directory sync succeeded.
+  gating: true
+- from: DEL-17-02
+  when: Round-tripping a project through the portable package
+  condition: >-
+    The package and manifest contracts define the members of the portable package and the hash the
+    manifest gives for each.
+  gating: true
 code_paths:
+# The persistence envelope, its contract document and the headless persistence service.
 - schemas/project_persistence.schema.yaml
-- core/project_persistence/**
 - docs/architecture/persistence_contract.md
+- core/project_persistence/**
+# Persisted projects and version cases. The saved-state and recorded-run witnesses in the same
+# folder are also listed by DEL-14-01 and DEL-14-02, whose records they are.
 - fixtures/persistence/**
+- fixtures/model_document/version_states.json
+# The version states and refusals. The current version in model_format.rs is named by DEL-02-01.
 - core/product_physics/src/model_format.rs
+- core/model_operations/operation_applier/src/model_document_version.rs
 - apps/desktop/src-tauri/src/model_document_version.rs
-- apps/desktop/src/services/projectService.ts
-- tests/test_persistence_schema.py
-- tests/test_project_persistence_service.py
-- apps/desktop/src/services/projectService.test.ts
-- apps/desktop/src/services/blankLoadStateModel.test.ts
-- apps/desktop/src/features/project-validation/ProjectValidationPanel.tsx
-- core/reporting/report_package/src/reader.rs
+# Only the project store commands in lib.rs are this deliverable's; the file is shared by every
+# deliverable with a desktop command.
 - apps/desktop/src-tauri/src/lib.rs
+- apps/desktop/src/services/projectService.ts
+- apps/desktop/src/features/project-validation/ProjectValidationPanel.tsx
+# Opening a model document file and exporting a stored document refused at open. DEL-07-11 owns
+# the open and save surfaces in the desktop.
 - apps/desktop/src-tauri/src/model_document_file.rs
+- apps/desktop/src/services/modelDocumentFile.ts
+- apps/desktop/src-tauri/src/stored_model_document_export.rs
+- apps/desktop/src/features/model-file/storedDocumentExport.ts
+# The package reader's version rule. The reader sits in the report package crate, which is
+# DEL-08-01's and DEL-08-06's.
+- core/reporting/report_package/src/reader.rs
+# Autosave and backup. DEL-12-01 also lists the native files, for the paths they write to.
 - apps/desktop/src-tauri/src/autosave.rs
 - apps/desktop/src-tauri/src/autosave_commands.rs
 - apps/desktop/src-tauri/src/backup.rs
 - apps/desktop/src/features/autosave/**
-- apps/desktop/src/services/modelDocumentFile.ts
-- apps/desktop/src/features/model-file/modelDocumentOpen.test.tsx
-- apps/desktop/e2e/b3b-project-persistence.spec.ts
-checks:
-- apps/desktop/src-tauri/src/backup_tests.rs
 - tests/test_persistence_schema.py
 - tests/test_project_persistence_service.py
+- core/model_operations/operation_applier/tests/retired_model_version.rs
 - apps/desktop/src/services/projectService.test.ts
 - apps/desktop/src/services/blankLoadStateModel.test.ts
+- apps/desktop/src/features/model-file/modelDocumentOpen.test.tsx
+- apps/desktop/src/features/model-file/storedDocumentExport.test.tsx
+- apps/desktop/e2e/b3b-project-persistence.spec.ts
+checks:
+- tests/test_persistence_schema.py
+- tests/test_project_persistence_service.py
+- core/model_operations/operation_applier/tests/retired_model_version.rs
 - core/reporting/report_package/tests/reader.rs
 - apps/desktop/src-tauri/src/lib.rs
 - apps/desktop/src-tauri/src/model_document_file.rs
 - apps/desktop/src-tauri/src/model_document_version.rs
+- apps/desktop/src-tauri/src/stored_model_document_export.rs
 - apps/desktop/src-tauri/src/autosave_tests.rs
 - apps/desktop/src-tauri/src/autosave_commands_tests.rs
+- apps/desktop/src-tauri/src/backup_tests.rs
+- apps/desktop/src/services/projectService.test.ts
+- apps/desktop/src/services/blankLoadStateModel.test.ts
 - apps/desktop/src/features/autosave/useAutosave.test.tsx
 - apps/desktop/src/features/autosave/autosaveRecovery.test.ts
 - apps/desktop/src/features/autosave/autosave.session.test.tsx
 - apps/desktop/src/features/model-file/modelDocumentOpen.test.tsx
+- apps/desktop/src/features/model-file/storedDocumentExport.test.tsx
 - apps/desktop/e2e/b3b-project-persistence.spec.ts

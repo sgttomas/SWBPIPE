@@ -1,61 +1,39 @@
 id: DEL-07-06
 name: Accessibility and usability baseline
 needs:
-- from: DEL-00-01
-  condition: 'DEL-07-06 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
-    execution
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-07-06 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
-    execution
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-03
-  condition: 'DEL-07-06 requires SCA-001 architecture basis AB-00-03 from DEL-00-03 before sealed product-development
-    execution
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
 - from: DEL-00-05
-  condition: 'DEL-07-06 requires SCA-001 architecture basis AB-00-05 from DEL-00-05 before sealed product-development
-    execution
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The GUI state rule keeps user preferences and other view state out of the model document.
   gating: true
-- from: DEL-00-06
-  condition: 'DEL-07-06 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
-    execution
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-07
-  condition: 'DEL-07-06 requires SCA-001 architecture basis AB-00-07 from DEL-00-07 before sealed product-development
-    execution
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-07-06 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
-    execution
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
+- from: DEL-07-11
+  when: Examining themes, density and keyboard reach in the running desktop
+  condition: >-
+    The workspace shell applies the chosen theme and density to every mounted panel, carries focus
+    between panels in a stated order, and gives every panel the same keyboard route to its commands.
+  gating: false
+- from: DEL-07-02
+  when: Recording the timed entry in the walkthrough
+  condition: >-
+    The authoring-time requirement defines the timed entry of the reference system by run sheet,
+    from a blank project to a solve, and its threshold.
+  gating: false
+- from: DEL-07-04
+  condition: >-
+    Every finding is shown with its class, and the six classes are distinguishable without colour.
+  gating: false
 code_paths:
 - apps/desktop/src/design/**
 - apps/desktop/src/tokens.css
 - apps/desktop/src/styles.css
 - apps/desktop/src/features/workspace/uiPreferences.ts
-- apps/desktop/src/features/workspace/shell/**
+# The shared disabled-reason component. The rest of the shell folder is DEL-07-11's.
+- apps/desktop/src/features/workspace/shell/DisabledReason.tsx
+- apps/desktop/src/App.deadControls.test.tsx
+- apps/desktop/e2e/b3-accessibility.spec.ts
+- apps/desktop/e2e/workspace-layout.spec.ts
+- apps/desktop/e2e/workspace-driver.ts
+# A review-export panel mounted in the evidence section and the drawer, and a Python reference
+# module with its own contract test. No criterion of this scope covers either.
 - apps/desktop/src/features/accessibility-baseline/**
 - core/gui/accessibility/**
 checks:
@@ -67,3 +45,4 @@ checks:
 - apps/desktop/src/features/workspace/uiPreferences.test.ts
 - tests/test_accessibility_usability_baseline.py
 - apps/desktop/src/features/workspace/contextMenu/ContextMenu.test.tsx
+- apps/desktop/src/App.deadControls.test.tsx

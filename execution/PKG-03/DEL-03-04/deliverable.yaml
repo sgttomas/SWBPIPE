@@ -1,112 +1,77 @@
 id: DEL-03-04
 name: Branch connection component model fields
 needs:
-- from: DEL-00-01
-  condition: 'DEL-03-04 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
-    execution.
-
-
-    Notes: architecture-basis edge remains local evidence only and does not mark PKG-00 as ISSUED.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-03-04 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
-    execution.
-
-
-    Notes: architecture-basis edge remains local evidence only and does not mark PKG-00 as ISSUED.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-04
-  condition: 'DEL-03-04 requires SCA-001 architecture basis AB-00-04 from DEL-00-04 before sealed product-development
-    execution.
-
-
-    Notes: architecture-basis edge remains local evidence only and does not mark PKG-00 as ISSUED.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-03-04 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
-    execution.
-
-
-    Notes: architecture-basis edge remains local evidence only and does not mark PKG-00 as ISSUED.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-07
-  condition: 'DEL-03-04 requires SCA-001 architecture basis AB-00-07 from DEL-00-07 before sealed product-development
-    execution.
-
-
-    Notes: architecture-basis edge remains local evidence only and does not mark PKG-00 as ISSUED.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-03-04 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
-    execution.
-
-
-    Notes: architecture-basis edge remains local evidence only and does not mark PKG-00 as ISSUED.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-02-01
+  condition: >-
+    A component in the model document is a typed, closed record with a stable identifier and a
+    kind, among which are branch, tee and branch connection; the document describes every
+    component member a reader decodes, each quantity with its unit; and a component's SIF and
+    flexibility modifiers can carry source and provenance.
   gating: true
 - from: DEL-03-02
-  condition: 'DEL-03-04 needs DEL-03-02 as a predecessor because branch fields extend the component library
-    schema and metadata model.
-
-
-    Notes: inferred predecessor retained from decomposition evidence without adding speculative component-family
-    edges.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The component library format provides the record, the field slot (a quantity or text reference
+    with its value status, public-value policy and provenance), the family contract and the
+    completeness rule into which the branch family's field kinds and diagnostics are declared.
   gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
 - from: DEL-02-02
-  condition: 'DEL-03-04 needs DEL-02-02 as a predecessor because branch geometry and reinforcement fields
-    require unit-aware validation.
-
-
-    Notes: unit predecessor retained because dimensional branch fields cannot be validated safely without
-    the unit contract.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The unit catalog converts a branch's sizes, connection angle and reinforcement area to one
+    consistent basis, treats its factors as dimensionless, and rejects a dimensional mismatch
+    before the value reaches the solve.
   gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
 - from: DEL-01-02
-  condition: 'DEL-03-04 needs DEL-01-02 as a predecessor because branch SIF and flexibility values must
-    not bundle protected standards or vendor data.
-
-
-    Notes: governance predecessor retained to protect branch/SIF/flexibility data boundary.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The protected-data boundary policy states that no public artifact may contain protected
+    branch, SIF, flexibility or reinforcement content, so that every branch value is the user's
+    own data.
   gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-06
+  condition: >-
+    The diagnostic contract fixes the members a branch finding carries (code, class, severity,
+    source, affected object, message, remediation and provenance).
+  gating: true
+- from: DEL-04-07
+  condition: >-
+    The product solve admits a branch connection on the pressure-free route and on the exact
+    route, joins its pipes at the intersection node, and on the exact route forms the pressure
+    junction where pressure regions meet at that node.
+  gating: false
+  when: Solving a model that contains a branch connection.
+- from: DEL-05-03
+  condition: >-
+    Stress recovery publishes the bending stresses M_y/Z and M_z/Z at each member end, on the
+    exact route on the nominal and the reduced section basis.
+  gating: false
+  when: Publishing intensified stresses at a branch.
+- from: DEL-09-01
+  condition: >-
+    The invented reference system and its independent references are maintained, with a tee
+    carrying user modifiers among its members.
+  gating: false
+  when: Examining the reference system's tee on the exact route.
 code_paths:
-- core/model_operations/operation_applier/src/lib.rs
-- core/product_physics/src/lib.rs
-- schemas/component.schema.yaml
+# In DEL-04-07's product crate: the branch's input and topology rules in validation.rs (the bend
+# and rigid rules in the same file are DEL-03-03's and DEL-03-05's), and the functions that apply a
+# branch's header and branch factors to the stress rows of its named pipe ends, on the
+# pressure-free route in preview_physics.rs and on the exact route in u4b_rows.rs. The rest of
+# those two files is stress publication, composed by DEL-04-07 on DEL-05-03's definitions.
 - core/product_physics/src/validation.rs
-- core/product_physics/src/exact_admission.rs
 - core/product_physics/src/preview_physics.rs
 - core/product_physics/src/u4b_rows.rs
-- apps/desktop/src/features/component-creation/componentIntent.ts
+# The branch quantities' unit normalization and the branch stress modifier are this deliverable's;
+# the crate is DEL-04-07's and the wire types DEL-02-01's.
+- core/product_physics/src/lib.rs
+# The branch family's field rules are this deliverable's; the engine is DEL-16-06's.
+- core/model_operations/operation_applier/src/lib.rs
+# Shared with DEL-03-02, which owns the format: the branch family's field kinds, completeness rule
+# and diagnostic codes in it are this deliverable's.
+- schemas/component.schema.yaml
+# Shared with DEL-02-01, which owns the document: the branch members of a component in it are this
+# deliverable's.
+- schemas/model.schema.yaml
+# The branch assembly references are validation/references/rt_a3_tee/**, held by DEL-04-07.
 checks:
 - tests/test_component_section_schema.py
 - core/product_physics/tests/preview_physics_runtime.rs
-- core/product_physics/tests/exact_admission_seam.rs
 - core/product_physics/tests/rt_a3_tee_references.rs

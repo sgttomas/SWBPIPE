@@ -2,114 +2,56 @@ id: DEL-16-01
 name: Structured model operation schema
 needs:
 - from: DEL-00-01
-  condition: 'DEL-16-01 needs DEL-00-01 architecture decision context as a predecessor.
-
-
-    Notes: Preserved from approved DAG-002 active edge DAG-002-E0730
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-16-01 needs DEL-00-02 repository and module boundary architecture as a predecessor.
-
-
-    Notes: Preserved from approved DAG-002 active edge DAG-002-E0731
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-03
-  condition: 'DEL-16-01 needs DEL-00-03 command/query/job model architecture as a predecessor.
-
-
-    Notes: Preserved from approved DAG-002 active edge DAG-002-E0732
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-04
-  condition: 'DEL-16-01 needs DEL-00-04 persistence and schema versioning architecture as a predecessor.
-
-
-    Notes: Preserved from approved DAG-002 active edge DAG-002-E0733
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-16-01 needs DEL-00-06 diagnostics and result-envelope architecture as a predecessor.
-
-
-    Notes: Preserved from approved DAG-002 active edge DAG-002-E0734
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-07
-  condition: 'DEL-16-01 needs DEL-00-07 API boundary architecture as a predecessor.
-
-
-    Notes: Preserved from approved DAG-002 active edge DAG-002-E0735
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-16-01 needs DEL-00-08 layered test and acceptance architecture as a predecessor.
-
-
-    Notes: Preserved from approved DAG-002 active edge DAG-002-E0736
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The baseline in force names JSON Schema 2020-12 as the dialect of public schemas and
+    interchange documents.
   gating: true
 - from: DEL-02-01
-  condition: 'DEL-16-01 needs DEL-02-01 because operation records reference canonical model/domain contracts.
-
-
-    Notes: Preserved from approved DAG-002 active edge DAG-002-E0823
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    Every addressable record of the model document belongs to a named family and has an
+    identifier that other records name, and the model document's schema defines the form of each
+    record an operation creates.
   gating: true
-  evidence: execution/PKG-16/DEL-16-01/ScopeOfWork.md
+- from: DEL-02-02
+  condition: >-
+    The dimension identifiers and unit symbols are one published set, the same in the unit schema,
+    the model schema and the catalog.
+  gating: true
+- from: DEL-00-06
+  condition: >-
+    The diagnostic record is defined with its fields: code, class, severity, source, affected
+    object, message, remediation and provenance.
+  gating: true
+- from: DEL-08-02
+  condition: >-
+    The model hash is SHA-256 over the RFC 8785 canonical form of the model document, and the same
+    document reaches the same digest through the desktop, the headless runner and the operation
+    engine.
+  gating: true
 - from: DEL-13-01
-  condition: 'DEL-16-01 needs DEL-13-01 because structured operations include design-knowledge operations.
-
-
-    Notes: Preserved from approved DAG-002 active edge DAG-002-E0824
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-02-05
-  condition: 'DEL-16-01 needs DEL-02-05 for persisted-operation and round-trip semantics.
-
-
-    Notes: Preserved from approved DAG-002 active edge DAG-002-E0825; local source keeps exact hash binding
-    TBD
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-01-04
-  condition: 'DEL-16-01 needs DEL-01-04 professional-boundary framing for operation records.
-
-
-    Notes: Preserved from approved DAG-002 active edge DAG-002-E0826
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-16/DEL-16-01/ScopeOfWork.md
+  condition: >-
+    Design-knowledge records are identified records of a published schema, so a design-knowledge
+    operation can name its target.
+  when: Design-knowledge operations are applied
+  gating: false
+# The contract's published form and its invented examples.
 code_paths:
 - schemas/model_operation.schema.json
-- core/model_operations/operation_applier/src/atomic_batch.rs
-- apps/desktop/src/services/operationBatchService.ts
-- apps/desktop/src/features/offline-proposal-intake/**
+- fixtures/model_operations/invented_operation_set_valid.json
+- fixtures/model_operations/invented_accepted_model_state.json
+# Offline proposal intake. Reading a proposal file as a batch is this deliverable's. The folder is
+# shared: review of the queued proposal is DEL-07-08's; stamping the imported operations' author is
+# DEL-16-03's (apps/desktop/src/services/operationAuthorship.ts); the panel's place in the palette
+# is DEL-07-09's. workflowSupport.ts in the same folder is shared editor support and belongs to the
+# editors that import it (hanger selection, self-weight authoring, library apply), not to this
+# deliverable.
+- apps/desktop/src/features/offline-proposal-intake/OfflineProposalIntakePanel.tsx
+- apps/desktop/src/features/offline-proposal-intake/index.ts
+# The record form the operation engine admits is enforced in the engine's files, which DEL-16-02
+# and DEL-16-06 list, and typed in apps/desktop/src/types.ts, a shared file no deliverable owns
+# whole.
 checks:
 - tests/test_model_operation_schema.py
-- tests/test_operation_validation_preview.py
-- apps/desktop/src/services/operationBatchService.test.ts
+# Examines AC-009 in its intake cases only; its other cases examine the editors that share
+# workflowSupport.ts.
 - apps/desktop/src/features/offline-proposal-intake/workflows.test.tsx

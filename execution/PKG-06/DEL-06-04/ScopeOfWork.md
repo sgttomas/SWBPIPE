@@ -2,394 +2,116 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-06-04
 package_id: PKG-06
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-042]
 package_objective_refs: [OBJ-002, OBJ-005]
 ---
 
-# Scope of Work — DEL-06-04
+# Scope of Work — DEL-06-04 Private rule-pack lifecycle and checksum handling
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-06-04` in service of project scope [SOW-042] and package objectives [OBJ-002, OBJ-005].
+A user's rule pack stays the user's, and what was applied can be shown later. Every pack has an identity, a version, a source notice, a stated privacy and redistribution standing, and a checksum of its exact content. A pack the user creates is private unless its author records otherwise. A pack whose content has changed since its checksum was taken, whose rights are unstated, or that may hold protected content is flagged before it is used or shared. A report, an export or a run record can then name the pack that was applied, by identity, version, checksum and source note, without holding any of its formulas or values.
 
-- **OUT-001** — A private rule-pack lifecycle and checksum contract covering stable identity and version, source/provenance notice, redistribution and quarantine status, canonical JSON/JCS-compatible payload hashing, non-JSON manifest hashes, diagnostics, and report/audit references is produced for the declared scope and objectives.
+It serves SOW-042 under OBJ-002 and OBJ-005 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-06, row DEL-06-04, which keeps this deliverable to the local lifecycle and leaves access control to PKG-12), and `docs/PRD.md` FR-RULE-004, §17.2, §17.4, §10.6 step 4, §5.7, §19.2 and §20.3, with `docs/CONTRACT.md` OPS-K-RULE-3 and OPS-K-PRIV-1 and threat STM-010 of `docs/security/threat_model.md`. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names it. It supports criterion 4 through the rule-pack reference a report carries (FR-REP-001).
+
+- **OUT-001** — The private rule-pack lifecycle: the lifecycle record and its findings, the pack checksum and its verification, the local keeping of packs, and the audit reference by which other outputs cite a pack.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-06-04 Private rule-pack lifecycle and checksum handling
+**Terms the lifecycle implements.** The vocabularies of privacy class, redistribution status, review status and lifecycle status are those of the pack format (DEL-06-01).
 
-> #### Datasheet: DEL-06-04 Private rule-pack lifecycle and checksum handling
->
+- *Lifecycle record.* What the lifecycle reads from a pack: its identity and name, format version, rule-pack version, grammar version, lifecycle status, source notice, privacy class, redistribution status, review status, protected-content review, and checksum.
+- *Private by default.* A pack the product creates for a user is classified as private user data with private-only redistribution. A pack is publicly exportable only when its privacy class is public, its redistribution status is public-permissive or invented example, its review is accepted and no protected content is suspected. Unknown rights are private.
+- *Pack checksum.* SHA-256 over the RFC 8785 canonical form of the pack document with its checksum member excluded. The checksum record states the algorithm, the canonicalization, the payload it refers to, its scope, what was excluded and the value. No path, timestamp or session state is hashed.
+- *Grammar binding.* The pack's grammar version is a member of the hashed content, so a change of grammar version changes the checksum (DEC-022).
+- *Stale checksum.* A recorded value that differs from the value recomputed from the pack's content.
+- *Lifecycle findings.* A missing identity, version, grammar version, source notice, redistribution status, review status or checksum; a grammar version that is malformed or not bound in the hashed content; a stale checksum; suspected protected content, which quarantines the pack; an attempted public export of a private pack; and a professional-boundary violation.
+- *Blocked pack.* The lifecycle's verdict, returned with its findings, that a pack is not to be used until a finding is resolved. Suspected protected content always blocks.
+- *Quarantined pack.* A pack with the protected-content finding. It is blocked, is not run and is not publicly exportable, and stays so until the finding is resolved.
+- *Audit reference.* What another output may hold about a pack: its identity, name, rule-pack version, grammar version, checksum, source notice, and privacy, redistribution and review standing, with a statement that a private pack's content is withheld. It holds no formula, table or value.
+- *Local keeping.* Packs are kept in the user's local project store, by project and pack identity, and nowhere else: saved, opened, listed and deleted. A draft with findings can be saved. Opening a pack validates it again. A stored pack of a format version that is no longer current stays listed, opens with its refusal shown and can be deleted.
+- *Manifest hash.* The checksum of a pack-related asset that is not JSON, taken over its exact bytes and recorded with a reference to the asset.
 
-### CLM-002 — Identification
+**Undecided.**
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-06-04 |
-> | Deliverable name | Private rule-pack lifecycle and checksum handling |
-> | Package ID | PKG-06 |
-> | Package name | Rule Packs and User-Supplied Code Check Engine |
-> | Deliverable type | BACKEND_FEATURE_SLICE |
-> | Scope item | SOW-042 |
-> | Objectives | OBJ-002, OBJ-005 |
-> | Current setup role | Lifecycle/checksum contract; current implementation evidence in `core/rules/rule_pack_lifecycle/` |
->
+- Whether stored private packs are encrypted, and the default (PRD §27, question 11; the decomposition's OI-010). The decision is the owner's and its implementation PKG-12's.
+- How pack-related assets that are not JSON are partitioned under manifest hashes.
 
-### CLM-003 — Attributes
-
-> ##### Attributes
->
-> | Attribute | Setup value |
-> |---|---|
-> | Rule-pack boundary | Rule packs are user-owned or private design-basis artifacts; public project content is limited to schemas, mechanics, workflows, and invented examples. |
-> | Lifecycle subject | Version identity, source/provenance notes, public/private or redistribution status, checksum metadata, and audit/report references for rule packs. |
-> | Checksum basis | JSON rule-pack payloads use canonical JSON with JCS-compatible canonicalization before hashing. Non-JSON or binary assets require manifest-level hashes and an explicit payload reference. |
-> | Required checksum metadata | Algorithm, canonicalization where applicable, payload reference, checksum value, and statement of what was hashed. |
-> | Redistribution status | Must be explicit. Supported values are owned by the rule-pack schema deliverable; project sources require at least private, public-permissive, unknown, and suspected-protected handling. |
-> | Public repository posture | Private rule-pack content, licensed standards text, copied formulas, proprietary tables, owner requirements, and vendor data without redistribution rights are not committed publicly. |
-> | Report posture | Reports may reference rule-pack ID/name, version, checksum, and source note without exposing protected formulas or private values in public templates. |
->
-
-### CLM-004 — Conditions
-
-> ##### Conditions
->
-> | Condition | Constraint |
-> |---|---|
-> | Protected data | Do not include protected standards text, tables, figures, examples, copied code formulas, material allowables, SIF/flexibility tables, dimensional standards, or proprietary vendor data. |
-> | Private data | Private rule packs remain user-controlled and are not transmitted, exported, or committed by default. |
-> | Professional responsibility | Rule-pack evaluation is software decision support using user data. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
-> | Unit awareness | Rule-pack values and evaluator inputs must remain unit-aware where numeric quantities are involved; missing required units or values are findings, not silent defaults. |
-> | Architecture basis | SCA-001 requires JSON Schema 2020-12 contracts, schema-first command/query/job result envelopes, and canonical JSON/JCS-compatible hash basis where JSON payloads are hashed. |
-> | Deferred decisions | DEC-017 resolves local storage and DEC-028 portable packaging. Encryption defaults, access-control defaults, permission grant persistence and secret handling retain their PKG-12 decision paths. |
->
-
-### CLM-005 — Construction
-
-> ##### Construction
->
-> The lifecycle/checksum contract, realized in `core/rules/rule_pack_lifecycle/`, requires a local mechanism that:
->
-> - records rule-pack identity, version, source notice, redistribution/private status, checksum metadata, and review/quarantine disposition;
-> - binds checksum values to explicit payload references rather than environment-local paths or volatile session state;
-> - records diagnostics for missing provenance, missing redistribution status, stale hashes, suspected protected content, and attempts to expose private content publicly;
-> - exposes audit-manifest hooks for reports and reproducibility artifacts without embedding private rule-pack formulas or values in public templates;
-> - defers storage location, encryption, and access-control defaults to the security/privacy package.
->
-
-### CLM-006 — References
-
-> ##### References
->
-> - loop/LOOP_INIT.md - bootstrap boundaries for open mechanics, private code data, and professional responsibility.
-> - docs/CONTRACT.md - OPS-K-RULE-3, OPS-K-DATA-1/2/3, OPS-K-PRIV, OPS-K-IP-1/2/3, OPS-K-UNIT-1, OPS-K-AGENT-1..4.
-> - docs/SPEC.md - rule-pack evaluator minimum sections and report/audit requirements.
-> - docs/IP_AND_DATA_BOUNDARY.md - public/private data and quarantine policy.
-> - docs/PRD.md - rule-pack requirements, user journey, reporting, and private data handling.
-> - docs/architecture/persistence_contract.md - canonical JSON/JCS hash basis and hash metadata.
-> - docs/architecture/code_neutral_analysis_boundary.md - rule-pack reference and professional-boundary separation.
-> - docs/architecture/extension_domain_contracts.md - no-bypass constraints for provenance, privacy, checksums, and protected-content controls.
-> - execution/_Decomposition/SOFTWARE_DECOMP.md - DEL-06-04 scope and SCA-001 architecture basis.
->
-
-### CLM-007 — D-41 R5 T7 PDU-054 current declaration
-
-> ##### D-41 R5 T7 PDU-054 current declaration
->
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Private rule-pack lifecycle schemas, fixtures, checksum handling, and tests now exist. Quarantine taxonomy, provider/storage breadth, encryption, and other controls remain residual only where explicitly recorded; this is not a security-assurance ruling.
+**Boundary.** This deliverable keeps packs, identifies them and flags their standing. The pack format is DEL-06-01's. The project store that holds the packs is DEL-02-05's, under the local storage profile of DEC-017 and the portable package of DEC-028. Storage location policy, encryption, access control, permission persistence, secrets, and the exclusion of private data from telemetry and issue bundles are PKG-12's. A model's reference to a pack and its resolution are DEL-02-01's and DEL-14-02's, the audit manifest is DEL-08-02's and the report is DEL-08-01's. Findings for a missing rule value or unit are DEL-06-01's at validation and DEL-06-03's at the run; carrying them through this lifecycle, and any execution of a pack on behalf of a plugin or adapter, are outside v1.0 under the owner's ruling on rule packs in `docs/RELEASE_TARGET_v1.0.md` (OC-6; also cited as DEL-06-04:2 and DEL-06-04:3).
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-008 — Specification: DEL-06-04 Private rule-pack lifecycle and checksum handling
+A checksum establishes which content was applied. It establishes nothing about whether that content is correct, lawful to share or fit for use.
 
-> #### Specification: DEL-06-04 Private rule-pack lifecycle and checksum handling
->
+### Requirements
 
-### CLM-009 — Scope
+Requirement numbers 001 to 012 are those of the earlier `R-06-04-0nn` series.
 
-> ##### Scope
->
-> This deliverable defines the contract for private rule-pack lifecycle and checksum handling in PKG-06. It covers metadata, lifecycle guardrails, checksum handling, audit/report hooks, and diagnostics needed to keep rule packs versioned, source-noted, checksum-addressed, and marked for redistribution/private status.
->
-> Current lifecycle/checksum source and tests are evidence, not a selection of encryption, access-control defaults or private rule-pack content. Storage follows DEC-017; remaining security controls retain PKG-12 ownership.
->
-> Current implementation (at `62c1efd75b`): the product reaches `core/rules/rule_pack_lifecycle/` through `core/rules/rule_pack_document/src/lib.rs`, which computes the JCS document checksum and surfaces lifecycle findings. On the desktop, `apps/desktop/src/services/rulePackService.ts` and `apps/desktop/src/features/rule-packs/RulePackManagerPanel.tsx` call the Tauri commands `compute_rule_pack_document_checksum`, `save_local_rule_pack`, `open_local_rule_pack`, `list_local_rule_packs` and `delete_local_rule_pack` in `apps/desktop/src-tauri/src/lib.rs`, which keep rule-pack documents in the local SQLite project store. New drafts are created with `private_only` redistribution status (`buildDraftRulePackDocument`). The desktop offers no rule-pack file export.
->
+- **REQ-001** — A rule-pack lifecycle record includes the pack's stable identity, human-readable name, version, source and provenance notice, redistribution and privacy status, and checksum metadata.
+- **REQ-002** — A private rule pack is marked private by default unless a public-permissive redistribution basis is explicitly recorded (FR-RULE-004).
+- **REQ-003** — Public project artifacts contain no private rule-pack content, protected standards text, protected table, copied code formula, proprietary vendor data, owner standard or company design basis.
+- **REQ-004** — The hash of a JSON rule-pack payload is taken over its canonical JSON form (RFC 8785) and recorded with its algorithm, canonicalization, payload reference and value.
+- **REQ-005** — A pack-related asset that is not JSON is represented by a manifest hash with an explicit payload reference.
+- **REQ-006** — A checksum identifies what was hashed and does not depend on an environment-local path, a timestamp, session state or any other volatile field.
+- **REQ-007** — The lifecycle emits a diagnostic for a missing source notice, a missing redistribution status, a stale or missing checksum, suspected protected content and an attempted public export of private content.
+- **REQ-008** — Reports and exports can reference a private pack's identity, name, version, checksum and source note without exposing its formulas or values (also cited as DEL-06-04:1).
+- **REQ-009** — No lifecycle status states or implies professional certification, sealing, approval, endorsement or automatic code compliance (PRD §21.2).
+- **REQ-010** — A stored pack keeps the unit metadata of every numeric input and value: what is opened is what was saved (also cited as DEL-06-04:4).
+- **REQ-011** — Storage follows the local storage profile (DEC-017) and the portable package (DEC-028). The encryption default, access-control policy, permission persistence and secret handling stay with PKG-12.
+- **REQ-012** — No adapter or plugin places a pack in the local store or in a run around validation, the privacy standing, the protected-content check, the checksum or the report controls.
+- **REQ-013** — The grammar version a pack declares is bound by its checksum (DEC-022).
 
-### CLM-010 — Requirements
+### Acceptance criteria
 
-> ##### Requirements
->
-> | Requirement ID | Requirement | Source basis |
-> |---|---|---|
-> | R-06-04-001 | A rule-pack lifecycle record shall include stable rule-pack identity, human-readable name, version, source/provenance notice, redistribution/private status, and checksum metadata. | docs/CONTRACT.md OPS-K-RULE-3; docs/SPEC.md Section 6; docs/PRD.md Section 12 |
-> | R-06-04-002 | Private rule packs shall be marked private by default unless a public-permissive redistribution basis is explicitly recorded. | docs/PRD.md Section 12.4 and 17.3; docs/IP_AND_DATA_BOUNDARY.md Section 6 |
-> | R-06-04-003 | Public project artifacts shall not contain private rule-pack content, protected standards text, protected tables, copied code formulas, proprietary vendor data, owner standards, or company design bases. | docs/CONTRACT.md OPS-K-IP-1/3; docs/IP_AND_DATA_BOUNDARY.md Section 3 |
-> | R-06-04-004 | JSON rule-pack payload hashes shall use canonical JSON with JCS-compatible canonicalization and shall record algorithm, canonicalization, payload reference, and checksum value. | docs/architecture/persistence_contract.md Hash Rules; SCA-001 architecture basis |
-> | R-06-04-005 | Non-JSON or binary rule-pack-related assets shall be represented by manifest hashes with explicit payload references; exact partitioning remains TBD. | docs/architecture/persistence_contract.md Hash Rules and Remaining TBDs |
-> | R-06-04-006 | A checksum shall identify what was hashed and shall not depend on environment-local paths, timestamps, UI session state, or other volatile fields unless their treatment is explicitly documented. | docs/architecture/persistence_contract.md Hash Rules |
-> | R-06-04-007 | The lifecycle shall emit diagnostics for missing source notice, missing redistribution status, stale or missing checksum, suspected protected content, attempted public export of private content, and rule-check-required data gaps. | docs/SPEC.md Sections 6-8; docs/architecture/code_neutral_analysis_boundary.md Boundary Rules |
-> | R-06-04-008 | Reports and exports may reference private rule-pack identity, version, checksum, and source note without exposing protected formulas or private values in public templates. | docs/IP_AND_DATA_BOUNDARY.md Section 7; docs/PRD.md Section 15 |
-> | R-06-04-009 | Rule-pack lifecycle status shall not state or imply professional certification, sealing, approval, endorsement, or automatic code compliance (PRD §21.2). | loop/LOOP_INIT.md Agent rule; docs/CONTRACT.md OPS-K-AUTH-1; docs/architecture/code_neutral_analysis_boundary.md Status Separation |
-> | R-06-04-010 | Numeric rule-pack inputs and values shall preserve unit metadata where applicable; missing required values or units shall be explicit findings. | docs/CONTRACT.md OPS-K-UNIT-1 and OPS-K-DATA-2/3 |
-> | R-06-04-011 | Storage follows the accepted local profile DEC-017 and portable packaging DEC-028; encryption default, access-control policy, permission persistence and secret handling retain their PKG-12 decision paths. | DEL-06-04 Context Envelope Notes; docs/architecture/persistence_contract.md Remaining TBDs |
-> | R-06-04-012 | The implementation boundary shall preserve schema-first service/result envelope behavior and shall not allow adapters or plugins to bypass provenance, privacy, protected-content, checksum, or report controls. | docs/architecture/extension_domain_contracts.md No-Bypass Rules |
->
-
-### CLM-011 — Standards
-
-> ##### Standards
->
-> No engineering code or standards-body requirement is implemented by this setup deliverable. Applicable project governance sources are:
->
-> - OPS-K-RULE-3: rule packs are versioned, checksummed, source-noted, and marked public/private.
-> - OPS-K-DATA-1/2/3: code-specific values are user-supplied/private, missing values are findings, and values carry provenance.
-> - OPS-K-PRIV-1/2: private data is not committed or transmitted publicly by default; telemetry is off by default and cannot include private engineering/code data.
-> - OPS-K-IP-1/2/3: protected content is excluded, provenance is required for public data, and suspected protected content is quarantined.
-> - OPS-K-UNIT-1: calculations, formulas, imported values, and exports are unit-aware and dimensionally checked.
-> - OPS-K-AGENT-1..4: no invented engineering values, gaps surfaced, sealed scope respected, outputs draft until accepted.
->
-
-### CLM-012 — Verification
-
-> ##### Verification
->
-> | Verification ID | Check |
-> |---|---|
-> | V-06-04-001 | ScopeOfWork.md sections exist and retain required sections. |
-> | V-06-04-002 | `_SEMANTIC.md` exists and contains matrix sections A, B, C, F, D, K, G, X, T, and E. |
-> | V-06-04-003 | `_SEMANTIC_LENSING.md` exists and contains lens coverage for matrices A, B, C, F, D, X, and E. |
-> | V-06-04-004 | `Dependencies.csv` exists, is parseable, and contains all v3.1 required columns. |
-> | V-06-04-005 | Dependency enum fields use canonical values where checked. |
-> | V-06-04-006 | `_DEPENDENCIES.md` summarizes active anchors and execution edges consistently with `Dependencies.csv`. |
-> | V-06-04-007 | No private rule-pack contents, protected standards data, proprietary formulas, or certification/compliance claims are introduced. |
-> | V-06-04-008 | Preserve the lifecycle recorded in `_STATUS.md`; contract verification does not promote it. |
->
-
-### CLM-013 — Documentation
-
-> ##### Documentation
->
-> Required setup outputs for this session are:
->
-> - `ScopeOfWork.md` (definition)
-> - `ScopeOfWork.md` (requirements)
-> - `ScopeOfWork.md` (rationale)
-> - `ScopeOfWork.md` (procedure)
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
-> - `Dependencies.csv`
-> - `_DEPENDENCIES.md`
-> - `_run_records/*`
-> - `_STATUS.md`
->
-> Implementation outputs such as registry modules, schemas, tests, encryption/access policy defaults, private storage paths, and actual private rule-pack files are outside this setup session.
->
-
-### CLM-014 — D-41 R5 T7 PDU-054 current declaration
-
-> ##### D-41 R5 T7 PDU-054 current declaration
->
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Private rule-pack lifecycle schemas, fixtures, checksum handling, and tests now exist. Quarantine taxonomy, provider/storage breadth, encryption, and other controls remain residual only where explicitly recorded; this is not a security-assurance ruling.
-
-- **AC-001** — The contract preserves the accepted local-first privacy, explicit payload-bound checksum, stale-hash, protected-content, unit, and professional-authority boundaries while deferring storage, encryption, access policy, permission persistence, and final redistribution enums to their governed owners.
+- **AC-001** — For a pack document, the recorded checksum equals SHA-256 of the RFC 8785 canonical form of the document without its checksum member, as computed by an implementation that shares no code with the product. Reordering members or changing whitespace leaves it unchanged, and changing any other member, the grammar version included, changes it.
+- **AC-002** — A pack whose recorded checksum is absent, or differs from the recomputed value, yields the missing or the stale finding. A pack refused for its format version yields the stale finding only when its recorded checksum differs from the value recomputed from its content; the refusal alone yields none.
+- **AC-003** — The same pack saved at two times, under two paths and in two sessions has the same checksum, and its checksum record names what was hashed and what was excluded.
+- **AC-004** — Each lifecycle finding is raised by name for a constructed record with that defect and for no other record: a missing identity, version, grammar version, source notice, redistribution status or review status; a malformed grammar version; a grammar version absent from the hashed content. A record with suspected protected content is quarantined: it yields the protected-content finding, is reported as blocked and is refused for public export, and stays so until the finding is resolved. No missing member is defaulted.
+- **AC-005** — A pack the product creates for a user is classified private with private-only redistribution. A pack is reported publicly exportable only under the four conditions of the definition above, and a public export requested for any other pack is refused with a named finding.
+- **AC-006** — A pack saved to the local store and opened is equal to what was saved in canonical form, units included, and its checksum verifies. A draft with findings saves, and a pack opened from the local store is validated again with its findings returned. The list shows each stored pack's identity, version, lifecycle status and privacy class. A deleted pack is gone, and a stored pack of another format version remains listed, opens with its refusal and can be deleted. Saving writes to the local store only and transmits nothing.
+- **AC-007** — The audit reference of a private pack that holds sentinel formula text, table rows and values contains none of them, and holds only the members of its definition. A report or export request made for a run that used a local pack carries that pack's audit reference, with a checksum equal to the one recomputed from the stored pack.
+- **AC-008** — No lifecycle status, finding or record states or implies approval, certification, sealing or code compliance, and a pack whose boundary record asserts one yields the boundary finding.
+- **AC-009** — A pack-related asset that is not JSON is covered by a checksum record that names the asset and whose value equals the hash of the asset's exact bytes.
+- **AC-010** — Every fixture and example of the lifecycle is invented, and no public artifact of it holds private pack content or protected content.
+- **AC-011** — No adapter or plugin path puts a pack into the local store or into a run around validation, the privacy standing, the protected-content check, the checksum or the report controls.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-015 — Procedure: DEL-06-04 Private rule-pack lifecycle and checksum handling
+**Method choices that define the lifecycle.**
 
-> #### Procedure: DEL-06-04 Private rule-pack lifecycle and checksum handling
->
+- The canonical JSON document is the pack; the local store is where it is kept. The checksum is taken over the canonical document and never over stored bytes or a file.
+- The checksum member is the one exclusion from the hash, because it holds the value.
+- A finding is raised and shown; a stale or missing checksum is never repaired silently on open.
+- An audit reference is built from the lifecycle record alone, so it cannot carry content the record does not hold.
 
-### CLM-016 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> This procedure governs maintenance and verification of private rule-pack lifecycle/checksum handling while preserving the public/private data boundary and unresolved PKG-12 controls.
->
-
-### CLM-017 — Prerequisites
-
-> ##### Prerequisites
->
-> - Read and apply loop/LOOP_INIT.md, AGENTS.md, docs/CONTRACT.md, docs/SPEC.md, docs/IP_AND_DATA_BOUNDARY.md, docs/PRD.md, and the DEL-06-04 sealed context.
-> - Confirm the implementation task has an explicit write scope before editing code, schemas, registry modules, or tests.
-> - Treat DEL-06-01 rule-pack schema as an upstream schema source for final field names and enum ownership.
-> - Treat DEL-08-02 audit manifest/model hash as a downstream consumer of rule-pack checksum metadata.
-> - Treat PKG-12 security/privacy deliverables as the owner for private storage locations, encryption/access defaults, telemetry, redaction, and secret handling.
-> - Do not use or create real private rule-pack payloads in public repository artifacts.
->
-
-### CLM-018 — Steps
-
-> ##### Steps
->
-> 1. Establish the rule-pack lifecycle metadata boundary.
->    - Include identity, version, source notice, redistribution/private status, checksum metadata, diagnostics, and review/quarantine disposition.
->    - Do not embed protected code text, copied formulas, private values, or proprietary tables.
->
-> 2. Define checksum payload boundaries.
->    - For JSON payloads, use canonical JSON with JCS-compatible canonicalization before hashing.
->    - Record algorithm, canonicalization, payload reference, and checksum value.
->    - For non-JSON or binary assets, create a manifest-level hash entry and mark unresolved partition details as `TBD`.
->
-> 3. Define stale-check and lifecycle diagnostics.
->    - Missing source note, missing redistribution status, missing checksum, stale checksum, suspected protected content, and attempted public export of private content must be explicit diagnostics.
->    - Missing rule-check-required values or units remain rule/check findings, not defaulted values.
->
-> 4. Connect audit/report hooks.
->    - Provide report-facing references to rule-pack ID/name, version, checksum, and source note.
->    - Public templates must not render private formulas, protected tables, or copied standards text.
->
-> 5. Preserve professional-boundary wording.
->    - Do not emit `CODE_COMPLIANT`, certification, approval, sealing, endorsement, or equivalent professional reliance language (PRD §21.2).
->    - Keep human acceptance external and hash-bound if it is introduced by later work.
->
-> 6. Defer private storage and access decisions.
->    - Record storage location, encryption defaults, access-control policy, permission persistence, and credential handling as `TBD` or PKG-12-owned unless the sealed brief explicitly authorizes them.
->
-> 7. Verify setup artifacts for this run.
->    - Confirm the ScopeOfWork.md sections exist.
->    - Confirm semantic matrix and lensing artifacts exist.
->    - Validate `Dependencies.csv` with the v3.1 schema validator.
->    - Check dependency enum fields with `validate_enum.py`.
-> - Preserve `_STATUS.md` lifecycle; completion of document or implementation checks is evidence, not an automatic transition.
->
-
-### CLM-019 — Verification
-
-> ##### Verification
->
-> | Check | Expected result |
-> |---|---|
-> | `ScopeOfWork.md` | `ScopeOfWork.md` exists. |
-> | Data boundary scan | No private rule-pack payloads, protected standards data, proprietary formulas, or code-compliance claims are present. |
-> | Checksum basis | Specification and guidance state JCS-compatible canonical JSON for JSON payload hashes. |
-> | Deferred decisions | Apply DEC-017/028 storage/package decisions; keep encryption and access-control defaults with their owning PKG-12 decisions. |
-> | Dependency schema | `Dependencies.csv` validates as v3.1. |
-> | Lifecycle state | Preserve the lifecycle recorded in `_STATUS.md`; contract verification does not promote it. |
->
-
-### CLM-020 — Records
-
-> ##### Records
->
-> Historical setup-session records (the current production carrier is `ScopeOfWork.md`):
->
-> - four-document drafting and P3 enrichment in the production documents;
-> - semantic matrix output in `_SEMANTIC.md`;
-> - semantic lensing register in `_SEMANTIC_LENSING.md`;
-> - dependency extraction results in `Dependencies.csv` and `_DEPENDENCIES.md`;
-> - run records in `_run_records/`;
-> - final lifecycle state in `_STATUS.md`.
->
-
-### CLM-021 — D-41 R5 T7 PDU-054 current declaration
-
-> ##### D-41 R5 T7 PDU-054 current declaration
->
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Private rule-pack lifecycle schemas, fixtures, checksum handling, and tests now exist. Quarantine taxonomy, provider/storage breadth, encryption, and other controls remain residual only where explicitly recorded; this is not a security-assurance ruling.
-
-- **VER-001** — Validate the contract and review source parity, lifecycle metadata, checksum payload boundaries, private/public and quarantine handling, diagnostics, audit hooks, no-bypass constraints, deferred security ownership, and all surviving source conflicts.
+- **VER-001** — AC-001 and AC-003, comparison with a named reference: RFC 8785 canonicalization and SHA-256 computed by an implementation that shares no code with the product, over invented packs; with an executable check that observes the checksum across reordering, whitespace, single-member changes, save times, paths and sessions.
+- **VER-002** — AC-002, AC-004, AC-005 and AC-008, executable check: observes the findings and the exportable standing for constructed records with each defect and each combination of privacy, redistribution and review standing, and the classification of a newly created pack.
+- **VER-003** — AC-006, executable check: saves, opens, lists and deletes constructed packs in a local store, compares the opened document with the saved one, observes the findings returned on opening, and observes that nothing is written or sent elsewhere.
+- **VER-004** — AC-007, executable check: builds the audit reference and a report and an export request for a run with a private pack that carries sentinel content, and searches each for the sentinels and for the recomputed checksum.
+- **VER-005** — AC-009, comparison with a named reference: the hash of an invented asset's bytes computed by a tool that shares no code with the product.
+- **VER-006** — AC-010 and AC-011, judgment by a reviewer who did not write the lifecycle, with the protected-content scan and an executable check of the repository's module graph: examines the fixtures and examples, and every adapter or plugin path by which a pack could reach the store or a run.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-022 — Guidance: DEL-06-04 Private rule-pack lifecycle and checksum handling
-
-> #### Guidance: DEL-06-04 Private rule-pack lifecycle and checksum handling
->
-
-### CLM-023 — Purpose
-
-> ##### Purpose
->
-> DEL-06-04 exists to keep rule-pack lifecycle and checksum behavior auditable without putting protected or private rule-pack content into the public repository. The future implementation should let users reference and validate their own design bases while preserving the code-neutral, private-data boundary.
->
-
-### CLM-024 — Principles
-
-> ##### Principles
->
-> - Treat the checksum as evidence about a specific payload, not as proof of engineering correctness.
-> - Treat privacy and redistribution status as explicit metadata, not an inference from file location.
-> - Prefer source notes and provenance over embedded protected text.
-> - Keep lifecycle diagnostics visible: missing provenance, missing checksum, stale checksum, private-data export attempts, and suspected protected content are findings.
-> - Preserve the mechanics/rule/professional boundary: a user-rule check is not professional approval.
-> - Keep storage, encryption, access policy, and secret handling decisions out of this deliverable unless the human project authority records a later architecture decision.
->
-
-### CLM-025 — Considerations
-
-> ##### Considerations
->
-> | Topic | Guidance |
-> |---|---|
-> | JCS basis | For JSON rule-pack payloads, canonicalize with the project-selected JCS-compatible basis before hashing. Record `algorithm`, `canonicalization`, `payload_ref`, and `value`. |
-> | Payload boundary | A hash must state what was hashed. Do not hash local paths, timestamps, UI state, or other volatile fields as reproducibility evidence unless excluded or documented in a manifest. |
-> | Private marking | A rule pack with unknown redistribution rights should not be treated as public. The safer state is private or unknown until reviewed. |
-> | Protected suspected | Suspected protected standards or proprietary content should trigger quarantine/human review rather than public commit. |
-> | Audit hooks | Reports and exports should identify rule-pack name or ID, version, checksum, and source note. They should not expose private formulas or protected tables in public templates. |
-> | Unit metadata | Rule-pack values used for numeric evaluation need units or dimension metadata where applicable. Missing units should block or warn rather than default silently. |
-> | Deferred architecture | Private storage directories, encryption defaults, access grants, revocation, and credential handling belong to PKG-12 and persistence decisions. |
->
-
-### CLM-026 — Trade-offs
-
-> ##### Trade-offs
->
-> | Trade-off | Direction for this setup |
-> |---|---|
-> | Strong reproducibility vs. privacy | Reference hashes and source notes without publishing private payloads. |
-> | Detailed source trace vs. protected-content risk | Store source notices and provenance summaries; do not copy licensed text or tables into public artifacts. |
-> | Local-first convenience vs. governed export | Keep private data local by default; require explicit export/report decisions for any exposure. |
-> | Schema stability vs. implementation detail | Record metadata and lifecycle expectations now; leave enum finalization and module contracts to implementation/schema deliverables. |
->
-
-### CLM-027 — Examples
-
-> ##### Examples
->
-> Safe public examples for this deliverable may show metadata shape only, using invented placeholders such as:
->
-> ```yaml
-> rule_pack_ref:
->   id: "invented-demo-only"
->   version: "0.1.0"
->   source_notice: "Invented demonstration values only"
->   redistribution_status: "public_permissive"
->   checksum:
->     algorithm: "sha256"
->     canonicalization: "JCS"
->     payload_ref: "rule_pack"
->     value: "TBD"
-> ```
->
-> Private or protected formulas, allowables, code text, tables, and owner design-basis values must not be substituted into public examples.
->
-
-### CLM-028 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | C-06-04-001 | Storage follows DEC-017; encryption default and access-control policy remain PKG-12 decisions outside this lifecycle/checksum contract. | DEL-06-04 context notes: access control details defer to PKG-12 | docs/PRD.md Section 18.3 lists optional encrypted storage | Datasheet Conditions; Specification R-06-04-011; Procedure Prerequisites | Defer to PKG-12 and persistence architecture; do not decide here. | TBD |
-> | C-06-04-002 | Exact schema enum set for redistribution/private status is not finalized by this deliverable. | docs/SPEC.md Section 6 uses `private`, `public_permissive`, `unknown` | docs/IP_AND_DATA_BOUNDARY.md includes `private_only` and `protected_suspected` for data records | Specification R-06-04-003; Datasheet Attributes | Record minimum lifecycle need and defer final enum ownership to DEL-06-01/schema work. | TBD |
+- **AX-001** — *Private unless shown otherwise.* Better is fewer ways a pack's content can leave the user's machine without the user's explicit act; the target is none. Ease of sharing never weakens the default, and unknown rights are never treated as public.
+- **AX-002** — *The checksum means the content.* Better is a checksum that identifies more exactly the content that was applied: fewer members outside the hash and fewer records left unverified. What is hashed is never narrowed to keep a checksum stable, and a checksum is never presented as evidence that a pack is correct.
+- **AX-003** — *Cite, do not copy.* Better is a reference that lets a reader identify the applied pack more exactly. It never does so by placing a formula, a table or a value in a report, an export or a public artifact.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-042 OBJ-002 OBJ-005 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-06-04:1** — Populate and verify validated local rule-pack audit references in product report/export requests; JSON hashing and local storage do not close that producer wiring. (R5 continuation: DEL-06-04:SOW#CLM-003.r07; CLM-010/R-06-04-008; CLM-025.r05.)
-- **DEL-06-04:2** — Deferred until after v1.0 (owner, 2026-10-28, accepting OC-6 "as stated"; `docs/RELEASE_TARGET_v1.0.md` RT-R3). Bind rule-check-required data-gap findings through their DEL-06-03 owner and a governed result-envelope/runtime path; the T4 reader does not expand this lifecycle crate, and exact non-JSON/binary partitioning remains `TBD`.
-- **DEL-06-04:3** — Deferred until after v1.0 (owner, 2026-10-28, accepting OC-6 "as stated"; `docs/RELEASE_TARGET_v1.0.md` RT-R3). Route any future rule-pack adapter/plugin execution through a governed runtime dispatch path; the current declaration gate is deny-only. Exact non-JSON/binary manifest-hash partitioning remains `TBD`.
-- **DEL-06-04:4** — Preserve PDU-044's documented schema absence in this lifecycle/checksum slice; numeric rule-pack unit metadata remains owned by DEL-02-02 and DEL-06-02/DEL-06-03 unless scope is separately changed.
+| OUT-001 | SOW-042 OBJ-005 | REQ-004 REQ-013 | AC-001 | VER-001 | Outside source: RFC 8785 and SHA-256, computed without product code. The one exclusion and the grammar binding are the owner's ruling DEC-022 and the decomposition's AB-00-04 |
+| OUT-001 | SOW-042 OBJ-005 | REQ-007 | AC-002 | VER-002 | The records are constructed, so the criterion states the expected finding; the recomputed value rests on the grounds of AC-001 |
+| OUT-001 | SOW-042 OBJ-005 | REQ-006 | AC-003 | VER-001 | The criterion fixes the expected result: equality across times, paths and sessions |
+| OUT-001 | SOW-042 OBJ-002 OBJ-005 | REQ-001 REQ-007 | AC-004 | VER-002 | Owner ruling: SOW-042 and `docs/CONTRACT.md` OPS-K-RULE-3 name what a pack must carry, and OPS-K-IP-3 the quarantine. The records are constructed |
+| OUT-001 | SOW-042 OBJ-002 | REQ-002 | AC-005 | VER-002 | Owner ruling: PRD FR-RULE-004 and §17.4. The records are constructed, so the criterion states the expected standing |
+| OUT-001 | SOW-042 OBJ-002 | REQ-010 REQ-011 | AC-006 | VER-003 | The criterion fixes the expected result: the pack read back equals the pack written. Local-only keeping is PRD §20.3 |
+| OUT-001 | SOW-042 OBJ-002 OBJ-005 | REQ-008 | AC-007 | VER-004 | Owner ruling: PRD §19.2 and §19.4 state what a report cites and may not contain. The sentinel content is constructed, and the checksum rests on the grounds of AC-001 |
+| OUT-001 | SOW-042 OBJ-005 | REQ-009 | AC-008 | VER-002 | Owner ruling: PRD §21.2 and `docs/claims_registry.md` |
+| OUT-001 | SOW-042 OBJ-005 | REQ-005 | AC-009 | VER-005 | Outside source: the hash algorithm applied to the asset's bytes without product code |
+| OUT-001 | SOW-042 OBJ-002 | REQ-003 | AC-010 | VER-006 | Owner ruling: PRD §20.1. The reviewer compares against sources the product did not write |
+| OUT-001 | SOW-042 OBJ-002 | REQ-012 | AC-011 | VER-006 | Owner ruling: the decomposition's AB-00-07, no bypass. The comparison is the repository's module graph |

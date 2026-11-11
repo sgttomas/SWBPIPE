@@ -1,6 +1,43 @@
 id: DEL-00-08
 name: Layered software test and acceptance strategy
-needs: []
-code_paths:
-- tools/release/run_evidence_sweep.py
-- tests/test_evidence_sweep.py
+needs:
+- from: DEL-00-01
+  condition: >-
+    The decision index lists every decision record exactly once with one of four statuses, and
+    every index row resolves to a record file.
+  gating: true
+- from: DEL-00-02
+  condition: >-
+    A check fails when a change adds a dependency against the inward direction or a module the
+    layer map does not place.
+  gating: true
+- from: DEL-00-03
+  condition: >-
+    Every service entry point is exactly one of command, query or job, and a command that fails
+    leaves the model and the stored project as they were.
+  gating: true
+- from: DEL-00-04
+  condition: >-
+    Two saves of one project state are byte-identical, a document whose version is not current is
+    refused by name, and a recorded hash equals SHA-256 over the RFC 8785 canonical form.
+  gating: true
+- from: DEL-00-05
+  condition: >-
+    A change of transient state leaves the model's canonical hash unchanged, and undo restores the
+    hash the model had before the edit.
+  gating: true
+- from: DEL-00-06
+  condition: >-
+    Every diagnostic the product emits validates against the schema of the boundary that emits it,
+    and every declared class is one of the six or maps to one.
+  gating: true
+- from: DEL-00-07
+  condition: >-
+    An adapter stops data that fails a boundary check with a named diagnostic, and a plugin or
+    adapter declaration that requests a bypass is refused.
+  gating: true
+# This deliverable's own files are the strategy document under docs/architecture/ and the checks
+# that examine the check registry, the reference fixtures and the coverage configuration. The
+# release-candidate sweep and its test (tools/release/run_evidence_sweep.py,
+# tests/test_evidence_sweep.py) are DEL-09-05's, and CI is DEL-10-04's.
+code_paths: []

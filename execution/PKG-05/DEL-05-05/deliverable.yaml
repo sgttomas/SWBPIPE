@@ -1,85 +1,54 @@
 id: DEL-05-05
 name: Concentrated and distributed user load application
 needs:
-- from: DEL-00-01
-  condition: 'DEL-05-05 must preserve architecture-basis constraint AB-00-01 for future design notes before
-    product implementation.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-05-05 must preserve architecture-basis constraint AB-00-02 for future design notes before
-    product implementation.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-03
-  condition: 'DEL-05-05 must preserve architecture-basis constraint AB-00-03 for command query job and
-    result-envelope boundaries.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-05/DEL-05-05/ScopeOfWork.md
-- from: DEL-00-06
-  condition: 'DEL-05-05 must preserve architecture-basis constraint AB-00-06 for diagnostics result hooks
-    and status provenance distinctions.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-05/DEL-05-05/ScopeOfWork.md
-- from: DEL-00-08
-  condition: 'DEL-05-05 must preserve architecture-basis constraint AB-00-08 for deterministic tests before
-    release use.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-05/DEL-05-05/ScopeOfWork.md
 - from: DEL-05-01
-  condition: 'DEL-05-05 does not reimplement the primitive load-case engine. The `user_loads` crate takes
-    its load dimensions, boundary-record vocabulary and the already-prepared `PrimitiveAxialEffectContribution`
-    records from DEL-05-01''s `primitive_loads` crate. On the product route, authored concentrated and distributed
-    loads are model `primitive_loads` that DEL-05-01''s `prepare_loads` turns into nodal and element-uniform
-    contributions.'
+  condition: >-
+    The primitive load engine prepares a force or moment at a node, and a uniform load per length
+    on a member over its whole span or a stated part, into solver contributions in a deterministic
+    order, reports each invalid load as a finding with its identity, and gives a blocked case no
+    partial set of loads.
   gating: true
-  evidence: core/loads/user_loads/src/lib.rs
-- from: DEL-04-01
-  condition: 'DEL-05-05''s loads attach to DEL-04-01''s 3D centerline frame model at its frame DOFs. For
-    K-D5, unfactored nodal loads enter as input terms, and DEL-05-05 supplies each load-source-factored nodal
-    load and each uniform member load as a formed load primitive (`NodalProduct`, `UniformStraight`, `UniformCurved`)
-    that DEL-04-01 re-forms and certifies, with R-1''s `certify_curved_uniform_load` for realized arcs (DEL-04-01
-    Design `kd5-member-relative-bound.md`).'
-  gating: true
-  evidence: core/product_physics/src/certified_loads.rs
-- from: DEL-02-02
-  condition: 'DEL-05-05 needs DEL-02-02''s dimension vocabulary and unit metadata (force, moment, force
-    per length) for load inputs, boundary records and result hooks. Conversion constants and calculation-unit
-    policy stay with DEL-02-02.'
-  gating: true
-  evidence: core/loads/user_loads/src/lib.rs
 - from: DEL-04-02
-  condition: 'DEL-05-05 needs DEL-04-02''s straight-pipe equivalent-load vectors (`StraightPipeElement`:
-    full- and partial-span uniform loads, element-station point forces, axial effects) for straight-pipe
-    equivalent user-load recovery and for the product''s consistent member-load vector. Under D-6 a Timoshenko
-    member keeps the full-span vector unchanged, uses the exact Timoshenko vector for a partial span, and
-    refuses a point member force by name (DEL-05-03 Design `section-bases-and-timoshenko.md` §3.4).'
+  condition: >-
+    The straight pipe element gives the work-consistent equivalent nodal loads of a full-span
+    uniform load, a partial-span uniform load and a point force at a station, in global axes, for
+    Euler-Bernoulli members; for a Timoshenko member it gives the exact Timoshenko loads of a
+    partial span and refuses a point member force by name.
   gating: true
-  evidence: core/loads/user_loads/src/lib.rs
+- from: DEL-04-01
+  condition: >-
+    The frame kernel's curved-bend element gives the equivalent nodal loads of a uniform load per
+    unit arc length over a whole realized arc.
+  gating: true
+- from: DEL-02-01
+  condition: >-
+    The model document carries a load case's concentrated force, concentrated moment and
+    distributed load with its target, direction, dimension, magnitude with unit, optional span and
+    provenance, each kept as authored.
+  gating: true
+- from: DEL-02-02
+  condition: >-
+    The unit catalog has the force, moment and force-per-length dimensions with their conversions
+    to the consistent basis, and reports an unknown, missing or incompatible unit as a named
+    finding.
+  gating: true
+- from: DEL-00-06
+  condition: >-
+    A diagnostic record has the fields code, class, severity, source, affected object, message,
+    remediation and provenance.
+  gating: false
 code_paths:
+# The user-load crate. The product solve does not link it; only the mechanics benchmark suite
+# (DEL-09-01) does. Whether it stays part of this deliverable is not decided (see the scope).
 - core/loads/user_loads/**
+# On the product route a user load is applied in the product solve crate, through DEL-05-01's
+# preparation and DEL-04-02's element: the nodal and uniform member loads and their formed load
+# primitives are in these two files, which DEL-05-01 lists for the loads it generates and
+# DEL-04-07 for their composition.
 - core/product_physics/src/lib.rs
 - core/product_physics/src/certified_loads.rs
-- schemas/model.schema.yaml
-- schemas/results.schema.yaml
-- core/loads/primitive_loads/src/lib.rs
-- core/solver/straight_pipe/src/lib.rs
-- core/solver/straight_pipe/tests/timoshenko_loads.rs
-- validation/benchmarks/mechanics/src/lib.rs
-- apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx
+# The desktop's user-load vocabulary: which target, directions and dimension each kind takes. The
+# panel that uses it is DEL-07-03's.
 - apps/desktop/src/features/load-cases/primitiveLoadVocabulary.ts
 checks:
 - core/loads/user_loads/src/lib.rs

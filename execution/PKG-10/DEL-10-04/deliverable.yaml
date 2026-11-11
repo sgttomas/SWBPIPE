@@ -2,120 +2,105 @@ id: DEL-10-04
 name: Build, packaging, and CI/CD pipeline
 needs:
 - from: DEL-16-06
-  condition: 'The canonical embedded-agent app build requires the selected stock supplier resource, committed pin manifest and exact licensing payloads; source preparation must verify its explicit input, and the actual app resources must verify before build success. This does not establish native isolation, supported-platform qualification, complete redistribution notices or release acceptance.'
-  gating: true
-  evidence: execution/PKG-16/DEL-16-06/Work/agent-supplier-packaging.md
-- from: DEL-00-01
-  condition: 'DEL-10-04 must apply SCA-001 architecture-basis constraint AB-00-01 from DEL-00-01.
-
-
-    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-10-04 must apply SCA-001 architecture-basis constraint AB-00-02 from DEL-00-02.
-
-
-    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-03
-  condition: 'DEL-10-04 must apply SCA-001 architecture-basis constraint AB-00-03 from DEL-00-03.
-
-
-    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-04
-  condition: 'DEL-10-04 must apply SCA-001 architecture-basis constraint AB-00-04 from DEL-00-04.
-
-
-    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-10-04 must apply SCA-001 architecture-basis constraint AB-00-06 from DEL-00-06.
-
-
-    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-07
-  condition: 'DEL-10-04 must apply SCA-001 architecture-basis constraint AB-00-07 from DEL-00-07.
-
-
-    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-10-04 must apply SCA-001 architecture-basis constraint AB-00-08 from DEL-00-08.
-
-
-    Notes: Explicit SCA-001 architecture-basis edge from assigned _CONTEXT.md
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The embedded agent's supplier resource is selected and pinned: a committed pin manifest gives
+    its digest, and its licence and notice payloads are committed beside it, so that a build can
+    verify the resource it is given and the resources in the built bundle.
   gating: true
 - from: DEL-09-05
-  condition: 'DEL-09-05 provides release-gate requirements input for future CI implementation in DEL-10-04.
-
-
-    Notes: Prior candidate retained as ACTIVE downstream enablement because assigned source explicitly
-    names future CI implementation consumption.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The release gates are listed with the evidence each needs, and the release-candidate sweep
+    emits a summary bound to a commit that records whether the tree was clean and whether every
+    surface passed.
+  gating: true
+- from: DEL-08-05
+  when: Before the v1.0 release
+  condition: >-
+    The release-candidate scan covers a repository-tree candidate at a named revision and emits a
+    record that lists every finding with an empty disposition and a sign-off block that only the
+    owner completes.
+  gating: true
+- from: DEL-00-08
+  condition: >-
+    The test strategy names the test layers and the checks that realise each, and names no CI
+    provider, tool or threshold that an owner ruling has not selected.
+  gating: true
+- from: DEL-01-01
+  condition: >-
+    The project's licence is MIT and its text is the repository's licence file.
   gating: true
 code_paths:
-- tools/agent_supplier_bundle.py
-- .gitattributes
+# The build: root workspace manifest, desktop build configuration, the WebAssembly engine build,
+# the bundle icon, and newline rules for protected inputs.
 - package.json
-- apps/desktop/package.json
+- package-lock.json
+- .gitattributes
+# Build scripts. In the same folder, engineSourceStamp.mjs, appBinaryBinding.mjs,
+# worktreeBuildLock.mjs and its test are DEL-07-11's, and solveTimelineCodes.* and
+# native-replay-merge.mjs are DEL-07-07's. generate-tokens.mjs is the generator of DEL-07-06's
+# token sheet.
+- apps/desktop/scripts/build-wasm-engine.mjs
+- apps/desktop/scripts/build-wasm-engine.test.mjs
+- apps/desktop/scripts/generate-tokens.mjs
+- apps/desktop/vite.config.ts
 - apps/desktop/src-tauri/Cargo.toml
+- apps/desktop/src-tauri/icons/**
+- tools/release/generate_app_icon.py
+# Shared files. apps/desktop/package.json: the build and test scripts and dependencies are this
+# deliverable's; the features they build are the GUI deliverables'. tauri.conf.json: the bundle
+# settings are this deliverable's; the shell and its permissions are DEL-07-11's and the storage
+# paths DEL-12-01's.
+- apps/desktop/package.json
 - apps/desktop/src-tauri/tauri.conf.json
-- apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx
-- core/product_preview/**
-- tests/product_preview/**
+# Generated example fixtures: the recipe and its generation records. The fixtures' values are the
+# solve deliverables'.
 - tools/serialization/generate_product_preview_mechanics.mjs
-- tools/ci/**
-- tests/test_ci_*.py
-- tools/validation/validate_dependencies_schema.py
-# The document route and the execution/ boundary (Work/documentation-ci.md).
-- tools/software_workflow/documentation_ci.py
-- tools/validation/execution_boundary.py
 - fixtures/product_preview/demo_fixture_generation.json
 - fixtures/product_preview/preview_physics_fixture_generation.json
-- docs/BUILD_AND_RELEASE.md
-- docs/CI_STRATEGY.md
-- docs/RELEASE_NOTES_TEMPLATE.md
-- docs/RELEASE_NOTES_v0.1.0_DRAFT.md
-- tools/release/package_release_artifact.py
-- tools/release/notarize_app.py
-- tools/release/build_signed_app.py
+# Held here without being the pipeline's product: the shared product-preview service and its
+# tests, and the dependency-register validator.
+- core/product_preview/**
+- tests/product_preview/**
+- tools/validation/validate_dependencies_schema.py
+# Hosted verification: workflows, check registry, routing, selectors, the document route and the
+# execution/ boundary guard.
+- .github/workflows/**
 - software-workflow.json
+- tools/hosted-ci-routing.json
+- tools/ci/**
+- tools/software_workflow/**
+- tools/validation/execution_boundary.py
+- tests/test_ci_*.py
 - apps/desktop/playwright.config.ts
 - apps/desktop/playwright.dist.config.ts
 - apps/desktop/playwright.webkit.config.ts
-- apps/desktop/vite.config.ts
+- docs/CI_STRATEGY.md
+# Release packaging. The sweep, readiness and scan scripts in tools/release/ are DEL-09-05's and
+# DEL-08-05's.
+- tools/release/build_signed_app.py
+- tools/release/notarize_app.py
+- tools/release/package_release_artifact.py
+- docs/BUILD_AND_RELEASE.md
+- docs/RELEASE_NOTES_TEMPLATE.md
+- docs/RELEASE_NOTES_v0.1.0_DRAFT.md
+# The supplier bundling step. The supplier's selection, pin manifest and licence payloads are
+# DEL-16-06's; that the build includes and verifies exactly them is this deliverable's.
+- tools/agent_supplier_bundle.py
+# The public repository: the map from pre-migration commit identities to imported commits, and the
+# private-term scan of the repository candidate.
+- tools/repository_history.py
+- tools/validation/validate_private_terms.py
+# The readiness panel.
+- apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx
 checks:
-- tools/agent_supplier_bundle_test.py
 - tests/test_ci_python.py
 - tests/test_ci_numerical.py
 - tests/test_ci_apt_sources.py
+- tools/software_workflow/test_hosted_ci.py
+- tools/software_workflow/test_hosted_ci_workflows.py
 - tools/software_workflow/test_documentation_ci.py
 - tools/validation/test_execution_boundary.py
 - tests/test_release_packaging_script.py
 - tests/test_release_notarize_script.py
 - tests/test_release_signed_build_script.py
+- tools/agent_supplier_bundle_test.py

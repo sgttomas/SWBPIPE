@@ -2,331 +2,128 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-10-05
 package_id: PKG-10
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-054, SOW-032]
 package_objective_refs: [OBJ-008, OBJ-009, OBJ-012]
 ---
 
-# Scope of Work — DEL-10-05
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency conditions are declared in this deliverable's `deliverable.yaml`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+# Scope of Work — DEL-10-05 Headless CLI and structured I/O analysis runner
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-10-05` in service of project scope [SOW-054, SOW-032] and package objectives [OBJ-008, OBJ-009, OBJ-012].
+This deliverable is SWBPIPE without its window: one command-line program that takes a JSON request, runs the same solve the desktop runs, and returns JSON. It exists so that solver verification, benchmarks, regression runs and automation do not depend on a person at the GUI. The result it contributes is that the product's solve, input validation, benchmark and regression suites and result export can be produced, repeated and compared by a script, and that a headless result is the product's result for the same request, not a second implementation's.
 
-- **OUT-001** — A headless CLI and structured-I/O analysis-runner contract for governed solve, input validation, result export, benchmark, and regression workflows is produced.
+It serves SOW-054 and SOW-032 under OBJ-008, OBJ-009 and OBJ-012 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-10, row DEL-10-05, and architecture-basis rows AB-00-03 and AB-00-06), with `docs/PRD.md` §5.5, §5.6, §20.4, §20.5, §21.2, §22.1, §22.4 and §24 R0 (command-line input and output). No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names this deliverable. It reaches criterion 2 through the benchmark suites it runs, and criterion 12 through the reproduction procedure of DEL-09-04, which is carried out with this runner.
+
+- **OUT-001** — The headless runner: the program `openpipestress-runner` and its request and result contract `schemas/headless_runner.schema.yaml`.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-10-05 Headless CLI and structured I/O analysis runner
+**Terms the runner implements.**
 
-> #### Datasheet: DEL-10-05 Headless CLI and structured I/O analysis runner
->
+- *Verb.* What the runner is asked to do. The stable verbs are five, one for each runner operation: `solve`, `validate-input`, `export-results`, `run-benchmark` and `run-regression`.
+- *Request.* A schema-first JSON document, read from standard input or from a file the caller names. It holds the runner request (the operation, references, privacy context and requested outputs) and, beside it, the payload its verb needs: a model document for `solve`, a suite and an optional list of cases for `run-benchmark` and `run-regression`, a report-package request for `export-results`.
+- *Result.* Structured JSON on standard output: the validation of the request and of the result, the runner result, the mechanics envelope or suite report or exported package, and diagnostics. It is written to a file only at a path the caller gives.
+- *Solver mode.* `sparse_interactive`, the default, or `dense_scrutiny`. Only `solve` takes it.
+- *Exit status.* `0`: completed with no blocking diagnostic. `1`: completed with a blocking diagnostic, or validation failed. `2`: wrong usage, unreadable input, malformed JSON or an unsupported operation, and no result was formed.
+- *Process policy.* One local process in the foreground. No daemon, no separate solver process, no network listener or connection, no telemetry, no write the caller did not name, no scan of the user's home, no write of private data to a repository default location, and no SQL or direct access to a project store.
+- *Local-private intent.* The caller's explicit statement, by a flag, that output holding private values is meant for a local private destination. Without it such output is blocked.
+- *Suite.* A benchmark or regression suite owned by a validation deliverable: mechanics (DEL-09-01), stress (DEL-09-02) and nonlinear (DEL-09-03). A suite holds its cases, their recorded comparison values and the comparison that decides a match.
+- *Hosted command.* A command of the same program that belongs to another deliverable and passes through the runner: `read`, which returns a product result reader's verdict (DEL-05-02, DEL-04-08), and `size-hangers`, which runs hanger sizing (DEL-04-11).
 
-### CLM-002 — Identification
+**Boundary.** The runner is a caller of the product's services. It contains no solver, no unit conversion, no rule evaluator, no result format and no engineering default of its own.
 
-> ##### Identification
->
-> | Field | Value | Source |
-> |---|---|---|
-> | Deliverable ID | DEL-10-05 | `_CONTEXT.md` |
-> | Package ID | PKG-10 | `_CONTEXT.md` |
-> | Package | Build, Packaging, API, and Interoperability | `_CONTEXT.md` |
-> | Type | BACKEND_FEATURE_SLICE | `_CONTEXT.md`; `docs/TYPES.md` section 3 |
-> | Lifecycle target for setup | SEMANTIC_READY | Use the current lifecycle recorded in `_STATUS.md`; preserve its state and history. Contract/evidence checks do not authorize a lifecycle transition or issuance. |
-> | Current production posture | The local CLI follows DEC-065. Current solve/validate/export/benchmark/regression bindings are in `core/runner/headless/`; release packaging and public transport remain separately governed. | `DEC-065`; TP-RUNNER-015 |
->
+- The solve it runs is DEL-04-07's; the diagnostics for a singular or incomplete model are DEL-04-06's.
+- The result export is DEL-08-04's and the report package DEL-08-01's. A report released by a user is a person's act in the desktop, and the runner does not produce one.
+- The control that blocks private values is DEL-12-02's.
+- The suites, their recorded values and their tolerances are DEL-09-01's, DEL-09-02's and DEL-09-03's. A match is evidence about the solver's behaviour against those values and is no release threshold.
+- The reproduction procedure that uses the runner is DEL-09-04's. The desktop panel that shows runner records is DEL-07-12's.
+- Building and testing the runner's crate in CI is DEL-10-04's. The runner is not a public network API; the public transport is undecided under DEL-10-01.
 
-### CLM-003 — Attributes
+**Not decided.**
 
-> ##### Attributes
->
-> | Attribute | Value | Source |
-> |---|---|---|
-> | Primary purpose | Headless or structured I/O solve execution for early solver verification, regression, and automation before full GUI maturity | `docs/_Registers/ScopeLedger.csv` row SOW-054; `docs/_Registers/Deliverables.csv` row DEL-10-05 |
-> | Required alignment | Schema-first command/query/job envelopes and result exports | `docs/_Registers/Deliverables.csv` row DEL-10-05; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.1 AB-00-03 |
-> | Reproducibility basis | Deterministic, unit-safe model data flow; canonical JSON and JCS-compatible hashing where JSON payload hashes are used | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2 |
-> | Diagnostics basis | Result envelopes and diagnostics carry machine-readable warning/error information and must not claim certification or code compliance | `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.1 AB-00-06; `docs/CONTRACT.md` invariant OPS-K-AUTH-1 |
-> | Build/automation relationship | Must remain compatible with accepted build, packaging and CI policy; evidence actual implementation and unadopted platform/release portions separately | DEC-025 governs the local evidence sweep; DEC-059 conditionally governs public sanitized-export CI, and DEC-093 permits the exact-head-bound surface-4 CI alternative. DEC-060 selects coverage telemetry tooling, not numeric floors. Implementation and release evidence remain separately bound. DEC-057 selects macOS Apple Silicon (`aarch64-apple-darwin`) `.app` distributed as zip with SHA-256 and release records. Windows/Linux require evidence-gated decisions. DEL-10-04:2 requires Developer ID signing and notarization for the first release, v1.0; credential, implementation, network, publication and release gates remain separately open. |
-> | Public/private boundary | No protected standards data, proprietary catalog values, private rule packs, or private project data are public defaults | `AGENTS.md`; `docs/DIRECTIVE.md` sections 3-4; `docs/CONTRACT.md` OPS-K-IP-1 and OPS-K-PRIV-1 |
->
-
-### CLM-004 — Conditions
-
-> ##### Conditions
->
-> | Condition | Status |
-> |---|---|
-> | Exact CLI command names | Settled for the local runner surface: `openpipestress-runner` with verbs `solve`, `validate-input`, `export-results`, `run-benchmark`, and `run-regression`. `solve` alone also takes `--solver-mode sparse_interactive|dense_scrutiny`. The binary further carries `read <reader>`, which returns the Rust result readers' verdicts to Python product callers (`core/runner/headless/src/reader_binding.rs`; DEL-04-08 Design `b7-plan.md`, R2); DEC-065's list does not name it. |
-> | Exact structured input schema fields | Use `schemas/headless_runner.schema.yaml` and the current CLI wrapper in `core/runner/headless/src/bin/openpipestress-runner.rs`; preserve source/result envelopes and explicit unsupported/missing-payload diagnostics. |
-> | Public API transport | TBD per SCA-001 remaining-TBD boundary |
-> | External import/export format list | SCA-004 and the accepted decomposition OI-004/PKG-17 allocation govern named export scope. Per-format interface/provenance guarantees and integration remain separately governed; this does not select a new public API transport or plugin runtime. |
-> | CI provider and coverage thresholds | DEC-025 governs the local evidence sweep; DEC-059 conditionally governs public sanitized-export CI, and DEC-093 permits the exact-head-bound surface-4 CI alternative. DEC-060 selects coverage telemetry tooling, not numeric floors. Implementation and release evidence remain separately bound. |
-> | Process/network/filesystem policy | Settled by `DEC-065`: single foreground local process; no network, daemon, telemetry, hidden filesystem mutation, repository-default private-data write, user-home scanning, or direct SQL/SQLite bypass; stdout JSON default with explicit `--output` path allowed |
-> | Protected-data status | No protected standards text, tables, examples, material allowables, SIF/flexibility tables, proprietary values, or certification claims introduced here |
->
-
-### CLM-005 — Construction
-
-> ##### Construction
->
-> The local runner shall consume schema-first requests and produce deterministic structured results through the governed application-service/kernel bindings. Current implementation and payload routing are recorded in `core/runner/headless/src/bin/openpipestress-runner.rs`, `benchmark_binding.rs`, `result_envelope_binding.rs` and `redaction_binding.rs`; export, benchmark and regression are not merely stub vocabulary. Missing or unsupported payloads must remain explicit blocking diagnostics.
->
-> Preserve unit/provenance validation, result envelopes, rule sandboxing, private-data/export controls and human professional review. Public transport, external adapters, packaging, signing, publication and lifecycle issuance retain their owning scope and gates.
-
-### CLM-006 — References
-
-> ##### References
->
-> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for sealed deliverable identity, SOW/OBJ coverage, acceptance/risk notes, and architecture-basis injection.
-> - `docs/CONTRACT.md` for invariants OPS-K-IP-1/2/3, OPS-K-DATA-1/2/3, OPS-K-UNIT-1, OPS-K-RULE-1/2/3, OPS-K-PRIV-1/2, OPS-K-AUTH-1, and OPS-K-AGENT-1..4.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` sections 8, 9, 11, and 12 for architecture basis, scope ledger, open issues, and accepted decisions.
-> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-10-05.
-> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) rows SOW-054 and SOW-032.
-> - `docs/SPEC.md` sections 1, 7, 8, 9, and 10 for layer boundaries, diagnostics/reporting, V&V, and deliverable mechanics.
-> - `docs/TYPES.md` sections 3, 4, 6, 8, and 9 for deliverable type, analysis-status vocabulary, data boundaries, object registry, and lifecycle semantics.
+- Whether the stable verb set grows beyond the five. The owner's ruling fixes five; the hosted commands `read` and `size-hangers` are not among them, and the modal and response-spectrum deliverables expect a headless entry that no verb yet gives.
+- Whether the runner reads a persisted project. It takes a model document in its request and opens no project store.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-007 — Specification: DEL-10-05 Headless CLI and structured I/O analysis runner
+A headless result is relied on in two ways: as the product's own answer for a request, and as the observed side of a comparison. The first rests on the runner adding nothing to the solve; the second on the references the suites hold, which are the suites' to justify.
 
-> #### Specification: DEL-10-05 Headless CLI and structured I/O analysis runner
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+### Requirements
 
-### CLM-009 — Scope
+Requirement numbers 001 to 009 are those of the earlier `R-nn` series.
 
-> ##### Scope
->
-> Current deliverable obligation: implement a CLI or equivalent headless interface for schema-driven solve execution, benchmark automation, and report/result export before full GUI maturity. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> This deliverable defines setup-stage requirements and evidence for a future headless CLI or equivalent structured I/O analysis runner. The future runner exists to support early solver verification, regression automation, and non-GUI execution paths while the full GUI matures.
->
-> `DEC-065` settles the local CLI/process policy for this deliverable. The
-> current bounded implementation provides the stable `openpipestress-runner`
-> binary with `solve`, `validate-input`, `export-results`, `run-benchmark`, and
-> `run-regression` verbs. It does not implement release packaging/signing,
-> hosted/public transport, external adapters, CI workflows, public publication,
-> or lifecycle issuance.
->
-### CLM-010 — Requirements
+- **REQ-001** — The runner executes through the schema-first command, query, job and result-envelope boundary and has no path to the solver around it (decomposition AB-00-03).
+- **REQ-002** — Structured input and output are unit-aware, deterministic and reproducible (SOW-054; OBJ-012; PRD §5.6).
+- **REQ-003** — A missing solve-required or rule-check-required input, a missing verb payload and an unsupported input each produce a blocking diagnostic, and never a default (PRD §5.5).
+- **REQ-004** — Result output is the product's result export and diagnostic envelope, so that regression comparison and report and result export consume it without another shape.
+- **REQ-005** — A diagnostic keeps its code, class, severity, source, affected object, remediation and provenance, and states no compliance or certification (decomposition AB-00-06).
+- **REQ-006** — The program is named `openpipestress-runner` and its stable verbs are the five above. Its canonical input is a schema-first JSON request from standard input or a named file, and its canonical output is structured JSON on standard output, with file output only at a path the caller gives.
+- **REQ-007** — Public examples and fixtures of the runner use invented or otherwise permitted data and embed no protected standards content (PRD §20.1).
+- **REQ-008** — The runner transmits no private project, material, component or rule-pack data, and output that holds a private value leaves the process only under explicit local-private intent (PRD §20.3 to §20.5).
+- **REQ-009** — A runner result may state the mechanics-solve and user-rule-check statuses. It states no code compliance and no approval (PRD §4.3, §21.2).
+- **REQ-010** — The runner keeps the process policy above on every verb and every hosted command.
+- **REQ-011** — The runner exits with the statuses above and no others.
+- **REQ-012** — `solve` runs the product's solve entry and nothing else: for the same request the headless result is the result the desktop gives, in each solver mode, and a model the product refuses is refused with the same named diagnostic.
+- **REQ-013** — `run-benchmark` and `run-regression` run the named cases of a suite, or every case when none is named, and report for each case the recorded and the observed outcome and whether they match under the suite's own comparison. The runner holds no tolerance of its own. An unknown case, an unsupported suite and a case whose recorded basis cannot be used are blocked with a diagnostic, and no case is skipped silently.
+- **REQ-014** — `export-results` returns the package its request describes, built by the owning deliverables' builders, with each member's hash. A request that carries a user-release marker is refused by name.
+- **REQ-015** — A hosted command passes its input to the owning deliverable's entry and returns that entry's document unchanged. The runner supplies no engineering value to it, and the process policy, the local-private control and the exit statuses apply to it as to a verb.
 
-> ##### Requirements
->
-> | ID | Requirement | Source | Verification |
-> |---|---|---|---|
-> | R-01 | The future runner must execute through schema-first command/query/job/result-envelope boundaries rather than direct solver bypasses. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-03 | Confirm future implementation calls application-service contracts and preserves command/job separation. |
-> | R-02 | Structured input and output must remain unit-aware, deterministic, and reproducible. | `docs/CONTRACT.md` OPS-K-UNIT-1; `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) SOW-054 and OBJ-012 | Confirm future fixtures include unit-bearing values and deterministic rerun expectations. |
-> | R-03 | Missing solve-required or rule-check-required data must surface as diagnostics, not silent defaults. | `docs/CONTRACT.md` OPS-K-DATA-2; `docs/DIRECTIVE.md` section 3 | Confirm future runner exits/results include blocking diagnostics for missing required inputs. |
-> | R-04 | Result output must align with schema-first result exports and diagnostic/result-envelope contracts. | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) SOW-046 and SOW-061; `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) DEL-10-05 notes | Confirm future outputs can be consumed by regression comparison and report/result export workflows without private-data leakage. |
-> | R-05 | Diagnostics must preserve code/class/severity/source/object/remediation/provenance semantics and no compliance/certification claim. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06; `docs/CONTRACT.md` OPS-K-AUTH-1 | Confirm future error/warning examples include professional-boundary notices where relevant. |
-> | R-06 | The local runner must expose stable development/test CLI verbs while keeping CI provider, release matrix, signing/publication, and hosted/public transport outside this implementation. | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) SOW-032; `DEC-065`; `DEC-025`; `DEC-057`; `DEC-059` | Confirm `openpipestress-runner` verbs are stable, package scripts are not release claims, and repo-level CI/release workflow files are not introduced by this tranche. |
-> | R-07 | Public examples and fixtures must use original/invented or otherwise permitted data and must not embed protected standards content. | `docs/CONTRACT.md` OPS-K-IP-1 and OPS-K-RULE-1; `docs/DIRECTIVE.md` sections 3-5 | Future fixture review must check protected-content risk and provenance. |
-> | R-08 | The runner must not transmit private project, material, component, or rule-pack data by default. | `docs/CONTRACT.md` OPS-K-PRIV-1/2; `docs/DIRECTIVE.md` section 6 | Future runner configuration review must confirm local-first/private-data defaults. |
-> | R-09 | Runner results may indicate mechanics solve and user-rule-check statuses but must not use automatic code-compliance status. | `docs/TYPES.md` section 4; `docs/CONTRACT.md` OPS-K-MECH-2 and OPS-K-AUTH-1 | Future status tests must reject misleading compliance/certification wording. |
->
+### Acceptance criteria
 
-### CLM-011 — Standards
-
-> ##### Standards
->
-> | Standard or basis | Applicability | Status |
-> |---|---|---|
-> | JSON Schema 2020-12 baseline | Governs public schema/interchange posture for future structured I/O | The current headless contract is `schemas/headless_runner.schema.yaml`; preserve schema-first JSON and the exact accepted input/output semantics. |
-> | Canonical JSON/JCS-compatible hashing | Applies where JSON payload hashes are used for reproducibility | DEC-017 retains canonical JSON domain truth and a rebuildable SQLite projection; DEC-028 selects a multi-member zip/directory package with member inventory and per-member JCS hashes. DEC-057 names the `.opsproj` package. Storage roots, integration and unmet controls remain separately governed. |
-> | Command/query/job/result-envelope baseline | Governs application-service separation for GUI/headless execution | Resolve current Rust input/output records in `core/runner/headless/src/lib.rs` and `schemas/headless_runner.schema.yaml`; preserve the command/query/job/result and GUI/headless separation obligations. |
-> | Professional responsibility boundary | Prohibits software or agent claims of certification, sealing, approval, or automatic code compliance (PRD §21.2) | Binding invariant |
->
-
-### CLM-012 — Verification
-
-> ##### Verification
->
-> Verify the DEC-065 local command families against their actual accepted payload bindings: solve, validate-input, export-results, run-benchmark and run-regression. The current CLI source and test definitions include named/whole-suite execution, rejection of missing/unsupported cases, controlled result output and blocking diagnostics. Bind any claimed result to the exercised candidate; the TP-RUNNER-015 stub observations remain historical evidence only.
->
-> Maintain unit/provenance/result-envelope/privacy checks, deterministic regression evidence and explicit unsupported-state behavior. Missing end-to-end/native/packaging/external-adapter witnesses remain separate delivery obligations; this records no fresh suite result.
-
-### CLM-013 — Documentation
-
-> ##### Documentation
->
-> Required setup artifacts for this run:
->
-> - `ScopeOfWork.md`
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
-> - `Dependencies.csv`
-> - `_DEPENDENCIES.md`
-> - `_run_records/*`
-> - `_STATUS.md`
->
-### CLM-014 — Pass 3 Lensing Addendum
-
-> ##### Pass 3 Lensing Addendum
->
-> Semantic lensing identified implementation-sensitive TBDs. `DEC-065` resolves
-> the local CLI command names, local process policy, network prohibition,
-> filesystem posture, and package-script posture for TP-RUNNER-015. Public API transport, external adapter integration and unresolved storage/automation matters retain their owning decisions. CI and release-matrix policy follow DEC-025/057/059/089/093; policy adoption does not complete the associated release acts.
-
-- **AC-001** — The contract preserves the DEC-065 local command surface, schema-first application-service routing, unit-aware deterministic I/O, blocking diagnostics, result-envelope and reproducibility evidence, invented/permitted fixtures, local-first private-data behavior, current bounded implementation evidence, and the current payload-binding evidence and separately unresolved persisted-project, external-adapter, public-transport and release obligations under the ruled CI/release policies without compliance claims.
+- **AC-001** — The program accepts the five verbs and the hosted commands, with an input path, an output path, the local-private intent flag and, for `solve` only, a solver mode. Any other argument, a flag missing its value, an unknown solver-mode value, or a solver mode on a verb other than `solve` exits `2`, names the problem and forms no result.
+- **AC-002** — For each verb: a run with no blocking diagnostic exits `0`; a run with one, or a request that fails validation, exits `1` with the diagnostic in its result; and unreadable input, malformed JSON and an unsupported verb exit `2`. A run that exits `2` runs no solver, suite or exporter, and anything it writes to standard output is only a blocking diagnostic that names the problem, with no runner result, mechanics envelope, suite report or package.
+- **AC-003** — While it runs any verb or hosted command, the process opens no network connection, starts no other process, and creates or changes no file other than the output path the caller gave. A run with no output path changes no file.
+- **AC-004** — A request and a result each validate against the runner contract. A request that fails it, or that lacks the payload its verb needs, is blocked with a diagnostic naming the member, and the solver, suite or exporter is not run. A request quantity with an unknown unit, a unit of the wrong dimension or no unit on a unit-bearing member is refused with its unit finding before any solve, and every quantity in a result carries its unit.
+- **AC-005** — The same model document through `solve` and through the desktop's solve entry gives byte-identical published results and diagnostics in each solver mode, and a model the product refuses is refused by both with the same code and affected object.
+- **AC-006** — The same request run twice gives byte-identical standard output, and every hash in a result equals SHA-256 over the RFC 8785 canonical form of what it names, as computed by an implementation that imports no product code.
+- **AC-007** — A whole-suite run reports every case of the suite's inventory. A case whose observed value departs from its recorded value under the suite's comparison is reported as a mismatch and the run exits `1`. An unknown case and an unsupported suite are blocked by name, and a regression suite is not accepted by `run-benchmark` nor a benchmark suite by `run-regression`.
+- **AC-008** — The document `export-results` returns validates against the schemas of the result export and the report package, and each member's stated hash is the hash of that member. A request with a user-release marker returns a named refusal and no package.
+- **AC-009** — Output that holds a value classed private is blocked without the local-private intent flag: the run exits `1`, the payload is absent and no file is written. With the flag the payload is returned with a warning.
+- **AC-010** — The analysis status of every result is one of the six automatic statuses of DEL-02-03, a rule-check outcome maps only to the three user-rule statuses, every diagnostic has the members of REQ-005, and no output contains a statement of compliance, certification, sealing or approval.
+- **AC-011** — For each hosted command, the payload the runner returns equals, by canonical value, the document the owning deliverable's entry returns for the same input, with nothing added to it or removed from it except the local-private control's decisions. Its exit status is `0` when that entry accepted or passed, `1` when it refused or the control blocked, and `2` when the input was unusable.
+- **AC-012** — Every example and fixture of the runner is invented, carries its provenance note and contains no protected or private content.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-015 — Procedure: DEL-10-05 Headless CLI and structured I/O analysis runner
+**Method choices that define the runner.**
 
-> #### Procedure: DEL-10-05 Headless CLI and structured I/O analysis runner
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *A thin caller.* Each verb decodes its request, validates it, calls one entry of the owning deliverable and wraps what comes back. Anything more belongs to the owner of that entry.
+- *JSON in, JSON out, one process.* No state survives a run, so a run is reproduced by repeating its request.
+- *The payload beside the request.* A verb's payload sits next to the runner request under the verb's name, so that the request contract stays the same for every verb.
+- *Suites decide matches.* A case's recorded values and its comparison are read from the suite; the runner reports and never judges.
+- *Blocked, not degraded.* A run that cannot do exactly what was asked returns a blocking diagnostic and does nothing partial.
 
-### CLM-017 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> Current deliverable obligation: implement a CLI or equivalent headless interface for schema-driven solve execution, benchmark automation, and report/result export before full GUI maturity. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> Define the setup and future execution procedure for a governed headless runner deliverable without implementing the runner in this session.
->
-### CLM-018 — Prerequisites
-
-> ##### Prerequisites
->
-> Current deliverable obligation: implement a CLI or equivalent headless interface for schema-driven solve execution, benchmark automation, and report/result export before full GUI maturity. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> - Sealed context for DEL-10-05 with write scope limited to this deliverable folder.
-> - Governing references listed in `_REFERENCES.md`.
-> - Architecture-basis constraints injected in `_CONTEXT.md`.
-> - No protected standards data, proprietary values, private project data, or certification/compliance claims in the artifacts.
-> - Future implementation must receive a separate sealed brief before changing CLI/source files, fixtures, package manifests, CI files, or repo-level automation.
->
-### CLM-019 — Steps
-
-> ##### Steps
->
-> 1. Read `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, `_STATUS.md`, decomposition and register rows for DEL-10-05, SOW-054, and SOW-032.
-> 2. Draft the `ScopeOfWork.md` from accessible governance, decomposition, and register sources.
-> 3. Keep exact CLI commands, schema fields, public API transport, CI provider, release matrix, and package/container details as `TBD` unless a cited source or human ruling resolves them.
-> 4. Generate `_SEMANTIC.md` from the deliverable-local perspective and production documents.
-> 5. Generate `_SEMANTIC_LENSING.md` from `_SEMANTIC.md` and the four production documents.
-> 6. Apply warranted semantic-lensing items conservatively, with source reread evidence and no new implementation particulars.
-> 7. Generate `Dependencies.csv` and `_DEPENDENCIES.md` from local source documents and the decomposition basis.
-> 8. Validate the `ScopeOfWork.md`, dependency schema, semantic coverage, lens coverage, and status state.
-> 9. Record run evidence under `_run_records/`.
->
-### CLM-020 — Verification
-
-> ##### Verification
->
-> Setup is acceptable for `SEMANTIC_READY` only when:
->
-> - `ScopeOfWork.md` exists.
-> - `_SEMANTIC.md` is populated and has no failed final-cell semantic gate.
-> - `_SEMANTIC_LENSING.md` includes all required lens coverage rows.
-> - `Dependencies.csv` validates against v3.1 schema.
-> - `_DEPENDENCIES.md` counts align with `Dependencies.csv`.
-> - `_STATUS.md` records `SEMANTIC_READY` only, not `ISSUED`.
-> - `git status` shows changes only inside this deliverable folder for this run.
->
-### CLM-021 — Records
-
-> ##### Records
->
-> Required records:
->
-> - Four production documents.
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
-> - `Dependencies.csv`
-> - `_DEPENDENCIES.md`
-> - `_STATUS.md`
-> - `_run_records/TASK_RUN_2026-04-30_1105_four-documents-p1-p2.md`
-> - `_run_records/TASK_RUN_2026-04-30_1105_semantic-matrix-build.md`
-> - `_run_records/TASK_RUN_2026-04-30_1105_lens-register.md`
-> - `_run_records/TASK_RUN_2026-04-30_1105_four-documents-p3.md`
-> - `_run_records/TASK_RUN_2026-04-30_1105_dependency-extract.md`
-- **VER-001** — Validate the contract and review source parity, five stable verb families, service-boundary and unit-aware I/O behavior, blocking diagnostics and result envelopes, deterministic fixture evidence, retained downstream/deferred integrations, privacy/protected-content controls, and professional-authority limits.
+- **VER-001** — Executable check (observes the program's arguments, exit status and output): invokes it with each verb and hosted command, with valid, invalid and missing arguments, payloads and inputs, and with request quantities whose unit is unknown, of the wrong dimension or absent, and reads the status, the diagnostics, whether a result was formed and the unit of each result quantity.
+- **VER-002** — Executable check (observes the process from outside it): runs each verb and hosted command under an operating-system trace of network, process and file activity, with and without an output path.
+- **VER-003** — Comparison with a named reference: the published result and diagnostics of the desktop's solve entry for the same model documents, admitted and refused, in each solver mode.
+- **VER-004** — Comparison with a named reference: each hash in a result against SHA-256 over RFC 8785 canonical JSON computed by an implementation that imports no product code; and the standard output of two runs of one request against each other.
+- **VER-005** — Executable check (observes suite reports): runs named cases and whole suites, a case altered so that its observed value departs from the recorded one, an unknown case and a suite given to the wrong verb, and reads the per-case report and the exit status.
+- **VER-006** — Executable check (observes exported packages and the private-value control): validates each exported document against the result-export and report-package schemas with a validator that is not the runner's, recomputes member hashes, presents a user-release marker, and runs requests holding private values with and without the intent flag.
+- **VER-007** — Comparison with a named reference: for each hosted command, the document the owning deliverable's entry returns for the same input.
+- **VER-008** — Judgment by a named role (an independent reviewer who did not write the runner): reads the contract, the examples and the fixtures against PRD §20.1 and §21.2 and reports any protected or private content and any prohibited claim.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-022 — Guidance: DEL-10-05 Headless CLI and structured I/O analysis runner
-
-> #### Guidance: DEL-10-05 Headless CLI and structured I/O analysis runner
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-024 — Purpose
-
-> ##### Purpose
->
-> This deliverable keeps the early automation path coherent while GUI maturity, packaging details, and result export schemas are still evolving. The headless runner is useful only if it exercises the same governed service boundaries that GUI and downstream automation will rely on.
->
-
-### CLM-025 — Principles
-
-> ##### Principles
->
-> - Treat the runner as an application-service client, not a solver shortcut.
-> - Keep command/query/job separation visible so progress, cancellation, diagnostics, and result envelopes stay testable.
-> - Preserve unit safety and deterministic serialization across input, solve, and output.
-> - Prefer explicit `TBD` over invented command names, schema fields, CI provider decisions, or platform matrices.
-> - Keep protected standards data, private project data, private rule packs, and proprietary component/material values out of public fixtures.
-> - Use result statuses as software findings only; professional reliance still requires competent human review.
->
-
-### CLM-026 — Considerations
-
-> ##### Considerations
->
-> The future runner should be useful for R0/R1 verification and regression work before a complete GUI exists. That usefulness depends on stable structured I/O, reproducible runs, and machine-readable diagnostics. It does not require this setup pass to pick final commands, package scripts, or file formats.
->
-> The runner is also adjacent to several other deliverables. It must align with the command/query/job model, diagnostics/result envelopes, result export format, build/CI pipeline, unit system, persistence/hash strategy, and solver diagnostics. Those relationships are dependencies and constraints, not permission to edit those deliverables here.
->
-
-### CLM-027 — Trade-offs
-
-> ##### Trade-offs
->
-> | Choice | Benefit | Risk | Setup posture |
-> |---|---|---|---|
-> | Early headless path before full GUI | Enables solver verification and automation earlier | Can bypass GUI warnings if service boundaries are ignored | Require command/job/result-envelope alignment |
-> | Schema-first I/O | Supports tests, regression comparison, and downstream tooling Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Final fields can be over-specified too early | Keep exact schema fields TBD |
-> | JSON/JCS-compatible reproducibility | Supports stable hashes and audit trails | Accepted container profile applies; actual storage integration and unmet controls require evidence | DEC-017 retains canonical JSON domain truth and a rebuildable SQLite projection; DEC-028 selects a multi-member zip/directory package with member inventory and per-member JCS hashes. DEC-057 names the `.opsproj` package. Storage roots, integration and unmet controls remain separately governed. |
-> | CLI command surface | Familiar for CI and developer workflows | Command names may ossify before architecture is ready | DEC-065 governs the selected headless CLI syntax and process/exit policy. Use `docs/validation_manual/headless_runner_reproduction.md` and `core/runner/headless/` as the current implementation/reproduction references; do not infer a new public API or release claim. |
->
-
-### CLM-028 — Examples
-
-> ##### Examples
->
-> Current deliverable obligation: implement a CLI or equivalent headless interface for schema-driven solve execution, benchmark automation, and report/result export before full GUI maturity. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> No executable CLI examples are provided in this setup run. Future examples must use invented/public-permissive data only and include visible diagnostics for missing data, provenance warnings, and professional-boundary notices where applicable.
->
-### CLM-029 — Pass 3 Semantic Lensing Notes
-
-> ##### Pass 3 Semantic Lensing Notes
->
-> The semantic lensing register reinforced three points for downstream work:
->
-> - DEC-065 supplies the command policy; current field names and payload bindings are recorded in `schemas/headless_runner.schema.yaml` and the CLI wrapper. Preserve explicitly unsupported inputs rather than a blanket field-name TBD.
-> - Future implementation must include a verification hook showing that no CLI/source, fixture, manifest, or repo-level automation file is modified outside its sealed write scope.
-> - Result export compatibility must be tested against the schema-first result-envelope baseline instead of an ad hoc output shape.
->
-
-### CLM-030 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | None | No conflicting source statements identified during setup. | N/A | N/A | N/A | N/A | N/A |
+- **AX-001** — *The product's answer, not another.* Better is fewer places where the runner could differ from the desktop for the same request, measured by the code between a request and the owning entry that is not decoding, validation or wrapping. A convenience for automation is never a reason to add a default, a tolerance or a solver path here.
+- **AX-002** — *Repeatable by a stranger.* Better is a run that someone else can repeat from its request alone and get the same bytes, measured by the output that differs between two runs of one request, which is none. Richer output is never bought with a timestamp, a host detail or an ordering that varies.
+- **AX-003** — *Quiet process.* Better is fewer outcomes that a script has to tell apart by reading message text: every outcome is told from the exit status and the structured diagnostics. No capability is added by opening a connection, starting a process or writing somewhere the caller did not name.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-054 SOW-032 OBJ-008 OBJ-009 OBJ-012 | CLM-007 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+| OUT-001 | SOW-054 OBJ-009 | REQ-006 | AC-001 | VER-001 | Owner ruling: the program name, the five verbs and the input and output forms |
+| OUT-001 | SOW-054 OBJ-008 | REQ-003 REQ-011 | AC-002 | VER-001 | Owner ruling: the three exit statuses and what each means; each invented invocation states the status it must get |
+| OUT-001 | SOW-054 OBJ-009 | REQ-008 REQ-010 | AC-003 | VER-002 | Owner ruling: the process policy. What the process did is read from an operating-system trace, which the runner did not write |
+| OUT-001 | SOW-054 OBJ-012 | REQ-001 REQ-002 REQ-003 | AC-004 | VER-001 | The runner contract says which requests are valid; each invented faulty request states the member its diagnostic must name. The expected unit finding comes from DEL-02-02's unit catalog, which says which symbols exist and the dimension of each |
+| OUT-001 | SOW-054 OBJ-008 OBJ-012 | REQ-012 | AC-005 | VER-003 | Equivalence only: the runner's result is compared with the desktop entry's for the same request. That the values are right is DEL-04-07's criterion, against references that import no product code |
+| OUT-001 | SOW-054 OBJ-012 | REQ-002 | AC-006 | VER-004 | Outside source: RFC 8785 and SHA-256, computed by an implementation that imports no product code. Determinism is one run compared with another |
+| OUT-001 | SOW-054 SOW-032 OBJ-008 | REQ-013 | AC-007 | VER-005 | The suites' recorded values say what each case must give; where those values come from is the criterion of DEL-09-01, DEL-09-02 and DEL-09-03. The nonlinear regression values are the product's own earlier output and only guard against change. The altered case states the mismatch the runner must report |
+| OUT-001 | SOW-054 OBJ-009 | REQ-004 REQ-014 | AC-008 | VER-006 | The schemas of DEL-08-04 and DEL-08-01 say what a valid document is, applied by a validator that is not the runner's; member hashes are recomputed outside the runner |
+| OUT-001 | SOW-054 OBJ-009 | REQ-008 | AC-009 | VER-006 | Owner ruling: PRD §20.3 keeps private data from leaving unexpectedly; each invented request states whether its output must be blocked |
+| OUT-001 | SOW-054 OBJ-008 | REQ-005 REQ-009 | AC-010 | VER-001 VER-008 | Owner ruling: PRD §4.3 and §21.2. The status and field sets are DEL-02-03's and DEL-00-06's, not the runner's |
+| OUT-001 | SOW-054 OBJ-009 | REQ-015 | AC-011 | VER-007 | The owning deliverable's entry says what the document must be; the hosted command's payload is compared with it by canonical value |
+| OUT-001 | SOW-054 OBJ-009 | REQ-007 | AC-012 | VER-008 | Owner ruling: PRD §20.1 lists what public content may not contain; the reviewer compares |

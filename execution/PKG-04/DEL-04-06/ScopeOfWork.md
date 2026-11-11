@@ -2,398 +2,109 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-04-06
 package_id: PKG-04
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-053,SOW-035]
-package_objective_refs: [OBJ-003, OBJ-008, OBJ-012]
+package_objective_refs: [OBJ-003,OBJ-008,OBJ-012]
 ---
 
-# Scope of Work — DEL-04-06
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency conditions are declared in this deliverable's `deliverable.yaml`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+# Scope of Work — DEL-04-06 Solver diagnostics and singularity detection
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW-035] and package objectives [OBJ-003, OBJ-008, OBJ-012].
+Every solve and pre-solve check that cannot give a determinate, converged mechanics result says so with a deterministic diagnostic naming its cause, severity and affected entity, and the solver never reports more than a mechanics-only status. This deliverable makes the solver say what is wrong. When a model cannot be solved, or can be solved only with doubt, it gives the user a named, located statement: this model is unrestrained, this node has no support, this system is ill-conditioned, this case did not converge, these two nodes nearly coincide. Without it a bad model yields either a crash or numbers that look like results. With it the user can find and fix the cause, and a published result carries its warnings.
 
-- **OUT-001** — A solver-diagnostics and singularity-detection contract covering deterministic machine-readable diagnostic envelopes, mechanics-only solver status, singularity and conditioning evidence, nonconvergence, invalid model and numeric inputs, provenance, remediation, unit metadata, and reviewable result-envelope interfaces is produced for the declared scope and objectives.
+It serves SOW-053 and SOW-035 under OBJ-003, OBJ-008 and OBJ-012 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-04, row DEL-04-06), and PRD §12.8, §12.2 (singularity and ill-conditioning detection) with FR-SOL-015, FR-KNOW-002 and FR-GUI-006, and the PRD §24 phase exit "singular model detection implemented". Under SOW-035 its diagnostics are reproducible: the same input gives the same records in the same order. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names it; it supports criterion 3, since every refusal a user meets is named through these records.
+
+- **OUT-001** — The solver diagnostics: the diagnostic record, the detection and classification of singular, ill-conditioned, non-converged and invalid-model states, the model topology checks, and the on-demand model checks in the desktop.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-04-06 Solver diagnostics and singularity detection
+**Terms the diagnostics implement.**
 
-> #### Datasheet: DEL-04-06 Solver diagnostics and singularity detection
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *Diagnostic.* A record with a machine-readable code, class, severity and source, a message, and, where they apply, the affected object, a reference to the model entity, a remediation, provenance and the units of any quantity it quotes. An affected reference names a degree of freedom (`dof:*`), a support, an element, or a load, including a load whose object is missing (`load:<missing-id>`).
+- *Classes and severities.* A diagnostic is solve-blocking, an assumption warning, a nonlinear warning, or a statement that a policy is undecided; its severity is failure (the solve could not complete), blocking (the model is refused before solving), warning or information.
+- *Solver status.* Of a solve, one of two mechanics states: the model is incomplete or the solve failed (`MODEL_INCOMPLETE`); or the mechanics were solved, possibly with warnings (`MECHANICS_SOLVED`). It is a solver result only: it carries no rule-check outcome and no human acceptance, and review by a person remains required.
+- *Singular system.* A system the solver cannot solve because the model can move without resistance: an unrestrained model or part, or a mechanism. The diagnostic names the degree of freedom at which it was found.
+- *Ill-conditioned system.* A reduced system whose condition estimate exceeds the warning level; beyond the failure level it is a conditioning failure.
+- *Non-convergence.* An iterative solve whose residual is above its tolerance: a warning before the iteration limit, a failure at it.
+- *Topology finding.* A warning about a model that can be formed but is unusual: parts not connected to each other, distinct nodes that coincide or nearly coincide, or a malformed branch.
+- *Node-proximity tolerance.* The distance at or below which two distinct nodes not joined by an element are reported as near-duplicates: an absolute length, 5 mm unless the user sets another value for the model.
+- *Model checks.* The checks the solve itself runs before forming a stiffness, run on the user's request without solving.
 
-### CLM-003 — Identification
-
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-04-06 |
-> | Name | Solver diagnostics and singularity detection |
-> | Package | PKG-04 Solver Core and Numerical Methods |
-> | Type | BACKEND_FEATURE_SLICE |
-> | Scope items | SOW-053, SOW-035 |
-> | Objectives | OBJ-003, OBJ-008, OBJ-012 |
-> | Context envelope | M |
->
-
-### CLM-004 — Attributes
-
-> ##### Attributes
->
-> | Attribute | Current value | Source |
-> |---|---|---|
-> | Primary subject | `core/solver/diagnostics` implements deterministic mechanics-solver diagnostics for singular, ill-conditioned, nonconverged, invalid-restraint, invalid-topology, invalid-numeric-input, and explicit solver-configuration TBD states. | `_CONTEXT.md`; `core/solver/diagnostics/README.md`; `core/solver/diagnostics/src/lib.rs` |
-> | Solver-result boundary | Diagnostics describe mechanics-solver/model-validation status under `solver_result_only` authority and do not emit rule-check status, human-acceptance status, professional approval, or code-compliance claims (PRD §21.2). | `docs/CONTRACT.md` OPS-K-MECH-2; OPS-K-AUTH-1; `core/solver/diagnostics/src/lib.rs` `SolverStatus::analysis_boundary_mapping` |
-> | Diagnostic envelope fields | `SolverDiagnostic` carries `code`, `class`, `severity`, `source`, `message`, optional `affected_ref`, optional `canonical_ref`, optional `remediation`, `provenance`, and `quantity_units`. | `core/solver/diagnostics/src/lib.rs` `SolverDiagnostic` |
-> | Provenance/remediation/unit metadata | Default diagnostics include solver-generated provenance with `review_status: TBD`, default remediation text by diagnostic code/severity, optional canonical model reference, and optional quantity-unit metadata. | `core/solver/diagnostics/src/lib.rs` `DiagnosticProvenance`, `default_remediation`, `with_canonical_ref`, `with_quantity_unit` |
-> | Analysis-boundary statuses | `ReadyToSolve`, `ModelIncomplete`, and `SolveFailed` map to `MODEL_INCOMPLETE`; `MechanicsSolved` and `SolvedWithWarnings` map to `MECHANICS_SOLVED`; every mapping keeps `human_review_required: true`, `emits_rule_status: false`, and `emits_human_acceptance: false`. | `core/solver/diagnostics/src/lib.rs` `SolverStatus::analysis_boundary_mapping` |
-> | Diagnostic classes | Blocking/failure diagnostics map to `SOLVE_BLOCKING`; ill-conditioning warnings map to `ASSUMPTION_WARNING`; warning-level solver-iteration nonconvergence maps to `NONLINEAR_WARNING`; sparse-solver and tolerance-policy deferrals map to `TBD`. | `core/solver/diagnostics/src/lib.rs` `diagnostic_class_for` |
-> | Numerical thresholds | Conditioning and convergence helper functions accept caller-supplied thresholds/tolerances and reject invalid numeric inputs, but accepted release thresholds remain TBD. | `core/solver/diagnostics/src/lib.rs` `classify_condition_ratio`, `convergence_diagnostic`; `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-005 |
-> | Sparse solver library/settings | Sparse strategy is selected by DEC-023 and live/default use by DEC-050/053; the diagnostic records adoption status. This deliverable selects no release threshold. | `_CONTEXT.md` Still TBD; `core/solver/diagnostics/src/lib.rs` `sparse_solver_tbd_diagnostic` |
->
-
-### CLM-005 — Diagnostic Category Register
-
-> ##### Diagnostic Category Register
->
-> | Category | Implemented handling | Preserved limit |
-> |---|---|---|
-> | Singular system | `FrameKernelError::SingularSystem` maps to `SingularSystem` / `Failure` / `MechanicsSolver` and produces a blocked `SolveFailed` report. | Sparse selection follows DEC-023/050/053; uncovered product integration remains separately evidenced. |
-> | Ill-conditioned system | `classify_condition_ratio` returns `IllConditionedSystem` warning diagnostics and `ConditioningFailure` failure diagnostics from finite, nonnegative condition-ratio evidence. | Accepted project thresholds remain TBD. |
-> | Nonconverged analysis | `convergence_diagnostic` returns `NonConvergence` warning diagnostics before the iteration limit and failure diagnostics at or beyond the limit. | Nonlinear support warning finalization remains deferred pending the nonlinear support slice and accepted tolerance policy. |
-> | Invalid restraint | Frame restrained/prescribed DOF errors and support findings/application errors map to blocking `InvalidRestraint` model-validation diagnostics, with `dof:*` affected references where implemented. R-6/R-7 S-K1 (DEL-04-03 Work `skew-restraints.md` §11.3, Agent 0's decision): the three skew support findings `SkewDirectionRange`, `SkewStopsPerNode` and `ConstraintRedundant` join that mapping. | This does not decide rule compliance or human acceptance. |
-> | Invalid model topology | Frame topology/orientation errors, support DOF alignment errors, and primitive-load topology findings map to blocking `InvalidModelTopology` diagnostics; missing load IDs use stable `load:<missing-id>` references. The frame kernel's `InvalidInput` (S-K1: a skew node block at a force scale or outside the stiffness pattern) maps to a blocking `InvalidModelTopology` ModelValidation input refusal (`invalid input: <detail>`), a backstop that the named §2.2 codes precede, never a numerical range or solver failure. | Protected examples and proprietary benchmark cases remain excluded. |
-> | Invalid numeric input | Frame numeric errors, linear-support errors, primitive-load errors, and primitive-load numeric findings map to blocking `InvalidNumericInput` diagnostics. | Unit conversion/default policy is not introduced here. |
-> | Sparse/tolerance TBD | `SparseSolverTbd` and `TolerancePolicyTbd` diagnostics are warning-level solver-configuration diagnostics with class `TBD`. | DEC-023/050/053 resolves sparse adoption; no new tolerance, performance or release criterion is selected. |
-> | Solver status | `SolverDiagnosticReport` carries a solver-local status and diagnostics; analysis-boundary mapping preserves mechanics-only status semantics. | Final application-service/result-envelope integration remains deferred. |
->
-
-### CLM-006 — Conditions
-
-> ##### Conditions
->
-> - Solver changes require deterministic verification tests before release. Source: `docs/CONTRACT.md` OPS-K-SOLVER-1.
-> - Nonlinear solver diagnostics must report convergence, active-set state, and unresolved non-convergence when nonlinear support behavior is involved. Source: `docs/CONTRACT.md` OPS-K-SOLVER-2.
-> - Missing solve-required values and invalid restraints must become explicit findings rather than silent defaults. Source: `docs/CONTRACT.md` OPS-K-DATA-2.
-> - Units in solver-facing values and outputs remain dimensionally checked. Source: `docs/CONTRACT.md` OPS-K-UNIT-1.
-> - Current evidence is implementation evidence for the diagnostic crate, not release acceptance. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
->
-
-### CLM-007 — Construction
-
-> ##### Construction
->
-> | Artifact | Description | Current status |
-> |---|---|---|
-> | Solver diagnostics module | Rust crate for diagnostic classification, status reporting, mapping helpers, and TBD configuration diagnostics. | Implemented at `core/solver/diagnostics` |
-> | Frame-kernel mappings | Maps singular systems, invalid restraints, topology/orientation errors, numeric input errors, and matrix/vector shape errors from `FrameKernelError`. | Implemented in `diagnostic_from_frame_error` and `report_frame_error` |
-> | Support mappings | Maps linear-support errors/findings and support-application errors into blocking diagnostics. | Implemented in `diagnostic_from_linear_support_error`, `diagnostic_from_support_finding`, and `diagnostics_from_support_application_error` |
-> | Primitive-load mappings | Maps primitive-load errors/findings, including axial-effect findings and missing load IDs, into blocking diagnostics with stable affected references. | Implemented in `diagnostic_from_primitive_load_error` and `diagnostic_from_primitive_load_finding` |
-> | Conditioning diagnostics | Classifies finite, nonnegative condition ratios into no diagnostic, warning, or failure. | Implemented with caller-supplied thresholds; release thresholds TBD |
-> | Nonconvergence diagnostics | Reports residual/tolerance nonconvergence as warning or failure based on iteration count. | Implemented with caller-supplied tolerance; DEC-026/046 governs policy; unmeasured entries remain explicit |
-> | Sparse/tolerance TBD diagnostics | Reports sparse adoption against DEC-023/050/053 and genuinely unmeasured tolerance criteria. | Current mappings in `core/solver/diagnostics/src/lib.rs`; release criteria remain open |
-> | Status reporting | Machine-readable solver-local statuses map to PKG-02 analysis-boundary mechanics statuses. | Implemented; final result-envelope integration remains deferred |
->
-
-### CLM-008 — Historical verification snapshot
-
-> ##### Historical verification snapshot
->
-> - `core/solver/diagnostics/README.md` states this crate is the bounded implementation slice for `DEL-04-06`.
-> - `_run_records/TASK_RUN_2026-06-05_0736_TP-DEL-04-03-04-06_SUPPORT-BOUNDARY-HARDENING_B.md` records `cargo test --manifest-path core/solver/diagnostics/Cargo.toml --locked` passing with 19 tests. This is the recorded result for that run's source; it is not a current suite count or engineering-validation claim.
-> - The same June 5 evidence preserves deferrals for sparse solver selection, tolerance policy, nonlinear support behavior, release claims, professional approval, and code-compliance claims (PRD §21.2).
->
-
-### CLM-009 — References
-
-> ##### References
->
-> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history)
-> - `_REFERENCES.md`
-> - `MEMORY.md`
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see the project decision register)
-> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-04-06
-> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) rows SOW-053 and SOW-035
-> - `docs/CONTRACT.md`
-> - `docs/SPEC.md`
-> - `docs/TYPES.md`
-> - `core/solver/diagnostics/README.md`
-> - `core/solver/diagnostics/src/lib.rs`
-> - `_run_records/TASK_RUN_2026-06-05_0736_TP-DEL-04-03-04-06_SUPPORT-BOUNDARY-HARDENING_B.md`
+**Boundary.** Diagnostics report; they solve nothing and decide no tolerance. The frame kernel (DEL-04-01), supports (DEL-04-03, DEL-04-04) and loads (DEL-05-01) detect their own failures and findings, which this deliverable maps to records. This deliverable defines what a diagnostic says; DEL-04-07 raises the records in the product solve and carries them to the result unchanged. DEL-05-04 owns the analysis status semantics the solver status maps into. The results viewer and exports (PKG-07, PKG-08) present them. The model-document member that stores the node-proximity tolerance is DEL-02-01's.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-010 — Specification: DEL-04-06 Solver diagnostics and singularity detection
+A diagnostic is a statement about the discrete model and its solve. The absence of a diagnostic establishes nothing about the physical system.
 
-> #### Specification: DEL-04-06 Solver diagnostics and singularity detection
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+### Requirements
 
-### CLM-012 — Scope
+- **REQ-001** — Singular, ill-conditioned, non-converged, invalid-restraint, invalid-topology, invalid-numeric-input and undecided-policy states each produce a deterministic diagnostic (SOW-053; PRD FR-SOL-015).
+- **REQ-002** — A diagnostic carries its code, class, severity, source and message and, where they apply, its affected reference, model-entity reference and remediation, with provenance and quantity units.
+- **REQ-003** — Provenance, remediation, the model-entity reference and unit metadata remain available on the diagnostic wherever it is carried (`docs/CONTRACT.md` OPS-K-UNIT-1).
+- **REQ-004** — The solver status maps mechanics states only: incomplete or failed to "model incomplete", solved or solved with warnings to "mechanics solved", as a solver result only, with human review required, no rule status and no human acceptance (`docs/CONTRACT.md` OPS-K-MECH-2, OPS-K-AUTH-1).
+- **REQ-005** — A kernel failure maps to a blocking diagnostic: a singular system, an invalid restraint, invalid topology or orientation, invalid numeric input, or mismatched matrix and vector dimensions (SOW-053).
+- **REQ-006** — Support errors and findings map to blocking model-validation diagnostics that name the support and, where the error concerns a degree of freedom, that degree of freedom (`docs/CONTRACT.md` OPS-K-DATA-2).
+- **REQ-007** — Load errors and findings map to blocking model-validation diagnostics, including a load that names something missing (`docs/CONTRACT.md` OPS-K-DATA-2).
+- **REQ-008** — A solve whose reduced system is ill-conditioned publishes a warning diagnostic and, beyond the failure level, a blocking conditioning-failure diagnostic, each naming the case (SOW-053; PRD FR-SOL-015, §12.2). The warning and failure levels are not yet decided.
+- **REQ-009** — A residual and tolerance are classified as no diagnostic, a non-convergence warning or a non-convergence failure, by iteration count against the supplied limit (`docs/CONTRACT.md` OPS-K-SOLVER-2).
+- **REQ-010** — A solve whose tolerance or convergence policy has no governed value says so in a named warning. A settled choice is never reported as undecided.
+- **REQ-011** — No diagnostic states or implies certification, approval, professional reliance, release readiness or code compliance (PRD §21.2).
+- **REQ-012** — *Topology checks.* Before solving, on both solve routes, and without refusing a solve or changing any published value, the product warns when the model's elements form two or more disconnected parts, naming each and whether it is supported; when distinct nodes that no element joins coincide or lie no farther apart than the node-proximity tolerance; and when a branch component's node does not join exactly three pipes or its header and branch name the same pipe. The branch warning states plainly which of the component's branch stress factors are still applied, naming each pipe, and names exactly the sides whose intensified results the solve publishes; a refused result names none. The user can change the tolerance for the model (PRD FR-KNOW-002, §12.8, §14.4).
+- **REQ-013** — *On-demand model checks.* On the user's request, without solving and without changing the model, the desktop runs the solve's own checks before stiffness formation (input validation, the restraint pre-checks and the topology checks), with the model-data slot checks and the library-reference findings, and lists each finding with its own code, severity and text. Choosing a finding that names a model entity selects it, and the command has a keyboard equivalent. The requirement further fixes:
+  - *Agreement with the solve.* Each solve finding matches the corresponding leading diagnostic of a solve in id, code, severity, source and affected references, and in text before any post-solve statement of applied branch stress factors is appended.
+  - *Memory.* The checks run under the memory admission of a solve in the app (a capped worker within the per-invocation budget), and under a stated input size bound in the browser preview. Library-reference findings are read only after that call returns a report from an admitted or bounded check.
+  - *Bounded report.* All three groups share one bounded allowance for serialized findings: findings beyond it are counted, not listed; long messages and model-read refusal text are shortened; library messages are kept whole when their findings fit; ids and references are kept whole.
+  - *Cancellation.* A check in progress is cancelled, and its memory released, when the project session changes or a newer check is requested (PRD FR-KNOW-002, FR-GUI-006).
 
-> ##### Scope
->
-> This deliverable records the implemented backend solver diagnostic layer at `core/solver/diagnostics`. The implemented slice covers deterministic diagnostic records, solver-local status reporting, analysis-boundary status mapping, frame-kernel error mapping, linear-support mapping, primitive-load mapping, condition-ratio classification, iterative nonconvergence diagnostics, and explicit sparse-solver/tolerance-policy TBD diagnostics.
->
-> The implemented boundary remains mechanics-only. This deliverable does not select the sparse numerical library, set accepted release tolerance thresholds, finalize nonlinear support warning policy, integrate the final application result envelope, claim release readiness, or claim professional/code compliance.
->
+**Undecided.** Whether the numerical-integrity diagnostic that the solve integration and the retained-precision method raise for a sensitive case already meets REQ-008's obligation.
 
-### CLM-013 — Requirements
+### Acceptance criteria
 
-> ##### Requirements
->
-> | ReqID | Requirement | Source |
-> |---|---|---|
-> | REQ-04-06-001 | The diagnostic crate shall preserve deterministic diagnostic records for singular, ill-conditioned, nonconverged, invalid-restraint, invalid-topology, invalid-numeric-input, and unresolved solver-configuration states. | SOW-053; `core/solver/diagnostics/README.md` |
-> | REQ-04-06-002 | `SolverDiagnostic` shall carry machine-readable `code`, `class`, `severity`, `source`, `message`, optional `affected_ref`, optional `canonical_ref`, optional `remediation`, `provenance`, and `quantity_units`. | AB-00-06; `core/solver/diagnostics/src/lib.rs` `SolverDiagnostic` |
-> | REQ-04-06-003 | Diagnostic provenance, remediation, canonical-reference, and unit-metadata surfaces shall remain available in the diagnostic envelope. | AB-00-06; OPS-K-UNIT-1; `core/solver/diagnostics/src/lib.rs` |
-> | REQ-04-06-004 | Solver-local status mapping shall map mechanics states only: incomplete/failed states to `MODEL_INCOMPLETE`, solved/warning states to `MECHANICS_SOLVED`, with `solver_result_only` authority, human review required, no rule status, and no human-acceptance emission. | AB-00-03; AB-00-06; OPS-K-MECH-2; OPS-K-AUTH-1 |
-> | REQ-04-06-005 | Frame-kernel errors shall map to blocking/failure diagnostics for singular systems, invalid restraints, invalid model topology/orientation, invalid numeric input, and invalid matrix/vector dimensions. | SOW-053; `core/solver/diagnostics/src/lib.rs` `diagnostic_from_frame_error` |
-> | REQ-04-06-006 | Linear-support errors, support findings, and support-application errors shall map to blocking model-validation diagnostics, with stable DOF references where implemented. | OPS-K-DATA-2; SOW-053; `core/solver/diagnostics/src/lib.rs` |
-> | REQ-04-06-007 | Primitive-load errors and findings shall map to blocking model-validation diagnostics, including axial-effect findings and missing-load-ID references. | OPS-K-DATA-2; SOW-053; `core/solver/diagnostics/src/lib.rs` |
-> | REQ-04-06-008 | Conditioning diagnostics shall classify finite nonnegative condition-ratio evidence into no diagnostic, `IllConditionedSystem` warning, or `ConditioningFailure` failure using caller-supplied thresholds. | SOW-035; OI-005; `classify_condition_ratio` |
-> | REQ-04-06-009 | Nonconvergence diagnostics shall classify residual/tolerance evidence as no diagnostic, warning-level `NonConvergence`, or failure-level `NonConvergence` using caller-supplied tolerance and iteration count. | OPS-K-SOLVER-2; `convergence_diagnostic` |
-> | REQ-04-06-010 | Sparse adoption shall be reported against DEC-023/050/053; `TolerancePolicyTbd` remains applicable to genuinely unmeasured or unaccepted criteria under DEC-026/046. Do not label the settled solver strategy as undecided. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Still TBD; OI-005; `sparse_solver_tbd_diagnostic`; `tolerance_policy_tbd_diagnostic` |
-> | REQ-04-06-011 | The diagnostic slice shall preserve mechanics-only boundaries and shall not claim certification, sealing, approval, professional reliance, release readiness, or code compliance (PRD §21.2). | OPS-K-MECH-2; OPS-K-AUTH-1; `core/solver/diagnostics/README.md` |
-> | REQ-04-06-012 | Before solving, on both solve routes and without refusing or changing any published value, the product shall warn when the model's elements form two or more disconnected parts (naming each and whether it is supported), when distinct nodes that no element joins coincide or lie no farther apart than the model's node-proximity tolerance (5 mm unless the user sets another value), and when a branch component's node does not join exactly three pipes or its header and branch name the same pipe. | PRD FR-KNOW-002; PRD §12.8; `Work/model-topology-checks.md` |
-> | REQ-04-06-013 | On the user's request, without solving and without changing the model, the desktop shall run the solve's own checks before stiffness formation (input validation, the restraint pre-checks and the REQ-04-06-012 topology checks), with the model-data slot checks and the library-reference findings, and list each finding with its own code, severity and text; choosing a listed finding whose retained affected references name a model entity shall select it. The command shall have a keyboard equivalent. Before the report limits are applied, each solve finding shall match the corresponding leading solve diagnostic in id, code, severity, source and affected references, and its text shall match the diagnostic before any post-solve statement of applied branch stress factors is appended. The solve and model-data slot checks shall run under the memory admission of a solve in the app (a capped worker within the per-invocation budget) and under a stated UTF-8 input bound in the browser preview. Existing library-reference findings shall be read only after that call returns a report from an admitted or bounded check. All three groups shall share one bounded allowance for serialized findings: findings beyond its limit are counted rather than listed; long solve and slot messages and model-read refusal text are shortened; library messages are retained whole when their findings fit; and ids and references are kept whole. A check in progress is cancelled, and its memory released, when the project session changes or a newer check is requested. | PRD FR-KNOW-002, FR-GUI-006; feature survey B11 (#1662 delegation); `Work/on-demand-model-checks.md` |
->
-
-### CLM-014 — Standards
-
-> ##### Standards
->
-> No external protected standard text is introduced by this diagnostic slice or by this document update. Governing local standards are the project invariant catalog, architecture basis rows AB-00-01, AB-00-02, AB-00-03, AB-00-06, AB-00-08, and the decomposition/register rows listed in `_CONTEXT.md`.
->
-
-### CLM-015 — Verification
-
-> ##### Verification
->
-> | Requirement | Verification approach |
-> |---|---|
-> | REQ-04-06-001 | Verification hook: `cargo test --manifest-path core/solver/diagnostics/Cargo.toml --locked`, with result and source recorded in the governing run evidence. The June 5 Worker B record is historical evidence of 19 passing tests on its bound source, not a result for a later source basis. |
-> | REQ-04-06-002 | Source inspection verifies the `SolverDiagnostic` fields listed above. |
-> | REQ-04-06-003 | Source inspection verifies `DiagnosticProvenance`, `default_remediation`, `with_canonical_ref`, and `with_quantity_unit`. |
-> | REQ-04-06-004 | Unit coverage includes solver-status analysis-boundary mapping without human authority emission. |
-> | REQ-04-06-005 | Unit coverage includes singular-system mapping, invalid-restraint mapping, prescribed DOF boundary errors, invalid orientation, and repeated element node topology; source inspection covers the remaining frame-kernel error mappings. |
-> | REQ-04-06-006 | Unit coverage includes support finding and support-application error mapping; the June 5 parent fan-in also records linear-support and frame-kernel compatibility validation. |
-> | REQ-04-06-007 | Unit coverage includes primitive-load finding mapping, missing load ID handling, and axial-effect missing/invalid property mappings. |
-> | REQ-04-06-008 | Unit coverage includes condition-ratio no-diagnostic, warning, failure, and non-finite-input rejection cases. |
-> | REQ-04-06-009 | Unit coverage includes failed nonconvergence and converged residual cases. |
-> | REQ-04-06-010 | Unit coverage includes sparse-solver `TBD` warning behavior; tolerance-policy `TBD` is implemented as the companion unresolved-policy diagnostic and remains a release deferral. |
-> | REQ-04-06-011 | Boundary review checks wording and run-record evidence for no release, professional approval, or code-compliance claim (PRD §21.2). |
-> | REQ-04-06-012 | `core/product_physics/tests/topology_checks_runtime.rs`, through the desktop's value entry in both solver modes except where noted: a connected model and an isolated anchored node give no finding; two anchored parts warn and the tip displacement equals the part solved alone; an unsupported part is named and still refused; coincident nodes, and nodes 4.9 mm and exactly 5 mm apart, warn in metre and millimetre input, and nodes just beyond 5 mm do not; in a 2 km model (sparse mode only) 4 mm warns and 6 mm does not; a near pair across a cell boundary and a tiny gap are found; more than six parts are counted and six named; a tee on two pipes, or whose header is its branch, warns and a valid tee does not. `an_invalid_tee_says_which_branch_stress_factors_still_apply` and `the_branch_warning_names_exactly_the_published_sides` check that the branch warning names exactly the sides whose intensified rows the envelope publishes, in both solver modes, over every combination of header and branch SIF (absent, zero, negative, positive, or in a non-dimensionless unit) and flexibility factor (absent, present, zero, or in a non-dimensionless unit) on seven malformed tees (one with an arc branch pipe), with no warning on a valid tee under any of them, and that a refused envelope names none. `core/product_physics/src/topology_tests.rs` checks another tolerance value inclusively, a near pair far from the origin and a saturated cell index. A user-set `model_settings.node_proximity_tolerance` replaces the default: 10 mm (in mm or m) finds nodes 8 mm apart that the default does not, exactly 8 mm finds them (inclusive) and 2 mm does not find nodes 4 mm apart; a zero, negative, underflowing or non-length value is refused by name with nothing solved (`a_user_set_tolerance_replaces_the_default`, `an_invalid_tolerance_is_refused_by_name`). The user sets it in the desktop's Model settings section through the applier's `set_model_setting` and `clear_model_setting`; through the solve, nodes 3 mm apart warn at the default and not at 2 mm, and nodes 8 mm apart warn at 10 mm and not after Reset to default (`core/model_operations/operation_applier/tests/model_settings_authoring.rs` in both solver modes; `a_tolerance_set_through_the_apply_command_changes_which_nodes_warn` in `apps/desktop/src-tauri`; `apps/desktop/src/features/model-settings/ModelSettingsSection.test.tsx`). No committed fixture or bundled model changes a published numerical result value (main comparison). |
-> | REQ-04-06-013 | `core/product_physics/tests/model_checks_runtime.rs`: across 15 invented models in both solver modes, findings match the solve's leading diagnostics in id, code, severity, source and affected references, and each finding's message is a prefix of the corresponding solve message; when a check finding is blocking, the solve publishes exactly those findings; `the_checks_stop_where_the_solve_stops` holds the intermediate stop. The tests also check that the request is unchanged and unreadable requests are refused with the solve's text. `core/model_operations/operation_applier/tests/model_checks.rs` checks the engine report and its bound (`the_report_is_bounded_whatever_the_model`: ids and references kept whole, findings left out counted with how many are blocking, a slot flood within the bound, the refusal shortening and the browser input bound); `apps/desktop/src-tauri/src/solve_jobs.rs` `model_checks_run_in_a_capped_worker_whatever_the_fan_out`, `model_checks_refuse_by_type_at_the_invocation_budget` and `model_checks_wait_for_a_worker_slot_then_refuse_by_type` check the worker, the budget and the starting grant's queue wait, and `a_session_reset_cancels_a_running_check_and_releases_its_grant`, `a_newer_check_cancels_the_one_in_progress` and `a_solve_queued_behind_a_cancelled_check_starts` check cancellation; the desktop's `modelChecks.test.ts`, `ModelChecksPanel.test.tsx` and `App.modelChecks.test.tsx` check the listing, entity selection, keyboard command and navigation, the native route, the UTF-8 browser bound, no slot check outside admission or the bound, blocking findings left out counted and never summarised as an empty run, the latest of overlapping checks, a new project retiring and cancelling a check in progress, and that the model and undo history are unchanged. |
->
-
-### CLM-016 — Documentation
-
-> ##### Documentation
->
-> Current local documentation artifacts are `ScopeOfWork.md`, `MEMORY.md`, `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, `Dependencies.csv`, `_DEPENDENCIES.md`, `_STATUS.md`, and `_run_records/`. This document update does not edit lifecycle state, dependency registers, review finding dispositions, DAG files, coordination prompts, code, or tests.
-
-- **AC-001** — The contract preserves the accepted diagnostic codes and mappings, caller-supplied threshold and tolerance behavior, explicit sparse-solver and tolerance-policy TBD diagnostics, stable affected and canonical references, unit-aware provenance, rights-cleared verification evidence, and mechanics-only authority without inventing numerical policy or release readiness. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+- **AC-001** — Models singular by construction are each detected and named: a model with no support, a part with no support, and a mechanism give a blocking diagnostic that locates the unrestrained degree of freedom, and no result is published for them. The same holds for a zero-length element and an invalid orientation.
+- **AC-002** — Each kernel, support and load failure maps to the diagnostic this deliverable defines, with its code, class, severity, source and affected reference: a kernel failure to a blocking diagnostic, a support error or finding to a blocking model-validation diagnostic that names the support and, where the error concerns a degree of freedom, that degree of freedom, and a load error or finding to one that names the load, including a missing one.
+- **AC-003** — Every diagnostic of every kind carries the fields of REQ-002, and the same input gives the same diagnostics in the same order.
+- **AC-004** — A product solve whose reduced system is ill-conditioned beyond the warning level carries the ill-conditioning warning, and beyond the failure level is refused with the conditioning-failure diagnostic; a well-conditioned solve carries neither, and a non-finite condition estimate is rejected.
+- **AC-009** — A nonlinear solve whose residual is above its tolerance carries a non-convergence warning before the iteration limit and a failure-level non-convergence diagnostic at it; a residual within tolerance gives none.
+- **AC-005** — The solver status of an incomplete or failed solve is "model incomplete" and of a solved one "mechanics solved", and no status or diagnostic carries a rule outcome, an acceptance or a compliance statement.
+- **AC-006** — A case solved without a governed tolerance carries the named warning, and no diagnostic describes the sparse solver strategy as undecided.
+- **AC-007** — On both routes: a connected model and an isolated anchored node give no topology finding; two supported parts warn and solve to the values each part gives alone; an unsupported part is named and still refused by the solve's own checks; nodes that coincide, or lie at or within the tolerance, warn in any length unit, and nodes just beyond it do not; a user-set tolerance replaces 5 mm; a branch on two pipes, or whose header is its branch, warns and a valid one does not; a malformed branch's warning names exactly the sides whose intensified results are published, under every combination of header and branch factor, and a refused result names none. No topology finding changes a published value.
+- **AC-008** — For every model, the on-demand findings equal the solve's leading diagnostics as REQ-013 states, and when a finding is blocking the solve publishes exactly those findings. The model is unchanged by a check; a finding that names an entity selects it; the report stays within its bound whatever the model, with omitted findings counted; a check over the memory budget is refused by name; and a superseded check is cancelled.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-017 — Procedure: DEL-04-06 Solver diagnostics and singularity detection
+**Method choices that define the diagnostics.**
 
-> #### Procedure: DEL-04-06 Solver diagnostics and singularity detection
->
+- Detection belongs to the code that meets the condition; this deliverable owns the vocabulary and the mapping, so that one condition has one name wherever it is met.
+- Thresholds and tolerances are inputs to classification. The diagnostics hold none.
+- A topology finding is a warning, never a refusal: a model that can be formed but is unusual may be intended. Topology that prevents the mechanics from being formed is refused by the solve's own checks.
+- The node-proximity tolerance is an absolute length, so the finding does not depend on the model's overall size.
+- The on-demand checks call the solve's own check code and stop where the solve would begin forming a stiffness; they are not a second implementation.
 
-### CLM-018 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> Define the review and maintenance procedure for the implemented solver diagnostic deliverable.
->
-
-### CLM-019 — Prerequisites
-
-> ##### Prerequisites
->
-> - Sealed context for DEL-04-06 in `_CONTEXT.md`.
-> - Decomposition and register rows for SOW-053, SOW-035, OBJ-003, OBJ-008, and OBJ-012.
-> - Applicable architecture basis rows AB-00-01, AB-00-02, AB-00-03, AB-00-06, and AB-00-08.
-> - Contract invariants OPS-K-SOLVER-1, OPS-K-SOLVER-2, OPS-K-UNIT-1, OPS-K-MECH-2, OPS-K-DATA-2, OPS-K-REPORT-1, OPS-K-AUTH-1, and OPS-K-AGENT-1 through OPS-K-AGENT-4.
-> - Current implementation evidence in `core/solver/diagnostics/README.md` and `core/solver/diagnostics/src/lib.rs`.
-> - Source-bound verification evidence for the diagnostics test suite; `_run_records/TASK_RUN_2026-06-05_0736_TP-DEL-04-03-04-06_SUPPORT-BOUNDARY-HARDENING_B.md` is the historical June 5 result. A later candidate uses evidence bound to its own source; unit-test results do not establish engineering validation.
->
-
-### CLM-020 — Steps
-
-> ##### Steps
->
-> 1. Confirm the deliverable identity and write scope from `_CONTEXT.md`.
-> 2. Read the deliverable-local truth set: `_CONTEXT.md`, `_STATUS.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, `MEMORY.md`, `ScopeOfWork.md`.
-> 3. Read the implementation evidence in `core/solver/diagnostics/README.md` and `core/solver/diagnostics/src/lib.rs`.
-> 4. Confirm the diagnostic envelope fields: `code`, `class`, `severity`, `source`, `message`, optional `affected_ref`, optional `canonical_ref`, optional `remediation`, `provenance`, and `quantity_units`.
-> 5. Confirm provenance/remediation/unit metadata surfaces through `DiagnosticProvenance`, default remediation text, `with_canonical_ref`, and `with_quantity_unit`.
-> 6. Confirm analysis-boundary status mapping through `SolverStatus::analysis_boundary_mapping`; preserve `solver_result_only` authority, human review required, no rule-status emission, and no human-acceptance emission.
-> 7. Confirm frame-kernel mappings for singular systems, invalid restraints, invalid topology/orientation, invalid numeric input, and matrix/vector shape failures.
-> 8. Confirm linear-support and support-application mappings, including support IDs and `dof:*` affected references where implemented.
-> 9. Confirm primitive-load mappings, including axial-effect finding codes and stable `load:<missing-id>` affected references for missing or blank load IDs.
-> 10. Confirm conditioning and nonconvergence diagnostics with caller-supplied thresholds/tolerances and input validation.
-> 11. Confirm sparse-solver and tolerance-policy TBD diagnostics remain warning-level unresolved-policy evidence.
-> 12. Check recent run records for validation evidence; the June 5 Worker B record reports 19 passing diagnostics tests.
-> 13. Preserve residuals for unmeasured accepted tolerance thresholds, nonlinear support warning finalization, final result-envelope integration, release claims, professional approval, and code-compliance claims (PRD §21.2).
-> 14. For document-only alignment work, do not edit code, `_STATUS.md`, review finding dispositions, dependency registers, DAG files, or coordination prompts.
->
-
-### CLM-021 — Verification And Release-Hardening Workflow
-
-> ##### Verification And Release-Hardening Workflow
->
-> 1. Use existing diagnostics unit tests as implementation evidence when the code has not changed.
-> 2. Rerun `cargo test --manifest-path core/solver/diagnostics/Cargo.toml --locked` when diagnostics source or tests change.
-> 3. Add original/public/permissive singular, restraint, topology, load, conditioning, and nonconvergence fixtures only within an authorized implementation scope.
-> 4. Add nonlinear support active-set regression coverage only after nonlinear diagnostic policy is accepted.
-> 5. Add release gate coverage for accepted sparse solver and tolerance policy only after those decisions are governed.
-> 6. Verify that each fixture emits machine-readable diagnostics and does not claim professional approval or code compliance (PRD §21.2).
->
-
-### CLM-022 — Verification
-
-> ##### Verification
->
-> - Confirm `ScopeOfWork.md` and its required source sections exist.
-> - Confirm the four production documents align with current implementation evidence.
-> - Confirm current documents include diagnostic envelope fields, provenance/remediation/unit metadata, analysis-boundary status mapping, frame/support/primitive-load mappings, conditioning/nonconvergence diagnostics, sparse/tolerance TBD diagnostics, and revision-bound test evidence.
-> - Confirm obsolete non-implementation wording has been removed from the four production documents except where a preserved deferral is explicitly named.
-> - Confirm no files outside the assigned write scope were edited.
->
-
-### CLM-023 — Records
-
-> ##### Records
->
-> - The consolidated `ScopeOfWork.md` in this folder.
-> - `MEMORY.md`
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
-> - `Dependencies.csv`
-> - `_DEPENDENCIES.md`
-> - `_run_records/TASK_RUN_*.md`
-> - `core/solver/diagnostics/README.md`
-> - `core/solver/diagnostics/src/lib.rs`
->
-
-### CLM-024 — D-41 R5 T7 PDU-054 current declaration
-
-> ##### D-41 R5 T7 PDU-054 current declaration
->
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The solver-diagnostics and singularity-detection suite is live with current tests and evidence. Setup-era exact counts and checklists are historical rather than current authority; unresolved solver-policy matters remain only where explicitly recorded.
-
-- **VER-001** — Validate the contract and review source parity, diagnostic-envelope fields and mappings, solver-status authority boundaries, singularity, restraint, topology, numeric, conditioning and nonconvergence coverage, caller-supplied policy inputs, sparse and tolerance deferrals, units and provenance, deterministic evidence, protected-content controls, and every surviving governed residual.
+- **VER-001** — AC-001, AC-003, AC-004, AC-006 and AC-009, executable check: observes, for models singular or invalid by construction, the diagnostic raised, its location and the absence of a result; and, for each classification, the diagnostic at, below and above its supplied limit.
+- **VER-002** — AC-002 and AC-005, executable check: observes each failure kind mapped to its record, field by field, and the status of a failed and of a solved case.
+- **VER-003** — AC-007, executable check: observes the topology findings on constructed models in both solve modes and on both routes, with the published values compared against the same model without the unusual feature.
+- **VER-004** — AC-008, executable check: observes the on-demand findings against the solve's leading diagnostics across a set of invented models, the unchanged model, the bounded report, the memory refusal and the cancellation.
+- **VER-005** — AC-005, judgment by a reviewer who did not write the code: examines diagnostic texts against `docs/claims_registry.md`.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-025 — Guidance: DEL-04-06 Solver diagnostics and singularity detection
-
-> #### Guidance: DEL-04-06 Solver diagnostics and singularity detection
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-027 — Purpose
-
-> ##### Purpose
->
-> This deliverable guides use and review of the implemented `core/solver/diagnostics` slice. The diagnostic layer makes mechanics-solver failure states explicit, reproducible, machine-readable, and reportable while preserving the project boundary between solver facts, rule checks, human review, and professional reliance.
->
-
-### CLM-028 — Principles
-
-> ##### Principles
->
-> - Treat diagnostics as solver evidence, not engineering approval.
-> - Treat sparse-adoption diagnostics against DEC-023/050/053 and `TolerancePolicyTbd` against the still-unmeasured governed criteria; neither establishes acceptable release settings.
-> - Preserve diagnostic provenance, remediation, affected references, canonical references, and unit metadata so downstream reports can explain which object, solver stage, and source produced a warning or blocking condition.
-> - Keep invalid restraints, invalid topology, invalid numeric inputs, and missing solve-required values visible as findings; do not normalize them away.
-> - Use `SolverStatus::analysis_boundary_mapping` for mechanics-only status handoff: solver diagnostics may map to `MODEL_INCOMPLETE` or `MECHANICS_SOLVED`, but they do not emit rule status or human acceptance.
-> - Keep release claims outside this deliverable. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
->
-
-### CLM-029 — Considerations
-
-> ##### Considerations
->
-> - Singular models and invalid restraints overlap semantically but may require different diagnostic codes because one describes numerical rank/solvability and the other describes model-definition validity.
-> - Frame-kernel mappings currently include singular systems, repeated/out-of-range restrained or prescribed DOFs, node/topology/orientation failures, non-finite/non-positive inputs, and matrix/vector shape failures.
-> - Linear-support mappings currently cover support errors, support findings, and support-application errors. Support finding affected references use the public support ID; DOF application errors use `dof:*`.
-> - Primitive-load mappings currently cover primitive-load errors/findings, axial-effect finding codes, and missing load IDs. Missing or blank load IDs use the stable affected reference `load:<missing-id>`.
-> - Ill-conditioning is implemented as condition-ratio classification, but accepted threshold values are still a governed policy decision.
-> - Nonconvergence diagnostics are implemented for iterative residual/tolerance evidence, but nonlinear support warning finalization and active-set policy remain outside the accepted slice.
-> - Result-envelope integration should preserve AB-00-03 and AB-00-06 semantics so GUI, CLI, reports, and tests receive consistent status fields when the application service integrates the final envelope.
-> - Thresholds remain `TBD` because the accepted authority requires reportable conditioning and convergence diagnostics but does not define release numerical policy. Later values need solver-library evidence, deterministic tests, and human-approved implementation context, and must not imply code compliance.
->
-
-### CLM-030 — Vocabulary Notes
-
-> ##### Vocabulary Notes
->
-> | Term | Current implementation use |
-> |---|---|
-> | Singular | A mechanics solve state where the assembled/constrained system cannot produce a determinate solution under the chosen solver policy. |
-> | Ill-conditioned | A numerical-quality warning state reported by condition-ratio classification when a caller-supplied warning threshold is met or exceeded. |
-> | Conditioning failure | A blocking/failure state reported by condition-ratio classification when a caller-supplied failure threshold is met or exceeded. |
-> | Nonconverged | An iterative solve state whose residual exceeds caller-supplied tolerance; it is warning-level before the iteration limit and failure-level at or beyond the limit. |
-> | Invalid restraint | A model-definition finding for restraint/support data that prevents a valid solve or makes the restraint set contradictory. |
-> | Invalid model topology | A model-definition finding for topology, orientation, target, connectivity, or required-reference problems that prevent valid mechanics use. |
-> | Invalid numeric input | A model-validation or mechanics-solver finding for non-finite, non-positive, dimensionally invalid, or malformed numeric data. |
-> | Blocking diagnostic | A diagnostic that prevents treating the mechanics solve as completed. |
-> | TBD diagnostic | A warning-level diagnostic that records a deliberately unresolved solver policy or adapter selection. |
->
-
-### CLM-031 — Trade-offs
-
-> ##### Trade-offs
->
-> | Decision area | Current guidance | Open issue |
-> |---|---|---|
-> | Diagnostic granularity | Use the implemented `SolverDiagnosticCode` registry before adding new diagnostic kinds. | Additional nonlinear-support warning classes remain deferred. |
-> | Conditioning warnings | Preserve reportability and provenance while passing threshold values explicitly from accepted solver policy. | Accepted release thresholds remain TBD; solver strategy/default use follows DEC-023/050/053. |
-> | Fixture design | Use original/public/invented models and avoid protected examples. | Additional release gate fixture inventory remains TBD. |
-> | Status wording | State mechanics-solver facts only and preserve `solver_result_only` authority. | Human review, rule checks, and professional reliance remain outside solver authority. |
-> | Result integration | Keep diagnostic records and status mapping stable for the application result envelope. | Final result-envelope integration remains deferred. |
->
-
-### CLM-032 — Examples
-
-> ##### Examples
->
-> No example models are added by this document alignment. Any later examples should be invented/public/permissive and should not reproduce protected standard examples or proprietary benchmark cases.
->
-
-### CLM-033 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> No new source conflicts were found during this document/evidence alignment. Unmeasured numerical thresholds and nonlinear support warning finalization, final result-envelope integration, release claims, and professional/code-compliance claims remain deferrals, not conflicts.
-
-### CLM-034 — SCA-011 Diagnostic production and integration
-
-**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
-
-Retain diagnostic-production semantics. DEL-04-07 composes and preserves those diagnostics through product solve entrypoints; GUI and export owners present or map them without inventing successful outcomes.
-
-- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.
-- **AC-002** — The named boundary is honored, its witness is bound to the tested candidate, and missing or held results remain explicit. Ownership assignment alone is not a pass.
-- **VER-002** — Trace singularity, nonconvergence and unavailable observations through product integration with source and diagnostic identity preserved.
+- **AX-001** — *Name the cause where the user can act on it.* Better is a diagnostic that names the cause and the affected entity earlier and more specifically, so that fewer refused or warned solves leave the user without a cause. A more helpful message never guesses: it states only what the check established, and it never costs determinism or changes a published value.
+- **AX-002** — *Never a quiet failure.* Better is fewer faults that reach a user as a crash, a generic error or a plausible number. A diagnostic is never downgraded or dropped to let a result through, and a refused or unconverged model is never reported as solved.
+- **AX-003** — *Warn, do not obstruct.* A model the mechanics can form is solved, with its warnings. Usefulness of a warning never justifies refusing a model the user may intend.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-053 SOW-035 OBJ-003 OBJ-008 OBJ-012 | CLM-010 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-| OUT-002 | OBJ-003 OBJ-008 OBJ-012 | CLM-034 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-04-06:1** — Obtain the outstanding formal review disposition and current scope parity/claim-map review; current sparse diagnostic and numerical-failure implementation evidence does not itself supply that disposition. (R5 continuation claim references: DEL-04-06:SOW#production-and-verification-method-praxeology/VER-001; output-and-evaluation-matrix/OUT-001.)
+| OUT-001 | SOW-053 OBJ-003 OBJ-008 OBJ-012 | REQ-001 REQ-005 | AC-001 | VER-001 | Outside source: closed-form rank deficiency of rigid-body and mechanism models, which are singular by construction |
+| OUT-001 | SOW-053 OBJ-003 OBJ-008 OBJ-012 | REQ-005 REQ-006 REQ-007 | AC-002 | VER-002 | The criterion states the expected record for each failure kind (`docs/CONTRACT.md` OPS-K-DATA-2) |
+| OUT-001 | SOW-053 SOW-035 OBJ-003 OBJ-008 OBJ-012 | REQ-001 REQ-002 REQ-003 | AC-003 | VER-001 | The criterion states the expected fields; identical ordering on repeat runs is the product's own earlier output and only guards against change |
+| OUT-001 | SOW-053 SOW-035 OBJ-003 OBJ-008 OBJ-012 | REQ-008 | AC-004 | VER-001 | Outside source: matrices of known condition number built by construction. The warning and failure levels need an owner ruling that does not yet exist |
+| OUT-001 | SOW-053 OBJ-003 OBJ-008 OBJ-012 | REQ-004 REQ-011 | AC-005 | VER-002 VER-005 | Owner ruling: PRD §21.2, `docs/CONTRACT.md` OPS-K-MECH-2 and `docs/claims_registry.md` |
+| OUT-001 | SOW-053 OBJ-003 OBJ-008 OBJ-012 | REQ-010 | AC-006 | VER-001 | Owner ruling: the settled solver strategy (DEC-023, DEC-053) and the tolerance policy (DEC-026, DEC-046) state what is and is not decided |
+| OUT-001 | SOW-053 OBJ-003 OBJ-008 OBJ-012 | REQ-012 | AC-007 | VER-003 | The geometry is constructed, so the criterion states the expected findings; the 5 mm default and its inclusive boundary are an owner ruling, as is the warning-only reading of PRD §14.4; the applied-sides statement is an owner ruling. Values unchanged by a finding compare the product with its own output and only guard against change |
+| OUT-001 | SOW-053 OBJ-003 OBJ-008 OBJ-012 | REQ-013 | AC-008 | VER-004 | A consistency check between the on-demand check and the solve, both the product's own output: it only guards against change, and no numerical correctness is claimed |
+| OUT-001 | SOW-053 OBJ-003 OBJ-008 OBJ-012 | REQ-009 | AC-009 | VER-001 | Owner ruling: `docs/CONTRACT.md` OPS-K-SOLVER-2 and DEC-046; the residual, tolerance and limit are constructed inputs |

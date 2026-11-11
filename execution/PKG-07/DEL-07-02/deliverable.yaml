@@ -1,140 +1,128 @@
 id: DEL-07-02
 name: Model tree and property inspector
 needs:
-- from: DEL-00-01
-  condition: 'DEL-07-02 requires the accepted ADR and runtime/UI baseline before implementation execution
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-07-02 requires repository and module boundary constraints for GUI and service ownership
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-03
-  condition: 'DEL-07-02 inspector edits require application-service command/query boundaries
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
 - from: DEL-00-05
-  condition: 'DEL-07-02 requires the durable/transient GUI state and selection architecture
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-07-02 requires diagnostic and result-envelope concepts for missing-data and provenance
-    findings
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-07
-  condition: 'DEL-07-02 reads and mutations require governed internal API boundaries
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-07-02 requires layered GUI/service/protected-content test gates
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The GUI state rule keeps selection, expansion, filters and drafts out of the model document,
+    defines one selection of entity identifiers shared by the viewport, the tree and the inspector,
+    requires every change to the model to be an applied model operation, and scopes undo and redo
+    to reversible model edits.
   gating: true
 - from: DEL-02-01
-  condition: 'DEL-07-02 requires accepted domain/model schema contracts for model entity identity and
-    inspector field groups
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-02-05
-  condition: 'DEL-07-02 requires persistence contracts so inspector edits and view state do not corrupt
-    durable project state
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-03-02
-  condition: 'DEL-07-02 requires component and section library schema fields for inspector display
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The model document holds every entity as a typed record with a stable identifier, every
+    dimensional value with its unit, sources and provenance records, tags, notes, lines,
+    assumptions, constraints, equipment interfaces and operating-condition sets. An absent optional member
+    means none, and the document validator refuses a malformed member by a named code and path at
+    every apply and validate-only preview.
   gating: true
 - from: DEL-02-02
-  condition: 'DEL-07-02 requires unit-system contracts for unit-bearing inspector display and edit validation
-
-
-    Notes: satisfaction remains TBD until upstream maturity is verified.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The unit catalog gives the units of each dimension, a new entry's starting unit comes from the
+    project units, a missing project unit leaves the field without a default and says why, and a
+    value of the wrong dimension is refused with a named finding.
   gating: true
-- from: DEL-03-01
-  condition: 'DEL-07-02 requires material library provenance and private/public status fields for inspector
-    display
-
-
-    Notes: satisfaction remains TBD until upstream maturity is verified.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-16-01
+  condition: >-
+    The implemented operation taxonomy has kinds for creating, changing and deleting nodes, pipe
+    runs, sections, materials, supports, components and condition sets, for setting a field, for
+    assigning a section and a condition set, and for realizing a bend at a corner, each with its
+    target types, field path and value form.
   gating: true
-- from: DEL-06-01
-  condition: 'DEL-07-02 requires rule-pack reference fields for inspector display and missing rule-check
-    data visibility
-
-
-    Notes: satisfaction remains TBD until upstream maturity is verified.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-16-02
+  condition: >-
+    An operation or batch can be validated without being applied, returning either a deterministic
+    preview of the change or the named refusal the apply would give, including a stale before-value.
   gating: true
-- from: DEL-06-04
-  condition: 'DEL-07-02 requires rule-pack checksum source and private/public status concepts where inspector
-    fields expose rule-pack references
-
-
-    Notes: satisfaction remains TBD until upstream maturity is verified.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-16-06
+  condition: >-
+    One operation engine applies a batch only after validation, any required preview and the user's
+    explicit acceptance, applies it whole or not at all, leaves the model unchanged on any refusal,
+    and keeps every member an operation does not name bit for bit.
+  gating: true
+- from: DEL-16-03
+  when: Applying queued changes as one batch
+  condition: >-
+    An applied batch is recorded once, with one acceptance record, one receipt holding every
+    operation and each operation's author, whichever surface produced the batch.
+  gating: true
+- from: DEL-04-03
+  condition: >-
+    The linear support model defines the support families and restraint tokens a record may carry,
+    admits an authored direction on a single-translation line stop or spring stored exactly as
+    entered, and reports each inadmissible record by a named finding with the support's identity.
+  gating: true
+- from: DEL-04-04
+  condition: >-
+    The nonlinear support model defines the members of a one-way, gap, lift-off and friction
+    support and reports a record that lacks a required one by a named finding.
+  gating: true
+- from: DEL-03-03
+  when: Entering bend rows in the run sheet
+  condition: >-
+    A bend accepts the user's radius, flexibility factor and directional stress-intensification
+    pair (both or neither) with one source reference, and realizing a bend at a corner replaces the
+    corner with tangent nodes the engine computes.
   gating: true
 - from: DEL-03-05
-  condition: 'Run-sheet valve and flange rows require the rigid-component geometry, independent quantity-unit choices, COG convention and existing insertion payload contract consumed from DEL-03-05; engineering values remain explicit.'
+  when: Entering valve and flange rows in the run sheet
+  condition: >-
+    A rigid-family component takes its body length, end sizes and centre-of-gravity vector each
+    with a unit of its own, by a stated offset convention, and a record lacking a required value is
+    reported as missing.
   gating: true
-  evidence: execution/PKG-03/DEL-03-05/Work/component-quantity-units.md
-- from: DEL-03-03
-  condition: 'Run-sheet bend SIF cells require the user-entered directional SIF and flexibility slots of the bend component and the existing bend_realization contract consumed from DEL-03-03 bend authoring (both SIFs or neither, one source_reference shared with k, user authors only); the sheet supplies no value.'
+- from: DEL-07-03
+  condition: >-
+    The component and bend editors expose their creation forms' completeness checks and operation
+    payload builders, which the run sheet's bend, valve and flange rows and the tree's component
+    forms use, so that a row and a form produce the same operation for the same inputs.
   gating: true
-  evidence: execution/PKG-03/DEL-03-03/ScopeOfWork.md
-- from: DEL-04-03
-  condition: 'The support Direction (x, y, z) entry requires the S-K1 create_support contract consumed from DEL-04-03 (skew-restraints.md §2.2 gate order and codes, §4.2 range, §6.4 DOF token, and the S-K1 model, applier and authoring contract) and its applier on main; the desktop writes the entered vector and shows the engine''s refusals by name.'
+- from: DEL-07-01
+  when: Examining responsiveness at size
+  condition: >-
+    The interaction-performance requirement defines the reference profile, the frozen workload, the
+    limits and the pass rule under which table filtering, row selection and table readiness are
+    measured.
   gating: true
-  evidence: execution/PKG-04/DEL-04-03/Work/skew-restraints.md
+- from: DEL-07-11
+  condition: >-
+    The workspace shell mounts the tree, tables and inspector, holds the session's selection,
+    pending changes and history, keeps one applied batch as one checkpoint that undo restores and
+    redo reapplies, and announces queue, apply, undo and redo so that a draft surface can follow
+    them.
+  gating: true
+- from: DEL-09-01
+  when: Examining the authoring time
+  condition: >-
+    The reference system exists as a fixture with a run sheet that lists each entry step in order
+    and the differences allowed between a hand-entered model and the fixture.
+  gating: true
 code_paths:
-- apps/desktop/e2e/ui-foundation.spec.ts
-- apps/desktop/package.json
 - apps/desktop/src/features/model-tree/**
-- apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx
-- apps/desktop/src/features/load-cases/primitiveLoadVocabulary.ts
-- apps/desktop/src/features/workspace/table/ModelTree.table.test.tsx
-- core/gui/model_tree/**
-- apps/desktop/src/services/operationService.ts
-- schemas/model.schema.yaml
-- schemas/results.schema.yaml
 - apps/desktop/src/features/workspace/table/**
-- apps/desktop/src/features/model-data/**
 - apps/desktop/src/features/workspace/contextMenu/**
-- fixtures/model_operations/run_sheet_authoring.json
-- apps/desktop/src/features/bulk-change/**
 - apps/desktop/src/features/workspace/sessionEvents.ts
-- apps/desktop/src/features/toolkit/BatchReviewPanel.tsx
+# The editing surfaces for the model-data members DEL-02-01 defines, constraints and equipment
+# interfaces as unevaluated records among them (ConstraintsPanel.tsx). In this folder
+# desktopEmission.golden.test.ts is DEL-02-01's, AssumptionsPanel.tsx is shared with DEL-13-01,
+# which owns the design-knowledge record it edits, and RulePackModelReferences.tsx is DEL-07-03's:
+# the model's rule-pack references, shown in its rule-pack manager.
+- apps/desktop/src/features/model-data/**
+- apps/desktop/src/features/model-workspace/**
+- apps/desktop/src/features/bulk-change/**
+# ConditionUseControl.tsx in this folder is DEL-07-03's: a load case's use of conditions.
 - apps/desktop/src/features/condition-sets/**
-- apps/desktop/src/features/support-configuration/supportDirection.ts
+- apps/desktop/src/features/support-configuration/**
+- apps/desktop/src/features/boundary-authoring/**
+# Shared with DEL-07-08, which owns the review and apply interaction. Moving queued single changes
+# into one batch (REQ-017) is this deliverable's.
+- apps/desktop/src/features/toolkit/BatchReviewPanel.tsx
+# The hand-built run-sheet reference and its generator.
+- fixtures/model_operations/run_sheet_authoring.json
+- tools/fixtures/run_sheet_authoring.mjs
+- apps/desktop/src/test-support/referenceRunSheetEntry.ts
+# A reference module with its own contract test; the desktop does not call it.
+- core/gui/model_tree/**
 checks:
 - apps/desktop/src/features/model-tree/ModelTree.test.tsx
 - apps/desktop/src/features/model-tree/removalIntents.test.ts
@@ -143,8 +131,6 @@ checks:
 - tests/test_model_tree_property_inspector.py
 - apps/desktop/src/features/model-tree/PropertyInspector.test.tsx
 - apps/desktop/src/features/model-tree/teeModifierSource.test.tsx
-- apps/desktop/src/features/load-cases/LoadCaseManagerPanel.test.tsx
-- apps/desktop/src/features/load-cases/primitiveLoadVocabulary.test.ts
 - apps/desktop/src/features/model-tree/MaterialTable.test.tsx
 - apps/desktop/src/features/model-tree/SectionTable.test.tsx
 - apps/desktop/src/features/model-tree/schemaSlotEmission.test.tsx
@@ -163,9 +149,13 @@ checks:
 - apps/desktop/src/features/model-tree/runSheet/RunSheet.test.tsx
 - apps/desktop/src/features/model-tree/runSheet/runSheet.session.test.tsx
 - apps/desktop/src/features/model-tree/runSheet/runSheetReconcile.measure.test.tsx
+- apps/desktop/src/features/model-tree/runSheet/bendSifCells.test.tsx
+- apps/desktop/src/features/model-tree/runSheet/referenceBendSifs.test.tsx
 - apps/desktop/src/App.runSheet.test.tsx
 - apps/desktop/src/features/workspace/bendPreviewGate.session.test.tsx
+- apps/desktop/src/features/workspace/referenceEntryJourney.session.test.tsx
 - apps/desktop/src/features/toolkit/BatchReviewPanel.test.tsx
+- apps/desktop/src/features/operations/queuedChangesBatch.test.tsx
 - core/model_operations/operation_applier/tests/run_sheet_authoring.rs
 - apps/desktop/src/features/bulk-change/bulkChange.test.ts
 - apps/desktop/src/features/bulk-change/BulkChangePanel.test.tsx
@@ -177,6 +167,7 @@ checks:
 - apps/desktop/src/features/support-configuration/supportDirection.test.tsx
 - apps/desktop/src/features/support-configuration/supportDirectionEngine.test.tsx
 - apps/desktop/src/features/model-tree/PropertyInspector.supportFamilyEngine.test.tsx
+- apps/desktop/src/features/boundary-authoring/BoundaryAuthoringPanel.test.tsx
 - apps/desktop/src/App.splitAndSlope.test.tsx
 - apps/desktop/src/features/condition-sets/conditionSets.engine.test.tsx
 - apps/desktop/src/features/condition-sets/conditionSets.session.test.tsx

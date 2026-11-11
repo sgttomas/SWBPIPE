@@ -1,214 +1,83 @@
 id: DEL-12-02
 name: Private data redaction and export controls
 needs:
-- from: DEL-00-01
-  condition: 'DEL-12-02 must apply SCA-001 architecture-basis constraint AB-00-01 from DEL-00-01 when
-    executing the sealed PKG-12 security/privacy scope.
-
-
-    Notes: FACT; architecture-basis edge remains local context evidence and does not approve or promote
-    DAG-003.; semantic_refresh_2026-06-16: PKG-00 tracker normalized to AB-00 constraint semantics; PKG-00
-    not treated as issuance authority
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-12-01
+  condition: >-
+    The storage guard decides a record from its metadata alone: a private record is admitted in a
+    local private context only with the user's explicit intent, a remote or direct-SQL context is
+    blocked, and a context the guard does not know is refused, each with a reason code.
   gating: true
-- from: DEL-00-02
-  condition: 'DEL-12-02 must apply SCA-001 architecture-basis constraint AB-00-02 from DEL-00-02 when
-    executing the sealed PKG-12 security/privacy scope.
-
-
-    Notes: FACT; architecture-basis edge remains local context evidence and does not approve or promote
-    DAG-003.; semantic_refresh_2026-06-16: PKG-00 tracker normalized to AB-00 constraint semantics; PKG-00
-    not treated as issuance authority
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-03
-  condition: 'DEL-12-02 must apply SCA-001 architecture-basis constraint AB-00-03 from DEL-00-03 when
-    executing the sealed PKG-12 security/privacy scope.
-
-
-    Notes: FACT; architecture-basis edge remains local context evidence and does not approve or promote
-    DAG-003.; semantic_refresh_2026-06-16: PKG-00 tracker normalized to AB-00 constraint semantics; PKG-00
-    not treated as issuance authority
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-04
-  condition: 'DEL-12-02 must apply SCA-001 architecture-basis constraint AB-00-04 from DEL-00-04 when
-    executing the sealed PKG-12 security/privacy scope.
-
-
-    Notes: FACT; architecture-basis edge remains local context evidence and does not approve or promote
-    DAG-003.; semantic_refresh_2026-06-16: PKG-00 tracker normalized to AB-00 constraint semantics; PKG-00
-    not treated as issuance authority
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-01-02
+  condition: >-
+    The boundary policy names the classes of protected content and of private user data, defines
+    the redistribution-status and review-status values, and says a user may export their own
+    private data with documented redistribution rights.
   gating: true
 - from: DEL-00-06
-  condition: 'DEL-12-02 must apply SCA-001 architecture-basis constraint AB-00-06 from DEL-00-06 when
-    executing the sealed PKG-12 security/privacy scope.
-
-
-    Notes: FACT; architecture-basis edge remains local context evidence and does not approve or promote
-    DAG-003.; semantic_refresh_2026-06-16: PKG-00 tracker normalized to AB-00 constraint semantics; PKG-00
-    not treated as issuance authority
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The diagnostic contract fixes the fields a finding carries and the six warning classes, and
+    permits a local class only with a stated mapping to one of the six.
   gating: true
 - from: DEL-00-07
-  condition: 'DEL-12-02 must apply SCA-001 architecture-basis constraint AB-00-07 from DEL-00-07 when
-    executing the sealed PKG-12 security/privacy scope.
-
-
-    Notes: FACT; architecture-basis edge remains local context evidence and does not approve or promote
-    DAG-003.; semantic_refresh_2026-06-16: PKG-00 tracker normalized to AB-00 constraint semantics; PKG-00
-    not treated as issuance authority
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    No plugin or adapter exposes content around the report and export controls, and a declaration
+    grants nothing by itself.
   gating: true
-- from: DEL-00-08
-  condition: 'DEL-12-02 must apply SCA-001 architecture-basis constraint AB-00-08 from DEL-00-08 when
-    executing the sealed PKG-12 security/privacy scope.
-
-
-    Notes: FACT; architecture-basis edge remains local context evidence and does not approve or promote
-    DAG-003.; semantic_refresh_2026-06-16: PKG-00 tracker normalized to AB-00 constraint semantics; PKG-00
-    not treated as issuance authority
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-12-05
-  condition: 'DEL-12-02 needs DEL-12-05 as a predecessor: redaction/export controls follow threat model.
-
-
-    Notes: FACT: 2026-06-07 alignment marks this prerequisite satisfied for readiness evidence only; target-specific
-    runtime controls and approval choices remain deferred; no aggregate DAG or lifecycle promotion.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-12-01
-  condition: 'DEL-12-02 needs DEL-12-01 as a predecessor: redaction/export controls use private path markers.
-
-
-    Notes: FACT: 2026-06-07 alignment marks this prerequisite satisfied for readiness evidence only; runtime
-    storage roots cloud exception and approval choices remain deferred; no aggregate DAG or lifecycle
-    promotion.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-08-02
+  condition: >-
+    Canonical JSON has one implementation of RFC 8785 with SHA-256 hashing, so that route evidence
+    can name the exact content it concerns.
   gating: true
 - from: DEL-08-01
-  condition: 'DEL-12-02 needs DEL-08-01 as a predecessor: report exports may expose private data.
-
-
-    Notes: FACT: 2026-06-07 alignment marks this prerequisite satisfied for readiness evidence only; runtime
-    report integration styling and approval choices remain deferred; no aggregate DAG or lifecycle promotion.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-08-04
-  condition: 'DEL-12-02 needs DEL-08-04 as a predecessor: structured exports may expose private data.
-
-
-    Notes: FACT: 2026-06-07 alignment marks this prerequisite satisfied for readiness evidence only; additional
-    formats public transport and runtime redaction integration remain deferred; no aggregate DAG or lifecycle
-    promotion.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-06-04
-  condition: 'DEL-12-02 needs DEL-06-04 as a predecessor: private rule-pack metadata and checksums need
-    export controls.
-
-
-    Notes: FACT: 2026-06-07 alignment marks this prerequisite satisfied for readiness evidence only; private
-    storage report API and result-envelope integration remain deferred; no aggregate DAG or lifecycle
-    promotion.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A report is rendered, previewed, saved, printed and packaged only from the controlled copy its
+    route returns, and a blocked report produces none of them. A user release is recorded in the
+    report and its package, bound to the model and result it covers, and stated in the notice.
   gating: true
 - from: DEL-03-07
-  condition: 'DEL-12-02 needs DEL-03-07 as a predecessor: library provenance and redistribution status
-    drive export controls.
-
-
-    Notes: FACT: 2026-06-07 alignment marks this prerequisite satisfied for readiness evidence only; external
-    import formats legal policy and accepted source catalogs remain deferred; no aggregate DAG or lifecycle
-    promotion.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A stored library and each of its records carry provenance with a redistribution status and a
+    review status as text, and a library accepted as private is never accepted as public. A
+    library, record or value stating suspected protected content or a quarantined review status is
+    quarantined, and a rejected one is rejected.
   gating: true
-- from: doc:docs/CONTRACT.md
-  condition: 'DEL-12-02 is constrained by OPS-K-IP OPS-K-DATA OPS-K-AUTH OPS-K-REPORT OPS-K-PRIV OPS-K-RULE
-    and OPS-K-AGENT invariants.
-
-
-    Notes: FACT; document constraint is local evidence only and not an aggregate deliverable sequencing
-    edge.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: Invariant catalog; TargetRefID: OPS-CONTRACT; TargetLocation: docs/CONTRACT.md'
-  evidence: execution/PKG-12/DEL-12-02/ScopeOfWork.md
-- from: doc:docs/IP_AND_DATA_BOUNDARY.md
-  condition: 'DEL-12-02 export controls must follow the public/private data policy quarantine rule and
-    report boundary.
-
-
-    Notes: FACT; document constraint is local evidence only and not an aggregate deliverable sequencing
-    edge.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: Public/private data policy and report boundary; TargetRefID: OPS-IP-DATA-BOUNDARY;
-    TargetLocation: docs/IP_AND_DATA_BOUNDARY.md'
-  evidence: execution/PKG-12/DEL-12-02/ScopeOfWork.md
-- from: doc:docs/SPEC.md
-  condition: 'DEL-12-02 redaction/export controls are constrained by report audit content warning classes
-    adapter no-bypass and validation expectations.
-
-
-    Notes: FACT; document constraint is local evidence only and not an aggregate deliverable sequencing
-    edge.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: Technical and agentic implementation specification; TargetRefID:
-    OPS-SPEC; TargetLocation: docs/SPEC.md'
-  evidence: execution/PKG-12/DEL-12-02/ScopeOfWork.md
+- from: DEL-06-04
+  condition: >-
+    A rule pack's audit reference gives its identity, version, checksum and source note without
+    its formulas or values, and a pack the product creates for a user is private by default.
+  gating: true
+- from: DEL-12-05
+  condition: >-
+    The threat model names the report, export and sharing threats and the controls it requires of
+    an export.
+  gating: false
 code_paths:
-- apps/desktop/src-tauri/src/export_disposition_screen.rs
-- apps/desktop/src-tauri/src/report_package_save.rs
-- core/security/redaction/
-- schemas/redaction_export_controls.schema.yaml
-- tools/validation/validate_dependencies_schema.py
-- apps/desktop/src/features/redaction-controls/**
-# W-18b (r1), DEL-08-01 Design `report-user-release.md` §3: the user-released context,
-# its decision order, local-first rule and route id in the three mirrors and the corpus.
-- core/security/local_first_storage/route_control.py
-- core/runner/headless/src/redaction_binding.rs
-- fixtures/redaction_export_controls/cases.json
 - docs/security/redaction_export_controls.md
+- schemas/redaction_export_controls.schema.yaml
+# The classifier and the route exporter (Python), the desktop's classifier, catalogue, route
+# wrappers and download link (TypeScript), and the Rust mirror.
+- core/security/redaction/**
+- apps/desktop/src/features/redaction-controls/**
+- core/runner/headless/src/redaction_binding.rs
+# Route admission. The file sits beside DEL-12-01's storage guard, which it applies. DEL-08-04
+# lists it too, for the CSV route's entry in the catalogue.
+- core/security/local_first_storage/route_control.py
+# The shared invented corpus and the input-reading sweeps.
+- fixtures/redaction_export_controls/**
+# The native disposition screens, shared with the saves that call them (DEL-08-01, DEL-15-01).
+- apps/desktop/src-tauri/src/export_disposition_screen.rs
+# Only the re-check of route evidence and the disposition screening are this deliverable's; the
+# package admission, its bindings and the save are DEL-08-01's.
+- apps/desktop/src-tauri/src/report_package_save.rs
 checks:
 - tests/security/test_redaction_export_controls.py
+- tests/security/test_redaction_input_contract_sweep.py
+- tests/security/test_redaction_value_records.py
+- tests/security/test_local_first_storage_policy.py
 - apps/desktop/src/features/redaction-controls/redactionExportControls.test.ts
+- apps/desktop/src/features/redaction-controls/redactionInputContractSweep.test.ts
+- apps/desktop/src/features/redaction-controls/redactionValueRecords.test.ts
+- apps/desktop/src/features/redaction-controls/redactionPlainDataGate.test.ts
+- apps/desktop/src/features/redaction-controls/ControlledExportLink.test.tsx
+- apps/desktop/src/services/reportPackageSaveService.test.ts
 - core/runner/headless/src/redaction_binding.rs

@@ -2,108 +2,118 @@ id: DEL-10-05
 name: Headless CLI and structured I/O analysis runner
 needs:
 - from: DEL-00-03
-  condition: 'The runner must execute through schema-first command query job and result-envelope boundaries
-    rather than bypassing the solver.
-
-
-    Notes: FACT: Architecture-basis interface dependency; concrete interface language remains TBD.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    Every service entry point is exactly one of command, query or job, and every command and job
+    returns a result envelope with its diagnostics, so that the runner is a second caller of the
+    same services as the desktop.
   gating: true
-  evidence: execution/PKG-10/DEL-10-05/ScopeOfWork.md
 - from: DEL-00-06
-  condition: 'The runner must preserve diagnostics and result envelopes with warning error provenance
-    and no compliance claim.
-
-
-    Notes: FACT: Architecture-basis diagnostics dependency.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A diagnostic carries code, class, severity, source, affected object, message, remediation and
+    provenance, and the runner's local classes have a stated mapping to the common classes that
+    holds when a diagnostic crosses to the result export.
   gating: true
-  evidence: execution/PKG-10/DEL-10-05/ScopeOfWork.md
-- from: DEL-08-04
-  condition: 'The runner''s `export-results` output and its solve export documents use DEL-08-04''s current
-    result-export envelope (0.3.0, `schemas/results.v0.3.schema.yaml`), checked by the exporter''s own validation,
-    for regression comparison and report/result export workflows; the runner adds no output shape of its
-    own.'
-  gating: true
-  evidence: core/runner/headless/src/result_envelope_binding.rs
-- from: DEL-10-04
-  condition: 'The runner must stay compatible with DEL-10-04''s build, packaging and CI policy (DEC-025,
-    DEC-057, DEC-059, DEC-093); it adds no CI workflow, release matrix, signing or publication of its own.'
-  gating: true
-  evidence: execution/PKG-10/DEL-10-05/ScopeOfWork.md
-- from: DEL-02-02
-  condition: 'Structured input and output must remain unit-aware across input, solve and output through
-    DEL-02-02''s unit system; missing or incompatible units are blocking diagnostics, not defaults.'
-  gating: true
-  evidence: execution/PKG-10/DEL-10-05/ScopeOfWork.md
-- from: DEL-02-05
-  condition: 'The runner needs DEL-02-05''s model-document version contract (one current version, 0.9.0;
-    every other version refused by name) and its canonical JSON (JCS) hash basis for reproducible structured
-    model data flow. Persisted projects stay behind application-service boundaries, with no direct SQL or
-    SQLite access (DEC-065).'
-  gating: true
-  evidence: execution/PKG-10/DEL-10-05/ScopeOfWork.md
-- from: DEL-08-02
-  condition: 'The runner needs DEL-08-02''s reproducibility metadata: deterministic canonical JSON serialization,
-    JCS hashes where payload hashes are used, and audit-manifest references.'
-  gating: true
-  evidence: core/runner/headless/src/lib.rs
-- from: DEL-04-06
-  condition: 'The runner must surface missing required inputs and solver diagnostic states as blocking
-    diagnostics rather than silent defaults.'
-  gating: true
-  evidence: execution/PKG-10/DEL-10-05/ScopeOfWork.md
-- from: DEL-02-01
-  condition: 'DEL-10-05 depends on DEL-02-01 because headless runner requests carry canonical model references
-    and unit-system references at the schema-first I/O boundary.
-
-
-    Notes: DEV-001 Stage 2 package-local technical finding resolution for PKG10-DEL1005-PKG02-W001; grounded
-    in accepted PKG-02 canonical model contract; local evidence only, not aggregate DAG authority or lifecycle
-    approval.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: schemas/headless_runner.schema.yaml
-- from: DEL-02-03
-  condition: 'DEL-10-05 depends on DEL-02-03 because runner results preserve analysis_status, diagnostics,
-    human-review requirements, and professional-boundary controls.
-
-
-    Notes: DEV-001 Stage 2 package-local technical finding resolution for PKG10-DEL1005-PKG02-W001; grounded
-    in accepted PKG-02 authority-status semantics; local evidence only.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: schemas/headless_runner.schema.yaml
 - from: DEL-04-07
-  condition: 'The runner''s `solve` verb runs DEL-04-07''s captured product solve (`run_linear_static_preview_value_with_retained_headless`,
-    in both solver modes) and needs its admission and refusal outcomes for pressure-free, pressure-2 and
-    pressure-source-1 documents unchanged, so that a headless result is the product''s result for the same
-    request; the runner adds no solver path of its own.'
+  condition: >-
+    The product solve is one entry for the desktop and the headless runner in both solver modes:
+    the same request gives byte-identical published results and diagnostics on each, and an
+    incomplete, invalid or unsupported model is refused on each with the same named diagnostic.
   gating: true
-  evidence: core/runner/headless/src/lib.rs
+- from: DEL-04-06
+  condition: >-
+    A singular, ill-conditioned or incomplete model yields a named solver diagnostic with its
+    affected object, and never a result with a substituted value.
+  gating: true
+- from: DEL-02-01
+  condition: >-
+    A headless solve request needs only the model document format, and the headless runner applies
+    the same format and validator checks as every other path by which a document enters the
+    product.
+  gating: true
+- from: DEL-02-02
+  condition: >-
+    At each product boundary a quantity with an unknown unit or a unit of the wrong dimension is
+    refused with a unit finding, and a missing unit is never accepted as dimensionless.
+  gating: true
+- from: DEL-02-03
+  condition: >-
+    The analysis-status vocabulary is seven statuses of which a software surface may emit six, and
+    a rule-check outcome is one of the three user-rule statuses.
+  gating: true
+- from: DEL-02-05
+  condition: >-
+    A model document has one current version and every other version is refused by name, and the
+    model hash is SHA-256 over the RFC 8785 canonical form of the document.
+  gating: true
+- from: DEL-08-02
+  condition: >-
+    Every surface of the product that hashes JSON uses one canonical form, so that equal values
+    give equal digests through the desktop, the headless runner and the model editor.
+  gating: true
+- from: DEL-08-04
+  condition: >-
+    The result export is a schema-first envelope with units, diagnostics and provenance, and its
+    exporter validates a document against the current result-export schema.
+  gating: true
+- from: DEL-08-01
+  when: Running export-results
+  condition: >-
+    The report package builder takes a report-package request and returns a container with a hash
+    for each member, and defines the user-release marker that only a person's release in the
+    desktop may carry.
+  gating: true
+- from: DEL-12-02
+  condition: >-
+    The export control classes each output value and blocks a private value from leaving the
+    process unless local-private intent is explicit, in which case it passes with a warning.
+  gating: true
+- from: DEL-09-01
+  when: Running a mechanics benchmark suite
+  condition: >-
+    The mechanics suite exposes its case inventory, each case's recorded comparison values and the
+    comparison that decides a match.
+  gating: false
+- from: DEL-09-02
+  when: Running a stress benchmark suite
+  condition: >-
+    The stress suite exposes its case inventory, each case's recorded comparison values and the
+    comparison that decides a match.
+  gating: false
+- from: DEL-09-03
+  when: Running the nonlinear regression suite
+  condition: >-
+    The nonlinear suite exposes its case inventory and, for each case, the expected outcome and
+    the comparison that decides a match.
+  gating: false
 - from: DEL-05-02
+  when: Hosting the read command
   condition: >-
-    The runner's `read <reader>` verb consumes DEL-05-02's base-reader dispatch
-    and verdicts (`reader_verdict`). Python product callers take the same verdict
-    through this verb; the runner adds no base-reader logic (DEL-04-08 Design b7-plan, R2).
-  gating: true
-  evidence: core/runner/headless/src/reader_binding.rs
+    The base result readers take a result statement, with an optional model, invocation and
+    recorded binding, and return a verdict that passes it or refuses it by code.
+  gating: false
 - from: DEL-04-08
+  when: Hosting the read command
   condition: >-
-    The runner consumes DEL-04-08's retained validation and transport outcomes
-    (`retained_precision`, retained-source reading) and retained admission report.
-    Its existing binding returns the method's verdict without re-deriving a bound
-    or activating a held surface.
-  gating: true
-  evidence: core/runner/headless/src/reader_binding.rs
+    The retained-precision reader validates a retained source and its transport metadata and
+    returns a verdict that passes it or refuses it by code.
+  gating: false
+- from: DEL-04-11
+  when: Hosting the size-hangers command
+  condition: >-
+    The hanger sizing entry takes the sizing input as text, applies its own admission, and returns
+    one published document that says whether it sized or refused.
+  gating: false
+- from: DEL-10-04
+  condition: >-
+    Hosted verification builds the runner's crate and runs its tests when its inputs change, and
+    reports them through the one required result.
+  gating: false
+# The runner's crate, contract and artifact tests. Files inside the crate that belong to other
+# deliverables: src/reader_binding.rs and tests/reader_cli.rs, tests/retained_precision_admission.rs
+# (DEL-05-02, DEL-04-08); tests/size_hangers_cli.rs (DEL-04-11); the exact-route, joint and
+# objective-connector tests (DEL-04-07, DEL-03-06); src/redaction_binding.rs is shared with
+# DEL-12-02, whose control it binds; the export-results handling and its package tests are shared
+# with DEL-08-01.
 code_paths:
 - core/runner/headless/**
 - schemas/headless_runner.schema.yaml
@@ -111,9 +121,7 @@ code_paths:
 - tests/test_load_reference_headless_artifacts.py
 - tests/test_pressure_headless_artifacts.py
 checks:
-# W-18b (DEL-08-01 Design report-user-release.md §2.8 refusal 1): export-results refuses every user-release
-# marker; `user_release_runner_refused` and its CLI case `test_user_release_runner_refused` in the pytest below.
-- core/runner/headless/tests/user_release_runner_refused.rs
 - tests/test_headless_runner_contract.py
+- core/runner/headless/tests/user_release_runner_refused.rs
 - core/runner/headless/tests/load_reference_cli.rs
 - core/runner/headless/tests/pressure_export.rs

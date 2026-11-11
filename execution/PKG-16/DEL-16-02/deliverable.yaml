@@ -1,180 +1,54 @@
 id: DEL-16-02
 name: Operation validation and diff preview
 needs:
-- from: DEL-00-01
-  condition: 'DEL-16-02 needs DEL-00-01 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; TP-DAG-004 normalized legacy DAG-002 edge fields for v3.1 enum validation
-    (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT, Explicitness=EXPLICIT,
-    SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved for reconciliation.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-02
-  condition: 'DEL-16-02 needs DEL-00-02 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; TP-DAG-004 normalized legacy DAG-002 edge fields for v3.1 enum validation
-    (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT, Explicitness=EXPLICIT,
-    SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved for reconciliation.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-03
-  condition: 'DEL-16-02 needs DEL-00-03 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; TP-DAG-004 normalized legacy DAG-002 edge fields for v3.1 enum validation
-    (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT, Explicitness=EXPLICIT,
-    SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved for reconciliation.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-04
-  condition: 'DEL-16-02 needs DEL-00-04 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; TP-DAG-004 normalized legacy DAG-002 edge fields for v3.1 enum validation
-    (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT, Explicitness=EXPLICIT,
-    SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved for reconciliation.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-06
-  condition: 'DEL-16-02 needs DEL-00-06 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; TP-DAG-004 normalized legacy DAG-002 edge fields for v3.1 enum validation
-    (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT, Explicitness=EXPLICIT,
-    SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved for reconciliation.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-07
-  condition: 'DEL-16-02 needs DEL-00-07 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; TP-DAG-004 normalized legacy DAG-002 edge fields for v3.1 enum validation
-    (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT, Explicitness=EXPLICIT,
-    SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved for reconciliation.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-08
-  condition: 'DEL-16-02 needs DEL-00-08 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; TP-DAG-004 normalized legacy DAG-002 edge fields for v3.1 enum validation
-    (legacy AnchorType=DELIVERABLE, DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT, Explicitness=EXPLICIT,
-    SatisfactionStatus=SATISFIED); approved DAG-002 evidence preserved for reconciliation.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
 - from: DEL-16-01
-  condition: 'DEL-16-02 needs DEL-16-01 as a predecessor: Operation validation consumes operation schema.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; TP-DAG-004 normalized legacy DAG-002 edge fields for v3.1 enum validation
-    (legacy AnchorType=DELIVERABLE, DependencyType=DOMAIN_MODEL, Origin=GRAPH_REVIEW, Explicitness=INFERRED_DIRECT,
-    SatisfactionStatus=UNKNOWN); approved DAG-002 evidence preserved for reconciliation.; FACT: 2026-08-02
-    dependency-currency PASS under R23; target maturity PASS is frozen in TARGET_MATURITY_EVIDENCE.csv;
-    consumer integration PASS is frozen in N2E_DEL1602_PATCH/LAUNCH_BRIEF.md.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The operation contract defines the form of an operation and of a batch, a closed taxonomy of
+    operation kinds, change kinds and target object types, and for each change kind its target
+    types, its field path and the form of its value.
+  gating: true
+- from: DEL-02-01
+  condition: >-
+    The document validator judges a candidate model document, refuses a malformed member with its
+    code and JSON path, and leaves the document's bytes unchanged by the check.
+  gating: true
+- from: DEL-02-02
+  condition: >-
+    The unit catalog gives each unit symbol its dimension; an unknown symbol, a symbol of another
+    dimension and a missing unit each give a named finding and no value; and the dimension
+    identifiers are one set.
+  gating: true
+- from: DEL-08-02
+  condition: >-
+    The model hash is SHA-256 over the RFC 8785 canonical form of the model document, and the same
+    document reaches the same digest through the desktop, the headless runner and the operation
+    engine.
+  gating: true
+- from: DEL-00-06
+  condition: >-
+    The diagnostic record is defined with its fields: code, class, severity, source, affected
+    object, message, remediation and provenance, and no diagnostic value states approval or
+    compliance.
   gating: true
 - from: DEL-13-03
-  condition: 'DEL-16-02 needs DEL-13-03 as a predecessor: Operation validation consumes constraint validation.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; TP-DAG-004 normalized legacy DAG-002 edge fields for v3.1 enum validation
-    (legacy AnchorType=DELIVERABLE, DependencyType=DIAGNOSTICS_CONTRACT, Origin=GRAPH_REVIEW, Explicitness=INFERRED_DIRECT,
-    SatisfactionStatus=UNKNOWN); approved DAG-002 evidence preserved for reconciliation.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-14-03
-  condition: 'DEL-16-02 needs DEL-14-03 as a predecessor: Operation diff preview consumes state comparison.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; TP-DAG-004 normalized legacy DAG-002 edge fields for v3.1 enum validation
-    (legacy AnchorType=DELIVERABLE, DependencyType=PERSISTENCE_CONTRACT, Origin=GRAPH_REVIEW, Explicitness=INFERRED_DIRECT,
-    SatisfactionStatus=UNKNOWN); approved DAG-002 evidence preserved for reconciliation.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-14-05
-  condition: 'DEL-16-02 needs DEL-14-05 as a predecessor: Operation diff preview consumes mapping/tolerance
-    contracts.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; TP-DAG-004 normalized legacy DAG-002 edge fields for v3.1 enum validation
-    (legacy AnchorType=DELIVERABLE, DependencyType=PERSISTENCE_CONTRACT, Origin=GRAPH_REVIEW, Explicitness=INFERRED_DIRECT,
-    SatisfactionStatus=UNKNOWN); approved DAG-002 evidence preserved for reconciliation.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-04-06
-  condition: 'DEL-16-02 needs DEL-04-06 as a predecessor: Operation validation consumes diagnostics/warning
-    contracts.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; TP-DAG-004 normalized legacy DAG-002 edge fields for v3.1 enum validation
-    (legacy AnchorType=DELIVERABLE, DependencyType=DIAGNOSTICS_CONTRACT, Origin=GRAPH_REVIEW, Explicitness=INFERRED_DIRECT,
-    SatisfactionStatus=UNKNOWN); approved DAG-002 evidence preserved for reconciliation.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
+  condition: >-
+    The constraint validation engine returns, for a model, deterministic findings that say whether
+    each blocks and carry their provenance.
+  when: Design-constraint validation enters the operation route
+  gating: false
+# The operation engine. These two files are shared with DEL-16-06: the validate-only mode, the
+# checks and the preview rows are this deliverable's, and the apply mode and its outcome are
+# DEL-16-06's. Other deliverables own the domain modules of the same crate and list them by name.
 code_paths:
 - core/model_operations/operation_applier/src/lib.rs
-- core/model_operations/validation_preview/engine.py
-- schemas/model_operation.schema.json
 - core/model_operations/operation_applier/src/atomic_batch.rs
-- apps/desktop/src/services/operationService.ts
-- apps/desktop/src/services/operationBatchService.ts
-- core/model_operations/operation_applier/src/model_data_authoring.rs
+# A second, Python implementation of operation validation and preview (contract, kinds, model
+# basis, units, targets, constraint findings). The product does not call it, and the tests of
+# DEL-16-03, DEL-16-04 and DEL-07-08 import it. Whether it stays is the owner's decision.
+- core/model_operations/validation_preview/**
 checks:
-- tests/test_model_operation_schema.py
+# Examines the Python module the product does not call, and no acceptance criterion of this scope.
 - tests/test_operation_validation_preview.py
-- apps/desktop/src/services/operationBatchService.test.ts
-- apps/desktop/src/services/operationService.test.ts
 - core/model_operations/operation_applier/tests/document_validation_apply.rs
-- core/model_operations/operation_applier/tests/model_data_authoring.rs
+- apps/desktop/src/services/operationService.test.ts
+- apps/desktop/src/services/operationBatchService.test.ts

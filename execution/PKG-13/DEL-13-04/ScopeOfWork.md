@@ -2,666 +2,118 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-13-04
 package_id: PKG-13
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-066]
 package_objective_refs: [OBJ-014]
 ---
 
-# Scope of Work — DEL-13-04
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency conditions are declared in this deliverable's `deliverable.yaml`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
-
-
-**Scope placement.** Owner ruling, 2026-10-23 ("I approve OD-1 through OD-5 as you recommended."; `docs/COMPLETENESS_MAP.md` §4.2), OD-1 and OD-3: PKG-13 (design knowledge, constraint validation and the physical-to-analytical transform contract) is deferred to v0.2. This records the ruling; the clauses below are unchanged.
+# Scope of Work — DEL-13-04 Physical-to-analytical transformation contract
 
 ## Purpose and Objective Traceability
 
-This candidate defines `DEL-13-04` in service of project scope [SOW-066] and package objectives [OBJ-014].
+The engineer edits a physical model; the solver solves an analytical one. This deliverable is the contract for getting from the first to the second. The same physical model always gives the same analytical model. Everything in the physical model either appears in the analytical model with a link back to where it came from, or is reported as omitted, unsupported or incomplete by a warning that names it. Nothing is filled in on the way. With the contract, a result can be traced to the design data it came from, and a reader can see what the idealization left out. Without it, the analytical model is an unexplained by-product of whatever code feeds the solver.
 
-- **OUT-001** — A deterministic physical-to-analytical transformation contract that derives solver-ready analytical models and records traceable warnings, omissions, assumptions, and source-to-target links.
+It serves SOW-066 under OBJ-014 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-13, row DEL-13-04), and PRD §8.3, FR-MOD-007, §5.2 and §5.5, with §12.1 for the frame target. PKG-13 is outside v1.0 (ruling OD-1, `docs/COMPLETENESS_MAP.md` §4.2), and no exit criterion of `docs/RELEASE_TARGET_v1.0.md` names this deliverable. In the product, FR-MOD-007 is carried by the product solve's derivation of its built model from the model document, which is DEL-04-07's (owner reading, `docs/COMPLETENESS_MAP.md` §2.1).
+
+- **OUT-001** — The transform contract: the transform, the transform result with its versioned schema, the transform reference format, and the internal solver-boundary adapter.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-13-04 Physical-to-analytical transformation contract
+**Terms the contract implements.**
 
-> #### Datasheet: DEL-13-04 Physical-to-analytical transformation contract
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *Physical model.* The editable design model and the source of truth: geometry, components, materials, sections, supports, loads and cases, with its unresolved assumptions and its references to design knowledge and constraints. It is richer than the analytical model.
+- *Analytical model.* The idealized model derived from a physical model for solving (PRD §8.3): centerline nodes with six degrees of freedom, two-node elements with their material and section properties, SIF and flexibility data, restraints, loads, load cases and combinations, and the other quantities the solve requires. It names the physical model it was derived from. It is a derived view and is never edited.
+- *Model role.* What a model is: the physical source of truth, or an analytical solver model.
+- *Transform reference format.* The format in which the transform reads a physical model and writes an analytical one, `schemas/physical_transform_model.schema.yaml`: a project of models with roles, typed load records (nodal force, nodal moment, element point force, element uniform distributed force) and traceability links. It is not the model document.
+- *Transform.* The derivation of an analytical model from one physical model under stated settings. The contract version is part of the result's identity.
+- *Transformation warning.* A finding raised when physical data cannot be represented analytically: a record type the analytical model has no element for, a required member that is missing, a reference that does not resolve, a quantity without its unit, or a dimension outside the unit vocabulary. It names the physical record it concerns.
+- *Omission.* A physical record that is not carried into the analytical model. An omission always has a transformation warning.
+- *Traceability link.* A directed link from a physical record to the analytical record derived from it, or to the warning that explains why none was derived. A link can also pair the path of one carried value in the source with its path in the target; such a pair is given only for a quantity carried with complete unit metadata, and never for an omitted record.
+- *Transform result.* The analytical model, the findings, the traceability links, and a statement of whether any finding is blocking. Its schema is this deliverable's.
+- *Solver-boundary adapter.* The internal step that turns an analytical model into the records frame assembly takes: node degrees of freedom, straight-pipe connectivity and orientation, property bindings, support targets and load applications. Each load application it emits carries an identity, a hash of its payload, and the chain of links back to its source record.
 
-### CLM-002 — Historical source provenance
+**Undecided.**
 
-> Historical source metadata; no current-state assertion.
->
-> **Generated:** 2026-05-03
-> **Status:** Evidence refresh applied 2026-06-07
-> **Source posture:** Current implementation evidence is cited where available; unsupported particulars remain marked `TBD` or `ASSUMPTION`.
->
+- Which document the contract's physical model is. The model document (DEL-02-01) is the canonical model, and the product solve (DEL-04-07) derives its analytical model from it. The transform here reads its own reference format, and nothing derives that format from the model document. Whether this contract comes to govern the product solve's derivation, or stays a separate transform over its own format, is not decided.
+- The final set of transformation-loss classes and their severities (decomposition open issue OI-012).
+- The wire form of the transform result: its envelope, fields and version.
 
-### CLM-003 — Identification
-
-> ##### Identification
->
-> | Field | Value | Source |
-> |---|---|---|
-> | Deliverable ID | DEL-13-04 | `_CONTEXT.md` |
-> | Name | Physical-to-analytical transformation contract | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row DEL-13-04 |
-> | Package ID | PKG-13 | `_CONTEXT.md` |
-> | Package name | Physical Design Knowledge and Constraint Engine | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` PKG-13 |
-> | Deliverable type | BACKEND_FEATURE_SLICE | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row DEL-13-04 |
-> | Scope coverage | SOW-066 | `_CONTEXT.md`; `docs/_Registers/ScopeLedger.csv` row SOW-066 |
-> | Objective support | OBJ-014 | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` objective mapping |
-> | Context envelope | L, WATCH | `_CONTEXT.md`; `docs/_Registers/ContextBudgetQA.csv` row DEL-13-04 |
->
-
-### CLM-004 — Attributes
-
-> ##### Attributes
->
-> | Attribute | Current value | Source / note |
-> |---|---|---|
-> | Primary function | Derive a solver-ready analytical model from the physical model. | SOW-066 in `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` |
-> | Determinism requirement | Transformation is deterministic. | SOW-066 in `_CONTEXT.md`; `docs/_Registers/ScopeLedger.csv` row SOW-066 |
-> | Warning obligation | Transformation warnings are recorded when physical design data cannot be represented analytically. | SOW-066 in `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEL-13-04 row |
-> | Traceability obligation | Transformation traceability is part of OBJ-014 and DEL-13-04 decomposition context. | `execution/_Decomposition/SOFTWARE_DECOMP.md` OBJ-014 and DEL-13-04 |
-> | Physical model role | Physical source-of-truth model anchors editable design data. | `docs/SPEC.md` section 3; `docs/TYPES.md` model registry |
-> | Analytical model role | Solver-ready idealization / analysis basis derived from the physical model. | `execution/_Decomposition/SOFTWARE_DECOMP.md` glossary row "Analytical Model" |
-> | Target mechanics boundary | Primary global analysis model is a 3D centerline/frame model. | `docs/CONTRACT.md` OPS-K-MECH-1; `INIT.md` project principles |
-> | Unit handling | Unit-bearing physical values crossing boundaries require explicit unit metadata. | `docs/SPEC.md` section 4; `docs/CONTRACT.md` OPS-K-UNIT-1 |
-> | Missing required values | Missing solve-required values are explicit findings, not silent defaults. | `docs/CONTRACT.md` OPS-K-DATA-2; `docs/SPEC.md` missing-data warning classes |
-> | Protected-data boundary | Public artifacts must not bundle protected standards data, tables, or proprietary values. | `docs/CONTRACT.md` OPS-K-IP-1; `docs/IP_AND_DATA_BOUNDARY.md` |
-> | Professional boundary | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). | `docs/CONTRACT.md` OPS-K-AUTH-1; `INIT.md` |
-> | Transform implementation path | `core/model_transform/physical_to_analytical/contract.py` | Current implementation evidence and `MEMORY.md` |
-> | Internal solver-boundary adapter path | `core/model_transform/physical_to_analytical/_solver_boundary_adapter.py` | Current implementation evidence and `tests/test_analytical_solver_boundary_adapter.py` |
-> | Canonical physical fixture | `fixtures/domain/invented_physical_source_of_truth_model.json` | Current fixture evidence and `tests/test_physical_to_analytical_transform.py` |
-> | Focused transform tests | `tests/test_physical_to_analytical_transform.py` | Current transform contract, diagnostic, traceability, and fixture tests |
-> | Focused adapter tests | `tests/test_analytical_solver_boundary_adapter.py` | Current internal solver-boundary adapter tests |
-> | Current transform result shape | `TransformResult` exposes `analytical_model`, `diagnostics`, `traceability_links`, and `has_blocking_findings`. | `core/model_transform/physical_to_analytical/contract.py` |
-> | Current transform settings | Default `TransformSettings` uses `analytical_model_id = ANALYTICAL-DERIVED` and `contract_version = DEL-13-04-0.1`. | `core/model_transform/physical_to_analytical/contract.py` |
-> | Exact transform-loss taxonomy | TBD | Implemented `PTA-*` and `ASBA-*` diagnostics are current code/test evidence, not a final release taxonomy. |
-> | Exact dependency versions | TBD | `_CONTEXT.md` Architecture Basis Injection "Still TBD". |
->
-
-### CLM-005 — Conditions
-
-> ##### Conditions
->
-
-### CLM-006 — Upstream Inputs
-
-> ###### Upstream Inputs
->
-> The local `Dependencies.csv` is an approved graph resolved through `execution/_DAG/_LATEST.md` mirror/evidence surface. It lists these ACTIVE upstream dependencies for DEL-13-04:
->
-> | Target | Relationship summary | Source |
-> |---|---|---|
-> | DEL-00-01 Architecture decision record baseline | Architecture-basis predecessor. | `Dependencies.csv` row DAG-002-E0660 |
-> | DEL-00-02 Repository and module boundary architecture | Architecture-basis predecessor. | `Dependencies.csv` row DAG-002-E0661 |
-> | DEL-00-03 Application service command-query-job model | Architecture-basis predecessor. | `Dependencies.csv` row DAG-002-E0662 |
-> | DEL-00-04 Persistence and schema versioning architecture | Architecture-basis predecessor. | `Dependencies.csv` row DAG-002-E0663 |
-> | DEL-00-06 Diagnostics, warning, and result-envelope contract | Architecture-basis predecessor. | `Dependencies.csv` row DAG-002-E0664 |
-> | DEL-00-07 API boundary and adapter contract map | Architecture-basis predecessor. | `Dependencies.csv` row DAG-002-E0665 |
-> | DEL-00-08 Layered software test and acceptance strategy | Architecture-basis predecessor. | `Dependencies.csv` row DAG-002-E0666 |
-> | DEL-02-01 Canonical domain model schema | Physical-to-analytical transform starts from the canonical physical/domain model. | `Dependencies.csv` row DAG-002-E0772 |
-> | DEL-13-01 Design knowledge schema and provenance model | Transform consumes design-knowledge schema. | `Dependencies.csv` row DAG-002-E0773 |
-> | DEL-13-02 Constraint entity and provenance model | Transform consumes constraint entities. | `Dependencies.csv` row DAG-002-E0774 |
-> | DEL-13-03 Constraint validation engine | Transform consumes constraint validation. | `Dependencies.csv` row DAG-002-E0775 |
-> | DEL-04-01 3D frame stiffness kernel | Transform targets the frame kernel model. | `Dependencies.csv` row DAG-002-E0776 |
-> | DEL-04-03 Linear support and restraint models | Transform needs support/boundary-condition modeling. | `Dependencies.csv` row DAG-002-E0777 |
-> | DEL-05-01 Primitive load case engine | Transform needs primitive load semantics. | `Dependencies.csv` row DAG-002-E0778 |
->
-
-### CLM-007 — Boundary Conditions
-
-> ###### Boundary Conditions
->
-> | Condition | Value |
-> |---|---|
-> | Engineering standards text availability | Not locally available for this deliverable; do not derive clause-level requirements. |
-> | PRD v0.2 source availability | The older PRD v0.2 citation is historical. Current `docs/PRD.md` is present (v0.4 Draft) and contains FR-MOD-007; use accepted SOW-066 for binding scope and explicitly trace any adopted PRD-derived detail. This does not claim v0.2/v0.4 clause parity or promote the draft. |
-> | Public data policy | No protected standards text, copied formulas, protected tables, protected examples, proprietary commercial data, or code-specific public defaults. |
-> | Solver acceptance policy | Deterministic mechanics tests are required before release; code-compliance acceptance remains outside software authority. |
-> | Constraint/provenance upstream | Current DEL-13-02 evidence is `schemas/constraint.schema.json` and `tests/test_constraint_schema.py`; transform consumption beyond copied `constraint_refs` remains broader integration `TBD`. |
-> | Constraint-validation upstream | Current DEL-13-03 evidence is `core/constraints/validation/engine.py` and `tests/test_constraint_validation.py`; direct runtime validator invocation by the transform remains `TBD`. |
-> | GUI/runtime/API integration | Current transform and adapter are Python implementation/test evidence only; no GUI, runtime command, public API, or external prover workflow is implemented here. These surfaces remain `TBD`. |
-> | Persistence/handoff readiness | Current analytical output carries empty `analysis_run_refs`, `comparison_refs`, `handoff_package_refs`, and `external_reference_refs`; persisted package and handoff readiness remain outside this slice and remain `TBD`. |
->
-
-### CLM-008 — Construction
-
-> ##### Construction
->
-> The deliverable has materialized as a provider-neutral Python transform contract, an internal solver-boundary DTO adapter, a canonical invented fixture, and focused tests. These are implementation evidence only; lifecycle acceptance, release thresholds, professional reliance, and code-compliance claims remain outside software authority.
->
-> | Construct | Required / expected content | Status |
-> |---|---|---|
-> | Transform contract | Inputs, outputs, deterministic behavior, traceability, warning/diagnostic behavior, and unsupported-data handling for physical-to-analytical conversion. | Implemented at `core/model_transform/physical_to_analytical/contract.py`. |
-> | Analytical model output | Derived `analytical_solver_model` with `source_model_ref`, centerline/frame arrays for nodes/elements/materials/sections/supports/load cases, diagnostics, assumptions, and traceability links. | Implemented for current schema-shaped records; broader physical-record coverage, runtime result envelopes, persistence, and handoff readiness remain `TBD`. |
-> | Warning/diagnostic records | Deterministic `PTA-*` diagnostics for missing source/model role/coordinate data, missing fields, missing or `TBD` unit metadata, noncanonical dimensions, unsupported component/support/element data, and unresolved references. | Implemented for current contract coverage; final transform-loss taxonomy and release thresholds remain `TBD`. |
-> | Internal solver-boundary adapter | Deterministic DTO boundary for nodes, straight-pipe connectivity, property bindings, support targets, load-case records/applications, adapter DTO identity/hash/source-chain records, and adapter diagnostics. | Implemented at `core/model_transform/physical_to_analytical/_solver_boundary_adapter.py`; not a public API, GUI/runtime path, external prover path, or final solver acceptance record. |
-> | Traceability records | Physical-to-analytical `traceability_links` plus adapter DTO `source_chain`, `payload_hash_ref`, `result_trace_anchor`, and `solver_input_trace_anchor` for emitted load applications. | Implemented at object/DTO level; field-level scalar traceability and full runtime result trace-chain production remain `TBD`. |
-> | Tests | Transform warning/diagnostic tests and internal adapter tests. | Implemented in `tests/test_physical_to_analytical_transform.py` and `tests/test_analytical_solver_boundary_adapter.py` using invented/public-permissive fixture data. |
->
-
-### CLM-009 — References
-
-> ##### References
->
-> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) - deliverable identity, scope, architecture-basis injection, and accepted decomposition reference.
-> - `_REFERENCES.md` - governing reference list and source boundary.
-> - `_DEPENDENCIES.md` and `Dependencies.csv` - approved graph resolved through `execution/_DAG/_LATEST.md` mirror/evidence surface.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current package, scope, objective, and deliverable entries.
-> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) - row DEL-13-04.
-> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) - row SOW-066.
-> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) - row DEL-13-04.
-> - `docs/CONTRACT.md` - invariant catalog, especially OPS-K-IP-1, OPS-K-DATA-2, OPS-K-AUTH-1, OPS-K-MECH-1, OPS-K-UNIT-1, OPS-K-SOLVER-1.
-> - `docs/SPEC.md` - physical model source-of-truth, unit contract, and missing-data warning classes.
-> - `docs/TYPES.md` - model, model role, traceability, diagnostic, and mechanics-boundary registry meanings.
-> - `docs/IP_AND_DATA_BOUNDARY.md` - protected-content handling policy.
-> - `AGENTS.md` and the applicable `docs/CONTRACT.md` invariants - project principles and stop rules.
-> - `core/model_transform/physical_to_analytical/contract.py` - implemented transform contract.
-> - `core/model_transform/physical_to_analytical/_solver_boundary_adapter.py` - internal solver-boundary DTO adapter.
-> - `fixtures/domain/invented_physical_source_of_truth_model.json` - canonical invented physical source-of-truth fixture.
-> - `tests/test_physical_to_analytical_transform.py` - focused transform tests.
-> - `tests/test_analytical_solver_boundary_adapter.py` - focused adapter tests.
-> - Current DEL-13-02 and DEL-13-03 `ScopeOfWork.md` records, `MEMORY.md` files, and 2026-06-07 TASK run records - upstream evidence refresh context.
->
-
-### CLM-010 — D-41 R5 T2B PDU-047 Evidence State
-
-> ##### D-41 R5 T2B PDU-047 Evidence State
->
-> | Surface | Available evidence | Held residual |
-> |---|---|---|
-> | 3D centerline/frame target | Deterministic transform and section-property preservation tests; bounded TP-PHYS-015 section-property oracle binding. | Independent validation of broader mechanics suitability. |
-> | Component field scalar | Paired paths on valid geometry quantity copy-through. | Runtime result-envelope continuation has no accepted producer/home. |
-> | PDU-036 trace-gap witness | Invented unsupported component is omitted with linked `ASSUMPTION_WARNING`; invalid/omitted scalar path is absent. | Project-owned verification only; broader field/runtime trace validation remains open. |
+**Boundary.** The contract derives and accounts; it solves nothing. Frame assembly and the linear solve are DEL-04-01's; what a support means is DEL-04-03's and DEL-04-04's; what a load means is DEL-05-01's. The product solve and its derivation of a built model are DEL-04-07's. The model document is DEL-02-01's and the unit vocabulary is DEL-02-02's. Design knowledge and constraints are carried as references only: their formats are DEL-13-01's and DEL-13-02's, and the transform does not evaluate a constraint (DEL-13-03). Handoff, target mapping and export read the result and are PKG-15's and PKG-17's. Shell and solid analysis is a separate handoff path and never a target of this transform.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-011 — Specification: DEL-13-04 Physical-to-analytical transformation contract
-
-> #### Specification: DEL-13-04 Physical-to-analytical transformation contract
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-012 — Historical source provenance
-
-> Historical source metadata; no current-state assertion.
->
-> **Generated:** 2026-05-03
-> **Status:** Evidence refresh applied 2026-06-07
-> **Source posture:** Requirements below are limited to accessible local sources; unresolved particulars remain `TBD`.
->
-
-### CLM-013 — Scope
-
-> ##### Scope
->
-> DEL-13-04 specifies the backend contract for transforming the schema-backed physical model into a solver-ready analytical model and recording traceable transformation warnings when physical design data cannot be represented analytically.
->
-
-### CLM-014 — In Scope
-
-> ###### In Scope
->
-> - A deterministic physical-to-analytical transformation contract for SOW-066.
-> - Warning / diagnostic behavior for omitted, unsupported, incomplete, or non-representable physical design data.
-> - Traceability from source physical model records to derived analytical model records, warnings, omissions, or assumptions.
-> - Contract-level tests for transformation warnings.
-> - Integration posture with architecture-basis constraints: Rust core/application services, schema-first command/query/job result envelopes, JSON Schema 2020-12 contracts, diagnostics/result envelopes, and deterministic tests where applicable, per `_CONTEXT.md`.
->
-
-### CLM-015 — Out of Scope
-
-> ###### Out of Scope
->
-> - Protected standards data, code-specific defaults, protected tables, copied formulas, owner standards, proprietary catalog values, or private project data.
-> - Final engineering acceptance. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
-> - Owner standards or final acceptance logic for physical design constraints, per PKG-13 package exclusions.
-> - Final transform-loss taxonomy, release thresholds, dependency versions, external prover behavior, GUI/runtime/API integration, persisted/handoff readiness, broader physical-record coverage, and human/professional acceptance.
->
-
-### CLM-016 — Implementation Evidence
-
-> ##### Implementation Evidence
->
-> Current implementation evidence exists for the DEL-13-04 transform and internal solver-boundary adapter:
->
-> - `core/model_transform/physical_to_analytical/contract.py` implements `transform_physical_to_analytical(...)`, `TransformSettings`, `TransformResult`, deterministic ordering, `analytical_solver_model` output, `PTA-*` diagnostics, and physical-to-analytical traceability links.
-> - `core/model_transform/physical_to_analytical/_solver_boundary_adapter.py` implements the internal `adapt_analytical_solver_model(...)` DTO boundary for strict `analytical_solver_model` mappings. It emits deterministic node DTOs, straight-pipe connectivity, property bindings, support targets, load-case records/applications, adapter DTO identity/hash/source-chain records, `load_case_diagnostics`, and adapter diagnostics.
-> - `fixtures/domain/invented_physical_source_of_truth_model.json` is the canonical invented physical source-of-truth fixture for current DEL-13-04 tests. It contains public-permissive invented nodes, straight-pipe element, governed `y_reference`, material/section quantities, support, strict load records, visible assumption/diagnostic evidence, and traceability.
-> - `tests/test_physical_to_analytical_transform.py` covers deterministic transform behavior, source model preservation, canonical fixture/schema validation, traceability, unit metadata failures, unsupported physical-record/component behavior, strict load metadata, noncanonical quantity dimensions, and forbidden authority-claim text scanning.
-> - `tests/test_analytical_solver_boundary_adapter.py` covers deterministic solver-boundary DTO emission, missing-property no-default diagnostics, noncanonical load semantic rejection, invalid orientation diagnostics, load span/runtime diagnostics, adapter DTO hash/source-chain evidence, and analytical-model role enforcement.
->
-> This evidence does not implement a GUI command path, runtime service envelope, public API, persistence/handoff package readiness, external prover behavior, full release threshold policy, or human/professional acceptance.
->
+A transform result establishes that the analytical model follows from the physical model by the contract's rules. It does not establish that a centerline and frame idealization is suitable for the physical system: that suitability has no independent validation here, and agreement of carried section properties with a reference establishes those values and nothing more (also cited as DEL-13-04:3).
 
 ### CLM-017 — Requirements
 
-> ##### Requirements
->
-> | ID | Requirement | Verification | Source |
-> |---|---|---|---|
-> | DEL-13-04-REQ-001 | The contract shall transform the physical model into a solver-ready analytical model deterministically. | `tests/test_physical_to_analytical_transform.py` repeats transform over the canonical fixture and deep-copied inputs and expects identical output. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) SOW-066; `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) SOW-066; `core/model_transform/physical_to_analytical/contract.py` |
-> | DEL-13-04-REQ-002 | The contract shall record transformation warnings or diagnostics when physical design data cannot be represented analytically. | Transform tests cover missing units, unsupported element/component data, unresolved references, noncanonical dimensions, and unresolved load dimensions. Adapter tests cover unsupported/noncanonical load semantics, invalid orientation, missing properties, unresolved targets, and nonfinite quantities. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) SOW-066; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEL-13-04; `tests/test_physical_to_analytical_transform.py`; `tests/test_analytical_solver_boundary_adapter.py` |
-> | DEL-13-04-REQ-003 | The contract shall preserve the physical model as the editable source-of-truth and produce the analytical model as a derived solver-oriented view. | Schema/contract review confirms physical model role is not overwritten or reclassified by transform output. | `docs/SPEC.md` section 3; `docs/TYPES.md` `Model` and `ModelRole` rows |
-> | DEL-13-04-REQ-004 | The contract shall preserve traceability from physical source records to analytical records, omissions, assumptions, warnings, or other transform outcomes. | Transform tests assert physical-to-analytical links for nodes, elements, materials, sections, supports, load cases, components, and diagnostics; adapter tests assert DTO `source_chain` and hash anchors for emitted load applications. Field-level scalar traceability remains `TBD`. | `execution/_Decomposition/SOFTWARE_DECOMP.md` OBJ-014; `docs/TYPES.md` `TraceabilityLink` row; `core/model_transform/physical_to_analytical/contract.py`; `_solver_boundary_adapter.py` |
-> | DEL-13-04-REQ-005 | Unit-bearing physical values crossing the transform boundary shall carry explicit unit metadata unless explicitly dimensionless. | Transform tests reject missing, empty, `TBD`, and noncanonical dimensions; adapter tests require finite `Quantity` records with expected dimensions and do not convert or infer units. | `docs/SPEC.md` section 4; `docs/CONTRACT.md` OPS-K-UNIT-1 |
-> | DEL-13-04-REQ-006 | Missing solve-required values shall be represented as explicit findings and shall not be silently defaulted by the transformation contract. | Negative transform and adapter tests expect deterministic `PTA-*` or `ASBA-*` diagnostics instead of defaults. | `docs/CONTRACT.md` OPS-K-DATA-2; `docs/SPEC.md` missing-data warning classes |
-> | DEL-13-04-REQ-007 | The analytical output shall target the project primary global mechanics boundary: a 3D centerline/frame model. | Contract review confirms no routine shell/solid FEA target is introduced for this deliverable. | `docs/CONTRACT.md` OPS-K-MECH-1; `INIT.md` principles |
-> | DEL-13-04-REQ-008 | The contract shall not bundle protected standards content, code-specific default values, protected tables, copied formulas, proprietary catalog values, or owner standards. | Protected-content review / contribution gate; public fixtures use invented or permissive data only. | `docs/CONTRACT.md` OPS-K-IP-1 and OPS-K-DATA-1; `docs/IP_AND_DATA_BOUNDARY.md` |
-> | DEL-13-04-REQ-009 | The contract and its warnings shall not claim certification, sealing, approval, authentication, engineering acceptance, or code compliance (PRD §21.2). | Text/schema review for forbidden authority claims; report/result wording remains diagnostic only. | `docs/CONTRACT.md` OPS-K-AUTH-1; `INIT.md` |
-> | DEL-13-04-REQ-010 | Solver-facing changes resulting from this contract shall have deterministic verification tests before release. | Current focused tests are executable with `python3 tests/test_physical_to_analytical_transform.py`, `python3 tests/test_analytical_solver_boundary_adapter.py`, and joint `pytest`; release thresholds remain `TBD`. | `docs/CONTRACT.md` OPS-K-SOLVER-1; `Dependencies.csv` row DAG-002-E0666 |
-> | DEL-13-04-REQ-011 | The contract shall treat upstream dependency surfaces as prerequisite context and shall not reinterpret the local dependency mirror as independent dispatch authority. | Dependency artifact review confirms current local dependency rows remain evidence under DAG-006 coordination; this refresh does not edit dependency files. | `_DEPENDENCIES.md` Authority Boundary; `Dependencies.csv`; `_COORDINATION.md` |
-> | DEL-13-04-REQ-012 | The internal solver-boundary adapter shall accept only strict `analytical_solver_model` mappings and shall not become a public API, GUI/runtime path, external prover path, or final solver acceptance claim. | Adapter tests enforce analytical-model role, strict load union handling, adapter DTO evidence, and diagnostics for unsupported runtime conditions. | `core/model_transform/physical_to_analytical/_solver_boundary_adapter.py`; `tests/test_analytical_solver_boundary_adapter.py`; `MEMORY.md` |
->
+Requirement numbers 001 to 012 are those of the earlier `DEL-13-04-REQ-nnn` series.
 
-### CLM-018 — Standards
+- **REQ-001** — The transform derives a solver-ready analytical model from the physical model deterministically (SOW-066; PRD FR-MOD-007).
+- **REQ-002** — A transformation warning is recorded whenever physical design data cannot be represented analytically (SOW-066).
+- **REQ-003** — The physical model stays the editable source of truth, and the analytical model is a derived view for the solver (PRD §5.2, §8.2, §8.3).
+- **REQ-004** — Traceability runs from each physical source record to the analytical record, omission, assumption or warning that is its outcome (OBJ-014).
+- **REQ-005** — A unit-bearing value that crosses the transform carries its unit and dimension, unless its field is explicitly dimensionless (PRD §5.6; `docs/CONTRACT.md` OPS-K-UNIT-1).
+- **REQ-006** — A missing value the solve requires is an explicit finding and is never defaulted by the transform (PRD §5.5; `docs/CONTRACT.md` OPS-K-DATA-2).
+- **REQ-007** — The analytical model is a 3D centerline and frame model (PRD §12.1; `docs/CONTRACT.md` OPS-K-MECH-1).
+- **REQ-008** — The contract, its reference format and its fixtures contain no protected standards content, code-specific default, protected table, copied formula, proprietary catalogue value or owner standard (PRD §20.1; `docs/CONTRACT.md` OPS-K-IP-1, OPS-K-DATA-1).
+- **REQ-009** — The contract and its findings claim no certification, sealing, approval, authentication, engineering acceptance or code compliance (PRD §21.2).
+- **REQ-010** — Every solver-facing behaviour of the contract is examined by a deterministic check (`docs/CONTRACT.md` OPS-K-SOLVER-1).
+- **REQ-012** — The solver-boundary adapter accepts only a model of the analytical role. It is internal: it is not a public API, a desktop or runtime path, or an external-prover path, and its output is no statement of solver acceptance.
+- **REQ-013** — This deliverable owns the transform result as a production contract with one authoritative versioned schema, which preserves the physical source identity, the analytical derivation, units, findings and traceability (also cited as DEL-13-04-SCA011-REQ-001, DEL-13-04:1 and DEL-13-04:2).
 
-> ##### Standards
->
-> No external engineering standard text is locally available or authorized as source material for this deliverable. The governing project standards for this draft are:
->
-> | Standard / policy surface | Applicability |
-> |---|---|
-> | `docs/CONTRACT.md` | Invariants for data boundary, missing values, professional authority, mechanics boundary, units, and solver tests. |
-> | `docs/SPEC.md` | Schema-first model role, unit metadata, diagnostics/warnings, and warning class context. |
-> | `docs/TYPES.md` | Vocabulary for model roles, traceability, diagnostics, frame kernel, supports, and load semantics. |
-> | `docs/IP_AND_DATA_BOUNDARY.md` | Protected-data and private-data handling. |
-> | `execution/_Decomposition/SOFTWARE_DECOMP.md` with its accepted amendments | Accepted decomposition and SOW/OBJ mapping. |
-> | `core/model_transform/physical_to_analytical/contract.py` | Current transform implementation. |
-> | `core/model_transform/physical_to_analytical/_solver_boundary_adapter.py` | Current internal adapter implementation. |
-> | `tests/test_physical_to_analytical_transform.py` and `tests/test_analytical_solver_boundary_adapter.py` | Current focused verification evidence. |
->
-> Referenced PRD source material (`PRD v0.2 Section8.3`, `FR-MOD-007`) is not locally available in this deliverable's references. Any requirement depending on the PRD beyond the SOW-066 text remains `TBD`.
->
+### Acceptance criteria
 
-### CLM-019 — Verification
-
-> ##### Verification
->
-> | Verification item | Required check | Current status |
-> |---|---|---|
-> | Deterministic transform | Same input and configuration produce equivalent analytical output and equivalent warnings/diagnostics. | Implemented in `tests/test_physical_to_analytical_transform.py` using `fixtures/domain/invented_physical_source_of_truth_model.json`. |
-> | Warning/diagnostic behavior | Non-representable physical data produces deterministic transformation diagnostics. | Implemented for current `PTA-*` and `ASBA-*` coverage; final release taxonomy remains `TBD`. |
-> | Traceability coverage | Physical-to-analytical mappings, omissions, warnings, assumptions, adapter DTO hashes, and source chains carry traceability links or explicit gaps. | Implemented at object/DTO level; field-level scalar traceability and full runtime result trace-chain production remain `TBD`. |
-> | Unit metadata | Unit-bearing values are not accepted silently without explicit units. | Implemented in transform and adapter tests; no unit conversion is performed. |
-> | No silent defaults | Missing solve-required physical data yields findings rather than inferred defaults. | Implemented in transform and adapter tests. |
-> | Protected-content boundary | Public contract/tests do not include protected standards text, values, tables, or proprietary data. | Required by OPS-K-IP-1. |
-> | Professional boundary | Outputs remain diagnostics / transform artifacts, not compliance or professional-approval claims. | Required by OPS-K-AUTH-1. |
-> | DAG mirror preservation | All current local dependency rows remain unchanged by this evidence refresh. | Required by user instruction and `_DEPENDENCIES.md`; dependency files are outside this write scope. |
-> | Internal adapter DTO evidence | Strict analytical solver-boundary mappings produce deterministic DTOs or diagnostics. | Implemented in `tests/test_analytical_solver_boundary_adapter.py`. |
->
-
-### CLM-020 — Documentation
-
-> ##### Documentation
->
-> Required local artifacts for this setup pass:
->
-> - `ScopeOfWork.md` definition section
-> - `ScopeOfWork.md` requirements section
-> - `ScopeOfWork.md` guidance section
-> - `ScopeOfWork.md` procedure section
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
->
-> Anticipated implementation artifacts from `_CONTEXT.md` and `docs/_Registers/Deliverables.csv`:
->
-> - physical-to-analytical transform contract
-> - transform warning tests
->
-> Current implementation artifact paths and focused test fixture names are no longer `TBD`; they are listed above. Remaining `TBD` items are transform-loss taxonomy, release thresholds, external prover behavior, GUI/runtime/API integration, persisted/handoff readiness, broader physical-record coverage, human acceptance, and professional/code-compliance boundaries.
->
-
-### CLM-021 — D-41 R5 T2B PDU-047 Evidence Disposition (2026-07-12)
-
-> ##### D-41 R5 T2B PDU-047 Evidence Disposition (2026-07-12)
->
-> The TP-PHYS-015 production section-property binding is relevant downstream evidence, but it does not independently validate REQ-007's full 3D centerline/frame target suitability. That broader mechanics-validation basis remains held. This tranche changes neither the transform contract nor its output.
->
-
-### CLM-022 — D-41 R5 T2C PDU-023 E6 Evidence (2026-07-12)
-
-> ##### D-41 R5 T2C PDU-023 E6 Evidence (2026-07-12)
->
-> REQ-004 now has a minimal field-scalar link for valid copied component geometry quantities. Each link pairs source and target scalar paths on the existing object references. Incomplete quantity metadata is diagnosed and emits no scalar link. Runtime result-envelope continuation remains held.
->
-
-### CLM-023 — D-41 R5 T4 PDU-036 fixture evidence
-
-> ##### D-41 R5 T4 PDU-036 fixture evidence
->
-> `fixtures/domain/invented_physical_to_analytical_trace_gap.json` provides one verification-only unsupported-component witness. The transform omits the component, emits `PTA-COMPONENT-TYPE-UNSUPPORTED` as `ASSUMPTION_WARNING`, attaches that warning to the component-to-diagnostic trace link, and emits no scalar link for the omitted quantity. This bounded witness does not promote independent validation or close broader trace coverage.
-
-- **AC-001** — All authoritative source content is preserved and mapped, and the source-defined deterministic transform, warning, traceability, unit, missing-data, protected-content, and professional-boundary requirements remain intact while broader validation and runtime-result continuation remain explicitly deferred.
+- **AC-001** — The same physical model and settings give the same transform result on every run: the same analytical model, findings and traceability links, in the same order.
+- **AC-002** — The physical model is unchanged by the transform. The analytical model declares the analytical role and names the physical model it was derived from, and no output of the transform has the physical role.
+- **AC-003** — Every record of the physical model has an outcome: either an analytical record with a link from its source record, or an omission with a transformation warning that names it and a link from the record to that warning. An unsupported component is omitted with its linked warning and no value-level link (also cited as DEL-13-04:4).
+- **AC-004** — Each kind of unrepresentable data yields its named finding and no analytical record for the item: an unsupported element, component or support type; a missing required member; an unresolved node, material, section, support-target or load-target reference. The result is marked blocking wherever the missing item is needed to solve.
+- **AC-005** — A quantity without its unit, or with a dimension outside the unit vocabulary, yields a named finding. No quantity is carried without its unit and dimension, and the set of dimension identifiers the reference format admits equals the unit schema's set.
+- **AC-006** — For a physical model that lacks a value the solve requires, the transform gives a finding, and the analytical model holds no value the physical model did not state.
+- **AC-007** — The analytical model is a centerline frame model: every structural element is a two-node line element between centerline nodes. It holds no shell or solid element.
+- **AC-008** — The adapter refuses a model that is not of the analytical role. A missing property, a non-finite quantity, a wrong dimension, an unresolved target, an unordered load span, a load record outside the typed kinds, and an orientation reference that is zero or parallel to the element's axis each yield a named finding and no emitted record for the item; nothing is inferred. The same analytical model gives the same emitted records; an element's axis is the unit vector from its start node to its end node; and each load application's payload hash is the canonical hash of its payload. No application service, desktop command or exported interface reaches the adapter.
+- **AC-009** — No finding, record or schema text of the contract states or implies certification, sealing, approval, authentication, acceptance or code compliance.
+- **AC-010** — The contract's source, reference format and fixtures contain no protected or private content, and every fixture is invented and carries its provenance.
+- **AC-011** — The transform reference format is valid JSON Schema 2020-12 in strict JSON. Every committed document in that format validates against it, and so does every analytical model the transform derives.
+- **AC-012** — The transform result, serialized, validates against this deliverable's one versioned schema and carries the identity of the physical model, the analytical model, the findings and the traceability links.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-024 — Procedure: DEL-13-04 Physical-to-analytical transformation contract
+**Method choices that define the contract.**
 
-> #### Procedure: DEL-13-04 Physical-to-analytical transformation contract
->
-> **Generated:** 2026-05-03
-> **Status:** Evidence refresh applied 2026-06-07
-> **Source posture:** Operational steps describe how to produce/use the contract without inventing unsupported implementation details.
->
+- The transform is a function of the physical model and its settings and of nothing else. It reads the physical model and never writes to it.
+- Omit and report, never approximate. A record the analytical model cannot represent is left out with a warning; it is not forced into a solver element.
+- Records, findings and links are emitted in a stable order.
+- A payload hash is the canonical hash of the persistence rules: SHA-256 over the RFC 8785 form of the payload.
+- The adapter is an internal step of the contract and is reached only from within it.
 
-### CLM-025 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> This procedure defines the conservative workflow for checking and extending the DEL-13-04 physical-to-analytical transformation contract. The implemented workflow keeps the physical model as source of truth, derives a solver-ready analytical representation, records transformation diagnostics, and preserves traceability without introducing protected data, hidden defaults, public API expansion, GUI/runtime behavior, external prover claims, or professional compliance claims.
->
-
-### CLM-026 — Prerequisites
-
-> ##### Prerequisites
->
-> 1. Confirm current deliverable context:
->    - `_CONTEXT.md` identifies DEL-13-04, PKG-13, BACKEND_FEATURE_SLICE, SOW-066, OBJ-014.
->    - `_STATUS.md` is in a state that permits setup drafting before overwriting local production documents.
-> 2. Confirm governing references:
->    - `_REFERENCES.md`
->    - `execution/_Decomposition/SOFTWARE_DECOMP.md`
->    - `docs/_Registers/Deliverables.csv`
->    - `docs/_Registers/ScopeLedger.csv`
->    - `docs/_Registers/ContextBudgetQA.csv`
->    - `docs/CONTRACT.md`
->    - `docs/SPEC.md`
->    - `docs/TYPES.md`
->    - `docs/IP_AND_DATA_BOUNDARY.md`
->    - `AGENTS.md` and the applicable `docs/CONTRACT.md` invariants
-> 3. Preserve local dependency meanings and actual statuses under `execution/_DAG/_LATEST.md`; historical IDs remain provenance and this record repair does not mutate the register.
-> 4. Use only source-cleared or invented/public-permissive data in examples and tests. Suspected protected content must be quarantined and escalated under project policy.
-> 5. Inspect current implementation and test evidence:
->    - `core/model_transform/physical_to_analytical/contract.py`
->    - `core/model_transform/physical_to_analytical/_solver_boundary_adapter.py`
->    - `fixtures/domain/invented_physical_source_of_truth_model.json`
->    - `tests/test_physical_to_analytical_transform.py`
->    - `tests/test_analytical_solver_boundary_adapter.py`
-> 6. Treat current DEL-13-02 and DEL-13-03 `ScopeOfWork.md` records, `MEMORY.md` files, and TASK run records `TASK_RUN_2026-06-07_1127.md` / `TASK_RUN_2026-06-07_1133.md` as read-only upstream evidence for this refresh.
->
-
-### CLM-027 — Steps
-
-> ##### Steps
->
-
-### CLM-028 — 1. Establish Transform Boundary
-
-> ###### 1. Establish Transform Boundary
->
-> 1. Identify the physical model as the source-of-truth input.
-> 2. Identify the analytical model as a derived solver-ready output with `model_role = analytical_solver_model` and `source_model_ref` pointing back to the physical model.
-> 3. Confirm the default target mechanics boundary is the 3D centerline/frame model.
-> 4. Verify supported current physical-record coverage: nodes, straight-pipe elements, supported component metadata when referenced by valid elements, materials, sections, supports, load cases, combinations, diagnostics, unresolved assumptions, and traceability links.
-> 5. Record broader physical-record coverage as `TBD` unless current implementation/tests explicitly define its handling.
->
-
-### CLM-029 — 2. Define Contract Inputs
-
-> ###### 2. Define Contract Inputs
->
-> 1. Declare required input surfaces from source-grounded context:
->    - canonical model/domain schema;
->    - design knowledge and provenance;
->    - constraint entities and constraint validation;
->    - support/restraint semantics;
->    - primitive load semantics;
->    - diagnostics/result-envelope conventions.
-> 2. For each unit-bearing input, require explicit unit metadata unless the field is explicitly dimensionless.
-> 3. For each input whose source, provenance, or units are missing, define a diagnostic/warning path instead of a silent default.
-> 4. For current implementation evidence, verify schema-shaped input/output fields used or produced by `contract.py`, including `id`, `model_role`, `coordinate_system`, `nodes`, `elements`, `components`, `materials`, `sections`, `supports`, `load_cases`, `combinations`, `design_knowledge_refs`, `constraint_refs`, `diagnostics`, `unresolved_assumptions`, and `traceability_links`.
-> 5. Leave unimplemented schema references, runtime service envelopes, external prover behavior, and field-level scalar traceability `TBD` unless fixed by accessible implementation evidence.
->
-
-### CLM-030 — 3. Define Contract Outputs
-
-> ###### 3. Define Contract Outputs
->
-> 1. Specify the derived analytical model output at the contract level.
-> 2. Specify warning/diagnostic output for non-representable physical data, missing solve-required data, weak provenance, unresolved assumptions, or protected/private-data risk where applicable.
-> 3. Specify traceability links from physical inputs to:
->    - analytical output records;
->    - warnings/diagnostics;
->    - omissions;
->    - assumptions;
->    - unresolved `TBD` items.
-> 4. For the internal adapter, specify DTO outputs only as internal solver-boundary evidence: nodes, straight-pipe connectivity, property bindings, support targets, load-case records/applications, adapter DTO identity/hash/source-chain records, load-case diagnostics, and diagnostics.
-> 5. Do not encode compliance, approval, certification, external-prover success, release readiness, or professional reliance status in transform or adapter outputs (PRD §21.2).
->
-
-### CLM-031 — 4. Define Determinism Rules
-
-> ###### 4. Define Determinism Rules
->
-> 1. Define deterministic behavior in terms of equivalent input model, units, transform contract version, and configuration.
-> 2. Require repeatable analytical output and repeatable warning/diagnostic output for the same basis.
-> 3. Verify current stable record ordering, stable diagnostic ordering, stable traceability ordering, and adapter DTO hash evidence (`sha256` over sorted JSON payloads with `JCS` vocabulary) where implemented.
-> 4. Record release-grade canonicalization and broader audit-manifest policy as `TBD` unless fixed by a later governed decision.
->
-
-### CLM-032 — 5. Define Warning Tests
-
-> ###### 5. Define Warning Tests
->
-> 1. Create tests for transformation warnings required by SOW-066.
-> 2. Include negative cases for at least:
->    - missing solve-required physical input;
->    - physical data that lacks a solver-ready analytical representation;
->    - missing or ambiguous unit metadata on a unit-bearing value.
-> 3. Use invented or permissive fixtures only.
-> 4. Verify warnings remain diagnostic and do not become compliance or professional acceptance claims.
-> 5. For the current implementation, run:
->    - `python3 tests/test_physical_to_analytical_transform.py`
->    - `python3 tests/test_analytical_solver_boundary_adapter.py`
->    - `python3 -m pytest -q tests/test_physical_to_analytical_transform.py tests/test_analytical_solver_boundary_adapter.py`
->
-
-### CLM-033 — 6. Review Data Boundary
-
-> ###### 6. Review Data Boundary
->
-> 1. Scan the contract and tests for protected standards text, protected tables, code-specific defaults, copied formulas, proprietary catalog values, owner standards, or private project data.
-> 2. Mark uncertain content `TBD` or `protected_suspected` according to policy.
-> 3. Escalate suspected protected content; do not normalize it into public examples.
->
-
-### CLM-034 — Verification
-
-> ##### Verification
->
-> | Check | Expected evidence |
-> |---|---|
-> | Scope of Work consistency | `ScopeOfWork.md` uses the same DEL ID, package, scope, objective, and terminology. |
-> | Requirement coverage | Specification requirements trace to SOW-066, OBJ-014, project invariants, or local DAG mirror rows. |
-> | Determinism | Tests or planned tests cover repeated transform behavior. |
-> | Warning behavior | Tests or planned tests cover warnings for non-representable physical data. |
-> | Traceability | Contract records physical-to-analytical links or explicit unresolved gaps. |
-> | Unit safety | Missing/ambiguous unit metadata produces findings, not defaults. |
-> | Data boundary | No protected/private/proprietary engineering content is introduced. |
-> | Professional boundary | Outputs avoid certification, approval, compliance, or professional reliance claims (PRD §21.2). |
-> | Internal adapter boundary | Adapter accepts only strict `analytical_solver_model` mappings and reports DTO/load/orientation/property failures as diagnostics. |
-> | Dependency preservation | Existing local dependency rows remain unchanged during evidence refresh; historical row IDs remain audit evidence under the approved graph resolved through `execution/_DAG/_LATEST.md` coordination basis. |
->
-
-### CLM-035 — Records
-
-> ##### Records
->
-> Maintain the following deliverable-local records:
->
-> - `ScopeOfWork.md` definition section
-> - `ScopeOfWork.md` requirements section
-> - `ScopeOfWork.md` guidance section
-> - `ScopeOfWork.md` procedure section
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
-> - `_STATUS.md`
-> - `Dependencies.csv`
-> - `_DEPENDENCIES.md`
-> - `_run_records/**`
->
-> Check the following repo-level implementation and test evidence when verifying this deliverable:
->
-> - `core/model_transform/physical_to_analytical/contract.py`
-> - `core/model_transform/physical_to_analytical/_solver_boundary_adapter.py`
-> - `fixtures/domain/invented_physical_source_of_truth_model.json`
-> - `tests/test_physical_to_analytical_transform.py`
-> - `tests/test_analytical_solver_boundary_adapter.py`
->
-> Implementation records are no longer `TBD` for the current transform, internal adapter, canonical fixture, and focused tests listed above. Remaining `TBD` records include final transform-loss taxonomy, release thresholds, external prover behavior, GUI/runtime/API integration, persisted/handoff readiness, broader physical-record coverage, human acceptance, and professional/code-compliance boundaries.
->
-
-### CLM-036 — D-41 R5 T2B PDU-047 Check
-
-> ##### D-41 R5 T2B PDU-047 Check
->
-> Treat section-property numeric evidence as evidence for the carried section-property values only. Do not use it to infer broader 3D frame suitability, shell/solid equivalence, release readiness, or professional acceptance. Record that missing independent basis as a held residual.
->
-> For PDU-023, require paired source/target scalar paths only after quantity metadata passes current validation. Do not synthesize a result-envelope continuation.
->
-> For PDU-036, load the invented trace-gap fixture, verify the unsupported component is absent from analytical output, verify its `ASSUMPTION_WARNING` is attached to the diagnostic trace link, and verify no field-scalar link is emitted for the omitted record. Record the result as verification, not independent validation.
-
-- **VER-001** — Validate the candidate schema and claim map; confirm parity and source/status hashes; run the focused transform, solver-boundary adapter, and dependency checks; and independently review source grounding and authority boundaries.
+- **VER-001** — AC-001, AC-002, AC-003, AC-004, AC-005, AC-006 and AC-007, executable check: observes, for constructed physical models, the transform result across repeated runs, the physical model before and after, the outcome of every source record, each named finding, the carried quantities, and the kinds of record in the analytical model; with the reference format's dimension identifiers compared with those of `schemas/units.schema.yaml`, read from that file.
+- **VER-002** — AC-008, executable check with comparison against named references: observes the adapter's refusals, findings and emitted records for constructed analytical models, and the code paths that reach it; element axes are compared with vector geometry worked without product code, and payload hashes with SHA-256 over the RFC 8785 form computed by an implementation that shares no code with the product.
+- **VER-003** — AC-009 and AC-010, judgment by a reviewer who did not write the contract, with the protected-content scan: examines the finding texts, the reference format and each fixture with its provenance.
+- **VER-004** — AC-011 and AC-012, executable check: observes the reference format, the committed documents, the derived analytical models and the serialized transform result under a JSON Schema 2020-12 validator that imports no product code.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-037 — Guidance: DEL-13-04 Physical-to-analytical transformation contract
-
-> #### Guidance: DEL-13-04 Physical-to-analytical transformation contract
->
-> **Generated:** 2026-05-03
-> **Status:** Evidence refresh applied 2026-06-07
-> **Source posture:** Directional guidance is source-grounded where possible; unsupported implementation advice is marked `TBD` or omitted.
->
-
-### CLM-038 — Purpose
-
-> ##### Purpose
->
-> DEL-13-04 is the bridge from design authoring to solver execution. Its implemented purpose is to derive a deterministic `analytical_solver_model` from a schema-shaped physical source-of-truth model while preserving diagnostics, omissions, assumptions, and traceability when information cannot cross that boundary exactly.
->
-> Sources: `_CONTEXT.md` Scope Detail and Context Envelope; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEL-13-04 and OBJ-014; `core/model_transform/physical_to_analytical/contract.py`; `tests/test_physical_to_analytical_transform.py`.
->
-
-### CLM-039 — Principles
-
-> ##### Principles
->
-> | Principle | Guidance | Source |
-> |---|---|---|
-> | Preserve source-of-truth role | Treat the physical model as the editable source-of-truth and the analytical model as a derived view. Do not overwrite physical design context during transformation. | `docs/SPEC.md` section 3; `docs/TYPES.md` `ModelRole` |
-> | Be deterministic | The same physical input and contract configuration should yield the same analytical output and warning set. | SOW-066; `docs/CONTRACT.md` OPS-K-SOLVER-1 |
-> | Warn rather than hide loss | When physical data cannot be represented analytically, expose the loss as a warning/diagnostic with traceability. | SOW-066; `docs/TYPES.md` `Diagnostic` |
-> | Keep units explicit | Unit-bearing values crossing the boundary need explicit unit metadata; missing or ambiguous units are findings. | `docs/SPEC.md` section 4; `docs/CONTRACT.md` OPS-K-UNIT-1 |
-> | Avoid silent engineering defaults | Missing solve-required values must not be silently supplied. | `docs/CONTRACT.md` OPS-K-DATA-2 |
-> | Stay code-neutral | Do not introduce protected code data, proprietary values, code-specific public defaults, SIF/flexibility tables, or compliance claims. | `docs/CONTRACT.md`; `docs/IP_AND_DATA_BOUNDARY.md` |
-> | Target global frame mechanics | The default analytical target is the project's 3D centerline/frame mechanics boundary, not routine shell/solid FEA. | `docs/CONTRACT.md` OPS-K-MECH-1; `INIT.md` |
->
-
-### CLM-040 — Considerations
-
-> ##### Considerations
->
-
-### CLM-041 — Transform-Loss Classes
-
-> ###### Transform-Loss Classes
->
-> The sources require warnings for physical design data that cannot be represented analytically, and current implementation evidence supplies concrete diagnostic behavior. The transform emits deterministic `PTA-*` diagnostics for current coverage, including missing source/model role/coordinate data, missing required fields, missing or `TBD` unit metadata, noncanonical quantity dimensions, unsupported components/supports/elements, and unresolved references. The internal adapter emits deterministic `ASBA-*` diagnostics for strict solver-boundary DTO coverage, including missing properties, invalid `y_reference`, unsupported/noncanonical load semantics, unresolved targets, wrong dimensions, nonfinite quantities, unordered uniform-load spans, and wrong model role.
->
-> Guidance: treat those `PTA-*` and `ASBA-*` codes as current implementation/test evidence, not as the final release transform-loss taxonomy. The final taxonomy, release thresholds, and user-facing severity policy remain `TBD` until a governed architecture or release-readiness decision accepts them.
->
-
-### CLM-042 — Upstream Contract Surfaces
-
-> ###### Upstream Contract Surfaces
->
-> `Dependencies.csv` identifies prerequisite surfaces for canonical domain model schema, design knowledge, constraints, constraint validation, frame stiffness, supports/restraints, primitive loads, diagnostics/result envelopes, API boundaries, persistence/schema versioning, and layered tests. Those rows are evidence of coordination dependencies, not permission to copy or reinterpret sibling deliverable content.
->
-> Current upstream refresh evidence confirms DEL-13-02 has an implemented constraint entity/provenance schema at `schemas/constraint.schema.json`, and DEL-13-03 has an implemented validation engine at `core/constraints/validation/engine.py`. DEL-13-04 currently carries `design_knowledge_refs` and `constraint_refs` through the derived analytical model, but it does not invoke the validation engine, resolve owner criteria, or create a GUI/runtime/API integration path.
->
-> Guidance: implementation work should consume approved upstream contracts through explicit sealed scope and should not use this evidence refresh to reclassify dependencies, expand schema vocabulary, or infer owner/code criteria.
->
-
-### CLM-043 — Diagnostic Placement
-
-> ###### Diagnostic Placement
->
-> The project vocabulary distinguishes diagnostics and warning classes from professional compliance outcomes. Current transform diagnostics use classes such as `SOLVE_BLOCKING`, `ASSUMPTION_WARNING`, and `NONLINEAR_WARNING`; adapter diagnostics classify blocking findings as `SOLVE_BLOCKING` and other adapter findings as diagnostic evidence only.
->
-> Guidance: transformation and adapter findings should be deterministic, source-linked, and reviewable. They should not state that the model is compliant, professionally accepted, release-ready, or externally proven.
->
-
-### CLM-044 — Data Boundary
-
-> ###### Data Boundary
->
-> Transformation may touch component, material, section, support, load, constraint, and design-knowledge references. Public artifacts must not supply protected or proprietary values for those surfaces. Unknown or suspected protected sources require review/quarantine rather than normalization into public defaults.
->
-> Guidance: tests should use invented or permitted fixtures and should include provenance where data matters.
->
-
-### CLM-045 — Trade-offs
-
-> ##### Trade-offs
->
-> | Trade-off | Conservative direction |
-> |---|---|
-> | Rich physical data vs. solver-ready idealization | Preserve physical richness through traceability and warnings rather than forcing all data into solver elements. |
-> | Convenience defaults vs. explicit findings | Prefer explicit `TBD`, warning, or diagnostic records over hidden defaults. |
-> | Contract specificity vs. unsupported invention | Specify behavior proven by SOW, decomposition, project invariants, current implementation, and focused tests; leave release taxonomy, external prover behavior, GUI/runtime/API integration, persistence/handoff readiness, and human/professional acceptance `TBD` where evidence does not fix them. |
-> | Analytical target breadth vs. global mechanics scope | Keep routine transformation aimed at 3D centerline/frame analysis. Treat shell/solid FEA as a separate handoff path. |
->
-
-### CLM-046 — Examples
-
-> ##### Examples
->
-> Executable invented examples are available in `fixtures/domain/invented_physical_source_of_truth_model.json`, `tests/test_physical_to_analytical_transform.py`, and `tests/test_analytical_solver_boundary_adapter.py`. They are public-permissive test evidence, not owner/project examples or professional design examples. Publication-grade examples, owner/project examples, and any examples containing code/owner criteria remain `TBD` pending source clearance and human acceptance.
->
-
-### CLM-047 — Source Access Gaps
-
-> ##### Source Access Gaps
->
-> | Gap | Impact | Handling |
-> |---|---|---|
-> | Historical PRD v0.2 citation versus current PRD source | Current `docs/PRD.md` v0.4 Draft includes FR-MOD-007; historical clause parity and adopted-detail traceability must be established before reliance. | Retain accepted SOW-066 scope; verify cited PRD detail at its actual accepted reach rather than infer current source absence. |
-> | Broader upstream integration beyond current DEL-13-02/DEL-13-03 refresh evidence | Cannot claim full runtime constraint-validation consumption, GUI presentation, public API behavior, or persisted handoff readiness. | Keep those integration surfaces `TBD` until bounded implementation evidence exists. |
-> | OI-012 unresolved architecture detail for loss classes | Transform-loss taxonomy cannot be finalized here. | Record `TBD`; require later architecture/detail task. |
->
-
-### CLM-048 — D-41 R5 T2B PDU-047 Boundary
-
-> ##### D-41 R5 T2B PDU-047 Boundary
->
-> A correct circular-section calculation is not a validation basis for the overall physical-to-analytical 3D mechanics boundary. Keep the existing deterministic verification and the new bounded oracle binding distinct from the unresolved suitability judgment.
->
-> PDU-023 field paths prove scalar identity through the current copy boundary only; they do not claim downstream solver or runtime result-envelope production.
->
-> PDU-036 uses an invented negative fixture to make one omission/warning/assumption relationship executable. Treat its missing scalar trace as an explicit gap caused by omission, not as evidence that every scalar or runtime result path is traced.
+- **AX-001** — *Nothing lost unseen.* Better is fewer physical records that end with neither a derived record nor a warning; the target is none. A record is never approximated without a warning to make the analytical model look more complete.
+- **AX-002** — *Same in, same out.* Better is a result that depends on nothing but the physical model, the settings and the contract version. Determinism is never given up for speed or for a more convenient ordering.
+- **AX-003** — *Say what is missing.* Better is fewer values in an analytical model that the physical model did not state; the target is none. A value is never supplied so that a model becomes solvable.
+- **AX-004** — *The physical model leads.* Better is fewer ways an analytical value can change other than by deriving it again from the physical model; the target is none. The analytical model is never edited, written back or treated as the design.
+- **AX-005** — *A frame model, and said to be one.* Better is more of what the frame idealization cannot hold carried by named warnings and links, not dropped. This is never bought by adding a non-frame element to the target or by claiming fidelity beyond the idealization.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-066 OBJ-014 | CLM-011 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-
-## SCA-011 — Interface responsibility and verification hook
-
-- **DEL-13-04-SCA011-REQ-001** — Owns the TransformResult production contract and its authoritative versioned schema, preserving physical source identity, analytical derivation, units, diagnostics and traceability.
-- **DEL-13-04-SCA011-VER-001** — PDU-023 now has the DEL-13-04 responsibility home through SCA-011; accepted envelope binding and wider scalar/runtime trace evidence remain outstanding. DEL-13-04-REQ-012 remains unchanged: the internal solver-boundary adapter is not a public API, GUI/runtime path, external prover path or final solver-acceptance claim.
-
-Named preparation artifact: `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/TransformResult.v0.1.draft.schema.json`, with field decisions and semantic checks in `INTERFACE_CONTRACTS.md`. This identifies an accountable contract preparation surface; its wire fields/version are unaccepted design deltas, not deployed schemas. Scope adoption alone neither validates existing preview payloads nor activates a new API, runtime, persistence format, external process or compatibility window. Existing requirements, exclusions and lifecycle remain in force.
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-13-04:1** — SCA-011 interface follow-through: PDU-023 now has the DEL-13-04 responsibility home through SCA-011; accepted envelope binding and wider scalar/runtime trace evidence remain outstanding. DEL-13-04-REQ-012 remains unchanged: the internal solver-boundary adapter is not a public API, GUI/runtime path, external prover path or final solver-acceptance claim.
-- **DEL-13-04:2** — Hold PDU-023 continuation from analytical field-scalar trace paths into a runtime result envelope until the SCA-011 DEL-13-04 producer responsibility is realized by an accepted binding of those existing contracts (source: D-41 R5 T2C E6, 2026-07-12)
-- **DEL-13-04:3** — Hold PDU-047 broader 3D centerline/frame mechanics suitability validation; the bounded section-property oracle does not independently validate the transform target boundary (source: D-41 R5 T2B E2/E4/E8 evidence-only backcheck, 2026-07-12)
-- **DEL-13-04:4** — Preserve PDU-036 as verification-only evidence: the invented trace-gap fixture links one omitted unsupported component to its `ASSUMPTION_WARNING` diagnostic and emits no invalid scalar trace, but independent validation and broader field/runtime-result trace coverage remain open.
+| OUT-001 | SOW-066 OBJ-014 | REQ-001 REQ-010 | AC-001 | VER-001 | The criterion fixes the expected relation: equal results on every run. It compares the product with itself and guards reproducibility only |
+| OUT-001 | SOW-066 OBJ-014 | REQ-003 | AC-002 | VER-001 | The criterion fixes the expected result: the physical model read back equals the one supplied, and the role and source reference are stated by PRD §5.2 and §8.3 |
+| OUT-001 | SOW-066 OBJ-014 | REQ-002 REQ-004 | AC-003 | VER-001 | The physical models are constructed, so the criterion states the expected outcome of each record; the comparison is against the constructed source, which the product did not write |
+| OUT-001 | SOW-066 OBJ-014 | REQ-002 REQ-006 | AC-004 | VER-001 | The inputs are constructed, so the criterion states the expected finding (SOW-066; PRD §5.5). Which loss classes are final awaits OI-012 |
+| OUT-001 | SOW-066 OBJ-014 | REQ-005 | AC-005 | VER-001 | The unit schema's dimension vocabulary (DEL-02-02; owner ruling DEC-018), read from its file; the quantities are constructed |
+| OUT-001 | SOW-066 OBJ-014 | REQ-006 | AC-006 | VER-001 | The criterion states the expected result (PRD §5.5: nothing is defaulted); the comparison is against the constructed physical model |
+| OUT-001 | SOW-066 OBJ-014 | REQ-007 | AC-007 | VER-001 | Owner ruling: PRD §12.1 and `docs/CONTRACT.md` OPS-K-MECH-1 state the frame target. It establishes the model's form, not its suitability |
+| OUT-001 | SOW-066 OBJ-014 | REQ-010 REQ-012 | AC-008 | VER-002 | Outside source: vector geometry for element axes and RFC 8785 with SHA-256 for payload hashes, each worked without product code; the refusals are fixed by the criterion on constructed inputs |
+| OUT-001 | SOW-066 OBJ-014 | REQ-009 | AC-009 | VER-003 | Owner ruling: PRD §21.2 lists the prohibited claims; the reviewer compares against it and `docs/claims_registry.md` |
+| OUT-001 | SOW-066 OBJ-014 | REQ-008 | AC-010 | VER-003 | Owner ruling: PRD §20.1 and `docs/IP_AND_DATA_BOUNDARY.md` state what a public artifact may contain; the reviewer compares against sources the product did not write |
+| OUT-001 | SOW-066 OBJ-014 | REQ-003 REQ-013 | AC-011 | VER-004 | Outside source: the JSON Schema 2020-12 specification, applied by a validator that imports no product code |
+| OUT-001 | SOW-066 OBJ-014 | REQ-013 | AC-012 | VER-004 | Outside source: the JSON Schema 2020-12 specification, applied by a validator that imports no product code, against the schema this deliverable publishes. The schema's fields await the undecided wire form |

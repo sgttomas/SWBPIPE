@@ -2,417 +2,95 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-03-02
 package_id: PKG-03
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-018]
 package_objective_refs: [OBJ-004]
 ---
 
-# Scope of Work — DEL-03-02
+# Scope of Work — DEL-03-02 Pipe section and component library schema
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-03-02` in service of project scope [SOW-018] and package objectives [OBJ-004].
+This deliverable is the product's definition of three private libraries: pipe sections, components and hangers. Each is a document in which a user holds dimensions, weights, stiffnesses and catalogue data they are entitled to use, with a unit, a source and a redistribution standing on every value. The public project ships the formats and invented examples, and no protected dimensional table, vendor catalogue or rating without documented redistribution rights.
 
-- **OUT-001** — A pipe-section and component-library schema contract covering section geometry and properties, component identity, units, provenance, library governance, and explicit completeness diagnostics is produced for the declared scope and objective.
+It serves SOW-018 under OBJ-004 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-03, row DEL-03-02), and PRD §18.2 and §18.3 with FR-RULE-006, FR-MOD-005 and the data boundary of §20.1 and §20.2. The hanger library is the user-imported library class of DEC-103, and its working load range is what hanger sizing reads (PRD §12.4). No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names this deliverable; it reaches exit criterion 1's hanger sizing through DEL-04-11.
+
+- **OUT-001** — The pipe section and component library document formats, `schemas/section.schema.yaml` and `schemas/component.schema.yaml`, with invented example libraries.
+- **OUT-002** — The hanger library document format, `schemas/hanger.schema.yaml`, in versions 1.0.0 and 1.1.0, with invented example libraries.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Source preamble
+**Terms the formats implement.**
 
-> ---
-> doc_id: DEL-03-02-DATASHEET
-> doc_kind: deliverable.datasheet
-> status: draft
-> created: 2026-04-30
-> deliverable_id: DEL-03-02
-> package_id: PKG-03
-> ---
->
+- *Section record.* One pipe section: identifier, name, section type, privacy class, redistribution status, provenance and review status, with its dimensions and its properties. A dimension is an outside diameter, wall thickness, corrosion allowance, mill tolerance, nominal size or schedule label, insulation or lining thickness, or a user-defined dimension. A property is an area, inside diameter, second moment, section modulus, torsion constant, mass per length or contents volume per length, and states whether the user entered it or it was calculated.
+- *Component record.* One component: identifier, name, type, privacy class, redistribution status, provenance and review status, with its fields. A field is a slot of a named kind holding a quantity or a text reference, the status of that value, the policy for whether it may appear in a public artifact, and what it is required for.
+- *Component family contract.* For a family of component types, the statement of which field kinds are its geometry, which are user-entered modifiers, which are source metadata, and how mechanics and rule checks consume a record of that family. The mechanism is this deliverable's; the field kinds, completeness rule and diagnostics of the bend, branch, rigid and expansion-joint families are those of DEL-03-03 to DEL-03-06.
+- *Hanger record.* One hanger: identifier, name and provenance, with its type, source reference, optional manufacturer reference, stiffness, installed, cold, hot and constant loads, travel range and movement limit. Its stiffness is a force per length on a named translational degree of freedom. Every quantity is a magnitude with its unit, dimension and its own provenance. A record may also carry a *working load range*: a minimum and a maximum force, each with its own provenance. The range is the member version 1.1.0 adds; the format admits it under either version.
+- *Quantity, provenance, standing and completeness.* As in the material library (DEL-03-01): every numeric value carries its unit and dimension; provenance has the seven members of PRD §20.2; privacy, redistribution and review are closed vocabularies; in the section and component formats a required value that is absent is marked missing and named in a completeness finding with a diagnostic.
 
-### CLM-002 — Datasheet: Pipe Section and Component Library Schema
-
-> #### Datasheet: Pipe Section and Component Library Schema
->
-
-### CLM-003 — Identification
-
-> ##### Identification
->
-> | Field | Value | Evidence |
-> |---|---|---|
-> | Deliverable ID | DEL-03-02 | SourcePath: `_CONTEXT.md`; SectionRef: Context: DEL-03-02 |
-> | Name | Pipe section and component library schema | SourcePath: `_CONTEXT.md`; SectionRef: Context: DEL-03-02 |
-> | Package | PKG-03 - Piping Components, Materials, and Library Data Model | SourcePath: `_CONTEXT.md`; SectionRef: Package Reference |
-> | Type | DATA_MODEL_CHANGE | SourcePath: `_CONTEXT.md`; SectionRef: Type |
-> | Scope item | SOW-018 | SourcePath: `docs/_Registers/ScopeLedger.csv`; SectionRef: row SOW-018 |
-> | Objective | OBJ-004 | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: objective row OBJ-004 |
-> | Implemented schema artifacts | `schemas/component.schema.yaml`; `schemas/section.schema.yaml` | SourcePath: `schemas/component.schema.yaml`; SourcePath: `schemas/section.schema.yaml` |
-> | Decomposition basis | `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see the project decision register) | SourcePath: `_CONTEXT.md`; SectionRef: Decomposition Reference |
-> | Responsible party | TBD | Not assigned in accessible sources |
->
-
-### CLM-004 — Attributes
-
-> ##### Attributes
->
-> | Attribute | Value | Evidence |
-> |---|---|---|
-> | Primary subject | Private pipe section and component library records | SourcePath: `docs/_Registers/ScopeLedger.csv`; SectionRef: row SOW-018 |
-> | Required public boundary | No protected pipe dimensional tables, protected standards data, or proprietary catalog data are bundled as public defaults | SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-IP-1, OPS-K-DATA-1 |
-> | Section record intent | User-entered dimensions, weights/mass-property inputs, provenance, and redistribution status | SourcePath: `_CONTEXT.md`; SectionRef: Description |
-> | Component record intent | User-entered component dimensions, weights, centers of gravity, source/license metadata, and redistribution status | SourcePath: `_CONTEXT.md`; SectionRef: Description |
-> | Schema baseline | JSON Schema 2020-12 contracts | SourcePath: `_CONTEXT.md`; SectionRef: Architecture Basis Injection |
-> | Persistence baseline | Deterministic, versioned, unit-aware, provenance-preserving, schema-governed, migration-aware, and round-trip testable | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-04 |
-> | Diagnostics baseline | Diagnostics/result envelopes carry code, class, severity, source, affected object, message, remediation, and provenance | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-06 |
-> | Schema implementation evidence | Implemented with strict JSON Schema 2020-12 documents, split strict fixtures, combined legacy fixture pointers, and focused schema tests | SourcePath: `schemas/section.schema.yaml`; SourcePath: `schemas/component.schema.yaml`; SourcePath: `fixtures/component/invented_section_library_valid.json`; SourcePath: `fixtures/component/invented_component_library_valid.json`; SourcePath: `fixtures/component/invented_section_component_library_valid.json`; SourcePath: `tests/test_component_section_schema.py` |
->
-
-### CLM-005 — Conditions
-
-> ##### Conditions
->
-> - Public repository artifacts must not contain protected standards text, tables, figures, examples, copied code formulas, material allowables, SIF/flexibility tables, protected dimensional tables, or proprietary commercial data. SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-IP-1.
-> - Public data contributions require source, provenance, license/redistribution status, contributor certification, and review disposition. SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-IP-2.
-> - Suspected protected content must be quarantined and escalated; agents must not paraphrase protected tables into public data. SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-IP-3.
-> - Code-specific and proprietary component/section values are user-supplied or lawfully imported private data, not bundled public defaults. SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-DATA-1.
-> - Missing solve-required or rule-check-required values are explicit findings, never silent defaults. SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-DATA-2.
-> - Component, section, SIF, flexibility, allowable, and rule-pack values carry provenance fields where applicable. SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-DATA-3.
-> - All dimensional, mass, weight, and property fields must be unit-aware and dimensionally checked. SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-UNIT-1.
-> - Private project, material, component, and rule-pack data must not be transmitted or committed publicly by default. SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-PRIV-1.
->
-
-### CLM-006 — Construction
-
-> ##### Construction
->
-> This deliverable now has repository-level schema implementation evidence. This reconciliation records the implemented artifacts without changing schemas, fixtures, tests, lifecycle files, dependency files, or review dispositions.
->
-> | Part | Status | Notes |
-> |---|---|---|
-> | `schemas/section.schema.yaml` | Implemented evidence | Defines a strict pipe/section library schema with `schema_version`, `section_library`, `section_records`, `dimension_definitions`, `property_definitions`, `completeness_rules`, `diagnostics`, and `open_decisions`; it includes unit-bearing section dimension/property slots, provenance, redistribution status, review status, completeness findings, diagnostics, and open decisions. |
-> | `schemas/component.schema.yaml` | Implemented evidence | Defines a strict component library schema with `schema_version`, `component_library`, `component_family_contracts`, `component_records`, `field_definitions`, `completeness_rules`, `diagnostics`, and `open_decisions`; it includes component-family contracts, user-entered field slots, protected-value policies, provenance, redistribution status, review status, completeness findings, diagnostics, and open decisions. |
-> | Strict section fixture | Implemented evidence | `fixtures/component/invented_section_library_valid.json` validates as schema-shape evidence and intentionally omits engineering values through `missing` value statuses, incomplete completeness findings, and diagnostics. |
-> | Strict component fixture | Implemented evidence | `fixtures/component/invented_component_library_valid.json` validates as schema-shape evidence for bend, branch, rigid, and expansion-joint component records while keeping engineering values absent or private/user-supplied only. |
-> | Combined legacy fixture | Implemented pointer evidence | `fixtures/component/invented_section_component_library_valid.json` carries section/component content plus references to the strict split fixtures; strict validation relies on the split fixtures. |
-> | Test coverage | Implemented evidence | `tests/test_component_section_schema.py` checks strict schema shape, provenance requirements, redistribution statuses, unit-dimension alignment with PKG-02, component enum equality with the canonical model enum, split fixture validation, and forbidden public-data text. |
-> | Provenance metadata | Implemented schema mechanism; policy TBDs remain | Schemas require source/provenance, license, contributor certification, redistribution status, and review status. Accepted public source catalogs, source-license disposition, redistribution acceptance, and public contribution approval remain human/policy decisions. |
-> | Unit-bearing value model | Implemented schema mechanism | Schemas define quantity-value slots with magnitude, unit, dimension, value status, and provenance; tests assert accepted dimension vocabulary alignment with `schemas/units.schema.yaml`. |
-> | Protected-content gate hooks | Implemented schema/test guardrails; workflow policy TBDs remain | Schemas and fixtures represent protected-suspected/rejected states, protected-value policies, diagnostics, and no-public-value policies. Human review workflow and accepted source policy remain unresolved. |
-> | Engineering values | Out of scope | No pipe dimensional table values, component catalog values, allowables, SIFs, flexibility factors, or code-derived values are introduced here. |
->
-> Current implementation (at `62c1efd75b`): the desktop Library Manager (`apps/desktop/src/features/library/LibraryManagerPanel.tsx`, through `apps/desktop/src/services/libraryImportService.ts`) imports an already-parsed section or component library document. The Tauri command `validate_library_import` in `apps/desktop/src-tauri/src/lib.rs` checks the document with `open_pipe_stress_library_import_document`, the Rust port of the DEL-03-07 provenance checker. It checks provenance, redistribution, review and quarantine; it does not validate the document against `schemas/section.schema.yaml` or `schemas/component.schema.yaml`. `save_local_library` stores an accepted private import in the project's `local_libraries` table; a library whose metadata or record holds a `redistribution_status` or `review_status` that is an array or an object, or a `provenance` that is an array, is not accepted (`MODEL-DISPOSITION-RECORD-MALFORMED`) and is not stored.
->
-
-### CLM-007 — References
-
-> ##### References
->
-> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history), accepted basis for DEL-03-02.
-> - `_REFERENCES.md`, local reference index for DEL-03-02.
-> - `_DEPENDENCIES.md`, human-owned dependency declarations for DEL-03-02.
-> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history), row DEL-03-02.
-> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history), row SOW-018.
-> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history), row DEL-03-02.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md`, accepted authority through the decision register, especially PKG-03, DEL-03-02, OBJ-004, SOW-018, and AB-00-01/02/04/06/07/08.
-> - `docs/CONTRACT.md`, invariant catalog.
-> - `docs/TYPES.md`, epistemic labels and data provenance labels.
-> - `docs/SPEC.md`, sections 1, 3, 10, and 11.
-> - `docs/DIRECTIVE.md`, data-boundary and stop-rule basis.
+**Boundary.** These formats define documents. DEL-03-07 decides whether an imported library is accepted and applies the rules the formats leave to the import boundary, among them the refusal of a working load range in a 1.0.0 document and of a range whose ends differ in unit or whose minimum is not below its maximum. DEL-04-11 owns what the working load range means in sizing. DEL-03-03 to DEL-03-06 own what each component family means in a model and a solve. DEL-03-08 calculates section properties. DEL-07-03 owns the library editors and DEL-07-09 the palette coverage of them. No catalogue is bundled.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-008 — Source preamble
+A document that validates is well formed. That establishes neither the correctness of its values nor the right to redistribute them, and a hanger record that validates is not thereby ready to solve or to size.
 
-> ---
-> doc_id: DEL-03-02-SPECIFICATION
-> doc_kind: deliverable.specification
-> status: draft
-> created: 2026-04-30
-> deliverable_id: DEL-03-02
-> package_id: PKG-03
-> ---
->
+### Requirements
 
-### CLM-009 — Specification: Pipe Section and Component Library Schema
+- **REQ-001** — A section record can hold every item PRD §18.2 lists: size label, outside diameter, wall thickness, schedule or designation text, corrosion allowance, mill tolerance, lining, insulation or coating data, and source and provenance, with its redistribution status (SOW-018).
+- **REQ-002** — A component record can hold every item PRD §18.3 lists: type, manufacturer, model, size or rating label, end connection, face-to-face or end-to-end length, weight, centre of gravity, stiffness behaviour, effective pressure area and movement limits where they apply, source and provenance, and redistribution status (SOW-018; PRD FR-RULE-006).
+- **REQ-003** — No public artifact of this deliverable carries a protected dimensional table, standards data, proprietary catalogue value, material allowable, SIF or flexibility table, or code-derived value (`docs/CONTRACT.md` OPS-K-IP-1, OPS-K-DATA-1; PRD §18.2, §20.1).
+- **REQ-004** — In the section and component formats a required value that a record lacks is an explicit value status, completeness finding and diagnostic. In the hanger format a missing required member makes the document invalid, and an absent optional value stays absent. No format defines a default (`docs/CONTRACT.md` OPS-K-DATA-2; PRD §5.5).
+- **REQ-005** — Every value that an engineer may rely on carries provenance, with its source and its licence or redistribution status (`docs/CONTRACT.md` OPS-K-DATA-3, OPS-K-IP-2).
+- **REQ-006** — Every dimensional, weight, mass, centre-of-gravity, stiffness and property field carries a unit and a dimension (`docs/CONTRACT.md` OPS-K-UNIT-1).
+- **REQ-007** — Content suspected of being protected can be recorded as such and held, in the redistribution, value and review vocabularies and by a diagnostic; it is never accepted as public content, which DEL-03-07 decides (`docs/CONTRACT.md` OPS-K-IP-3; PRD §20.2).
+- **REQ-008** — Each format is a closed JSON Schema 2020-12 document: a member it does not define is an error (DEC-010).
+- **REQ-009** — A library document is versioned and schema-governed, and survives storage unchanged, units and provenance included (the decomposition's architecture basis for DEL-00-04).
+- **REQ-011** — A diagnostic for an invalid, incomplete, private, unknown-source or suspected-protected record carries code, class, severity, source, affected object, message, remediation and provenance (the decomposition's architecture basis for DEL-00-06).
+- **REQ-012** — The formats' vocabularies agree with the model: every dimension is a dimension of the unit catalog, and every concrete component family the formats admit is a component kind the model document admits; a type that names no family (other, or undecided) is not a model kind.
+- **REQ-014** — The hanger format admits versions 1.0.0 and 1.1.0. A record may carry a working load range, and no other new member, which the format admits under either version. A 1.0.0 document without it remains valid unchanged and needs no migration (DEC-103; PRD §12.4).
 
-> #### Specification: Pipe Section and Component Library Schema
->
+### Acceptance criteria
 
-### CLM-010 — Scope
-
-> ##### Scope
->
-> DEL-03-02 defines the pipe section and component library schema artifacts listed in the decomposition: `schemas/section.schema.yaml` and `schemas/component.schema.yaml`. The schema subject is private library records for user-entered dimensions, weights, centers of gravity, stiffness/modifier slots, source/license metadata, provenance, redistribution status, review status, completeness findings, diagnostics, and open decisions.
->
-> The repository-level schema files, strict split fixtures, legacy combined fixture pointer, and focused schema tests are implemented evidence for this deliverable. This reconciliation does not edit those repository-level artifacts, does not add public pipe dimensional tables, does not add component catalog values, and does not resolve human-owned policy decisions for public source catalogs, fixture values, redistribution acceptance, dependency satisfaction, lifecycle, or review disposition.
->
-
-### CLM-011 — Requirements
-
-> ##### Requirements
->
-> | ID | Requirement | Evidence |
-> |---|---|---|
-> | DEL-03-02-REQ-01 | The section schema supports private pipe section library records with provenance and redistribution status. | SourcePath: `schemas/section.schema.yaml`; SectionRef: top-level `section_library`, `section_records`, `$defs.Provenance`, `$defs.RedistributionStatus` |
-> | DEL-03-02-REQ-02 | The component schema supports private component library records with user-entered dimensions, weights, centers of gravity, stiffness/modifier slots, source/license metadata, provenance, and redistribution status. | SourcePath: `schemas/component.schema.yaml`; SectionRef: top-level `component_library`, `component_family_contracts`, `component_records`, `field_definitions`, `$defs.ComponentFieldKind`, `$defs.Provenance` |
-> | DEL-03-02-REQ-03 | Public schema and fixture artifacts do not bundle protected dimensional tables, protected standards data, proprietary catalog data, material allowables, SIF/flexibility tables, or code-derived values. | SourcePath: `tests/test_component_section_schema.py`; SectionRef: `FORBIDDEN_PUBLIC_DATA_TEXT`; SourcePath: `fixtures/component/invented_section_library_valid.json`; SourcePath: `fixtures/component/invented_component_library_valid.json` |
-> | DEL-03-02-REQ-04 | Schema and fixture evidence preserve missing required values as explicit value statuses, completeness findings, diagnostics, or validation failures rather than silent defaults. | SourcePath: `schemas/section.schema.yaml`; SectionRef: `$defs.CompletenessFinding`, `$defs.SectionDiagnostic`; SourcePath: `schemas/component.schema.yaml`; SectionRef: `$defs.CompletenessFinding`, `$defs.ComponentDiagnostic`; SourcePath: `tests/test_component_section_schema.py` |
-> | DEL-03-02-REQ-05 | Library records carry provenance metadata for values that may affect engineering reliance, including source and redistribution/license status. | SourcePath: `schemas/section.schema.yaml`; SectionRef: `$defs.Provenance`; SourcePath: `schemas/component.schema.yaml`; SectionRef: `$defs.Provenance` |
-> | DEL-03-02-REQ-06 | Unit-bearing dimensional, weight, mass-property, center-of-gravity, stiffness, and property fields are unit-aware and dimensionally checked against accepted unit dimensions. | SourcePath: `schemas/section.schema.yaml`; SectionRef: `$defs.QuantityValue`, `$defs.SectionDimension`; SourcePath: `schemas/component.schema.yaml`; SectionRef: `$defs.QuantityValue`, `$defs.ComponentQuantityDimension`; SourcePath: `tests/test_component_section_schema.py` |
-> | DEL-03-02-REQ-07 | Suspected protected content is representable as protected-suspected/quarantined/rejected state or protected-content diagnostics, not accepted as public library content. | SourcePath: `schemas/section.schema.yaml`; SectionRef: `$defs.RedistributionStatus`, `$defs.ReviewStatus`, `$defs.SectionDiagnosticCode`; SourcePath: `schemas/component.schema.yaml`; SectionRef: `$defs.RedistributionStatus`, `$defs.ReviewStatus`, `$defs.ComponentDiagnosticCode` |
-> | DEL-03-02-REQ-08 | The schema artifacts align with JSON Schema 2020-12 and remain schema-first; service-facing command/query/job result-envelope integration is governed by adjacent architecture deliverables. | SourcePath: `schemas/section.schema.yaml`; SectionRef: `$schema`; SourcePath: `schemas/component.schema.yaml`; SectionRef: `$schema`; SourcePath: `_CONTEXT.md` (retired in `497a8d81e4`; see Git history); SectionRef: Architecture Basis Injection |
-> | DEL-03-02-REQ-09 | Persistence-facing records are versioned, unit-aware, provenance-preserving, schema-governed, and testable as strict schema instances. Broader migration and round-trip persistence behavior remains governed outside this reconciliation scope. | SourcePath: `schemas/section.schema.yaml`; SourcePath: `schemas/component.schema.yaml`; SourcePath: `tests/test_component_section_schema.py`; SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-04 |
-> | DEL-03-02-REQ-10 | Library import/export or adapter-facing use shall preserve internal/public API boundaries and shall not bypass validation, provenance, redistribution, diagnostics, or public/private data boundaries. Concrete import formats remain `TBD`. | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-07; SourcePath: `schemas/section.schema.yaml`; SectionRef: `$defs.OpenDecision`; SourcePath: `schemas/component.schema.yaml`; SectionRef: `$defs.OpenDecision` |
-> | DEL-03-02-REQ-11 | Diagnostics for invalid, incomplete, private, unknown-source, or suspected protected library records include code, class, severity, source, affected object, message, remediation, and provenance where applicable. | SourcePath: `schemas/section.schema.yaml`; SectionRef: `$defs.SectionDiagnostic`; SourcePath: `schemas/component.schema.yaml`; SectionRef: `$defs.ComponentDiagnostic`; SourcePath: `fixtures/component/invented_section_library_valid.json`; SourcePath: `fixtures/component/invented_component_library_valid.json` |
-> | DEL-03-02-REQ-12 | Current tests include schema validation, unit-dimension checks, provenance/redistribution gates, protected-content text checks, split fixture validation, and regression coverage for PKG-02 enum/dimension compatibility. Persistence round-trip coverage remains governed outside this reconciliation scope. | SourcePath: `tests/test_component_section_schema.py` |
-> | DEL-03-02-REQ-13 | Exact schema filenames are `schemas/component.schema.yaml` and `schemas/section.schema.yaml`; this reconciliation run shall not edit repository-level schema artifacts. | SourcePath: `_CONTEXT.md` (retired in `497a8d81e4`; see Git history); SectionRef: artifact list; SourcePath: `schemas/component.schema.yaml`; SourcePath: `schemas/section.schema.yaml` |
->
-
-### CLM-012 — Standards
-
-> ##### Standards
->
-> No protected external engineering standards, code clauses, tables, examples, or proprietary data are incorporated into this deliverable.
->
-> Applicable internal standards and baselines:
->
-> - `docs/CONTRACT.md`: OPS-K-IP-1, OPS-K-IP-2, OPS-K-IP-3, OPS-K-DATA-1, OPS-K-DATA-2, OPS-K-DATA-3, OPS-K-UNIT-1, OPS-K-PRIV-1, OPS-K-GOV-4, OPS-K-AGENT-1 through OPS-K-AGENT-4.
-> - `docs/TYPES.md`: epistemic labels and data provenance labels.
-> - `docs/SPEC.md`: domain objects, schema-governed development workflow, and acceptance semantics.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register): SOW-018, OBJ-004, and architecture basis AB-00-01, AB-00-02, AB-00-04, AB-00-06, AB-00-07, AB-00-08.
-> - JSON Schema 2020-12 is the accepted schema-contract basis; this document does not reproduce external specification text.
->
-
-### CLM-013 — Verification
-
-> ##### Verification
->
-> | Requirement IDs | Verification approach |
-> |---|---|
-> | REQ-01, REQ-02, REQ-13 | Review implemented schema files for section/component record coverage and traceability to DEL-03-02. |
-> | REQ-03, REQ-07 | Protected-content review confirms no protected tables, code-derived values, proprietary catalog defaults, or private data are present in public artifacts. |
-> | REQ-04 | Schema and validation tests confirm missing required values become validation findings, not defaults. |
-> | REQ-05 | Provenance/redistribution tests confirm required source and status fields exist and are not silently omitted. |
-> | REQ-06 | Unit-schema tests confirm dimensional and mass-property fields are unit-bearing and dimensionally checked. |
-> | REQ-08, REQ-09, REQ-10 | Architecture review confirms schema-first, deterministic, persistence-aware, and boundary-preserving behavior. |
-> | REQ-11 | Diagnostic tests confirm incomplete, unknown-source, private, and suspected-protected records produce governed diagnostics. |
-> | REQ-12 | Test review confirms schema, unit, provenance, protected-content, split-fixture, and compatibility regression gates are represented; persistence round-trip coverage remains outside this reconciliation scope. |
->
-
-### CLM-014 — Documentation
-
-> ##### Documentation
->
-> Implemented artifacts and open items:
->
-> - `schemas/section.schema.yaml` implements schema versioning, unit-bearing section dimension/property fields, provenance/redistribution metadata, review status, completeness status, diagnostics, and open decisions.
-> - `schemas/component.schema.yaml` implements schema versioning, component-library record identity, component-family contracts, user-entered dimensions/weights/COG/stiffness/modifier slots, provenance/redistribution metadata, review status, completeness status, diagnostics, and open decisions.
-> - `fixtures/component/invented_section_library_valid.json` and `fixtures/component/invented_component_library_valid.json` are strict invented/public-safe fixtures with engineering values intentionally omitted.
-> - `fixtures/component/invented_section_component_library_valid.json` remains legacy combined evidence and points to the strict split fixtures.
-> - `tests/test_component_section_schema.py` is the focused verification surface for schema/fixture compatibility.
-> - Public source catalogs, public fixture value policy, source/license disposition, redistribution acceptance, dependency satisfaction, further source/review acceptance, lifecycle state, and persistence round-trip notes remain `TBD` or governed outside this reconciliation scope.
-
-- **AC-001** — The contract preserves accepted source requirements for unit-aware, provenance-bearing pipe and component records, rights-safe public fixtures, private data boundaries, explicit unknowns, and no silent engineering defaults.
+- **AC-001** — A section library that gives a record every item of REQ-001, and a component library that gives a record every item of REQ-002, each numeric value with its unit, dimension and provenance, validate against their formats. A document that omits a required identity, unit, dimension, provenance, redistribution or review member, or carries a member the format does not define, is rejected, and the rejection names the member.
+- **AC-002** — A hanger library written as 1.0.0 without a working load range validates exactly as it did before 1.1.0 existed. A 1.1.0 record whose working load range has a minimum and a maximum, each a force with its own unit, dimension and provenance, validates. A range with a missing end or any other member, a record without a member the format requires, and a quantity without its unit, dimension or provenance, are rejected.
+- **AC-003** — No format defines a default for any member. In the section and component formats a record can mark a required dimension, property or field as missing, with a completeness finding that names it and a blocking diagnostic with the members of REQ-011, and such a document validates.
+- **AC-004** — The three schemas and their example libraries contain nothing REQ-003 excludes. Every value in a hanger example is invented or omitted; every value in a section or component example is invented, public-domain or permissively licensed with documented provenance, or omitted, and is labelled so where it appears.
+- **AC-005** — Every dimension the formats admit is a dimension of the unit catalog; every concrete component family the formats admit is a component kind the model document admits, and a type that names no family (other, or undecided) is not a model kind.
+- **AC-006** — A valid section library, component library and hanger library, each saved to the local library store and read back, equal their originals in canonical JSON form (RFC 8785), with format version, units and provenance intact.
+- **AC-007** — A library document can mark the library, a record or a single value as suspected protected content, give it a quarantined standing and attach the diagnostic that names it, and such a document validates. Whether it is admitted is DEL-03-07's decision.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-015 — Source preamble
+**Method choices that define the formats.**
 
-> ---
-> doc_id: DEL-03-02-PROCEDURE
-> doc_kind: deliverable.procedure
-> status: draft
-> created: 2026-04-30
-> deliverable_id: DEL-03-02
-> package_id: PKG-03
-> ---
->
+- One record-and-slot mechanism serves every component family. A family adds field kinds, a completeness rule and diagnostic codes; it adds no new record shape.
+- In the component format, stiffness is held as linear stiffness and rotational stiffness, two separate dimensions; there is no generic stiffness dimension.
+- The hanger format is a standalone schema, read as the same source by every validator of it, so that the rule set cannot drift between implementations.
+- A new hanger member enters by a new format version; the refusal of that member in an older-version document is applied at the import boundary.
+- Hanger example values are invented. Section and component example values are invented or cleared for redistribution; where neither is available the example omits the value and shows the missing-value finding.
 
-### CLM-016 — Procedure: Pipe Section and Component Library Schema
+**How each criterion is examined.**
 
-> #### Procedure: Pipe Section and Component Library Schema
->
-
-### CLM-017 — Purpose
-
-> ##### Purpose
->
-> This procedure describes how to maintain and reconcile DEL-03-02 schema evidence without introducing protected tables, proprietary catalog data, invented engineering values, or unsupported compliance claims.
->
-
-### CLM-018 — Prerequisites
-
-> ##### Prerequisites
->
-> - Sealed DEL-03-02 context with write scope limited to the current authorized files.
-> - Register rows for DEL-03-02, SOW-018, and ContextBudgetQA row DEL-03-02.
-> - Applicable contract invariants from `docs/CONTRACT.md`, especially IP, provenance, unit safety, privacy, governance review, and agent epistemic constraints.
-> - Architecture basis AB-00-01, AB-00-02, AB-00-04, AB-00-06, AB-00-07, and AB-00-08.
-> - Implemented evidence in `schemas/section.schema.yaml`, `schemas/component.schema.yaml`, `fixtures/component/invented_section_library_valid.json`, `fixtures/component/invented_component_library_valid.json`, `fixtures/component/invented_section_component_library_valid.json`, and `tests/test_component_section_schema.py`.
-> - Human-owned dependency declarations are not tracked in `_DEPENDENCIES.md`; no explicit upstream/downstream list is available.
->
-
-### CLM-019 — Steps
-
-> ##### Steps
->
-> 1. Confirm identity and boundary.
->    - Verify deliverable ID `DEL-03-02`, package `PKG-03`, type `DATA_MODEL_CHANGE`, scope item `SOW-018`, and objective `OBJ-004`.
->    - Confirm whether the active brief allows repository-level schema edits. If not, reconcile documentation evidence only.
->
-> 2. Gather governing source slices.
->    - Read `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, register rows, decomposition row DEL-03-02, SOW-018, OBJ-004, and applicable contract invariants when they are in scope.
->    - Read the implemented evidence files named in the prerequisites.
->    - Use only accessible local governance, decomposition, schema, fixture, and test sources for evidence.
->
-> 3. Reconcile schema intent against implemented evidence.
->    - Identify implemented record classes: section library record and component library record.
->    - Record implemented concepts: identity, schema version, user-entered dimensions/weights/COG/stiffness/modifier slots where applicable, unit-bearing values, provenance, redistribution status, review status, completeness status, diagnostics hooks, open decisions, and protected-value policies.
->    - Apply existing fixture policy and recorded review dispositions; retain only genuinely unresolved source/catalog, numerical witness, dependency satisfaction and lifecycle matters with their actual authority/evidence boundaries.
->
-> 4. Apply data-boundary rules.
->    - Reject protected standards text, protected dimensional tables, proprietary catalog data, code-derived values, copied formulas, and private project data as public defaults.
->    - Mark suspected protected content for quarantine and human review.
->
-> 5. Map requirements to verification.
->    - For each requirement, identify implemented schema validation, unit check, provenance gate, protected-content gate, split-fixture validation, compatibility regression, round-trip test, or architecture review evidence.
->    - Use invented/public-safe fixtures only.
->
-> 6. Perform consistency review.
->    - Confirm `ScopeOfWork.md` uses consistent terms: section library record, component library record, provenance, redistribution status, unit-aware value, protected-content gate, and private/public data boundary.
->    - Convert unsupported details to `TBD`, `ASSUMPTION`, or a Conflict Table entry.
->
-> 7. Stop and escalate when needed.
->    - Stop if implementation would require protected tables, proprietary data, code-derived defaults, legal conclusions about redistribution rights, or professional/certification claims.
->
-
-### CLM-020 — Verification
-
-> ##### Verification
->
-> - `ScopeOfWork.md` retains the required consolidated sections.
-> - No repo-level schema files are edited unless the active sealed brief authorizes them.
-> - No protected dimensional tables, standards data, proprietary catalog values, or invented engineering values are introduced.
-> - Unknown policy/source/catalog/fixture-value/dependency/lifecycle/review-disposition items remain `TBD`.
-> - Requirements cite accessible sources or are labeled as assumptions.
-> - Dependency extraction artifacts and lifecycle state remain unchanged unless explicitly in scope.
->
-
-### CLM-021 — Records
-
-> ##### Records
->
-> - `ScopeOfWork.md` records active deliverable evidence.
-> - `_SEMANTIC.md` records the semantic lens generated for this deliverable.
-> - `_SEMANTIC_LENSING.md` records warranted enrichment items.
-> - `Dependencies.csv` and `_DEPENDENCIES.md` record extracted dependency evidence.
-> - `_run_records/TASK_RUN_*.md` records the required sequence, QA checks, missing inputs, and human rulings needed.
-
-- **VER-001** — Validate the contract and review source parity, pipe-section and component record coverage, units and provenance, public/private data controls, missing-value diagnostics, deterministic persistence compatibility, and unresolved policy decisions.
+- **VER-001** — Executable check: validates the section and component schemas themselves, complete documents, and one document per removed or unknown member; observes acceptance, each named rejection, the absence of any default, the validity of a document that marks a required value as missing with its completeness finding and diagnostic members, and the validity of a document that marks suspected protected content at each level.
+- **VER-002** — Executable check: validates hanger libraries in each version, valid and invalid, against the hanger schema with a standard JSON Schema 2020-12 validator; observes that the 1.0.0 cases without a working load range give the verdicts they gave under the 1.0.0-only format, that a record lacking a required member is rejected, and that the range cases are accepted or rejected as the criterion states.
+- **VER-003** — Executable check, with judgment by an independent reviewer: a protected-content scan observes that listed protected terms are absent from the schemas and examples, which is a proxy; a reviewer who did not write the examples reads them against `docs/IP_AND_DATA_BOUNDARY.md` §2 to §4.
+- **VER-004** — Comparison with named references: the formats' dimension vocabulary against the unit catalog, `schemas/units.schema.yaml`, and the component types against the component kinds of `schemas/model.schema.yaml`.
+- **VER-005** — Executable check: saves a valid library of each kind through the local library store, reads it back and compares the canonical forms.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-022 — Source preamble
-
-> ---
-> doc_id: DEL-03-02-GUIDANCE
-> doc_kind: deliverable.guidance
-> status: draft
-> created: 2026-04-30
-> deliverable_id: DEL-03-02
-> package_id: PKG-03
-> ---
->
-
-### CLM-023 — Guidance: Pipe Section and Component Library Schema
-
-> #### Guidance: Pipe Section and Component Library Schema
->
-
-### CLM-024 — Purpose
-
-> ##### Purpose
->
-> This guidance explains how to use and extend the implemented DEL-03-02 schema evidence. The deliverable enables private pipe section and component libraries while preserving provenance, redistribution status, review status, unit safety, completeness findings, diagnostics, and the public/private data boundary.
->
-
-### CLM-025 — Principles
-
-> ##### Principles
->
-> - Treat the schema as a carrier for user/private or lawfully redistributable library records, not as a source of public engineering tables.
-> - Keep protected dimensional tables, protected standards content, proprietary catalog values, allowables, SIFs, flexibility factors, and code-derived values out of public defaults.
-> - Make missing values visible as validation findings, completeness flags, or diagnostics; do not fill them silently.
-> - Require provenance and redistribution status wherever a value could affect engineering reliance or public contribution review.
-> - Keep dimensional and mass-property values unit-aware.
-> - Separate detailed component-family mechanics from the generic library schema unless a sealed adjacent DEL-03 deliverable authorizes specialization.
->
-
-### CLM-026 — Considerations
-
-> ##### Considerations
->
-> - This reconciliation records implemented evidence in `schemas/component.schema.yaml`, `schemas/section.schema.yaml`, the strict split fixtures, the combined legacy fixture pointer, and `tests/test_component_section_schema.py`; it does not edit those repository-level artifacts.
-> - SOW-018 is narrower than several adjacent PKG-03 deliverables. The component schema includes generic bend, branch, rigid, and expansion-joint family contracts and slots, but detailed mechanics, accepted values, and editor behavior remain outside this reconciliation scope.
-> - Provenance and redistribution schema mechanisms distinguish private, public-permissive, unknown-source, protected-suspected, rejected, pending, accepted, and quarantined states. Accepted public source catalogs, source/license disposition, redistribution acceptance, and public fixture value policy remain `TBD`.
-> - Public example data must be invented, original, public-domain, or otherwise supported by documented redistribution rights.
-> - If any implementation needs a protected source table to define defaults, stop and route the value to user-supplied/private data handling instead.
->
-
-### CLM-027 — Trade-offs
-
-> ##### Trade-offs
->
-> | Topic | Conservative position |
-> |---|---|
-> | Exact field names | Implemented schema field names are evidence; changes require a sealed schema review. |
-> | Component-family depth | Keep generic family contracts and schema slots here; defer detailed mechanics and accepted engineering values to their owning DEL-03 deliverables. |
-> | Default dimensional values | Do not provide. Public defaults risk protected-table or proprietary-data leakage. |
-> | Provenance strictness | Prefer explicit `unknown`, `protected_suspected`, `quarantined`, or `TBD` over weak inferred source claims. |
-> | Public contribution acceptance | Requires documented rights and review; schema can support the metadata but does not itself approve contribution. |
->
-
-### CLM-028 — Examples
-
-> ##### Examples
->
-> - Safe example approach: use invented pipe section/component records in tests with engineering values omitted or clearly non-engineering, plus explicit provenance/review status.
-> - Unsafe example approach: copying nominal pipe dimensions, vendor catalog weights, protected code tables, or proprietary component geometry into public fixtures.
->
-
-### CLM-029 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | DEL-03-02-CF-001 | `_CONTEXT.md` identifies SOFTWARE_DECOMP accepted authority (see the decision register), while `_REFERENCES.md` still describes the decomposition reference as accepted v0.2. | `_CONTEXT.md#Decomposition Reference` | `_REFERENCES.md#Decomposition and Registers` | Datasheet References; Procedure Records | Treat `_CONTEXT.md` and sealed brief accepted authority (see the decision register) as current basis for this run; route `_REFERENCES.md` cleanup to a metadata owner because it is outside the four-doc write target. | RESOLVED_BY_HUMAN: current `_CONTEXT.md` and `_REFERENCES.md` both cite SOFTWARE_DECOMP accepted authority (see the decision register); prior v0.2 reference is stale/superseded. |
-
-### CLM-030 — SCA-011 DEC-103 hanger schema
-
-**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
-
-Retain the user-imported hanger schema contract under DEL-03-02. DEL-03-07 owns provenance/fixture checking, DEL-07-03 the library editor, and DEL-07-09 coverage. No catalog is bundled and schema ownership does not move to coverage.
-
-**Format 1.1.0** (SCA-015; Agent 0, D-2, 2026-10-31). The schema admits `schema_version` `1.0.0` and `1.1.0`.
-- **The range.** A 1.1.0 record's `hanger` may carry `working_load_range` with a `minimum` and a `maximum`, each a force quantity with its own provenance, and no other member. The schema admits the member under either version. The import boundary (DEL-03-07: the Rust carrier and the Python checker alike) refuses by name a range whose ends differ in unit and a minimum that is not below its maximum when both are read as binary64 numbers (`IMPORT_HANGER_LOAD_RANGE_INVALID`). These rules apply only to a range that passes the shape check.
-- **Compatibility.** A 1.0.0 document imports unchanged. The import boundary refuses the new field in a 1.0.0 document as an unknown field, with the existing finding (`IMPORT_HANGER_SCHEMA_INVALID`). A stored 1.0.0 document needs no migration.
-- **Meaning.** DEL-04-11 owns the sizing meaning of the range (its `Work/hanger-sizing.md` §8.2). A record without it imports and is not sizable.
-- **Evidence.** Import compatibility tests for 1.0.0 and the range rules are shared cases in `fixtures/hanger/invented_hanger_cases.json`, read by both boundaries' tests. The change takes an independent persistence review of its exact format and commitment text.
-
-- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.
-- **AC-002** — The named boundary is honored, its witness is bound to the tested candidate, and missing or held results remain explicit. Ownership assignment alone is not a pass.
-- **VER-002** — Validate schema-valid/invalid hanger-library records against the owned schema and preserve provenance/unit links; UI visibility cannot substitute for schema conformance.
+- **AX-001** — *Nothing protected ships.* Better is fewer values in these public artifacts whose redistribution rights are not documented. A common-looking dimension or catalogue weight is treated as protected until its source is cleared; realism never justifies one.
+- **AX-002** — *Explicit over convenient.* Better is fewer ways a value can leave a library without its unit, source and standing. This is never bought with a default, and never by refusing a user an incomplete private library.
+- **AX-003** — *Old documents keep working.* Better is fewer stored libraries that a format change invalidates. Compatibility is never bought by letting a stored older-version document be admitted with a member its version did not define.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-018 OBJ-004 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-| OUT-002 | OBJ-004 | CLM-030 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-03-02:1** — Bind deterministic library-document persistence compatibility evidence to the implemented library import/serialization boundary or record its owning disposition. (R5 continuation claim references: DEL-03-02:SOW#production-and-verification-method-praxeology/VER-001.)
+| OUT-001 | SOW-018 OBJ-004 | REQ-001 REQ-002 REQ-005 REQ-006 REQ-008 | AC-001 | VER-001 | Owner ruling: PRD §18.2, §18.3 and §20.2 list the members; the criterion states the expected acceptance and rejections |
+| OUT-002 | SOW-018 OBJ-004 | REQ-004 REQ-014 | AC-002 | VER-002 | Owner ruling: DEC-103 and PRD §12.4 for the format and its range; the 1.0.0 verdicts are the format's own earlier output, which only guards against change |
+| OUT-001 | SOW-018 OBJ-004 | REQ-004 REQ-011 | AC-003 | VER-001 | Owner ruling: PRD §5.5 and `docs/CONTRACT.md` OPS-K-DATA-2; the diagnostic members are the decomposition's architecture basis for DEL-00-06 |
+| OUT-001 | SOW-018 OBJ-004 | REQ-003 | AC-004 | VER-003 | Protected-content scan and independent review under `docs/IP_AND_DATA_BOUNDARY.md`; owner ruling PRD §18.2 and §20.1, and for hanger examples the release target's hanger ruling (invented example records only) |
+| OUT-001 | SOW-018 OBJ-004 | REQ-012 | AC-005 | VER-004 | References this deliverable does not write: the unit catalog (DEL-02-02) and the model document's component kinds (DEL-02-01) |
+| OUT-001 | SOW-018 OBJ-004 | REQ-009 | AC-006 | VER-005 | The criterion states the expected result: the saved document itself, in the canonical form an outside standard defines (RFC 8785) |
+| OUT-001 | SOW-018 OBJ-004 | REQ-007 | AC-007 | VER-001 | Owner ruling: PRD §20.2 and `docs/CONTRACT.md` OPS-K-IP-3 |

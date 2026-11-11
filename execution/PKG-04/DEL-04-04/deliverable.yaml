@@ -1,103 +1,31 @@
 id: DEL-04-04
 name: Nonlinear support active-set solver
 needs:
-- from: DEL-00-01
-  condition: 'DEL-04-04 must apply the architecture decision baseline constraints injected as AB-00-01
-    before implementation execution.
-
-
-    Notes: Architecture basis is dispatchable context evidence only; PKG-00 is not treated as ISSUED by
-    this row.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-04-04 must respect repository and module boundary constraints injected as AB-00-02 before
-    implementation execution.
-
-
-    Notes: Architecture basis is dispatchable context evidence only; PKG-00 is not treated as ISSUED by
-    this row.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-03
-  condition: 'DEL-04-04 result and solve execution surfaces must align with the schema-first command/query/job
-    result-envelope basis injected as AB-00-03.
-
-
-    Notes: Architecture basis is dispatchable context evidence only; PKG-00 is not treated as ISSUED by
-    this row.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-04-04 convergence and active-set reporting must align with diagnostics and result-envelope
-    constraints injected as AB-00-06.
-
-
-    Notes: Also supported by CONTRACT OPS-K-SOLVER-2 and _CONTEXT architecture basis injection.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-04-04 nonlinear solver changes require deterministic verification coverage aligned with
-    AB-00-08.
-
-
-    Notes: Also supported by CONTRACT OPS-K-SOLVER-1 and Procedure verification expectations.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-04-01
+  condition: >-
+    The frame kernel provides the six degree-of-freedom identifiers Ux to Rz and the canonical
+    dimensions for displacement, force and dimensionless quantities.
   gating: true
 - from: DEL-04-03
-  condition: 'DEL-04-04 depends on DEL-04-03 because nonlinear support behavior extends support and restraint
-    mechanics defined for linear supports.
-
-
-    Notes: Conservative direct dependency retained from local guidance and DEL-04-04 behavior scope; upstream
-    satisfaction not resolved by this refresh.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The linear support model defines a rigid restraint on a named degree of freedom of a support
+    record, and a movement imposed at a nonlinear support's own degree of freedom moves that
+    support's ground (DEL-04-03 REQ-013, AC-002).
   gating: true
-- from: DEL-04-01
-  condition: 'DEL-04-04 depends on DEL-04-01 because active-set iteration is solver mechanics over the
-    global 3D centerline/frame stiffness model.
-
-
-    Notes: Conservative direct dependency retained from mechanics boundary and local guidance; upstream
-    satisfaction not resolved by this refresh.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-04-07
+  condition: >-
+    The assembled iteration supplies each iterate's displacements and reactions at every nonlinear
+    support, measured from the support's ground, with the normal and tangential reactions of each
+    friction support, and ends in the reference states on the frozen nonlinear references.
   gating: true
 - from: DEL-04-06
-  condition: 'DEL-04-04 depends on DEL-04-06 for convergence, active-set, and unresolved non-convergence
-    diagnostic reporting semantics.
-
-
-    Notes: Conservative direct interface dependency; upstream satisfaction not resolved by this refresh.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-02-02
-  condition: 'DEL-04-04 depends on DEL-02-02 because unit-bearing nonlinear support, displacement, force,
-    and friction-related quantities must be unit-aware and dimensionally checked.
-
-
-    Notes: upstream satisfaction not resolved by this refresh.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    DEL-04-06 provides diagnostic records (code, severity, source, affected reference,
+    remediation), classifies a residual against a caller-supplied tolerance and iteration cap as
+    no diagnostic, a warning-level non-convergence or a failure-level non-convergence, and
+    provides a record stating that a tolerance policy is undecided.
   gating: true
 code_paths:
 - core/solver/nonlinear_supports/**
-- tools/validation/validate_dependencies_schema.py
 checks:
 - core/solver/nonlinear_supports/src/lib.rs

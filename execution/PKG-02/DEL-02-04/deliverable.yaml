@@ -1,54 +1,50 @@
 id: DEL-02-04
 name: Plugin and extension domain contracts
 needs:
-- from: DEL-00-01
-  condition: 'DEL-02-04 uses SCA-001 architecture basis AB-00-01 from DEL-00-01 before product-development
-    execution.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-02-04 uses SCA-001 architecture basis AB-00-02 from DEL-00-02 before product-development
-    execution.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-00-07
+  condition: >-
+    The API boundary map says which boundaries are internal and which may become public extension
+    points, and holds that no plugin or adapter goes around domain validation, rule-pack
+    sandboxing, result envelopes or report controls.
   gating: true
 - from: DEL-00-03
-  condition: 'DEL-02-04 uses SCA-001 architecture basis AB-00-03 from DEL-00-03 before product-development
-    execution.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    Commands, queries and jobs are separate request kinds, every command and job returns a result
+    envelope with diagnostics, and a query leaves the model's canonical hash and the stored project
+    unchanged.
   gating: true
 - from: DEL-00-04
-  condition: 'DEL-02-04 uses SCA-001 architecture basis AB-00-04 from DEL-00-04 before product-development
-    execution.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A hashed JSON payload is hashed as SHA-256 over its RFC 8785 canonical form, no plugin or
+    adapter opens the store or issues SQL, and every change to the store is made through an
+    application service.
   gating: true
 - from: DEL-00-06
-  condition: 'DEL-02-04 uses SCA-001 architecture basis AB-00-06 from DEL-00-06 before product-development
-    execution.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The diagnostic contract fixes the fields a diagnostic record carries (code, class, severity,
+    source, affected object, message, remediation, provenance) and the result envelope that
+    carries them.
   gating: true
-- from: DEL-00-07
-  condition: 'DEL-02-04 uses SCA-001 architecture basis AB-00-07 from DEL-00-07 before product-development
-    execution.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-02-02
+  condition: >-
+    The unit catalog names each unit's dimension, so that a unit a declaration names can be found
+    unknown or dimensionally incompatible.
   gating: true
-- from: DEL-00-08
-  condition: 'DEL-02-04 uses SCA-001 architecture basis AB-00-08 from DEL-00-08 before product-development
-    execution.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-10-02
+  when: Verifying an adapter declaration with a manifest
+  condition: >-
+    The adapter framework validates an adapter declaration and builds a result envelope with its
+    findings, without dispatching the adapter.
   gating: true
 code_paths:
 - schemas/plugin_manifest.schema.yaml
+- docs/architecture/extension_domain_contracts.md
+- fixtures/plugin_manifest/**
+# Declaration verification. The module sits in the adapter framework's package and imports it;
+# the framework is DEL-10-02's.
+- core/adapters/framework/plugin_verification.py
+- tests/test_plugin_manifest_schema.py
+- tests/test_adapter_plugin_verification_del_02_04.py
+checks:
+- tests/test_plugin_manifest_schema.py
+- tests/test_adapter_plugin_verification_del_02_04.py

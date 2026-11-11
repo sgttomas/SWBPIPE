@@ -2,591 +2,121 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-07-03
 package_id: PKG-07
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-021,SOW-077]
 package_objective_refs: [OBJ-006]
 ---
 
-# Scope of Work — DEL-07-03
+# Scope of Work — DEL-07-03 Material, component, and rule-pack editors
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-07-03` in service of project scope [SOW-021] and package objectives [OBJ-006].
+This deliverable is where the engineer enters the engineering data a model depends on: materials and their temperature tables, sections, components, load cases with their loads and combinations, self-weight, private libraries and rule packs. Each editor asks for the value, its unit and its source, checks what it can, and queues the edit for review. None of them carries a table, a factor or a default of its own: the public product supplies the forms, and the user supplies every code-specific or proprietary value. The result this deliverable contributes is that every input an analysis needs can be entered, sourced and reviewed in the desktop before it is solved or checked.
 
-- **OUT-001** — A material, component, and rule-pack editor contract covering schema-governed records, units, provenance and redistribution state, checksum/version identity, validated application-service commands, diagnostics, and explicit private/protected-content boundaries is produced for the declared scope and objective.
+It serves SOW-021 and SOW-077 under OBJ-006 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-07, row DEL-07-03), and PRD §14.1, §10.6, §5.4, §5.5, §18.1 to §18.4 and FR-RULE-004 to FR-RULE-006. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names this deliverable. It supports criterion 1, whose load cases and combinations, including the three-axis static seismic combinations, are entered here, and criterion 7, whose authoring time these editors share.
+
+- **OUT-001** — The material, section, component, private-library and rule-pack editors.
+- **OUT-002** — The load manager: load cases, their loads, states and pressure regions, combinations, condition use, and the self-weight plan.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-07-03 Material, component, and rule-pack editors
+**Terms the editors implement.**
 
-> #### Datasheet: DEL-07-03 Material, component, and rule-pack editors
->
+- *Editor.* A form or table that shows a record's members with their units and source, accepts the user's entries, and produces a structured operation. An editor holds a draft until the user queues it; the draft is transient.
+- *Material editor.* Entry of a material's constitutive basis, elastic and shear modulus, Poisson's ratio, an optional material-level thermal expansion coefficient, temperature-dependent tables and expansion laws, each with its source.
+- *Section and component editors.* Entry of pipe-section dimensions and of component geometry, weight, centre of gravity, stiffness and user modifiers, with the user's source for each.
+- *Private library.* A user's own collection of material, section, component or hanger records, imported from a file, validated, and stored locally. A library is private unless the user states otherwise, and no library ships with the product.
+- *Hanger selection.* The user's manual choice of a record from an imported hanger library for a support. It sizes nothing; sizing is DEL-04-11's.
+- *Rule-pack manager.* The list of the project's local rule packs, with create, open, save and delete, the editors that compose a pack's declarations, check definitions and expressions, its validation findings and its checksum.
+- *Rule-pack reference.* A rule pack as a model or a run names it: identity, version, checksum, source notice, redistribution status and required inputs.
+- *Load manager.* The editor of load cases and combinations: a case's kind, primitive loads, wind exposure, analysis and reference states and pressure regions; a combination's basis and operands.
+- *Combination operand.* A term of a combination: a load case or another combination, with a factor. The bases are mechanics, result-state subtraction, range envelope, absolute sum and square root of the sum of squares.
+- *Condition use.* A load case's selection of operating-condition keys and set-level uses, which the engine resolves pipe by pipe.
+- *Self-weight plan.* The engine's generated set of operations that add self-weight loads to a case for selected pipes under a gravity the user enters. The editor shows the plan and queues it; it computes no weight.
 
-### CLM-002 — Identification
+**Boundary.** These editors collect and present. The following belong elsewhere:
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-07-03 |
-> | Package ID | PKG-07 |
-> | Package | Graphical User Interface and Engineering Workflow |
-> | Type | UX_UI_SLICE |
-> | Current setup scope | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle is recorded in `_STATUS.md`; current work follows this Scope of Work, owning decisions, and the selected graph. Setup-only restrictions describe the originating setup run, not standing product scope. |
-> | Register scope item | SOW-021 |
-> | Supported objective | OBJ-006 |
-> | Context envelope | L |
-> | Context risk | WATCH - confirm scope and split if editor scope expands |
->
-> Sources: `_CONTEXT.md` sections "Scope Coverage", "Objective Support", "Context Envelope"; `docs/_Registers/Deliverables.csv` row `DEL-07-03`; `docs/_Registers/ScopeLedger.csv` row `SOW-021`.
->
-
-### CLM-003 — Attributes
-
-> ##### Attributes
->
-> | Attribute | Source-grounded value |
-> |---|---|
-> | Product surface | GUI editor workflow for materials, sections, components, load cases, supports, rule packs, and private libraries. |
-> | Deliverable focus | Private material editors, component editors, and rule-pack reference editors. |
-> | Related editor surfaces | Section, load-case, support/restraint, and private-library editing are part of SOW-021 and must remain visible in the workflow model even if later split. |
-> | Anticipated artifacts | Editor panels; validation UI tests. |
-> | GUI runtime baseline | Resolve current dependency and component/state choices through `apps/desktop/package.json` and the implemented consumers. DEC-012 permits choices in a sealed brief or later ruling; preserve durable/transient separation and accepted architecture. Release scope follows DEC-057. |
-> | Mutation route | GUI mutations route through application-service commands; durable project state is separate from transient session, selection, and job-progress state. |
-> | Diagnostic route | Editor validation must surface result-envelope diagnostics and warning classes rather than silently normalizing missing or private data. |
-> | Data boundary | Code-specific and proprietary material, component, allowable, SIF/flexibility, and rule-pack values are user-supplied or private, not public defaults. |
->
-> Sources: `docs/SPEC.md` sections 1, 3, 6, 7; `execution/_Decomposition/SOFTWARE_DECOMP.md` sections 4, 8; `_CONTEXT.md` section "Architecture Basis Injection"; `docs/CONTRACT.md` invariants `OPS-K-DATA-1`, `OPS-K-DATA-2`, `OPS-K-DATA-3`, `OPS-K-RULE-3`, `OPS-K-PRIV-1`.
->
-
-### CLM-004 — Conditions
-
-> ##### Conditions
->
-> | Condition | Required posture |
-> |---|---|
-> | Protected standards data | Do not include protected standards text, tables, examples, code-derived formulas, material allowables, SIF/flexibility tables, protected dimensional tables, or proprietary commercial data. |
-> | Missing data | Missing solve-required or rule-check-required values are explicit findings, never silent defaults. |
-> | Provenance | Materials, components, SIFs, flexibility factors, allowables, and rule-pack values carry provenance fields. |
-> | Units | Editor inputs, validation, imports, exports, and rule-pack references must be unit-aware and dimensionally checked. |
-> | Rule packs | Rule packs are versioned, checksummed, source-noted, marked public/private, and evaluated by sandboxed unit-aware logic outside this GUI setup deliverable. |
-> | Professional boundary | UI copy and workflow state must not claim certification, sealing, approval, authentication, or engineering code compliance for reliance (PRD §21.2). |
-> | Scope split risk | Multiple editors remain in one GUI domain for setup, but later implementation may require split work if the surface expands. |
->
-> Sources: `docs/CONTRACT.md` invariants `OPS-K-IP-1`, `OPS-K-DATA-1`, `OPS-K-DATA-2`, `OPS-K-DATA-3`, `OPS-K-UNIT-1`, `OPS-K-RULE-1`, `OPS-K-RULE-2`, `OPS-K-RULE-3`, `OPS-K-AUTH-1`; `docs/DIRECTIVE.md` sections 2, 3, 5; `docs/_Registers/ContextBudgetQA.csv` row `DEL-07-03`.
->
-
-### CLM-005 — Construction
-
-> ##### Construction
->
-> Current deliverable obligation: implement material, section, component, private-library and rule-pack-reference editors plus load-case/combination and self-weight-plan interaction through the PKG-16 operation seam. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> The editor workflow is a future GUI slice, but this setup pass records the intended construction boundaries:
->
-> | Work surface | Construction note |
-> |---|---|
-> | Material editor | Presents unit-bearing material fields and provenance/source status without shipping public protected allowables or proprietary material libraries. |
-> | Section editor | Presents user-entered or lawfully imported section dimensions/properties with provenance and unit checks; no protected dimensional defaults. |
-> | Component editor | Presents component type, geometry, user modifiers, manufacturer/user data references, and provenance/private status. |
-> | Load-case editor | Presents primitive and user-defined load case inputs with unit-aware validation; code-specific combinations remain user/rule-pack supplied. |
-> | Support/restraint editor | Presents support type, directions, stiffness/gap/friction fields, and active-state result hooks without hiding nonlinear uncertainty. |
-> | Rule-pack reference editor | Presents rule-pack identity, version, checksum, source notice, redistribution status, required inputs, and missing-input findings. |
-> | Private library editor | Presents private/local library references and provenance/redistribution status while preserving local-first/private-data posture. |
-> | Validation UX | Surfaces `SOLVE_BLOCKING`, `RULE_CHECK_BLOCKING`, `PROVENANCE_WARNING`, `ASSUMPTION_WARNING`, `NONLINEAR_WARNING`, and `IP_BOUNDARY_WARNING` classes when applicable. |
->
-> Sources: `docs/SPEC.md` sections 3, 6, 7; `docs/TYPES.md` sections 4, 7, 8; `execution/_Decomposition/SOFTWARE_DECOMP.md` architecture basis rows `AB-00-03`, `AB-00-05`, `AB-00-06`, `AB-00-07`.
->
-> Current implementation (at `62c1efd75b`): the rule-pack surface that ships is a manager, not a reference-only editor. `apps/desktop/src/features/rule-packs/RulePackManagerPanel.tsx` lists, creates, opens, saves and deletes project-scoped local rule packs, shows validation findings and generates and stamps checksums; its `ExpressionComposer.tsx`, `DeclarationsEditor.tsx` and `CheckDefinitionsEditor.tsx` build the document structure. It calls `apps/desktop/src/services/rulePackService.ts` and the desktop commands in `apps/desktop/src-tauri/src/lib.rs`. Private material, section and component libraries are imported, validated and stored locally through `apps/desktop/src/features/library/LibraryManagerPanel.tsx` and `apps/desktop/src/services/libraryImportService.ts`. Material, section and component fields are edited in the model-tree tables and the property-inspector forms (`apps/desktop/src/features/model-tree/`, with `material-temperature/`, `bend-authoring/`, `component-creation/` and `rich-authoring/`); an Insert bend at corner intent from `bend-authoring/` is applied only through batch review, after a clean preview of that exact batch on the current model (DEL-07-02 Design `run-sheet-entry.md` §3.5, O6); load cases in `apps/desktop/src/features/load-cases/`; self-weight plans in `apps/desktop/src/features/self-weight-authoring/`. The editor-kind behaviour recorded in CLM-017 is that of the reference module `core/gui/editors/engine.py` (`tests/test_gui_editors_contract.py`), which the desktop does not call.
->
-> Current implementation (G5, RT-G3): the E/ν material create form takes an optional material-level thermal expansion coefficient, written through `create_material`, and the existing-material editor adds, changes or removes it through the constitutive projection (G5b); `Work/authoring-speed.md` §1–§2 record the routes and their evidence.
->
-> Current implementation (G7, G8, RT-G2): the load/reference-state and pressure-region editors offer draft-only fill and copy controls (fill from a template row to every, a range of, or chosen pipes or supports; every primitive of a case with an entered factor; copy an analysis state or a pressure-region set from another case). Each draft is still submitted whole as one reviewed intent; `Work/authoring-speed.md` §3 records the controls and their evidence.
-
-> Current implementation (RT-A4, RT-A9; RT-G5, RT-G2): the load manager's combination editor authors `absolute_sum` and `srss` beside the earlier bases. Terms are ordered rows with a typed operand, a load case (`{"load_case", "factor"}`) or a combination (`{"combination", "factor"}`), which can be reordered. A minuend, subtrahend or envelope operand may name either kind and shows its resolved target (load case first, DEL-05-02 `absolute-sum-srss-combinations.md` §2). Self-reference, a cycle-closing or repeated operand and a combination operand of a declared operating comparison are prevented in place with the reason, and refusals built outside the editor are the engine's, by name. The three-axis static seismic template writes, for person-chosen base and X/Y/Z axis-state cases, three result-state subtractions (κ = 0, no `difference_basis`) and one unsigned combination over them, previewed with the §5.1 and §5.2 gates, engine-checked as one sequence and queued for Review/Apply. It creates no load case and defaults no basis, factor, load or excitation. In every combination route each operand, factor and envelope mode is entered by the person (blank means not chosen and Queue names what is missing), and the load manager's operation ids escape ids reversibly so distinct ids never share one. Combinations and their terms are deleted on every basis on the applier contract of #115. The `before` comes only from the stored record or term: the historical display for flat terms, the canonical JSON otherwise. Each delete is engine-checked before it is queued. A combination another combination still names lists the referencing paths before the attempt, and the engine's `OP-COMBINATION-DELETE-REFERENCED` is shown by name. Template sets are deleted top-down, and nothing cascades. `Work/combination-editor.md` records the routes, limits and evidence.
->
-### CLM-006 — References
-
-> ##### References
->
-> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) - sealed deliverable identity, architecture basis injection, and write-scope context.
-> - `_REFERENCES.md` - preparation reference index.
-> - `AGENTS.md` - bootstrap and project boundaries.
-> - `AGENTS.md` - SWBPIPE agent index and dispatch rule.
-> - `docs/DIRECTIVE.md` - founding intent, product boundaries, and stop rules.
-> - `docs/CONTRACT.md` - invariant catalog.
-> - `docs/TYPES.md` - statuses, data provenance labels, and domain object vocabulary.
-> - `docs/SPEC.md` - architecture, domain object, rule-pack, GUI, report, and validation requirements.
-> - `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` - Type 2 execution and deliverable document kit.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current decomposition basis.
-> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history), `ScopeLedger.csv` (retired in `48584391de`; see Git history), `ContextBudgetQA.csv` (retired in `48584391de`; see Git history) - machine-readable deliverable, scope, and context records.
->
-
-### CLM-007 — D-41 R5 T3 evidence state
-
-> ##### D-41 R5 T3 evidence state
->
-> | PDU | Requirement | Current evidence state |
-> |---|---|---|
-> | PDU-049 | `DEL-07-03-R-011` | `VERIFIED_NOT_VALIDATED`: project-owned private-by-default behavior exists, but no independent usability/security validation basis was authorized or produced. |
->
-
-### CLM-008 — D-41 R5 T5 PDU-041 evidence state
-
-> ##### D-41 R5 T5 PDU-041 evidence state
->
-> | Requirement | DEL-07-03 current state |
-> |---|---|
-> | `DEL-07-03-R-005` | SCA-011 assigns load-case/combination editor implementation to DEL-07-03, with coverage accountability at DEL-07-09; historical implementation findings retain their source binding. |
-> | `DEL-07-03-R-006` | SCA-011 assigns support/restraint implementation to DEL-07-02, with coverage accountability at DEL-07-09; unsupported-kind evidence continues to block mutation. |
->
-
-### CLM-009 — D-41 R5 T7 PDU-054 current declaration
-
-> ##### D-41 R5 T7 PDU-054 current declaration
->
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Bounded material, component, and rule-pack editor surfaces are implemented. PDU-041 preserves the recorded load/support ownership absences; this declaration does not claim those absent editors or a complete GUI product.
+- support and restraint creation and editing, and generic editing in the tree, tables and inspector: DEL-07-02;
+- the records themselves: materials DEL-03-01, sections and components DEL-03-02, bends DEL-03-03, branches DEL-03-04, rigid components DEL-03-05, expansion joints DEL-03-06, mass properties DEL-03-08;
+- library import checks and provenance: DEL-03-07;
+- load generation, case resolution and self-weight generation: DEL-05-01; combination algebra: DEL-05-02; user loads: DEL-05-05;
+- the rule-pack format, the expression evaluator, the completeness check and rule-pack storage: DEL-06-01, DEL-06-02, DEL-06-03 and DEL-06-04;
+- running a rule check and showing its outcome: DEL-07-04;
+- validation and application of every operation: DEL-16-02 and DEL-16-06;
+- coverage of the operation vocabulary: DEL-07-09.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-010 — Specification: DEL-07-03 Material, component, and rule-pack editors
+An editor establishes that a value was entered with a unit and a stated source. It establishes nothing about whether the value is right, or whether its source permits its use.
 
-> #### Specification: DEL-07-03 Material, component, and rule-pack editors
->
+### Requirements
 
-### CLM-011 — Scope
+- **REQ-002** — Materials, sections, components, load cases, rule packs and private libraries are each editable and reviewable in the desktop (SOW-021; PRD §14.1).
+- **REQ-003** — The material editor records a source for every material and offers no allowable, code table or material value of its own (PRD §18.1, §5.4).
+- **REQ-004** — The section and component editors treat dimensions, weights, centres of gravity, stress-intensification and flexibility factors, stiffnesses and catalogue values as the user's data, each with its source (PRD §18.2, §18.3).
+- **REQ-005** — The load manager enters load cases, their primitive loads, states and pressure regions with units. Code-specific load combinations are the user's: the product supplies combination bases and no combination (SOW-077; DEC-111).
+- **REQ-007** — A rule-pack reference shows its identity, version, checksum, source notice, redistribution status, required inputs and the findings for inputs that are missing.
+- **REQ-008** — Every edit is a structured operation that is validated, queued for review and applied on the user's Apply. No editor writes the model, a library or a rule pack by another route (PRD §5.3).
+- **REQ-009** — Drafts, selection and validation display are transient and are not written to the model document.
+- **REQ-010** — A value an editor needs and lacks is reported in place, with its class, before the edit is queued. No editor supplies an engineering default: a blank optional quantity is absent, and a quantity with a value and no unit, or a unit and no value, is refused (PRD §5.5).
+- **REQ-011** — Private materials, components, libraries and rule packs stay in user-controlled local storage and are marked private by default. No editor transmits them or writes them into a public example (PRD §20.3, FR-RULE-004).
+- **REQ-012** — Editor texts distinguish entered data, readiness to solve, readiness for a user-rule check and human review, and none states or implies code compliance (PRD §21.2).
+- **REQ-014** — *Rule-pack manager.* The user creates, opens, saves and deletes local rule packs, composes required inputs, load-case mappings, expressions, limits and warnings, sees the pack's validation findings for units, references and required fields, and generates and stamps its checksum (PRD §10.6).
+- **REQ-015** — *Private libraries.* The user imports material, section, component and hanger libraries from files, sees every import finding of PRD §18.4, stores an accepted library locally, applies a record's values to a model entity, which keeps a reference to the library record they came from, and chooses a hanger record for a support by hand. A library reference in the model that no longer matches its library is reported (PRD FR-RULE-005, FR-RULE-006; DEC-103).
+- **REQ-016** — *Combinations.* A combination is entered on any of the five bases, with ordered operands that are load cases or combinations, each operand, factor and envelope mode entered by the user. A blank means not chosen, and queueing names what is missing. Self-reference, a cycle, a repeated operand and a combination operand of a declared operating comparison are prevented in place with the reason. A combination another combination names cannot be deleted, and the editor lists what names it.
+- **REQ-017** — *Condition use.* For each load case the user selects condition keys and set-level uses, and the editor shows the engine's per-pipe resolution and its refusals by name. An unticked use is absent, never false. "Operating" is offered among case kinds. A difference basis is offered only on a result-state subtraction and is written only when the user sets it; the operating-minus-sustained template prefills neither case.
+- **REQ-018** — *Self-weight.* The user chooses pipes and enters gravity; the editor shows the engine's plan with what it includes and excludes, and queues it as one batch only while the plan matches the current model.
+- **REQ-020** — *Bend realization.* An intent that inserts a bend at a corner is applied only through batch review, after a preview of that exact batch on the current model.
 
-> ##### Scope
->
-> Current deliverable obligation: implement material, section, component, private-library and rule-pack-reference editors plus load-case/combination and self-weight-plan interaction through the PKG-16 operation seam. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> This deliverable specifies the setup documentation for future GUI editor panels and validation UI tests covering material, section, component, load-case, support/restraint, rule-pack reference, and private-library editing within `PKG-07`.
->
-> Current implementation (at `62c1efd75b`): the editor panels and their UI tests ship in the desktop app, as listed in the CLM-005 current-implementation note: the rule-pack manager (`apps/desktop/src/features/rule-packs/`), the private-library manager (`apps/desktop/src/features/library/`), load-case editing (`apps/desktop/src/features/load-cases/`) and the model-tree and property-inspector forms.
->
-> In scope:
->
-> - Editor workflow requirements for user/private engineering data entry and review.
-> - Missing-data, provenance, unit, rule-pack-reference, and private-library validation expectations.
-> - Boundaries between GUI editing, application-service commands, domain schemas, rule-pack evaluation, diagnostics, and private data handling.
-> - Setup artifacts only: document kit, semantic artifacts, dependencies, run records, and status evidence.
->
-> Out of scope:
->
-> - GUI source implementation, tests, package manifests, schemas, or repo-level documentation.
-> - Bundled protected standards content, proprietary material/component/rule data, or silent engineering defaults.
-> - Selection of exact GUI component libraries, state libraries, rule expression grammar/library, dependency versions, public API transport, or physical project package/container.
-> - Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
->
-> Sources: `_CONTEXT.md` sections "Description", "Anticipated Artifacts", "Architecture Basis Injection"; `docs/_Registers/Deliverables.csv` row `DEL-07-03`; `docs/_Registers/ScopeLedger.csv` row `SOW-021`; `docs/CONTRACT.md` invariants `OPS-K-IP-1`, `OPS-K-DATA-1`, `OPS-K-AUTH-1`, `OPS-K-AGENT-4`.
->
-### CLM-012 — Requirements
+### Acceptance criteria
 
-> ##### Requirements
->
-> | Req ID | Requirement | Source |
-> |---|---|---|
-> | DEL-07-03-R-001 | The setup artifacts shall preserve `DEL-07-03` as the sole production unit and shall not expand into GUI source implementation. Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history); `AGENTS.md` dispatch rule; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` section 4 |
-> | DEL-07-03-R-002 | The editor workflow shall expose materials, sections, components, load cases, supports, rule packs, and private libraries as editable/reviewable GUI concepts under SOW-021. | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row `SOW-021`; `docs/SPEC.md` section 7 |
-> | DEL-07-03-R-003 | The material editor shall require provenance/source status for material records and shall not provide protected public material allowables or code tables. | `docs/TYPES.md` sections 7 and 8; `docs/CONTRACT.md` `OPS-K-DATA-1`, `OPS-K-DATA-3`, `OPS-K-IP-1` |
-> | DEL-07-03-R-004 | The section and component editors shall treat dimensions, weights, centers of gravity, SIFs, flexibility factors, stiffnesses, and proprietary catalog values as user-supplied or lawfully imported data with provenance. | `docs/SPEC.md` sections 3 and 4.3; `docs/DIRECTIVE.md` section 3 |
-> | DEL-07-03-R-005 | The load-case editor shall support unit-aware editor input for load cases while leaving code-specific load combinations to user project inputs or rule packs. | `docs/SPEC.md` sections 3 and 5; `docs/CONTRACT.md` `OPS-K-UNIT-1`, `OPS-K-DATA-1` |
-> | DEL-07-03-R-006 | The support/restraint editor implemented by DEL-07-02 shall surface fields needed to represent support/restraint behavior and shall not hide nonlinear active-state uncertainty or non-convergence findings; DEL-07-09 records its R-006 coverage. | `docs/SPEC.md` sections 3, 4.4, and 7 |
-> | DEL-07-03-R-007 | The rule-pack reference editor shall expose rule-pack identity, version, checksum, source notice, redistribution status, required inputs, and missing required-input findings. | `docs/SPEC.md` section 6; `docs/CONTRACT.md` `OPS-K-RULE-1`, `OPS-K-RULE-2`, `OPS-K-RULE-3` |
-> | DEL-07-03-R-008 | Editor mutations shall be modeled as application-service command interactions, not direct bypasses of domain validation, unit checks, provenance checks, or public/private data boundaries. | `docs/SPEC.md` section 1; `execution/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-02`, `AB-00-03`, `AB-00-07` |
-> | DEL-07-03-R-009 | Editor state shall separate durable project/model data from transient session, selection, validation, and job-progress state; resolve the implementation choice through the current desktop manifest and consumer under DEC-012. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) "Still TBD"; `execution/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-05` |
-> | DEL-07-03-R-010 | Editor validation shall surface missing data early using diagnostic/result-envelope warning classes and shall not silently introduce engineering defaults. | `docs/SPEC.md` section 7; `execution/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-06`; `docs/CONTRACT.md` `OPS-K-DATA-2` |
-> | DEL-07-03-R-011 | Private material, component, project, and rule-pack data shall remain local/user-controlled by default and shall not be committed or transmitted publicly by this deliverable. | `docs/CONTRACT.md` `OPS-K-PRIV-1`; `docs/DIRECTIVE.md` sections 3 and 6 |
-> | DEL-07-03-R-012 | UI wording and output states shall distinguish editable user data, mechanics solve readiness, user-rule-check readiness, and human professional review without implying code compliance. | `docs/TYPES.md` section 4; `docs/DIRECTIVE.md` section 2.2; `docs/CONTRACT.md` `OPS-K-AUTH-1`, `OPS-K-MECH-2` |
-> | DEL-07-03-R-013 | The future implementation brief shall split this deliverable or request human approval if the editor scope becomes too broad for one bounded GUI slice. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) "Context Budget QA"; `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) row `DEL-07-03` |
->
-
-### CLM-013 — Standards
-
-> ##### Standards
->
-> No protected engineering code or standards text is used as an authority in this setup artifact. Governing standards for this setup pass are the public project governance and decomposition documents listed in `_REFERENCES.md`, especially `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/SPEC.md`, and `execution/_Decomposition/SOFTWARE_DECOMP.md`.
->
-> Any future editor behavior that depends on an engineering code, owner standard, vendor catalog, material allowable, SIF/flexibility value, or rule formula shall treat that content as user-supplied/private unless redistribution rights and provenance are documented. Source location for future standards data is `TBD` and must not be inferred here.
->
-
-### CLM-014 — Verification
-
-> ##### Verification
->
-> | Verification ID | Requirement(s) | Verification approach |
-> |---|---|---|
-> | DEL-07-03-V-001 | R-001 | Verify changed paths against the active authorized brief and accepted ownership; do not move artifacts to ISSUED. |
-> | DEL-07-03-V-002 | R-002 to R-007 | Review the `ScopeOfWork.md` for all editor surface names: materials, sections, components, load cases, supports, rule packs, and private libraries. |
-> | DEL-07-03-V-003 | R-003 to R-007, R-010 | Confirm all missing engineering values are `TBD`, user-supplied, or provenance-marked rather than defaulted. |
-> | DEL-07-03-V-004 | R-008 to R-009 | Confirm application-service command routing and durable/transient state split are recorded as constraints, with the implementation choice referenced to the current desktop manifest under DEC-012. |
-> | DEL-07-03-V-005 | R-010 to R-012 | Confirm warning classes and professional-boundary text are present and no compliance/certification claim appears. |
-> | DEL-07-03-V-006 | R-013 | Confirm scope split risk is visible in the Scope of Work contract, and `_STATUS.md`/run records where applicable. |
-> | DEL-07-03-V-007 | Dependency setup | Validate `Dependencies.csv` with `tools/validation/validate_dependencies_schema.py` and enum/ID checks. |
-> | DEL-07-03-V-008 | Semantic setup Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Confirm `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, and run records exist, and `_STATUS.md` is `SEMANTIC_READY` only after setup gates pass. |
->
-
-### CLM-015 — Documentation
-
-> ##### Documentation
->
-> Required deliverable-local setup artifacts:
->
-> - `ScopeOfWork.md`
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
-> - `Dependencies.csv`
-> - `_DEPENDENCIES.md`
-> - `_STATUS.md`
-> - `_run_records/TASK_RUN_2026-04-30_1040_four-documents-p1-p2.md`
-> - `_run_records/TASK_RUN_2026-04-30_1041_semantic-matrix-build.md`
-> - `_run_records/TASK_RUN_2026-04-30_1042_lens-register.md`
-> - `_run_records/TASK_RUN_2026-04-30_1043_four-documents-p3.md`
-> - `_run_records/TASK_RUN_2026-04-30_1044_dependency-extract.md`
->
-> Future implementation artifacts named by the register remain anticipated, not implemented here: editor panels and validation UI tests.
->
-### CLM-016 — D-41 R5 T3 PDU-049 disposition hold
-
-> ##### D-41 R5 T3 PDU-049 disposition hold
->
-> The existing private-by-default editor behavior remains project-owned verification evidence for `DEL-07-03-R-011`. No separately authorized independent usability or security validation basis was produced in this tranche. Accordingly, PDU-049 remains `VERIFIED_NOT_VALIDATED`; the evidence must not be promoted into an independent validation, security-review closure, release-readiness, or lifecycle claim.
->
-
-### CLM-017 — D-41 R5 T5 PDU-041 documented absence
-
-> ##### D-41 R5 T5 PDU-041 documented absence
->
-> The reference module `core/gui/editors/engine.py` still accepts only material,
-> component, and rule-pack-reference editor kinds and blocks load-case and
-> support requests. The desktop ships load-case editing in
-> `apps/desktop/src/features/load-cases/`; this does not by itself close
-> `DEL-07-03-R-005` or `R-006`. Adjacent desktop authoring under
-> other GUI ownership is not reattributed here and does not close
-> `DEL-07-03-R-005` or `DEL-07-03-R-006`.
-
-### CLM-018 — D-41 R5 T5 PDU-008 current GUI boundary
-
-> ##### D-41 R5 T5 PDU-008 current GUI boundary
->
-> Current application surfaces expose all named concepts across the GUI, but PDU-041 preserves load-case and support editor ownership as absent from DEL-07-03 itself. Cross-surface visibility is not silent ownership transfer or complete R-002 closure.
->
-
-### CLM-019 — D-41 R5 T7 PDU-054 current declaration
-
-> ##### D-41 R5 T7 PDU-054 current declaration
->
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Bounded material, component, and rule-pack editor surfaces are implemented. PDU-041 preserves the recorded load/support ownership absences; this declaration does not claim those absent editors or a complete GUI product.
-
-- **AC-001** — The contract preserves the current editor slice and unresolved implementation decisions, keeps public and private data distinct, prevents silent defaults and direct persistence bypass, and invents no proprietary tables, formulas, allowables, component dimensions, code content, or professional acceptance.
+- **AC-001** — For each of materials, sections, components, load cases, rule packs and libraries: a complete invented record entered through its editor queues an operation, changes nothing until Apply, and after Apply is stored with every entered value, unit and source exactly as entered. A record without a source is refused by name. No field of any editor is prefilled with an engineering value, and no editor text is a statement REQ-012 excludes.
+- **AC-002** — For each route of OUT-002 (load case, primitive load, state, pressure region, combination, condition use, self-weight plan), valid and invalid entries are exercised through the operation engine: a valid entry produces the operations of its kind and nothing else; an entry with a wrong dimension, a missing unit or a missing required member is refused in place by name and queues nothing.
+- **AC-003** — A blank optional quantity is stored as absent; a half-entered quantity is refused before queueing; and the canonical hash of the model is unchanged by opening, drafting in or cancelling any editor.
+- **AC-004** — A rule pack composed in the manager with invented inputs, mappings, expressions and limits validates, is saved privately, reopens with the same content and checksum, and reports each unit, reference and required-field fault by name when one is introduced. A rule-pack reference shows the seven items of REQ-007.
+- **AC-005** — An invented library file with each fault of PRD §18.4 shows the corresponding finding and is not stored; a clean one is stored locally, marked private, and its records can be applied to the model. A model reference to a changed or deleted library record is reported. Choosing a hanger record writes that record's values to the support and nothing computed.
+- **AC-006** — Combinations on each of the five bases, with load-case and combination operands, are stored with exactly the operands, factors, order and mode entered, and pass the engine's own check before they are queued. Each of the four prevented shapes is refused in place. Deleting a referenced combination is refused and lists the referencing paths.
+- **AC-007** — For an invented model with condition sets, the per-pipe resolution shown for a case equals the engine's, a pipe the engine refuses is named, an unticked use is absent from the stored record, and a difference basis appears in the stored combination only when the user set it.
+- **AC-008** — The self-weight plan shown equals the engine's plan for the chosen pipes and gravity; a plan made on an earlier model cannot be queued; and the batch applied is the plan.
+- **AC-010** — A bend-insertion intent cannot be applied before its preview, and a preview of an earlier batch or an earlier model does not unlock it.
+- **AC-011** — Private library and rule-pack data are written only under the user's local storage paths, appear in no export, report or issue bundle unless the user exports them, and no network request carries them.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-020 — Procedure: DEL-07-03 Material, component, and rule-pack editors
+**Method choices that define the editors.**
 
-> #### Procedure: DEL-07-03 Material, component, and rule-pack editors
->
+- An editor builds an operation and the engine decides. A rule the engine has is not restated in the editor; where an editor refuses early, it uses the engine's check and shows the engine's code.
+- Absence is a value. A blank optional member is stored as absent, never as zero, false or a default.
+- Templates write structure, not numbers. A template may create the records a common pattern needs; every case, factor and basis in them is chosen by the user.
+- Code-specific content enters only as the user's data, in a material, a library or a rule pack the user owns.
+- Private by default: a library or rule pack is local and private until the user says otherwise.
 
-### CLM-021 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> Current deliverable obligation: implement material, section, component, private-library and rule-pack-reference editors plus load-case/combination and self-weight-plan interaction through the PKG-16 operation seam. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> Define how the `DEL-07-03` setup artifacts are produced and checked, and record the operational boundaries that future implementation work must preserve for material, component, rule-pack, load/support, and private-library editors.
->
-> This procedure does not implement GUI code.
->
-### CLM-022 — Prerequisites
-
-> ##### Prerequisites
->
-> | Prerequisite | Required source/evidence |
-> |---|---|
-> | Sealed deliverable context | `_CONTEXT.md` for `DEL-07-03` |
-> | Governing invariants | `docs/CONTRACT.md`, especially data, unit, rule-pack, privacy, IP, agent, and professional-boundary invariants |
-> | Decomposition/register identity | `execution/_Decomposition/SOFTWARE_DECOMP.md`; `docs/_Registers/Deliverables.csv`; `docs/_Registers/ScopeLedger.csv`; `docs/_Registers/ContextBudgetQA.csv` |
-> | Architecture basis constraints | `_CONTEXT.md` Architecture Basis Injection and `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8 |
-> | Skill contracts | Use the effective skill/workflow catalog through `AGENTS.md`; the retired `skills/four-documents` package is not a current prerequisite. Maintain the consolidated ScopeOfWork contract and applicable evidence checks. |
-> | Write scope Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Only this deliverable folder and its descendants |
->
-
-### CLM-023 — Steps
-
-> ##### Steps
->
-> 1. Confirm local scope.
->    - Verify the target folder is `execution/PKG-07/DEL-07-03/`.
->    - Verify `_STATUS.md` is in an overwrite-allowed setup state before contract maintenance.
->    - Do not read protected/private libraries or create `ISSUED` artifacts.
->
-> 2. Maintain `ScopeOfWork.md`.
->    - Read `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, and the decomposition/register source slices.
->    - Produce `ScopeOfWork.md`.
->    - Keep default sections present in the Scope of Work contract.
->    - Mark unknown engineering values and implementation choices as `TBD`.
->    - Update `_STATUS.md` from `OPEN` to `INITIALIZED` only if current state is `OPEN`.
->    - Record the run in `_run_records/TASK_RUN_2026-04-30_1040_four-documents-p1-p2.md`.
->
-> 3. Run `semantic-matrix-build`.
->    - Read `_CONTEXT.md`, `_STATUS.md`, the four production documents, and `_REFERENCES.md`.
->    - Write `_SEMANTIC.md` with canonical matrices A/B, derived matrices C/F/D/K/G/X/T/E, interpretation work, audit result, and matrix summary.
->    - Audit final interpreted cells for algebra leaks, operator leaks, and long uninterpreted expansions.
->    - On audit pass, set or verify `_STATUS.md` as `SEMANTIC_READY`.
->    - Record the run in `_run_records/TASK_RUN_2026-04-30_1041_semantic-matrix-build.md`.
->
-> 4. Run `lens-register`.
->    - Read `_SEMANTIC.md`, `_CONTEXT.md`, `_STATUS.md`, the four production documents, and `_REFERENCES.md`.
->    - Write `_SEMANTIC_LENSING.md` only.
->    - Include lens coverage for every cell in matrices A, B, C, F, D, X, and E.
->    - Record warranted gaps, questions, or conflicts only when supported by production-document evidence or explicit absence.
->    - Record the run in `_run_records/TASK_RUN_2026-04-30_1042_lens-register.md`.
->
-> 5. Review `ScopeOfWork.md` against source evidence.
->    - Treat `_SEMANTIC_LENSING.md` as a candidate worklist, not an authority.
->    - Before every substantive enrichment, reread the target section and the source slice supporting the change.
->    - Do not regress `_STATUS.md`; if it is already `SEMANTIC_READY`, leave it as-is.
->    - Record source rereads in `Guidance.md` and in `_run_records/TASK_RUN_2026-04-30_1043_four-documents-p3.md`.
->
-> 6. Run `dependency-extract`.
->    - Use `ScopeOfWork.md` as the anchor document and `ScopeOfWork.md` as execution documents.
->    - Create or refresh `Dependencies.csv` with v3.1 columns.
->    - Refresh `_DEPENDENCIES.md` with declared lists preserved, extracted summary, run notes, run history, lifecycle summary, and handoff notes.
->    - Run local validation commands for schema, enums, and ID formats.
->    - Record the run in `_run_records/TASK_RUN_2026-04-30_1044_dependency-extract.md`.
->
-> 7. Final setup check.
->    - Confirm required artifacts exist.
->    - Confirm no file outside the assigned deliverable folder changed because of this session.
->    - Confirm no `ISSUED` artifact was created.
->    - Confirm `_STATUS.md` says `SEMANTIC_READY` only if semantic and dependency gates passed.
->
-### CLM-024 — Verification
-
-> ##### Verification
->
-> Run these checks from the repository root:
->
-> ```sh
-> tools/validation/check_min_viable_fileset.sh "projects/chirality-piping/execution/PKG-07/DEL-07-03"
-> python3 tools/validation/validate_dependencies_schema.py "projects/chirality-piping/execution/PKG-07/DEL-07-03/Dependencies.csv"
-> tools/validation/validate_id_format.sh DEL DEL-07-03
-> tools/validation/validate_id_format.sh PKG PKG-07
-> ```
->
-> Additional checks:
->
-> - Ensure `_SEMANTIC.md` contains matrices A, B, C, F, D, K, G, X, T, E and an audit pass note.
-> - Ensure `_SEMANTIC_LENSING.md` contains lens coverage for matrices A, B, C, F, D, X, E.
-> - Ensure `Dependencies.csv` ACTIVE rows include `EvidenceFile` and `SourceRef`.
-> - Ensure no text claims code compliance, certification, sealing, approval, or professional reliance (PRD §21.2).
-> - Ensure no protected standards data or proprietary library content appears in the documents.
->
-
-### CLM-025 — Records
-
-> ##### Records
->
-> Records produced by this setup run:
->
-> - `ScopeOfWork.md`
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
-> - `Dependencies.csv`
-> - `_DEPENDENCIES.md`
-> - `_STATUS.md`
-> - `_run_records/*.md`
->
-### CLM-026 — D-41 R5 T3 PDU-049 hold check
-
-> ##### D-41 R5 T3 PDU-049 hold check
->
-> 1. Confirm the cited private-by-default evidence remains project-owned verification.
-> 2. Confirm no independent usability/security validation basis has been authorized or recorded.
-> 3. Preserve PDU-049 and `DEL-07-03-R-011` as `VERIFIED_NOT_VALIDATED`.
-> 4. Record any surviving requirement in this Scope of Work or its owning decision; do not perform a lifecycle transition or infer security-review closure.
->
-
-### CLM-027 — D-41 R5 T5 PDU-041 absence check
-
-> ##### D-41 R5 T5 PDU-041 absence check
->
-> 1. Submit invented `load_case` and `support` kinds to the DEL-07-03 editor
->    contract.
-> 2. Confirm each produces blocking `EDITOR_KIND_UNSUPPORTED`.
-> 3. Confirm neither request mutates persistent project state.
-> 4. Preserve adjacent GUI surfaces as cross-owner evidence only; do not infer
->    DEL-07-03 completion or create scope.
-
-- **VER-001** — Validate the contract and review source parity, material/component/rule-pack field boundaries, units and provenance, checksum/version handling, command and persistence boundaries, private/protected data, diagnostics, current residuals, and every retained TBD or conflict.
+- **VER-001** — Executable check (observes the queued operations, the stored records after Apply and the model hash): enters invented records through each editor of OUT-001 with the operation engine, for AC-001 and AC-003.
+- **VER-002** — Executable check (observes the operations produced and the refusals shown for valid and invalid entries on each route of OUT-002): for AC-002 and AC-010.
+- **VER-003** — Executable check (observes saved and reopened rule packs, their findings and checksums, and stored libraries and their findings): for AC-004 and AC-005.
+- **VER-004** — Comparison with a named reference (the operation engine's check of a combination, DEL-05-01's case resolution and its self-weight plan, each evaluated by the engine on the same invented model): compares what the editor shows, stores and queues, for AC-006, AC-007 and AC-008.
+- **VER-005** — Judgment by a named role (an independent security reviewer the owner arranges): examines where private library and rule-pack data are written and whether any path sends them out, for AC-011; with an executable check that observes file writes and network requests during editor use.
+- **VER-006** — Judgment by a named role (an independent reviewer who did not write the code): examines editor texts against PRD §21.2 and `docs/claims_registry.md`, and every field for a prefilled engineering value, for AC-001.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-028 — Guidance: DEL-07-03 Material, component, and rule-pack editors
-
-> #### Guidance: DEL-07-03 Material, component, and rule-pack editors
->
-
-### CLM-029 — Purpose
-
-> ##### Purpose
->
-> This deliverable records the setup basis for GUI editors that let users create and review private materials, sections, components, load cases, supports, rule-pack references, and private libraries while keeping missing data, provenance, assumptions, and professional-boundary limits visible.
->
-> The core product value is not faster data entry by hidden defaults. The value is a reviewable workflow in which engineering inputs, sources, rule-pack readiness, and missing values are explicit before solving, checking, reporting, or sharing.
->
-> Sources: `docs/DIRECTIVE.md` sections 2 and 3; `docs/SPEC.md` section 7; `docs/_Registers/ScopeLedger.csv` row `SOW-021`.
->
-
-### CLM-030 — Principles
-
-> ##### Principles
->
-> 1. Preserve the open/public boundary. GUI editors may expose fields for user code data, private library values, manufacturer data, SIFs, flexibility factors, allowables, and rule-pack formulas, but the public project must not supply protected values as defaults.
-> 2. Make missing data actionable. A blank or unknown required value should produce a visible finding tied to solve readiness, rule-check readiness, provenance, assumption review, nonlinear uncertainty, or IP boundary risk.
-> 3. Keep the GUI downstream of validation contracts. Editors should route changes through application-service commands and domain validation so adapters, plugins, and UI controls cannot bypass units, provenance, diagnostics, or public/private data boundaries.
-> 4. Separate editing state from project truth. Transient UI concerns such as selection, local form state, unsaved edits, validation display, and job progress should not be confused with the durable persisted model.
-> 5. Avoid professional overclaiming. Editor labels and workflow states may describe software findings and user-rule-check results; they must not declare professional compliance or approval.
->
-> Sources: `docs/CONTRACT.md` invariants `OPS-K-IP-1`, `OPS-K-DATA-1`, `OPS-K-DATA-2`, `OPS-K-UNIT-1`, `OPS-K-RULE-3`, `OPS-K-PRIV-1`, `OPS-K-AUTH-1`; `execution/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-03`, `AB-00-05`, `AB-00-06`, `AB-00-07`.
->
-
-### CLM-031 — Considerations
-
-> ##### Considerations
->
-
-### CLM-032 — Editor grouping
-
-> ###### Editor grouping
->
-> The register places multiple editors in this deliverable because they share a GUI domain. That grouping is acceptable for setup, but implementation should watch for split triggers:
->
-> - materials/sections/components become a private library management product area;
-> - load cases/supports require a separate model-editing workflow;
-> - rule-pack references require a separate sandbox/completeness workflow;
-> - validation UI tests become broad enough to require a dedicated test deliverable.
->
-> Source: `docs/_Registers/ContextBudgetQA.csv` row `DEL-07-03`.
->
-
-### CLM-033 — Missing data classes
-
-> ###### Missing data classes
->
-> The GUI should distinguish the reason a value matters. A solve-required missing physical input is different from a rule-check-required missing code value, weak provenance, user assumption, nonlinear convergence concern, or suspected IP/private-data exposure.
->
-> Source: `docs/SPEC.md` section 7.
->
-
-### CLM-034 — Private libraries
-
-> ###### Private libraries
->
-> Private material/component/rule-pack libraries are user-controlled assets. The editor workflow can reference and validate them, but setup artifacts should not create sample private libraries, commit vendor data, or imply redistribution rights.
->
-> Source: `docs/DIRECTIVE.md` section 6; `docs/CONTRACT.md` `OPS-K-PRIV-1`.
->
-
-### CLM-035 — Implementation TBDs
-
-> ###### Implementation TBDs
->
-> Resolve exact component/state choices and dependency versions from the current desktop manifest and source consumers under DEC-012. Rule-expression grammar follows DEC-022/037, admitted imports/exports follow their accepted format instruments, and the local container follows DEC-017/028 and SCA-003. Public API transport, secret-provider choices and missing runtime/qualification witnesses retain their owning gates; implementation decisions do not waive units, provenance, validation or no-bypass requirements.
-
-### CLM-036 — Trade-offs
-
-> ##### Trade-offs
->
-> | Trade-off | Guidance |
-> |---|---|
-> | One editor suite vs split deliverables | Keep setup unified under SOW-021, but split future implementation if scope becomes too broad for one bounded GUI slice. |
-> | Fast entry vs safe review | Prefer visible incompleteness and provenance checks over auto-filled engineering defaults. |
-> | Local form convenience vs validation authority | Local form state can improve usability, but durable mutation should pass through service commands and validation envelopes. |
-> | Public examples vs realistic libraries | Use invented/public-permissive examples only; do not publish protected or proprietary material/component/rule data. |
-> | Rule-pack editing vs rule-pack reference editing Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | This deliverable covers GUI references and required-input visibility; evaluator grammar and sandboxing remain PKG-06 responsibilities. |
->
-
-### CLM-037 — Examples
-
-> ##### Examples
->
-> No engineering examples with real code values are included in this setup pass.
->
-> Permitted illustrative patterns for future invented examples:
->
-> - A material form showing a density field as `TBD` with `UNKNOWN_SOURCE` until the user records provenance.
-> - A component form showing SIF/flexibility inputs as user-supplied fields with source status rather than public defaults.
-> - A rule-pack reference panel showing checksum, version, redistribution status, and missing required inputs before a rule-check status can be shown.
->
-> These are workflow examples only, not engineering values or code-check examples.
->
-
-### CLM-038 — Semantic Lensing Application
-
-> ##### Semantic Lensing Application
->
-> Pass 3 applied the semantic lensing register as a worklist. Source rereads used for substantive updates:
->
-> | Lensing item | Source reread before update | Disposition |
-> |---|---|---|
-> | Clarify scope split risk for the multiple-editor surface | `_CONTEXT.md` Context Budget QA; `docs/_Registers/ContextBudgetQA.csv` row `DEL-07-03` | Incorporated into "Editor grouping" and Procedure split check. |
-> | Clarify application-service command and durable/transient state boundary | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-03`, `AB-00-05` | Incorporated into Principles and Procedure. |
-> | Clarify private/protected data boundary | `docs/CONTRACT.md` `OPS-K-IP-1`, `OPS-K-DATA-1`, `OPS-K-PRIV-1`; `docs/DIRECTIVE.md` sections 3 and 6 | Incorporated into Private libraries and Requirements. |
-> | Clarify no professional compliance claim | `docs/CONTRACT.md` `OPS-K-AUTH-1`; `docs/TYPES.md` section 4 | Incorporated into Principles and Verification. |
->
-
-### CLM-039 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | None | No source conflict identified during setup. | N/A | N/A | N/A | N/A | N/A |
->
-
-### CLM-040 — D-41 R5 T3 PDU-049 guidance
-
-> ##### D-41 R5 T3 PDU-049 guidance
->
-> Keep project-authored tests and private-by-default implementation evidence classified as verification. Do not upgrade PDU-049 or `DEL-07-03-R-011` beyond `VERIFIED_NOT_VALIDATED` without a separately authorized, independent usability/security validation basis. This hold is not a product-repair request and does not authorize editor, storage, lifecycle, review, dependency, DAG, register, decomposition, or `ISSUED` changes.
->
-
-### CLM-041 — D-41 R5 T5 PDU-041 guidance
-
-> ##### D-41 R5 T5 PDU-041 guidance
->
->
-> SCA-011 supplies the forward ownership binding: DEL-07-03 owns load-case/combination editing and self-weight-plan interaction; DEL-07-02 owns support/restraint creation and editing; DEL-07-09 retains R-005/R-006 coverage accountability. Historical PDU-041 observations remain source-bound evidence, not a continuing absence-of-owner rule. Existing unsupported behavior and unmet verification remain visible.
-
-### CLM-042 — SCA-011 Load, library and self-weight interaction
-
-**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
-
-Own load-case/combination editing, self-weight-plan interaction and material/section/component/library editors through PKG-16. R-005 implementation lands here; R-006 support implementation lands in DEL-07-02; DEL-07-09 retains coverage accountability. Hanger libraries remain user-imported under DEC-103, with schema/provenance DEL-03-02/07.
-
-- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.
-- **AC-002** — The named boundary is honored, its witness is bound to the tested candidate, and missing or held results remain explicit. Ownership assignment alone is not a pass.
-- **VER-002** — Exercise each named UI route through owned operations and valid/invalid unit/provenance cases; distinguish DEL-05-01 generation, DEL-03-08 mass and DEL-04-07 integration. Retain unmet coverage and independent usability/security holds.
+- **AX-001** — *Complete and sourced before fast.* Better is fewer inputs an analysis needs that the desktop cannot enter, and fewer that can be entered without a source, measured against the reference system's records. Entry is never made faster by a prefilled value, an inferred unit or a default basis.
+- **AX-002** — *Fewer steps for repeated data.* Better is less repeated typing for data that genuinely repeats across pipes, supports and cases, measured by the entries the reference system's loads take. No repetition control writes to the model directly or repeats a value the user did not enter.
+- **AX-003** — *Keep the user's data the user's.* Nothing that would make sharing or support easier justifies moving a private library or rule pack out of the user's storage, or bundling an example that is not invented.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-021 OBJ-006 | CLM-010 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-| OUT-002 | OBJ-006 | CLM-042 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-07-03:1** — `DEL-07-03-R-005` and `R-006` (load-case, support/restraint editors) are re-pointed by SCA-009 (decomposition revision 0.12, DEC-094): their accepted ownership landing is the `DEL-07-09` interactive operation vocabulary and tool palette contract. Their earlier GUI-absence record is historical evidence; current bounded implementations and remaining gaps are recorded in DEL-07-09 coverage under the accepted owning implementation deliverables. Adjacent authoring does not independently establish closure. PDU-041 evidence is preserved unchanged.
-- **DEL-07-03:2** — Obtain a separately authorized independent security validation basis, and owner-arranged user testing as the usability basis (owner, 2026-10-28; `docs/RELEASE_TARGET_v1.0.md` RT-U2), before upgrading PDU-049 / `DEL-07-03-R-011` beyond `VERIFIED_NOT_VALIDATED`; project-owned verification does not supply that basis (source: DEC-074 O7-before-E5; PDU-049, 2026-07-12)
-- **DEL-07-03:3** — No N7 rereview action remains for the reviewed SCA-009 material/section/load-case/hanger/self-weight slice: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N7_FINAL_REVIEW/V2_BACKCHECK/REVIEW_RETURN_V2.md` records PASS and `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/PRECOMMIT_PARENT_FAN_IN_V1.md` records bounded parent fan-in. R-005/R-006 and historical PDU-041 attribution remain with those records. Browser library import remains unavailable; hanger selection remains native-only/manual without sizing. Independent usability/security validation and broader scope remain open; no lifecycle closure is inferred.
-- **DEL-07-03:4** — No final N7 rereview remains pending for the shared-support repairs: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N7_FINAL_REVIEW/V2_BACKCHECK/REVIEW_RETURN_V2.md` records PASS on its exact V2 source. The accepted family-token, duplicate-stiffness and provenance requirements retain that evidence binding. Broader mixed-payload compatibility remains unresolved; native-only manual hanger selection and no-sizing limits remain. Historical test counts stay in the review evidence; no suite was rerun here and no lifecycle closure follows.
-- **DEL-07-03:5** — Condition use and difference basis in the load manager (C1 and the solver lane's 1b; model document 0.9.0). Select a case's condition keys and set-level uses, show the engine's per-pipe resolution and refusals by name, offer "operating" among kind suggestions, and set a difference basis only on a result-state subtraction, written only when the user sets it. Nothing is defaulted. Design: DEL-02-01 Design model-document-0.9.0.md §4.2. Implementation and tests remain open.
-
-  Current implementation (S3b, RT-G5/RT-G2/RT-G3): the load manager's Conditions control. On a pressure-free document it offers a temperature key from the sets' keys and the `added_weight: true` and `wind_exposure: true` marks. An unticked mark is absent, never `false`. It writes the whole use with `set_load_case_condition_use`, or clears it with `clear_load_case_condition_use`. Pressure and contents are shown refused by name, with no input. On a document with `pressure_contract`, the control is refused (`LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED`) with no input. The engine's per-pipe resolution is shown through the wasm export `preview_operating_conditions_json`, and the desktop computes no ΔT. Staged warnings and carried info are shown as the outcome reports them. `operating` is among the kind suggestions. The "Operating minus sustained difference" template is offered only on a result-state subtraction. It writes the chosen operating and sustained cases and `difference_basis` through `create_combination`, prefills neither case and never writes `subtrahend_support_state`. It is shown refused by name on a document with a pressure contract. Sources: `features/condition-sets/ConditionUseControl.tsx`, `services/operatingConditionPreviewService.ts`, `load-cases/LoadCaseManagerPanel.tsx`, `load-cases/operatingDifferenceTemplate.ts`; design Work/condition-use-authoring.md. Evidence: `conditionSets.engine.test.tsx`, `conditionSets.session.test.tsx`, `conditionSetSurfaces.engine.test.tsx`. This note describes code only; it records no backcheck or acceptance.
+| OUT-001 | SOW-021 OBJ-006 | REQ-002 REQ-003 REQ-004 REQ-008 REQ-012 | AC-001 | VER-001 VER-006 | The entered record is the expected stored record; validity is judged by the document validator and the operation engine, which the editors did not write. The record contents are PRD §18.1 to §18.3; the excluded statements are an owner ruling, PRD §21.2 |
+| OUT-002 | SOW-021 SOW-077 OBJ-006 | REQ-005 REQ-008 | AC-002 | VER-002 | The criterion states the expected operations and refusals; the refusal codes are the operation engine's and the unit system's |
+| OUT-001 | SOW-021 OBJ-006 | REQ-009 REQ-010 | AC-003 | VER-001 | Owner ruling: PRD §5.5. Absence and the unchanged hash are observed on the stored document |
+| OUT-001 | SOW-021 OBJ-006 | REQ-007 REQ-014 | AC-004 | VER-003 | Owner ruling: PRD §10.6. Validation findings and the checksum are DEL-06-01's and DEL-06-04's, not the manager's |
+| OUT-001 | SOW-021 OBJ-006 | REQ-015 | AC-005 | VER-003 | Owner ruling: PRD §18.4 lists the import findings; the findings themselves are DEL-03-07's |
+| OUT-002 | SOW-077 OBJ-006 | REQ-016 | AC-006 | VER-004 | The entered combination is the expected stored record; the prevented shapes and the delete refusal are the operation engine's rules, which the editor did not write. The combined values are DEL-05-02's to establish |
+| OUT-002 | SOW-077 OBJ-006 | REQ-017 | AC-007 | VER-004 | The engine's resolution is the reference and the editor only displays it: this guards against the display diverging and claims no correctness of the resolution, which is DEL-05-01's |
+| OUT-002 | SOW-077 OBJ-006 | REQ-018 | AC-008 | VER-004 | The engine's plan is the reference and the editor only displays and queues it; the weights' correctness is DEL-05-01's and DEL-03-08's |
+| OUT-001 | SOW-021 OBJ-006 | REQ-020 | AC-010 | VER-002 | Owner ruling under the scope delegation: a bend moves the corner to points the user did not type, so the preview precedes Apply |
+| OUT-001 | SOW-021 OBJ-006 | REQ-011 | AC-011 | VER-005 | Owner ruling: PRD §20.3 and FR-RULE-004. The storage paths are DEL-12-01's; the examination is by a reviewer who did not write the code |

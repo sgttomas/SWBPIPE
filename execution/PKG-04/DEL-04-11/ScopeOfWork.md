@@ -2,77 +2,41 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-04-11
 package_id: PKG-04
-decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md revision 0.18
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-083]
 package_objective_refs: [OBJ-003]
 ---
 
 # Scope of Work — DEL-04-11 Hanger sizing
 
-**Basis:**
-- decomposition revision 0.18 (SOW-083, OBJ-003);
-- PRD §12.4;
-- SCA-015 (`execution/_ScopeChange/SCA-015_2026-10-31_HANGER_SIZING/DECISION.md`);
-- `docs/RELEASE_TARGET_v1.0.md` RT-A11.
-
-The owner chose OC-4(a) on 2026-10-28: "Must: size hangers from the user's private
-catalogue (invented example records only) and produce a hanger table." On 2026-10-31,
-Agent 0 (HELP_HUMAN), under the owner's delegation in `loop/LOOP_INIT.md`:
-- placed it in this new deliverable;
-- adopted the method;
-- decided the hanger library format 1.1.0;
-- decided that a variable spring is modelled with its cold (preset) load.
-
-These commitments and acceptance criteria are pending an independent review of their
-text. Nothing in them is built, and they assert no completion, acceptance or release.
-The governing design is [Work/hanger-sizing.md](Work/hanger-sizing.md). Standard claim
-fence applies (claims taxonomy per DEC-081).
-
 ## Purpose and Objective Traceability
 
-This deliverable sizes variable spring hangers and constant-effort supports from the
-user's own imported hanger catalogue and produces a hanger table. It works from a
-weight case solved with the hanger locations rigid and from operating cases solved with
-the hangers replaced by their loads. Every method choice comes from the user. Sized
-values are reported as results with their basis, and the model changes only when the
-person applies a selection. It serves OBJ-003 through SOW-083.
+This deliverable sizes variable spring hangers and constant-effort supports from the user's own imported hanger catalogue and produces a hanger table. An engineer names the supports to size and the cases to size them for, and gets, for each, the catalogue record that meets the engineer's own load, travel and variation tests, or a statement that none does. It works from a weight case solved with the hanger locations rigid and from operating cases solved with the hangers replaced by their loads. Every method choice comes from the user. Sized values are reported as results with their basis, and the model changes only when the person applies a selection.
+
+It serves SOW-083 under OBJ-003 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-04, row DEL-04-11), and PRD §12.4. In `docs/RELEASE_TARGET_v1.0.md` it is the owning deliverable for hanger sizing. It contributes exit criterion 1 (the reference system's hangers sized on the exact route in the desktop) and criterion 2 (closed-form references frozen in `validation/references/` with an independent generator), with its refusals listed under criterion 3 and its table exported to CSV under criterion 5. The owner's ruling fixes what is required: size hangers from the user's private catalogue, with invented example records only in the repository, and produce a hanger table.
 
 - **OUT-001** — The sizing request and its candidates (REQ-001, REQ-002).
 - **OUT-002** — The derived solves, with the treatment of nonlinear supports (REQ-003).
 - **OUT-003** — Loads, fit, selection and the verification pass (REQ-004, REQ-005).
-- **OUT-004** — The hanger table, its basis, readers and CSV export, and application of
-  a selection (REQ-006 to REQ-008).
-- **OUT-005** — The admitted domain, frozen references, cost bounds, the desktop and
-  report surfaces, and the claim boundary (REQ-009 to REQ-013).
+- **OUT-004** — The hanger table, its basis, readers and CSV export, and application of a selection (REQ-006 to REQ-008).
+- **OUT-005** — The admitted domain, frozen references, cost bounds, the desktop and report surfaces, and the claim boundary (REQ-009 to REQ-013).
 - **OUT-006** — Variable spring preload in the solve (REQ-014).
 
 ## Deliverable Definition — Ontology
 
 ### CLM-001 — The method
 
-For the candidate supports the person names, the sizing runs these steps (Design §1, §4
-to §7):
-1. **Hot-load basis.** The weight case is solved with every candidate made a rigid
-   restraint of its single translational DOF. Each candidate's reaction is its hot-load
-   basis W.
-2. **Positions.** The weight case (the cold condition) and each named operating case are
-   solved with every candidate replaced by a force W. Each candidate's positions are its
-   displacements there, measured from the drawn geometry, which is the installed
-   position.
-3. **Variable records.** A variable spring set to its cold load at the installed position
-   carries that load minus its rate times its displacement, the one law used throughout.
-   - The cold load is chosen so that the spring carries W in the design operating case
-     (hot design) or in the cold condition (cold design).
-   - The load variation is the change of load between the cold condition and each
-     operating case, over the person's reference load.
-4. **Fit.** Each catalogue record is tested against its working load range, its travel
-   range with the person's allowance, and the person's variation limit.
+For the candidate supports the person names, the sizing runs these steps:
+1. **Hot-load basis.** The weight case is solved with every candidate made a rigid restraint of its single translational DOF. Each candidate's reaction is its hot-load basis W.
+2. **Positions.** The weight case (the cold condition) and each named operating case are solved with every candidate replaced by a force W. Each candidate's positions are its displacements there, measured from the drawn geometry, which is the installed position.
+3. **Variable records.** A variable spring set to its cold load at the installed position carries that load minus its rate times its displacement, the one law used throughout.
+   - The cold load is chosen so that the spring carries W in the design operating case (hot design) or in the cold condition (cold design).
+   - The load variation is the change of load between the cold condition and each operating case, over the person's reference load.
+4. **Fit.** Each catalogue record is tested against its working load range, its travel range with the person's allowance, and the person's variation limit.
 5. **Selection.** A fitting record is selected by the person's rule.
-6. **Verification.** The selections are re-solved in place and the loads they carry are
-   reported.
+6. **Verification.** The selections are re-solved in place and the loads they carry are reported.
 
-Every derived solve is a modified copy of the model document, sent through the model's
-own solve entry and never persisted.
+Every derived solve is a modified copy of the model document, sent through the model's own solve entry and never persisted.
 
 ### CLM-002 — What this deliverable owns, and what it takes as input
 
@@ -81,347 +45,166 @@ own solve entry and never persisted.
 - the derived-document construction and the solve loop;
 - the sizing arithmetic, fit tests and selection;
 - the verification pass;
-- the hanger table, the hanger-sizing profile, the `hanger-sizing-1` semantic table and
-  the hanger-sizing analysis-run kind;
-- the Rust reader and its test-only Python verifier;
-- the sizing crate `core/analysis/hanger_sizing` and its entries;
+- the hanger table, the closed hanger-sizing result document and its schema;
+- the product's reader of that document and its independent test verifier;
+- the sizing engine and its headless and desktop entries;
 - the frozen references under `validation/references/hanger_sizing/`;
 - the sizing meaning of the hanger library's `working_load_range`;
-- the desktop request form and hanger table, and the report's hanger-sizing section,
-  within the results viewer's and report generator's contracts;
-- carrying out, in DEL-04-03's support model, the preload decision of REQ-014.
+- the desktop request form and hanger table, and the report's hanger-sizing section, within the results viewer's and report generator's contracts;
+- the rest of the variable spring's preload law (REQ-014): held springs, recovery, diagnostics and the combination gate. DEL-04-03/REQ-014 states the spring-plus-cold-load model.
 
-**Declared inputs** (`deliverable.yaml`):
-- DEL-04-07: the product solve entries on both routes;
-- DEL-04-03: support families, the constant-effort seam and spring assembly;
-- DEL-04-04: nonlinear support states;
-- DEL-05-01: load cases and their solve-time lowering;
-- DEL-02-01: the support and hanger members of the model document;
-- DEL-03-02: the hanger library schema;
-- DEL-03-07: the library import boundary;
-- DEL-02-02: units;
-- DEL-00-06: the diagnostics and result-envelope contract;
-- DEL-04-08: the retained-memory pricing law;
-- DEL-07-05, DEL-07-07, DEL-08-01, DEL-08-04 and DEL-04-05: non-gating.
+**Inputs from neighbours** (`deliverable.yaml`): DEL-04-07 (the product solve entries on both routes), DEL-04-03 (support families, the constant-effort seam and spring assembly), DEL-04-04 (nonlinear support states), DEL-05-01 (load cases and their solve-time lowering), DEL-02-01 (the support and hanger members of the model document), DEL-03-02 (the hanger library schema), DEL-03-07 (the library import boundary), DEL-02-02 (units), DEL-00-06 (the diagnostics contract), DEL-14-02 (the analysis-run record), DEL-04-08 (the retained-memory pricing law), and DEL-07-05, DEL-07-07, DEL-08-01, DEL-08-04, DEL-10-05 and DEL-04-05 (the viewer, solve worker, report, CSV, headless runner and timing harness). These deliverables keep their scope.
 
-These deliverables keep their scope.
+### CLM-003 — What is outside these commitments
 
-### CLM-003 — Current reach and sequence
-
-- **Built:** slice 1a, the sizing arithmetic (`core/analysis/hanger_sizing`). It covers
-  the loads, fit tests, selection, failure counts, request checks that need no solve,
-  and the verification arithmetic and standing (Design §13), with its unit tests and
-  the R-3 references. Slice 1b: hanger library format 1.1.0 in the schema and both
-  import boundaries (REQ-006). Slice 1c, the derived solves on PF (REQ-002, REQ-003,
-  REQ-005):
-  - candidate and case checks;
-  - derived documents through the product's public solve entry;
-  - the full sizing run with its verification pass and disclosures;
-  - the library reader;
-  - the closed-form references R-1, R-2 and R-5.
-
-  Slice 1d-α publishes the result as a closed document through the headless runner
-  (`openpipestress-runner size-hangers`) only, with the Rust reader and the test-only
-  Python verifier (Design §8.3), and the exact route is refused until increment 4.
-  Increment 3a adds the desktop's result types and a pure display adapter
-  (`apps/desktop/src/features/results/hangerSizingResult.ts`, `hangerSizingView.ts`),
-  tested on the committed family fixtures. It gates record details on the bound library
-  hash and reader standings on evidence bound to the document's hash. Increment 3b adds
-  the read-only table component (`HangerSizingPanel.tsx`: the basis block, the candidate
-  table, each candidate's details, the solves table, the standing, the disclosures and the
-  reader standings, or a refused document's refusals) and its CSV through DEL-08-04's
-  serializer (`hangerSizingCsv.ts`: kind `hanger-sizing`, the candidates table and the
-  `solves` table), tested on the same fixtures. It shows 3a's published SI values and
-  computes nothing. 3c part 1 is built: the crate's native
-  size-and-read entry (`core/analysis/hanger_sizing/src/desktop.rs`, Design §13). It
-  publishes the headless document for the same input and replies with the document, its
-  checked canonical hash and the reader's verdict, with reproduction `not_checked`.
-  3c part 2 is built, so hanger sizing is usable in the desktop on PF (Design §13):
-  - the request form (`features/hanger-sizing/`), with no pre-set choice in a new
-    project and `weight_support_state` shown as the fixed `own_solve`; it pre-fills
-    nothing, since no value is kept between sessions yet (REQ-001's pre-fill of the
-    last-used values is not built);
-  - the native `size_hangers` command, which runs the entry as the capped worker's task 4
-    in one bounded request (at most 64 MiB of reply), under the command's captured
-    per-invocation budget and with no attestation digest (REQ-011), and its keyed
-    retirement `cancel_hanger_sizing` (`apps/desktop/src-tauri/src/hanger_sizing_job.rs`).
-    Each start first retires the sizing in progress and carries the retirement epoch that
-    retirement acknowledged as its ticket; the host refuses a start whose ticket a later
-    retirement has passed, so a delayed start never replaces or cancels a newer run. The
-    first delivery of another page's retirement still cancels the current run (Design §13,
-    3c, "Residual");
-  - the 3b panel mounted beside the hanger selection, showing the reply's document with
-    its reader standings bound to the document's hash and the library's record details,
-    or a refused document's refusals, or the request's named failure.
-
-  The result is not recorded, saved or held after the reply. Cancellation stops the
-  worker at any point and publishes nothing; per-solve progress (REQ-011) is not built.
-  The theory note (`docs/theory/hanger_sizing.md`, RT-V4,
-  owned by DEL-11-03) explains the built method. The user guide's non-UI section for
-  the implemented PF sizing and the headless verb exists (`docs/user_guide/index.md`
-  §7.1, owned by DEL-11-01); its desktop sections follow increment 3. Before this
-  deliverable: the hanger records import, and one record can be applied to a support as
-  the person's act (`features/hanger-selection`). A variable spring is
-  solved as its stiffness only (`SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD`).
-- **Sequence** (Design §13):
-  1. the engine on PF with library format 1.1.0;
-  2. the verification pass and multi-case sizing;
-  3. the desktop and report surfaces;
-  4. EX and the reference system;
-  5. documentation;
-  6. spring preload.
-- **Later, outside these commitments:**
-  - forming W in the design operating case's support state, once the solve can hold
-    that state (RT-A5 Should; REQ-003);
-  - automatic re-sizing iteration;
-  - hangers on skewed or rotational DOFs.
+- Forming W in the design operating case's support state.
+- Automatic re-sizing iteration.
+- Hangers on skewed or rotational DOFs.
+- Any judgment of a hanger's suitability, and any shipped catalogue, limit, allowance or rule.
 
 ## Completion and Reliance Basis — Epistemology
 
-A sizing result is a numerical statement about the discrete model under the user's
-cases, catalogue and method choices. It inherits the premises and limitations of each
-solve it uses, and bounds no modelling, input or physical error. A selected record is
-the one that meets the user's own tests; SWBPIPE does not judge any hanger's
-suitability, and nothing here determines code compliance.
+A sizing result is a numerical statement about the discrete model under the user's cases, catalogue and method choices. It inherits the premises and limitations of each solve it uses, and bounds no modelling, input or physical error. A selected record is the one that meets the user's own tests; SWBPIPE does not judge any hanger's suitability, and nothing here determines code compliance.
+
+**Undecided.**
+
+- Whether the current analysis-run version admits a hanger-sizing kind is not decided (DEL-14-02).
+- Whether the report's privacy rules for library references cover the hanger section's library-derived values is not confirmed with DEL-08-01.
 
 ### Request
 
 - **REQ-001** — *Required inputs, no defaults.*
   - The request names:
     - one imported hanger library;
-    - the candidate supports, each with its family policy (variable, constant, or
-      variable else constant);
+    - the candidate supports, each with its family policy (variable, constant, or variable else constant);
     - the weight case and the support state W is formed in;
-    - the design operating case and the further operating cases to check (stated, even
-      when empty);
+    - the design operating case and the further operating cases to check (stated, even when empty);
     - the load design (hot or cold);
     - the variation limit and its reference load (operating or design load);
     - the travel allowance at each end of the travel span;
     - the selection rule (smallest capacity or least variation);
     - the solver mode of the caller's own solve, which every derived solve uses.
-  - Each absent or invalid input is refused by name. The engine, the headless runner
-    and the native entry supply no value. The desktop pre-fills the values last used in
-    the project, and the request records the values used.
-  - Named cases are load cases, not combinations. A test-condition case is refused, and
-    so is a case named in two roles.
-  - The request is recorded with the result and in the analysis-run record (Design §2).
-- **AC-001** — Maintained tests show, at the product facade, the headless runner and the
-  desktop:
+  - Each absent or invalid input is refused by name. The engine, the headless runner and the native entry supply no value. The desktop pre-fills the values last used in the project, and the request records the values used.
+  - Named cases are load cases, not combinations. A test-condition case is refused, and so is a case named in two roles.
+  - The request is recorded with the result.
+- **AC-001** — Maintained tests show, at the product facade, the headless runner and the desktop:
   - each refusal for a missing or invalid input;
   - the case-role refusals;
   - no default supplied on any entry.
 - **REQ-002** — *Candidates.*
-  - A candidate restrains exactly one translational DOF, has no skew direction, is not
-    nonlinear, a snubber or an anchor, shares its node and DOF with no other support,
-    and is referenced by no other model object.
+  - A candidate restrains exactly one translational DOF, has no skew direction, is not nonlinear, a snubber or an anchor, shares its node and DOF with no other support, and is referenced by no other model object.
   - Its present family and hanger data are not read.
-  - On an EX load/reference-state document, it has in every named case an ordinary
-    support state: active, with no imposed motion or device reference. That entry is the
-    support's own declaration, not a blocking reference.
+  - On an EX load/reference-state document, it has in every named case an ordinary support state: active, with no imposed motion or device reference. That entry is the support's own declaration, not a blocking reference.
   - Its force acts along the positive axis of its DOF (DEC-049's convention).
-  - Each failure is refused by name, and refuses the request. A hot-load basis that is
-    not positive also refuses the request, naming every such candidate (Design §3).
-- **AC-002** — Each candidate refusal, the moved-candidate refusal on EX and the
-  non-positive hot-load refusal are exercised by maintained tests that assert the code
-  and the named supports. A placeholder support of each admitted family is sized.
+  - Each failure is refused by name, and refuses the request. A hot-load basis that is not positive also refuses the request, naming every such candidate.
+- **AC-002** — Each candidate refusal, the moved-candidate refusal on EX and the non-positive hot-load refusal are exercised by maintained tests that assert the code and the named supports. A placeholder support of each admitted family is sized.
 
 ### Solution
 
 - **REQ-003** — *Derived solves.*
-  - Each derived solve is a modified copy of the stored model document, sent through
-    the product solve entry the model's own cases use. It has the model's route and
-    settings and requests no retained-precision recovery.
-  - It is never saved, never returned as a model, never in undo history and never
-    passed through the operation route.
-  - On an EX load/reference-state document, a candidate made rigid keeps its support
-    state, and a candidate replaced by a force loses its support state with the support.
-    Each added force is entered in its case's source ledger.
+  - Each derived solve is a modified copy of the stored model document, sent through the product solve entry the model's own cases use. It has the model's route and settings and requests no retained-precision recovery.
+  - It is never saved, never returned as a model, never in undo history and never passed through the operation route.
+  - On an EX load/reference-state document, a candidate made rigid keeps its support state, and a candidate replaced by a force loses its support state with the support. Each added force is entered in its case's source ledger.
   - Nonlinear supports converge in each derived solve to the states that case produces.
-  - The support state W is formed in is a required input. Only the weight case's own
-    state is admitted until the solve can hold another case's state.
-  - The result publishes each nonlinear support's state in every derived solve. It
-    warns by name where a state differs between the weight solve and the design
-    operating solve, or between the weight solve and the cold reference.
-  - A derived solve that is refused, fails to converge or publishes a blocking
-    diagnostic refuses the request, with its own diagnostics. No partial table is
-    published (Design §4, §5).
+  - The support state W is formed in is a required input. Only the weight case's own state is admitted.
+  - The result publishes each nonlinear support's state in every derived solve. It warns by name where a state differs between the weight solve and the design operating solve, or between the weight solve and the cold reference.
+  - A derived solve that is refused, fails to converge or publishes a blocking diagnostic refuses the request, with its own diagnostics. No partial table is published.
 - **AC-003** — Maintained tests show:
-  - each kind of derived document, and that the stored model is byte-identical after a
-    run;
+  - each kind of derived document, and that the stored model is byte-identical after a run;
   - that the solve-time lowering is applied to derived documents;
-  - on EX, the support-state reconciliation for rigid, force and spring candidates, and
-    the ledger entry, with each derived document admitted by the solve;
+  - on EX, the support-state reconciliation for rigid, force and spring candidates, and the ledger entry, with each derived document admitted by the solve;
   - the state disclosures and warnings on a lift-off model;
   - the refusal on a failed derived solve.
 - **REQ-004** — *Loads, fit and selection.*
-  - **One origin.** Every position is measured from the drawn geometry, the installed
-    position. A variable spring set to its cold load F_cold carries F_cold − k·u at
-    position u, in sizing, verification, application and the solve.
-  - **Loads.** Under hot design, F_cold is chosen so that the spring carries the hot-load
-    basis in the design operating case. Under cold design, it is chosen so that the spring
-    carries it in the cold condition. The cold-condition and operating loads follow from
-    the law.
-  - **Variation.** Load variation is the difference between the cold-condition load and
-    each operating load, over the chosen reference load.
+  - **One origin.** Every position is measured from the drawn geometry, the installed position. A variable spring set to its cold load F_cold carries F_cold − k·u at position u, in sizing, verification, application and the solve.
+  - **Loads.** Under hot design, F_cold is chosen so that the spring carries the hot-load basis in the design operating case. Under cold design, it is chosen so that the spring carries it in the cold condition. The cold-condition and operating loads follow from the law.
+  - **Variation.** Load variation is the difference between the cold-condition load and each operating load, over the chosen reference load.
   - **Variable record fit.** A variable record fits when, in order:
     1. it carries a rate, a working load range and a travel range;
     2. its stiffness DOF matches the candidate;
     3. the cold-condition load and every operating load are positive;
-    4. the loads over the travel span, widened by the rate times the allowance at each
-       end, lie within its working load range;
-    5. the travel span (over the installed position, the cold condition and every
-       operating case) plus twice the allowance is within its travel range;
+    4. the loads over the travel span, widened by the rate times the allowance at each end, lie within its working load range;
+    5. the travel span (from the least to the greatest position over the installed position, the cold condition and every operating case) plus twice the allowance is within its travel range;
     6. every variation is within the limit.
-  - **Constant record fit.** A constant record fits when it carries a working load range
-    and a travel range, the hot-load basis lies within its range, and the travel test is
-    met.
-  - **Selection.** It follows the family policy and the selection rule with stated tie
-    breaks, so it is deterministic. With no fit, the outcome is "no record fits", with
-    the count of records failing each test, and nothing is assumed in its place (Design
-    §6).
-- **AC-004** — On the frozen references, the product reproduces, within the
-  verification tolerance of REQ-010:
+  - **Constant record fit.** A constant record fits when it carries a working load range and a travel range, the hot-load basis lies within its range, and the travel test is met.
+  - **Selection.** It follows the family policy and the selection rule, and is deterministic. Smallest capacity takes the smallest maximum working load, then the smallest largest variation, then the smallest record id in byte order. Least variation takes the smallest largest variation, then the smallest maximum working load, then the smallest record id. A constant record's variation counts as zero. Variable-else-constant tests constant records only when no variable record fits, and the result says the fallback was taken. The first test a record fails, in the order above, is its stated reason. With no fit, the outcome is "no record fits", with the count of records failing each test, and nothing is assumed in its place.
+- **AC-004** — On the frozen references, the product reproduces, within the verification tolerance of REQ-010:
   - the rigid reactions;
   - the free-riser travel;
   - every load, variation, fit outcome and selection, the selection exactly.
 
-  This holds over hot and cold design, both reference loads, the allowance, a
-  cold-condition position that is not zero, multi-case governing, fallback, no fit,
-  non-positive loads and a DOF mismatch.
-  Mutation tests show each method choice changing the result as its rule predicts.
-  Results are byte-identical on repeated runs.
+  This holds over hot and cold design, both reference loads, the allowance, a cold-condition position that is not zero, multi-case governing, fallback, no fit, non-positive loads and a DOF mismatch. Mutation tests show each method choice changing the result as its rule predicts. Results are byte-identical on repeated runs.
 - **REQ-005** — *Verification pass.*
   - **Solves.** The weight case and each operating case are solved again with:
-    - each selected variable record as a spring of its rate with a force equal to its
-      cold load, the same law as REQ-004;
+    - each selected variable record as a spring of its rate with a force equal to its cold load, the same law as REQ-004;
     - each constant selection as a force equal to its hot-load basis;
     - each unfitted candidate as a force equal to its hot-load basis.
-  - **Basis.** The result states the configuration assumed for each candidate. When a
-    candidate has no fit, the verification is marked as conditional on that assumption,
-    which applying the selected records alone does not reproduce.
-  - **Every selected family.** The verified positions, travel span and travel test are
-    published for every selected family.
-  - **Variable selections.** The verified cold-condition and operating loads are
-    published, with:
-    - the verified variations, each the difference between the verified cold-condition
-      load and that case's verified operating load, over the reference load;
+  - **Basis.** The result states the configuration assumed for each candidate. When a candidate has no fit, the verification is marked as conditional on that assumption, which applying the selected records alone does not reproduce.
+  - **Every selected family.** The verified positions, travel span and travel test are published for every selected family.
+  - **Variable selections.** The verified cold-condition and operating loads are published, with:
+    - the verified variations, each the difference between the verified cold-condition load and that case's verified operating load, over the reference load;
     - the departure from the hot-load basis.
-  - **Warnings.** Each fit test that the verified values fail is warned by name: the
-    travel test for a constant selection, and the load, travel and variation tests for a
-    variable one.
-  - No selection is changed automatically (Design §7).
+  - **Warnings.** Each fit test that the verified values fail is warned by name: the travel test for a constant selection, and the load, travel and variation tests for a variable one.
+  - No selection is changed automatically.
 - **AC-005** — The following are reproduced:
-  - the one-spring closed-form reference, with its verified variation formed from both
-    verified loads;
-  - a mixed variable and constant reference, in which the constant support's verified
-    travel fails its test and warns;
+  - the one-spring closed-form reference, with its verified variation formed from both verified loads;
+  - a mixed variable and constant reference, in which the constant support's verified travel fails its test and warns;
   - a lift-off case.
 
-  A selection whose verified values fail a test produces its warning, and the selection
-  is unchanged. The conditional marking appears when a candidate has no fit.
+  A selection whose verified values fail a test produces its warning, and the selection is unchanged. The conditional marking appears when a candidate has no fit.
 
 ### Library, results and application
 
-- **REQ-006** — *Hanger library format 1.1.0.*
-  - **Schema.** The hanger library schema (DEL-03-02) admits format 1.1.0. A record may
-    carry `working_load_range` (a minimum and a maximum force, each with provenance).
-    The import boundary refuses, by name, the member in a 1.0.0 document (as an unknown
-    field), a range whose ends differ in unit, and a minimum not below its maximum read as
-    binary64 numbers. The last two rules apply only to a well-formed range.
-  - **Compatibility.** Format 1.0.0 documents import unchanged. Sizing lists their
-    records, and any 1.1.0 record without a range, as "not sizable: no working load
-    range". A stored 1.0.0 document needs no migration.
-  - **Constant records.** Sizing does not read a constant record's `constant_load`
-    (Design §8.2).
-- **AC-006** — Import tests show:
-  - 1.0.0 documents importing unchanged, and a 1.0.0 document with the new field
-    refused;
-  - a 1.1.0 document importing, with and without the range;
-  - the range refusals: equal ends, an inverted range, ends in different units, a
-    missing end and an extra member;
-  - provenance and units preserved;
-  - parity between the Rust import boundary and the Python provenance checker;
-  - every 1.0.0 record listed as not sizable, once sizing reads library records
-    (slice 1c).
-
-  The persistence change takes an independent review of the exact changed format and
-  commitment text.
+- **REQ-006** — *The sizing meaning of the hanger library.*
+  - **Working load range.** Sizing reads a record's `working_load_range`, which the hanger library format 1.1.0 carries (DEL-03-02, DEL-03-07). A record without one, in either library format, is listed as "not sizable: no working load range".
+  - **Constant records.** Sizing does not read a constant record's `constant_load` or any record's `movement_limit`, and the result says so.
+- **AC-006** — Every record without a working load range, a 1.0.0 record included, is listed as not sizable; a record with one is tested against it; and the result states that `constant_load` and `movement_limit` were not read.
 - **REQ-007** — *The hanger table, its basis and readers.*
   - **The table**, one row per candidate, gives:
     - the outcome and the selected record;
-    - the hot-load basis, the cold or constant load, and each case's operating load,
-      travel and variation, with the governing cases;
+    - the hot-load basis, the cold or constant load, and each case's operating load, travel and variation, with the governing cases;
     - the required travel;
     - the verified values;
     - for an unfitted candidate or a fallback, the count of records failing each test.
-  - **Derived solves.** The result also gives each candidate's cold-reference
-    displacement and each nonlinear support's states.
+  - **Derived solves.** The result also gives each candidate's cold-reference displacement and each nonlinear support's states.
   - **Basis.** A basis block states:
     - every request input;
     - the library id and hash;
     - the solve request's hash, which identifies the exact model and materials;
     - the route;
-    - each named case's role, its authored load categories and whether it uses an
-      operating-condition set.
+    - each named case's role, its authored load categories and whether it uses an operating-condition set.
 
-    It also states the installation assumption, that each spring is set at the drawn
-    geometry. The table labels the installed setting separately from the
-    cold-condition load (Design §8.3).
-  - **Document.** Results are published as a closed hanger-sizing result document
-    (Design §8.3). It embeds the sizing request, binds the solve request and library by
-    hash, and has two statuses: `sized`, meaning the algorithm completed (never
-    acceptance, and always with each outcome and the verification standing), and
-    `refused`.
-  - **Analysis run.** A hanger-sizing run kind awaits the joint analysis-run 0.4.0,
-    approved for design only. Until it is adopted, a sizing result is not a recordable
-    run.
-  - **Readers.** A Rust product reader and a test-only Python verifier that shares no
-    code with the producer. Each establishes the document's closure, its binding to the
-    inputs supplied, and arithmetic consistent with the published positions. The Rust
-    reader alone can establish reproduction from the bound inputs. No reader states that
-    the published positions are the model's mechanics without reproducing them.
-  - **CSV.** The table exports to CSV (Design §8.1), with the desktop work.
+    It also states the installation assumption, that each spring is set at the drawn geometry. The table labels the installed setting separately from the cold-condition load.
+  - **Document.** Results are published as a closed hanger-sizing result document. It embeds the sizing request, binds the solve request and library by hash, and has two statuses: `sized`, meaning the algorithm completed (never acceptance, and always with each outcome and the verification standing), and `refused`.
+  - **Recording.** A sizing run is recordable as a hanger-sizing analysis-run kind.
+  - **Readers.** A Rust product reader and a test-only Python verifier that shares no code with the producer. Each establishes the document's closure, its binding to the inputs supplied, and arithmetic consistent with the published positions. The Rust reader alone can establish reproduction from the bound inputs. No reader states that the published positions are the model's mechanics without reproducing them.
+  - **CSV.** The table exports to CSV through DEL-08-04's serializer.
 - **AC-007** — Maintained tests show:
-  - the two readers returning the same closure, binding and arithmetic verdicts for
-    every committed result and mutation (derivation and reproduction are the Rust
-    reader's alone);
-  - a self-consistent forgery of the positions that passes the arithmetic standing and
-    fails reproduction;
+  - the two readers returning the same closure, binding and arithmetic verdicts for every committed result and mutation (derivation and reproduction are the Rust reader's alone);
+  - a self-consistent forgery of the positions that passes the arithmetic standing and fails reproduction;
   - that the Python verifier imports no producer code (an independence test);
-  - each existing reader's actual named refusal or disclosure of the document, as
-    tested;
-  - the table in DEL-08-04's CSV coverage guard, with the desktop work.
+  - each existing reader's actual named refusal or disclosure of the document, as tested;
+  - the table in DEL-08-04's CSV coverage guard.
 - **REQ-008** — *Applying a selection.*
-  - Applying a selected record is the person's explicit act. It goes through the
-    existing hanger-selection operation builder and the one operation route, and is
-    applied only on the person's acceptance.
-  - The batch writes the record's family, stiffness, travel range, references and
-    provenance, and the sized loads, all into existing model members:
-    - for a variable record, the cold and installed loads (both the sized cold load) and
-      the hot load;
+  - Applying a selected record is the person's explicit act. It goes through the existing hanger-selection operation builder and the one operation route, and is applied only on the person's acceptance.
+  - The batch writes the record's family, stiffness, travel range, references and provenance, and the sized loads, all into existing model members:
+    - for a variable record, the cold and installed loads (both the sized cold load) and the hot load;
     - for a constant record, the constant load (the hot-load basis).
-  - Each sized value's source note names the sizing run, its request digest and the
-    record. Sizing itself never writes the model (Design §9).
+  - Each sized value's source note names the sizing run, its request digest and the record. Sizing itself never writes the model.
 - **AC-008** — Desktop tests show:
-  - the batch's before and after for a variable and a constant selection, with the
-    sized values and their source notes;
+  - the batch's before and after for a variable and a constant selection, with the sized values and their source notes;
   - nothing applied without acceptance;
   - the model unchanged by a sizing run.
 
 ### Domain, references, cost and surfaces
 
 - **REQ-009** — *Admitted and refused.*
-  - Sizing admits what the model's own solve admits, on PF and EX, plus the candidate
-    rules of REQ-002.
+  - Sizing admits what the model's own solve admits, on PF and EX, plus the candidate rules of REQ-002.
   - What the solve refuses refuses the request with the solve's code.
-  - Each standing refusal in this Must row is listed in
-    `docs/RELEASE_LIMITATIONS_v1.0.md` by the change that makes it standing.
-- **AC-009** — Each refusal and disclosure is exercised by a maintained test that
-  asserts its code and named object, on both routes once EX is admitted.
+  - Each standing refusal is listed in `docs/RELEASE_LIMITATIONS_v1.0.md`.
+- **AC-009** — Each refusal and disclosure is exercised by a maintained test that asserts its code and named object, on both routes.
 - **REQ-010** — *References.*
-  - **Derivation.** The references are derived and frozen under
-    `validation/references/hanger_sizing/` by a TASK that reads no product code, and
-    refuted by a second TASK before any product comparison.
+  - **Independence.** The references are frozen under `validation/references/hanger_sizing/`, each derived, with its generator, from this scope without reading product code; the generator imports none.
   - **Coverage.** They cover:
     - rigid reactions of continuous beams;
     - free riser growth;
@@ -429,131 +212,105 @@ suitability, and nothing here determines code compliance.
     - the verification pass;
     - a lift-off case;
     - the spring preload;
-    - the reference system's hangers, once its families solve on EX.
+    - the reference system's hangers on EX.
   - **Values.** All values are invented.
-  - **Tolerance.** The product is verified at an analytic tolerance under DEC-026,
-    measured and only tightened. Selection outcomes are exact.
-- **AC-010** — Each committed reference package has its refutation record. The
-  verification tolerance and its measurement are recorded.
+  - **Tolerance.** Values agree with the references to 1e-9 relative with an absolute floor (the DEC-026 analytic class); selections and fit outcomes agree exactly. The tolerance is only tightened, and a reference is never altered to make an implementation pass.
+- **AC-010** — The product agrees with every frozen reference package at the stated tolerance, and each generator imports no product code.
 - **REQ-011** — *Cost.*
-  - A request runs at most 2n + 3 ordinary solves for n operating cases, one after
-    another.
+  - A request runs at most 2n + 3 ordinary solves for n operating cases, one after another.
   - After each solve, only the values the table needs are kept.
   - Derived solves never enter the retained-precision entry.
-  - In the desktop, they run inside the solve worker under its per-invocation memory
-    budget, with no attestation digest.
-  - They go through one solve call site, so that the minimal publication planned for
-    derived solves can replace full publication there.
-  - The run reports progress per solve and can be cancelled between solves; a cancelled
-    run publishes nothing (Design §10).
+  - In the desktop, a sizing run stays within the solve worker's per-invocation memory budget.
+  - The run reports progress per solve and can be cancelled between solves; a cancelled run publishes nothing.
 - **AC-011** — Maintained tests show:
   - the solve count;
   - that no full result is retained between solves;
-  - that the solves run in the worker without an attestation digest;
+  - that a desktop sizing run stays within the per-invocation memory budget;
   - cancellation publishing nothing.
 
-  A hanger-sizing timing profile is added to the DEL-04-05 rack harness.
+  The DEL-04-05 rack harness carries a hanger-sizing timing profile.
 - **REQ-012** — *Desktop and report.*
   - The desktop takes the request with every input entered by the person. It shows:
     - the hanger table with its basis and disclosures;
-    - a detail view for one candidate that lists each record with its first failed test,
-      computed by the same function as the selection;
+    - a detail view for one candidate that lists each record with its first failed test, computed by the same function as the selection;
     - an action that applies a selection under REQ-008.
-  - The rendered report gains a "Hanger sizing" section: request, basis, table,
-    disclosures, refusals and limitations. Library-derived values in it follow the
-    report's privacy rules for library references.
+  - The rendered report gains a "Hanger sizing" section: request, basis, table, disclosures, refusals and limitations. Library-derived values in it follow the report's privacy rules for library references.
   - These surfaces follow the results viewer's and report generator's contracts.
-- **AC-012** — Desktop tests (Vitest) cover:
+- **AC-012** — Desktop tests cover:
   - the request form, with no pre-set choice in a new project;
   - the table and the detail view;
   - application;
   - the report section.
-- **REQ-013** — *Claims.* Product texts state the following, using the claims registry's
-  vocabulary (`docs/claims_registry.md`):
+- **REQ-013** — *Claims.* Product texts state the following, using the claims registry's vocabulary (`docs/claims_registry.md`):
   - sizing selects the user's own records by the user's own tests;
   - a result inherits the premises of the solves it uses;
   - it establishes neither the suitability of a hanger nor code compliance.
 
   No product text states or implies a claim that PRD §21.2 prohibits.
-- **AC-013** — The sizing product texts are pinned by maintained tests and reviewed
-  against `docs/claims_registry.md`, and GEN-13 passes over them.
+- **AC-013** — Every sizing product text states REQ-013's three statements and none of the claims PRD §21.2 prohibits.
 
 ### Spring preload
 
 - **REQ-014** — *A variable spring carries its cold load.*
-  - **Preload.** On both routes, the solve models a variable spring hanger as its
-    stiffness plus its `cold_load`. The cold load is applied as a constant force along
-    its stiffness DOF in every load case, through the constant-effort seam and under the
-    same combination gate. The spring carries the cold load minus its rate times its
-    displacement from the drawn geometry, relative to its base where the base moves.
-  - **Held springs.** In a case whose test condition holds springs, a held spring is a
-    rigid restraint of its DOF, and neither its stiffness nor its preload acts.
+  - **Preload.** On both routes, the solve models a variable spring hanger as DEL-04-03/REQ-014 states: its stiffness plus its `cold_load` as a constant force along its stiffness DOF. The cold load acts in every load case, through the constant-effort seam and under the same combination gate. The spring carries the cold load minus its rate times its displacement from the drawn geometry, relative to its base where the base moves.
+  - **Held springs.** In a case whose test condition holds springs, a held spring (DEL-05-01's held support) is a rigid restraint of its DOF, and neither its stiffness nor its preload acts.
   - **Recovery.** The spring's published support force includes the preload.
-  - **Diagnostics.** `SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD` is retired. A warning
-    is published where `installed_load` and `cold_load` differ.
-  - **Behaviour change.** Documents that carry `cold_load` solve differently after the
-    change. The change and the release-notes material state this.
-  - DEL-04-03's support model and commitment text change with this requirement (Agent 0,
-    D-3, 2026-10-31; Design §11).
-- **AC-014** — When built:
-  - the preload reference agrees with the force-plus-spring derived solve, in
-    displacements and in published support forces, including a moved base;
-  - targeted regression covers the spring-hanger tests and diagnostics, the
-    combination gate, and a held and an unheld spring, with no preload on the held one;
-  - the retained route is re-priced, with the registration reviewed;
-  - the reference system's spring results are updated with that lane.
+  - **Diagnostics.** No solve warns that a spring hanger's load is not applied as preload (`SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD` has no place). A warning is published where `installed_load` and `cold_load` differ.
+  - **Behaviour change.** A document that carries `cold_load` solves differently with the preload than without it, and the release notes say so.
+  - DEL-04-03/REQ-014 states the model; the rest of the law is stated here.
+- **AC-014** — Maintained checks show:
+  - the preload reference agrees with the force-plus-spring derived solve, in displacements and in published support forces, including a moved base;
+  - targeted regression covers the spring-hanger tests and diagnostics, the combination gate, and a held and an unheld spring, with no preload on the held one;
+  - the retained route's memory profile priced with the preload term, under the memory-pricing law (DEL-04-08/REQ-004);
+  - the reference system's spring results including the preload.
 
 ## Production and Verification Method — Praxeology
 
-The checks named here are planned; they do not exist yet. Each increment registers its
-checks in `software-workflow.json` and names them with their head in its pull request.
+**Method choices that define the product.**
 
-- **VER-001** — For REQ-001 and REQ-002: refusal tests at the product facade, the
-  headless runner and the desktop.
-- **VER-002** — For REQ-003: derived-document, lowering, ledger, state-disclosure and
-  failure tests, and the stored-model invariance test.
-- **VER-003** — For REQ-004 and REQ-005: product tests against the frozen references,
-  mutation tests per method choice and a determinism test.
-- **VER-004** — For REQ-006: import compatibility and parity tests.
-- **VER-005** — For REQ-007: Rust reader tests, the Python verifier with its
-  independence test, the shared mutation corpus and the CSV coverage guard.
-- **VER-006** — For REQ-008 and REQ-012: Vitest for the request form, table, detail
-  view, application and report section.
-- **VER-007** — For REQ-009: one maintained test per refusal and disclosure, on each
-  admitted route.
-- **VER-008** — For REQ-010: the refutation records and the tolerance record.
-- **VER-009** — For REQ-011: the solve-count, retention and cancellation tests.
-- **VER-010** — For REQ-013: pinned-text tests, GEN-13 and review against
-  `docs/claims_registry.md`.
-- **VER-011** — For REQ-014: the preload reference, the targeted regressions, and
-  DEL-04-08's actual-source D3 run with the AC-004 stack witnesses.
+- *One solve path.* Every derived solve is a modified copy of the model document sent through the product's own solve entry; sizing assembles no system of its own.
+- *One spring law.* F_cold − k·u from the drawn geometry is the only law, in sizing, verification, application and the solve.
+- *One fit function.* The selection and the detail view compute each record's first failed test with the same function.
+- *A closed result document.* The result embeds its request and binds its inputs by hash, so a reader can check it without the producer.
+- *Results, not edits.* Sizing never writes the model; application is a separate act through the operation route.
+- *Independent references.* A reference is written without reading product code and is refuted by a second agent that reads none, before any product comparison.
 
-Each numerical increment also gets the independent review that `AGENTS.md` requires.
+**How each criterion is examined.**
+
+- **VER-001** — Executable check: observes each request, case-role and candidate refusal with its code and named supports, and the absence of any default, at the product entry, the headless runner and the desktop.
+- **VER-002** — Executable check: observes each kind of derived document, the solve-time lowering applied to it, the ledger entry and support-state reconciliation on EX, the state disclosures and warnings, the refusal on a failed derived solve, and the stored model byte-identical after a run.
+- **VER-003** — Comparison with a named reference: the product against the frozen closed-form references in `validation/references/hanger_sizing`, at the verification tolerance and with selections exact, with a mutation of each method choice and repeat-run byte identity.
+- **VER-004** — Executable check: observes records with and without a working load range, in both library formats, listed and tested as AC-006 states, and the result's statement of the members not read.
+- **VER-005** — Executable check: observes the product reader and the test verifier returning the same verdicts on every committed result and mutation, the forged-positions case failing reproduction, the verifier importing no producer code, and the table's presence in the CSV coverage guard.
+- **VER-006** — Executable check: observes the request form, the table, the detail view, the application batch with nothing applied without acceptance, and the report section, in the desktop.
+- **VER-007** — Executable check: observes each refusal and disclosure with its code and named object, on both routes.
+- **VER-008** — Comparison with named references, with an executable check: the product against every frozen reference package at the stated tolerance; the check scans each generator's imports, and each reference package is derived and refuted under the independent-references method choice above.
+- **VER-009** — Executable check: observes the solve count, that no full result is kept between solves, the worker's peak footprint against the per-invocation budget, and that a cancelled run publishes nothing; the timing profile is measured through the performance harness.
+- **VER-010** — Executable check with judgment by a reviewer who did not write the text: the check observes the pinned product texts and runs the repository's check of claims vocabulary over them; the reviewer examines the texts against `docs/claims_registry.md`.
+- **VER-011** — Comparison with a named reference, with an executable check: the solve against the preload reference in `validation/references/hanger_sizing`; the check observes agreement with the force-plus-spring derived solve, the held and unheld spring, the combination gate, and the actual-source pricing audit with its stack witnesses (DEL-04-08/AC-004).
 
 ## Governing Values and Decisions — Axiology
 
-- **AX-001** — *No silent engineering defaults.* Every method choice is entered by the
-  user or refused (PRD §5.5). No catalogue, limit, allowance or rule ships.
-- **AX-002** — *Results, not edits.* Sizing never writes the model. Applying a selection
-  is the person's act through the one operation route.
-- **AX-003** — *One solve path.* Derived solves go through the model's own solve entry,
-  so they see exactly the loads, states and admissions the model's own solves see.
-- **AX-004** — *No relaxation.* References are never altered to make an implementation
-  pass.
-- **AX-005** — *Independent scrutiny.* Numerical and persistence changes get targeted
-  regression checks and independent review by a separate agent.
-- **AX-006** — *Private data stays private.* Catalogue records are the user's private
-  data. Only invented records enter the repository (`docs/IP_AND_DATA_BOUNDARY.md`).
-- **AX-007** — *Held by the owner:* release, acceptance and issuance, risk acceptance and
-  holds (F-PIP-3), and declaring a limitation acceptable.
+- **AX-001** — *No silent engineering defaults.* Fewer method values supplied by the product is better; the measure is the number of method inputs any entry supplies, and its target is zero (PRD §5.5). No catalogue, limit, allowance or rule ships, and ease of use never justifies a supplied value.
+- **AX-002** — *Results, not edits.* The model is written only by the person's applied selection through the one operation route. A faster path from a sizing result to the model never justifies a write the person did not accept.
+- **AX-003** — *One solve path.* Better is closer agreement between derived solves and the model's own solves, measured by identical loads, states and admissions, at fewer and cheaper derived solves. A lighter publication may reduce what is kept, but never changes those loads, states or admissions, and never becomes a second assembly.
+- **AX-006** — *Private data stays private.* Catalogue records are the user's private data. Only invented records enter the repository (`docs/IP_AND_DATA_BOUNDARY.md`), whatever a real record would add to a test.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | OBJ-003 SOW-083 | REQ-001 REQ-002 | AC-001 AC-002 | VER-001 | Refusal and no-default tests on every entry |
-| OUT-002 | OBJ-003 SOW-083 | REQ-003 CLM-001 | AC-003 | VER-002 | Derived-document, lowering, ledger and state tests; stored-model invariance |
-| OUT-003 | OBJ-003 SOW-083 | REQ-004 REQ-005 | AC-004 AC-005 | VER-003 | Reference, mutation and determinism tests on the candidate head |
-| OUT-004 | OBJ-003 SOW-083 | REQ-006 REQ-007 REQ-008 | AC-006 AC-007 AC-008 | VER-004 VER-005 VER-006 | Import compatibility, matching reader verdicts, CSV guard, application tests |
-| OUT-005 | OBJ-003 SOW-083 | REQ-009 REQ-010 REQ-011 REQ-012 REQ-013 CLM-002 CLM-003 | AC-009 AC-010 AC-011 AC-012 AC-013 | VER-006 VER-007 VER-008 VER-009 VER-010 | Refusal tests, refutation records, cost tests, desktop tests, pinned texts and claims lint |
-| OUT-006 | OBJ-003 SOW-083 | REQ-014 | AC-014 | VER-011 | Preload reference, targeted regressions and D3 re-pricing |
+| OUT-001 | OBJ-003 SOW-083 | REQ-001 | AC-001 | VER-001 | Owner ruling: the refusal list in REQ-001 (SOW-083; PRD §5.5 and §12.4) |
+| OUT-001 | OBJ-003 SOW-083 | REQ-002 | AC-002 | VER-001 | Owner ruling: the refusal list in REQ-002 (SOW-083; PRD §12.4) |
+| OUT-002 | OBJ-003 SOW-083 | REQ-003 CLM-001 | AC-003 | VER-002 | The criterion states the expected derived documents and refusals. The stored model's byte identity after a run compares the product with its own earlier bytes and only guards against change |
+| OUT-003 | OBJ-003 SOW-083 | REQ-004 | AC-004 | VER-003 | Outside source: the frozen closed-form references in `validation/references/hanger_sizing` (continuous-beam reactions by three moments, free riser growth, the sizing arithmetic as exact identities), from generators that import no product code; the mutation outcomes follow the rules REQ-004 states. Repeat-run identity only guards against change |
+| OUT-003 | OBJ-003 SOW-083 | REQ-005 | AC-005 | VER-003 | Outside source: the one-spring closed form and the mixed and lift-off references in `validation/references/hanger_sizing`, from generators that import no product code |
+| OUT-004 | OBJ-003 SOW-083 | REQ-006 | AC-006 | VER-004 | The criterion states the expected listing; the range's shape is DEL-03-02's |
+| OUT-004 | OBJ-003 SOW-083 | REQ-007 | AC-007 | VER-005 | Outside source: a Python verifier that shares no producer code. Existing readers' handling of the document and the committed documents are the product's own earlier output and only guard against change |
+| OUT-004 | OBJ-003 SOW-083 | REQ-008 | AC-008 | VER-006 | The criterion states the batch's expected before and after; that the model changes only by the person's act is an owner ruling (SOW-083) |
+| OUT-005 | OBJ-003 SOW-083 | REQ-009 CLM-002 CLM-003 | AC-009 | VER-007 | Owner ruling: the refusals REQ-009 names and release target exit criteria 1 and 3 |
+| OUT-005 | OBJ-003 SOW-083 | REQ-010 | AC-010 | VER-008 | Outside source: the frozen reference packages, derived without reading product code, from generators that import none (release target exit criterion 2); the tolerance is an owner ruling (DEC-026) |
+| OUT-005 | OBJ-003 SOW-083 | REQ-011 | AC-011 | VER-009 | The criterion states the expected solve count and behaviour; the memory budget is an owner ruling |
+| OUT-005 | OBJ-003 SOW-083 | REQ-012 | AC-012 | VER-006 | Owner ruling: PRD §5.5 for the absence of a pre-set choice; the criterion states the expected behaviour of the surfaces |
+| OUT-005 | OBJ-003 SOW-083 | REQ-013 | AC-013 | VER-010 | Owner ruling: PRD §21.2 and `docs/claims_registry.md` |
+| OUT-006 | OBJ-003 SOW-083 | REQ-014 | AC-014 | VER-011 | Outside source: the closed-form preload reference (force plus spring) in `validation/references/hanger_sizing`, from a generator that imports no product code. Agreement with the force-plus-spring derived solve is the product's own output and only guards against change |

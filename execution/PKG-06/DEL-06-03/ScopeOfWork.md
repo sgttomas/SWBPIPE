@@ -2,320 +2,117 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-06-03
 package_id: PKG-06
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-004]
 package_objective_refs: [OBJ-002, OBJ-005]
 ---
 
-# Scope of Work — DEL-06-03
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency conditions are declared in this deliverable's `deliverable.yaml`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+# Scope of Work — DEL-06-03 Required-input completeness checker
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-06-03` in service of project scope [SOW-004] and package objectives [OBJ-002, OBJ-005].
+A user-rule outcome is reported only when everything the user's rule needs is really there. For each check, on each load case it applies to, the product binds the pack's declared inputs to the solved result, to the values the user enters and to the user's private library. An input that is missing, in an incompatible unit, without provenance or suspected of being protected content makes that outcome incomplete, with a finding that names the input, and the check is not evaluated there. A missing rule value never stops or alters the mechanics solve and is never replaced by a default. The result this deliverable contributes is that code-specific data is always the user's own, visibly, and that no outcome is ever computed on data that was not supplied.
 
-- **OUT-001** — A required-input-completeness contract connecting declarative rule-pack requirements to project, model, and user-supplied data, with explicit missing, unit-incompatible, unprovenanced, and rule-check-blocking findings, is produced for the declared scope and objectives.
+It serves SOW-004 under OBJ-002 and OBJ-005 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-06, row DEL-06-03), and `docs/PRD.md` §5.4, §5.5, §17.5, FR-RULE-003, §14.4 and §10.6 step 5, with `docs/CONTRACT.md` OPS-K-DATA-1, OPS-K-DATA-2, OPS-K-DATA-3 and OPS-K-IP-3. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names it. Under the owner's ruling on rule packs there (OC-6), a user-rule outcome is shown as within or exceeding the user's limit, so that no outcome reads as compliance.
+
+- **OUT-001** — The required-input completeness gate of a rule-check run: the binding of a pack's declared inputs to solved results, entered values and private library values; the finding for each input that is missing, unit-incompatible, unprovenanced or suspected protected; the outcome of each check on each basis; the pack aggregate; and the run result that carries them.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-06-03 Required-input completeness checker
+**Terms the run implements.** A basis, the basis plan and the row selector are defined by the pack format (DEL-06-01).
 
-> #### Datasheet: DEL-06-03 Required-input completeness checker
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *Rule-check run.* The application of one validated pack to one solved result of one model. A pack with a blocking validation finding is not run: its result has no outcomes and is incomplete.
+- *Binding a solver result.* On each basis, a solver-result input binds the one row its selector selects among the rows of that basis. No row, or more than one, leaves the input unsupplied on that basis. The pack's own selector is the only route: a row selection supplied by the caller is refused by name.
+- *Eligibility.* A row is bound only from a result whose mechanics are solved and that the result reader finds numerically eligible, and only if the reader does not refuse that row for rule binding. A refused row leaves the input unsupplied on that basis, with the reader's reason. A row without a basis is never bound, and under a combination the row bound is the combination's result, never an operand of it.
+- *Entered values.* A user-supplied rule value, and the limit a value slot names, are entered by the user for the run, each with its unit. They are the same on every basis.
+- *Private library value.* Read at the run from the slot the pack's reference names, in the user's local library. The value is never in the pack. A reference that cannot be resolved leaves the input unsupplied.
+- *Required load case availability.* A required load case that the model does not hold is missing. One that the model holds but the solved result has no rows for is unsolved. Either makes every check mapped to it incomplete on that basis.
+- *Complete input.* An input supplied with a value, a unit of the declared dimension, accepted provenance, a redistribution status and an accepted review standing, and not suspected of being protected content. Each defect is a blocking finding that names the input.
+- *Declared unit.* A bound value in another unit of the declared dimension is converted to the declared unit through the unit catalog before evaluation. A value that cannot be converted blocks.
+- *Acceptability.* A formula that yields a truth value is the outcome. A formula that yields a quantity is compared with the user-supplied limit that the check's value slots name, by the check's relation, through the evaluator. An unrecognized relation blocks; it is never read as less-than-or-equal.
+- *Outcome.* One for each check on each of its bases, in check order and then mapping order: within the user's limit, exceeding it, or incomplete. The run result carries these as the status tokens `USER_RULE_CHECKED`, `USER_RULE_FAILED` and `RULE_INPUTS_INCOMPLETE`. An outcome holds its category, its basis, the computed value, the limit, the relation, the bound inputs and the findings of that basis alone. Nothing is merged across bases.
+- *Aggregate.* Incomplete if any outcome is incomplete; otherwise exceeding if any outcome exceeds; otherwise within. Its counts are counts of outcomes, so one check can contribute more than once. The pack never headlines within or exceeding while any outcome is incomplete, and an exceeding outcome stays visible under an incomplete aggregate.
+- *Rule-check blocking.* The class of a missing rule input. It is distinct from solve blocking, the class of a missing physical input, and it never changes the mechanics status.
 
-### CLM-003 — Identification
+**Undecided.** The words a person is shown for the outcome tokens are the display forms of the claims registry (DEL-01-04), where the form that follows the owner's ruling is undecided. Whether the run's notice must be a registered statement is also undecided: AC-011 requires one, and the registry holds none for the rule-check run notice, which keeps text of its own.
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-06-03 |
-> | Deliverable name | Required-input completeness checker |
-> | Package ID | PKG-06 |
-> | Package name | Rule Packs and User-Supplied Code Check Engine |
-> | Deliverable type | BACKEND_FEATURE_SLICE |
-> | Scope item | SOW-004 |
-> | Supported objectives | OBJ-002, OBJ-005 |
-> | Context envelope | M |
-> | Current production mode | Contract with current completeness-checker implementation evidence |
->
-
-### CLM-004 — Attributes
-
-> ##### Attributes
->
-> | Attribute | Source-grounded value |
-> |---|---|
-> | Primary behavior | Identify missing rule-pack-required user inputs and prevent rule-check status from advancing when those inputs are absent. |
-> | Protected-data boundary | The checker must not bundle protected standards text, code tables, allowables, SIF/flexibility factors, proprietary formulas, or code-specific defaults. |
-> | User-data boundary | Code-specific and project-specific values remain user-supplied or privately imported data with provenance. |
-> | Status vocabulary | The relevant analysis state is `RULE_INPUTS_INCOMPLETE`; software must not emit automatic `CODE_COMPLIANT` status. |
-> | Warning class | Missing rule-pack input is a `RULE_CHECK_BLOCKING` condition, distinct from solve-blocking physical data. |
-> | Professional boundary | Checker output is a software finding; professional acceptance remains outside solver/rule code. |
->
-
-### CLM-005 — Conditions
-
-> ##### Conditions
->
-> | Condition | Handling |
-> |---|---|
-> | Required code/project input missing | Emit an explicit missing-input finding and block user-rule-check completion. |
-> | Required physical input missing | Keep classified separately as solve-blocking, not rule-check-blocking. |
-> | Input exists but provenance is absent or weak | Surface provenance warning; do not silently accept as reliable. |
-> | Rule pack requests protected bundled data | Treat as data-boundary/IP issue and escalate rather than fill a default. |
-> | Completeness cannot be determined | Mark as `TBD` or equivalent unresolved finding; do not infer engineering values. |
->
-
-### CLM-006 — Construction
-
-> ##### Construction
->
-> This contract defines the completeness-checker boundary, realized in `core/rules/completeness_checker/`. It supplies no code formulas, material allowables or design-code tables.
->
-> The implementation must consume a rule-pack schema contract from DEL-06-01, analysis-status semantics from DEL-05-04, and diagnostics/result-envelope constraints from the architecture basis. Those dependencies are recorded as information-flow dependencies, not as schedule decisions.
->
-
-### CLM-007 — References
-
-> ##### References
->
-> | Source | Used for |
-> |---|---|
-> | `loop/LOOP_INIT.md` | Bootstrap boundaries for open mechanics, user rule checks, and professional responsibility. |
-> | `AGENTS.md` | TASK dispatch boundary and sealed deliverable discipline. |
-> | `docs/CONTRACT.md` | Invariants OPS-K-DATA, OPS-K-RULE, OPS-K-IP, OPS-K-AGENT, and professional authority constraints. |
-> | `docs/DIRECTIVE.md` | No silent defaults, private code data, and human authority principles. |
-> | `docs/TYPES.md` | Analysis statuses, epistemic labels, provenance labels, and rule-pack vocabulary. |
-> | `docs/SPEC.md` | Rule-pack object, required inputs, evaluator constraints, warning classes, report notices, and acceptance semantics. |
-> | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data rules, quarantine expectations, and private rule-pack handling. |
-> | `docs/VALIDATION_STRATEGY.md` | Rule-pack missing-input test expectation. |
-> | `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-06 and DEL-06-03 decomposition context. |
-> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | Machine-readable deliverable row. |
-> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | SOW-004 scope mapping. |
+**Boundary.** This deliverable decides whether a check may be evaluated and reports its outcome. The pack format and its validation are DEL-06-01's. Evaluating a formula is DEL-06-02's. The pack's lifecycle findings and checksum are DEL-06-04's. Solve-required physical inputs and their diagnostics are DEL-04-06's. The status vocabulary is DEL-02-03's and DEL-05-04's. How findings and outcomes are shown is DEL-07-04's and DEL-07-05's, how they are reported is DEL-08-01's, and the rule status an analysis run records is DEL-14-02's. No public artifact of this deliverable holds a code formula, allowable or default.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-008 — Specification: DEL-06-03 Required-input completeness checker
+A complete input is a supplied and sourced one. Completeness establishes nothing about whether the value is right, and an outcome is a computation on the user's data, never a determination of compliance.
 
-> #### Specification: DEL-06-03 Required-input completeness checker
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+### Requirements
 
-### CLM-010 — Scope
+Requirement numbers 001 to 007 are those of the earlier `R-DEL-06-03-0nn` series.
 
-> ##### Scope
->
-> This deliverable specifies the contract boundary for a required-input completeness checker for user-defined rule packs. The checker must connect a rule pack's declared required inputs to project/model/user-supplied data and prevent a user-rule-check status from being reported when required rule-check data is missing.
->
-> Current source/tests are `core/rules/completeness_checker/`; code-specific formulas, allowables and standards-derived defaults remain excluded.
->
-> Current implementation (at `62c1efd75b`): the product calls the checker through `core/rules/rule_check_runner/src/lib.rs`, which reports a check with missing inputs as `RULE_INPUTS_INCOMPLETE` without evaluating it. The desktop Run Rule Checks panel (`apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx`, via `apps/desktop/src/services/ruleCheckService.ts`) reaches it through the Tauri command `run_rule_checks` in `apps/desktop/src-tauri/src/lib.rs`.
->
+- **REQ-001** — A missing rule-check-required value is an explicit finding, never a silent default.
+- **REQ-002** — Code-specific and project-specific values are supplied by the user or imported privately. None is bundled as a public default.
+- **REQ-003** — Rule-pack values, materials, components, SIF and flexibility factors, allowables and related inputs carry provenance where they are relied upon.
+- **REQ-004** — Completeness is machine-checkable from the pack's declarative input declarations, not from arbitrary executable code.
+- **REQ-005** — A missing rule-pack input maps to a rule-check-blocking condition, distinct from a solve-blocking physical input.
+- **REQ-006** — The run asserts no code compliance, certification, approval, sealing or professional reliance (PRD §21.2).
+- **REQ-007** — Suspected protected or proprietary data is surfaced, blocks and is escalated for human review; it is not turned into public data (`docs/CONTRACT.md` OPS-K-IP-3).
+- **REQ-008** — No user-rule outcome, within or exceeding the user's limit, is reported for a check on a basis whose required values are not all present, and the pack aggregate is incomplete while any outcome is incomplete (FR-RULE-003; PRD §17.5).
+- **REQ-009** — A run yields one outcome for each check on each load case or combination its category maps, and realizes DEL-06-01/REQ-013: a basis that is absent from the model, unsolved or lacking a row the check needs is incomplete and not evaluated, and the check's other outcomes are reported independently.
+- **REQ-010** — Where the pack declares a dimension or unit, binding is unit-aware: a bound value is in its declared unit, or is converted to it through the unit catalog, before it is used.
+- **REQ-011** — Every finding of a run carries the governed diagnostic fields: code, class, severity, source, affected object, message, remediation and provenance (also cited as DEL-06-03:1 and DEL-06-02:2).
+- **REQ-012** — The fixtures of this deliverable and the invented example pack are reviewed for public and default data (also cited as DEL-06-03:1).
 
-### CLM-011 — Requirements
+### Acceptance criteria
 
-> ##### Requirements
->
-> | ID | Requirement | Source basis | Verification approach |
-> |---|---|---|---|
-> | R-DEL-06-03-001 | Missing rule-check-required values must be explicit findings, never silent defaults. | `docs/CONTRACT.md` OPS-K-DATA-2; `docs/DIRECTIVE.md` no silent engineering defaults | Future unit tests for missing required inputs and explicit findings. |
-> | R-DEL-06-03-002 | Code-specific and project-specific values must be user-supplied or privately imported, not bundled as public defaults. | `docs/CONTRACT.md` OPS-K-DATA-1; `docs/IP_AND_DATA_BOUNDARY.md` private user data | Protected-content and default-data review of checker fixtures. |
-> | R-DEL-06-03-003 | Rule-pack values, materials, components, SIF/flexibility factors, allowables, and related inputs must carry provenance where relied upon. | `docs/CONTRACT.md` OPS-K-DATA-3; `docs/TYPES.md` provenance labels | Schema/provenance validation in future feature tests. |
-> | R-DEL-06-03-004 | Completeness must be machine-checkable from declarative rule-pack input declarations, not arbitrary executable code. | SOW-004; `docs/SPEC.md` rule-pack `required_inputs`; OPS-K-RULE-2 | Future tests bind rule-pack required-input declarations to missing-input diagnostics without executing arbitrary code. |
-> | R-DEL-06-03-005 | Missing rule-pack input must map to a rule-check-blocking condition distinct from solve-blocking physical input. | `docs/SPEC.md` warning classes; `docs/TYPES.md` `RULE_INPUTS_INCOMPLETE` | Status/diagnostic tests verify `RULE_CHECK_BLOCKING` classification. |
-> | R-DEL-06-03-006 | The checker must not assert code compliance, certification, approval, sealing, or professional reliance (PRD §21.2). | OPS-K-AUTH-1; `docs/TYPES.md` analysis-status vocabulary | Report/API text review and future status tests exclude automatic `CODE_COMPLIANT`. |
-> | R-DEL-06-03-007 | Suspected protected or proprietary data requests must be surfaced and escalated, not translated into public data. | OPS-K-IP-1/2/3; `docs/IP_AND_DATA_BOUNDARY.md` quarantine rule | Protected-content lint and quarantine-path tests in later implementation. |
->
-
-### CLM-012 — Standards
-
-> ##### Standards
->
-> No standards-body formulas, allowables, tables, text, examples, or code-specific interpretations are included in this setup artifact. Any future private project use of licensed standards data must remain user-controlled and provenance-marked.
->
-
-### CLM-013 — External Inputs
-
-> ##### External Inputs
->
-> | Input | Required from | Notes |
-> |---|---|---|
-> | Rule-pack schema required-input declarations | DEL-06-01 Rule-pack schema | Needed before executable completeness checking can be implemented. |
-> | Analysis status semantics | DEL-05-04 Analysis status semantics | Needed to bind missing inputs to `RULE_INPUTS_INCOMPLETE` without compliance claims. |
-> | Diagnostics/result envelope contract | Architecture basis AB-00-06 | Needed for `RULE_CHECK_BLOCKING` findings and remediation text. |
-> | User/project rule data | User-controlled private rule pack/project files | Must not be bundled into the public repository by this deliverable. |
->
-
-### CLM-014 — Verification
-
-> ##### Verification
->
-> Future implementation verification must include:
->
-> - rule-pack missing-input tests using invented/non-code data only;
-> - unit-aware binding checks where the rule-pack schema declares dimensions or units;
-> - tests that missing code/project inputs block rule-check status but do not block the mechanics solve status by default;
-> - tests that no protected defaults, code-specific formulas, or material allowables are shipped;
-> - tests that output messages preserve the professional responsibility boundary.
->
-
-### CLM-015 — Documentation
-
-> ##### Documentation
->
-> Required setup artifacts for this deliverable are:
->
-> - `ScopeOfWork.md` (definition)
-> - `ScopeOfWork.md` (requirements)
-> - `ScopeOfWork.md` (rationale)
-> - `ScopeOfWork.md` (procedure)
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
-> - `Dependencies.csv`
-> - `_DEPENDENCIES.md`
-> - `_run_records/*`
-> - `_STATUS.md`
->
-> Implementation evidence is the source and tests in `core/rules/completeness_checker/`; uncovered integration requirements remain separately actionable.
-
-- **AC-001** — The contract preserves the accepted separation between solve-blocking physical inputs and rule-check-required data, explicit no-default behavior, private user-data and protected-content boundaries, and professional responsibility, while applying the DEC-022 grammar decision and inventing no engineering values.
+- **AC-001** — For each way an input can be incomplete (no value, no unit, another dimension, a unit that cannot be converted, provenance missing or unknown, redistribution status missing, review pending or rejected, protected content suspected), a run on a constructed pack gives an incomplete outcome with a blocking finding that names the input and the reason. Nothing is evaluated on that basis and no value is substituted. The finding for suspected protected content marks the input for human review.
+- **AC-002** — A run on a solved model with a rule input missing leaves the mechanics status and every mechanics result unchanged, and the finding's class is rule-check blocking, never solve blocking.
+- **AC-003** — On an invented model with two load cases and a combination: a check mapped to two load cases yields two outcomes, each bound to its own basis's row; a check mapped to the combination binds the combination's row; and a required load case that is absent from the model, has no result rows, has no row the selector selects or has more than one makes that outcome incomplete with its named finding while the check's other outcomes are reported. No value, input or finding appears on a basis it did not come from.
+- **AC-004** — A row the result reader refuses for rule binding is never bound, a result whose mechanics are not solved or that is not numerically eligible yields no outcome that is within or exceeding, and a row selection supplied by the caller is refused by name.
+- **AC-005** — A value bound in another catalog unit of the declared dimension gives the same computed value and outcome as the same quantity entered in the declared unit. For each of the four relations, a computed value below, at and above the limit gives the outcome the relation defines, and an unrecognized relation blocks.
+- **AC-006** — A private-library input resolved from the user's local library gives the outcome its value implies, the value appears in no pack document, and an unresolvable reference leaves the input unsupplied and the outcome incomplete.
+- **AC-007** — The aggregate is incomplete when any outcome is incomplete, otherwise exceeding when any outcome exceeds, otherwise within, and the counts equal the number of outcomes of each kind. A check that exceeds on one basis and is incomplete on another is counted once in each.
+- **AC-008** — A pack with a blocking validation finding yields a run result with no outcomes and an incomplete aggregate.
+- **AC-009** — Outcomes are identified by check and basis, and a rerun and a reordering of the solved result's rows give the same outcomes in the same order.
+- **AC-010** — A run result validates against its schema, and every finding in it carries a code, class, severity, source, affected object, message and remediation, with provenance where it concerns a sourced value.
+- **AC-011** — The statuses a run can emit are the three outcome tokens. No status, finding, message or notice of a run states or implies a pass, compliance, certification or approval, and its notice is a statement of the claims registry.
+- **AC-012** — The fixtures of this deliverable and the invented example pack hold no code-specific or protected value and no default for a rule input.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-016 — Procedure: DEL-06-03 Required-input completeness checker
+**Method choices that define the run.**
 
-> #### Procedure: DEL-06-03 Required-input completeness checker
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- Completeness is decided before evaluation, from declarations and bindings alone. A check that is not complete on a basis is never evaluated there.
+- One binding route for solver results: the selector the pack's author wrote. Nothing is bound by position or by a row identifier chosen at run time.
+- Each basis is evaluated with only that basis's values, refusals and findings.
+- Library values are resolved at the run from the user's local library and travel in no pack.
+- The run is pure computation over the pack, the model, the solved result and the supplied values; it reads and writes nothing else.
 
-### CLM-018 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> Define maintenance and verification of the required-input completeness checker, preserving the accepted schema/status contracts and explicit missing-input behavior.
->
-
-### CLM-019 — Prerequisites
-
-> ##### Prerequisites
->
-> | Prerequisite | Status for setup | Notes |
-> |---|---|---|
-> | Sealed DEL-06-03 context | Available | `_CONTEXT.md` identifies SOW-004, OBJ-002, and OBJ-005. |
-> | Governing data/IP boundary | Available | `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, and `docs/IP_AND_DATA_BOUNDARY.md`. |
-> | Rule-pack schema contract | Current contract carrier exists | DEL-06-01 owns `schemas/rule_pack.schema.yaml`; required-input conformance remains verified at the consuming boundary. |
-> | Analysis status semantics | Current contract carrier exists | DEL-05-04 supplies the governed status vocabulary; this reference does not alter dependency satisfaction metadata. |
-> | Rule expression grammar/library | DEC-022 | Preserve the accepted typed AST grammar. |
->
-
-### CLM-020 — Steps
-
-> ##### Steps
->
-> 1. Confirm the deliverable identity and scope match `DEL-06-03`, `PKG-06`, and SOW-004.
-> 2. Preserve the protected-data boundary by excluding standards text, tables, code formulas, allowables, SIF/flexibility data, vendor proprietary data, and private rule-pack content.
-> 3. Define required checker behavior in terms of declarative required-input metadata, missing-input findings, provenance expectations, and status gating.
-> 4. Keep solve-required missing data separate from rule-check-required missing data.
-> 5. Require future tests to verify that missing rule-pack inputs produce `RULE_CHECK_BLOCKING` / `RULE_INPUTS_INCOMPLETE` behavior without asserting professional compliance.
-> 6. Record dependencies on schema/status/diagnostic contracts in `Dependencies.csv`.
-> 7. Leave implementation code, checker modules, schemas, and tests untouched for this setup-only run.
->
-
-### CLM-021 — Verification
-
-> ##### Verification
->
-> For this setup run, verify:
->
-> - the `ScopeOfWork.md` exists;
-> - `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` exist and preserve lens-not-authority language;
-> - `Dependencies.csv` validates against the v3.1 schema;
-> - `_DEPENDENCIES.md` counts match the CSV;
-> - Preserve `_STATUS.md` lifecycle; completion of document or implementation checks is evidence, not an automatic transition.
-> - no files outside the DEL-06-03 write scope were edited.
->
-
-### CLM-022 — Records
-
-> ##### Records
->
-> The setup records are the deliverable-local documents, dependency register, semantic artifacts, status history, and run records under `_run_records/`.
-
-- **VER-001** — Validate the contract and review source parity, declarative input binding, completeness and provenance classes, unit compatibility, RULE_INPUTS_INCOMPLETE and RULE_CHECK_BLOCKING behavior, schema/status dependencies, protected-content escalation, and surviving governed conflicts.
+- **VER-001** — AC-001, AC-002 and AC-008, executable check: runs constructed packs with each defect of an input and with a blocking validation finding, and observes the outcome, the finding, the absence of an evaluated value and the mechanics status before and after.
+- **VER-002** — AC-003, AC-004 and AC-009, executable check: runs packs on an invented two-case model with a combination and on solved results that hold refused rows, tie rods and held operands, and observes each outcome's basis, bound row and findings, on a rerun and with the rows reordered.
+- **VER-003** — AC-005 and AC-007, comparison with a named reference: outcomes and aggregates worked by hand from the four ordering relations and the units' public definitions on invented values.
+- **VER-004** — AC-006, executable check: runs a pack with a private-library input against a local library that holds the record, and against one that does not, and searches the pack document for the value.
+- **VER-005** — AC-010, executable check: validates run results against the run-result schema under a validator that imports no product code, and observes the fields of every finding.
+- **VER-006** — AC-011 and AC-012, judgment by a reviewer who did not write the run, with the claims-language and protected-content scans: examines the status, finding and notice texts against `docs/claims_registry.md`, and the fixtures and the example pack for code-specific or default data.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-023 — Guidance: DEL-06-03 Required-input completeness checker
-
-> #### Guidance: DEL-06-03 Required-input completeness checker
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-025 — Purpose
-
-> ##### Purpose
->
-> The required-input completeness checker protects the boundary between an open mechanics solve and a user-defined rule-pack check. A mechanics result may exist while a rule-check result is blocked because the user has not supplied required code-specific or project-specific data.
->
-
-### CLM-026 — Principles
-
-> ##### Principles
->
-> 1. Missing rule-check data is a finding.
-> 2. Code-specific defaults are not invented by the public project.
-> 3. User rule packs are user-owned or private design-basis artifacts unless explicitly contributed with redistribution rights.
-> 4. The checker gates software status only; acceptance and professional judgment remain with the responsible engineer.
-> 5. Provenance is part of completeness whenever reliance on the supplied value may affect engineering judgment.
->
-
-### CLM-027 — Considerations
-
-> ##### Considerations
->
-> The checker should eventually be strict about required-input declarations while staying neutral about the content of private rule packs. It can say that a required value is absent, unit-incompatible, unprovenanced, or unresolved. It must not embed standards-body tables, quote protected clauses, derive protected formulas, or silently choose engineering values.
->
-> Completeness should be machine-checkable from declarative metadata. If a future rule pack needs code-specific formulas or allowables, those belong in the user's private rule pack or another lawfully redistributable source with provenance.
->
-
-### CLM-028 — Trade-offs
-
-> ##### Trade-offs
->
-> | Trade-off | Guidance |
-> |---|---|
-> | Strict blocking vs. user convenience | Prefer explicit blocking for missing declared required inputs. Convenience must not create hidden defaults. |
-> | Provenance warning vs. missing input | Distinguish "value absent" from "value present but source weak or unknown." |
-> | Public examples vs. realistic code data | Use invented non-code examples in public artifacts. Do not approximate protected standards data. |
-> | Software finding vs. professional judgment | Report a machine finding and keep professional acceptance outside the rule engine. |
->
-
-### CLM-029 — Examples
-
-> ##### Examples
->
-> This setup artifact intentionally includes no engineering example values. Later public tests should use invented/non-code placeholder rule packs that demonstrate missing-input behavior without resembling protected standards content.
->
-
-### CLM-030 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | CF-DEL-06-03-001 | Grammar selection resolved by DEC-022. | DEC-022 | Rule-pack evaluator contract | External inputs; Prerequisites | Preserve the declarative AST and checker/evaluator boundary. | DEC-022; no new acceptance. |
+- **AX-001** — *Incomplete before wrong.* Better is fewer outcomes reported as within or exceeding on data that was absent, ambiguous or unvetted; the target is none. Convenience never fills a value, chooses among ambiguous rows or relaxes a provenance requirement.
+- **AX-002** — *Say what to supply.* Better is a larger share of incomplete outcomes whose findings name the input, the basis and what the user can supply. A finding never suggests an engineering value.
+- **AX-003** — *The mechanics stand alone.* Better is fewer paths by which a rule run can read back into or hold up a solve; the target is none. A gap in rule data never blocks, delays or changes a mechanics result, however complete the rule check would otherwise look.
+- **AX-004** — *An exceeding outcome is never hidden.* Better is more of each outcome's detail kept separate by check and load case. Outcomes are never collapsed across load cases, and an incomplete aggregate never removes an exceeding outcome from view.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-004 OBJ-002 OBJ-005 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-06-03:1** — Carry completeness findings through the governed diagnostic fields including remediation, class and provenance, and bind a public/default-data review or registered check to checker fixtures and the invented pack. (R5 continuation claim references: DEL-06-03:SOW#CLM-013.r03; CLM-014; CLM-011/R-DEL-06-03-002.)
+| OUT-001 | SOW-004 OBJ-002 OBJ-005 | REQ-001 REQ-003 REQ-004 REQ-007 REQ-008 | AC-001 | VER-001 | Owner ruling: PRD §5.5, §17.5 and FR-RULE-003. The packs are constructed, so the criterion states the expected outcome and finding |
+| OUT-001 | SOW-004 OBJ-005 | REQ-005 | AC-002 | VER-001 | Owner ruling: PRD §14.4 and §17.5. The mechanics result compared is the solve's own, which this deliverable did not write |
+| OUT-001 | SOW-004 OBJ-005 | REQ-008 REQ-009 | AC-003 | VER-002 | Owner ruling: one outcome for each check on each mapped load case or combination, adopted by the owner under PRD §17.2 (load-case mappings) and FR-RULE-003. DEL-06-01/REQ-013 holds the shared definition. The model and packs are constructed, and the criterion states each expected outcome |
+| OUT-001 | SOW-004 OBJ-005 | REQ-001 REQ-009 | AC-004 | VER-002 | The refusal and the eligibility verdict are the result reader's, which this deliverable did not write; the criterion states that neither is bound |
+| OUT-001 | SOW-004 OBJ-005 | REQ-010 | AC-005 | VER-003 | Outside source: the units' public definitions and the ordering relations, a closed form on invented values. The relation set is the owner's ruling DEC-039 |
+| OUT-001 | SOW-004 OBJ-002 | REQ-002 | AC-006 | VER-004 | Owner ruling: DEC-038, a library value is referenced and never embedded. The library and pack are constructed |
+| OUT-001 | SOW-004 OBJ-005 | REQ-008 | AC-007 | VER-003 | Owner ruling: the owner's reading of FR-RULE-003, stated in the aggregate's definition. The expected aggregate is fixed by that rule for each constructed set of outcomes |
+| OUT-001 | SOW-004 OBJ-005 | REQ-008 | AC-008 | VER-001 | Owner ruling: PRD §10.6 steps 3 and 5, a pack is validated before it is applied, and §17.5, no outcome without the required values. The pack is constructed, so the criterion states the expected result |
+| OUT-001 | SOW-004 OBJ-005 | REQ-009 | AC-009 | VER-002 | The criterion fixes the expected result: equality between runs and row orders |
+| OUT-001 | SOW-004 OBJ-005 | REQ-011 | AC-010 | VER-005 | Owner ruling: the decomposition's AB-00-06 names the fields. Outside source for the schema check: the JSON Schema 2020-12 specification, applied without product code |
+| OUT-001 | SOW-004 OBJ-005 | REQ-006 | AC-011 | VER-006 | Owner ruling: PRD §21.2, the rule-pack ruling OC-6 and `docs/claims_registry.md` |
+| OUT-001 | SOW-004 OBJ-002 | REQ-002 REQ-012 | AC-012 | VER-006 | Owner ruling: PRD §5.4 and §20.1. The reviewer compares against sources the product did not write |

@@ -1,184 +1,163 @@
 id: DEL-16-06
 name: Controlled model operation application
 needs:
-- from: DEL-16-04
-  condition: 'The RT-E1 embedded host must preserve agent rationale, original attribution and FR-AGENT-005/DEC-081 professional-boundary controls on new agent-emitting surfaces before enabling them. Reference-module tests alone do not establish native-session conformance.'
-  gating: true
-  evidence: execution/PKG-16/DEL-16-06/Work/embedded-agent-host.md
 - from: DEL-16-01
-  condition: 'DEL-16-06 consumes Structured model operation schema from DEL-16-01: application requires
-    schema-valid preview, current-model basis and the pre-application acceptance decision, with persistence
-    and service constraints; post-application receipt is a separate stage.
-
-
-    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
-    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
-    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
-    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E046; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
-    original_source_ref=P-OWN-03; dependency table DEL-16-06; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The operation contract defines the form of an operation and of a batch and a closed taxonomy
+    of operation kinds, change kinds and target object types, and the published schema, the
+    interactive operation vocabulary and the operations the route applies are reconciled.
   gating: true
-  evidence: execution/PKG-16/DEL-16-06/ScopeOfWork.md
 - from: DEL-16-02
-  condition: 'DEL-16-06 consumes Operation validation and diff preview from DEL-16-02: application requires
-    schema-valid preview, current-model basis and the pre-application acceptance decision, with persistence
-    and service constraints; post-application receipt is a separate stage.
-
-
-    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
-    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
-    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
-    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E047; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
-    original_source_ref=P-OWN-03; dependency table DEL-16-06; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A validate-only run on this engine returns, for an operation or batch, either a deterministic
+    preview of exactly the changes an apply makes or the named refusal the apply would give, names
+    the model hash it was evaluated on, and returns no model document.
   gating: true
-  evidence: execution/PKG-16/DEL-16-06/ScopeOfWork.md
 - from: DEL-16-03
-  condition: 'DEL-16-06 consumes User acceptance and operation audit trail from DEL-16-03: application
-    requires schema-valid preview, current-model basis and the pre-application acceptance decision, with
-    persistence and service constraints; post-application receipt is a separate stage.
-
-
-    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
-    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
-    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
-    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E048; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
-    original_source_ref=P-OWN-03; dependency table DEL-16-06; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A batch reaches application only with the person's decision on a preview made on the current
+    model hash, and each operation's author type is set by the route it came by, with agent and
+    imported content stamped as agent-authored.
   gating: true
-  evidence: execution/PKG-16/DEL-16-06/ScopeOfWork.md
+- from: DEL-16-04
+  condition: >-
+    The control on agent surfaces is defined: an agent-authored operation carries a rationale, a
+    source and declared assumptions; these stay structured through review and history; and no
+    agent output or agent surface states acceptance, approval, certification or code compliance.
+  gating: true
 - from: DEL-02-01
-  condition: 'DEL-16-06 consumes Canonical domain model schema from DEL-02-01: application requires schema-valid
-    preview, current-model basis and the pre-application acceptance decision, with persistence and service
-    constraints; post-application receipt is a separate stage.
-
-
-    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
-    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
-    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
-    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E049; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
-    original_source_ref=P-OWN-03; dependency table DEL-16-06; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The document validator judges every candidate model document and refuses a malformed member
+    with its code and JSON path, and the model document's schema defines the form of each record
+    an operation creates.
   gating: true
-  evidence: execution/PKG-16/DEL-16-06/ScopeOfWork.md
 - from: DEL-02-02
-  condition: 'DEL-16-06 consumes Unit system and dimensional-analysis core contract from DEL-02-02: application
-    requires schema-valid preview, current-model basis and the pre-application acceptance decision, with
-    persistence and service constraints; post-application receipt is a separate stage.
-
-
-    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
-    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
-    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
-    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E050; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
-    original_source_ref=P-OWN-03; dependency table DEL-16-06; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The unit catalog gives each unit symbol its dimension and conversion, and an unknown symbol, a
+    symbol of another dimension and a missing unit each give a named finding and no value.
   gating: true
-  evidence: execution/PKG-16/DEL-16-06/ScopeOfWork.md
+- from: DEL-08-02
+  condition: >-
+    The model hash is SHA-256 over the RFC 8785 canonical form of the model document, and the same
+    document reaches the same digest through the desktop, the headless runner and the operation
+    engine.
+  gating: true
 - from: DEL-02-05
-  condition: 'DEL-16-06 consumes Project persistence and round-trip serialization from DEL-02-05: application
-    requires schema-valid preview, current-model basis and the pre-application acceptance decision, with
-    persistence and service constraints; post-application receipt is a separate stage.
-
-
-    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
-    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
-    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
-    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E051; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
-    original_source_ref=P-OWN-03; dependency table DEL-16-06; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A project saved and reopened returns a model document with the same model hash as the one
+    saved.
   gating: true
-  evidence: execution/PKG-16/DEL-16-06/ScopeOfWork.md
 - from: DEL-00-03
-  condition: 'DEL-16-06 consumes Application service command-query-job model from DEL-00-03: application
-    requires schema-valid preview, current-model basis and the pre-application acceptance decision, with
-    persistence and service constraints; post-application receipt is a separate stage.
-
-
-    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
-    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
-    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
-    are not inferred from existing code. Architecture consistency input; no PKG-00 lifecycle promotion.;
-    SCA011OriginalDependencyID=SCA011-E052; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
-    original_source_ref=P-OWN-03; dependency table DEL-16-06; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The transaction boundary of a model edit is defined as one operation or one atomic batch, and
+    a model edit that fails leaves the model unchanged.
   gating: true
-  evidence: execution/PKG-16/DEL-16-06/ScopeOfWork.md
-- from: DEL-00-07
-  condition: 'DEL-16-06 consumes API boundary and adapter contract map from DEL-00-07: application requires
-    schema-valid preview, current-model basis and the pre-application acceptance decision, with persistence
-    and service constraints; post-application receipt is a separate stage.
-
-
-    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
-    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
-    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
-    are not inferred from existing code. Architecture consistency input; no PKG-00 lifecycle promotion.;
-    SCA011OriginalDependencyID=SCA011-E053; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
-    original_source_ref=P-OWN-03; dependency table DEL-16-06; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-07-11
+  condition: >-
+    The workspace session holds the live model with its hash and revision, registers a batch in
+    the review queue unchangeably, takes an applied document as its current model, and keeps the
+    replaced document as one undo step.
   gating: true
-  evidence: execution/PKG-16/DEL-16-06/ScopeOfWork.md
+- from: DEL-07-07
+  condition: >-
+    A solve is started only as a job through the solve command, a completed solve's run summary
+    carries the model hash and run identities its result carries, and a solve that did not run
+    natively is not published as a current result.
+  gating: true
+- from: DEL-04-07
+  condition: >-
+    The exact pressure route solves the reference system of exit criterion 1 in the desktop with
+    no admitted family refused, and refuses a geometry-only bend by name with a message to
+    realize it.
+  gating: true
+- from: DEL-07-08
+  condition: >-
+    Batch review shows a registered batch's operations, preview, basis, declared assumptions and
+    attribution, and applies it only on the person's Apply.
+  gating: true
+- from: DEL-09-01
+  condition: >-
+    The reference system of exit criterion 1 is specified, with its model document, its run sheet
+    and its named key results.
+  gating: true
+- from: DEL-10-04
+  condition: >-
+    The application build includes the supplier binary, its pin manifest and its licence files
+    exactly as pinned, and fails when the supplier it was given differs from the pin.
+  gating: true
 code_paths:
-- apps/desktop/src/features/embedded-agent/EmbeddedAgentPanel.tsx
-- apps/desktop/src/services/embeddedAgentSession.ts
-- apps/desktop/src/features/workspace/workspaceSession.ts
-- tools/agent_live_session_fixture.py
-- tools/agent_host_process_probe.c
-- tools/agent_supplier_bundle.py
-- tools/agent_supplier_resource.py
-- apps/desktop/src-tauri/resources/agent-supplier-pins.json
-- docs/THIRD_PARTY_NOTICES.md
-- tools/agent_host_witness.py
-- tools/agent_host_sandbox_probe.rs
-- tools/agent_catalog_resource.py
-- apps/desktop/src-tauri/resources/agent-capability-catalog.json
-- apps/desktop/src-tauri/src/embedded_agent/**
-- fixtures/embedded_agent/agent-witness-pin.json
-- apps/desktop/src/services/embeddedAgentBridge.ts
-- apps/desktop/src/services/operationService.ts
+# The operation engine. Within this crate the domain modules that other deliverables list by name
+# are theirs: document_validator.rs, model_data_authoring.rs, model_settings_authoring.rs and
+# condition_set_authoring.rs (DEL-02-01); project_units_authoring.rs and display_units.rs
+# (DEL-02-02); model_document_version.rs (DEL-02-05); library_apply.rs (DEL-03-01); model_checks.rs
+# (DEL-04-06); pressure_authoring.rs, bend_authoring.rs and b7b_transport_tests.rs (DEL-04-07);
+# retained_semantics_binding.rs (DEL-04-08). In src/lib.rs and src/atomic_batch.rs the
+# validate-only mode, the checks and the preview rows are DEL-16-02's. The rest, with the tests of
+# the same subjects, is this deliverable's.
 - core/model_operations/operation_applier/**
 - fixtures/model_operations/contract_corpus/**
+# The desktop's routing adapters to the engine.
+- apps/desktop/src/services/operationService.ts
 - apps/desktop/src/services/operationBatchService.ts
-- apps/desktop/src-tauri/src/lib.rs
+# The embedded agent: host, catalog, supplier pins and licence files, panel and session executors.
+- apps/desktop/src-tauri/src/embedded_agent/**
+- apps/desktop/src-tauri/resources/agent-capability-catalog.json
+- apps/desktop/src-tauri/resources/agent-supplier-pins.json
+- docs/third-party/codex-0.160.0-LICENSE.txt
+- docs/third-party/codex-0.160.0-NOTICE.txt
+- docs/THIRD_PARTY_NOTICES.md
+- apps/desktop/src/features/embedded-agent/**
+- apps/desktop/src/services/embeddedAgentSession.ts
+- apps/desktop/src/services/embeddedAgentBridge.ts
+# Shared with DEL-07-11, which owns the workspace session and the scripted-run build. In
+# workspaceSession.ts the registration of an agent proposal and its standing are this
+# deliverable's; in native_smoke.rs the agent journey's provider-key intake is.
+- apps/desktop/src/features/workspace/workspaceSession.ts
+- apps/desktop/src-tauri/src/native_smoke.rs
+# The agent's journey fixtures and the tools that qualify the host. tools/agent_supplier_bundle.py
+# is DEL-10-04's.
+- fixtures/embedded_agent/agent-witness-pin.json
 - fixtures/model_operations/agent_w9a_journey.json
 - fixtures/model_operations/agent_m2_component_journey.json
+- fixtures/model_operations/agent_w9a_capture_outcomes.json
+- tools/agent_catalog_resource.py
+- tools/agent_supplier_resource.py
+- tools/agent_supplier_capture.py
+- tools/agent_host_witness.py
+- tools/agent_host_sandbox_probe.rs
+- tools/agent_host_process_probe.c
+- tools/agent_keychain_ui_monitor.swift
+- tools/agent_live_session_fixture.py
 - tools/agent_journey_fixture.py
 - tools/agent_journey_memory_monitor.py
-- tools/agent_supplier_capture.py
-- fixtures/model_operations/agent_w9a_capture_outcomes.json
+# The agent journey's driver. The native-smoke harness it runs in (the rest of
+# apps/desktop/native-smoke/) is DEL-07-11's, as is the native command registry
+# (src-tauri/src/lib.rs) the host is wired into.
 - apps/desktop/native-smoke/agent-journey.js
-- apps/desktop/src-tauri/src/native_smoke.rs
 checks:
-- apps/desktop/src/features/embedded-agent/EmbeddedAgentPanel.test.tsx
+- core/model_operations/operation_applier/tests/contract_corpus.rs
+- core/model_operations/operation_applier/tests/canonical_hash_parity.rs
+- core/model_operations/operation_applier/tests/create_pipe_section_inputs.rs
+- core/model_operations/operation_applier/tests/load_state_authoring.rs
+- core/model_operations/operation_applier/tests/load_state_delete_control.rs
+- core/model_operations/operation_applier/tests/support_authoring_conflicts.rs
+- core/model_operations/operation_applier/tests/pipe_reconnect.rs
+- core/model_operations/operation_applier/tests/connect_pipe_orientation.rs
+- core/model_operations/operation_applier/tests/pipe_delete_dependents.rs
+- core/model_operations/operation_applier/tests/run_sheet_authoring.rs
+- core/model_operations/operation_applier/tests/user_entered_modifiers.rs
+- core/model_operations/operation_applier/tests/agent_w9a_journey.rs
+- core/model_operations/operation_applier/tests/agent_m2_component_journey.rs
+- apps/desktop/src/services/operationService.test.ts
+- apps/desktop/src/services/operationBatchService.test.ts
+- apps/desktop/src/services/operationContractCorpus.test.ts
+- apps/desktop/src/services/pipeReconnectEquivalence.test.ts
 - apps/desktop/src/services/embeddedAgentSession.test.ts
+- apps/desktop/src/services/embeddedAgentBridge.test.ts
+- apps/desktop/src/services/embeddedAgentW9a.test.ts
+- apps/desktop/src/services/embeddedAgentM2.test.ts
+- apps/desktop/src/features/embedded-agent/EmbeddedAgentPanel.test.tsx
 - apps/desktop/src/features/workspace/agentWorkspaceSnapshot.session.test.tsx
-- tools/agent_live_session_fixture_test.py
-- tools/agent_journey_fixture_test.py
-- tools/agent_journey_memory_monitor_test.py
-- tools/agent_supplier_capture_test.py
-- tools/agent_supplier_bundle_test.py
-- apps/desktop/src-tauri/src/embedded_agent/supplier.rs
-- tools/agent_keychain_ui_monitor.swift
-- tools/agent_supplier_resource_test.py
-- tools/agent_host_witness_test.py
-- tools/agent_catalog_resource.py
 - apps/desktop/src-tauri/src/embedded_agent/catalog.rs
 - apps/desktop/src-tauri/src/embedded_agent/numeric.rs
 - apps/desktop/src-tauri/src/embedded_agent/protocol.rs
@@ -187,7 +166,6 @@ checks:
 - apps/desktop/src-tauri/src/embedded_agent/session_driver.rs
 - apps/desktop/src-tauri/src/embedded_agent/dispatcher.rs
 - apps/desktop/src-tauri/src/embedded_agent/webview_bridge.rs
-- apps/desktop/src/services/embeddedAgentBridge.test.ts
 - apps/desktop/src-tauri/src/embedded_agent/loopback.rs
 - apps/desktop/src-tauri/src/embedded_agent/relay_policy.rs
 - apps/desktop/src-tauri/src/embedded_agent/provider_store.rs
@@ -195,22 +173,12 @@ checks:
 - apps/desktop/src-tauri/src/embedded_agent/http_relay.rs
 - apps/desktop/src-tauri/src/embedded_agent/macos.rs
 - apps/desktop/src-tauri/src/embedded_agent/sandbox.rs
-- apps/desktop/src/services/operationService.test.ts
-- apps/desktop/src/services/operationContractCorpus.test.ts
-- core/model_operations/operation_applier/tests/contract_corpus.rs
-- core/model_operations/operation_applier/tests/create_pipe_section_inputs.rs
-- core/model_operations/operation_applier/tests/load_state_authoring.rs
-- core/model_operations/operation_applier/tests/load_state_delete_control.rs
-- core/model_operations/operation_applier/tests/support_authoring_conflicts.rs
-- apps/desktop/src/services/operationBatchService.test.ts
-- core/model_operations/operation_applier/tests/pipe_reconnect.rs
-- core/model_operations/operation_applier/tests/connect_pipe_orientation.rs
-- core/model_operations/operation_applier/tests/pipe_delete_dependents.rs
-- apps/desktop/src/services/pipeReconnectEquivalence.test.ts
-- core/model_operations/operation_applier/tests/run_sheet_authoring.rs
-- core/model_operations/operation_applier/tests/agent_w9a_journey.rs
-- apps/desktop/src/services/embeddedAgentW9a.test.ts
-- core/model_operations/operation_applier/tests/agent_m2_component_journey.rs
-- apps/desktop/src/services/embeddedAgentM2.test.ts
-- core/model_operations/operation_applier/tests/user_entered_modifiers.rs
-- apps/desktop/src/services/operationAuthorship.test.ts
+- apps/desktop/src-tauri/src/embedded_agent/supplier.rs
+- tools/agent_catalog_resource.py
+- tools/agent_supplier_resource_test.py
+- tools/agent_supplier_capture_test.py
+- tools/agent_host_witness_test.py
+- tools/agent_live_session_fixture_test.py
+- tools/agent_journey_fixture_test.py
+- tools/agent_journey_memory_monitor_test.py
+- tools/agent_keychain_ui_monitor.swift

@@ -2,387 +2,134 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-07-05
 package_id: PKG-07
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-023]
 package_objective_refs: [OBJ-006, OBJ-007]
 ---
 
-# Scope of Work — DEL-07-05
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency conditions are declared in this deliverable's `deliverable.yaml`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
-
-
-**Scope placement.** Owner ruling, 2026-10-23 ("I approve OD-1 through OD-5 as you recommended."; `docs/COMPLETENESS_MAP.md` §4.2), OD-5: viewport result overlays and reaction arrows (FR-GUI-001) are to be built now. This records the ruling; the clauses below are unchanged.
+# Scope of Work — DEL-07-05 Results viewer
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-07-05` in service of project scope [SOW-023] and package objectives [OBJ-006, OBJ-007].
+This deliverable is where the engineer reads a solve. It shows the displacements, rotations, forces, moments, restraint reactions, equipment loads, stresses and ratios of a result as tables and as drawings on the model, each value with its unit, its load case, the frame it is stated in and the limits of the route that produced it. It forms no engineering value of its own: it reads what the solve and the user's rule check published, arranges it, and says plainly when something is absent, unsupported or incomplete. The result it contributes is that an engineer can review a solved system in the desktop, find the governing values, and see what each number does and does not claim.
 
-- **OUT-001** — A results-viewer contract covering unit-aware mechanics and user-rule result categories, tabular and graphical review, warnings and assumptions, result-envelope traceability, ratio availability, and report/export handoff signals is produced for the declared scope and objectives.
+It serves SOW-023 under OBJ-006 and OBJ-007 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-07, row DEL-07-05), and PRD §14.1, §14.2, §12.7, §12.8, §21.2 and FR-GUI-001. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names this deliverable. It supports criterion 1, whose solved results are read here, and criterion 5, whose exported tables are the tables shown here.
+
+- **OUT-001** — The results tables and panels: the result tables, the derived summaries, the navigator, the key-results panel and the numerical-health indicator.
+- **OUT-002** — The result drawings in the viewport: deflected shape, rotation glyphs, element axes, colour overlay, contour and reaction arrows, with their legends and controls.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-07-05 Results viewer
+**Terms the viewer implements.**
 
-> #### Datasheet: DEL-07-05 Results viewer
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *Result.* The published output of one solve of one model: rows by kind and load case, findings, and the identities that tie it to its model and solver. A *row* is one published value set for one entity, case and kind.
+- *Product result reader.* The one reader that classifies a result, gives each row its meaning, and returns the result's standing. The viewer shows what the reader returns and re-derives no verdict.
+- *Standing.* What the reader says may be relied on about a result: admitted or not, on which route, with which published limitations. An *unsupported* result is one the reader does not admit; its values are shown as historical only.
+- *Historical run.* A saved or recorded run reopened in the session. It is evidence of an earlier solve, not the current model's result.
+- *Published frame.* The coordinate frame a row states its values in. The viewer shows values in that frame and re-projects none.
+- *Range-envelope row.* A row that holds a range across cases and not a state. It has no direction and is never drawn as a vector, a shape or a colour.
+- *Deflected shape.* The model drawn with each node moved along its translational displacement. By default the drawing is normalized: the governing row per node, the largest displacement drawn at a fixed display length, stated as not to physical scale. Otherwise one load case or combination is drawn at a magnification factor of the physical displacement. The undeformed model is drawn dimmed behind it.
+- *Rotation glyph.* A double-headed arrow at a node's deflected position along the rotation vector formed from the node's three emitted rotation rows, by the right-hand rule, at a normalized length.
+- *Element axes.* A triad on each straight member: x from the From node to the To node, y from the member's projected y reference, z = x × y, as the frame kernel defines them.
+- *Colour overlay.* One value per member, the largest absolute value of one emitted per-member row kind for one case, drawn as a colour on a stepped scale.
+- *Contour.* A member coloured along its length from the values at its stations (i end, first quarter, midspan, third quarter, j end).
+- *Reaction arrow.* A support's emitted reaction component drawn at its node: a single-headed arrow arriving at the node for a force, a double-headed arrow for a moment, in the convention of the support acting on the pipe.
+- *Derived summary.* A table the viewer forms by selecting and ordering published rows: per-support load summary, displacement extremes, stress and ratio table, weight and centre-of-gravity summary. A summary selects maxima and minima and forms the ratios defined below; it computes no mechanics.
+- *Numerical-health indicator.* A badge and headline that restate the solve's own quality verdict in one of five states. It is not a measure of error.
+- *View state.* The chosen case, overlay, magnification, threshold, filter, page and navigator position. It belongs to the session and is never written to the model or the result.
 
-### CLM-003 — Identification
+**Boundary.** The viewer presents. The following belong elsewhere:
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-07-05 |
-> | Deliverable name | Results viewer |
-> | Package ID | PKG-07 |
-> | Package name | Graphical User Interface and Engineering Workflow |
-> | Deliverable type | UX_UI_SLICE |
-> | Scope item | SOW-023 |
-> | Objectives | OBJ-006, OBJ-007 |
-> | Context envelope | L |
-> | Current source basis | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` accepted current basis; `docs/_Registers/Deliverables.csv`; `docs/_Registers/ScopeLedger.csv`; `docs/CONTRACT.md`; `docs/SPEC.md`; `docs/TYPES.md`; `docs/DIRECTIVE.md` |
->
+- the result's values and their meaning: the solver deliverables, DEL-05-02 for combinations and the result reader, DEL-05-03 for stresses;
+- retained-precision results and their standing: DEL-04-08. The modes table and mode shapes: DEL-04-09. The spectrum results view: DEL-04-10. The hanger-sizing table: DEL-04-11. Each follows REQ-010;
+- the rule check's outcomes and the wording of an outcome: DEL-06-03 and DEL-07-04;
+- the solve's quality verdict, which the result reader returns, and the conditioning findings and thresholds behind it: DEL-05-02 and DEL-04-06;
+- holding a result natively and paging it to the display: DEL-07-07;
+- CSV and JSON export of the tables shown here: DEL-08-04. Reports: DEL-08-01;
+- comparison of runs and states: DEL-07-08;
+- the scene, selection and camera the drawings share: DEL-07-01;
+- allowable loads, limits and acceptance of any value: the user and the user's rule pack. The viewer supplies none.
 
-### CLM-004 — Attributes
+**Not decided.**
 
-> ##### Attributes
->
-> | Attribute | Setup value | Source |
-> |---|---|---|
-> | Intended GUI surface | Results viewer for tabular and graphical review | `_CONTEXT.md`; `docs/SPEC.md` section 7 |
-> | Result categories in scope | Displacements, rotations, forces, moments, restraint reactions, equipment loads, stresses, and ratios | SOW-023 in `docs/_Registers/ScopeLedger.csv`; `docs/SPEC.md` section 8 |
-> | Rotational-deformation current slice | Result envelopes emit `rx`/`ry`/`rz` rows and the viewer exposes result rows. The graphical deformed shape consumes translational `ux`/`uy`/`uz`; rotation glyphs draw each node's emitted `rx`/`ry`/`rz` rows as a double-headed rotation-vector arrow (right-hand rule) at normalized display length (`apps/desktop/src/features/viewport/deformationOverlay.ts`, `viewportRotationGlyph.ts`). Focused browser evidence: `apps/desktop/e2e/rotation-glyph.spec.ts` | DEC-074 O1; PDU-061; `MEMORY.md` 2026-06-12; `_run_records/TASK_RUN_2026-06-12_1110.md` |
-> | Architectural route | GUI reads schema-first command/query/job result envelopes through application services | `_CONTEXT.md` Architecture Basis Injection |
-> | Unit behavior | Result values must remain unit-aware and dimensionally checked | OPS-K-UNIT-1 in `docs/CONTRACT.md`; `docs/DIRECTIVE.md` section 3 |
-> | Diagnostics behavior | Missing data, assumptions, provenance, nonlinear/convergence issues, and IP boundary warnings must remain visible | `docs/SPEC.md` section 7; OPS-K-DATA-2 and OPS-K-AUTH-1 in `docs/CONTRACT.md` |
-> | Rule-pack ratio behavior | Ratios are displayed only when a user-supplied rule pack and required inputs support the check; incomplete rule input remains an explicit finding | SOW-023 note; OPS-K-DATA-1/2 and OPS-K-RULE-1/2/3 in `docs/CONTRACT.md` |
-> | Report/export relationship | Viewer content should remain reproducible and handoff-ready for reports and structured result exports | OBJ-007; SOW-046; `docs/SPEC.md` section 8 |
-> | Protected-data posture | No protected standards text, protected tables, copied formulas, proprietary thresholds, or certification claims are introduced | OPS-K-IP-1/2/3 and OPS-K-AUTH-1 in `docs/CONTRACT.md`; `docs/DIRECTIVE.md` sections 3-5 |
->
-
-### CLM-005 — Conditions
-
-> ##### Conditions
->
-> | Condition | Status |
-> |---|---|
-> | Current evidence includes implemented GUI result review and a translational deformation overlay; this R5 repair changes documentation/status records only | FACT |
-> | Exact UI component library, state library, and visual layout details | Resolve current dependency and component/state choices through `apps/desktop/package.json` and the implemented consumers. DEC-012 permits choices in a sealed brief or later ruling; preserve durable/transient separation and accepted architecture. Release scope follows DEC-057. |
-> | Exact result-envelope schema fields for each displayed category | Resolve the accepted result-envelope fields through `schemas/results.schema.yaml` and `apps/desktop/src/features/results/ResultsPanel.tsx`; preserve category, unit, status, provenance and missing-data contracts. |
-> | Exact stress-ratio formulas, thresholds, allowables, or code categories | Out of scope for public defaults; user/rule-pack supplied |
-> | Professional acceptance or code compliance status | Out of software authority; human review remains required |
->
-
-### CLM-006 — Construction
-
-> ##### Construction
->
-> The results viewer is a review surface over already-produced mechanical, diagnostic, stress, reaction, equipment-load, and user-rule-check result envelopes. Its graphical deformed shape uses translational components; rotation glyphs display the emitted rotational components. Both are display transforms of emitted rows, not physical-scale drawings: the deformed shape is drawn normalized, or for one load case or combination at a stated magnification factor of the physical displacement, and the rotation glyphs are normalized. The factor, the undeformed ghost and the animation are session view settings; they are not model data and change no result value. The viewer does not compute solver mechanics, recover stresses, evaluate rule packs, define protected code criteria, or export final reports directly unless a later sealed implementation brief expands scope.
->
-> The viewer setup must preserve these visible boundaries:
->
-> - mechanics solved is distinct from rule-pack checked;
-> - rule-pack pass/fail is distinct from professional approval;
-> - missing solve-required or rule-check-required data is a displayed finding;
-> - every numerical value remains unit-aware;
-> - result displays carry warnings, assumptions, and provenance hooks;
-> - public examples and templates use no protected standards data or proprietary engineering values.
->
-
-### CLM-007 — References
-
-> ##### References
->
-> - `AGENTS.md` - bootstrap boundaries and unknown-value rule.
-> - `AGENTS.md` - Type 2 sealed dispatch rule.
-> - `docs/CONTRACT.md` - invariants OPS-K-DATA-1/2/3, OPS-K-UNIT-1, OPS-K-RULE-1/2/3, OPS-K-AUTH-1, OPS-K-IP-1/2/3, OPS-K-PRIV-1/2, OPS-K-AGENT-1..4.
-> - `docs/SPEC.md` - architecture, GUI, warnings, reporting, acceptance semantics.
-> - `docs/TYPES.md` - analysis-status vocabulary and Result/Report object boundary.
-> - `docs/DIRECTIVE.md` - product principles, stop rules, and professional boundary.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - package, objective, and architecture-basis context.
-> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) - DEL-07-05 row.
-> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) - SOW-023 row.
+- How a ratio is named where the user's rule packs use different terms for it. Until decided, the ratio table shows the pack's own check name and category.
+- How equipment loads are aggregated and displayed beyond the per-support summary of REQ-019.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-008 — Specification: DEL-07-05 Results viewer
+### Requirements
 
-> #### Specification: DEL-07-05 Results viewer
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- **REQ-001** — Displacements, rotations, forces, moments, restraint reactions, equipment loads, stresses and ratios are each shown where the result has them. A category the result lacks is stated as absent, never shown as zero.
+- **REQ-002** — Every result is read through the product result reader. The viewer reaches around it to no engine internals, re-derives no verdict, and shows a result the reader does not admit as unsupported, with its values marked historical.
+- **REQ-003** — Every value is shown with its unit, in the display unit the user chose, converted through the unit catalog without changing the stored value. A value whose unit is missing or incompatible is shown as a finding and not as a number. The same row reads the same in a table, a report and a CSV file, by the shared report display rule.
+- **REQ-004** — Mechanics solved, rule inputs incomplete, user-rule checked, user-rule failed and human review required are shown as distinct statuses in their registered display forms. No surface shows code compliance or approval (PRD §21.2).
+- **REQ-005** — A ratio is shown only where the user's rule-check run supplies the computed value and the limit. Otherwise it is shown as unavailable with the finding that explains why. The result contract has no governing-ratio family, so the viewer states a governing ratio as unavailable and derives none (also cited as DEL-07-05:2).
+- **REQ-006** — Warnings, assumptions, missing data, solver findings, nonlinear support state, provenance gaps and IP-boundary warnings are visible with the result they qualify, under DEL-07-04's presentation rules.
+- **REQ-007** — A displayed result can be traced to its model hash, solver version, rule-pack name, version and checksum, units, warnings, assumptions and limitations.
+- **REQ-010** — *What a table states.* Every results table renders from a view model that gives its rows with stable identifiers, the displayed unit and conversion of each numeric column, and the status text of an absent value. The table states its units, the published frame of each row, the limitations of the route that produced it and the result's standing, and can be filtered by frame and to follow the selection; with that filter on and nothing selected, the table shows no rows and says so. Results views owned by other deliverables follow this rule.
+- **REQ-011** — *Standing and output.* A standing line states the route and each of its published limitations. An exact-contract result shows one stress headline for each section basis, nominal and reduced, and names no governing basis. A historical run is labelled as historical evidence. Viewing a result grants no output: an output surface the output policy refuses is shown as refused with the refusal's name.
+- **REQ-012** — *Navigator.* The user steps through results by table kind (Alt+Shift+Left and Right), by case (Alt+Up and Down) and by entity (Alt+Left and Right), and by labelled Previous and Next buttons that do the same. A step stops at an end and says so. An empty table is stated, not skipped. The keys act only with focus in the results panel and never in a control that edits or chooses (a text field, select, combobox, listbox or menu). A step selects the row as a click does. No row is left out on account of numerical health, and the navigator forms no value (also cited as DEL-07-05:4).
+- **REQ-013** — *Key results.* A key-results panel opens on the session's first solved result without moving focus, and on demand. It offers one button and one key each for: the ratio contour of a stress category of the user's rule-check run, the deflected shape, the support load summary of an anchor or equipment connection, the support contact and lift-off rows, the results, stress-ratio and displacement-extremes tables, and return to editing. An absent rule pack is stated as absent and an incomplete one as incomplete, never as zero or as within the limit (also cited as DEL-07-05:5).
+- **REQ-014** — *Deflected shape and rotation glyphs.* The deflected shape is drawn from emitted translation rows. By default it is normalized from the governing row per node and stated as not to physical scale. The user can instead draw one load case or combination at a magnification factor. The default factor is the 1–2–5 factor nearest, on a logarithmic scale, to the one that draws the largest displacement at one tenth of the largest side of the model's bounding box; where no default can be formed, the view says so and still accepts a factor. The view states the magnification drawn. A factor is drawn only while every offset is finite in 32-bit arithmetic and no larger than 1e15 model length units; otherwise the default factor, or the normalized drawing, is drawn with the reason. A rotation glyph is drawn only from a complete triple of emitted rotation rows in one unit; an incomplete triple, mixed units or a range-envelope row gives no glyph and a stated reason. Animation is off where the user asks for reduced motion.
+- **REQ-015** — *Element axes.* Triads are drawn as the frame kernel defines them, or the global axes on request. A triad is withheld, with the reason, for a member with a missing end node or y reference, a frame the kernel refuses, a unit that cannot be converted, or a realized curved bend.
+- **REQ-016** — *Colour overlay.* The scale runs from zero to the largest drawn value in seven steps interpolated in OKLCH, with an optional display threshold. The legend gives the quantity, unit, case, five ticks, the minimum and maximum, and the count of members with no value. Range-envelope rows are not drawn, and values in different units are not compared. A row is coloured only where the result's standing admits it and the row's numerical health is "checks passed"; otherwise nothing is coloured and the legend says why.
+- **REQ-017** — *Reaction arrows.* Arrows are drawn only from emitted support-reaction component rows stated in the global frame, under the same admission rule as REQ-016. The legend counts the supports with no rows, the rows stated in another frame and the attributions withheld.
+- **REQ-018** — *Contour.* Station values are drawn as magnitudes in the section sign convention: the i-end value negated, the j-end value kept. Adjacent stations of opposite sign are not blended. A threshold colours only values strictly above it. A number label shows a stated value only, never an interpolated one.
+- **REQ-019** — *Support load summary.* For a chosen support the summary gives the signed maximum and minimum of each reaction component with its governing case, over rows of one solved state. It shows no allowable load.
+- **REQ-020** — *Stress and ratio table.* A ratio is formed only from finite values in the same stored unit and dimension with a positive limit: computed over limit for a less-than relation, limit over computed for a greater-than relation, so that a ratio above 1 means past the limit. Incomplete outcomes are listed first and never ranked. A threshold never hides an incomplete, withheld or failed outcome. The status shown is the rule check's own, and an outcome is worded as DEL-07-04/REQ-016 requires.
+- **REQ-021** — *Displacement extremes.* The table gives the signed maximum and minimum of each global translation and rotation over the chosen cases, with the governing case, over admitted rows of one solved state, fifty nodes to a page. It checks no clearance or travel.
+- **REQ-022** — *Weight and centre of gravity.* The summary covers the whole model, one line or the selected pipes, needs no solve, and reads the self-weight generator's plan without queueing it, under a gravity the user enters. A pipe's weight acts at its span midpoint; a rigid-family component's weight acts at its node plus its centre-of-gravity offset, in place of its mapped member's weight. Bend spans are excluded and a partial summary says what it omits. The panel states that the figure is not a lifting, rigging or structural weight.
+- **REQ-023** — *Numerical health.* The indicator has five states with the headlines "Numerical health: checks passed", "sensitive", "quality unresolved", "solve failed" and "not assessed", and a green, red or grey badge with the state in words. It follows the solve's quality verdict and sets no threshold. A combination takes the worst state of its load cases. It reports and never decides whether output is available. The conditioning figure the solve reports is printed in the detail text only, as information. Every use carries the sentence "These checks look for numerical trouble; they do not measure the error, and they say nothing about whether the model, its inputs or its design are right." No text of the indicator uses verified, certified, bound, guaranteed, valid, approved, compliant, correct or reliable.
+- **REQ-024** — Every control of the tables and drawings changes view state only. No control changes the model document or the result, and no drawing re-projects a value into another frame (also cited as DEL-07-05:3).
 
-### CLM-010 — Scope
+### Acceptance criteria
 
-> ##### Scope
->
-> This deliverable owns the GUI results-viewer slice that presents reviewable analysis outputs for displacements, rotations, forces, moments, restraint reactions, equipment loads, stresses, and user-rule ratios. The current implemented slice includes tabular result review, a translational deformed-shape overlay, rotation glyphs for emitted `rx`/`ry`/`rz` rows (DEC-074 O1 / PDU-061), and result colour on members and support reaction arrows in the viewport (OD-5). It is a UX/UI slice under PKG-07 and supports OBJ-006 and OBJ-007.
->
-> The results viewer does not run solver logic, recover stresses, evaluate rule packs, define protected engineering criteria, or grant professional approval. This R5 repair records the current slice and residual only; it does not implement rotational visualization or change GUI source, tests, schemas, or result data.
->
-> Current implementation (at `62c1efd75b`): rotational visualization was added after that repair. In `apps/desktop/src/features/viewport/`, `deformationOverlay.ts` derives the translational overlay, the rotation overlay and the glyph anchors, `viewportRotationGlyph.ts` builds the glyph meshes and `PipeViewport.tsx` draws them. The result tables are `apps/desktop/src/features/results/ResultsPanel.tsx`. Focused browser evidence is `apps/desktop/e2e/rotation-glyph.spec.ts` (harness `apps/desktop/e2e/rotation-glyph/`). Per `docs/CI_STRATEGY.md`, it runs in the single Chromium project on relevant pull requests. The reference module `core/gui/results_viewer/engine.py` (`tests/test_results_viewer_contract.py`) is not called by the desktop.
->
-> Current implementation (OD-5, FR-GUI-001): the viewport has two result overlays, both off by default and session view state only; they change no model, result or export. **Result colour** colours each member by one value for one load case or combination: the largest absolute value of one emitted per-member row kind over that member's rows (its stations, its two end nodes for displacement magnitude, or the emitted source rows of a component's intensified-bending row). The quantities offered are the catalogued kinds the result carries (`RESULT_COLOUR_QUANTITIES` in `resultColourOverlay.ts`); range-envelope rows are not drawn and rows of one quantity and case in more than one unit are not compared. The scale is the design system's `result.scale.1`–`.7` interpolated in OKLCH from 0 to the largest drawn value (design system 2.6, 6.7), with an optional user display threshold (survey item A4); a member with no colourable value draws `canvas.unsolved` at 60% over the ground. The canvas legend states the quantity, unit, case, five ticks, the members' minimum and maximum and the count of members with no value. A row colours only where the reader's numerical standing admits the result and the results table gives it no badge other than "checks passed" (`overlayMayShowRow` in `numericalHealth.ts`, sharing `rowHealthState` with the table); otherwise nothing colours and the legend gives "No result colour on the current model" with the numerical health header, the case's state and the output sentence. **Reaction arrows** draw each support's emitted `support_reaction_component_v2` rows for the case, only where the rows state `coordinate_system: "global"`, with their sign convention (support on pipe): the force as a single-headed arrow arriving at the support's node, the moment as the rotation glyph's double-headed arrow, each scaled to the largest drawn vector of its kind. The legend counts the producer's withheld attributions ("Ambiguous attribution is withheld"), supports without reaction rows and rows in another frame, and reads out a hovered or selected support's components and magnitudes; the same standing rule applies. Colour adds no draw call (instance colours are rewritten in place when the table changes); the arrows are static instanced meshes rebuilt only when the case or result changes. Sources: `apps/desktop/src/features/viewport/resultColourOverlay.ts`, `reactionOverlay.ts`, `viewportReactionArrows.ts`, `ResultOverlayLegend.tsx`, `viewportResource.ts` (`setResultColourPresentation`) and `PipeViewport.tsx`. Evidence: `resultColourOverlay.test.ts`, `reactionOverlay.test.ts`, `viewportReactionArrows.test.ts`, `viewportResultColour.test.ts`, `viewportPalette.test.ts`, `PipeViewport.overlays.test.tsx` and the browser spec `apps/desktop/e2e/result-overlays.spec.ts` (harness `apps/desktop/e2e/result-overlays/`). This note describes code only; it records no backcheck or acceptance.
->
-> Current implementation (survey item A2): the Results section has a per-support load summary. For the chosen support it lists the emitted global reaction components, the emitted force and moment magnitude rows and the support node's translations and rotations for each load case and combination represented by finite emitted rows, then, for each column whose admitted values share one stored unit, the signed maximum and minimum with the governing case, taken over the rows that are one solved state (range envelopes are listed but not included). A case the overlays' standing rule withholds shows no values and says why. Values follow the report display rule. No allowable loads are shown; the support record carries none. Sources: apps/desktop/src/features/results/supportLoadSummary.ts and SupportLoadSummaryPanel.tsx; Design support-load-summary.md. Evidence: supportLoadSummary.test.ts, SupportLoadSummaryPanel.test.tsx and the native smoke's structure checks. This note describes code only; it records no backcheck or acceptance.
->
-> Current implementation (survey item A3): the Results section has a session-only stress and ratio table. For each stress category of the current solved result's session rule-check run, it lists the run's outcomes by ratio or by computed magnitude; for each emitted stress kind, it lists admitted finite rows by magnitude. A ratio is formed only with finite values in the same stored unit and dimension, a positive limit and a finite quotient: computed value divided by limit for a less-than relation, or limit divided by a positive computed value for a greater-than relation; each ratio row states its direction, and in either direction a ratio above 1 means the computed value is past the limit. Ranked rows are ordered largest first when comparable; stress-mode groups with mixed stored units retain source order and disable the threshold. An applied threshold hides only ranked emitted stress rows and checked outcomes below it. Incomplete outcomes (RULE_INPUTS_INCOMPLETE) are listed first with a reason built from the run's structured fields and are never ranked; incomplete, withheld, failed and unranked outcomes are never hidden by the threshold. Ranked rows are paged, with failed outcomes always listed. A case the overlays' standing rule withholds shows no values or pass/fail status and says why. Values follow the report display rule. Where available, a location button selects a bound result row or selector entity in the session. The status shown is the rule check's own; the product supplies no allowable. Sources: apps/desktop/src/features/results/stressRatioTable.ts and StressRatioTablePanel.tsx; Design stress-ratio-table.md. Evidence: stressRatioTable.test.ts, StressRatioTablePanel.test.tsx, StressRatioTablePanel.derivation.test.tsx and the native smoke's structure checks. This note describes code only; it records no backcheck or acceptance.
->
-> Current implementation (survey item A8): the Results section has a displacement extremes table. For each model node, or for the nodes of supports of one stated family or of any hanger as the report counts hangers, it gives the signed maximum and minimum of each emitted global translation and rotation over the load cases and combinations the user chooses, each with its governing case, formed only where the values share one stored unit. Only admitted cases that are one solved state can be chosen; a case the overlays' standing rule withholds and a range envelope are listed, disabled and counted with their reasons. With no admitted case chosen, no table is shown. Nodes can be sorted by the largest magnitude of one component when its ranked extremes share one stored unit; otherwise model order is retained with a units-differ note. The table shows at most 50 nodes per page. Values follow the report display rule. The extremes check no clearance or travel, and no limit is shown. Sources: apps/desktop/src/features/results/displacementExtremes.ts and DisplacementExtremesPanel.tsx; Design displacement-extremes.md. Evidence: displacementExtremes.test.ts, DisplacementExtremesPanel.test.tsx and the native smoke's structure checks. This note describes code only; it records no backcheck or acceptance.
->
-> Current implementation (survey item A4): result colour can be shown along members from the stations the rows state (end_i, quarter_1, midspan, quarter_3, end_j), as magnitudes, with station bands and, between bands where blending is permitted, a straight-line graphical blend of adjacent stated magnitudes, which does not represent a signed result or its zero crossing. Each stated station's own value is shown as a short band of its colour. For a signed quantity, each row is first expressed in the section convention (force and moment end rows are node-on-element end actions: the i-end value is negated and the j-end value kept; endpoint torsional shear stress already uses section resultants). Adjacent stations of opposite section sign are not blended, because a blend of magnitudes across a sign change would show a value where the signed result must cross zero and so overstate it; the space between their station bands has the no-value colour, and so does an interval beside a signed row whose convention cannot be converted exactly. An unsigned magnitude, or an extremum whose governing component may switch, is blended with that disclosure. For a member drawn from two or more stated stations, nothing is coloured outside the first and last stated stations or across a withheld or non-finite station; the member's own tube has the no-value colour. A member with fewer than two stated stations shows one value over its length. One value per member remains the default. A threshold colours only values strictly above it, with hard edges at crossings within blended runs and at band boundaries where the threshold classification changes; a numbers display labels stated values only. User-rule ratios per stress category come from the stress and ratio table. The overlay's standing rule applies unchanged. Sources: resultContour.ts, resultContourMesh.ts, ResultValueLabels.tsx; Design result-contour.md. Evidence: resultContour.test.ts, resultContourOverlay.test.ts, resultContourMesh.test.ts, PipeViewport.contour.test.tsx, PipeViewport.contourScene.test.tsx. This note describes code only; it records no backcheck or acceptance.
->
-> Current implementation (survey item A9): the Results section has a weight and centre-of-gravity summary for the whole model, one line or the selected pipes. It needs no solve. It reads the existing self-weight generator's plan without queuing or applying it and persists nothing. It sums positive finite pipe weights from the magnitude of the generator's N/m intensity under a user-entered gravity over each straight span, acting at its midpoint, and rigid-family component weights that replace their mapped member's weight, acting at the node plus the stated global centre-of-gravity offset. One total requires a common weight unit and finite aggregates. The centre-of-gravity calculation uses the counted weights after a common power-of-two scale; the panel states a reason when its range checks withhold the total or centre of gravity. Only allow-listed pipe-local refusals may be isolated; any other refusal, or a refusal of the accepted pipes requested together, makes the summary unavailable with diagnostics. In an available summary, excluded pipes, omitted component weights and unresolved scope references make the displayed summary explicitly partial, over the counted weights only. Exclusions are counted and explained; each pipe or component exclusion list shows at most 50 entries and states how many more remain. Bend spans are excluded. The generator exposes pipe metal, contents and insulation together; lining and added weights are not included. Values follow the report display rule. It is not a lifting, rigging or structural weight. Sources: apps/desktop/src/features/results/weightSummary.ts and WeightSummaryPanel.tsx; Design weight-cog-summary.md. Evidence: weightSummary.test.ts, WeightSummaryPanel.test.tsx and the native smoke's structure checks. This note describes code only; it records no backcheck or acceptance.
->
-> Current implementation (survey item A6): a key-results panel puts existing views on screen after a solve, one button and one key each, setting the viewport's result-colour quantity and case or deformation case, the session's support selection, a results-table filter, the Results section or the Model stage. Sources: keyResults.ts, KeyResultsPanel.tsx, useKeyResultsSession.ts; Design key-results-panel.md. This note describes code only; it records no backcheck or acceptance.
->
-
-### CLM-011 — Requirements
-
-> ##### Requirements
->
-> | ID | Requirement | Source |
-> |---|---|---|
-> | REQ-07-05-001 | The viewer shall present result categories listed in SOW-023 when those categories are present in validated result envelopes. | SOW-023; `docs/SPEC.md` sections 7-8 |
-> | REQ-07-05-002 | The viewer shall preserve the architecture boundary: GUI-facing code consumes application-service result envelopes and shall not bypass domain-core unit checks, provenance checks, diagnostics, or public/private data boundaries. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Architecture Basis Injection; `docs/SPEC.md` section 1 |
-> | REQ-07-05-003 | Displayed numerical result values shall be unit-aware and dimensionally labeled; missing or incompatible units shall be shown as diagnostics rather than silently converted or defaulted. | OPS-K-UNIT-1 and OPS-K-DATA-2 in `docs/CONTRACT.md`; `docs/DIRECTIVE.md` section 3 |
-> | REQ-07-05-004 | The viewer shall distinguish mechanics result status, rule-input incompleteness, user-rule-check status, failed user-rule status, and human-review-required status; it shall not expose automatic `CODE_COMPLIANT` status. | `docs/TYPES.md` section 4; OPS-K-AUTH-1 |
-> | REQ-07-05-005 | Rule-pack ratios shall be displayed only when the required user-supplied rule-pack inputs and checksum/provenance status support the calculation; otherwise the ratio surface shall show an unavailable or blocked state with a diagnostic. | SOW-023 note; OPS-K-DATA-1/2; OPS-K-RULE-1/2/3 |
-> | REQ-07-05-006 | Result review shall keep warnings, assumptions, missing data, solver diagnostics, nonlinear/convergence state, provenance gaps, and IP-boundary warnings visible with the result context they qualify. | `docs/SPEC.md` section 7; OPS-K-DATA-2; OPS-K-AUTH-1 |
-> | REQ-07-05-007 | Result displays intended for reports or exports shall retain traceability to model version/hash, solver version, rule-pack name/version/checksum, units, warnings, assumptions, and limitations when those envelope fields exist. | OBJ-007; SOW-039; SOW-046; `docs/SPEC.md` section 8 |
-> | REQ-07-05-008 | Public setup artifacts shall not introduce protected standards text, protected tables, proprietary formulas, code-specific allowables, stress limits, SIF/flexibility values, load-combination defaults, or certification language. | OPS-K-IP-1/2/3; OPS-K-AUTH-1; `docs/DIRECTIVE.md` sections 3-5 |
-> | REQ-07-05-009 | The future implementation shall include UI tests or equivalent review evidence for category availability, unit labels, warning/blocked states, status separation, and report/export handoff signals. | DEL-07-05 anticipated artifacts; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` sections 4-5 |
->
-
-### CLM-012 — Standards
-
-> ##### Standards
->
-> No external engineering code or standards text is introduced by this deliverable. The controlling references for this setup are the SWBPIPE governance and technical documents listed in `_REFERENCES.md`.
->
-> Any future rule-check wording, stress ratio threshold, allowable, code category, or formula must come from a user-supplied or lawfully imported private rule pack and must preserve provenance and redistribution status.
->
-
-### CLM-013 — Verification
-
-> ##### Verification
->
-> | Verification ID | Method | Expected evidence |
-> |---|---|---|
-> | VER-07-05-001 | Document review | `ScopeOfWork.md` exists and matches DEL-07-05 scope. |
-> | VER-07-05-002 | Boundary review | No protected code data, proprietary thresholds, or certification claims appear in setup artifacts. |
-> | VER-07-05-003 | Dependency-register validation | `Dependencies.csv` validates against v3.1 schema. |
-> | VER-07-05-004 | Semantic setup review | `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` exist with complete matrix/lens coverage. |
-> | VER-07-05-005 | Current implementation and residual review | Existing UI evidence covers result categories, units, diagnostics, status separation, the translational overlay and the rotation glyphs (`deformationOverlay.test.ts`, `viewportRotationGlyph.test.ts`, `PipeViewport.rotation.test.tsx`). Confirm that emitted `rx`/`ry`/`rz` rows are shown only as glyphs with their readout, and that the focused browser evidence `apps/desktop/e2e/rotation-glyph.spec.ts` (CLM-024) is bound to the tested candidate. |
->
-
-### CLM-014 — Documentation
-
-> ##### Documentation
->
-> Required setup records for this deliverable are:
->
-> - `ScopeOfWork.md`
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
-> - `Dependencies.csv`
-> - `_DEPENDENCIES.md`
-> - `_run_records/*`
-> - `_STATUS.md`
->
-### CLM-015 — Acceptance Notes
-
-> ##### Acceptance Notes
->
-> This setup can be marked `SEMANTIC_READY` only after the contract review, semantic matrix build, lens register, Pass 3 consistency sweep, dependency extraction, and local validation gates complete. `SEMANTIC_READY` is a development lifecycle state only; it is not product implementation or an issued deliverable. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
-### CLM-016 — D-41 R5 T5 PDU-008 current GUI boundary
-
-> ##### D-41 R5 T5 PDU-008 current GUI boundary
->
-> The viewer presents an explicit governing-ratio state: supplied ratio rows are available and filterable; no ratio rows yields an unavailable state without inferred criteria. Rotation glyphs draw emitted `rx`/`ry`/`rz` rows; with mixed rotation units across nodes, or no complete component triple, the rotation readout is unavailable rather than comparing or inferring values.
-
-Current reading and output boundary (B7b, T4-U6). The viewer reads every result through DEL-05-02's Rust product reader and re-derives no verdict; a result the reader does not admit is shown as unsupported, historical values only. The standing line states each route's published limitations, the retained routes included. An exact-contract result also shows one stress headline per D-5 section basis (nominal and reduced), and no governing basis is chosen. A reopened saved run is shown as historical evidence: a 0.3.0 record is checked against its saved source by DEL-14-02's record validator, and a refusal is a display-only finding. Viewing grants no output. Since epoch 8 (owner, 2026-10-21: "A accept your recommendations for the entire set."; DEL-04-07 Design `desktop-exact-outputs.md`), the result JSON export, the stress-neutral export and the rule check admit pressure-2 and pressure-source-1 results at the Rust reader's numerically eligible standing. An eligible pressure-2 load/reference-state result is admitted with them, and each of those panels discloses its resolved load/reference states; a pressure-source-1 load/reference-state result is never eligible. Every other desktop output surface refuses both identities by name (`PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`, `apps/desktop/src/features/results/outputPolicy.ts`). Only the result JSON and stress-neutral exports admit the retained successors, at numerically eligible standing with the live native capture, which no product caller delivers before B8.
-
-- **AC-001** — The contract preserves the implemented result surface, the translational overlay and the rotation glyphs for emitted `rx`/`ry`/`rz` rows, separates mechanics, user-rule checks, and human review, and invents no thresholds, formulas, allowables, code categories, compliance status, or professional approval.
+- **AC-001** — For an invented solved fixture: every value in every results table equals the published row's value converted by the catalog factor of the displayed unit, each row shows its unit, case and frame, each absent category is stated as absent, and the same rows read the same in the report display.
+- **AC-002** — For a result the reader does not admit, a historical run and an exact-contract result: the first is shown as unsupported with historical values, the second as historical evidence, the third with one stress headline per section basis; each status appears in its registered form; and a refused output surface shows the refusal's name.
+- **AC-003** — For a fixture whose displacements, rotations, reactions and station values are set by hand: each deflected node is drawn at its position plus the stated factor times its displacement, the default factor is the one REQ-014 defines, the normalized drawing places the largest displacement at the fixed display length, each glyph lies along its rotation vector, each reaction arrow has the direction and head REQ-017 and the ontology define, each contour station has the sign REQ-018 defines, and each legend states the counts the fixture contains. A fixture with a range-envelope row and mixed units draws nothing for them and gives each reason; a factor beyond the limit draws the default factor or the normalized drawing and gives the reason; and a load case whose numerical health is "sensitive" is given neither colour nor arrows, and the legend gives the reason.
+- **AC-004** — For the frame kernel's orientation cases: each drawn triad equals the kernel's axes for that case, and each case the kernel refuses is withheld with the reason.
+- **AC-005** — For a fixture whose rows and rule-check outcomes are chosen by hand: the support load summary and the displacement extremes give the maxima, minima and governing cases determined by hand; each ratio equals the quotient REQ-020 defines; incomplete outcomes are listed first; and no threshold hides one.
+- **AC-006** — For an invented model whose pipe lengths, masses per length, component weights and gravity are set by hand: the weight and centre of gravity shown equal the hand sum of REQ-022's terms, with bend spans and omitted items named.
+- **AC-007** — In a session with a solved result: each navigator key and button makes the step REQ-012 defines, stops at each end with a message, states an empty table without skipping it, and leaves the session's selection equal to that of a click on the same row; the keys do nothing while focus is outside the results panel or in a text field, select, combobox, listbox or menu; the key-results panel opens without moving focus and each of its buttons opens the view REQ-013 names.
+- **AC-008** — For one supplied quality verdict of each kind, on a load case and on a combination: the indicator shows the state and headline REQ-023 gives, the boundary sentence is present, the badge's state is readable without colour, and no indicator text contains a word REQ-023 excludes.
+- **AC-009** — Every results table's view model gives stable row identifiers, each numeric column's displayed unit and conversion, and an absent value's status text, and the table shows its units, frames, limitations and standing. With the follow-selection filter on and nothing selected, the table shows no rows and says so.
+- **AC-010** — After every control of every table and drawing has been used, the model document and the result are byte for byte what they were.
+- **AC-011** — For an invented solved fixture that carries a warning, an assumption, a missing-data finding, a solver finding, a nonlinear support-state warning, a provenance gap and an IP-boundary warning, and a rule-check run with one complete and one incomplete check: each item appears with the result it qualifies; the result shows the model hash, solver version, rule-pack name, version and checksum, units and limitations the fixture carries; a ratio appears only for the complete check, and the incomplete one shows unavailable with its finding; and the governing ratio is stated as unavailable.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-017 — Procedure: DEL-07-05 Results viewer
+**Method choices.** The viewer is the desktop's results feature and a set of overlay modules drawn in DEL-07-01's scene. Each derived summary is a pure function from published rows to a view model, so a table, its export and its check read the same rows. Display values pass through one report display rule. Overlay geometry is computed apart from the scene so that it can be checked without a renderer.
 
-> #### Procedure: DEL-07-05 Results viewer
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+**How each criterion is examined.**
 
-### CLM-019 — Purpose
-
-> ##### Purpose
->
-> This procedure records how DEL-07-05 artifacts are maintained against the implemented results-viewer slice and what a future bounded implementation brief must verify before extending that slice.
->
-
-### CLM-020 — Prerequisites
-
-> ##### Prerequisites
->
-> - Sealed deliverable context for DEL-07-05.
-> - Write scope limited to this deliverable folder.
-> - Governing references in `_REFERENCES.md` are available.
-> - Applicable invariants from `docs/CONTRACT.md` are preserved.
-> - Architecture-basis constraints in `_CONTEXT.md` are treated as dispatch constraints, not as issued implementation content.
->
-
-### CLM-021 — Steps
-
-> ##### Steps
->
-> 1. Confirm the deliverable identity, package, scope item, objectives, context envelope, and architecture-basis IDs from `_CONTEXT.md`.
-> 2. Read the governing references named in `_REFERENCES.md`, especially `docs/CONTRACT.md`, `docs/SPEC.md`, `docs/TYPES.md`, `docs/DIRECTIVE.md`, and the decomposition/register rows for DEL-07-05.
-> 3. Maintain `ScopeOfWork.md` by drafting `ScopeOfWork.md` from accessible sources.
-> 4. Run `semantic-matrix-build` by replacing `_SEMANTIC.md` with a deliverable-local semantic lens and marking semantic audit status.
-> 5. Run `lens-register` by producing `_SEMANTIC_LENSING.md` with complete matrix-cell coverage and any warranted enrichment items.
-> 6. Review `ScopeOfWork.md` against source evidence by checking the lensing register against the Scope of Work contract and applying only warranted, source-supported enrichments.
-> 7. Run `dependency-extract` by producing `Dependencies.csv` v3.1 and refreshing `_DEPENDENCIES.md` with conservative anchor and execution edges.
-> 8. Run local validation gates for Scope of Work contract, dependency schema, status enum, and protected-boundary spot checks.
-> 9. Set `_STATUS.md` Current State to `SEMANTIC_READY` only if all setup gates pass.
->
-### CLM-022 — Verification
-
-> ##### Verification
->
-> | Check | Command or method | Expected result |
-> |---|---|---|
-> | the Scope of Work contract exist | `python3 tools/scope_of_work/validate_scope_of_work.py <DELIVERABLE_PATH>/ScopeOfWork.md` | PASS |
-> | Dependency schema valid | `python3 tools/validation/validate_dependencies_schema.py <deliverable path>/Dependencies.csv` | VALID with 29 required columns |
-> | Lifecycle enum valid | `python3 tools/validation/validate_enum.py LIFECYCLE_STATE SEMANTIC_READY` | VALID |
-> | Protected-data boundary | Text scan for protected standards values, code thresholds, copied formulas, or certification claims | No prohibited content found |
-> | Scope boundary | `git status --short -- <deliverable path>` | Only deliverable-local files changed |
->
-### CLM-023 — Records
-
-> ##### Records
->
-> The setup run must leave these records in the deliverable folder:
->
-> - `ScopeOfWork.md`;
-> - semantic matrix and lensing artifacts;
-> - dependency register and dependency summary;
-> - run records for all five required setup steps;
-> - status history showing `OPEN -> INITIALIZED -> SEMANTIC_READY`.
->
-### CLM-024 — Future Implementation Procedure Notes
-
-> ##### Future Implementation Procedure Notes
->
-> A future implementation brief must not begin from these setup documents alone. It must receive source-code write scope, schema/result-envelope contracts, test requirements, and any human decisions needed for result category layout, unit handling, ratio terminology, equipment-load semantics, and report/export integration.
->
-> For rotational deformation specifically, the brief must consume DEC-074 O1 / PDU-061 and the emitted `rx`/`ry`/`rz` evidence, preserve the current translational-overlay behavior unless deliberately changed, define the intended rotational visual semantics, and add focused UI/browser evidence. Until that work lands and is backchecked, the owner-steered work graph selected through `loop/LOOP_INIT.md` selects work; `_STATUS.md` retains the residual; documenting the residual does not claim implementation.
->
-> Current implementation (at `62c1efd75b`): the rotational visual semantics and focused browser evidence named above now exist in code. The rotation overlay and glyph anchors are derived in `apps/desktop/src/features/viewport/deformationOverlay.ts`, the glyph meshes are built in `viewportRotationGlyph.ts` and drawn by `PipeViewport.tsx`, with unit tests `deformationOverlay.test.ts`, `viewportRotationGlyph.test.ts` and `PipeViewport.rotation.test.tsx` and browser spec `apps/desktop/e2e/rotation-glyph.spec.ts`; DEL-07-05:1 records their behaviour. This note describes code only; it records no backcheck or residual closure.
-
-- **VER-001** — Validate the contract and review source parity, result categories and unit labels, diagnostics and provenance, status separation, ratio blocked/unavailable behavior, translational versus rotational visualization boundary, report/export traceability, and every retained governed residual.
+- **VER-001** — Executable check (observes the rendered tables against the fixture's published result): reads every displayed value, unit, case and frame and compares them with the published rows converted through the unit catalog, and with the report display of the same rows.
+- **VER-002** — Comparison with a named reference (the reader's verdict for each fixture result, and the claims registry's display forms): renders an unadmitted result, a historical run and an exact-contract result and compares the standing, headlines, statuses and refusal names shown with the reader's verdict and the registry.
+- **VER-003** — Executable check (observes overlay geometry and the drawn scene against hand-set fixtures): computes each expected position, direction, sign, scale step and legend count from the fixture's numbers by the stated definitions, and compares them with what the overlay modules produce and the scene draws.
+- **VER-004** — Comparison with a named reference (the frame kernel's orientation cases): draws the triads for each case and compares their axes with the kernel's.
+- **VER-005** — Executable check (observes the derived summaries against hand-determined answers): feeds the hand-chosen rows, outcomes and weights to each summary and compares maxima, minima, governing cases, ratios, order and totals with the answers written beside the fixture.
+- **VER-006** — Executable check (observes a desktop session by keyboard and accessibility tree): steps the navigator to each end, opens the key-results panel and each of its views, and reads focus, messages and the session's selection.
+- **VER-007** — Executable check (observes the indicator for supplied verdicts): renders each verdict kind for a load case and a combination, reads the state, headline, sentence and badge text, and scans every indicator text for the excluded words.
+- **VER-008** — Executable check (observes view models and stored bytes): reads each table's view model for identifiers, units, conversions and absent-value text, then exercises every control and compares the model document and the result with their bytes before.
+- **VER-009** — Executable check (observes the results surfaces against a fixture's published result and rule-check run): reads where each finding, identity, ratio and unavailable marking is shown and compares them with the fixture's.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-025 — Guidance: DEL-07-05 Results viewer
-
-> #### Guidance: DEL-07-05 Results viewer
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-027 — Purpose
-
-> ##### Purpose
->
-> The results viewer should make analysis outputs reviewable without hiding the conditions that make those outputs trustworthy, incomplete, or unsuitable for professional reliance. Its job is to help users inspect mechanics results, user-rule-check outputs, warnings, assumptions, and report/export readiness; it is not a solver, code interpreter, or professional approval mechanism.
->
-
-### CLM-028 — Principles
-
-> ##### Principles
->
-> - Keep result categories visible and separable: displacements, rotations, forces, moments, reactions, equipment loads, stresses, and ratios are related but not interchangeable.
-> - Treat result envelopes and diagnostics as the boundary of authority for what the GUI may show.
-> - Preserve unit and dimensional context at every numerical display.
-> - Show missing solve-required data and rule-check-required data as findings, not as empty success states.
-> - Treat stress ratios as user-rule-pack outputs. Do not invent thresholds, allowables, categories, or pass/fail meanings.
-> - Preserve export/report traceability: visible result review should align with reproducibility metadata instead of becoming an isolated screen state.
-> - Keep professional-boundary notices close to result status; acceptance and professional judgment remain with the responsible engineer.
->
-
-### CLM-029 — Considerations
-
-> ##### Considerations
->
-> The current result surface already provides bounded filtering, grouping, tabular review, and a translational deformation overlay. Surviving implementation work should extend that slice without changing the boundaries in this document, including decisions about:
->
-> - result category navigation;
-> - load case and combination selection;
-> - envelope/range selection;
-> - node, element, support, and equipment-load targeting;
-> - tabular values versus graphical overlays;
-> - rotational-deformation visualization for emitted `rx`/`ry`/`rz` rows, now drawn as rotation glyphs, with focused browser evidence in `apps/desktop/e2e/rotation-glyph.spec.ts`;
-> - unit display and conversion controls;
-> - diagnostic badges, warning panels, and blocked states;
-> - report/export readiness indicators.
->
-
-### CLM-030 — Trade-offs
-
-> ##### Trade-offs
->
-> | Trade-off | Guidance |
-> |---|---|
-> | Dense tables vs. graphical overlays | Use each where it supports review. Tables support exact inspection; overlays support spatial pattern recognition. Both must remain unit-aware and diagnostics-qualified. |
-> | Ratio display vs. code-compliance claims | Ratios may show user-rule-pack calculations when inputs are complete. The UI must not turn those ratios into automatic professional approval or public code compliance claims (PRD §21.2). |
-> | Convenience filters vs. hidden warnings | Filters should not suppress blocking diagnostics or professional-boundary status without a deliberate, visible review state. |
-> | Export readiness vs. report generation | The viewer may expose report/export readiness signals, but report generation and structured result exports remain PKG-08 surfaces unless a later sealed brief says otherwise. |
->
-
-### CLM-031 — Examples
-
-> ##### Examples
->
-> The following are structural examples only and include no engineering values:
->
-> - A load-combination selection reveals displacements and rotations at selected nodes, with unit labels and any solver diagnostics attached.
-> - A support selection reveals restraint reactions and active-state warnings when nonlinear support state is uncertain.
-> - A stress result view shows mechanical stress values when available and shows `RULE_INPUTS_INCOMPLETE` if a requested ratio depends on missing user rule-pack inputs.
-> - A report/export readiness indicator shows whether result hashes, solver version, rule-pack checksum, warnings, and assumptions are available for downstream reporting.
->
-
-### CLM-032 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | None | No source conflict identified during setup. | N/A | N/A | N/A | N/A | N/A |
->
-
-### CLM-033 — Open Issues
-
-> ##### Open Issues
->
-> | Issue | Status |
-> |---|---|
-> | Exact result-envelope schema fields consumed by the viewer | Resolve the accepted result-envelope fields through `schemas/results.schema.yaml` and `apps/desktop/src/features/results/ResultsPanel.tsx`; preserve category, unit, status, provenance and missing-data contracts. |
-> | Exact UI layout, component library, state library, and broader overlay behavior | Layout/component/state choices are local implementation details under DEC-012 and current desktop sources. Rotational-deformation visualization (DEC-074 O1/PDU-061) is implemented as rotation glyphs, with focused browser evidence in `apps/desktop/e2e/rotation-glyph.spec.ts`. |
-> | Exact rule-ratio terminology when private rule packs differ by user design basis | TBD |
-> | Exact equipment-load aggregation/display semantics | TBD |
+- **AX-001** — The viewer adds nothing to a result. Better is a value shown exactly as published with its frame and limits, measured by displayed values equalling published rows, never a value re-projected, interpolated, ranked or completed by the display.
+- **AX-002** — Absence is information. Better is a row, an arrow or a ratio withheld with its reason, measured by every withheld item having a stated reason and a count in its legend, never a zero, a blank or a default drawn in its place.
+- **AX-003** — A display says what it is. Better is a magnification, a scale, a standing and a health state stated in words beside the drawing, never a picture or a colour the reader could take for a judgment of the design.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-023 OBJ-006 OBJ-007 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-07-05:1** — Implement rotational-deformation visualization for emitted `rx`/`ry`/`rz` result rows (source: DEC-074 O1 / PDU-061). The viewport now draws, per node, a double-headed arrow along the rotation vector of its emitted `global_nodal_rotation_x/y/z` rows: right-hand rule, at the deformed position when the deformed shape is drawn, on the basis that governs the node's deformed shape (no glyph if that basis lacks a complete triple; only a node without a governing displacement row uses its longest rotation), never from range-envelope rows, with length normalized to the longest drawn vector. The deformation readout reports the largest absolute emitted component with its unit. Mixed units across nodes, or no complete triple, leave the rotation overlay unavailable. The translational overlay is unchanged. Unit and readout evidence (jsdom has no WebGL, so the drawn meshes are covered by unit tests of their geometry and placement): `deformationOverlay.test.ts`, `viewportRotationGlyph.test.ts`, `PipeViewport.rotation.test.tsx`. Focused browser evidence (CLM-024): `apps/desktop/e2e/rotation-glyph.spec.ts` renders the production viewport over the bundled invented reference in Chromium. With the emitted rotation rows, the spec shows the readout, adds exactly the glyph draw calls and triangles, and changes the pixels at each glyph's projected shaft midpoint on the deformed shape. With only those rows dropped, none of this appears, the camera projection is unchanged and a canvas-corner control patch is identical. The spec runs in the required pull-request browser lane (chromium-desktop) and in the broad browser matrix.
-- **DEL-07-05:2** — Preserve ratio producer/rule-pack sufficiency as upstream responsibilities and never synthesize missing criteria. The current result-semantic contract provides no eligible governing-ratio family, so the viewer reports governing ratio unavailable rather than treating a supplied unrecognized row as an eligible ratio. Evidence: the current semantic tables `fixtures/results/semantic_contract_v0_3_*.json` (no row is `governing_ratio_eligible`; B7a removed the 0.2 table), `apps/desktop/src/features/results/ResultsPanel.test.tsx` and `apps/desktop/src/App.test.tsx` (PR #787 result-integrity basis). A future eligible producer/semantic basis remains separately governed.
-- **DEL-07-05:3** — Deflected-shape controls, element axes and selection-following results (FR-GUI-001, FR-SOL-007; adopted under the owner's 2026-10-27 delegation, #1662). The deformation popover selects one load case or combination and offers a magnification factor of physical displacement in model length units when the required components, convertible units and a nonzero displacement are available. When a finite default drawing can be formed, the default is the 1–2–5 factor nearest on a logarithmic scale to drawing the largest displacement at one tenth of the model's largest bounding-box side. Without a positive finite model extent or a finite default, the popover states that there is no default and still accepts a factor. A factor is drawn only while every drawn offset stays within 1e15 model length units and every drawn position is finite at the viewport's 32-bit precision; otherwise the default, or the normalized drawing, is shown with the reason. The canvas, the popover summary and its explanation state the magnification drawn, the factor times the phase. The canvas and explanation name both factors when the phase slider draws less than the full deflection. The popover also offers a dimmed undeformed model and continuous animation, disabled under a reduced-motion preference. The governing-row normalized drawing remains the default. The toolbar separately offers local triads using the straight-member frame convention (x from From to To, y from the projected `y_reference`, z = x × y), formed on coordinates converted to metres with the frame kernel's normalization sequence and its unit-length, orthogonality and right-handedness checks at 1e-12, or global axes; a table produced by the compiled kernel shows the view accepting, refusing and forming axes as the kernel does. Local triads are withheld, with the reason, for missing end nodes or `y_reference`, frames the kernel refuses, and length units that do not convert to metres in the view, and on spans marked as realized curved bends. The results table independently states and filters each row's published frame and can filter rows by the primary selected entity; with that filter on and no entity selected, it shows no rows and says so. Turning that filter off removes the selection restriction; the other filters still apply. No result value is re-projected. All controls are session view state. Evidence: `deflectedShape.test.ts`, `PipeViewport.deflection.test.tsx`, `elementAxes.test.ts`, `PipeViewport.elementAxes.test.tsx`, `selectionReveal.test.tsx`; Design `Work/deflected-shape-and-element-axes.md`. Existing ui-foundation and C3 browser layout checks pass; focused browser verification of the new deformation and axis controls remains open.
-- **DEL-07-05:4** — Results navigator with keyboard stepping (FR-GUI-001, FR-GUI-002; survey item A1, adopted under the owner's 2026-10-27 delegation). The Results panel steps, by Alt+Shift+ArrowLeft/Right, Alt+ArrowUp/Down and Alt+ArrowLeft/Right or by a labelled Previous and Next button for each, through the table kind (the family filter), the load case or combination (a case filter listing every case the result's rows state, rows with no case included) and the support or element of the listed rows. Steps stop at either end and say so; an empty table is stated, not skipped. A step selects the current row as a click on it does, so the session's selection, and with it the viewport, tree and inspector, follows, and the table shows and scrolls to the row. Keys act only with focus in the panel and never in an editing or choosing control. No row, case or entity is left out for its numerical health or standing; row badges and the standing line are unchanged, and where the table badges rows, a case with a stated numerical-health state other than "checks passed" is named with that state; withheld combinations retain the table's absence of a state and badge. The navigator forms no value, changes no model, queue or undo history, moves no camera, and is not an output surface. Evidence: `resultsNavigator.test.ts`, `ResultsPanel.navigator.test.tsx`, `App.resultsNavigator.test.tsx`; Design `Work/results-navigator.md`. Browser verification of the navigator remains open.
-- **DEL-07-05:5** — Key-results panel after each solve (FR-GUI-001, FR-GUI-006; survey item A6, adopted under the owner's 2026-10-27 delegation). One panel, opened on the session's first solved result without moving focus, or on demand, offers one button and one key each for: the ratio contour of a stress category of the user's rule-check run of this result; the deflected shape of a load case or combination; the support load summary of an anchor or equipment connection; the support contact and lift-off state rows; the results, stress and ratio, and displacement extremes tables; and a return to editing. Each sets existing view state only. Categories and ratios appear only from the user's run; an absent pack is stated as absent and incomplete outcomes as incomplete, never as zero or passing. The panel forms no value, changes no model, queue or undo history, and is not an output surface. Evidence: `keyResults.test.ts`, `KeyResultsPanel.test.tsx`, `ResultsPanel.keyResults.test.tsx`, `PipeViewport.keyResults.test.tsx`, `App.keyResults.test.tsx`, `useKeyResultsSession.test.tsx`, `SupportLoadSummaryPanel.focusRequest.test.tsx`; Design `Work/key-results-panel.md`. Browser verification of the panel remains open.
+| OUT-001 | SOW-023 OBJ-006 OBJ-007 | REQ-001 REQ-003 | AC-001 | VER-001 | The published result of the fixture is the reference and is not written by this deliverable; unit factors are the unit catalog's (DEL-02-02). This shows the viewer alters nothing; whether the published values are right is the solver deliverables' to show. |
+| OUT-001 | SOW-023 OBJ-007 | REQ-002 REQ-004 REQ-011 | AC-002 | VER-002 | The product result reader's verdict (DEL-05-02) and the claims registry's display forms (DEL-01-04) are the references. |
+| OUT-002 | SOW-023 OBJ-006 | REQ-014 REQ-016 REQ-017 REQ-018 | AC-003 | VER-003 | The requirements state each drawing's definition, and the expected geometry is worked by hand from the fixture's numbers. The reaction sign convention is the published result's. |
+| OUT-002 | SOW-023 OBJ-006 | REQ-015 | AC-004 | VER-004 | Another deliverable's output: the frame kernel's own outcomes for invented cases, captured by a probe compiled against the kernel. This shows the viewer agrees with the kernel; whether the kernel's axes are right is DEL-04-01's to show. |
+| OUT-001 | SOW-023 OBJ-006 OBJ-007 | REQ-019 REQ-020 REQ-021 | AC-005 | VER-005 | The fixture's rows are chosen by hand and the expected maxima, minima, governing cases and quotients are written beside them. |
+| OUT-001 | SOW-023 OBJ-006 | REQ-022 | AC-006 | VER-005 | Hand arithmetic on the fixture's lengths, masses, weights and gravity, by the terms REQ-022 names. The mass per length is the self-weight plan's (DEL-05-01). |
+| OUT-001 | SOW-023 OBJ-006 | REQ-012 REQ-013 | AC-007 | VER-006 | The requirements state each key, step and view; the expected selection is that of a click on the same row. |
+| OUT-001 | SOW-023 OBJ-007 | REQ-023 | AC-008 | VER-007 | Owner ruling: the five headlines, the boundary sentence and the excluded words. The verdict shown is the solve's own, as the result reader returns it, supplied by the fixture. |
+| OUT-001 | SOW-023 OBJ-006 | REQ-010 | AC-009 | VER-008 | The requirement states what a view model and a table carry; the check reads each for those members. |
+| OUT-002 | SOW-023 OBJ-006 | REQ-024 | AC-010 | VER-008 | The fixture's model document and result bytes before the controls are used are the reference. |
+| OUT-001 | SOW-023 OBJ-006 OBJ-007 | REQ-005 REQ-006 REQ-007 | AC-011 | VER-009 | The fixture's published result and rule-check run are the reference, and this deliverable does not write them. |

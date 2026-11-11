@@ -2,386 +2,108 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-01-01
 package_id: PKG-01
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@c5abf91b717c0b3901d2a27c578e63976853f8de
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-001, SOW-048]
 package_objective_refs: [OBJ-001, OBJ-002]
 ---
 
-# Scope of Work — DEL-01-01
+# Scope of Work — DEL-01-01 Project governance baseline
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-01-01` in service of project scope [SOW-001, SOW-048] and package objectives [OBJ-001, OBJ-002].
+This deliverable is the project's public statement of how it is governed. A reader of the public repository learns from it what licence the software is offered under, who maintains it and who may release it, what a public release must disclose, and which invariants every other part of the product is held to. It also tells that reader that maintaining or releasing the software is not professional approval of anyone's piping calculation.
 
-- **OUT-001** — A project governance baseline covering the selected MIT license, public governance surfaces, protected-content and professional-authority boundaries, maintainer and release policy slots, and human-gated agent output is preserved for the declared scope and objectives.
+It serves SOW-001 and SOW-048 under OBJ-001 and OBJ-002 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-01, row DEL-01-01: a single governance surface, policy language only), and the PRD's product principles, §4.2, §5.9 and §21.2. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names this deliverable. It reaches the release target through criterion 15, where DEL-10-04 records the licence consistently in the build: the licence it records is the one stated here.
+
+- **OUT-001** — The governance baseline: the project licence text at the repository root, the invariant catalogue `docs/CONTRACT.md`, and the documentation index `docs/README.md` that leads a reader to the governance documents.
+- **OUT-002** — The maintainer and release policy, `governance/MAINTAINERS.md`: who may accept content into the repository, who may release, what review a public contribution must pass before it is accepted, and what a public release must disclose.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-01-01 Project governance baseline
+**Terms the baseline implements.**
 
-> #### Datasheet: DEL-01-01 Project governance baseline
->
+- *Project licence.* MIT (DEC-112). The licence text is the MIT License with the project's one copyright notice.
+- *Human project authority.* The owner. The owner is the sole developer, the sole maintainer and the sole release authority; the maintainer quorum is one (DEC-027).
+- *Maintainer authority* and *release authority.* Authority to accept content into the repository, and authority to publish a release. Both are project governance. Neither is professional engineering approval of a calculation made with the software.
+- *Invariant.* A rule of `docs/CONTRACT.md` with a stable identifier (`OPS-K-<area>-<n>`), a statement and the point at which it is enforced. A retired invariant stays listed as retired.
+- *Release disclosure.* What a public release states about itself: its scope, its validation status, its known limitations, its data-boundary constraints and its professional-responsibility limitations.
+- *Undecided value.* A governance value the owner has not decided. It is written as undecided.
 
-### CLM-002 — Identification
+**Boundary.** This deliverable states who decides and under what licence. The following belong elsewhere:
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-01-01 |
-> | Package ID | PKG-01 |
-> | Package Name | Governance, IP Boundary, and Professional Responsibility |
-> | Deliverable Name | Project governance baseline |
-> | Type | DOC_UPDATE |
-> | Scope Items | SOW-001, SOW-048 |
-> | Objectives | OBJ-001, OBJ-002 |
-> | Context Envelope | M |
-> | Decomposition Basis | execution/_Decomposition/SOFTWARE_DECOMP.md revision 0.7 |
-> | Coordination Basis | execution/_DAG/DAG-006/ approved active graph authority |
-> | Status | IN_PROGRESS governance baseline refresh |
->
+- what may and may not enter the public repository, and the reviewer's checklist: DEL-01-02;
+- the contributor's side of a contribution, and whether intake is open: DEL-01-03;
+- what the product may claim, and the report notice: DEL-01-04;
+- recording the licence in package manifests and build artefacts, signing and notarizing, and the release notes template that carries the disclosures: DEL-10-04;
+- the release quality gates: DEL-09-05;
+- the contributor guide: DEL-11-05.
 
-### CLM-003 — Attributes
+The meaning of an invariant outside the governance rows (OPS-K-GOV-1 to OPS-K-GOV-4) comes from the PRD and is enforced by the deliverable its enforcement point names. This deliverable keeps the catalogue: its identifiers, its enforcement map and its retired list.
 
-> ##### Attributes
->
-> | Attribute | Value | Source |
-> |---|---|---|
-> | Product stance | Free and open-source piping stress analysis platform | SOW-001; docs/DIRECTIVE.md Section 6 |
-> | License selection | `MIT` | Human project authority (D-74, 2026-09-22; owner, 2026-10-28: "it's MIT license"); OPS-K-GOV-1; SOW-048 notes |
-> | Governance surfaces | `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, `governance/MAINTAINERS.md` | _CONTEXT.md anticipated artifacts |
-> | Policy scope | Governance baseline, maintainer policy skeleton, release/governance boundary language | DEL-01-01 register row; SOW-048 |
-> | Public data boundary | Protected standards text, tables, figures, examples, protected formulas, material allowables, SIF/flexibility tables, protected dimensional tables, and proprietary commercial data are not public repository content | OPS-K-IP-1; docs/DIRECTIVE.md Sections 3 and 4 |
-> | Professional authority boundary | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). | OPS-K-AUTH-1; docs/DIRECTIVE.md Section 6 |
-> | Agent authority boundary | Type 2 outputs are drafts/proposals until accepted by a human gate | OPS-K-AGENT-4; docs/AGENTIC_DEVELOPMENT_WORKFLOW.md |
->
+**Not decided.**
 
-### CLM-004 — Conditions
-
-> ##### Conditions
->
-> | Condition | Status |
-> |---|---|
-> | Repo-level governance surfaces exist and are explicitly in current-basis refresh scope | Applied |
-> | No protected standards/code data is reproduced | Applied |
-> | No legal conclusion beyond draft policy language is made | Applied |
-> | Maintainer roster, release authority, quorum, and signing | TBD |
-> | Public release maturity labels and validation disclosure format | TBD |
-> | Human project authority for governance decisions | TBD |
->
-
-### CLM-005 — Governance Decision Surface
-
-> ##### Governance Decision Surface
->
-> | Decision Surface | Current Value | Authority Needed |
-> |---|---|---|
-> | Project license | `MIT` | Human project authority (D-74, 2026-09-22; owner, 2026-10-28: "it's MIT license") |
-> | Maintainer roster | TBD | Human project authority |
-> | Maintainer quorum or approval model | TBD | Human project authority |
-> | Release authority | TBD | Human project authority |
-> | Release signing or provenance process | TBD | Human project authority |
-> | Legal review process for license/IP questions | TBD | Human project authority |
->
-
-### CLM-006 — Construction
-
-> ##### Construction
->
-> This deliverable-local kit describes the baseline content and current-basis
-> maintenance rules for public governance artifacts. It may update
-> `docs/README.md` and `governance/MAINTAINERS.md` under explicit tranche write
-> scope. The project license is resolved as `MIT`;
-> remaining human-governed decisions stay `TBD`.
->
-> The baseline is constructed from:
->
-> - scope item SOW-001: free and open-source platform intent;
-> - scope item SOW-048: license, governance, release, and maintainer policy obligation;
-> - objective OBJ-001: auditable, inspectable, extensible platform;
-> - objective OBJ-002: protected-standards and user-supplied-data separation;
-> - contract invariants for hierarchy, identifiers, IP boundary, professional authority, governance, and agent execution.
->
-
-### CLM-007 — References
-
-> ##### References
->
-> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history)
-> - `_REFERENCES.md`
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md`
-> - `execution/_DAG/DAG-006/`
-> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history)
-> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history)
-> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history)
-> - `docs/CONTRACT.md`
-> - `docs/DIRECTIVE.md`
-> - `docs/TYPES.md`
-> - `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`
+- The owner's contributor rules: who may contribute and on what terms, beyond what the owner has recorded (sole-maintainer review, quorum one and closed external intake; DEC-027, DEC-079). OUT-002 is written from them and is not drafted without them.
+- The legal-review process for licence and intellectual-property questions.
+- Release maturity wording. No release carries a maturity label until the owner decides one.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-008 — Specification: DEL-01-01 Project governance baseline
+The baseline is policy language. It is adequate when a reader can find each governance value in one place, each value is one the owner decided, and nothing in it reads as legal advice or professional approval.
 
-> #### Specification: DEL-01-01 Project governance baseline
->
+### Requirements
 
-### CLM-009 — Scope
+- **REQ-001** — The baseline states the project licence, MIT, and carries its text. Stating the licence is not legal advice and makes no legal conclusion (SOW-001; SOW-048; `docs/CONTRACT.md` OPS-K-GOV-1).
+- **REQ-002** — Governance language keeps project governance approval distinct from professional engineering approval: accepting a contribution or publishing a release is never described as certifying, sealing, authenticating, endorsing or approving engineering work, or as establishing code compliance (PRD §5.9, §21.2; `docs/CONTRACT.md` OPS-K-AUTH-1).
+- **REQ-003** — The maintainer policy makes review for protected content, provenance, redistribution rights and private data a condition of accepting a public contribution. It names the gates and refers to the documents that define them (DEL-01-02 and DEL-01-03); it does not restate them (`docs/CONTRACT.md` OPS-K-GOV-4, OPS-K-IP-1 to OPS-K-IP-3; PRD §20.2).
+- **REQ-004** — The release policy requires every public release to carry the five release disclosures (`docs/CONTRACT.md` OPS-K-GOV-3; PRD product principles).
+- **REQ-005** — Maintainer authority, release authority and every other public-governance decision is recorded in the baseline before it is treated as project policy (`docs/CONTRACT.md` OPS-K-GOV-2). The recorded values are those of DEC-027.
+- **REQ-006** — Every governance value in the baseline traces to a decision the owner made. The baseline carries no value an agent proposed and the owner did not adopt (`docs/CONTRACT.md` OPS-K-GOV-2).
+- **REQ-007** — An undecided governance value is written as undecided. The baseline invents no legal conclusion, maintainer identity, quorum rule, signing process or compliance claim (`docs/CONTRACT.md` OPS-K-AGENT-1).
+- **REQ-008** — Invariant identifiers are stable and never reused, a retired identifier stays on the retired list, and every invariant names its enforcement point (decomposition row DEL-01-01: single governance surface).
+- **REQ-009** — From the documentation index a reader reaches the invariant catalogue, the IP and data boundary policy and the claims registry.
 
-> ##### Scope
->
-> This deliverable specifies a draft governance baseline for OpenPipeStress. It covers the intended public/free/open-source posture, maintainer and release policy skeleton needs, and required policy boundaries for protected content, professional authority, and agent-generated outputs.
->
-> This deliverable excludes product implementation, solver behavior, GUI
-> behavior, legal advice, license selection, certification/approval language,
-> release acceptance, and professional/code-compliance claims. It may update the
-> visible docs index and maintainer policy skeleton when an approved tranche
-> explicitly grants repo-level governance write scope.
->
+### Acceptance criteria
 
-### CLM-010 — Requirements
-
-> ##### Requirements
->
-> | ID | Requirement | Basis | Verification |
-> |---|---|---|---|
-> | REQ-01-01-01 | The governance baseline must preserve the human-selected project license, `MIT`, while avoiding legal advice and professional/code-compliance claims. | SOW-001; SOW-048; OPS-K-GOV-1 | Confirm the selected license is visible and no legal conclusion is asserted. |
-> | REQ-01-01-02 | Governance language must distinguish project governance approval from professional engineering approval. | OPS-K-AUTH-1; docs/DIRECTIVE.md Section 6 | Check that maintainer/release approval is not described as certification, sealing, authentication, endorsement, or code-compliance approval (PRD §21.2). |
-> | REQ-01-01-03 | Public contribution and release policy language must include protected-content, provenance, redistribution-rights, privacy, and review gates. | OPS-K-IP-1, OPS-K-IP-2, OPS-K-IP-3, OPS-K-GOV-4 | Check for policy slots covering source/provenance, redistribution status, contributor certification, review disposition, quarantine/escalation, and private-data risk. |
-> | REQ-01-01-04 | Public release policy language must require disclosure of scope, validation status, known limitations, data-boundary constraints, and professional-responsibility limitations. | OPS-K-GOV-3 | Check release policy skeleton for each disclosure category or an explicit `TBD` slot. |
-> | REQ-01-01-05 | Maintainer authority, release authority, and public-governance decisions must be recorded in public governance artifacts before being treated as project policy. | OPS-K-GOV-2 | Check that draft language does not treat unrecorded roles, quorum, signing, or license choices as effective policy. |
-> | REQ-01-01-06 | Agent-produced governance content must remain draft/proposal material until accepted by the human gate. | OPS-K-AGENT-4; docs/AGENTIC_DEVELOPMENT_WORKFLOW.md | Check for draft status and absence of issued/final acceptance claims. |
-> | REQ-01-01-07 | Unknown governance values must be marked `TBD`; the deliverable must not invent legal conclusions, maintainer identities, quorum rules, signing process, or compliance claims. | OPS-K-AGENT-1; docs/DIRECTIVE.md Section 6 | Inspect all governance-value fields and open policy choices. |
-> | REQ-01-01-08 | The deliverable must preserve flat package/deliverable identity and stable IDs. | OPS-K-HIER-1; OPS-K-ID-1 | Confirm DEL-01-01, PKG-01, SOW, and OBJ IDs match registers. |
->
-
-### CLM-011 — Acceptance Criteria
-
-> ##### Acceptance Criteria
->
-> | ID | Criterion | Evidence |
-> |---|---|---|
-> | AC-01-01-01 | Project license is recorded as `MIT`; no legal conclusion is asserted. | Datasheet decision surface; Guidance conflict C-01-01-001 |
-> | AC-01-01-02 | Contribution-review policy slots include source, provenance, redistribution status, contributor certification, review disposition, quarantine status, and private-data risk. | Specification REQ-01-01-03; future repo-level governance artifact review |
-> | AC-01-01-03 | Release policy slots include scope, validation status, known limitations, data-boundary constraints, professional-responsibility limitations, and release maturity wording marked `TBD` until decided. | Specification REQ-01-01-04; Guidance trade-offs |
-> | AC-01-01-04 | Maintainer/release authority values remain `TBD` until recorded by the human project authority. | Datasheet decision surface; Guidance conflict C-01-01-002 |
-> | AC-01-01-05 | Run evidence records which repo-level governance artifacts were edited and confirms no protected standards/code content was reproduced. | `_run_records/TASK_RUN_*.md` |
->
-
-### CLM-012 — Standards
-
-> ##### Standards
->
-> | Standard or Authority | Status |
-> |---|---|
-> | `docs/CONTRACT.md` invariant catalog | Accessible draft governance authority |
-> | `docs/DIRECTIVE.md` founding directive | Accessible draft governance authority |
-> | `docs/TYPES.md` identity and vocabulary | Accessible draft governance authority |
-> | Project license | `MIT`; see `LICENSE.md` |
-> | Protected standards/code requirements | Not reproduced; public data boundary only |
->
-
-### CLM-013 — Verification
-
-> ##### Verification
->
-> Verification for this setup deliverable is document review:
->
-> - compare DEL-01-01 identity, scope items, objectives, and anticipated artifacts against `_CONTEXT.md`, current decomposition revision `0.7`, `DAG-006`, and the registers;
-> - confirm all applicable contract invariants are named or reflected;
-> - confirm any repo-level governance edits stay within the authorized tranche write scope;
-> - confirm no protected standards content, proprietary data, legal conclusion, or professional certification claim was introduced;
-> - confirm `MIT` is used for the selected project license and `TBD` is used for unresolved maintainer, release, quorum, signing, and human-authority choices;
-> - confirm `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, `Dependencies.csv`, `_DEPENDENCIES.md`, and `_run_records` evidence exist after the setup workflow completes.
->
-
-### CLM-014 — Documentation
-
-> ##### Documentation
->
-> Anticipated downstream artifacts from the register are:
->
-> - `docs/CONTRACT.md`
-> - `docs/DIRECTIVE.md`
-> - `governance/MAINTAINERS.md`
->
-> For current-basis refresh work, `docs/README.md` and
-> `governance/MAINTAINERS.md` may be updated as governance surfaces. Changes to
-> release acceptance and lifecycle state remain outside this tranche unless
-> separately authorized.
->
-> The release maturity label taxonomy, validation-status wording, release signing process, and governance acceptance record format remain `TBD`.
-
-- **AC-001** — The contract preserves the exact issued governance baseline, including the selected MIT license (D-74; the 2026-06-03 PolyForm selection is superseded history), protected-content and professional-authority boundaries, human-gated agent output, contribution and release policy slots, and all unresolved maintainer, quorum, signing, release-authority, legal-review, and maturity-label values as TBD without adding legal, certification, compliance, release, or professional-reliance claims.
+- **AC-001** — Every copy of the licence text in the repository is the MIT License with the same copyright notice, and every project document that names the project licence names MIT and draws no legal conclusion from it.
+- **AC-002** — The maintainer policy names, as conditions of accepting a public contribution, review of its source and provenance, its redistribution status, the contributor's certification, protected-content risk, private-data risk, the review disposition and quarantine where it applies, and points to DEL-01-02's and DEL-01-03's documents for each.
+- **AC-003** — The release policy names all five release disclosures, and states release maturity wording as undecided.
+- **AC-004** — The maintainer, quorum and release-authority values in the baseline are exactly those the owner recorded: one human project authority who is sole maintainer and sole release authority, quorum one. Every other authority value appears as undecided.
+- **AC-005** — No baseline document reproduces protected standards text, tables, figures or examples, or proprietary data.
+- **AC-006** — Every `OPS-K-` identifier cited anywhere in the repository resolves to exactly one row of the catalogue or of its retired list, no identifier is defined twice, and every row names an enforcement point.
+- **AC-007** — No baseline document describes maintainer acceptance or a release as certification, sealing, authentication, endorsement, professional approval or code compliance.
+- **AC-008** — Every link in the documentation index resolves, and the index links the invariant catalogue, the IP and data boundary policy and the claims registry.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-015 — Procedure: DEL-01-01 Project governance baseline
+**Method choices that define the baseline.**
 
-> #### Procedure: DEL-01-01 Project governance baseline
->
+- *Policy language only.* The baseline contains no software and enforces nothing itself; each invariant names where it is enforced.
+- *One place per value.* A governance value is stated in one document. Other documents link to it.
+- *The catalogue is a table.* One row per invariant: identifier, statement, enforcement. An enforcement map lists the invariants checked at each enforcement point, and a retired list keeps withdrawn identifiers.
+- *Decided or undecided.* A value is written as decided only where the decomposition's decision register holds the owner's decision for it; otherwise it is written as undecided.
 
-### CLM-016 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> This procedure describes how to produce, refresh, and review the DEL-01-01
-> governance baseline artifacts and authorized visible governance surfaces.
->
-
-### CLM-017 — Prerequisites
-
-> ##### Prerequisites
->
-> - Sealed DEL-01-01 brief and write scope.
-> - `_CONTEXT.md`, `_REFERENCES.md`, current decomposition revision `0.7`,
->   approved `DAG-006`, and register rows for DEL-01-01.
-> - Access to `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, `docs/TYPES.md`, and `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`.
-> - No protected standards/code data or proprietary contribution data.
->
-
-### CLM-018 — Steps
-
-> ##### Steps
->
-> 1. Confirm the deliverable identity: DEL-01-01, PKG-01, SOW-001, SOW-048, OBJ-001, and OBJ-002.
-> 2. Read the applicable contract invariants for hierarchy, IDs, IP boundary, professional authority, governance, and agent execution.
-> 3. Draft or refresh deliverable-local `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md`; edit repo-level governance targets only when the active tranche grants explicit write scope.
-> 4. Record the selected project license as `MIT`; mark remaining unresolved governance choices as `TBD`, including maintainer roster, quorum, release signing, release authority, and legal review process.
-> 5. Check that draft language does not assert certification, sealing, endorsement, code compliance, legal opinion, or professional approval (PRD §21.2).
-> 6. Generate `_SEMANTIC.md` as a question-shaping semantic lens after the four documents exist.
-> 7. Generate `_SEMANTIC_LENSING.md` from `_SEMANTIC.md` and the four production documents.
-> 8. Apply P3 enrichment only where the lensing register identifies warranted additions supported by local sources.
-> 9. Generate `Dependencies.csv` and refresh `_DEPENDENCIES.md` using conservative dependency extraction.
-> 10. Persist `_run_records` evidence for the setup or refresh sequence and leave `_STATUS.md` unchanged unless a separate human lifecycle gate authorizes a transition.
->
-
-### CLM-019 — Verification
-
-> ##### Verification
->
-> | Check | Expected result |
-> |---|---|
-> | Scope boundary | Writes stay within the deliverable folder and any explicitly authorized governance surfaces. |
-> | Repo-level targets | `docs/README.md` and `governance/MAINTAINERS.md` may be edited when explicitly authorized; `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, lifecycle files, release records, and DAG artifacts are not edited by this refresh. |
-> | Protected content | No protected standards/code text, tables, examples, or proprietary data are reproduced. |
-> | Professional boundary | No certification, approval, sealing, authentication, or compliance-for-reliance claim appears (PRD §21.2). |
-> | Unknowns | Unresolved policy values are marked `TBD`. |
-> | Setup artifacts | Four documents, `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, `Dependencies.csv`, `_DEPENDENCIES.md`, and `_run_records` exist. |
->
-> Release validation disclosures are communication controls, not acceptance records. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
->
-> The durable run record should explicitly state whether repo-level artifacts were edited, whether protected standards/code content was reproduced, and which unresolved governance decisions remain `TBD`.
->
-
-### CLM-020 — Records
-
-> ##### Records
->
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
-> - `Dependencies.csv`
-> - `_DEPENDENCIES.md`
-> - `_run_records/TASK_RUN_*.md`
-
-- **VER-001** — Validate the contract and independently review exact source parity, governance identity and objective traceability, license and policy boundaries, contribution and release checklist coverage, protected-content and professional-authority controls, human-gated agent status, and every unresolved governed value.
+- **VER-001** — Comparison with a named reference (the MIT License text published under the SPDX identifier `MIT`): compare each copy of the licence text in the repository with the reference apart from the copyright line, compare the copies with each other including the copyright line, and search the project's documents for a licence name, confirming each names MIT.
+- **VER-002** — Judgment by a named role (an independent reviewer who did not write the text): read the maintainer and release policy and the governance rows of the catalogue against PRD §20.1, §20.2 and §21.2 and `docs/CONTRACT.md` OPS-K-GOV-1 to OPS-K-GOV-4, and the decided values against the decision register (DEC-027, DEC-079, DEC-112); report each missing gate, each missing disclosure, each value with no owner decision behind it, each undecided value written as decided, each approval-like description of maintaining or releasing, and any protected or proprietary content.
+- **VER-003** — Executable check (observes that identifiers resolve, not what the invariants mean): collect every `OPS-K-` identifier cited in any tracked file, and test that each resolves to exactly one catalogue or retired row, that no identifier is defined twice and that every row has an enforcement entry.
+- **VER-004** — Executable check (observes link targets): resolve every link in `docs/README.md` and test that the three governance documents of REQ-009 are among them.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-021 — Guidance: DEL-01-01 Project governance baseline
-
-> #### Guidance: DEL-01-01 Project governance baseline
->
-
-### CLM-022 — Purpose
-
-> ##### Purpose
->
-> This deliverable-local kit gives later human or Type 1 governance work a
-> structured baseline for the public project governance surface. It is
-> intentionally conservative: it records required policy boundaries and
-> unresolved choices without asserting legal conclusions, release acceptance, or
-> final project policy.
->
-
-### CLM-023 — Principles
-
-> ##### Principles
->
-> - **Open mechanics, protected standards.** Governance should support a public, inspectable mechanics platform while preventing protected standards content or proprietary commercial data from entering public artifacts.
-> - **Maintainer authority is project authority only.** Maintainers may govern repository process, releases, and contribution acceptance; they do not professionally approve piping calculations by maintaining or releasing software.
-> - **Release labels are software labels.** A release may describe maturity, validation evidence, and known limitations. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
-> - **Unknown policy choices remain TBD.** The project license is selected as `MIT`; release quorum, maintainer roster, signing process, and legal review process remain human-governed `TBD`s.
-> - **Drafts are not policy.** Agent outputs are proposals until accepted by the human gate and recorded in the appropriate public governance artifact.
->
-
-### CLM-024 — Considerations
-
-> ##### Considerations
->
-> The current governing documents already contain much of the baseline intent.
-> Repo-level governance edits should avoid duplicating or weakening existing
-> invariants. `governance/MAINTAINERS.md` should point back to
-> `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, `docs/IP_AND_DATA_BOUNDARY.md`, and
-> the current decomposition/DAG authority rather than restating every invariant
-> in full.
->
-> Contribution review should be written as a gate with explicit evidence fields. At minimum, public data contributions need source, provenance, redistribution status, contributor certification, and review disposition. Suspected protected content should be quarantined and escalated rather than rewritten or paraphrased.
->
-> Release review should include a checklist for scope disclosure, validation status, known limitations, data-boundary constraints, and professional-responsibility limits. These are governance and communication controls, not proofs of engineering adequacy for a project.
->
-> The human project authority selected `PolyForm-Noncommercial-1.0.0` for the
-> project license on 2026-06-03; D-74 superseded it with `MIT` on 2026-09-22 (owner, 2026-10-28: "it's MIT license"). The human project authority record, maintainer,
-> release, and policy acceptance decisions remain unresolved; until recorded,
-> those choices remain `TBD` and should be routed for human ruling before
-> repo-level governance artifacts are changed.
->
-
-### CLM-025 — Trade-offs
-
-> ##### Trade-offs
->
-> | Trade-off | Guidance |
-> |---|---|
-> | Project license | Use `MIT` as selected by human project authority. |
-> | Central maintainer vs quorum model | Leave as `TBD`; record the selected model before treating it as policy. |
-> | Public examples vs educational usefulness | Public examples must remain invented, permissively sourced, or public-domain with provenance. |
-> | Automation vs human review | Automation can provide evidence, but protected-content, legal, and professional-boundary decisions remain human governance gates. |
-> | Concise policy vs complete policy | Prefer concise public policy backed by explicit checklists and decision records; avoid vague assurances. |
->
-
-### CLM-026 — Examples
-
-> ##### Examples
->
-> Acceptable draft phrasing:
->
-> - "The project license is MIT."
-> - "Maintainer approval is repository governance and is not professional engineering approval."
-> - "Public releases disclose validation status and known limitations."
->
-> Unacceptable draft phrasing:
->
-> - "This release is code compliant."
-> - "Maintainer approval certifies calculations."
-> - "The project includes standards-derived allowables by default."
->
-
-### CLM-027 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | C-01-01-001 | Project license was previously unresolved. | SOW-048; OPS-K-GOV-1 | docs/DIRECTIVE.md Section 6 | Datasheet Conditions; Specification Requirements; Procedure Steps | Use `MIT` as selected by human project authority (D-74, 2026-09-22); the 2026-06-03 ruling selected `PolyForm-Noncommercial-1.0.0`. | Resolved 2026-06-03; superseded by D-74 (2026-09-22) |
-> | C-01-01-002 | Maintainer roster, quorum, release signing, and release authority are required governance choices but are not yet recorded. | OPS-K-GOV-2; docs/DIRECTIVE.md Section 6 | _CONTEXT.md anticipated artifacts | Specification Requirements; Procedure Records | Treat all role/quorum/signing values as `TBD` and do not treat them as policy. | TBD |
+- **AX-001** — *The owner decides.* Better is fewer undecided governance values, each closed by a recorded owner decision. A value is never closed by an agent's draft, an invented value or a guess at what the owner would choose.
+- **AX-002** — *Say it once.* Better is a shorter baseline in which each governance value is stated in one place and linked from the others, measured by the number of places a value is stated. This is never bought by leaving a reader unable to find the licence, who decides, or what a release must disclose.
+- **AX-003** — *Governance is not engineering approval.* Where wording could be read either way, the reading that claims less is the better one. Clarity about what maintainers and releases do is never bought with a word that implies professional approval or a legal conclusion.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-001 SOW-048 OBJ-001 OBJ-002 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+| OUT-001 | SOW-001 SOW-048 OBJ-001 | REQ-001 | AC-001 | VER-001 | Outside source: the MIT License text published under SPDX identifier `MIT`. That the licence is MIT is an owner ruling (DEC-112) |
+| OUT-002 | SOW-048 OBJ-002 | REQ-003 | AC-002 | VER-002 | Owner ruling: PRD §20.2 and `docs/CONTRACT.md` OPS-K-GOV-4 list the gates; the reviewer compares the policy with them |
+| OUT-002 | SOW-048 OBJ-001 | REQ-004 REQ-007 | AC-003 | VER-002 | Owner ruling: `docs/CONTRACT.md` OPS-K-GOV-3 lists the disclosures |
+| OUT-002 | SOW-048 OBJ-001 | REQ-005 REQ-006 REQ-007 | AC-004 | VER-002 | Owner ruling: DEC-027 gives the values; the comparison is with the decision register, not with the baseline's own text |
+| OUT-001 | SOW-001 OBJ-002 | REQ-007 | AC-005 | VER-002 | Owner ruling: PRD §20.1 lists what the public repository must not contain |
+| OUT-001 | SOW-048 OBJ-001 | REQ-008 | AC-006 | VER-003 | The criterion states the expected result: one defining row per cited identifier and an enforcement entry per row |
+| OUT-001 | SOW-048 OBJ-001 | REQ-002 | AC-007 | VER-002 | Owner ruling: PRD §21.2 lists the prohibited claims |
+| OUT-001 | SOW-001 OBJ-001 | REQ-009 | AC-008 | VER-004 | The criterion states the expected result: each link resolves to a file in the repository |

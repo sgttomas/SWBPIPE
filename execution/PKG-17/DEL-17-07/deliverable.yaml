@@ -1,155 +1,47 @@
 id: DEL-17-07
 name: Conservative PCF subset exporter
 needs:
-- from: DEL-00-01
-  condition: 'DEL-17-07 must apply AB-00-01 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Decision baseline for architecture choices and unresolved rulings.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-17-07 must apply AB-00-02 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Repository/module boundaries and inward dependency direction.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-03
-  condition: 'DEL-17-07 must apply AB-00-03 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Schema-first command/query/job result envelope constraints.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-04
-  condition: 'DEL-17-07 must apply AB-00-04 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    JSON Schema 2020-12 and canonical JSON/JCS-compatible hash basis.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-17-07 must apply AB-00-06 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Diagnostics, warnings, blockers, and result-envelope obligations.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-07
-  condition: 'DEL-17-07 must apply AB-00-07 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    No-bypass API/plugin/adapter validation and boundary controls.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-17-07 must apply AB-00-08 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Layered architecture/schema/service/adapter acceptance strategy.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
 - from: DEL-17-02
-  condition: 'DEL-17-07 requires DEL-17-02 export package profile stable ID map manifest and loss-report
-    rules.
-
-
-    Notes: also explicit in Procedure and Specification.'
+  condition: >-
+    The common export contract defines the export package, its profile, the manifest, the stable
+    ID map and its carrier modes, the loss report with its six categories and the members of a
+    loss entry, and the hash basis of package members.
   gating: true
-  evidence: execution/PKG-17/DEL-17-07/ScopeOfWork.md
-- from: DEL-03-02
-  condition: 'DEL-17-07 implementation must review DEL-03-02 for component and section source data contracts.
-
-
-    Notes: implementation use remains TBD until consumed.'
-  gating: true
-  evidence: execution/PKG-17/DEL-17-07/ScopeOfWork.md
-- from: DEL-13-04
-  condition: 'DEL-17-07 implementation must review DEL-13-04 for transformation and loss semantics.
-
-
-    Notes: implementation use remains TBD until consumed.'
-  gating: true
-  evidence: execution/PKG-17/DEL-17-07/ScopeOfWork.md
-- from: DEL-15-02
-  condition: 'DEL-17-07 implementation must review DEL-15-02 for handoff-package and unsupported-behavior
-    alignment.
-
-
-    Notes: implementation use remains TBD until consumed.'
-  gating: true
-  evidence: execution/PKG-17/DEL-17-07/ScopeOfWork.md
 - from: DEL-17-01
-  condition: 'The PCF subset profile must consume DEL-17-01 before making PCF target behavior claims.
-
-
-    Notes: FACT: explicit source-authority prerequisite.'
+  condition: >-
+    The source register admits the public CAEPIPE PCF translator document with its source ID and
+    boundary, and lists the open question on the first supported PCF target profile.
   gating: true
-  evidence: execution/PKG-17/DEL-17-07/ScopeOfWork.md
-- from: doc:plans/EXPORT_FORMAT_INTEROPERABILITY_PLAN.md
-  condition: 'DEL-17-07 must read the export interoperability plan PCF section before selecting the conservative
-    subset.
-
-
-    Notes: FACT: explicit source-document prerequisite.
-
-
-    Target description — TargetName: Export format interoperability plan; TargetRefID: PLAN-EXPORT-INTEROP;
-    TargetLocation: plans/EXPORT_FORMAT_INTEROPERABILITY_PLAN.md'
-  evidence: execution/PKG-17/DEL-17-07/ScopeOfWork.md
-- from: doc:https://www.sstusa.com/pdfs/PCF.pdf
-  condition: 'DEL-17-07 must read admitted public PCF translator evidence before making PCF behavior claims.
-
-
-    Notes: FACT: explicit public-source prerequisite; not a compatibility claim.
-
-
-    Target description — TargetName: Public CAEPIPE PCF translator documentation; TargetRefID: CAEPIPE-PCF;
-    TargetLocation: https://www.sstusa.com/pdfs/PCF.pdf'
-  evidence: execution/PKG-17/DEL-17-07/ScopeOfWork.md
-- from: doc:docs/IP_AND_DATA_BOUNDARY.md
-  condition: 'Fixture and exporter evidence must obey protected-content and redistribution-safe data boundary
-    rules.
-
-
-    Notes: FACT: explicit fixture/data-boundary constraint.
-
-
-    Target description — TargetName: Protected-content and public/private data boundary policy; TargetRefID:
-    IP-DATA; TargetLocation: docs/IP_AND_DATA_BOUNDARY.md'
-  evidence: execution/PKG-17/DEL-17-07/ScopeOfWork.md
+- from: DEL-02-01
+  condition: >-
+    The model document gives every pipe, component, node and support a stable identifier, with
+    coordinates, section dimensions and labels that carry their units.
+  gating: true
+- from: DEL-02-02
+  condition: >-
+    An export that takes a unit from the project units is refused by name when that key is
+    missing and writes no substitute, and a length an export converts is converted exactly through
+    the unit's definition.
+  gating: true
+- from: DEL-12-02
+  when: A PCF or its package is written to a file
+  condition: >-
+    Every governed route returns its controlled export before anything is exposed, and when the
+    export is blocked no output file is written.
+  gating: true
+- from: DEL-15-04
+  condition: >-
+    The external-prover boundary identifies text that states an authority claim (certification,
+    approval, code compliance) so that a package can refuse it.
+  gating: false
+# The Python profile, writer and package builder, the schema and the invented fixtures.
+# apps/desktop/src/features/pcf-export/PcfExportPanel.tsx is shared with DEL-07-12: the PCF text
+# and package builder in it is this deliverable's, and AC-007 requires the saved package to be the
+# writer's; the panel's rendering is DEL-07-12's.
 code_paths:
-- core/handoff/pcf_export/package.py
+- core/handoff/pcf_export/**
 - schemas/pcf_export.schema.json
+- fixtures/pcf_export/invented/**
 - apps/desktop/src/features/pcf-export/PcfExportPanel.tsx
 checks:
 - tests/test_pcf_export_package.py

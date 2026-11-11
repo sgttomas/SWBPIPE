@@ -2,356 +2,119 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-10-02
 package_id: PKG-10
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-030]
 package_objective_refs: [OBJ-009]
 ---
 
-# Scope of Work — DEL-10-02
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency conditions are declared in this deliverable's `deliverable.yaml`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+# Scope of Work — DEL-10-02 Import/export adapter framework
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-10-02` in service of project scope [SOW-030] and package objectives [OBJ-009].
+This deliverable is the shell every import and export adapter sits in. It says what an adapter is, what it must check before external data becomes model data or model data leaves the project, and it refuses an adapter that would skip a check. The result it contributes is that a new exchange format can be added to SWBPIPE without adding a new way around unit checks, provenance, the private-data boundary, diagnostics, the rule sandbox or the report controls.
 
-- **OUT-001** — An import-export adapter-framework contract for governed external-data translation and round-trip evidence is produced.
+It serves SOW-030 under OBJ-009 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-10, row DEL-10-02, and architecture-basis rows AB-00-03, AB-00-06 and AB-00-07), with `docs/PRD.md` §5.5, §5.6, §6.2 item 1, §11.7 (FR-HAND-005), §18.4, §20.2 to §20.5 and §21.2. The decomposition row leaves the formats themselves to other deliverables. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names this deliverable. Criterion 6, the MBF round trip, is owned by DEL-17-04 and DEL-07-12, whose adapter is subject to this framework's checks.
+
+- **OUT-001** — The adapter framework: the adapter declaration contract `schemas/adapter_framework.schema.yaml`, and the validator, dispatch gate and operation-result builder in `core/adapters/framework/`.
+- **OUT-002** — A sample adapter on invented data, `fixtures/adapters/invented/`, that shows a conforming declaration and exercises the framework's checks.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-10-02 Import/export adapter framework
+**Terms the framework implements.**
 
-> #### Datasheet: DEL-10-02 Import/export adapter framework
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *Adapter.* A module that translates between an external form and the product's domain contracts: an importer or an exporter. An adapter translates at the edge of the application-service boundary and owns no validation, provenance policy or privacy policy.
+- *Adapter declaration.* What an adapter states about itself: its identity, its capabilities, its provenance, its privacy context, its no-bypass controls and its validation plan. A declaration requests; it grants nothing.
+- *Capability.* One of: import a model, export a model, import a library, export a library, import a rule-pack reference, export results, validate a payload, review a contribution.
+- *Validation plan.* The checks an adapter commits to run on every payload: schema validation, unit validation, dimension validation, provenance validation, redistribution review, privacy classification and protected-content screening.
+- *No-bypass controls.* The no-bypass constraints of the API boundary contract (DEL-10-01), each of which a declaration must affirm, with three more that apply to adapters: no network access, no choice of filesystem roots, and use of the public API boundary.
+- *Finding.* One result of judging a declaration or a payload, with a code, a severity, a path, a message and a remediation. Its severity is information, warning, blocking or quarantine.
+- *Outcome.* Accepted as a declaration, rejected, or quarantined. Quarantine is the outcome whenever protected content is suspected, and it takes precedence over every other finding.
+- *Dispatch gate.* The one place a declaration could become a running adapter. It judges the declaration and then decides whether the adapter may be dispatched.
+- *Operation result.* The envelope an adapter operation returns: diagnostics, privacy context, provenance, checksum and audit references, a reference to the result envelope it concerns, and the professional-boundary values.
+- *Separate states.* A payload that parses is not thereby valid, cleared for redistribution, ready for a solve, ready for a rule check or accepted by anyone. The framework keeps these apart.
 
-### CLM-003 — Identification
+**Boundary.** The framework names no external format and parses no external file. A format enters the product through the deliverable the decomposition names for it: the export package and profile contracts and the named formats are PKG-17's (DEL-17-02 to DEL-17-09), the handoff package is PKG-15's, and the local FEA handoff contract is DEL-10-03's. The plugin manifest and the verification of a plugin's declaration are DEL-02-04's; that verification is a module inside this framework's package and calls the framework. The desktop panel that shows the framework's result is DEL-07-12's. The library import boundary is DEL-03-07's, and the export controls on private data are DEL-12-02's. Whether the product's built-in import and export adapters carry a declaration judged by this framework, or only adapters loaded as extensions do, is not decided.
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-10-02 |
-> | Name | Import/export adapter framework |
-> | Package ID | PKG-10 |
-> | Package | Build, Packaging, API, and Interoperability |
-> | Type | BACKEND_FEATURE_SLICE |
-> | Scope item | SOW-030 |
-> | Objective | OBJ-009 |
-> | Context envelope | L |
-> | Current production mode | Format-neutral declaration validation plus a deny-only declaration-to-runtime gate; no loader or execution model |
->
+The round trip a user sees, exporting a model in a named format and importing it back, is delivered by the format deliverables: MBF by DEL-17-04 with DEL-07-12, the others by DEL-17-03 and DEL-17-06 to DEL-17-08 (also cited as DEL-10-02:3). This deliverable's part of it is the checks those adapters pass.
 
-### CLM-004 — Attributes
+**Not decided.**
 
-> ##### Attributes
->
-> | Attribute | Value |
-> |---|---|
-> | Deliverable purpose | Define and enforce the current format-neutral adapter admission boundary without selecting concrete formats or runtime execution. |
-> | Anticipated artifacts | Adapter interfaces; sample invented adapter. |
-> | Runtime seam | `gate_adapter_runtime_dispatch` validates the declaration, rejects/quarantines bypass attempts, and never dispatches; accepted declarations remain blocked pending a separately selected runtime. |
-> | Architecture baseline | Schema-first command/query/job result envelopes; JSON Schema 2020-12 contracts; canonical JSON/JCS-compatible hashing where JSON payloads are hashed. |
-> | Adapter boundary | Adapters may translate external data but cannot bypass units, provenance, redistribution, diagnostics, private/public data controls, validation, sandboxing, envelopes, or report controls. |
-> | External format list | TBD; concrete protected or proprietary external formats are not bundled defaults in this deliverable. |
-> | Public API transport | TBD; public transport protocol remains a later human/product decision. |
-> | Security evidence boundary | Selected-seam negative evidence only; no whole-product security/privacy/legal sufficiency claim. |
->
+- The adapter execution model, the plugin runtime and the capability grants (also cited as DEL-10-02:1 and DEL-10-02:2). No rule-pack or report hook has a runtime.
+- The redaction workflow an export adapter uses for private values.
+- The format of a local FEA package.
 
-### CLM-005 — Conditions
-
-> ##### Conditions
->
-> | Condition | Source |
-> |---|---|
-> | All import/export operations must be unit-aware and deterministically report unit conversions. | docs/PRD.md section 6.6; docs/CONTRACT.md OPS-K-UNIT-1 |
-> | Imported data must flag missing required fields, missing or inconsistent units, missing provenance, unclear redistribution status, protected-table risk, and user-defined reasonableness concerns. | docs/PRD.md section 13.5 |
-> | Private rule packs, component libraries, material data, project files, and calculation results must not be transmitted or exported unexpectedly. | docs/PRD.md sections 18.2 and 18.3; docs/CONTRACT.md OPS-K-PRIV-1 |
-> | Adapter outputs for nontrivial operations use diagnostics/result envelopes and must not make certification or compliance claims. | execution/_Decomposition/SOFTWARE_DECOMP.md AB-00-06; docs/CONTRACT.md OPS-K-AUTH-1 |
-> | Adapter interfaces remain code-neutral and do not bundle protected standards data or proprietary tool behavior. | AGENTS.md; docs/DIRECTIVE.md; docs/IP_AND_DATA_BOUNDARY.md |
->
-
-### CLM-006 — Construction
-
-> ##### Construction
->
-> The future framework should be described as a shell around import/export providers, not as concrete bundled adapters. Required conceptual pieces are:
->
-> - adapter identity and capability metadata;
-> - import and export request envelopes;
-> - unit-validation hooks before data enters domain workflows;
-> - provenance and redistribution-status validation;
-> - diagnostics and warning emission using project warning classes;
-> - private/public data boundary checks before writing exported payloads;
-> - rule-pack and report hooks that preserve sandboxing and report controls;
-> - manifest/hash hooks for reproducible imported and exported artifacts.
->
-
-### CLM-007 — References
-
-> ##### References
->
-> - INIT.md
-> - AGENTS.md
-> - docs/DIRECTIVE.md
-> - docs/CONTRACT.md
-> - docs/TYPES.md
-> - docs/SPEC.md
-> - docs/IP_AND_DATA_BOUNDARY.md
-> - docs/PRD.md
-> - execution/_Decomposition/SOFTWARE_DECOMP.md
-> - docs/_Registers/Deliverables.csv (retired in `48584391de`; see Git history)
-> - docs/_Registers/ScopeLedger.csv (retired in `48584391de`; see Git history)
-> - docs/_Registers/ContextBudgetQA.csv (retired in `48584391de`; see Git history)
-> - execution/PKG-00/DEL-00-03/ArchitectureBasis.md
-> - execution/PKG-00/DEL-00-06/ArchitectureBasis.md
-> - execution/PKG-00/DEL-00-07/ArchitectureBasis.md
-> - execution/PKG-00/DEL-00-08/ArchitectureBasis.md
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-008 — Specification: DEL-10-02 Import/export adapter framework
+A declaration that is accepted shows what an adapter says about itself. It does not show what the adapter does. What an adapter does is observed where data crosses it, in AC-006 and AC-007.
 
-> #### Specification: DEL-10-02 Import/export adapter framework
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+### Requirements
 
-### CLM-010 — Scope
+Requirement numbers 001 to 010 are those of the earlier `REQ-10-02-nn` series.
 
-> ##### Scope
->
-> This specification covers the implemented format-neutral adapter declaration validator and the selected declaration-to-runtime admission gate under `DEL-10-02`. The gate enforces adapter-interface obligations, validation hooks, and governance boundaries without creating a runtime loader or selecting an execution model.
->
-> Concrete import/export formats remain `TBD`. Protected standards data, proprietary commercial formats, copied code tables, proprietary examples, and private user libraries are not bundled defaults.
->
+- **REQ-001** — The framework operates through schema-first command, query and job result envelopes, and no adapter goes around the public API and plugin boundary (decomposition AB-00-03, AB-00-07).
+- **REQ-002** — Every import path validates units and dimensions before external data is accepted into domain workflows, and every import or export reports each unit conversion it performs, deterministically (PRD §5.6).
+- **REQ-003** — Every import path captures the source and provenance, the licence or redistribution status and the review disposition of data records that may be reused or contributed publicly (PRD §20.2).
+- **REQ-004** — An imported record with a missing required field, a missing or inconsistent unit, missing provenance, unclear redistribution status, suspected protected origin or a value outside a user-defined reasonableness range produces a diagnostic and never a silent default. Suspected protected content is quarantined (PRD §5.5, §18.4, §20.2).
+- **REQ-005** — Every export path checks the private or public status of the data before it writes a payload that may leave the local project (PRD §20.3).
+- **REQ-006** — An adapter's diagnostics carry code, class, severity, source, affected object, message, remediation and provenance (decomposition AB-00-06).
+- **REQ-007** — A hook that connects an adapter to rule packs keeps rule-pack sandboxing, unit awareness, versioning, checksums and the public or private status of the pack (PRD §17.3; decomposition AB-00-07).
+- **REQ-008** — A hook that connects an adapter to reports keeps report warnings, assumptions, provenance, limitations, protected-content controls and the professional-responsibility notice.
+- **REQ-009** — The framework itself selects no external format, no proprietary tool behaviour and no commercial integration default. A format is admitted only where the decomposition or an owner ruling names it and its redistribution rights are documented.
+- **REQ-010** — Every adapter result keeps mechanics solved, user rule checked and professional approval as distinct states, and states no approval, certification or code compliance (PRD §4.3, §21.2).
+- **REQ-011** — No adapter is dispatched from a declaration until the owner has selected an execution model, a plugin runtime and the capability grants. Until then the gate dispatches nothing: an invalid or quarantined declaration stops at its outcome, and an accepted declaration is blocked with a finding that names the missing selection. Acceptance of a declaration confers no authority to run. Reading a persisted record is not adapter dispatch.
+- **REQ-012** — A malformed declaration, including one that is not strict JSON, is judged with findings and never by an exception, and judging a declaration reads no file, opens no connection and runs no adapter code (decomposition AB-00-03, AB-00-07).
+- **REQ-013** — The framework comes with a sample adapter that passes an invented external record through every check of the validation plan. Public sample adapters and fixtures use invented data only, with invented provenance marked as such.
 
-### CLM-011 — Requirements
+### Acceptance criteria
 
-> ##### Requirements
->
-> | ID | Requirement | Source | Verification |
-> |---|---|---|---|
-> | REQ-10-02-01 | The adapter framework shall operate through schema-first command/query/job result envelopes and shall not bypass the public API/plugin boundary. | execution/_Decomposition/SOFTWARE_DECOMP.md AB-00-03 and AB-00-07 | Review adapter-interface design before implementation. |
-> | REQ-10-02-02 | Every import path shall validate units before accepting external data into domain workflows. | docs/PRD.md section 6.6; docs/CONTRACT.md OPS-K-UNIT-1 | Unit-validation test plan in future implementation. |
-> | REQ-10-02-03 | Every import path shall capture source/provenance, license or redistribution status, and review disposition for data records that may be contributed publicly or reused. | docs/CONTRACT.md OPS-K-IP-2; docs/IP_AND_DATA_BOUNDARY.md section 4 | Provenance-field checks in future implementation. |
-> | REQ-10-02-04 | Imported records with missing required fields, inconsistent units, missing provenance, unclear redistribution status, suspected protected origin, or out-of-range user checks shall produce diagnostics rather than silent defaults. | docs/PRD.md section 13.5; docs/CONTRACT.md OPS-K-DATA-2 | Diagnostic coverage review. |
-> | REQ-10-02-05 | Export paths shall check private/public data boundary status before writing payloads that may leave the local project context. | docs/PRD.md section 18.3; docs/CONTRACT.md OPS-K-PRIV-1 | Export-boundary checklist in future implementation. |
-> | REQ-10-02-06 | Adapter diagnostics shall include code, class, severity, source, affected object, message, remediation, and provenance when applicable. | execution/_Decomposition/SOFTWARE_DECOMP.md AB-00-06 | Result-envelope schema review. |
-> | REQ-10-02-07 | Adapter hooks for rule packs shall preserve rule-pack sandboxing, unit awareness, versioning, checksums, and public/private status. | docs/CONTRACT.md OPS-K-RULE-1 through OPS-K-RULE-3; execution/_Decomposition/SOFTWARE_DECOMP.md AB-00-07; DEC-074 O7/E5 | Negative runtime-gate tests prove a declaration disabling any selected no-bypass control is rejected before dispatch; even a valid declaration remains blocked because no execution model/plugin runtime is selected. |
-> | REQ-10-02-08 | Adapter hooks for reports shall preserve report warnings, assumptions, provenance, limitations, protected-content controls, and professional-responsibility notices. | docs/CONTRACT.md OPS-K-REPORT-1, OPS-K-REPORT-2, OPS-K-AUTH-1 | Report-boundary review. |
-> | REQ-10-02-09 | The framework shall not choose protected external formats, proprietary tool behavior, or specific commercial integration defaults without human approval and documented redistribution rights. | docs/IP_AND_DATA_BOUNDARY.md; execution/_Decomposition/SOFTWARE_DECOMP.md OI-004 and DEC-012 | Human decision log required before format selection. |
-> | REQ-10-02-10 | The framework shall leave mechanics solve, user-rule check, and professional approval states distinct in all adapter result payloads. | docs/TYPES.md section 4; docs/CONTRACT.md OPS-K-AUTH-1 | Status-field review in future interface artifacts. |
->
-
-### CLM-012 — Standards
-
-> ##### Standards
->
-> No external engineering code or proprietary format standard is incorporated by this setup artifact. Applicable project standards are internal governance invariants:
->
-> - OPS-K-IP-1, OPS-K-IP-2, OPS-K-IP-3
-> - OPS-K-DATA-1, OPS-K-DATA-2, OPS-K-DATA-3
-> - OPS-K-UNIT-1
-> - OPS-K-RULE-1, OPS-K-RULE-2, OPS-K-RULE-3
-> - OPS-K-PRIV-1, OPS-K-PRIV-2
-> - OPS-K-AUTH-1
-> - OPS-K-AGENT-1 through OPS-K-AGENT-4
->
-
-### CLM-013 — Verification
-
-> ##### Verification
->
-> Current bounded verification includes:
->
-> - schema validation for adapter request/result envelopes;
-> - unit conversion and dimensional-consistency tests;
-> - provenance and redistribution-status rejection/flagging tests;
-> - private-data export-warning tests;
-> - protected-content/provenance gates for public examples and fixtures;
-> - diagnostics envelope tests for import, export, and failed validation paths;
-> - rule-pack hook tests proving adapters cannot execute arbitrary rule code or bypass evaluator sandboxing;
-> - report-boundary tests proving exports do not suppress warnings, limitations, or professional-responsibility notices.
-> - a selected-seam dispatch gate with no executor/callback path;
-> - matrix tests disabling unit, provenance, privacy, protected-content, rule-pack sandbox, checksum, report, and private-transmission controls;
-> - quarantine evidence for suspected protected content; and
-> - a positive declaration that still returns `BLOCKED_RUNTIME_NOT_SELECTED`.
->
-> These checks prove only the selected declaration-to-runtime seam. They do not establish whole-product security/privacy sufficiency, choose the runtime/plugin model, or settle non-JSON/binary partitioning.
->
-
-### CLM-014 — Documentation
-
-> ##### Documentation
->
-> Current deliverable obligation: implement adapter shell with provenance capture and validation hooks for external formats. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> Required future artifacts remain:
->
-> - adapter interfaces;
-> - sample invented adapter using invented, non-code, non-proprietary data only.
->
-> The original setup run does not create those implementation artifacts.
-- **AC-001** — The contract preserves schema-first adapter interfaces, unit/dimensional/provenance and redistribution checks, public/private data separation, protected-content quarantine, diagnostics and loss reporting, deterministic round-trip behavior, format-specific extension boundaries, downstream FEA-handoff compatibility, and unresolved external-format decisions without inventing implementation authority.
+- **AC-001** — The declaration contract is valid JSON Schema 2020-12 in strict JSON, and the sample invented declaration validates against it and is accepted.
+- **AC-002** — A declaration is refused, each time with a finding that carries code, severity, path, message and remediation, when it: turns off any no-bypass control; omits a check of the validation plan; lacks any of the seven provenance members or carries a redistribution status that is not cleared; exposes SQL, a database handle, a table name or a direct store write; allows telemetry or private-data transmission by default; uses a status that states compliance, certification, sealing or approval; or requests a capability outside the list above.
+- **AC-003** — A declaration or payload in which protected content is suspected has the quarantine outcome whatever else is wrong with it, and no finding quotes the content it concerns.
+- **AC-004** — The dispatch gate dispatches no adapter. A refused or quarantined declaration returns its outcome, an accepted one returns a blocked outcome with a finding naming the unselected execution model, and the gate takes no executor, callback or other argument through which code could run.
+- **AC-005** — An operation result validates against the declaration contract, each of its diagnostics has the eight members of REQ-006, each diagnostic class is one of the common classes of decomposition AB-00-06 or a local class whose mapping to one of them is stated in the contract, its privacy context is local and private unless reviewed as public, and its professional-boundary values state that human review is required and that the software makes no compliance, certification, sealing or approval claim.
+- **AC-006** — For every adapter in the product that imports, an invented external record with each fault of REQ-004 is stopped at the adapter with a diagnostic that names the item, and none of it enters the model. Each unit conversion the adapter performs is reported, and the same input gives the same report.
+- **AC-007** — For every adapter in the product that exports: a payload holding a protected-suspected value is quarantined and nothing is written; a payload holding a private value bound for a destination outside the local project leaves only as the export control of DEL-12-02 decides, which is stopped, redacted, or written with an explicit warning under the user's stated intent; an export never drops a warning, a limitation or the professional-responsibility notice of the result it exports; and each unit conversion the adapter performs is reported, the same payload giving the same report.
+- **AC-008** — A malformed declaration, including one that is not strict JSON, returns findings and raises nothing, and judging any declaration touches no file and no network and runs no adapter code.
+- **AC-009** — The sample adapter, its declaration and every fixture are invented, carry their provenance note and contain no protected or private content.
+- **AC-010** — Each item of the not-decided list appears in the declaration contract as undecided, and a declaration that settles one of them without a recorded selection is refused.
+- **AC-011** — The sample adapter is an importer: it translates an invented external record into the domain contracts through every check of the validation plan, and it is among the importing adapters AC-006 is examined on. It is examined where data crosses it and is not dispatched through the gate.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-015 — Procedure: DEL-10-02 Import/export adapter framework
+**Method choices that define the framework.**
 
-> #### Procedure: DEL-10-02 Import/export adapter framework
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *Declare, then check, then gate.* An adapter is judged first on what it declares, then on what it does to data, and it runs only past a gate. The three are separate, so that none stands in for another.
+- *Format-neutral.* The framework's contract and validator name no format. Format-specific behaviour lives in the format's own deliverable.
+- *Quarantine first.* Suspected protected content decides the outcome before any other check is considered.
+- *Deny by default.* The gate has no path to execution that a caller can supply.
+- *One result shape.* An adapter operation returns the product's diagnostic and result-envelope shape and no shape of its own.
 
-### CLM-017 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> Define how to maintain the current format-neutral validation and deny-only runtime gate while preserving the sealed scope and governance boundaries recorded for `DEL-10-02`.
->
-
-### CLM-018 — Prerequisites
-
-> ##### Prerequisites
->
-> - Confirm the sealed brief authorizes implementation work beyond this setup/document production run.
-> - Read `_CONTEXT.md`, `ScopeOfWork.md`, and the applicable `AB-00-*` architecture basis rows.
-> - Confirm the write scope before creating adapter source, tests, sample adapters, package manifests, or repo-level artifacts.
-> - Confirm whether the target work is framework-only or a concrete external format. Concrete external format selection requires human approval if not already recorded.
->
-### CLM-019 — Steps
-
-> ##### Steps
->
-> 1. Identify the adapter operation types needed by the authorized implementation slice: import, export, validation, diagnostics, manifest/hash, rule-pack hook, report hook, and private-data boundary check.
-> 2. Define adapter metadata fields for identity, capability, supported direction, supported payload class, source/provenance requirements, redistribution posture, and privacy behavior.
-> 3. Route nontrivial adapter operations through schema-first command/query/job result envelopes.
-> 4. Add unit-validation hooks before imported values can become domain objects.
-> 5. Add provenance and redistribution-status validation before imported data can be accepted for reuse or public contribution.
-> 6. Add diagnostics for missing fields, invalid units, missing provenance, unclear redistribution, protected-content suspicion, private-data export risk, and failed reasonableness checks.
-> 7. Add rule-pack hooks only through the sandboxed, unit-aware rule-pack boundary; do not allow adapters to execute arbitrary rule code.
-> 8. Add report/export hooks that preserve warnings, assumptions, limitations, provenance, and professional-responsibility notices.
-> 9. Keep specific external formats, commercial tool behavior, public API transport, and package/container details as `TBD` unless a human ruling is cited.
-> 10. Use invented data only for public sample adapters or fixtures.
-> 11. Route every current declaration-to-runtime request through `gate_adapter_runtime_dispatch`; do not add an executor/callback or treat declaration acceptance as dispatch authority.
-> 12. Preserve `adapter_execution_model`, `plugin_runtime`, permission grants, concrete formats, and redaction workflow as `TBD` until separately selected.
->
-
-### CLM-020 — Verification
-
-> ##### Verification
->
-> - Verify no protected standards text, copied tables, proprietary examples, or private project data are introduced.
-> - Verify missing required data and missing provenance produce diagnostics rather than defaults.
-> - Verify unit-bearing imported/exported values are dimensionally checked.
-> - Verify private-boundary checks run before shared exports.
-> - Verify result envelopes do not claim certification, approval, sealing, or automatic code compliance (PRD §21.2).
-> - Verify tests and examples use invented or otherwise redistributable data with provenance.
-> - Verify each selected no-bypass control fails closed before dispatch, protected-suspected content quarantines, and a valid declaration remains blocked with `ADAPTER_RUNTIME_NOT_SELECTED`.
->
-
-### CLM-021 — Records
-
-> ##### Records
->
-> Future implementation work should record:
->
-> - interface files and schema contracts created;
-> - adapter validation tests and diagnostics tests;
-> - provenance/protected-content gate results;
-> - external format decisions and human approval references when applicable;
-> - open `TBD` decisions that remain after implementation.
-
-- **VER-001** — Validate the contract and review source parity, adapter lifecycle and format-extension coverage, unit/provenance/private-data controls, loss and diagnostic visibility, round-trip and downstream-handoff evidence, retained format TBDs, and no-bypass or professional-authority limits.
+- **VER-001** — Executable check (observes the validator's outcome and findings): presents the sample declaration and invented declarations that each carry one fault of AC-002, AC-003, AC-008 and AC-010, and reads the outcome, the finding codes and their members.
+- **VER-002** — Executable check (observes the dispatch gate): presents accepted, refused and quarantined declarations and reads the outcome and the dispatched flag; inspects the gate's signature for any argument that could carry code.
+- **VER-003** — Executable check (observes each adapter of the product at the point data crosses it): presents invented external records, sound and with each fault of REQ-004, to every importing adapter, the sample adapter among them, and private or protected-suspected payloads to every exporting adapter, and reads the diagnostics, the conversion reports and what reached the model or the output.
+- **VER-004** — Executable check (observes the operation-result builder's output): validates the built envelope against the declaration contract and reads its diagnostic members, its diagnostic classes against the contract's stated mapping, its privacy context and its professional-boundary values.
+- **VER-005** — Judgment by a named role (an independent reviewer who did not write the framework): reads the contract, the sample adapter and the fixtures against decomposition rows AB-00-06 and AB-00-07 and PRD §20.1 and §21.2, and reports any protected or private content, any prohibited claim, and any undecided item settled by implication.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-022 — Guidance: DEL-10-02 Import/export adapter framework
-
-> #### Guidance: DEL-10-02 Import/export adapter framework
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-024 — Purpose
-
-> ##### Purpose
->
-> This deliverable provides a format-neutral adapter declaration validator and a deny-only runtime admission gate so later implementation cannot treat declaration acceptance as runtime authority. The framework is an extension surface, not a route around domain validation, unit safety, provenance, rule-pack sandboxing, reporting controls, or professional-responsibility limits.
->
-
-### CLM-025 — Principles
-
-> ##### Principles
->
-> - Treat adapters as translators at the edge of the application service boundary.
-> - Require schema-first envelopes for nontrivial import/export operations.
-> - Validate units and dimensional meaning before external data becomes domain data.
-> - Preserve source/provenance, redistribution status, and private/public data markings.
-> - Emit diagnostics for missing fields, missing provenance, unclear redistribution, suspected protected content, unit inconsistencies, and private-data export risk.
-> - Keep concrete format support `TBD` until a human decision records the external format, license posture, redistribution status, and test obligations.
-> - Use invented data only for public samples.
-> - Treat `ACCEPTED_FORMAT_NEUTRAL_DECLARATION` as declaration evidence only. Runtime dispatch remains blocked until a separately governed execution/plugin model is selected.
->
-
-### CLM-026 — Considerations
-
-> ##### Considerations
->
-> An adapter may be technically able to parse many files, but parsing does not establish redistribution rights, engineering suitability, code compliance, or professional acceptance. The framework should therefore separate:
->
-> - syntactic parse success;
-> - schema and unit validation;
-> - provenance and redistribution review;
-> - mechanics-readiness;
-> - rule-check-readiness;
-> - human-review-needed state.
->
-> Adapters that import private material libraries, component records, rule-pack references, or project data should default to local/private handling. Export operations should warn before writing private or protected-suspected values to shared payloads.
->
-> The current O7/E5 seam is deliberately narrow: a declaration disabling unit,
-> provenance, privacy, protected-content, rule-pack sandbox, checksum, report, or
-> private-transmission controls is rejected; suspected protected content is
-> quarantined; a valid declaration is still not dispatched. This does not prove
-> other adapters, plugins, reports, exports, telemetry, or storage seams.
->
-
-### CLM-027 — Trade-offs
-
-> ##### Trade-offs
->
-> | Trade-off | Guidance |
-> |---|---|
-> | Flexible adapter ecosystem vs. governance control | Favor a narrow framework with mandatory validation hooks; add format-specific adapters later. |
-> | User convenience vs. data provenance | Missing source or redistribution status is a finding, not an auto-filled default. |
-> | Broad public formats vs. IP safety | Do not bundle protected or proprietary defaults without documented rights and human approval. |
-> | Fast export vs. auditability | Exports should carry diagnostics, hashes/manifests where applicable, and warning state. |
->
-
-### CLM-028 — Examples
-
-> ##### Examples
->
-> - Acceptable public sample: an invented adapter that imports a small invented component record with invented dimensions, invented source metadata, and permissive redistribution marked as invented/original.
-> - Not acceptable public sample: a bundled adapter fixture copied from a standards table, vendor catalog, commercial software example, or private project library without documented redistribution rights.
->
-
-### CLM-029 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | None | No current conflicts detected in setup sources. | NA | NA | NA | NA | TBD |
+- **AX-001** — *Narrow shell, mandatory checks.* Better is more of the product's import and export paths passing every check of the validation plan, measured by the adapters and faults for which AC-006 and AC-007 hold. Support for another format is never a reason to admit a path that skips a check.
+- **AX-002** — *A finding, not a default.* Better is fewer external values that reach the model without a unit, a source or a redistribution status, which is none. User convenience never fills a missing value.
+- **AX-003** — *Auditable exchange.* Better is an exported or imported artifact that can be traced: its diagnostics, hashes and warning state travel with it. Speed of export is never bought by leaving them behind.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-030 OBJ-009 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-10-02:1** — Concrete rule/report adapter runtime hooks remain unselected; the T4 persisted-record reader is not adapter dispatch and does not close runtime or end-to-end interop.
-- **DEL-10-02:2** — Select and govern the adapter execution model, plugin runtime, and bounded capability grants before any runtime dispatch; the current DEC-074 O7/E5 seam is deny-only and proves no-bypass behavior only at declaration admission.
-- **DEL-10-02:3** — Close the FR-023 GUI import/export round-trip residual, for MBF in v1.0 (`docs/RELEASE_TARGET_v1.0.md` RT-R7, RT-R8) and otherwise through the v0.2 R6 handoff work and its owning deliverables (including DEL-17-03..08). D-12/DEC-078 dispositioned FR-024 and FR-025 only; it neither closes FR-023 nor remains an outstanding ruling gate for it. Scope and acceptance stay with the authorized handoff work graph.
+| OUT-001 | SOW-030 OBJ-009 | REQ-001 REQ-013 | AC-001 | VER-001 | Outside source: the JSON Schema 2020-12 meta-schema decides the contract's validity. That the sample is accepted is defined by this scope |
+| OUT-001 | SOW-030 OBJ-009 | REQ-001 REQ-003 REQ-006 REQ-007 REQ-008 REQ-010 | AC-002 | VER-001 | Owner ruling: decomposition AB-00-07 and PRD §20.2 to §20.5 and §21.2 say what a declaration may not do; each invented faulty declaration states the refusal it must receive |
+| OUT-001 | SOW-030 OBJ-009 | REQ-004 | AC-003 | VER-001 | Owner ruling: PRD §20.2 requires quarantine of suspected protected content; the precedence is defined by this scope |
+| OUT-001 | SOW-030 OBJ-009 | REQ-011 | AC-004 | VER-002 | Owner ruling: the execution model, runtime and grants are the owner's to select and none is selected, so the expected result of every dispatch attempt is that nothing runs |
+| OUT-001 | SOW-030 OBJ-009 | REQ-006 REQ-010 | AC-005 | VER-004 | Owner ruling: decomposition AB-00-06 lists the diagnostic members and the common classes, and PRD §21.2 the prohibited claims |
+| OUT-001 | SOW-030 OBJ-009 | REQ-002 REQ-003 REQ-004 | AC-006 | VER-003 | Owner ruling: PRD §18.4 lists the faults an import must flag, and §5.6 requires each conversion to be reported deterministically. Each invented record states what must happen to it, and the comparison is against what reached the model, which the adapter under test did not report. A converted value is expected from the unit definitions of DEL-02-02's catalog, and determinism is one run compared with another |
+| OUT-001 | SOW-030 OBJ-009 | REQ-002 REQ-005 REQ-008 | AC-007 | VER-003 | Owner ruling: PRD §20.2 and §20.3, and §5.6 for conversions. What happens to a private value is decided by DEL-12-02's export control, not by the adapter. Each invented payload states what must happen to it, and the comparison is against what was written |
+| OUT-001 | SOW-030 OBJ-009 | REQ-012 | AC-008 | VER-001 | Owner ruling: decomposition AB-00-03 (an outcome is an envelope, not an exception) and AB-00-07 (no adapter goes around the sandbox); each invented malformed declaration states the refusal it must receive |
+| OUT-002 | SOW-030 OBJ-009 | REQ-013 | AC-009 | VER-005 | Owner ruling: PRD §20.1 lists what public content may not contain; the reviewer compares |
+| OUT-001 | SOW-030 OBJ-009 | REQ-009 REQ-011 | AC-010 | VER-001 VER-005 | Owner ruling: the not-decided list of this scope is the list of selections no ruling has made |
+| OUT-002 | SOW-030 OBJ-009 | REQ-013 | AC-011 | VER-003 | The validation plan of this scope says which checks the sample passes. The invented record states what must reach the domain contracts, and the comparison is against what reached them, which the sample adapter did not report |

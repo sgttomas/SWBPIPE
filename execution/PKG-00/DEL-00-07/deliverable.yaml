@@ -1,5 +1,30 @@
 id: DEL-00-07
 name: API boundary and adapter contract map
-needs: []
+needs:
+- from: DEL-00-02
+  condition: >-
+    Every module is assigned to one of the eleven layers, and every adapter and plugin module is
+    placed in the adapters layer.
+  gating: true
+- from: DEL-00-03
+  condition: >-
+    Every service entry point is exactly one of command, query or job, and every command and job
+    returns a result envelope with its diagnostics.
+  gating: true
+- from: DEL-00-04
+  condition: >-
+    Every persisted document declares its schema version, a JSON payload is hashed as SHA-256 over
+    its RFC 8785 canonical form, and no plugin or adapter opens the store or issues SQL.
+  gating: true
+- from: DEL-00-06
+  condition: >-
+    A diagnostic carries code, class, severity, source, affected object, message, remediation and
+    provenance, and keeps every field but its class when it crosses a boundary.
+  gating: true
+# This deliverable's own file is the boundary map, a document under docs/architecture/. The public
+# API contract (api/api_boundary_contract.yaml) is DEL-10-01's code.
+code_paths: []
+# DEL-10-01's test of the public API contract. Here it observes that the contract leaves each
+# undecided choice undecided and carries the no-bypass constraints.
 checks:
 - tests/test_api_boundary_contract.py

@@ -1,141 +1,88 @@
 id: DEL-10-02
 name: Import/export adapter framework
 needs:
-- from: DEL-00-03
-  condition: 'DEL-10-02 depends on the application-service command/query/job envelope basis for adapter
-    operations.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-10-01
+  condition: >-
+    The API boundary contract states the no-bypass constraints every public operation keeps in
+    force and the request kinds an operation may be. The framework requires each of those
+    constraints of an adapter and admits no adapter operation outside those kinds.
   gating: true
-- from: DEL-00-04
-  condition: 'DEL-10-02 depends on deterministic schema versioning and canonical JSON/hash basis where
-    adapter payloads are schema-governed or hashed.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-00-07
+  condition: >-
+    Adapters validate units, provenance, redistribution status, diagnostics and the private or
+    public class of data before it enters core workflows, and no plugin or adapter goes around
+    domain validation, rule-pack sandboxing, result envelopes or report controls.
+  gating: true
+- from: DEL-00-03
+  condition: >-
+    Every service entry point is exactly one of command, query or job, and every command and job
+    returns a result envelope with its diagnostics.
   gating: true
 - from: DEL-00-06
-  condition: 'DEL-10-02 depends on the diagnostics and result-envelope contract for adapter warnings errors
-    and provenance-bearing diagnostics.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A diagnostic carries code, class, severity, source, affected object, message, remediation and
+    provenance, and the six common warning classes are the fixed set a boundary's local class maps
+    to.
   gating: true
-  evidence: execution/PKG-10/DEL-10-02/ScopeOfWork.md
-- from: DEL-00-07
-  condition: 'DEL-10-02 depends on the API boundary and adapter contract map because adapters cannot bypass
-    validation sandboxing envelopes or report controls.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-00-04
+  condition: >-
+    A hashed JSON payload is hashed as SHA-256 over its RFC 8785 canonical form, no plugin or
+    adapter opens the store or issues SQL, and every change to the store is made through an
+    application service.
   gating: true
-- from: DEL-00-08
-  condition: 'DEL-10-02 depends on layered validation and protected-content test gates for future adapter
-    implementation acceptance.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-01-02
+  condition: >-
+    The data boundary policy defines the seven members of a provenance record and the value sets
+    of redistribution status and review status, and requires quarantine of suspected protected
+    content.
   gating: true
-- from: DEL-02-04
-  condition: 'DEL-10-02 interfaces with plugin and extension domain contracts because the adapter framework
-    is an extension surface governed by plugin/adapter constraints.
-
-
-    Notes: assigned source states extension-surface obligation but not the deliverable ID.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-10/DEL-10-02/ScopeOfWork.md
-- from: DEL-03-07
-  condition: 'DEL-10-02 depends on provenance and redistribution-status import checking before imported
-    data can be accepted or reused.
-
-
-    Notes: assigned source states provenance-check obligation but not the deliverable ID.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-10/DEL-10-02/ScopeOfWork.md
-- from: DEL-12-01
-  condition: 'DEL-10-02 is constrained by local-first private data handling for imports and exports involving
-    private project libraries rule packs and results.
-
-
-    Notes: assigned source states privacy constraint but not the deliverable ID.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-10/DEL-10-02/ScopeOfWork.md
 - from: DEL-02-01
-  condition: 'DEL-10-02 depends on DEL-02-01 because adapter capabilities include model import/export
-    and external data is accepted into schema-governed domain workflows.
-
-
-    Notes: DEV-001 Stage 2 package-local technical finding resolution for PKG10-DEL1002-PKG02-W001; local
-    evidence only, not aggregate DAG authority or lifecycle approval.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    Every path by which a model document enters the product applies the same format and validator
+    checks, and no adapter or plugin admits a document that fails them.
   gating: true
-  evidence: schemas/adapter_framework.schema.yaml
 - from: DEL-02-02
-  condition: 'DEL-10-02 depends on DEL-02-02 because adapter framework validation must preserve unit validation
-    before external data enters domain workflows.
-
-
-    Notes: DEV-001 Stage 2 package-local technical finding resolution for PKG10-DEL1002-PKG02-W001; grounded
-    in accepted PKG-02 unit contract; local evidence only.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    At each product boundary a quantity with an unknown unit or a unit of the wrong dimension is
+    refused with a unit finding, and a missing unit is never accepted as dimensionless.
   gating: true
-  evidence: execution/PKG-10/DEL-10-02/ScopeOfWork.md
 - from: DEL-02-03
-  condition: 'DEL-10-02 depends on DEL-02-03 because adapter results and validation plans must preserve
-    diagnostics and the human-review boundary rather than emitting approval or compliance claims.
-
-
-    Notes: DEV-001 Stage 2 package-local technical finding resolution for PKG10-DEL1002-PKG02-W001; grounded
-    in accepted PKG-02 authority-status semantics; local evidence only.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The analysis-status vocabulary is seven statuses of which a software surface may emit six, and
+    no surface admits a compliance, certification, sealing or approval status as software output.
   gating: true
-  evidence: schemas/adapter_framework.schema.yaml
-- from: DEL-02-05
-  condition: 'DEL-10-02 depends on DEL-02-05 because adapter declarations and operation results preserve
-    checksum/audit references and persistence/hash controls for reproducible imported and exported artifacts.
-
-
-    Notes: DEV-001 Stage 2 package-local technical finding resolution for PKG10-DEL1002-PKG02-W001; grounded
-    in accepted PKG-02 persistence/hash contract; local evidence only.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-03-07
+  when: An adapter imports a material, section or component library
+  condition: >-
+    The library import boundary returns accepted as public, accepted as private and local,
+    quarantined or rejected for a library, with a finding at the path of each fault.
   gating: true
-  evidence: schemas/adapter_framework.schema.yaml
+- from: DEL-12-01
+  when: An adapter exports or imports private project, library or rule data
+  condition: >-
+    Private project, library and rule-pack data are kept in user-controlled local paths, and each
+    path has a public or private class that an export can read.
+  gating: true
+- from: DEL-12-02
+  when: An adapter exports data that may leave the local project
+  condition: >-
+    The export control classes each value of an export and decides before exposure whether it is
+    included, redacted, kept with a warning under the user's stated intent or blocked, and it
+    blocks suspected protected content in every export context.
+  gating: true
 - from: DEL-08-04
-  condition: 'DEL-08-04 enables import/export adapters to consume governed result envelopes without bypassing
-    unit, provenance, diagnostic, or data-boundary checks.
-
-
-    Notes: New downstream consumer edge extracted for reconciliation context.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: An adapter exports results
+  condition: >-
+    The result export is a schema-first envelope that carries units, diagnostics and provenance,
+    so that an exporting adapter reads results through it and by no other route.
   gating: true
-  evidence: execution/PKG-08/DEL-08-04/ScopeOfWork.md
+# The adapter framework's package. core/adapters/framework/plugin_verification.py sits in the same
+# package and is DEL-02-04's; the package's __init__ re-exports it. The desktop panel that shows
+# the framework's result (apps/desktop/src/features/adapter-framework/) is DEL-07-12's.
 code_paths:
-- tools/validation/validate_dependencies_schema.py
 - schemas/adapter_framework.schema.yaml
 - core/adapters/framework/__init__.py
 - core/adapters/framework/adapter_framework.py
-- apps/desktop/src/features/adapter-framework/AdapterFrameworkPanel.tsx
+- fixtures/adapters/invented/**
 checks:
 - tests/test_adapter_framework_contract.py
-- apps/desktop/src/App.test.tsx
-- apps/desktop/e2e/r2-smoke.spec.ts

@@ -2,487 +2,97 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-03-04
 package_id: PKG-03
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-008]
 package_objective_refs: [OBJ-004]
 ---
 
-# Scope of Work — DEL-03-04
+# Scope of Work — DEL-03-04 Branch connection component model fields
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-03-04` in service of project scope [SOW-008] and package objectives [OBJ-004].
+This deliverable defines what a branch connection is in the product: the component at the node where a branch pipe leaves a header. A user gives it the header and branch it joins, its sizes, angle and type, its reinforcement data, and their own header-side and branch-side stress intensification factors and flexibility factor, each with the source it came from. The definition says what those inputs are and what they do: the three pipes meet as members of the solved frame, a supplied flexibility factor enters that frame's stiffness, and the header and branch factors multiply the bending stress recovered at their own pipe ends. The software supplies no factor of its own.
 
-- **OUT-001** — A branch-connection component-model contract defining geometry, run and branch identities, section and stiffness inputs, units, provenance, completeness, and diagnostics is produced for the declared scope and objective.
+It serves SOW-008 under OBJ-004 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-03, row DEL-03-04), and PRD §12.3 (branch connection objects) with FR-SOL-011, the branch assembly benchmark of §22.2 and the user-entered SIF multiplier and flexibility-factor behaviours of §22.3. In `docs/RELEASE_TARGET_v1.0.md` it is an owning deliverable of exit criterion 1 for the reference system's tee with user modifiers.
+
+- **OUT-001** — The branch connection component definition: its members in the model document and in a component library record, and the behaviour of a branch in a solve and in stress recovery.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-03-04 Branch connection component model fields
+**Terms the definition implements.**
 
-> #### Datasheet: DEL-03-04 Branch connection component model fields
->
+- *Branch component.* A component of kind branch, tee or branch connection at the intersection node. It names the header pipe and the branch pipe, which meet at that node and differ, and carries the run size, header size, connection angle, connection type, reinforcement area, a reinforcement reference and a source reference for that geometry. These members of the model document, and the local modifiers, are this deliverable's definition.
+- *Local modifiers.* The user's header-side stress intensification factor, branch-side stress intensification factor and flexibility factor, with one source reference. Each is dimensionless, finite and above zero.
+- *Header side and branch side.* The header side is the end of the header pipe at the intersection node; the branch side is the end of the branch pipe there. The header factor multiplies the resultant bending stress at the header side and the branch factor that at the branch side.
+- *The joint.* In the solved frame the pipes of a branch with no supplied flexibility factor share the intersection node's six degrees of freedom. Where the user supplies a flexibility factor, a branch element carries it into the global stiffness (DEC-070).
+- *Library record of a branch.* A component library record of type branch, whose field kinds hold the run and header sizes, connection angle and type, reinforcement area and reference, the intensification and flexibility factors, and the geometry source reference.
 
-### CLM-002 — Identification
+**Boundary.** This scope states the branch's definition and the criteria a branch meets. DEL-04-07 composes it into the product solve, admits it on each route, and owns the pressure junction formed where pressure regions meet at its node. DEL-05-03 owns the base stresses the factors multiply and the two section bases they are published on. DEL-02-01 owns the model document and DEL-03-02 the component library format. DEL-07-03 owns the creation form. Local checks of a branch against a design code are evaluated only through the user's rule packs (PRD §12.7); a first-class nozzle-flexibility object is not modelled (PRD §7).
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-03-04 |
-> | Package ID | PKG-03 |
-> | Package name | Piping Components, Materials, and Library Data Model |
-> | Type | BACKEND_FEATURE_SLICE |
-> | Scope item | SOW-008 |
-> | Objective | OBJ-004 |
-> | Anticipated artifacts | branch component model; validation tests |
->
-
-### CLM-003 — Attributes
-
-> ##### Attributes
->
-> The branch connection component model is now evidenced by the strict component
-> library schema, invented component fixture, and schema test coverage:
->
-> - `schemas/component.schema.yaml` defines branch component field kinds for
->   branch run size, branch header size, connection angle, connection type,
->   reinforcement area, reinforcement reference, branch geometry source
->   reference, user SIF value, and user flexibility-factor value.
-> - `fixtures/component/invented_component_library_valid.json` carries a branch
->   component-family contract with geometry field kinds, rule-modifier field
->   kinds, source metadata field kinds, mechanics-interface metadata, and
->   `protected_value_policy: schema_slots_only`.
-> - The same fixture carries an invented branch record whose public field slots
->   are intentionally `missing` and provenance-bearing, with schema-shape-only or
->   no-public-code-specific-value policies.
-> - `tests/test_component_section_schema.py` asserts branch enum coverage,
->   branch family-contract coverage, branch fixture field coverage, branch
->   completeness diagnostics, component diagnostic `class`/`source` fields, and
->   protected-content denylist coverage.
->
-> No protected branch connection tables, SIF tables, flexibility tables, code
-> formulas, dimensional tables, copied engineering examples, proprietary catalog
-> values, or bundled public branch defaults are included. Remaining `TBD` items
-> are policy/source decisions rather than absence of the implemented schema
-> surface.
->
-
-### CLM-004 — Conditions
-
-> ##### Conditions
->
-> | Condition | Source | Status |
-> |---|---|---|
-> | Component model shall support branch connections with user-entered reinforcement, SIF, flexibility, and local data fields. | docs/_Registers/ScopeLedger.csv (retired in `48584391de`; see Git history) row SOW-008; execution/_Decomposition/SOFTWARE_DECOMP.md rows SOW-008 and DEL-03-04 | In scope |
-> | Public repository must not contain protected standards text, protected tables, copied formulas, or protected branch/SIF/flexibility data. | docs/CONTRACT.md OPS-K-IP-1, OPS-K-IP-3 | Constraint |
-> | Code-specific values are user-supplied or lawfully imported private data, not bundled public defaults. | docs/CONTRACT.md OPS-K-DATA-1 | Constraint |
-> | Missing solve-required or rule-check-required values are findings, not silent defaults. | docs/CONTRACT.md OPS-K-DATA-2 | Constraint |
-> | Materials, components, SIFs, flexibility factors, allowables, and rule-pack values carry provenance fields. | docs/CONTRACT.md OPS-K-DATA-3 | Constraint |
-> | Calculations, formulas, imported values, and exports must be unit-aware and dimensionally checked. | docs/CONTRACT.md OPS-K-UNIT-1 | Constraint |
->
-
-### CLM-005 — Construction
-
-> ##### Construction
->
-> The implemented evidence is schema-first and repository-level:
->
-> - `schemas/component.schema.yaml` exposes a JSON Schema 2020-12 component
->   library contract with `component_library`, `component_family_contracts`,
->   `component_records`, `field_definitions`, `completeness_rules`,
->   `diagnostics`, and `open_decisions`.
-> - Branch dimensional fields use `ComponentQuantityDimension` values that remain
->   constrained to the accepted unit dimension vocabulary exercised by the schema
->   test.
-> - Branch diagnostics include `BRANCH_GEOMETRY_INCOMPLETE`,
->   `BRANCH_REINFORCEMENT_DATA_MISSING`, and `BRANCH_RULE_INPUT_MISSING`; the
->   component diagnostic shape requires `class`, `source`, affected reference,
->   message, remediation, and provenance.
-> - The invented branch fixture records missing branch run/header/angle,
->   reinforcement reference, user SIF, and user flexibility-factor inputs as
->   blocking completeness evidence instead of silent defaults.
->
-> This reconciliation records that implementation evidence. It does not edit
-> repo-level schema, fixture, test, code, DAG, dependency, review-disposition, or
-> lifecycle files.
->
-
-### CLM-006 — Remaining TBDs
-
-> ##### Remaining TBDs
->
-> - Accepted public branch component source catalogs remain `TBD`.
-> - Public branch fixture-value policy remains `TBD`; current public fixture
->   values are schema-shape-only or omitted.
-> - Standard-specific branch interpretation, local-check methods, concrete import
->   formats remain `TBD`; implemented branch creation and inspector behavior belong to their product-owner evidence and do not close these source/format questions.
-> - Dependency satisfaction and lifecycle state remain governed by their existing
->   local files and human/reconciliation process.
-> - Review findings `PKG03-DEL-03-04-PKG02-001` and `-002` are
->   `ACCEPT_AS_IS` / `RESOLVED` in `Review_Findings.csv` under the recorded
->   2026-06-05 Gate C disposition. This documentation refresh does not alter
->   that formal review record.
->
-
-### CLM-007 — References
-
-> ##### References
->
-> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) - deliverable identity, accepted decomposition revision, architecture basis injection.
-> - `_REFERENCES.md` - local governing reference list.
-> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-03-04.
-> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-008.
-> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) row DEL-03-04.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register), rows for PKG-03, DEL-03-04, SOW-008, OBJ-004, and AB-00-01/02/04/06/07/08.
-> - `docs/CONTRACT.md` invariants listed in this kit.
-> - `schemas/component.schema.yaml` current component library schema evidence.
-> - `fixtures/component/invented_component_library_valid.json` current invented
->   component fixture evidence.
-> - `tests/test_component_section_schema.py` current schema/fixture validation
->   evidence.
-> - `MEMORY.md`, `_REVIEW.md`, and `Review_Findings.csv` local reconciliation and
->   review evidence.
-
-### CLM-008 — D-41 R5 T3 PDU-019 Evidence State
-
-> ##### D-41 R5 T3 PDU-019 Evidence State
->
-> Technical no-bypass evidence: present. Formal owning REVIEW sufficiency/disposition: held.
+**Not decided.** How a branch's single flexibility factor acts in the branch element that carries it: which member, side and bending axes it makes more flexible.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-009 — Specification: DEL-03-04 Branch connection component model fields
+A branch result is a statement about three frame members meeting at a node, with the user's flexibility factor in the stiffness where one is supplied and the user's intensification factors applied to recovered stress. It is not a local stress analysis of the fitting and not a code check.
 
-> #### Specification: DEL-03-04 Branch connection component model fields
->
+### Requirements
 
-### CLM-010 — Scope
+- **REQ-001** — A branch accepts the inputs PRD §12.3 lists: header association, branch association, intersection node, branch angle, reinforcement data, header-side modifiers, branch-side modifiers and provenance for local data (SOW-008; PRD FR-SOL-011).
+- **REQ-002** — Branch factors, reinforcement values and other code-specific values are the user's or lawfully imported private data. The product ships no branch, SIF, flexibility, dimensional or reinforcement table, equation or default, and computes no factor (`docs/CONTRACT.md` OPS-K-DATA-1, OPS-K-IP-1).
+- **REQ-003** — A missing value a solve or a rule check requires is an explicit, named finding. Nothing is defaulted (`docs/CONTRACT.md` OPS-K-DATA-2; PRD §5.5).
+- **REQ-004** — The geometry and each local modifier carry the user's source and provenance (PRD §12.3; `docs/CONTRACT.md` OPS-K-DATA-3).
+- **REQ-005** — Sizes, the connection angle and the reinforcement area are unit-aware and dimensionally checked; factors are dimensionless (`docs/CONTRACT.md` OPS-K-UNIT-1).
+- **REQ-006** — A branch's values reach a solve only through the product's validation: unit, provenance and completeness checks are not bypassed on any path that creates or changes a branch (the decomposition's architecture basis for DEL-00-07; `docs/CONTRACT.md` OPS-K-IP-3).
+- **REQ-008** — The user's header-side and branch-side factors multiply the resultant bending stress recovered at their own sides (PRD §22.3).
+- **REQ-009** — A branch with user modifiers is solved on the pressure-free route and on the exact route (release target exit criterion 1; PRD §22.2, branch assembly case).
+- **REQ-010** — Where the user supplies a branch flexibility factor, it enters the global stiffness through a branch element that carries it. A factor that is in the stiffness is not applied again to stress (DEC-070; PRD §22.3).
 
-> ##### Scope
->
-> Current realization evidence also includes branch inputs and diagnostics in `core/product_physics/src/lib.rs`, with creation/edits routed through `core/model_operations/operation_applier/src/lib.rs`. DEC-045 governs the multiplier-first mechanics boundary; product integration remains subject to its own verification, source and engineering holds. Current implementation (at `62c1efd75b`): the `BRANCH_*` input diagnostics are emitted by `core/product_physics/src/validation.rs`. On the pressure-free route, `core/product_physics/src/preview_physics.rs` (`associations`, about lines 320-345) applies the user header and branch SIFs as `component_equal_factor_intensified_bending_stress_v1` measures at the adjacent pipe ends. The user flexibility factor is required for the branch stress-modifier record (`core/product_physics/src/lib.rs`), which reports `flexibility_in_assembled_stiffness: false`; the factor is not applied to stiffness. On the exact route (RT-A3 increment 1) the branch connection is admitted as the same record (`core/product_physics/src/exact_admission.rs`), and the user header and branch SIFs give `branch_intensified_bending_stress_v1` rows at the same pipe ends on each section basis (`core/product_physics/src/u4b_rows.rs`; DEL-04-07 Work `pressure-contract.md`, "Tees and pressure junctions"). Desktop tee creation is in `apps/desktop/src/features/component-creation/componentIntent.ts`.
->
-> This deliverable specifies the branch connection component model fields now
-> evidenced by `schemas/component.schema.yaml`,
-> `fixtures/component/invented_component_library_valid.json`, and
-> `tests/test_component_section_schema.py`. The implemented schema surface covers
-> branch connection geometry, reinforcement references/area slots, user
-> SIF/flexibility slots, source metadata, provenance, unit dimensions,
-> completeness rules, and diagnostics without bundling protected engineering
-> values.
->
-> The historical record-only reconciliation excluded the mutations below; these were run boundaries, not exclusions from the durable component obligation:
->
-> - product implementation code;
-> - repo-level schema edits;
-> - fixture or test edits;
-> - dependency, review-finding, DAG, coordination, lifecycle, or status edits;
-> - protected standards text, formulas, tables, figures, copied examples, or proprietary data;
-> - bundled branch, SIF, flexibility, dimensional, material, or allowable defaults;
-> - claims language — Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
->
+### Acceptance criteria
 
-### CLM-011 — Requirements
-
-> ##### Requirements
->
-> | Req ID | Requirement | Source | Verification |
-> |---|---|---|---|
-> | DEL-03-04-RQ-001 | The component schema shall support branch connection data fields for geometry, reinforcement, user SIF/flexibility, and local branch data fields. | SOW-008; DEL-03-04 row | Validation tests inspect the model/schema for supported field groups. |
-> | DEL-03-04-RQ-002 | Branch connection SIF, flexibility, reinforcement, and other code-specific values shall be user-supplied or lawfully imported private data, not bundled public defaults. | OPS-K-DATA-1; OPS-K-IP-1 | Protected-content and fixture review confirms no bundled protected tables/defaults/examples. |
-> | DEL-03-04-RQ-003 | Missing solve-required or rule-check-required branch values shall be represented as explicit diagnostics/findings, not silent defaults. | OPS-K-DATA-2; AB-00-06 | Validation tests cover missing required data and expected diagnostic classes. |
-> | DEL-03-04-RQ-004 | Branch component records shall carry provenance/source fields for component data, SIF values, flexibility factors, and imported values where applicable. | OPS-K-DATA-3; AB-00-04; AB-00-07 | Schema/model tests confirm provenance metadata fields and import boundary diagnostics. |
-> | DEL-03-04-RQ-005 | Units associated with branch geometry, reinforcement, SIF/flexibility inputs, and exports shall be unit-aware and dimensionally checked where dimensions apply. | OPS-K-UNIT-1; AB-00-04 | Unit validation tests cover accepted, rejected, and missing unit metadata. |
-> | DEL-03-04-RQ-006 | The implementation shall preserve public/private data boundaries and cannot bypass governance, validation, diagnostics, or provenance checks. | AB-00-02; AB-00-07; OPS-K-IP-3 | Architecture and service-boundary tests verify validation paths are used. |
-> | DEL-03-04-RQ-007 | Validation tests shall be included for model completeness, provenance, unit handling, and protected-content boundary behavior. | AB-00-08; anticipated artifacts | Test inventory and CI-local validation confirm coverage. |
->
-
-### CLM-012 — Current Evidence
-
-> ##### Current Evidence
->
-> - The component schema defines branch field kinds:
->   `branch_run_size`, `branch_header_size`, `branch_connection_angle`,
->   `branch_connection_type`, `branch_reinforcement_area`,
->   `branch_reinforcement_reference`, `branch_geometry_source_reference`,
->   `sif_user_value`, and `flexibility_factor_user_value`.
-> - The branch component-family contract in the invented fixture lists branch
->   geometry, reinforcement, SIF/flexibility, source metadata, and
->   mechanics-interface slots with `protected_value_policy: schema_slots_only`.
-> - The invented branch component record uses `public_schema_only`,
->   `redistribution_status: TBD`, missing value statuses, provenance, and a
->   `BRANCH_RULE_INPUT_MISSING` completeness finding.
-> - Component diagnostics now require `class` and `source` fields in addition to
->   the earlier code, severity, affected reference, message, remediation, and
->   provenance fields.
-> - The schema test asserts branch enum membership, branch fixture contract
->   membership, branch fixture field slots, branch completeness diagnostics,
->   diagnostic `class`/`source` requirements, fixture validation, and protected
->   public-data denylist behavior.
->
-
-### CLM-013 — Standards
-
-> ##### Standards
->
-> No protected engineering standard text is locally available or reproduced here.
-> Any standard-specific branch connection interpretation remains `TBD` and must
-> be supplied through lawful private data, a licensed source, or a human-approved
-> public abstraction that does not reproduce protected content.
->
-
-### CLM-014 — Verification
-
-> ##### Verification
->
-> Verification must cover the schema obligations below and the product branch route through `core/product_physics/` and `core/model_operations/operation_applier/`; bound product tests and envelope round trips are evidence, not engineering acceptance. Schema-layer evidence includes:
->
-> - schema/model presence checks for each field group named in SOW-008;
-> - unit-aware validation for dimensional fields;
-> - provenance completeness checks for user/imported values;
-> - missing-data diagnostics for required analysis or rule-check inputs;
-> - protected-content keyword checks as limited screening evidence; scoped review remains required before claiming absence of protected branch/SIF/flexibility content;
-> - schema and fixture validation through `tests/test_component_section_schema.py`.
->
-> Remaining verification `TBD`s include dependency satisfaction disposition,
-> public fixture-value policy, accepted branch source catalog, persistence or
-> round-trip evidence beyond the current strict schema fixture, adapter/import
-> formats, and lifecycle acceptance.
->
-
-### CLM-015 — Documentation
-
-> ##### Documentation
->
-> Current implementation evidence:
->
-> - branch component schema surface: `schemas/component.schema.yaml`;
-> - invented branch component fixture: `fixtures/component/invented_component_library_valid.json`;
-> - schema/fixture validation: `tests/test_component_section_schema.py`.
->
-> This deliverable-local kit records evidence reconciliation only. It is not a
-> lifecycle promotion, release claim, professional/code-compliance claim, or human
-> acceptance decision.
-
-### CLM-016 — D-41 R5 T3 PDU-019 O7/E5 Evidence (2026-07-12)
-
-> ##### D-41 R5 T3 PDU-019 O7/E5 Evidence (2026-07-12)
->
-> Negative schema tests prove invalid privacy classes and unknown embedded payload fields are rejected. This bounded technical evidence does not determine formal REVIEW sufficiency or disposition.
-
-- **AC-001** — The contract preserves accepted branch-connection requirements and limits, including explicit dimensional and provenance data, rights-safe fixtures, missing-value findings, and unresolved engineering choices without inferred values or compliance claims.
+- **AC-001** — (a) In the model document, a branch accepts every input of REQ-001. (b) A library record of a branch accepts the run and header sizes, connection angle and type, reinforcement area and reference, the header-side intensification factor, the branch-side intensification factor, the flexibility factor and their sources. In both, each numeric value has its unit and each factor is dimensionless, and in a library record a missing value is marked with a branch completeness finding.
+- **AC-002** — On every product path that creates or changes a branch, each of the run size, header size, connection angle and reinforcement area is accepted with a unit of its dimension and brought to the model's basis, is rejected with a finding that names it when its dimension is wrong, and when absent is reported as missing with nothing substituted.
+- **AC-003** — Each published intensified bending stress at a branch equals the user's factor for that side times the resultant bending stress hypot(σ_y, σ_z) formed from the bending stress rows published at the same member end and section basis: the header factor at the header side, the branch factor at the branch side. On the exact route this holds on each section basis.
+- **AC-004** — A header with a branch solves with the intersection node in equilibrium under its loads, and its displacements, member end actions and reactions reproduce an independent reference at the analytic tolerance.
+- **AC-005** — Each of these raises a named finding on the component: header and branch pipes that are the same pipe or do not meet at the component's node as a branch; a missing header pipe, branch pipe, size, angle, type, reinforcement reference or geometry source; a missing or invalid header factor, branch factor, flexibility factor or modifier source reference. No intensified stress is published at a side whose own factor is missing or invalid, or whose factor has no source reference.
+- **AC-006** — The tee of the invented reference system, with its user modifiers, solves on the exact route in the desktop and is not refused.
+- **AC-007** — The branch's sources, schemas, fixtures and tests contain nothing REQ-002 excludes, and every example value is invented and labelled so.
+- **AC-008** — A branch with a supplied flexibility factor solves with that factor in its stiffness. Its displacements and end actions reproduce an independent known-flexibility reference.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-017 — Procedure: DEL-03-04 Branch connection component model fields
+**Method choices that define the branch.**
 
-> #### Procedure: DEL-03-04 Branch connection component model fields
->
+- A branch is a record at its node. With no supplied flexibility factor it adds no element: the header and branch pipes are ordinary frame members that meet at the node.
+- Each side's factor is applied at that side's pipe end, by association of the component with the pipes it names. A pipe the component does not name receives no factor.
+- A realized bend that a branch names carries no branch factor.
+- Example values are invented; where a real value would be needed, the example omits it and shows the missing-value finding.
 
-### CLM-018 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> Describe the evidence-reconciliation procedure for maintaining DEL-03-04
-> branch connection component model documentation against the implemented
-> component schema, invented fixture, and schema test evidence without exceeding
-> the authorized data boundary.
->
-
-### CLM-019 — Prerequisites
-
-> ##### Prerequisites
->
-> - Use the sealed DEL-03-04 brief and deliverable-local context.
-> - Apply SOW-008 and OBJ-004.
-> - Apply architecture basis AB-00-01, AB-00-02, AB-00-04, AB-00-06, AB-00-07, and AB-00-08.
-> - Apply CONTRACT invariants OPS-K-IP-1, OPS-K-IP-3, OPS-K-DATA-1, OPS-K-DATA-2, OPS-K-DATA-3, OPS-K-UNIT-1, OPS-K-RULE-1, OPS-K-MECH-1, and OPS-K-AGENT-1 through OPS-K-AGENT-4.
-> - Read `schemas/component.schema.yaml`,
->   `fixtures/component/invented_component_library_valid.json`, and
->   `tests/test_component_section_schema.py` as current implementation evidence.
-> - Treat absent engineering source data, policy decisions, dependency
->   satisfaction, human dispositions, and lifecycle acceptance as `TBD`.
->
-
-### CLM-020 — Steps
-
-> ##### Steps
->
-> 1. Confirm the write scope is limited to authorized DEL-03-04 narrative files
->    and the new reconciliation run record.
-> 2. Read `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, the relevant decomposition/register rows, and applicable CONTRACT invariants.
-> 3. Reconcile the consolidated `ScopeOfWork.md` sections and `MEMORY.md` against the implemented
->    branch evidence in the component schema, invented component fixture, schema
->    test, and local review findings.
-> 4. Record implemented branch component field names where the schema now defines
->    them: `branch_run_size`, `branch_header_size`,
->    `branch_connection_angle`, `branch_connection_type`,
->    `branch_reinforcement_area`, `branch_reinforcement_reference`,
->    `branch_geometry_source_reference`, `sif_user_value`, and
->    `flexibility_factor_user_value`.
-> 5. Preserve unresolved `TBD`s for public branch source catalogs, fixture-value
->    policy, standard-specific interpretation, concrete import formats,
->    dependency satisfaction, human review dispositions, and lifecycle state.
-> 6. Preserve the formal Gate C record: `Review_Findings.csv` records
->    `PKG03-DEL-03-04-PKG02-001` and `-002` as `ACCEPT_AS_IS` / `RESOLVED`.
->    Documentation maintenance must not rewrite that review disposition.
-> 7. Run relevant validation when feasible: `python3 -m pytest
->    tests/test_component_section_schema.py` and a stale-language search scoped to
->    `ScopeOfWork.md`.
-> 8. Do not introduce protected tables, formulas, examples, dimensional data,
->    material allowables, or certification/compliance claims.
->
-
-### CLM-021 — Verification
-
-> ##### Verification
->
-> - `ScopeOfWork.md` exists and preserves its required sections.
-> - Requirements trace to local context, decomposition/register rows, CONTRACT invariants, schema evidence, fixture evidence, and test evidence.
-> - Implemented branch schema slots are no longer described as absent or future-only.
-> - Unknown policy/source/dependency/human/lifecycle gates are still `TBD`; assumptions are labeled.
-> - No protected branch/SIF/flexibility tables, formulas, or examples are present.
-> - `python3 -m pytest tests/test_component_section_schema.py` passes when the
->   local test environment is available.
-> - A stale-language search over the consolidated `ScopeOfWork.md` sections shows no remaining
->   setup-only or future-only implementation language that contradicts the
->   schema/fixture/test evidence.
->
-
-### CLM-022 — Records
-
-> ##### Records
->
-> - `ScopeOfWork.md` (definition)
-> - `ScopeOfWork.md` (requirements)
-> - `ScopeOfWork.md` (rationale)
-> - `ScopeOfWork.md` (procedure)
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
-> - `Dependencies.csv`
-> - `_DEPENDENCIES.md`
-> - `_run_records/TASK_RUN_*.md`
-> - `_run_records/TASK_RUN_2026-06-05_DEL-03-04_evidence-reconciliation.md`
-
-### CLM-023 — D-41 R5 T3 PDU-019 Check
-
-> ##### D-41 R5 T3 PDU-019 Check
->
-> Run strict ComponentRecord schema negatives for privacy classification and unknown payload keys. Route evidence to REVIEW without changing its outcome.
-
-- **VER-001** — Validate the contract and review source parity, branch geometry and identity coverage, dimensional consistency, provenance and protected-content controls, missing-input diagnostics, mechanics handoff limits, and unresolved decisions.
+- **VER-001** — Executable check: observes acceptance of a branch with every input of REQ-001 in the model document and of a library record with every member of AC-001 (b), each with its unit, and the missing-value finding on an incomplete library record.
+- **VER-002** — Executable check: for each of the four quantities of AC-002, on each creating and changing path, observes the accepted, rejected and absent outcomes with their named findings.
+- **VER-003** — Executable check: observes each published intensified stress against the user's factor times the resultant of the bending stress rows published at the same member end and section basis, on both routes and on each section basis.
+- **VER-004** — Comparison with a named reference: a branch assembly against the exact-arithmetic frame references under `validation/references/rt_a3_tee`, generated without product code.
+- **VER-005** — Executable check: observes each case of AC-005 with its named finding, and the absence of intensified rows at a side whose factor or source reference is missing or invalid.
+- **VER-006** — Comparison with a named reference: the reference system (`validation/references/reference_system`) solved in the desktop on the exact route.
+- **VER-007** — Executable check, with judgment by an independent reviewer: a protected-content scan over the branch's sources, schemas, fixtures and tests, which is a proxy; a reviewer who did not write them reads them against `docs/IP_AND_DATA_BOUNDARY.md` §3.
+- **VER-008** — Comparison with a named reference: a branch with a supplied flexibility factor against a closed-form or hand-calculated known-flexibility reference frozen under `validation/references/` with an independent generator; displacements and end actions are compared.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-024 — Guidance: DEL-03-04 Branch connection component model fields
-
-> #### Guidance: DEL-03-04 Branch connection component model fields
->
-
-### CLM-025 — Purpose
-
-> ##### Purpose
->
-> This deliverable exists to keep branch connection component data explicit,
-> unit-aware, provenance-bearing, and separated from protected standards content.
-> The current component schema and invented fixture provide branch schema slots
-> and missing-data diagnostics so users or lawful private libraries can supply
-> branch-specific data without the public project embedding protected branch
-> connection, SIF, flexibility, or reinforcement tables.
->
-
-### CLM-026 — Principles
-
-> ##### Principles
->
-> - Treat branch connection data as user/imported input unless a public, rights-cleared source is documented.
-> - Preserve the difference between data capture, solver mechanics, rule-pack evaluation, and human professional judgment.
-> - Prefer explicit `TBD` or diagnostics over inferred defaults.
-> - Keep provenance and redistribution status close to the values they qualify.
-> - Make dimensional fields unit-aware; do not accept unitless dimensional values unless a later schema deliberately defines a safe representation.
-> - Use the implemented branch field names in `schemas/component.schema.yaml` when
->   documenting current schema evidence; reserve `TBD` for unresolved policy,
->   source, lifecycle, dependency, or human-disposition questions.
->
-
-### CLM-027 — Considerations
-
-> ##### Considerations
->
-> The branch connection model has more local field slots than simpler component
-> families. Current evidence covers branch run/header size, connection angle/type,
-> reinforcement area/reference, branch geometry source reference, user SIF, and
-> user flexibility-factor field kinds. The decomposition still leaves specialized
-> branch local-check methods, concrete import formats, and GUI behavior outside
-> this reconciliation.
->
-> Architecture basis implications:
->
-> - AB-00-02 and AB-00-07 point toward domain contracts and validation boundaries rather than GUI or adapter shortcuts.
-> - AB-00-04 points toward deterministic, provenance-preserving persistence when serialized.
-> - AB-00-06 points toward structured diagnostics for blocking missing data and boundary warnings.
-> - AB-00-08 points toward layered tests, including protected-content/provenance gates.
->
-
-### CLM-028 — Trade-offs
-
-> ##### Trade-offs
->
-> | Topic | Guidance |
-> |---|---|
-> | Field specificity vs protected content | Capture field categories and user-supplied values; do not encode protected lookup content. |
-> | Completeness vs implementation timing | Treat current branch schema field names as implemented evidence; keep specialized local-check needs, source catalogs, import formats, and lifecycle acceptance as `TBD`. |
-> | Public examples vs validation | Use the existing invented non-engineering fixture as schema/diagnostic evidence only; do not treat its missing branch values as engineering examples. |
-> | User flexibility vs diagnostics | Permit user-supplied branch data, but report missing or unverifiable values explicitly. |
->
-
-### CLM-029 — Examples
-
-> ##### Examples
->
-> The current public fixture is an invented schema fixture, not an engineering
-> example. It intentionally omits branch geometry, reinforcement, SIF, and
-> flexibility values and emits `BRANCH_RULE_INPUT_MISSING` rather than supplying
-> public defaults. Future value-bearing examples, if any, must be invented
-> non-code values with clear non-engineering notices or must come from reviewed
-> public-permissive/private sources; they must not reproduce protected tables,
-> formulas, or code examples.
->
-
-### CLM-030 — Review Posture
-
-> ##### Review Posture
->
-> Local review findings for unit-dependency satisfaction and component diagnostic
-> envelope compatibility are `ACCEPT_AS_IS` / `RESOLVED` in
-> `Review_Findings.csv` under the recorded 2026-06-05 Gate C disposition.
-> Narrative evidence may cite the technical branch schema, fixture, and diagnostic
-> updates, while dependency and lifecycle state remain governed separately.
->
-
-### CLM-031 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling (TBD) |
-> |---|---|---|---|---|---|---|
-> | None identified | No conflict was detected between the current branch schema/fixture/test evidence and the local review/memory evidence. | `schemas/component.schema.yaml`; fixture; test | `MEMORY.md`; `_REVIEW.md`; `Review_Findings.csv` | N/A | Treat implementation evidence as current while preserving policy, dependency, human-disposition, and lifecycle gates. | TBD |
-
-### CLM-032 — D-41 R5 T3 PDU-019 Boundary
-
-> ##### D-41 R5 T3 PDU-019 Boundary
->
-> Schema rejection evidence is not a formal review outcome and must not be represented as one.
+- **AX-001** — *The user's factors, never ours.* Better is fewer places where a branch factor, size or reinforcement value could originate in the software; the target is none. No convenience, example or default justifies one.
+- **AX-002** — *Say what was applied.* Better is fewer branch inputs that a result leaves unaccounted for: each is either applied and shown, or stated as not applied. This is never bought by applying a factor whose effect has not been defined.
+- **AX-003** — *Mechanics only.* Better is a clearer line between the stress the frame recovers and any judgment of the fitting. No output of a branch states or implies a code check.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-008 OBJ-004 | CLM-009 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-03-04:1** — Evidence branch product-path accepted/rejected/absent unit handling for sizes, angle and reinforcement area, and bind protected-content/provenance review to the public branch fixture and preview values; retain the separate PDU-019 formal review hold. (R5 continuation claim references: DEL-03-04:SOW#CLM-011/DEL-03-04-RQ-005; DEL-03-04-RQ-002; DEL-03-04-RQ-006.)
-- **DEL-03-04:2** — Hold PDU-019 formal review sufficiency/disposition; bounded negative schema evidence does not authorize an owning REVIEW outcome (source: D-41 R5 T3 O7/E5, 2026-07-12)
+| OUT-001 | SOW-008 OBJ-004 | REQ-001 REQ-004 | AC-001 | VER-001 | Owner ruling: PRD §12.3 lists the inputs; the criterion states the expected acceptance |
+| OUT-001 | SOW-008 OBJ-004 | REQ-005 REQ-006 | AC-002 | VER-002 | Owner ruling: `docs/CONTRACT.md` OPS-K-UNIT-1 and PRD §5.6 state the expected acceptance, rejection and finding |
+| OUT-001 | SOW-008 OBJ-004 | REQ-008 | AC-003 | VER-003 | The criterion states the expected value: the user's factor times the resultant of the published bending stresses (PRD §22.3). Correctness of the base stress rests on DEL-05-03's references |
+| OUT-001 | SOW-008 OBJ-004 | REQ-009 | AC-004 | VER-004 | Outside source: exact-arithmetic frame references for a branch assembly, from a generator that imports no product code (PRD §22.2). The tolerance is an owner ruling (DEC-026) |
+| OUT-001 | SOW-008 OBJ-004 | REQ-003 | AC-005 | VER-005 | Owner ruling: PRD §5.5 and `docs/CONTRACT.md` OPS-K-DATA-2 state the expected findings |
+| OUT-001 | SOW-008 OBJ-004 | REQ-009 | AC-006 | VER-006 | Owner ruling for the reference system's content (exit criterion 1); its expected results are the independent references of `validation/references/reference_system` |
+| OUT-001 | SOW-008 OBJ-004 | REQ-002 | AC-007 | VER-007 | Protected-content scan and independent review under `docs/IP_AND_DATA_BOUNDARY.md`; owner ruling PRD §20.1 |
+| OUT-001 | SOW-008 OBJ-004 | REQ-010 | AC-008 | VER-008 | Outside source: a closed-form or hand-calculated reference with an independent generator (DEC-070; PRD §22.3) |

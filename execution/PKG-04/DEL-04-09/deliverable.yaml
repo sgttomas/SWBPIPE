@@ -3,237 +3,117 @@ name: Modal analysis
 needs:
 - from: DEL-04-01
   condition: >-
-    DEL-04-09 forms K_ff by DEL-04-01's kernel assembly and partitioned restraint reduction
-    (`reduce_system…`, `reduce_assembled_sparse_system`), including the curved-bend macro-element
-    (`curved_bend`, its arc length and `consistent_uniform_nodal_loads` for the arc resultant check). Its
-    modal formation check re-forms K, in at least double-double precision, through one new read-only
-    frame_kernel entry exposing K-D5's p128 element re-formation (`intended_stiffness_pass`,
-    `formation_check.rs`) as a pure function of caller-supplied element geometry, section properties,
-    moduli and stiffness scales (DEL-04-09 supplies its own re-derived ones; built in I1 as `structural::element_reformation`, with
-    `frame_matrix` and `curved_matrix` reading their section values through two traits whose binary64
-    implementations are the exact lifts of the existing path, bit-for-bit unchanged), without K-D5's D5C1 criterion, which judges a static correction and is not
-    reused (M1b), and evaluates residuals with `exact_sum`. Both paths take their Sturm counts from
-    `sparse_direct`'s public API (`SymmetricProfileMatrix::from_entries_with_order`,
-    `factorize_ldlt` with its `nonpositive_pivot_count` and `first_nonpositive_pivot`, and `solve_ordered`)
-    plus one new read-only accessor on `ProfileFactorization` exposing borrowing iterators over the strictly
-    lower factor's stored entries and the pivots (`lower_factor_entries`, `pivots`; built in I1), with no
-    mutation and no allocation (M1b, used unchanged by M2's sparse path). Both seams are additions
-    to DEL-04-01's code in priced crates, re-registered under D3 in their change. The Sturm count relies
-    on `nonpositive_pivot_count` being the number of negative pivots of the unpivoted LDLᵀ, and is relied
-    on only under the conditioning and separation premises, whose backward-error estimate the accessor's
-    factor entries feed (Design §3.2, §3.3, §3.4). The shift pencil's reverse Cuthill–McKee order is
-    modal_eigen's own (`support::reverse_cuthill_mckee_lower`, Design §5.3.8), which reproduces
-    `sparse_direct`'s `reverse_cuthill_mckee` order exactly on the same pattern; that function remains its
-    test-only oracle, so a change to its ordering rule is a change to compare against. As built (I2b-1), K_ff and M_ff are read through the
-    free DOFs and positions of `reduce_assembled_sparse_system` on the formed basis stiffness with a zero
-    force; no reduction arithmetic is copied.
+    The frame kernel assembles the stiffness and reduces it by the restraints, with the curved-bend
+    element and its arc length and uniform-load resultant; its sparse factorization reports the
+    number of non-positive pivots of the unpivoted LDLT, which is the number of negative pivots, and
+    lets a caller read the stored factor entries and pivots without mutation or allocation; and it
+    re-forms element stiffness in at least double-double precision from operands the caller
+    supplies.
   gating: true
-  evidence: core/solver/sparse_direct/src/lib.rs
 - from: DEL-04-02
   condition: >-
-    DEL-04-09 places the consistent mass on DEL-04-02's straight pipe element in the member's own frame
-    orientation, and compares a·M·r_k nodally with the element's consistent uniform-load vector (forces
-    wL/2, moments ±wL²/12) in the weight-basis identity check (Design §2.5).
+    The straight pipe element gives its stiffness in the member's own frame and the consistent nodal
+    vector of a uniform load (forces wL/2 and moments of wL²/12 at each end), against which the mass
+    identity a·M·r is compared node by node.
   gating: true
-  evidence: core/solver/straight_pipe
 - from: DEL-04-03
   condition: >-
-    DEL-04-09 reduces K and M with the restrained DOFs of DEL-04-03's linear supports, takes axis spring
-    stiffness on the global diagonal and a skewed spring as the rank-1 term k·d dᵀ/(dᵀd), reduces a skewed
-    rigid restraint by the static path's nullspace basis (admitted exactly when the static path admits
-    skew, Design §1.3), and keeps imposed-displacement DOFs restrained without their motion values
-    (`imposed_motion.rs`). Constant-effort supports contribute no stiffness and no mass.
+    The linear support model defines the degrees of freedom each support restrains, an axis spring
+    as a stiffness on the global diagonal, a skewed spring as the rank-one term k·d·dᵀ/(dᵀd), and a
+    skewed rigid restraint as an exact constraint in the authored direction; an imposed-displacement
+    degree of freedom is restrained, and a constant-effort support contributes no stiffness.
   gating: true
-  evidence: core/solver/linear_supports
 - from: DEL-04-04
   condition: >-
-    DEL-04-09 linearizes each nonlinear support at the final state of a named load case, which the modal
-    entry solves with DEL-04-04's active-set solver on the current model in the same run. Each state enters
-    as the solver represents it (`prescribed_displacement_for_state`): active one-way and lift-off supports,
-    closed gaps and sticking friction are rigid constraints; inactive, open and sliding supports are free,
-    sliding friction with its force frozen as a disclosed approximation. An absent case or an unconverged
-    solve is refused by name (Design §1.3, D-s). As built (I2b-2): the states are the final
-    `SupportStateRecord`s of the same-run solve, read through the DEL-04-07 seam below, admitted only when
-    the static path confirmed them (Agent 0's D2). DEL-04-04's confirmation runs on no gap state, so a model
-    with a gap support is refused until RT-A3's R-3 (exact gap qualification and gap confirmation, required
-    for criterion 1) lands; a load/reference-state case with a nonlinear support also needs RT-A3's S6. A friction support ending inactive (its normal not bearing)
-    is free, as `prescribed_displacement_for_state` treats it, and is admitted when confirmed, which
-    DEL-04-04's confirmation establishes for an explicit normal that is not positive and never for a derived
-    normal (O-14 (b), Agent 0, 2026-11-02). No DEL-04-04 code changes.
+    The classifier gives each nonlinear support's final state in a solved case and defines how each
+    state enters the system; an active one-way or lift-off support, a closed gap and sticking
+    friction are rigid constraints, and an inactive, open or sliding support is free.
   gating: true
-  evidence: core/solver/nonlinear_supports
 - from: DEL-02-01
+  when: Before a model containing a snubber is admitted.
   condition: >-
-    Model document 0.9.0 carries the snubber support family (translational restraints or one skew
-    direction, optional single dynamic stiffness). DEL-04-09 includes snubbers in the modal basis when the
-    request includes dynamic-only restraints, and ignores them otherwise, disclosed either way (D-t).
+    The model document carries a snubber support family, with translational restraints or one skew
+    direction and an optional single dynamic stiffness.
   gating: true
-  when: Before modal admits models containing snubbers.
+- from: DEL-04-10
+  when: Before a model containing a snubber is admitted.
+  condition: >-
+    The response-spectrum deliverable defines what a snubber is in the dynamic stiffness, a rigid
+    restraint of its translational degrees of freedom or of motion along its one skew direction, or
+    a spring of its stated stiffness, and that every static solve ignores it.
+  gating: true
 - from: DEL-04-06
   condition: >-
-    An unrestrained or mechanism model is refused through DEL-04-06's singular-model detection and
-    diagnostics, unchanged, before any eigen-solve. As built (I2b-1), the detection reached is the static
-    entry's own: its six-ground-constraint pre-check (I2a's preparation) and its dense structural solve
-    on a zero force (DEL-04-07's need below), refused with the static path's integrity code
-    (`integrity_failure_code`); no DEL-04-06 code is called or changed.
+    An unrestrained or mechanism model is detected and refused by name, with the diagnostic naming
+    what is unrestrained, before any eigen-solve.
   gating: true
-  evidence: execution/PKG-04/DEL-04-06/ScopeOfWork.md
 - from: DEL-04-07
   condition: >-
-    The modal entry (`run_modal_preview_with_mode`) sits beside DEL-04-07's product solve entry
-    (`run_linear_static_preview_with_mode`). It reads the built PF model (`BuiltModel`) in a separate pass
-    that adds no frame to `build_member` or the AC-004 peak chain. It resolves the modulus basis with
-    `materials_for_modulus_basis_observed`, chooses its path by `PreviewSolverMode`, and sizes its dense
-    guard against the dense scrutiny ceiling (`DENSE_SCRUTINY_CEILING_BYTES`). It admits both routes:
-    on EX, the same assembly with the D-5 nominal-wall sections and no load-dependent stiffness, and the
-    families EX admits as RT-A3 extends them. On a load/reference-state document it resolves the named
-    state case with DEL-04-07's `case_state::resolve::resolve_case` and builds with the resolved per-member
-    pairs (`build_model_for_members`), as the static path does (D-w). The state case is bound after the
-    solve's one operating-condition lowering (`operating_conditions::lower`) by a modal-side post-lowering
-    binding (Agent 0 decision D-L, built in I2a) that proves the lowered case is the authored case with
-    exactly S2's documented generated records appended, instead of an observation hook in the lowering; S2's
-    resolver bytes (`operating_conditions.rs`, `operating_conditions/resolution.rs`) are unchanged and no case
-    is planned, judged or resolved a second time. Timoshenko straights on either route are refused by name
-    (Design §1.2, D-r). As built (I2b-1, dense, in-crate only): K comes from the static
-    `form_basis_stiffness(…, true)` (a `RangeDeferred` basis refused by name); the static
-    `dense_scrutiny_guard` with `dense_scrutiny_ceiling_bytes` applies before any n² allocation; and the
-    singular-model screen is the static dense path's structural solve on a zero force, through
-    `nonlinear_integration`'s `SparseAssemblyEvidence::solve_assembled` in `DenseScrutiny` mode, built as
-    `solve_preview_reduced_system` builds its evidence (`frame_member_identities`). As built (I2b-2): the
-    state case is solved once through the static path's private `solve_load_case_observed` (no capture, no
-    product observer, a scratch source budget, `dense_scrutiny` recorded), after `dense_loop_memory_guard`
-    and `dense_scrutiny_guard`, and read through a typed, crate-private seam in PP `lib.rs` (Agent 0's
-    decision B): `LoadCaseSolve::nonlinear_state: Option<Box<NonlinearStateEvidence>>`, the recorded
-    qualification branch as a third return member of `append_nonlinear_support_loop_results`, and one
-    `#[inline(never)]` helper `capture_nonlinear_state_evidence` on the completed construction. The edits use
-    ordinary layout (Agent 0): each new field and statement on its own line, and the retained-pricing line keys,
-    snapshot keys and pins re-keyed to the new lines (DEL-04-08 §8.43, §8.48), not preserved by cramming. Static outputs are unchanged: 30
-    static envelopes hashed before and after in a one-off test were byte-identical (an observation, not a
-    committed regression). `LoadCaseSolve` grows from 1,880 to 1,888 B (aarch64 debug), and ordinary
-    nonlinear static solves gain a small heap capture. The carrier atom, the helper's and callers' frames and
-    the stack chains are priced under the DEL-04-08 need below, not assumed unchanged. As built (P0,
-    Design §5.3.8): the modal resource preflight bounds the state solve's structural solves from DEL-04-07's
-    active-set iteration cap (`DEC_046_PRODUCT_PREVIEW_ACTIVE_SET_MAX_ITERATIONS`, read and not changed) and
-    the dense loop's solves per iteration (one, or 2 + d with derived friction), so a change to either moves
-    that bound. No public entry exists yet.
+    The product solve builds the model on the pressure-free route and on the exact pressure route,
+    with no load-dependent stiffness on either; resolves a modulus basis from a load case's
+    vocabulary; resolves and solves a named load case once, returning its resolved per-member state
+    and its final nonlinear support states with whether each was confirmed; applies the dense
+    scrutiny memory ceiling and selects the dense or sparse path by the solver mode; and bounds a
+    nonlinear solve by a stated iteration cap, which the modal work estimate reads.
   gating: true
-  evidence: core/product_physics/src/lib.rs
 - from: DEL-05-01
   condition: >-
-    The mass basis is the self-weight basis on the model's route. DEL-04-09 reads DEL-05-01's mass per
-    length (`stable_mass_per_length`: on PF `STABLE_MASS_METHOD` `source_od_effective_wall_areas/v1`, on EX
-    `EXACT_MASS_METHOD` `source_od_nominal_wall_pressure_bore_areas/v1`) and the
-    component eligibility function (`component_weights`), both exposed `pub(crate)` without change of
-    meaning. For the identity check it adds, in M1a (built in I2a, Agent 0 decision D-SW), one `pub(crate)`
-    inspection entry, `inspect_generated_self_weight`, that calls `generate_operations(…, true)` unchanged on the
-    intact model under a scratch case id used by no case or primitive load, with an empty source hash, without
-    clearing, adding or renaming cases (`generate_operations(…, true)` refuses an existing case id and its
-    lineage caller clears cases). The entry is case-free only for the S2-admitted subset, where
-    condition-dependent contents are refused (`LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED`), so every state's mass is the
-    section mass; the modal state binding stays case-specific through the post-lowering binding (DEL-04-07
-    need). The broader named-source-case inspection, keeping the case's condition context, and the RT-A6
-    `case_contents_density` extension are retained for the contents slice; until they land a state case that
-    resolves condition contents is refused. It also reads applied self-weight evidence
-    (`inspect_applied_self_weight`, the component primitives' `normalized_acceleration_m_per_s2`) for the
-    acceleration agreement (Design §2.3, §2.5).
+    Self-weight defines the mass per length of each member on each route and which components'
+    weights it applies, can be inspected on the intact model without clearing, adding or renaming a
+    case, records the acceleration of each applied component-weight primitive, and resolves the
+    contents density of a named load case, where the case resolves one, into the mass per length
+    self-weight uses.
   gating: true
-  evidence: core/product_physics/src/self_weight.rs
 - from: DEL-03-05
   condition: >-
-    A rigid-family component's body mass is W/a at its centre of gravity. DEL-04-09 needs DEL-03-05's
-    rigid-family predicates (`is_rigid_family`, `mapped_pipe_ref`, `mechanics_geometry_only`
-    consumption), the component weight as an authored force and the centre-of-gravity convention (R10,
-    owner 2026-10-24: global X/Y/Z from the component node), and the s·E, s·G stiffness scaling, unchanged.
+    A rigid-family component is identified as such, carries its weight as an authored force at a
+    centre of gravity given in global X, Y and Z from the component's node, and scales the stiffness
+    of its mapped pipe by stated factors on E and G.
   gating: true
-  evidence: core/product_physics/src/rigid_component.rs
 - from: DEL-04-08
   condition: >-
-    F1 touches priced sources (PP `lib.rs`, `self_weight.rs`, the `sparse_direct` accessor and the frame_kernel
-    re-formation entry, both in M1b) and the reviewed
-    `core/product_physics/Cargo.lock`. I2b-2's `lib.rs` seam moves the `solve_prepared_load_case` and
-    `append_nonlinear_support_loop_results` body pins, the full-file pin, and `s(LoadCaseSolve)` in B5O1's
-    CasePrefix carrier (1,880 to 1,888 B); D1.6 refuses nonlinear supports, so the retained route reaches only
-    the evidence's `None`. Each such change is
-    re-registered under DEL-04-08's actual-source pricing law (D3, `tools/retained_pricing`) in the change
-    that makes it, and keeps the AC-004 stack witnesses passing. F1 never enters the retained Direct entry
-    or D1. D3 runs join the queue on Agent 0's go.
+    The memory-pricing law prices the actual source of every priced crate against the registered
+    profile, and the retained-precision entry refuses any invocation it was not admitted for.
   gating: true
-  evidence: execution/PKG-04/DEL-04-08/Work/retained-pricing-rules.md
 - from: DEL-02-02
   condition: >-
-    The extraction cut-off (frequency), the weight-to-mass acceleration and every mass input are
-    normalized through DEL-02-02's unit catalog and dimension checks (`open_pipe_stress_units`); results
-    are displayed in project units. Every published modal quantity has integer unit exponents. The catalog
-    gains the dimensions the modal results need: `frequency` (Hz), `angular_frequency` (rad/s),
-    `rotation_per_length` (rad/m), `length_per_rotation` (m/rad) and `rotational_generalized_mass`
-    (kg·m²·rad⁻², case (b)'s generalized mass); period uses the existing Time (s). They are DEL-02-02's
-    families, carried by model document 0.9.0's first slice (S1) in its D3 turn (agreed with the load-case
-    lane, Work `model-document-0.9.0.md` §2.4 at `c42a72491`). DEL-04-09 defines no unit or conversion of
-    its own (Design §1.5). I3a (Design §5.3.5): the modal result's mass payload also needs a family for a
-    translation–rotation mass entry, kg·m·rad⁻¹ (exponents L 1, M 1, A −1). `mass_length_per_rotation`
-    (canonical kg*m/rad; displays lb*in/rad, lb*ft/rad) is added to `core/units` as a named dimension
-    with conversion witnesses, under the D-01 engineering extension of 2026-11-04 (Agent 0's decisions;
-    a manager decision under the engineering delegation). No `angular_frequency_squared` is added, since
-    λ is not published. The equilibrated-basis magnitudes are traced on the code (Design §5.3.5): the
-    Sturm and stiffness-side ones are `unit:one`, the two D·M·D formation magnitudes are `time_squared`
-    (`unit:square_second`, added under the same extension, Agent 0's option (a)), and modal-1's closed
-    `equilibrated_basis` list is empty. Every published value has its catalog unit; this closes none of
-    the result's other admission conditions.
+    The unit catalog has named dimensions, with conversion witnesses, for frequency, angular
+    frequency, rotation per length, length per rotation, rotational generalized mass, mass-length
+    per rotation and time squared, and normalizes a frequency, an acceleration and every mass input
+    with a dimension check.
   gating: true
-  when: The unit families (with 0.9.0's S1) before M1b publishes modal results; satisfied for the I3a result family by the 2026-11-04 extension.
-  evidence: core/units/README.md
 - from: DEL-00-06
   condition: >-
-    The modal refusals and warnings are typed diagnostics under DEL-00-06's diagnostics contract. The modal
-    result is a family of its own, `openpipestress.modal_result` 0.1.0 under the semantic table
-    `openpipestress.result_semantics/modal-1` and the profile `product_preview_modal_v1` (Design §5.3, built
-    experimental in I3a): it is not a `results.v0.3` envelope and adds nothing to `results.v0.3` or
-    `analysis_run.v0.3`. The earlier plan to add the profile to `results.v0.3` and a `modal` run kind to
-    `analysis_run.v0.3` is a superseded proposal (Design §9 O-8). Open, unadopted policy with DEL-00-06 and
-    Agent 0: the joint task record, a store, the version policy of a stored modal result and recording
-    support; until they are decided a modal document is transient and nothing records or stores it.
+    The diagnostics contract admits typed refusals and warnings with code, severity, source and
+    affected object.
   gating: true
-  when: Before any modal result is recorded or stored.
 - from: DEL-04-05
+  when: Timing the sparse path's scale benchmarks.
   condition: >-
-    M2's scale benchmarks use DEL-04-05's performance-harness conventions, and the dense path's
-    kernel-level control generalizes the harness's Jacobi routine (`jacobi_symmetric_eigenvalues`) in
-    tests only. No product path depends on the harness.
+    The performance harness times a benchmark in an exclusive window with its build named and
+    reports a timing profile.
   gating: false
-  evidence: core/solver/performance_harness/src/lib.rs
-- from: DEL-05-03
-  condition: >-
-    M4, outside F1's current commitments, admits Timoshenko straights with a Timoshenko consistent mass
-    once DEL-05-03's PF Timoshenko unit (#1663) and model document 0.8.0 land. Until then they are refused
-    by name.
-  gating: false
-  when: Before M4.
 - from: DEL-10-05
+  when: Before a modal request can be run headless.
   condition: >-
-    The headless runner hosts a modal command (M1b). It supplies no extraction bound or acceleration of
-    its own.
+    The headless runner hosts a modal command and supplies no extraction bound, acceleration or
+    other engineering value of its own.
   gating: false
 - from: external:nrc-nureg-cr
+  when: For the published-benchmark comparison.
   condition: >-
-    Class-c comparison problems (first, NUREG/CR-1677 Vol. 1) are transcribed from a report only with that
-    report's own redistribution evidence (its rights statement and NRC distribution terms), recorded per
-    fixture with the `docs/IP_AND_DATA_BOUNDARY.md` §4 fields. A report with uncertain rights is held for
-    the owner's review and nothing is transcribed from it; copyrighted or adapted content inside a report
-    is excluded (Agent 0, 2026-10-27; Design §4.4). At least one such comparison is required before
-    FR-SOL-016 is reported complete (ScopeOfWork REQ-010).
+    A published piping benchmark report, first NUREG/CR-1677 Volume 1, can be transcribed under its
+    own redistribution evidence (its rights statement and distribution terms). A report with
+    uncertain rights is held for the owner's review and nothing is transcribed from it; copyrighted
+    or adapted content inside a report is excluded.
   gating: false
-  when: After M1b, for REQ-010.
-# Paths: core/solver/modal_eigen/** exists (I1); core/product_physics/src/modal.rs and modal/** exist (I2a;
-# I2b-1 adds modal/{stiffness,eigen,integrity,outcome,tests_eigen}.rs; I2b-2 adds modal/{state,tests_state}.rs and
-# the decision-B seam in core/product_physics/src/lib.rs, a DEL-04-07 path); I3a adds modal/{document,tests_document}.rs,
-# core/reporting/modal_result/**, fixtures/results/{semantic_contract_modal_1,modal_*}.json and modal_README.md,
-# tests/verifiers/modal_evidence.py and tests/test_modal_evidence.py; the model-derived mass readers add
-# core/reporting/modal_result/src/model_mass.rs and tests/verifiers/modal_model_mass*.py; the rest are planned (Design §3.5, §5).
 code_paths:
+# The modal entry sits in DEL-04-07's product crate; these files in it are this deliverable's. The
+# read-only factorization accessor and the element re-formation entry it calls are in the sparse
+# solver and frame kernel crates, which DEL-04-01 lists.
 - core/solver/modal_eigen/**
 - core/product_physics/src/modal.rs
 - core/product_physics/src/modal/**
-- core/product_physics/tests/modal_*.rs
 - core/reporting/modal_result/**
 - fixtures/results/semantic_contract_modal_1.json
 - fixtures/results/modal_*.json
@@ -242,8 +122,9 @@ code_paths:
 - tests/verifiers/modal_model_mass*.py
 - tests/test_modal_*.py
 - validation/references/f1_modal/**
-- apps/desktop/src/features/results/ModalResultsPanel*
-- apps/desktop/src/features/viewport/modeShapeOverlay*
-# Planned checks: registered by each slice (ScopeOfWork VER-001 to VER-010).
+- tests/modal_feasibility_oracle.py
 checks:
-- modal-eigen-test
+- core/solver/modal_eigen/tests/*.rs
+- core/product_physics/src/modal/tests*.rs
+- core/reporting/modal_result/tests/*.rs
+- tests/test_modal_*.py

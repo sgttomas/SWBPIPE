@@ -1,6 +1,19 @@
 id: DEL-00-04
 name: Persistence and schema versioning architecture
-needs: []
-code_paths:
-- apps/desktop/src-tauri/src/model_document_version.rs
-- apps/desktop/src/services/hashService.ts
+needs:
+- from: DEL-00-01
+  condition: >-
+    The baseline in force names JSON Schema 2020-12 as the dialect of public schemas and
+    interchange documents, and that decision is reachable from the decision index.
+  gating: true
+- from: DEL-00-03
+  condition: >-
+    A persistence operation is a command with a stated transaction boundary: one that fails leaves
+    the stored project as it was, and every one returns a result envelope with its diagnostics.
+  gating: true
+# This deliverable states the persistence rules and owns no code. The persistence envelope, the
+# project store and the document version check are DEL-02-05's. The canonical JSON and hash
+# implementation is DEL-08-02's, and so is the desktop hash service
+# (apps/desktop/src/services/hashService.ts) under DEL-08-02's requirement that every hashing
+# surface uses the one canonical form.
+code_paths: []

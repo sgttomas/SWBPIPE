@@ -2,299 +2,99 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-03-03
 package_id: PKG-03
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-007]
 package_objective_refs: [OBJ-004]
 ---
 
-# Scope of Work — DEL-03-03
+# Scope of Work — DEL-03-03 Bend and elbow component model fields
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-03-03` in service of project scope [SOW-007] and package objectives [OBJ-004].
+This deliverable defines what a bend or elbow is in the product. A user places one where a line changes direction and gives it its geometry, its flexibility factors and its stress intensification factors, each with the source it came from. The definition says what those inputs are and what each does: the geometry and the flexibility factors make the bend a curved, more flexible member of the solved frame, and the intensification factors multiply the bending stress recovered at it. The software supplies no factor of its own.
 
-- **OUT-001** — A bend-and-elbow component-model contract defining geometry, section, flexibility, stiffness, mass, unit, provenance, and completeness fields is produced for the declared scope and objective.
+It serves SOW-007 under OBJ-004 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-03, row DEL-03-03), and PRD §12.3 (bend and elbow objects) with FR-SOL-010 and the user-entered SIF and flexibility-factor behaviours of §22.3. In `docs/RELEASE_TARGET_v1.0.md` it is an owning deliverable of exit criterion 1 for the reference system's realized bends: they solve on the exact pressure route in the desktop.
+
+- **OUT-001** — The bend and elbow component definition: its members in the model document and in a component library record, and the behaviour of a bend in a solve and in stress recovery.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-03-03 Bend and elbow component model fields
+**Terms the definition implements.**
 
-> #### Datasheet: DEL-03-03 Bend and elbow component model fields
->
+- *Bend component.* A component of kind bend or elbow at a node. It names the pipe that spans the bend, and carries a bend radius, a bend angle, a plane orientation and a source reference for that geometry; flexibility factors and stress intensification factors with one source reference for those modifiers; and a declaration of how the solve consumes it. These members of the model document are this deliverable's definition.
+- *Realized bend.* A bend declared as a curved member. Its pipe is solved as a circular arc between the pipe's two end nodes. The chord is the line between the nodes; the radius is the user's; the plane is spanned by the chord and the pipe's reference direction, and the arc bows toward that reference side. The included angle follows from chord and radius. An entered angle must agree with it.
+- *Flexibility factors.* Dimensionless user factors, finite and above zero. On a realized bend the in-plane factor multiplies in-plane bending flexibility and the out-of-plane factor multiplies out-of-plane bending flexibility; torsional and axial flexibility are unchanged; a factor of 1 is the plain curved beam.
+- *Stress intensification factors.* Dimensionless user factors, finite and above zero. On a realized bend they are directional and enter the intensified bending DEL-05-03 defines: the in-plane factor on the bending stress of the in-plane moment, which is the moment about the normal to the bend plane, and the out-of-plane factor on that of the out-of-plane moment, about the transverse axis in the plane. The two are entered both or neither. A torsional factor, where one applies, multiplies the torsional stress and does not enter intensified bending.
+- *Geometry-only bend.* A bend declared as geometry only. Its pipe is solved as the straight chord, its flexibility factors are not applied, and its single intensification factor multiplies the resultant bending stress at the adjacent pipe end.
+- *Library record of a bend.* A component library record of type bend or elbow, whose field kinds hold the centreline radius, included angle, tangent length, plane and end orientations, the intensification factors, the flexibility factor and the geometry source reference.
 
-### CLM-002 — Identification
+**Boundary.** This scope states the bend's definition and the criteria a bend meets. The arc element that realizes it is held with the frame kernel's code (DEL-04-01). DEL-04-07 composes bends into the product solve, admits them on each route, and owns pressure on an arc and the refusal of a geometry-only bend on the exact route. DEL-05-03 owns the base stresses the factors multiply and the definition of intensified bending on a realized arc. DEL-02-01 owns the model document and DEL-03-02 the component library format. DEL-07-03 owns the bend authoring forms, and the viewport's drawing of a bend is DEL-07-01's. Mitred bends are not modelled (PRD §7).
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-03-03 |
-> | Package ID | PKG-03 |
-> | Package | Piping Components, Materials, and Library Data Model |
-> | Type | BACKEND_FEATURE_SLICE |
-> | Scope Item | SOW-007 |
-> | Objective | OBJ-004 |
-> | Decomposition Basis | `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see the project decision register) |
-> | Evidence Artifacts | `schemas/component.schema.yaml`; `fixtures/component/invented_component_library_valid.json`; `tests/test_component_section_schema.py` |
->
-
-### CLM-003 — Attributes
-
-> ##### Attributes
->
-> This deliverable concerns data-model fields for bends and elbows. The current repository evidence supports:
->
-> | Attribute Group | Field Intent | Source |
-> |---|---|---|
-> | Component identity | Distinguish bend/elbow records from other component families. | DEL-03-03 context; SOW-007 |
-> | Bend geometry | Store user-entered centerline bend geometry through schema field kinds including `bend_centerline_radius`, `bend_included_angle`, and `bend_plane_orientation`. | SOW-007 |
-> | SIF inputs | Store user-entered stress intensification factors without bundled protected tables or formulas. | SOW-007; OPS-K-IP-1; OPS-K-DATA-1; OPS-K-DATA-3 |
-> | Flexibility inputs | Store user-entered flexibility factors without bundled protected tables or formulas. | SOW-007; OPS-K-IP-1; OPS-K-DATA-1; OPS-K-DATA-3 |
-> | Provenance/source metadata | Record source, provenance, redistribution status where applicable, and evidence references for user-supplied or imported data. | OPS-K-DATA-3; AB-00-04; AB-00-07 |
-> | Validation state | Represent missing or unresolved required inputs explicitly rather than silently defaulting values. | OPS-K-DATA-2; AB-00-06 |
->
-
-### CLM-004 — Conditions
-
-> ##### Conditions
->
-> - The public repository must not contain protected SIF or flexibility tables, protected standards text, copied examples, or code-derived formulas.
-> - Code-specific values for SIFs, flexibility factors, bend geometry, and related rule-pack inputs are user-supplied or lawfully imported private data.
-> - Units must be explicit and dimensionally checked for geometry and any numeric factors that participate in calculation or export.
-> - Diagnostics must identify missing solve-required or rule-check-required bend/elbow values as findings.
-> - The active evidence is schema/fixture/test evidence only; it does not close dependency satisfaction or human review dispositions.
->
-
-### CLM-005 — Construction
-
-> ##### Construction
->
-> Current evidence categories:
->
-> | Category | Draft Field Concept | Status |
-> |---|---|---|
-> | Identity | `bend` and `elbow` are explicit `ComponentType` values, aligned with `schemas/model.schema.yaml`. | Implemented evidence |
-> | Geometry | Bend geometry slots include centerline radius, included angle, tangent/orientation fields, and geometry source references. | Implemented evidence |
-> | Factors | User SIF and flexibility factor slots are present as user/private inputs with no public code-specific values. | Implemented evidence |
-> | Source metadata | Component fields require provenance, redistribution status, contributor certification, and review status. | Implemented evidence |
-> | Validation | Missing bend geometry/rule inputs are represented through `BEND_GEOMETRY_INCOMPLETE` and `BEND_RULE_INPUT_MISSING`. | Implemented evidence |
-> | Persistence | Strict component fixture validates as a standalone `component.schema.yaml` instance; combined fixture points to the strict component fixture. | Implemented evidence |
->
-
-### CLM-006 — References
-
-> ##### References
->
-> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for deliverable identity, objective, scope, and architecture-basis injection.
-> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row `DEL-03-03`.
-> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row `SOW-007`.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) rows for `DEL-03-03`, `SOW-007`, `OBJ-004`, `PKG-03`, and applicable architecture basis IDs.
-> - `docs/CONTRACT.md` invariants OPS-K-IP-1, OPS-K-IP-3, OPS-K-DATA-1, OPS-K-DATA-2, OPS-K-DATA-3, OPS-K-UNIT-1, OPS-K-RULE-1, OPS-K-MECH-1, and OPS-K-AGENT-1..4.
+**Not decided.** Whether a bend carries one entered flexibility factor that serves both bending planes or separate in-plane and out-of-plane factors. DEC-070 names in-plane and out-of-plane factors. The criteria below are stated per plane and hold for either.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-007 — Specification: DEL-03-03 Bend and elbow component model fields
+A solved bend is a statement about a circular curved beam with the user's factors. It says nothing about whether those factors suit the fitting; that is the user's engineer's judgment.
 
-> #### Specification: DEL-03-03 Bend and elbow component model fields
->
+### Requirements
 
-### CLM-008 — Scope
+- **REQ-001** — A bend or elbow is identified as its own component family, distinct from every other (SOW-007).
+- **REQ-002** — A bend accepts the user's bend radius, bend angle and bend plane orientation (SOW-007; PRD §12.3, FR-SOL-010).
+- **REQ-003** — A bend accepts the user's in-plane, out-of-plane and, where applicable, torsional stress intensification factors (SOW-007; PRD §12.3).
+- **REQ-004** — A bend accepts the user's flexibility factors (SOW-007; PRD §12.3).
+- **REQ-005** — The geometry and each local modifier carry the user's source and provenance (PRD §12.3; `docs/CONTRACT.md` OPS-K-DATA-3).
+- **REQ-006** — The product ships no SIF or flexibility table, equation, catalogue value, standard example or default, and computes no factor. Every factor is the user's (SOW-007; PRD §12.3; `docs/CONTRACT.md` OPS-K-IP-1, OPS-K-DATA-1).
+- **REQ-007** — A missing or inconsistent value a solve or a rule check requires is an explicit, named finding. Nothing is defaulted and no entered geometry is adjusted to fit (`docs/CONTRACT.md` OPS-K-DATA-2; PRD §5.5).
+- **REQ-008** — Geometry values are unit-aware and dimensionally checked; factors are dimensionless (`docs/CONTRACT.md` OPS-K-UNIT-1).
+- **REQ-009** — Example data for bends is invented, non-code and labelled as such (PRD FR-RULE-007).
+- **REQ-010** — A bend is a member of the 3D centreline frame model. Its definition assumes no shell or solid element (`docs/CONTRACT.md` OPS-K-MECH-1).
+- **REQ-011** — A bend's values reach a solve only through the product's validation: no path that creates, changes or imports a bend bypasses the unit, provenance and completeness checks (the decomposition's architecture basis for DEL-00-02 and DEL-00-07).
+- **REQ-012** — A realized bend's flexibility factors enter the global stiffness through an arc-consistent curved element. Scaling a straight chord by the factor is not the realization, and a factor that is in the stiffness is not applied again to stress (DEC-070).
+- **REQ-013** — A realized bend is a solved member on the pressure-free route and on the exact route (release target exit criterion 1).
 
-> ##### Scope
->
-> This deliverable specifies the bend/elbow component model slice as currently evidenced by component schema fields, strict component fixture records, and validation tests. The implemented evidence is limited to bend/elbow geometry slots, user-entered SIF/flexibility slots, source metadata, completeness diagnostics, and model-enum compatibility.
->
-> Out of scope:
->
-> - Solver implementation.
-> - Rule-pack evaluator implementation.
-> - B31J or other protected SIF/flexibility tables, formulas, examples, or paraphrased derivations.
-> - Public bundled engineering values or default code data.
-> - Claims language — Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
->
+### Acceptance criteria
 
-### CLM-009 — Requirements
-
-> ##### Requirements
->
-> | ID | Requirement | Basis | Verification Hook |
-> |---|---|---|---|
-> | R01 | The model must represent bend/elbow component identity separately from other component families. | DEL-03-03; PKG-03 | Validation tests cover bend/elbow record identity. |
-> | R02 | The model must provide fields for user-entered bend geometry. | SOW-007 | Schema/model tests confirm required geometry slots and unit metadata. |
-> | R03 | The model must provide fields for user-entered SIFs. | SOW-007 | Tests confirm values are accepted only as user/import inputs with provenance. |
-> | R04 | The model must provide fields for user-entered flexibility factors. | SOW-007 | Tests confirm values are accepted only as user/import inputs with provenance. |
-> | R05 | The model must carry source/provenance metadata for SIFs, flexibility factors, and imported or library-sourced bend data. | OPS-K-DATA-3; AB-00-04; AB-00-07 | Schema tests require provenance/source fields on component records and field slots. |
-> | R06 | The implementation must not bundle or encode protected SIF/flexibility tables, copied formulas, or protected examples. | OPS-K-IP-1; OPS-K-IP-3; SOW-007 note | Protected-content gate and review checklist reject bundled protected content. |
-> | R07 | Missing solve-required or rule-check-required values must produce explicit diagnostics, not silent defaults. | OPS-K-DATA-2; AB-00-06 | Validation tests assert missing values become findings. |
-> | R08 | Numeric geometry inputs must be unit-aware and dimensionally checked. | OPS-K-UNIT-1; AB-00-04 | Unit tests cover dimension validation and serialization. |
-> | R09 | Public rule-pack or example data associated with this model must use invented non-code values and non-engineering notices. | OPS-K-RULE-1 | Example/test fixture review confirms no code-derived values. |
-> | R10 | The model must remain compatible with the 3D centerline/frame analysis model, with local FEA handoff only as a downstream path. | OPS-K-MECH-1 | Model documentation and tests avoid shell/solid assumptions in the core component record. |
-> | R11 | Adapters/plugins must not bypass unit, provenance, redistribution, validation, or diagnostic boundaries. | AB-00-02; AB-00-07 | This deliverable records the constraint; adapter/API proof remains outside DEL-03-03 scope. |
->
-
-### CLM-010 — Standards
-
-> ##### Standards
->
-> | Reference | Status |
-> |---|---|
-> | SOW-007 | Available via decomposition/register text. |
-> | B31J or other protected SIF/flexibility sources | Not bundled, not paraphrased, and not used as public source text in this deliverable. |
-> | Project invariant catalog | Available in `docs/CONTRACT.md`. |
->
-
-### CLM-011 — Verification
-
-> ##### Verification
->
-> - Confirm the `ScopeOfWork.md` contains no protected standards text, SIF/flexibility tables, copied formulas, or invented engineering values.
-> - Confirm `schemas/component.schema.yaml` and `schemas/model.schema.yaml` both include `bend` and `elbow` component types.
-> - Confirm strict component fixture evidence includes the bend/elbow family contract, missing-value bend record, provenance, and diagnostics.
-> - Confirm validation tests cover bend/elbow identity, field kinds, user/private value policy, missing-value diagnostics, and strict component fixture validation.
-> - Preserve the local `Review_Findings.csv` human dispositions (`ACCEPT_AS_IS` / `RESOLVED`); further source or engineering review is separate.
->
-
-### CLM-012 — Documentation
-
-> ##### Documentation
->
-> Required local artifacts:
->
-> - `ScopeOfWork.md` (definition)
-> - `ScopeOfWork.md` (requirements)
-> - `ScopeOfWork.md` (rationale)
-> - `ScopeOfWork.md` (procedure)
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
-> - `Dependencies.csv`
-> - `_DEPENDENCIES.md`
-> - `_run_records/`
-
-- **AC-001** — The contract preserves accepted bend and elbow modeling requirements, explicit units and provenance, protected-data boundaries, diagnostic treatment of missing inputs, and unresolved engineering-policy choices without inventing defaults.
+- **AC-001** — A bend or elbow accepts every input of REQ-002 to REQ-005, in the model document and in a component library record. Each geometry value carries a unit of its dimension and each factor is dimensionless; on every path that creates, changes or imports a bend, a value of the wrong dimension is rejected, and the rejection names it. A library record that lacks a required bend value validates only with that value marked missing and a bend completeness finding.
+- **AC-002** — A realized bend with flexibility factors of 1 has the end flexibility of a circular curved beam in closed form, for loading in and out of its plane, at the analytic tolerance. With an in-plane factor k_in and an out-of-plane factor k_out, its end flexibility equals the closed-form curved-beam end flexibility in which the in-plane bending strain-energy term is multiplied by k_in and the out-of-plane bending strain-energy term by k_out, and the torsional and axial terms are unchanged. One factor for both planes is the case k_in = k_out.
+- **AC-003** — In a thermal expansion loop whose bends carry known flexibility, the solved displacements and anchor reactions reproduce an independent reference. As the factor increases, the anchor reaction decreases monotonically, and the sparse and dense solver modes agree.
+- **AC-004** — On a realized bend, the intensified bending published at each station of the arc is formed as DEL-05-03 defines it: the in-plane factor on the bending stress of the in-plane moment, and the out-of-plane factor on that of the out-of-plane moment. The flexibility factor does not enter it. On a geometry-only bend, the intensified bending at the adjacent pipe end equals the user's single factor times the resultant base bending stress.
+- **AC-005** — Each of these blocks the solve with a named finding on the component, and no value is substituted: a realized bend without a radius or a flexibility factor; a radius too small to span the chord; an entered angle that disagrees with the angle the chord and radius imply; a bend plane that cannot be formed; one directional factor without the other; a factor that is not finite, dimensionless and above zero; directional factors on a bend that is not realized. A geometry-only bend on the pressure-free route states that it is solved as its chord and that its flexibility factor is not applied.
+- **AC-006** — The realized bends of the invented reference system solve on the exact route in the desktop, and none is refused.
+- **AC-007** — The bend's sources, schemas, fixtures and tests contain nothing REQ-006 excludes, and every example factor is invented and labelled so.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-013 — Procedure: DEL-03-03 Bend and elbow component model fields
+**Method choices that define the bend.**
 
-> #### Procedure: DEL-03-03 Bend and elbow component model fields
->
+- A realized bend is a two-node circular-arc element formed from its end nodes, the user's radius and the pipe's reference direction. No absolute arc centre enters its definition.
+- The element is built from the curved beam's end flexibility in closed form, with the flexibility factors on the two bending terms only. It is Euler–Bernoulli under either shear model.
+- A realized bend's stress factors are the directional pair; its single scalar factor is not applied to an arc.
+- Geometry that is over-determined is checked, not reconciled: chord, radius and angle must agree as entered.
 
-### CLM-014 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> Define the evidence-reconciliation procedure for the bend/elbow component model deliverable without crossing the protected-data or professional-authority boundaries.
->
-
-### CLM-015 — Prerequisites
-
-> ##### Prerequisites
->
-> - Use the sealed context for `DEL-03-03`.
-> - Apply `SOW-007`, `OBJ-004`, and applicable architecture basis IDs `AB-00-01`, `AB-00-02`, `AB-00-04`, `AB-00-06`, `AB-00-07`, and `AB-00-08`.
-> - Apply contract invariants OPS-K-IP-1, OPS-K-IP-3, OPS-K-DATA-1, OPS-K-DATA-2, OPS-K-DATA-3, OPS-K-UNIT-1, OPS-K-RULE-1, OPS-K-MECH-1, and OPS-K-AGENT-1..4.
-> - Treat dependency satisfaction, lifecycle transitions, review dispositions, downstream solver behavior, and downstream adapter/GUI behavior as unresolved unless authorized by their owning workflow or a later human gate.
->
-
-### CLM-016 — Steps
-
-> ##### Steps
->
-> 1. Confirm the assessment task is still scoped to `DEL-03-03` and the bend/elbow component family.
-> 2. Read the active component schema, model schema, strict component fixture, combined fixture pointer, tests, review findings, status, memory, and relevant run records.
-> 3. Reconcile current evidence against the three local review findings without editing `Review_Findings.csv`.
-> 4. Refresh only active DEL-03-03 documentation when stale setup/future language conflicts with implemented schema/fixture/test evidence.
-> 5. Run focused validation for the component/section schema contract.
-> 6. Record the readiness verdict in `MEMORY.md` and a local run record.
-> 7. Keep all protected standards content, tables, copied formulas, and non-public commercial data out of public artifacts.
->
-
-### CLM-017 — Verification
-
-> ##### Verification
->
-> - Active documents distinguish implemented DEL-03-03 evidence from unresolved dependency, lifecycle, and downstream behavior.
-> - No protected SIF/flexibility table, formula, standard text, or invented engineering value appears in the deliverable kit.
-> - Focused validation confirms schema/fixture/test evidence for bend/elbow identity, field slots, provenance, and diagnostics.
-> - `_STATUS.md` and `Review_Findings.csv` are not changed by this TASK.
->
-
-### CLM-018 — Records
-
-> ##### Records
->
-> - Active `ScopeOfWork.md`.
-> - Review findings and review notes.
-> - Focused validation output.
-> - Local run record for this evidence-reconciliation pass.
-
-- **VER-001** — Validate the contract and review source parity, bend and elbow field coverage, dimensional consistency, provenance and protected-content boundaries, missing-input diagnostics, mechanics handoff limits, and unresolved decisions.
+- **VER-001** — Executable check: observes acceptance of a complete bend in the model document and in a library record, the named rejection of a mis-dimensioned value, and the missing-value finding on an incomplete library record.
+- **VER-002** — Comparison with a named reference: the element's end flexibility and stiffness against closed-form curved-beam values under `validation/references/t4_i6`, produced without product code, for factors of 1 and for other factors on the in-plane and out-of-plane bending terms.
+- **VER-003** — Comparison with a named reference, with an executable check: a thermal expansion loop against a closed-form or hand-calculation reference frozen under `validation/references/` with an independent generator; the check also observes the reaction across a sweep of the factor and the sparse and dense results side by side.
+- **VER-004** — Executable check: observes the intensified bending published at each station of a realized arc against the value DEL-05-03's definition gives from the published bending stress rows of that station and the user's directional factors, and the intensified bending at a geometry-only bend's adjacent pipe end against the user's single factor times the resultant of the bending stress rows published there.
+- **VER-005** — Executable check: observes each case of AC-005 refused with its named finding and no solved result, and the statement on a geometry-only bend.
+- **VER-006** — Comparison with a named reference: the reference system (`validation/references/reference_system`) solved in the desktop on the exact route.
+- **VER-007** — Executable check, with judgment by an independent reviewer: a protected-content scan over the bend's sources, schemas, fixtures and tests, which is a proxy; a reviewer who did not write them reads them against `docs/IP_AND_DATA_BOUNDARY.md` §3.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-019 — Guidance: DEL-03-03 Bend and elbow component model fields
-
-> #### Guidance: DEL-03-03 Bend and elbow component model fields
->
-
-### CLM-020 — Purpose
-
-> ##### Purpose
->
-> This deliverable records bounded schema/fixture/test evidence for a bend/elbow component model slice. The important boundary is that SWBPIPE can store and validate user-entered or lawfully imported bend/elbow data, but must not publish protected SIF/flexibility tables, formulas, examples, or default code-derived values.
->
-
-### CLM-021 — Principles
-
-> ##### Principles
->
-> - Treat bend/elbow SIFs and flexibility factors as user/private/library inputs with provenance, not public defaults.
-> - Make absent required values visible through validation findings.
-> - Keep unit metadata close to numeric geometry fields.
-> - Keep source metadata close to any data that may have licensing, redistribution, or protected-content implications.
-> - Preserve the distinction between model data, solver mechanics, rule-pack evaluation, and human engineering judgment.
->
-
-### CLM-022 — Considerations
-
-> ##### Considerations
->
-> The current component schema and strict component fixture expose bend/elbow identity, centerline geometry field kinds, user SIF/flexibility slots, provenance, and missing-input diagnostics without crossing the protected-data boundary. Later solver, rule-pack, adapter, and GUI workflows must consume those fields without treating public schema slots as code-specific values.
->
-> Diagnostics should be able to distinguish missing geometry from missing SIF/flexibility inputs and from missing provenance. This matters because the later response may be different: solve-blocking, rule-check-blocking, provenance warning, assumption warning, or IP-boundary warning.
->
-
-### CLM-023 — Trade-offs
-
-> ##### Trade-offs
->
-> | Trade-off | Guidance |
-> |---|---|
-> | Convenience defaults vs protected-data safety | Prefer no default over any value that could imply bundled code data. |
-> | Flexible generic component record vs bend-specific fields | Use bend-specific slots where validation, units, or provenance differ materially from generic components. |
-> | Public examples vs realistic engineering examples | Use invented non-code values only, and label them as non-engineering examples. |
-> | Schema evidence vs downstream behavior | Treat current schema/fixture/test evidence as DEL-03-03 evidence only; leave solver, rule-pack, adapter, and GUI behavior to their own deliverables. |
->
-
-### CLM-024 — Examples
-
-> ##### Examples
->
-> - Acceptable statement: "The model stores user-entered SIFs with provenance."
-> - Not acceptable: a copied or paraphrased table of SIF/flexibility factors, code formulas, or standard examples.
-> - Acceptable test fixture posture: missing/schema-shape values used only to test schema shape, provenance, and diagnostics.
->
-
-### CLM-025 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Description | Contenders | Human Ruling |
-> |---|---|---|---|
-> | None | No source conflict identified in this evidence-reconciliation pass. | N/A | N/A |
+- **AX-001** — *The user's factors, never ours.* Better is fewer places where a factor could originate in the software; the target is none. No convenience, example or default justifies one.
+- **AX-002** — *Flexibility is solved.* Better is closer agreement between a solved bend and the closed-form curved beam with the user's factors. This is never bought by loosening a tolerance or by substituting a scaled straight chord for the arc.
+- **AX-003** — *Refuse, do not repair.* Better is fewer inconsistent bends that reach a solve. This is never bought by altering what the user entered.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-007 OBJ-004 | CLM-007 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+| OUT-001 | SOW-007 OBJ-004 | REQ-001 REQ-002 REQ-003 REQ-004 REQ-005 REQ-008 REQ-011 | AC-001 | VER-001 | Owner ruling: PRD §12.3 lists the inputs; the criterion states the expected acceptance and rejections |
+| OUT-001 | SOW-007 OBJ-004 | REQ-010 REQ-012 | AC-002 | VER-002 | Outside source: the closed-form end flexibility of a circular curved beam, through references that import no product code. The tolerance is an owner ruling (DEC-026) |
+| OUT-001 | SOW-007 OBJ-004 | REQ-012 | AC-003 | VER-003 | Outside source: a closed-form or hand-calculation loop reference with an independent generator (DEC-070). The sweep and the agreement of solver modes are the product's own output and only guard against change |
+| OUT-001 | SOW-007 OBJ-004 | REQ-003 REQ-012 | AC-004 | VER-004 | The criterion states the expected value from the user's factors (PRD §22.3) and the published base bending stresses; the combination on a realized arc is DEL-05-03's definition of intensified bending. Correctness of the base stress rests on DEL-05-03's references |
+| OUT-001 | SOW-007 OBJ-004 | REQ-007 | AC-005 | VER-005 | Owner ruling: PRD §5.5 and `docs/CONTRACT.md` OPS-K-DATA-2 state the expected refusal; the geometric conditions follow from the definition of a circular arc |
+| OUT-001 | SOW-007 OBJ-004 | REQ-013 | AC-006 | VER-006 | Owner ruling for the reference system's content (exit criterion 1); its expected results are the independent references of `validation/references/reference_system` |
+| OUT-001 | SOW-007 OBJ-004 | REQ-006 REQ-009 | AC-007 | VER-007 | Protected-content scan and independent review under `docs/IP_AND_DATA_BOUNDARY.md`; owner ruling PRD §12.3 and §20.1 |

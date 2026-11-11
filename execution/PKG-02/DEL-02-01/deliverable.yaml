@@ -1,155 +1,125 @@
 id: DEL-02-01
 name: Canonical domain model schema
 needs:
-- from: DEL-00-01
-  condition: 'DEL-02-01 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
-    execution.
-
-
-    Notes: Normalized from DAG-002 mirror row with legacy/non-v3.1 enum values AnchorType=DELIVERABLE,
-    DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT during TP-DAG-004 dependency-extract refresh. Architecture-basis
-    edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried forward from DAG-001-E0017
-    into DAG-002 revision 0.5 proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
-    not Type 2 dispatch authority by itself; edge touches targeted-review deliverable DEL-01-04 or DEL-02-01;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-02-02
+  condition: >-
+    The unit catalog names each unit's dimension and rejects an unknown unit and a unit of the
+    wrong dimension, so that every quantity in a document, the node-proximity tolerance included,
+    can be checked against it.
   gating: true
-- from: DEL-00-02
-  condition: 'DEL-02-01 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
-    execution.
-
-
-    Notes: Normalized from DAG-002 mirror row with legacy/non-v3.1 enum values AnchorType=DELIVERABLE,
-    DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT during TP-DAG-004 dependency-extract refresh. Architecture-basis
-    edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried forward from DAG-001-E0018
-    into DAG-002 revision 0.5 proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
-    not Type 2 dispatch authority by itself; edge touches targeted-review deliverable DEL-01-04 or DEL-02-01;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-02-03
+  condition: >-
+    The analysis status vocabulary names the automatic statuses, keeps human acceptance outside
+    them and has no status that asserts code compliance, so that the status labels a document
+    carries assert none.
   gating: true
-- from: DEL-00-03
-  condition: 'DEL-02-01 requires SCA-001 architecture basis AB-00-03 from DEL-00-03 before sealed product-development
-    execution.
-
-
-    Notes: Normalized from DAG-002 mirror row with legacy/non-v3.1 enum values AnchorType=DELIVERABLE,
-    DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT during TP-DAG-004 dependency-extract refresh. Architecture-basis
-    edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried forward from DAG-001-E0019
-    into DAG-002 revision 0.5 proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
-    not Type 2 dispatch authority by itself; edge touches targeted-review deliverable DEL-01-04 or DEL-02-01;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-04
-  condition: 'DEL-02-01 requires SCA-001 architecture basis AB-00-04 from DEL-00-04 before sealed product-development
-    execution.
-
-
-    Notes: Normalized from DAG-002 mirror row with legacy/non-v3.1 enum values AnchorType=DELIVERABLE,
-    DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT during TP-DAG-004 dependency-extract refresh. Architecture-basis
-    edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried forward from DAG-001-E0020
-    into DAG-002 revision 0.5 proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
-    not Type 2 dispatch authority by itself; edge touches targeted-review deliverable DEL-01-04 or DEL-02-01;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-16-06
+  condition: >-
+    The operation engine applies only an accepted, valid operation whose basis is the current
+    model hash, leaves the document unchanged on every refusal, and behaves the same in the native
+    and the web engine.
   gating: true
 - from: DEL-00-06
-  condition: 'DEL-02-01 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
-    execution.
-
-
-    Notes: Normalized from DAG-002 mirror row with legacy/non-v3.1 enum values AnchorType=DELIVERABLE,
-    DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT during TP-DAG-004 dependency-extract refresh. Architecture-basis
-    edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried forward from DAG-001-E0021
-    into DAG-002 revision 0.5 proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
-    not Type 2 dispatch authority by itself; edge touches targeted-review deliverable DEL-01-04 or DEL-02-01;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The diagnostic contract fixes the fields a diagnostic record carries (code, class, severity,
+    source, affected object, message, remediation, provenance).
   gating: true
-- from: DEL-00-07
-  condition: 'DEL-02-01 requires SCA-001 architecture basis AB-00-07 from DEL-00-07 before sealed product-development
-    execution.
-
-
-    Notes: Normalized from DAG-002 mirror row with legacy/non-v3.1 enum values AnchorType=DELIVERABLE,
-    DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT during TP-DAG-004 dependency-extract refresh. Architecture-basis
-    edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried forward from DAG-001-E0022
-    into DAG-002 revision 0.5 proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
-    not Type 2 dispatch authority by itself; edge touches targeted-review deliverable DEL-01-04 or DEL-02-01;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-02-05
+  when: Examining the round trip of a document that carries every member
+  condition: >-
+    The project store, the model document file and the headless persistence envelope each return a
+    saved document with equal content and the same model hash, and the version check refuses every
+    version but the current one by name without rewriting it.
   gating: true
-- from: DEL-00-08
-  condition: 'DEL-02-01 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
-    execution.
-
-
-    Notes: Normalized from DAG-002 mirror row with legacy/non-v3.1 enum values AnchorType=DELIVERABLE,
-    DependencyType=ARCHITECTURE_BASIS, Origin=CONTEXT during TP-DAG-004 dependency-extract refresh. Architecture-basis
-    edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried forward from DAG-001-E0023
-    into DAG-002 revision 0.5 proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
-    not Type 2 dispatch authority by itself; edge touches targeted-review deliverable DEL-01-04 or DEL-02-01;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-04-07
+  when: Examining that a carried member is read, refused or withheld by name
+  condition: >-
+    The product solve reports every missing or unsupported input as a named diagnostic through
+    each entry and on both routes, and drops none silently.
+  gating: true
+- from: DEL-05-01
+  when: Examining a document whose cases use operating conditions
+  condition: >-
+    A load case's use of operating conditions resolves, before validation, into the per-case
+    records the solve consumes, and a missing set, condition or value refuses the case by name.
+  gating: true
+- from: DEL-03-07
+  when: Examining the warning for a quarantined disposition
+  condition: >-
+    The library import quarantines a record whose redistribution status says protected content is
+    suspected or whose review status is quarantined.
   gating: true
 code_paths:
+# The format: the schema, the load-reference schema, and the typed members the product reads.
 - schemas/model.schema.yaml
 - schemas/load_reference_state.schema.json
-- tests/test_model_schema.py
-- tests/test_model_document_schema.py
-- tests/test_load_reference_schema.py
+- core/product_physics/src/model_fields.rs
+- core/product_physics/src/document_members.rs
+- core/product_physics/src/model_settings.rs
+# The current version is named here. The version states and refusals in the same file are
+# DEL-02-05's, and the solve that reads the format is DEL-04-07's.
 - core/product_physics/src/model_format.rs
+# Only the document's wire types in this file are this deliverable's; the crate is DEL-04-07's.
 - core/product_physics/src/lib.rs
+# Operating-condition sets as the document stores them. DEL-05-01 also lists this file; the
+# resolution rule, in the operating_conditions folder beside it, is DEL-05-01's alone.
+- core/product_physics/src/operating_conditions.rs
+# The one document validator and the change kinds that write this deliverable's members. The
+# files sit in the operation applier, whose engine is DEL-16-06's.
+- core/model_operations/operation_applier/src/document_validator.rs
+- core/model_operations/operation_applier/src/document_validator_tests.rs
+- core/model_operations/operation_applier/src/model_data_authoring.rs
+- core/model_operations/operation_applier/src/model_settings_authoring.rs
+- core/model_operations/operation_applier/src/condition_set_authoring.rs
+# The desktop's document shape and version constant. DEL-07-11 owns the open and save surfaces
+# that use them.
 - apps/desktop/src/features/model-file/modelDocumentShape.ts
 - apps/desktop/src/types.ts
-- fixtures/product_preview/invented_demo_model.json
-- fixtures/model_document/invented_annotated_model.json
 - apps/desktop/src/services/modelSchemaVersion.ts
-- tests/test_model_version_literals.py
-- core/product_physics/tests/annotated_model_document_solve.rs
-- core/model_operations/operation_applier/src/document_validator.rs
-- fixtures/model_document/invented_every_slot_model.json
-- core/model_operations/operation_applier/src/model_data_authoring.rs
-- apps/desktop/src/features/model-data/**
-- core/model_operations/operation_applier/src/model_settings_authoring.rs
+# The model settings section. The other editing surfaces for this deliverable's members are
+# DEL-07-02's; of them only the emission check is listed here.
 - apps/desktop/src/features/model-settings/**
+- apps/desktop/src/features/model-data/desktopEmission.golden.test.ts
+# Documents at the current version. version_states.json in the same folder is DEL-02-05's.
+- fixtures/model_document/invented_annotated_model.json
+- fixtures/model_document/invented_every_slot_model.json
 - fixtures/model_document/desktop_emitted.json
 - fixtures/model_document/applier_emitted.json
+- fixtures/model_document/desktop_shape_cases.json
+- fixtures/product_preview/invented_demo_model.json
+- tests/test_model_schema.py
+- tests/test_model_document_schema.py
+- tests/test_model_document_0_9_0_members.py
+- tests/test_model_version_literals.py
+- tests/test_load_reference_schema.py
+- core/product_physics/tests/model_document_0_9_0.rs
+- core/product_physics/tests/model_document_0_9_0_s2.rs
+- core/product_physics/tests/annotated_model_document_solve.rs
+- core/model_operations/operation_applier/tests/document_validation_apply.rs
+- core/model_operations/operation_applier/tests/model_data_authoring.rs
+- core/model_operations/operation_applier/tests/model_settings_authoring.rs
+- core/model_operations/operation_applier/tests/condition_set_authoring.rs
+- core/model_operations/operation_applier/tests/model_document_0_9_0.rs
 checks:
 - tests/test_model_schema.py
 - tests/test_model_document_schema.py
+- tests/test_model_document_0_9_0_members.py
 - tests/test_load_reference_schema.py
-- core/product_physics/src/model_format.rs
-- apps/desktop/src/features/model-file/modelDocumentOpen.test.tsx
 - tests/test_model_version_literals.py
+- core/product_physics/src/model_format.rs
+- core/product_physics/tests/model_document_0_9_0.rs
+- core/product_physics/tests/model_document_0_9_0_s2.rs
 - core/product_physics/tests/annotated_model_document_solve.rs
 - core/model_operations/operation_applier/src/document_validator_tests.rs
 - core/model_operations/operation_applier/tests/document_validation_apply.rs
-- apps/desktop/src-tauri/src/model_document_file.rs
 - core/model_operations/operation_applier/tests/model_data_authoring.rs
+- core/model_operations/operation_applier/tests/model_settings_authoring.rs
+- core/model_operations/operation_applier/tests/condition_set_authoring.rs
+- core/model_operations/operation_applier/tests/model_document_0_9_0.rs
+- apps/desktop/src-tauri/src/model_document_file.rs
+- apps/desktop/src/features/model-file/modelDocumentOpen.test.tsx
+- apps/desktop/src/features/model-file/modelDocumentShape.parity.test.ts
 - apps/desktop/src/features/model-data/desktopEmission.golden.test.ts
 - apps/desktop/src/features/model-data/modelData.test.tsx
 - apps/desktop/src/features/model-data/modelDataEngineAbsent.test.tsx
-- core/model_operations/operation_applier/tests/model_settings_authoring.rs
 - apps/desktop/src/features/model-settings/ModelSettingsSection.test.tsx

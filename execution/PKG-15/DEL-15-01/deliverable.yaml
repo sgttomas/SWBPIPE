@@ -2,188 +2,78 @@ id: DEL-15-01
 name: Canonical handoff package schema and manifest
 needs:
 - from: DEL-00-01
-  condition: 'DEL-15-01 needs DEL-00-01 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: Preserved from approved DAG-002 mirror; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
-    not Type 2 dispatch authority by itself.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The baseline in force names JSON Schema 2020-12 as the dialect of public schemas and interchange
+    documents.
   gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-02
-  condition: 'DEL-15-01 needs DEL-00-02 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: Preserved from approved DAG-002 mirror; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
-    not Type 2 dispatch authority by itself.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-03
-  condition: 'DEL-15-01 needs DEL-00-03 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: Preserved from approved DAG-002 mirror; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
-    not Type 2 dispatch authority by itself.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
 - from: DEL-00-04
-  condition: 'DEL-15-01 needs DEL-00-04 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: Preserved from approved DAG-002 mirror; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
-    not Type 2 dispatch authority by itself.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    Every persisted document declares its schema version, and a JSON payload is hashed as SHA-256 over
+    its RFC 8785 canonical form.
   gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
 - from: DEL-00-06
-  condition: 'DEL-15-01 needs DEL-00-06 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: Preserved from approved DAG-002 mirror; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
-    not Type 2 dispatch authority by itself.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-07
-  condition: 'DEL-15-01 needs DEL-00-07 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: Preserved from approved DAG-002 mirror; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
-    not Type 2 dispatch authority by itself.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-08
-  condition: 'DEL-15-01 needs DEL-00-08 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: Preserved from approved DAG-002 mirror; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
-    not Type 2 dispatch authority by itself.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-10-03
-  condition: 'DEL-15-01 needs DEL-10-03 as a predecessor: Canonical handoff packages align with local
-    FEA handoff contracts.
-
-
-    Notes: Preserved from approved DAG-002 mirror; original DAG type INTEROP_PREDECESSOR explicitness
-    INFERRED_DIRECT origin GRAPH_REVIEW and satisfaction UNKNOWN normalized to dependency-extract enums;
-    not independent DAG-003 approval.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-08-04
-  condition: 'DEL-15-01 needs DEL-08-04 as a predecessor: Canonical handoff packages consume result export
-    envelopes.
-
-
-    Notes: Preserved from approved DAG-002 mirror; original DAG type REPORTING_PREDECESSOR explicitness
-    INFERRED_DIRECT origin GRAPH_REVIEW and satisfaction UNKNOWN normalized to dependency-extract enums;
-    not independent DAG-003 approval.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A diagnostic carries code, class, severity, source, affected object, message, remediation and
+    provenance, and a boundary's local class has a stated mapping to the six warning classes.
   gating: true
 - from: DEL-08-02
-  condition: 'DEL-15-01 needs DEL-08-02 as a predecessor: Canonical handoff packages need audit manifest/hash
-    conventions.
-
-
-    Notes: Preserved from approved DAG-002 mirror; original DAG type REPORTING_PREDECESSOR explicitness
-    INFERRED_DIRECT origin GRAPH_REVIEW and satisfaction UNKNOWN normalized to dependency-extract enums;
-    not independent DAG-003 approval.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-14-01
-  condition: 'DEL-15-01 needs DEL-14-01 as a predecessor: Canonical handoff packages reference immutable
-    model states.
-
-
-    Notes: Preserved from approved DAG-002 mirror; original DAG type PERSISTENCE_CONTRACT explicitness
-    INFERRED_DIRECT origin GRAPH_REVIEW and satisfaction UNKNOWN normalized to dependency-extract enums;
-    not independent DAG-003 approval.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-14-02
-  condition: 'DEL-15-01 needs DEL-14-02 as a predecessor: Canonical handoff packages reference analysis
-    runs.
-
-
-    Notes: Preserved from approved DAG-002 mirror; original DAG type PERSISTENCE_CONTRACT explicitness
-    INFERRED_DIRECT origin GRAPH_REVIEW and satisfaction UNKNOWN normalized to dependency-extract enums;
-    not independent DAG-003 approval.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A hash record states its algorithm, the basis its digest was computed on and the payload it covers,
+    and a digest is never relabelled with a basis it was not computed on.
   gating: true
 - from: DEL-02-01
-  condition: 'DEL-15-01 needs DEL-02-01 as a predecessor: Canonical handoff packages reference the canonical
-    model.
-
-
-    Notes: Preserved from approved DAG-002 mirror; original DAG type DOMAIN_MODEL explicitness INFERRED_DIRECT
-    origin GRAPH_REVIEW and satisfaction UNKNOWN normalized to dependency-extract enums; not independent
-    DAG-003 approval.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The model document has one current version and a schema, every addressable record in it has a stable
+    identifier, its hash is taken over its RFC 8785 canonical text, and it carries unresolved assumptions,
+    provenance records and library and rule-pack references as explicit records.
   gating: true
+- from: DEL-02-02
+  condition: >-
+    A project's units are exact symbols of the unit catalogue, one per unit key, each with one stable
+    dimension.
+  gating: true
+- from: DEL-14-01
+  condition: >-
+    A saved model state is an immutable record with a stable identity and the model hash of its
+    snapshot.
+  gating: true
+- from: DEL-14-02
+  condition: >-
+    A recorded analysis run has a stable identity, is bound to one saved model state and is a record of
+    `schemas/analysis_run.schema.json`, with each hash naming its payload scope.
+  gating: false
+- from: DEL-08-04
+  condition: >-
+    A result export document is a schema-first JSON envelope with one current version, described by
+    `schemas/results.schema.yaml`, that carries or refers to the model and run identity.
+  gating: false
+- from: DEL-15-02
+  condition: >-
+    A behaviour flag has a status from the closed set (unsupported, approximate, requires human review,
+    not implemented, undecided), names its affected objects and requires human review.
+  gating: true
+- from: DEL-10-03
+  condition: >-
+    The local FEA handoff data contract is the schema `schemas/local_fea_handoff.schema.yaml`, which a
+    handoff package names as the contract of a local FEA handoff it refers to.
+  gating: false
 code_paths:
 - schemas/handoff_package.schema.json
-- schemas/target_mapping.schema.json
-- tools/validation/validate_dependencies_schema.py
-- apps/desktop/src/features/handoff/HandoffPanel.tsx
-- apps/desktop/src/features/model-file/modelDocumentSave.ts
-- apps/desktop/src/features/model-file/ModelDocumentSaveDialog.tsx
-- apps/desktop/src-tauri/src/model_document_save.rs
-- apps/desktop/src-tauri/src/export_disposition_screen.rs
-- apps/desktop/src-tauri/src/model_document_shape.rs
-- apps/desktop/src-tauri/src/atomic_report_package_save.rs
-- apps/desktop/src/services/libraryImportService.ts
-- apps/desktop/src/features/handoff/handoffPackageSave.ts
-- apps/desktop/src/features/handoff/HandoffSaveDialog.tsx
-- apps/desktop/src-tauri/src/handoff_package.rs
-- apps/desktop/src-tauri/src/handoff_package_publish.rs
-- apps/desktop/src/services/rulePackRefDiagnostics.ts
-- fixtures/handoff/rule_pack_ref_resolution_vectors.json
+# Example manifests and example packages: the invented manifest, the packages a verifier is run on,
+# and the cases on which the product's verifier and the independent one must agree.
+- fixtures/handoff/invented_handoff_package.json
+- fixtures/handoff/invented_witness.swbhandoff/**
+- fixtures/handoff/invented_binary64_witness.swbhandoff/**
+- fixtures/handoff/retired_0_7_0_witness.swbhandoff/**
+- fixtures/handoff/retired_0_8_0_witness.swbhandoff/**
+- fixtures/handoff/verifier_parity_cases.json
+- fixtures/handoff/canonical_text_vectors.json
+# The product's own implementation of this contract's verification rules (verify_handoff_package and
+# manifest_binding_findings) lives in DEL-15-03's files, apps/desktop/src-tauri/src/handoff_package.rs
+# and handoff_package_publish.rs, beside the save that uses it. This deliverable states the rules and
+# examines that implementation through the parity cases.
 checks:
 - tests/test_handoff_package_schema.py
-- apps/desktop/src/features/handoff/HandoffPanel.test.tsx
-- apps/desktop/src/features/model-file/modelDocumentSave.test.tsx
-- apps/desktop/src/services/libraryRefSites.test.ts
-- tests/security/test_redaction_export_controls.py
-- apps/desktop/native-smoke/run.mjs
-- apps/desktop/src/features/handoff/handoffPackageSave.test.tsx
-- tests/test_handoff_package_witness.py
 - tests/verifiers/handoff_package.py
-- apps/desktop/src/services/rulePackRefResolutionParity.test.ts
-- apps/desktop/src-tauri/src/stored_model_document_export.rs
+- tests/test_handoff_package_witness.py
+- tests/test_handoff_verifier_parity.py

@@ -1,181 +1,59 @@
 id: DEL-02-02
 name: Unit system and dimensional-analysis core contract
 needs:
-- from: DEL-00-01
-  condition: 'DEL-02-02 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-02-01
+  condition: >-
+    The model document stores each dimensional value as a quantity with the unit it was entered
+    in, carries the project's units as one map of unit keys, and holds coordinates in the project
+    length unit.
   gating: true
-- from: DEL-00-02
-  condition: 'DEL-02-02 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-16-06
+  when: Changing a project unit
+  condition: >-
+    The operation engine applies only an accepted, valid operation whose basis is the current
+    model hash, leaves the document unchanged on every refusal, and behaves the same in the native
+    and the web engine.
   gating: true
-- from: DEL-00-03
-  condition: 'DEL-02-02 requires SCA-001 architecture basis AB-00-03 from DEL-00-03 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-04
-  condition: 'DEL-02-02 requires SCA-001 architecture basis AB-00-04 from DEL-00-04 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-02-05
+  when: Refusing a stored document that lacks its units map
+  condition: >-
+    A stored document refused at open can be exported to a file the user chooses, exactly as the
+    store holds it, with the store opened read-only.
   gating: true
 - from: DEL-00-06
-  condition: 'DEL-02-02 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The diagnostic contract fixes the fields a diagnostic record carries (code, class, severity,
+    source, affected object, message, remediation, provenance).
   gating: true
-- from: DEL-00-07
-  condition: 'DEL-02-02 requires SCA-001 architecture basis AB-00-07 from DEL-00-07 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-02-02 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-02-01
-  condition: 'DEL-02-02 needs DEL-02-01 as a predecessor: unit and dimensional-analysis contracts must
-    bind to canonical domain entities.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: external:HUMAN-REVIEW-GATE
-  condition: 'Human review is required before open unit catalog dimension basis conversion storage diagnostic-code
-    schema-location and special-quantity decisions can be treated as accepted.
-
-
-    Notes: FACT; external human gate target intentionally unresolved to avoid inventing an authority.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: Human decision owner or review gate; TargetRefID: HUMAN-REVIEW-GATE'
-- from: doc:docs/IP_AND_DATA_BOUNDARY.md
-  condition: 'Public/protected data policy constrains unit and conversion data sources and protected-content
-    handling for DEL-02-02.
-
-
-    Notes: FACT
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: IP and Data Boundary Policy; TargetRefID: docs/IP_AND_DATA_BOUNDARY.md;
-    TargetLocation: docs/IP_AND_DATA_BOUNDARY.md'
-- from: doc:docs/VALIDATION_STRATEGY.md
-  condition: 'Unit and schema test obligations depend on the project validation strategy available to
-    the deliverable.
-
-
-    Notes: FACT
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: Validation strategy; TargetRefID: docs/VALIDATION_STRATEGY.md; TargetLocation:
-    docs/VALIDATION_STRATEGY.md'
-- from: unknown
-  condition: 'DEL-02-02 provides a conservative unit contract for downstream solver schema rule evaluator
-    adapter persistence and reporting surfaces.
-
-
-    Notes: FACT for consumer class; TargetType UNKNOWN because the local source does not name stable downstream
-    deliverable IDs.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: solver, schema layer, rule evaluator, adapters, persistence, and
-    reporting unit consumers; TargetRefID: DOWNSTREAM-UNIT-CONSUMERS'
-  direction: downstream
-  gating: false
-- from: doc:core/units module contract
-  condition: 'DEL-02-02 must produce a core/units module contract documenting quantity shape dimension
-    signature conversion API operation rules diagnostics and storage hooks.
-
-
-    Notes: FACT; local output artifact path remains TBD because repository module layout is not fixed
-    in source.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: core/units module contract; TargetRefID: core/units module contract'
-  direction: downstream
-  gating: false
-- from: doc:docs/SPEC.md
-  condition: 'DEL-02-02 must hand off a unit-system section or equivalent linked technical specification
-    update for docs/SPEC.md.
-
-
-    Notes: FACT; document target named by local specification.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: docs/SPEC.md unit-system section; TargetRefID: docs/SPEC.md unit-system
-    section; TargetLocation: docs/SPEC.md'
-  direction: downstream
-  gating: false
 code_paths:
+# The unit catalog, its vocabulary and the tool that builds the unit authority from it.
 - core/units/**
 - schemas/units.schema.yaml
+- fixtures/units/**
+- tools/units/build_units_authority.py
+- tests/test_units_schema.py
+- tests/test_units_authority_setup.py
+# Project unit selection and display units. The files sit in the operation applier, whose engine
+# is DEL-16-06's.
+- core/model_operations/operation_applier/src/project_units_authoring.rs
+- core/model_operations/operation_applier/src/display_units.rs
+# The desktop's catalog, conversion and display services, and the project-units and display-units
+# surfaces. DEL-07-05 and DEL-08-04 use the display-units module for result and report display.
+- apps/desktop/src/services/unitCatalogService.ts
+- apps/desktop/src/services/unitConversion.ts
 - apps/desktop/src/services/displayQuantityService.ts
 - apps/desktop/src/services/displayQuantityPrecision.test.ts
-- apps/desktop/src/services/unitConversion.ts
-- apps/desktop/src/services/unitCatalogService.ts
 - apps/desktop/src/features/display-units/**
 - apps/desktop/src/features/project-units/**
+# Only the blank-project builders that write the units map are this deliverable's; the service is
+# DEL-02-05's.
 - apps/desktop/src/services/projectService.ts
-- core/model_operations/operation_applier/src/project_units_authoring.rs
-- apps/desktop/src-tauri/src/stored_model_document_export.rs
 checks:
 - core/units/src/lib.rs
+- tests/test_units_schema.py
+- tests/test_units_authority_setup.py
+- core/model_operations/operation_applier/tests/project_unit_authoring.rs
+- core/model_operations/operation_applier/tests/display_number_text.rs
 - apps/desktop/src/services/displayQuantityPrecision.test.ts
 - apps/desktop/src/services/unitConversion.test.ts
 - apps/desktop/src/services/unitCatalogService.test.ts
@@ -185,8 +63,6 @@ checks:
 - apps/desktop/src/features/project-units/composedDefaultForms.test.tsx
 - apps/desktop/src/features/project-units/ProjectUnitsSection.test.tsx
 - apps/desktop/src/features/project-units/projectUnitsCheckpoint.test.tsx
-- core/model_operations/operation_applier/tests/project_unit_authoring.rs
 - apps/desktop/src/features/model-tree/missingProjectUnitEditors.test.tsx
 - apps/desktop/src/features/model-tree/sliceCUnitDefaults.test.tsx
 - apps/desktop/src/features/exportProjectUnitRefusal.test.tsx
-- apps/desktop/src-tauri/src/stored_model_document_export.rs

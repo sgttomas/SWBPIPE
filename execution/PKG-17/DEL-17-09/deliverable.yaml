@@ -1,127 +1,51 @@
 id: DEL-17-09
 name: Export adapter SDK and additional targets
 needs:
-- from: DEL-00-01
-  condition: 'DEL-17-09 must apply AB-00-01 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Decision baseline for architecture choices and unresolved rulings.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-17-09 must apply AB-00-02 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Repository/module boundaries and inward dependency direction.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-03
-  condition: 'DEL-17-09 must apply AB-00-03 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Schema-first command/query/job result envelope constraints.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-04
-  condition: 'DEL-17-09 must apply AB-00-04 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    JSON Schema 2020-12 and canonical JSON/JCS-compatible hash basis.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-17-09 must apply AB-00-06 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Diagnostics, warnings, blockers, and result-envelope obligations.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-07
-  condition: 'DEL-17-09 must apply AB-00-07 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    No-bypass API/plugin/adapter validation and boundary controls.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-17-09 must apply AB-00-08 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Layered architecture/schema/service/adapter acceptance strategy.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
 - from: DEL-17-02
-  condition: 'DEL-17-09 consumes DEL-17-02 as the common export package profile stable-ID manifest and
-    loss-report contract.
-
-
-    Notes: Specification.md REQ-001 also states this dependency.
-
-
-    Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.'
+  condition: >-
+    The common export contract defines the export package, the fields of an export profile, the
+    stable ID map and its carrier modes, the manifest, and the loss report with its six
+    categories, including an external-execution policy that is optional and user-owned.
+  gating: true
+- from: DEL-17-01
+  condition: >-
+    The source register states what makes a source admitted: its source ID, what it establishes,
+    its boundary, and the open questions no admitted source answers.
   gating: true
 - from: DEL-02-04
-  condition: 'DEL-17-09 depends on plugin and extension domain contracts for no-bypass adapter boundary
-    obligations.
-
-
-    Notes: Guidance.md cites no-bypass controls from docs/SPEC.md section 4.5.
-
-
-    Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.'
+  condition: >-
+    The plugin and extension contract refuses a manifest that turns off a no-bypass control, and
+    no code path in the product loads or runs a plugin.
   gating: true
 - from: DEL-10-01
-  condition: 'DEL-17-09 depends on public API and plugin boundary decisions for runtime grants sandboxing
-    and public API promises.
-
-
-    Notes: Specification.md REQ-008 keeps runtime grant mechanics TBD.
-
-
-    Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.'
+  condition: >-
+    The public API boundary denies permissions by default and admits undecided as the only grant
+    state, and names no transport, endpoint, runtime, loader or granted permission.
   gating: true
 - from: DEL-10-02
-  condition: 'DEL-17-09 depends on the import/export adapter framework for later adapter runtime and implementation
-    surfaces.
-
-
-    Notes: Procedure.md identifies runtime/API surface as later scoped work.
-
-
-    Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.'
+  condition: >-
+    The adapter framework's dispatch gate dispatches no adapter: an accepted declaration returns a
+    blocked outcome naming the unselected execution model, and the gate takes no argument through
+    which code could run.
   gating: true
+- from: DEL-12-02
+  when: A registry is written to a file
+  condition: >-
+    Every governed route returns its controlled export before anything is exposed, and when the
+    export is blocked no output file is written.
+  gating: true
+- from: DEL-15-04
+  condition: >-
+    The external-prover boundary identifies text that states an authority claim (certification,
+    approval, code compliance) so that a record can refuse it.
+  gating: false
+# The Python registry builder, the schema and the invented template and fixture. The desktop panel
+# apps/desktop/src/features/export-adapter-sdk/ExportAdapterSdkPanel.tsx is DEL-07-12's and
+# is not listed here.
 code_paths:
-- core/handoff/export_adapter_sdk/package.py
+- core/handoff/export_adapter_sdk/**
 - schemas/export_adapter_sdk.schema.json
-- apps/desktop/src/features/export-adapter-sdk/ExportAdapterSdkPanel.tsx
+- fixtures/export_adapter_sdk/invented/**
 checks:
 - tests/test_export_adapter_sdk.py
 - apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx

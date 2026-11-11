@@ -3,337 +3,240 @@ name: Load-case algebra engine
 needs:
 - from: DEL-04-07
   condition: >-
-    DEL-05-02 needs DEL-04-07's ordinary preview-physics-2 and pressure-2 product
-    publications (pressure-1 and preview-physics-1 are refused by name since T4-U4b/U5b),
-    including the T4-U4b section quantities, arc maxima and T4-U5b tie-rod rows, for
-    its base readers and conformance corpus, and the evaluation
-    of model-authored combinations through this deliverable's algebra crate.
-    The exact pressure contract remains DEL-04-07's Work/pressure-contract.md.
-    DEL-04-08 declares the retained producer and memory-qualification inputs.
-    It also needs DEL-04-07's held-status step
-    (nonlinear_integration::solve_held_status_iteration): one step of the assembled loop's unit at a
-    given support-state assignment, completed by the loop's own shared tail (complete_iteration),
-    receipt-bound, and followed by one unchanged confirmation attempt, for minuend_final
-    (Work/operating-case.md §7).
+    The product solve publishes each load case's rows with their identities, its modulus basis and
+    each member's resolved stiffness, and names the fixed-load sources of the model; it evaluates
+    model-authored combinations through this algebra and publishes their rows, gate records and
+    evidence; and it solves one case with every nonlinear support held at a given state assignment.
   gating: true
-  evidence: core/product_physics/src/lib.rs
-- from: DEL-04-08
-  condition: >-
-    DEL-05-02's shared result dispatch, standing and row semantics consume
-    DEL-04-08's retained validators, receipt contracts and
-    preview-physics-retained-1, physics-retained-1 and pressure-source-1 tables.
-    Their digests, row classes and refusal outcomes must remain coherent with
-    the base-route readers. DEL-05-02 retains the base-reader checks that G7
-    applies to a successor's projected statement.
-  gating: true
-  evidence: core/reporting/result_export/src/semantic_contract.rs
 - from: DEL-04-01
   condition: >-
-    DEL-05-02 needs DEL-04-01's frame-kernel `exact_sum::ExactAccumulator`, with
-    which the algebra forms a linear combination as one exact sum rounded once
-    (E13), and its K-D5 member-relative groups, bounds and unified predicate
-    (Work/kd5-member-relative-bound.md §3.1-§3.3), whose per-case statements the
-    combination certificate consumes as published (Work/combination-certificate.md). DEL-04-08 declares the separate retained-kernel and exact-boundary
-    inputs used by its verification method.
+    The frame kernel gives an exact accumulator whose sum of exact products is rounded once and
+    correctly rounded two- and three-component norms, and its integrity check gives each member
+    force and moment group of a solved case a bound with its scale.
   gating: true
-  evidence: core/solver/frame_kernel/src/exact_sum.rs
-- from: DEL-05-03
+- from: DEL-04-04
   condition: >-
-    DEL-05-02's base readers need DEL-05-03's D-5 section bases and D-6 Timoshenko
-    straight-member contract (Work/section-bases-and-timoshenko.md sections 1 to 3;
-    Work/section-and-shear-decisions.md). They interpret the section bases and
-    shear model from captured section inputs. They also recompute the T4-U4b section
-    quantities bit for bit, independently of the producer, by the normative sequences of
-    DEL-05-03's `stress_recovery::section_stress_quantities`. The retained readers
-    rederive both bases and the prepared Timoshenko shear-area leaf for O4's retained-source
-    and W1-E publications (DEL-04-08 Design o4-source-extension.md).
+    The active-set record of a converged nonlinear case gives each nonlinear support's final state
+    (active or inactive, sticking or sliding).
   gating: true
-  evidence: execution/PKG-05/DEL-05-03/Work/section-bases-and-timoshenko.md
+  when: Combining cases of a model with nonlinear supports
 - from: DEL-05-01
   condition: >-
-    DEL-05-02 needs DEL-05-01's primitive-load contract (`core/loads/primitive_loads`): the
-    `LoadDimension` vocabulary and the boundary-record types (`BoundaryQuantityRecord`,
-    `QuantityUnitMetadata`, `CanonicalSchemaBinding`) that the algebra's operands, dimension
-    checks and result-boundary records use, and the identified primitive load cases that
-    model-authored combinations name.
+    A load case is identified and holds its primitive loads with their category, target, direction,
+    dimension and magnitude, so that the loads of one case can be compared by content with those
+    of another, and a hydrostatic test case is marked as one.
   gating: true
-  evidence: core/loads/primitive_loads/src/lib.rs
+- from: DEL-05-03
+  condition: >-
+    Each stress row names the section basis it was recovered on, and the stress row kinds are
+    defined so that those with no combined meaning can be told apart.
+  gating: true
+- from: DEL-02-01
+  condition: >-
+    The model document carries a combination's basis, its terms with factors or its operand
+    references, its range mode, its declared difference basis and its subtrahend support state,
+    each kept as authored.
+  gating: true
 - from: DEL-02-02
   condition: >-
-    DEL-05-02 needs DEL-02-02's unit catalog (`core/units`). The Rust readers convert
-    captured authored quantities through it (`unit_by_symbol`, `convert_for_dimension`,
-    `canonical_unit`), and the test-only verifier's `tests/verifiers/units.py` is checked
-    against its committed catalog and witness tables. Conversion constants and the
-    calculation-unit policy stay with DEL-02-02.
+    The unit catalog gives each result quantity's dimension and its conversion to the consistent
+    basis, and reports an unknown or incompatible unit as a named finding.
   gating: true
-  evidence: core/units/src/lib.rs
 - from: DEL-05-04
   condition: >-
-    DEL-05-02 needs DEL-05-04's analysis-status vocabulary
-    (`schemas/analysis_status.schema.yaml`). Algebra results preserve the mechanics-solved,
-    rule-input, user-rule and human-review states, add human review, and never emit
-    `HUMAN_APPROVED_FOR_PROJECT` automatically.
+    The status vocabulary defines the mechanics, rule-input and user-rule statuses and human review
+    required as software statuses and reserves human acceptance to a person.
   gating: true
-  evidence: schemas/analysis_status.schema.yaml
-- from: DEL-00-01
+- from: DEL-04-08
   condition: >-
-    DEL-05-02 takes its implementation stack from DEL-00-01's accepted architecture
-    decisions (AB-00-01) and makes no package-local stack decision.
-  gating: false
-  evidence: execution/PKG-00/DEL-00-01/ArchitectureBasis.md
-- from: DEL-00-02
-  condition: >-
-    DEL-05-02 follows DEL-00-02's module boundaries and dependency direction (AB-00-02). The
-    algebra and the Rust readers depend inward on domain contracts, and the test-only Python
-    verifiers under `tests/verifiers/` share no code with the producer.
-  gating: false
-  evidence: execution/PKG-00/DEL-00-02/ArchitectureBasis.md
-- from: DEL-00-03
-  condition: >-
-    DEL-05-02's algebra results and reader verdicts keep DEL-00-03's command/query/job
-    separation of mechanics-solved, rule-checked and human-approved states (AB-00-03).
-  gating: false
-  evidence: execution/PKG-00/DEL-00-03/ArchitectureBasis.md
+    The retained-precision method defines its semantic tables, receipts and refusal outcomes, to
+    which the ordinary result reader listed below dispatches a retained result.
+  gating: true
+  when: Reading a retained-precision result
 - from: DEL-00-06
   condition: >-
-    DEL-05-02 carries DEL-00-06's diagnostic and result-envelope fields (AB-00-06: code,
-    class, severity, source, affected object, message, remediation and provenance) on algebra
-    findings and on reader refusals that reach product envelopes.
+    A diagnostic record has the fields code, class, severity, source, affected object, message,
+    remediation and provenance.
   gating: false
-  evidence: execution/PKG-00/DEL-00-06/ArchitectureBasis.md
-- from: DEL-00-08
+- from: DEL-09-01
   condition: >-
-    DEL-05-02 verifies under DEL-00-08's layered test strategy (AB-00-08): deterministic
-    algebra tests, reader conformance corpora read natively, in wasm and by the independent
-    Python verifier, and independent review of numerical-meaning changes.
+    One invented reference system holds every family and analysis the release target's exit
+    criterion 1 lists as an exact-route document, with references for its key results from a
+    generator that imports no product code.
+  when: Examining the reference-system criterion
   gating: false
-  evidence: execution/PKG-00/DEL-00-08/ArchitectureBasis.md
 code_paths:
-- apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx
-- core/product_physics/tests/preview_physics_runtime.rs
-# Load-case algebra crate.
+# The algebra crate: the five bases, exact dyadic rationals and the fixed-load count.
 - core/loads/load_case_algebra/**
-# Rust product result readers (native, and wasm through the desktop engine) and their tests.
-- core/reporting/result_export/src/retained_precision.rs
-- core/reporting/result_export/src/declared_member_load.rs
+- docs/theory/load_combinations.md
+# In the product solve crate, which DEL-04-07 lists whole for its composition: the operand graph
+# and gates, combinations on the exact route, the declared difference basis, the held-status
+# subtrahend, operand standing and the combination certificate.
+- core/product_physics/src/combination_plan.rs
+- core/product_physics/src/exact_combinations.rs
+- core/product_physics/src/difference_basis.rs
+- core/product_physics/src/held_status.rs
+- core/product_physics/src/held_status_tests.rs
+- core/product_physics/src/combination_certificate.rs
+- core/product_physics/src/op1a_seed_tests.rs
+- core/product_physics/tests/rt_a4_combinations.rs
+- core/product_physics/tests/w16_exact_combinations.rs
+- core/product_physics/tests/op1a_operand_standing.rs
+- core/product_physics/tests/op1b_difference_basis.rs
+- core/product_physics/tests/op_mf_held_status.rs
+- core/product_physics/tests/combination_certificate.rs
+# The readers' re-derivation of combination rows, gates, standing and certificate, in the Rust
+# reader and in the separately written Python verifiers (tests/verifiers/** is otherwise
+# DEL-04-08's), with their corpora and tests.
+- core/reporting/result_export/src/combination_graph.rs
+- core/reporting/result_export/src/combination_certificate.rs
+- core/reporting/result_export/src/exact_combination_evidence.rs
+- core/reporting/result_export/src/preview_combination_gates.rs
+- core/reporting/result_export/src/preview_combination_operands.rs
+- core/reporting/result_export/src/preview_difference_basis.rs
+- core/reporting/result_export/src/preview_difference_basis_tests.rs
+- core/reporting/result_export/src/preview_held_status.rs
+- core/reporting/result_export/src/preview_held_status_tests.rs
+- core/reporting/result_export/tests/combination_algebra.rs
+- core/reporting/result_export/tests/combination_certificate_contract.rs
+- core/reporting/result_export/tests/exact_combination_contract.rs
+- core/reporting/result_export/tests/preview_combination_operands_contract.rs
+- core/reporting/result_export/tests/recorded_pre_rt_a4.rs
+- core/reporting/result_export/tests/recorded_pre_rt_a5_1b.rs
+- core/reporting/result_export/tests/recorded_pre_rt_a5_mf.rs
+- tests/verifiers/combination_graph.py
+- tests/verifiers/combination_certificate.py
+- tests/verifiers/exact_combinations.py
+- tests/verifiers/preview_combination_gates.py
+- tests/verifiers/preview_combination_operands.py
+- tests/verifiers/preview_difference_basis.py
+- tests/verifiers/preview_held_status.py
+- tests/test_combination_certificate.py
+- tests/test_exact_combination_verifier.py
+- tests/test_preview_combination_operands.py
+- tests/test_preview_difference_basis.py
+- tests/test_preview_held_status.py
+- tests/test_recorded_pre_rt_a4_pf.py
+- tests/test_recorded_pre_rt_a5_1b_pf.py
+- tests/test_recorded_pre_rt_a5_mf_pf.py
+- tests/test_rt_a3_certificate_d3_retained_diff.py
+- tests/test_rt_a3_combination_certificate_envelope_diff.py
+- tests/test_rt_a4_combination_graph.py
+- tests/test_rt_a4_exact_constant_effort_seam.py
+- tests/test_rt_a4_pf_reader_tampers.py
+- fixtures/results/combination_certificate_*.json
+- fixtures/results/pressure_v3_combination_reader_corpus.json
+- fixtures/results/preview_physics_difference_basis_corpus.json
+- fixtures/results/preview_physics_held_status_corpus.json
+- fixtures/results/preview_physics_nonlinear_operands_corpus.json
+- fixtures/results/preview_physics_range_envelope_sparse.json
+- fixtures/results/recorded_pre_rt_a4/**
+- fixtures/results/recorded_pre_rt_a5_1b/**
+- fixtures/results/recorded_pre_rt_a5_mf/**
+# Independent references for the bases, the gates, the declared basis, the held-status subtrahend
+# and the certificate.
+- validation/references/rt_a4_combinations/**
+- validation/references/w16_exact_combinations/**
+- validation/references/op1b_difference_basis/**
+- validation/references/op_mf_held_status/**
+- validation/references/combination_certificate/**
+# Held here pending the owner's decision on which deliverable owns the ordinary result reader;
+# not governed by this scope. The entries below are that reader (dispatch, row semantics, standing
+# and the load-reference, arc, connector and nonlinear-support evidence), its semantic tables,
+# corpora and tests. DEL-04-07, DEL-04-08, DEL-07-05, DEL-08-01, DEL-08-04 and DEL-10-05 declare
+# needs on the reader.
 - core/reporting/result_export/src/preview_physics_evidence.rs
 - core/reporting/result_export/src/preview_magnitude_tests.rs
 - core/reporting/result_export/src/physics_evidence.rs
 - core/reporting/result_export/src/arc_evidence.rs
-- core/reporting/result_export/src/arc_marker_tests.rs
 - core/reporting/result_export/src/connector_evidence.rs
-- core/reporting/result_export/src/section_basis.rs
-- core/reporting/result_export/src/physics_source.rs
 - core/reporting/result_export/src/load_reference.rs
 - core/reporting/result_export/src/load_reference_source.rs
-- core/reporting/result_export/src/source_blocks.rs
+- core/reporting/result_export/src/nonlinear_support_evidence.rs
 - core/reporting/result_export/src/semantic_contract.rs
 - core/reporting/result_export/src/reader_verdict.rs
 - core/reporting/result_export/src/u4b_evidence.rs
-- core/reporting/result_export/tests/combination_algebra.rs
-- core/reporting/result_export/tests/retained_precision_*.rs
-- core/reporting/result_export/tests/base_reader_outcomes.rs
-- core/reporting/result_export/tests/reader_verdict.rs
-- core/reporting/result_export/tests/number_form.rs
-- core/reporting/result_export/tests/corpus_storage.rs
-- core/reporting/result_export/tests/declared_member_load_workspace.rs
-- core/reporting/result_export/tests/source_blocks.rs
-- core/reporting/result_export/tests/section_bases.rs
 - core/reporting/result_export/tests/connector_contract.rs
-- core/reporting/result_export/tests/preview_physics_contract.rs
-- core/reporting/result_export/src/preview_combination_operands.rs
-- core/reporting/result_export/tests/preview_combination_operands_contract.rs
-- core/product_physics/tests/op1a_operand_standing.rs
-- core/product_physics/src/op1a_seed_tests.rs
-- tests/verifiers/preview_combination_operands.py
-- tests/test_preview_combination_operands.py
-- core/product_physics/src/difference_basis.rs
-- core/product_physics/tests/op1b_difference_basis.rs
-- core/reporting/result_export/src/preview_difference_basis.rs
-- core/reporting/result_export/src/preview_difference_basis_tests.rs
-- core/reporting/result_export/tests/recorded_pre_rt_a5_1b.rs
-- tests/verifiers/preview_difference_basis.py
-- tests/test_preview_difference_basis.py
-- tests/test_recorded_pre_rt_a5_1b_pf.py
-- validation/references/op1b_difference_basis/**
-# RT-A5 minuend_final (Work/operating-case.md §7).
-- core/product_physics/src/held_status.rs
-- core/product_physics/tests/op_mf_held_status.rs
-- core/reporting/result_export/src/preview_held_status.rs
-- core/reporting/result_export/src/preview_held_status_tests.rs
-- tests/verifiers/preview_held_status.py
-- tests/test_preview_held_status.py
-- validation/references/op_mf_held_status/**
-- core/reporting/result_export/tests/physics_*contract.rs
 - core/reporting/result_export/tests/load_reference*_contract.rs
-- core/reporting/result_export/tests/pressure*_contract.rs
-- core/reporting/result_export/tests/support/**
-- core/reporting/result_export/tests/fixtures/**
-- core/runner/headless/src/reader_binding.rs
-- core/runner/headless/tests/reader_cli.rs
-- core/model_operations/operation_applier/src/retained_semantics_binding.rs
-- core/model_operations/operation_applier/tests/reader_verdict_binding.rs
-- core/model_operations/operation_applier/tests/retained_precision_*.rs
-# The retained method in the producer crate (DEL-04-07 integrates it): W1 capture, receipt and
-# wire, the memory registration with its law, witness and challenge tests, the build identity
-# that binds the reviewed inputs, the pressure-source-1 source receipt and recovery, and their
-# census and admission controls.
-- core/product_physics/src/retained_*.rs
-- core/product_physics/src/retained_tests_hooks/**
-- core/product_physics/src/w1_*_tests.rs
-- core/product_physics/src/source_receipt.rs
-- core/product_physics/src/source_receipt/**
-- core/product_physics/src/source_recovery.rs
-- core/product_physics/src/source_recovery/**
-- core/product_physics/src/source_budget_tests.rs
-- core/product_physics/src/build_identity.rs
-- core/product_physics/build.rs
-- core/product_physics/tests/retained_*.rs
-- core/product_physics/tests/common/w1_member_load_inputs.rs
-- core/product_physics/tests/source_block_recovery.rs
-- core/product_physics/tests/physics_source_runtime.rs
-- core/product_physics/tests/fixtures/rf_source_method/**
-# The retained kernel and the exact boundary in the frame kernel crate (DEL-04-01's), with their
-# reference vectors and writers.
-- core/solver/frame_kernel/src/structural/retained/**
-- core/solver/frame_kernel/src/structural/retained_resource.rs
-- core/solver/frame_kernel/src/structural/exact_boundary.rs
-- core/solver/frame_kernel/src/structural/exact_boundary/**
-- core/solver/frame_kernel/tests/retained_*/**
-- tests/test_member_load_reference_vectors.py
-- tests/test_source_block_schema_contract.py
-# The pressure-source-1 join's consuming checks and its J2 corpus generator.
-- core/product_physics/tests/pressure_source_join.rs
-- core/product_physics/tests/pressure_source_join/**
-# Receipt schemas the readers check.
-- schemas/retained_precision_mp_v2.schema.json
-- schemas/physics_source_recovery.schema.json
-# Conformance corpora, formation definitions, semantic tables and the J7 census pins.
-- fixtures/results/retained_precision_*.json
-- fixtures/results/semantic_contract_v0_3_*.json
-- fixtures/results/base_reader_outcomes.json
+- core/reporting/result_export/tests/number_form.rs
+- core/reporting/result_export/tests/physics_*contract.rs
+- core/reporting/result_export/tests/pressure_arc_contract.rs
+- core/reporting/result_export/tests/pressure_contract.rs
+- core/reporting/result_export/tests/preview_physics_contract.rs
+- core/reporting/result_export/tests/reader_verdict.rs
+- core/reporting/result_export/tests/fixtures/load_reference*
 - fixtures/results/loadReference*.cases.json
-- fixtures/results/preview_physics_*.json
-- fixtures/results/preview_magnitude_controls.json
 - fixtures/results/pressure_*_mechanics_*.json
-- fixtures/results/pressure_v3_*.json
-- fixtures/results/pressure_source_reader_corpus.json
-- fixtures/results/j7_rf_census_*.json
+- fixtures/results/pressure_load_state_*.json
+- fixtures/results/pressure_source_load_state_*.json
+- fixtures/results/pressure_v3_arc_reader_corpus.json
+- fixtures/results/pressure_v3_connector_reader_corpus.json
+- fixtures/results/pressure_v3_joint_reader_control.json
+- fixtures/results/pressure_v3_straight_reader_corpus.json
+- fixtures/results/preview_magnitude_controls.json
+- fixtures/results/preview_physics_connected_*.json
+- fixtures/results/preview_physics_invented_*.json
+- fixtures/results/preview_physics_tamper_vector.json
+- fixtures/results/preview_physics_timoshenko_*.json
+- fixtures/results/preview_physics_u4b_arc_sparse.json
+- fixtures/results/preview_physics_unicode_ids_sparse.json
+- fixtures/results/semantic_contract_v0_3_pressure_2.json
+- fixtures/results/semantic_contract_v0_3_preview_physics_2.json
+- fixtures/results/semantic_contract_v0_3_preview_physics_timoshenko_1.json
 - fixtures/product_preview/pressure_source/**
 - fixtures/product_preview/pressure/load_reference/**
-# Tools: retained pricing, corpus storage and the J7 census input generator.
-- tools/retained_pricing/**
 - tools/serialization/semantic_contract_tables.py
-- tools/fixtures/retained_precision_corpus.py
-- tools/fixtures/j7_rf_census_inputs.py
-# Python: the product's Rust-reader bridge, the test-only verifiers and the reader tests.
-- core/analysis_runs/rust_reader.py
-- tests/verifiers/**
-- tests/retained_precision_corpus.py
-- tests/base_reader_corpus.py
 - tests/preview_transport_source.py
-- tests/test_retained_precision_*.py
-- tests/test_retained_pricing_tool.py
 - tests/test_base_reader_verifier.py
 - tests/test_declared_member_load_reader.py
-- tests/test_pressure_source_*.py
-- tests/test_pressure_*_readers.py
-- tests/test_load_reference*_readers.py
-- tests/test_physics_*contract.py
-- tests/test_preview_physics_consumer_contract.py
-- tests/test_preview_magnitude_guard.py
-- tests/test_transport_consumer_contract.py
-- tests/test_section_bases_readers.py
-- tests/test_rust_reader.py
-- tests/test_verifier_independence.py
 - tests/test_j7_rf_census_inputs.py
+- tests/test_load_reference*_readers.py
+- tests/test_member_load_reference_vectors.py
+- tests/test_physics_*contract.py
+- tests/test_pressure_*_readers.py
+- tests/test_pressure_source_*.py
+- tests/test_preview_magnitude_guard.py
+- tests/test_preview_physics_consumer_contract.py
+- tests/test_rt_a3_nonlinear_reader.py
+- tests/test_rust_reader.py
 - tests/test_semantic_contract_tables.py
+- tests/test_source_block_schema_contract.py
+- tests/test_transport_consumer_contract.py
 - tests/test_u4b_review_tampers.py
-# Desktop: the wasm reader modules, the route vocabulary over them and reader conformance tests.
-- apps/desktop/src/features/results/resultReader.ts
-- apps/desktop/src/features/results/resultReader.test.ts
-- apps/desktop/src/features/results/resultStanding.ts
-- apps/desktop/src/features/results/retainedPrecisionReader.ts
-- apps/desktop/src/features/results/retainedPrecisionReader.test.ts
-- apps/desktop/src/features/results/retainedPrecisionTypes.ts
-- apps/desktop/src/features/results/numericalResultQuality.ts
-- apps/desktop/src/features/results/resultSemantics.ts
-- apps/desktop/src/features/results/*WasmEquivalence.test.ts
-- apps/desktop/src/features/results/pressureSourceCorpusParity.test.ts
-- apps/desktop/src/features/results/previewMagnitudeGuard.test.ts
-- apps/desktop/src/features/results/pressureSourceIntegration.test.tsx
-- apps/desktop/src/features/results/retainedPhysicsRoute.test.ts
-- apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx
-- apps/desktop/src/features/results/retainedPrecisionStanding.ts
+- tests/test_verifier_independence.py
 - apps/desktop/src/services/pressureSourceBridge.test.ts
-- apps/desktop/src/test-support/retainedPrecision*
-- apps/desktop/src/test-support/baseReaderInputs.ts
 - apps/desktop/src/test-support/receivedText.ts
 - apps/desktop/src/test-support/contractBindings.ts
 - apps/desktop/src/test-support/currentCarrierHeader.ts
 - apps/desktop/src/test-support/retiredMechanicsResult.ts
 - apps/desktop/src/test-support/retiredPrecision.ts
-- fixtures/results/pressure_load_state_*.json
-- fixtures/results/pressure_source_load_state_*.json
-# W-16 slice b (Design exact-combinations.md): combinations on the exact route, their reader
-# pass, the Python mirror, the shared corpus and the independent references.
-- core/product_physics/src/exact_combinations.rs
-- core/product_physics/tests/w16_exact_combinations.rs
-- core/reporting/result_export/src/exact_combination_evidence.rs
-- core/reporting/result_export/tests/exact_combination_contract.rs
-- tests/test_exact_combination_verifier.py
-- validation/references/w16_exact_combinations/**
-# RT-A3 increment 4 (DEL-04-07 route-unification-r4.md §2.4): the pressure-2 reader's binding of the
-# nonlinear support results, its Python mirror (tests/verifiers/) and their parity test.
-- core/reporting/result_export/src/nonlinear_support_evidence.rs
-- tests/test_rt_a3_nonlinear_reader.py
-# RT-A4 (Work/absolute-sum-srss-combinations.md): absolute sums, SRSS and nested operands on
-# both routes, their operand graph, the readers' mirror and the independent references.
-- core/product_physics/src/combination_plan.rs
-- core/product_physics/tests/rt_a4_combinations.rs
-- core/reporting/result_export/src/combination_graph.rs
-- core/reporting/result_export/src/preview_combination_gates.rs
-- validation/references/rt_a4_combinations/**
 checks:
-- apps/desktop/src/features/load-cases/LoadCaseManagerPanel.test.tsx
-- core/product_physics/tests/preview_physics_runtime.rs
-# Rust (hosted numerical selection).
+# The algebra and the combinations.
 - core/loads/load_case_algebra/src/lib.rs
 - core/loads/load_case_algebra/src/s11k_tests.rs
 - core/loads/load_case_algebra/src/unsigned_tests.rs
-- core/reporting/result_export/tests/retained_precision_contract.rs
-- core/reporting/result_export/tests/retained_precision_carriers.rs
-- core/reporting/result_export/tests/base_reader_outcomes.rs
-- core/reporting/result_export/tests/reader_verdict.rs
-- core/reporting/result_export/tests/combination_algebra.rs
-- core/reporting/result_export/tests/pressure_source_contract.rs
-- core/reporting/result_export/tests/declared_member_load_workspace.rs
-- core/runner/headless/tests/reader_cli.rs
-- core/model_operations/operation_applier/tests/retained_precision_reader.rs
-- core/model_operations/operation_applier/tests/reader_verdict_binding.rs
-- core/product_physics/src/retained_memory_law_tests.rs
-- core/product_physics/tests/pressure_source_join.rs
-- core/product_physics/tests/w16_exact_combinations.rs
-- core/reporting/result_export/tests/exact_combination_contract.rs
 - core/loads/load_case_algebra/src/fixed_load_count_tests.rs
 - core/product_physics/tests/rt_a4_combinations.rs
-# Python (piping-pytest).
-- tests/test_retained_precision_contract.py
-- tests/test_retained_precision_carriers.py
-- tests/test_retained_precision_schema.py
-- tests/test_base_reader_verifier.py
-- tests/test_pressure_source_corpus.py
-- tests/test_declared_member_load_reader.py
-- tests/test_rust_reader.py
-- tests/test_verifier_independence.py
-- tests/test_retained_pricing_tool.py
-- tests/test_semantic_contract_tables.py
-- tests/test_u4b_review_tampers.py
+- core/product_physics/tests/w16_exact_combinations.rs
+- core/product_physics/tests/op1b_difference_basis.rs
+- core/product_physics/tests/op_mf_held_status.rs
+- core/product_physics/tests/combination_certificate.rs
+- core/reporting/result_export/tests/combination_algebra.rs
+- core/reporting/result_export/tests/exact_combination_contract.rs
+- core/reporting/result_export/tests/combination_certificate_contract.rs
 - tests/test_exact_combination_verifier.py
-- tests/test_rt_a3_nonlinear_reader.py
 - tests/test_rt_a4_combination_graph.py
 - tests/test_rt_a4_pf_reader_tampers.py
-# Desktop (desktop-test).
-- apps/desktop/src/features/results/retainedPrecisionWasmEquivalence.test.ts
-- apps/desktop/src/features/results/baseReaderWasmEquivalence.test.ts
-- apps/desktop/src/features/results/pressureSourceCorpusParity.test.ts
+- tests/test_combination_certificate.py
+- tests/test_preview_difference_basis.py
+- tests/test_preview_held_status.py
+# The ordinary result reader and its tests listed above.
+- core/reporting/result_export/tests/reader_verdict.rs
+- tests/test_base_reader_verifier.py
+- tests/test_declared_member_load_reader.py
+- tests/test_pressure_source_corpus.py
+- tests/test_rt_a3_nonlinear_reader.py
+- tests/test_rust_reader.py
+- tests/test_semantic_contract_tables.py
+- tests/test_u4b_review_tampers.py
+- tests/test_verifier_independence.py

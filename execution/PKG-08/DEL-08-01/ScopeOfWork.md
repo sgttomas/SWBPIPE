@@ -2,397 +2,164 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-08-01
 package_id: PKG-08
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-024]
 package_objective_refs: [OBJ-007]
 ---
 
-# Scope of Work — DEL-08-01
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency conditions are declared in this deliverable's `deliverable.yaml`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+# Scope of Work — DEL-08-01 Calculation report generator
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and package objectives [OBJ-007].
+An engineer who has solved a model gets a report that a reviewer can check and reproduce. The report says what was analysed, what the user supplied, what was assumed or missing, what the software computed and with which versions, and what it does not establish. The engineer can read it on screen, save it, print it, save it as a package with the evidence it rests on, and, by an explicit statement of their own, release it for sharing.
 
-- **OUT-001** — A calculation-report generation contract covering auditable input, source, result, warning, assumption, limitation, unit, provenance, rule-pack, and reproducibility content is produced. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+This deliverable contributes the report itself: its fixed frame and sections, the composition a user may choose inside them, its HTML, print and PDF forms, the report package, the per-report user release, and the desktop surface that offers them. The content of several sections belongs to neighbouring deliverables; this one assembles, gates and emits.
+
+It serves SOW-024 under OBJ-007 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-08, row DEL-08-01), and PRD FR-REP-001, FR-REP-002, FR-REP-003 and FR-REP-005 and §19.1 to §19.4. In `docs/RELEASE_TARGET_v1.0.md` it owns exit criterion 4 with DEL-12-02: a user releases, saves and prints a report for results on either route, with the §19.3 notice and a reproducible canonical hash.
+
+- **OUT-001** — The calculation report: its frame and governed sections, its assembly and gates, and its three emissions, the canonical HTML, the print view derived from it and the PDF (REQ-001 to REQ-010, REQ-012 to REQ-017, REQ-020, REQ-021).
+- **OUT-002** — Report composition: the closed catalogue of optional subsections and the rules by which a user includes, orders and views them (REQ-011).
+- **OUT-003** — The report package: the container, its members and manifest, the producer's checks and the reader (REQ-018).
+- **OUT-004** — The per-report user release: the selection, its record, its notice, its admission and its package (REQ-019).
+- **OUT-005** — The desktop report surface: render and preview, save, print, save package and save shareable package (REQ-022).
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-08-01 Calculation report generator
+The **frame** of a report is its title, meta line, status banner, context notice and, when the report is blocked, the blocked banner. After it come eight **governed sections** in a fixed order: Model Input Summary; Load Cases; Results; Warnings, Assumptions and Provenance; Audit Manifest; Rule Pack References; Limitations; Professional Boundary Notice. The last holds the PRD §19.3 notice and the review and sign-off block.
 
-> #### Datasheet: DEL-08-01 Calculation report generator
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+The **solve routes** are the pressure-free route and the exact pressure route. A **Current result** is the result of the latest solve of the model as it now stands. Each result carries the identity of the semantics it was produced under. The report and the package admit a Current result under the current identities of the pressure-free route and of the exact route.
 
-### CLM-003 — Identification
+The **canonical HTML** is one self-contained document with no script and no remote resource. Its SHA-256 is the report's **canonical hash**. The **print view** is that document with a banner naming the hash. The **PDF** is a second emission of the same assembled sections.
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-08-01 |
-> | Deliverable name | Calculation report generator |
-> | Package ID | PKG-08 |
-> | Package name | Reporting, Audit, and Reproducibility |
-> | Deliverable type | BACKEND_FEATURE_SLICE |
-> | Scope item | SOW-024 |
-> | Objective | OBJ-007 |
-> | Context envelope | L |
-> | Current setup status | Lifecycle: see `_STATUS.md`; open duties: this Scope of Work and owning decisions; current implementation evidence is separately bound |
->
+The **export context** is the classification a report is rendered under (DEL-12-02's vocabulary): public report, local private, or user-released report. A **blocked** report is rendered with its blocking reasons and can be neither saved, printed nor packaged.
 
-### CLM-004 — Attributes
+A **composable subsection** is an optional part of a governed section, taken from a closed catalogue: for results, all rows, displacements, forces and moments, stresses, support loads and other rows; for inputs, geometry, materials and sections, supports, applied loads and load combinations. A **view** orders or selects bound rows. A **bound row** is a row of the result the report is built for.
 
-> ##### Attributes
->
-> | Attribute | Source-grounded value |
-> |---|---|
-> | Production family | Calculation reports for SWBPIPE analysis outputs. |
-> | Required report content | Inputs, sources, warnings, assumptions, results, rule-pack checksums, and limitations. |
-> | Anticipated downstream artifacts | Report renderer, report template, tests. |
-> | Setup-session implementation boundary | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle is recorded in `_STATUS.md`; current work follows this Scope of Work, owning decisions, and the selected graph. Setup-only restrictions describe the originating setup run, not standing product scope. |
-> | Architecture baseline | Rust core/application services, schema-first command/query/job/result envelopes, JSON Schema 2020-12 contracts, canonical JSON/JCS-compatible hash basis where JSON payload hashes are used. |
-> | Report authority boundary | Reports are decision-support artifacts. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
-> | Protected-content boundary | Public templates/examples must not reproduce protected standards text, protected standards tables, protected figures, proprietary formulas, or protected code-derived content. |
->
+On an exact-route result the Results section opens with the **exact block**: the result's semantic contract, the **standing line** and the stress headline on each section basis. The standing line states the numerical standing the product's reader gave that result, and is composed by the renderer from the identities the report is bound to; no input supplies its text. The **native source binding** is the desktop host's check that the result and model submitted with an exact-route report are the bytes one of its own solve jobs received and delivered and still holds.
 
-### CLM-005 — Conditions
+The **report package** is a multi-member archive with the extension `.opsproj`. Its members are the canonical HTML, the PDF, the audit manifest (DEL-08-02), one result export document (DEL-08-04) and the state, comparison and handoff section set (DEL-08-06). Its manifest lists every member with its hash; the manifest's hash identifies the package.
 
-> ##### Conditions
->
-> | Condition | Handling requirement |
-> |---|---|
-> | Missing solve-required data | Preserve as explicit diagnostics or report findings; do not hide with silent defaults. |
-> | Missing rule-check-required data | Preserve as explicit rule-check-blocking diagnostics or findings; do not imply a completed check. |
-> | User-supplied code data | Record as user-supplied or private/provenance-tagged data; do not convert it into public defaults. |
-> | Rule-pack references | Report only identity, version, checksum, source/provenance notices, redistribution status, and user-provided report notices; do not reproduce protected rule text. |
-> | Professional reliance | Include a notice that competent human review is required before project reliance. |
-> | Unit-bearing values | Preserve units and dimensional context in generated report sections. |
-> | Private project data | Keep redaction/export handling visible as a requirement and defer detailed controls to PKG-12 where needed. |
->
+A **user release** is a user's statement, made for one report, that they hold the right to redistribute their own project data in it. It is recorded in that report and its package and nowhere else.
 
-### CLM-006 — Construction
+Boundary:
 
-> ##### Construction
->
-> The calculation report generator deliverable is specified here as a bounded backend feature slice; the current implementation is described in the next paragraph. The implementation should assemble report content from schema-first project/model/result envelopes, diagnostics, provenance metadata, and rule-pack references. The report generator must preserve the diagnostic/result-envelope boundary injected by AB-00-03 and AB-00-06: report content reflects mechanics outputs, user-rule-check outputs, warnings, assumptions, and limitations without promoting software output into professional approval.
->
-> Current implementation (with the W-3 change, PR #1553): the renderer is `core/reporting/report_renderer/src/lib.rs` (`render_calculation_report`), which runs `core/reporting/protected_content_linter` before and after rendering; the report package path is `core/reporting/report_package` with `core/reporting/pdf_emitter`. On the desktop, `apps/desktop/src/features/report/RenderedReportPanel.tsx` builds the renderer input in `renderableReportInput.ts`, projects it through `reportRedactionProjector.ts`, and calls the Tauri command `render_calculation_report` (`apps/desktop/src-tauri/src/lib.rs`) through `apps/desktop/src/services/reportRenderService.ts`. Current desktop behaviour: the session inputs are classified private (`private_project_data`, `private_only`). Without the panel's own local-private selection, the render runs under the `public_report` context, the redaction projection reports `blocked` for a pressure-free session, and the renderer is not called. With that selection (`rendered-report-local-private-intent`), the render runs under `local_private` with wrapper-owned explicit intent (DEL-12-02 REXC-REQ-006). Its preview, HTML save and print sinks are controlled under `DREP-HTML-SAVE-005` in the same context, and the document carries a local-private notice. The report adds the rule-pack identity, name, version and checksum, user-rule check outcomes (check id, status and missing inputs only, R-08-01-008), software and solver versions, generation time, solver settings and the result coordinate system, or states "not recorded"; it also records the provenance of materials, sections, components and supports and the model's library references, with the library store's findings on them (FR-REP-003); an exact-route result is rendered with its sections (DEL-08-01 Design `exact-route-report-sections.md`) only after Export Result JSON admits it in the desktop, and only when the native host finds that the result and model texts submitted with the report are the exact bytes one of its solve jobs delivered and received, that the job's result is still in the app's custody, that the Rust reader's standing for that result and model, computed by the native host, is numerically eligible, and that the report's result and model digests, result rows and exact sections are those of that result and model; the report's standing line is composed from those digests and from the digest of an input manifest whose model is that model (owner, 2026-10-26: "My two decisions are to approve your recommendations in both cases. Proceed accordingly."); and Save Report Package (`buildReportPackageRequest` in `reportPackageRequest.ts`, then `save_report_package` in `apps/desktop/src-tauri/src/lib.rs` and the shared producer `core/reporting/report_package/src/wire.rs`) saves a version 2.0.0 package for a Current pressure-free (preview-physics-2) or eligible exact-route (pressure-2, pressure-source-1) result under `local_private` with the package's own explicit intent: its result member is the DEL-08-04 0.3.0 document that Export Result JSON saves, its rendered members carry the rule-pack references and user-rule outcomes, and the native command screens dispositions from content before the save dialog. Every other identity is refused.
->
-> The setup artifact family prepared for this session is:
->
-> - `ScopeOfWork.md`
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
-> - `Dependencies.csv`
-> - `_DEPENDENCIES.md`
-> - `_run_records/*`
-> - `_STATUS.md`
->
-### CLM-007 — References
-
-> ##### References
->
-> | Source | SourceRef | Use |
-> |---|---|---|
-> | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) | Scope Coverage; Architecture Basis Injection | Deliverable identity, scope, objective, accepted architecture basis, and write boundary. |
-> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | Row DEL-08-01 | Registered description, anticipated artifacts, scope, objective, context envelope, and risk note. |
-> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | Row SOW-024 | Report content scope and protected-content warning. |
-> | `docs/CONTRACT.md` | OPS-K-IP-1..3, OPS-K-DATA-1..3, OPS-K-RULE-1..3, OPS-K-AUTH-1, OPS-K-REPORT-1..2, OPS-K-PRIV-1..2, OPS-K-UNIT-1, OPS-K-AGENT-1..4 | Invariant constraints for report generation. |
-> | `docs/SPEC.md` | Sections 1, 3, 6, 7, 8, 9, 11 | Architecture, report domain object, rule-pack metadata, warning classes, reporting/audit content, report tests, and acceptance semantics. |
-> | `docs/TYPES.md` | Sections 4, 6, 8, 9 | Analysis-status vocabulary, professional boundary terms, report settings/report object definitions, and lifecycle meaning. |
-> | `docs/DIRECTIVE.md` | Sections 2, 3, 4, 5, 6 | Founding data/professional boundaries, stop rules, and auditability principles. |
+- **CLM-001** — Section content owned elsewhere: the records and disposition rules of the warnings, assumptions and provenance section are DEL-08-03's; what the audit manifest says is DEL-08-02's; the result export document is DEL-08-04's; the state, comparison and handoff sections are DEL-08-06's; the modal, response-spectrum and hanger-sizing sections are DEL-04-09's, DEL-04-10's and DEL-04-11's. The protected-content lint is DEL-08-05's, and the notice text and status display forms are DEL-01-04's. This deliverable owns how all of them enter a report.
+- **CLM-002** — Export contexts, routes and screening are DEL-12-02's, and the rule that a persisted document has one current version is DEL-00-04's and DEL-02-05's. This deliverable owns the report's behaviour under each context and the package's writer and reader. In the report-package crate the form check of a result document and its schema evaluator are DEL-08-04's; in the renderer and the desktop report input builder the content of the warnings and provenance section is DEL-08-03's; the desktop section-set assembler is DEL-08-06's.
+- **CLM-003** — Outside the product: a signature, seal or acceptance record made by the software; storage of a user release in the session, the project or the model; a user's private report templates, which are the user's responsibility; and any report output from the headless runner under a user release.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-008 — Specification: DEL-08-01 Calculation report generator
+Not decided: whether a report rendered by the headless runner under explicit local-private intent must carry the local-private notice. Also not decided, for a user release (REQ-019): whether a library value that solver output carries for a library-referenced model is refused or marked, and whether a rule check's identifier and missing-input names count as safe metadata there.
 
-> #### Specification: DEL-08-01 Calculation report generator
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- **REQ-001** — A report includes inputs, sources, warnings, assumptions, results, rule-pack checksums and limitations (also cited as R-08-01-001). Source: SOW-024; PRD FR-REP-001.
+- **REQ-002** — A report states, where the item exists: the project name; the software version, solver version and build identifier; the date and time; the units and coordinate system; the model state's identity and hash; the analysis run's identity; the input manifest; material and component library references; each rule pack's name, version and checksum; the source and provenance summary; warnings and unresolved assumptions; load cases and combinations; solver settings and diagnostics; displacements, rotations, forces and moments, support reactions, equipment terminal loads and fundamental stresses; user-rule checks; the notice that code-specific data is the user's; and the review and sign-off block. An item that is not recorded is stated as not recorded and is never omitted or invented (also cited as R-08-01-002). Source: PRD §19.2.
+- **REQ-003** — Public report templates and examples reproduce no protected code text, standards tables, figures or examples, proprietary formulas, protected dimensional tables, proprietary commercial data, private rule-pack content or private project data (also cited as R-08-01-003). Source: PRD FR-REP-005, §19.4.
+- **REQ-004** — No report states or implies any claim PRD §21.2 prohibits (also cited as R-08-01-004). Source: PRD §21.2.
+- **REQ-005** — A report keeps mechanics solved, user-rule checked, rule inputs incomplete and human review required apart, each in the registry's display form (also cited as R-08-01-005). Source: PRD FR-REP-002.
+- **REQ-006** — Every unit-bearing input and result is shown with its unit. Values are displayed under one report-wide rule that the report states, and display never alters a bound value (also cited as R-08-01-006). Source: PRD §5.6.
+- **REQ-007** — A report discloses the diagnostics of its result in their classes: solve blocking, rule-check blocking, provenance, assumption, nonlinear and IP boundary (also cited as R-08-01-007). Source: decomposition AB-00-06.
+- **REQ-008** — A rule pack appears as safe metadata only: identity, version, checksum, source notice, redistribution status, required-input status and the user's own report notices. A user-rule outcome appears as its check identifier, the load case or combination it was evaluated on, its status and the names of missing inputs (also cited as R-08-01-008). Source: PRD §17.4, §19.4.
+- **REQ-009** — A report is built from the product's result envelopes through its application services. No adapter or plugin reaches a report around units, provenance, diagnostics, sandboxing or the report's gates (also cited as R-08-01-009). Source: decomposition AB-00-03, AB-00-07.
+- **REQ-010** — The same model, result, rule-pack inputs, versions and report settings give byte-identical output. A report records a time only when one is supplied to it, and the fields that may vary are documented (also cited as R-08-01-010). Source: OBJ-007; PRD §22.4.
+- **REQ-011** — A user composes a report from the closed catalogue of composable subsections (also cited as R-08-01-011). Source: release target exit criterion 4; PRD §19.1, §19.2.
+  - **Choice.** The user chooses which subsections appear, their order within their governed section and, where the catalogue allows, the cases and the view. A composition carries no title, heading or note.
+  - **Required content.** The frame and the governed sections keep their order, and the following stay present under every composition: the frame; the project and model identity, units, coordinate systems, model hash and input-manifest reference; the load-case table; the display-rule statement, the exact block on an exact-route result, the count of rows shown and the table of every referenced result row with its checksum; the whole warnings, assumptions and provenance section; the manifest references and the software, solver and run identities; the rule-pack references and outcomes whenever a rule check is recorded; the limitations; and the §19.3 notice with the sign-off block.
+  - **Views.** A view selects or orders bound rows, or projects the bound model as entered in stored units. It computes no new number. Ranking is by magnitude after the display rule's exact step, within one display unit.
+  - **Disclosure.** A composed report states "Result rows shown: n of N", states each subsection's cases and view, and lists in the Audit Manifest section every catalogue entry as included or omitted with the SHA-256 of the composition's canonical form. Omitting a row from view never removes it from the report's binding.
+  - **Refusals.** An unknown or governed section identifier, a duplicate, an invalid option, a case no bound row carries, overlapping subsections, an unsupported composition version, and a composition outside the local-private and user-released contexts are each refused by name and block the report.
+  - **Default.** A report with no composition is the uncomposed report, byte for byte.
+- **REQ-012** — Every report has the frame and the eight governed sections in their order, with the PRD §19.3 notice word for word and the review and sign-off block, on every route and in every context. Source: PRD §19.3, FR-REP-002.
+- **REQ-013** — The canonical HTML is self-contained and scriptless; the print view is derived from it and names its hash; and the PDF is emitted from the same assembled sections, so that the three cannot differ in content. Source: decomposition DEC-021, DEC-061.
+- **REQ-014** — A report is blocked when its input is malformed, when the protected-content lint reports a blocking finding before or after rendering in either emission, when a provenance record's disposition blocks it, or when it holds data its export context does not admit. A blocked report names its reasons and is not saved, printed or packaged. Source: PRD §19.4, §20.3; SOW-043.
+- **REQ-015** — A report is rendered under exactly one export context. Private project data appears only in a local-private report made with the user's explicit intent, or in a user-released report under REQ-019. A local-private report rendered in the desktop carries a local-private notice. Source: PRD §20.3; DEL-12-02's export controls.
+- **REQ-016** — The report and the package admit a Current result under the current identities of the pressure-free route and of the exact route. They refuse the retained-precision successors and every other result identity by name. Source: owner ruling opening reports to exact-route results; DEL-04-08/AC-006.
+- **REQ-017** — An exact-route result is reported under these conditions. Source: owner rulings on exact-route reports.
+  - **Source binding.** The report is rendered and packaged only when the native source binding holds and the product reader's standing for that result and model is eligible; the report's digests, rows and exact sections are those of that result and model.
+  - **Exact block.** The Results section carries the exact block. Each section basis has its own stress maximum and no governing basis is chosen.
+  - **Standing line.** When the result's diagnostics carry an integrity warning, the standing line names the warning and points to it; it never reads as checked alone.
+  - **Limitations.** Each limitation the result's producer publishes appears as a reviewed statement from a closed table, in the producer's order, in the Limitations section. A producer limitation with no reviewed statement refuses every report surface for that result.
+  - **Load and reference states.** A result solved on load and reference states discloses them.
+- **REQ-018** — The report package. Source: decomposition DEC-028, DEC-057; PRD FR-REP-001.
+  - **Members.** A package holds exactly the members named in the Ontology, each listed in the manifest with its hash on the canonical JSON basis. Evidence binds to the members and the manifest, not to the archive's bytes, and identical inputs still give an identical archive.
+  - **Agreement.** The producer refuses a package whose members disagree: the report's model hash, run, result rows, diagnostics and exact sections equal those of the result document, the audit manifest and the section set.
+  - **Blocked.** A package whose report is blocked is never saved.
+  - **One version.** The package has one current version. The reader accepts only that version and refuses every other by name, with no migration (also cited as DEL-08-01:1).
+  - **Reader.** The reader recomputes every member hash and the producer's agreements and refuses a package in which any differs.
+- **REQ-019** — The per-report user release. Source: owner rulings on user release; `docs/IP_AND_DATA_BOUNDARY.md` §6; release target exit criterion 4.
+  - **Selection.** The user makes an explicit selection and statement for one report. Without it the report stays local private exactly as before. The selection is not stored in the session, the project or the model, and the model does not change.
+  - **Record.** The release is recorded in the report's context and the package manifest, bound to the model hash and the identity of the result the report covers, with the time of the statement.
+  - **Notice.** A user-released report carries an unmistakable notice in place of the local-private notice. It says that the user released their own project data for sharing and stated their right to do so, what the release is bound to, what the report does and does not carry, that the application cannot verify who holds the rights, and that the analysis status and the §19.3 notice are unchanged.
+  - **Content.** Private rule-pack and library values stay at safe metadata. Rule-pack references and rule outcomes at safe metadata (REQ-008), a model with library references, and comparisons with their state, run and handoff sections are admitted on the same context, route, record, native derivation and reader. Provenance record text stays out. The protected-content lint and the disposition blocks still apply.
+  - **Admission.** A user-released package is produced only by the desktop's native admission, for a result this session's own solve produced for that model, with every request member equal to its native derivation. Every other producer entry, the standalone render and the headless runner refuse a request that carries a user-release record. A release cannot be replayed onto a different model or result.
+  - **Refusals.** An object carrying a private class other than the user's project data is refused by name.
+  - **Exact route.** Exact-route results are admitted under user release with the source binding, exact block, limitations and diagnostics binding of REQ-017.
+  - **Reader.** The reader checks that a user-released package's record, members and notice agree. That is an equality guarantee only: it does not establish custody after the fact or who holds rights in the data.
+  - **Naming.** No product text, identifier or record of a user release uses "release" alone: it is always "user release", "user-released" or "release your project data". None uses a word that reads as issue, approval or acceptance, and the record's standing reads as a user's statement of data rights only.
+- **REQ-020** — A section contributed by another deliverable enters a report only through the assembled section model: it sits under a governed section, uses registered boundary wording and no claim of its own, shows a library reference as safe metadata only, and passes the report's gates like any other content. Source: PRD §19.1, §19.2.
+- **REQ-021** — A load case flagged as a hydrostatic test condition is marked as a test case in the report. Source: release target, hydrotest ruling.
+- **REQ-022** — In the desktop a user can render and preview a report, save its HTML, print it, save its package and save a user-released package, for a Current result on either route. Each output leaves by its governed route. A report or package is produced only for the result and model current when it is saved; a change during preparation retires the save. Source: release target exit criterion 4.
 
-### CLM-010 — Scope
-
-> ##### Scope
->
-> Current deliverable obligation: implement report generation with model input summary, load cases, results, warnings, and rule-pack references. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> This deliverable defines the calculation report generator behavior for SWBPIPE reporting. It covers report assembly requirements for model input summaries, load cases, results, warnings, assumptions, source/provenance notes, rule-pack references, checksums, and limitations.
->
-> The original setup session does not implement renderer source, report templates outside this deliverable, tests, schemas, or repo-level artifacts. Those remain future implementation work under sealed deliverable scope and review.
->
-> Current implementation (at `62c1efd75b`): renderer source and tests exist in `core/reporting/report_renderer/` and are called by the desktop Render action; CLM-006 records the current desktop route and its refusals.
->
-### CLM-011 — Requirements
-
-> ##### Requirements
->
-> | ID | Requirement | SourceRef | Verification |
-> |---|---|---|---|
-> | R-08-01-001 | The report generator shall assemble auditable reports that include inputs, sources, warnings, assumptions, results, rule-pack checksums, and limitations. | ScopeLedger.csv (retired in `48584391de`; see Git history) row SOW-024; CONTRACT.md OPS-K-REPORT-1; SPEC.md section 8 | Inspect generated report contract/template behavior in implementation tests (`core/reporting/report_renderer/tests/render.rs`). |
-> | R-08-01-002 | Reports shall include software version, solver version, model hash, input manifest, unit system, provenance summary, load cases/combinations, mechanical results, warnings, assumptions, missing data, rule-pack name/version/checksum, user-supplied data notice, and professional-review notice where those inputs exist. | SPEC.md section 8 | Report fixture/golden-output tests verify presence and omission rules. |
-> | R-08-01-003 | Public report templates and examples shall not reproduce protected code text, protected standards tables, protected figures, proprietary formulas, protected examples, protected dimensional tables, or proprietary commercial data. | CONTRACT.md OPS-K-IP-1, OPS-K-REPORT-2; SPEC.md section 8 | Protected-content report gate and human review before public release. |
-> | R-08-01-004 | Reports shall not claim to certify, seal, approve, authenticate, or declare engineering code compliance for reliance (PRD §21.2). | CONTRACT.md OPS-K-AUTH-1; TYPES.md sections 4 and 8; DIRECTIVE.md sections 2 and 6 | Text review/lint gate checks prohibited claim language. |
-> | R-08-01-005 | Reports shall distinguish mechanics solved, user-rule checked, rule inputs incomplete, and human review required states. | TYPES.md section 4; SOFTWARE_DECOMP.md AB-00-03 and AB-00-06 | Status fields in report fixtures are checked against analysis-status vocabulary. |
-> | R-08-01-006 | Reports shall preserve unit context for unit-bearing inputs and results. | CONTRACT.md OPS-K-UNIT-1; SPEC.md sections 3 and 8 | Unit-aware fixture tests verify displayed and structured units. |
-> | R-08-01-007 | Reports shall disclose diagnostics using result-envelope-compatible warning classes including solve-blocking, rule-check-blocking, provenance, assumption, nonlinear, and IP-boundary warnings when present. | SPEC.md section 7; SOFTWARE_DECOMP.md AB-00-06 | Diagnostic fixture tests verify warning class pass-through and report rendering. |
-> | R-08-01-008 | Reports shall treat rule packs as user/private design-basis artifacts and expose only safe metadata such as identity, version, checksum, source notice, redistribution status, required-input status, and user-provided report notices. | SPEC.md section 6; CONTRACT.md OPS-K-DATA-1, OPS-K-RULE-3 | Rule-pack report fixtures verify metadata display and protected-content exclusion. |
-> | R-08-01-009 | The report generator shall use schema-first command/query/job result envelopes and application-service boundaries; adapters/plugins must not bypass units, provenance, diagnostics, sandboxing, or report controls. | SOFTWARE_DECOMP.md AB-00-02, AB-00-03, AB-00-07 | Architecture review verifies service boundary conformance before implementation acceptance. |
-> | R-08-01-010 | Report reproducibility tests shall verify deterministic output for the same model/result/rule-pack inputs, versions, and report settings, subject to explicitly documented volatile fields. | SPEC.md section 9; CONTRACT.md OPS-K-REPORT-1 | Future tests compare normalized report outputs and audit manifests. |
-> | R-08-01-011 | The report generator shall let the user compose a report from a closed catalogue of optional content subsections, choosing which appear, their order within their governed parent section, and, where supported by the catalogue, their case selection and view. The governed frame and sections shall retain their order, and all required content identified in DEL-08-01 Design `report-section-composer.md` §2.2 shall remain present under every composition. Numerical content in composed subsections shall be selected from bound result rows or projected from the bound model, using the report-wide display rule; views shall compute no new numerical result. A composed report shall disclose its composition and the number of result rows shown out of the total bound result rows. | `docs/RELEASE_TARGET_v1.0.md` RT-R4; PRD §19.1, §19.2, §19.3 | Renderer tests verify required content under every composition and HTML and PDF byte-identical to existing output for inputs without a composition; selection and model-projection parity tests compare desktop TypeScript and Rust (DEL-08-01 Design `report-section-composer.md`). |
->
-
-### CLM-012 — Standards
-
-> ##### Standards
->
-> No protected standards text, protected tables, protected formulas, or proprietary code examples are used as source content for this deliverable. Any future user-private report template or rule-pack notice remains user responsibility and must be handled outside public-template distribution unless redistribution rights are documented.
->
-
-### CLM-013 — Verification
-
-> ##### Verification
->
-> The implementation should be accepted only after these checks exist and pass:
->
-> - Scope of Work contract exist for this deliverable.
-> - `Dependencies.csv` is valid v3.1 and every ACTIVE row has evidence.
-> - Report fixtures cover mechanics-only, rule-inputs-incomplete, user-rule-checked, warnings-present, and protected-content-risk cases.
-> - Report reproducibility tests normalize volatile metadata and verify stable report payloads.
-> - Protected-content and prohibited-claim gates scan public report templates/examples.
-> - Human review confirms that the report generator does not assert compliance, certification, sealing, or project acceptance.
->
-### CLM-014 — Documentation
-
-> ##### Documentation
->
-> Required setup documentation for this deliverable:
->
-> - `ScopeOfWork.md` records identity, boundaries, conditions, and reference basis.
-> - `ScopeOfWork.md` records requirements and verification targets.
-> - `ScopeOfWork.md` records rationale, principles, trade-offs, and open questions.
-> - `ScopeOfWork.md` records execution and future implementation workflow.
-> - `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` record semantic setup evidence only.
-> - `Dependencies.csv` and `_DEPENDENCIES.md` record information-flow dependencies.
-> - `_run_records/*` record setup sequence evidence.
->
-### CLM-015 — Acceptance Criteria For This Setup Session
-
-> ##### Acceptance Criteria For This Setup Session
->
-> Current deliverable obligation: implement report generation with model input summary, load cases, results, warnings, and rule-pack references. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> - No file outside `execution/PKG-08/DEL-08-01/` is edited.
-> - No renderer source, external report template, test, schema, or repo-level artifact is modified.
-> - Setup artifacts are source-grounded to local governance, decomposition, register, and context files.
-> - No protected standards content or certification/compliance claim is introduced.
-> - `_STATUS.md` reports `SEMANTIC_READY` only after the four-document kit, semantic artifacts, dependency register, and validation checks are complete.
-- **AC-001** — The contract preserves report content and status boundaries, explicit missing-data and diagnostic findings, units and provenance, safe rule-pack metadata, protected-content limits, reproducibility requirements, and competent-human-review notices without inventing unresolved renderer or schema choices.
+- **AC-001** — For an invented solved model on each route, with and without a rule-check run, the report contains each item of REQ-001 and REQ-002 that the model and run record, states "not recorded" for each item they do not, and marks a hydrostatic test case as a test case. Verify with VER-001.
+- **AC-002** — Every rendered report, in each context, on each route and under each composition, has the frame and the eight governed sections in order in both the HTML and the PDF, and its notice equals the PRD §19.3 text. Verify with VER-002.
+- **AC-003** — A report for each analysis status shows the states of REQ-005 as distinct states in the registry's display forms. No report text states or implies a claim PRD §21.2 prohibits. A report of a run with a private rule pack shows the fields of REQ-008 and nothing else of the pack. Verify with VER-003.
+- **AC-004** — Every diagnostic of the bound result appears with its class, and every value shown equals the bound result's value under the stated display rule, with its unit. The megapascal display of a pascal value is its exact decimal shift before rounding. Verify with VER-004.
+- **AC-005** — Rendering the same input twice gives byte-identical HTML and PDF. The hash the print view names equals SHA-256 of the canonical HTML as computed outside the product. The HTML loads with scripts and network disabled and requests no resource. The text extracted from the PDF by a reader that is not the product has the same sections, values and notice as the HTML. Verify with VER-005.
+- **AC-006** — Each condition of REQ-014 blocks the report with a reason naming it, and a blocked report cannot be saved, printed or packaged. A report holding private project data is blocked under the public context, renders with the local-private notice under local-private intent, and is refused without that intent. A result of any identity outside REQ-016 is refused by name. Verify with VER-006.
+- **AC-007** — For every composition over the catalogue, the required content of REQ-011 is present; each shown value is a bound row or a projection of the bound model; the row count, the per-subsection statements and the composition table are as stated; each refusal of REQ-011 is given by name; and a report with no composition equals the uncomposed report byte for byte in HTML and PDF. A composition applied after a re-solve whose cases no longer occur is refused, not applied as an empty filter. Verify with VER-007.
+- **AC-008** — A saved package holds exactly its members, each with a manifest hash that recomputes from the member; assembling it twice gives identical bytes; a change to any member, or a disagreement between members, is refused by the producer and by the reader with a named reason; a package of another version is refused by name with nothing else read; and a blocked report yields no saved package. Verify with VER-008.
+- **AC-009** — An exact-route report is rendered only when the native source binding holds: a substituted, partial or absent result or model text, a result no longer held, and an ineligible standing each refuse. A rendered exact-route report carries the exact block, a standing line that names any integrity warning in its diagnostics, one stress maximum per section basis, and a reviewed statement for each producer limitation; a producer limitation absent from the table refuses the report. Verify with VER-009.
+- **AC-010** — A user-released package is saved only after the explicit selection and statement. Its record is bound to the model hash and result identity and appears in the report and the manifest; its notice is present and the local-private notice absent. It holds no rule-pack value, library value or provenance record text. A rule-pack reference, a rule outcome and a library reference of the released model each appear in it as safe metadata, and a comparison appears with its state, run and handoff sections. A request that differs from its native derivation in any member, a result not produced by this session's solve for that model, an object carrying a private class other than the user's project data, and a record presented with a different model or result are each refused by name, as is every producer entry other than the desktop's native admission. No product text, identifier or record of a user release uses "release" alone, or any word that reads as issue, approval or acceptance. After a user-released save the session, project and model are unchanged and the next report is local private. Verify with VER-010.
+- **AC-011** — In the desktop, for an invented model solved on each route, a user renders, saves, prints and packages a report, and saves a user-released package, and each output carries the §19.3 notice and reproduces its canonical hash. A report prepared for a result that is replaced before the save completes is not saved. Verify with VER-011.
+- **AC-012** — The public report template and every public example contain none of the content REQ-003 names. Verify with VER-012.
+- **AC-013** — A section contributed by another deliverable appears under a governed section in both emissions, carries no boundary wording outside the registry, shows a library reference without library values, and is blocked by the same gates as the rest of the report. Verify with VER-013.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-016 — Procedure: DEL-08-01 Calculation report generator
+Choices that define the product:
 
-> #### Procedure: DEL-08-01 Calculation report generator
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- One assembled section model feeds every emission, and every route renders through it. Nothing reaches a report by another path.
+- The renderer composes what must not be forged: the standing line, the notices, the row count. Inputs carry data, not statements about themselves.
+- Selection, never supply. A composition or a view chooses among bound rows; every boundary that holds the bound result re-derives what the report shows and requires equality.
+- Fail closed. An unknown section, an unreviewed limitation, an unbound value or an unresolved disposition refuses the report; none is rendered with a warning in its place.
+- Where the same derivation exists in more than one language, the implementations are held equal on shared vectors.
+- The package is an artifact format. Saving one records no acceptance and no issue of the work.
 
-### CLM-018 — Purpose
-
-> ##### Purpose
->
-> Current deliverable obligation: implement report generation with model input summary, load cases, results, warnings, and rule-pack references. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> This procedure records the setup and future implementation workflow for the calculation report generator deliverable. It does not implement renderer code.
->
-> Current implementation (at `62c1efd75b`): the renderer code is `core/reporting/report_renderer/src/lib.rs`; CLM-006 records the current desktop route.
->
-### CLM-019 — Prerequisites
-
-> ##### Prerequisites
->
-> Current deliverable obligation: implement report generation with model input summary, load cases, results, warnings, and rule-pack references. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> | Prerequisite | Status |
-> |---|---|
-> | Sealed deliverable scope for DEL-08-01 | Present in `_CONTEXT.md` and user brief. |
-> | Scope item and objective mapping | Present: SOW-024 and OBJ-007. |
-> | Applicable invariants | Present in `docs/CONTRACT.md` and user brief. |
-> | Architecture basis injection | Present in `_CONTEXT.md` with AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, AB-00-08. |
-> | Renderer/template/test/schema implementation authority | Not present in the original setup session; future sealed brief required. |
->
-### CLM-020 — Steps
-
-> ##### Steps
->
-
-### CLM-021 — Setup sequence completed in this session
-
-> ###### Setup sequence completed in this session
->
-> 1. Run `four-documents` with `RUN_PASSES=P1_P2`.
-> 2. Run `semantic-matrix-build`.
-> 3. Run `lens-register`.
-> 4. Run `four-documents` with `RUN_PASSES=P3_ONLY`.
-> 5. Run `dependency-extract`.
-> 6. Validate the resulting setup files and dependency schema.
-> 7. Set `_STATUS.md` to `SEMANTIC_READY` only after the setup gates pass.
->
-
-### CLM-022 — Future implementation sequence
-
-> ###### Future implementation sequence
->
-> 1. Confirm a sealed implementation brief for DEL-08-01 or a split deliverable if scope expands.
-> 2. Read the current report/result/rule-pack schemas and application-service result envelopes.
-> 3. Define report input contract without bypassing units, provenance, diagnostics, or private-data controls.
-> 4. Implement report assembly with safe placeholders and metadata-only rule-pack references.
-> 5. Add report fixtures for mechanics-only, user-rule-check, incomplete-rule-input, warning-heavy, and protected-content-risk cases.
-> 6. Add reproducibility tests for deterministic report output and manifest/hash binding.
-> 7. Add protected-content and prohibited-claim gates for public templates/examples.
-> 8. Route to REVIEW with explicit evidence: fixtures, tests, lint output, dependency register, and limitations.
->
-
-### CLM-023 — Verification
-
-> ##### Verification
->
-> Setup verification for this session:
->
-> - `python3 tools/scope_of_work/validate_scope_of_work.py <DELIVERABLE_PATH>/ScopeOfWork.md` passes.
-> - `tools/validation/check_min_viable_fileset.sh <deliverable>` passes.
-> - `python3 tools/validation/validate_dependencies_schema.py <deliverable>/Dependencies.csv` passes.
-> - Dependency enum validation passes for all enum fields in ACTIVE rows.
-> - `_SEMANTIC.md` final result tables contain no algebra/operator leaks and no final cell over 80 characters.
-> - `_SEMANTIC_LENSING.md` includes complete lens coverage for matrices A, B, C, F, D, X, and E.
-> - `rg` checks do not identify prohibited certification or protected-standards claims in DEL-08-01 artifacts.
->
-### CLM-024 — Records
-
-> ##### Records
->
-> Required records for this setup session:
->
-> - `_run_records/TASK_RUN_2026-04-30_1200_four-documents-p1-p2.md`
-> - `_run_records/TASK_RUN_2026-04-30_1205_semantic-matrix-build.md`
-> - `_run_records/TASK_RUN_2026-04-30_1210_lens-register.md`
-> - `_run_records/TASK_RUN_2026-04-30_1215_four-documents-p3.md`
-> - `_run_records/TASK_RUN_2026-04-30_1220_dependency-extract.md`
->
-> Future implementation records should include source slices used, tests run, report fixture outputs, protected-content scans, reproducibility checks, and open issues.
-
-- **VER-001** — Validate the contract and review source parity, report-content completeness, mechanics and rule-check state separation, unit/provenance visibility, protected-content and professional-authority boundaries, deterministic-output requirements, and every retained TBD or governed residual.
+- **VER-001** — Executable check (observes the items of REQ-001 and REQ-002 in reports of invented models on each route against a list written from PRD §19.2, the "not recorded" statements, and the test-case mark).
+- **VER-002** — Comparison with a named reference (the notice text of PRD §19.3) with an executable check (observes the frame and section order in the HTML and in the PDF's text across contexts, routes and compositions).
+- **VER-003** — Executable check (observes status display for each status, the rule-pack fields shown for a private pack seeded with marker content, and the claims-language check over rendered text).
+- **VER-004** — Executable check (compares each displayed value and diagnostic with the bound result document; checks the megapascal display against the decimal shift computed independently in exact arithmetic). The comparison with the bound result shows the report carries the result unchanged; it does not show the result is right.
+- **VER-005** — Executable check (renders twice and compares bytes; computes SHA-256 of the HTML with a tool that is not the product; loads the HTML in a browser with scripts and network disabled; extracts the PDF's text with a PDF reader that is not the product and compares it with the HTML's).
+- **VER-006** — Executable check (observes the block and its reason for each condition, the refusal of each sink for a blocked report, the three context outcomes for a private input, and the named refusal of each result identity outside REQ-016).
+- **VER-007** — Executable check (observes required content, bound values, disclosures and refusals over compositions drawn from the whole catalogue, the byte equality of the uncomposed report, and the stale-case refusal).
+- **VER-008** — Executable check (recomputes each member hash with an implementation that imports no product code; assembles twice; mutates each member and each agreement in turn and observes the producer's and the reader's refusals; presents other versions; attempts to save a blocked package).
+- **VER-009** — Executable check (observes the native host's refusal for each broken binding and the rendered exact block, standing line, headlines and limitations for invented exact-route results of each shape, including one with an integrity warning and one with an unregistered producer limitation).
+- **VER-010** — Executable check (observes the selection, record, notice and package contents of a user-released save, for models with and without rule-pack references, rule outcomes, library references and a comparison, each seeded with private marker values; each refusal of REQ-019; the reach of every producer entry; and the unchanged session, project and model afterwards) and judgment by a reviewer who did not write the change (reads the notice, dialog text, identifiers and record against the naming rule of REQ-019 and the registry).
+- **VER-011** — Executable check (drives the desktop through render, save, print, package and user-released package for an invented model on each route, recomputes the canonical hash outside the product, and observes the retired save when the result changes during preparation).
+- **VER-012** — Executable check (runs the protected-content linter over the public template and examples) and judgment by a reviewer who did not write them. The linter is heuristic; the reading decides.
+- **VER-013** — Executable check (renders a report with an invented contributed section and observes its place, its wording against the registry, its library reference fields, and the gates applied to it).
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-025 — Guidance: DEL-08-01 Calculation report generator
-
-> #### Guidance: DEL-08-01 Calculation report generator
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-027 — Purpose
-
-> ##### Purpose
->
-> The calculation report generator exists to make analysis outputs reviewable and reproducible without converting software output into professional approval. It should help a competent reviewer see what was analyzed, what data was supplied, what assumptions or gaps remain, what warnings were raised, what rule-pack metadata was used, and what limitations apply.
->
-
-### CLM-028 — Principles
-
-> ##### Principles
->
-> | Principle | Guidance |
-> |---|---|
-> | Auditability first | Report content should be traceable to model inputs, result envelopes, diagnostics, provenance records, report settings, and rule-pack references. |
-> | Boundary clarity | The report should separate mechanics solve output, user-rule-check output, incomplete inputs, and human review. |
-> | No protected content | Public report templates and examples should contain placeholders, invented values, or safe metadata, not protected code text/tables/formulas. |
-> | No professional overclaim | Report language should say what the software computed and what data was supplied; acceptance and professional judgment remain with the responsible engineer. |
-> | Unit visibility | Unit-bearing values should display units and keep dimensional context visible. |
-> | Reproducibility | Reports should bind to versions, hashes, manifests, warnings, and rule-pack checksums so reviewers can reproduce or compare results. |
-> | Local-first privacy | Private project/rule/material/component data should remain user-controlled unless intentionally exported with documented rights. |
->
-
-### CLM-029 — Considerations
-
-> ##### Considerations
->
-> Current deliverable obligation: implement report generation with model input summary, load cases, results, warnings, and rule-pack references. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> The report generator will depend on upstream model/result/rule-pack envelopes that are not implemented in the original setup session. Where the current source set does not provide exact field names, template structure, renderer API, or output format, those details remain `TBD` for future sealed implementation briefs.
->
-> The report generator should be conservative about rule-pack content. A report can identify a rule pack, version, checksum, required-input state, source notice, redistribution status, and user-provided notice. It should not copy protected rule text or proprietary formulas into public templates/examples.
->
-> The report generator should expose warnings as findings, not as decoration. Missing solve-required values, rule-check-required values, weak provenance, assumptions, nonlinear uncertainty, and IP-boundary concerns should be report-visible when present in the input envelopes.
->
-### CLM-030 — Trade-offs
-
-> ##### Trade-offs
->
-> | Topic | Conservative direction |
-> |---|---|
-> | Human-readable PDF/HTML vs structured output | DEC-021 selects deterministic self-contained scriptless HTML and a derived print view; DEC-061 adds an in-repository deterministic PDF emitter at its bounded scope. Resolve report assembly and field contracts through `core/reporting/report_generator/`, `core/reporting/report_sections/`, and their schemas. These are implementation references, not new public transport or release acceptance. |
-> | Rich template language vs protected-content control | Prefer constrained placeholders and safe metadata over a template model that encourages copying protected code text into public examples. |
-> | User-private templates vs public templates | User-private templates may contain user-owned content under user responsibility; public templates must stay protected-content-free. |
-> | Completion language vs professional boundary | Use "generated", "computed", "reported", "checked by user rule pack" and "human review required"; avoid compliance/certification language. |
->
-
-### CLM-031 — Examples
-
-> ##### Examples
->
-> Safe report section labels may include:
->
-> - Model input summary
-> - Source and provenance summary
-> - Load case and combination summary
-> - Result summary
-> - Warnings and missing data
-> - Assumptions and limitations
-> - Rule-pack references and checksums
-> - Reproducibility manifest
-> - Professional review notice
->
-> These labels are illustrative only and do not define a renderer template in this setup session.
->
-
-### CLM-032 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> No source conflicts were identified in the local reference set for this setup run.
->
-> | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | None | None identified | N/A | N/A | N/A | N/A | N/A |
->
-
-### CLM-033 — Open Questions
-
-> ##### Open Questions
->
-> | ID | Question | Current disposition |
-> |---|---|---|
-> | OQ-08-01-001 | Exact renderer library, file format, and report template language. | DEC-021 selects deterministic self-contained scriptless HTML and a derived print view; DEC-061 adds an in-repository deterministic PDF emitter at its bounded scope. Resolve report assembly and field contracts through `core/reporting/report_generator/`, `core/reporting/report_sections/`, and their schemas. These are implementation references, not new public transport or release acceptance. |
-> | OQ-08-01-002 | Exact report schema fields and result-envelope field names. | The report field contract is recorded in `schemas/report_generator.schema.yaml` and `core/reporting/report_generator/src/lib.rs`; resolve the current contract there rather than retaining a global field-name TBD. |
-> | OQ-08-01-003 | Redaction/export configuration for private project data in shared reports. | PKG-12 contract and current bindings are documented in `docs/security/redaction_export_controls.md` §§Application Binding and Final-Sink Route Binding. Preserve route-specific controlled output, explicit intent, source non-mutation and fail-closed behavior; this does not supply legal/privacy acceptance. |
-> | OQ-08-01-004 | Human approval workflow and acceptance-record binding to report hashes. | TBD; outside software authority unless human governance defines a record process. |
-> | OQ-08-01-005 | Local-private notice on the headless route. | Open. The renderer adds its local-private notice only when the input's `report_context.export_context` is `local_private` (`core/reporting/report_renderer/src/lib.rs`, `local_private_notice_text`). The headless `export-results --explicit-local-private-intent` route does not set that context from its own flag, so an input without `report_context` renders without the notice. The desktop render always supplies it (PR #1553). The notice is a label: the redaction envelope's `warning_only` findings remain the record. |
+- **AX-001** — *A reviewer can check it.* Better is a report from which a reviewer can re-identify and recompute more of what it states: more identities, hashes and sources, fewer statements that rest on the report's own say-so. That is never gained by copying private or protected content into the report.
+- **AX-002** — *Nothing required can be composed away.* Better is a report shaped more closely to what its reader needs. No composition, context or route may remove, reorder or outrank the frame, a governed section, a warning or the notice, and a view may never compute a number.
+- **AX-003** — *Refuse rather than render in doubt.* Better is fewer reports that leave the application with an unbound value, an unreviewed statement or an unresolved disposition; the target is none. A warning in place of a refusal is not an improvement.
+- **AX-004** — *The user's statement stays the user's.* Better is a shareable report that is easier for the user to produce. It is never made easier by the software inferring, remembering or widening a release, and no record or wording lets a user release read as approval, issue or acceptance of the work.
+- **AX-005** — *The same bytes again.* Better is fewer inputs that can change a report's bytes without changing its content. Determinism is never traded for a convenience such as an embedded time or a generated identifier.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-024 OBJ-007 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-08-01:1** — The .opsproj container versioning policy is closed by the owner (2026-10-10, DEC-028: "Close: one version"): its reader accepts only the current package version and refuses older versions by name, with no migration. The reader implements and tests that rule (`read_report_package_container`, `core/reporting/report_package/src/reader.rs` and `tests/reader.rs`; see also DEL-02-05 REQ-02-05-021) (source: TP-E3-CONTAINER-001 residuals)
+| OUT-001 | SOW-024 OBJ-007 | REQ-001, REQ-002, REQ-021 | AC-001 | VER-001 | What a report must state comes from SOW-024 and PRD §19.2, and the test-case mark from the release target's hydrotest ruling, owner rulings. The expected list is written from the PRD, not from a previous report. |
+| OUT-001 | SOW-024 OBJ-007 | REQ-012, REQ-013 | AC-002 | VER-002 | Outside source: the notice is compared with the text of PRD §19.3, which the product did not write. The section order is this scope's own definition. |
+| OUT-001 | SOW-024 OBJ-007 | REQ-004, REQ-005, REQ-008 | AC-003 | VER-003 | The prohibited claims come from PRD §21.2 and the display forms from `docs/claims_registry.md`, owner rulings; the private pack's marker content is planted by the check. |
+| OUT-001 | SOW-024 OBJ-007 | REQ-006, REQ-007, REQ-009 | AC-004 | VER-004 | Agreement with the bound result document rests on the product's own output and guards only that the report carries the result unchanged; the result's correctness is its producers' criterion. The megapascal step is a decimal shift, a closed form. |
+| OUT-001 | SOW-024 OBJ-007 | REQ-010, REQ-013 | AC-005 | VER-005 | The criterion determines byte equality. The canonical hash is recomputed by a SHA-256 tool that is not the product, and the PDF is read by a PDF reader that is not the product. |
+| OUT-001 | SOW-024 OBJ-007 | REQ-014, REQ-015, REQ-016, CLM-002 | AC-006 | VER-006 | The blocking conditions come from PRD §19.4 and §20.3 and DEL-12-02's export controls, and the admitted identities from the owner's ruling opening reports to exact-route results; each condition is seeded in an invented input. |
+| OUT-002 | SOW-024 OBJ-007 | REQ-011 | AC-007 | VER-007 | The required content comes from PRD §19.2 and §19.3 and the composition rules from the composer design adopted under the owner's delegation. Bound values are compared with the bound result, which guards agreement only; byte equality of the uncomposed report is against the product's own earlier output and guards against change. |
+| OUT-003 | SOW-024 OBJ-007 | REQ-018, CLM-002 | AC-008 | VER-008 | Owner rulings DEC-028 and DEC-057 fix the form and the one-version rule. Member hashes are recomputed by an implementation that imports no product code; each refusal is provoked by a mutation the check makes. |
+| OUT-001 | SOW-024 OBJ-007 | REQ-017 | AC-009 | VER-009 | Owner rulings on exact-route reports fix the binding, the standing line's behaviour and the reviewed statement table. The standing itself is the product reader's verdict, whose correctness is DEL-04-08's criterion; this criterion claims only that the report states that verdict and refuses without it. |
+| OUT-004 | SOW-024 OBJ-007 | REQ-019, CLM-003 | AC-010 | VER-010 | Owner rulings on user release fix the selection, record, notice, content, refusals and naming rule. Each refusal is provoked by the check, the private marker values are planted by it, and the wording is read by someone who did not write it. |
+| OUT-005 | SOW-024 OBJ-007 | REQ-022 | AC-011 | VER-011 | Release target exit criterion 4 says what a user must be able to do. The canonical hash is recomputed by a SHA-256 tool that is not the product. |
+| OUT-001 | SOW-024 OBJ-007 | REQ-003 | AC-012 | VER-012 | The prohibited content comes from PRD §19.4 and FR-REP-005, owner rulings. The ground is the reading by someone who did not write the template; the linter is heuristic. |
+| OUT-001 | SOW-024 OBJ-007 | REQ-020, CLM-001 | AC-013 | VER-013 | The section contract is this scope's own definition, drawn from PRD §19.1 and §19.2; the registered wording comes from `docs/claims_registry.md`. The contributed section is invented for the check. |

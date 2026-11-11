@@ -2,544 +2,146 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-02-01
 package_id: PKG-02
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-041, SOW-065]
 package_objective_refs: [OBJ-001, OBJ-012, OBJ-014]
 ---
 
-# Scope of Work — DEL-02-01
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
-
-
-**Scope placement.** Owner ruling, 2026-10-23 ("I approve OD-1 through OD-5 as you recommended."; `docs/COMPLETENESS_MAP.md` §4.2), OD-4: the desktop model document (`openpipestress.product_preview.model`) is canonical, and `schemas/model.schema.yaml` is to be updated to describe it. This records the ruling; the clauses below are unchanged.
+# Scope of Work — DEL-02-01 Canonical domain model schema
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-02-01` in service of project scope [SOW-041, SOW-065] and package objectives [OBJ-001, OBJ-012, OBJ-014].
+There is one model document, and it says what the piping model is. Every tool that edits, solves, stores, exports or reports a model reads and writes that same typed, versioned document, so no entity or value exists only in a screen, an agent message or a format of its own. A person can inspect the document, a reader can refuse it by name, and two tools given the same document mean the same model.
 
-- **OUT-001** — A canonical domain-model schema contract covering project, physical and analytical models, materials, components, loads, results, reports, assumptions, traceability, and source-of-truth references is produced for the declared scope and objectives.
+It serves SOW-041 and SOW-065 under OBJ-001, OBJ-012 and OBJ-014 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-02, row DEL-02-01), and PRD §5.2 (the schema-backed physical model is the source of truth), §8.2, §5.5 (no silent engineering defaults), §11.1 FR-MOD-001 to FR-MOD-006 and §20.1 to §20.2. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names it. It supports criterion 1, since every required analysis is solved from one model document, and criterion 6, since an import returns the same entity identities.
+
+- **OUT-001** — The model document format: its schema, its one current version, the document validator, and the format rules every reader and writer follows.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-02-01 Canonical domain model schema
+**Terms the format implements.**
 
-> #### Datasheet: DEL-02-01 Canonical domain model schema
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *Model document.* The JSON document of kind `openpipestress.product_preview.model` that the desktop opens, edits and saves and the solver reads. The desktop's model document is the canonical model (owner ruling OD-4, `docs/COMPLETENESS_MAP.md` §4.2). `schemas/model.schema.yaml` describes it.
+- *Current version.* The model document has one current version, 0.9.0. A change to what a document can contain, including a new optional member, is a version step of at least the minor level (DEC-033).
+- *Format and desktop profile.* The format is what every reader requires: version, kind, project, analysis status, nodes, pipe segments and supports. The desktop profile is the format plus the members the desktop requires to open and save a document. A headless solve request needs only the format.
+- *Identifier.* A non-blank string that names one record of a family. Records refer to each other by identifier.
+- *Quantity.* A value with its entered unit, `{value, unit}`. Node coordinates alone are bare numbers in the project's length unit. Coordinates and directions are in one implicit global right-handed Cartesian frame; the document declares no other coordinate system.
+- *Closed record.* A record that admits only the members the schema names.
+- *Solve input and unread member.* A solve input is a member some solve reads. An unread member is model data no solve reads: tags, notes, lines, unresolved assumptions, constraints, equipment interfaces, rule-pack references and provenance records.
+- *Document validator.* The one check of the unread members' rules. A blocking finding refuses the document or the operation that would produce it; a warning names a condition and never blocks. A quarantined disposition is a provenance record or rule-pack reference whose redistribution status says protected content is suspected or whose review status is quarantined, the dispositions the library import quarantines (DEL-03-07).
+- *Model hash.* The SHA-256 of the document's RFC 8785 canonical text. It is computed, never stored in the document.
 
-### CLM-003 — Identification
+### CLM-006 — What the document contains
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-02-01 |
-> | Package ID | PKG-02 |
-> | Package | Domain Model, Units, and Core Schemas |
-> | Type | DATA_MODEL_CHANGE |
-> | Scope item | SOW-041 |
-> | Deliverable objective | OBJ-001 |
-> | Primary artifact target | `schemas/model.schema.yaml` |
-> | Secondary artifact target | `docs/TYPES.md` update |
-> | Current drafting basis | `_CONTEXT.md` accepted authority (see the decision register); `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) |
-> | Source posture | Public governance/register sources only; no protected standards/code data introduced |
->
+- **Root:** the version, the document kind and the data-boundary statement. No migration or compatibility status is stored.
+- **Project:** identity, name, the project units, rule-pack references, model settings, tags and notes.
+- **Model objects:** nodes with coordinates; pipe segments (the elements) with their end nodes, material, section and operating-condition set; sections; materials; components; supports, whose restraints express the restrained degrees of freedom, with an optional direction on a single translational restraint and the snubber family; load cases with their loads, condition use and test condition; combinations, including difference bases, the absolute-sum and SRSS bases and combinations that take earlier combinations as operands; operating-condition sets with keyed conditions; response spectra; the pressure contract; and the load and reference-state group, defined in `schemas/load_reference_state.schema.json`.
+- **Model data no solve reads:** typed lines, constraints and equipment interfaces as records without evaluation; unresolved assumptions and open issues; tags and notes; provenance strings and structured provenance records.
+- **Diagnostics** carried by the document, and the professional-boundary statement.
+- **Referenced, not carried:** Result and Report records are named by reference to the result and report schemas. Results, input manifests, run and report records, storage policy and report settings belong to their own formats.
 
-### CLM-004 — Attributes
+**Boundary.** This deliverable owns what a document may contain and whether a given document is well formed. It owns no meaning beyond that:
 
-> ##### Attributes
->
-> | Attribute | Value | Source |
-> |---|---|---|
-> | Schema baseline | JSON Schema 2020-12 | `docs/_Registers/ScopeLedger.csv` row SOW-041; `docs/_Registers/ContextBudgetQA.csv` row DEL-02-01; `execution/_Decomposition/SOFTWARE_DECOMP.md` Section 8.2 |
-> | Canonical object families in scope | Project, Model, Node, Element, Material, Component, Load/LoadCase, Result, Report | `_CONTEXT.md` Description; `docs/SPEC.md` Section 3; `docs/DIRECTIVE.md` Section 2.1 |
-> | Adjacent referenced object families | Section, Support/Restraint, Combination, RulePack references | `docs/SPEC.md` Sections 3, 5, and 6; `docs/PRD.md` Sections 11.6, 12.2, and 13.2 |
-> | Required cross-cutting fields | Stable identity, units where values are dimensional, provenance where engineering reliance may be affected | `docs/DIRECTIVE.md` Section 2.1; `docs/PRD.md` FR-002 and Section 13.5; `docs/CONTRACT.md` OPS-K-DATA-3 and OPS-K-UNIT-1 |
-> | Result and diagnostic data | Result/report records must preserve warnings, assumptions, diagnostics, provenance, and no certification/compliance claims | `docs/SPEC.md` Sections 7 and 8; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06; `docs/CONTRACT.md` OPS-K-AUTH-1 |
-> | Persistence compatibility | Schema-governed, versioned, deterministic, unit-aware, provenance-preserving, round-trip testable JSON payloads; JCS-compatible hash basis where JSON payloads are hashed | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04 and Section 8.2 |
-> | Public/private data boundary | Public schemas may describe user/private data fields, but must not bundle protected standards text, tables, formulas, allowables, proprietary catalogs, or private user data | `docs/CONTRACT.md` OPS-K-IP-1; `docs/IP_AND_DATA_BOUNDARY.md` Sections 2 and 3; `docs/PRD.md` Sections 17.1 and 17.3 |
->
-
-### CLM-005 — Conditions
-
-> ##### Conditions
->
-> - The deliverable covers the canonical model schema contract only. It does not implement numerical solving, GUI views, rule evaluation, import/export adapters, report rendering, or library population. Source: `_CONTEXT.md` Package Exclusions; `execution/_Decomposition/SOFTWARE_DECOMP.md` PKG-02 row.
-> - The schema must support a code-neutral model: mechanics data and user-owned rule/code data are separable, and software states must not imply automatic code compliance. Source: `docs/TYPES.md` Sections 4 and 6; `docs/DIRECTIVE.md` Sections 2.2 and 3.
-> - Missing solve-required or rule-check-required values are explicit findings, not silent defaults. Source: `docs/CONTRACT.md` OPS-K-DATA-2; `docs/SPEC.md` Section 7.
-> - ASSUMPTION: DEL-02-01 may define lightweight references or common definitions for sections, supports, combinations, and rule-pack references when required by the canonical model, but detailed material/component library semantics remain in PKG-03 and rule-pack internals remain in PKG-06.
-> - The current schema layout and `$id` are carried by `schemas/model.schema.yaml`; fixture organization belongs to bound implementation evidence. Unselected code-generation tooling remains an implementation choice under DEC-012; this does not freeze new public vocabulary.
-> - Physical storage, packaging and migration remain outside this deliverable; their accepted decisions are DEC-017/019/028/033. Source: `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04 and Section 8.2.
->
-
-### CLM-006 — Construction
-
-> ##### Construction
->
-> The expected schema construction is a public JSON Schema 2020-12 contract with reusable definitions for:
->
-> - document/root metadata: schema version, document identity (`document_kind`, which also identifies the application) and the data-boundary statement; provenance is carried per record; no migration or compatibility status is persisted, because one model-document version is current (DEL-02-05 CLM-003);
-> - project/model containers: units, rule-pack references and model object collections; the coordinate system is the implicit global frame stated by the schema, storage policy belongs to the local project store (DEL-02-05), and report settings belong to the report package;
-> - model objects: node coordinates; pipe-segment endpoints and material/section references; sections, materials, components and supports (degrees of freedom are expressed by support restraints); loads, load cases and combinations; operating-condition sets, assigned per pipe segment and used by load cases (model document 0.9.0); lines, constraints and equipment interfaces as typed records without evaluation; and unresolved assumptions and open issues;
-> - engineering data records: unit-bearing quantities, provenance strings and structured provenance records with redistribution status and review status (source quality is recorded as review status and verification note), tags and notes;
-> - warnings/diagnostics carried by the model document and its professional-boundary statement; result envelopes, input manifests and report records belong to the result, analysis-run and report formats, and model hashes are computed over the canonical document (RFC 8785 JCS) rather than stored in it;
-> - validation fixtures: invented or public/permissive examples only, with protected-content and provenance checks.
->
-> The construction above defines the durable schema obligations. The current schema carrier is `schemas/model.schema.yaml`; its existence is implementation evidence, while coverage and acceptance require the applicable verification and review records.
->
-> Owner, 2026-10-23: "CLM‑006/CLM‑012, option A as recommended." (W-13 Design §7.2.)
->
-> Current implementation (S1a and S1b, 2026-10-23, W-15 slice c, and the 0.9.0 step; Design `Work/model-document-0.7.0.md` §2-§4, `Work/model-document-0.8.0.md` and `Work/model-document-0.9.0.md`): `schemas/model.schema.yaml` describes the desktop's model document, `document_kind` `openpipestress.product_preview.model` at version `0.9.0` (owner OD-4, 2026-10-23: the desktop's model document is canonical; the desktop open/save and mechanics solve paths refuse 0.8.0 and older by name). 0.9.0 adds the optional `condition_sets`, a pipe segment's `condition_set_ref`, a load case's `condition_use`, a single-DOF support's `direction` and a result-state subtraction's `difference_basis` (Design `model-document-0.9.0.md` §1-§2), and the members joined before S1: `subtrahend_support_state`, the `absolute_sum` and `srss` bases, a combination term's `combination` operand, a load case's `test_condition`, the `snubber` support family and top-level `spectra` (§2.4); each is refused by name at solve until its slice lands (§3.8). S2 (Design §1.5, §1.5.1): on the pressure-free route a case's `condition_use` of `temperature`, `added_weight` and `wind_exposure` resolves into ordinary per-case records (`core/product_physics/src/operating_conditions/resolution.rs`, with the exact temperature difference's rounding step in `case_state/temperature/canonical_decimal.rs`), checked against the independent references `validation/references/rt_g5_s2_conditions/`; `contents_density`, a `pressure` use and every use on the exact route stay refused by name. 0.8.0 adds the reducer's optional `geometry.eccentric_offset` (DEL-03-05 Design `eccentric-reducer-offset.md`) and the optional `model_settings.shear_model` (Design `model-document-0.8.0.md` §1.1). 0.7.0 adds optional slots that no solve reads: `tags` and `notes` on the project, nodes, pipe segments, sections, materials, supports, components, load cases and combinations; typed `lines`; `unresolved_assumptions` (assumptions and open issues); `rule_pack_refs` (identity and stamped checksum); `provenance_record` with `library_ref` on materials, sections, components and supports; and `constraints` and `equipment_interfaces` as records without evaluation. `fixtures/model_document/invented_annotated_model.json` carries every slot and solves exactly as the same document without them (`core/product_physics/tests/annotated_model_document_solve.rs`). Its root is the format the Rust reader decodes (`PreviewModelWire` in `core/product_physics/src/lib.rs`; version rule in `core/product_physics/src/model_format.rs`) and requires what that wire form requires; it describes every member a reader decodes or a writer emits, and every record is closed. `$defs/DesktopDocument` is the desktop's open and save profile: the format plus the members `apps/desktop/src/features/model-file/modelDocumentShape.ts` requires. The load/reference-state group refers to `schemas/load_reference_state.schema.json`. The document's frame is the implicit global Cartesian frame. The product still validates no document against the schema at run time; `tests/test_model_document_schema.py` validates every committed model document by rule, including the bundled demo `fixtures/product_preview/invented_demo_model.json` against both the format and the desktop profile. The headless transform's older project/model shape moved to `schemas/physical_transform_model.schema.yaml` (DEL-13-04). The headless Python persistence service (`core/project_persistence/service.py`) records the schema's path in its envelope metadata and checks the envelope by hand; the persistence schema's `ModelPayload` delegates to the model document schema. W-13 S1b-V (Design §5.3): the one document validator, `core/model_operations/operation_applier/src/document_validator.rs` (manual Rust, no JSON Schema library), checks the Design §3 model-data slots when present (tags, notes, lines, unresolved assumptions, constraints, equipment interfaces, rule-pack references, provenance records). It refuses a malformed slot by named code and JSON path at native file open, at the webview open path (through the applier's wasm export), at project load and on every applier apply, and reports missing subjects and quarantine dispositions as non-blocking warnings; it never repairs a document. W-13 S2a (Design §6): the applier authors the slots — create, update and delete of lines, assumptions, constraints and equipment interfaces and add and remove of rule-pack references (`core/model_operations/operation_applier/src/model_data_authoring.rs`), and `tags`, `notes` and `provenance_record` on each family's existing change kind, with clearing removing the member — and the validator also judges validate-only previews. The desktop authors them through the property inspector, the model tree's Lines section, the Model records tab and the Rule Pack Manager (`apps/desktop/src/features/model-data/`); its diagnostics list shows the validator's findings, project load shows its warnings, and Save Local Project refuses a document with a blocking finding. The desktop emission golden `fixtures/model_document/desktop_emitted.json` (TP-PMM-GUIEMIT-001) and the applier golden `fixtures/model_document/applier_emitted.json` are validated by `tests/test_model_document_schema.py`.
->
-
-### CLM-007 — References
-
-> ##### References
->
-> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) current authority references for deliverable identity, accepted decomposition reference, SCA-001 basis IDs, and write-scope constraints.
-> - `_REFERENCES.md` for the locally declared reference set.
-> - `_DEPENDENCIES.md` for human-owned dependency posture; no concrete upstream/downstream dependency list was declared.
-> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-02-01 for deliverable identity and artifact targets.
-> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-041 for machine-readable schema scope and JSON Schema 2020-12 baseline.
-> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) row DEL-02-01 for context-envelope and SCA-001 notes.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register), especially PKG-02, DEL-02-01, SOW-041, and AB-00-01/02/03/04/06/07/08.
-> - `docs/CONTRACT.md` for IP, data, authority, unit, report, and agent invariants.
-> - `docs/TYPES.md` for stable IDs, deliverable types, analysis-status vocabulary, epistemic labels, and provenance labels.
-> - `docs/DIRECTIVE.md` for object ontology, no-silent-defaults, code-neutrality, unit safety, provenance, and professional-boundary principles.
-> - `docs/SPEC.md` Sections 1 through 9 for layers, domain objects, loads/stress, rule-pack boundary, diagnostics, reports, and validation.
-> - `docs/PRD.md` Sections 10, 11.6 through 11.8, 12.1 through 12.2, 13.1 through 13.5, 15, 17, 18, 19.1, 22.1, and Appendix A for product requirements and schema-relevant examples.
-> - `docs/IP_AND_DATA_BOUNDARY.md` for public/private data and provenance policy.
+- Physical validity, admission and what each solve input means belong to the solve (DEL-04-07) and to each member's owner: components (PKG-03), linear supports and direction (DEL-04-03), nonlinear supports (DEL-04-04), loads, condition resolution and the test condition (DEL-05-01), combinations (DEL-05-02), the load and reference state (DEL-05-05), modal data (DEL-04-09), snubbers and spectra (DEL-04-10), and the default node-proximity tolerance (DEL-04-06).
+- The unit catalog is DEL-02-02's. The version check, the project store and round-trip persistence are DEL-02-05's. The analysis status vocabulary is DEL-02-03's.
+- The operation engine that applies changes is DEL-16-06's; this deliverable defines the change kinds that write its own model-data and model-settings members and operating-condition sets with their assignment and use. The desktop surfaces that edit them are DEL-07-02's.
+- Constraint evaluation, design-knowledge entry and candidate generation are PKG-13's and are not in v1.0. The physical-to-analytical transform and its own model shape are DEL-13-04's. State- and run-level assumptions, tags and notes are DEL-14-01's and DEL-14-02's.
+- It implements no numerical solving and no library population.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-008 — Specification: DEL-02-01 Canonical domain model schema
-
-> #### Specification: DEL-02-01 Canonical domain model schema
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-010 — Scope
-
-> ##### Scope
->
-> This specification governs the DEL-02-01 document-level contract for a canonical domain model schema in PKG-02. The deliverable defines the intended public schema boundary for project, model, node, element, material, component, load, result, and report entities. It also records constraints that the implementation of `schemas/model.schema.yaml` must satisfy.
->
-> In scope:
->
-> - canonical object families and common schema definitions required by SOW-041;
-> - JSON Schema 2020-12 as the public schema/interchange baseline;
-> - unit, provenance, diagnostics, status, reproducibility, and data-boundary requirements that apply to model-schema records;
-> - verification expectations for schema validation, examples, and round-trip behavior.
->
-> Out of scope:
->
-> - numerical solver implementation;
-> - GUI model tree/property editor behavior;
-> - detailed material/component library population;
-> - rule-pack evaluator implementation or code-specific rule content;
-> - report generator implementation;
-> - physical project-file package/container selection;
-> - claims boundary — Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
->
+The format describes structure. A document that conforms is well formed; that establishes nothing about the physical system it describes.
 
 ### CLM-011 — Requirements
 
-> ##### Requirements
->
-> | ID | Requirement | Source | Verification |
-> |---|---|---|---|
-> | REQ-02-01-01 | The public model schema shall use JSON Schema 2020-12 as its baseline unless a later human-approved architecture change supersedes SCA-001. | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) SOW-041; `execution/_Decomposition/SOFTWARE_DECOMP.md` Section 8.2 | Schema declares JSON Schema 2020-12 dialect; review verifies no conflicting schema baseline. |
-> | REQ-02-01-02 | The schema shall define or reference canonical records for Project, Model, Node, Element, Material, Component, Load/LoadCase, Result, and Report. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Description; `docs/SPEC.md` Section 3; `docs/DIRECTIVE.md` Section 2.1 | Schema coverage review maps each required family to a definition or justified reference. |
-> | REQ-02-01-03 | Addressable schema records shall carry stable identifiers and use explicit references rather than implicit positional coupling where downstream editing, solving, reporting, or audit depends on identity. | `docs/TYPES.md` Section 2; `docs/DIRECTIVE.md` Section 2.1 | Schema review verifies ID/reference fields for addressable object families. |
-> | REQ-02-01-04 | Dimensional values shall be unit-aware; missing or incompatible units shall be representable as validation findings rather than silently accepted defaults. | `docs/CONTRACT.md` OPS-K-UNIT-1 and OPS-K-DATA-2; `docs/PRD.md` FR-002; `docs/SPEC.md` Sections 7 and 9 | Schema tests reject incompatible/missing units where required; findings are explicit. |
-> | REQ-02-01-05 | Engineering-reliance data such as materials, components, allowables, SIF/flexibility inputs, loads, rule references, reports, and imported records shall carry source/provenance and redistribution/private-status metadata where applicable. | `docs/CONTRACT.md` OPS-K-DATA-3 and OPS-K-IP-2; `docs/IP_AND_DATA_BOUNDARY.md` Section 4; `docs/PRD.md` Sections 13.4 and 13.5 | Schema includes provenance/status fields or reusable definitions; protected-content review verifies no protected data is bundled. |
-> | REQ-02-01-06 | The schema shall not include protected standards text, tables, figures, copied code formulas, material allowable tables, SIF/flexibility tables, protected dimensional tables, proprietary vendor catalogs, or private user data as public defaults. | `docs/CONTRACT.md` OPS-K-IP-1 and OPS-K-IP-3; `docs/IP_AND_DATA_BOUNDARY.md` Sections 2 and 3; `docs/PRD.md` Section 17.1 | Protected-content/provenance gate scans schemas, fixtures, and examples. |
-> | REQ-02-01-07 | The schema shall preserve the distinction among mechanics-solved data, user-rule-check data, and human professional approval records; it shall not define automatic `CODE_COMPLIANT` status. | `docs/TYPES.md` Section 4; `docs/DIRECTIVE.md` Section 2.2; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-03 | Status enum review confirms allowed statuses and excludes automatic compliance statuses. |
-> | REQ-02-01-08 | Result and report-facing records shall be compatible with diagnostic/result-envelope data carrying code, class, severity, source, affected object, message, remediation, and provenance. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06; `docs/SPEC.md` Sections 7 and 8 | Schema review verifies diagnostic envelope fields or references; tests cover each warning class where applicable. |
-> | REQ-02-01-09 | Persisted JSON payloads governed by the schema shall be compatible with deterministic, versioned, migration-aware, round-trip-testable persistence and JCS-compatible hashing where JSON payload hashes are used. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04 and Section 8.2; `docs/PRD.md` FR-001 and Section 15.3 | Round-trip fixture test preserves model, units, loads, rule references, and provenance metadata; hash basis documented where used. |
-> | REQ-02-01-10 | Adapters, plugins, and import/export consumers shall not be able to bypass unit, provenance, diagnostics, validation, or public/private data-boundary constraints expressed by the schema. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-02 and AB-00-07; `docs/SPEC.md` Section 1 | API/import/export contract review confirms schema validation remains mandatory at boundaries. |
-> | REQ-02-01-11 | Public examples or fixtures associated with the schema shall use invented, public-domain, original, or permissively licensed data with provenance; code-specific examples remain private/user-supplied. | `docs/CONTRACT.md` OPS-K-RULE-1; `docs/IP_AND_DATA_BOUNDARY.md` Sections 2 and 6; `docs/PRD.md` Sections 7.5 and 17.1 | Example-data review verifies provenance labels and absence of protected/code-specific content. |
-> | REQ-02-01-12 | Schema acceptance shall include layered checks appropriate to schemas, units, provenance, protected-content boundaries, deterministic round trips, and downstream result/report compatibility. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-08; `docs/SPEC.md` Sections 9 and 11 | Test evidence or review record links each check to a schema artifact or documented deferral. |
->
+Requirement numbers 001 to 012 are those of the earlier `REQ-02-01-nn` series.
 
-### CLM-012 — Object-Family Coverage Crosswalk
+- **REQ-001** — The schema is a JSON Schema 2020-12 document in strict JSON syntax with a stable `$id`.
+- **REQ-002** — The schema defines or references a record for Project, Model, Node, Element, Material, Component, Load and LoadCase, Result and Report, and for every family in CLM-006. Lines, nodes, elements, supports, components, loads, materials, constraints and equipment interfaces are typed entities (FR-MOD-002).
+- **REQ-003** — Every addressable record has a stable identifier, and records refer to each other by identifier, never by position. An identifier persists across edits unless the user creates a new entity (FR-MOD-003).
+- **REQ-004** — Every dimensional value carries its unit, except node coordinates, which are in the project's length unit. A missing or incompatible unit is a named finding, never a default.
+- **REQ-005** — Materials, sections, components with their SIF and flexibility modifiers, supports, loads, operating-condition sets and rule-pack references can record their source. Materials, sections, components and supports can also carry a structured provenance record with the fields of PRD §20.2 and a verification note (FR-MOD-005).
+- **REQ-006** — The schema, its descriptions, and its fixtures and examples contain no protected standards text, tables, formulas, allowables, SIF or flexibility tables, protected dimensional tables, proprietary catalogue data or private user data, and supply no code value as a default.
+- **REQ-007** — The document keeps mechanics status, rule-check status and professional acceptance as separate fields and has no automatic code-compliance, certified or approved state.
+- **REQ-008** — The document's diagnostics, and the Result and Report records it references, carry a code, class, severity, source, affected object, message, remediation and provenance.
+- **REQ-009** — A document serializes deterministically, and a round trip returns equal content: model data, units, references, tags, notes and warnings (FR-MOD-001). Hashes are taken over the RFC 8785 canonical text.
+- **REQ-010** — Every path by which a document enters the product applies the same format and validator checks: file open, project load, the headless runner, every operation apply, and the native package, PCF, CAEPIPE MBF and library import boundaries. No adapter or plugin admits a document that fails them.
+- **REQ-011** — Public examples and fixtures use invented, public-domain or permissively licensed data, each with a provenance manifest. Code-specific examples stay private.
+- **REQ-012** — Conformance is examined in layers, each against its own criterion: schema, units, provenance, protected content, deterministic round trip, and Result and Report compatibility. No layer stands in for another.
+- **REQ-013** — The current version is named once per language, and production code names a model-document version only through that constant.
+- **REQ-014** — The current version carries every member of CLM-006 in one version (also cited as DEL-02-01:2 and DEL-02-01:3).
+- **REQ-015** — Nothing is defaulted or inferred. Every member beyond the format's required ones is optional and its absence means none. An authored null is refused, not read as absence. The exceptions are the members on which a null is read as absence: the label and provenance of a node and of a pipe, a section's mill tolerance, densities and insulation, a load case's modulus basis, and a support's family and nonlinear behaviour. Whether these should refuse a null too is undecided, and no other member admits one. The product writes no member the user did not author, and clearing a member removes it. Each pipe stores its own condition-set reference; inheritance along a run belongs to authoring tools, and no reader infers a set from topology.
+- **REQ-016** — A member the document carries is read with its defined meaning, or refused or withheld by name wherever a solve does not support it. It is never dropped. A case's condition use means exactly the per-case records it resolves to: a document solves as its resolved twin, except for the identities bound to the authored document, and a missing set, condition or value refuses the case by name.
+- **REQ-017** — The unread members change no solve. A document that carries them solves exactly as the same document without them, and nothing evaluates lines, constraints or equipment interfaces.
+- **REQ-018** — The schema describes exactly the persisted contract: every member any reader decodes or any writer emits. Every record is closed, except the data-boundary statement, an open map of strings, and a section's provenance, a string or an object. Every document the desktop writes satisfies the desktop profile.
+- **REQ-019** — The document validator runs wherever a document enters or changes: native file open, the webview open path, project load, and every operation apply and validate-only preview. It refuses a malformed member by a named code and its JSON path, reports a missing subject or a quarantined disposition as a warning, and never repairs, defaults or normalizes a document. A document with a blocking finding is not saved to the project store.
+- **REQ-020** — Tags and notes are allowed on the project and on every model object and model-data record, and no tag vocabulary is enforced (FR-MOD-004). Assumptions and open issues are recorded at project, line, component and support level, with a resolution note once resolved or rejected (FR-MOD-006). A reference from an assumption, constraint or equipment interface never blocks deleting the entity it names; the missing subject is a warning. A pipe belongs to at most one line. A rule-pack reference carries the pack's identity and its stamped checksum only; rule content never enters the document.
+- **REQ-021** — Model settings are an optional record of model-level settings: the node-proximity tolerance, a positive finite length in a length unit of the unit catalog, and the shear model. An absent setting takes the default its owning deliverable defines, and the default is never written into the document.
+- **REQ-022** — This deliverable's model-data and model-settings members, and operating-condition sets with their assignment and use, are created, changed and removed only through structured operations. Each operation refuses by name, changes nothing else in the document, and has an inverse that restores the prior member or its absence.
+- **REQ-023** — The physical model in the document is the source of truth for editable piping design data: geometry, components, supports, equipment interfaces, loads, constraints, provenance, unresolved assumptions and warnings. It does not replace the PKG-13 to PKG-16 contracts. The model can carry physical-to-analytical traceability and typed references to design knowledge, model operations, model states, analysis runs, comparisons, handoff packages and external-prover metadata. Whether those typed references are still intended is undecided: the owner's reading of CLM-006 places result, run and report records in their own formats.
+- **REQ-024** — The domain examples include typed `LoadRecord` fixtures that conform to their schema, covered by a provenance manifest (also cited as DEL-02-01:1). Which `LoadRecord` definition they conform to is undecided: the model schema's, or that of the physical-to-analytical transform's model shape (DEL-13-04), which the domain examples use.
 
-> ##### Object-Family Coverage Crosswalk
->
-> This crosswalk defines coverage obligations for `schemas/model.schema.yaml`. The schema exists; each family still needs traceable validation evidence. `docs/TYPES.md` supplies the canonical vocabulary; any new public vocabulary retains its governed change path.
->
-> | Family or record group | Expected schema treatment | Source basis | Pass 3 disposition |
-> |---|---|---|---|
-> | Project | Define a root/project record with stable identity, units and rule-pack references; storage/privacy posture and persistence hooks belong to the local project store (DEL-02-05), and report settings to the report package. | `_CONTEXT.md` Description; `docs/SPEC.md` Section 3; `docs/PRD.md` FR-001 and Appendix A | Required coverage. |
-> | Model | Define the model collections for nodes, pipe segments (elements), sections, materials, components, supports, loads, lines, constraints, equipment interfaces and assumptions; library records are referenced per entity (provenance_record.library_ref); results and report-facing records are referenced by schema definition (Result, Report), not carried in the document. | `docs/SPEC.md` Section 3; `docs/DIRECTIVE.md` Section 2.1 | Required coverage. |
-> | Node and Element | Define addressable records for coordinates/DOF context and analytical member connectivity, with explicit references rather than positional coupling. | `docs/SPEC.md` Sections 3 and 4.1; `docs/TYPES.md` Section 2 | Required coverage. |
-> | Material and Component | Define reusable records or references with source/provenance, redistribution/private status, and unit-bearing properties where engineering reliance may be affected. | `docs/SPEC.md` Section 3; `docs/PRD.md` Sections 13.1, 13.3, and 13.4; `docs/CONTRACT.md` OPS-K-DATA-3 | Required core records; detailed library population remains outside DEL-02-01. |
-> | Section and Support/Restraint | Define shared references or common records needed by the canonical model; keep detailed calculation behavior, library content, and nonlinear solver behavior in their owning deliverables. | `docs/SPEC.md` Sections 3 and 4.4; `docs/PRD.md` Sections 11.4 and 13.2 | Adjacent coverage required at the reference/common-record level; detailed ownership remains `TBD` where not explicit. |
-> | LoadCase, Combination, and Load umbrella | Treat `LoadCase` as primitive loading and `Combination` as algebraic combination records; treat `Load` in register prose as the umbrella for load-related schema coverage until vocabulary is frozen. | `_CONTEXT.md` Description; `docs/SPEC.md` Sections 3 and 5; `docs/PRD.md` Sections 10 and 11.6 | Required coverage with no public code-specific combination defaults. |
-> | RulePack reference | Define references, redistribution/private status, checksum/source notes, and required-input links; do not define protected rule formulas or evaluator internals here. | `docs/SPEC.md` Section 6; `docs/CONTRACT.md` OPS-K-RULE-3; `docs/PRD.md` Sections 12.1 through 12.4 | Reference-only coverage for DEL-02-01. |
-> | Result | Reference, from $defs/Result, the result-facing records defined by the results schema, compatible with mechanical outputs, warning classes, diagnostics, affected-object references, provenance, and authority/status boundaries. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-03 and AB-00-06; `docs/SPEC.md` Sections 7 and 8 | Required coverage. |
-> | Report | Reference, from $defs/Report, the report-facing records defined by the report schemas, covering input manifest, model hash/checksum references, warnings, assumptions, provenance summary, limitations, and professional-boundary notices. | `docs/SPEC.md` Section 8; `docs/PRD.md` Section 15 | Required coverage; report rendering remains outside DEL-02-01. |
->
+### Acceptance criteria
 
-### CLM-013 — Acceptance Crosswalks
-
-> ##### Acceptance Crosswalks
->
-
-### CLM-014 — Unit Applicability
-
-> ###### Unit Applicability
->
-> | Field class | Minimum acceptance evidence | Source basis |
-> |---|---|---|
-> | Coordinates, geometry, dimensions, section properties, stiffnesses, weights, pressures, temperatures, and imposed displacements/rotations | Schema fields carry units or explicit unit references; missing/incompatible units can be reported as validation findings. | `docs/CONTRACT.md` OPS-K-UNIT-1; `docs/PRD.md` FR-002; `docs/SPEC.md` Sections 3, 5, and 9 |
-> | Loads, load cases, combinations, results, reactions, forces, moments, and stresses | Unit context is preserved through input, result, and report-facing records. | `docs/PRD.md` FR-002 and FR-016; `docs/SPEC.md` Sections 5 and 8 |
-> | Dimensionless statuses, labels, identifiers, provenance records, and notices | Schema distinguishes non-dimensional metadata from dimensional quantities rather than forcing meaningless units. | `docs/TYPES.md` Sections 2, 4, 5, and 7 |
->
-
-### CLM-015 — Provenance And Status Applicability
-
-> ###### Provenance And Status Applicability
->
-> | Record family | Minimum acceptance evidence | Source basis |
-> |---|---|---|
-> | Public data records, examples, and fixtures | Reusable provenance/status fields cover source name, source location, source license, contributor, contributor certification, redistribution status, and review status, or the review record documents an explicit deferral. | `docs/IP_AND_DATA_BOUNDARY.md` Section 4; `docs/CONTRACT.md` OPS-K-IP-2 |
-> | Materials, components, sections, SIF/flexibility inputs, allowables, loads, rule references, reports, and imported records | Source/provenance and redistribution/private-status metadata are available where engineering reliance or public redistribution may be affected. | `docs/CONTRACT.md` OPS-K-DATA-3; `docs/PRD.md` Sections 13.1 through 13.5 |
-> | Analysis and authority states | Status values preserve mechanics-solved, user-rule-checked, and human-approved-for-project distinctions, and exclude automatic code-compliance statuses. | `docs/TYPES.md` Section 4; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-03; `docs/CONTRACT.md` OPS-K-AUTH-1 |
->
-
-### CLM-016 — Diagnostics, Results, And Reports
-
-> ###### Diagnostics, Results, And Reports
->
-> | Envelope field or concept | Result schema expectation | Report schema expectation | Source basis |
-> |---|---|---|---|
-> | code, class, severity | Diagnostic/result record can carry machine-readable code/class/severity and supported warning classes. | Report record can disclose warning classes and blocking/nonblocking status without converting them into compliance claims. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06; `docs/SPEC.md` Section 7 |
-> | source and affected object | Diagnostic/result record references the emitting subsystem/source and the affected model object where applicable. | Report record can trace warnings, assumptions, and missing data back to model objects or source notes. | `docs/SPEC.md` Sections 7 and 8; `docs/PRD.md` Section 15.1 |
-> | message and remediation | Diagnostic/result record can carry human-readable message and remediation/next-action text. | Report record can include limitations, assumptions, and warnings without embedding protected standards content. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06; `docs/PRD.md` Sections 15.1 and 15.2 |
-> | provenance, input manifest, and hash/checksum references | Result record preserves provenance and reproducibility links where available. | Report record can include input manifest, model hash/checksum references, rule-pack checksum, provenance summary, and professional-boundary notice. | `docs/SPEC.md` Section 8; `docs/PRD.md` Sections 15.1 and 15.3 |
->
-
-### CLM-017 — Hash And Persistence Boundary
-
-> ###### Hash And Persistence Boundary
->
-> - When JSON payload hashes are used, the review evidence must identify the payload boundary being hashed and confirm the canonical JSON/JCS-compatible basis from AB-00-04. If no hash is generated for a schema path or fixture, record the item as a documented deferral rather than implying coverage.
-> - DEL-02-01 may define schema compatibility hooks for version, migration status, canonicalization/hash metadata, units, loads, rule-pack references, diagnostics, and provenance. Physical project package/container choice and migration implementation remain tied to DEL-02-05 or a later human-approved architecture decision.
->
-
-### CLM-018 — Standards
-
-> ##### Standards
->
-> | Standard or governing basis | Applicability | Status |
-> |---|---|---|
-> | JSON Schema 2020-12 | Public schema/interchange baseline for `schemas/model.schema.yaml` | Required by SOW-041 and SCA-001 |
-> | Canonical JSON / JCS-compatible hashing | Applies where JSON payload hashes are generated for reproducibility/audit | Required by AB-00-04 for hashed JSON payloads; implementation evidence is the Rust `canonical_json` crate and its bound conformance fixtures |
-> | SWBPIPE invariants in `docs/CONTRACT.md` | Binding constraints for IP boundary, data provenance, units, authority, reports, privacy, and agents | Required |
-> | SWBPIPE vocabulary in `docs/TYPES.md` | Stable IDs, analysis statuses, epistemic labels, and provenance labels | Required unless superseded by human-approved change |
-> | Protected engineering standards/codes | May be referenced as user/private source context only; must not be embedded as public schema content or examples | Public redistribution prohibited without explicit rights |
->
-
-### CLM-019 — Verification
-
-> ##### Verification
->
-> Minimum verification expectations for the eventual schema artifact:
->
-> - JSON Schema dialect check confirms JSON Schema 2020-12.
-> - Coverage check maps Project, Model, Node, Element, Material, Component, Load/LoadCase, Result, and Report to schema definitions or justified references.
-> - Object-family coverage check uses the crosswalk above to classify required coverage, adjacent reference/common-record coverage, and documented deferrals.
-> - Unit-field checks confirm dimensional values carry units or explicit unit references.
-> - Provenance checks confirm engineering-reliance and imported/private data can carry source, license/redistribution, contributor/review, and privacy status.
-> - Protected-content review confirms no standards text, protected tables, code formulas, proprietary values, or private user data are bundled.
-> - Status/authority review confirms no automatic `CODE_COMPLIANT` or certification-like status exists.
-> - Round-trip fixture check confirms model data, units, loads, rule-pack references, diagnostics, hashes/checksums, and provenance metadata can survive serialization without loss.
-> - Hash-scope review confirms each JSON payload hash has a documented payload boundary and canonicalization basis, or a visible deferral.
-> - Diagnostics check confirms warning/result envelope compatibility.
-> - Fixture review confirms each public example or validation fixture has a provenance manifest and protected-content disposition.
-> - Documentation review confirms TBDs and assumptions are visible.
->
-
-### CLM-020 — Documentation
-
-> ##### Documentation
->
-> Required or expected records:
->
-> - `schemas/model.schema.yaml` as the primary schema artifact. This path is outside the historical document-preparation scope (current work requires its own authorized brief).
-> - `docs/TYPES.md` update if new canonical type names, statuses, provenance labels, or schema vocabulary are introduced. This path is outside the historical document-preparation scope (current work requires its own authorized brief).
-> - Schema validation/test evidence, including object-family coverage, unit applicability, provenance/status applicability, diagnostic/result/report mapping, hash-scope decisions or deferrals, fixture provenance manifests, and protected-content gates when implementation proceeds.
-> - Human review notes for schema file layout, code-generation tooling, `$id` URI, migration metadata, and any objective-mapping discrepancy recorded in `ScopeOfWork.md` (rationale).
-> - `_run_records/TASK_RUN_*.md` for document drafting/enrichment runs.
-
-- **AC-001** — The contract preserves the accepted source requirements and boundaries for the canonical model schema, including unit, provenance, diagnostic, professional-reliance, and protected-content constraints, with unresolved decisions retained as stated.
+- **AC-001** — The schema is valid JSON Schema 2020-12 in strict JSON. Every committed document at the current version validates against the format; every desktop-profile document, the bundled demo included, also validates against the desktop profile; and every document the desktop or the operation engine emits on each authoring path validates.
+- **AC-002** — Each family of REQ-002 and CLM-006 has a named definition, every record is closed apart from the two stated exceptions, and every addressable record has an identifier that other records name.
+- **AC-003** — A document carrying every member comes back with equal content and the same model hash through each path: save and reopen in the project store; save and open as a file; the headless persistence envelope; and undo and redo of each operation of REQ-022.
+- **AC-004** — A document carrying every unread member solves end to end with results equal to those of the same document without them.
+- **AC-005** — For each validator rule, a malformed member is refused with its code and JSON path at file open, at project load and at apply; a missing subject and a quarantined disposition are reported as warnings and block nothing; and the document's bytes are unchanged by the check.
+- **AC-006** — For each optional member, absence leaves the document's meaning unchanged, and an authored null is refused by name on every member but the exceptions REQ-015 names. Each member a solve does not support is refused or withheld by its named code through the desktop and the headless entry, on both the pressure-free and the exact route, and none is dropped.
+- **AC-007** — A document whose cases use operating conditions gives the same results as its resolved twin, and a case naming a missing set, condition or value is refused by name.
+- **AC-008** — No production code compares or prints a model-document version except through the one constant of its language.
+- **AC-009** — Every dimensional member of the schema except node coordinates is a quantity with a unit, a quantity without a unit is refused, and a node-proximity tolerance that is not finite, not positive or not in a length unit is refused by name.
+- **AC-010** — Each family of REQ-005 accepts its source, the structured provenance record carries every field of PRD §20.2, each public fixture and domain example is covered by a provenance manifest, and each typed `LoadRecord` fixture of the domain examples validates against the `LoadRecord` definition of REQ-024.
+- **AC-011** — The schema text, fixtures and examples contain no protected or private content and make no claim of compliance, certification or approval, and the document has no state that asserts them.
+- **AC-012** — At each entry path of REQ-010, a document that fails the format or the validator is refused and is not adopted.
+- **AC-013** — Each operation of REQ-022 applies its change and nothing else, refuses each invalid request by name, and is inverted exactly; undo in the desktop restores the prior document and its model hash.
+- **AC-014** — The document's diagnostic record carries the fields of REQ-008, and the Result and Report references resolve to definitions that carry them.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-021 — Procedure: DEL-02-01 Canonical domain model schema
+**Method choices that define the format.**
 
-> #### Procedure: DEL-02-01 Canonical domain model schema
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- One schema file with reusable definitions at a stable `$id`; the load and reference-state group keeps its own schema file and is referenced.
+- The schema is the description. Judgment at run time is the validator's and the readers', and the conformance checks keep the three in agreement.
+- Conformance is by rule over every committed document, found by its document kind, including documents embedded in requests and envelopes. An exclusion is a named entry with its reason: a retired-version document is a refusal control or a hash-bound frozen input.
+- The desktop and the operation engine each write a golden document per authoring path under a fixed clock; a fresh emission that differs from its golden fails.
+- One validator serves native and webview code, so open and apply judge a document identically.
+- Members are stored explicitly on the record they describe.
 
-### CLM-023 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> This procedure describes how to produce and review the canonical domain model schema for DEL-02-01 without crossing the sealed write scope or introducing protected/code-specific data. It is operational guidance for maintaining `schemas/model.schema.yaml` and its review evidence.
->
-
-### CLM-024 — Prerequisites
-
-> ##### Prerequisites
->
-> - Confirm the active deliverable is DEL-02-01 in PKG-02 and that the accepted context is `_CONTEXT.md` current-basis context.
-> - Confirm the schema baseline is JSON Schema 2020-12 from SOW-041 and SCA-001.
-> - Read the applicable invariants in `docs/CONTRACT.md`, especially IP/data boundary, units, provenance, authority, reports, privacy, and agent constraints.
-> - Read `docs/TYPES.md` for stable identifiers, analysis-status vocabulary, epistemic labels, and provenance labels.
-> - Read `docs/DIRECTIVE.md`, `docs/SPEC.md`, and the relevant PRD sections for object ontology, domain layers, diagnostics, reports, and data-boundary requirements.
-> - Confirm no human-declared dependency list exists in `_DEPENDENCIES.md`; treat dependency coordination as externally managed until humans provide a concrete list.
-> - Confirm implementation-level decisions still marked TBD by SCA-001 are not silently resolved in this deliverable.
->
-
-### CLM-025 — Steps
-
-> ##### Steps
->
-> 1. Confirm scope and status.
->    - Verify the active brief authorizes work within this Scope of Work; read `_STATUS.md` for lifecycle.
->    - Verify write scope before editing; do not modify `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, or `_SEMANTIC.md`.
->
-> 2. Inventory required schema object families.
->    - Start with the DEL-02-01 description: project, model, node, element, material, component, load, result, and report.
->    - Cross-check `docs/SPEC.md` Section 3 for adjacent object families such as Section, Support, Combination, and RulePack references.
->    - Record each required, adjacent, or deferred family in the object-family coverage crosswalk before claiming schema coverage.
->    - Mark any ownership ambiguity as `TBD` rather than expanding into another package.
->
-> 3. Define root schema metadata.
->    - Set JSON Schema 2020-12 dialect.
->    - Add schema version and identity fields.
->    - Add hooks for persistence compatibility, migration status, and canonical hash metadata where applicable.
->    - Leave concrete `$id` URI and code-generation tooling as `TBD` until approved.
->
-> 4. Define common reusable records.
->    - Stable local identifiers and references.
->    - Unit-bearing quantity structure.
->    - Provenance/source and redistribution/private-status structure.
->    - Diagnostics/result envelope structure.
->    - Analysis-status and epistemic-label references.
->    - Record which field classes require units or unit references, and which record families require provenance/status fields.
->
-> 5. Define model object records.
->    - Project and Model containers.
->    - Node coordinates and six-degree-of-freedom context.
->    - Element endpoints, type, material/section references, local coordinate basis, and result-station hooks.
->    - Material, Component, Section, Support/Restraint, LoadCase, Combination, Result, and Report records at the level authorized for DEL-02-01.
->
-> 6. Apply data-boundary guards.
->    - Do not populate protected standards values, copied formulas, dimensional tables, allowable tables, commercial software examples, proprietary vendor catalog data, or private user data.
->    - Require provenance or explicit `TBD` for public data examples.
->    - Represent code-specific values as user-supplied/private inputs or rule-pack references, not public defaults.
->
-> 7. Encode status and authority boundaries.
->    - Use analysis statuses consistent with `docs/TYPES.md`.
->    - Exclude any automatic code-compliant/certified/approved status.
->    - Preserve separate mechanics result, user-rule-check, and human-review/acceptance records.
->
-> 8. Prepare examples and fixtures only when authorized.
->    - Use invented, original, public-domain, or permissively licensed data with provenance.
->    - Mark examples as non-code and non-compliance demonstrations.
->    - Create a fixture provenance manifest or record a `TBD` manifest path before example-based tests are accepted.
->    - Quarantine and escalate any suspected protected or proprietary source material.
->
-> 9. Verify schema behavior.
->    - Run JSON Schema validation against valid and invalid invented fixtures.
->    - Check object-family coverage against the crosswalk in `ScopeOfWork.md` (requirements).
->    - Check required units, provenance, status, diagnostics, and public/private boundary behavior.
->    - Check diagnostic/result/report envelope compatibility, including code/class/severity, source, affected object, message, remediation, and provenance.
->    - Check hash payload scope and canonicalization basis where JSON payload hashes are generated; record explicit deferrals where hashes are not yet used.
->    - Perform deterministic round-trip checks when persistence work is available.
->    - Record deferred checks as `TBD` rather than implying they passed.
->
-> 10. Prepare review handoff.
->    - Summarize schema coverage against SOW-041 and DEL-02-01.
->    - List TBDs and conflict-table items needing human ruling.
->    - Reference the durable human-ruling record for objective/revision conflicts, schema layout, `$id` URI, code-generation tooling, fixture organization, and persistence/hashing decisions; if no record exists, mark the record path `TBD`.
->    - Identify any required `docs/TYPES.md` update without modifying it unless the write scope authorizes that file.
->
-
-### CLM-026 — Verification
-
-> ##### Verification
->
-> | Check | Expected result |
-> |---|---|
-> | Scope check | Only DEL-02-01 authorized files are modified during this run. |
-> | Default document check | `ScopeOfWork.md` exists and retains its required sections. |
-> | Source-grounding check | Non-trivial requirements cite local governance/register/source slices or are labeled `ASSUMPTION`/`TBD`. |
-> | Schema baseline check | JSON Schema 2020-12 remains the declared baseline. |
-> | Object-family check | Project, Model, Node, Element, Material, Component, Load/LoadCase, Result, and Report are covered. |
-> | Object-family crosswalk check | Required, adjacent, reference-only, and deferred object families are classified before acceptance. |
-> | Unit/provenance check | Unit-aware and provenance/status requirements are visible and mapped to field or record families. |
-> | Diagnostic/report crosswalk check | Result/report records can carry diagnostic envelope fields, warning classes, provenance, input manifest, and report notices. |
-> | Hash-scope check | JSON payload hashes have a documented payload boundary and canonicalization basis, or an explicit deferral. |
-> | Fixture provenance check | Public examples and fixtures have a provenance manifest or a visible `TBD` manifest path. |
-> | Data-boundary check | No protected standards/code text, copied formulas, protected tables, proprietary data, or private user data are introduced. |
-> | Authority check | No compliance, certification, approval, sealing, or professional-reliance claim is made by the software/schema (PRD §21.2). |
-> | Conflict check | Objective/revision discrepancies are surfaced in `ScopeOfWork.md` (rationale) for human ruling. |
-> | Status check | `_STATUS.md` moves from `OPEN` to `INITIALIZED` only after Pass 1+2 document creation succeeds. |
->
-
-### CLM-027 — Records
-
-> ##### Records
->
-> Records produced by document drafting/enrichment runs:
->
-> - `ScopeOfWork.md` (definition)
-> - `ScopeOfWork.md` (requirements)
-> - `ScopeOfWork.md` (rationale)
-> - `ScopeOfWork.md` (procedure)
-> - `_run_records/TASK_RUN_2026-04-30_0120.md`
-> - `_run_records/TASK_RUN_2026-04-30_0141.md`
-> - `_run_records/TASK_RUN_2026-04-30_0941.md`
-> - `_run_records/TASK_RUN_2026-04-30_0941_001.md`
-> - `_run_records/TASK_RUN_2026-04-30_0941_002.md`
-> - `_run_records/TASK_RUN_2026-04-30_0941_003.md`
-> - `_STATUS.md` safe lifecycle update, if a Pass 1+2 run completes from `OPEN`; Pass 3 does not update `_STATUS.md`
->
-> Records produced by dependency extraction:
->
-> - `Dependencies.csv`
-> - `_DEPENDENCIES.md`
-> - `_run_records/TASK_RUN_2026-04-30_0941_004.md`
->
-> Records expected from future implementation/review work:
->
-> - `schemas/model.schema.yaml`
-> - schema validation fixtures and results
-> - object-family coverage crosswalk review evidence
-> - unit-applicability and provenance/status acceptance evidence
-> - diagnostic/result/report envelope crosswalk evidence
-> - hash payload-scope decision or documented deferral
-> - fixture provenance manifest for public examples or validation fixtures
-> - protected-content/provenance gate evidence
-> - deterministic round-trip evidence
-> - any approved `docs/TYPES.md` update
-> - human rulings for conflict-table entries and unresolved `TBD` decisions, with ruling record path or ID
-
-- **VER-001** — Validate the contract and review source parity, object-family coverage, unit and provenance boundaries, deterministic persistence compatibility, and absence of protected content or compliance claims.
+- **VER-001** — AC-001, AC-002 and AC-014, executable check: observes the schema, every committed and emitted document and the named definitions under a JSON Schema 2020-12 validator that imports no product code.
+- **VER-002** — AC-003, executable check: observes the content and the SHA-256 of the RFC 8785 text before and after each round-trip path.
+- **VER-003** — AC-004 and AC-007, executable check: observes the published results of a document and of its twin, and the refusal of a case with a missing set, condition or value.
+- **VER-004** — AC-005 and AC-012, executable check: observes, for constructed malformed documents, the code, JSON path and unchanged bytes at each entry path and at apply.
+- **VER-005** — AC-006 and AC-009, executable check: observes, for constructed documents, the refusal of each authored null, each unit failure and each unsupported member on each route.
+- **VER-006** — AC-008, executable check: observes production source for version literals outside the one constant of each language.
+- **VER-007** — AC-010 and AC-011, judgment by a reviewer who wrote neither the schema nor the fixtures, with the protected-content scan and an executable check: the reviewer examines the schema text, each fixture's provenance manifest and the status vocabulary; the check observes each typed `LoadRecord` fixture of the domain examples under its `LoadRecord` definition with a validator that imports no product code.
+- **VER-008** — AC-013, executable check: observes each operation's applied document, refusals and inverse, and the desktop session's undo.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-028 — Guidance: DEL-02-01 Canonical domain model schema
-
-> #### Guidance: DEL-02-01 Canonical domain model schema
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-030 — Purpose
-
-> ##### Purpose
->
-> DEL-02-01 exists to make the SWBPIPE domain model explicit and machine-readable before solver, GUI, reporting, persistence, plugin, and validation work depend on it. The schema should be a public contract for open mechanics and workflow data while preserving the boundary that code-specific values, protected standards data, proprietary libraries, and professional approval remain user/private or human-controlled. Sources: `docs/DIRECTIVE.md` Sections 1 through 3; `docs/SPEC.md` Sections 1 through 3; `docs/_Registers/ScopeLedger.csv` row SOW-041.
->
-
-### CLM-031 — Principles
-
-> ##### Principles
->
-> - Use the schema as a boundary contract, not as a place to encode protected engineering standards or project-specific compliance rules.
-> - Keep every addressable model object stable enough for editing, solving, reporting, diagnostics, and audit trails.
-> - Treat units as schema-visible data. Dimensional values should not be plain numbers without unit context unless the value is dimensionless and the schema makes that clear.
-> - Treat provenance and redistribution/private status as first-class data where engineering reliance, public contribution, or report disclosure may be affected.
-> - Preserve the analysis-status vocabulary: mechanics solved, user rule checked, and human-approved-for-project are different states. The software must not turn any of them into automatic code compliance.
-> - Design result/report records so warnings, assumptions, missing data, diagnostics, source notes, hashes/checksums, and limitations can be reproduced in reports.
-> - Keep implementation choices that SCA-001 leaves TBD, such as schema code-generation tooling and physical project packaging, visible as TBD until a human-approved decision exists.
->
-
-### CLM-032 — Considerations
-
-> ##### Considerations
->
-> - PKG-02 owns the canonical schema surface, but detailed material/component library behavior belongs to PKG-03, rule-pack internals belong to PKG-06, reports belong to PKG-08, adapters/APIs belong to PKG-10, and privacy controls belong to PKG-12. DEL-02-01 should define shared records and references without silently taking over those deliverables.
-> - `docs/SPEC.md` Section 3 lists a broader minimum domain object set than the short DEL-02-01 description. Include required references or reusable definitions where the canonical model cannot function without them, and mark boundary decisions as `TBD` when the correct owner is unclear.
-> - The PRD Appendix A example is useful only as a schema-shape illustration. Do not copy it wholesale into public fixtures, and do not treat its demonstration values as engineering defaults.
-> - Public examples and validation fixtures should be original/invented or documented public/permissive data. If a value looks code-derived, proprietary, or copied from a protected source, quarantine/escalate rather than adapting it.
-> - The anticipated `docs/TYPES.md` update is outside this run's write scope. New type names or status/provenance labels should be proposed for human review before the file is changed.
-> - PROPOSAL: Treat object-family names as draft schema vocabulary until `docs/TYPES.md` is updated or a human ruling freezes the names. In particular, use `LoadCase` for primitive solved loads, `Combination` for algebraic combinations, and `Load` only as an umbrella term when following register/decomposition prose.
-> - Human rulings for conflict-table rows, schema file layout, `$id` URI, code-generation tooling, fixture organization, and persistence/hashing handoff need a durable reference before downstream acceptance depends on them. Accepted rulings are recorded in `execution/_Coordination/_DECISIONS/_REGISTER.md` and `execution/_Decomposition/SOFTWARE_DECOMP.md` §12; local implementation choices follow DEC-012.
->
-> Vocabulary and boundary notes:
->
-> | Term or boundary | DEL-02-01 usage guidance | Deferred or owner-sensitive content |
-> |---|---|---|
-> | `Load`, `LoadCase`, `Combination` | Model the primitive and algebraic records explicitly; keep `Load` as a broad planning label unless the future type vocabulary says otherwise. | Code-specific load-combination requirements remain user/rule-pack supplied and must not become public defaults. |
-> | `Support` and `Restraint` | Use a consistent schema vocabulary or alias relationship before freezing names; preserve enough structure for model references and diagnostics. | Nonlinear behavior details and solver convergence semantics remain with solver/support deliverables unless explicitly pulled into shared schema records. |
-> | `Section` | Include common reference/record structure where elements, materials, components, and reports need it. | Detailed section property calculators and dimensional table population remain outside DEL-02-01. |
-> | `RulePack` reference | Store reference/checksum/source/private-status links needed by projects, results, and reports. | Rule expression grammar, protected formulas, and evaluator behavior remain outside this deliverable. |
-> | Result and Report records | Preserve diagnostics, affected-object references, provenance, input manifest, hash/checksum links, warnings, assumptions, and professional-boundary notices. | Report rendering, professional signoff workflow, and human approval records require their owning deliverables or human rulings. |
->
-
-### CLM-033 — Trade-offs
-
-> ##### Trade-offs
->
-> | Topic | Option | Trade-off | Guidance |
-> |---|---|---|---|
-> | Schema shape | Single `schemas/model.schema.yaml` with `$defs` | Matches the anticipated artifact but can become large | Use `$defs` and clear references; split later only by human-approved schema architecture change. |
-> | Domain breadth | Include every object in one schema | Improves consistency but risks crossing into PKG-03/PKG-06/PKG-08 details | Define common identities, references, and envelopes; defer detailed library/rule/report internals to their packages. |
-> | Required fields | Require all potentially needed engineering data | Strong validation but may block mechanics-only workflows | Distinguish solve-required, rule-check-required, report-required, and optional fields; missing values become explicit findings. |
-> | Public examples | Use realistic industrial data | Better realism but high IP/provenance risk | Use invented or permissively licensed examples with provenance and non-compliance notices. |
-> | Hashing and canonicalization | Define implementation now | Improves reproducibility but overlaps DEL-02-05 persistence details | Keep schema compatible with AB-00-04; apply DEC-017/019/028/033 for physical storage, migration and packaging while preserving this schema owner boundary. |
-> | Persistence handoff | Encode compatibility hooks now, but defer storage implementation | Keeps model schema aligned with deterministic round trips while avoiding premature ownership of package/container and migration mechanics | Record version, migration-status, unit, provenance, rule-pack reference, diagnostic, and hash metadata hooks where needed; route physical package/container and migration framework decisions to DEL-02-05 or human authority. |
->
-
-### CLM-034 — Examples
-
-> ##### Examples
->
-> Example schema-shape guidance, not a final schema:
->
-> - A `Project` record should identify the project container, unit system, storage/privacy posture, rule-pack references, and report settings.
-> - A `Node` record should expose coordinates with units and should support six-degree-of-freedom solver semantics by reference to the solver/domain model.
-> - An `Element` record should reference start/end nodes, material and section/component data, local coordinate basis, and result-station metadata where needed.
-> - A `Material` or `Component` record should carry user/private or public/permissive provenance status before engineering reliance or redistribution.
-> - A `Result` record should distinguish mechanical result quantities from user-rule-check outcomes and should attach diagnostics/warnings to affected objects.
-> - A `Report` record should identify input manifest, model hash, warnings, assumptions, provenance summary, result summaries, rule-pack checksum references, and professional-boundary notice.
->
-> All examples above are structural guidance from `docs/SPEC.md` Sections 3, 7, and 8 and `docs/PRD.md` Sections 10, 13, and 15. They are not code-compliance requirements and do not supply engineering values.
->
-
-### CLM-035 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict (short statement) | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | C-02-01-001 | Historical objective-mapping discrepancy; current `_CONTEXT.md` and deliverable register carry OBJ-001, OBJ-012 and OBJ-014. | `_CONTEXT.md` Objective Support; `docs/_Registers/Deliverables.csv` row DEL-02-01; `execution/_Decomposition/SOFTWARE_DECOMP.md` Objective table | `docs/_Registers/ScopeLedger.csv` row SOW-041 | Datasheet Identification; Specification Scope; Procedure Records | Use the accepted current objective mapping; historical setup discrepancy does not reserve a new decision. | Resolved by current accepted mapping; no new human ruling required. |
-> | C-02-01-002 | Historical decomposition-pointer discrepancy: current local pointers now resolve the accepted decomposition and its decision register. | `_REFERENCES.md`; `_CONTEXT.md` | `execution/_Decomposition/SOFTWARE_DECOMP.md`; `docs/README.md` navigation | Current references and prerequisites | Follow accepted decomposition authority; historical setup version wording is not a current decision hold. | Resolved as current-record maintenance; no scope or acceptance change. |
->
-> No engineering-value conflict was found in the accessible sources. No protected standards/code data was used.
+- **AX-001** — *One document, exactly described.* Better is fewer members that a reader decodes or a writer emits without the schema naming them, and fewer committed documents no rule classifies; the target is none. A closed record is never opened, and a rule never weakened, to let a document through.
+- **AX-002** — *Say nothing the user did not.* Better is fewer values the product supplies on the user's behalf. A required field is required only for what it serves: a value needed to solve, to check a rule or to report is asked for there, and its absence is a named finding. A default is never written to make a solve or an export go through.
+- **AX-003** — *Carry before meaning, refuse by name.* The format may carry a member before any solve reads it, so that a version step is not needed for each consumer. Better is fewer carried members without a named refusal or a visible statement that the solve does not use them. A result is never computed while ignoring a member that would change it.
+- **AX-004** — *Open structure, private values.* The schema is public and structural; code-specific and proprietary values are the user's. Realism in an example never justifies protected or private content.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-041 SOW-065 OBJ-001 OBJ-012 OBJ-014 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-02-01:1** — Supply a provenance manifest and conforming typed LoadRecord fixtures for the domain examples, then trace schema validation across native package, PCF, CAEPIPE and library import acceptance boundaries. (R5 continuation claim references: DEL-02-01:SOW#CLM-019; SOW#CLM-011/REQ-02-01-10.)
-- **DEL-02-01:2** — Model document 0.9.0 (survey item C1 with the solver lane's direction and difference basis; Agent 0, 2026-10-27). Carry operating-condition sets, the per-pipe set reference, the load case's condition use, a single-DOF support's direction and a subtraction's difference basis in one version step under the one-version rule; 0.8.0 is retired and refused by name, and nothing is migrated. The document stores each pipe's set explicitly; inheritance along a run belongs to authoring tools. A case's condition use resolves at read into the per-case records the existing solve consumes, and a document solves exactly as its resolved twin except for the identities bound to the authored document. A missing set, condition or value refuses the case by name; nothing is defaulted. Design: Design/model-document-0.9.0.md. S1 carries and validates the format and refuses or withholds the unused members by name (#50); its D3 registration is adopted and the registered fixtures are regenerated (DEL-04-08 `retained-pricing-rules.md` §8.36), with DEL-04-08 AC-004's six exclusive stack witnesses passed at `5bbf2a46b` (§8.36); S1 is integrated (#50). S2 builds the pressure-free condition resolution (temperature, added weight, wind exposure) with E1–E6, E7's lowered-multiset precondition and independent references; its read-only preview (`operating_conditions::preview_operating_conditions`, exported by the applier's wasm build as `preview_operating_conditions_json`) is built with native and wasm parity tests; independent numerical/persistence review and its preview repair re-check cleared the selected S2 source; its D3 proof is re-derived on integrated main (DEL-04-08 `retained-pricing-rules.md` §8.40: no coefficient rises; six TAV text coefficients fall; `PreviewLoadCase` grows 8 B), Agent 0 directs conservative carry of the registered coefficients, independently confirmed by GPT-6 Astra/medium at `bf59efa95`; native law/challenge expectations are re-derived for actual layout and pass at `34c25044e` (71 laws, 17 S2 tests), with six DEL-04-08 AC-004 witnesses plus the isolated four-observation challenge passed in the separately cleared prebuilt exclusive window (§8.40); the integrated-main frozen-input comparison found no difference in 876 comparisons and all three desktop engines were rebuilt with the Wasm preview matching the native preview on all 14 parity inputs (Design/model-document-0.9.0.md §10), the parity-fixture classification repair passes 35 focused tests and independent GPT-6 Astra/medium scrutiny at `26415d1ef` (30 mutation probes rejected), S2 merged as #84 (`2b743781a`), the retained routes and source readers still decline condition sets, references and uses, the pressure-free condition-set operations are built at the applier (S3a: create, update and delete with reference guards, pipe assignment and case condition use, with the solve's judgement classified; Design/model-document-0.9.0.md §11-§12), and the desktop surfaces (S3b) and the exact route (S4) remain open in their owning slices.
-- **DEL-02-01:3** — Model document 0.9.0's members joined before S1 (SWBPIPE Agent 0, 2026-10-30; Design/model-document-0.9.0.md §2.4). Carry `absolute_sum` and `srss`, combination operands (acyclic, with load-case-first id resolution), `test_condition`, `subtrahend_support_state`, the `snubber` family (including single-DOF `direction`) and `spectra[]` in the same version step. Each is refused or withheld by name at solve until its owning slice lands; none is defaulted. *Status at S1 (#50):* carried, validated and refused by name (S1, #50); each member's solve remains open with its slice.
-
-## Canonical model scope
-
-The physical-model schema is the source of truth without replacing downstream PKG-13 through PKG-16 contracts. The canonical Model can carry unresolved assumptions, diagnostics/warnings, provenance, physical-to-analytical traceability, and typed references to design knowledge, constraints, equipment interfaces, model operations, model states, analysis runs, comparisons, handoff packages and external-prover metadata.
-
-Source: `_CONTEXT.md`, Revision 0.5 Supplemental Acceptance Criteria, at `6228147ac5`. This preserves the model-content requirement; the retired dependency-mirror procedure is omitted.
+| OUT-001 | SOW-041 OBJ-001 | REQ-001 REQ-012 REQ-018 | AC-001 | VER-001 | Outside source: the JSON Schema 2020-12 specification, applied by a validator that imports no product code. The goldens are the product's own earlier output and only guard against change |
+| OUT-001 | SOW-041 SOW-065 OBJ-001 OBJ-014 | CLM-006 REQ-002 REQ-003 REQ-014 REQ-018 REQ-023 | AC-002 | VER-001 | Owner ruling: the families are those of PRD FR-MOD-002 and CLM-006, and the criterion states what must be found |
+| OUT-001 | SOW-041 OBJ-012 | REQ-009 | AC-003 | VER-002 | The criterion fixes the expected result: the document read back equals the document written. The hash form is an outside source, RFC 8785 with SHA-256 |
+| OUT-001 | SOW-065 OBJ-012 OBJ-014 | REQ-017 | AC-004 | VER-003 | The criterion states the expected relation, equal results. Both sides are the product's own output, so it establishes that the members are unread and claims no numerical correctness |
+| OUT-001 | SOW-041 SOW-065 OBJ-014 | REQ-019 REQ-020 | AC-005 | VER-004 | The documents are constructed, so the criterion and the rules of REQ-020 state the expected finding for each |
+| OUT-001 | SOW-065 OBJ-012 | REQ-014 REQ-015 REQ-016 | AC-006 | VER-005 | Owner ruling: PRD §5.5 and the one-version rule state what must happen; the documents are constructed |
+| OUT-001 | SOW-065 OBJ-012 | REQ-016 | AC-007 | VER-003 | The criterion states the expected relation between a document and its twin. Both sides are the product's own output: it guards the equivalence only, and the resolved values' numerical grounds are DEL-05-01's independent references |
+| OUT-001 | SOW-041 OBJ-012 | REQ-013 | AC-008 | VER-006 | The criterion states the expected result: no literal is found |
+| OUT-001 | SOW-041 OBJ-012 | REQ-004 REQ-021 | AC-009 | VER-005 | Owner ruling: PRD §5.6 and REQ-021 state what is refused; unit and dimension membership come from the unit catalog (DEL-02-02) |
+| OUT-001 | SOW-065 OBJ-014 | REQ-005 REQ-011 REQ-024 | AC-010 | VER-007 | Owner ruling: PRD §20.2 lists the fields a public record carries. Outside source for the load-record fixtures: the JSON Schema 2020-12 specification, applied by a validator that imports no product code |
+| OUT-001 | SOW-041 OBJ-001 | REQ-006 REQ-007 | AC-011 | VER-007 | Owner ruling: PRD §20.1 and §21.2 and `docs/IP_AND_DATA_BOUNDARY.md`; the reviewer compares against sources the product did not write |
+| OUT-001 | SOW-041 OBJ-012 | REQ-010 | AC-012 | VER-004 | The documents are constructed, so the criterion states the expected refusal at each entry path |
+| OUT-001 | SOW-065 OBJ-012 OBJ-014 | REQ-022 | AC-013 | VER-008 | The criterion fixes the expected result: the stated change and its exact inverse. Hash equality after undo uses RFC 8785 with SHA-256 |
+| OUT-001 | SOW-041 OBJ-001 | REQ-008 | AC-014 | VER-001 | Owner ruling: the diagnostic fields are those of the architecture basis AB-00-06 in the decomposition |

@@ -1,7 +1,17 @@
 id: DEL-00-05
 name: GUI state and interaction architecture
-needs: []
-code_paths:
-- apps/desktop/package.json
-- apps/desktop/src/features/
-- core/gui/
+needs:
+- from: DEL-00-03
+  condition: >-
+    A model edit is a command: it applies whole or not at all, leaves the model unchanged on
+    failure, and returns a result envelope carrying its diagnostics.
+  gating: true
+- from: DEL-00-06
+  condition: >-
+    Every diagnostic carries one of the six warning classes, or a boundary's local class with a
+    stated mapping to them, and keeps its code, source, affected object, message and remediation
+    wherever it is carried.
+  gating: true
+# This deliverable states the GUI state rule. The GUI itself (apps/desktop/src/features/**,
+# core/gui/**) is the code of the PKG-07 deliverables.
+code_paths: []

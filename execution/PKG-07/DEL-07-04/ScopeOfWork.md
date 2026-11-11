@@ -2,397 +2,111 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-07-04
 package_id: PKG-07
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-022]
 package_objective_refs: [OBJ-006, OBJ-011]
 ---
 
-# Scope of Work — DEL-07-04
+# Scope of Work — DEL-07-04 Missing-data warning and blocking UX
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-07-04` in service of project scope [SOW-022] and package objectives [OBJ-006, OBJ-011].
+This deliverable is how the desktop tells the engineer what is missing, what that stops, and what to do about it. A value the solve needs and lacks stops the solve. A value only the user's rule check needs stops or qualifies the check and leaves a valid mechanics result standing. Weak provenance, assumptions, nonlinear uncertainty and suspected protected content are shown as what they are. Nothing is filled in silently, and no finding or status reads as approval. The deliverable also holds the surface where the user runs a rule check and reads its outcome. The result it contributes is that an engineer reviewing a model or a result can tell, without reading a log, which inputs are absent, which conclusions that withholds, and where to go to supply them.
 
-- **OUT-001** — A missing-data warning and blocking-UX contract covering typed findings, solve-blocking and rule-check-blocking separation, affected-object navigation, provenance and unit diagnostics, remediation guidance, and visible professional-boundary status is produced for the declared scope and objectives.
+It serves SOW-022 under OBJ-006 and OBJ-011 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-07, row DEL-07-04), and PRD §5.5, §14.4, §17.5, §21.2 and FR-RULE-003. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names this deliverable. The release target's ruling that a user-rule outcome is shown as within or exceeding the user's limit applies to the rule-check surface held here.
+
+- **OUT-001** — The presentation of findings: their classes, what each blocks, their fields, and the way from a finding to the object it concerns.
+- **OUT-002** — The rule-check run surface: starting a run, its outcomes and its aggregate status.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-07-04 Missing-data warning and blocking UX
+**Terms the presentation implements.**
 
-> #### Datasheet: DEL-07-04 Missing-data warning and blocking UX
->
+- *Finding.* A diagnostic a producer returns about the model, a solve, a rule check, an import or an export. A finding has a code, a class, a severity, a source, an affected object, a message, a remediation and, where it applies, provenance. This deliverable shows findings; it produces none of them.
+- *Class.* One of the six classes every producer keeps: `SOLVE_BLOCKING`, `RULE_CHECK_BLOCKING`, `PROVENANCE_WARNING`, `ASSUMPTION_WARNING`, `NONLINEAR_WARNING` and `IP_BOUNDARY_WARNING`.
+- *What a finding blocks.* PRD §14.4 separates a finding that blocks model validity, one that blocks the solve, one that blocks the user-rule check, a warning and an informational note. The presentation states which of these a finding is, from its class and severity as supplied.
+- *Solve-required and rule-check-required.* A solve-required value is one the mechanics solve cannot run without. A rule-check-required value is one only the user's rule pack asks for. The producer of the finding says which; the presentation keeps them apart.
+- *Qualified result.* A result or outcome shown together with the findings that limit it, where it is shown at all.
+- *Rule-check run.* One evaluation of a rule pack the user chose over a solved result. It returns one outcome for each check on each load case or combination, and one aggregate status for the pack.
+- *Outcome.* For one check on one load case or combination: within the user's limit, exceeding the user's limit, or incomplete, with the computed value, the limit, their unit and the findings that explain an incomplete one.
+- *Status.* One of the automatic statuses a model, a result or a rule check carries: model incomplete, mechanics solved, rule inputs incomplete, user-rule checked, user-rule failed, human review required. Each is shown in the display form the claims registry gives it.
+- *Affected-object navigation.* Activating a finding selects the object it concerns in the tree, the viewport and the inspector.
 
-### CLM-002 — Identification
+**Boundary.** This deliverable presents. The following belong elsewhere:
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-07-04 |
-> | Package | PKG-07 Graphical User Interface and Engineering Workflow |
-> | Type | UX_UI_SLICE |
-> | Scope items | SOW-022 |
-> | Objectives | OBJ-006, OBJ-011 |
-> | Anticipated artifacts | warning system UI; UX tests |
-> | Setup status | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle is recorded in `_STATUS.md`; current work follows this Scope of Work, owning decisions, and the selected graph. Setup-only restrictions describe the originating setup run, not standing product scope. |
->
+- the fields and classes of a diagnostic: DEL-00-06;
+- which values a solve requires, and the solver's and the model checks' findings: DEL-04-06 and the engine deliverables that emit them;
+- nonlinear convergence and active-state findings: DEL-04-04. The presentation shows a supplied nonlinear finding as a nonlinear warning and forms no outcome of its own;
+- rule-pack semantics, the completeness check and the runner: DEL-06-01, DEL-06-02 and DEL-06-03;
+- what each status means: DEL-05-04. The words each status is shown in: DEL-01-04;
+- unit conversion for display: DEL-02-02;
+- detection of protected or private content and the review that releases a held export: DEL-12-02 for exports and DEL-08-05 for reports;
+- the diagnostics panel of a solve and the gate on the Solve command: DEL-07-07, which follows the presentation rules stated here;
+- values and ratios in the results tables: DEL-07-05.
 
-### CLM-003 — Attributes
-
-> ##### Attributes
->
-> This deliverable defines the setup boundary for a future GUI warning and blocking workflow. The future UX must distinguish data that blocks a mechanics solve from data that blocks or qualifies a user-rule check, while keeping provenance, assumptions, nonlinear uncertainty, IP/data-boundary risks, and professional review visible.
->
-> | Attribute | Required treatment | Source basis |
-> |---|---|---|
-> | Solve-required missing data | Classify as `SOLVE_BLOCKING` and prevent or invalidate the affected mechanics solve rather than supplying defaults. | `docs/SPEC.md` section 7; OPS-K-DATA-2 |
-> | Rule-check-required missing data | Classify as `RULE_CHECK_BLOCKING`; mechanics results may exist, but user-rule pass/fail or ratios remain unavailable or qualified. | `docs/SPEC.md` section 7; `docs/TYPES.md` analysis-status vocabulary |
-> | Provenance weakness | Classify as `PROVENANCE_WARNING` when a value exists but source/provenance is missing or weak. | OPS-K-DATA-3; AB-00-06 |
-> | User/model assumptions | Classify as `ASSUMPTION_WARNING` and keep the assumption visible through result review/report handoff. | SOW-022; OBJ-006 |
-> | Nonlinear uncertainty | Classify as `NONLINEAR_WARNING` when convergence or active-state uncertainty affects interpretation. | OPS-K-SOLVER-2; `docs/SPEC.md` section 4.4 and section 7 |
-> | IP or private-data risk | Classify as `IP_BOUNDARY_WARNING`; do not move protected/private data into public artifacts. | OPS-K-IP-1/2/3; `docs/IP_AND_DATA_BOUNDARY.md` quarantine rule |
-> | Professional boundary | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). | OPS-K-AUTH-1; OBJ-011 |
-> | Warning display access | Warning class, severity, affected object, message, and remediation must be available through text/assistive paths and not color-only signaling. | `_SEMANTIC_LENSING.md` C-001; `docs/SPEC.md` section 7 |
->
-
-### CLM-004 — Conditions
-
-> ##### Conditions
->
-> | Condition | Setup ruling |
-> |---|---|
-> | Silent engineering defaults | Prohibited. Unknown engineering values remain `TBD` or become explicit diagnostics. |
-> | Protected standards/code data | Not included. No code text, code tables, copied formulas, material allowables, SIF/flexibility tables, or proprietary values are introduced. |
-> | Result-envelope fields | Future warnings must preserve at least code, class, severity, source, affected object, message, remediation, and provenance where applicable. |
-> | Analysis state separation | Future UX must preserve `MODEL_INCOMPLETE`, `MECHANICS_SOLVED`, `RULE_INPUTS_INCOMPLETE`, `USER_RULE_CHECKED`, `USER_RULE_FAILED`, and `HUMAN_REVIEW_REQUIRED` distinctions; it must not auto-emit `CODE_COMPLIANT`. |
-> | GUI architecture | Future GUI mutation and state changes route through application-service command/query/job result envelopes and preserve durable/transient state separation. |
-> | Surface placement | Warning placement follows the current desktop feature/workspace composition. Preserve class distinctions, blocking semantics, affected-object navigation and remediation across editor, solve, results, report and export surfaces; placement is not an unresolved baseline decision. |
->
-
-### CLM-005 — Construction
-
-> ##### Construction
->
-> Current deliverable obligation: implement missing-data warning/blocking UX, rule-check run interaction and aggregate status, with unit-aware warning presentation preserving owned rule/status semantics. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> The setup artifact is a document kit and local evidence bundle. It does not create visual components, application state, tests, schemas, or source-code contracts.
->
-> Future implementation work is expected to consume:
->
-> - architecture basis AB-00-03 for command/query/job result envelopes and status separation;
-> - architecture basis AB-00-05 for GUI state, editing, and diagnostic preservation;
-> - architecture basis AB-00-06 for diagnostics, warning classes, and result-envelope fields;
-> - DEL-04-06 for solver diagnostic producers;
-> - DEL-05-04 for analysis status semantics;
-> - DEL-06-03 for rule-pack required-input completeness signals.
->
-### CLM-006 — References
-
-> ##### References
->
-> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for deliverable identity, scope, objectives, and architecture-basis injection.
-> - `docs/CONTRACT.md` for invariants OPS-K-DATA-1/2/3, OPS-K-RULE-1/2/3, OPS-K-AUTH-1, OPS-K-IP-1/2/3, OPS-K-PRIV, and OPS-K-AGENT-1..4.
-> - `docs/SPEC.md` section 8 for GUI warnings and warning classes.
-> - `docs/TYPES.md` section 4 for analysis-status vocabulary.
-> - `docs/DIRECTIVE.md` sections 2 and 5 for missing-data, professional-boundary, and stop-rule treatment.
-> - `docs/IP_AND_DATA_BOUNDARY.md` for provenance and quarantine rules.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` rows SOW-022, OBJ-006, OBJ-011, and AB-00-03/05/06.
->
-
-### CLM-007 — D-41 R5 T7 PDU-054 current declaration
-
-> ##### D-41 R5 T7 PDU-054 current declaration
->
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The missing-data warning/blocking panel is implemented, including current nonlinear-visibility behavior. It presents existing diagnostics and does not synthesize engineering inputs, resolve warnings, or confer professional approval.
+**Not decided.** Whether the registered display form of the user-rule-failed status changes to follow the ruling that an outcome is shown as within or exceeding the user's limit. The registry is DEL-01-04's. Until it is decided, REQ-016 governs the wording of an outcome and the registry governs the wording of a status.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-008 — Specification: DEL-07-04 Missing-data warning and blocking UX
+### Requirements
 
-> #### Specification: DEL-07-04 Missing-data warning and blocking UX
->
+- **REQ-001** — Every finding is shown with its class, and the six classes stay distinct on every surface that shows a finding. No two are merged into one list entry, colour or count.
+- **REQ-002** — A missing solve-required value blocks the solve of the affected model, or marks an existing result of it as no longer current. No surface supplies a default for it (PRD §5.5).
+- **REQ-003** — A missing rule-check-required value blocks or qualifies the rule-check outcome it bears on and leaves the mechanics result shown as solved (PRD §17.5).
+- **REQ-004** — A finding is shown with its code, class, severity, source, affected object, message, remediation and provenance. A field the producer did not supply is shown as not supplied and is never invented. A quantity a finding carries is shown with its unit, in the display unit the user chose without changing the stored value; a unit finding (a missing unit, a wrong dimension, a unit that cannot be converted) is shown as a finding that names the value concerned.
+- **REQ-005** — Model incomplete, mechanics solved, rule inputs incomplete, user-rule checked, user-rule failed and human review required are shown as distinct statuses, each in its registered display form with its authority domain and its token reachable. No surface shows a status of code compliance or approval, and none derives one from the others.
+- **REQ-006** — A value that exists with missing or weak provenance is shown as a provenance warning beside the value it concerns.
+- **REQ-007** — An assumption is shown as an assumption wherever the result it affects is shown. Its presence is never presented as acceptance of it.
+- **REQ-008** — Nonlinear uncertainty a producer reports is shown as a nonlinear warning on the result it qualifies. The presentation forms no convergence or support-state outcome of its own (also cited as DEL-07-04:1).
+- **REQ-009** — Where an export, report or contribution flow returns a suspected protected or private content finding, it is shown as an IP-boundary warning, the flow is shown in the state its owner returned (blocked, redacted or held for review), and the surface offers no way past a block or a hold other than the owning flow's review.
+- **REQ-010** — No text of these surfaces states or implies certification, sealing, approval or code compliance (PRD §21.2).
+- **REQ-011** — A change that affects readiness is made only by an applied model operation. Findings follow the model: after an apply, an undo or a redo, the findings shown are those of the model as it then stands.
+- **REQ-013** — A finding's class, severity, affected object, message and remediation are available as text to assistive technology, and no class, severity or status is signalled by colour alone.
+- **REQ-014** — From a finding the user reaches the object it concerns, by keyboard as by pointer. A finding that names several objects offers each. A finding that names none says so.
+- **REQ-015** — *Rule-check run.* The user starts a run by choosing a rule pack and a solved result. The surface shows the pack's identity, version and checksum, each outcome as the runner returned it, and the aggregate status. An incomplete outcome is shown as incomplete with the findings that explain it, never as zero, as within the limit or as absent. Values are shown in the display unit the user chose without changing a stored value.
+- **REQ-016** — A user-rule outcome is worded as within or exceeding the user's limit. It is never worded as pass or fail (`docs/RELEASE_TARGET_v1.0.md`, owner calls; PRD FR-RULE-003).
 
-### CLM-009 — Scope
+### Acceptance criteria
 
-> ##### Scope
->
-> Current deliverable obligation: implement missing-data warning/blocking UX, rule-check run interaction and aggregate status, with unit-aware warning presentation preserving owned rule/status semantics. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> This deliverable specifies the setup boundary for a future GUI warning and blocking workflow. It covers warning classification, blocking and qualifying behavior, result-envelope visibility, and professional/IP boundary wording for missing or weak data. The setup pass did not implement product code; the GUI implementation is `apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx`, rendering all six R-DEL-07-04-001 classes.
->
-### CLM-010 — Requirements
-
-> ##### Requirements
->
-> | ReqID | Requirement | Source basis | Verification approach |
-> |---|---|---|---|
-> | R-DEL-07-04-001 | The future GUI shall preserve the warning classes `SOLVE_BLOCKING`, `RULE_CHECK_BLOCKING`, `PROVENANCE_WARNING`, `ASSUMPTION_WARNING`, `NONLINEAR_WARNING`, and `IP_BOUNDARY_WARNING`. | `docs/SPEC.md` section 7; AB-00-06 | UI/result-envelope tests inspect class values from representative diagnostics. |
-> | R-DEL-07-04-002 | Missing solve-required physical input shall block or invalidate the affected mechanics solve and shall not be replaced by silent defaults. | SOW-022; OPS-K-DATA-2; `docs/TYPES.md` `MODEL_INCOMPLETE` | UX tests show solve action/result state is blocked or marked incomplete with remediation. |
-> | R-DEL-07-04-003 | Missing rule-check-required user/code/project data shall block or qualify rule-pack check results while preserving any valid mechanics-solve result. | SOW-022; `docs/TYPES.md` `RULE_INPUTS_INCOMPLETE`; DEL-06-03 setup evidence | UX tests show mechanics results can remain reviewable while rule-check ratios/pass-fail are unavailable or qualified. |
-> | R-DEL-07-04-004 | The GUI shall present diagnostics through result-envelope fields that include code, class, severity, source, affected object, message, remediation, and provenance where applicable. | AB-00-06; DEL-00-06 Specification REQ-06-01 | Contract/UI tests verify required diagnostic fields are rendered or available to assistive tooling. |
-> | R-DEL-07-04-005 | The warning workflow shall preserve analysis-status distinctions among incomplete model, mechanics solved, rule inputs incomplete, user-rule checked/failed, human review required, and human acceptance records. | AB-00-03; DEL-05-04; `docs/TYPES.md` section 4 | Status-mapping tests prevent collapse into a single automatic pass/compliance state. |
-> | R-DEL-07-04-006 | Provenance weakness shall remain visible as `PROVENANCE_WARNING`; value presence alone is insufficient to hide source/provenance risk. | OPS-K-DATA-3; `docs/IP_AND_DATA_BOUNDARY.md` section 4 | UX tests show missing/weak provenance is visible for relevant materials, components, rule values, and report/export surfaces. |
-> | R-DEL-07-04-007 | Assumptions shall remain visible as `ASSUMPTION_WARNING` and shall not be treated as authenticated engineering approval. | OBJ-006; OPS-K-AUTH-1 | Review workflow tests show assumption warnings survive result review and report handoff. |
-> | R-DEL-07-04-008 | Nonlinear convergence or active-state uncertainty shall remain visible as `NONLINEAR_WARNING` and shall not be hidden behind nominal result display. | OPS-K-SOLVER-2; `docs/SPEC.md` section 4.4 | Solver-result UX tests expose convergence/active-state uncertainty when present. |
-> | R-DEL-07-04-009 | Suspected protected/private content in public contribution, export, or report flows shall produce `IP_BOUNDARY_WARNING` and route to quarantine or human review rather than public output. | OPS-K-IP-1/2/3; `docs/IP_AND_DATA_BOUNDARY.md` section 5 | Protected-content/export tests verify warning and block/quarantine behavior. |
-> | R-DEL-07-04-010 | GUI warning text shall not claim certification, sealing, approval, authentication, official endorsement, or professional code compliance (PRD §21.2). | OPS-K-AUTH-1; `docs/DIRECTIVE.md` sections 2 and 5 | Product-claims wording review and negative tests exclude automatic `CODE_COMPLIANT` or equivalent claims. |
-> | R-DEL-07-04-011 | GUI state changes that affect solve or rule-check readiness shall route through application-service commands and preserve diagnostics across undo/redo where applicable. | AB-00-05; DEL-00-05 Specification REQ-05-03/05 | Future interaction tests verify warning state updates after editable model changes. |
-> | R-DEL-07-04-012 | Setup artifacts and future public examples shall use invented/non-code data only and shall not embed protected standards text, copied formulas, protected tables, or proprietary values. | OPS-K-IP-1; OPS-K-RULE-1 | Protected-content review confirms setup and future fixtures remain clean. |
-> | R-DEL-07-04-013 | Warning class, severity, affected object, message, and remediation shall be exposed through text/assistive paths and shall not rely on color-only signaling. | `_SEMANTIC_LENSING.md` C-001; SOW-036 adjacency via DEL-07-06 | Accessibility-oriented UX tests confirm non-color and assistive access to warning meaning. |
->
-
-### CLM-011 — Standards
-
-> ##### Standards
->
-> No standards-body formulas, allowables, text, examples, or protected data are included. Code-specific values and rule-pack data remain user-supplied or privately imported with provenance. Any future private project use of licensed standards data remains the user's responsibility and must not be committed as public project content.
->
-
-### CLM-012 — External Inputs
-
-> ##### External Inputs
->
-> | Input | Required from | Notes |
-> |---|---|---|
-> | Application-service result envelopes and status separation | AB-00-03 / DEL-00-03 | Needed before implementation can bind warnings to command/query/job results. |
-> | GUI state and diagnostic preservation architecture | AB-00-05 / DEL-00-05 | Needed for undo/redo, editing, and transient/durable state boundaries. |
-> | Diagnostics and warning-class contract | AB-00-06 / DEL-00-06 | Required source for warning classes and diagnostic field set. |
-> | Solver diagnostics | DEL-04-06 | Required for solve-blocking and nonlinear warning producers. |
-> | Analysis status semantics | DEL-05-04 | Required for status distinctions and no-compliance boundary. |
-> | Rule-pack required-input completeness signals | DEL-06-03 | Required for rule-check-blocking missing-data behavior. |
->
-
-### CLM-013 — Verification
-
-> ##### Verification
->
-> Future implementation verification must include:
->
-> - UI tests for each warning class listed in R-DEL-07-04-001;
-> - per-class tests proving all six classes remain distinct rather than collapsing into generic alerts;
-> - tests that `SOLVE_BLOCKING` prevents or invalidates the affected mechanics solve without inventing defaults;
-> - tests that `RULE_CHECK_BLOCKING` blocks/qualifies rule-check results without erasing mechanics results;
-> - tests that provenance, assumption, nonlinear, and IP-boundary warnings remain visible through result review and report/export handoff;
-> - accessibility-oriented checks that warning severity, class, message, affected object, and remediation are available without color-only signaling;
-> - wording checks that no warning, report preview, or status surface claims certification, approval, sealing, authentication, official endorsement, or professional code compliance (PRD §21.2);
-> - protected-content checks for public examples, exported artifacts, and report templates touched by future implementation.
-> - explicit `IP_BOUNDARY_WARNING` tests for public contribution, export, and report-preview paths using invented fixtures only.
->
-
-### CLM-014 — Documentation
-
-> ##### Documentation
->
-> Required setup artifacts for this deliverable are:
->
-> - `ScopeOfWork.md`
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
-> - `Dependencies.csv`
-> - `_DEPENDENCIES.md`
-> - `_run_records/*`
-> - `_STATUS.md`
->
-> Implementation artifacts listed in the register (`warning system UI`, `UX tests`) remain future work outside this setup session's write scope.
->
-### CLM-015 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | None | No source conflict identified during P1/P2 setup. | N/A | N/A | N/A | N/A | TBD |
-
-### CLM-016 — D-41 R5 T5 PDU-008 current GUI boundary
-
-> ##### D-41 R5 T5 PDU-008 current GUI boundary
->
-> Supplied diagnostics whose codes begin `NONLINEAR_` are displayed as `NONLINEAR_WARNING` records with severity, message, source, affected refs, and any supplied class/remediation. The GUI does not create nonlinear outcomes or replace producer evidence.
->
-
-### CLM-017 — D-41 R5 T7 PDU-054 current declaration
-
-> ##### D-41 R5 T7 PDU-054 current declaration
->
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The missing-data warning/blocking panel is implemented, including current nonlinear-visibility behavior. It presents existing diagnostics and does not synthesize engineering inputs, resolve warnings, or confer professional approval.
-
-- **AC-001** — The contract preserves explicit fail-closed behavior, the distinction between mechanics input completeness and user-rule input completeness, and current warning UX evidence without inventing values, suppressing findings, treating absence as success, or implying code compliance or approval.
+- **AC-001** — For an invented model that lacks one solve-required value: the finding is shown as solve blocking with every supplied field, the Solve command refuses and names the finding, and the model document is byte for byte what it was. Supplying the value by an applied operation removes the finding; undo brings back the same finding.
+- **AC-002** — For a solved invented model and an invented rule pack whose limits the fixture sets by hand: the run surface shows, for every check and load case, the outcome, computed value, limit and unit the runner's envelope carries, and the aggregate status it carries, with nothing added and nothing omitted.
+- **AC-003** — For the same model and a pack that lacks one required input: the mechanics result is still shown as solved, the affected outcomes are shown as incomplete with a rule-check-blocking finding that names the missing input, and no ratio is shown for them.
+- **AC-004** — For one invented finding of each of the six classes, supplied once with every field and once without remediation and provenance: every supplied field is shown, each absent field reads as not supplied, and the six are distinguishable without colour. An invented finding that carries a quantity shows it with its unit, and in a display unit the user chose with the stored value unchanged; an invented unit finding is shown as a finding that names the value concerned.
+- **AC-005** — No text of the finding surfaces or of the run surface words an outcome as pass or fail, and none states or implies a claim PRD §21.2 prohibits or carries a phrasing the claims registry withdraws or retires. Each status is shown in its registered display form with its authority domain and its token reachable.
+- **AC-006** — Every finding's class, severity, affected object, message and remediation can be read from the accessibility tree, and activating a finding by keyboard selects its affected object in the tree, the viewport and the inspector. A finding that names two objects offers both, and one that names none says so.
+- **AC-007** — For an invented result supplied with a provenance finding, an assumption and a nonlinear finding: each is shown beside the value or result it concerns, and no surface shows the assumption as accepted or shows a convergence or support state the producer did not supply.
+- **AC-008** — For an invented export finding and an invented report finding of the IP-boundary class: each flow is shown in the state its owner returned, and no control of these surfaces releases it.
+- **AC-009** — For a solved invented model, after an applied operation that removes a solve-required value, the existing result is shown as no longer current.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-018 — Procedure: DEL-07-04 Missing-data warning and blocking UX
+**Method choices.** The finding presentation is one set of rules (the fields shown, the reading of an absent field, the non-colour class marker and the way to the affected object) that every surface showing a finding follows; this scope states them once. The run surface calls the rule-check service and shows its envelope; it computes no outcome. Status words come from the label table that carries the claims registry.
 
-> #### Procedure: DEL-07-04 Missing-data warning and blocking UX
->
+**How each criterion is examined.**
 
-### CLM-019 — Purpose
-
-> ##### Purpose
->
-> This procedure defines how future implementation work should use the setup artifact for missing-data warning and blocking UX. It is an operational guide for the deliverable, not an implementation script.
->
-
-### CLM-020 — Prerequisites
-
-> ##### Prerequisites
->
-> - Confirm the active sealed scope is DEL-07-04 / PKG-07.
-> - Read `_CONTEXT.md`, `docs/CONTRACT.md`, `docs/SPEC.md` section 7, `docs/TYPES.md` section 4, and the applicable architecture basis rows AB-00-03, AB-00-05, and AB-00-06.
-> - Confirm upstream setup evidence for DEL-04-06, DEL-05-04, and DEL-06-03 before writing implementation code.
-> - Confirm no protected standards text, protected tables, copied formulas, proprietary values, private rule packs, or certification/compliance claims are introduced.
->
-
-### CLM-021 — Steps
-
-> ##### Steps
->
-> 1. Classify missing or weak data by warning class: `SOLVE_BLOCKING`, `RULE_CHECK_BLOCKING`, `PROVENANCE_WARNING`, `ASSUMPTION_WARNING`, `NONLINEAR_WARNING`, or `IP_BOUNDARY_WARNING`.
-> 2. Map `SOLVE_BLOCKING` conditions to `MODEL_INCOMPLETE` or equivalent incomplete mechanics-solve status without inventing defaults.
-> 3. Map `RULE_CHECK_BLOCKING` conditions to `RULE_INPUTS_INCOMPLETE` or equivalent rule-check-blocked status while preserving valid mechanics results when available.
-> 4. Preserve diagnostic fields from result envelopes: code, class, severity, source, affected object, message, remediation, and provenance where applicable.
-> 5. Present warnings in the GUI where users edit data, run solves, review results, and prepare reports/exports.
-> 6. Keep warning state synchronized through application-service commands and job/result envelopes; do not mutate domain readiness directly from transient UI state.
-> 7. Check wording for professional-boundary compliance before any user-facing message is accepted.
-> 8. Check public examples, screenshots, exports, report previews, and fixtures for protected-content and private-data boundary risks.
->
-
-### CLM-022 — Verification
-
-> ##### Verification
->
-> Future verification should confirm:
->
-> - each warning class can be rendered from a representative diagnostic envelope;
-> - all six warning classes remain distinct in tests and are not collapsed into a generic alert state;
-> - solve-blocking and rule-check-blocking behavior remain distinct;
-> - missing values are surfaced as `TBD`, diagnostic findings, or blocked/qualified results rather than silent defaults;
-> - provenance, assumption, nonlinear, and IP-boundary warnings survive result review and report/export handoff;
-> - keyboard, non-color, and assistive-technology paths can identify warning class, severity, affected object, and remediation;
-> - warning text does not claim certification, approval, sealing, authentication, official endorsement, or code compliance (PRD §21.2).
-> - `IP_BOUNDARY_WARNING` blocks, qualifies, quarantines, or routes public contribution/report/export risk without exposing protected/private data.
->
-
-### CLM-023 — Records
-
-> ##### Records
->
-> Maintain these local setup records:
->
-> - `ScopeOfWork.md`;
-> - semantic artifacts: `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`;
-> - dependency artifacts: `Dependencies.csv`, `_DEPENDENCIES.md`;
-> - run records under `_run_records/`;
-> - lifecycle record in `_STATUS.md`.
->
-### CLM-024 — D-41 R5 T7 PDU-054 current declaration
-
-> ##### D-41 R5 T7 PDU-054 current declaration
->
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The missing-data warning/blocking panel is implemented, including current nonlinear-visibility behavior. It presents existing diagnostics and does not synthesize engineering inputs, resolve warnings, or confer professional approval.
->
-> Current implementation (at `62c1efd75b`): the panel is `apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx`, mounted from `apps/desktop/src/App.tsx`. Its six warning classes are typed at the top of that file. It is exercised by `apps/desktop/src/App.test.tsx` and `apps/desktop/e2e/gui-workflow-validation.spec.ts`. `core/gui/warnings/engine.py` is a reference module exercised by `tests/test_missing_data_warning_ux.py` and is not called by the desktop.
-
-- **VER-001** — Validate the contract and review source parity, diagnostic classes and severity, blocking-state separation, navigation and remediation surfaces, missing/incompatible/unprovenanced data handling, current implementation declarations and residuals, and no-silent-default behavior.
+- **VER-001** — Executable check (observes the desktop session with an invented model): opens a model that lacks a solve-required value, reads the finding surface and the Solve command, applies the operation that supplies the value, then undoes it, and compares the model document's bytes and the findings at each step; then solves, applies an operation that removes the value and reads how the existing result is marked.
+- **VER-002** — Executable check (observes the run surface against the runner's envelope): runs the invented pack over the solved invented model, with and without the required input, and compares every displayed outcome, value, limit, unit and status with the envelope the runner returned.
+- **VER-003** — Executable check (observes the rendered finding surfaces): renders one finding of each class with and without the optional fields, a finding that carries a quantity and a unit finding, and reads the displayed fields, units and the non-colour marker of each class.
+- **VER-004** — Comparison with a named reference (the prohibited claims of PRD §21.2, the claims registry's display-form table and its withdrawn and retired phrasings, and the release target's wording of a user-rule outcome): reads every text the finding surfaces and the run surface can show and compares it with them.
+- **VER-005** — Executable check (observes the accessibility tree and keyboard input): reads each finding's fields from the tree and activates a finding by keyboard, then reads the session's selection; repeats with a finding that names two objects and one that names none.
+- **VER-006** — Executable check (observes the result and flow surfaces with supplied findings): supplies a provenance finding, an assumption and a nonlinear finding with an invented result, and an IP-boundary finding with an export and with a report, and reads where each is shown, what state each flow shows and which controls are offered.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-025 — Guidance: DEL-07-04 Missing-data warning and blocking UX
-
-> #### Guidance: DEL-07-04 Missing-data warning and blocking UX
->
-
-### CLM-026 — Purpose
-
-> ##### Purpose
->
-> This deliverable prepares the warning and blocking UX surface for future GUI implementation. The key distinction is that a mechanics solve, a user-rule check, and a professional acceptance decision are different states. The GUI must help users see missing data, assumptions, provenance weakness, nonlinear uncertainty, and IP/private-data risks without filling engineering gaps silently.
->
-
-### CLM-027 — Principles
-
-> ##### Principles
->
-> - Missing solve-required or rule-check-required values are findings, not hidden defaults.
-> - `SOLVE_BLOCKING` and `RULE_CHECK_BLOCKING` are not interchangeable: the former affects mechanics solve readiness; the latter affects rule-check readiness.
-> - Result displays may show mechanics outputs only with the relevant diagnostics and limitations visible.
-> - Warnings should carry actionable remediation, affected object identity, source/provenance where applicable, and severity.
-> - Warning UX must preserve the professional responsibility boundary: software assists analysis; acceptance and professional judgment remain with the responsible engineer.
-> - Public-facing examples, report previews, and exports must preserve protected-data and privacy boundaries.
-> - `HUMAN_REVIEW_REQUIRED` is the appropriate reminder for professional reliance; it is not a substitute for a human approval record and must not be presented as software approval.
->
-
-### CLM-028 — Considerations
-
-> ##### Considerations
->
-> | Warning class | UX implication | Boundary to preserve |
-> |---|---|---|
-> | `SOLVE_BLOCKING` | Disable, block, or invalidate the affected solve path and point to the missing physical input. | Do not invent geometry, material, support, load, section, or component values. |
-> | `RULE_CHECK_BLOCKING` | Keep mechanics results reviewable when valid, but block or qualify user-rule-check results and ratios. | Do not imply code pass/fail, compliance, or professional acceptance. |
-> | `PROVENANCE_WARNING` | Show that the value exists but its source, license, or review status is missing, weak, or unresolved. | Do not treat a value as public or reliable simply because it is present. |
-> | `ASSUMPTION_WARNING` | Keep user/model assumptions visible during editing, solving, result review, and reporting. | Do not upgrade assumptions into approved engineering facts. |
-> | `NONLINEAR_WARNING` | Surface convergence, active-set, gap, lift-off, or friction-state uncertainty when present. | Do not hide uncertainty behind clean-looking result visuals. |
-> | `IP_BOUNDARY_WARNING` | Warn, block, quarantine, or route to human review for public contribution/report/export risk. | Do not copy protected standards or private project data into public artifacts. |
->
-
-### CLM-029 — Trade-offs
-
-> ##### Trade-offs
->
-> - Blocking too early can interrupt modeling, but blocking too late can make incomplete engineering states look valid. Prefer allowing model editing while clearly blocking solve or rule-check actions that lack required data.
-> - A warning list alone is insufficient for engineering review. Future UX should also mark affected model objects/results so the user can locate the issue.
-> - Severity and class should not rely on color alone; future accessibility work in DEL-07-06 should cover keyboard navigation, screen-reader labels, contrast, and review workflow usability.
-> - Implementation should avoid duplicating warning logic in UI state. The GUI should consume application-service diagnostics/result envelopes and present them faithfully.
-> - Exact placement and copy for editor panels, solve execution, result review, report preview, and export controls remain `TBD` for future GUI implementation. This setup fixes warning semantics, not component layout.
->
-
-### CLM-030 — Examples
-
-> ##### Examples
->
-> The following are invented behavioral examples, not standards-derived cases:
->
-> - A component has enough user-entered geometry for mechanics but lacks a private rule-pack required allowable. The GUI may show mechanics results while marking the rule check as blocked with `RULE_CHECK_BLOCKING`.
-> - A support definition is missing stiffness or restraint direction needed by the solver. The GUI blocks the affected solve path with `SOLVE_BLOCKING` and leaves the missing field visible.
-> - A value is present but has `source_location = TBD` or unresolved redistribution status. The GUI shows `PROVENANCE_WARNING` or `IP_BOUNDARY_WARNING` depending on the affected workflow.
->
-
-### CLM-031 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | None | No source conflict identified during setup. | N/A | N/A | N/A | N/A | TBD |
->
-
-### CLM-032 — D-41 R5 T7 PDU-054 current declaration
-
-> ##### D-41 R5 T7 PDU-054 current declaration
->
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The missing-data warning/blocking panel is implemented, including current nonlinear-visibility behavior. It presents existing diagnostics and does not synthesize engineering inputs, resolve warnings, or confer professional approval.
-
-### CLM-033 — SCA-011 Rule-check and unit-aware warning interaction
-
-**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
-
-Own rule-check run interaction and aggregate status presentation (CAP-FEATB-008/009, CAP-WSUI-035) and shared unit-aware warning presentation (CAP-COREB-030). PKG-06 retains rule semantics/runner APIs, DEL-05-04 status semantics and DEL-02-02 units.
-
-- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.
-- **AC-002** — The named boundary is honored, its witness is bound to the tested candidate, and missing or held results remain explicit. Ownership assignment alone is not a pass.
-- **VER-002** — Exercise mechanics-solved versus user-rule states, unknown/blocked diagnostics and literal display dimensions against the units contract; no hidden default or success-state inference.
+- **AX-001** — An absent value stays absent. Better is a blocked action with a named reason, measured by the model document being unchanged after every refusal, never a result produced from a value the user did not enter.
+- **AX-002** — A finding says no more than its producer said. Better is a field shown as not supplied, measured by the displayed fields equalling the supplied ones, never a remediation, cause or outcome composed by the presentation.
+- **AX-003** — A status is not a judgment of the design. Better is a mechanics result, a rule-check outcome and the need for human review each shown as its own fact, never one combined verdict.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-022 OBJ-006 OBJ-011 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-| OUT-002 | OBJ-006 OBJ-011 | CLM-033 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-07-04:1** — Preserve producer-side nonlinear diagnostic completeness as a separate responsibility; the PDU-008 GUI now surfaces supplied `NONLINEAR_*` diagnostics but does not invent convergence outcomes or missing solver evidence.
+| OUT-001 | SOW-022 OBJ-006 | REQ-001 REQ-002 REQ-011 | AC-001 | VER-001 | Owner ruling: PRD §5.5 says a missing solve-required value blocks and is never defaulted. The expected finding is the one the model checks return for the value the fixture omits; the expected document is the fixture file itself. |
+| OUT-002 | SOW-022 OBJ-006 OBJ-011 | REQ-005 REQ-015 | AC-002 | VER-002 | The runner's envelope is the reference and the limits are set by hand in the fixture. This shows the surface alters nothing; whether the outcomes are right is DEL-06-03's to show. |
+| OUT-002 | SOW-022 OBJ-011 | REQ-003 REQ-015 | AC-003 | VER-002 | Owner ruling: PRD §17.5 says missing rule inputs leave the mechanics result valid and the check incomplete. The missing input is the one the fixture removes. |
+| OUT-001 | SOW-022 OBJ-006 | REQ-001 REQ-004 REQ-015 | AC-004 | VER-003 | Owner ruling: the decomposition's architecture basis AB-00-06, stated in DEL-00-06, fixes the fields and the six classes, and PRD §14.4 the distinctions. The expected display is the finding as the check supplies it; the units of a dimension are the unit catalog's (DEL-02-02). |
+| OUT-001 | SOW-022 OBJ-011 | REQ-005 REQ-010 REQ-016 | AC-005 | VER-004 | Owner ruling: the release target's wording of a user-rule outcome and PRD §21.2. The display forms, authority domains and withdrawn phrasings are DEL-01-04's registry, which this deliverable does not write. |
+| OUT-001 | SOW-022 OBJ-006 | REQ-013 REQ-014 | AC-006 | VER-005 | Owner ruling: the desktop's accessibility baseline (DEL-07-06) requires a keyboard alternative and a signal other than colour. The expected selection is the finding's own affected object. |
+| OUT-001 | SOW-022 OBJ-006 | REQ-006 REQ-007 REQ-008 | AC-007 | VER-006 | The supplied findings say what must be shown and where; they are written by hand for the check, not by the presentation. PRD §14.4 is the owner ruling that each stays visible. |
+| OUT-001 | SOW-022 OBJ-011 | REQ-009 | AC-008 | VER-006 | The flow's state is its owner's (DEL-12-02 for exports, DEL-08-05 for reports), supplied by hand to the check; the expected count of releasing controls is zero. |
+| OUT-001 | SOW-022 OBJ-006 | REQ-002 | AC-009 | VER-001 | Owner ruling: PRD §5.5. The removed value is the one the check removes, and the expected marking is the requirement's. |

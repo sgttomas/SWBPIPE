@@ -1,213 +1,33 @@
 id: DEL-12-05
 name: Security threat model
 needs:
-- from: DEL-00-01
-  condition: 'DEL-12-05 must apply SCA-001 architecture-basis constraint AB-00-01 from DEL-00-01 when
-    executing the sealed PKG-12 security/privacy scope.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself; semantic_refresh_2026-06-16: PKG-00 tracker normalized to AB-00 constraint semantics; PKG-00
-    not treated as issuance authority
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-12-05 must apply SCA-001 architecture-basis constraint AB-00-02 from DEL-00-02 when
-    executing the sealed PKG-12 security/privacy scope.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself; semantic_refresh_2026-06-16: PKG-00 tracker normalized to AB-00 constraint semantics; PKG-00
-    not treated as issuance authority
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-03
-  condition: 'DEL-12-05 must apply SCA-001 architecture-basis constraint AB-00-03 from DEL-00-03 when
-    executing the sealed PKG-12 security/privacy scope.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself; semantic_refresh_2026-06-16: PKG-00 tracker normalized to AB-00 constraint semantics; PKG-00
-    not treated as issuance authority
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-04
-  condition: 'DEL-12-05 must apply SCA-001 architecture-basis constraint AB-00-04 from DEL-00-04 when
-    executing the sealed PKG-12 security/privacy scope.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself; semantic_refresh_2026-06-16: PKG-00 tracker normalized to AB-00 constraint semantics; PKG-00
-    not treated as issuance authority
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-12-05 must apply SCA-001 architecture-basis constraint AB-00-06 from DEL-00-06 when
-    executing the sealed PKG-12 security/privacy scope.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself; semantic_refresh_2026-06-16: PKG-00 tracker normalized to AB-00 constraint semantics; PKG-00
-    not treated as issuance authority
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-07
-  condition: 'DEL-12-05 must apply SCA-001 architecture-basis constraint AB-00-07 from DEL-00-07 when
-    executing the sealed PKG-12 security/privacy scope.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself; semantic_refresh_2026-06-16: PKG-00 tracker normalized to AB-00 constraint semantics; PKG-00
-    not treated as issuance authority
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-12-05 must apply SCA-001 architecture-basis constraint AB-00-08 from DEL-00-08 when
-    executing the sealed PKG-12 security/privacy scope.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself; semantic_refresh_2026-06-16: PKG-00 tracker normalized to AB-00 constraint semantics; PKG-00
-    not treated as issuance authority
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
 - from: DEL-01-02
-  condition: 'DEL-12-05 needs DEL-01-02 as a predecessor: threat model must include protected/private
-    data boundary
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The boundary policy names the classes of protected content and of private user data, the
+    provenance record, and the quarantine rule for suspected protected content.
   gating: true
 - from: DEL-02-04
-  condition: 'DEL-12-05 needs DEL-02-04 as a predecessor: threat model must cover plugins/adapters/extensions
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The extension contract says an extension attaches only at a declared extension point, has no
+    direct path to the domain core, the solver, report controls or project storage, and goes
+    around no governance, validation, diagnostic or data-boundary control.
   gating: true
 - from: DEL-01-04
-  condition: 'DEL-12-05 needs DEL-01-04 as a predecessor: threat model must preserve non-certification/product-claims
-    boundary
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; edge touches targeted-review deliverable DEL-01-04 or DEL-02-01
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The claims registry is the single source of boundary language, and no registered statement
+    states or implies certification, approval or code compliance.
   gating: true
-- from: doc:docs/CONTRACT.md
-  condition: 'DEL-12-05 depends on CONTRACT privacy, rule-pack, report, authority, and agent invariants
-    to constrain threat-model content.
-
-
-    Notes: FACT: governing source is explicitly named by DEL-12-05 setup documents.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: CONTRACT invariant catalog; TargetRefID: docs/CONTRACT.md; TargetLocation:
-    docs/CONTRACT.md'
-  evidence: execution/PKG-12/DEL-12-05/ScopeOfWork.md
-- from: doc:docs/IP_AND_DATA_BOUNDARY.md
-  condition: 'DEL-12-05 depends on the IP/data boundary policy for provenance, quarantine, private data,
-    and report-boundary controls.
-
-
-    Notes: FACT: governing source is explicitly named by DEL-12-05 setup documents.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: IP and Data Boundary Policy; TargetRefID: docs/IP_AND_DATA_BOUNDARY.md;
-    TargetLocation: docs/IP_AND_DATA_BOUNDARY.md'
-  evidence: execution/PKG-12/DEL-12-05/ScopeOfWork.md
-- from: doc:docs/SPEC.md
-  condition: 'DEL-12-05 depends on SPEC layer, rule-pack evaluator, diagnostics, reporting, and acceptance
-    semantics.
-
-
-    Notes: FACT: governing source is explicitly named by DEL-12-05 setup documents.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: OpenPipeStress technical specification; TargetRefID: docs/SPEC.md;
-    TargetLocation: docs/SPEC.md'
-  evidence: execution/PKG-12/DEL-12-05/ScopeOfWork.md
-- from: doc:docs/PRD.md
-  condition: 'DEL-12-05 depends on PRD security/privacy, telemetry, report-sharing, and risk requirements
-    for threat coverage.
-
-
-    Notes: FACT: governing source is explicitly named by DEL-12-05 setup documents.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: OpenPipeStress product requirements; TargetRefID: docs/PRD.md; TargetLocation:
-    docs/PRD.md'
-  evidence: execution/PKG-12/DEL-12-05/ScopeOfWork.md
-- from: doc:docs/DIRECTIVE.md
-  condition: 'DEL-12-05 depends on directive stop rules, public/private data boundary, and professional-responsibility
-    limits.
-
-
-    Notes: FACT: governing source is explicitly named by DEL-12-05 setup documents.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: OpenPipeStress directive and stop rules; TargetRefID: docs/DIRECTIVE.md;
-    TargetLocation: docs/DIRECTIVE.md'
-  evidence: execution/PKG-12/DEL-12-05/ScopeOfWork.md
-- from: doc:execution/_Decomposition/SOFTWARE_DECOMP.md
-  condition: 'DEL-12-05 depends on the decomposition for PKG-12, SOW-040, OBJ-010, and applicable AB-00
-    architecture-basis constraints.
-
-
-    Notes: FACT: governing source is explicitly named by DEL-12-05 setup documents.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: Software decomposition revision 0.7; TargetRefID: execution/_Decomposition/SOFTWARE_DECOMP.md;
-    TargetLocation: execution/_Decomposition/SOFTWARE_DECOMP.md'
-  evidence: execution/PKG-12/DEL-12-05/ScopeOfWork.md
+- from: DEL-00-07
+  condition: >-
+    The boundary map lists every seam between the layers, marks each internal or public, and says
+    a plugin's or adapter's declaration grants nothing.
+  gating: false
+- from: DEL-00-06
+  condition: >-
+    The diagnostic contract names the product's six warning classes, the provenance, assumption
+    and IP-boundary classes among them.
+  gating: false
 code_paths:
-- apps/desktop/src/services/telemetryPolicyService.ts
-- tools/validation/validate_dependencies_schema.py
+- docs/security/threat_model.md
+checks:
+- tests/test_security_threat_model.py

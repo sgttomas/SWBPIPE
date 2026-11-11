@@ -2,357 +2,105 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-07-08
 package_id: PKG-07
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-076]
 package_objective_refs: [OBJ-015, OBJ-016]
 ---
 
-# Scope of Work — DEL-07-08
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency conditions are declared in this deliverable's `deliverable.yaml`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+# Scope of Work — DEL-07-08 Design-authoring state and comparison workspace
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-07-08` in service of project scope [SOW-076] and package objectives [OBJ-015, OBJ-016].
+This deliverable is where the engineer works with the history of a design and not only its current model. It shows the design knowledge and constraints a model is built against, the saved states of the model and the runs solved on them, and what changed between any two of them, as tables and as an overlay on the model. It is also where every proposed change, whoever or whatever wrote it, is reviewed, previewed and explicitly applied, and where the record of what was applied can be read. The result it contributes is that a change to a piping model is always a reviewed, attributable step, and that two versions of a design or two runs of it can be compared without leaving the desktop.
 
-- **OUT-001** — A design-authoring and comparison workspace contract covering design knowledge and constraints, operation/diff review, state/run browsing, comparison tables and overlays, upstream-contract use, and application-service mutation boundaries is produced.
+It serves SOW-076 under OBJ-015 and OBJ-016 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-07, row DEL-07-08), and PRD §14.5, §13.1, §13.2, §15.1 to §15.3, FR-GUI-007 and FR-CMP-001 to FR-CMP-010. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names this deliverable.
+
+- **OUT-001** — The design-knowledge and constraint panels, the state and run browser, and the comparison views with their overlay.
+- **OUT-002** — The review and apply interaction for operations and proposals, and the presentation of the operation ledger.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-07-08 Design-authoring state and comparison workspace
+**Terms the workspace implements.**
 
-> #### Datasheet: DEL-07-08 Design-authoring state and comparison workspace
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *Design knowledge.* The recorded basis a model is designed against: endpoints, line data, corridors, zones, equipment and their sources and unresolved assumptions. The panel shows these records in the form DEL-13-01 defines.
+- *Constraint finding.* A message the constraint engine returns about the model against a constraint. The panel shows it; it evaluates no constraint.
+- *State.* A named, immutable snapshot of the model. *Run.* A recorded solve of one state. A state's snapshot and a run's record are immutable; their name, tags, notes and state-level or run-level assumptions are labels the user may edit.
+- *Comparison.* A deterministic result that classifies the entities of two states as added, removed, changed, unchanged or unresolved (DEL-14-03), and gives the result deltas of two runs with the rows left unmatched on each side (DEL-14-04, in DEL-14-05's form). A *mapping* pairs entities whose identifiers differ. A *tolerance profile* is the user's absolute and relative limits by result category.
+- *Comparison overlay.* The model drawn with the entities a comparison classifies marked by class, with a legend in words.
+- *Review queue.* The pending operations and batches of the session. Each item has an author, a validation finding and a preview.
+- *Review stages.* An item is *proposed* when queued, *validated* when the engine's validate-only pass admits it, *accepted* when the user applies it, and *audited* when its decision record and outcome record are in the operation history. The stages are shown as distinct and none is inferred from another.
+- *Apply.* The user's explicit act that sends a validated item to the operation engine.
+- *Operation ledger.* The operation history as DEL-16-03 keeps it: each batch's decision record (accepted, rejected, held or withdrawn) and outcome record (applied, refused or unknown), with its operations and each operation's author. Session undo and redo are not the ledger and are not acceptance history.
+- *Proposal.* A batch written outside the desktop's forms: by an agent, or offline and brought in as a file. A proposal carries one of five class words: "Check", "Open issue", "Draft", "Proposal" or "Evidence summary".
 
-### CLM-003 — Identification
+**Boundary.** The workspace presents and routes. The following belong elsewhere:
 
-> ##### Identification
->
-> | Field | Value | Source |
-> |---|---|---|
-> | Deliverable ID | DEL-07-08 | `_CONTEXT.md` / Context header |
-> | Name | Design-authoring state and comparison workspace | `_CONTEXT.md` / Context header |
-> | Package | PKG-07 Graphical User Interface and Engineering Workflow | `_CONTEXT.md` / Package Reference |
-> | Type | UX_UI_SLICE | `_CONTEXT.md` / Type |
-> | Scope item | SOW-076 | `_CONTEXT.md` / Scope Coverage |
-> | Objectives | OBJ-015, OBJ-016 | `_CONTEXT.md` / Objective Support |
-> | Context envelope | L | `_CONTEXT.md` / Context Envelope |
-> | Context risk | WATCH; confirm scope and split if it expands | `_CONTEXT.md` / Context Budget QA |
->
+- the design-knowledge and constraint records and the constraint engine: DEL-13-01, DEL-13-02 and DEL-13-03;
+- state and run records: DEL-14-01 and DEL-14-02. The comparison engines: DEL-14-03 and DEL-14-04. Mapping, tolerance and comparison export forms: DEL-14-05. CSV export of a comparison view: DEL-08-04;
+- the operation form, validation and preview, the acceptance record and receipt, agent controls, and application: DEL-16-01, DEL-16-02, DEL-16-03, DEL-16-04 and DEL-16-06;
+- moving queued single changes into one batch: DEL-07-02/REQ-017;
+- the forms that author an operation: the deliverables that own each editor;
+- the session, its history and its guard on replacing the working model: DEL-07-11;
+- how a finding's class and fields are shown: DEL-07-04;
+- reading a single result: DEL-07-05.
 
-### CLM-004 — Attributes
-
-> ##### Attributes
->
-> | Attribute | Current value |
-> |---|---|
-> | Intended GUI surfaces | Design knowledge panel; operation diff review; state/run browser; comparison overlays. Source: `_CONTEXT.md` / Anticipated Artifacts. |
-> | Scope statement | The GUI shall support design-authoring and comparison workflows, including design knowledge panels, constraint/warning panels, state/run browsers, comparison tables, and graphical comparison overlays. Source: `execution/_Decomposition/SOFTWARE_DECOMP.md` / SOW-076. |
-> | GUI-facing stack basis | Rust core/application services, Tauri 2 desktop shell where GUI-facing, TypeScript/React/Vite GUI where GUI-facing, and Three.js viewport where 3D viewport-facing. Source: `_CONTEXT.md` / Architecture Basis Injection. |
-> | Exact dependency versions | TBD. Source: `_CONTEXT.md` / Architecture Basis Injection / Still TBD. |
-> | Mutation boundary | GUI mutations route through application-service commands; durable project state remains separated from transient session, viewport, selection, and job-progress state. Source: `execution/_Decomposition/SOFTWARE_DECOMP.md` / AB-00-05. |
-> | Diagnostic boundary | Diagnostics and result envelopes carry code, class, severity, source, affected object, message, remediation, and provenance; outputs must not claim certification or compliance. Source: `execution/_Decomposition/SOFTWARE_DECOMP.md` / AB-00-06. |
-> | Data boundary | Missing solve-required or rule-check-required values are explicit findings and not silent defaults. Source: `docs/CONTRACT.md` / Invariant index. |
-> | Professional boundary | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). Source: `docs/CONTRACT.md` / Invariant index. |
->
-
-### CLM-005 — Conditions
-
-> ##### Conditions
->
-> | Condition | Status |
-> |---|---|
-> | Upstream dependency mirror | Resolve the approved graph and adoption record through `execution/_DAG/_LATEST.md`; inspect the local `Dependencies.csv` for its exact mirror. Do not copy old DAG counts/statuses as current authority or infer satisfaction from graph adoption. |
-> | Architecture basis dependencies | AB-00-01, AB-00-02, AB-00-03, AB-00-05, AB-00-06, AB-00-07, and AB-00-08 apply as dispatchable constraints. Source: `_CONTEXT.md` / Architecture Basis Injection. |
-> | GUI predecessor dependencies | DEL-07-01, DEL-07-02, DEL-07-04, and DEL-07-05 are declared upstream GUI foundations. Source: `Dependencies.csv` rows DAG-002-E0840 through DAG-002-E0843. |
-> | Design/constraint dependencies | DEL-13-01, DEL-13-03, and DEL-13-04 are declared upstream design-knowledge, constraint-validation, and transformation inputs. Source: `Dependencies.csv` rows DAG-002-E0844 through DAG-002-E0846. |
-> | State/comparison dependencies | DEL-14-01, DEL-14-03, DEL-14-04, and DEL-14-05 are declared upstream state and comparison inputs. Source: `Dependencies.csv` rows DAG-002-E0847 through DAG-002-E0850. |
-> | Operation workflow dependencies | DEL-16-01, DEL-16-02, and DEL-16-03 are declared upstream operation schema, diff preview, and audit inputs. Source: `Dependencies.csv` rows DAG-002-E0851 through DAG-002-E0853. |
-> | Frontend implementation evidence Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | TBD; this folder contains setup documents only at this workflow stage. Source: local folder inspection. |
->
-
-### CLM-006 — Construction
-
-> ##### Construction
->
-> This deliverable is a GUI workflow slice. The expected construction surface is a workspace that composes design knowledge, warnings, operation/diff review, state/run browsing, comparison tables, and graphical comparison overlays without owning the backend schemas or engines that produce those records.
->
-> The workspace must consume upstream contracts rather than invent placeholder semantics. The approved DAG-006 edge review states that DEL-07-08 should consume existing GUI foundations plus initial design, transform, comparison, and operation contracts. Source: `execution/_DAG/DAG-006/DAG-002_EdgeDispositionReview.md` / DAG2-RD-015.
->
-> Implementation details not supported by local evidence remain TBD, including concrete component hierarchy, state-management library, route names, data-fetching library, visual encoding rules, keyboard shortcuts, and Playwright coverage thresholds.
->
-
-### CLM-007 — References
-
-> ##### References
->
-> | Reference | Use in this datasheet |
-> |---|---|
-> | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) | Deliverable identity, scope, objectives, package, architecture basis, context budget. |
-> | `_REFERENCES.md` | Local reference index. |
-> | `_DEPENDENCIES.md` and `Dependencies.csv` | Approved local DAG-002 mirror and dependency evidence surface. |
-> | `execution/_Decomposition/SOFTWARE_DECOMP.md` | SOW-076, OBJ-015, OBJ-016, PKG-07 deliverable row, architecture-basis constraints. |
-> | `docs/CONTRACT.md` | Invariants for data boundary, no silent defaults, professional boundary, and agent drafting limits. |
-> | `docs/SPEC.md` | GUI warning classes, application-service boundaries, persistence/hash boundaries, result/export/report boundary constraints. |
-> | `docs/TYPES.md` | UX_UI_SLICE type and relevant vocabulary for viewport sessions, diagnostics, states, reports, and professional boundary. |
-> | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data and protected-content boundary. |
+**Not decided.** The display words for the four review stages. They are the claims registry's to give (DEL-01-04); until it does, the stage names above are shown. Which surface enters design knowledge is not decided (DEL-13-01). How a user reviews and confirms a mapping is not decided (decomposition OI-014).
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-008 — Specification: DEL-07-08 Design-authoring state and comparison workspace
+### Requirements
 
-> #### Specification: DEL-07-08 Design-authoring state and comparison workspace
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- **REQ-001** — The workspace provides design-knowledge panels, constraint and warning panels, a state and run browser, comparison tables and a graphical comparison overlay.
+- **REQ-002** — Every panel shows a record in the form its owning deliverable defines, with the identities and fields the record carries. No panel gives a record a meaning, a status or a placeholder value of its own.
+- **REQ-003** — A change to the model or to design knowledge is made only as an operation through the review queue and an explicit Apply. No panel writes a stored payload.
+- **REQ-004** — Proposed, validated, accepted and audited are shown as distinct stages of an item. Nothing is shown as accepted before the user's Apply, or as audited before its record exists.
+- **REQ-005** — The browser saves the working model as a named state with tags, notes and state assumptions, records a run against a saved state, edits a state's or a run's labels, lists saved states, runs and comparisons with their names, tags, notes, identities and hashes, opens each for review, and reopens a state as the working model through the shell's guard. A removal the store refuses is shown by the refusal's name. The browser never changes a snapshot, a recorded run or a hash (DEL-14-01, DEL-14-02; PRD FR-CMP-001).
+- **REQ-006** — Constraint findings and warnings keep their governed fields and classes and are shown under DEL-07-04's presentation rules.
+- **REQ-007** — A comparison is shown as a review aid. No comparison view, overlay or export option presents a comparison as external validation, approval or compliance.
+- **REQ-008** — Missing information is visible: an unmatched entity, an unmapped pair, a value without a unit and an absent record are each stated, and nothing is defaulted to make a comparison complete.
+- **REQ-011** — *Comparison content.* A comparison view shows the two states or runs compared with their identities; the mapping table; unmatched entities; added, removed and changed entities; changed solver settings; changed rule-pack and library references; result deltas with units; items outside the user's tolerance profile; the overlay; and the export options (PRD §14.5). Each view renders from a view model that gives the rows its filters match, with each side's identity, stored values and units.
+- **REQ-012** — *Review and apply.* The queue shows each pending item with its operations, its author, the model revision it was written against, its declared assumptions, its validation finding and its deterministic preview. Apply is offered only for an item that is validated and previewed, and the only decision passed to the engine is the user's own Apply or Reject. A refusal is shown by its name and leaves the model unchanged. An item made stale by another change is refused and must be queued and validated again; it is never rebased.
+- **REQ-013** — *Ledger.* The ledger panel shows the operation history as recorded: each batch's decision record and outcome record, including rejected, held, withdrawn, refused and unknown, with its operations and each operation's author. Undo and redo do not alter it and are not shown as part of it.
+- **REQ-014** — *Proposals.* An agent's or an offline proposal enters the same queue and passes the same validation, preview and Apply as a change from a form. It is shown with its author and its class word. A proposal's retained context that is reloaded is shown as "acceptance unknown" and must be queued and validated afresh. The offline intake offers the machine-readable capability list and operation schema for download as its authoring reference.
+- **REQ-015** — *Mapping and tolerance.* The user maps, unmaps and marks entities intentionally unmatched, and defines a tolerance profile of absolute and relative rules by result category, each written as a record in DEL-14-05's form, with no number supplied by the product (PRD FR-CMP-005, FR-CMP-007, FR-CMP-008).
 
-### CLM-010 — Scope
+### Acceptance criteria
 
-> ##### Scope
->
-> DEL-07-08 covers the GUI workspace slice for design-authoring and comparison workflows. The scope includes design knowledge panels, constraint/warning panels, state/run browsers, comparison tables, operation/diff review, and graphical comparison overlays. Source: `_CONTEXT.md` / Description and Anticipated Artifacts; `execution/_Decomposition/SOFTWARE_DECOMP.md` / SOW-076.
->
-> This deliverable does not own the backend contracts for design knowledge, constraint validation, physical-to-analytical transformation, immutable model states, analysis runs, comparison engines, structured model operations, operation validation, or operation audit trails. Those are declared upstream dependencies in `Dependencies.csv` and are consumed by this GUI workspace.
->
-> This deliverable must not silently supply missing code data, protected engineering values, owner requirements, rule-pack values, or professional acceptance states. Source: `docs/CONTRACT.md` / OPS-K-DATA-1, OPS-K-DATA-2, OPS-K-AUTH-1; `docs/IP_AND_DATA_BOUNDARY.md` / Public repository must not contain.
->
-
-### CLM-011 — Requirements
-
-> ##### Requirements
->
-> | ID | Requirement | Source |
-> |---|---|---|
-> | REQ-07-08-001 | The workspace shall support design-authoring and comparison workflows, including design knowledge panels, constraint/warning panels, state/run browsers, comparison tables, and graphical comparison overlays. | `execution/_Decomposition/SOFTWARE_DECOMP.md` / SOW-076 |
-> | REQ-07-08-002 | The workspace shall consume existing GUI, design, transform, comparison, and operation contracts rather than inventing placeholder semantics. | `execution/_DAG/DAG-006/DAG-002_EdgeDispositionReview.md` / DAG2-RD-015 |
-> | REQ-07-08-003 | GUI-originated mutations shall route through application-service command intents and shall not directly mutate persisted project payloads. | `docs/SPEC.md` / GUI requirements; `execution/_Decomposition/SOFTWARE_DECOMP.md` / AB-00-05 |
-> | REQ-07-08-004 | The operation/diff review surface shall preserve the distinction between proposed, validated, accepted, and audited model operations; exact UI state labels are TBD pending upstream operation contracts. | `execution/_Decomposition/SOFTWARE_DECOMP.md` / SOW-069, SOW-070; `Dependencies.csv` rows DAG-002-E0851 through DAG-002-E0853 |
-> | REQ-07-08-005 | The state/run browser shall treat immutable model states, analysis runs, and deterministic comparisons as first-class review records; exact data contract shape is inherited from upstream PKG-14 deliverables. | `execution/_Decomposition/SOFTWARE_DECOMP.md` / SOW-071 through SOW-073; `Dependencies.csv` rows DAG-002-E0847 through DAG-002-E0850 |
-> | REQ-07-08-006 | Constraint and warning presentation shall preserve structured diagnostic fields and the project warning classes where available. | `docs/SPEC.md` / GUI requirements; `execution/_Decomposition/SOFTWARE_DECOMP.md` / AB-00-06 |
-> | REQ-07-08-007 | Comparison views shall be diagnostic and review-oriented; they shall not present deterministic comparisons as automatic external validation, professional approval, or code compliance (PRD §21.2). | `execution/_Decomposition/SOFTWARE_DECOMP.md` / SOW-073; `docs/CONTRACT.md` / OPS-K-AUTH-1 |
-> | REQ-07-08-008 | Missing solve-required, rule-check-required, provenance, assumption, nonlinear, or IP-boundary information shall remain visible as findings or warnings and shall not be silently defaulted by the GUI. | `docs/SPEC.md` / GUI requirements; `docs/CONTRACT.md` / OPS-K-DATA-2 |
-> | REQ-07-08-009 | The GUI-facing implementation shall follow the accepted architecture basis: Tauri 2 where desktop-shell-facing, TypeScript/React/Vite where GUI-facing, and Three.js where 3D viewport-facing. Exact package versions remain TBD. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) / Architecture Basis Injection |
-> | REQ-07-08-010 | Verification shall include GUI-appropriate automated checks where implementation exists, including layered GUI tests and rendering/interaction checks; exact test harness and acceptance thresholds are TBD. | `execution/_Decomposition/SOFTWARE_DECOMP.md` / AB-00-08; `docs/SPEC.md` / GUI requirements |
->
-
-### CLM-012 — Standards
-
-> ##### Standards
->
-> | Standard or governing basis | Applicability |
-> |---|---|
-> | `docs/CONTRACT.md` | Binding project invariants for data boundary, no silent defaults, professional boundary, agent limits, and review status. |
-> | `docs/SPEC.md` | Technical architecture and GUI diagnostic requirements. |
-> | `docs/IP_AND_DATA_BOUNDARY.md` | Protected-content and private-data boundary for public artifacts. |
-> | `execution/_Decomposition/SOFTWARE_DECOMP.md` accepted current basis | Accepted decomposition basis for SOW-076, OBJ-015, OBJ-016, PKG-07, and architecture-basis constraints. |
-> | PRD v0.2 references | Mentioned by decomposition for SOW-076, SOW-069 through SOW-073, but the PRD source text was not locally read in this workflow. Clause-level requirements from PRD remain TBD unless source text is supplied. |
->
-
-### CLM-013 — Verification
-
-> ##### Verification
->
-> | Requirement | Verification approach |
-> |---|---|
-> | REQ-07-08-001 | Review the current workspace and DesignWorkspacePanel against the SOW-076 surface obligations; bind automated smoke-test evidence to the exercised candidate and preserve untested interactions explicitly. |
-> | REQ-07-08-002 | Inspect data adapters and UI fixtures for dependency-backed contract use; flag placeholder semantics as TBD or implementation blocker. |
-> | REQ-07-08-003 | Test that user edits produce application-service command intents rather than direct project payload mutation. Exact command API is TBD pending upstream contracts. |
-> | REQ-07-08-004 | Test operation review states against upstream operation validation and audit records once those contracts are available. |
-> | REQ-07-08-005 | Test state/run browser queries and comparison navigation against upstream PKG-14 records once those contracts are available. |
-> | REQ-07-08-006 | Verify warning class display for `SOLVE_BLOCKING`, `RULE_CHECK_BLOCKING`, `PROVENANCE_WARNING`, `ASSUMPTION_WARNING`, `NONLINEAR_WARNING`, and `IP_BOUNDARY_WARNING` where such diagnostics are supplied. |
-> | REQ-07-08-007 | Review UI copy, status labels, and exported comparison affordances for professional-boundary violations. |
-> | REQ-07-08-008 | Inject missing-data and provenance-warning fixtures; confirm the GUI surfaces findings without inventing values. |
-> | REQ-07-08-009 | Inspect package/runtime configuration once implementation files exist. |
-> | REQ-07-08-010 | Run GUI unit/component tests and Playwright/rendering checks once a frontend scaffold exists. |
->
-
-### CLM-014 — Documentation
-
-> ##### Documentation
->
-> Required deliverable-local setup artifacts:
->
-> - `ScopeOfWork.md`
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
-> - `Dependencies.csv` and `_DEPENDENCIES.md` preserved as approved DAG-002 mirror/evidence artifacts
->
-> Implementation-stage artifacts anticipated by `_CONTEXT.md`:
->
-> - GUI design knowledge panel
-> - operation diff review
-> - state/run browser
-> - comparison overlays
->
-> Exact implementation file paths and product code artifacts are TBD because this workflow does not create product code.
->
-> Current desktop implementation: the workspace is `apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx`. The design knowledge panel is `apps/desktop/src/features/knowledge/KnowledgePanel.tsx`. Operation diff review is `apps/desktop/src/features/diff-preview/DiffPreviewPanel.tsx`, with the ledger in `apps/desktop/src/features/operations/OperationLedgerPanel.tsx`. Within-run comparison is the delta table in `apps/desktop/src/features/comparison/ComparisonPanel.tsx`, built by `buildPreviewComparison` in `apps/desktop/src/services/previewService.ts` (`comparison_kind: "single_run_load_basis_review"`, comparing a load-case basis and a combination basis chosen by the user from one Current run’s result); no viewport comparison overlay is drawn. The History panel (`apps/desktop/src/features/history/`, W-12) lists saved states and recorded runs and offers comparison of two saved states or two runs through `StateComparisonView.tsx` and `RunComparisonView.tsx` in `apps/desktop/src/features/comparison/`. The selected within-run comparison context, or its named unavailable record, is carried by the preview package consumers described in DEL-14-01 Design §4.3 and by the saved local-private report package for a Current pressure-free result (DEL-08-01 Design `report-package-current-results.md` §§2.1–2.3); the saved `.swbhandoff` carries no comparison. The workspace summary counts at most the current analysis run. `core/gui/design_workspace/engine.py` is a reference module exercised by `tests/test_design_authoring_comparison_workspace.py` and is not called by the desktop.
-- **AC-001** — The contract preserves the declared authoring and comparison surfaces, upstream ownership of backend schemas and engines, proposed/validated/accepted/audited state distinctions, diagnostic visibility, no silent defaults, and no external-validation or professional-approval claim.
+- **AC-001** — For an invented project with design-knowledge records, constraints with findings, two saved states and two runs: each panel shows every record with the identities and fields the stored record carries and nothing more; and after browsing, reopening, comparing, saving a state, editing labels, recording a run and a refused removal, each snapshot, run record and hash is byte for byte what it was, and the edited labels read back.
+- **AC-002** — For a queued batch: the item shows its operations, author, model basis and declared assumptions equal to the batch as registered; the preview shown equals the validate-only preview the engine returns; Apply is not offered before validation or before the preview is shown; after Apply the ledger shows one decision record and one outcome record with every operation and its author as recorded; a rejected batch is shown in the ledger as rejected; a refused batch leaves the model document unchanged and shows the refusal's name; and a stale item is refused.
+- **AC-003** — For two states built by hand to differ by one added, one removed and one modified entity, one changed unit-bearing value and one entity whose identifier changed: the view shows exactly those classes with both sides' values and units; shows the renamed entity as the comparison classifies it, removed on one side and added on the other without a mapping and as one pair once a mapping names both; states a unit-bearing value without a unit and an absent record without defaulting either; shows under each filter the rows the view model gives, with each side's identity, stored values and units; and the overlay marks the same entities with a legend in words.
+- **AC-004** — For two runs whose results differ by amounts set by hand, under a tolerance profile set by hand: the view shows each delta with its unit, flags exactly the items outside the tolerance, lists the changed solver settings and rule-pack references, and shows under each filter the rows the view model gives, with each side's identity, stored values and units.
+- **AC-005** — An agent's proposal and an offline proposal each appear in the queue with author and class word, cannot be applied without validation and the user's Apply, and a reloaded proposal context reads as "acceptance unknown".
+- **AC-006** — No text of the workspace states or implies a claim PRD §21.2 prohibits, or presents a comparison or a review stage as validation, approval or compliance; any boundary language is a registered statement used word for word; and every status label is the registry's display form.
+- **AC-007** — A mapping made in the editor pairs the renamed entity of AC-003's fixture; an entity marked intentionally unmatched shows that classification; unmapping restores the earlier classification; and a tolerance rule left without a value leaves its deltas unclassified with the reason.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-015 — Procedure: DEL-07-08 Design-authoring state and comparison workspace
+**Method choices.** Each panel is a view over records and results other deliverables produce, and holds no copy that could diverge. The review queue is one component for every author of a change, so a proposal cannot reach the model by a shorter path than a form. Comparison views are pure functions from a comparison result to a view model, which the table, the overlay and the export read alike.
 
-> #### Procedure: DEL-07-08 Design-authoring state and comparison workspace
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+**How each criterion is examined.**
 
-### CLM-017 — Purpose
-
-> ##### Purpose
->
-> This procedure describes how to produce and verify the DEL-07-08 GUI workspace deliverable in a later implementation pass. It is based on local decomposition, governing references, and the approved DAG-006 dependency mirror. It does not create product code.
->
-
-### CLM-018 — Prerequisites
-
-> ##### Prerequisites
->
-> | Prerequisite | Evidence |
-> |---|---|
-> | Accepted deliverable scope and objectives | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` / DEL-07-08 row, SOW-076, OBJ-015, OBJ-016 |
-> | Approved dependency basis | `_DEPENDENCIES.md` and `Dependencies.csv`; `execution/_DAG/_LATEST.md` and the approval/adoption records it selects |
-> | Architecture-basis constraints | `_CONTEXT.md` / Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` / AB-00-01 through AB-00-08 as applicable |
-> | GUI warning and diagnostic vocabulary | `docs/SPEC.md` / GUI requirements; `execution/_Decomposition/SOFTWARE_DECOMP.md` / AB-00-06 |
-> | Data and professional boundaries | `docs/CONTRACT.md`; `docs/IP_AND_DATA_BOUNDARY.md` |
-> | Upstream contracts for implementation | DEL-07-01, DEL-07-02, DEL-07-04, DEL-07-05, DEL-13-01, DEL-13-03, DEL-13-04, DEL-14-01, DEL-14-03, DEL-14-04, DEL-14-05, DEL-16-01, DEL-16-02, and DEL-16-03 as listed in `Dependencies.csv`. |
->
-
-### CLM-019 — Steps
-
-> ##### Steps
->
-> 1. Confirm the implementation brief is still bounded to SOW-076 and DEL-07-08. If the work expands beyond design knowledge panels, warnings, operation/diff review, state/run browsing, comparison tables, and graphical overlays, escalate for scope split before implementation.
-> 2. Inventory available upstream contracts from the active dependency set. Do not substitute invented schemas, fake operation states, or placeholder comparison semantics for missing upstream contracts; mark unsupported items as TBD.
-> 3. Define the workspace information architecture around the SOW-076 surfaces:
->    - design knowledge panel;
->    - constraint/warning panel;
->    - operation/diff review;
->    - state/run browser;
->    - comparison table;
->    - graphical comparison overlay.
-> 4. Route any GUI-originated model changes through application-service command intents or upstream structured model operation contracts. Do not directly mutate durable project payloads from the GUI layer.
-> 5. Preserve diagnostic structure in warning UI. Where diagnostics are supplied, keep code, class, severity, source, affected object, message, remediation, and provenance available to the user.
-> 6. Implement state/run browsing only against upstream model-state and analysis-run records. Exact query shape, routing, pagination, and storage access are TBD pending implementation context.
-> 7. Implement comparison tables and overlays only against upstream comparison records, mapping/tolerance contracts, or deterministic diff output. Exact visual encodings and tolerance display rules are TBD.
-> 8. Review all labels, empty states, and status text for professional-boundary risk. The GUI must not claim automatic certification, sealing, approval, authentication, or code compliance (PRD §21.2).
-> 9. Add tests appropriate to the implemented surface. Expected classes include component/unit tests, interaction tests, and Playwright/rendering checks where a frontend scaffold exists. Exact commands and thresholds are TBD.
-> 10. Record remaining TBDs, assumptions, missing upstream contracts, and warning/provenance limitations in the deliverable review notes for human evaluation.
->
-
-### CLM-020 — Verification
-
-> ##### Verification
->
-> | Check | Expected result |
-> |---|---|
-> | Scope check | Implemented surfaces map to SOW-076 and do not absorb unrelated package work. |
-> | Dependency check | GUI semantics are backed by approved upstream contracts or explicitly marked TBD. |
-> | Mutation-boundary check | Durable project state changes pass through application-service commands or structured operation contracts. |
-> | Warning check | Missing data, provenance, assumptions, nonlinear uncertainty, and IP-boundary states remain visible. |
-> | Comparison-boundary check | Comparison output is review/audit support only and does not imply professional validation. |
-> | Public/private data check | No protected standards text, owner standards, private rule-pack payloads, proprietary values, or real secrets are embedded in public artifacts. |
-> | Test check | GUI tests run where implementation exists; missing harness details are recorded as TBD. |
->
-
-### CLM-021 — Records
-
-> ##### Records
->
-> Current deliverable obligation: implement design knowledge, operation review/apply interaction and ledger presentation, state/run browsing, comparison tables and graphical comparison review. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> Maintain or produce the following records as implementation evidence:
->
-> - source-grounded requirements or acceptance notes for SOW-076;
-> - UI test output, including interaction and rendering checks where applicable;
-> - dependency notes showing which upstream contracts were consumed;
-> - screenshots or visual review artifacts if created by the implementation brief;
-> - unresolved TBD and ASSUMPTION list;
-> - professional-boundary and protected-content review notes.
->
-> No implementation records exist in this setup workflow.
-- **VER-001** — Validate the contract and review source parity, declared workspace surfaces, upstream dependency boundaries, command-intent mutation routing, operation and state distinctions, diagnostics and missing-data visibility, comparison reliance boundaries, and every retained TBD or governed residual.
+- **VER-001** — Executable check (observes the panels against the stored records of an invented project): reads every displayed identity and field and compares them with the stored records, then compares each saved record's bytes before and after the session.
+- **VER-002** — Executable check (observes the review queue, the operation engine and the ledger in a session): queues a batch, compares the displayed preview with the engine's validate-only preview, reads the state of Apply at each stage, applies, and compares the ledger panel with the stored decision and outcome records; repeats with a rejected, a refused and a stale batch and compares the model document's bytes.
+- **VER-003** — Executable check (observes the state-comparison view and overlay against hand-built states): compares the classes, values, units, filtered rows and marked entities with the differences built into the fixture, before and after a mapping made in the editor, an entity marked intentionally unmatched and an unmapping.
+- **VER-004** — Executable check (observes the run-comparison view against hand-set deltas and tolerances): compares each displayed delta, flag, setting, reference and filtered row with the fixture's, and leaves one tolerance rule without a value and reads how its deltas are classified.
+- **VER-005** — Executable check (observes the queue with an agent's and an offline proposal): reads author, class word and the state of Apply, reloads a proposal's context and reads its marking.
+- **VER-006** — Comparison with a named reference (the prohibited claims of PRD §21.2 and the claims registry's registered statements and display forms): reads every text the workspace can show and compares it with them.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-022 — Guidance: DEL-07-08 Design-authoring state and comparison workspace
-
-> #### Guidance: DEL-07-08 Design-authoring state and comparison workspace
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-024 — Purpose
-
-> ##### Purpose
->
-> This deliverable adds a GUI workspace for design iteration and comparison review. It is the GUI-facing integration point for design knowledge, warnings, model operations, immutable states, analysis runs, and comparison records. Source: `_CONTEXT.md` / Description; `execution/_Decomposition/SOFTWARE_DECOMP.md` / DEL-07-08 row.
->
-
-### CLM-025 — Principles
-
-> ##### Principles
->
-> 1. Consume upstream contracts, do not invent them. DEL-07-08 depends on GUI foundations plus design, transform, state/comparison, and operation contracts. The workspace should represent those contracts faithfully and mark unsupported details as TBD. Source: `Dependencies.csv`; `execution/_DAG/DAG-006/DAG-002_EdgeDispositionReview.md` / DAG2-RD-015.
-> 2. Keep authoring controlled. GUI-originated edits should become application-service command intents and controlled operations, not direct writes to durable project state. Source: `docs/SPEC.md` / GUI requirements; `execution/_Decomposition/SOFTWARE_DECOMP.md` / AB-00-05.
-> 3. Keep missing information visible. Missing solve-required data, rule-check data, provenance, assumptions, nonlinear uncertainty, and IP-boundary risks are findings or warnings, not values to hide or default. Source: `docs/SPEC.md` / GUI requirements; `docs/CONTRACT.md` / OPS-K-DATA-2.
-> 4. Keep comparisons review-oriented. State/run comparisons support design review and audit; acceptance and professional judgment remain with the responsible engineer. Source: `execution/_Decomposition/SOFTWARE_DECOMP.md` / SOW-073; `docs/CONTRACT.md` / OPS-K-AUTH-1.
-> 5. Preserve public/private and protected-content boundaries. Design knowledge and project metadata may include user-owned or private information; public artifacts must not copy protected standards, owner requirements, private rule-pack payloads, or proprietary data. Source: `docs/IP_AND_DATA_BOUNDARY.md` / Public repository must not contain.
->
-
-### CLM-026 — Considerations
-
-> ##### Considerations
->
-> The workspace is context-envelope L with WATCH risk. Its scope includes several surface families: design knowledge, warnings, operations, state/run browsing, tables, and graphical overlays. If implementation expands beyond one bounded GUI workflow, the decomposition guidance says to confirm scope and split if needed. Source: `_CONTEXT.md` / Context Budget QA.
->
-> The GUI stack basis is established. Resolve dependency versions, state management and package composition through the current desktop manifest and workspace consumers under DEC-012. Public transport and unwitnessed workflow behavior remain separate scoped gates. Source: `_CONTEXT.md` / Architecture Basis Injection; `docs/SPEC.md` / GUI requirements.
->
-> The warning panel should avoid flattening diagnostic meaning into plain prose. The local sources identify warning classes and diagnostic fields; display choices should preserve code, class, severity, source, affected object, message, remediation, and provenance when supplied. Source: `docs/SPEC.md` / GUI requirements; `execution/_Decomposition/SOFTWARE_DECOMP.md` / AB-00-06.
->
-> The design knowledge panel should not bundle owner standards, protected code data, proprietary catalog values, or invented engineering defaults. When values are unavailable, the UI should preserve TBD, missing, or provenance-warning state. Source: `docs/IP_AND_DATA_BOUNDARY.md`; `docs/CONTRACT.md` / OPS-K-DATA-1 and OPS-K-DATA-2.
->
-
-### CLM-027 — Trade-offs
-
-> ##### Trade-offs
->
-> | Decision pressure | Conservative guidance |
-> |---|---|
-> | Rich workspace versus bounded scope | Build around the SOW-076 surfaces and upstream contracts first; defer unrelated editors or report rendering to their owning deliverables. |
-> | Convenience editing versus auditability | Prefer structured operations and diff review over direct mutation because OBJ-015 requires controlled, reviewable, auditable model operations. |
-> | Visual overlays versus traceability | Overlays should be backed by state/comparison/diagnostic records where available; unsupported visual semantics remain TBD. |
-> | Smooth comparison UX versus professional boundary | Use neutral review wording. Do not label a comparison as approved, validated, certified, sealed, or code compliant unless a separate human-owned record is explicitly in scope (PRD §21.2). |
-> | Public examples versus realistic data | Use invented or cleared data only. Real owner/project/code/vendor data belongs in private user-controlled paths unless contribution review clears it. |
->
-
-### CLM-028 — Examples
-
-> ##### Examples
->
-> Use current desktop components and invented fixtures as examples only within their recorded scope: `apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx` and the workspace-session routes provide implementation references. Example layout/copy is not product acceptance; public examples and screenshots require provenance review and cannot supply protected/private engineering values.
-
-### CLM-029 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | None observed in production-document drafting | No cross-document content conflict was found during four-doc Pass 2. | TBD | TBD | TBD | N/A | TBD |
-
-### CLM-030 — SCA-011 Feature interaction and shared shell boundary
-
-**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
-
-Retain operation review/apply interaction and ledger presentation (CAP-WSUI-027/028/029), offline/agent proposal review and comparison workflows. DEL-07-11 owns common shell/session coordination (CAP-WSUI-011/012), DEL-16-06 execution, and DEL-14-05 the common comparison interface. Existing extraction/run evidence remains here as historical provenance.
-
-- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.
-- **AC-002** — The named boundary is honored, its witness is bound to the tested candidate, and missing or held results remain explicit. Ownership assignment alone is not a pass.
-- **VER-002** — Trace explicit review/apply through acceptance and application with truthful receipt and comparison identity. Shared session extraction does not erase feature obligations or establish durable acceptance-history closure.
+- **AX-001** — Every change is a reviewed step. Better is one queue with one Apply for every author, measured by no path to the model that skips validation, never a convenience that applies on import or on an agent's say.
+- **AX-002** — A record of the past is not rewritten. Better is a saved state, a run and a ledger entry read back as stored, measured by their bytes, never a view that tidies, completes or relabels them.
+- **AX-003** — A difference is shown, not judged. Better is a delta with both values, their units and the tolerance it was tested against, never a comparison that reads as agreement with an authority.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-076 OBJ-015 OBJ-016 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-| OUT-002 | OBJ-015 OBJ-016 | CLM-030 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |
+| OUT-001 | SOW-076 OBJ-015 OBJ-016 | REQ-001 REQ-002 REQ-005 REQ-006 | AC-001 | VER-001 | The stored records are the reference and are written by their owning deliverables (DEL-13-01, DEL-13-03, DEL-14-01, DEL-14-02), not this one. This shows the panels alter nothing. |
+| OUT-002 | SOW-076 OBJ-015 | REQ-003 REQ-004 REQ-012 REQ-013 | AC-002 | VER-002 | The registered batch, the engine's validate-only preview (DEL-16-02) and the stored decision and outcome records (DEL-16-03) are the references; the model document's bytes before the refused batch are the reference for no change. |
+| OUT-001 | SOW-076 OBJ-016 | REQ-008 REQ-011 | AC-003 | VER-003 | The differences are built into the fixture by hand, so the expected classes do not come from the comparison engine. The classes' names are DEL-14-03's. |
+| OUT-001 | SOW-076 OBJ-016 | REQ-011 | AC-004 | VER-004 | The deltas and the tolerance profile are set by hand in the fixture; which items fall outside is arithmetic on them. |
+| OUT-002 | SOW-076 OBJ-015 | REQ-014 | AC-005 | VER-005 | Owner ruling: PRD §5.3 makes an agent's action a model operation under the same review, and the owner's decision on agent output gives the five class words. The scenario states the expected markings. |
+| OUT-001 | SOW-076 OBJ-016 | REQ-007 | AC-006 | VER-006 | Outside source: PRD §21.2. The registered statements and display forms are DEL-01-04's, which this deliverable does not write. |
+| OUT-001 | SOW-076 OBJ-016 | REQ-015 | AC-007 | VER-003 VER-004 | Owner ruling: PRD FR-CMP-005, FR-CMP-007 and FR-CMP-008. The renamed entity and the valueless rule are built into the fixture by hand; the classification of an unclassified delta is DEL-14-04's. |

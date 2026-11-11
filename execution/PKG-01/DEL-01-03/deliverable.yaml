@@ -1,156 +1,45 @@
 id: DEL-01-03
 name: Contributor certification workflow
 needs:
-- from: DEL-00-01
-  condition: 'DEL-01-03 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-01-03 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-01-03 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-01-03 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
 - from: DEL-01-01
-  condition: 'DEL-01-03 needs DEL-01-01 as a predecessor: contributor certification is part of the governance/release
-    policy surface
-
-
-    Notes: Current-basis local evidence from DEL-01-01 satisfies the SEMANTIC_READY governance predecessor
-    for DEL-01-03; this does not edit aggregate DAG-006 or imply DEL-01-01 lifecycle closure.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The governance baseline records who reviews and accepts a public contribution: the sole
+    maintainer, with a quorum of one. The workflow routes complete contributions to that
+    maintainer and defines no reviewer of its own.
   gating: true
 - from: DEL-01-02
-  condition: 'DEL-01-03 needs DEL-01-02 as a predecessor: certification workflow must enforce the protected-data
-    boundary
-
-
-    Notes: Current-basis DEL-01-02 protected-data policy and checklist evidence satisfies the SEMANTIC_READY
-    predecessor for DEL-01-03; this does not edit aggregate DAG-006 or imply DEL-01-02 lifecycle closure.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The boundary policy defines the provenance record (seven named fields, with the redistribution
+    status and review status value sets), the classes of protected content and private user data,
+    and the quarantine rule with its default location; and its checklist is the reviewer's side of
+    the two-sided record. The certification template takes its fields, values and quarantine
+    route from that definition; a change to the definition changes the template with it.
   gating: true
-- from: doc:docs/CONTRACT.md
-  condition: 'The workflow requires the current invariant catalog for IP governance authority and agent
-    behavior constraints.
-
-
-    Notes: FACT
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: CONTRACT invariant catalog; TargetRefID: OPS-CONTRACT; TargetLocation:
-    docs/CONTRACT.md'
-  evidence: execution/PKG-01/DEL-01-03/ScopeOfWork.md
-- from: doc:docs/IP_AND_DATA_BOUNDARY.md
-  condition: 'The workflow requires the IP and data boundary policy for provenance protected-content quarantine
-    and review rules.
-
-
-    Notes: FACT
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: IP and Data Boundary Policy; TargetRefID: OPS-IP-DATA-BOUNDARY; TargetLocation:
-    docs/IP_AND_DATA_BOUNDARY.md'
-  evidence: execution/PKG-01/DEL-01-03/ScopeOfWork.md
-- from: doc:execution/_Decomposition/SOFTWARE_DECOMP.md
-  condition: 'The workflow requires the current decomposition for deliverable context scope objectives
-    and open issues.
-
-
-    Notes: FACT; current-basis refresh cleared the stale revision 0.4/0.5 warning by aligning the active
-    local source to execution/_Decomposition/SOFTWARE_DECOMP.md revision 0.7; no lifecycle or release
-    gate changed.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: Software decomposition current basis; TargetRefID: OPS-SOFTWARE-DECOMP;
-    TargetLocation: execution/_Decomposition/SOFTWARE_DECOMP.md'
-  evidence: execution/PKG-01/DEL-01-03/ScopeOfWork.md
-- from: doc:CONTRIBUTING.md
-  condition: 'The repo-level CONTRIBUTING.md contributor workflow is a downstream handoff artifact that
-    is not in the repository; final legal mechanism and acceptance remain TBD.
-
-
-    Notes: The earlier draft was withdrawn on 2026-11-10 on the owner''s ruling and remains to be produced
-    from the owner''s contributor rules (Work/contributor-workflow-files.md); final DCO/CLA/other legal
-    mechanism and human acceptance remain TBD and no release or professional claim is made.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: Draft CONTRIBUTING.md section; TargetRefID: CONTRIBUTING.md; TargetLocation:
-    CONTRIBUTING.md'
-  direction: downstream
-  gating: false
-- from: doc:governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md
-  condition: 'The repo-level contributor certification template is a handoff artifact for public contribution
-    review that is not in the repository.
-
-
-    Notes: The earlier draft was withdrawn on 2026-11-10 on the owner''s ruling and remains to be produced
-    from the owner''s contributor rules (Work/contributor-workflow-files.md); final DCO/CLA/other legal
-    mechanism remains TBD and no acceptance or release claim is made.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: Contributor certification template; TargetRefID: OPS-CONTRIBUTOR-CERTIFICATION-TEMPLATE;
-    TargetLocation: governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md'
-  direction: downstream
-  gating: false
+- from: external:owner
+  condition: >-
+    The owner's contributor rules are defined. The contributor workflow and the certification
+    template are written from them and are not drafted without them.
+  when: Writing CONTRIBUTING.md and governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md
+  gating: true
+- from: external:owner
+  condition: >-
+    The owner decides to open external contribution intake and records the decision in the
+    decision register.
+  when: Opening external contribution intake
+  gating: true
+- from: external:legal-counsel
+  condition: >-
+    Counsel advises the owner on the contributor legal instrument (a contributor licence
+    agreement, a developer certificate of origin or an equivalent) before one is adopted.
+  when: Opening external contribution intake
+  gating: true
+- from: external:legal-counsel
+  condition: >-
+    The owner or counsel reviews the project's public-facing language, including the issue
+    forms and the contribution policy.
+  when: Before public release
+  gating: true
 code_paths:
 - CONTRIBUTING.md
 - governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md
 - .github/ISSUE_TEMPLATE/**
-- tools/release/export_public_openpipestress.py

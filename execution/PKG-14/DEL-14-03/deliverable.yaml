@@ -1,130 +1,46 @@
 id: DEL-14-03
 name: Model-state comparison engine
 needs:
-- from: DEL-00-01
-  condition: 'DEL-14-03 needs DEL-00-01 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: Preserved DAG-002 approved active edge ID
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-02
-  condition: 'DEL-14-03 needs DEL-00-02 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: Preserved DAG-002 approved active edge ID
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-03
-  condition: 'DEL-14-03 needs DEL-00-03 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: Preserved DAG-002 approved active edge ID
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-04
-  condition: 'DEL-14-03 needs DEL-00-04 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: Preserved DAG-002 approved active edge ID
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-06
-  condition: 'DEL-14-03 needs DEL-00-06 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: Preserved DAG-002 approved active edge ID
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-07
-  condition: 'DEL-14-03 needs DEL-00-07 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: Preserved DAG-002 approved active edge ID
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-08
-  condition: 'DEL-14-03 needs DEL-00-08 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: Preserved DAG-002 approved active edge ID
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
 - from: DEL-14-01
-  condition: 'DEL-14-03 needs DEL-14-01 as a predecessor: State comparison consumes immutable model states.
-
-
-    Notes: Preserved DAG-002 approved active edge ID; local Procedure and Specification explicitly confirm
-    the prerequisite
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A saved model state is read with its snapshot verified against its model hash, and its record
+    gives its identity, name, hashes, warnings, unresolved assumptions, notes and external
+    references.
   gating: true
-  evidence: execution/PKG-14/DEL-14-03/ScopeOfWork.md
+- from: DEL-02-01
+  condition: >-
+    Every addressable record of the model document has a stable identifier that persists across
+    edits, the document's schema names every member it may hold, and the model hash is SHA-256
+    over the document's RFC 8785 canonical text.
+  gating: true
 - from: DEL-14-05
-  condition: 'DEL-14-03 needs DEL-14-05 as a predecessor: State comparison consumes mapping/tolerance
-    contracts.
-
-
-    Notes: Preserved DAG-002 approved active edge ID; local Procedure and Specification explicitly confirm
-    the prerequisite
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The mapping contract defines the mapping hierarchy, the mapping record and the unmatched
+    classifications, and the common comparison-result interface is accepted at a named version
+    with its schema.
   gating: true
-  evidence: execution/PKG-14/DEL-14-03/ScopeOfWork.md
 - from: DEL-02-02
-  condition: 'DEL-14-03 needs DEL-02-02 as a predecessor: State comparison needs unit-aware tolerances.
-
-
-    Notes: Preserved DAG-002 approved active edge ID; local Specification explicitly confirms the unit-system
-    prerequisite
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The unit catalog names each unit's dimension, so that two quantities can be told to be of the
+    same or of different dimensions, and a missing or unknown unit is a named finding.
   gating: true
-  evidence: execution/PKG-14/DEL-14-03/ScopeOfWork.md
+- from: DEL-00-06
+  condition: >-
+    The diagnostic contract fixes the fields a diagnostic record carries (code, class, severity,
+    source, affected object, message, remediation, provenance).
+  gating: true
 code_paths:
+# The comparison in the web session. DEL-07-08 owns the view beside it (StateComparisonView.tsx)
+# and the selection of two states; DEL-08-04 owns the CSV adapter (stateComparisonCsv.ts).
 - apps/desktop/src/features/comparison/stateComparison.ts
+# The headless comparison.
 - core/comparison/model_state/engine.py
+# The committed invented pairs both implementations are run on.
 - fixtures/comparison/model_state_comparison_golden.json
-- schemas/comparison_mapping.schema.json
-- schemas/model_state.schema.json
 checks:
-- tests/test_comparison_contracts.py
-- tests/test_model_schema.py
 - tests/test_model_state_comparison.py
 - tests/test_model_state_comparison_parity.py
+- tests/test_comparison_contracts.py
 - apps/desktop/src/features/comparison/stateComparison.test.ts
 - apps/desktop/src/features/comparison/stateComparisonParity.test.ts
-- tests/test_model_state_schema.py
-- tests/test_persistence_schema.py
-- tests/test_units_schema.py
+- apps/desktop/src/features/history/compareStates.test.tsx

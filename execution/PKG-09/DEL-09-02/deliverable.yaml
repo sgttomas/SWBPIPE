@@ -1,63 +1,69 @@
 id: DEL-09-02
 name: Stress recovery benchmark suite
 needs:
-- from: DEL-00-01
-  condition: 'DEL-09-02 must apply architecture-basis constraint AB-00-01 from DEL-00-01 during sealed
-    execution.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-09-02 must apply architecture-basis constraint AB-00-02 from DEL-00-02 during sealed
-    execution.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-09-02 must preserve diagnostics and result-envelope boundaries from AB-00-06.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-09-02 must apply layered validation and protected-content gates from AB-00-08.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
 - from: DEL-05-03
-  condition: 'DEL-09-02 requires the accepted mechanics stress recovery interface from the upstream stress
-    recovery deliverable.
-
-
-    Notes: source does not name the deliverable ID directly.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    Stress recovery returns the axial, bending and torsional stress components at a member's ends
+    and stations from its resultants and explicit section properties, the pressure-derived hoop
+    and longitudinal components where pressure is selected, and the range between two states, each
+    with its component name, sign convention and unit.
   gating: true
+  when: Recovering the stresses of a benchmark case.
+- from: DEL-04-02
+  condition: >-
+    For an invented straight member with stated end conditions and member loads, the element
+    returns end and station resultants that satisfy closed-form beam statics, each with its unit.
+  gating: true
+  when: Forming the resultants of a load-driven benchmark case.
 - from: DEL-03-08
-  condition: 'DEL-09-02 benchmark planning depends on unit-aware section-property behavior used by stress
-    recovery comparisons.
-
-
-    Notes: Target DEL-03-08 retained from prior DAG mirror and supported indirectly by decomposition SOW-051/DEL-03-08;
-    no fixture values are introduced.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    For a circular annulus of stated outside diameter and wall, the calculator returns the metal
+    area, section modulus and torsion constant equal to the closed-form annulus values, each with
+    its unit and dimension.
   gating: true
+  when: Taking the section properties of a benchmark case.
+- from: DEL-04-07
+  condition: >-
+    The product solve entry solves a pressurized straight pipe on the exact pressure route and
+    publishes its results with their units, or refuses the model by name.
+  gating: true
+  when: Solving the pressure-derived hoop and longitudinal cases.
+- from: DEL-08-04
+  condition: >-
+    A result envelope carries each value with its unit and dimension, structured diagnostics and
+    the mechanics status, and the export validator refuses an envelope that lacks them.
+  gating: true
+  when: Validating the output of a suite run as a result envelope.
+- from: DEL-10-05
+  condition: >-
+    The headless runner's benchmark workflow runs the named cases of a suite and reports each
+    case's outcome without silently skipping one.
+  gating: false
+  when: Running a benchmark case by name.
+- from: DEL-02-02
+  condition: >-
+    Every catalog unit has one dimension, and a quantity with an unknown unit, a missing unit or a
+    unit of the wrong dimension is refused with a named unit finding.
+  gating: true
+  when: Checking benchmark inputs and expected stresses through the unit catalog.
 - from: DEL-01-02
-  condition: 'DEL-09-02 requires protected-content review before accepting future source fixtures or hand-calc
-    notes.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The IP and data boundary policy names every class of content excluded from public artifacts
+    and the fields of the provenance record with their value sets.
   gating: true
+  when: Admitting a benchmark case or hand calculation to the suite.
 code_paths:
-- core/loads/stress_recovery/src/lib.rs
 - validation/benchmarks/stress/**
 - validation/hand_calcs/stress/**
+# The formal calculation witness: its schema, content dictionary, validator, the one witness kept
+# so far (the section-property case) and its generated rendering. The runner request inputs and
+# runner outputs under validation/witness/inputs and validation/witness/generated are DEL-09-04's.
+- validation/witness/README.md
+- validation/witness/schemas/**
+- validation/witness/content_dictionaries/**
+- validation/witness/fixtures/**
+- validation/witness/tools/**
+- validation/witness/generated/tp_phys_015_section_property_stress_witness.mathml
 checks:
 - validation/benchmarks/stress/src/lib.rs
+- tests/test_calculation_witness.py

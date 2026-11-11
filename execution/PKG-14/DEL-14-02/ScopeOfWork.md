@@ -2,362 +2,136 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-14-02
 package_id: PKG-14
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-072]
 package_objective_refs: [OBJ-016]
 ---
 
-# Scope of Work — DEL-14-02
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency conditions are declared in this deliverable's `deliverable.yaml`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+# Scope of Work — DEL-14-02 Analysis run records
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-14-02` in service of project scope [SOW-072] and package objectives [OBJ-016].
+Every result the product shows can be traced to exactly what produced it: the model state that was solved, the solver build and settings, the units, the load cases and combinations, the diagnostics, and the rule packs and libraries referred to. An analysis run record is that binding. A recorded run stays as it was after the model moves on, so results belong to a run and never only to whatever the current model happens to be, and anyone holding a run can recompute the hashes that tie it to its inputs and results.
 
-- **OUT-001** — An immutable analysis-run record contract binding results to exact model states, solver versions and settings, units, load cases, diagnostics, references, results, and hashes is produced.
+It serves SOW-072 under OBJ-016 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-14, row DEL-14-02), and `docs/PRD.md` §5.7 (every result set binds to its model state, solver version, settings, load cases, rule-pack references and library versions), §8.7, §15.2, FR-CMP-002 (Must) and the run level of FR-MOD-006 (Must: assumptions and open issues recorded at run level). No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names it. It supports criterion 4, whose report states the run it reports, through DEL-08-01 and DEL-08-02.
+
+- **OUT-001** — The analysis run record: its schema in one current version, the building and validation of a record from a solved result, the input manifest it names, and the recording, listing and reading of runs in the project store, with their labels.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-14-02 Analysis run records
+**Terms the product implements.**
 
-> #### Datasheet: DEL-14-02 Analysis run records
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *Analysis run.* One solver execution on one model.
+- *Run record.* The schema-governed record of a run (`schemas/analysis_run.schema.json`): its identity, name, kind and time of creation; the model state it is bound to; the solver's name, version and build reference; references to its settings and unit system; its load cases and combinations; diagnostics; result references; rule-pack references; library references; hashes; analysis statuses; reproducibility data; immutability policy; professional boundary and provenance.
+- *Received result.* The mechanics result as its producer published it. A record binds it and never rewrites it.
+- *Result reference.* What a record says of one result row: the row's identifier and position, its family and the dimension its producer stated, the semantic contract under which it was produced (identifier and digest), how the row was interpreted, and its hash.
+- *Input manifest.* The canonical statement of what a solve was given: the model payload and the rule packs resolved for it. A record names it by hash.
+- *Transient record.* The record built when a solve completes, for the session's current run. It names the session's model, not a saved state.
+- *Recorded run.* An immutable revision of a run's record, made when the user records the run. It is bound to a saved model state, carries its own time of recording, and is kept in the project store with the received result and the input manifest of the solve.
+- *Record revision.* A record is identified by its own SHA-256. A change makes a new revision and never edits one.
+- *Checked binding.* A recorded run is bound to its state by a check and not by assertion: the model payload in the solve's input manifest hashes to the state's model hash, the manifest hashes to the value the record names, and the manifest is the one the solve that produced the result was given.
+- *Rule-pack reference.* The identity, version, checksum and source notice of a pack that the model refers to and that was resolved for the solve. Resolution records identity only: it applies no pack and makes no check pass.
+- *Run labels.* A recorded run's name, tags, notes and run-level assumptions. They are editable and outside the record's hash, as DEL-14-01 defines for a state's labels.
 
-### CLM-003 — Identification
+**One version.** There is one current run-record version, named in the schema. A record of any other version is refused by name and the user is told to re-run; nothing is migrated, and the bytes of an older record are never relabelled or re-hashed.
 
-> ##### Identification
->
-> | Field | Value | Source |
-> |---|---|---|
-> | Deliverable ID | DEL-14-02 | `_CONTEXT.md` |
-> | Name | Analysis run records | `_CONTEXT.md` |
-> | Package ID | PKG-14 | `_CONTEXT.md` |
-> | Package name | Model States, Analysis Runs, and Comparison | `_CONTEXT.md` |
-> | Deliverable type | DATA_MODEL_CHANGE | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` PKG-14 table |
-> | Scope item | SOW-072 | `_CONTEXT.md`; `docs/_Registers/ScopeLedger.csv` row SOW-072 |
-> | Objective support | OBJ-016 | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` objective mapping |
-> | Anticipated artifacts | `schemas/analysis_run.schema.json`; run reproducibility tests | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row DEL-14-02 |
-> | Lifecycle role | Draft production-unit document; not implementation evidence | `_CONTEXT.md` PREPARATION notes; `docs/CONTRACT.md` OPS-K-AGENT-4 |
->
+**Undecided.**
 
-### CLM-004 — Attributes
+- Whether a modal result and a hanger-sizing result are recorded as analysis runs. DEL-04-09 and DEL-04-11 leave the same question open for their results.
+- How result payloads that are not JSON are partitioned for hashing.
+- How recorded runs travel in the portable package; DEL-14-01 states the open question for states and runs together.
 
-> ##### Attributes
->
-> | Attribute | Value | Source |
-> |---|---|---|
-> | Required product behavior | Save analysis runs bound to exact model states, solver versions, settings, units, load cases, diagnostics, results, rule-pack references, library references, and result hashes. | `docs/_Registers/ScopeLedger.csv` row SOW-072; `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-072 |
-> | Record immutability intent | Results attach to immutable analysis runs rather than a mutable current model only. | `docs/_Registers/ScopeLedger.csv` row SOW-072; `_CONTEXT.md` envelope notes |
-> | Package boundary | PKG-14 implements immutable model-state records, analysis-run records, deterministic state/run comparison, mappings, tolerances, and comparison exports. | `execution/_Decomposition/SOFTWARE_DECOMP.md` package table |
-> | Package exclusion | PKG-14 does not ingest commercial prover outputs comprehensively or determine external validation. | `execution/_Decomposition/SOFTWARE_DECOMP.md` package table |
-> | Architecture basis | Rust core/application services; JSON Schema 2020-12 contracts; schema-first command/query/job result envelopes. The accepted architecture names a canonical JSON/JCS-compatible objective. DEL-14-02 keeps one version, analysis record 0.3.0, on the checked JCS/I-JSON profile: the owner decided on 2026-10-10 that each format keeps only its current version ("as you recommended, no-compatibility principle carries"), so the 0.1 sorted-compact and 0.2 records are refused by name. | `_CONTEXT.md` Architecture Basis Injection; `DEC-074` E1; owner decision 2026-10-10 |
-> | Unit boundary | Unit-bearing physical values crossing schema, service, solver, import/export, report, or rule-evaluation boundaries must carry explicit unit metadata unless explicitly dimensionless or equivalent. | `docs/SPEC.md` section 4 |
-> | Hash boundary | Analysis record 0.3.0 uses the shared checked `openpipestress_jcs_ijson_v1` canonicalizer (input manifests `rfc8785_jcs`). Record revision, computed hashes and received checksum evidence stay distinct; broader non-JSON/binary partitioning is not decided here. | `docs/SPEC.md` section 4.4; `DEC-074` E1 / PDU-003 |
-> | Result-envelope relationship | Result export envelopes must identify result set, model/run basis, solver version, unit-system reference, load-case or combination basis, diagnostics, provenance, reproducibility hashes or audit-manifest reference, analysis statuses, rule-pack references where present, and professional-boundary notice. | `docs/SPEC.md` result export section |
-> | Professional boundary | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). | `docs/SPEC.md` analysis boundary section; `docs/CONTRACT.md` OPS-K-AUTH-1 |
-> | Protected/private data boundary | Public artifacts must not copy private formulas, protected standards text, protected tables, proprietary values, or private rule-pack payloads. | `docs/SPEC.md` result export section; `docs/IP_AND_DATA_BOUNDARY.md` |
->
+**Boundary.**
 
-### CLM-005 — Conditions
-
-> ##### Conditions
->
-> | Condition | Status | Source |
-> |---|---|---|
-> | Exact analysis-run schema fields | Defined in the analysis record 0.3 schema; required SOW-072 categories still need producer/persistence conformance. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history); SOW-072 |
-> | Analysis run identifier format | Versioned schema and `core/analysis_runs/compatibility.py` define `run_id` and immutable record-revision identity; new identity semantics remain separately governed. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history); `docs/TYPES.md` general identifier guidance only |
-> | Model-state reference semantics | Must bind to exact model states; detailed state-record schema is upstream and outside this folder. | SOW-072; `Dependencies.csv` DAG-002-E0783 |
-> | Solver version and settings representation | Required as part of the saved run record; versioned object evidence is in the selected schema member. | SOW-072 |
-> | Unit-system representation | Required as part of the saved run record; missing unit metadata for unit-bearing physical values must be diagnostic rather than silently supplied. | SOW-072; `docs/SPEC.md` section 4 |
-> | Load-case or combination basis | Required as part of the saved run record; references/cardinality follow the selected versioned schema. | SOW-072; `docs/SPEC.md` result export section |
-> | Diagnostics and analysis statuses | Required as part of the saved run record; must preserve the professional-boundary status model. | SOW-072; `docs/SPEC.md` analysis boundary section |
-> | Rule-pack and library references | Required as references/checksum/provenance surfaces; private payloads and protected content are not public artifact content. | SOW-072; `docs/SPEC.md` rule-pack/result export sections |
-> | Result hashes | Analysis record 0.3.0 is the only version: its record, received-result and result-row checksums use the checked shared Rust `openpipestress_jcs_ijson_v1` profile, and its input-manifest checksum uses `rfc8785_jcs`. Older records (0.1 sorted-compact, legacy-desktop 0.1, 0.2) are refused by name; their bytes are never relabeled or re-hashed. Preserve record-revision identity, payload scope and received-checksum metadata separately, and verify against the 0.3 schema and vectors; no whole-product conformance follows. | Owner decision 2026-10-10; `schemas/analysis_run.v0.3.schema.json`; analysis-run compatibility evidence |
-> | Reproducibility tests | Required artifact class; contract/compatibility test sources exist; no new execution pass is claimed. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) anticipated artifacts |
->
-
-### CLM-006 — Construction
-
-> ##### Construction
->
-> This deliverable is a data-model change. The conservative construction surface is:
->
-> 1. Define `schemas/analysis_run.schema.json` as the canonical analysis-run record contract.
-> 2. Include fields or referenced sub-objects sufficient to bind each analysis run to the source-supported categories in SOW-072: model state, solver version, settings, units, load cases, diagnostics, results, rule-pack references, library references, and result hashes.
-> 3. Treat result attachment as immutable run-record evidence, not as mutable "current model" state.
-> 4. Preserve unit metadata and dimensional diagnostics across run records wherever unit-bearing values are included or referenced.
-> 5. Preserve the hash contract of analysis record 0.3.0 (checked `openpipestress_jcs_ijson_v1`; input manifest `rfc8785_jcs`). Preserve payload scope, record revision and received checksums independently. Refuse older records by name; never relabel or re-hash their bytes.
-> 6. Preserve professional-boundary and protected/private-data controls in schema shape, diagnostics, tests, and examples.
->
-> Implementation evidence: `schemas/analysis_run.v0.3.schema.json` (the current contract; the dispatcher admits only 0.3.0), `core/analysis_runs/compatibility.py`, and the analysis-run contract/compatibility tests. B7a removed the 0.1, legacy-desktop 0.1 and 0.2 schemas, the 0.1 and 0.2 builders, `core/analysis_runs/legacy.py` and the desktop's legacy digests (DEL-04-08 Design, `b7-plan.md`); a saved older record is refused by name (`ANALYSIS_RUN_SCHEMA_VERSION_RETIRED`, re-run). Under the owner's one-reader decision (2026-10-10: "move to one product reader in Rust"; "All readers."), `compatibility.py`'s reader half becomes a test-only Python verifier, and its record builder takes source verdicts from the Rust reader (unit R in the same Design). Since B7b the record admits five current identities (`CURRENT_RECORD_CONTRACT_IDS`): pressure-2, pressure-source-1, preview-physics-2, preview-physics-retained-1 and physics-retained-1. The retired v2 identities (physics-1, physics-source-1, load-reference-1, load-reference-source-1) have no record table, and the Rust reader refuses their stored results by name (`SOURCE_EXACT_PRESSURE_V2_RETIRED`). The desktop builds and validates the same 0.3.0 record in `apps/desktop/src/services/analysisRunCompatibility.ts`, with Python's tables and provenance labels; reopening a saved 0.3.0 record runs that validator against its saved source, and a refusal is a display-only finding. C1 native custody (RT-U4; DEL-04-05 `Work/c1-native-custody-plan.md` slice 5) adds a native builder of the same 0.3.0 record over a retained solve result in the desktop process (`apps/desktop/src-tauri/src/analysis_run_v03_build.rs`), which serves the webview the record's header and keeps the record's bytes native; on the committed cases (`apps/desktop/src/test-support/analysis-run-v03/analysis_run_v03_cases.json`: every fixture carrier's source, the compatibility test's records and refusals, retained successors and session manifests) its record equals the TypeScript builder's byte for byte in the stored form, with the same checksums and refusals (a TypeScript TypeError as `ANALYSIS-RUN-INPUT-SHAPE-INVALID`; `analysis_run_v03_build_tests.rs`, `analysisRunV03Parity.test.ts`). The TypeScript builder stays the oracle; no record version, schema, table or validator changes. The C1 switch reads its header for a fresh solve, and the native Record Run and Save/Create Project (slice 5's persistence, `apps/desktop/src-tauri/src/native_persistence.rs`) write today's stored forms from the held bytes, the recorded revision included: on every preview case with a record their run, snapshot and project rows equal the submitted path's byte for byte (`native_persistence_tests.rs`), and the result texts and the session's envelope hash equal the unchanged TypeScript paths' (`apps/desktop/src/test-support/analysis-run-v03/persistence_forms.json`, `persistenceForms.test.ts`). T4-U6 changed no record version: pressure-2, pressure-source-1 and physics-retained-1 now carry one stress signature per recovery token and section basis, and a record bound to their former table hashes is refused (`ANALYSIS_SEMANTIC_CONTRACT_MISMATCH`). These source artifacts do not establish product persistence completion or a new passing test result.
->
-
-### CLM-007 — References
-
-> ##### References
->
-> | Reference | Use in this datasheet |
-> |---|---|
-> | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) | Deliverable identity, scope, artifact expectations, architecture-basis injection |
-> | `_REFERENCES.md` | Reference inventory and authority boundary |
-> | `_DEPENDENCIES.md`; `Dependencies.csv` | approved graph resolved through `execution/_DAG/_LATEST.md` local mirror/evidence surface |
-> | `execution/_Decomposition/SOFTWARE_DECOMP.md` | SOW-072, OBJ-016, PKG-14, DEL-14-02 decomposition basis |
-> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | Deliverable row and anticipated artifacts |
-> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | Scope item SOW-072 wording |
-> | `docs/CONTRACT.md` | Agent, data, unit, report, privacy, and professional-boundary invariants |
-> | `docs/SPEC.md` | Unit, persistence/hash, analysis-boundary, result-export, runner/result-envelope guidance |
-> | `docs/TYPES.md` | Canonical model/schema vocabulary and boundary notes |
-> | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private and protected-content constraints |
+- **CLM-001** — What a result means belongs to its producers: the solve and the published result to DEL-04-07, the semantic tables to DEL-05-02 and DEL-05-03, verified bounds and the product reader of result statements to DEL-04-08. This deliverable records a result's identity, standing and classification as the reader gives them and re-derives none of them.
+- **CLM-002** — Saved model states are DEL-14-01's. The canonical JSON form, the form of a hash record and the audit manifest are DEL-08-02's. The project store is DEL-02-05's, the status vocabulary DEL-05-04's, the diagnostic record DEL-00-06's, and the local keeping and checksum of rule packs DEL-06-04's.
+- **CLM-003** — Comparing two runs is DEL-14-04's. Holding a result in the native process and showing it are DEL-07-07's and DEL-07-05's; recording a run from the History panel is DEL-07-08's interaction. The result export document is DEL-08-04's and the run sections of a report DEL-08-06's.
+- **CLM-004** — Outside the product: comprehensive ingestion of a commercial prover's outputs, external validation, and any record of professional acceptance.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-008 — Specification: DEL-14-02 Analysis run records
+A run record establishes which inputs and which build produced a result, and that neither has changed since. It does not establish that the result is right: that is examined where the solve is examined.
 
-> #### Specification: DEL-14-02 Analysis run records
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+### Requirements
 
-### CLM-010 — Scope
+- **REQ-001** — The run record is a schema-first contract in JSON Schema 2020-12, `schemas/analysis_run.schema.json` (also cited as DEL-14-02-R001). Source: SOW-072; decomposition AB-00-03.
+- **REQ-002** — Every recorded run is bound to one exact saved model state, by the checked binding (also cited as DEL-14-02-R002). Source: SOW-072; PRD FR-CMP-002.
+- **REQ-003** — A run record preserves the solver version and build reference, the settings, the units, the load cases and combinations, the diagnostics and warnings, the results, the rule-pack references, the library references, the result hashes and the time of the run (also cited as DEL-14-02-R003). Source: SOW-072; PRD §15.2.
+- **REQ-004** — Results attach to immutable run records and not only to the mutable current model. A recorded run, its received result and its input manifest are read-only, and a change makes a new revision (also cited as DEL-14-02-R004). Source: SOW-072.
+- **REQ-005** — A unit-bearing value a record includes or refers to carries its unit, unless its field is explicitly classified as dimensionless, a ratio, a percentage or a coefficient. The received rows are kept unchanged; interpretation is recorded beside them and never supplies a dimension or other metadata the producer did not state. A row without them is recorded as unverifiable (also cited as DEL-14-02-R005 and DEL-14-02:3). Source: PRD §5.6.
+- **REQ-006** — A missing solve-required or rule-check-required value is an explicit finding in the record, with its diagnostic and provenance, and never a silent default (also cited as DEL-14-02-R006 and DEL-14-02:2). Source: PRD §5.5.
+- **REQ-007** — Each hash record names its payload scope, the record revision and its serialization profile. Computed hashes are SHA-256 over the RFC 8785 canonical form, on the product's one canonical implementation. Checksums received from a producer are kept apart from computed ones and unchanged (also cited as DEL-14-02-R007). Source: SOW-072; decomposition AB-00-04.
+- **REQ-008** — The record keeps the software's authority boundary: results and diagnostics are software outputs, human acceptance is a separate record bound by hash, and no status or label of a run states approval, certification, sealing, authentication or code compliance (also cited as DEL-14-02-R008). Source: PRD §21.2, §21.3.
+- **REQ-009** — Rule-pack and library references give identity, version, checksum and provenance. No record, public fixture or example embeds protected standards text or tables, proprietary values, private formulas or a private pack's payload (also cited as DEL-14-02-R009). Source: SOW-072; PRD §20.1.
+- **REQ-010** — A run is reproducible as a record: the same solved result and inputs give the same record and the same hashes in every implementation that builds one (also cited as DEL-14-02-R010). Source: SOW-072; PRD §22.4.
+- **REQ-011** — Building, recording, listing and reading runs are commands and queries that return result envelopes with their diagnostics (also cited as DEL-14-02-R011). Source: decomposition AB-00-03.
+- **REQ-012** — The desktop builds a record for every completed solve and records runs against saved model states with the checked binding. A recorded run's rule-pack references are the model's references resolved against the local rule-pack store at solve time. A reference that is unresolved, or whose stored pack has a different checksum, is named as a diagnostic of the record and is not among its rule-pack references (also cited as DEL-14-02:1). Source: PRD FR-CMP-002, §15.2.
+- **REQ-013** — A record is built only from a result the product reader accepts. A refused result, and a result of a retired identity, is never recorded. The record carries the standing and row classification the reader gave, and recording changes neither. Source: owner ruling (one product reader of result statements).
+- **REQ-014** — The one-version rule holds for every reader of a run record. Source: owner ruling (each format keeps only its current version).
+- **REQ-015** — A stored run whose record, received result, input manifest or state binding no longer agrees with its recorded hashes is refused by name on every read. Source: SOW-072 (result hashes).
+- **REQ-016** — A recorded run's labels, run-level assumptions among them, can be edited without changing its record, its hashes or its binding. Source: PRD FR-MOD-006.
+- **REQ-017** — A recorded run keeps its own format. It is listed, read and compared by its project's identity, and no model-document version check is applied to it, so the runs of a project whose model document is of a retired version remain reachable. Source: owner ruling on retired projects, saved states and recorded runs, as DEL-02-05 states it.
 
-> ##### Scope
->
-> DEL-14-02 defines the analysis-run record data model and the supporting reproducibility test surface for saving analysis runs as immutable, traceable product records.
->
-> In scope:
->
-> - `schemas/analysis_run.schema.json`.
-> - Run reproducibility tests.
-> - Data-model coverage for the SOW-072 binding categories: exact model states, solver versions, settings, units, load cases, diagnostics, results, rule-pack references, library references, and result hashes.
-> - Professional-boundary, unit, hash, provenance, protected-content, and private-data constraints that apply to persisted run records.
->
-> Out of scope:
->
-> - Comprehensive commercial prover output ingestion.
-> - External validation or professional acceptance decisions.
-> - Exact implementation code, storage container choice, dependency versions, solver numerical library, rule expression grammar/library, and public API transport.
-> - New field-level/interface amendments beyond the versioned schemas authorized by D-67; unsupported extensions remain separately governed.
->
+### Acceptance criteria
 
-### CLM-011 — Requirements
-
-> ##### Requirements
->
-> | ID | Requirement | Source | Verification |
-> |---|---|---|---|
-> | DEL-14-02-R001 | The deliverable shall produce or define `schemas/analysis_run.schema.json` as the analysis-run record schema artifact. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) anticipated artifacts; `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-14-02 | Artifact exists and is schema-validated once implementation occurs. |
-> | DEL-14-02-R002 | The analysis-run record shall bind each saved run to an exact model state reference. | SOW-072 in `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history); `execution/_Decomposition/SOFTWARE_DECOMP.md` DEL-14-02 row | Schema contains a required model-state reference or equivalent validated binding. |
-> | DEL-14-02-R003 | The analysis-run record shall preserve solver version, solver/settings basis, units, load-case basis, diagnostics, results, rule-pack references, library references, and result hashes. | SOW-072; `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) scope detail | Schema inspection and reproducibility tests confirm the categories are present or explicitly referenced. |
-> | DEL-14-02-R004 | Results shall attach to immutable analysis-run records rather than only to mutable current model state. | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-072; `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) envelope notes | Mutation/round-trip test demonstrates stored run evidence remains associated with the original run basis. |
-> | DEL-14-02-R005 | Unit-bearing physical values included or referenced by run records shall carry explicit unit metadata unless explicitly classified as dimensionless, ratio, percentage, or coefficient. | `docs/SPEC.md` section 4; `docs/CONTRACT.md` OPS-K-UNIT-1 | Schema validation and negative tests reject or diagnose missing unit metadata where required. |
-> | DEL-14-02-R006 | Missing solve-required or rule-check-required values shall be explicit findings with diagnostics and provenance, not silent defaults. | `docs/SPEC.md` analysis boundary section; `docs/CONTRACT.md` OPS-K-DATA-2 | Tests confirm missing required values produce structured diagnostics. |
-> | DEL-14-02-R007 | Hash records shall identify payload scope, record revision and serialization profile. Analysis record 0.3.0 computed hashes use checked `openpipestress_jcs_ijson_v1` (input manifest `rfc8785_jcs`). Preserve received checksum evidence separately. Older records are refused by name and their bytes are never relabeled. | Owner decision 2026-10-10; `schemas/analysis_run.v0.3.schema.json` | Check 0.3 exact bytes/vectors, mutation sensitivity, received/computed separation, immutable record-revision identity, and the named refusal of 0.1, legacy-desktop 0.1 and 0.2 records. |
-> | DEL-14-02-R008 | The record shall preserve the software authority boundary: solver results and diagnostics are software outputs; human acceptance is external and hash-bound. | `docs/SPEC.md` analysis boundary section; `docs/CONTRACT.md` OPS-K-AUTH-1 and OPS-K-AUTH-2 | Schema/status tests ensure automatic approval, certification, sealing, authentication, or code-compliance labels are not emitted (PRD §21.2). |
-> | DEL-14-02-R009 | Rule-pack and library references shall expose identity/provenance/checksum-style metadata where source-supported, without embedding protected standards text, protected tables, proprietary values, private formulas, or private payloads in public artifacts. | SOW-072; `docs/SPEC.md` result export section; `docs/IP_AND_DATA_BOUNDARY.md` | Protected-content/private-data tests inspect examples and fixtures before acceptance. |
-> | DEL-14-02-R010 | Run reproducibility tests shall be part of the deliverable output surface. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) anticipated artifacts | Test files exist and exercise stable run-record/hash behavior once implementation occurs. |
-> | DEL-14-02-R011 | The schema and tests shall remain compatible with schema-first command/query/job result-envelope architecture. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) architecture basis; `docs/SPEC.md` runner/result-envelope sections | Service/result-envelope integration tests or contract tests are added when implementation scope reaches that boundary. |
->
-
-### CLM-012 — Standards
-
-> ##### Standards
->
-> | Standard or governing basis | Status in this folder | Notes |
-> |---|---|---|
-> | JSON Schema 2020-12 contracts | Applicable architecture basis | `_CONTEXT.md` identifies JSON Schema 2020-12 contracts. The dispatcher/member schema files supply `$schema`, `$id` and placement evidence; public changes retain their governing scope. |
-> | Analysis-record hash basis | Analysis record 0.3.0 is the only version: its record, received-result and result-row checksums use the checked shared Rust `openpipestress_jcs_ijson_v1` profile, and its input-manifest checksum uses `rfc8785_jcs`. Older records (0.1 sorted-compact, legacy-desktop 0.1, 0.2) are refused by name; their bytes are never relabeled or re-hashed. Preserve record-revision identity, payload scope and received-checksum metadata separately, and verify against the 0.3 schema and vectors; no whole-product conformance follows. | Owner decision 2026-10-10; `schemas/analysis_run.v0.3.schema.json`; analysis-run compatibility evidence |
-> | PRD analysis-run requirements | Current primary source: docs/PRD.md §§8.7, 11.6 (FR-CMP-002), and 15.2 | Historical PRD v0.2 citations resolve to docs/PRD.md under its Forward Authority and Citation Resolution. Apply these requirements together with SOW-072 and the governing one-version serialization contract. |
-> | Protected-content and private-data governance | Applicable | `docs/CONTRACT.md` and `docs/IP_AND_DATA_BOUNDARY.md` govern public/private data handling. |
-> | Professional responsibility boundary | Applicable | `docs/CONTRACT.md` and `docs/SPEC.md` prohibit software-generated professional approval/compliance claims. |
->
-
-### CLM-013 — Verification
-
-> ##### Verification
->
-> | Verification target | Method | Acceptance signal |
-> |---|---|---|
-> | Schema artifact | JSON Schema validation and repository schema gate | `schemas/analysis_run.schema.json` parses and satisfies local schema conventions once implemented. |
-> | Required binding categories | Schema review plus tests | Model state, solver version/settings, units, load-case basis, diagnostics, results, rule-pack/library references, and result hashes are represented or explicitly referenced. |
-> | Immutability of run evidence | Round-trip/persistence test | A saved run remains bound to the original model-state/run basis after unrelated model changes. |
-> | Hash reproducibility | Analysis record 0.3.0 is the only version: its record, received-result and result-row checksums use the checked shared Rust `openpipestress_jcs_ijson_v1` profile, and its input-manifest checksum uses `rfc8785_jcs`. Older records (0.1 sorted-compact, legacy-desktop 0.1, 0.2) are refused by name; their bytes are never relabeled or re-hashed. Preserve record-revision identity, payload scope and received-checksum metadata separately, and verify against the 0.3 schema and vectors; no whole-product conformance follows. | Owner decision 2026-10-10; `schemas/analysis_run.v0.3.schema.json`; analysis-run compatibility evidence |
-> | Unit safety | Negative and positive unit tests | Unit-bearing values include unit metadata or produce blocking diagnostics. |
-> | Professional boundary | Status/label tests | No automatic human approval, certification, sealing, authentication, or code-compliance label is emitted (PRD §21.2). |
-> | Protected/private data boundary | Protected-content and fixture review | Public examples do not embed private/protected rule, library, standards, or proprietary payload content. |
->
-
-### CLM-014 — Documentation
-
-> ##### Documentation
->
-> Required or expected records for later implementation:
->
-> - `schemas/analysis_run.schema.json`.
-> - Run reproducibility tests.
-> - Schema-source notes for each binding category.
-> - Hash/reproducibility test notes, including payload scope.
-> - Unit and diagnostic test notes.
-> - Protected-content/private-data review notes for any public examples or fixtures.
->
-> The analysis record 0.3 schema and compatibility sources define the current fields, identities and projections. Older records are not migrated (owner, 2026-10-10); interface changes need scoped authority; fixture provenance and product conformance remain explicit obligations.
-
-- **AC-001** — The contract preserves schema-first run-record categories, immutable run evidence, explicit unit and dimension diagnostics, one-version serialization (analysis record 0.3.0, checked `openpipestress_jcs_ijson_v1`) with older records refused by name and their bytes never re-labeled, payload scope, rule-pack/library provenance boundaries, professional-status exclusions, and visible producer diagnostic, unit/dimension, schema-field, and implementation TBDs.
+- **AC-001** — A record built from an invented solved model, for each analysis whose results are recorded as runs (the static analyses on each analysis route, and response spectrum), validates against the schema, and each category of REQ-003 is present and equal to the corresponding value of the received result and the input manifest.
+- **AC-002** — Recording a run against a saved state succeeds only when the model payload of the solve's input manifest hashes to the state's model hash and the manifest hashes to the value the record names. A changed manifest, another state and a run that holds no manifest are each refused by name, and nothing is stored. A result offered with the input manifest of another solve is refused by name, and nothing is recorded.
+- **AC-003** — After a run is recorded, editing the model, solving again and saving the project each leave the recorded record, received result and input manifest byte-identical. An attempt to change a recorded run, through any route the product offers, is refused by name. Two recordings of identical solves are two distinct runs.
+- **AC-004** — Each computed hash of a record is reproduced, from the payload it names, by an implementation of RFC 8785 and SHA-256 that imports no product code. Each hash record states its scope and profile, a received checksum appears apart from the computed ones and as received, and a change to any covered value changes the hash that covers it.
+- **AC-005** — A record of any version other than the current one is refused by name by every reader, with the instruction to re-run, and its stored bytes are unchanged. A recorded run of the current record version whose input manifest holds a model document of a retired version is still listed, read and compared.
+- **AC-006** — For one committed set of solved results and inputs, every implementation that builds a record gives byte-identical records in the stored form, equal hashes, and the same refusal for each input that is refused.
+- **AC-007** — A result row for which the producer stated no unit or dimension is recorded as unverifiable, with a finding and no inferred unit. A missing solve-required or rule-check-required value appears as a diagnostic with its provenance and no substituted value. The received rows in the record equal the producer's, row for row.
+- **AC-008** — A model reference to a pack the local store holds with the referenced checksum appears among the record's rule-pack references with its identity, version, checksum and source notice. A reference to an absent pack, and one whose stored pack has another checksum, each appear as a named diagnostic and not among the references. No pack content appears in the record.
+- **AC-009** — A result the product reader refuses, and a result of a retired identity, each yield a named refusal and no record. For an accepted result the record's standing and row classes equal the reader's.
+- **AC-010** — A stored run altered outside the product, in its record, received result, input manifest or state reference, is refused by name when it is read or compared. Editing a recorded run's labels leaves its record and hashes unchanged.
+- **AC-011** — No status, field or label of a run record states approval, certification, sealing, authentication or code compliance; its analysis statuses are those of DEL-05-04's vocabulary; and every public fixture and example of a run is invented and holds no protected or private content.
+- **AC-012** — Building a record, recording a run, listing runs, reading a run and editing a run's labels each return a result envelope carrying the outcome and its diagnostics, on success and on each refusal of AC-002, AC-005, AC-009 and AC-010. None reports its outcome by an error text alone.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-015 — Procedure: DEL-14-02 Analysis run records
+**Method choices that define the product.**
 
-> #### Procedure: DEL-14-02 Analysis run records
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- The received result is stored and bound as received. Interpretation sits beside it, so that what the producer said and what the record concluded can always be told apart.
+- A binding is checked from content, never taken from a caller's claim.
+- A change is a new revision. Nothing edits a record, and no reader repairs or migrates one.
+- Every reader of a result takes the product reader's verdict; a second implementation exists only as a test verifier.
+- Where more than one implementation builds a record, they are held to byte equality on a committed set of cases.
 
-### CLM-017 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> This procedure maintains and verifies the analysis-run contract, analysis record 0.3.0, and its evidence. Under the owner's 2026-10-10 one-version decision, older records are refused by name, not read. Product persistence and producer conformance still require their own implementation evidence.
->
-
-### CLM-018 — Prerequisites
-
-> ##### Prerequisites
->
-> | Prerequisite | Status | Source |
-> |---|---|---|
-> | Accepted decomposition basis | Available: `execution/_Decomposition/SOFTWARE_DECOMP.md` with its accepted amendments | `_CONTEXT.md` |
-> | Deliverable identity and scope | Available: DEL-14-02, SOW-072, OBJ-016 | `_CONTEXT.md`; registers |
-> | Approved dependency evidence | Available as local dependency mirror (current authority: `execution/_DAG/_LATEST.md`; earlier graph IDs are provenance) in `Dependencies.csv` | `_DEPENDENCIES.md`; `Dependencies.csv` |
-> | Architecture basis constraints | Available in `_CONTEXT.md`; exact package-specific implementation choices remain decision-gated | `_CONTEXT.md` |
-> | Field-level schema design | The 0.3 schema exists | `schemas/analysis_run.v0.3.schema.json` is the current contract and the dispatcher admits only it; new interfaces require their own scope. |
-> | Implementation code and tests | Reference/compatibility evidence exists | `core/analysis_runs/compatibility.py` and the analysis-run contract/compatibility tests; product persistence and producer conformance are separate. |
->
-
-### CLM-019 — Steps
-
-> ##### Steps
->
-> 1. Re-read `_CONTEXT.md`, `_REFERENCES.md`, `Dependencies.csv`, and the DEL-14-02 rows in the decomposition and registers.
-> 2. Confirm that the work remains limited to DEL-14-02 and does not require protected standards text, private project data, or sibling deliverable edits.
-> 3. Draft or update `schemas/analysis_run.schema.json` using JSON Schema 2020-12 conventions, subject to repository schema patterns available at implementation time.
-> 4. Represent the SOW-072 binding categories: exact model state, solver version, solver/settings basis, units, load-case basis, diagnostics, results, rule-pack references, library references, and result hashes.
-> 5. Mark unsupported field-level choices as TBD until a source, accepted architecture decision, or human ruling supports them.
-> 6. Ensure unit-bearing values are unit-aware or produce explicit diagnostics for missing/ambiguous units.
-> 7. Preserve the hash contract of analysis record 0.3.0 (checked `openpipestress_jcs_ijson_v1`; input manifest `rfc8785_jcs`). Preserve payload scope, record revision and received checksums independently. Refuse older records by name; never relabel or re-hash their bytes.
-> 8. Preserve professional-boundary constraints: do not generate approval, certification, sealing, authentication, or code-compliance labels as software statuses (PRD §21.2).
-> 9. Preserve protected/private-data constraints: do not embed private formulas, protected standards text, protected tables, proprietary values, or private rule-pack/library payloads in public fixtures or examples.
-> 10. Add run reproducibility tests covering stable serialization/hash behavior, binding to model-state/run basis, unit diagnostics, and professional-boundary status behavior.
-> 11. Record remaining TBDs and assumptions in implementation notes or tests rather than silently defaulting engineering behavior.
->
-
-### CLM-020 — Verification
-
-> ##### Verification
->
-> | Check | Expected result |
-> |---|---|
-> | Source traceability | Requirements and tests cite accessible sources or mark unsupported details as TBD/ASSUMPTION. |
-> | Schema parse | `schemas/analysis_run.schema.json` parses and satisfies repository schema validation once implemented. |
-> | Binding coverage | Tests or schema review confirm all SOW-072 categories are present or explicitly referenced. |
-> | Reproducibility | Analysis record 0.3.0 is the only version: its record, received-result and result-row checksums use the checked shared Rust `openpipestress_jcs_ijson_v1` profile, and its input-manifest checksum uses `rfc8785_jcs`. Older records (0.1 sorted-compact, legacy-desktop 0.1, 0.2) are refused by name; their bytes are never relabeled or re-hashed. Preserve record-revision identity, payload scope and received-checksum metadata separately, and verify against the 0.3 schema and vectors; no whole-product conformance follows. |
-> | Unit handling | Missing unit metadata for unit-bearing values produces diagnostics rather than silent defaults. |
-> | Boundary controls | Statuses and examples avoid automatic professional approval/compliance claims and protected/private data leakage. |
-> | Dependency preservation | Current local rows must agree with approved authority through `execution/_DAG/_LATEST.md`, including RETIRED legacy duplicates; earlier DAG-002 identifiers are provenance. |
->
-
-### CLM-021 — Records
-
-> ##### Records
->
-> The implementation pass should leave:
->
-> - `schemas/analysis_run.schema.json`.
-> - Run reproducibility tests.
-> - Validation output for schema and tests.
-> - Notes for any TBD schema fields, hash partitions, migration behavior, or fixture policies.
-> - Protected-content/private-data review notes for public examples.
-> - Any dependency-register changes only if they preserve approved DAG-006 rows or have explicit human/change authority.
-
-- **VER-001** — Validate the contract and review source parity, every SOW-072 binding category, immutable run association, exact serialization-label and hash boundaries, unit/dimension and missing-data diagnostics, private/protected reference handling, retained residuals and TBDs, and professional-authority limits.
+- **VER-001** — Executable check (observes records built from invented solved models for each such analysis against the schema, under a JSON Schema 2020-12 validator that imports no product code, and against the received result and input manifest they were built from).
+- **VER-002** — Executable check (observes Record Run with a matching manifest and state, a changed manifest, another state, no manifest and the manifest of another solve, and the store after each).
+- **VER-003** — Executable check (observes the stored record, result and manifest before and after model edits, a further solve and a project save; attempted changes through each service; and two recordings of identical solves).
+- **VER-004** — Comparison with a named reference (RFC 8785 and SHA-256, computed by an implementation that imports no product code) with an executable check (observes that each covered value changes its hash).
+- **VER-005** — Executable check (observes each reader given records of older, newer and unrecognised versions, and the stored bytes afterwards; and the listing, read and comparison of recorded runs whose manifests hold model documents of retired versions).
+- **VER-006** — Executable check (observes each record-building implementation on one committed set of cases and compares records, hashes and refusals between them; it shows that the implementations agree and nothing more).
+- **VER-007** — Executable check (observes records built from constructed results with a row lacking a unit or dimension, a missing solve-required value and a missing rule-check-required value, and compares the recorded rows with the producer's).
+- **VER-008** — Executable check (observes a solve of a model whose rule-pack references are held, absent and held with another checksum, and the record's references and diagnostics).
+- **VER-009** — Comparison with a named reference (the product reader's verdict for each committed result, which this deliverable does not compute).
+- **VER-010** — Executable check (observes reads of recorded runs whose stored record, result, manifest and state reference were each altered in turn, and label edits).
+- **VER-011** — Judgment by a reviewer who did not write the record, who examines the schema's vocabularies and the public fixtures against PRD §20.1 and §21.2 with the protected-content scan.
+- **VER-012** — Executable check (observes the envelope each operation of AC-012 returns on success and on each refusal the criterion names).
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-022 — Guidance: DEL-14-02 Analysis run records
-
-> #### Guidance: DEL-14-02 Analysis run records
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-024 — Purpose
-
-> ##### Purpose
->
-> Analysis run records exist so solver outputs can be reviewed as reproducible records bound to the exact model state, execution context, diagnostics, references, and hashes that produced them. The record is a traceability surface for design iteration and review; it is not an automatic professional approval or external validation state.
->
-
-### CLM-025 — Principles
-
-> ##### Principles
->
-> | Principle | Guidance | Source |
-> |---|---|---|
-> | Bind results to their run basis | Treat the run record as the durable home for result evidence, not as a transient view of the current model. | SOW-072; `_CONTEXT.md` envelope notes |
-> | Preserve exact upstream references | Model state, solver version, settings, units, load-case basis, diagnostics, rule packs, libraries, and result hashes are binding categories, not optional narrative notes. | SOW-072 |
-> | Keep units explicit | Unit-bearing physical values need unit metadata; missing or ambiguous units become diagnostics rather than inferred defaults. | `docs/SPEC.md` section 4 |
-> | Make hashes scoped and reproducible | Analysis record 0.3.0 is the only version: its record, received-result and result-row checksums use the checked shared Rust `openpipestress_jcs_ijson_v1` profile, and its input-manifest checksum uses `rfc8785_jcs`. Older records (0.1 sorted-compact, legacy-desktop 0.1, 0.2) are refused by name; their bytes are never relabeled or re-hashed. Preserve record-revision identity, payload scope and received-checksum metadata separately, and verify against the 0.3 schema and vectors; no whole-product conformance follows. | Owner decision 2026-10-10; `schemas/analysis_run.v0.3.schema.json`; analysis-run compatibility evidence |
-> | Keep authority domains separate | Solver results and diagnostics are software outputs. User-rule checks use user-supplied rule-pack data. Human acceptance, if used, is external and hash-bound. | `docs/SPEC.md` analysis boundary section |
-> | Protect private/protected payloads | Rule-pack and library references may carry identity, version, checksum, provenance, privacy, and review metadata, but public artifacts must not copy private/protected content. | `docs/IP_AND_DATA_BOUNDARY.md`; `docs/SPEC.md` result export section |
->
-
-### CLM-026 — Considerations
-
-> ##### Considerations
->
-> - The versioned schema dispatcher and reference/compatibility builders provide implementation evidence. The original setup absence is historical; product persistence, actual producer diagnostics and cross-surface conformance remain delivery work.
-> - SOW-072 is sufficient to identify required binding categories, but it is not sufficient to define exact schema field names, cardinality, or migration behavior.
-> - The dependency mirror records approved graph resolved through `execution/_DAG/_LATEST.md` predecessor evidence for architecture basis, immutable model state records, analysis status semantics, audit manifest/hash conventions, result export format, and persistence/round-trip support. Those rows are an evidence surface, not independent graph authority.
-> - The deliverable should align with `schemas/results.schema.yaml` and result-export envelopes where run records include or point to result payloads, but this folder does not define the final result export schema.
-> - Use `docs/PRD.md` §§8.7, 11.6 (FR-CMP-002), and 15.2 for analysis-run requirements; retain explicit TBDs for field-level choices not settled by the governing contracts.
->
-
-### CLM-027 — Trade-offs
-
-> ##### Trade-offs
->
-> | Topic | Conservative posture |
-> |---|---|
-> | Embedded results vs references | The 0.3 schema defines `result_refs` and referenced evidence; analysis record 0.3 preserves explicit source semantic contracts and checksum metadata. Do not infer comprehensive embedded result payloads or producer conformance from that contract. |
-> | Hash granularity | Require explicit payload scope. Do not decide final partitioning for non-JSON or binary payloads; `docs/SPEC.md` leaves that TBD. |
-> | Rule-pack/library metadata depth | Preserve identity/provenance/checksum/reference metadata without copying private formulas, protected tables, proprietary values, or private payloads. |
-> | Status vocabulary | Use software status/diagnostic categories only within the professional-boundary model. Do not introduce automatic human approval or code-compliance statuses (PRD §21.2). |
-> | Comparison readiness | DEL-14-02 should not pre-solve DEL-14-04 comparison semantics. It should preserve enough run basis and result hash evidence to support deterministic comparison later. |
->
-
-### CLM-028 — Examples
-
-> ##### Examples
->
-> Analysis-run schemas, `core/analysis_runs/compatibility.py` and `tests/test_analysis_run_compatibility.py` carry constructed contract examples and fixtures. Presence is implementation evidence, not a fixture rights clearance; public examples still require invented or otherwise redistribution-cleared provenance.
->
-
-### CLM-029 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | None identified | No direct source conflict has been identified. Details not settled by `docs/PRD.md` §§8.7, 11.6 and 15.2, SOW-072 or the governing contracts remain TBD. | N/A | N/A | N/A | N/A | N/A |
+- **AX-001** — *A result is never without its basis.* Better is fewer results shown, exported or reported without a record that binds them to their state and inputs; the target is none. A binding is never asserted to make a run recordable.
+- **AX-002** — *What the producer said is kept as said.* Better is more of a result's meaning carried from its producer into the record. It may never be gained by inferring a unit, a dimension or a standing the producer did not state.
+- **AX-003** — *Refuse by name over reading leniently.* An older record, a refused result and a run that does not verify are each named and refused. Convenience of reopening old work never justifies migrating, relabelling or re-hashing it.
+- **AX-004** — *The same record everywhere.* Better is fewer cases on which two implementations differ; the target is none, and agreement between them is never offered as evidence that the result is right.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-072 OBJ-016 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-14-02:1** — R5 continuation delivery task: Complete analysis-run producer/persistence conformance to analysis record 0.3.0: preserve diagnostics, units, record-revision identity and exact source/run basis; refuse older records by name without relabeling their bytes (CLM-006/011/018; AC-001). The desktop persists recorded 0.3.0 revisions tied to saved model states with checked binding (W-12 S2); their rule-pack references are the model's references resolved against the local rule-pack store at solve time, and unresolved or changed references are named as run-record diagnostics (W-12). Producer-side diagnostic breadth and PDU-033 (:2, :3) remain open.
-- **DEL-14-02:2** — Complete explicit solve-required and rule-check-required diagnostic breadth at the producer; the persisted-run report handoff preserves existing records only, and PDU-033's unit/dimension hold remains.
-- **DEL-14-02:3** — Preserve PDU-033 for producer-supplied physical dimensions and other governed result metadata absent from received rows. The current foundation is analysis record 0.3 under checked profile `openpipestress_jcs_ijson_v1`, with immutable rule-check revisions; the 0.1 profiles and the 0.2 record are refused by name (owner, 2026-10-10; removed in B7a). Raw source rows remain unchanged; semantic interpretation beside them does not create missing producer evidence, and explicit `unverifiable` states do not close PDU-033.
+| OUT-001 | SOW-072 OBJ-016 | REQ-001 REQ-003 REQ-012 | AC-001 | VER-001 | Outside source for the record's form: the JSON Schema 2020-12 specification. The categories come from PRD §15.2, an owner ruling, and each is compared with the received result and input manifest, which the record builder did not write |
+| OUT-001 | SOW-072 OBJ-016 | REQ-002 REQ-012 | AC-002 | VER-002 | The criterion fixes the expected result. The manifests and states are constructed to match or not, the pair of a result with another solve's manifest is constructed too, so the criterion states each refusal, and the hashes are recomputed with RFC 8785 and SHA-256 |
+| OUT-001 | SOW-072 OBJ-016 | REQ-004 | AC-003 | VER-003 | Owner ruling: SOW-072 attaches results to immutable runs. The stored bytes are compared with a copy taken before each operation |
+| OUT-001 | SOW-072 OBJ-016 | REQ-007 | AC-004 | VER-004 | Outside source: RFC 8785 and SHA-256 |
+| OUT-001 | SOW-072 OBJ-016 | REQ-014 REQ-017 | AC-005 | VER-005 | Owner rulings: each format keeps only its current version and nothing is migrated, and a recorded run is not gated on its model document's version. The records are constructed, so the criterion states which are refused and which are read |
+| OUT-001 | SOW-072 OBJ-016 | REQ-010 | AC-006 | VER-006 | The product's own output on committed cases, compared between its implementations. This guards against the implementations drifting apart and is not grounds for correctness; AC-001 and AC-004 carry those |
+| OUT-001 | SOW-072 OBJ-016 | REQ-005 REQ-006 | AC-007 | VER-007 | The results are constructed with a known defect each, so the criterion states the expected finding; recorded rows are compared with the producer's rows |
+| OUT-001 | SOW-072 OBJ-016 | REQ-009 REQ-012 | AC-008 | VER-008 | The packs and references are constructed to resolve or not, so the criterion states the expected references and diagnostics; pack checksums are recomputed as DEL-06-04 defines them |
+| OUT-001 | SOW-072 OBJ-016 | REQ-013 CLM-001 | AC-009 | VER-009 | Owner ruling: one product reader. The expected verdicts are the reader's, which DEL-04-08 owns and examines against its own references |
+| OUT-001 | SOW-072 OBJ-016 | REQ-015 REQ-016 | AC-010 | VER-010 | Each alteration is made deliberately to a known run, so the criterion states that it is refused; hashes after a label edit are compared with those recorded before it |
+| OUT-001 | SOW-072 OBJ-016 | REQ-008 REQ-009 CLM-004 | AC-011 | VER-011 | Owner ruling: PRD §20.1, §21.2 and §21.3, judged by a reviewer against those clauses |
+| OUT-001 | SOW-072 OBJ-016 | REQ-011 | AC-012 | VER-012 | The criterion fixes the expected result: DEL-00-03's result-envelope contract, which this deliverable does not define, compared with the envelope each operation returns |
