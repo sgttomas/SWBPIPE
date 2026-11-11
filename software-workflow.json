@@ -319,7 +319,6 @@
         "schemas/**",
         "tools/**",
         "AGENTS.md",
-        "loop/**",
         "requirements-dev.txt",
         "software-workflow.json"
       ],

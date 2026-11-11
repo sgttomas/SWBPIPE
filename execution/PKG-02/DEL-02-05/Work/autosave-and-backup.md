@@ -8,8 +8,8 @@ persistence.
 
 ## 0. Locality and decisions
 
-Agent 0 accepted on 2026-10-28, under the owner-accepted release target (row
-RT-U3), the three choices this design proposed: the native settings file (§2),
+Agent 0 accepted on 2026-10-28, under the owner-accepted release target (exit
+criterion 10), the three choices this design proposed: the native settings file (§2),
 backup rotation defaulting to All (§4) and the backup taken from the stored
 document (§4). It also set autosave on by default (§2).
 
@@ -110,8 +110,8 @@ user saved. The settings text says that autosaves are removed once saved.
 
 Autosave is on by default, every 5 minutes. The user can choose 1, 2, 5, 10,
 15 or 30 minutes, or turn it off, and it writes only while there are unsaved
-edits (Agent 0, 2026-10-28, under the owner-accepted release target, row
-RT-U3: "on by default", so that a crash loses at most one interval, as exit
+edits (Agent 0, 2026-10-28, under the owner-accepted release target:
+"on by default", so that a crash loses at most one interval, as exit
 criterion 10 of `docs/RELEASE_TARGET_v1.0.md` states). For as long as it is
 off, a one-line notice that a crash can lose unsaved work stays in the
 toolbar, taken from the settings and apart from the status line, so no later

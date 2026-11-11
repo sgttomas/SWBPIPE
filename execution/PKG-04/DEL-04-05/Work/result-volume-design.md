@@ -1,7 +1,7 @@
 # Result volume: summary first, detail on demand (design proposal "C")
 
 **Status:** approved by SWBPIPE Agent 0 on 2026-10-31, with the conditions in §7. It changes
-nothing by itself. It serves RT-U4 (exit criterion 9) and the usability of ordinary models.
+nothing by itself. It serves exit criterion 9 and the usability of ordinary models.
 Basis: main at `cfd17e103` and the measurements in `criterion-9-measurement.md` (§5, §6).
 The later C1 integration decision supersedes the draft-until-measured condition in §§4.1 and 7;
 its remaining measurement limits are in `c1-native-custody-plan.md` slice 7.
@@ -332,7 +332,7 @@ The projection is re-measured after 1b, after the reader bundle, and at each of 
 | Viewport colour and deformation (`resultColourOverlay.ts`, `PipeViewport.tsx`) | scans `result.results` | the columnar planes in S | C1 |
 | Numerical health and standing | full-text wasm calls | native verdict summary in S | C1 |
 | Reports (DEL-08-01; `reportResultRows.ts`, `report_package` bindings) | one report row per envelope row, each checksummed | S's tables by default; station detail for selected members; checksums bind S, the root and the chunks used | C2 |
-| CSV for every table (RT-R6, DEL-08-04; `csvTableCoverage.test.ts`) | 9 tables, from in-memory rows | the same 9 tables from S, plus a native "all detail rows" stream; the coverage guard covers both | C1 (tables), C2 (detail stream) |
+| CSV for every table (DEL-08-04; `csvTableCoverage.test.ts`) | 9 tables, from in-memory rows | the same 9 tables from S, plus a native "all detail rows" stream; the coverage guard covers both | C1 (tables), C2 (detail stream) |
 | JSON export (DEL-08-04 derivative, `derivative.rs`) | 1:1 row accounting over the envelope | the same accounting over S + D, streamed natively | C2 |
 | Comparisons (PKG-14; `runComparison.ts`, `engine.py`) | rows mapped by identity in memory | summary comparison in the webview; detail comparison natively by row identity, chunk by chunk | C2 |
 | Rule packs (`rule_solver_selection.rs`, `run_rule_checks`) | envelope sent over IPC; rows qualified in place | selectors resolved natively against D's index; envelope not sent | C2 |

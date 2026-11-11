@@ -93,12 +93,14 @@ needs:
 
     Target description — TargetName: Human project authority assignment; TargetRefID: HUMAN_PROJECT_AUTHORITY'
 - from: doc:docs/IP_AND_DATA_BOUNDARY.md
-  condition: 'Repo-level protected-data policy and contribution review checklist artifacts exist as draft
-    governance surfaces.
+  condition: 'The repo-level protected-data policy exists as a draft governance surface; the contribution
+    review checklist is not in the repository.
 
 
-    Notes: Repo-level artifacts exist and are cited by the current-basis local kit; this satisfies artifact
-    handoff evidence without approving aggregate DAG changes or lifecycle transition.
+    Notes: The policy exists and is cited by the current-basis local kit. The earlier checklist draft was
+    withdrawn on 2026-11-10 on the owner''s ruling and remains to be produced from the owner''s contributor
+    rules (Work/contribution-review-checklist.md). This approves no aggregate DAG change or lifecycle
+    transition.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.

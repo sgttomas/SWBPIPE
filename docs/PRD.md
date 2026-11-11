@@ -48,9 +48,8 @@ the analytical scope unless expressly added as product requirements.
 
 The project license is MIT. The sole human maintainer retains release authority;
 external contribution intake remains closed until an owner activation and the
-required contributor/legal arrangements. See [CONTRACT](CONTRACT.md),
-[IP and data boundary](IP_AND_DATA_BOUNDARY.md)
-and [maintainer policy](../governance/MAINTAINERS.md).
+required contributor/legal arrangements. See [CONTRACT](CONTRACT.md)
+and [IP and data boundary](IP_AND_DATA_BOUNDARY.md).
 
 ## 1. Executive Summary
 
@@ -729,7 +728,7 @@ The product shall support, over time:
 
 The MVP may start with anchors, guides, vertical supports, directional restraints, and linear springs.
 
-Hanger sizing is required for v1.0 (SCA-015; `docs/RELEASE_TARGET_v1.0.md` RT-A11). The engine shall size variable spring hangers and constant-effort supports from the user's own imported hanger catalogue records. Every method choice shall be a required user input: the weight and operating cases, the load design, the load-variation limit and its reference, the travel allowance and the selection rule. The engine shall report the sized loads, travels and selected records as results with their basis, a hanger table, and shall change the model only when the person applies a selection. No catalogue ships. A variable spring hanger is modelled as its stiffness plus its cold (preset) load.
+Hanger sizing is required for v1.0 (SCA-015; `docs/RELEASE_TARGET_v1.0.md` exit criterion 1). The engine shall size variable spring hangers and constant-effort supports from the user's own imported hanger catalogue records. Every method choice shall be a required user input: the weight and operating cases, the load design, the load-variation limit and its reference, the travel allowance and the selection rule. The engine shall report the sized loads, travels and selected records as results with their basis, a hanger table, and shall change the model only when the person applies a selection. No catalogue ships. A variable spring hanger is modelled as its stiffness plus its cold (preset) load.
 
 ### 12.5 Load Types
 
@@ -818,7 +817,7 @@ The engine shall compute the natural frequencies and mode shapes of the linear m
 - admit the pressure-free and exact pressure routes, each on its own section and self-weight mass basis; take the stiffness, the mass and the nonlinear-support states of a load/reference-state document, or of a model with nonlinear supports, from the resolved state of one load case the user names, disclosing it and each support's state, never silently; include snubbers, as dynamic-only restraints, only when the request includes them; and refuse by name what it does not admit;
 - reproduce closed-form beam, rod and ring frequencies, and compare with at least one published piping benchmark, transcribed only with that source's own redistribution evidence, at a stated tolerance, as comparison evidence.
 
-Response-spectrum seismic analysis on this modal basis is required for v1.0 (SCA-014; `docs/RELEASE_TARGET_v1.0.md` RT-A8); harmonic and time-history analysis are not required. A modal result is a numerical statement about the discrete model: it establishes neither physical correctness nor a code-compliance determination (§21.2).
+Response-spectrum seismic analysis on this modal basis is required for v1.0 (SCA-014; `docs/RELEASE_TARGET_v1.0.md` exit criterion 1); harmonic and time-history analysis are not required. A modal result is a numerical statement about the discrete model: it establishes neither physical correctness nor a code-compliance determination (§21.2).
 
 ---
 
@@ -1688,7 +1687,7 @@ Exit criteria:
 
 Definition (owner, 2026-10-27): a version "good enough to publish engineering results with". SWBPIPE performs the design iteration and does not state code compliance; the user establishes code compliance in accepted professional software.
 
-Its rows, exit criteria and their maintenance are in `docs/RELEASE_TARGET_v1.0.md`, accepted by the owner on 2026-10-28 ("Accepted."). Meeting the exit criteria is evidence for the owner's release decision, not the decision.
+Its exit criteria are in `docs/RELEASE_TARGET_v1.0.md`, accepted by the owner on 2026-10-28 ("Accepted."). Meeting the exit criteria is evidence for the owner's release decision, not the decision.
 
 ---
 

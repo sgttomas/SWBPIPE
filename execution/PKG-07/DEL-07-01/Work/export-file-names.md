@@ -4,10 +4,10 @@ This document gives the one user-facing file-name convention for every file the 
 suggests when the user exports or saves something outside the local store. It covers CSV
 tables, result JSON, handoff packages, MBF files when they come (RT-R7), and every later
 export. Agent 0 set the requirement on 2026-10-28: one convention, no developer text and no
-project name. RT-R6 CSV export and DEL-08-04 use this shared rule.
+project name. CSV export (DEL-08-04) uses this shared rule.
 
-It serves release-target rows RT-U1 (coherent visual design, including the user-facing
-wording), RT-R6 (CSV export) and RT-R7 (MBF export), in `docs/RELEASE_TARGET_v1.0.md`.
+It serves coherent visual design, including the user-facing wording (DEL-07-06), and
+exit criteria 5 (CSV export) and 6 (MBF round trip) of `docs/RELEASE_TARGET_v1.0.md`.
 
 ## The rule
 

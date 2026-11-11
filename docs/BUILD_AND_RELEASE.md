@@ -42,7 +42,7 @@ on demand or for release-candidate assurance.
 - no publication act occurs from this guide: packaging (§6) produces a local
   zip + checksum + §8 record only. The independent public repository
   [sgttomas/SWBPIPE](https://github.com/sgttomas/SWBPIPE) replaced the prospective
-  sanitized-export route (owner, 2026-10-29; release target RT-V8). Before v1.0,
+  sanitized-export route (owner, 2026-10-29; release target exit criterion 16). Before v1.0,
   the owner-signed D-20/DEC-058 scan and the other release exit criteria remain
   required. Publication is a separate human release-authority act;
 - DEC-027 records the sole human project authority as sole maintainer and
@@ -272,8 +272,9 @@ Those not-applicable reasons describe only the repository-tree candidate.
 Separately shipped packages, reports, installers and release notes need their
 own class entries and bound artifacts; repository verification never covers
 an unnamed release artifact. Inventory bytes/modes and source revision must
-match the exact candidate being signed. Original-to-imported history and the
-historical pricing/archive inputs are recorded in `reference/migration/`.
+match the exact candidate being signed. The original identities that maintained
+checks still cite are mapped to their imported commits in
+`tools/repository_history.py`.
 
 Review and disposition every finding. The earlier export-scope scan documented
 62 blocking lint and 27,460 provenance findings in 97 files; those were findings,

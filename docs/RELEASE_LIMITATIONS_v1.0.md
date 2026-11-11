@@ -8,11 +8,11 @@ metadata:
 # SWBPIPE v1.0 release limitations
 
 **Status:** companion to `docs/RELEASE_TARGET_v1.0.md`, for exit criterion 3:
-"Every remaining refusal in a Must row is listed in the release limitations and
-accepted by the owner." This is the single list. Each entry is drafted by the
+"Every remaining refusal of a capability these criteria require is listed in the
+release limitations and accepted by the owner." This is the single list. Each entry is drafted by the
 lane that owns the refusal and links to the deliverable `Work/` text that
 explains it. An entry records a refusal and its reason. It does not accept
-it: acceptance is the owner's act (F-PIP-3, release target §5), recorded in
+it: acceptance is the owner's act (F-PIP-3, release target "Reserved to the owner"), recorded in
 the entry's status only when the owner gives it. The release notes'
 "Known Limitations And Open Risks" section (`docs/RELEASE_NOTES_TEMPLATE.md`)
 is written from the accepted entries.
@@ -22,8 +22,7 @@ is written from the accepted entries.
 Each entry is one subsection:
 
 - **Id:** `LIM-nnn`, assigned in order and never reused.
-- **Rows:** the `RT-` rows it affects (Must rows; Should rows may be listed
-  for completeness).
+- **Exit criteria:** the release target's exit criteria it affects, by number.
 - **Code:** the refusal or warning code the product emits, if any.
 - **What is refused:** in the user's terms.
 - **Why:** the engineering or source reason, in one or two sentences.
@@ -41,7 +40,7 @@ the entry, and the entry names the PR.
 ### LIM-001 — The embedded agent does not author component modifiers
 
 - **Id:** LIM-001
-- **Rows:** RT-E1
+- **Exit criteria:** 17
 - **Code:** `OP-BEND-FLEXIBILITY-USER-ENTRY-REQUIRED`, `OP-COMPONENT-MODIFIER-USER-ENTRY-REQUIRED`
 - **What is refused:** the embedded agent cannot write a bend or tee
   flexibility factor k, a SIF, a stiffness scaling or stiffness, or the
@@ -66,7 +65,7 @@ the entry, and the entry names the PR.
 
 - **Id:** LIM-002
 
-- **Rows:** RT-A3, RT-K2, RT-L1.
+- **Exit criteria:** 1.
 - **Code:** `EXACT_PRESSURE_SHARED_TERMINAL_JUNCTION_UNSUPPORTED` (blocking).
 - **What is refused:** a pressure junction, meaning a node where two or more pressure regions of one load case end, where any of those regions declares its terminal at the node `separately_supported_or_compensated`.
 - **Why:** the junction's pressure load is the sum of its terminals' caps. A compensated terminal would remove its member's share from the pipe solve, so the fitting's load would be analysed incomplete without notice.

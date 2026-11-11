@@ -1,7 +1,7 @@
 # App P5: host inputs and remaining joined evidence
 
 **Consumer:** App v4 publication punchlist P5, coordinated by the two projects'
-Agent 0s. **Rows:** RT-E1, RT-G2 and RT-V1. Code/input basis:
+Agent 0s. **Exit criteria:** 17, 7 and 2. Code/input basis:
 `sgttomas/SWBPIPE@8b02f8b9ec07a02e7427fb07107cb41e6bc2a2e0`.
 This account selects source for offline preparation, not a native executable,
 run, receiving adoption or completed witness. Read the source at that revision;

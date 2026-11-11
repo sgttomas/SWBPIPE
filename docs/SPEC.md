@@ -898,7 +898,7 @@ stiffness-transform families. Hand-calculation notes for those fixtures live in
 
 ## 11. Development entry
 
-Use the repository's [`AGENTS.md`](../AGENTS.md) and [LOOP_INIT](../loop/LOOP_INIT.md). Current commitments,
+Use the repository's [`AGENTS.md`](../AGENTS.md). Current commitments,
 design and dependency conditions live together under `execution/PKG-XX/DEL-XX-YY/`.
 No lifecycle files, phase folders or separate development receipts are required.
 

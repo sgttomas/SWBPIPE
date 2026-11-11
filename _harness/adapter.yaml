@@ -4,7 +4,6 @@
 schema: practitioner-harness-adapter/v1
 project: chirality-piping
 plan: docs/PRD.md
-coordination: execution/_Coordination/_COORDINATION.md
 decision_register: execution/_Coordination/_DECISIONS/_REGISTER.md
 # Piping deliverable directories carry spaces and lowercase labels — the glob
 # matches any directory name under 1_Working/ (verified: exactly 101 files).

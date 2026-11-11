@@ -2,7 +2,7 @@
 
 **Basis:** `main` at `20614594c` (#130's merge, after #128); run sheet DEL-09-01 `Work/reference-system-run-sheet.md`
 §2–§3.14; fixture `fixtures/reference_system/reference_system.json`. Exit criterion 7
-(`docs/RELEASE_TARGET_v1.0.md` §4) is context only.
+(`docs/RELEASE_TARGET_v1.0.md`) is context only.
 
 **What this is.** A maintained browser test,
 `apps/desktop/src/features/workspace/referenceEntryJourney.session.test.tsx`, that enters the

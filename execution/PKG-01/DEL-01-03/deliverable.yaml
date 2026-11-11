@@ -116,12 +116,13 @@ needs:
     TargetLocation: execution/_Decomposition/SOFTWARE_DECOMP.md'
   evidence: execution/PKG-01/DEL-01-03/ScopeOfWork.md
 - from: doc:CONTRIBUTING.md
-  condition: 'Draft repo-level CONTRIBUTING.md contributor workflow exists as a downstream handoff artifact;
-    final legal mechanism and acceptance remain TBD.
+  condition: 'The repo-level CONTRIBUTING.md contributor workflow is a downstream handoff artifact that
+    is not in the repository; final legal mechanism and acceptance remain TBD.
 
 
-    Notes: FACT; draft repo-level governance artifact exists; final DCO/CLA/other legal mechanism and
-    human acceptance remain TBD and no release or professional claim is made.
+    Notes: The earlier draft was withdrawn on 2026-11-10 on the owner''s ruling and remains to be produced
+    from the owner''s contributor rules (Work/contributor-workflow-files.md); final DCO/CLA/other legal
+    mechanism and human acceptance remain TBD and no release or professional claim is made.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
@@ -131,14 +132,14 @@ needs:
     CONTRIBUTING.md'
   direction: downstream
   gating: false
-  evidence: CONTRIBUTING.md
 - from: doc:governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md
-  condition: 'The draft repo-level contributor certification template exists as a handoff artifact for
-    public contribution review.
+  condition: 'The repo-level contributor certification template is a handoff artifact for public contribution
+    review that is not in the repository.
 
 
-    Notes: FACT; draft repo-level governance artifact exists; final DCO/CLA/other legal mechanism remains
-    TBD and no acceptance or release claim is made.
+    Notes: The earlier draft was withdrawn on 2026-11-10 on the owner''s ruling and remains to be produced
+    from the owner''s contributor rules (Work/contributor-workflow-files.md); final DCO/CLA/other legal
+    mechanism remains TBD and no acceptance or release claim is made.
 
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
@@ -148,7 +149,6 @@ needs:
     TargetLocation: governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md'
   direction: downstream
   gating: false
-  evidence: governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md
 code_paths:
 - CONTRIBUTING.md
 - governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md

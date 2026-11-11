@@ -1,6 +1,6 @@
 # C1 native custody: implementation plan
 
-**Serves:** RT-U4 (exit criterion 9) and the usability of ordinary models. **Design:** phase C1
+**Serves:** exit criterion 9 and the usability of ordinary models. **Design:** phase C1
 of `result-volume-design.md` (§2, §3.1, §3.2, §4, §4.1; on `claude/rt-perf-c-design`),
 approved by SWBPIPE Agent 0 on 2026-10-31 on three conditions:
 

@@ -2,7 +2,7 @@
 
 **Basis:** `origin/main` at `389ca97d5f` (2026-10-28). Paths are relative to
 `projects/chirality-piping/` unless they name a root path. Slices 2 and 3
-(§5) are built. It serves release-target row RT-R6 and
+(§5) are built. It serves
 exit criterion 5 (`docs/RELEASE_TARGET_v1.0.md`). The commitments are
 DEL-08-04-R14, AC-002 and VER-002 in this deliverable's `ScopeOfWork.md`.
 This design records no acceptance, issuance, approval, compliance or lifecycle

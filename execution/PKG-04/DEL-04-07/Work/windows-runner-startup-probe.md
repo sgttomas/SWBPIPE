@@ -76,7 +76,7 @@ Hosted native x64 `windows-2025`, Rust 1.97.1 MSVC, builds the unchanged existin
 `core/runner/headless` stable CLI with default features, `--locked --release`
 and a fresh target. The checked runner lock SHA256 is
 `32e1f62f9fa41022ae1c33f3d0bcbeb9b0eaae0f134abc679202166087190c6d`. PR #98
-(DEL-05-02, RT-A4) refreshed it from `e4f9efd3f297d07086dbb6ff18386797167c61b891f675fb28b6000277a2988a`; that change added
+(DEL-05-02) refreshed it from `e4f9efd3f297d07086dbb6ff18386797167c61b891f675fb28b6000277a2988a`; that change added
 only the edge from `open_pipe_stress_result_export` to the existing local path package
 `open_pipe_stress_load_case_algebra`, with no package, registry version or checksum change. PR #94
 (DEL-04-09) refreshed it from `49aabbef93419085d70d8c83011b94768645558a46e18f90a1b77137623e3cc0`; that change added only the local path

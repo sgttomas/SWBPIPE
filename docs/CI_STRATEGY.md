@@ -30,7 +30,7 @@ PR diff at the exact candidate. Two kinds of change take it:
   maintained boundary guard (`tools/validation/execution_boundary.py`), parses
   each changed JSON, YAML and CSV file, and runs the parity and graph checks the
   changed specifications feed (`DOCUMENT_TESTS`).
-- In-place, regular UTF-8 Markdown edits under `docs/` or `loop/`, or to root
+- In-place, regular UTF-8 Markdown edits under `docs/`, or to root
   `README.md`/`AGENTS.md`, under a current reader audit (below).
 
 Both run the dependency-structure, changed-content credential and conflict

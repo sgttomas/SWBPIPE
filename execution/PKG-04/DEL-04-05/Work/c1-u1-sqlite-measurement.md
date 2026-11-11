@@ -1,6 +1,6 @@
 # C1 residual U1: SQLite/FTS5 memory on the native save's write path (store schema v13)
 
-**Serves:** RT-U4 (exit criterion 9), DEL-04-05 phase C1, residual U1. **Standing:** bounded
+**Serves:** exit criterion 9, DEL-04-05 phase C1, residual U1. **Standing:** bounded
 diagnostic evidence (Agent 0: "GO as BOUNDED DIAGNOSTIC EVIDENCE, not qualification of a universal
 coefficient"). This note is a **proposal input only**. U1 stays **open** until a proposal is reviewed
 and adopted. U3 (builder/reader/validator working memory, the page cache in general) and U4 (no

@@ -252,7 +252,7 @@ Installed `/usr/bin/vtool -show-build` and `file` inspected the original bytes:
 These are static binary load-command floors, not proved native compatibility,
 an app minimum-OS setting or an expanded support promise. The desktop config
 does not set `bundle.macOS.minimumSystemVersion`; its resolved packaging
-minimum was not built/checked. Release target RT-V7 still records macOS Apple
+minimum was not built/checked. DEC-057 (DEL-10-04 `Work/windows-port.md`) still keeps macOS Apple
 Silicon as the release baseline. Pinning Intel does not change that baseline.
 The manager/Agent 0 must reconcile any intended Intel support and app minimum
 against product/runtime/dependency requirements; no support range was selected

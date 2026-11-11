@@ -622,8 +622,8 @@ classification. It never prints external-prover values outside the local run.
 
 ## 11. Benchmark set, tranche 1 (RT-V2)
 
-This section records the method for the benchmark set against CAEPIPE that RT-V2 of
-`docs/RELEASE_TARGET_v1.0.md` requires (§2; method in §3). It compares mechanics only:
+This section records the method for the benchmark set against CAEPIPE that exit criterion 11 of
+`docs/RELEASE_TARGET_v1.0.md` requires (method in "Benchmark method"). It compares mechanics only:
 displacements, rotations, element forces and moments, and support loads. Stresses and code
 checks are left out. Tranche 1 covers families G1–G8: linear, Y vertical, temperature-independent
 materials, no pressure. The models, the settings, the comparison rule and the code are public.
@@ -719,7 +719,7 @@ mapped primitive case and the operating case. For the operating case, SWBPIPE's 
 of its primitive cases (superposition, linear models) and CAEPIPE's side is its
 `Operating (W+P1+T1)` case.
 
-Each scalar is screened with the RT-V2 §3 **screening profile**. Under the owner's ruling,
+Each scalar is screened with the release target's "Benchmark method" **screening profile**. Under the owner's ruling,
 Agent 0 screens with it and the owner's review of the full record decides. The values are only
 tightened:
 
@@ -744,7 +744,7 @@ refuses the section (parser `caepipe-print-csv-4`). A closed-form value is kept 
 against SWBPIPE (rel 1e-6, binary64 scale) and against CAEPIPE (the profile). A closed form that
 disagrees with SWBPIPE makes the result a finding.
 
-The nonlinear and modal classes of RT-V2 §3 wait for their tranches. The triage order is RT-V2's.
+The nonlinear and modal classes of the release target's "Benchmark method" wait for their tranches. The triage order is that method's.
 
 ### 11.6 Running
 

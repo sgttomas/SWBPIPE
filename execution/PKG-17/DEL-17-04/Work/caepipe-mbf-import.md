@@ -4806,7 +4806,7 @@ Route 1 does not by itself export the reference system. Its records are:
   > **LIM-nnn — MBF exchange of materials whose expansion coefficient varies with temperature,
   > and of cold-modulus files** (proposed)
   >
-  > - **Rows:** RT-R7, RT-R8, RT-G3.
+  > - **Exit criteria:** 6.
   > - **Code:** `MBF-SI-EXPANSION-NOT-CONSTANT` (export); `MBF-IMPORT-MATERIAL-TEMPERATURE-DEPENDENT`
   >   (import of MATERIAL rows that differ in α, bound or unbound);
   >   `MBF-IMPORT-COLD-MODULUS-UNSUPPORTED` (a Route 1 file set to the cold modulus).
@@ -5814,7 +5814,7 @@ reviewed implementation change of its own.
 #### 20.5.13 Criterion 6 reading: options for the owner
 
 **Owner decision, 2026-11-08: option 3, "Family list amended".** The owner amended A-3 in
-`Work/desktop-mbf-export-import.md` §8.1; release target §4, criterion 6 records the governing
+`Work/desktop-mbf-export-import.md` §8.1; release target exit criterion 6 records the governing
 family-list statement. RT-A4 coverage is judged elsewhere. The other refusals in §20.5.10
 still stand, so criterion 6 remains unmet. No reference-system round-trip claim is made.
 

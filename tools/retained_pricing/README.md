@@ -53,8 +53,8 @@ For example, main's block at `2c5cf0823b` is the registered tree with:
 
 ## Inputs
 
-**Repository.** A clone with full history and `reference/migration/commit-map.txt`, which maps
-the original basis `2243be380b` to its equivalent extracted commit; a shallow clone is refused. The default is this checkout. `--repo` or `RP_REPO` selects another.
+**Repository.** A clone with full history; `tools/repository_history.py` maps
+the original basis `2243be380b` to its equivalent extracted commit; a shallow clone is refused. Only the original identities that maintained checks still cite are tabled there; any other `source:<original-sha>`, including the historical replays named below, is refused. To resolve one, read `reference/migration/commit-map.txt` from Git history (it was removed from the working tree on 2026-11-10), or point `--repo` at a worktree of a commit that still holds it. The default is this checkout. `--repo` or `RP_REPO` selects another.
 
 **Revision.** Any revision whose code the rules cover.
 

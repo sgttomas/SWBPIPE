@@ -1,48 +1,42 @@
 """Original history identities must select the recorded project tree, offline."""
 from pathlib import Path
-import json
 import os
 import subprocess
 import pytest
+from tools import repository_history
 from tools.repository_history import resolve_revision
 ROOT = Path(__file__).resolve().parents[1]
 BASIS = '2243be380ba6f9b45ef62ea25d2ee0dd968b2a25'
+BASIS_EXTRACTED = '51eb3bcb31279d1e4e99dcd08312e9455773665e'
 
 
 def test_required_source_basis_resolves_to_recorded_import():
-    record = json.loads((ROOT / 'reference/migration/historical-inputs.json').read_text())['pricing_basis']
-    assert resolve_revision(ROOT, 'source:' + BASIS) == record['imported_commit']
+    assert resolve_revision(ROOT, 'source:' + BASIS) == BASIS_EXTRACTED
+    assert resolve_revision(ROOT, BASIS[:10]) == BASIS_EXTRACTED
+
+
+def test_every_recorded_identity_resolves_to_its_recorded_tree():
+    for original, (extracted, _) in repository_history.EXTRACTED.items():
+        assert resolve_revision(ROOT, original) == extracted
 
 
 def test_wrong_existing_target_cannot_select_another_tree(monkeypatch):
-    path = ROOT / 'reference/migration/commit-map.txt'
-    records = json.loads((ROOT / 'reference/migration/historical-inputs.json').read_text())
-    original = Path.read_text
-    def altered(self, *args, **kwargs):
-        text = original(self, *args, **kwargs)
-        if self == path:
-            rows = dict(line.split(':') for line in text.splitlines() if line)
-            rows[BASIS] = records['baseline']['imported_commit']
-            return ''.join(old + ':' + new + '\n' for old, new in rows.items())
-        return text
-    monkeypatch.setattr(Path, 'read_text', altered)
+    table = dict(repository_history.EXTRACTED)
+    other = next(commit for original, (commit, _) in table.items() if original != BASIS)
+    table[BASIS] = (other, table[BASIS][1])
+    monkeypatch.setattr(repository_history, 'EXTRACTED', table)
     with pytest.raises(ValueError, match='tree differs'):
         resolve_revision(ROOT, 'source:' + BASIS)
 
 
-def test_missing_and_duplicate_identity_refuse(monkeypatch):
+def test_missing_and_ambiguous_identity_refuse(monkeypatch):
     with pytest.raises(ValueError, match='missing or ambiguous'):
         resolve_revision(ROOT, 'source:' + '0' * 40)
-    path = ROOT / 'reference/migration/commit-map.txt'
-    original = Path.read_text
-    def duplicated(self, *args, **kwargs):
-        text = original(self, *args, **kwargs)
-        if self == path:
-            text += next(line for line in text.splitlines() if line.startswith(BASIS + ':')) + '\n'
-        return text
-    monkeypatch.setattr(Path, 'read_text', duplicated)
+    table = dict(repository_history.EXTRACTED)
+    table[BASIS[:39] + ('0' if BASIS[39] != '0' else '1')] = table[BASIS]
+    monkeypatch.setattr(repository_history, 'EXTRACTED', table)
     with pytest.raises(ValueError, match='missing or ambiguous'):
-        resolve_revision(ROOT, 'source:' + BASIS)
+        resolve_revision(ROOT, 'source:' + BASIS[:12])
 
 
 # A partial (blob:none) clone whose promisor remote is a trap: any lazy fetch runs the trap, which records the attempt
@@ -60,7 +54,8 @@ def _git(*args, cwd=None):
 
 @pytest.fixture
 def promisor(tmp_path, monkeypatch):
-    """(clone, trap log, ordinary commit, mapped target commit). ORIGINAL maps to the target, whose tree is recorded.
+    """(clone, trap log, ordinary commit, mapped target commit). ORIGINAL maps to the target, whose tree is recorded,
+    in a table that replaces the repository's for the test.
     The test runs in a git environment without inherited GIT_* variables (GIT_NO_LAZY_FETCH among them), so only the
     resolver's own command line can keep a lookup local."""
     for name in [name for name in os.environ if name.startswith('GIT_')]:
@@ -78,12 +73,7 @@ def promisor(tmp_path, monkeypatch):
     _git('add', 'g', cwd=src)
     _git('commit', '-qm', 'target', cwd=src)
     target, tree = _git('rev-parse', 'HEAD', cwd=src), _git('rev-parse', 'HEAD^{tree}', cwd=src)
-    migration = src / 'reference/migration'
-    migration.mkdir(parents=True)
-    (migration / 'commit-map.txt').write_text(ORIGINAL + ':' + target + '\n')
-    (migration / 'source-trees.json').write_text(json.dumps({ORIGINAL: tree}))
-    _git('add', 'reference', cwd=src)
-    _git('commit', '-qm', 'map', cwd=src)
+    monkeypatch.setattr(repository_history, 'EXTRACTED', {ORIGINAL: (target, tree)})
     clone = tmp_path / 'clone'
     _git('clone', '-q', '--filter=blob:none', (src.as_uri()), str(clone))
     assert _git('config', 'remote.origin.promisor', cwd=clone) == 'true'

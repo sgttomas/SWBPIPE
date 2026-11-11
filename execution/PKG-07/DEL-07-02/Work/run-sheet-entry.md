@@ -1393,7 +1393,7 @@ scrutiny).
 
 S1 lands first. S2 depends on S1, S3 on S2, and S4 on S2.
 
-**Ids and sources, padding and pipe numbering** (RT-G2, exit criterion 7;
+**Ids and sources, padding and pipe numbering** (exit criterion 7;
 gaps G1–G3 of DEL-09-01 `Work/reference-system-run-sheet.md` §6). After S2.
 - **Code.** The "Ids and sources" column group (§1.2), shown and hidden like
   Section extras; the header's Pad numbers to N digits and Pipe number from

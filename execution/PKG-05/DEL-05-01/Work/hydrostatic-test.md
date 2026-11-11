@@ -1,6 +1,6 @@
 # Hydrostatic test condition: mechanics and user-workflow design
 
-**Row:** RT-A6 (Must; OC-5 (a): "A flagged test condition with test pressure,
+**Exit criterion:** 1 (hydrotest; OC-5 (a): "A flagged test condition with test pressure,
 test contents density and spring supports held, marked as a test case in
 results and reports"). **Checked source:** main `b06e1da32` (#156).
 **Step 0:** this revision designs the mechanics and persistence contract; it

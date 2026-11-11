@@ -1,6 +1,6 @@
 # C1 slice 7 run proposal
 
-Serves RT-U4 / criterion 9 and the C1 plan's slice 7. This is an offline-prepared
+Serves exit criterion 9 and the C1 plan's slice 7. This is an offline-prepared
 proposal, not a window grant, measurement, acceptance or memory-fit result.
 
 **Execution status:** five separately owner-authorized 500-node attempts

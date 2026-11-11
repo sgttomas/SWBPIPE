@@ -1,7 +1,7 @@
 # Portable embedded agent delivery
 
 **Standing: authorized implementation contract; implementation and qualification
-remain incomplete.** RT-E1 / exit criterion 17. The activation basis is the
+remain incomplete.** Exit criterion 17. The activation basis is the
 owner's 2026-10-29 direction in [embedded-agent-host.md](embedded-agent-host.md).
 This design replaces the fixed-provider assumptions of the unwired prototype;
 it does not enable that prototype unchanged.

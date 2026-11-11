@@ -98,8 +98,8 @@ SPEC_READERS = (
 # Each must stay a tracked file; an entry no longer needed is reported as stale.
 # Never an EXEC edge: classification only admits a read or an unclassified reference.
 CLASSIFIED: dict[str, str] = {
-    "tests/public_export.py": "presence probe of the retired export layout (loop/ and execution/ both absent); "
-                              "reads no content, and loop/ keeps it false in the product checkout without execution/",
+    "tests/public_export.py": "presence probe of the retired export layout (AGENTS.md and execution/ both absent); "
+                              "reads no content, and AGENTS.md keeps it false in the product checkout without execution/",
 }
 
 EXCLUSION = re.compile(r"^(:!|:\^|:\(exclude[^)]*\)|!/?)")

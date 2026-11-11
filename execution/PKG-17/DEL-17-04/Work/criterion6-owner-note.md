@@ -2,12 +2,12 @@
 
 **Status: owner decision recorded, 2026-11-08.** The owner chose option 3, "Family list
 amended", of `caepipe-mbf-import.md` §20.5.13 ("the Design"). A-3 in
-`desktop-mbf-export-import.md` §8.1 holds the amended definition; release target §4,
+`desktop-mbf-export-import.md` §8.1 holds the amended definition; release target exit
 criterion 6 holds its governing statement. The earlier option-1 recommendation under
 Agent 0's decision (d), 2026-11-02 (paraphrase), is superseded. No code or accepted
 limitation follows from this record.
 
-**The criterion** (`docs/RELEASE_TARGET_v1.0.md` §4, exit criterion 6, **MBF round trip**):
+**The criterion** (`docs/RELEASE_TARGET_v1.0.md`, exit criterion 6, **MBF round trip**):
 
 > - The desktop saves the reference system as MBF with no Must family omitted
 >   or unsupported in the loss report.

@@ -3,7 +3,7 @@
 This design states what the pressure-free route (PF, preview-physics-2) publishes beside
 a `result_state_subtraction` or `range_envelope` combination of a model with nonlinear
 supports. It is slice 1a of the operating-case item (Agent 0, 2026-10-27, under the
-owner's delegation) and serves RT-A5 of `docs/RELEASE_TARGET_v1.0.md`. It adds no case kind, no
+owner's delegation) and serves exit criterion 1 of `docs/RELEASE_TARGET_v1.0.md`. It adds no case kind, no
 model-document member and no solve. The 0.9.0 member `combinations[].difference_basis`
 is covered by `operating-case.md` §6.
 
