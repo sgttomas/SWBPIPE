@@ -27,7 +27,8 @@ needs:
   when: Showing or saving a handoff package
   condition: >-
     A handoff package has a schema-governed manifest with its family, version, identity and hashes,
-    and a validator that returns findings for a package that does not conform.
+    and the contract states the rules by which a package that does not conform fails verification
+    (DEL-15-01/AC-001, DEL-15-01/AC-002, DEL-15-01/AC-003).
   gating: true
 - from: DEL-15-02
   when: Showing a handoff, local-FEA or external-prover panel

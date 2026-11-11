@@ -15,8 +15,13 @@ needs:
   gating: true
 - from: DEL-00-07
   condition: >-
-    At the storage handoff a plugin or adapter reaches the store only through application
-    services, and no declaration grants SQL access or lifts a control.
+    A plugin's or adapter's declaration grants nothing by itself and lifts no control: one that
+    requests a bypass or an ungranted capability is refused.
+  gating: true
+- from: DEL-02-05
+  condition: >-
+    The store is reached only through application services, and no adapter or plugin has SQL
+    access.
   gating: true
 - from: DEL-01-02
   condition: >-

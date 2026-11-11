@@ -21,7 +21,7 @@ It serves SOW-074 under OBJ-017 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 
 **Terms the contract defines.**
 
-- *Handoff package.* A multi-member package in the sense of decision DEC-028: the model member and the manifest member, and any further member a later contract adds, each listed in the member inventory. Evidence binds to the members and to the manifest's hashes, never to the bytes of a container.
+- *Handoff package.* A multi-member package: the model member and the manifest member, and any further member a later contract adds, each listed in the member inventory. Evidence binds to the members and to the manifest's hashes, never to the bytes of a container.
 - *Model member.* The canonical model document (DEL-02-01) as its RFC 8785 canonical text, with no trailing newline.
 - *Manifest.* One instance of the schema, as RFC 8785 canonical text. It describes the model member and embeds none of it.
 - *Model hash.* SHA-256 of the model member's bytes.
@@ -53,7 +53,7 @@ It serves SOW-074 under OBJ-017 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 
 **Not decided.**
 
-- The physical form of a package: folder or archive, its extension and the layout and names of its members, and how its members relate to the member roles of the project package and of DEL-17-02's export packages (decomposition DEC-028, OI-015). The schema states the container as undecided.
+- The physical form of a package: folder or archive, its extension and the layout and names of its members, and how its members relate to the member roles of the project package and of DEL-17-02's export packages (decomposition OI-015). The schema states the container as undecided.
 - Whether a package carries the target modelling-engine input file and the comparison references that PRD §16.1 lists, as further members or as references.
 - Whether a package refers to the analysis runs recorded against its basis state, and to their result exports. The manifest has both lists and PRD §16.1 asks for neither; whether the run reference fits the run records of DEL-14-02 has not been established.
 
@@ -62,7 +62,7 @@ It serves SOW-074 under OBJ-017 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 ### Requirements
 
 - **REQ-001** — The handoff package is defined schema-first: the schema is the contract, and no producer or reader defines a field of its own (SOW-074; `docs/TYPES.md` §3).
-- **REQ-002** — The schema is JSON Schema 2020-12 in strict JSON with a stable `$id` (decomposition DEC-010).
+- **REQ-002** — The schema is JSON Schema 2020-12 in strict JSON with a stable `$id`.
 - **REQ-003** — A package carries the model hash as a checksum record that includes its algorithm, digest, canonicalization and provenance, and names the payload it covers (SOW-074; PRD §16.1; decomposition AB-00-04).
 - **REQ-004** — A package carries a units manifest with the unit system, the dimensional basis, an entry for each unit, unit diagnostics and provenance, such that no missing unit passes silently (SOW-074; PRD §5.6; `docs/CONTRACT.md` OPS-K-UNIT-1).
 - **REQ-005** — A package preserves the stable identifiers of the model's entities as entity records, so that the entity, load-case, support and restraint, and material and component manifests of PRD §16.1 can be read from it and nothing is coupled by position (SOW-074; `docs/TYPES.md` §2).
@@ -72,9 +72,9 @@ It serves SOW-074 under OBJ-017 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - **REQ-009** — The manifest reserves the unsupported-target flags SOW-074 requires, which carry PRD §16.1's known target limitations; their taxonomy is DEL-15-02's.
 - **REQ-010** — The package and manifest preserve provenance for every record and reference that reliance could rest on (PRD §20.2; `docs/CONTRACT.md` OPS-K-DATA-3).
 - **REQ-011** — Nothing in the contract declares certification, sealing, approval, authentication, code compliance or professional acceptance, and a package declares no prover status (PRD §21.2; OBJ-017).
-- **REQ-012** — The package follows the container strategy of decision DEC-028 (member inventory, manifest, per-member hashes) and is target-neutral: it names no commercial target's fields, formats or versions.
-- **REQ-013** — A checksum's canonicalization label names the basis its digest was computed on. The sorted-key compact JSON basis is labelled `deterministic_sorted_compact_json_payload_hash` and is never presented as RFC 8785; `JCS_compatible_json_payload_hash` stays a valid value while any producer writes it (decomposition DEC-074, evidence requirement E1).
-- **REQ-014** — A package includes the canonical model file and binds it by hash, and its manifest carries an export hash and the member inventory, so that a change to any byte of any member is detectable from the package alone (PRD §16.1; decomposition DEC-028).
+- **REQ-012** — The package follows the multi-member container strategy (member inventory, manifest, per-member hashes) and is target-neutral: it names no commercial target's fields, formats or versions.
+- **REQ-013** — A checksum's canonicalization label names the basis its digest was computed on. The sorted-key compact JSON basis is labelled `deterministic_sorted_compact_json_payload_hash` and is never presented as RFC 8785; `JCS_compatible_json_payload_hash` stays a valid value while any producer writes it.
+- **REQ-014** — A package includes the canonical model file and binds it by hash, and its manifest carries an export hash and the member inventory, so that a change to any byte of any member is detectable from the package alone (PRD §16.1).
 - **REQ-015** — A package names the saved model state it is based on (PRD §16.2).
 - **REQ-016** — The schema's examples and fixtures hold only invented data (PRD §20.1; `docs/IP_AND_DATA_BOUNDARY.md`).
 - **REQ-017** — A warning or diagnostic in a package has the product's diagnostic form: code, class, severity, source, affected object, message, remediation and provenance (decomposition AB-00-06).
@@ -124,9 +124,9 @@ It serves SOW-074 under OBJ-017 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 | OUT-001 | SOW-074 OBJ-017 | REQ-005 REQ-006 REQ-007 REQ-015 | AC-003 | VER-002 VER-003 | The derivation rule stated in the Ontology gives the expected manifest; a verifier that imports no product code applies it to the model member |
 | OUT-001 | SOW-074 OBJ-017 | REQ-004 | AC-004 | VER-001 | Validator results on manifests with each units part removed; the criterion states the expected rejection, because PRD §5.6 and `docs/CONTRACT.md` OPS-K-UNIT-1 never let a unit be assumed. The unit identifiers are compared with DEL-02-02's catalogue, which this contract does not write |
 | OUT-001 | SOW-074 OBJ-017 | REQ-006 | AC-005 | VER-001 | Validator results on a reference with each required part removed and on one that marks a protected, private or commercial payload as embedded, against PRD §20.1 and §20.3 and `docs/IP_AND_DATA_BOUNDARY.md`; the schema's kind values are compared with the library kinds the model document schema admits |
-| OUT-001 | SOW-074 OBJ-017 | REQ-013 | AC-006 | VER-002 | Outside source: RFC 8785 decides which digests may be labelled `JCS`; each example digest is recomputed on the basis its label names, from the label vocabulary of decomposition DEC-074 |
+| OUT-001 | SOW-074 OBJ-017 | REQ-013 | AC-006 | VER-002 | Outside source: RFC 8785 decides which digests may be labelled `JCS`; each example digest is recomputed on the basis its label names, from the label vocabulary REQ-013 states |
 | OUT-001 | SOW-074 OBJ-017 | REQ-008 REQ-009 | AC-007 | VER-001 | Validator results on manifests without either surface and on flags with a status outside the closed set or with human review off; the statuses are compared with DEL-15-02's, which this contract does not write |
 | OUT-001 | SOW-074 OBJ-017 | REQ-011 | AC-008 | VER-001 VER-004 | Validator results on instances with each boundary value changed, and the reviewer's reading of the schema against PRD §21.2 and `docs/claims_registry.md` |
-| OUT-001 | SOW-074 OBJ-017 | REQ-012 | AC-009 | VER-004 | The reviewer's reading of the schema for any commercial target's fields, formats or versions; the contract stays target-neutral under decomposition DEC-028 and OI-015 until DEL-17-01 and DEL-17-02 describe a target |
+| OUT-001 | SOW-074 OBJ-017 | REQ-012 | AC-009 | VER-004 | The reviewer's reading of the schema for any commercial target's fields, formats or versions; the contract stays target-neutral under decomposition OI-015 until DEL-17-01 and DEL-17-02 describe a target |
 | OUT-001 | SOW-074 OBJ-017 | REQ-016 | AC-010 | VER-004 | The protected-content scan and the reviewer's reading of the schema, fixtures and example packages against `docs/IP_AND_DATA_BOUNDARY.md` |
 | OUT-001 | SOW-074 OBJ-017 | REQ-017 | AC-011 | VER-001 | Validator results on a diagnostic with each field removed; the fields are those decomposition AB-00-06 lists and DEL-00-06 defines |

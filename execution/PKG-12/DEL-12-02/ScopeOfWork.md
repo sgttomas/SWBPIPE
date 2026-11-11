@@ -152,7 +152,7 @@ The control is adequate when, for any content offered to any route, the outcome 
 ## Governing Values and Decisions — Axiology
 
 - **AX-001** — *Nothing private leaves unnoticed.* Better is fewer inputs, routes and readings on which a private or protected value reaches a shared or public output; the target is none. Usefulness of a richer output never buys an inclusion that the metadata does not support.
-- **AX-002** — *Stricter, never looser.* When two readings of an input differ, the stricter decision is taken. Better is a larger set of anomalous inputs decided by a stated rule. No change makes an existing case less strict without the owner's approval.
+- **AX-002** — *Stricter, never looser.* When two readings of an input differ, the stricter decision is taken. Better is a larger set of anomalous inputs decided by a stated rule. Making an existing case less strict is a change of the export policy, never a repair, and is decided as one.
 - **AX-003** — *A redacted output is still useful.* Better is more safe evidence kept (hashes, versions, identifiers, provenance summaries) for the same redaction. This is never bought by keeping a value, a path or a private checksum.
 - **AX-004** — *The user decides about the user's own data.* A local private output and a user release cost the user one explicit act each and no more. Neither act is ever inferred, remembered or read from content.
 

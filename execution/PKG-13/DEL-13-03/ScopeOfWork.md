@@ -39,7 +39,7 @@ It serves SOW-068 under OBJ-014 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - The wire form of the validation result: its envelope, fields and version.
 - Which record a per-value trace link of a validation finding takes as its target.
 
-**Boundary.** The engine evaluates and reports. The constraint format and its finding classes are DEL-13-02's; the design-knowledge format is DEL-13-01's; the model document is DEL-02-01's. The topology checks of the solve are DEL-04-06's. The diagnostic record and the result envelope are DEL-00-06's. Showing findings and blocking on them in the desktop is DEL-07-08's and DEL-07-04's, and holding an operation back on a blocking finding is DEL-16-02's. The engine states no criterion: every limit is a parameter of a constraint the user recorded.
+**Boundary.** The engine evaluates and reports. The constraint format and its finding classes are DEL-13-02's; the design-knowledge format is DEL-13-01's; the model document is DEL-02-01's. The topology checks of the solve are DEL-04-06's. The diagnostic record and the result envelope are DEL-00-06's. Showing findings in the desktop is DEL-07-08's, under DEL-07-04's presentation rules, and holding an operation back on a blocking finding is DEL-16-02's. Whether the desktop blocks anything else on a blocking finding is not decided. The engine states no criterion: every limit is a parameter of a constraint the user recorded.
 
 ## Completion and Reliance Basis — Epistemology
 

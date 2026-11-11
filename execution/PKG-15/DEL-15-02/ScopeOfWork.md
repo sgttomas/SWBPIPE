@@ -59,7 +59,7 @@ It serves SOW-074 under OBJ-017 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - **REQ-010** — The contract fits the handoff package: its source context is expressed in the package's terms and names the package's model hash and units manifest.
 - **REQ-011** — The contract keeps the redaction and export-control boundary: it carries the privacy context of its source and exposes nothing that context withholds (PRD §20.3).
 - **REQ-012** — The schema and the builder are target-neutral: they name no commercial tool, format or field. Concrete mappings, field coverage, taxonomy extensions and package realization of a named target wait on DEL-17-01 and DEL-17-02 (decomposition OI-015).
-- **REQ-013** — The builder emits a blocking privacy diagnostic when redaction is not affirmed or an embedded private, protected or commercial payload is reported. Carrying privacy metadata is not enforcement (decomposition DEC-074).
+- **REQ-013** — The builder emits a blocking privacy diagnostic when redaction is not affirmed or an embedded private, protected or commercial payload is reported. Carrying privacy metadata is not enforcement.
 - **REQ-014** — A diagnostic of the contract has the product's diagnostic form: code, class, severity, source, affected object, message, remediation and provenance (decomposition AB-00-06).
 
 ### Acceptance criteria
@@ -108,7 +108,7 @@ It serves SOW-074 under OBJ-017 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 | OUT-001 | SOW-074 OBJ-017 | REQ-005 | AC-003 | VER-002 | The builder's findings on an invented unit-bearing mapping without unit metadata; the criterion states the expected blocking finding (PRD §5.6; `docs/CONTRACT.md` OPS-K-UNIT-1) |
 | OUT-001 | SOW-074 OBJ-017 | REQ-002 REQ-003 REQ-004 | AC-004 | VER-002 | The builder's findings on invented flags with each fault; the closed statuses are the criterion's own statement (PRD FR-HAND-004) |
 | OUT-001 | SOW-074 OBJ-017 | REQ-007 REQ-010 | AC-005 | VER-002 | The builder's findings on invented contracts with each part of the source context missing (PRD §5.5); the source context is DEL-15-01's package, which this contract does not write |
-| OUT-001 | SOW-074 OBJ-017 | REQ-011 REQ-013 | AC-006 | VER-002 | The builder's findings on invented sources whose privacy context does not affirm redaction or reports an embedded payload; the criterion states the expected blocking finding (PRD §20.3; decomposition DEC-074) |
+| OUT-001 | SOW-074 OBJ-017 | REQ-011 REQ-013 | AC-006 | VER-002 | The builder's findings on invented sources whose privacy context does not affirm redaction or reports an embedded payload; the criterion states the expected blocking finding (PRD §20.3) |
 | OUT-001 | SOW-074 OBJ-017 | REQ-009 | AC-007 | VER-002 VER-004 | The builder's findings on invented labels carrying each prohibited term, and the reviewer's reading of the builder's output and messages against PRD §21.2 and `docs/claims_registry.md` |
 | OUT-001 | SOW-074 OBJ-017 | REQ-001 | AC-008 | VER-002 | Two builds from the same inputs, and from the same records and flags in another order, compared with each other. This shows that the builder is repeatable and that supplied order changes nothing (PRD §3 asks for reproducibility); it does not show that the contract is correct |
 | OUT-001 | SOW-074 OBJ-017 | REQ-001 REQ-002 REQ-003 REQ-010 | AC-009 | VER-003 | Outside source: the target's own description of what it carries, and the exported package. Neither is written by this contract's builder |

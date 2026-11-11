@@ -80,10 +80,16 @@ needs:
     bytes; a disposed result is no longer held.
   gating: true
 - from: DEL-04-08
-  condition: The one product reader gives a result its standing (numerically eligible, needing recomputation
-    or unsupported) as a verdict every reader surface takes, and an exact-route result's limitations are
-    the texts of its semantic table, bound by the reviewed-input digests.
+  condition: The reader of retained-source statements gives such a result its standing (numerically eligible,
+    needing recomputation or unsupported) as a verdict every reader surface takes, and the result's
+    limitations are the texts of its semantic table, bound by the reviewed-input digests.
   gating: true
+- from: DEL-05-02
+  condition: The ordinary result reader gives a pressure-free or exact-route result its standing (numerically
+    eligible, needing recomputation or unsupported) with the route's published limitations, as a verdict
+    every reader surface takes, and the result is bound to its route's semantic table by identifier and
+    digest.
+  gating: false
 - from: DEL-07-03
   condition: A model entity to which a library record was applied keeps a reference to that record, and
     a reference in the model that no longer matches its library is reported.

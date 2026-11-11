@@ -78,7 +78,8 @@ needs:
 - from: DEL-07-01
   condition: >-
     The viewport provides one scene with the model's nodes and members addressable by identifier,
-    shows the session's selection, and lets an overlay add and remove its own drawn resources.
+    shows the session's selection, and lets an overlay add and remove its own drawn resources
+    (DEL-07-01/REQ-002).
   gating: true
 - from: DEL-07-11
   condition: >-

@@ -54,15 +54,15 @@ A classified state is a statement about the discrete model under the friction la
 - **REQ-006** — Clearances, displacements, forces and friction quantities keep their dimension; a mismatch is rejected (`docs/CONTRACT.md` OPS-K-UNIT-1).
 - **REQ-007** — The classifier computes mechanics only; no state, verdict or text implies acceptability, compliance or approval (`docs/CONTRACT.md` OPS-K-MECH-2; PRD §21.2).
 - **REQ-008** — The active-set record carries what a report needs without parsing message text: the iteration settings, each support's state, the supports that changed, the diagnostics, and the assumptions and limitations.
-- **REQ-009** — Classification follows the state-switched test and the friction law defined above (DEC-067).
-- **REQ-010** — Convergence is judged per support class (gap, one-way, lift-off, friction) against the governed relative residual tolerance, absolute residual floor and iteration cap of the class, which DEL-09-03/REQ-007 holds and restricts (DEC-046). The classifier sets and relaxes none of them.
+- **REQ-009** — Classification follows the state-switched test and the friction law defined above.
+- **REQ-010** — Convergence is judged per support class (gap, one-way, lift-off, friction) against the governed relative residual tolerance, absolute residual floor and iteration cap of the class, which DEL-09-03/REQ-007 holds and restricts. The classifier sets and relaxes none of them.
 - **REQ-011** — Friction on a rotational degree of freedom is refused by name: a force limit μ·N cannot be applied as a moment.
 - **REQ-012** — The four classes converge on the validation cases and report diagnostics, and the reference system's gap, lift-off and friction supports are admitted and converge (PRD FR-SOL-014, §22.2; release target exit criterion 1).
 - **REQ-013** — A converged state is presented as confirmed only when the admissibility confirmation establishes it for every nonlinear support. A weakly active support, a deciding quantity that cannot be established on its state's side, or a case on which no confirmation runs leaves the state unconfirmed: the case's standing says so with a named reason, and the state is never presented as confirmed. A confirmed state with friction is one admissible state, not the only one.
 
 **Undecided.**
 
-- Convergence tolerances and caps for classes and model sizes beyond the measured fixture set are not yet set. Until one is measured and adopted, the affected case states that its tolerance policy is undecided (DEC-046).
+- Convergence tolerances and caps for classes and model sizes beyond the measured fixture set are not yet set. Until one is measured and adopted, the affected case states that its tolerance policy is undecided.
 - A friction model with history across load steps or cases is not defined; adopting one is a change of scope. It matters for differences between cases: on an invented bar whose sustained force slides it and whose operating case adds cooling, operating minus sustained gives an axial-force change of 0 N as solved, against +512 N under a sequential history that sticks from the sustained position.
 
 ### Acceptance criteria
@@ -82,10 +82,10 @@ A classified state is a statement about the discrete model under the friction la
 
 **Method choices that define the classifier.**
 
-- The nonlinear solve is an active-set fixed-point iteration: assemble, solve, classify, update the active set. The classifier is the "classify" step: it takes an iterate's trial facts and never assembles or solves (DEC-044).
-- Classification switches its governing quantity with the support's state (DEC-067).
-- A sliding support carries a bounded tangential force, not a released degree of freedom, with its normal taken from the current iterate (DEC-067).
-- Tolerances are class-tiered and tighten-only; an unmeasured entry stays undecided instead of borrowing another class's value, and the classifier sets no tolerance or default of its own (DEC-046).
+- The nonlinear solve is an active-set fixed-point iteration: assemble, solve, classify, update the active set. The classifier is the "classify" step: it takes an iterate's trial facts and never assembles or solves.
+- Classification switches its governing quantity with the support's state.
+- A sliding support carries a bounded tangential force, not a released degree of freedom, with its normal taken from the current iterate.
+- Tolerances are class-tiered and tighten-only; an unmeasured entry stays undecided instead of borrowing another class's value, and the classifier sets no tolerance or default of its own.
 
 **How each criterion is examined.**
 
@@ -107,9 +107,9 @@ A classified state is a statement about the discrete model under the friction la
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-012 OBJ-003 | REQ-001 REQ-002 REQ-009 REQ-012 | AC-001 | VER-001 | Outside source: hand calculations in `validation/hand_calcs/nonlinear` and the closed-form and exact-rational references `validation/references/rt_a3_nonlinear` and `kd5_nonlinear`, which import no product code |
-| OUT-001 | SOW-012 OBJ-003 | REQ-002 | AC-002 | VER-002 | DEC-044 places assembly and the solve outside the classifier; the reviewer judges that the code keeps to it |
+| OUT-001 | SOW-012 OBJ-003 | REQ-002 | AC-002 | VER-002 | The method keeps assembly and the solve outside the classifier; the reviewer judges that the code keeps to it |
 | OUT-001 | SOW-012 OBJ-003 | REQ-004 | AC-003 | VER-003 | Outside source for uniqueness: linear complementarity theory for the strictly complementary, nonsingular frictionless problem. Repeat-run identity is the product's own earlier output and only guards against change |
-| OUT-001 | SOW-012 OBJ-003 | REQ-003 REQ-010 | AC-004 | VER-003 | DEC-046 sets the cap behaviour and `docs/CONTRACT.md` OPS-K-SOLVER-2 the report |
+| OUT-001 | SOW-012 OBJ-003 | REQ-003 REQ-010 | AC-004 | VER-003 | DEL-09-03/REQ-007 holds the cap behaviour and `docs/CONTRACT.md` OPS-K-SOLVER-2 the report |
 | OUT-001 | SOW-012 OBJ-003 | REQ-005 REQ-006 REQ-011 | AC-005 | VER-003 | PRD §5.5, `docs/CONTRACT.md` OPS-K-DATA-2 and OPS-K-UNIT-1 state the expected refusals, with hand-derived expected findings |
 | OUT-001 | SOW-012 OBJ-003 | REQ-008 | AC-006 | VER-003 | The criterion states the expected fields (`docs/CONTRACT.md` OPS-K-SOLVER-2) |
 | OUT-001 | SOW-012 OBJ-003 | REQ-009 | AC-007 | VER-001 | Outside source: hand calculations in `validation/hand_calcs/nonlinear` and `validation/references/w16_nonlinear_motion`, derived without product code |

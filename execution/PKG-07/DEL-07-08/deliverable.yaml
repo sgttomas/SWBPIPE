@@ -109,7 +109,7 @@ needs:
   when: Drawing the comparison overlay
   condition: >-
     The viewport provides one scene with the model's nodes and members addressable by identifier
-    and lets an overlay add and remove its own drawn resources.
+    and lets an overlay add and remove its own drawn resources (DEL-07-01/REQ-002).
   gating: true
 - from: DEL-07-05
   when: Showing each side of a run comparison

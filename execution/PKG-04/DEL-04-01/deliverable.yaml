@@ -33,30 +33,30 @@ needs:
     that definition; a change to the definition changes the kernel element with it.
   gating: true
 code_paths:
-# The frame kernel crate. connector.rs, tie_rod.rs and their tests are DEL-03-06's element
-# definitions, examined under its criteria.
-# Not decided, as the scope's Ontology states: which deliverable's criteria govern these parts of
-# the crate. No scope states a criterion for them.
-#   restraint_basis.rs (the restraint basis for an authored skew direction; DEL-04-03 calls it)
-#   structural/formation_check**, structural/certified_recovery.rs (the solve integrity check with
-#     its established recovery and global end actions; DEL-04-07, DEL-05-01, DEL-05-02 and
-#     DEL-05-03 read it)
-#   structural/arc_maximum.rs, structural/arc_certificate.rs (the enclosure of the normal-stress
-#     maximum along a realized arc; DEL-04-07 reads it)
-#   exact_sum.rs, exact_sum/** (the exact accumulator DEL-05-02's combinations use)
-#   structural/element_reformation.rs and the factor accessor of sparse_direct (the read-only
-#     seams DEL-04-09 uses)
-#   structural/retained/**, structural/retained_resource.rs, structural/exact_boundary** (the
-#     retained-precision lanes and exact boundary DEL-04-08 and DEL-05-02 read)
+# The frame kernel crate, with the integrity check (structural/formation_check**,
+# structural/certified_recovery.rs), the arc maximum enclosure (structural/arc_maximum.rs,
+# structural/arc_certificate.rs), the read-only seams DEL-04-09 uses (structural/element_reformation.rs
+# and the factor accessor of sparse_direct) and the residual acceptance, all governed by this scope.
+# connector.rs, tie_rod.rs and their tests are DEL-03-06's element definitions, examined under its
+# criteria. restraint_basis.rs is the kernel's reduction for a restraint along an authored direction,
+# examined under DEL-04-03's criteria.
+# Not decided, as the scope's Ontology states: which deliverable's criteria govern exact_sum.rs and
+# exact_sum/** (the exact accumulator), and structural/retained/**, structural/retained_resource.rs and
+# structural/exact_boundary** (the retained-precision lanes and exact boundary DEL-04-08 and DEL-05-02
+# read).
 - core/solver/frame_kernel/**
 - core/solver/sparse_direct/**
-# Not decided in the same way: the curved-bend element, the correctly rounded norms, and the
-# readers' check of global end rows. No other deliverable claims the three entries below.
+# The curved-bend element: DEL-03-03's definition, examined under its criteria; the kernel assembles
+# and solves it. DEL-03-03 lists the same crate.
 - core/solver/curved_bend/**
+# The correctly rounded norms: which deliverable's criteria govern them is not decided.
 - core/numerics/correct_norm/**
+# The readers' recomputation of global end rows from the published local rows (REQ-018).
 - core/reporting/result_export/src/global_end_evidence.rs
-# Independent references for the integrity check and the curved-bend element, held with the code
-# above. kd5_nonlinear is also run by DEL-09-03 as a nonlinear validation consumer.
+# Independent references held with the code above: the integrity check (kd5_member_bound, m3_judge,
+# t4_o13, t4_i9), the confirmation of a converged nonlinear state (kd5_nonlinear, also examined under
+# DEL-04-04/AC-010 and DEL-04-07/AC-002), and the curved-bend element (t4_i6, examined under DEL-03-03's
+# criteria).
 - validation/references/kd5_member_bound/**
 - validation/references/kd5_nonlinear/**
 - validation/references/m3_judge/**

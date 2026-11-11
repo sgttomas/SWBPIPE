@@ -214,7 +214,7 @@ A sizing result is a numerical statement about the discrete model under the user
     - the spring preload;
     - the reference system's hangers on EX.
   - **Values.** All values are invented.
-  - **Tolerance.** Values agree with the references to 1e-9 relative with an absolute floor (the DEC-026 analytic class); selections and fit outcomes agree exactly. The tolerance is only tightened, and a reference is never altered to make an implementation pass.
+  - **Tolerance.** Values agree with the references to 1e-9 relative with an absolute floor (the governed analytic class); selections and fit outcomes agree exactly. The tolerance is only tightened, and a reference is never altered to make an implementation pass.
 - **AC-010** — The product agrees with every frozen reference package at the stated tolerance, and each generator imports no product code.
 - **REQ-011** — *Cost.*
   - A request runs at most 2n + 3 ordinary solves for n operating cases, one after another.

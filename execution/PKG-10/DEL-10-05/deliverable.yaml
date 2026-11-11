@@ -26,19 +26,21 @@ needs:
   gating: true
 - from: DEL-02-01
   condition: >-
-    A headless solve request needs only the model document format, and the headless runner applies
-    the same format and validator checks as every other path by which a document enters the
-    product.
+    A headless solve request needs only the model document format, and the one document validator
+    judges a document's members and refuses a malformed one by a named code and JSON path, so that
+    the runner can refuse a document that fails either before any solve.
   gating: true
 - from: DEL-02-02
   condition: >-
     At each product boundary a quantity with an unknown unit or a unit of the wrong dimension is
     refused with a unit finding, and a missing unit is never accepted as dimensionless.
   gating: true
-- from: DEL-02-03
+- from: DEL-05-04
   condition: >-
-    The analysis-status vocabulary is seven statuses of which a software surface may emit six, and
-    a rule-check outcome is one of the three user-rule statuses.
+    The analysis-status vocabulary is seven statuses of which software may emit the six automatic
+    ones, and a user's rule-pack outcome is stated only by the three rule statuses
+    (RULE_INPUTS_INCOMPLETE, USER_RULE_CHECKED and USER_RULE_FAILED), none of which states
+    compliance.
   gating: true
 - from: DEL-02-05
   condition: >-

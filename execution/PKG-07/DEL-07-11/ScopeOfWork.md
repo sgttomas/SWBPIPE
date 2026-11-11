@@ -48,6 +48,8 @@ It serves SOW-078 under OBJ-006, OBJ-010 and OBJ-015 (`execution/_Decomposition/
 
 **Not decided.** What the native host's security configuration is: the webview's content policy and the set of native commands the webview may call. No scope states it. No deliverable currently commits the project store to refusing by name a write that would replace a stored revision the session did not open or confirm, which REQ-006's save in place relies on. No deliverable currently commits the product build's configuration to leaving out the scripted-run build's features; REQ-010 states that outcome and AC-008 scans for it.
 
+**Windows.** Windows is not a release platform for v1.0. A Windows implementation of the shell's native boundary keeps the native command names, owning services, admission rules and stale-result guards the macOS desktop has, and adds native code only at the operating-system operations. Its dispatch of menus, native dialogs, accelerators and file operations, and its security configuration, are examined in the launched Windows application; a run in a browser alone does not show them, and a Windows check of another native boundary does not meet them.
+
 ## Completion and Reliance Basis — Epistemology
 
 ### Requirements

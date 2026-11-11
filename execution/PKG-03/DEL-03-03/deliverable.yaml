@@ -59,10 +59,9 @@ needs:
   gating: false
   when: Examining the reference system's bends on the exact route.
 code_paths:
-# The arc element. DEL-04-01 lists the same crate with the frame kernel's code and leaves open
-# which deliverable's criteria govern it; this deliverable's criteria for a realized bend's
-# flexibility are examined against it. Its references are validation/references/t4_i6/**, held by
-# DEL-04-01.
+# The arc element: this deliverable's definition, examined under its criteria. DEL-04-01 lists the
+# same crate with the frame kernel's code, which assembles the element into the global stiffness
+# and solves it. Its references are validation/references/t4_i6/**, held by DEL-04-01.
 - core/solver/curved_bend/**
 # In DEL-04-07's product crate, the module that carries the component input rules: a bend's
 # required inputs, the arc-consistency checks and the directional-factor rule are this

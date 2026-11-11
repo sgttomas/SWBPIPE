@@ -59,6 +59,12 @@ needs:
     step.
   gating: false
   when: Solving a model that contains a rigid-family component.
+- from: DEL-07-05
+  condition: >-
+    The result views show each warning and assumption a published result carries with the result
+    it qualifies (DEL-07-05/REQ-006).
+  gating: false
+  when: Showing a scaled body's or an unscaled eccentric reducer's rows in the result views.
 - from: DEL-09-01
   condition: >-
     The invented reference system and its independent references are maintained, with an eccentric

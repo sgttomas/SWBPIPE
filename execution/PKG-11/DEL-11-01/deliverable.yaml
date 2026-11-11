@@ -101,8 +101,10 @@ needs:
 - from: DEL-06-03
   condition: >-
     A rule-check run reports each check on each basis as within the user's limit, exceeding it or
-    incomplete, and names every missing, unit-incompatible or unprovenanced input of an
-    incomplete check. The guide's rule-check section describes those outcomes.
+    incomplete. An incomplete outcome names every missing, unit-incompatible or suspected
+    protected input; an outcome carries a warning naming each input whose provenance is missing
+    or unknown, whose redistribution status is missing or whose review is pending or rejected. The
+    guide's rule-check section describes those outcomes and warnings.
   gating: true
 - from: DEL-08-01
   condition: >-

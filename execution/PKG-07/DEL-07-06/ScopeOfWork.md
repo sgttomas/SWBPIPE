@@ -43,6 +43,8 @@ It serves SOW-036 under OBJ-006 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 
 **Not decided.** The accessibility target for the report preview and export surfaces and for generated report files.
 
+**Windows.** Windows is not a release platform for v1.0. Where the desktop is built for Windows, its native user experience is examined in the launched application with its webview: native dialogs and menus, Ctrl accelerators, focus, display scaling across monitors, the 3D view's graphics, printing, and save and reopen. A run in a browser alone does not show it, and a Windows check of another native boundary does not meet it.
+
 ## Completion and Reliance Basis — Epistemology
 
 The project's own examination, VER-006's checks among it, shows whether the use cases complete in the desktop. It is not an independent usability validation, and the owner's verdict is the owner's act, not that validation. The desktop's usability is not presented or relied on as independently validated until user testing, which the owner arranges, has examined it. Only the owner releases this restriction.

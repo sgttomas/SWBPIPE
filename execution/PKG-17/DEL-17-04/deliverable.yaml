@@ -16,9 +16,9 @@ needs:
   gating: true
 - from: DEL-02-01
   condition: >-
-    The model document has one current version, a schema with a desktop profile and a validator,
-    and every path by which a document enters the product applies the same format and validator
-    checks.
+    The model document has one current version, a schema with a desktop profile, and one document
+    validator that judges a document at the document open path and refuses a malformed member by a
+    named code and JSON path.
   gating: true
 - from: DEL-09-01
   when: Exit criterion 6 is examined on the reference system
@@ -60,7 +60,8 @@ needs:
   when: The importer is examined on pilot and authored cases
   condition: >-
     The correlation cases are public invented models with their SWBPIPE model documents, and the
-    authored MBF cases each state the construct exercised and the importer outcome expected.
+    harness runs a correlation case or an authored MBF case through the user's CAEPIPE and leaves
+    the MBF CAEPIPE exported for it in the case's folder of the exchange folder.
   gating: false
 - from: DEL-15-04
   condition: >-

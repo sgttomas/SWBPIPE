@@ -50,7 +50,7 @@ It serves SOW-030, SOW-074 and SOW-075 under OBJ-009, OBJ-017 and OBJ-018 (`exec
 - The export and import dialogs and the Exports panel are DEL-07-12's GUI code on this deliverable's engine and commands.
 - Reading CAEPIPE analysis results, running CAEPIPE, and the private exchange folder are DEL-17-05's. The importer reads model input only; ingestion of commercial-tool results stays deferred.
 - The package, profile, identity-map and loss-report definitions are DEL-17-02's; the admitted sources and open questions are DEL-17-01's.
-- The reference system fixture is DEL-09-01's. The model document, its validator and the open path are DEL-02-01's. The governed save route and the screening of what is saved are DEL-12-02's. The capped worker and the memory budget the desktop runs engine work under are DEL-07-07's and DEL-04-07's.
+- The reference system fixture is DEL-09-01's. The model document and its validator are DEL-02-01's; the document open path is DEL-02-05's, and the guard on replacing a session's unsaved model is DEL-07-11's. The governed save route and the screening of what is saved are DEL-12-02's. The capped worker and the memory budget the desktop runs engine work under are DEL-07-07's and DEL-04-07's.
 - A family with no MBF record is a candidate release limitation under exit criterion 3, which only the owner accepts.
 - An MBF written by CAEPIPE, even of a SWBPIPE model, is CAEPIPE output. It and everything derived from it stay in the user's private exchange folder.
 
@@ -65,7 +65,6 @@ It serves SOW-030, SOW-074 and SOW-075 under OBJ-009, OBJ-017 and OBJ-018 (`exec
 - `TBD-17-04-010`: the unit of the rotational stiffnesses `ROTK` and `KR`, and three further support-record meanings the public pages leave open. These records are refused; a zero `ROTK` is read; the writer writes no rotational spring.
 - The solve-equality threshold of the round trip (AC-008) is provisional and is not derived from the printed precision.
 - An English-unit writer. An English import cannot be written back by the SI writer; whether iteration in English units is served by a writer extension or by documented normalization to SI is not selected.
-- The authored invented MBF cases on which the importer is examined, each stating the construct it exercises and the importer outcome expected. DEL-17-05 runs them, and no deliverable currently commits to providing them.
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -92,6 +91,7 @@ It serves SOW-030, SOW-074 and SOW-075 under OBJ-009, OBJ-017 and OBJ-018 (`exec
 - **REQ-019** — MBF files written by CAEPIPE and every import result derived from them are handled as private data, and imported entities carry provenance naming the source MBF's hash. Material mechanics data requires an affirmative declaration that it is project-invented or the user's own supplied source; vendor-library, unknown and suspected-protected origins are refused, and a redistribution disposition alone does not suffice. Allowable, strength, fatigue and code data never enter the model.
 - **REQ-020** — A private regression check re-imports the CAEPIPE-exported MBFs in the user's exchange folder and fails when an import outcome leaves its recorded classification. Every CAEPIPE-derived value, difference, classification and detailed diagnostic stays in the exchange folder; standard output carries operational status only; and the check skips, saying why, when no exchange folder is configured.
 - **REQ-021** — The export package states no compatibility, validation, code-compliance or professional-acceptance claim, and blocks when model or profile metadata carries wording of one (`docs/PRD.md` §21.2).
+- **REQ-022** — The importer is examined on invented, hand-written MBF cases that this deliverable provides, each naming the construct it exercises and the outcome the importer gives on it. The correlation harness (DEL-17-05) also runs them through the user's CAEPIPE, and the private regression of REQ-020 reads what CAEPIPE exported for them.
 
 ### Acceptance criteria
 
@@ -105,6 +105,7 @@ It serves SOW-030, SOW-074 and SOW-075 under OBJ-009, OBJ-017 and OBJ-018 (`exec
 - **AC-008** — Every invented model of the reversible subset, written and imported bound, equals itself under the canonical comparison within the round-trip bounds, the bend boundary case included, and the solves of the model and of its import agree in global displacements and reactions within the solve-equality threshold. Every model listed as byte-reproducible is written again byte for byte. Each exclusion, representation loss and formatting collision is reported by name, and an unbound import of writer output gives its named refusals, except where the retained profile decision admits the records (`TBD-17-04-007`).
 - **AC-009** — A material without an affirmative project-invented or user-supplied declaration is refused, as are vendor-library, unknown and suspected-protected origins. No allowable, strength, fatigue or code value is read into the model. Every imported entity names the source MBF's hash. A tracked MBF or import report without an invented-provenance sidecar fails the boundary guard, and the private regression check reads only the configured exchange folder, prints operational status only, and skips with its reason when none is configured.
 - **AC-010** — In the desktop, a save writes exactly the bytes whose review the user saw and refuses when they differ; it is made only on its governed local-private route with the user's explicit intent, and the browser-only build declines it. Closing or cancelling before the write leaves no file, and a result that is no longer current is discarded. An import is adopted only when the review the user saw is current and complete and the chosen files are unchanged since it; every refused, stale, changed or cancelled outcome leaves the session as it was, and an adopted model starts unsaved. The writer and the importer run only in the desktop's capped worker within its memory budget: a request priced over the per-invocation memory budget (DEL-04-07, DEL-07-07), or a result over the 64 MiB output ceiling of the worker's writer and importer tasks, is refused by name.
+- **AC-011** — Every authored MBF case is invented and written by hand, names the construct it exercises and the importer outcome it records, and importing its file gives that outcome.
 
 ## Production and Verification Method — Praxeology
 
@@ -131,6 +132,7 @@ It serves SOW-030, SOW-074 and SOW-075 under OBJ-009, OBJ-017 and OBJ-018 (`exec
 - **VER-009** — Executable check (observes the material-provenance refusals, the boundary guard on tracked files, and the private regression check's skip and standard output on an invented exchange folder); the check itself runs where an exchange folder is configured.
 - **VER-010** — Executable check (observes the native save and import commands under a changed file, a stale review, a cancellation at each stage, a missing intent and an over-limit request, and the files and session afterwards).
 - **VER-011** — Executable check (observes the Rust engine's output against the committed parity vectors of the Python reference, writer and importer, byte for byte).
+- **VER-012** — Comparison with a named reference (the outcome each authored case records): imports each authored case's file and compares the outcome; and executable check (observes that each case names its construct and carries its invented-provenance record).
 
 ## Governing Values and Decisions — Axiology
 
@@ -153,3 +155,4 @@ It serves SOW-030, SOW-074 and SOW-075 under OBJ-009, OBJ-017 and OBJ-018 (`exec
 | OUT-002 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-018 | AC-008 | VER-008 | Outside source: the authored invented model is the expected result, and each bound is a closed form of the ten-digit printed precision and binary64 rounding. The solve-equality threshold is provisional. Agreement of the two solves shows the models are solved alike, not that either result is correct |
 | OUT-002 | SOW-075 OBJ-018 | REQ-007 REQ-019 REQ-020 | AC-009 | VER-009 | `docs/IP_AND_DATA_BOUNDARY.md` (interoperate openly, evaluate privately) and `docs/PRD.md` §20.2; the invented exchange folder states what must stay private |
 | OUT-003 | SOW-030 SOW-075 OBJ-009 OBJ-018 | REQ-017 REQ-019 | AC-010 | VER-010 | `docs/PRD.md` §5.3 and §20.3 and the export controls of DEL-12-02; the seeded changes and cancellations state what must be refused or left unchanged |
+| OUT-002 | SOW-030 SOW-075 OBJ-009 OBJ-017 | REQ-007 REQ-013 REQ-022 | AC-011 | VER-012 | The recorded outcomes are the importer's own earlier output and guard against change only; what each construct means rests on the citations of AC-002 |

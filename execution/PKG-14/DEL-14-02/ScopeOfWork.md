@@ -15,17 +15,17 @@ Every result the product shows can be traced to exactly what produced it: the mo
 
 It serves SOW-072 under OBJ-016 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-14, row DEL-14-02), and `docs/PRD.md` §5.7 (every result set binds to its model state, solver version, settings, load cases, rule-pack references and library versions), §8.7, §15.2, FR-CMP-002 (Must) and the run level of FR-MOD-006 (Must: assumptions and open issues recorded at run level). No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names it. It supports criterion 4, whose report states the run it reports, through DEL-08-01 and DEL-08-02.
 
-- **OUT-001** — The analysis run record: its schema in one current version, the building and validation of a record from a solved result, the input manifest it names, and the recording, listing and reading of runs in the project store, with their labels.
+- **OUT-001** — The analysis run record: its schema in one current version, the building and validation of a record from a solved result, the building of the input manifest it names, and the recording, listing and reading of runs in the project store, with their labels.
 
 ## Deliverable Definition — Ontology
 
 **Terms the product implements.**
 
-- *Analysis run.* One solver execution on one model.
+- *Analysis run.* One solver execution on one model: a static solve on either analysis route, or a response-spectrum analysis, whose run kind and the request it records are DEL-04-10's.
 - *Run record.* The schema-governed record of a run (`schemas/analysis_run.schema.json`): its identity, name, kind and time of creation; the model state it is bound to; the solver's name, version and build reference; references to its settings and unit system; its load cases and combinations; diagnostics; result references; rule-pack references; library references; hashes; analysis statuses; reproducibility data; immutability policy; professional boundary and provenance.
 - *Received result.* The mechanics result as its producer published it. A record binds it and never rewrites it.
 - *Result reference.* What a record says of one result row: the row's identifier and position, its family and the dimension its producer stated, the semantic contract under which it was produced (identifier and digest), how the row was interpreted, and its hash.
-- *Input manifest.* The canonical statement of what a solve was given: the model payload and the rule packs resolved for it. A record names it by hash.
+- *Input manifest.* The canonical statement of what a solve was given, listing what DEL-08-02/REQ-012 requires. This deliverable builds it for each solve, keeps it with a recorded run and binds it to the record, which names it by hash.
 - *Transient record.* The record built when a solve completes, for the session's current run. It names the session's model, not a saved state.
 - *Recorded run.* An immutable revision of a run's record, made when the user records the run. It is bound to a saved model state, carries its own time of recording, and is kept in the project store with the received result and the input manifest of the solve.
 - *Record revision.* A record is identified by its own SHA-256. A change makes a new revision and never edits one.
@@ -37,14 +37,14 @@ It serves SOW-072 under OBJ-016 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 
 **Undecided.**
 
-- Whether a modal, a response-spectrum and a hanger-sizing result are recorded as analysis runs, and so whether the record admits run kinds beyond the static solve. DEL-04-10 states that spectrum runs are recorded with their request and needs the record to admit that kind; DEL-04-09 and DEL-04-11 leave the question open for their results. No deliverable currently commits to a record that admits these kinds.
+- Whether a modal result and a hanger-sizing result are recorded as analysis runs. DEL-04-09 and DEL-04-11 leave the same question open for their results.
 - How result payloads that are not JSON are partitioned for hashing.
-- Which members a project's recorded runs occupy in the portable package. DEL-14-01 states the same question for saved states; no deliverable currently commits to carrying either in the package.
+- Which members a project's recorded runs occupy in the portable package, and which deliverable's package writer and reader carry them there (REQ-018). DEL-14-01 states the same for saved states.
 
 **Boundary.**
 
-- **CLM-001** — What a result means belongs to its producers: the solve and the published result to DEL-04-07, the semantic tables to DEL-05-02 and DEL-05-03, verified bounds and the product reader of result statements to DEL-04-08. This deliverable records a result's identity, standing and classification as the reader gives them and re-derives none of them.
-- **CLM-002** — Saved model states are DEL-14-01's. The canonical JSON form, the form of a hash record and the audit manifest are DEL-08-02's. The project store is DEL-02-05's, the status vocabulary DEL-05-04's, the diagnostic record DEL-00-06's, and the local keeping and checksum of rule packs DEL-06-04's.
+- **CLM-001** — What a result means belongs to its producers: the solve and the published result to DEL-04-07, the stress rows to DEL-05-03, the ordinary result reader and its base semantic tables to DEL-05-02, verified bounds and the reader of retained-precision statements to DEL-04-08. This deliverable records a result's identity, standing and classification as the reader gives them and re-derives none of them.
+- **CLM-002** — Saved model states are DEL-14-01's. The canonical JSON form, the form of a hash record, the audit manifest and what an input manifest must list are DEL-08-02's. The project store is DEL-02-05's, the status vocabulary DEL-05-04's, the diagnostic record DEL-00-06's, and the local keeping and checksum of rule packs DEL-06-04's.
 - **CLM-003** — Comparing two runs is DEL-14-04's. Holding a result in the native process and showing it are DEL-07-07's and DEL-07-05's; recording a run from the History panel is DEL-07-08's interaction. The result export document is DEL-08-04's and the run sections of a report DEL-08-06's.
 - **CLM-004** — Outside the product: comprehensive ingestion of a commercial prover's outputs, external validation, and any record of professional acceptance.
 
@@ -66,16 +66,16 @@ A run record establishes which inputs and which build produced a result, and tha
 - **REQ-010** — A run is reproducible as a record: the same solved result and inputs give the same record and the same hashes in every implementation that builds one (also cited as DEL-14-02-R010). Source: SOW-072; PRD §22.4.
 - **REQ-011** — Building, recording, listing and reading runs are commands and queries that return result envelopes with their diagnostics (also cited as DEL-14-02-R011). Source: decomposition AB-00-03.
 - **REQ-012** — The desktop builds a record for every completed solve and records runs against saved model states with the checked binding. A recorded run's rule-pack references are the model's references resolved against the local rule-pack store at solve time. A reference that is unresolved, or whose stored pack has a different checksum, is named as a diagnostic of the record and is not among its rule-pack references (also cited as DEL-14-02:1). Source: PRD FR-CMP-002, §15.2.
-- **REQ-013** — A record is built only from a result the product reader accepts. A refused result, and a result of a retired identity, is never recorded. The record carries the standing and row classification the reader gave, and recording changes neither. Source: decomposition row DEL-04-08 (one product reader of result statements).
+- **REQ-013** — A record is built only from a result the product reader accepts. A refused result, and a result of a retired identity, is never recorded. The record carries the standing and row classification the reader gave, and recording changes neither. Source: DEL-05-02/REQ-019 and DEL-04-08/REQ-005 (one product reader of result statements).
 - **REQ-014** — The one-version rule holds for every reader of a run record.
 - **REQ-015** — A stored run whose record, received result, input manifest or state binding no longer agrees with its recorded hashes is refused by name on every read. Source: SOW-072 (result hashes).
 - **REQ-016** — A recorded run's labels, run-level assumptions among them, can be edited without changing its record, its hashes or its binding. Source: PRD FR-MOD-006.
 - **REQ-017** — A recorded run keeps its own format. It is listed, read and compared by its project's identity, and no model-document version check is applied to it, so the runs of a project whose model document is of a retired version remain reachable.
-- **REQ-018** — A recorded run's domain truth is its canonical JSON record with the received result and input manifest it binds, and the project store holds them as a projection that can be rebuilt from them. A project's recorded runs travel with the project in its portable package and come back from it with the same bytes, binding and hashes. Source: SOW-072; decomposition AB-00-04 and DEC-028.
+- **REQ-018** — A recorded run's domain truth is its canonical JSON record with the received result and input manifest it binds, and the project store holds them as a projection that can be rebuilt from them. A project's recorded runs travel with the project in its portable package and come back from it with the same bytes, binding and hashes. Source: SOW-072; decomposition AB-00-04.
 
 ### Acceptance criteria
 
-- **AC-001** — A record built from an invented solved model, for each analysis whose results are recorded as runs (the static analyses on each analysis route), validates against the schema, and each category of REQ-003 is present and equal to the corresponding value of the received result and the input manifest.
+- **AC-001** — A record built from an invented solved model, for each analysis whose results are recorded as runs (the static analyses on each analysis route, and response spectrum), validates against the schema, and each category of REQ-003 is present and equal to the corresponding value of the received result and the input manifest.
 - **AC-002** — Recording a run against a saved state succeeds only when the model payload of the solve's input manifest hashes to the state's model hash and the manifest hashes to the value the record names. A changed manifest, another state and a run that holds no manifest are each refused by name, and nothing is stored. A result offered with the input manifest of another solve is refused by name, and nothing is recorded.
 - **AC-003** — After a run is recorded, editing the model, solving again and saving the project each leave the recorded record, received result and input manifest byte-identical. An attempt to change a recorded run, through any route the product offers, is refused by name. Two recordings of identical solves are two distinct runs.
 - **AC-004** — Each computed hash of a record is reproduced, from the payload it names, by an implementation of RFC 8785 and SHA-256 that imports no product code. Each hash record states its scope and profile, a received checksum appears apart from the computed ones and as received, and a change to any covered value changes the hash that covers it.
@@ -134,7 +134,7 @@ A run record establishes which inputs and which build produced a result, and tha
 | OUT-001 | SOW-072 OBJ-016 | REQ-010 | AC-006 | VER-006 | The product's own output on committed cases, compared between its implementations. This guards against the implementations drifting apart and is not grounds for correctness; AC-001 and AC-004 carry those |
 | OUT-001 | SOW-072 OBJ-016 | REQ-005 REQ-006 | AC-007 | VER-007 | The results are constructed with a known defect each, so the criterion states the expected finding; recorded rows are compared with the producer's rows |
 | OUT-001 | SOW-072 OBJ-016 | REQ-009 REQ-012 | AC-008 | VER-008 | The packs and references are constructed to resolve or not, so the criterion states the expected references and diagnostics; pack checksums are recomputed as DEL-06-04 defines them |
-| OUT-001 | SOW-072 OBJ-016 | REQ-013 CLM-001 | AC-009 | VER-009 | The expected verdicts are the reader's, which DEL-04-08 owns and examines against its own references |
+| OUT-001 | SOW-072 OBJ-016 | REQ-013 CLM-001 | AC-009 | VER-009 | The expected verdicts are the readers', which DEL-05-02 and DEL-04-08 own and examine against their own references |
 | OUT-001 | SOW-072 OBJ-016 | REQ-015 REQ-016 | AC-010 | VER-010 | Each alteration is made deliberately to a known run, so the criterion states that it is refused; hashes after a label edit are compared with those recorded before it |
 | OUT-001 | SOW-072 OBJ-016 | REQ-008 REQ-009 CLM-004 | AC-011 | VER-011 | Judged by a reviewer against PRD §20.1, §21.2 and §21.3 |
 | OUT-001 | SOW-072 OBJ-016 | REQ-011 | AC-012 | VER-012 | The criterion fixes the expected result: DEL-00-03's result-envelope contract, which this deliverable does not define, compared with the envelope each operation returns |

@@ -55,8 +55,8 @@ needs:
 - from: DEL-08-01
   when: Writing a recovery record
   condition: >-
-    The atomic file writer writes beside its target, flushes and syncs the file, renames it into
-    place, and reports whether the directory sync succeeded.
+    The atomic file writer leaves at its destination either the whole new file or what was there
+    before, and reports whether the write's durability was confirmed.
   gating: true
 - from: DEL-17-02
   when: Round-tripping a project through the portable package

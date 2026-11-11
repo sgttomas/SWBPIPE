@@ -55,7 +55,7 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
 - Where the desktop keeps the remembered extraction bound for a project is undecided.
 - The first candidate published benchmark, NUREG/CR-1677 Volume 1, has no established redistribution status and is held under REQ-009.
 
-**Admission.** No product surface (desktop, headless runner or report) admits a user's modal request, or shows or records a modal result as an engineering result, until on that surface the dense path's work guard has its measured budget, the checks of REQ-003 and the guards of REQ-007 apply, and the product reader of REQ-005, rederiving the mass from the model, gives the verdict the surface shows. Until then a modal document is experimental. Agent 0 admits a surface when the evidence shows these hold.
+**Admission.** No product surface (desktop, headless runner or report) admits a user's modal request, or shows or records a modal result as an engineering result, until on that surface the dense path's work guard has its measured budget, the checks of REQ-003 and the guards of REQ-007 apply, and the product reader of REQ-005, rederiving the mass from the model, gives the verdict the surface shows. Until then a modal document is experimental. The restriction lifts on a surface when the evidence on that surface shows each of these conditions holds, and is not released otherwise.
 
 ### Mass
 

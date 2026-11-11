@@ -42,8 +42,9 @@ needs:
   gating: true
 - from: DEL-01-04
   condition: >-
-    The product-claims policy lists the claims no software output may make: certification, sealing,
-    approval, authentication, endorsement and code compliance for reliance.
+    The claims registry holds the registered words for boundary language, and none of its
+    statements or display forms states or implies a claim PRD §21.2 prohibits. The package and its
+    guidance take any boundary language from the registry and the prohibited claims from PRD §21.2.
   gating: true
 - from: DEL-02-01
   condition: >-

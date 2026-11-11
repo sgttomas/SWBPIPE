@@ -14,14 +14,16 @@ needs:
   gating: true
 - from: DEL-04-08
   condition: >-
-    One product reader gives every result statement either a named refusal or a standing, with the
-    class of each row, in its native, WebAssembly and Python bindings, and refuses an older result
-    version by name.
+    The reader of retained-precision statements gives each one either a named refusal or a
+    standing, with the class of each row, in its native, WebAssembly and Python bindings, and
+    refuses an older result version by name.
   gating: true
 - from: DEL-05-02
   condition: >-
-    The semantic table of each ordinary analysis route names every result row's kind, unit and
-    dimension, and a result is bound to its table by identifier and digest.
+    The ordinary result reader gives each ordinary result statement either a named refusal or a
+    standing, in its native, WebAssembly and Python bindings, and refuses an older result version
+    by name; the semantic table of each ordinary analysis route names every result row's kind, unit
+    and dimension, and a result is bound to its table by identifier and digest.
   gating: true
 - from: DEL-08-02
   condition: >-

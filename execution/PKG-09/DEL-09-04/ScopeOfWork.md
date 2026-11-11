@@ -79,7 +79,7 @@ It serves SOW-027 under OBJ-008 and OBJ-011 (`execution/_Decomposition/SOFTWARE_
 **How each criterion is examined.**
 
 - **VER-001** — AC-001 and AC-003, executable check: observes the manual's section list, evidence classes and states, compares each page's values with the suites' hand calculations, governed tolerance records and run reports, regenerates the case pages and compares them with the committed pages, and compares the set of pages with the suites' case inventories.
-- **VER-002** — AC-002, AC-004 and AC-005, judgment by a reviewer who did not write the text: examines the manual's wording against `docs/claims_registry.md` and PRD §21.2, the visibility of gaps and undecided items, and the sources of referenced examples; the claims-language lint and the protected-content scan run over the manual.
+- **VER-002** — AC-002, AC-004 and AC-005, judgment by a reviewer who did not write the text: examines the manual's wording against `docs/claims_registry.md` and PRD §21.2, the visibility of gaps and undecided items, and the sources of referenced examples, reporting wording that states or implies a prohibited claim; the protected-content scan runs over the manual.
 - **VER-003** — AC-006, executable check carried out by a maintainer or an agent working from the procedure alone: follows the procedure from a clean checkout and compares each command's exit and output with what the procedure states.
 - **VER-004** — AC-007, executable check: observes the bundle's contents against REQ-013's list, verifies its checksums and its source commit against the release candidate, compares each recorded command's exit and output with what the procedure states, and compares every earlier bundle with its committed content.
 

@@ -14,7 +14,7 @@ needs:
     a spring of a stated rate on that degree of freedom, and a constant force through the constant-
     effort seam, with a support force acting along the positive axis of its degree of freedom; and
     it models a variable spring hanger as a spring of its entered rate plus its entered cold load
-    as a constant force on the same degree of freedom (DEL-04-03 REQ-014, AC-009).
+    as a constant force on the same degree of freedom (DEL-04-03/REQ-014, DEL-04-03/AC-009).
   gating: true
 - from: DEL-04-04
   condition: >-
@@ -72,7 +72,7 @@ needs:
   condition: >-
     The headless runner hosts the `size-hangers` command: it passes the sizing input to this
     deliverable's entry and returns that entry's document unchanged, and supplies no engineering
-    value of its own (DEL-10-05 REQ-015, AC-011).
+    value of its own (DEL-10-05/REQ-015, DEL-10-05/AC-011).
   gating: true
 - from: DEL-07-05
   condition: >-
@@ -89,13 +89,13 @@ needs:
     A section contributed by another deliverable enters a report only through the assembled section
     model: under a governed section, with registered boundary wording and no claim of its own,
     showing a library reference as safe metadata only, and passing the report's gates
-    (DEL-08-01 REQ-020). The hanger-sizing section is such a section.
+    (DEL-08-01/REQ-020). The hanger-sizing section is such a section.
   gating: false
 - from: DEL-08-04
   condition: >-
     Every results table in the desktop exports to CSV through the one serializer, the hanger table
     through the adapter DEL-08-04 holds beside it, and a table without CSV export is detected as a
-    failure (DEL-08-04 REQ-014, AC-002).
+    failure (DEL-08-04/REQ-014, DEL-08-04/AC-002).
   gating: false
 - from: DEL-04-05
   condition: >-

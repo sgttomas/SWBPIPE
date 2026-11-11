@@ -57,7 +57,7 @@ needs:
     AC-001), so that the reader's raw and normalized projections and the test verifier can be held
     to it.
   gating: true
-- from: DEL-02-05
+- from: DEL-08-02
   condition: >-
     A JSON payload is hashed as SHA-256 over its RFC 8785 canonical form, by one implementation with
     committed vectors, so that receipts, captured invocations and publication hashes are bound with

@@ -88,11 +88,20 @@ needs:
     support's state, the supports that changed and a convergence verdict, under the state-switched
     test and the bounded friction law.
   gating: true
+- from: DEL-04-04
+  when: Confirming a converged nonlinear state
+  condition: >-
+    The state law states, for each nonlinear support kind and state, the quantity that decides the
+    state and the side it must lie on strictly, and that a weakly active support, a deciding
+    quantity that cannot be established on its side, or a case on which no confirmation runs leaves
+    the state unconfirmed (DEL-04-04/REQ-013).
+  gating: false
 - from: DEL-04-06
   condition: >-
     The diagnostic records map kernel, support, load and non-convergence failures to named records
     with code, class, severity, source and affected reference, including a non-convergence failure
-    for an iteration that ends at its cap.
+    for an iteration that ends at its cap, and classify a condition estimate against a warning and
+    a failure level into an ill-conditioning warning or a blocking conditioning failure.
   gating: true
 - from: DEL-05-01
   condition: >-
@@ -101,6 +110,21 @@ needs:
     formed (the resolved free strain of the load state; the densities, diameters, thicknesses and
     gravity behind self-weight).
   gating: true
+- from: DEL-05-01
+  when: Solving a case that holds supports
+  condition: >-
+    A load case's test condition states whether its supports are held, and a held support is
+    defined: each spring, variable spring and constant-effort support replaced on the degrees of
+    freedom it acts on by a rigid restraint at zero displacement from the authored geometry, with
+    neither its stiffness nor its force acting and its reaction published under its own identity.
+  gating: false
+- from: DEL-04-10
+  when: Solving a model that contains a snubber
+  condition: >-
+    A snubber is a restraint in dynamic analysis only: every static load-case solve on both routes
+    leaves it out and discloses it as a dynamic-only restraint not active in static cases
+    (DEL-04-10/REQ-005).
+  gating: false
 - from: DEL-05-05
   condition: >-
     The distributed user-load contract defines a uniform load on a straight member or a realized
@@ -156,9 +180,10 @@ needs:
 - from: DEL-07-07
   when: Running a solve in the desktop
   condition: >-
-    The desktop solve job runs each solve through the product solve entry within the per-invocation
-    budget and the shared pool, so that a completed solve's peak physical footprint can be observed
-    against the budget.
+    The desktop solve job runs each ordinary solve through the product solve entry in a local worker
+    process capped at its lease from the shared pool, within the per-invocation budget
+    (DEL-07-07/REQ-012), so that a solve cannot exceed its budget and a completed solve's peak
+    physical footprint can be observed against it.
   gating: false
 code_paths:
 # The product solve crate and the nonlinear iteration. Within core/product_physics/, modules that

@@ -19,7 +19,7 @@ It serves SOW-045 under OBJ-005 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 
 ## Deliverable Definition — Ontology
 
-**Terms the evaluator implements.** The grammar and its function set are those of DEC-022 (`execution/_Coordination/_DECISIONS/D-02_rule_pack_expression_grammar.md`), with the dimension table and unit-reference composition of DEC-031 and the text-syntax decision DEC-037.
+**Terms the evaluator implements.**
 
 - *Expression.* A typed tree. The tree is the only canonical form of a formula and is bound by the pack's checksum. There is no text syntax and no parser anywhere in the product. A one-way rendering of a tree as text may be displayed, labelled as display only and not accepted as input.
 - *Grammar version.* A semantic version a pack declares. The evaluator supports a stated set of versions and blocks every other; it never evaluates on a best-effort basis. A minor version only adds; a breaking change is a new major version. The conformance corpus is the statement of a version: a grammar change without a corpus extension and a version change is not a grammar change.
@@ -39,7 +39,7 @@ It serves SOW-045 under OBJ-005 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - Whether the catalog's dimensionless symbol and the grammar's `ratio` reference denote one unit.
 - Whether a rule comparison takes a tolerance. Comparisons are exact in binary64.
 - What a rule check does with a solver value that is published as an interval.
-- Whether a validation finding may quote the display-only rendering of an expression, as DEC-037 permits. AC-009 excludes it, under threat STM-007.
+- Whether a validation finding may quote the display-only rendering of an expression, which may be displayed (*Expression*). AC-009 excludes it, under threat STM-007.
 
 **Boundary.** This deliverable evaluates and type-checks expressions. The pack format, and where a pack declares its variables, are DEL-06-01's. Binding data to variables, converting bound values to declared units, the outcome of a check and how a finding appears in a run result are DEL-06-03's. The binding of the grammar version into the pack checksum is DEL-06-04's. The expression composer is DEL-07-03's, and unit definitions and conversions are DEL-02-02's. Evaluation of expressions on behalf of a plugin or adapter is outside v1.0, as `docs/RELEASE_TARGET_v1.0.md` states for rule packs (also cited as DEL-06-02:3).
 
@@ -112,7 +112,7 @@ Requirement numbers 001 to 011 are those of the earlier `REQ-06-02-0nn` series.
 |---|---|---|---|---|---|
 | OUT-001 | SOW-045 OBJ-005 | REQ-001 REQ-002 REQ-006 | AC-001 | VER-001 | PRD §17.3 and `docs/CONTRACT.md` OPS-K-RULE-2 state what must not happen. The comparison is the module's dependency manifest and source, read by a check that imports no evaluator code |
 | OUT-001 | SOW-045 OBJ-005 | REQ-003 REQ-006 | AC-002 | VER-002 | Outside source: closed form, the arithmetic, ordering, linear interpolation and table lookup the grammar defines, on invented values exact in binary64 and recomputed without evaluator code. The function set is the grammar's |
-| OUT-001 | SOW-045 OBJ-005 | REQ-003 | AC-003 | VER-002 | DEC-022 and DEC-031 fix the dimension table and the composition of unit references. Outside source for the table's relations: dimensional analysis |
+| OUT-001 | SOW-045 OBJ-005 | REQ-003 | AC-003 | VER-002 | The *Dimension algebra* definition and the conformance corpus fix the dimension table and the composition of unit references. Outside source for the table's relations: dimensional analysis |
 | OUT-001 | SOW-045 OBJ-005 | REQ-004 REQ-005 | AC-004 | VER-002 | The inputs are constructed, so the criterion states the expected finding (PRD §5.5; the table rules above) |
 | OUT-001 | SOW-045 OBJ-005 | REQ-012 | AC-005 | VER-003 | The criterion fixes the expected result: equality between runs and platforms |
 | OUT-001 | SOW-045 OBJ-005 | REQ-006 | AC-006 | VER-002 | The blocked pack is constructed, so the criterion states the expected finding. The corpus's coverage is counted against the grammar's function set and finding codes, the floor the criterion states |

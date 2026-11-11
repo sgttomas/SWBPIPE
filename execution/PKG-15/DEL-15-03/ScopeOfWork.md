@@ -49,6 +49,8 @@ It serves SOW-074 under OBJ-017 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - Where the target step runs. Nothing in the PRD or the decomposition says whether it is a command a user runs, or a step each target exporter of PKG-17 runs for its own target.
 - The physical form of a package (see DEL-15-01).
 
+**Windows.** Windows is not a release platform for v1.0. A Windows implementation of the model document save and the package publication works through owned handles, volume and file identities, explicit sharing and inspection of reparse points, keeps each save's containment, and distinguishes published and durable, published with durability unknown, refused before publishing, and failed with a cleanup warning. A failed directory flush is never reported as durable. A package is never replaced by deleting and then renaming; where Windows gives no atomic swap, replacement follows an explicit recovery protocol or is refused. A Windows check of another native boundary does not meet these conditions.
+
 ## Completion and Reliance Basis — Epistemology
 
 ### Requirements
@@ -60,11 +62,11 @@ It serves SOW-074 under OBJ-017 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - **REQ-005** — The path preserves diagnostics, warnings, unresolved assumptions, provenance and hashes, and hides no missing data or boundary risk. A library or rule-pack reference that does not resolve in the local store stays listed and carries a warning that names it (PRD §5.5; `docs/CONTRACT.md` OPS-K-DATA-2).
 - **REQ-006** — Nothing the path writes or says claims certification, sealing, approval, authentication, professional acceptance or code compliance (PRD §21.2).
 - **REQ-007** — Fixtures and examples use invented or cleared data and copy no protected standards content, commercial software example or proprietary data (PRD §20.1).
-- **REQ-008** — The path respects the schema-first contracts. A checksum it did not compute is carried with its algorithm, scope, digest and canonicalization label unchanged, and carrying one asserts no recomputation, validity or RFC 8785 conformance. A digest the path computes is labelled with the basis it was computed on (decomposition DEC-010, DEC-074).
+- **REQ-008** — The path respects the schema-first contracts. A checksum it did not compute is carried with its algorithm, scope, digest and canonicalization label unchanged, and carrying one asserts no recomputation, validity or RFC 8785 conformance. A digest the path computes is labelled with the basis it was computed on.
 - **REQ-009** — The path takes handoff, mapping, export-control and model context only through their contracts, and no export leaves by a route that goes around the export control (decomposition AB-00-07).
 - **REQ-010** — Missing target behaviour, missing mapping support and unsupported features are explicit findings or unsupported-target records, never defaults (SOW-074; PRD FR-HAND-004).
 - **REQ-011** — A user can save the canonical model document whenever a model is open, with or without a solve and on either solve route. The file's SHA-256 is the session's model hash, and the file reopens to the same model (PRD FR-HAND-001, FR-MOD-001). The desktop's model document is the canonical model.
-- **REQ-012** — An export is all or nothing. A failure, a refusal or a cancellation leaves the destination as it was, and no export changes the session's model, its hash or its solve standing (decomposition DEC-028; PRD §5.3).
+- **REQ-012** — An export is all or nothing. A failure, a refusal or a cancellation leaves the destination as it was, and no export changes the session's model, its hash or its solve standing (PRD §5.3).
 - **REQ-013** — An export of the model is a local, private save made on the user's explicit intent, with no network use. It is refused while the model, a referenced library or a referenced rule pack carries a blocking disposition, and the refusal names the record (PRD §20.1, §20.3, §20.4; `docs/IP_AND_DATA_BOUNDARY.md`).
 - **REQ-014** — Every handoff package is based on a saved model state with the package's model hash (PRD §16.2).
 

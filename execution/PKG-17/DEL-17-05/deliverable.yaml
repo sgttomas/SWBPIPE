@@ -21,8 +21,13 @@ needs:
 - from: DEL-10-05
   condition: >-
     The headless runner solves a model document and returns the product's published result for it,
-    with result rows that carry stable identifiers and units.
+    the same as the desktop's for the same request, with a unit on every quantity.
   gating: true
+- from: DEL-08-04
+  condition: >-
+    Exported result rows keep stable identifiers and a deterministic order, so that a row of
+    SWBPIPE's result is found again by its identifier.
+  gating: false
 - from: DEL-01-02
   condition: >-
     The data boundary policy states the rule for the external prover: what public text may say

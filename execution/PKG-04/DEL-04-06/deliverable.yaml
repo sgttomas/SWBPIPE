@@ -59,8 +59,9 @@ needs:
 - from: DEL-07-07
   when: Running the on-demand model checks in the desktop
   condition: >-
-    The desktop runs engine work in a capped worker within the per-invocation memory budget,
-    refuses work over the budget by name, and can cancel a worker and release its memory.
+    The desktop runs the on-demand model checks within the per-invocation memory budget, refuses
+    a request over the budget by name before the work starts, and can cancel the work and release
+    its memory.
   gating: true
 code_paths:
 # The diagnostics crate is this deliverable's; no other deliverable lists it.

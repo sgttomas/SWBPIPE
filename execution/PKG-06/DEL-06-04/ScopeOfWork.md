@@ -38,7 +38,7 @@ It serves SOW-042 under OBJ-002 and OBJ-005 (`execution/_Decomposition/SOFTWARE_
 - Whether stored private packs are encrypted, and the default (PRD §27, question 11; the decomposition's OI-010). The decision is the owner's and its implementation PKG-12's.
 - How pack-related assets that are not JSON are partitioned under manifest hashes.
 
-**Boundary.** This deliverable keeps packs, identifies them and flags their standing. The pack format is DEL-06-01's. The project store that holds the packs is DEL-02-05's, under the local storage profile of DEC-017 and the portable package of DEC-028. Storage location policy, encryption, access control, permission persistence, secrets, and the exclusion of private data from telemetry and issue bundles are PKG-12's. A model's reference to a pack and its resolution are DEL-02-01's and DEL-14-02's, the audit manifest is DEL-08-02's and the report is DEL-08-01's. Findings for a missing rule value or unit are DEL-06-01's at validation and DEL-06-03's at the run; carrying them through this lifecycle, and any execution of a pack on behalf of a plugin or adapter, are outside v1.0, as `docs/RELEASE_TARGET_v1.0.md` states for rule packs (also cited as DEL-06-04:2 and DEL-06-04:3).
+**Boundary.** This deliverable keeps packs, identifies them and flags their standing. The pack format is DEL-06-01's. The project store that holds the packs is DEL-02-05's, under the storage profile REQ-011 states. Storage location policy, encryption, access control, permission persistence, secrets, and the exclusion of private data from telemetry and issue bundles are PKG-12's. A model's reference to a pack and its resolution are DEL-02-01's and DEL-14-02's, the audit manifest is DEL-08-02's and the report is DEL-08-01's. Findings for a missing rule value or unit are DEL-06-01's at validation and DEL-06-03's at the run; carrying them through this lifecycle, and any execution of a pack on behalf of a plugin or adapter, are outside v1.0, as `docs/RELEASE_TARGET_v1.0.md` states for rule packs (also cited as DEL-06-04:2 and DEL-06-04:3).
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -58,7 +58,7 @@ Requirement numbers 001 to 012 are those of the earlier `R-06-04-0nn` series.
 - **REQ-008** — Reports and exports can reference a private pack's identity, name, version, checksum and source note without exposing its formulas or values (also cited as DEL-06-04:1).
 - **REQ-009** — No lifecycle status states or implies professional certification, sealing, approval, endorsement or automatic code compliance (PRD §21.2).
 - **REQ-010** — A stored pack keeps the unit metadata of every numeric input and value: what is opened is what was saved (also cited as DEL-06-04:4).
-- **REQ-011** — Storage follows the local storage profile (DEC-017) and the portable package (DEC-028). The encryption default, access-control policy, permission persistence and secret handling stay with PKG-12.
+- **REQ-011** — Storage follows the project persistence contract (`docs/architecture/persistence_contract.md`; decomposition AB-00-04): packs are kept in the user's local project store, whose domain truth is the canonical JSON payload and whose index is a rebuildable projection, with no hosted database, daemon, required network or direct plugin or adapter SQL access; a pack that travels in the portable project package travels as a canonical-JSON member of it. The encryption default, access-control policy, permission persistence and secret handling stay with PKG-12.
 - **REQ-012** — No adapter or plugin places a pack in the local store or in a run around validation, the privacy standing, the protected-content check, the checksum or the report controls.
 - **REQ-013** — The grammar version a pack declares is bound by its checksum, so that the checksum identifies the grammar the pack's formulas are read under.
 
@@ -104,7 +104,7 @@ Requirement numbers 001 to 012 are those of the earlier `R-06-04-0nn` series.
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-042 OBJ-005 | REQ-004 REQ-013 | AC-001 | VER-001 | Outside source: RFC 8785 and SHA-256, computed without product code. The one exclusion and the grammar binding follow DEC-022 and the decomposition's AB-00-04 |
+| OUT-001 | SOW-042 OBJ-005 | REQ-004 REQ-013 | AC-001 | VER-001 | Outside source: RFC 8785 and SHA-256, computed without product code. The one exclusion and the grammar binding are those REQ-004 and REQ-013 state, under the canonical-JSON hashing of the decomposition's AB-00-04 |
 | OUT-001 | SOW-042 OBJ-005 | REQ-007 | AC-002 | VER-002 | The records are constructed, so the criterion states the expected finding; the recomputed value rests on the grounds of AC-001 |
 | OUT-001 | SOW-042 OBJ-005 | REQ-006 | AC-003 | VER-001 | The criterion fixes the expected result: equality across times, paths and sessions |
 | OUT-001 | SOW-042 OBJ-002 OBJ-005 | REQ-001 REQ-007 | AC-004 | VER-002 | SOW-042 and `docs/CONTRACT.md` OPS-K-RULE-3 name what a pack must carry, and OPS-K-IP-3 the quarantine and escalation. The records are constructed. The check observes the finding, its review marking and the blocked standing; the review that resolves a quarantine is a person's and is not examined here |

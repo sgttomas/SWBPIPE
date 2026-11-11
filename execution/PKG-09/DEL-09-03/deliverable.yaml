@@ -44,8 +44,9 @@ needs:
 - from: DEL-01-02
   condition: >-
     The IP and data boundary policy names every class of content excluded from public artifacts
-    and the fields of the provenance record with their value sets, and states that suspected
-    protected content is quarantined until a human or legal review decides it.
+    and the fields of the provenance record with their value sets, states that a maintainer
+    records a record's review disposition, and states that suspected protected content is
+    quarantined until a human or legal review decides it.
   gating: true
   when: Admitting a regression case or hand calculation to the suite.
 code_paths:

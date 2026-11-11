@@ -13,7 +13,7 @@ package_objective_refs: [OBJ-009, OBJ-017]
 
 This deliverable is the common export contract: what an export package is, what its profile declares, how every model entity is traced into the target, what the manifest records and how loss is reported. Every target exporter meets it before it writes anything in its own format. The result it contributes is that an export from SWBPIPE, in any format, is one auditable package: a reader can tell what was written, from which model, under which declared assumptions, where each model entity went, and what was omitted, approximated, delegated or could not be supported. An export may be partial; it is never silent about it.
 
-It serves SOW-030 and SOW-074 under OBJ-009 and OBJ-017 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-17, row DEL-17-02, and decision DEC-028, which makes these contracts the form of the native project package), with `docs/PRD.md` §5.8, §11.7 (FR-HAND-002 to FR-HAND-004) and §16.1. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names it; the loss report that exit criterion 6 reads is defined here.
+It serves SOW-030 and SOW-074 under OBJ-009 and OBJ-017 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-17, row DEL-17-02), with `docs/PRD.md` §5.8, §11.7 (FR-HAND-002 to FR-HAND-004) and §16.1. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names it; the loss report that exit criterion 6 reads is defined here. The native project package (`.opsproj`, DEL-02-05) takes its member inventory, manifest and per-member hashes from these contracts.
 
 - **OUT-001** — The common export contract: the definitions below of export package, export profile, stable ID map, manifest and loss report, which every target schema under `schemas/` and every exporter realises, and the conformance of each target's package to them.
 
@@ -124,8 +124,8 @@ It serves SOW-030 and SOW-074 under OBJ-009 and OBJ-017 (`execution/_Decompositi
 
 ### Acceptance criteria
 
-- **AC-001** — For an invented model exported through each target exporter the product has, the package carries a profile, a manifest, a stable ID map, a loss report and diagnostics; the manifest lists every member written, each with its path and its hash or the stated reason for none; and no file is written that the manifest does not list. This carries commitment DEL-17-02:1.
-- **AC-002** — Every profile the product ships has all twelve profile fields. Each field that states target behaviour cites a register source ID or is marked undecided, and each open question that touches the target appears in it. An exporter handed a profile with a missing or blank field, or with a support claim that names no source, blocks with a diagnostic naming the field.
+- **AC-001** — For an invented model exported through each target exporter the product has, the package carries a profile, a manifest, a stable ID map, a loss report and diagnostics; the manifest lists every member written, each with its path and its hash or the stated reason for none; and no file is written that the manifest does not list.
+- **AC-002** — Every profile the product ships has all twelve profile fields. Each field that states target behaviour cites a register source ID or is marked undecided, and each open question that touches the target appears in it.
 - **AC-003** — For each target, every canonical identifier of the exported model is accounted for in the ID map: each target representation it has is an entry with its carrier mode, or, when it has none, it has an omitted-target entry and also appears in the loss report; no identifier is both mapped and omitted. Canonical and target-generated identities are separate fields. `direct_target_carried` appears only under a profile that cites the admitted source for the carrier, and never in a CAEPIPE MBF map.
 - **AC-004** — Every export writes a loss report, one with nothing lost included. It uses only the six categories, and every entry has the seven members of a loss entry. A model seeded with an entity the target cannot represent yields an entry for that entity and never a silent drop; a delegated entry names its recipient; an undecided entry names its open question; and an unsupported or undecided entry that affects solver-ready or compatibility-sensitive output blocks the export.
 - **AC-005** — Exporting the same model under the same profile twice gives an identical ID map, equal hashes, and members that are byte-identical apart from fields declared runtime-dependent. Each timestamp field carries its declaration, and no runtime-dependent value is an input to any hash.
@@ -146,12 +146,13 @@ It serves SOW-030 and SOW-074 under OBJ-009 and OBJ-017 (`execution/_Decompositi
 **How each criterion is examined.**
 
 - **VER-001** — Executable check (observes the package each target exporter writes for an invented model, and the files on disk): the five objects are present, the manifest's inventory equals the files written, and the ID map accounts for every canonical identifier of the model, none both mapped and omitted.
-- **VER-002** — Executable check (observes each exporter's response to seeded faults): a profile with a blank field, an unsourced support claim, a direct-carrier claim without a source, an entity the target cannot represent, and an unsupported entry on solver-ready or compatibility-sensitive output each produce the named diagnostic or entry.
+- **VER-002** — Executable check (observes each exporter's response to seeded faults): a direct-carrier claim without a source, an entity the target cannot represent, and an unsupported entry on solver-ready or compatibility-sensitive output each produce the named diagnostic or entry.
 - **VER-003** — Executable check (observes the bytes of two exports of the same model and profile, and the inputs of each hash): the ID map and hashes are equal, members are equal apart from fields declared runtime-dependent, and a changed timestamp changes no hash.
 - **VER-004** — Comparison with a named reference (an RFC 8785 canonicalizer that imports no product code): recomputes each recorded JSON hash from the member's bytes.
 - **VER-005** — Executable check (observes every target schema): each validates as JSON Schema 2020-12, and its category, carrier-mode and loss-entry vocabularies equal those of this scope.
 - **VER-006** — Executable check (the project's protected-content scan over the export schemas and fixtures) and judgment by a reviewer who did not write them: examines every schema, fixture and profile for the claims and content the boundary requirements exclude.
 - **VER-007** — Executable check (observes each target's unit disclosure against the invented model's units and the units and values of the file written).
+- **VER-008** — Executable check (observes that every profile the product ships has the twelve profile fields) and comparison with a named reference (the DEL-17-01 source register: each field that states target behaviour cites a source ID the register admits for that target or is marked undecided, and each open question of the register that touches the target appears in the profile).
 
 ## Governing Values and Decisions — Axiology
 
@@ -163,8 +164,8 @@ It serves SOW-030 and SOW-074 under OBJ-009 and OBJ-017 (`execution/_Decompositi
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-010 REQ-011 REQ-012 REQ-013 REQ-040 REQ-041 REQ-043 REQ-050 | AC-001 | VER-001 | `docs/PRD.md` §16.1 and decomposition decision DEC-028 name the package's contents; the comparison is against the files on disk and an invented model |
-| OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-001 REQ-002 REQ-004 REQ-005 REQ-020 REQ-021 REQ-022 REQ-023 REQ-025 REQ-026 REQ-042 REQ-092 | AC-002 | VER-002 | The DEL-17-01 register is the reference for each cited source ID and open question; the seeded faults state what must be refused |
+| OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-010 REQ-011 REQ-012 REQ-013 REQ-040 REQ-041 REQ-043 REQ-050 | AC-001 | VER-001 | `docs/PRD.md` §16.1 names the package's contents; the comparison is against the files on disk and an invented model |
+| OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-001 REQ-002 REQ-004 REQ-005 REQ-020 REQ-021 REQ-022 REQ-023 REQ-025 REQ-026 REQ-042 REQ-092 | AC-002 | VER-008 | The DEL-17-01 register is the reference for each cited source ID and open question; the profiles examined are those the product ships |
 | OUT-001 | SOW-074 OBJ-017 | REQ-003 REQ-030 REQ-031 REQ-033 REQ-034 REQ-035 REQ-036 REQ-037 | AC-003 | VER-001 VER-002 | `docs/PRD.md` FR-HAND-002 and FR-HAND-003; the identifiers compared are the invented model's own, which no exporter wrote |
 | OUT-001 | SOW-074 OBJ-017 | REQ-050 REQ-051 REQ-052 REQ-053 REQ-054 REQ-055 REQ-056 | AC-004 | VER-002 | `docs/PRD.md` FR-HAND-004; the seeded unsupported entity states what must be reported |
 | OUT-001 | SOW-074 OBJ-017 | REQ-014 REQ-032 | AC-005 | VER-003 | The product's own earlier output, which guards against change only; determinism is the property examined |

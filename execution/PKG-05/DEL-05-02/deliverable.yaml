@@ -53,7 +53,7 @@ needs:
 - from: DEL-04-08
   condition: >-
     The retained-precision method defines its semantic tables, receipts and refusal outcomes, to
-    which the ordinary result reader listed below dispatches a retained result.
+    which this deliverable's ordinary result reader dispatches a retained result.
   gating: true
   when: Reading a retained-precision result
 - from: DEL-00-06
@@ -143,11 +143,9 @@ code_paths:
 - validation/references/op1b_difference_basis/**
 - validation/references/op_mf_held_status/**
 - validation/references/combination_certificate/**
-# Held here pending the owner's decision on which deliverable owns the ordinary result reader;
-# not governed by this scope. The entries below are that reader (dispatch, row semantics, standing
-# and the load-reference, arc, connector and nonlinear-support evidence), its semantic tables,
-# corpora and tests. DEL-04-07, DEL-04-08, DEL-07-05, DEL-08-01, DEL-08-04 and DEL-10-05 declare
-# needs on the reader.
+# The ordinary result reader (OUT-002): dispatch, row semantics, standing and the load-reference,
+# arc, connector and nonlinear-support evidence, with its base semantic tables, corpora and tests.
+# Its native/WebAssembly comparison and the test verifier are DEL-04-08's.
 - core/reporting/result_export/src/preview_physics_evidence.rs
 - core/reporting/result_export/src/preview_magnitude_tests.rs
 - core/reporting/result_export/src/physics_evidence.rs

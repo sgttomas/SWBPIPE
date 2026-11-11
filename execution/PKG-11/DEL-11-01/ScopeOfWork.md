@@ -61,7 +61,7 @@ REQ-001 to REQ-010 keep the numbers of the earlier `UG-REQ` series.
 - **REQ-011** — The guide has an analysis entry for every required analysis (exit criterion 13).
 - **REQ-012** — The guide states, in the release target's words, that SWBPIPE does not determine code compliance, and that establishing it is the user's act, outside this software (exit criterion 13; PRD §24, V1).
 - **REQ-013** — An instruction names each control by its visible label and gives the keyboard route where the desktop has one. The desktop's accessibility baseline is DEL-07-06's.
-- **REQ-014** — The string "CAEPIPE" appears nowhere in the guide. The guide describes the export only as the export of a `.mbf` model batch file, as the product does.
+- **REQ-014** — The guide does not name the vendor of the external prover: the string "CAEPIPE" appears nowhere in it, and it describes the export only as the export of a `.mbf` model batch file. The same rule keeps the name out of the product's own text.
 
 ### Acceptance criteria
 

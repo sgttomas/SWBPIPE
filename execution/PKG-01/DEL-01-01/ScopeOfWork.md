@@ -48,7 +48,7 @@ The meaning of an invariant outside the governance rows (OPS-K-GOV-1 to OPS-K-GO
 
 ## Completion and Reliance Basis — Epistemology
 
-The baseline is policy language. It is adequate when a reader can find each governance value in one place, each value is one the owner decided, and nothing in it reads as legal advice or professional approval.
+The baseline is policy language. It is adequate when a reader can find each governance value in one place, each value written as decided has a recorded decision of the human project authority behind it, and nothing in it reads as legal advice or professional approval.
 
 ### Requirements
 
@@ -85,7 +85,7 @@ The baseline is policy language. It is adequate when a reader can find each gove
 **How each criterion is examined.**
 
 - **VER-001** — Comparison with a named reference (the MIT License text published under the SPDX identifier `MIT`): compare each copy of the licence text in the repository with the reference apart from the copyright line, compare the copies with each other including the copyright line, and search the project's documents for a licence name, confirming each names MIT.
-- **VER-002** — Judgment by a named role (an independent reviewer who did not write the text): read the maintainer and release policy and the governance rows of the catalogue against PRD §20.1, §20.2 and §21.2 and `docs/CONTRACT.md` OPS-K-GOV-1 to OPS-K-GOV-4, and the decided values against the decision register (DEC-027, DEC-079, DEC-112); report each missing gate, each missing disclosure, each value with no owner decision behind it, each undecided value written as decided, each approval-like description of maintaining or releasing, and any protected or proprietary content.
+- **VER-002** — Judgment by a named role (an independent reviewer who did not write the text): read the maintainer and release policy and the governance rows of the catalogue against PRD §20.1, §20.2 and §21.2 and `docs/CONTRACT.md` OPS-K-GOV-1 to OPS-K-GOV-4, and the decided values against the decomposition decision log's entries on the project licence, on maintainer quorum and release authority, and on contributor intake; report each missing gate, each missing disclosure, each value with no owner decision behind it, each undecided value written as decided, each approval-like description of maintaining or releasing, and any protected or proprietary content.
 - **VER-003** — Executable check (observes the catalogue's rows and retired list and its earlier revisions in Git history, not what the invariants mean): test that each identifier is defined once, that every active row has an enforcement entry, that no retired identifier is an active row, and that every identifier of an earlier revision is still listed; whether an identifier kept its meaning is not observed.
 - **VER-004** — Executable check (observes link targets): resolve every link in `docs/README.md` and test that the three governance documents of REQ-009 are among them.
 
@@ -102,7 +102,7 @@ The baseline is policy language. It is adequate when a reader can find each gove
 | OUT-001 | SOW-001 SOW-048 OBJ-001 | REQ-001 | AC-001 | VER-001 | Outside source: the MIT License text published under SPDX identifier `MIT`. That the licence is MIT is read from the decision register, not from the licence files |
 | OUT-002 | SOW-048 OBJ-002 | REQ-003 | AC-002 | VER-002 | PRD §20.2 and `docs/CONTRACT.md` OPS-K-GOV-4 list the gates; the reviewer compares the policy with them |
 | OUT-002 | SOW-048 OBJ-001 | REQ-004 REQ-007 | AC-003 | VER-002 | `docs/CONTRACT.md` OPS-K-GOV-3 lists the disclosures |
-| OUT-002 | SOW-048 OBJ-001 | REQ-005 REQ-006 REQ-007 | AC-004 | VER-002 | The decision register's entry on maintainer quorum and release authority (DEC-027) gives the values; the comparison is with it, not with the baseline's own text |
+| OUT-002 | SOW-048 OBJ-001 | REQ-005 REQ-006 REQ-007 | AC-004 | VER-002 | The decomposition decision log's entry on maintainer quorum and release authority gives the values; the comparison is with it, not with the baseline's own text |
 | OUT-001 | SOW-001 OBJ-002 | REQ-007 | AC-005 | VER-002 | PRD §20.1 lists what the public repository must not contain |
 | OUT-001 | SOW-048 OBJ-001 | REQ-008 | AC-006 | VER-003 | The criterion states the expected result: one defining row per identifier, an enforcement entry per active row and every earlier identifier still listed. The check does not establish that an identifier kept its meaning |
 | OUT-001 | SOW-048 OBJ-001 | REQ-002 | AC-007 | VER-002 | PRD §21.2 lists the prohibited claims |
