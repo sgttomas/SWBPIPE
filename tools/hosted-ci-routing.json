@@ -251,49 +251,49 @@
   ],
   "piping_runtime_reads": {
     "source_trees": {
-      "core/analysis/hanger_sizing/Cargo.toml": "489efa9440b3ced6b4a05716cdd0fe857004a32f51101d2e3ec74c1afdaae1aa",
+      "core/analysis/hanger_sizing/Cargo.toml": "588121920e3a5c64e7afc973fa3717ce8d9010032b283c6d68b922b96f84176c",
       "core/gui/viewport_editor/Cargo.toml": "32de48e1e1afd2bc77f84655a69561bdc96074a31fe17f705e7b3a0d8aa6eddf",
-      "core/handoff/caepipe_mbf_engine/Cargo.toml": "d09d64d6476ecaf51649807c235ef2be92e1fc8ff66f447eab1fe2b3c0a1607f",
+      "core/handoff/caepipe_mbf_engine/Cargo.toml": "048a363bc752d3f3aa844c5065f54666520acfffb46f2f61b365aab824044a03",
       "core/handoff/caepipe_mbf_wasm/Cargo.toml": "5f761359c0c51581fa56f8baed01bea00ff7784607226c71b5a2b111d91c314e",
       "core/library_import/library_import_document/Cargo.toml": "02f93656634df15bc1b5b50f31aa3dca5fa76b44874741fd84e8478fcba77b95",
       "core/loads/load_case_algebra/Cargo.toml": "cad8bb75052e1609cbff7901bd618dc5f919c97992ff680d878387128ef03973",
       "core/loads/primitive_loads/Cargo.toml": "c62ebd4ac6ad01fe673db598aa412b29c6338fdd25d4d21385c51323d7709818",
       "core/loads/self_weight_wasm/Cargo.toml": "7041b262bcf36c8b00d380e041d2375016101856a62c61551c0e8abb3d21dc7d",
-      "core/loads/stress_recovery/Cargo.toml": "ed3ad6f2a4fa7db272c0a34afe3023950b87eab3cc9c85f66834cb5a29566fcb",
+      "core/loads/stress_recovery/Cargo.toml": "a8d181c7587101e60d9fcc9bc7006822f9ce77105707193933039458637198e4",
       "core/loads/user_loads/Cargo.toml": "6c0add4912f9400459da5f89cfccfe6c7419d29a6641ebff65dbb8dc0c6a3ef6",
-      "core/model_operations/operation_applier/Cargo.toml": "233918dcca2c0802c9a33b584b19bbf3889ecb6657fca89cf37f2f3f4006b7e4",
+      "core/model_operations/operation_applier/Cargo.toml": "92c78415ded616c268efe03f5409fa4fae51d7385fc20bc50d989ee8a44ef924",
       "core/numerics/correct_norm/Cargo.toml": "57cbcd985c88d79c7ebf198d9a5d3a68fa67fe74bfd11440791be7c9a44c8844",
-      "core/product_physics/Cargo.toml": "581e3933d1ee465c27df52b002a200be3cfa04a036a8f946b9bd7a9c389ccf1b",
-      "core/reporting/audit_manifest/Cargo.toml": "90d6a787a2088c33dfc6615c87e6955a1771e74341d76c26f66ba7bc92e131e9",
-      "core/reporting/pdf_emitter/Cargo.toml": "8af215b4f6e28210a7fdb6c634266333702100a6cb508b05aa3eeb86f30f5cd3",
+      "core/product_physics/Cargo.toml": "d5b07fba963bef95b678606f33de80781b6b3621f2521479d76ef74a46e3c697",
+      "core/reporting/audit_manifest/Cargo.toml": "b8bc4623a383ed2c22205326bc737486becd9d931bf869e1e8cf40e147f4fad7",
+      "core/reporting/pdf_emitter/Cargo.toml": "a6c930eb5b8ee0983ec126418b896722ad9de1964cf9afea48a717a59fd0f537",
       "core/reporting/protected_content_linter/Cargo.toml": "6a11912d00b5c5c502e1f3d6d3036cf60d3e163078afbc3300005fd496a756ef",
       "core/reporting/report_generator/Cargo.toml": "625a9a604bf91c108cdbd55f650788f319c27c21390ae536d660a0d640d3c81c",
-      "core/reporting/report_package/Cargo.toml": "e4b6db5f742b959bacbd55a5cd2ebc16e806db5ad79fb5ad4ba809d2741b26bf",
-      "core/reporting/report_renderer/Cargo.toml": "99053aae61ad103f5709ca756b06d3b2cb690acef94f72f5f623ac645264381a",
+      "core/reporting/report_package/Cargo.toml": "7ee6bd7503b19dcec83a176f0386c45d17ab32b87a6ebd1ba4ad74223f533319",
+      "core/reporting/report_renderer/Cargo.toml": "827067c22a58ba321c8c21403794286dc3bf1d0a3bba59a452dcc69e8f6fdd2b",
       "core/reporting/report_sections/Cargo.toml": "44acb66312edbc9bfd77aa2980a898511ac34de67fba0fc773b70007a3aad0f1",
-      "core/reporting/result_export/Cargo.toml": "045775bd9aa9ddd3d63bc958f224028341f5f977a8f28d2c07d3628552c9803c",
+      "core/reporting/result_export/Cargo.toml": "ee1e3938fc8fd0620c6984553f2a1f570a87513f85085af7cdaefc096415f7ed",
       "core/rules/completeness_checker/Cargo.toml": "95cf7430d70fffc65a984a6841980f2c65f12000e28004da89efc092f1152737",
-      "core/rules/expression_evaluator/Cargo.toml": "fa5a2f816a18f1642e29ae37f1fe26cc4c885e590f4f8d2a5771f8ccb4694d6c",
-      "core/rules/rule_check_runner/Cargo.toml": "9ac97166bff5c1dbc8d75140d4fff35227b0d105d1c8976fa729b0fdeeb2d664",
-      "core/rules/rule_pack_document/Cargo.toml": "4212ec5fdc58690bd4b0c69d1d3c554ff8aa4c49cb59b33bcb888b29694174b6",
+      "core/rules/expression_evaluator/Cargo.toml": "ec04cdb01dff665ebe36b68dd7f6f17890c386239a75566035f67ec04e1b73d5",
+      "core/rules/rule_check_runner/Cargo.toml": "0f8f6e5fa3da77a9a68bc24e33154daa182a8a76df8eb0bdfeb471dda84f1970",
+      "core/rules/rule_pack_document/Cargo.toml": "29121a6d008cafbe7aaf756260cdb9d7953e7a52892a8c37094e2ea6714e79c0",
       "core/rules/rule_pack_lifecycle/Cargo.toml": "811d32918f3d13d8d2a9115ebb6ce9b0243078626bc426d8dbd97224eb2dbd56",
-      "core/runner/headless/Cargo.toml": "45aaf4537018f923b833b8f8b9d669ee4ed02795c39c3d1eea1fa06e81413f7a",
+      "core/runner/headless/Cargo.toml": "691d16bc6de18b47c5eb019eb063a458ec9d802ebb405cdb09d2f8f0d347533f",
       "core/serialization/canonical_json/Cargo.toml": "fb2259bdfcb6adebc877b46e4e1b3126fdf1b08c0b6441a5e4ba49ab75e670a0",
       "core/solver/curved_bend/Cargo.toml": "5d7cf1288eac698c209aa4fd7493fa669aa57494950e75374ac07248001502d8",
       "core/solver/diagnostics/Cargo.toml": "33f62709325dd0aee1a7e4996ee1424e2dcbc9fd54418704f87c8f39e64b875c",
-      "core/solver/frame_kernel/Cargo.toml": "e5a9313ad84e6dfc2bde3096657f6171ba443eb3623fbcf5aba9c1e3696e9686",
+      "core/solver/frame_kernel/Cargo.toml": "5c3d73e5ac8c4b23ddc8fecb47ddfa5f2e6669a04961265313a58559470e7eb9",
       "core/solver/linear_supports/Cargo.toml": "74cab9f6444ce421810b8a9778c1ad0257dcaf34815c4449ea2267fca23909cb",
-      "core/solver/nonlinear_integration/Cargo.toml": "4d60cbfaf69e88a027ec4820a5c0def960e45572fc0f9ea0198ea3c727ca7aa9",
+      "core/solver/nonlinear_integration/Cargo.toml": "dae76cb22dfb51dbdb011103a649e167569f74c0c2150ef6c4cc7c3fe42fbc05",
       "core/solver/nonlinear_supports/Cargo.toml": "c34c7d2a46294e3c2ab57b4b15028c48664670dfe25278b8b6d22147743a10a6",
       "core/solver/performance_harness/Cargo.toml": "082e43ebc55a0fb5205a13c3fe83bb5b6426bc51acfd8f6e1233a8c23cac03d6",
       "core/solver/release_timing/Cargo.toml": "3a9145d9c3023bd7f75fc21da33c9b3ee9973b8206278707df04506355185a35",
       "core/solver/sparse_direct/Cargo.toml": "0bbbf9fbe14e2bbf47574c1daf5e9ef42b8d0b1b3b60588e87d83b7da7cde181",
-      "core/solver/straight_pipe/Cargo.toml": "7f466382d647e3fd84c319ee886bb82f9ee205b66e3c3e38cf7200672c4a23ac",
+      "core/solver/straight_pipe/Cargo.toml": "e09dcd581ac02093f6c4501abcdabed8df5c9d8e77ac4595f3cccfb94c2a3e67",
       "core/units/Cargo.toml": "4b50bd105464cc05c99d661414581555a27806864bf3cb991d15bdc26fa77cb6",
       "validation/benchmarks/mechanics/Cargo.toml": "85169e69c38b7be6a4ee9cf8a41bc314d4785b9405a02c4da50ae12a2f784e08",
       "validation/benchmarks/nonlinear/Cargo.toml": "9a51271671638a9a1c95f85697fa6ce0094c0e595782d5cc8166028bcbec9333",
       "validation/benchmarks/numerical_integrity/Cargo.toml": "93e5b01a0e38770d1208b56532b2c22848c0d005093ac58354ab0ac714823ecd",
-      "validation/benchmarks/numerical_robustness/Cargo.toml": "6e6a55dc87b00c1f65659c2271fc03aef2d3a271ddbdf47e4b534162687127f1",
+      "validation/benchmarks/numerical_robustness/Cargo.toml": "e05fa43a9cff74d9e6f907639199dd44b5d6caf8106ece32b50bddf9c7a6d0d4",
       "validation/benchmarks/physics_audit_regression/Cargo.toml": "1138d96b4c63cb6e7a70aa7fef27f5e650f362fcfbcf3a47a7d202b71d190246",
       "validation/benchmarks/stress/Cargo.toml": "37b5e65f7351bce4729641e398c593caed5c97b1afe69ca584db30c449db2c3f"
     },
@@ -435,7 +435,7 @@
         ]
       },
       "core/model_operations/operation_applier/tests/contract_corpus.rs": {
-        "sha256": "1a1a6b56a46f1005b564cc7e179176413b56696de00ddffadbf3bb19d8984acd",
+        "sha256": "23dd419d103fecedaabc67a1c5d1f65b118b71bea3e45686421c81573ee48473",
         "source_trees": [
           "core/model_operations/operation_applier/Cargo.toml"
         ],
@@ -930,7 +930,7 @@
         }
       },
       "core/product_physics/src/joint_pressure_tests.rs": {
-        "sha256": "266fa87d4a85898541e5447eb4e15d09004da803437e7f7a461c3adb6001981e",
+        "sha256": "56ae3cb487ddf0cf91cf21f34803e2da979bbb9e4a93f4ee55d7d288fe86b3dc",
         "source_trees": [
           "core/analysis/hanger_sizing/Cargo.toml",
           "core/loads/self_weight_wasm/Cargo.toml",
@@ -972,7 +972,7 @@
         }
       },
       "core/product_physics/src/u4b_tests.rs": {
-        "sha256": "2a3e2216f4dea3c647fac14ab7583b9b0ae7a11a41611839dfd7b33f7467a046",
+        "sha256": "2b3524716094b96505c7d0521b3a250881539be2b856f788332cda6f2b58a070",
         "source_trees": [
           "core/analysis/hanger_sizing/Cargo.toml",
           "core/loads/self_weight_wasm/Cargo.toml",
@@ -1002,7 +1002,7 @@
         ]
       },
       "core/product_physics/tests/load_reference_state_runtime.rs": {
-        "sha256": "31334bf1984b0097c328689e8235d25895eb16f1067c469e38424d7f1e148ff5",
+        "sha256": "14011569393a09fe756f0d75b65e91a1e8f20cbdf2900f2e168259fcb4b09758",
         "source_trees": [
           "core/product_physics/Cargo.toml"
         ],
@@ -1017,7 +1017,7 @@
         ]
       },
       "core/product_physics/tests/load_reference_state_runtime_extension.rs": {
-        "sha256": "88bebaa9c33691ab16182efa802df318a8f8a57ef817aca59972ae19a0cb397b",
+        "sha256": "bac3e11f122096430279c590a7478033aad496be44c09369cde158b477e233e6",
         "source_trees": [
           "core/product_physics/Cargo.toml"
         ],
@@ -1039,7 +1039,7 @@
         ]
       },
       "core/product_physics/tests/pressure_source_join.rs": {
-        "sha256": "9ef188c33f7146152999503a302be65b7345fe0f96e66dffc76aef58a622fdbd",
+        "sha256": "3ee1d9419691f7485382828ce724d6f43ae56a36879a0c32dc911725bb338fee",
         "source_trees": [
           "core/product_physics/Cargo.toml"
         ],
@@ -1095,7 +1095,7 @@
         ]
       },
       "core/product_physics/tests/pressure_source_join/consequences.rs": {
-        "sha256": "a05cb11a398b7bfb94ea4022447130d8f0d15411edf786070f9837556289c648",
+        "sha256": "5f75acec6c13886a97831cac316a7693064d0dbe1293130f39a53b8104477f8b",
         "source_trees": [
           "core/product_physics/Cargo.toml"
         ],
@@ -2148,7 +2148,7 @@
         ]
       },
       "core/reporting/result_export/tests/preview_physics_contract.rs": {
-        "sha256": "f9073b66850d9d504455959e1e9482a2125f6c9f35e835a38d31d17a5fb8d3f5",
+        "sha256": "0d80b01711db571339fc1ad58f6bccb8e47e789570ac96abc80f246110654e2b",
         "source_trees": [
           "core/reporting/result_export/Cargo.toml"
         ],
@@ -2190,7 +2190,7 @@
         ]
       },
       "core/reporting/result_export/tests/reader_verdict.rs": {
-        "sha256": "1964d4bee24ea4185f800cc1d0d008fed7dd2b7070798360c22d2d17857ec7df",
+        "sha256": "8b6aadba042683f00ed7eb605f3edd685bc51cb089480b4a7ce02412af5e007a",
         "source_trees": [
           "core/reporting/result_export/Cargo.toml"
         ],
@@ -3089,7 +3089,7 @@
         }
       },
       "core/reporting/result_export/tests/retained_precision_contract.rs": {
-        "sha256": "fa12066c3e48c997191b3d0a6c731d7c205be789bb0caf3846b1252da9655b08",
+        "sha256": "14f47d3a1c7768e1969bb5e3a4735f414ab39e1c660150b6cd97021c075676c2",
         "source_trees": [
           "core/reporting/result_export/Cargo.toml"
         ],
@@ -3595,7 +3595,7 @@
         ]
       },
       "core/runner/headless/src/bin/openpipestress-runner.rs": {
-        "sha256": "1825088afd76acffb2503ceb071e820316db0bdf396ef356a72edcf3c28aece7",
+        "sha256": "5140932ca39dec7a72c8ff12bbd3782327b51dfe2a37e988dcda37260186a440",
         "source_trees": [
           "core/runner/headless/Cargo.toml"
         ],
@@ -4066,7 +4066,7 @@
         }
       },
       "core/solver/nonlinear_integration/src/s11k_tests.rs": {
-        "sha256": "38caa545d5466f62aa792568fad783d76d2b767a5539ec2aefe0da6d13691a5e",
+        "sha256": "79f17ddda08515c0a32e84fa068d8b1cae25aa1a93e938514d62c27b3919db0a",
         "source_trees": [
           "core/analysis/hanger_sizing/Cargo.toml",
           "core/loads/self_weight_wasm/Cargo.toml",
@@ -4872,7 +4872,7 @@
         ]
       },
       "core/product_physics/src/w1_source_census_tests.rs": {
-        "sha256": "d0b90c47d2d58a3611a7429d851bf4b323471b409aaeb3c5e2c9a72d3e56a786",
+        "sha256": "b93f6021f67b931d02d847bf4b6166355325fdfa1706c602e58a69655082d7d2",
         "source_trees": [
           "core/analysis/hanger_sizing/Cargo.toml",
           "core/loads/self_weight_wasm/Cargo.toml",
@@ -4922,7 +4922,7 @@
         ]
       },
       "core/reporting/result_export/tests/connector_contract.rs": {
-        "sha256": "a6f98c24de12b0d33d408d691098201d26b5fd816229bb0f5e027da1298b26fe",
+        "sha256": "ed4884b1a3d089ee3a7d2391bdd7142ba119ef34f195f89b0f14b807011831f7",
         "source_trees": [
           "core/reporting/result_export/Cargo.toml"
         ],
@@ -5753,7 +5753,7 @@
         }
       },
       "core/product_physics/src/source_receipt/o4_source_tests.rs": {
-        "sha256": "3e4d997195091548bbb65ac9ad13842e9fc33b39b8b63973f7d096d42082c7c4",
+        "sha256": "64bc3e2b3f4e8802a2f336bbf492fa69ab01b1ddf49e2e33e689979a9a16c2f1",
         "source_trees": [
           "core/analysis/hanger_sizing/Cargo.toml",
           "core/loads/self_weight_wasm/Cargo.toml",
@@ -5847,7 +5847,7 @@
         ]
       },
       "core/runner/headless/tests/del1005_package_witness.rs": {
-        "sha256": "cd3cd4f3c87c7927c494b51ae27643880d899a6704ba81acb926532367689237",
+        "sha256": "30c923021f5757773d164806c2bd853013027019e121a8b4d483f80a83c8c4f8",
         "source_trees": [
           "core/runner/headless/Cargo.toml"
         ],
@@ -6164,7 +6164,7 @@
         }
       },
       "core/analysis/hanger_sizing/tests/publication.rs": {
-        "sha256": "878af413dff92e788339197b2d3879696013788a1d507c416537f48b8e576a55",
+        "sha256": "73bcc7db03171212e3864f61afa201e50c795566b51602307d4b98f0e2bc604d",
         "source_trees": [
           "core/analysis/hanger_sizing/Cargo.toml"
         ],
