@@ -99,8 +99,10 @@ owner. Do not message a project the work does not affect.
 Root measures how agents deliver work across the Chirality projects, improves
 it, and hosts what is best delivered as a shared service. Its agents evaluate
 SWBPIPE from session telemetry, read-only, and the owner reviews every finding.
-Root changes no SWBPIPE files, branches or PRs; its only action here is a GitHub
-issue for an owner-approved finding. Routine adherence checks of SWBPIPE's
+Root's Agent 0 and its delegates may change SWBPIPE's files within work the
+owner has authorised, through a PR here under these instructions, and tell this
+project's Agent 0. Root may also open a GitHub issue for an owner-approved
+finding. Routine adherence checks of SWBPIPE's
 deliverables stay with this project's Agent 0, through a Library workflow.
 
 ## Work and verification
