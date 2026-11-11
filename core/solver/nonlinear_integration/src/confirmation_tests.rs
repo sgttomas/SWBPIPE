@@ -15,7 +15,7 @@ fn ball(m: f64, r: f64) -> CertifiedRow {
     CertifiedValue::with_radius(m, r).unwrap().into_row().unwrap()
 }
 
-// ------------------------------------------------ the predicate
+// ------------------------------------------------ the §2.2 predicate
 
 #[test]
 fn unilateral_signs_need_the_whole_ball_strictly_on_their_side() {

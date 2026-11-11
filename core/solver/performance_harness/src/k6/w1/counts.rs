@@ -336,7 +336,7 @@ pub const EXACT_WIDE_SUM_BYTES: u128 = 2144;
 /// An unevaluated tracker row (`BoundedExtremeTracker::lazy`,
 /// `K4R/adaptive.rs:619`: two sums and two u64) and a fallback row
 /// (`bounded_fallback`'s `rows`, `:1476`: two sums and an f64): 4,304 bytes
-/// each with alignment.
+/// each with alignment (KF1 RETURN §4, "an unevaluated row 4,304 B").
 pub const TRACKER_ENTRY_BYTES: u128 = 2 * EXACT_WIDE_SUM_BYTES + 16;
 /// A tracker table entry (`:621`, a key and an `Evaluated`): 40 bytes (KF1
 /// RETURN §4).

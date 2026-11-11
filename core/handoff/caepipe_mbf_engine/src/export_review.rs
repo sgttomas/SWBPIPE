@@ -2,7 +2,7 @@
 //! desktop's MBF worker task returns in place of the writer's own report, in `review` mode and with the files in
 //! `save` mode.
 //!
-//! [`export_review`] classifies the writer's result (this logic moved here from the dialog's
+//! [`export_review`] classifies the writer's result as §3.3 does (this logic moved here from the dialog's
 //! `mbfExport.ts`; the product descriptions keyed by code stay there), over the full result, then serializes it
 //! within an allowance (at most [`MBF_REVIEW_MAX_BYTES`], R = 1 MiB, counted after escaping):
 //!
@@ -287,7 +287,7 @@ fn text<'v>(item: &'v Value, key: &str) -> &'v str {
     item.get_or_null(key).as_str().unwrap_or("")
 }
 
-/// classification over the full result, in listing order, without copying any string.
+/// §3.3's classification over the full result, in listing order, without copying any string.
 struct Classified<'r> {
     result: &'r WriterResult,
     /// (code, entity) of each `unsupported` loss entry: an error of the same pair is that entry.

@@ -803,7 +803,7 @@ mod direct_native {
     const SUBSTITUTE_OVERLAY: &str =
         include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_straight_substitute.overlay.json");
     const SOURCE_1: &str = include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_source_1.json");
-    /// The five witness shapes.
+    /// The five witness shapes of §5.5.
     const SHAPES: [(&str, &str); 5] = [
         ("pressure_2_straight", STRAIGHT),
         ("pressure_2_load_reference_states", LOAD_REFERENCE),

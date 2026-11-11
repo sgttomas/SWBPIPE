@@ -1868,7 +1868,7 @@ fn run_interval_check(
     }
 }
 
-/// The fixed enclosure form: `enclosure=[0x<lo>,0x<hi>] unit=<u>`.
+/// The fixed enclosure form of D2 §4.11.5: `enclosure=[0x<lo>,0x<hi>] unit=<u>`.
 fn enclosure_message(enclosure: Option<Enclosure>, unit_ref: &str) -> String {
     match enclosure {
         Some(enclosure) => format!("enclosure={} unit={unit_ref}", enclosure.bits_text()),
@@ -1876,7 +1876,7 @@ fn enclosure_message(enclosure: Option<Enclosure>, unit_ref: &str) -> String {
     }
 }
 
-/// Maps the predicate's truth to status, code and finding.
+/// Maps the predicate's truth to D2 §4.11.5's status, code and finding.
 /// Indeterminate is never a pass.
 #[allow(clippy::too_many_arguments)]
 fn finish_interval_check(

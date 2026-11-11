@@ -141,7 +141,7 @@ fn abs3(a: [f64; 3]) -> f64 {
 /// binary64). `check_overlay_identity` checks it against the node geometry.
 const R1_COG: [f64; 3] = [0.0, -0.2, 0.0125];
 
-/// RS-R1, in the record shape the generator gives the
+/// RS-R1 as spec §5 enters it, in the record shape the generator gives the
 /// rigid family (`components()`), kind `reducer`, with the declared offset.
 /// `surrogate`: the same body, scale, weight and CoG as a `rigid` component
 /// without an offset (the consistency control).

@@ -2683,7 +2683,7 @@ def printed_text(value: float) -> str:
 
 
 def legacy_replacements(sidecar: dict) -> list[tuple[str, dict, str]]:
-    """Each MBF-determined field of a legacy `sidecar` set to a different valid value, with what
+    """Each MBF-determined field of a legacy `sidecar` (Design §15's table) set to a different valid value, with what
     the import must do. A printed number goes just outside (1.01) and just inside (0.99) the writer's printing bound,
     half a unit in the tenth significant digit; a derived one (TI, angle) moves 1e-6 relative (outside) and four
     binary64 steps (inside)."""

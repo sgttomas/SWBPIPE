@@ -10,7 +10,7 @@
 //! pressure bore on the reduced inner radius, and, for
 //! `timoshenko_annulus_energy_v1`, the energy-matched shear factor kappa_E and
 //! the shear area kappa_E * A_n from the nominal radii and the member's nu (this
-//! module's own implementation, without fused multiply-add).
+//! module's own implementation of §3.1's order, without fused multiply-add).
 //! The section leaves A, I, J, Z and Ai stay leaves: the retained exact
 //! successor overlays them with its prepared bits (DEF-E), so no reader
 //! recomputes them. Coincident bases (equal walls) carry bit-equal leaves.

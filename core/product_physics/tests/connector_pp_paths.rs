@@ -325,7 +325,7 @@ fn cross(a: [f64; 3], b: [f64; 3]) -> [f64; 3] {
 }
 
 /// A skew-Q, offset, coupled, prestressed connector with N-B free: the
-/// preload relaxes completely. Derived from the mechanics, not
+/// preload relaxes completely. Derived from the mechanics (JR §2's B), not
 /// the product: N-B carries only the connector and no load, so g = 0 and
 /// q = q_ref (q − q_ref = 0), every end action and reaction is zero, and with
 /// N-A fixed, B·d = q_ref gives θ_B = Q·q_r and u_B = Q·q_t − (r/2 − a_j) × θ_B,

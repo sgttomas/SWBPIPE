@@ -165,7 +165,7 @@ pub(crate) fn file_name_request(args: &mut Args) -> Result<String, SolveJobError
 #[derive(Debug, Clone, Serialize, PartialEq)]
 #[serde(tag = "outcome", rename_all = "snake_case")]
 pub(crate) enum AutosaveReadOutcome {
-    /// Every check passed.
+    /// Every check of §5 passed.
     Read { file_name: String, slot: String, written_unix_millis: u64, model_hash: String, byte_count: u64, document: Value },
     Refused { diagnostics: Vec<DispositionDiagnostic> },
 }

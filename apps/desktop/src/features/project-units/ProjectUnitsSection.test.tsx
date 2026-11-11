@@ -235,7 +235,7 @@ function projectPage(model: PreviewModel, list: EditorOperationIntent[]) {
 }
 
 // Codex r1: a document opened without `project.units`, or without some keys,
-// must open the Project page and show notices; reading it writes nothing.
+// must open the Project page and show §3's notices; reading it writes nothing.
 describe("Project page on a document missing project units", () => {
   it("opens without the map: every key missing, length with nodes locked, another key offered", async () => {
     const model = seven();

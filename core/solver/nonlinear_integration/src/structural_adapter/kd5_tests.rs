@@ -202,7 +202,7 @@ impl Built {
 }
 
 /// max over free rows of |u − u_int| / (1e-9·max(|u_int|, S*_kind(u_int))),
-/// one body, S* (the design's actual-error measure).
+/// one body, S* per D1 §4.1.6.1 items 4–6 (the design's actual-error measure).
 fn actual_ratio(m: &ModelData, u: &[f64]) -> f64 {
     assert!(!m.u_int.is_empty(), "{}: no reference", m.name);
     let (mut st, mut sr) = (0.0_f64, 0.0_f64);

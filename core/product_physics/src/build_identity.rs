@@ -17,7 +17,7 @@ pub(crate) const IDENTITY_UNAVAILABLE: &str = "v1;unavailable";
 /// The environment variable build.rs sets and the crate reads with `option_env!`.
 #[allow(dead_code)]
 pub(crate) const IDENTITY_VARIABLE: &str = "OPS_RETAINED_BUILD_IDENTITY";
-/// The keys, in their fixed order.
+/// The keys, in their fixed order (BUILD.md §2.1's table).
 #[allow(dead_code)]
 pub(crate) const IDENTITY_KEYS: [&str; 16] = [
     "rustc.release",

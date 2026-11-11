@@ -963,7 +963,7 @@ def _sequential_sum(values, start=0.0):
 
 # --- What a published value can be ------------------------------------------------------
 #
-# relation inventory, from the producer's own formation. A value object
+# Design §5.3.4's relation inventory, from the producer's own formation. A value object
 # stands for the value the producer published:
 # - an unflagged number is that binary64 number; 0 is an exact zero (`WideDd::to_published`
 #   and `to_normal_or_zero`, modal_eigen dd.rs:476 and :507, publish a nonzero value

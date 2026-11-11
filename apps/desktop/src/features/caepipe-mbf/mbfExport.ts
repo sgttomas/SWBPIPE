@@ -394,7 +394,7 @@ export function savedStatusLine(outcome: Extract<MbfExportSaveOutcome, { outcome
   return `Saved ${outcome.mbf.file_name} and its identity file ${outcome.identity_file.file_name}; ${omittedCount} omitted ${omittedCount === 1 ? "entry" : "entries"}.${durability}`;
 }
 
-/** The export's own refusals that are not about the model (product-text rule): what happened and what the
+/** The export's own refusals that are not about the model (§3.3's product-text rule, §3.7): what happened and what the
  * user can do (try again, reload the window, restart SWBPIPE), in the product's words. None of them names the
  * mechanism that keeps one export from overlapping another, and none suggests that anything here grants a save. */
 export const MBF_EXPORT_CANCELLED = "MBF-EXPORT-CANCELLED";

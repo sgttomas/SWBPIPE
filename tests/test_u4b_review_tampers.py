@@ -129,7 +129,7 @@ def test_a_forged_poisson_warning_with_deleted_shear_rows_is_refused(entry):
         assert refused["ok"] is False and "Poisson warning does not match" in _code(refused), _code(refused)
 
 
-# shear operand rule (RT-U4): a component-free shear slot is one operand when its rows agree bit for bit (or
+# §5.1's shear operand rule (RT-U4): a component-free shear slot is one operand when its rows agree bit for bit (or
 # none carries a number) and is refused otherwise, in every row order. Rust: `u4b_evidence_any_tests.rs`.
 def _shear(component, value, *, case="case:a", entity="pipe:p", kind="element_local_shear_force_y", location="midspan"):
     row = {"basis_ref": {"ref_type": "load_case", "ref_id": case}, "entity_ref": entity, "kind": kind,

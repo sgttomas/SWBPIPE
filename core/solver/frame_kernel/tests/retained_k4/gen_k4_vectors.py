@@ -7,7 +7,7 @@ test. It imports, read-only, and records the sha256 of:
   oracle and the stream operand rules, reused for the N5 streams);
 - R1's `references.py` (the exact pi PI_Q and the full model of the RF-MECH
   case whose JSON model is abbreviated), with `references.json` hash-checked;
-- D1's `floor_kinds.json` (the enumerated not-covered list),
+- D1's `floor_kinds.json` (the enumerated not-covered list of D1 §4.10),
 and reads model inputs (binary64 bits) from `kd5_models.rs` (K-D5's D5C-1
 controls) and `k2b_models.rs` (K2b's spring-carried case).
 
@@ -3792,8 +3792,8 @@ def sdg5_profile_lines():
 
 
 # ----------------------------------------------------------------------------
-# D1 revision 5a.3, checkpoint A3b: remaining controls, and K4's
-# verification pass, its decision (in
+# D1 revision 5a.3, checkpoint A3b: R7 §7's remaining controls, and K4's
+# verification pass (R7 §4.1.6.3 items 1-12), its decision (§5.1 (a)-(d), in
 # emu7's order: ROOT's A3-0 ruling Q7) and its schedule, emulated in K4's
 # order with R7's directed roundings.
 # ----------------------------------------------------------------------------

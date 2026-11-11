@@ -120,7 +120,7 @@ def row_basis(row: Mapping[str, Any]) -> tuple[str, str]:
 
 
 def reduced_wall(wall: float, mill_tolerance: float, corrosion_allowance: float) -> float:
-    """fixed order, t_r = (t - c_m) - c_a."""
+    """§1's fixed order, t_r = (t - c_m) - c_a."""
     return (wall - mill_tolerance) - corrosion_allowance
 
 

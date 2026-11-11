@@ -23,7 +23,7 @@ const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, Pre
 /// every target: the dense bytes used to differ across targets through libm `hypot`
 /// (`rigid:N0`'s support force magnitude); since I109 (PR-N) magnitudes are correctly
 /// rounded norms, and dense is re-pinned at the correctly rounded value.
-/// K-D5 re-pinned both
+/// K-D5 (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 6) re-pinned both
 /// modes: the milestone case stays Sensitive (K-D5's estimate), and against main
 /// the bytes differ only by the two linear limitation sentences, the current
 /// maximum declaration literals and the fallback maximum's enclosure. B7a's H-4
@@ -42,19 +42,19 @@ const ORDINARY_SHA256: [(&str, usize, &str); 2] = [
 ];
 /// The serializer's committed milestone output: sha256 of the pretty-printed
 /// successor envelope, and its receipt_sha256 (byte-stable, both modes).
-/// K-D5 re-pin: against main the milestone
+/// K-D5 re-pin (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 6): against main the milestone
 /// successor differs only by the current maximum declaration and fallback enclosure, the two
 /// linear limitation sentences, and the receipt and publication hashes that bind them.
-/// Model 0.7.0 re-pin (W-13 S1b): every pinned
+/// Model 0.7.0 re-pin (W-13 S1b; DEL-02-01 Design `model-document-0.7.0.md` §2): every pinned
 /// request and witness input was re-authored by its version token alone. The input sha256 pins, the
 /// successors' invocation digests, the exact route's DEF-E-bound preparation and source identity
 /// hashes, and the receipt, publication and document hashes binding them moved and follow the
 /// maintained writers' bytes; no numeric leaf, class, selection, status or verdict moved.
-/// W-7 re-pin: the member's twelve not-covered global end
+/// W-7 re-pin (DEL-04-01 Design `global-end-actions.md`): the member's twelve not-covered global end
 /// rows, the receipt figures counted over the rows, and the hashes binding them moved.
-/// Model 0.9.0 re-pin (S1): read from the regenerated producer bytes on
+/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-/// RT-A4 D3 re-pin (§8.46): only `formulation_basis.limitations[6]` and the publication
+/// RT-A4 D3 re-pin (DEL-04-08 §8.46): only `formulation_basis.limitations[6]` (§10.2's sentence) and the publication
 /// and receipt seals binding it moved; restated to the former sentence and resealed by the Python 07e rule, each
 /// regenerated document reproduces its former pins byte for byte.
 const SUCCESSOR_SHA256: [(&str, &str, &str); 2] = [

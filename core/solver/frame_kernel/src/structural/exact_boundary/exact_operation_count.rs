@@ -71,7 +71,7 @@ pub struct Totals {
     pub min_pair_slack: Option<i64>,
     /// The largest two-product count of one term pair: the product, its fused
     /// residual and the radix scalings, which the per-pair constant covers
-    /// (at most 66).
+    /// (at most 66 by §5.3).
     pub max_pair_two_product: u64,
 }
 impl Totals {

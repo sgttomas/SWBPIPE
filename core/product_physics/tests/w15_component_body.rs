@@ -38,7 +38,7 @@ fn valve(id: &str, node: &str, pipe: &str, s: f64) -> Value {
         "mechanics_interface": {"solver_consumption": "mechanics_geometry_only"}, "provenance": PROV})
 }
 
-/// pair A(0) - B(1 m) - C(3 m): `PIPE` A-B and `BODY` B-C, anchored at
+/// §2.4's pair A(0) - B(1 m) - C(3 m): `PIPE` A-B and `BODY` B-C, anchored at
 /// A and C, a 3 kN axial force at B. `components` are the case's valves.
 fn request(route: Route, components: Vec<Value>) -> Value {
     let exact = route == Route::Exact;

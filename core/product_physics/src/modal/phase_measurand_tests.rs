@@ -16,7 +16,7 @@
 //!
 //! **The measurand** (`o4_phase_measurand_sec_a_cantilever`) is `#[ignore]`d
 //! and kept out of the normal test path: it runs only inside a separately
-//! authorized measurement window. It pins nothing,
+//! authorized measurement window (§5.3.8's stage plan). It pins nothing,
 //! applies no budget and has no production parameter set: it uses the
 //! labelled **TEST-LOCAL, EXPERIMENTAL** set of the fixtures.
 //!
@@ -121,7 +121,7 @@ impl ModalReplay {
     }
 }
 
-/// The bounding-box diagonal ℓ, as `run_modal_dense` forms it (its
+/// The bounding-box diagonal ℓ of §1.5, as `run_modal_dense` forms it (its
 /// helper is private to `outcome`; the equality test holds this copy to it).
 fn bounding_box_diagonal(positions: &[[f64; 3]]) -> f64 {
     let mut low = [f64::INFINITY; 3];

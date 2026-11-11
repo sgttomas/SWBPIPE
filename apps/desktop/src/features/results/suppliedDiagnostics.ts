@@ -1,10 +1,10 @@
-/** the one
+/** RT-A3 §4 (DEL-05-02 Work `combination-certificate.md` §2, the residual text boundary): the one
  * classification of a result diagnostic's message, used by the report's projection
  * (`renderableReportInput.ts` `diagnosticsForSections`, mirrored by Rust
  * `report_package::bindings::expected_report_diagnostics`) and by the Diagnostics panel's list
  * and explanation (`presentedResultDiagnostics`). It reads typed identities and a reader's
  * verdict only (for a retained successor, the registered retained reader's acceptance of its exact
- * bytes), never a message's wording, and derives no standing or certificate fact. */
+ * bytes; DEL-04-08 §8.53), never a message's wording, and derives no standing or certificate fact. */
 import type { Diagnostic, MechanicsResult } from "../../types";
 import { isNativeResult, nativeDiagnosticsPresentation, type NativeResult, type SessionResult } from "../../services/nativeResult";
 import { readerDispatch, readerValidate, type ReaderName } from "./resultReader";

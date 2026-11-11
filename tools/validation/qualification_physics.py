@@ -210,7 +210,7 @@ DERIVED_ASSERTION_IDS = tuple(name for aid in REQUIRED_ASSERTION_IDS
 
 
 def section_basis_id(result_id: str, basis: str) -> str:
-    """id segment for one basis of a stress row."""
+    """§2.5's id segment for one basis of a stress row."""
     return f'{result_id}:{basis}' if result_id.startswith(UNDERSCORE_ID_FAMILIES) else f"{result_id}:{basis.replace('_', '-')}"
 
 
@@ -222,7 +222,7 @@ def reauthor_selectors(assertions: list, values: list) -> tuple[list, list, dict
     """The declared re-authored copy of a frozen first-static selector list and its reference values.
 
     Each stress-kind selector becomes two, nominal then reduced: assertion id ``<id>.<basis>``, selector id with
-    basis segment, ``metadata.basis`` with ``; section_basis=<basis>``, and the same kind, unit, entity,
+    §2.5's basis segment, ``metadata.basis`` with ``; section_basis=<basis>``, and the same kind, unit, entity,
     case basis, dimension, criterion and expected value. Every other selector is unchanged. The frozen lists are
     not modified; the record carries both hashes."""
     require(type(assertions) is list and type(values) is list, 'selectors and reference values must be lists')

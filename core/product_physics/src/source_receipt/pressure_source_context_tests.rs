@@ -734,7 +734,7 @@ fn ra_work_for(family: &str, raw: &Value, mode: PreviewSolverMode, case_id: &str
     measured.unwrap_or_else(|e| panic!("{label}: {e}"))
 }
 
-/// complete work law, checked independently on every current control (twelve
+/// T4-U4b §4.3's complete work law, checked independently on every current control (twelve
 /// requests x two modes) against the pre-U4b counters, with R-A's change since then: for each
 /// selected case, `work.charged` changes by exactly 24ΔE + ΔF_k + ΔQ_k + ΔR_k, and
 /// `publication_charged` by 24ΔE + ΔP + ΔD_k.
@@ -743,7 +743,7 @@ fn ra_work_for(family: &str, raw: &Value, mode: PreviewSolverMode, case_id: &str
 /// - ΔQ_k: the composite wrapper's own 64 per new row; the new treatment reserves no recipe
 ///   work (no `derived_recipe_entry`, no 4096 per row), so its per-recipe charge is zero.
 /// - ΔP: the publication's 32 per new row and 256 per new row per load case.
-/// - ΔR_k (R-A):
+/// - ΔR_k (R-A, DEL-04-08 Design `source-work-nondyadic-inputs.md` §3.1 "As built", §4):
 ///   measured by `ra_work` on the replay's own input against the pre-R-A path (the plain
 ///   plan and the long evaluation). The live attempt changes by the plan term (two units
 ///   per descriptor for the hint rule, checked) plus the evaluation term; the replay, on the

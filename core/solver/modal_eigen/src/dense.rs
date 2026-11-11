@@ -40,7 +40,7 @@ use crate::norm_estimate::inverse_one_norm_estimate;
 /// transformations and the QL eigenvectors (n_m² of it), and finally the
 /// returned mode shapes, recovered in place on the massless DOFs (kept·n).
 /// O(n) work vectors are not counted. The equilibrated Cholesky of M_mm
-/// (n_m², the finite-mode count) runs after R is released. The Sturm counts run after the solve, when
+/// (n_m², the finite-mode count) runs after R is released. The Sturm counts of §3.2 item 7 run after the solve, when
 /// R and the work buffer are released, and add their own storage (`sturm`
 /// module docs, "Memory").
 pub const DENSE_PATH_PEAK_N2_BUFFERS: u64 = 4;
@@ -55,7 +55,7 @@ pub fn dense_path_peak_bytes(n: u64) -> u128 {
     DENSE_PATH_BYTES_PER_ENTRY as u128 * n as u128 * n as u128
 }
 
-/// operation estimate 9n³ + s·n³/3 for `s` Sturm
+/// Design §3.2's operation estimate 9n³ + s·n³/3 for `s` Sturm
 /// factorizations, rounded up to a whole flop. Band-recovery exact products
 /// are additional (`dense_screen_product_estimate`); this applies no budget.
 pub fn dense_path_flop_estimate(n: u64, sturm_factorizations: u64) -> u128 {

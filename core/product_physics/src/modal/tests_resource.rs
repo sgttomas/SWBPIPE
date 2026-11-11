@@ -127,7 +127,7 @@ fn construction_steps(n: u128) -> u128 {
     39 * p + 16 * n + 38 + (n + 3) * (3 * n + 2 * p) + 3 * n * (n + 1)
 }
 
-/// terms as `resource` derives them, written out again in plain
+/// §5.3.8's terms as `resource` derives them, written out again in plain
 /// arithmetic; the values here are small, so nothing overflows.
 fn formulas(d: &ModalResourceDimensions) -> [Option<u128>; MODAL_RESOURCE_TERM_COUNT] {
     use ModalResourceTerm as T;

@@ -986,7 +986,7 @@ fn run_preview_with_producer(
 }
 
 /// Produce and attach the DEL-08-04 envelope document for a completed solve
-/// (R14 W1 T1, fail-closed): on a clean
+/// (R14 W1 T1, fail-closed per the governing brief §3.5): on a clean
 /// production (both validators free of blocking diagnostics) the document is
 /// returned for the new library-only `PreviewRunnerOutput` field; on a
 /// STRUCTURAL production or validation failure a blocking runner diagnostic

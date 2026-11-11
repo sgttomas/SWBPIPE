@@ -11,7 +11,7 @@
 //!   `check_intervals`, after the actual verdicts.
 //! - **Counterfactual judging** without a re-solve runs in separate work owners
 //!   that no receipt reads: switch (a), the admitted Z set to the single Ẑ, and
-//!   the projection and judging variants. Each recomputes the
+//!   the projection and judging variants of w1e §6.2. Each recomputes the
 //!   projected values, the support magnitudes, the coupled and floored scales
 //!   and every class and predicate with the gate's own arithmetic. The probe
 //!   checks itself on every case: its unaltered variant must reproduce the
@@ -747,7 +747,7 @@ pub(super) fn gate_records(g: &GateInputs<'_, '_>) {
             .put("k_width_ulp", Field::F(width(gr.k) / u)).put("s_width_ulp", Field::F(width(gr.s) / u))
             .put("hull_width_2m64", Field::F(if nval == 0.0 { f64::NAN } else { width(h) / nval.abs() * 2f64.powi(64) }))
             .put("zpoint_error", Field::S(match &zpoint[i] { Some(Err(e)) => e.clone(), _ => String::new() }))
-            // per-row diagnostics: h (rounded up, and in units of n's ulp),
+            // w1e §6.2's per-row diagnostics: h (rounded up, and in units of n's ulp),
             // the binary64 sharper allowance as `gate` forms it, the absolute bound
             // where the class is absolute, and all four predicate verdicts.
             .put("h", Field::F(distance(&mut NumericWork::new(), nval, h).map(|x| approx(&x)).unwrap_or(f64::NAN)))

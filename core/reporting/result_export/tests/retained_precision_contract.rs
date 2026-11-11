@@ -375,7 +375,7 @@ fn apply_on(case: &Value, entry: &Value) -> (Value, Value) {
 
 
 /// Snapshot-07l pins (U8-2; I69) on the two producer-solved L = 0 bases:
-/// isolated rotation stop, has_data and coupled estimate
+/// SNAPSHOT_05_PLAN §1.2's isolated rotation stop, has_data and coupled estimate
 /// (sparse, then dense), then I69's translation-plus-rotation stop (sparse, then
 /// dense), mutations 278..286.
 
@@ -5385,7 +5385,7 @@ const EXACT_BASES: [&str; 3] = [ORD, "ordinary_prepared_dense_synthetic", "two_c
 const INVOCATION: &str = "RETAINED_PRECISION_INVOCATION_MISMATCH";
 const PREPARATION: &str = "RETAINED_PRECISION_PREPARATION_MISMATCH";
 const SECTION: &str = "RETAINED_PRECISION_SECTION_MISMATCH";
-/// B3b list on the synthetic exact successor (entries 1-32;
+/// REVISION_01 §4.3's B3b list on the synthetic exact successor (entries 1-32;
 /// entry 9 relabels the shared preview base), plus this reader's added shapes; then
 /// every row, the base and S-1's shape on each of lane P's two m3x successors.
 /// The expected first failures are bound; `B3B_SHAPES_OUT` writes every shape's
@@ -6118,7 +6118,7 @@ fn b2_w_cb3(mode: &str) -> (Value, Value) {
 }
 const B2_MODES: [&str; 2] = ["sparse_interactive", "dense_scrutiny"];
 /// S-6 from step `from` (4, 5 or 6) on: the hashes that depend on an edited
-/// inner hash, leaving that inner hash as written (inner-hash
+/// inner hash, leaving that inner hash as written (REVISION_01 §5.2's inner-hash
 /// tests: each inner conjunct is then the only one a test can reach).
 fn b2_reseal(source: &mut Value, from: u8) {
     use open_pipe_stress_result_export::source_blocks::domain_hash;
@@ -6213,9 +6213,9 @@ fn b2_w_cb3_successors_validate() {
     }
 }
 
-/// every new check by gate, on W-CB3 (both modes): each edit reaches
+/// B2-C §10.1, every new check by gate, on W-CB3 (both modes): each edit reaches
 /// its gate and code. Rows name CONTRACT §10.3's mutation where one is the
-/// same edit. The `inner` rows are three inner-hash tests:
+/// same edit. The `inner` rows are REVISION_01 §5.2's three inner-hash tests:
 /// each inner hash edited and only the publication and receipt hashes resealed.
 #[test]
 fn b2_w_cb3_new_checks_first_failures() {
@@ -6377,7 +6377,7 @@ fn b2_w_cb3_rows(mode: &str, misses: &mut Vec<String>) {
     }
 }
 
-/// reason table for a `retained_unavailable` combination with an
+/// B2-C §4's reason table for a `retained_unavailable` combination with an
 /// attempt, by the attempt's own error (reader logic).
 #[test]
 fn b2_combination_reason_table_rows() {

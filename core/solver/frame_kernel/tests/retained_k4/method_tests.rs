@@ -45,7 +45,7 @@ fn in_default_lane(name: &str) -> bool {
     !name.contains("n00100")
 }
 
-/// SEED hook for the duration of a solve (cleared on drop, so a
+/// R7 §7's SEED hook for the duration of a solve (cleared on drop, so a
 /// failing test leaves no seed on its thread).
 pub(super) struct Seeded;
 
@@ -895,7 +895,7 @@ where
     binary64_up(&ctx.div(num, den).unwrap()).unwrap()
 }
 
-/// A verification report's figures that R7 names.
+/// A verification report's figures that R7 names (plan §6's "also asserted").
 #[derive(Debug, Default, Clone)]
 pub(super) struct Figures {
     /// max Ŵ_q/V_q and C_q/allowance over force and moment rows (P < 1024).

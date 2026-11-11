@@ -154,7 +154,8 @@ fn timoshenko_shear_area_uses_the_stiffness_section() {
     }
 }
 
-/// a timoshenko_annulus_energy_v1 straight member
+/// Design §3.1 ("A missing nu or G basis blocks a Timoshenko solve by name; no
+/// default factor exists"): a timoshenko_annulus_energy_v1 straight member
 /// whose material carries G but no Poisson ratio is not built; the build blocks
 /// with EXACT_PRESSURE_SHEAR_FACTOR_UNAVAILABLE naming the member and the
 /// missing nu, while its Euler-Bernoulli twin builds from the same inputs. On
@@ -209,6 +210,7 @@ fn timoshenko_without_a_nu_basis_is_blocked_by_name() {
     }
 }
 
+/// Design §3.1, §8 ("Base-material nu instead of the resolved per-case nu"):
 /// on a load-state document whose cases resolve different E/nu pairs, each
 /// case's kappa_E and A_s are FK's functions of that case's own nu, and they
 /// differ between the cases.
@@ -324,7 +326,7 @@ fn mixed_l_line(shear_model: &str) -> (Value, std::collections::BTreeSet<String>
     assert!(!arcs.is_empty() && arcs.len() < b.pipes.len(), "precondition: a mixed L-line");
     (request, arcs, b.pipes.len())
 }
-/// One exact case's `pipe_sections` entries by pipe id, each checked for the key set: a
+/// One exact case's `pipe_sections` entries by pipe id, each checked for the §2.5 key set: a
 /// realized arc (and only a realized arc) carries `member_kind = "realized_arc"` and
 /// Euler-Bernoulli beam theory.
 fn checked_pipe_sections<'a>(case: &'a Value, arcs: &std::collections::BTreeSet<String>, members: usize, label: &str)

@@ -1423,7 +1423,7 @@ def test_b1_repair01_g8_invocation_members_and_solver_mode():
 
 
 def test_b1_repair01_g8_material_basis_of_every_case_and_exact_case_indices():
-    """(b) G8 step 2 for every case: an ordinary attempt's material basis is its case's
+    """(b) DESIGN_v2 §3.3's G8 step 2 for every case: an ordinary attempt's material basis is its case's
     selector in first-seen order. Rust: `fail(o["requested_mode"] == mode && u(&o["material_basis_ref"])
     == index)` in `g8`'s case loop; TS: `fail(ordinary.material_basis_ref === bi && ...)`; both
     PREPARATION_MISMATCH. On 07j's not_required case (no product attempt, no source) Python admitted a
@@ -1570,7 +1570,7 @@ def test_b1_repair02_model_scope_at_g8_invocation():
     PREPARATION check: no `reference_configurations` member (null included; PP `validate_document`), a
     `pressure_contract` absent (a present null is refused since B7a/B7b), and `combinations` and `components` absent
     or `[]` (PP's typed model).
-    Unbound reads have no invocation, so they are unaffected."""
+    RV113 §10.2's probes. Unbound reads have no invocation, so they are unaffected."""
     model = ["request", "model"]
     refused = {
         "reference_configurations null": [_set(model + ["reference_configurations"], None)],

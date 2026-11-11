@@ -126,7 +126,7 @@ pub struct Case {
     pub scales: BTreeMap<String, String>,
     pub rows: Vec<Row>,
     pub controls: Vec<Control>,
-    /// The committed not-covered keys of this case.
+    /// The committed not-covered keys of this case (DESIGN.md §4.10's list).
     pub not_covered: Vec<String>,
     /// S(kind) of the complete reference solution (n ≥ 1,000 only).
     pub s_full: Option<BTreeMap<String, String>>,

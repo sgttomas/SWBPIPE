@@ -1,11 +1,11 @@
 //! The zero-scale floor check (V1-S8, F2).
 //!
-//! S\* per kind is formed from the case's reference values
-//! in binary64 and in the stated order: S(kind) is the largest
+//! S\* per kind is formed from the case's reference values by D1 §4.1.6.1
+//! items 4–6, in binary64 and in the stated order: S(kind) is the largest
 //! |fl(exp)| of the kind (R1's class without `@region`), L_b is the body's
 //! extent from the adapted node coordinates, and the four kinds are coupled.
 //! Twist and extension are variant F: S\*_tw(m) = fl(mo/k_t) and
-//! S\*_ext(m) = fl(fo/k_a), with k_t and k_a (C1 below).
+//! S\*_ext(m) = fl(fo/k_a), with k_t and k_a as §4.10 forms them (C1 below).
 //! A comparison is covered iff max(|exp|, scale) ≥ R·S\*, R = 2^-34, decided
 //! exactly (`exact::covered`).
 use crate::cases::{Case, Model, Row};
@@ -29,7 +29,7 @@ pub fn member_length(xi: [f64; 3], xj: [f64; 3]) -> f64 {
     (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]).sqrt()
 }
 
-/// k = fl(fl(a·b)/L), where both intermediates are normal binary64
+/// §4.10's k = fl(fl(a·b)/L), where both intermediates are normal binary64
 /// numbers; None where the design's formula is not defined.
 pub fn design_coefficient(a: f64, b: f64, length: f64) -> Option<f64> {
     let p = a * b;

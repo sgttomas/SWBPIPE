@@ -512,7 +512,7 @@ fn validate_pressure(records: &[Value], regions: &Value, source_rows: &[Value], 
     Ok(())
 }
 
-/// s_x binding: |s_x − Σ| ≤ (64 + n_r)ε(|g_x| + |Pe| + Σ|t_r·axial_share|)
+/// §5.1's s_x binding: |s_x − Σ| ≤ (64 + n_r)ε(|g_x| + |Pe| + Σ|t_r·axial_share|)
 /// + (n_r + 2)·2^-1074, with Σ = g_x − Pe + Σ_r RN(t_r·axial_share_r)
 /// accumulated exactly and rounded once, so the reader adds no addition
 /// error for any rod count. Each term is scaled before it is added, so a

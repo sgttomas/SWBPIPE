@@ -25,7 +25,7 @@ FK = "core/solver/frame_kernel/src/"
 # RT-A3 P D3 (§8.53): structural.rs's export list gains P's three pattern-sibling re-exports above every FK key
 # here, so load_fidelity, audit_load_fidelity, row_sources (and its clone site), unaudited_row and audit_load_row
 # carry +3, and sparse.rs's load_fidelity +100 and audit_sparse_load_fidelity +291 (P's binary64 preparation and
-# pattern siblings precede them), unchanged text and callers. lib.rs's helpers carry +27 (LoadCaseSolve
+# pattern siblings precede them), unchanged text and callers. lib.rs's helpers carry +27 (RT-A3 §4's LoadCaseSolve
 # field, operand map and publish lines precede them), unchanged text.
 # R-6/R-7 S-K1 D3 (§8.55): sparse.rs gains SparseStiffness::from_pattern_values and SparseAssemblyOptions' node_blocks
 # member, constructor and accessors above both keys, so load_fidelity and audit_sparse_load_fidelity carry +53

@@ -175,8 +175,8 @@ mod tests {
             "source_reference": "invented authoring control"})
     }
 
-    /// the hardware edit path accepts valid rods on a
-    /// 0.9.0 exact document only, and refuses each defect by name.
+    /// T4-U5b (§3.1, §5.2): the hardware edit path accepts valid rods on a
+    /// 0.9.0 exact document only, and refuses each §3.1 defect by name.
     #[test]
     fn u5b_hardware_edit_validates_the_rods_on_current_exact_documents_only() {
         let references: Value = serde_json::from_str(include_str!(

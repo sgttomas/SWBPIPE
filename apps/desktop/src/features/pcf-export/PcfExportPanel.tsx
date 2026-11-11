@@ -91,7 +91,7 @@ export function PcfExportPanel({
     "manifest_and_validation_report_package_hash_carrier_fields"
   );
   const packet = withCanonicalPackageHash(basePacket, packageHash);
-  // a missing project unit is refused first; then length refusals.
+  // §7.4: a missing project unit is refused first; then §7.5's length refusals.
   const projectUnitRefusal = projectUnitRefusalText("PCF", PCF_PROJECT_UNIT_MISSING, packet.diagnostics);
   const lengthRefusal = projectUnitRefusal ? null : lengthUnitRefusalText(packet.diagnostics);
 

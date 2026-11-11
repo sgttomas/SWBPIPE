@@ -152,7 +152,7 @@ fn e5_unused_sets_assignments_and_spectra_change_no_published_byte() {
             assert_eq!(solved["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}: {:?}", diagnostics(&solved));
             if exact {
                 // The exact route's source-block custody hashes bind the authored request
-                // (hash-bound exception, as `model_hash` is); everything solved is equal.
+                // (§1.8's hash-bound exception, as `model_hash` is); everything solved is equal.
                 for member in ["status", "results", "diagnostics", "summary", "numerical_quality", "formulation_basis"] {
                     assert_same_bytes(&solved[member], &reference[member], &format!("exact {mode:?}: {member}"));
                 }
@@ -167,7 +167,7 @@ fn support_mut<'a>(document: &'a mut Value, id: &str) -> &'a mut Value {
     document["supports"].as_array_mut().unwrap().iter_mut().find(|s| s["id"] == id).unwrap()
 }
 
-/// an exactly axis-aligned `direction` takes today's path, byte for byte.
+/// §5's S1 row: an exactly axis-aligned `direction` takes today's path, byte for byte.
 /// d = −e_x and (2,0,0) on a UX record solve as the record without direction; (0,3,0) on
 /// a UX spring or line stop solves as its UY twin.
 #[test]

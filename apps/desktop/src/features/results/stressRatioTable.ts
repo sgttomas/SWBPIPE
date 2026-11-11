@@ -305,7 +305,7 @@ export function ratioDirection(relation: string): RatioDirection | null {
   return UPPER_BOUND_RELATIONS.has(relation) ? "upper" : LOWER_BOUND_RELATIONS.has(relation) ? "lower" : null;
 }
 
-/** The ratio, or why none is formed. Under an upper bound, computed ÷ limit with a positive
+/** The ratio of §3.1, or why none is formed. Under an upper bound, computed ÷ limit with a positive
  * limit; under a lower bound, limit ÷ computed with a positive computed value and a positive limit
  * (HELP_HUMAN, 2026-10-27). Either way the values are finite and in one unit and dimension, the
  * quotient is finite, and a ratio above 1 means the computed value is past the limit. */
@@ -372,7 +372,7 @@ function ruleGroups(
   const rowsById = new Map(result.results.map((row) => [row.id, row] as const));
   const solverInputs = new Map(plan.solverInputs.map((input) => [input.input_id, input] as const));
   const checkInputs = new Map(plan.checks.map((check) => [check.check_id, check.input_refs.filter((id) => solverInputs.has(id))] as const));
-  // The guard: a bound row that is not a row of this result means the run is another result's.
+  // The guard of §2.2: a bound row that is not a row of this result means the run is another result's.
   for (const outcome of run.result.checks) {
     for (const input of outcome.bound_inputs) {
       if (solverInputs.has(input.input_id) && input.result_id && !rowsById.has(input.result_id)) return "not_this_result";

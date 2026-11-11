@@ -3,13 +3,13 @@
 `build_benchmark_record` compares, for every load case the MBF writer mapped and for the operating case, every
 displacement, rotation, element end force and moment, and support load SWBPIPE solved with the value CAEPIPE
 printed, bound through the writer's id maps (nodes, members by `bind_element_rows`, supports by node). No analytic
-value is needed. Each scalar is screened against the screening profile and classified as
+value is needed. Each scalar is screened against the RT-V2 §3 screening profile and classified as
 `within_profile`, `finding`, `unmatched` or `status_mismatch`. A closed-form value the benchmark model carries is
 kept as the third value with its own checks.
 
-The record is built from CAEPIPE output and is private: it stays in the exchange folder. It is
+The record is built from CAEPIPE output and is private (Design §8): it stays in the exchange folder. It is
 screening evidence for Agent 0 and the owner's review of the full record, not validation, compatibility proof,
-code compliance or professional acceptance. The screening profile is a proposal; the owner's review
+code compliance or professional acceptance. The screening profile is a proposal under RT-V2 §3; the owner's review
 of the full record decides, not the profile.
 """
 

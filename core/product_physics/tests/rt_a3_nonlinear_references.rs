@@ -836,7 +836,7 @@ fn restate(envelope: &mut Value, support: &str, from: &str, to: &str, code: f64,
 }
 
 /// Relabel the case's integrity code `from` as Passed; with `quality`, its
-/// `numerical_quality` record and aggregate too, and with `line`,
+/// `numerical_quality` record and aggregate too, and with `line`, kd5 §3.3's
 /// evidence line appended to its message.
 fn relabel_passed(envelope: &mut Value, from: &str, quality: bool, line: bool) {
     for d in envelope["diagnostics"].as_array_mut().unwrap() {

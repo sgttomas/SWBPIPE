@@ -39,7 +39,7 @@ EVERY_FEATURE = {
     "interpolate", "lookup:exact", "lookup:step", "unsupported_form", "unsafe_host_access",
 }
 
-# negative controls, each pinned by at least one case.
+# D2 §4.11.5's negative controls, each pinned by at least one case.
 D2_NEGATIVE_CONTROLS = {
     "abs_straddle_ge", "square_le", "divide_by_zero_range", "not_straddle",
     "two_inputs_interior_extremum", "equal_overlap", "not_equal_overlap",

@@ -1,5 +1,5 @@
-/** The hanger-sizing display model (from the document
- * contract). Increment 3a: a pure adapter, tested on the committed family fixtures. It is
+/** The hanger-sizing display model (DEL-04-11 Design `hanger-sizing.md` §8.1, from the document
+ * contract of §8.3). Increment 3a: a pure adapter, tested on the committed family fixtures. It is
  * not a desktop feature by itself; the table component and CSV (3b) and the native sizing job
  * (3c) consume it.
  *
@@ -34,7 +34,7 @@ import type {
 // ---------------------------------------------------------------------------------------------
 // Labels and fixed display text
 
-/** Exact labels: F_cold and F_C are never read as one where u_C is not zero. */
+/** Exact labels of Design §8.1: F_cold and F_C are never read as one where u_C is not zero. */
 export const F_COLD_LABEL = "installed setting (at drawn position)";
 export const F_COLD_CONDITION_LABEL = "cold-condition load";
 /** A variation the document publishes as null. */

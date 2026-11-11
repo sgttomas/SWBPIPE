@@ -74,7 +74,7 @@ fn add_square(acc: &mut ExactAccumulator, (h, l): (f64, f64), sign: f64) {
     acc.add_product(sign * l, l).unwrap();
 }
 
-/// The strict circular coverage test: a
+/// The strict circular coverage test of §4 ("Public samples and units"): a
 /// finite global upper U covers a published sample (axial a, bending y and
 /// z, in MPa) exactly when U - |a| >= 0 and (U - |a|)^2 >= y^2 + z^2, every
 /// operand the exact rational value of the published binary64 MPa times

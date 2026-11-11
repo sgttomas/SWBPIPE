@@ -228,7 +228,7 @@ pub struct SoftwareIdentity {
     pub version: String,
 }
 
-/// The bound basis. Each member is a validation input only; none is
+/// The bound basis of §2.6. Each member is a validation input only; none is
 /// written to the package except as the derivation writes it.
 pub struct UserReleaseBasis<'a> {
     /// `M`, the model text's value.

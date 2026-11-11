@@ -1081,9 +1081,9 @@ fn b2_indeterminate_arc_resultants_depend_on_k() {
         let expected = &b2[key];
         close(case_action(&v, "support:roller", "case:y")[0], num(&expected["roller_on_pipe_Fx_N"]), NO_FROZEN_SCALE, "roller");
         close6(case_action(&v, "support:a", "case:y"), &vec3(&expected["anchor_on_pipe"]), NO_FROZEN_SCALE, NO_FROZEN_SCALE, "B2 anchor");
-        // C5 (b7-plan H-4 C4–C6): arc end rows
+        // C5 (b7-plan H-4 C4–C6; DEL-04-07 Design arc-frames-and-signs.md §§2–3): arc end rows
         // are node-on-element actions in the tangent frame at their end. The frozen chord-frame
-        // block maps there by R_i (s = sin(φ/2), c = cos(φ/2), φ = π/2 here); the frozen
+        // block maps there by §3's R_i (s = sin(φ/2), c = cos(φ/2), φ = π/2 here); the frozen
         // tangent-frame section at b cross-checks it (end_i = −cut(0), y toward the centre), and
         // the frozen chord block stays a negative control. No reference value is changed.
         let chord = vec3(&expected["product_end_i_rows_node_on_element"]);

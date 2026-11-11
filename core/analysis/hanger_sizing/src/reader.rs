@@ -7,7 +7,7 @@
 //! - `closure`: the closed schema, the variant and discriminator rules, the
 //!   cross-field invariants and the fixed texts;
 //! - `binding`: the inputs' hashes, for each input supplied;
-//! - `arithmetic_consistent_with_published_positions`: the arithmetic
+//! - `arithmetic_consistent_with_published_positions`: the §8.3.6 arithmetic
 //!   recomputed from the published W, positions and states with the request and
 //!   the library. A document whose positions were invented consistently passes it;
 //! - `derivation`: every derived document rebuilt from the solve request, the

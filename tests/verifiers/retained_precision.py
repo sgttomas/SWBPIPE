@@ -1978,7 +1978,7 @@ def _g5_numeric(body, rows_by_case, phase=None, exact_evidence=None, all_rows_by
         deferred_class_checks.append((s["absolute_verified"] == absolute and s["not_covered"] == uncovered, "CLASSIFICATION_MISMATCH"))
         per_case.append((first, len(classes), (all_rows_by_case or rows_by_case)[case["basis_ref"]["ref_id"]], len(rows), _distinct_members(source)))
     if exact_evidence is not None:
-        # G5b row: the shared checks over every case first, then each selected case's exact evidence,
+        # DESIGN §6.2's G5b row: the shared checks over every case first, then each selected case's exact evidence,
         # as RS's `g5b_exact_evidence` and TS run it (RV120 F1).
         for case, source, s, rows, *_ in states:
             if "status" in case: _g5b_exact_evidence(exact_evidence[0], case, source, (all_rows_by_case or rows_by_case)[case["basis_ref"]["ref_id"]])

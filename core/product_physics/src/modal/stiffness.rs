@@ -33,7 +33,7 @@
 //!   accumulators) lie within that formula's count. **This is not modal
 //!   product qualification.** The recorded eigen-core bytes and the
 //!   operation estimate are stated formulas, not measurements and not a safe
-//!   product budget; the work budget (O-4) is unpinned and
+//!   product budget; the work budget of design §3.2 (O-4) is unpinned and
 //!   unmeasured, and no work guard is applied here.
 //! - **Admission range.** Every nonzero entry of K_ff and M_ff lies in
 //!   [2⁻³⁰⁰, 2³⁰⁰] (`modal_eigen::admission`), or the pencil is refused by name

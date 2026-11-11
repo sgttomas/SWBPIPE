@@ -1,8 +1,8 @@
 //! T4-U5b:
 //! the integrated tie-rod producer.
 //!
-//! - Every refusal through the public entry, by name, with
-//!   `MODEL_INCOMPLETE` and no results, and precedence (a listed
+//! - Every §3.1 refusal through the public entry, by name, with
+//!   `MODEL_INCOMPLETE` and no results, and §1's precedence (a listed
 //!   connector refused by a hardware finding carries only that code).
 //! - K-D5 closure at product level: the rod models close with the member bound
 //!   on the ordinary and W2 routes in both solver modes, and each mutant of the
@@ -257,8 +257,8 @@ fn with_rod(base: &Value, change: impl Fn(&mut Value)) -> Value {
     request
 }
 
-/// named refusals, each alone on a listed pressurized connector (AS-F,
-/// so precedence holds: no JOINT_PRESSURE_INTERFACE_UNRESOLVED beside
+/// §3.1's named refusals, each alone on a listed pressurized connector (AS-F,
+/// so §1's precedence holds: no JOINT_PRESSURE_INTERFACE_UNRESOLVED beside
 /// the model finding), MODEL_INCOMPLETE and no results.
 #[test]
 fn u5b_every_field_refusal_is_named_on_the_connector_with_no_results() {

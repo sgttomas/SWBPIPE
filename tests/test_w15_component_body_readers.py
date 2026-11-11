@@ -31,7 +31,7 @@ def q(value, unit):
 
 
 def model(exact):
-    """pair A(0) - B(1 m) - C(3 m), the body B-C a valve's mapped member at s = 4, a 3 kN force at B."""
+    """§2.4's pair A(0) - B(1 m) - C(3 m), the body B-C a valve's mapped member at s = 4, a 3 kN force at B."""
     def pipe(pid, start, end):
         section = {"outside_diameter": q(0.12, "m"), "wall_thickness": q(0.01, "m")}
         if exact:

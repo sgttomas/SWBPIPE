@@ -421,7 +421,7 @@ fn h14_the_coupled_l_frame_matches_the_references_and_kills_its_mutants() {
     }
 }
 
-/// linear held twins: each reference model with its held support replaced by its held
+/// §7.9's linear held twins: each reference model with its held support replaced by its held
 /// linear boundary (Active or Sticking: a rigid restraint on its DOF; Sliding: its applied
 /// friction force; Inactive: nothing), the subtrahend's loads only, solved on the linear
 /// route. Its rows equal S_held's closed forms by the 1e-9 rule, as do the held-operand rows;
@@ -567,7 +567,7 @@ fn repeat_calls_are_identical_and_the_case_rows_are_untouched() {
     }
 }
 
-/// held gates, each withholding the combination by name with an empty record; the
+/// §7.5's held gates, each withholding the combination by name with an empty record; the
 /// solve of every other combination and case publishes.
 #[test]
 fn the_held_gates_withhold_by_name() {

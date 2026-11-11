@@ -52,9 +52,9 @@
 //! axes as Σ S_k·e_k and Σ J_ab·e_a·e_bᵀ. The 6×6 is
 //! [[m·I, −[S]×], [[S]×, J]].
 //!
-//! **Component body**. m = W/a, at offset r from the node: the 6×6
+//! **Component body** (§2.3). m = W/a, at offset r from the node: the 6×6
 //! [[m·I, −m[r]×], [m[r]×, m(|r|²I − rrᵀ)]], after the four-part binary64
-//! range premise. The rotational block is formed from the
+//! range premise of §2.3 item 6. The rotational block is formed from the
 //! mass-weighted products the premise admits, J_aa = (m·r_b)·r_b +
 //! (m·r_c)·r_c and J_ab = −(m·r_a)·r_b, never from |r|² or r_a·r_b alone,
 //! which can underflow or overflow while every m·r_a·r_b is in range. A
@@ -100,7 +100,7 @@ impl fmt::Display for GeometryError {
 
 impl Error for GeometryError {}
 
-/// The operand outside the premise.
+/// The operand outside the §2.3 item 6 premise.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ComponentRangeOperand {
     /// W is not a positive normal binary64 number.
@@ -519,7 +519,7 @@ fn zero_or_normal(value: f64) -> bool {
     value == 0.0 || value.is_normal()
 }
 
-/// The four-part premise, in binary64, in order.
+/// The four-part premise of design §2.3 item 6, in binary64, in order.
 pub fn component_range(body: &ComponentBody) -> Result<(), ComponentRangeOperand> {
     let (w, a) = (body.weight, body.acceleration);
     if !(w.is_normal() && w > 0.0) {

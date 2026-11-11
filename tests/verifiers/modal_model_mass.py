@@ -367,7 +367,7 @@ def _coefficient(entry, length: Iv) -> Iv:
 
 
 def _straight_blocks(xi, xj, mbar: Iv, ibar: Iv, jbar: Iv, geometry, floors: list):
-    """The 12×12 consistent mass in global axes, frame-free (a circular
+    """The 12×12 consistent mass of Design §2.2 in global axes, frame-free (a circular
     section's mass does not depend on the member's y/z orientation): transverse
     displacement d = (I − eeᵀ)u and slope s = θ × e = −[e]×θ (so that along +x the planes
     act on [u_y, θ_z] and [u_z, −θ_y]); Hermitian translation m̄L/420·H and Rayleigh
@@ -1182,7 +1182,7 @@ def _cog_entered(component) -> bool:
 
 
 def census(request: Any) -> Census:
-    """The subject rule, from the bound request's model alone and from
+    """The subject rule of Design §5.3.2, from the bound request's model alone and from
     its structure only (no quantity is enclosed, so no subject is ever dropped because
     a mass value is unresolved or outside the rounding model):
 
@@ -1368,7 +1368,7 @@ def _bind_nodes(model: ModelMass, view):
 
 
 def _state_rigid(behavior, state):
-    """True rigid, False free, None not admitted."""
+    """Design §1.3's table: True rigid, False free, None not admitted."""
     if behavior == "friction":
         return {"sticking": True, "sliding": False, "inactive": False}.get(state)
     return {"active": True, "inactive": False}.get(state)

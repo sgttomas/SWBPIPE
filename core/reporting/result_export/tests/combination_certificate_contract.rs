@@ -128,7 +128,7 @@ fn absence_is_inspection_only_with_no_certificate_claim() {
 /// The registered W-CB3 retained combination successors, recorded before the certificate
 /// and byte-untouched (the Python test pins their SHA-256), are accepted with and
 /// without their invocation; their standing is their own retained-precision receipt's,
-/// and they make no certificate claim.
+/// and they make no §4 certificate claim.
 #[test]
 fn legacy_w_cb3_successors_are_accepted() {
     for text in [
@@ -145,7 +145,7 @@ fn legacy_w_cb3_successors_are_accepted() {
     }
 }
 
-/// on the registered build the
+/// §8.53 D3 (a) (Work `combination-certificate.md` §2, "Retained successors (for D3)"): on the registered build the
 /// W1 freeze admits the member, so the live W-CB3 successors carry the ordinary run's certificate. The full retained
 /// reader accepts them with and without their invocation (G7's base read checks the member against the projected
 /// rows), the projected base reads true from an ordinary entry too (member, records, notices and roster), and the

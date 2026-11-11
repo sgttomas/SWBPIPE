@@ -58,7 +58,7 @@ const basis = {
   diagnostics: [],
 };
 
-// ---- Hand-built operations (the envelope).
+// ---- Hand-built operations (the §3.3 envelope).
 function op(rowKey, index, kind, objectType, ref, changeKind, fieldLabel, fieldPath, before, after, unit, dimension) {
   return {
     operation_id: `op:run-sheet:${rowKey}:${index}`,

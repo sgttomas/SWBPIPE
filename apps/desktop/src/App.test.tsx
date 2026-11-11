@@ -85,7 +85,7 @@ import type {
   SolveJobAuditState,
 } from "./types";
 
-// Slice B3: the status bar carries the chips. A chip's face is
+// Slice B3: the status bar carries the chips of specification §5.4. A chip's face is
 // "Domain · Label" from statusLabels.ts; the recorded token is its tooltip (and, on a
 // click, its popover). These helpers hold both, where a pill's body used to show the token.
 function expectStatusChip(testId: string, token: string, face: string) {

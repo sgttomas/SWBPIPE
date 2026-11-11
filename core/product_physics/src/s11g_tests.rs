@@ -1154,13 +1154,13 @@ fn probe_a(g: f64, order: [f64; 3]) -> Value {
 /// negated operand), so the load-row statistic is the 0.3 term's alone and
 /// S11-G adds nothing. Kills Sum|eps| (M6) and the a-priori bound (M4).
 ///
-/// K-D5: at G = 1e8 the
+/// K-D5 (DEL-04-01 kd5-member-relative-bound.md §§1, 3.1-3.3): at G = 1e8 the
 /// certified rows pass: CHECKS_PASSED. At G = 1e80 the intended net 0.3 N/m
 /// sits under a cancellation of about 3e80, beyond what p = 128 with the
-/// load enclosure radii (2^-120 level) and the evaluation radius
+/// load enclosure radii (2^-120 level, §1's table) and the evaluation radius
 /// can certify: every group has B far above 1e-9 q (B ~ 1e48 against q ~ 1),
 /// so the unified predicate demotes the case with its sentence. Its circular
-/// maximum is named unavailable and its signed rows stay published;
+/// maximum is named unavailable and its signed rows stay published (§3.2);
 /// before the summary fix this case was refused with
 /// ELEMENT_FORCE_RECOVERY_FAILED, which kills that regression.
 #[test]
@@ -1581,11 +1581,11 @@ fn element_pair(envelope: &MechanicsEnvelope, member: &str, location: &str) -> [
 /// "R-b' alone" test. F- and M-G1e80-GnG-INPLANE, typed, both modes.
 /// Precondition: no formed term (the load-row guard cannot fire), the
 /// ordinary report is Passed, and R-b''s retired binary64 statistic still
-/// fires on I4's ends. K-D5's repair
-/// publishes I4's rows as certified recoveries, exactly the
+/// fires on I4's ends. K-D5's repair (DEL-04-01 kd5-member-relative-bound.md
+/// §§3.1-3.4, 4.2) publishes I4's rows as certified recoveries, exactly the
 /// intended +/-1e-8 N*m, inside R1's exact intervals: the unified predicate
 /// passes them, so the case is CHECKS_PASSED with no S11-G sentence (one of
-/// Sensitive -> Passed moves). The protective intent is kept by the
+/// §4.2's Sensitive -> Passed moves). The protective intent is kept by the
 /// repaired values themselves (pinned bits and R1's intervals).
 #[test]
 fn t11_inplane_rows_are_demoted_by_rb_prime_alone() {

@@ -44,7 +44,7 @@ only its moved texts and digests back to the endpoint's reproduces the endpoint'
 bytes (`test_desktop_carriers_restate_back_to_the_endpoint_bytes`).
 
 The endpoint was the working tree: the stage's carriers as committed on its branch.
-Its D3 registration merges dynamics I3a
+Its D3 registration (§8.53) merges dynamics I3a
 (with operating-case slice 1b and RT-U4 order), whose producer and table changes move
 carriers again, and regenerates the retained carriers on the registered build. This
 proof keeps this stage's endpoint: 268c8289f, the reviewed certificate candidate.
@@ -64,7 +64,7 @@ from tests import test_rt_a3_constant_effort_text_only_envelope_diff as ce
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "78580da7e0334c35fd1fc7906057844de07e2e69"
-# This stage's endpoint, frozen when its D3 registration merged dynamics I3a
+# This stage's endpoint, frozen when its D3 registration (§8.53) merged dynamics I3a
 # (with PF1b and RT-U4 order) and regenerated the retained carriers on the registered build.
 END = "268c8289f00ec77abec80ae9cb18234a8b476c37"
 

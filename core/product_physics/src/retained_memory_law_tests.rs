@@ -1668,11 +1668,11 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     // Absolute node-proximity tolerance at f985fe297a (§8.18): +10,398 B, validate_model_settings'
     // blocking refusal (NP-MS, 10,392 B) and the near-duplicate message's new text (+3 B in each of the
     // two topology diagnostics' message windows), on the silent-zero guard's 269,518,418.
-    // Silent-zero guard on W-8: +7,194 B, the per-case LOAD_CASE_APPLIES_NO_ACTION warning,
+    // Silent-zero guard on W-8 (§8.15): +7,194 B, the per-case LOAD_CASE_APPLIES_NO_ACTION warning,
     // 3 × 2,398 B (SZ-ID), on W-8's 269,511,224.
     // W-8 topology warnings' source 34e96d6b17, C_eq = 3, maximum
-    // over the L/E routes (§8.16): +16,378 B from the pre-0.4 failure
-    // unification's 269,494,846 (64144ab20b), the three topology warnings in the envelope. That
+    // over the L/E routes (retained-pricing-rules.md §8.16): +16,378 B from the pre-0.4 failure
+    // unification's 269,494,846 (64144ab20b, §8.14), the three topology warnings in the envelope. That
     // was +429 B from the T4-U4b/U5b epoch's 269,494,417 (b4c9f35f8e; unchanged through O4's 7823a79f45
     // and R-A's 7d946b7e94), the three S3 finalization diagnostics whose error text may now be the S2
     // cause (PU-S2). T4-U6/U8's at 588de796a4: 262,735,773; B7b's at 7e63847: 264,366,429.
@@ -1685,7 +1685,7 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     // W-16 slice a at 6d4e0c1506 (§8.23): +3,762,176 B, route L(3,0)'s envelope (now the maximum over routes) gains the
     // node/element imposed_displacement refusal for each of its 384 primitive loads (W16-ID) and loses the 128 deleted
     // pre-parse refusals (its D_env 25,470 -> 25,726), on W-15's 270,642,448.
-    // Model document 0.8.0's shear-model member at 642e9737e4: +10,392 B, validate_model_settings'
+    // Model document 0.8.0's shear-model member at 642e9737e4 (§8.26): +10,392 B, validate_model_settings'
     // second blocking refusal (SM-MS: 2,048 + 8,192 + 152 B per validation call, as NP-MS's), on 274,404,624.
     // §8.36: the snubber token extends the unsupported-family text by 9 B at 32 supports (+288 B).
     // §8.44 on §8.45's lexer: -1,223,704 B, the static/report literal classes measured by the Rust lexer (§8.45);
@@ -2078,7 +2078,7 @@ fn profile_in_build_record() {
         println!("I65_G5_ATOM {:?}\t{}\t{}\t{}", ATOM_BINDINGS[i], ATOM_NAMES[i], ATOM_VALUES[i], ATOM_ASSUMED[i]);
     }
     assert!(SPARSE.is_some() && DENSE.is_some());
-    // Pre-0.4 failure unification D3 (PU-X3): X3, the republication's second ordinary
+    // Pre-0.4 failure unification D3 (§8.14, PU-X3): X3, the republication's second ordinary
     // span after a selected source could not finalize, is its own phase.
     assert_eq!(PHASE_NAMES.map(|n| n.split(' ').next().unwrap()), ["W1", "W2", "W3", "W4", "W5", "X1", "X2", "X3"]);
     // The pinned record G6 qualifies: each phase's requested
@@ -3083,7 +3083,7 @@ fn b7a_branch_l_keys_on_the_contracts_absence_not_the_version() {
 /// B3a's drop: exactly `{1.0.0, legacy_pressure_v1}` is on no D1.3 branch, so it refuses with
 /// `PressureContract`, alone and with C cases, in both modes, and no build grants it a permit.
 /// Every contract that does not match its schema's branch refuses with `PressureContract`; a
-/// schema in no branch with `SchemaVersion` (L and E; B7b: 0.3.0, the
+/// schema in no branch with `SchemaVersion` (B3-D §4.1's refusal map, L and E; B7b: 0.3.0, the
 /// historical `m3l` document, is retired, so the label is witnessed on 0.9.0). D1.3 refuses the
 /// label before D1.5's and D1.7's clauses are read.
 #[test]

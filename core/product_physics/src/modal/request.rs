@@ -15,7 +15,7 @@ use open_pipe_stress_units::Dimension;
 use serde::Deserialize;
 
 /// The modal analysis request: the static request's `{model, materials}`
-/// and the modal members.
+/// and the modal members of Design §1.4.
 #[derive(Debug, Clone)]
 pub(crate) struct ModalPreviewRequest {
     pub(crate) model: PreviewModel,
@@ -142,7 +142,7 @@ impl ModalPreviewRequest {
         })
     }
 
-    /// The request-level refusals, all of them, in a fixed
+    /// The request-level refusals of Design §1.4, all of them, in a fixed
     /// order; or the validated inputs.
     pub(crate) fn validate_modal_request(&self) -> Result<RequestInputs, Vec<Diagnostic>> {
         let mut found = Vec::new();

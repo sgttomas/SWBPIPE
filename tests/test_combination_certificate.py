@@ -721,7 +721,7 @@ def _corpus_case(case_id: str) -> dict:
 @pytest.mark.parametrize("label", ["fixture:sparse_interactive", "fixture:dense_scrutiny", "corpus:w_cb5_sparse_interactive",
                                    "corpus:w_cb5_dense_scrutiny", "corpus:w_cb2_sparse_interactive"])
 def test_a_registered_retained_successor_carries_the_certificate_and_it_reads_true(label):
-    """on the registered build the W1 freeze admits the
+    """§8.53 D3 (a) (DEL-05-02 Work §2, "Retained successors (for D3)"): on the registered build the W1 freeze admits the
     member, so the successor carries the ordinary run's certificate. The full retained reader accepts it with and
     without its invocation (G7's base read checks the member against the projected rows); the projected base reads
     true outside the retained context too (member, records and notices re-derived from the unchanged rows, and the

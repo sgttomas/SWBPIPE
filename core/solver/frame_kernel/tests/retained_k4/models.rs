@@ -109,7 +109,7 @@ pub(crate) struct Model {
     pub(crate) expect: BTreeMap<String, f64>,
     /// GEN's 128-bit exact expectations, by key.
     pub(crate) exact: BTreeMap<String, Exact>,
-    /// SEED hook: (global DOF, value) added to the final state.
+    /// R7 §7's SEED hook: (global DOF, value) added to the final state.
     pub(crate) seeds: Vec<(usize, f64)>,
 }
 
@@ -464,12 +464,12 @@ fn range_consistent(outcome: &Binary64Outcome, x: &Exact) -> bool {
     }
 }
 
-/// The honesty check (D1 revision 5a.3, ROOT's rulings at C and on
+/// The honesty check (D1 revision 5a.3, R7 §5.2; ROOT's rulings at C and on
 /// RV19's review): every published row against the claim it publishes, with
 /// GEN's exact expectation x (128 bits; δ its slack, `Exact::add_slack`):
 /// max(0, |q_pub − x| − δ) ≤ a, with a
 /// - `absolute_verified` with bound b: b·(1 + 2^-22), or b·(1 + 2^-21) when
-///   selected at 512 (b carries amendment A1's
+///   selected at 512 (R7 §5.2's "Scope of b"; b carries amendment A1's
 ///   publication rounding where 0 < S\* < 2^-988);
 /// - `relative_verified`: the stop rule's bound 2^-64·max(|q|, S\*), with S\*
 ///   the published body scale (a factor 1 + 2^-21 covers S\*_pub against
@@ -595,7 +595,7 @@ pub(crate) fn compare_honest(
     (worst.0, worst.1, compared)
 }
 
-/// G5a, items 1–6, in binary64 as D2 pins them, on a selected
+/// R7 §6.3's G5a, items 1–6, in binary64 as D2 pins them, on a selected
 /// case's evidence and publication (a test-only checker; D2 owns G5a). The
 /// rows are in SI units, so item 4's conversion is the identity.
 pub(crate) fn g5a(solve: &RetainedSolve) -> Result<(), String> {

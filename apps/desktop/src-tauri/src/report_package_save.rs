@@ -504,7 +504,7 @@ pub fn validate_report_package_save_evidence(
     Ok(())
 }
 
-/// The size caps, before anything is parsed or priced.
+/// The size caps of §2.6 item 3, before anything is parsed or priced.
 pub fn check_text_sizes(request_text: &str, model_text: &str, input_manifest_text: &str) -> Result<(), ReportPackageSaveCommandError> {
     for (what, text, cap) in [
         ("request", request_text, MAX_REQUEST_TEXT_BYTES),
@@ -718,7 +718,7 @@ fn text_at<'a>(value: &'a Value, pointer: &str) -> Option<&'a str> {
     value.pointer(pointer).and_then(Value::as_str)
 }
 
-/// The disposition screens over both parsed values, each
+/// The disposition screens of §2.6 item 4 over both parsed values, each
 /// finding named by its JSON pointer under `/request` or `/model`:
 /// - the structural screen (W-6b's, [`screen_value`] and [`malformed_values`],
 ///   with no exemption: model documents carry rule-pack references only,
@@ -1094,8 +1094,8 @@ fn bind_exact_save_source(
     Ok((job, digests))
 }
 
-/// The admission, before any file is chosen, with no
-/// custody: every exact-route request refuses at its custody binding.
+/// The admission of §2.6 items 2-6, before any file is chosen, with no
+/// custody: every exact-route request refuses at its custody binding (§3.6).
 #[cfg_attr(not(test), allow(dead_code))]
 pub fn admit_report_package(
     request: ReportPackageSaveRequest,
@@ -1105,7 +1105,7 @@ pub fn admit_report_package(
     admit_report_package_in(request, software, lookup, &no_custody)
 }
 
-/// The admission with the registry's custody lookup, before
+/// The admission of §2.6 items 2-6 with the registry's custody lookup, before
 /// any file is chosen, with no session: a route-010 request refuses at its
 /// solve attestation (`REPORT-USER-RELEASE-RESULT-NOT-ATTESTED`), since only
 /// the command's session ([`UserReleaseSession`]) holds attested solves.

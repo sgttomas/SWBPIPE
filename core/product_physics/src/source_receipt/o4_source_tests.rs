@@ -397,7 +397,7 @@ fn o4_source_maximum_per_basis() {
     }
 }
 
-/// the private payload names a
+/// O4 §3.1, §3.2 and §5 (the test-only dump): the private payload names a
 /// Timoshenko frame's shear-area leaf (`formation_inputs.shear_area_bits`,
 /// the evidence's A_s bit for bit) and only there, and a member's
 /// `reduced_recovery_section` (A_r, Z_r, J_r, r_o) exactly where its stress

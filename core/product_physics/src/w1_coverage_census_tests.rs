@@ -435,7 +435,7 @@ c2b_targets! {
     w1_coverage_census_c2b_controls: "controls";
 }
 
-/// switched-path control: under (b) the annular lane takes the
+/// §3.2's switched-path control (revision 8): under (b) the annular lane takes the
 /// admitted hull, so its loaded maximum must be driven as the admitted lane's is.
 /// On the stage-2 D = 0.2 m control both lanes' searches are driven and converge.
 #[test]

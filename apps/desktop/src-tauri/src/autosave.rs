@@ -567,7 +567,7 @@ impl AutosaveWriteOutcome {
     }
 }
 
-/// A record read for recovery, after every check.
+/// A record read for recovery, after every check of §5.
 #[derive(Debug, Clone, Serialize, PartialEq)]
 pub(crate) struct VerifiedAutosave {
     pub(crate) file_name: String,

@@ -356,7 +356,7 @@ impl PpRouteElbow {
     }
 
     /// max over the free rows of |u − u_int| / (1e-9·max(|u_int|, S*_kind)),
-    /// S* (one body; L_b the chord's extent).
+    /// S* per D1 §4.1.6.1 items 4–6 (one body; L_b the chord's extent).
     fn actual_ratio(&self, envelope: &MechanicsEnvelope) -> f64 {
         let names = ["ux", "uy", "uz", "rx", "ry", "rz"];
         let published = |dof: usize| {

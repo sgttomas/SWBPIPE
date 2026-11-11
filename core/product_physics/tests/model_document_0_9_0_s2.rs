@@ -206,7 +206,7 @@ fn set_mut<'a>(d: &'a mut Value, id: &str) -> &'a mut Value {
     d["condition_sets"].as_array_mut().unwrap().iter_mut().find(|s| s["id"] == id).unwrap()
 }
 
-/// E6: every case-level code at the solve and the pre-formation path,
+/// E6: every case-level code of §1.3 at the solve and the pre-formation path,
 /// naming the case, pipe, set, key and quantity.
 #[test]
 fn e6_every_case_level_code_refuses_by_name() {

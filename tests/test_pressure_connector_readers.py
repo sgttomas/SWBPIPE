@@ -282,7 +282,7 @@ def test_broken_tie_rod_bindings_are_refused_by_name(label, envelope, what, muta
 
 
 def test_s_x_binding_sums_rods_exactly_with_its_coefficient_and_reserve():
-    """s_x rule (Rust `u5b_effective_axial_tests`): exact rational accumulation, (64 + n_r)eps, (n_r + 2) least
+    """§5.1's s_x rule (Rust `u5b_effective_axial_tests`): exact rational accumulation, (64 + n_r)eps, (n_r + 2) least
     subnormals; cancellation, subnormal edges and a 1,024-rod control."""
     import math
     from tests.verifiers.pressure_2 import _effective_axial_binding

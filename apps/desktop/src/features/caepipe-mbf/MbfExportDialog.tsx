@@ -388,7 +388,7 @@ function EntryItem({ entry }: { entry: MbfReviewEntry }) {
   );
 }
 
-/** The review: the profile by its product label, whether the review is complete and within the output
+/** The review of §3.3: the profile by its product label, whether the review is complete and within the output
  * ceiling, each listed entry by its code, entity and product-side description with the count of those not shown, and
  * each unit conversion by its exact factor. The writer's own messages and assumptions are not shown. */
 function ReviewSections({ review, permitted }: { review: MbfReview; permitted: boolean }) {

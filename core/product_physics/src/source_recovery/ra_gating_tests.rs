@@ -113,7 +113,7 @@ pub(crate) fn ra_work(input: &Input<'_>) -> Result<RaWork, String> {
     Ok(RaWork { hints: source.descriptors.len() as i64, plan: (c1 - c0) - (c2 - c1), evaluation: (c3 - c2) - (c4 - c3) })
 }
 
-/// gating test over the J7 RF census and the J2 corpus's genuine source
+/// §3.2's gating test over the J7 RF census and the J2 corpus's genuine source
 /// invocations (the 24 raw source controls and the RF bases), in both modes. 86 of these
 /// evaluations reach a plan at this revision; the load/reference-state controls do not, since
 /// J7's direct method builds no load state, and are covered by their committed bytes.

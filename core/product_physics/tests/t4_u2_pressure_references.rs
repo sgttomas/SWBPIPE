@@ -594,7 +594,7 @@ fn i8_rows_match_on_the_v3_straight_route() {
     assert!(checked > 0 && milltol > 0);
 }
 
-/// MILLTOL, re-authored with
+/// Design §7 and §8 ("Cap area on the nominal bore"): MILLTOL, re-authored with
 /// the nominal wall 0.01 m, mill tolerance 0.00125 m and allowance 0.002 m and
 /// re-frozen on D-5. Every frozen row matches in both forms, both modes and
 /// under the shear-model patch, and no published value is any of the case's

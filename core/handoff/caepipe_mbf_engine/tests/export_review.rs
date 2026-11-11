@@ -213,7 +213,7 @@ fn a_refusal_that_names_nothing_is_a_global_refusal() {
     assert_eq!(parsed(&review).get_or_null("refused_unexplained").as_bool(), Some(true));
 }
 
-/// classification: unsupported entries, then unpaired errors, then omitted entries, then warnings without an
+/// §3.3's classification: unsupported entries, then unpaired errors, then omitted entries, then warnings without an
 /// omitted entry of their own; info diagnostics are not carried.
 #[test]
 fn entries_follow_the_classification_and_a_diagnostic_travels_with_its_loss_entry() {

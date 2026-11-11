@@ -241,7 +241,7 @@ fn claimed_hex(claimed: &str) -> Option<&str> {
         .filter(|hex| hex.len() == 64 && hex.bytes().all(|byte| matches!(byte, b'0'..=b'9' | b'a'..=b'f')))
 }
 
-/// The admission over the webview's canonical text, before any file is
+/// The admission of §2 over the webview's canonical text, before any file is
 /// chosen, with no reservation before the screening (tests).
 #[cfg(test)]
 pub fn admit_model_document_text<V: std::borrow::Borrow<Value>>(

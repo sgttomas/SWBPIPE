@@ -1245,7 +1245,7 @@ fn transform_matches_the_dense_congruence_bit_for_bit() {
         }
     }
     assert_eq!(max_terms, 4, "S-K1: at most 2 entries per Q column, ≤ 4 (≤ 9) terms");
-    // A node block missing from the pattern is refused.
+    // A node block missing from the pattern (§2.2 item 6) is refused.
     let diag: Vec<Vec<f64>> = (0..n).map(|i| (0..n).map(|j| if i == j { 1.0 } else { 0.0 }).collect()).collect();
     assert_eq!(
         basis.transform_stiffness(&SparseStiffness::from_dense(&diag).unwrap()).unwrap_err(),
@@ -1499,7 +1499,7 @@ fn certified_inputs(tip: [f64; 3], load: [f64; 3]) -> (crate::structural::Format
 }
 
 /// The certified displacement as K-D5 hands it over: the coordinate solution v
-/// with an empty correction and a valid remainder, lifted
+/// with an empty correction and a valid remainder, lifted by §10.4
 /// (`lift_member_bound`: u_p = fl(Qv) and the lift radius enclosing the exact
 /// lift). The kernel nodes are well conditioned (K = diag(tip) + blocks, tip
 /// entries 1 or 4), so |v* − v| ≤ 2^-40 per free coordinate is a generous valid

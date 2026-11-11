@@ -1,6 +1,6 @@
 //! The binary64 sparse gate's parity checks on RF-MECH and RF-LARGE (brief
-//! Scope 3; ROOT's C4 ruling: at up
-//! to 100 members).
+//! Scope 3; T3 D1 §4.8's parity protocol items 1–3; ROOT's C4 ruling: at up
+//! to 100 members; plan §5.3).
 //!
 //! The same adapted model is formed through FK's binary64 path (FK's
 //! `FrameElement`, global-axis springs, rigid DOFs, loads) in both modes, with

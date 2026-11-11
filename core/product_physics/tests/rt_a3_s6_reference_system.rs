@@ -6,7 +6,7 @@
 //! currently admits overlaid in this test only.
 //!
 //! **Input.** The maintained fixture `fixtures/reference_system/reference_system.json`
-//! (read only). Overlaid here: RS-R1 (the
+//! (read only). Overlaid here, as spec §5 and §6 enter them: RS-R1 (the
 //! eccentric reducer, RT-A3 2b), RS-CE1 (constant effort, increment 3), RS-LO1
 //! (lift-off), RS-FR1 (friction, mu 0.30) and RS-G1 (gap, 5 mm), each with an
 //! `active_model_device` support state in every case. RS-FR1's normal comes from
@@ -110,7 +110,7 @@ fn cross(a: [f64; 3], b: [f64; 3]) -> [f64; 3] {
     [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]
 }
 
-/// RS-R1 (the 2b test's record, kind `reducer`).
+/// RS-R1 as spec §5 enters it (the 2b test's record, kind `reducer`).
 fn r1() -> Value {
     json!({"id": R1, "label": "Reducer R1", "kind": "reducer", "node": R1_NODE,
         "geometry": {"rigid_pipe_ref": BODY, "rigid_body_length": q(0.160625f64.sqrt(), "m"),

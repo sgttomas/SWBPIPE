@@ -11,7 +11,7 @@ be re-formed here, so arc documents with an allowance are the producer's own: th
 carries 0.0005 m on every pipe. No fixture is written. The Rust reader's twins of these mutations
 are `core/reporting/result_export/tests/section_bases.rs`.
 
-The arc-marker tests (`member_kind = "realized_arc"` on an arc's case section) build their documents in memory
+The arc-marker tests (§2.5's `member_kind = "realized_arc"` on an arc's case section) build their documents in memory
 in the current D-5 shape and read no committed fixture; their Rust twins are
 `core/reporting/result_export/src/arc_marker_tests.rs`.
 """

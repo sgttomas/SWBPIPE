@@ -221,7 +221,7 @@ impl<'a> Diagnostics<'a> {
         self.by_id.get(id).map(Vec::as_slice).unwrap_or(&[])
     }
 
-    /// integrity diagnostic: exactly one diagnostic with the case's id,
+    /// §2.6's integrity diagnostic: exactly one diagnostic with the case's id,
     /// and its `affected_refs` exactly `[case]`.
     fn integrity(&self, case_id: &str) -> Option<&'a Value> {
         let [d] = self.with_id(&format!("{INTEGRITY_ID_PREFIX}{case_id}")) else {
@@ -832,7 +832,7 @@ fn counted_list<'t>(text: &'t str, tail: &str) -> Option<(usize, &'t str)> {
     Some((count, text[digits..].strip_prefix(tail)?))
 }
 
-/// result-level flag: a presentation projection, never admission.
+/// §2.6's result-level flag: a presentation projection, never admission.
 fn verdict_only(
     route: &str,
     source: &Value,
@@ -861,7 +861,7 @@ fn is_verdict_pair(findings: &Value) -> bool {
     codes == [EVIDENCE_INCOMPLETE, NOT_QUALIFIED]
 }
 
-/// evidence clauses over `numerical_quality` and the diagnostics.
+/// §2.6's evidence clauses over `numerical_quality` and the diagnostics.
 fn quality_consistent(source: &Value, index: &Diagnostics) -> bool {
     const ORDER: [&str; 5] = [
         "checks_passed",

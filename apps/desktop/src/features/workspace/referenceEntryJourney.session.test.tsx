@@ -716,7 +716,7 @@ describe("the reference system entered from blank through the desktop's authorin
     // Undo/Redo, combination family: RS-dSAM.
     await undoRedo("combination: RS-dSAM (§3.12)", beforeCombination);
 
-    // The comparison, by record keyed by id, with the differences allowed by member path.
+    // The comparison, by record keyed by id, with the §3.14 differences allowed by member path.
     expect(BLOCKED).toEqual([]);
     expect(ALLOWED_DIFFERENCES).toHaveLength(15);
     expect(DOCUMENT_DIFFERENCES_NOT_IN_3_14).toEqual(["analysis_status", "data_boundary", "diagnostics"]);

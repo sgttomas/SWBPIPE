@@ -1,4 +1,4 @@
-//! The admission range: the modal
+//! The admission range of design §3.2 item 5 ("Admission range"): the modal
 //! kernel admits a pencil only when every nonzero entry of the formed K and
 //! M (and of the re-formed K̂ and M̂) has magnitude in [2⁻³⁰⁰, 2³⁰⁰], and
 //! refuses any other by name (`MODAL_PENCIL_RANGE_UNSUPPORTED`). Physical

@@ -1,7 +1,7 @@
-// W-17 slice (c): the PCF and local
+// W-17 slice (c), DEL-02-02 Design `project-unit-selection.md` §7.4: the PCF and local
 // FEA exports refuse by name when a project unit they write is missing (absent, empty or
 // whitespace-only). Nothing is assumed: no download, no substitute symbol. For a missing
-// length key the project-unit refusal takes precedence over
+// length key the project-unit refusal takes precedence over §7.5's
 // `*-LENGTH-UNIT-UNSUPPORTED (missing)`. With every key present nothing changes. The .mbf
 // export's TypeScript builder and its MBF-PROJECT-UNIT-MISSING are retired (DEL-17-04 A-6,
 // slice 4b.2b): the native writer refuses units by name itself (MBF-SI-PROJECT-UNIT-UNSUPPORTED).

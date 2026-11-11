@@ -67,7 +67,7 @@ use std::path::{Path, PathBuf};
 use tauri::AppHandle;
 
 /// Store v13: the run and run-label tables, the per-state index and the
-/// immutability triggers. Every statement is
+/// immutability triggers, as design §3 gives them. Every statement is
 /// `IF NOT EXISTS`, so the step is safe to re-run. Since store v14 each step
 /// runs in one transaction with its `user_version` update (`apply_store_migrations`).
 /// `analysis_runs_immutable` refuses any `UPDATE`; `analysis_runs_no_replace`

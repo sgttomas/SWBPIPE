@@ -180,7 +180,7 @@ fn s4_w1l_not_covered_recipes_are_position_bound_class_none_verdicts() {
     }
 }
 
-/// divergence control: the owned ordinary envelope's resultants, stresses and derived rows
+/// §4.1's divergence control: the owned ordinary envelope's resultants, stresses and derived rows
 /// are deliberately changed before the freeze. The successor is byte-identical to the
 /// unperturbed one (every value is the retained owner's), its derived rows follow its own
 /// retained resultants, and they differ from the formula applied to the perturbed ordinary rows.

@@ -175,7 +175,7 @@ fn w15_eligible_member_is_formed_with_the_scaled_moduli() {
     }
 }
 
-/// indeterminate pair (equal E*A, body twice the pipe's length, a
+/// §2.4's indeterminate pair (equal E*A, body twice the pipe's length, a
 /// load at the joint, both far ends anchored): at s = 1 the pipe carries
 /// 2F/3; at s = 4 the body does. s = 1 is plain pipe, bit for bit.
 #[test]

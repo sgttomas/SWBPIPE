@@ -341,7 +341,7 @@ fn s_k1_refusals_are_named() {
     nonlinear["model"]["supports"].as_array_mut().unwrap().push(json!({"id": "gap_B", "node": "B", "family": "nonlinear", "restraints": [], "provenance": PROV,
         "nonlinear": {"behavior": "gap", "dof": "UZ", "initial_state": "inactive", "closes_when": "positive_displacement", "gap": qv(1000.0, "mm")}}));
     refused(&nonlinear, "SUPPORT_DIRECTION_SKEW_NONLINEAR_MODEL_UNSUPPORTED", "nonlinear");
-    // Item 4: range rule.
+    // Item 4: §4.2's range rule.
     refused(&document(&[stop("stop_B", [1.0, f64::from_bits(1u64 << 51), 0.0])], ly), "SUPPORT_DIRECTION_RANGE_UNSUPPORTED", "range");
     // Item 6: a skewed record on a node with no element.
     let mut lone = document(&[stop("stop_B", [3.0, 4.0, 0.0])], ly);

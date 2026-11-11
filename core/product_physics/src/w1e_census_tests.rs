@@ -6,7 +6,7 @@
 //! any-value and single-readout columns of §3.2), and, for an input with a failing
 //! row, the lane counterfactuals (b) and (c) re-run whole.
 //!
-//! Each judged row also carries the premise check: whether the published
+//! Each judged row also carries the premise check of §2.2: whether the published
 //! value is the method's projection of the readouts' tight midpoint, formed here from
 //! the frozen references (double-double, as M3-O4 reads them; a midpoint within
 //! 1e-6 of a unit of its rounding boundary is "undecided").
@@ -41,7 +41,7 @@ fn project(m: Dd, unit: &str) -> (f64, bool) {
         _ => rn(m),
     }
 }
-/// The premise for every gate row of the case: "same_cell", "other_cell",
+/// The premise of §2.2 for every gate row of the case: "same_cell", "other_cell",
 /// "undecided" or "unmapped", from the ordinary envelope's row identities.
 fn premises(records: &[Value], ordinary: &Value, reference_case: &Value) -> serde_json::Map<String, Value> {
     let rows: BTreeMap<&str, &Value> = ordinary["results"].as_array().map(|a| a.iter().filter_map(|r| Some((r["id"].as_str()?, r))).collect()).unwrap_or_default();

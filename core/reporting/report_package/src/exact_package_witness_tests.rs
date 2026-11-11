@@ -37,7 +37,7 @@ use serde_json::{json, Value};
 
 const ROUTE_NOT_ADMITTED: &str = "REPORT-PACKAGE-ROUTE-NOT-ADMITTED";
 
-/// The five witness shapes.
+/// The five witness shapes of §5.5.
 const WITNESSES: [(&str, &str); 5] = [
     ("pressure_2_straight", include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_straight.json")),
     (

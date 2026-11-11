@@ -1,4 +1,4 @@
-"""the retained carriers regenerated on the registered build.
+"""RT-A3 §4 D3 (DEL-04-08 `retained-pricing-rules.md` §8.53): the retained carriers regenerated on the registered build.
 
 On the registered build the W1 freeze admits the certificate's member (retained_product.rs preview_case_evidence), so
 every retained successor with a combination carries the ordinary run's `contract_evidence.combination_certificate`

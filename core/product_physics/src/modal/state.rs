@@ -22,7 +22,7 @@
 //! for now** (a stated limitation). No diagnostic message is read: admission
 //! reads the typed evidence and diagnostic codes and severities only.
 //!
-//! **Linearization.** Exactly one final state per built
+//! **Linearization (§1.3's table).** Exactly one final state per built
 //! nonlinear support, by support id (a missing, duplicate or unexpected id
 //! refuses), and only the table's behaviour and state pairs: one-way,
 //! lift-off and gap are active (rigid) or inactive (free); friction is
@@ -231,7 +231,7 @@ fn behavior_name(behavior: NonlinearSupportBehavior) -> &'static str {
     }
 }
 
-/// `Some(true)` rigid, `Some(false)` free, `None` not admitted.
+/// §1.3's table: `Some(true)` rigid, `Some(false)` free, `None` not admitted.
 fn state_is_rigid(behavior: NonlinearSupportBehavior, state: ActiveSetState) -> Option<bool> {
     match (behavior, state) {
         (NonlinearSupportBehavior::Friction, ActiveSetState::Sticking) => Some(true),

@@ -339,7 +339,7 @@ pub(crate) const SUPPORT_ALONG_DIRECTION_KIND: &str = "support_reaction_along_di
 
 /// Whether a row kind's id already names its load case, so that a later case's row is
 /// published under it unqualified and is combined by its support group, never by base id:
-/// the `_v2` kinds and along-direction kind, whose agreed id
+/// the `_v2` kinds and §7.1's along-direction kind, whose agreed id
 /// (`result:support-along-direction-v1:` + the exact source identity of case and record)
 /// names the case although the kind ends in `_v1`. Before this predicate the along row
 /// of a second case was qualified (`result:loadcase:…`), and no combination over two

@@ -323,7 +323,7 @@ fn a_changed_tolerance_changes_which_nodes_warn_through_the_solve() {
 }
 
 // ---- model document 0.8.0: model_settings.shear_model --------------------------
-// (Agent 0's decision.)
+// (DEL-02-01 Design `model-document-0.8.0.md` §1, §4; Agent 0's decision under MD8 §11.)
 
 const SHEAR: &str = "model_settings.shear_model";
 

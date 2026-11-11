@@ -460,7 +460,7 @@ fn timoshenko_twin(source: &PrimitiveSource, shear_ratio: f64) -> TimoshenkoLeaf
     TimoshenkoLeafSet::new(source, leaves).unwrap()
 }
 
-/// the D̄-inflated path through E, the
+/// §4.4 item 7 and §4.2's note on D̄: the D̄-inflated path through E, the
 /// p = 512 Φ floor, body scales, classes and absolute bounds, exercised on a
 /// whole retained solve. SKEW-K1E-60 selects at 512. Its Timoshenko twin with
 /// a very stiff shear leaf (φ ≈ 0) solves the Euler–Bernoulli state to many

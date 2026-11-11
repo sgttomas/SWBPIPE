@@ -73,8 +73,8 @@ use b1_sq_inputs as inputs;
 const W1_PHASE_BYTES: [u64; 2] = [6_450_393_241, 6_509_524_585];
 /// The profile's in-build maximum over every phase (E_mov,max, without R; W3 in both modes),
 /// the bound once a run has done W1 work (a registered build, G6). W-8 topology warnings D3 at
-/// 34e96d6b17 (§8.16): +219,136 B in both modes from the pre-0.4
-/// unification's 8,441,982,408 and 8,501,113,752 (+6,278,945 B from R-A's 8,435,703,463 and
+/// 34e96d6b17 (retained-pricing-rules.md §8.16): +219,136 B in both modes from the pre-0.4
+/// unification's 8,441,982,408 and 8,501,113,752 (§8.14: +6,278,945 B from R-A's 8,435,703,463 and
 /// 8,494,834,807).
 // Silent-zero guard on W-8 (§8.15): +126,856 B in both modes from W-8's 8,442,201,544 and 8,501,332,888.
 // Absolute node-proximity tolerance (§8.18): +119,112 B in both modes from 8,442,328,400 and 8,501,459,744.

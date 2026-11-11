@@ -200,7 +200,8 @@ fn assert_each_evaluated(evaluated: &BTreeMap<String, usize>, ids: &[&str]) {
     }
 }
 
-/// with c_m, c_a > 0 the stiffness section is the nominal wall.
+/// Design §8 ("Mill tolerance leaking into stiffness", "Allowance leaking into
+/// stiffness"): with c_m, c_a > 0 the stiffness section is the nominal wall.
 /// Every frozen displacement and rotation row of t4_u6 (both shear models,
 /// both document forms) and of MILLTOL matches, and none is the value of a
 /// stiffness section on t − c_m, t − c_a or t_r.
@@ -226,7 +227,7 @@ fn u6_bases_stiffness_uses_the_nominal_wall() {
     assert_each_evaluated(&milltol, &IDS);
 }
 
-/// the As in
+/// Design §8 ("ε_p area on the reduced section"): the As in
 /// ε_p = (1−2ν)pAi/(E·As) is the stiffness As, so under collinear straight
 /// restraint the wall and effective forces, the wall end actions and the
 /// reactions are those of t4_u6's restrained case (Nw = 2νP, and
@@ -258,7 +259,9 @@ fn u6_bases_restrained_wall_force_uses_the_stiffness_area() {
     assert_each_evaluated(&milltol, &IDS);
 }
 
-/// every frozen stress row on each section basis
+/// Design §2.1 and §8 ("One basis for both families", "Allowance omitted from
+/// the reduced wall or the pressure bore", "Nominal-basis Lamé evaluated at
+/// the pressure bore"): every frozen stress row on each section basis
 /// matches, nominal Lamé at r_i,n and the reduced section and pressure bore
 /// with the allowance, and no row is a wrong mapping's. On the coincident
 /// case (c_m = c_a = 0) both families are published with one value (H4).
@@ -319,7 +322,8 @@ fn u6_bases_stress_rows_on_both_sections() {
     assert_each_evaluated(&milltol, &MILLTOL_IDS);
 }
 
-/// the generated
+/// Design §1 and §8 ("Contents on the nominal bore; metal mass on the reduced
+/// wall", "Allowance omitted from … the pressure bore"): the generated
 /// self-weight of t4_u6's frozen self-weight requests (metal 7850 kg/m³ on the
 /// nominal wall, contents 1000 kg/m³ on the pressure bore) gives the frozen
 /// reactions, displacements, actions and stresses of `case:self-weight` and

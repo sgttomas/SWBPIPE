@@ -356,7 +356,7 @@ DERIVED_KINDS = (u4b.EXTREME, u4b.SHEAR_MAX)
 
 def _exact_tau(source, rows, row):
     """τ on the exact re-statement: |V| c_b / 1e6, V from the row's case, member and station shear rows, c_b from the
-    evidence's ν and the member's basis annulus (fixed sequence)."""
+    evidence's ν and the member's basis annulus (§2.4's fixed sequence)."""
     case, pipe, location = row["basis_ref"]["ref_id"], row["entity_ref"], row["metadata"]["location"]
     shear = lambda kind: next(r["value"] for r in rows if r["basis_ref"]["ref_id"] == case and r["entity_ref"] == pipe and r["kind"] == kind
                               and r["metadata"]["location"] == location)
@@ -936,7 +936,7 @@ def test_b3b_producer_m3x_successor_pins(mode):
                                         ("26 shear_origin.poisson_ratio bits changed", False), ("x26 G_hat one ulp high, every copy consistent", False),
                                         ("28 S-C only: an entry's pipe_materials nu one ulp", True), ("x12 authored constitutive_basis changed", True)])
 def test_b3b_g8_material_binding_precedes_s_c(label, s_c):
-    """G8 order on the exact branch: step 4 (the receipt's E, G_hat and nu against the authored
+    """REVISION_01 §4.2's G8 order on the exact branch: step 4 (the receipt's E, G_hat and nu against the authored
     material) before step 5 (S-C), whose own code is the detail of G8's PREPARATION_MISMATCH (B3D-13)."""
     source, invocation = exact_shape("sparse_interactive", label)
     with pytest.raises(rp.RetainedPrecisionError) as error:
@@ -1191,7 +1191,7 @@ def test_addendum01_sourced_case_on_the_preview_route(mode, key, value, expected
 # Repair 01 (RV120, RV-R2): the preserved mutations use current bases and DEF-E.
 # input_sha256 pins Python sorted-compact [source, invocation]; the full constructed values also bind to native R1's JCS inputs.
 # - F1: on the exact route G5b runs the shared checks over every selected case first, then each case's exact
-#   evidence, as RS and TS do. With a fault in case 0's evidence and one in case 1's shared
+#   evidence (DESIGN §6.2's G5b row), as RS and TS do. With a fault in case 0's evidence and one in case 1's shared
 #   checks, the shared one is read.
 # - F2: E or G-hat moved by one ulp in all five receipt copies, with the derived stiffness (and for G-hat the evidence
 #   G_pa) moved with it and the native hashes resealed. G8 step 4's bits are what anchor the receipt to the authored

@@ -17,7 +17,7 @@ use serde_json::{json, Value};
 
 const PROV: &str = "invented_s3a_condition_set_test_input";
 
-/// The eight staged findings, by code.
+/// The eight staged findings of §11, by code.
 const STAGED: [&str; 8] = [
     "OPERATING_CONDITION_SET_MISSING",
     "OPERATING_CONDITION_KEY_MISSING",
@@ -289,7 +289,7 @@ fn create_update_and_delete_with_their_inverses() {
     }
 }
 
-/// The record refusals, and the validator's document-level codes
+/// The record refusals of §11's table, and the validator's document-level codes
 /// on the candidate with the solve's own messages.
 #[test]
 fn record_operations_refuse_by_name() {

@@ -500,7 +500,7 @@ pub struct NodeBasis {
 }
 
 impl NodeBasis {
-    /// exact rank: |A| + [d̃_F ≠ 0] (always 1 for d̃_F here).
+    /// §5.1's exact rank: |A| + [d̃_F ≠ 0] (always 1 for d̃_F here).
     pub fn rank(&self) -> usize {
         self.free_axes.iter().filter(|&&f| !f).count() + 1
     }
@@ -950,7 +950,7 @@ impl RestraintBasis {
         Ok((out, ends))
     }
 
-    /// per-entry allowances on K′'s pattern, from the physical ones
+    /// §10.3's per-entry allowances on K′'s pattern, from the physical ones
     /// on K's (same pattern): untouched entries keep theirs; a touched entry
     /// (r, c) gets Σ|q_ir|·ar_ij·|q_jc| + ½ulp(K′_rc), upward, and the sum of
     /// its terms' operation counts plus one.
@@ -1387,7 +1387,7 @@ impl RestraintBasis {
         self.attribute_traced(node, r).map(|(a, _)| a)
     }
 
-    /// `attribute` with its intermediates.
+    /// `attribute` with its §7.2 intermediates.
     pub fn attribute_traced(&self, node: usize, r: [f64; 3]) -> Result<(NodeAttribution, AttributionTrace), BasisError> {
         let basis = *self.node_basis(node).ok_or(BasisError::Shape("no stop at node"))?;
         if r.iter().any(|x| !x.is_finite()) {

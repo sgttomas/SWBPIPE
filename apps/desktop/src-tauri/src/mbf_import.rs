@@ -340,7 +340,7 @@ impl Default for ImportState {
     }
 }
 
-/// The MBF import's managed state (`MbfImportState`): its retirement epoch and tokens, its one run in
+/// The MBF import's managed state (`MbfImportState` in §4.8.2): its retirement epoch and tokens, its one run in
 /// progress and its one source. Separate from the export's `MbfRuns`.
 #[derive(Clone, Debug, Default)]
 pub(crate) struct MbfImports {
