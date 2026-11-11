@@ -3,10 +3,8 @@
 These invented references cover a collinear concentric reducer represented by
 one mapped body member in its own pressure region, joined to adjacent regions
 at implicit wall-transferring junctions. Governing source is `2656dcb33328`:
-DEL-04-07 `Work/route-unification-r4.md` §00 C-3/C-4 and §3.1;
-`Work/pressure-contract.md`, “Tees and pressure junctions”; DEL-03-05
-`Work/rigid-component-stiffness-scaling.md` §§2.1/2.4/2.7; and DEL-05-03
-`Work/section-bases-and-timoshenko.md` §§1/2.1.
+DEL-04-07 (C-3/C-4; “Tees and pressure junctions”); DEL-03-05; and
+DEL-05-03.
 
 Status: frozen analytical candidate. Product agreement and independent scrutiny
 are separate checks. Self-consistency does not establish product conformance,

@@ -9,12 +9,12 @@ checks; no acceptance or release is asserted.
 Independence. Standard library only (fractions, decimal, json, math.isqrt).
 It imports, reads and runs no product code or product output. Governing text
 was read only to fix the declared model:
-  - R-4 (execution/PKG-04/DEL-04-07/Work/route-unification-r4.md) §3.2 (S2:
-    CE-1, CE-2), §2.1 (caps, Poisson pair, wall force), §4 (the constant force
-    cancels in O-S when both cases carry it; held/locked H-3 excluded here),
-    §6.3 D-2 (as decided by Agent 0: the constant force is a device action of
+  - R-4 (DEL-04-07) S2:
+    CE-1, CE-2; caps, Poisson pair, wall force; the constant force
+    cancels in O-S when both cases carry it (held/locked H-3 excluded here);
+    D-2 (as decided by Agent 0: the constant force is a device action of
     the active support in every state of a load-state document);
-  - pressure-contract.md "Constant-effort combinations: the unit factor-sum
+  - DEL-04-07 "Constant-effort combinations: the unit factor-sum
     rule" (exact dyadic sum of binary64 factors, |sum f - 1| <= 2^-46, else
     CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE) and "Tees and pressure
     junctions" (D-1 caps -p*A_i*s at transfers_to_wall terminals);
@@ -24,9 +24,9 @@ was read only to fix the declared model:
     magnitude along the POSITIVE global axis of that DOF in every solved load
     case; zero stiffness; no restraint row; a non-conforming record is not
     consumed: warning, no force, no restraint);
-  - DEL-05-03 section-bases-and-timoshenko.md §1, §2.1 (D-5 bases), §3.1
-    (energy-matched annular shear factor kappa_E on the nominal section), §3.3
-    (Timoshenko coefficients with phi = 12EI/(G*A_s*L^2)).
+  - DEL-05-03 (D-5 bases;
+    energy-matched annular shear factor kappa_E on the nominal section;
+    Timoshenko coefficients with phi = 12EI/(G*A_s*L^2)).
 No value is taken from any product output, frozen product reference,
 standard, catalog or vendor source. All model data are invented.
 
@@ -301,7 +301,7 @@ def section(D, t, cm, ca):
         s["J" + b] = 2 * s["I" + b]
         s["Z" + b] = s["I" + b] / ro
     s["Ai"] = ri_r * ri_r
-    # kappa_E, section-bases §3.1, evaluated exactly on the nominal section
+    # kappa_E, DEL-05-03, evaluated exactly on the nominal section
     m = ri_n / ro
     m2 = m * m
     a, bb, n1 = 1 + m2, 1 - m2, 1 + NU
@@ -1145,11 +1145,11 @@ def build_reference():
         "status": "frozen analytical candidate; product agreement and independent scrutiny recorded separately",
         "source_revision_read": SOURCE_REVISION,
         "governing_sources": [
-            "execution/PKG-04/DEL-04-07/Work/route-unification-r4.md §2.1; §3.2 (S2: CE-1, CE-2); §4, §4.7/§4.7a (H-3 excluded); §6.3 D-2",
+            "DEL-04-07 (R-4 S2: CE-1, CE-2; H-3 excluded; D-2)",
             "D-2 as decided by Agent 0 (device action of the active support in every state; held/locked state is the load-case lane's)",
-            "execution/PKG-04/DEL-04-07/Work/pressure-contract.md 'Constant-effort combinations: the unit factor-sum rule'; 'Tees and pressure junctions' (D-1)",
+            "DEL-04-07 'Constant-effort combinations: the unit factor-sum rule'; 'Tees and pressure junctions' (D-1)",
             "validation/hand_calcs/mechanics/constant_effort_support_applied_load.md (DEC-049 semantics and sign convention)",
-            "execution/PKG-05/DEL-05-03/Work/section-bases-and-timoshenko.md §1, §2.1, §3.1, §3.3",
+            "DEL-05-03",
         ],
         "independence": "standard library only; no product code, product output, fixture or generated envelope is imported, read or run; all data invented",
         "model": {
@@ -1162,7 +1162,7 @@ def build_reference():
             "thermal": "axial eigenstrain alpha*dT on the nominal section (E*A_n*alpha*dT held force)",
             "d5": ("nominal wall for A, I, J and the Timoshenko shear area; A_i = pi*r_i,r^2 for caps and the Poisson pair; per basis b: "
                    "sigma = N_w/A_b, bending |M_perp|/Z_b, torsion |T|*r_o/J_b; Lame of each basis's own annulus"),
-            "timoshenko": "phi = 12*E*I_n/(G*kappa_E*A_n*L^2); kappa_E exact rational of section-bases §3.1 on the nominal section; rotations are section rotations",
+            "timoshenko": "phi = 12*E*I_n/(G*kappa_E*A_n*L^2); kappa_E exact rational of DEL-05-03 on the nominal section; rotations are section rotations",
             "material": {"E_Pa": str(E), "nu": str(NU), "G_Pa": str(G), "alpha_per_K": str(ALPHA)},
             "section": {"D_m": str(SEC["D"]), "t_m": str(SEC["t"]), "c_m_m": str(SEC["cm"]), "c_a_m": str(SEC["ca"]),
                         "r_o_m": str(SEC["ro"]), "r_i_nominal_m": str(SEC["ri_n"]), "t_reduced_m": str(SEC["t_r"]),

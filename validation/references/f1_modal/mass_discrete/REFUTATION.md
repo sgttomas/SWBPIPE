@@ -4,7 +4,7 @@ This is the refuting TASK's record for the candidate references in this
 directory (DEL-04-09, AC-001 and AC-003; RT-A7, RT-V1). It covers the README,
 `mass_references.json` and `eigen_references.json` at SHA256SUMS as found
 (README `3525dc16…`, mass `8ed1f462…`, eigen `53269c70…`). The governing text
-is `execution/PKG-04/DEL-04-09/Work/modal-analysis.md`. The assigned basis was
+is DEL-04-09. The assigned basis was
 9e1a38f72. While this record was being written the branch advanced to
 d24234a68 (design review round 4). That diff leaves §1.3, §1.5, §2.1–§2.5 and
 §4.3 unchanged in every respect these references depend on, so the verdicts
@@ -214,9 +214,8 @@ Findings that do not change a published value:
    says the design resolved the warning code to
    `SELF_WEIGHT_COMPONENT_WEIGHT_NOT_APPLIED`. The design text still says
    `COMPONENT_WEIGHT_NOT_APPLIED`, at §2.1 (line 150) and §2.3 (line 203),
-   both at 9e1a38f72 and at d24234a68. The published code follows DEL-03-05
-   (`rigid-component-stiffness-scaling.md` line 290), which is the stronger
-   source. Either the design text or the README's attribution needs
+   both at 9e1a38f72 and at d24234a68. The published code follows DEL-03-05,
+   which is the stronger source. Either the design text or the README's attribution needs
    correcting. Route: the design owner.
 2. **An unstated premise in the README.** `mass_references.json` publishes EX
    `stiffness_section` A, I and J on the nominal wall t (for example

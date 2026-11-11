@@ -3,7 +3,7 @@
 
 Covers R-3 (loads, fit tests, family policy, selection), R-3b (request refusal
 for W <= 0) and the arithmetic part of R-4/R-4b (verification pass), as settled
-in execution/PKG-04/DEL-04-11/Work/hanger-sizing.md sections 4.2, 6 and 7.
+in DEL-04-11.
 
 Independence: written from the design text and the task brief only. It reads,
 searches and imports no product code and no other generator. Standard library
@@ -31,8 +31,8 @@ CON_TESTS = ("E1", "L", "T")
 
 BASIS = (
     "Independent reference for DEL-04-11 hanger-sizing arithmetic: R-3, R-3b and "
-    "the arithmetic part of R-4/R-4b, from execution/PKG-04/DEL-04-11/Work/"
-    "hanger-sizing.md sections 4.2, 6 and 7. SI units (N, m, N/m). Every position "
+    "the arithmetic part of R-4/R-4b, from DEL-04-11. "
+    "SI units (N, m, N/m). Every position "
     "is measured from the installed position u = 0 along the candidate's positive "
     "DOF axis; a variable spring set to F_cold carries F(u) = F_cold - k*u. "
     "design_index is 0-based into u_operating_m. Inputs are the exact rational "
@@ -48,7 +48,7 @@ BASIS = (
     "the record first. In a verification block, an entry of the variation list is "
     "null where the verified reference load is not positive (F_i^v <= 0 under "
     "operating_load): no ratio is formed for that case, V0 reports it, and V is "
-    "judged only on the ratios that are formed (hanger-sizing.md section 7)."
+    "judged only on the ratios that are formed (DEL-04-11)."
 )
 
 

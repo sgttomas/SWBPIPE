@@ -11,12 +11,12 @@ package_objective_refs: [OBJ-006]
 
 ## Purpose and Objective Traceability
 
-This deliverable is the baseline every desktop surface is held to so that an engineer can review a model and its results without a pointer and without relying on colour. It sets the measurable accessibility target, the presentation conventions that make the surfaces read as one workspace (type, spacing, control sizes, states, themes and density), and the usability walkthrough by which the workspace is judged fit for engineering review. It owns no panel's content. The result it contributes is a desktop in which model creation, missing data, results, assumptions, provenance and findings can all be reached, read and acted on by keyboard and assistive technology, at a stated standard.
+This deliverable is the baseline every desktop surface is held to so that an engineer can review a model and its results without a pointer and without relying on colour. It sets the measurable accessibility target, the presentation conventions that make the surfaces read as one workspace (type, spacing, control sizes, states, themes and density), and the use cases, typical of an engineer's work, that the desktop completes from start to finish with no step outside it. It owns no panel's content. The result it contributes is a desktop in which model creation, missing data, results, assumptions, provenance and findings can all be reached, read and acted on by keyboard and assistive technology, at a stated standard, and in which an engineer can carry typical work through to its result without leaving the application.
 
 It serves SOW-036 under OBJ-006 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-07, row DEL-07-06), and PRD §14.1 and §14.4. `docs/RELEASE_TARGET_v1.0.md` names this deliverable an owner of exit criterion 8 (usability) and, with DEL-07-02, of exit criterion 7 (authoring time).
 
 - **OUT-001** — The accessibility target and the presentation conventions, with the design tokens, themes and density that carry them.
-- **OUT-002** — The usability walkthrough: its use cases, findings and dispositions.
+- **OUT-002** — The use cases an engineer typically goes through, each completing in the desktop with no step outside it.
 
 ## Deliverable Definition — Ontology
 
@@ -27,7 +27,8 @@ It serves SOW-036 under OBJ-006 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - *Design token.* A named value for a colour, a size, a space or a type step. One token source generates the stylesheet every surface uses.
 - *Theme.* Light or dark, following the system setting unless the user chooses one. *Density.* Comfortable or compact.
 - *Presentation conventions.* What every surface shares: type, spacing and control size taken from one scale; tabular figures in tables; hover, pressed, selected, focus and disabled states that are distinct, each with a signal other than colour; and a comfortable and a compact density.
-- *Use-case walkthrough.* A recorded pass through the desktop by named use cases, each with what was attempted, what was found and how each finding was dispositioned. A *must-fix finding* is one the walkthrough's dispositions mark as blocking release.
+- *Use case.* A piece of work an engineer typically does with the product, from a stated start to a stated result. A use case *completes in the desktop* when a person reaches its result using only the desktop application and the system dialogs it opens to choose a file or a printer. A terminal, another application, a file edited by hand and a step known only from the code are each a *step outside* it.
+- *Owner's verdict.* The owner's yes or no on whether the desktop is ready, given after using it.
 - *User preference.* The chosen theme and density. It belongs to the user and the machine and is never written to the model document.
 
 **Boundary.** The baseline sets the standard and the shared means. The following belong elsewhere:
@@ -36,7 +37,8 @@ It serves SOW-036 under OBJ-006 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - the shell that mounts the panels and carries focus between them: DEL-07-11;
 - how a finding's class and fields are shown: DEL-07-04;
 - the interaction-performance limits of the workspace: DEL-07-01/REQ-012;
-- the definition of the authoring time: DEL-07-02/REQ-019. The walkthrough includes the timed entry and dispositions the usability findings it raises, under REQ-016;
+- the definition of the authoring time, its threshold and its measurement: DEL-07-02/REQ-019. The timed entry is one of the use cases here only as work that completes in the desktop;
+- the capability each use case exercises, and whether its numbers are correct: the deliverable that owns the capability. A use case that cannot complete because a capability is absent or refuses is that deliverable's shortfall, shown here;
 - the wording of statuses and notices: DEL-01-04.
 
 **Not decided.** The accessibility target for the report preview and export surfaces and for generated report files.
@@ -58,7 +60,7 @@ It serves SOW-036 under OBJ-006 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - **REQ-012** — The workspace offers a light and a dark theme that follow the system setting unless the user chooses one, and a comfortable and a compact density. The choice is a user preference.
 - **REQ-013** — One token source generates the stylesheet. No workspace surface sets a colour, a space, a control size or a type step outside the tokens.
 - **REQ-014** — Every workspace surface follows the presentation conventions, and in either density every target meets Target Size (Minimum) (2.5.8).
-- **REQ-016** — *Usability.* A use-case walkthrough of the desktop is recorded with its use cases, findings and dispositions, and its must-fix findings are closed. The walkthrough includes, as one of its use cases, the timed entry DEL-07-02/REQ-019 defines, and records the time and the usability findings it raises. Owner-arranged user testing follows, and its findings are the owner's to disposition (`docs/RELEASE_TARGET_v1.0.md`, exit criteria 7 and 8).
+- **REQ-016** — *Usability.* Each use case AC-007 lists completes in the desktop with no step outside it, and each is tested thoroughly before the owner is asked. The owner then uses the desktop and gives the owner's verdict (`docs/RELEASE_TARGET_v1.0.md`, exit criterion 8).
 
 ### Acceptance criteria
 
@@ -68,7 +70,16 @@ It serves SOW-036 under OBJ-006 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - **AC-004** — Undo and redo are enabled only when a reversible edit exists and name the edit they will reverse or reapply, and after each undo and redo the findings shown are those of the model as it then stands.
 - **AC-005** — The stylesheet equals the one generated from the token source; the theme follows the system setting and the user's choice; switching density changes control size; and the model document is unchanged by any preference.
 - **AC-006** — Each large tree and results table can be searched or filtered, and its content copied, by keyboard.
-- **AC-007** — The walkthrough record names its use cases, findings and dispositions, includes the timed entry with its time and the findings it raised, and no must-fix finding is open.
+- **AC-007** — Each use case below completes in the desktop with no step outside it, on invented models, and the owner's verdict is yes.
+  - *Blank to released report.* From a blank project the user chooses units, enters a piping system with its components and supports, defines load cases and combinations, solves, reads the results, and releases, saves and prints a report that carries the PRD §19.3 notice.
+  - *Timed entry.* The entry DEL-07-02/REQ-019 defines is made from a blank project to a completed solve without leaving the desktop.
+  - *Missing data.* The user opens a model that lacks values a solve requires. Every missing value is shown as a finding on its entity; from each finding the user reaches the entity and enters the value; and the solve, refused before, then completes.
+  - *Failed solve.* The user solves a model that the solver refuses or cannot solve. The desktop says why, in findings that name the entities concerned; the user reaches each entity from its finding and corrects the model; and the solve then completes.
+  - *Change a support and compare.* On a solved model the user saves the model state, changes a support, saves the new state and solves again, then selects the two states and their runs, reads the differences in inputs and results in a table and in the viewport, and exports the comparison report.
+  - *Review and export results.* On the solved reference system the user finds, for a chosen case or combination, the largest displacement, the largest support load and the terminal loads by sorting and filtering; sees each located in the viewport; reads its unit and the assumptions and provenance behind it; and exports the table to CSV.
+  - *Every required analysis.* On the reference system the user sets up and solves each analysis exit criterion 1 names and reads each result, among them the hydrotest marked as a test case, the modal frequencies and mode shapes, the spectrum response and the hanger table.
+  - *User rule pack.* The user loads a private rule pack, applies it to an analysis run and reads each outcome as within or exceeding the user's limit, with each rule input the model lacks shown as a finding.
+  - *Save, close and resume.* The user saves a project, quits, reopens it and finds the model and its saved states, runs and reports as they were left. After the desktop is ended without saving, reopening it recovers the work with at most one autosave interval lost.
 
 ## Production and Verification Method — Praxeology
 
@@ -81,14 +92,14 @@ It serves SOW-036 under OBJ-006 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - **VER-003** — Executable check (observes the accessibility tree of every workspace surface): reads each control's accessible name, each state's non-colour signal, each value's unit, and the state and name of undo and redo with and without a reversible edit, with the findings shown after each step.
 - **VER-004** — Executable check (observes the token source, the stylesheet and the preference): regenerates the stylesheet and compares it with the one in use, switches theme and density and reads the applied values, and compares the model document's bytes before and after.
 - **VER-005** — Executable check (observes each large tree and table by keyboard): searches, filters and copies, and reads the result.
-- **VER-006** — Judgment by a named role (Agent 0 conducts the use-case walkthrough and records it; the owner arranges user testing and dispositions its findings): reads the record for its use cases, findings and dispositions and for any open must-fix finding.
+- **VER-006** — Executable check (drives the running desktop through each use case of AC-007, one check per use case, from its stated start to its stated result using only the desktop's own controls, and observes the result the use case names): a use case fails when any step needs something outside the desktop. For printing the check observes that the desktop hands the report to the system print dialog, which is a proxy for the printed page. For the timed entry it observes that the entry completes; the time is examined under DEL-07-02/VER-007. And judgment by a named role (the owner uses the desktop and answers yes or no on whether it is ready), asked only when every check passes.
 
 ## Governing Values and Decisions — Axiology
 
 - **AX-001** — The standard is measured, not asserted. Better is a contrast ratio, a target size and a keyboard path read from the rendered desktop, never a statement that a surface is accessible.
 - **AX-002** — One convention serves every surface. Better is a surface that takes its values from the tokens, measured by the count of values set outside them being zero, never a panel with a scale of its own.
 - **AX-003** — A control that cannot act says why. Better is a stated reason at the control, never a silent no-op or a hidden command.
-- **AX-004** — Usability is judged by use. Better is a finding from a recorded use case with its disposition, never a checklist completed without the workflow being attempted.
+- **AX-004** — Usability is judged by use. Better is a use case carried from its start to its result in the running desktop, measured by the count of use cases that need a step outside it, which is to be zero. It is never a checklist of surfaces each examined alone, and a use case is never made to pass by narrowing what it asks of the desktop.
 
 ## Output and Evaluation Matrix
 
@@ -100,4 +111,4 @@ It serves SOW-036 under OBJ-006 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 | OUT-001 | SOW-036 OBJ-006 | REQ-008 | AC-004 | VER-003 | Owner ruling: SOW-036 in the decomposition and PRD FR-GUI-005 for undo and redo. The expected state of undo and redo follows from whether the session holds a reversible edit, and the expected findings are those computed fresh for the model at each step. |
 | OUT-001 | SOW-036 OBJ-006 | REQ-012 REQ-013 | AC-005 | VER-004 | The token source is the reference for the stylesheet and for the applied values. This guards against a surface departing from the tokens; whether the tokens meet the target is AC-002's to show. |
 | OUT-001 | SOW-036 OBJ-006 | REQ-005 | AC-006 | VER-005 | Owner ruling: SOW-036 in the decomposition, whose cited source asks for search and filter in large model trees and copy from result tables. The check exercises each tree and table the workspace has. |
-| OUT-002 | SOW-036 OBJ-006 | REQ-016 | AC-007 | VER-006 | Owner ruling: exit criteria 7 and 8 of the release target. The judgment is Agent 0's walkthrough and the owner's disposition of user-testing findings; the timed entry is the one DEL-07-02/REQ-019 defines. |
+| OUT-002 | SOW-036 OBJ-006 | REQ-016 | AC-007 | VER-006 | Owner ruling: exit criterion 8 of the release target, and the owner's own yes or no. The use cases are drawn from PRD §10 and the release target's exit criteria. The expected result of each step is the one the owning deliverable's scope states; this criterion shows that the work completes in the desktop, not that its numbers are correct. |

@@ -12,7 +12,7 @@ needs:
     between panels in a stated order, and gives every panel the same keyboard route to its commands.
   gating: false
 - from: DEL-07-02
-  when: Recording the timed entry in the walkthrough
+  when: Examining the timed-entry use case
   condition: >-
     The authoring-time requirement defines the timed entry of the reference system by run sheet,
     from a blank project to a solve, and its threshold.
@@ -20,6 +20,49 @@ needs:
 - from: DEL-07-04
   condition: >-
     Every finding is shown with its class, and the six classes are distinguishable without colour.
+  gating: false
+- from: DEL-07-07
+  when: Examining the use cases in the running desktop
+  condition: >-
+    A solve is started in the desktop, and a solve that is refused or fails says why in findings that
+    name the entities concerned.
+  gating: false
+- from: DEL-07-05
+  when: Examining the use cases in the running desktop
+  condition: >-
+    Results are read per case and combination in tables that sort and filter, with each row located
+    in the viewport.
+  gating: false
+- from: DEL-07-03
+  when: Examining the use cases in the running desktop
+  condition: >-
+    Load cases, combinations and a private rule pack are entered and applied in the desktop.
+  gating: false
+- from: DEL-07-08
+  when: Examining the use cases in the running desktop
+  condition: >-
+    Model states are saved, and two states and their runs are selected and compared, in the desktop.
+  gating: false
+- from: DEL-08-01
+  when: Examining the use cases in the running desktop
+  condition: >-
+    A report is released, saved and printed from the desktop with the PRD §19.3 notice.
+  gating: false
+- from: DEL-08-04
+  when: Examining the use cases in the running desktop
+  condition: >-
+    Every results table in the desktop exports to CSV.
+  gating: false
+- from: DEL-08-06
+  when: Examining the use cases in the running desktop
+  condition: >-
+    A comparison is exported as a report from the desktop.
+  gating: false
+- from: DEL-02-05
+  when: Examining the use cases in the running desktop
+  condition: >-
+    A saved project reopens as it was left, and autosave recovers work with at most one interval
+    lost.
   gating: false
 code_paths:
 - apps/desktop/src/design/**

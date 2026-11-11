@@ -80,7 +80,7 @@ const BODY: &str = "pipe:RS-P150";
 const N: &str = "node:RS-160";
 const F: &str = "node:RS-150";
 const CASES: [&str; 3] = ["load:RS-SUS", "load:RS-OPE", "load:RS-SAM"];
-const SOURCE: &str = "invented user value, DEL-09-01 Work/reference-system.md §5";
+const SOURCE: &str = "invented user value, DEL-09-01";
 const R1_WEIGHT_N: f64 = 300.0;
 const R1_SCALE: f64 = 2.0;
 /// The a priori rounding allowance of the local relations (about 4500 ulp of

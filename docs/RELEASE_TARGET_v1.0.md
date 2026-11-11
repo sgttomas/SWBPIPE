@@ -216,8 +216,9 @@ The validation lane proposes the set; this section records the method only:
 
 ## Exit criteria
 
-Thresholds marked *(provisional)* are Agent 0's targets. The walkthrough informs them; 
-they become final only on the owner's acceptance after the walkthrough.
+Thresholds marked *(provisional)* are Agent 0's targets. Testing of the use cases informs
+them; they become final only on the owner's acceptance after the owner's verdict under
+criterion 8.
 
 1. **One model, every required analysis.** An invented reference system solves on
    EX in the desktop with no admitted family refused. It contains:
@@ -255,10 +256,10 @@ they become final only on the owner's acceptance after the walkthrough.
      or unsupported in the loss report.
    - The desktop imports it back with the same entity identities.
    - **Family list (owner, 2026-11-08; option 3, "Family list amended").**
-     A-3 in DEL-17-04 `Work/desktop-mbf-export-import.md` §8.1 excludes
+     DEL-17-04 excludes
      combinations, which combine solved results, from criterion 6's families.
      Combination coverage is judged under criterion 1 (DEL-05-02). The other refusals in DEL-17-04
-     `Work/caepipe-mbf-import.md` §20.5.10 still stand; criterion 6 remains
+     still stand; criterion 6 remains
      unmet, and no reference-system round-trip claim is made.
 
    *Owning deliverables:* DEL-17-04, DEL-07-12.

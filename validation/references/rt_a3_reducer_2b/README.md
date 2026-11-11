@@ -7,7 +7,7 @@ frame cases, their checks and their values are carried unchanged.
 
 **Consumer.** `core/product_physics/tests/rt_a3_reducer_2b_references.rs`
 consumes this packet through the public product route for bounded eccentric
-reducer candidate bindings under DEL-03-05 `Work/eccentric-reducer-offset.md`.
+reducer candidate bindings under DEL-03-05.
 The implementation and binding review checked `0ee639782022085fb2bf20a8393dc998a467c5c3`
 against adopted 2a merge `393a11ee75dcc1836d2fd586c842f90312a6023d`, with no
 blocking numerical finding. The 27 cases in both solver modes supply candidate
@@ -119,7 +119,7 @@ the frame-free invariants N, T, |V|² and |M_⊥|². The checks also confirm:
 
 ### Stress rows (new; reference section, both D-5 bases)
 
-These follow DEL-05-03 `section-bases-and-timoshenko.md` §2.1 and the T4-U4b
+These follow DEL-05-03 and the T4-U4b
 section quantities. For basis b, with A_b, I_b, Z_b = I_b/r_o, J_b = 2I_b and r_i,b:
 
 | Field | Product kind | Value and sign |

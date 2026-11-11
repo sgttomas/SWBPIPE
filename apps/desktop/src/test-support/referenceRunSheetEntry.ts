@@ -1,4 +1,4 @@
-// The reference system's run sheet (DEL-09-01 `reference-system-run-sheet.md` §2, §3.4, §3.5),
+// The reference system's run sheet (DEL-09-01),
 // shared by the bend-SIF proof (`runSheet/referenceBendSifs.test.tsx`) and the reference-entry
 // journey (`workspace/referenceEntryJourney.session.test.tsx`). The rows, the header and the
 // valve/flange Component details are the run sheet's; `enterReferenceRows` types the bend and
@@ -13,8 +13,8 @@ import { COMPONENT_FIELDS, componentColumn, type ComponentRowInput } from "../fe
 import { assignIds, recordShownPipeIds, setCell, sheetView, type SheetColumnKey } from "../features/model-tree/runSheet/runSheetView";
 
 /** ⟨P⟩ and ⟨S5⟩ of the run sheet (§1). */
-export const P = "invented reference-system fixture input (DEL-09-01 Work/reference-system.md); not standard, supplier, commercial or project data";
-export const S5 = "invented user value, DEL-09-01 Work/reference-system.md §5";
+export const P = "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data";
+export const S5 = "invented user value, DEL-09-01";
 
 export type Cells = Partial<Record<SheetColumnKey, string>>;
 const support = (code: string, restraints: string, id: string, label: string): Cells => ({ support: code, restraints, supportId: id, supportLabel: label });

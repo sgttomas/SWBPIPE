@@ -2,8 +2,7 @@
 
 The refuting TASK's record for `validation/references/f1_modal/continuum`. It
 answers the independence rule of the design
-([modal-analysis.md](../../../../execution/PKG-04/DEL-04-09/Work/modal-analysis.md)
-§4.1). The rule requires a second TASK to try to refute a reference before
+(DEL-04-09). The rule requires a second TASK to try to refute a reference before
 anything relies on it.
 
 - **Date:** 2026-10-30.

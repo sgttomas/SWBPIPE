@@ -15,7 +15,7 @@ import { LoadReferenceStateInputs } from "./LoadReferenceStateInputs";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../../..");
 const fixture = JSON.parse(readFileSync(path.join(projectRoot, "fixtures/reference_system/reference_system.json"), "utf8")) as PreviewModel;
-const P = "invented reference-system fixture input (DEL-09-01 Work/reference-system.md); not standard, supplier, commercial or project data";
+const P = "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data";
 const change = (label: string, value: string) => fireEvent.change(screen.getByLabelText(label), { target: { value } });
 const click = (name: string) => fireEvent.click(screen.getByRole("button", { name }));
 const caseOf = (model: PreviewModel, id: string) => model.load_cases.find(c => c.id === id)!;
