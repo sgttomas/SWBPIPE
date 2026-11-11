@@ -11,12 +11,13 @@ package_objective_refs: [OBJ-007, OBJ-012]
 
 ## Purpose and Objective Traceability
 
-A reviewer holding a report, a result export or a saved run can tell exactly which model, which inputs, which solver build and which rule packs produced it, and can recompute every hash that says so with tools that are not SWBPIPE. This deliverable contributes the two things that make that possible: one canonical form for every JSON payload the product hashes, with the model hash computed on it, and the audit manifest that records the identities of a run.
+A reviewer holding a report, a result export or a saved run can tell exactly which model, which inputs, which solver build and which rule packs produced it, and can recompute every hash that says so with tools that are not SWBPIPE. This deliverable contributes what makes that possible: one canonical form for every JSON payload the product hashes, with the model hash computed on it; the audit manifest that records the identities of a run; and the content of the run's input manifest.
 
 It serves SOW-039 under OBJ-007 and OBJ-012 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-08, row DEL-08-02), and PRD §15.1 and §15.2 (a model state records its hash; a run records its solver version and build identifier), §19.2 (a report states the model hash, the solver version and the rule-pack checksum) and §21.1 (the product may claim provenance, version, checksum and hash records). The release target's exit criterion 4 requires a shareable report "with a reproducible canonical hash"; DEL-08-01 owns that criterion and takes the hash basis from here.
 
 - **OUT-001** — The audit manifest: the record of a run's model hash, input-manifest hash, solver identity, unit-system reference, rule-pack references and non-JSON assets, with the validator that reports what is missing or inconsistent in one (REQ-001, REQ-003 to REQ-009).
 - **OUT-002** — The canonical JSON form and the SHA-256 hashing of JSON payloads on it, including the model hash, as one implementation that every hashing surface of the product uses (REQ-002, REQ-010).
+- **OUT-003** — The content of the input manifest: what a run's input manifest must list for the run to be reproduced (REQ-012).
 
 ## Deliverable Definition — Ontology
 
@@ -24,7 +25,7 @@ A **hash record** states an algorithm, the canonicalization basis the digest was
 
 The **canonical form** of a JSON payload is its RFC 8785 (JCS) serialization: object keys sorted by UTF-16 code units, numbers in the ECMAScript shortest round-trip form with negative zero written as zero, strings escaped as ECMAScript does, no insignificant whitespace, UTF-8. The **model hash** is SHA-256 over the canonical form of the model document.
 
-The **input manifest** is the run's own list of what it solved: the model, the request and the settings. The run produces it; the audit manifest records its reference and hash.
+The **input manifest** is the canonical list of what a run was given, enough to reproduce it: the model's canonical inputs, the unit basis, the solver identity and selected settings, the rule-pack references and the external asset references. What it must list is decided here; it is built for each solve and bound to the run by the analysis-run record, and the audit manifest records its reference and hash.
 
 The **unit-system reference** identifies the project units record of the model the run solved: the map from dimension keys to unit symbols that the model document carries. It is not a unit-system name; the model stores none.
 
@@ -36,7 +37,7 @@ A **manifest finding** is the validator's statement that a field is missing, dup
 
 Boundary:
 
-- **CLM-001** — The rule that canonicalization precedes every hash, and the round-trip and versioning rules for persisted documents, are DEL-00-04's. This deliverable supplies the implementation of the canonical form and of the manifest. The input manifest and the analysis-run record are DEL-14-02's; a rule pack's checksum definition is DEL-06-04's; the unit catalog and the project units are DEL-02-02's, and the shape of the project units record in the model document is DEL-02-01's.
+- **CLM-001** — The rule that canonicalization precedes every hash, and the round-trip and versioning rules for persisted documents, are DEL-00-04's. This deliverable supplies the implementation of the canonical form and of the manifest. Building the input manifest for a solve, storing it and binding it to the run, and the analysis-run record, are DEL-14-02's; a rule pack's checksum definition is DEL-06-04's; the unit catalog and the project units are DEL-02-02's, and the shape of the project units record in the model document is DEL-02-01's.
 - **CLM-002** — The report package that carries the manifest as a member, and the equalities it checks between the manifest and its other members, are DEL-08-01's. The desktop's assembly of a manifest for a package request sits in DEL-08-01's request builder; what a manifest must say is decided here.
 - **CLM-003** — The manifest records identities. It stores no private payload, chooses no project container, and states nothing about the engineering adequacy of what it identifies.
 
@@ -53,6 +54,7 @@ Boundary:
 - **REQ-009** — The manifest keeps mechanics solved, user-rule checked and human acceptance apart and carries no status that claims certification, approval or code compliance (also cited as DEL-08-02-R9). Source: PRD §21.2.
 - **REQ-010** — Every surface of the product that hashes JSON (the model editor, the desktop hash service, the headless runner, the result export, the report package) uses this one canonical form, so that equal values give equal digests whichever path produced the JSON text. Source: decomposition AB-00-04; OBJ-012.
 - **REQ-011** — A hash record names the basis its digest was actually computed on. A digest is never relabelled with a basis it was not computed on, and a slot refuses a basis it does not admit. A model-hash, input-manifest-hash or other JSON payload slot admits only SHA-256 over the RFC 8785 canonical form. A rule-pack checksum slot also admits the basis the pack declares. An asset slot admits only a hash over the asset's own bytes. Source: REQ-002, REQ-003; PRD §21.1.
+- **REQ-012** — A run's input manifest lists the model's canonical inputs, the unit basis, the solver identity and selected settings, each participating rule pack by identifier, version, checksum and source notice, and each external asset by reference and hash, so that the run can be reproduced from what it names with no default supplied. It records rule packs and assets by reference and provenance and copies no protected or private payload into a public artifact. Source: SOW-039.
 
 - **AC-001** — For every JSON payload the product hashes, the recorded digest equals SHA-256 of the payload's RFC 8785 canonical form as computed by an implementation that shares no code with the product, and the canonical form of each example in RFC 8785 equals the published one. Verify with VER-001.
 - **AC-002** — Two JSON texts that differ only in key order, whitespace or number spelling of equal values have the same model hash. A change to any value the model carries changes it. The same value reaches the same digest through the desktop, the headless runner and the model editor. Verify with VER-002.
@@ -60,6 +62,7 @@ Boundary:
 - **AC-004** — Removing each field REQ-007 lists from a complete manifest produces a finding that names the field and its subject, and no default value appears in its place. A duplicate reference, a hash attached to a subject other than the one it names, and a basis the slot does not admit are each a finding. Verify with VER-004.
 - **AC-005** — Adding or altering a non-JSON asset changes that asset's entry and leaves the model hash unchanged. Verify with VER-004.
 - **AC-006** — No manifest, fixture or example holds rule content, private project values or protected content; a private payload offered for inclusion without redaction is a blocking finding; and no manifest field or status states certification, approval, acceptance or code compliance. A manifest holds no human acceptance record, and nothing in it presents a solve or a rule-check outcome as acceptance. Verify with VER-005.
+- **AC-007** — The input manifest built for an invented run lists the model's canonical inputs, the unit basis, the solver identity and selected settings, each participating rule pack by identifier, version, checksum and source notice, and each external asset by reference and hash, each equal to the run's own; and the hash the audit manifest records for it recomputes from it. Verify with VER-006.
 
 ## Production and Verification Method — Praxeology
 
@@ -75,6 +78,7 @@ Choices that define the product:
 - **VER-003** — Executable check (observes the fields of a manifest built from an invented run and recomputes each digest from its named payload with the reference implementation of VER-001).
 - **VER-004** — Executable check (observes the validator's findings for each removed field, each duplicate, each mismatched subject and each refused basis, and the model hash before and after an asset change).
 - **VER-005** — Executable check (observes the blocking finding for an unredacted private payload, the absence of any authority status in the manifest's vocabulary, and the absence of any acceptance record or of a solve or rule-check outcome presented as one) and judgment by a reviewer who did not write the fixtures (reads every public manifest fixture and example for rule content, private values and protected content).
+- **VER-006** — Executable check (observes the members of the input manifest built for an invented run against REQ-012's list and the run's own inputs, and recomputes its hash with the reference implementation of VER-001).
 
 ## Governing Values and Decisions — Axiology
 
@@ -88,7 +92,8 @@ Choices that define the product:
 |---|---|---|---|---|---|
 | OUT-002 | SOW-039 OBJ-012 | REQ-002, REQ-010 | AC-001 | VER-001 | Outside source: RFC 8785 with its published examples, and digests from a JCS and SHA-256 implementation that imports no product code. The project's own hash corpus, whose expected values the product generated, only guards against change. |
 | OUT-002 | SOW-039 OBJ-012 | REQ-002, REQ-010, REQ-011 | AC-002 | VER-002 | The criterion determines the expected result: equal values give equal digests and a changed value a different one, on every hashing surface. |
-| OUT-001 | SOW-039 OBJ-007 | REQ-001, REQ-004, REQ-005, REQ-006, REQ-011 | AC-003 | VER-003 | What a manifest must name comes from SOW-039 and PRD §15.2 and §19.2, an owner ruling. Each digest is recomputed by the outside implementation of VER-001 from the payload the record names. |
-| OUT-001 | SOW-039 OBJ-007 | REQ-007, REQ-011 | AC-004 | VER-004 | The list of fields whose absence must be reported comes from SOW-039 and PRD §5.5, an owner ruling; each case is constructed by removing one field from a complete invented manifest. |
-| OUT-001 | SOW-039 OBJ-012 | REQ-003 | AC-005 | VER-004 | The separation of asset hashes from JSON payload hashes comes from the decomposition's architecture basis AB-00-04, an owner ruling; the unchanged model hash is recomputed by the outside implementation. |
-| OUT-001 | SOW-039 OBJ-007 | REQ-008, REQ-009, CLM-003 | AC-006 | VER-005 | The prohibited content comes from PRD §19.4 and §20.1 and the prohibited claims from PRD §21.2, owner rulings; the fixtures are read by someone who did not write them. |
+| OUT-001 | SOW-039 OBJ-007 | REQ-001, REQ-004, REQ-005, REQ-006, REQ-011 | AC-003 | VER-003 | What a manifest must name comes from SOW-039 and PRD §15.2 and §19.2. Each digest is recomputed by the outside implementation of VER-001 from the payload the record names. |
+| OUT-001 | SOW-039 OBJ-007 | REQ-007, REQ-011 | AC-004 | VER-004 | The list of fields whose absence must be reported comes from SOW-039 and PRD §5.5; each case is constructed by removing one field from a complete invented manifest. |
+| OUT-001 | SOW-039 OBJ-012 | REQ-003 | AC-005 | VER-004 | The separation of asset hashes from JSON payload hashes comes from the decomposition's architecture basis AB-00-04; the unchanged model hash is recomputed by the outside implementation. |
+| OUT-001 | SOW-039 OBJ-007 | REQ-008, REQ-009, CLM-003 | AC-006 | VER-005 | The prohibited content comes from PRD §19.4 and §20.1 and the prohibited claims from PRD §21.2; the fixtures are read by someone who did not write them. |
+| OUT-003 | SOW-039 OBJ-012 | REQ-012, CLM-001 | AC-007 | VER-006 | What an input manifest must list comes from SOW-039. Each member is compared with the invented run's own inputs, which the check writes, and the hash is recomputed by the outside implementation of VER-001. That the manifest lists what the run was given does not show that a replay from it reproduces the result. |

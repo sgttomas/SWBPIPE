@@ -19,7 +19,7 @@ It serves SOW-025 under OBJ-001 and OBJ-012 (`execution/_Decomposition/SOFTWARE_
 
 ## Deliverable Definition — Ontology
 
-**Terms the unit system implements.** The catalog, the calculation basis, the constants, the temperature and pressure semantics and the conversion tolerances are the owner's ruling DEC-018 (`execution/_Coordination/_DECISIONS/D-01_unit_catalog_acceptance.md`).
+**Terms the unit system implements.**
 
 - *Unit catalog.* A closed set of SI and US customary units. Each unit has a symbol, one dimension and a transform to its dimension's canonical unit. There are no user-defined units.
 - *Dimension.* A named identifier with an exponent vector, such as `length`, `force`, `linear_stiffness` or `temperature_interval`. `schemas/units.schema.yaml` holds the one vocabulary. Dimensions that share an exponent vector stay distinct names where their meaning differs, as pressure and stress do.
@@ -33,9 +33,9 @@ It serves SOW-025 under OBJ-001 and OBJ-012 (`execution/_Decomposition/SOFTWARE_
 - *Project units.* One record in the model document: a map from seven dimension keys (length, force, moment, pressure, stress, temperature, angle) to catalog symbols. No unit-system name is stored; a preset is shorthand for a map. Node coordinates are numbers in the project's length unit; every other quantity carries its own unit, and the project units give the starting unit of a new entry.
 - *Display unit.* The unit a value is shown in. It is session state and never touches the document.
 
-**Undecided.** The unit identifier and alias namespace and the rule for an ambiguous symbol are not decided; until they are, a new selection takes a catalog symbol exactly, and a legacy `C` for degrees Celsius is read but not written. The unit diagnostic code namespace is not decided. The treatment of angle and rotation beyond radian and degree conversion is not decided.
+**Undecided.** The unit identifier and alias namespace and the rule for an ambiguous symbol are not decided; until they are, a new selection takes a catalog symbol exactly, and a legacy `C` for degrees Celsius is read but not written. The exact categories of the dimensionless classification of REQ-015, which fields fall in each, and the schema members that carry it are not decided. The unit diagnostic code namespace is not decided. The treatment of angle and rotation beyond radian and degree conversion is not decided.
 
-**Boundary.** This deliverable defines units, dimensions and conversions and checks them. The shape of a quantity and of the project units record in the model document is DEL-02-01's. Each consumer applies the catalog at its own boundary and owns that boundary: the product solve (DEL-04-07), the rule evaluator (DEL-06-02), imports and exports (PKG-10, PKG-17), reports (PKG-08) and result display (DEL-07-05). The operation engine that applies a unit change is DEL-16-06's. Tolerances for comparing solver results with references are DEC-026's and are not conversion tolerances. It defines no engineering value, and no code table, allowable or dimensional table is a source for it.
+**Boundary.** This deliverable defines units, dimensions and conversions and checks them. The shape of a quantity and of the project units record in the model document is DEL-02-01's. Each consumer applies the catalog at its own boundary and owns that boundary: the product solve (DEL-04-07), the rule evaluator (DEL-06-02), imports and exports (PKG-10, PKG-17), reports (PKG-08) and result display (DEL-07-05). The operation engine that applies a unit change is DEL-16-06's. Tolerances for comparing solver results with references are the governed tolerances of the reference classes (DEL-09-01) and are not conversion tolerances. It defines no engineering value, and no code table, allowable or dimensional table is a source for it.
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -51,7 +51,7 @@ Requirement numbers 001 to 016 are those of the earlier `U-0nn` series.
 - **REQ-004** — Every unit has one stable dimension from the one vocabulary. A change to the vocabulary is a change to the unit schema.
 - **REQ-005** — Addition, subtraction, comparison and conversion reject incompatible dimensions. Multiplication, division and powers give an explicit derived dimension where the vocabulary has one.
 - **REQ-006** — Conversion is deterministic. An unknown unit, a missing unit, an ambiguous or incompatible conversion and a non-finite value each produce a named finding and no converted value.
-- **REQ-007** — Each conversion is a record with its factor or offset representation, provenance, redistribution status and review status. A record of suspected protected or proprietary origin is quarantined and not used.
+- **REQ-007** — Each conversion is a record with its factor or offset representation, provenance, redistribution status and review status. A record of suspected protected or proprietary origin is quarantined and escalated, and is not used.
 - **REQ-008** — A persisted quantity keeps its entered value and unit through every round trip, and nothing converts a stored value.
 - **REQ-009** — The public schema for quantities, units, dimensions and unit findings is JSON Schema 2020-12.
 - **REQ-010** — A unit finding carries a code, class, severity, source, affected object, message, remediation and provenance.
@@ -116,16 +116,16 @@ Requirement numbers 001 to 016 are those of the earlier `U-0nn` series.
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-025 OBJ-012 | REQ-006 REQ-018 | AC-001 | VER-001 | Outside source: the public definitions of the units (the international inch, foot and pound, standard gravity, the standard atmosphere, the Celsius and Fahrenheit scales, the SI prefixes), evaluated without product code. The tolerances are the owner's ruling DEC-018 |
-| OUT-001 | SOW-025 OBJ-012 | REQ-004 REQ-005 | AC-002 | VER-002 | Outside source: dimensional analysis, exponent-vector arithmetic. The temperature and pressure-kind rules are the owner's ruling DEC-018 |
+| OUT-001 | SOW-025 OBJ-012 | REQ-006 REQ-018 | AC-001 | VER-001 | Outside source: the public definitions of the units (the international inch, foot and pound, standard gravity, the standard atmosphere, the Celsius and Fahrenheit scales, the SI prefixes), evaluated without product code. The tolerances are the witness tolerances the ontology states |
+| OUT-001 | SOW-025 OBJ-012 | REQ-004 REQ-005 | AC-002 | VER-002 | Outside source: dimensional analysis, exponent-vector arithmetic. The temperature and pressure-kind rules are those the ontology states |
 | OUT-001 | SOW-025 OBJ-001 OBJ-012 | REQ-006 REQ-010 REQ-013 REQ-015 REQ-016 | AC-003 | VER-002 | The inputs are constructed, so the criterion states the expected finding (PRD §5.5 and §5.6); the diagnostic contract (DEL-00-06) states the required fields. Which symbols are ambiguous awaits the undecided alias rule |
-| OUT-001 | SOW-025 OBJ-001 | REQ-007 REQ-014 | AC-004 | VER-003 | Owner ruling: DEC-018 names the source set, and PRD §20.1 and §20.2 state what a public record may contain; the reviewer compares against sources the product did not write |
+| OUT-001 | SOW-025 OBJ-001 | REQ-007 REQ-014 | AC-004 | VER-003 | The catalog's sources are the public definitions the ontology names, and PRD §20.1 and §20.2 state what a public record may contain; the reviewer compares against sources the product did not write |
 | OUT-001 | SOW-025 OBJ-012 | REQ-004 REQ-017 | AC-005 | VER-004 | The criterion states the expected result: one set, with the unit schema as its statement |
 | OUT-001 | SOW-025 OBJ-012 | REQ-001 REQ-002 REQ-003 REQ-019 | AC-006 | VER-005 | The quantities are constructed, so the criterion states the expected refusal; the canonical value expected at each boundary comes from the unit definitions |
 | OUT-001 | SOW-025 OBJ-012 | REQ-008 REQ-012 | AC-007 | VER-005 | The criterion fixes the expected result: the quantity read back equals the quantity written |
 | OUT-001 | SOW-025 OBJ-001 | REQ-009 REQ-010 | AC-008 | VER-004 | Outside source: the JSON Schema 2020-12 specification, applied by a validator that imports no product code |
-| OUT-001 | SOW-025 OBJ-001 | REQ-020 | AC-009 | VER-006 | Owner ruling: PRD §10.1 says the user selects units, and DEC-018 fixes the dual SI and US customary catalog. The selections are constructed, so the criterion states the expected keys and each refusal |
+| OUT-001 | SOW-025 OBJ-001 | REQ-020 | AC-009 | VER-006 | PRD §10.1 says the user selects units, and the catalog holds SI and US customary units. The selections are constructed, so the criterion states the expected keys and each refusal |
 | OUT-001 | SOW-025 OBJ-012 | REQ-021 | AC-010 | VER-006 | The documents are constructed, so the criterion states each expected refusal and the unchanged document |
 | OUT-001 | SOW-025 OBJ-012 | REQ-022 REQ-023 | AC-011 | VER-006 | The criterion states the expected default, notice and refusal (PRD §5.5: nothing is assumed) |
 | OUT-001 | SOW-025 OBJ-012 | REQ-023 REQ-024 | AC-012 | VER-001 | Outside source: the public definitions of the units. The unchanged document and hash are fixed by the criterion |
-| OUT-001 | SOW-025 OBJ-001 | REQ-011 | AC-013 | VER-003 | Owner ruling: PRD §21.2 and `docs/claims_registry.md` |
+| OUT-001 | SOW-025 OBJ-001 | REQ-011 | AC-013 | VER-003 | PRD §21.2 and `docs/claims_registry.md` state the prohibited claims; the reviewer reads the finding texts and schema against them |

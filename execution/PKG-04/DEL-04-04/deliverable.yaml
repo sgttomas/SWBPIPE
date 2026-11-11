@@ -10,14 +10,14 @@ needs:
   condition: >-
     The linear support model defines a rigid restraint on a named degree of freedom of a support
     record, and a movement imposed at a nonlinear support's own degree of freedom moves that
-    support's ground (DEL-04-03 REQ-013, AC-002).
+    support's ground (DEL-04-03/REQ-013, DEL-04-03/AC-002).
   gating: true
 - from: DEL-04-07
   condition: >-
     The assembled nonlinear iteration assembles and solves each iterate, leaves the classification
     of every iterate to this classifier, under the governed convergence tolerances and iteration
-    caps, and ends in the support states of the independent nonlinear references (DEL-04-07
-    CLM-002, AC-002).
+    caps, and ends in the support states of the independent nonlinear references (DEL-04-07/CLM-002,
+    DEL-04-07/AC-002).
   gating: true
 - from: DEL-04-06
   condition: >-
@@ -32,8 +32,8 @@ needs:
     The nonlinear validation suite holds the hand calculations under
     `validation/hand_calcs/nonlinear`, which import no product code, and the governed convergence
     limits of each support class: no support changes state in the final iteration, within the
-    iteration cap, and a case may tighten a limit and never loosen one (DEL-09-03 REQ-007, AC-003,
-    AC-004).
+    iteration cap, and a case may tighten a limit and never loosen one (DEL-09-03/REQ-007,
+    DEL-09-03/AC-003, DEL-09-03/AC-004).
   gating: false
 code_paths:
 - core/solver/nonlinear_supports/**

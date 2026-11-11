@@ -37,7 +37,7 @@ It serves SOW-038 under OBJ-009 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - **The domain contract document**, `docs/architecture/extension_domain_contracts.md`: what an extension may touch in the domain model and which controls it can never bypass.
 - **Declaration verification**, which returns its findings in a result envelope.
 
-**Undecided.** The transport for a public extension API; the approved extension-point registry and who owns it; the permission names, the sandbox mechanism, the route by which a capability is granted, and consent and revocation; which import and export formats a plugin may bind to; and whether a plugin may ever receive telemetry-facing or private engineering data. The default for the last is no.
+**Undecided.** The transport for a public extension API; the approved extension-point registry and who owns it; the permission names, the sandbox mechanism, the route by which a capability is granted, and consent and revocation; which import and export formats a plugin may bind to; and whether a plugin may ever receive telemetry-facing or private engineering data. The default for the last is no, and telemetry-facing data can reach a plugin only under a telemetry design approved as DEL-12-03 requires.
 
 **Boundary.** This deliverable is a contract at the domain and API level. It builds no plugin loader, no runtime and no transport. The adapter framework and its declarations are DEL-10-02's; the import and export formats are PKG-17's; the API boundary contract is DEL-10-01's; the rule evaluator's sandbox is DEL-06-02's; threat modelling of extensions is DEL-12-05's; private-data controls are PKG-12's. The embedded agent is not a plugin under this contract; it is DEL-16-06's.
 
@@ -66,8 +66,8 @@ Requirement numbers 001 to 018 are those of the earlier `DEL-02-04-REQ-nn` serie
 - **REQ-015** — What is undecided stays visible in the contract. The transport, plugin bindings to import and export formats, the sandbox mechanism and permission grants are carried as undecided, and nothing in the contract settles them by implication.
 - **REQ-016** — The manifest has a slot for every concept of CLM-007.
 - **REQ-017** — The contract grants no capability by default. Registry entries, permission names, the sandbox mechanism and the granting route take effect only once decided.
-- **REQ-018** — By default an extension receives no telemetry-facing data and transmits no private project, rule-pack, component, material or result data.
-- **REQ-019** — The product has no plugin runtime: nothing loads, dispatches or executes a plugin, and a manifest in any state confers nothing (also cited as DEL-02-04:2).
+- **REQ-018** — By default an extension receives no telemetry-facing data and transmits no private project, rule-pack, component, material or result data. An extension receives telemetry-facing data only under an approved telemetry design (DEL-12-03), and only once that exposure is verified.
+- **REQ-019** — Nothing in the product loads, dispatches or executes a plugin, and a manifest in any state confers nothing (also cited as DEL-02-04:2). A plugin runtime, with its transport, capability granting and permission persistence, enters only by a change of scope.
 
 ### Acceptance criteria
 
@@ -111,4 +111,4 @@ Requirement numbers 001 to 018 are those of the earlier `DEL-02-04-REQ-nn` serie
 | OUT-001 | SOW-038 OBJ-009 | REQ-012 | AC-003 | VER-003 | Outside source: RFC 8785 and SHA-256, computed without product code; that the hashed form is SHA-256 over RFC 8785 is DEL-00-04's rule |
 | OUT-001 | SOW-038 OBJ-009 | REQ-017 REQ-019 | AC-004 | VER-004 | The criterion states the expected result: nothing is found. The reviewer examines the product's source, not a record the product wrote |
 | OUT-001 | SOW-038 OBJ-009 | REQ-009 REQ-010 | AC-005 | VER-001 | The manifests are constructed, so the criterion states which are valid. It examines the declaration only; behaviour at run time has no examination while no runtime exists |
-| OUT-001 | SOW-038 OBJ-009 | REQ-005 REQ-008 REQ-015 | AC-006 | VER-005 | Owner ruling: PRD §20.1 and §21.2 and `docs/IP_AND_DATA_BOUNDARY.md`; the reviewer compares against sources the product did not write |
+| OUT-001 | SOW-038 OBJ-009 | REQ-005 REQ-008 REQ-015 | AC-006 | VER-005 | PRD §20.1 and §21.2 and `docs/IP_AND_DATA_BOUNDARY.md`; the reviewer compares against sources the product did not write |

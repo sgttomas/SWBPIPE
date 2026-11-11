@@ -34,8 +34,8 @@ needs:
   gating: true
 - from: DEL-01-04
   condition: The report notice template holds the PRD section 19.3 notice word for word with the disclosure
-    slots and sign-off block a report fills, and the claims registry gives one display form for each automatic
-    analysis status and the registered boundary statements.
+    slots a report fills and the human acceptance block, and the claims registry gives one display form for
+    each automatic analysis status and the registered boundary statements.
   gating: true
 - from: DEL-05-04
   condition: The analysis statuses keep mechanics solved, rule inputs incomplete, user-rule checked or failed
@@ -63,8 +63,8 @@ needs:
     stable across save and reopen.
   gating: true
 - from: DEL-02-05
-  condition: A persisted document, the report package included, has one current version; a reader accepts
-    only that version and refuses every other by name, with no migration.
+  condition: A persisted document has one current version; a reader accepts only that version and refuses
+    every other by name, with no migration.
   gating: true
 - from: DEL-14-02
   condition: The run record of a solve names its run, the model state it solved, its input manifest and
@@ -75,20 +75,20 @@ needs:
     result identity, and each result binds the exact request it was computed from.
   gating: true
 - from: DEL-07-07
-  condition: A completed solve job's result is held by the native host, which can say for a later report
-    request whether a submitted result and model are the bytes that job delivered and received, and a
-    disposed result is no longer held.
+  condition: A completed solve job's result, and the model text the job received, are held by the native
+    host until the result is disposed of, so that a later report request can be compared with the held
+    bytes; a disposed result is no longer held.
   gating: true
 - from: DEL-04-08
   condition: The one product reader gives a result its standing (numerically eligible, needing recomputation
     or unsupported) as a verdict every reader surface takes, and an exact-route result's limitations are
     the texts of its semantic table, bound by the reviewed-input digests.
   gating: true
-- from: DEL-03-01
-  condition: A model entity to which a library record was applied carries a detectable library reference,
-    and the library store reports the references a model carries.
+- from: DEL-07-03
+  condition: A model entity to which a library record was applied keeps a reference to that record, and
+    a reference in the model that no longer matches its library is reported.
   when: Before a user-released report is admitted and before a report lists library records.
-  gating: true
+  gating: false
 code_paths:
 - core/reporting/report_generator/**
 - schemas/report_generator.schema.yaml

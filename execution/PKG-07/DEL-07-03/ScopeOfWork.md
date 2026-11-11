@@ -49,6 +49,8 @@ It serves SOW-021 and SOW-077 under OBJ-006 (`execution/_Decomposition/SOFTWARE_
 
 An editor establishes that a value was entered with a unit and a stated source. It establishes nothing about whether the value is right, or whether its source permits its use.
 
+The project's own checks of REQ-011, VER-005's executable check among them, establish the behaviour they observe; they are not a security validation. That private library and rule-pack data stay private is not presented or relied on as validated until an independent security validation, which the owner authorizes, has examined it. Only the owner releases this restriction.
+
 ### Requirements
 
 - **REQ-002** — Materials, sections, components, load cases, rule packs and private libraries are each editable and reviewable in the desktop (SOW-021; PRD §14.1).
@@ -110,13 +112,13 @@ An editor establishes that a value was entered with a unit and a stated source. 
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-021 OBJ-006 | REQ-002 REQ-003 REQ-004 REQ-008 REQ-012 | AC-001 | VER-001 VER-006 | The entered record is the expected stored record; validity is judged by the document validator and the operation engine, which the editors did not write. The record contents are PRD §18.1 to §18.3; the excluded statements are an owner ruling, PRD §21.2 |
+| OUT-001 | SOW-021 OBJ-006 | REQ-002 REQ-003 REQ-004 REQ-008 REQ-012 | AC-001 | VER-001 VER-006 | The entered record is the expected stored record; validity is judged by the document validator and the operation engine, which the editors did not write. The record contents are PRD §18.1 to §18.3; the excluded statements are those of PRD §21.2 and `docs/claims_registry.md` |
 | OUT-002 | SOW-021 SOW-077 OBJ-006 | REQ-005 REQ-008 | AC-002 | VER-002 | The criterion states the expected operations and refusals; the refusal codes are the operation engine's and the unit system's |
-| OUT-001 | SOW-021 OBJ-006 | REQ-009 REQ-010 | AC-003 | VER-001 | Owner ruling: PRD §5.5. Absence and the unchanged hash are observed on the stored document |
-| OUT-001 | SOW-021 OBJ-006 | REQ-007 REQ-014 | AC-004 | VER-003 | Owner ruling: PRD §10.6. Validation findings and the checksum are DEL-06-01's and DEL-06-04's, not the manager's |
-| OUT-001 | SOW-021 OBJ-006 | REQ-015 | AC-005 | VER-003 | Owner ruling: PRD §18.4 lists the import findings; the findings themselves are DEL-03-07's |
+| OUT-001 | SOW-021 OBJ-006 | REQ-009 REQ-010 | AC-003 | VER-001 | PRD §5.5. Absence and the unchanged hash are observed on the stored document |
+| OUT-001 | SOW-021 OBJ-006 | REQ-007 REQ-014 | AC-004 | VER-003 | PRD §10.6. Validation findings and the checksum are DEL-06-01's and DEL-06-04's, not the manager's |
+| OUT-001 | SOW-021 OBJ-006 | REQ-015 | AC-005 | VER-003 | PRD §18.4 lists the import findings; the findings themselves are DEL-03-07's |
 | OUT-002 | SOW-077 OBJ-006 | REQ-016 | AC-006 | VER-004 | The entered combination is the expected stored record; the prevented shapes and the delete refusal are the operation engine's rules, which the editor did not write. The combined values are DEL-05-02's to establish |
 | OUT-002 | SOW-077 OBJ-006 | REQ-017 | AC-007 | VER-004 | The engine's resolution is the reference and the editor only displays it: this guards against the display diverging and claims no correctness of the resolution, which is DEL-05-01's |
 | OUT-002 | SOW-077 OBJ-006 | REQ-018 | AC-008 | VER-004 | The engine's plan is the reference and the editor only displays and queues it; the weights' correctness is DEL-05-01's and DEL-03-08's |
-| OUT-001 | SOW-021 OBJ-006 | REQ-020 | AC-010 | VER-002 | Owner ruling under the scope delegation: a bend moves the corner to points the user did not type, so the preview precedes Apply |
-| OUT-001 | SOW-021 OBJ-006 | REQ-011 | AC-011 | VER-005 | Owner ruling: PRD §20.3 and FR-RULE-004. The storage paths are DEL-12-01's; the examination is by a reviewer who did not write the code |
+| OUT-001 | SOW-021 OBJ-006 | REQ-020 | AC-010 | VER-002 | A bend moves the corner to points the user did not type, so the preview precedes Apply. The criterion states the expected order; the check observes whether Apply is refused until a preview of that exact batch on the current model has been shown |
+| OUT-001 | SOW-021 OBJ-006 | REQ-011 | AC-011 | VER-005 | PRD §20.3 and FR-RULE-004. The storage paths are DEL-12-01's. The examination is by an independent security reviewer who did not write the code; the executable check alone observes only the writes and requests of the sessions it runs |

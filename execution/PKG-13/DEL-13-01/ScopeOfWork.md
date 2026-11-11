@@ -13,7 +13,7 @@ package_objective_refs: [OBJ-014]
 
 Design knowledge is what a project knows about a piping system that the piping itself does not say: where a line starts and ends, what it carries, where it may run and where it may not, where it can be supported, which equipment it meets, and what has to be reachable, sloped, drained or vented. This deliverable gives that knowledge one typed form. Every record says what it applies to, where it came from, who supplied it, whether it may be shared, and what is still assumed, so that design knowledge is explicit data with a source and never a hidden assumption or a value the product supplied. The constraint model (DEL-13-02) and the constraint engine (DEL-13-03) read these records; without them there is nothing recorded to check a route against.
 
-It serves SOW-067 under OBJ-014 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-13, row DEL-13-01), and PRD §8.1 and §13.1, the format part of FR-KNOW-001, the record-level part of FR-MOD-006, and `docs/SPEC.md` §3.1. PKG-13 is outside v1.0 (rulings OD-1 and OD-3, `docs/COMPLETENESS_MAP.md` §4.2), and no exit criterion of `docs/RELEASE_TARGET_v1.0.md` names this deliverable.
+It serves SOW-067 under OBJ-014 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-13, row DEL-13-01), and PRD §8.1 and §13.1, the format part of FR-KNOW-001, the record-level part of FR-MOD-006, and `docs/SPEC.md` §3.1. PKG-13 is outside v1.0, and no exit criterion of `docs/RELEASE_TARGET_v1.0.md` names this deliverable.
 
 - **OUT-001** — The design-knowledge format: its schema, the record kinds, and the provenance model every record carries.
 
@@ -107,11 +107,11 @@ Requirement numbers 001 to 011 are those of the earlier `REQ-13-01-nnn` series.
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-067 OBJ-014 | REQ-010 | AC-001 | VER-001 | Outside source: the JSON Schema 2020-12 specification, applied by a validator that imports no product code |
-| OUT-001 | SOW-067 OBJ-014 | REQ-001 | AC-002 | VER-002 | Owner ruling: the categories are those of SOW-067 and PRD FR-KNOW-001; the documents are constructed, so the criterion states what is accepted and refused |
-| OUT-001 | SOW-067 OBJ-014 | REQ-002 REQ-004 REQ-005 | AC-003 | VER-002 | Owner ruling: PRD §20.2 lists the seven provenance fields and PRD §13.1 the public or private status; the documents are constructed |
-| OUT-001 | SOW-067 OBJ-014 | REQ-006 | AC-004 | VER-003 | The unit schema's dimension vocabulary (DEL-02-02; owner ruling DEC-018), read from its file. A list of dimensions kept in the check itself is no reference |
+| OUT-001 | SOW-067 OBJ-014 | REQ-001 | AC-002 | VER-002 | The categories are those of SOW-067 and PRD FR-KNOW-001; the documents are constructed, so the criterion states what is accepted and refused |
+| OUT-001 | SOW-067 OBJ-014 | REQ-002 REQ-004 REQ-005 | AC-003 | VER-002 | PRD §20.2 lists the seven provenance fields and PRD §13.1 the public or private status; the documents are constructed |
+| OUT-001 | SOW-067 OBJ-014 | REQ-006 | AC-004 | VER-003 | The unit schema's dimension vocabulary (DEL-02-02), read from its file. A list of dimensions kept in the check itself is no reference |
 | OUT-001 | SOW-067 OBJ-014 | REQ-004 REQ-007 | AC-005 | VER-002 | The criterion states the expected result (PRD §5.5: nothing is defaulted); the document read back equals the document written |
-| OUT-001 | SOW-067 OBJ-014 | REQ-008 | AC-006 | VER-002 | Owner ruling: PRD §5.2 makes the physical model the source of truth; the criterion states the reference form the schema must use |
-| OUT-001 | SOW-067 OBJ-014 | REQ-009 | AC-007 | VER-004 | Owner ruling: PRD §21.2 lists the prohibited claims; the reviewer compares against it and `docs/claims_registry.md` |
-| OUT-001 | SOW-067 OBJ-014 | REQ-003 | AC-008 | VER-004 | Owner ruling: PRD §20.1 and `docs/IP_AND_DATA_BOUNDARY.md` state what a public artifact may contain; the reviewer compares against sources the product did not write |
+| OUT-001 | SOW-067 OBJ-014 | REQ-008 | AC-006 | VER-002 | PRD §5.2 makes the physical model the source of truth; the criterion states the reference form the schema must use |
+| OUT-001 | SOW-067 OBJ-014 | REQ-009 | AC-007 | VER-004 | PRD §21.2 lists the prohibited claims; the reviewer compares against it and `docs/claims_registry.md` |
+| OUT-001 | SOW-067 OBJ-014 | REQ-003 | AC-008 | VER-004 | PRD §20.1 and `docs/IP_AND_DATA_BOUNDARY.md` state what a public artifact may contain; the reviewer compares against sources the product did not write |
 | OUT-001 | SOW-067 OBJ-014 | REQ-011 | AC-009 | VER-005 | The schema is the reference for each document, applied by a validator that imports no product code. The stopped documents are constructed, so the criterion states what is stopped; the controls a path keeps are those `docs/SPEC.md` §1, §4.4 and §4.5 name, and the reviewer compares each path against that list |

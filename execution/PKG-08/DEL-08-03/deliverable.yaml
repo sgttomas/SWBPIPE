@@ -3,8 +3,10 @@ name: Warnings, assumptions, and provenance report section
 needs:
 - from: DEL-00-06
   condition: A diagnostic is a machine-readable record with code, class, severity, source, affected object,
-    message and remediation, and provenance where applicable, in one of six warning classes; a boundary
-    that adds a local class states its mapping to one of the six.
+    message and remediation, and provenance where applicable. The product has six warning classes and a
+    boundary may declare local classes; a diagnostic crossing a boundary keeps every field other than its
+    class, which changes only where the receiving boundary's schema requires its own vocabulary, by that
+    boundary's stated mapping.
   gating: true
 - from: DEL-04-06
   condition: The solver's findings are diagnostic records that name the entity they concern, and a refused,
@@ -23,11 +25,12 @@ needs:
   condition: A library and every record in it carry the seven provenance members with a redistribution
     status and a review status, and a missing or unclear member is a finding, never a defaulted value.
   gating: true
-- from: DEL-03-01
-  condition: The library store checks each library reference a model carries and reports, per model entity,
-    a reference that does not resolve and a library whose version has changed since it was applied.
+- from: DEL-07-03
+  condition: A model entity to which a library record was applied keeps a reference to that record, and
+    a reference that no longer resolves, or whose library has changed since it was applied, is reported
+    against that entity.
   when: Before a report lists library records for a model that refers to a library.
-  gating: true
+  gating: false
 - from: DEL-08-02
   condition: The audit manifest names a run's model hash, its software and solver versions and each
     participating rule pack's checksum, each as a record that states what it covers.

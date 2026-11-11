@@ -3,9 +3,9 @@ name: Import/export adapter framework
 needs:
 - from: DEL-10-01
   condition: >-
-    The API boundary contract states the no-bypass constraints every public operation keeps in
-    force and the request kinds an operation may be. The framework requires each of those
-    constraints of an adapter and admits no adapter operation outside those kinds.
+    The API boundary contract is the public API and plugin boundary an adapter operation goes
+    through: it states the no-bypass constraints every public operation keeps in force and the
+    request kinds an operation may be.
   gating: true
 - from: DEL-00-07
   condition: >-
@@ -21,8 +21,7 @@ needs:
 - from: DEL-00-06
   condition: >-
     A diagnostic carries code, class, severity, source, affected object, message, remediation and
-    provenance, and the six common warning classes are the fixed set a boundary's local class maps
-    to.
+    provenance.
   gating: true
 - from: DEL-00-04
   condition: >-

@@ -35,11 +35,11 @@ For each mode it publishes the frequency, circular frequency and period; the sha
 
 **This deliverable owns:** the mass model and its weight-basis identity check; the modal request, its refusals and disclosures; the eigen-solution (dense reduction and QL, shift-invert block Lanczos, the Sturm count with its shift placement and growth limit, the modal formation check, residual estimates and participation); the product's modal entry; the modal profile, the `modal-1` semantic table and the modal result family `openpipestress.modal_result`; the product's modal reader and its independent test verifier; the frozen references under `validation/references/f1_modal/`; and the desktop modes view, the mode-shape view and the report's modal section, within the results viewer's and report generator's contracts.
 
-**Inputs from neighbours** (`deliverable.yaml`): DEL-04-01 (assembly, reduction, the curved-bend element and the sparse factorization, with the read-only factorization accessor and the element re-formation entry held in the kernel's code), DEL-04-02 (the straight pipe element and its uniform-load vector), DEL-04-03 (linear supports and imposed-displacement degrees of freedom), DEL-04-04 (the converged support states of a solved case), DEL-04-06 (singular-model detection), DEL-04-07 (the built model and the static solve), DEL-05-01 (self-weight and its mass per length on both routes), DEL-03-05 (rigid-family components), DEL-02-01 (the snubber family's document shape), DEL-04-10 (the snubber's dynamic meaning), DEL-02-02 (units, including the unit families of modal quantities), DEL-00-06 (the diagnostics contract), DEL-04-08 (the retained-memory pricing law), and DEL-07-05 and DEL-08-01 (the viewer's and report's contracts). Published piping benchmarks are external sources, each used only with its own redistribution evidence (REQ-009). These deliverables keep their scope.
+**Inputs from neighbours** (`deliverable.yaml`): DEL-04-01 (assembly, reduction, the curved-bend element and the sparse factorization, with the read-only factorization accessor and the element re-formation entry held in the kernel's code; no deliverable currently commits to criteria for those two entries, and AC-003 examines them only as this method uses them), DEL-04-02 (the straight pipe element and its uniform-load vector), DEL-04-03 (linear supports and imposed-displacement degrees of freedom), DEL-04-04 (the converged support states of a solved case), DEL-04-06 (singular-model detection), DEL-04-07 (the built model and the static solve), DEL-05-01 (self-weight and its mass per length on both routes), DEL-03-05 (rigid-family components), DEL-02-01 (the snubber family's document shape), DEL-04-10 (the snubber's dynamic meaning), DEL-02-02 (units, including the unit families of modal quantities), DEL-00-06 (the diagnostics contract), DEL-04-08 (the retained-memory pricing law), and DEL-07-05 and DEL-08-01 (the viewer's and report's contracts). Published piping benchmarks are external sources, each used only with its own redistribution evidence (REQ-009). These deliverables keep their scope.
 
 ### CLM-003 — What is outside these commitments
 
-- Response-spectrum analysis is DEL-04-10's, on this deliverable's modal basis. Time-history and harmonic analysis are not part of either (DEC-078).
+- Response-spectrum analysis is DEL-04-10's, on this deliverable's modal basis. Time-history and harmonic analysis are not part of either (PRD §12.9).
 - A Timoshenko consistent mass, a mass-point helper and a concentrated-mass field are not committed here; a model that needs one is refused by name.
 - The product's second, seismic mass basis is outside this deliverable.
 
@@ -53,7 +53,9 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
 - Whether a modal result is recorded as an analysis run is undecided.
 - The factor of the coarse-discretization warning is undecided; it is derived by benchmark.
 - Where the desktop keeps the remembered extraction bound for a project is undecided.
-- The first candidate published benchmark, NUREG/CR-1677 Volume 1, has no established redistribution status and is held for the owner's review; nothing is transcribed from it until the owner releases it.
+- The first candidate published benchmark, NUREG/CR-1677 Volume 1, has no established redistribution status and is held under REQ-009.
+
+**Admission.** No product surface (desktop, headless runner or report) admits a user's modal request, or shows or records a modal result as an engineering result, until on that surface the dense path's work guard has its measured budget, the checks of REQ-003 and the guards of REQ-007 apply, and the product reader of REQ-005, rederiving the mass from the model, gives the verdict the surface shows. Until then a modal document is experimental. Agent 0 admits a surface when the evidence shows these hold.
 
 ### Mass
 
@@ -67,7 +69,7 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
   - **Massless families.** Objective connectors, tie rods and constant-effort supports carry no mass, which is disclosed.
   - **Restrained DOFs.** Mass at restrained DOFs is excluded from M_ff and disclosed with the total model mass.
   - **No defaulted mass.** No density, mass or acceleration is defaulted; a missing required input refuses by name.
-  - **Weight-basis identity.** Every result runs a blocking check that g·M·1 equals the self-weight. For each global direction k, a·M·r_k on the full mass is compared with the self-weight generator's loads at gravity a along k over the mass-bearing members, on the model's route. The identity holds nodally for straight members, against the consistent uniform-load vector, and on the resultant force and moment for arcs and components, each within a measured tolerance; it is not literal vector equality for every family. The tolerance is 2⁻⁴⁴ relative with an absolute member of 0, an acceptance criterion for the formed mass and not a guarantee that every error is detected; it is only tightened (DEC-026). A failure refuses with `MODAL_MASS_WEIGHT_BASIS_MISMATCH`, naming the member or component.
+  - **Weight-basis identity.** Every result runs a blocking check that g·M·1 equals the self-weight. For each global direction k, a·M·r_k on the full mass is compared with the self-weight generator's loads at gravity a along k over the mass-bearing members, on the model's route. The identity holds nodally for straight members, against the consistent uniform-load vector, and on the resultant force and moment for arcs and components, each within a measured tolerance; it is not literal vector equality for every family. The tolerance is 2⁻⁴⁴ relative with an absolute member of 0, an acceptance criterion for the formed mass and not a guarantee that every error is detected; it is only tightened. A failure refuses with `MODAL_MASS_WEIGHT_BASIS_MISMATCH`, naming the member or component.
 - **AC-001** — On the frozen `f1_modal` mass references, on both routes' mass bases, for straights, arcs, an eligible component, a component with an offset centre of gravity, an ineligible component and the massless families:
   - the product mass matrices, totals by category and free-DOF masses agree with the references within their recorded tolerances;
   - the identity check passes on each reference model, within the stated tolerance;
@@ -124,7 +126,7 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
       - when an element family has no re-formation (`MODAL_REFORMATION_UNAVAILABLE`);
       - on a weight-basis or acceleration mismatch, a component mass out of range, or a non-positive-definite K.
     - The kernel integrity check's static criterion is not reused; only its element re-formation is, through a read-only entry.
-  - **Tolerances.** The residual threshold is 2⁻³⁰ (a mode above it is Sensitive, never refused for that alone), the orthogonality tolerance 2⁻²³, the cluster tolerance δ_c = 2⁻²⁰, the growth limit 2⁵², the separation multiple 2⁷ and the conditioning fraction 2⁻¹⁰. Each is an acceptance, demotion or grouping criterion, not an error or count theorem, and is only tightened (DEC-026).
+  - **Tolerances.** The residual threshold is 2⁻³⁰ (a mode above it is Sensitive, never refused for that alone), the orthogonality tolerance 2⁻²³, the cluster tolerance δ_c = 2⁻²⁰, the growth limit 2⁵², the separation multiple 2⁷ and the conditioning fraction 2⁻¹⁰. Each is an acceptance, demotion or grouping criterion, not an error or count theorem, and is only tightened.
   - **Determinism.** The output is deterministic for a fixed model, request, solver version and settings.
 - **AC-003** — On the frozen `f1_modal` references, the dense path:
   - reproduces the class (a) discrete references at their recorded tolerance (seeded at 1e-9 relative for frequencies), and converges to the class (b) continuum references at the expected rate;
@@ -234,7 +236,7 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
 **Method choices that define the product.**
 
 - *One mass basis with self-weight.* The mass model reads self-weight's own mass per length and eligibility rule, so mass and weight cannot drift apart.
-- *No new numerical dependency.* Both eigen-solution paths are in-repository and use the kernel's sparse factorization (DEC-023).
+- *No new numerical dependency.* Both eigen-solution paths are in-repository and use the kernel's sparse factorization.
 - *Completeness by count.* A Sturm count at a shift in a gap between computed clusters must equal the number of modes reported. A count is relied on only under the conditioning and separation premises; where they cannot be met the set is refused.
 - *Integrity against an independent re-formation.* Residuals are evaluated against stiffness and mass re-formed from their authored operands in at least double-double precision.
 - *Guards refuse; they never truncate.* A request over a memory or work limit is refused with its formula.
@@ -266,13 +268,13 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | OBJ-003 SOW-081 | REQ-001 CLM-001 | AC-001 | VER-001 | Outside source: `validation/references/f1_modal/mass_discrete`, derived without product code and refuted by a second agent |
-| OUT-002 | OBJ-003 SOW-081 | REQ-002 | AC-002 | VER-002 | Owner ruling: PRD §12.9 and §5.5 state the required inputs and refusals; the reported sets are compared with the reference generator's exact counts, an outside source |
+| OUT-002 | OBJ-003 SOW-081 | REQ-002 | AC-002 | VER-002 | The criterion states the required inputs and refusals (PRD §12.9, §5.5); the reported sets are compared with the reference generator's exact counts, an outside source |
 | OUT-003 | OBJ-003 SOW-081 | REQ-003 | AC-003 | VER-003 | Outside source: closed-form beam, rod and ring frequencies and the discrete references of `validation/references/f1_modal`, with exact Sturm counts and an independent Jacobi control. Repeat-run identity is the product's own output and only guards against change |
 | OUT-003 | OBJ-003 SOW-081 | REQ-004 | AC-004 | VER-004 | Outside source: the same references and exact counts. Agreement with the dense path is the product's own output and only guards against change |
 | OUT-004 | OBJ-003 SOW-081 | REQ-005 | AC-005 | VER-005 | Outside source: an independent Python verifier that imports no producer code, recomputing from the published document and the bound request. The committed documents are the product's own earlier output and only guard against change |
 | OUT-005 | OBJ-003 SOW-081 | REQ-006 CLM-002 CLM-003 | AC-006 | VER-006 | Outside source: the discrete and oblique references for state-case, contents, skew and snubber models; the refusals and disclosures are those REQ-006 names. Frequencies equal to those of the matching linear model compare the product with itself: no independent grounds |
-| OUT-005 | OBJ-003 SOW-081 | REQ-007 | AC-007 | VER-007 | The criterion states the expected refusals from its own formulas; the memory profile is an owner ruling (DEL-04-08/REQ-004) |
-| OUT-005 | OBJ-003 SOW-081 | REQ-008 | AC-008 | VER-008 | Owner ruling: PRD §5.5 for the absence of a pre-set bound; the criterion states the expected behaviour of the surfaces |
-| OUT-005 | OBJ-003 SOW-081 | REQ-009 | AC-009 | VER-009 | Owner ruling: PRD §21.2, `docs/claims_registry.md` and `docs/IP_AND_DATA_BOUNDARY.md` |
+| OUT-005 | OBJ-003 SOW-081 | REQ-007 | AC-007 | VER-007 | The criterion states the expected refusals from its own formulas; pricing within the registered memory profile is examined by the actual-source pricing audit (DEL-04-08/REQ-004) |
+| OUT-005 | OBJ-003 SOW-081 | REQ-008 | AC-008 | VER-008 | The criterion states the expected behaviour of the surfaces, the absence of a pre-set bound included (PRD §5.5) |
+| OUT-005 | OBJ-003 SOW-081 | REQ-009 | AC-009 | VER-009 | Judgment of the texts against PRD §21.2 and `docs/claims_registry.md`; provenance fields against `docs/IP_AND_DATA_BOUNDARY.md` §4; each reference regenerated from a generator that imports no product code |
 | OUT-005 | OBJ-003 SOW-081 | REQ-010 | AC-010 | VER-010 | Outside source: a published piping benchmark, transcribed with its own redistribution evidence; comparison evidence, not exact verification |
-| OUT-005 | OBJ-003 SOW-081 | REQ-011 REQ-006 | AC-011 | VER-011 | Owner ruling: release target exit criterion 1 lists the families; admission is compared with the exact route's static admission, which this deliverable does not write. Frequency correctness rests on AC-003 and AC-006 |
+| OUT-005 | OBJ-003 SOW-081 | REQ-011 REQ-006 | AC-011 | VER-011 | Release target exit criterion 1 lists the families; admission is compared with the exact route's static admission, which this deliverable does not write. Frequency correctness rests on AC-003 and AC-006 |

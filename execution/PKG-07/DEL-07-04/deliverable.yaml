@@ -4,9 +4,10 @@ needs:
 - from: DEL-00-06
   condition: >-
     A diagnostic carries code, class, severity, source, affected object, message and remediation,
-    and provenance where applicable; the six warning classes are preserved across every boundary;
-    and invalid input, incomplete model, mechanics result, rule-check result and human-review-needed
-    are distinguished.
+    and provenance where applicable; a diagnostic crossing a boundary keeps every field other than
+    its class unchanged, and its class changes only by the receiving boundary's stated mapping where
+    that boundary's schema requires its own class vocabulary; and invalid input, incomplete model,
+    mechanics result, rule-check result and human-review-needed are distinguished.
   gating: true
 - from: DEL-00-05
   condition: >-

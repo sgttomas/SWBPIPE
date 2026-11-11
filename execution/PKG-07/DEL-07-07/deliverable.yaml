@@ -10,9 +10,11 @@ needs:
 - from: DEL-00-06
   condition: >-
     A diagnostic carries code, class, severity, source, affected object, message and remediation,
-    and provenance where applicable; the six warning classes are preserved across every boundary;
-    and invalid input, incomplete model, mechanics result, rule-check result and human-review-needed
-    are distinguished.
+    and provenance where applicable; the product's six warning classes are defined; when a
+    diagnostic crosses a boundary every field other than class arrives unchanged, and its class
+    changes only where the receiving boundary's schema requires its own class vocabulary, by that
+    boundary's stated mapping; and invalid input, incomplete model, mechanics result, rule-check
+    result and human-review-needed are distinguished.
   gating: true
 - from: DEL-04-07
   condition: >-
@@ -48,8 +50,8 @@ needs:
 - from: DEL-02-05
   when: Saving a project from a held result
   condition: >-
-    A stored project keeps the model document and its result as saved, reads them back unchanged,
-    and refuses by name a write that would replace a revision the session did not open.
+    A stored project keeps the model document and its result as saved and reads them back
+    unchanged.
   gating: true
 - from: DEL-07-04
   condition: >-
@@ -59,7 +61,7 @@ needs:
 - from: DEL-04-05
   when: Marking the solve timeline
   condition: >-
-    The performance kit names the stage boundaries it times, each with a fixed code.
+    The performance kit names the stages of a desktop solve that it times separately.
   gating: false
 - from: DEL-07-11
   condition: >-

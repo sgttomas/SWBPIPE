@@ -62,7 +62,7 @@ The workflow is adequate when a contributor can tell what they must state, a mai
 - **REQ-001** — The workflow requires the contributor to supply, for every public data record, its source, source location, licence or an explicit statement that the licence is undecided, the contributor's identity, the certification, the redistribution status and the review status (PRD §20.2; `docs/CONTRACT.md` OPS-K-IP-2).
 - **REQ-002** — The workflow rejects or quarantines a contribution that contains, or appears to contain, protected content as DEL-01-02 defines it, proprietary vendor data without redistribution rights, or private user, project or rule-pack data (PRD §20.1; `docs/CONTRACT.md` OPS-K-IP-1, OPS-K-IP-3).
 - **REQ-003** — Suspected protected content is routed to human or legal review. It is never paraphrased, summarized or reformatted into public data (`docs/CONTRACT.md` OPS-K-IP-3).
-- **REQ-004** — The workflow states the contributor legal instrument as undecided and adopts none. Review authority and quorum are those DEL-01-01 records (DEC-027, DEC-079).
+- **REQ-004** — The workflow states the contributor legal instrument as undecided and adopts none. Review authority and quorum are those DEL-01-01 records.
 - **REQ-005** — The workflow keeps contribution governance separate from professional engineering approval. Neither the certification nor a disposition claims legal clearance or a certification of rights, or makes any claim PRD §21.2 prohibits: certifying, sealing, approving or authenticating engineering work, declaring code compliance for professional reliance, or replacing the engineer of record or project-specific professional review (PRD §21.2; `docs/CONTRACT.md` OPS-K-AUTH-1).
 - **REQ-006** — Every reviewed contribution has a recorded disposition, with one of the four status values, that states it is a project governance review (`docs/CONTRACT.md` OPS-K-GOV-4).
 - **REQ-007** — The workflow keeps the boundary between public and private data visible to the adapters, importers, rule packs, reports and release gates that later act on contributed content: a contribution's record carries its redistribution status and its review status in the values DEL-01-02 defines.
@@ -70,7 +70,7 @@ The workflow is adequate when a contributor can tell what they must state, a mai
 
 ### Delivery commitments
 
-- **DEL-01-03:1** — External contribution intake is closed (DEC-027, DEC-079). Opening it is an owner act recorded as a new entry in the decision register, with a contributor legal instrument adopted on legal advice. An activation uses the sole-maintainer review and the protected-content screening defined above, or supersedes them. This scope opens no intake and adopts no instrument.
+- **DEL-01-03:1** — External contribution intake is closed. Opening it is an owner act recorded as a new entry in the decision register, with a contributor legal instrument adopted on legal advice. An activation uses the sole-maintainer review and the protected-content screening defined above, or supersedes them. This scope opens no intake and adopts no instrument.
 - **DEL-01-03:2** — Before public release, the owner or counsel reviews the project's public-facing language, including the public issue forms, the contribution policy and the disclaimers. DEL-01-02's policy is part of that review.
 - **DEL-01-03:3** — The project's issue forms are at the root `.github/ISSUE_TEMPLATE/` of the public repository `sgttomas/SWBPIPE`, so that GitHub applies them to every issue opened there.
 
@@ -96,7 +96,7 @@ The workflow is adequate when a contributor can tell what they must state, a mai
 **How each criterion is examined.**
 
 - **VER-001** — Judgment by a named role (an independent reviewer who did not write the text): read the workflow and the certification template against DEL-01-02's provenance record and quarantine rule, PRD §20.2 and §21.2, and DEC-027 and DEC-079; report each missing field, each attestation of the contributor certification term the certification omits, each evidence state without a single route, each claim of clearance or approval, any instrument presented as adopted and any invitation to contribute.
-- **VER-002** — Judgment by a named role (an independent reviewer acting first as contributor and then as maintainer): take five invented contributions, one in each evidence state, through the workflow and the template and record the route and the disposition record each produces. The expected routes are those of the table, which is the review and screening the owner adopted (DEC-079).
+- **VER-002** — Judgment by a named role (an independent reviewer acting first as contributor and then as maintainer): take five invented contributions, one in each evidence state, through the workflow and the template and record the route and the disposition record each produces. The expected routes are those of the table.
 - **VER-003** — Executable check (observes the form files, a proxy for what GitHub shows): each file in `.github/ISSUE_TEMPLATE/` parses as an issue form; the configuration disables blank issues; and every form contains the contributions-closed statement, the data-boundary caution and a required confirmation.
 
 ## Governing Values and Decisions — Axiology
@@ -109,10 +109,10 @@ The workflow is adequate when a contributor can tell what they must state, a mai
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-028 OBJ-002 | REQ-001 REQ-007 REQ-008 | AC-001 | VER-001 | Owner ruling: PRD §20.2 lists the provenance fields, and DEC-079 adopts the two screens. The attestations are those this scope's contributor certification term states. The comparison is with DEL-01-02's record, not with the template's own text |
-| OUT-001 | SOW-028 OBJ-002 | REQ-002 REQ-003 | AC-002 | VER-002 | Owner ruling: the routing the owner adopted (DEC-079) says what must happen to each invented contribution; the routes are reached by a reviewer who did not write the workflow |
-| OUT-001 | SOW-028 SOW-048 OBJ-002 | REQ-006 | AC-003 | VER-002 | Owner ruling: `docs/CONTRACT.md` OPS-K-GOV-4 and OPS-K-IP-2 require a review disposition; the four values are DEL-01-02's |
-| OUT-001 | SOW-048 OBJ-002 | REQ-004 REQ-005 | AC-004 | VER-001 | Owner ruling: PRD §21.2 lists the prohibited claims; DEC-079 leaves the instrument unadopted |
-| OUT-001 | SOW-048 OBJ-002 | REQ-004 REQ-008, DEL-01-03:1 | AC-005 | VER-001 VER-003 | Owner ruling: DEC-027 closes intake |
-| OUT-002 | SOW-028 OBJ-002 | REQ-002, DEL-01-03:3 | AC-006 | VER-003 | Owner ruling: PRD §20.1 and §20.3 say what a public report may not contain; the repository's location is the release target's criterion 16 |
+| OUT-001 | SOW-028 OBJ-002 | REQ-001 REQ-007 REQ-008 | AC-001 | VER-001 | PRD §20.2 lists the provenance fields, and the two screens are those of the certification record. The attestations are those this scope's contributor certification term states. The comparison is with DEL-01-02's record, not with the template's own text |
+| OUT-001 | SOW-028 OBJ-002 | REQ-002 REQ-003 | AC-002 | VER-002 | The evidence-state table says what must happen to each invented contribution; the routes are reached by a reviewer who did not write the workflow |
+| OUT-001 | SOW-028 SOW-048 OBJ-002 | REQ-006 | AC-003 | VER-002 | `docs/CONTRACT.md` OPS-K-GOV-4 and OPS-K-IP-2 require a review disposition; the four values are DEL-01-02's |
+| OUT-001 | SOW-048 OBJ-002 | REQ-004 REQ-005 | AC-004 | VER-001 | PRD §21.2 lists the prohibited claims; DEL-01-03:1 leaves the instrument unadopted |
+| OUT-001 | SOW-048 OBJ-002 | REQ-004 REQ-008, DEL-01-03:1 | AC-005 | VER-001 VER-003 | DEL-01-03:1 states that intake is closed |
+| OUT-002 | SOW-028 OBJ-002 | REQ-002, DEL-01-03:3 | AC-006 | VER-003 | PRD §20.1 and §20.3 say what a public report may not contain; the repository's location is the release target's criterion 16 |
 | OUT-002 | SOW-048 OBJ-002 | DEL-01-03:2 | AC-007 | HUMAN_REVIEW: the owner or counsel reviews the public-facing language before public release | The owner's or counsel's own review; nothing the product produces stands in for it |

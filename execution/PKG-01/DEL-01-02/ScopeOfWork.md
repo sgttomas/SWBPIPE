@@ -63,9 +63,9 @@ The policy is a project governance control. It is adequate when a maintainer, a 
 - **REQ-007** — Review of a public contribution for protected content, provenance, redistribution rights and private data is a maintainer gate that precedes acceptance. The checklist records the reviewer and the disposition (SOW-028; `docs/CONTRACT.md` OPS-K-GOV-4).
 - **REQ-008** — The policy gives no legal advice and draws no legal conclusion about any content or contribution. Accepting content under it is project governance, not professional approval of engineering use (PRD §21.2).
 - **REQ-010** — The policy states rules only. Enforcement is by the deliverables named in the boundary: DEL-03-07 on library import, DEL-08-05 in report linting and the release-candidate scan, DEL-12-01 in storage paths and DEL-12-03 in telemetry.
-- **REQ-011** — The checklist is at `governance/CONTRIBUTION_REVIEW_CHECKLIST.md`. It is the reviewer's side of the two-sided record of a contribution, used in the sole-maintainer review (DEC-027, DEC-079); the contributor's side is DEL-01-03's certification.
-- **REQ-012** — The policy carries the owner's rule for the external prover CAEPIPE, interoperate openly and evaluate privately: public text may name CAEPIPE and state the file-format and interface facts the code needs to interoperate with it; anything that evaluates CAEPIPE (result values, differences, agreement counts, measured tolerances, defects, limits, screenshots) stays in the user's private exchange folder and is never committed; and no public text claims agreement with CAEPIPE. When the owner has checked the CAEPIPE licence for benchmark clauses, the rule is amended so that benchmark agreement is published and other evaluation stays private (`docs/RELEASE_TARGET_v1.0.md`, benchmark method).
-- **REQ-013** — The policy distinguishes redistribution from runtime handling. A user's own private data read at runtime, or sent to a model provider that user configured, is not redistribution and creates no exception to REQ-001, REQ-003 or the rights of third parties (DEC-051; `docs/CONTRACT.md` OPS-K-PRIV-1).
+- **REQ-011** — The checklist is at `governance/CONTRIBUTION_REVIEW_CHECKLIST.md`. It is the reviewer's side of the two-sided record of a contribution, used in the sole-maintainer review; the contributor's side is DEL-01-03's certification.
+- **REQ-012** — The policy carries the rule for the external prover CAEPIPE, interoperate openly and evaluate privately: public text may name CAEPIPE and state the file-format and interface facts the code needs to interoperate with it; anything that evaluates CAEPIPE (result values, differences, agreement counts, measured tolerances, defects, limits, screenshots) stays in the user's private exchange folder and is never committed; and no public text claims agreement with CAEPIPE. When the owner has checked the CAEPIPE licence for benchmark clauses, the rule is amended so that benchmark agreement is published and other evaluation stays private (`docs/RELEASE_TARGET_v1.0.md`, benchmark method).
+- **REQ-013** — The policy distinguishes redistribution from runtime handling. A user's own private data read at runtime, or sent to a model provider that user configured, is not redistribution and creates no exception to REQ-001, REQ-003 or the rights of third parties (`docs/CONTRACT.md` OPS-K-PRIV-1).
 
 ### Acceptance criteria
 
@@ -89,7 +89,7 @@ The policy is a project governance control. It is adequate when a maintainer, a 
 
 **How each criterion is examined.**
 
-- **VER-001** — Judgment by a named role (an independent reviewer who did not write the text): read the policy against PRD §5.4, §17.4, §19.4 and §20.1 to §20.3, `docs/CONTRACT.md` OPS-K-IP-1 to OPS-K-IP-3, OPS-K-RULE-1 and OPS-K-REPORT-2, and the owner's CAEPIPE and runtime-handling rulings; report each class, field, value, step or rule that is missing, added or weakened, and each legal conclusion or approval-like statement.
+- **VER-001** — Judgment by a named role (an independent reviewer who did not write the text): read the policy against PRD §5.4, §17.4, §19.4 and §20.1 to §20.3, `docs/CONTRACT.md` OPS-K-IP-1 to OPS-K-IP-3, OPS-K-RULE-1, OPS-K-REPORT-2 and OPS-K-PRIV-1, and the benchmark method of `docs/RELEASE_TARGET_v1.0.md`; report each class, field, value, step or rule that is missing, added or weakened, and each legal conclusion or approval-like statement.
 - **VER-002** — Judgment by a named role (an independent reviewer who did not write the checklist): apply the policy and the checklist to the three invented contributions of AC-004 and record the disposition reached for each. The expected dispositions are the policy's: eligible for acceptance; pending or rejected; quarantined and escalated.
 
 ## Governing Values and Decisions — Axiology
@@ -102,11 +102,11 @@ The policy is a project governance control. It is adequate when a maintainer, a 
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-003 OBJ-002 | REQ-001 REQ-004 REQ-010 | AC-001 | VER-001 | Owner ruling: PRD §20.1 lists the permitted and the prohibited classes and `docs/CONTRACT.md` OPS-K-IP-1 the prohibited ones; the reviewer compares the policy with them |
-| OUT-001 | SOW-028 OBJ-002 | REQ-002 REQ-005 | AC-002 | VER-001 | Owner ruling: PRD §20.2 lists the fields. The two value sets are defined by this scope |
-| OUT-001 | SOW-003 SOW-028 OBJ-002 | REQ-003 | AC-003 | VER-001 | Owner ruling: PRD §20.2 and `docs/CONTRACT.md` OPS-K-IP-3 require quarantine and escalation; the steps and the default location are defined by this scope |
+| OUT-001 | SOW-003 OBJ-002 | REQ-001 REQ-004 REQ-010 | AC-001 | VER-001 | PRD §20.1 lists the permitted and the prohibited classes and `docs/CONTRACT.md` OPS-K-IP-1 the prohibited ones; the reviewer compares the policy with them |
+| OUT-001 | SOW-028 OBJ-002 | REQ-002 REQ-005 | AC-002 | VER-001 | PRD §20.2 lists the fields. The two value sets are defined by this scope |
+| OUT-001 | SOW-003 SOW-028 OBJ-002 | REQ-003 | AC-003 | VER-001 | PRD §20.2 and `docs/CONTRACT.md` OPS-K-IP-3 require quarantine and escalation; the steps and the default location are defined by this scope |
 | OUT-002 | SOW-028 OBJ-002 | REQ-007 REQ-011 | AC-004 | VER-002 | The policy says what must happen to each invented contribution; the dispositions are reached by a reviewer who wrote neither document. The checklist's content comes from the owner's contributor rules |
-| OUT-001 | SOW-003 OBJ-002 | REQ-006 | AC-005 | VER-001 | Owner ruling: PRD §17.4 and §19.4 and `docs/CONTRACT.md` OPS-K-RULE-1 and OPS-K-REPORT-2 |
-| OUT-001 | SOW-003 OBJ-002 | REQ-004 REQ-013 | AC-006 | VER-001 | Owner ruling: PRD §20.3 and DEC-051 |
-| OUT-001 | SOW-003 OBJ-002 | REQ-012 | AC-007 | VER-001 | Owner ruling: the owner's CAEPIPE rule and the release target's benchmark method |
-| OUT-001 | SOW-003 SOW-028 OBJ-002 | REQ-008 | AC-008 | VER-001 | Owner ruling: PRD §21.2 lists the prohibited claims |
+| OUT-001 | SOW-003 OBJ-002 | REQ-006 | AC-005 | VER-001 | PRD §17.4 and §19.4 and `docs/CONTRACT.md` OPS-K-RULE-1 and OPS-K-REPORT-2 |
+| OUT-001 | SOW-003 OBJ-002 | REQ-004 REQ-013 | AC-006 | VER-001 | PRD §20.3 and `docs/CONTRACT.md` OPS-K-PRIV-1 |
+| OUT-001 | SOW-003 OBJ-002 | REQ-012 | AC-007 | VER-001 | The release target's benchmark method, which says what is published about CAEPIPE and what stays private |
+| OUT-001 | SOW-003 SOW-028 OBJ-002 | REQ-008 | AC-008 | VER-001 | PRD §21.2 lists the prohibited claims |

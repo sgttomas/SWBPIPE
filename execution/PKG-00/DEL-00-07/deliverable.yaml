@@ -8,13 +8,14 @@ needs:
   gating: true
 - from: DEL-00-03
   condition: >-
-    Every service entry point is exactly one of command, query or job, and every command and job
-    returns a result envelope with its diagnostics.
+    The command, query and job kinds are defined, with what each returns: a command or job returns
+    a result envelope carrying its diagnostics.
   gating: true
 - from: DEL-00-04
   condition: >-
-    Every persisted document declares its schema version, a JSON payload is hashed as SHA-256 over
-    its RFC 8785 canonical form, and no plugin or adapter opens the store or issues SQL.
+    The persistence rules are defined: each persisted document declares its schema version, a JSON
+    payload is hashed as SHA-256 over its RFC 8785 canonical form, and no plugin or adapter opens
+    the store or issues SQL.
   gating: true
 - from: DEL-00-06
   condition: >-

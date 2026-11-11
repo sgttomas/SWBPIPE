@@ -66,7 +66,7 @@ code_paths:
 - validation/evidence/gates/**
 - validation/evidence/coverage/**
 # The release-candidate content scan (tools/release/run_release_candidate_scan.py and
-# tests/test_release_candidate_scan.py) is DEL-08-05's under DEC-058 and is not listed here.
+# tests/test_release_candidate_scan.py) is DEL-08-05's and is not listed here.
 checks:
 - tests/test_release_readiness_script.py
 - tests/test_evidence_sweep.py

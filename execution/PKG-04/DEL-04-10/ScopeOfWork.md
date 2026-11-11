@@ -13,7 +13,7 @@ package_objective_refs: [OBJ-003]
 
 This deliverable computes the seismic response of the linear piping model to uniform support motion by the response-spectrum method, on DEL-04-09's modal basis. An engineer enters the spectra and gets the peak displacements, element end forces and support reactions the earthquake is estimated to cause, each as an unsigned magnitude. It takes every spectrum, damping value and method choice from the user, corrects for the mass the extracted modes do not represent, treats snubbers as restraints in the dynamic analysis only, and refuses by name what it does not admit.
 
-It serves SOW-082 under OBJ-003 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-04, row DEL-04-10), and PRD §12.9 and §7 item 15. In `docs/RELEASE_TARGET_v1.0.md` it is the owning deliverable for response spectrum: it supplies the response-spectrum analysis of the release target's reference system, solved on the exact route in the desktop with no admitted family refused (exit criterion 1), and its closed-form or hand-calculation references, frozen with an independent generator (exit criterion 2). It also sets the spectrum screening class of the release target's benchmark method. The owner's ruling fixes what is required: user-entered spectra, modal and directional combination, a missing-mass correction, and snubbers as a dynamic-only restraint.
+It serves SOW-082 under OBJ-003 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-04, row DEL-04-10), and PRD §12.9 and §7 item 15. In `docs/RELEASE_TARGET_v1.0.md` it is the owning deliverable for response spectrum: it supplies the response-spectrum analysis of the release target's reference system, solved on the exact route in the desktop with no admitted family refused (exit criterion 1), and its closed-form or hand-calculation references, frozen with an independent generator (exit criterion 2). It also sets the spectrum screening class of the release target's benchmark method. The required capability is user-entered spectra, modal and directional combination, a missing-mass correction, and snubbers as a dynamic-only restraint.
 
 - **OUT-001** — The spectrum request: spectra, direction assignments, method choices and the missing-mass input (REQ-001).
 - **OUT-002** — The modal responses, the modal and directional combinations and the missing-mass correction (REQ-002 to REQ-004).
@@ -63,7 +63,7 @@ Every combined response is an unsigned magnitude.
 
 ### CLM-003 — What is outside these commitments
 
-- Time-history, harmonic and force-spectrum analysis (DEC-078).
+- Time-history, harmonic and force-spectrum analysis.
 - Stresses from spectrum responses. They need per-mode stress recovery combined by the same rules, never recovery from combined forces.
 - Combination of a spectrum result with static cases.
 - The retained-precision route: the spectrum entry is not a retained-precision entry.
@@ -74,8 +74,8 @@ Every combined response is an unsigned magnitude.
 
 **Undecided.**
 
-- The spectrum screening class has no value. It is derived from the frozen references and decided by the owner before any comparison run (REQ-008).
-- Whether and how the load-case algebra (DEL-05-02) admits a spectrum result as an unsigned operand is not decided.
+- The spectrum screening class has no value. It is derived from the frozen references before any comparison run (REQ-008).
+- No deliverable currently commits to combining a spectrum result with static cases (for example sustained plus seismic). Whether and how the load-case algebra (DEL-05-02) admits a spectrum result as an unsigned operand is not decided.
 - Independent support motion that moves a skewed restraint has no defined constraint, and CQC has no defined form for independent support motion; both are refused (REQ-011).
 
 ### Request
@@ -104,7 +104,7 @@ Every combined response is an unsigned magnitude.
 
 ### Snubbers
 
-- **REQ-005** — *Dynamic-only restraints.* A snubber (DEL-02-01's family) restrains its translational DOFs, or the motion along its one skew direction only, rigidly or by its stated stiffness (as k·d dᵀ/(dᵀd) for a skew direction d), in the dynamic stiffness: the modal basis used by a spectrum solve, the spectrum solve and its auxiliary static solve (REQ-004). Every static load-case solve on both routes ignores it and discloses it as "dynamic-only restraint, not active in static cases". A modal request that excludes dynamic-only restraints also ignores it, with the same disclosure.
+- **REQ-005** — *Dynamic-only restraints.* A snubber (DEL-02-01's family) restrains its translational DOFs, or the motion along its one skew direction only, rigidly or by its stated stiffness (as k·d dᵀ/(dᵀd) for a skew direction d), in the dynamic stiffness: the modal basis used by a spectrum solve, the spectrum solve and its auxiliary static solve (REQ-004). Every static load-case solve on both routes ignores it and discloses it as "dynamic-only restraint, not active in static cases". A modal request that excludes dynamic-only restraints also ignores it, with the same disclosure. The product solve's scope (DEL-04-07) does not currently commit to leaving a snubber out of its static solves; this requirement states the meaning that solve must compose.
 - **AC-003** — On the frozen `f2_spectrum` snubber references (axis and skew, rigid and finite stiffness), the product reproduces the modal basis and the spectrum response within REQ-008's verification tolerance, with perpendicular motion free under a skew snubber and a rigid response whose stiffness depends on the snubber. Every static load-case result is unchanged by the snubber, and the disclosure appears in both.
 
 ### Results and readers
@@ -133,8 +133,8 @@ Every combined response is an unsigned magnitude.
 
 ### Independent support motion (Should)
 
-- **REQ-011** — *Independent support motion (Should).* Support groups, each with its own spectra per direction and its own influence vectors from static unit motion of its supports (CLM-001). Each ground spring and finite-stiffness snubber is assigned to a group by the user, and its base moves with that group. Per mode and direction, group responses are combined first by the user's rule (absolute sum or SRSS), then modes (SRSS or grouping; CQC is refused for independent support motion, `SPECTRUM_INDEPENDENT_SUPPORT_MOTION_CQC_UNSUPPORTED`), then directions; a rigid response is formed per group. A group that moves a skewed restraint is refused (`SPECTRUM_INDEPENDENT_SUPPORT_MOTION_SKEW_UNSUPPORTED`). The rules and order are stated in the result. The pseudo-static part of differential support motion is seismic anchor movement, a static load case, and is not included; its combination with the spectrum result is DEL-05-02's. Where independent support motion is not admitted, a request with more than one support group is refused by name (`SPECTRUM_INDEPENDENT_SUPPORT_MOTION_UNSUPPORTED`).
-- **AC-009** — The product reproduces references for a two-group model, including the combination order and a moving compliant-support base, under each group-combination rule; CQC is refused for independent support motion; and a request outside the admitted domain is refused by name.
+- **REQ-011** — *Independent support motion (Should).* Support groups, each with its own spectra per direction and its own influence vectors from static unit motion of its supports (CLM-001). Each ground spring and finite-stiffness snubber is assigned to a group by the user, and its base moves with that group. Per mode and direction, group responses are combined first by the user's rule (absolute sum or SRSS), then modes (SRSS or grouping; CQC is refused for independent support motion, `SPECTRUM_INDEPENDENT_SUPPORT_MOTION_CQC_UNSUPPORTED`), then directions; a rigid response is formed per group. A group that moves a skewed restraint is refused (`SPECTRUM_INDEPENDENT_SUPPORT_MOTION_SKEW_UNSUPPORTED`). The rules and order are stated in the result. The pseudo-static part of differential support motion is seismic anchor movement, a static load case, and is not included; its combination with the spectrum result is not this deliverable's, and no deliverable currently commits to it. Where independent support motion is not admitted, a request with more than one support group is refused by name (`SPECTRUM_INDEPENDENT_SUPPORT_MOTION_UNSUPPORTED`).
+- **AC-009** — Where independent support motion is admitted, the product reproduces references for a two-group model, including the combination order and a moving compliant-support base, under each group-combination rule; CQC is refused for independent support motion; and a request outside the admitted domain is refused by name. Where it is not admitted, a request with more than one support group is refused by name.
 
 ## Production and Verification Method — Praxeology
 
@@ -149,7 +149,7 @@ Every combined response is an unsigned magnitude.
 **How each criterion is examined.**
 
 - **VER-001** — Executable check: observes each request refusal, and the absence of any default, at the product entry, the headless runner and the desktop.
-- **VER-002** — Comparison with a named reference: the product against the frozen references in `validation/references/f2_spectrum`, at the verification tolerance, with a mutation of each method choice and repeat-run byte identity. It also examines AC-009 against the two-group references.
+- **VER-002** — Comparison with a named reference: the product against the frozen references in `validation/references/f2_spectrum`, at the verification tolerance, with a mutation of each method choice and repeat-run byte identity. Where independent support motion is admitted, it also examines AC-009 against the two-group references.
 - **VER-003** — Comparison with a named reference, with an executable check: snubber models against their references in `validation/references/f2_spectrum` on the modal basis and the spectrum response; the check observes every static load-case result unchanged and the disclosure, on both routes.
 - **VER-004** — Executable check: observes the product reader and the test verifier returning the same verdict on every committed result and mutation, and that the verifier imports no producer code.
 - **VER-005** — Executable check: observes each refusal and disclosure with its code and named object, on both routes, including the independent-support-motion refusals.
@@ -169,13 +169,13 @@ Every combined response is an unsigned magnitude.
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | OBJ-003 SOW-082 | REQ-001 | AC-001 | VER-001 | Owner ruling: SOW-082 and PRD §5.5 (no defaults); each refusal is named in REQ-001 |
+| OUT-001 | OBJ-003 SOW-082 | REQ-001 | AC-001 | VER-001 | The criterion states the expected refusals, each named in REQ-001, and the absence of defaults (PRD §5.5) |
 | OUT-002 | OBJ-003 SOW-082 | REQ-002 REQ-003 REQ-004 CLM-001 | AC-002 | VER-002 | Outside source: closed-form and hand-calculation references in `validation/references/f2_spectrum`, whose generator imports no product code. Repeat-run identity is the product's own earlier output and only guards against change |
 | OUT-003 | OBJ-003 SOW-082 | REQ-005 | AC-003 | VER-003 | Outside source for the snubber response: closed-form references in `validation/references/f2_spectrum`. Unchanged static results are the product's own earlier output and only guard against change |
 | OUT-004 | OBJ-003 SOW-082 | REQ-006 | AC-004 | VER-004 | Outside source: a verifier that imports no producer code, recomputing from the recorded rules. The committed documents are the product's own earlier output and only guard against change |
-| OUT-005 | OBJ-003 SOW-082 | REQ-007 CLM-002 CLM-003 | AC-005 | VER-005 | Owner ruling: SOW-082; the refusals are those REQ-007 names |
-| OUT-005 | OBJ-003 SOW-082 | REQ-008 | AC-006 | VER-006 | Outside source: references with an independent generator (release target exit criterion 2); the screening class is set before comparison under the release target's benchmark method; DEC-026 for the verification tolerance |
-| OUT-005 | OBJ-003 SOW-082 | REQ-009 | AC-007 | VER-007 | Owner ruling: release target exit criterion 1 and PRD §5.5 |
+| OUT-005 | OBJ-003 SOW-082 | REQ-007 CLM-002 CLM-003 | AC-005 | VER-005 | The criterion states the expected refusals and disclosures, those REQ-007 names |
+| OUT-005 | OBJ-003 SOW-082 | REQ-008 | AC-006 | VER-006 | Outside source: references with an independent generator (release target exit criterion 2); the screening class is set before comparison under the release target's benchmark method; the verification tolerance is stated with its measured margin |
+| OUT-005 | OBJ-003 SOW-082 | REQ-009 | AC-007 | VER-007 | The criterion states the expected surfaces, with no pre-set spectrum or method (PRD §5.5) |
 | OUT-005 | OBJ-003 SOW-082 | REQ-010 | AC-008 | VER-008 | Outside source: `docs/claims_registry.md` and PRD §21.2 |
-| OUT-006 | OBJ-003 SOW-082 | REQ-011 | AC-009 | VER-002 VER-005 | Outside source: two-group closed-form references in `validation/references/f2_spectrum`, whose generator imports no product code |
-| OUT-005 | OBJ-003 SOW-082 | REQ-007 REQ-009 | AC-010 | VER-010 | Owner ruling: release target exit criterion 1. The method's correctness rests on AC-002; the reference system's values have no reference of their own |
+| OUT-006 | OBJ-003 SOW-082 | REQ-011 | AC-009 | VER-002 VER-005 | Where independent support motion is admitted, outside source: two-group closed-form references in `validation/references/f2_spectrum`, whose generator imports no product code; otherwise the criterion states the expected refusal |
+| OUT-005 | OBJ-003 SOW-082 | REQ-007 REQ-009 | AC-010 | VER-010 | Release target exit criterion 1 names the reference system. The method's correctness rests on AC-002; the reference system's values have no reference of their own |

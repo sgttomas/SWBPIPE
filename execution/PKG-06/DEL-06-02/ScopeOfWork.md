@@ -19,10 +19,10 @@ It serves SOW-045 under OBJ-005 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 
 ## Deliverable Definition — Ontology
 
-**Terms the evaluator implements.** The grammar and its function set are the owner's ruling DEC-022 (`execution/_Coordination/_DECISIONS/D-02_rule_pack_expression_grammar.md`), with the riders of DEC-031 and the text-syntax ruling DEC-037.
+**Terms the evaluator implements.** The grammar and its function set are those of DEC-022 (`execution/_Coordination/_DECISIONS/D-02_rule_pack_expression_grammar.md`), with the dimension table and unit-reference composition of DEC-031 and the text-syntax decision DEC-037.
 
 - *Expression.* A typed tree. The tree is the only canonical form of a formula and is bound by the pack's checksum. There is no text syntax and no parser anywhere in the product. A one-way rendering of a tree as text may be displayed, labelled as display only and not accepted as input.
-- *Grammar version.* A semantic version a pack declares. The evaluator supports a stated set of versions and blocks every other; it never evaluates on a best-effort basis. A minor version only adds; a breaking change is a new major version under an owner ruling. The conformance corpus is the statement of a version: a grammar change without a corpus extension and a version change is not a grammar change.
+- *Grammar version.* A semantic version a pack declares. The evaluator supports a stated set of versions and blocks every other; it never evaluates on a best-effort basis. A minor version only adds; a breaking change is a new major version. The conformance corpus is the statement of a version: a grammar change without a corpus extension and a version change is not a grammar change.
 - *Function set.* Numeric literal and variable reference; add, subtract, multiply, divide, negate and absolute value; the six comparisons; and, or and not; the conditional `select`; `min` and `max` over any number of operands; piecewise-linear `interpolate`, and `lookup` in exact or step mode, over a user-supplied table with strictly increasing arguments. Power and square root are not in the grammar.
 - *Quantity.* A value with a dimension and a unit reference. The grammar's dimensions are a closed set.
 - *Dimension algebra.* Addition, subtraction, comparison, `min`, `max` and the two branches of `select` require the same dimension and the same unit reference. A dimensionless factor or divisor leaves the other operand's dimension and unit reference unchanged. A quotient of two quantities of the same dimension and the same unit reference is dimensionless, with reference `ratio`. Any other product or quotient of dimensions resolves only through an enumerated table of eighteen mechanics relations, such as force times length is moment and stress times section modulus is moment. A product or quotient that the table does not hold, or that it resolves ambiguously, is a blocking finding. The unit reference of a product is its factors' references joined in sorted order, of a quotient its numerator's over its denominator's, and of a dimensionless result `ratio`.
@@ -41,7 +41,7 @@ It serves SOW-045 under OBJ-005 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - What a rule check does with a solver value that is published as an interval.
 - Whether a validation finding may quote the display-only rendering of an expression, as DEC-037 permits. AC-009 excludes it, under threat STM-007.
 
-**Boundary.** This deliverable evaluates and type-checks expressions. The pack format, and where a pack declares its variables, are DEL-06-01's. Binding data to variables, converting bound values to declared units, the outcome of a check and how a finding appears in a run result are DEL-06-03's. The binding of the grammar version into the pack checksum is DEL-06-04's. The expression composer is DEL-07-03's, and unit definitions and conversions are DEL-02-02's. Evaluation of expressions on behalf of a plugin or adapter is outside v1.0, under the owner's ruling on rule packs in `docs/RELEASE_TARGET_v1.0.md` (OC-6; also cited as DEL-06-02:3).
+**Boundary.** This deliverable evaluates and type-checks expressions. The pack format, and where a pack declares its variables, are DEL-06-01's. Binding data to variables, converting bound values to declared units, the outcome of a check and how a finding appears in a run result are DEL-06-03's. The binding of the grammar version into the pack checksum is DEL-06-04's. The expression composer is DEL-07-03's, and unit definitions and conversions are DEL-02-02's. Evaluation of expressions on behalf of a plugin or adapter is outside v1.0, as `docs/RELEASE_TARGET_v1.0.md` states for rule packs (also cited as DEL-06-02:3).
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -56,7 +56,7 @@ Requirement numbers 001 to 011 are those of the earlier `REQ-06-02-0nn` series.
 - **REQ-003** — All expression inputs, intermediate quantities, comparisons and outputs are unit-aware and dimensionally checked.
 - **REQ-004** — A missing variable, a missing required value, a unit mismatch, an invalid reference and an unsupported expression form each produce an explicit finding and never a default.
 - **REQ-005** — A variable binds only to a declared rule-pack variable, a solver result field or a user-supplied design-basis input.
-- **REQ-006** — The grammar is the declarative typed tree of DEC-022 within its sandbox boundary. An extension requires its own governing decision.
+- **REQ-006** — The grammar is the declarative typed tree defined above, within its sandbox boundary. A change to the grammar, an extension included, is made only by the owner's decision, as a new grammar version.
 - **REQ-007** — Public artifacts of the evaluator include no protected standards text, table, code-derived formula, material allowable, SIF or flexibility data, proprietary vendor data, owner standard or private rule pack.
 - **REQ-008** — An evaluation result is never represented as code compliance, certification, sealing, approval or professional reliance (PRD §21.2).
 - **REQ-009** — Evaluation keeps mechanics solved, user-rule checked, incomplete data and human approval as separate states.
@@ -101,7 +101,7 @@ Requirement numbers 001 to 011 are those of the earlier `REQ-06-02-0nn` series.
 
 ## Governing Values and Decisions — Axiology
 
-- **AX-001** — *Sandbox before expressiveness.* Better is a surface small enough to be read and audited whole: fewer node kinds and no escape hatch. A function is never added by weakening the absence of code and of input or output, and a new function enters only as a grammar version under an owner ruling.
+- **AX-001** — *Sandbox before expressiveness.* Better is a surface small enough to be read and audited whole: fewer node kinds and no escape hatch. A function is never added by weakening the absence of code and of input or output, and a new function enters only as a new grammar version (REQ-006).
 - **AX-002** — *Block, do not guess.* Better is fewer evaluations that return a number where an input, a unit or a table range was in doubt; the target is none. A value is never produced by defaulting, converting silently, extrapolating or clamping.
 - **AX-003** — *The same answer every time.* Better is more of an evaluation's output that is fixed by its inputs, finding order included. Determinism is never traded for speed, as by stopping at the first operand that decides a value.
 - **AX-004** — *Say what is wrong, not what the rule is.* Better is a finding that names its subject and the dimensions and units involved more exactly. It never does so by echoing a value, a table row or a formula.
@@ -110,15 +110,15 @@ Requirement numbers 001 to 011 are those of the earlier `REQ-06-02-0nn` series.
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-045 OBJ-005 | REQ-001 REQ-002 REQ-006 | AC-001 | VER-001 | Owner ruling: PRD §17.3 and `docs/CONTRACT.md` OPS-K-RULE-2 state what must not happen. The comparison is the module's dependency manifest and source, read by a check that imports no evaluator code |
-| OUT-001 | SOW-045 OBJ-005 | REQ-003 REQ-006 | AC-002 | VER-002 | Outside source: closed form, the arithmetic, ordering, linear interpolation and table lookup the grammar defines, on invented values exact in binary64 and recomputed without evaluator code. The function set is the owner's ruling DEC-022 |
-| OUT-001 | SOW-045 OBJ-005 | REQ-003 | AC-003 | VER-002 | Owner ruling: DEC-022 and DEC-031 fix the dimension table and the composition of unit references. Outside source for the table's relations: dimensional analysis |
-| OUT-001 | SOW-045 OBJ-005 | REQ-004 REQ-005 | AC-004 | VER-002 | The inputs are constructed, so the criterion states the expected finding (PRD §5.5; DEC-022 for tables) |
+| OUT-001 | SOW-045 OBJ-005 | REQ-001 REQ-002 REQ-006 | AC-001 | VER-001 | PRD §17.3 and `docs/CONTRACT.md` OPS-K-RULE-2 state what must not happen. The comparison is the module's dependency manifest and source, read by a check that imports no evaluator code |
+| OUT-001 | SOW-045 OBJ-005 | REQ-003 REQ-006 | AC-002 | VER-002 | Outside source: closed form, the arithmetic, ordering, linear interpolation and table lookup the grammar defines, on invented values exact in binary64 and recomputed without evaluator code. The function set is the grammar's |
+| OUT-001 | SOW-045 OBJ-005 | REQ-003 | AC-003 | VER-002 | DEC-022 and DEC-031 fix the dimension table and the composition of unit references. Outside source for the table's relations: dimensional analysis |
+| OUT-001 | SOW-045 OBJ-005 | REQ-004 REQ-005 | AC-004 | VER-002 | The inputs are constructed, so the criterion states the expected finding (PRD §5.5; the table rules above) |
 | OUT-001 | SOW-045 OBJ-005 | REQ-012 | AC-005 | VER-003 | The criterion fixes the expected result: equality between runs and platforms |
-| OUT-001 | SOW-045 OBJ-005 | REQ-006 | AC-006 | VER-002 | Owner ruling: DEC-022 makes the grammar version a gate and the corpus the statement of the grammar, and sets the corpus's coverage floor |
+| OUT-001 | SOW-045 OBJ-005 | REQ-006 | AC-006 | VER-002 | The blocked pack is constructed, so the criterion states the expected finding. The corpus's coverage is counted against the grammar's function set and finding codes, the floor the criterion states |
 | OUT-001 | SOW-045 OBJ-005 | REQ-005 REQ-006 | AC-007 | VER-004 | The criterion fixes the expected result: the document read back equals the document written. The encoding is the corpus's |
 | OUT-001 | SOW-045 OBJ-005 | REQ-003 REQ-013 | AC-008 | VER-004 | The corpus expectations, which rest on the grounds of AC-002 to AC-004; the agreement of static and evaluated findings is fixed by the criterion |
-| OUT-001 | SOW-045 OBJ-005 | REQ-014 | AC-009 | VER-005 | Owner ruling: threat STM-007 and PRD §19.4 and §20.3 state what must not appear. DEC-037 permits a validation diagnostic to quote the display-only rendering, and this criterion does not take that permission. The sentinel content is constructed |
-| OUT-001 | SOW-045 OBJ-005 | REQ-008 REQ-009 | AC-010 | VER-005 | Owner ruling: PRD §21.2 and the status vocabulary of DEL-02-03 |
-| OUT-001 | SOW-045 OBJ-005 | REQ-007 REQ-011 | AC-011 | VER-006 | Owner ruling: PRD §20.1. The reviewer compares against sources the product did not write |
-| OUT-001 | SOW-045 OBJ-005 | REQ-010 REQ-011 | AC-012 | VER-001 | Owner ruling: the decomposition's AB-00-07, no bypass. The comparison is the repository's module graph |
+| OUT-001 | SOW-045 OBJ-005 | REQ-014 | AC-009 | VER-005 | Threat STM-007 and PRD §19.4 and §20.3 state what must not appear. The sentinel content is constructed |
+| OUT-001 | SOW-045 OBJ-005 | REQ-008 REQ-009 | AC-010 | VER-005 | PRD §21.2 and the status vocabulary of DEL-02-03 |
+| OUT-001 | SOW-045 OBJ-005 | REQ-007 REQ-011 | AC-011 | VER-006 | PRD §20.1. The reviewer compares against sources the product did not write |
+| OUT-001 | SOW-045 OBJ-005 | REQ-010 REQ-011 | AC-012 | VER-001 | The decomposition's AB-00-07, no bypass. The comparison is the repository's module graph |

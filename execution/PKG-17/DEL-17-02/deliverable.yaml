@@ -16,7 +16,9 @@ needs:
 - from: DEL-00-06
   condition: >-
     A diagnostic carries code, class, severity, source, affected object, message, remediation and
-    provenance, and a class local to a boundary has a stated mapping to the common classes.
+    provenance. When it crosses a boundary every field other than class arrives unchanged, and the
+    class changes only where the receiving boundary's schema requires its own class vocabulary, by
+    that boundary's stated mapping.
   gating: true
 - from: DEL-02-01
   condition: >-

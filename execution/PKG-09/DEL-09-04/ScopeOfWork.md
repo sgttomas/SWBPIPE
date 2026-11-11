@@ -28,7 +28,7 @@ It serves SOW-027 under OBJ-008 and OBJ-011 (`execution/_Decomposition/SOFTWARE_
 - *Evidence state.* The state a section or page declares for its evidence: planned, draft, reviewed by the maintainer, blocked, or undecided.
 - *Validation posture.* Product-level validation is correlation with an external professional solver; the internal benchmark and regression suites are development verification (PRD §22.1, §22.5). The manual states this and does not present internal results as independent validation.
 - *Reproduction procedure.* The documented steps by which a maintainer or an agent, from a clean checkout at one pinned commit, builds the tools and runs the validation examples, with the exit and output each step is expected to give.
-- *Reproduction bundle.* The immutable record of one run of the procedure, at `validation/evidence/reproduction/<run-id>/`: the source commit, the hash of the procedure followed, the environment and tool versions, every command with its output, exit code and output hash, the state of the working tree before and after, and checksums over the bundle (DEC-080).
+- *Reproduction bundle.* The immutable record of one run of the procedure, at `validation/evidence/reproduction/<run-id>/`: the source commit, the hash of the procedure followed, the environment and tool versions, every command with its output, exit code and output hash, the state of the working tree before and after, and checksums over the bundle.
 
 **Boundary.** The manual organizes and presents evidence; it produces none of the results it shows.
 
@@ -43,7 +43,7 @@ It serves SOW-027 under OBJ-008 and OBJ-011 (`execution/_Decomposition/SOFTWARE_
 
 - **REQ-001** — The manual separates mechanics verification from workflow validation (SOW-027; `docs/VALIDATION_STRATEGY.md` §1).
 - **REQ-002** — Mechanics verification sections describe comparison of the software with declared mechanics problems at declared tolerances, never code compliance (SOW-027).
-- **REQ-003** — Validation sections evaluate fitness of the workflow for its support role and leave project-specific judgment with the professional; the manual states the validation posture (OBJ-011; PRD §22.1, §22.5; DEC-080).
+- **REQ-003** — Validation sections evaluate fitness of the workflow for its support role and leave project-specific judgment with the professional; the manual states the validation posture (OBJ-011; PRD §22.1, §22.5).
 - **REQ-004** — Rule-pack sections treat a pass or fail as the result of the user's rule computation, not professional authentication, and no automatic code-compliant status appears (PRD §21.2).
 - **REQ-005** — The manual has the ten sections, each stating its evidence class.
 - **REQ-006** — Benchmark and validation examples the manual references are original, public-domain or permissively licensed; protected and proprietary examples are excluded (`docs/IP_AND_DATA_BOUNDARY.md`).
@@ -51,11 +51,11 @@ It serves SOW-027 under OBJ-008 and OBJ-011 (`execution/_Decomposition/SOFTWARE_
 - **REQ-008** — Wherever the manual speaks of a release, it describes software maturity and validation evidence only, never engineering approval (`docs/CONTRACT.md` OPS-K-AUTH-1).
 - **REQ-009** — Unit, schema, diagnostic and result-envelope checks have their place in the sections they bear on (`docs/CONTRACT.md` OPS-K-UNIT-1; decomposition AB-00-06).
 - **REQ-010** — The manual keeps the public and private data boundary: rule packs, materials, component data, owner requirements and project models are described as supplied by the user or a lawful private source, and none is reproduced (`docs/CONTRACT.md` OPS-K-IP-1 to OPS-K-IP-3, OPS-K-DATA-1 to OPS-K-DATA-3).
-- **REQ-011** — Every case of the mechanics, stress recovery and nonlinear suites has a case page with the eight fields, generated from the suite's sources of record (SOW-027; DEC-054).
+- **REQ-011** — Every case of the mechanics, stress recovery and nonlinear suites has a case page with the eight fields, generated from the suite's sources of record (SOW-027).
 - **REQ-012** — Every section and case page declares its evidence state. Every case page reaches the maintainer-reviewed state, each on the maintainer's recorded review; a page is marked as reviewed by the maintainer only on that review.
-- **REQ-013** — Validation examples reproduce from a clean checkout by following the documented procedure, with the environment, tool versions, commands, exit codes and output hashes recorded. The procedure can be carried out by a maintainer or by an agent (PRD §24 R6; DEC-080).
-- **REQ-014** — Each run of the procedure is recorded as a new reproduction bundle in the ruled location, and a completed bundle is never edited. A fresh bundle exists at the release candidate (exit criterion 12).
-- **REQ-015** — Not decided: the final result-comparison values for public benchmarks, whose selection this deliverable carries (`docs/VALIDATION_STRATEGY.md` §4). Until they are selected, the tolerance field of a case page shows the governed value in force (DEC-026) or states that it is not decided.
+- **REQ-013** — Validation examples reproduce from a clean checkout by following the documented procedure, with the environment, tool versions, commands, exit codes and output hashes recorded. The procedure can be carried out by a maintainer or by an agent (PRD §24 R6).
+- **REQ-014** — Each run of the procedure is recorded as a new reproduction bundle in `validation/evidence/reproduction/`, and a completed bundle is never edited. A fresh bundle exists at the release candidate (exit criterion 12).
+- **REQ-015** — Not decided: the final result-comparison values for public benchmarks, whose selection this deliverable carries (`docs/VALIDATION_STRATEGY.md` §4). Until they are selected, the tolerance field of a case page shows the governed value in force or states that it is not decided.
 
 ### Acceptance criteria
 
@@ -93,10 +93,10 @@ It serves SOW-027 under OBJ-008 and OBJ-011 (`execution/_Decomposition/SOFTWARE_
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-027 OBJ-008 OBJ-011 | REQ-005 REQ-009 REQ-012 | AC-001 | VER-001 | Owner definition: `docs/VALIDATION_STRATEGY.md` §3 lists the ten sections and SOW-027 the distinctions they must keep |
-| OUT-001 | SOW-027 OBJ-008 OBJ-011 | REQ-001 REQ-002 REQ-003 REQ-004 REQ-008 | AC-002 | VER-002 | Owner ruling: PRD §21.2, §22.1 and §22.5 and `docs/claims_registry.md`; judged by a reviewer who did not write the text |
-| OUT-001 | SOW-027 OBJ-008 OBJ-011 | REQ-011 REQ-015 | AC-003 | VER-001 | Owner definition: SOW-027's source, PRD §16.5 in the numbering the decomposition cites, lists the eight fields. Page values are compared with the hand calculations, governed tolerance records and run reports of DEL-09-01 to DEL-09-03, which the manual did not write. That pages equal what the generator regenerates is the product's own output and only guards against hand edits |
-| OUT-001 | SOW-027 OBJ-008 OBJ-011 | REQ-007 REQ-012 | AC-004 | VER-002 | Owner ruling: `docs/CONTRACT.md` OPS-K-AGENT-1 and OPS-K-AGENT-2 state that gaps stay visible; each reviewed mark is compared with the maintainer's recorded review, which the manual did not write; judged by a reviewer who did not write the text |
-| OUT-001 | SOW-027 OBJ-008 OBJ-011 | REQ-006 REQ-010 | AC-005 | VER-002 | Owner ruling: `docs/IP_AND_DATA_BOUNDARY.md`; protected-content scan and review |
-| OUT-002 | SOW-027 OBJ-008 OBJ-011 | REQ-013 | AC-006 | VER-003 | Owner ruling: PRD §24 R6 and DEC-080 state what reproduction means; each command's result is compared with the exit and output the procedure states and with the suites' own outcomes |
-| OUT-002 | SOW-027 OBJ-008 OBJ-011 | REQ-013 REQ-014 | AC-007 | VER-004 | Owner ruling: DEC-080 and exit criterion 12 state what a bundle records and where; the bundle is compared with the release candidate's commit, its own checksums and the exits and outputs the procedure states |
+| OUT-001 | SOW-027 OBJ-008 OBJ-011 | REQ-005 REQ-009 REQ-012 | AC-001 | VER-001 | The manual's sections are compared with the ten of `docs/VALIDATION_STRATEGY.md` §3 and with the distinctions SOW-027 requires |
+| OUT-001 | SOW-027 OBJ-008 OBJ-011 | REQ-001 REQ-002 REQ-003 REQ-004 REQ-008 | AC-002 | VER-002 | PRD §21.2, §22.1 and §22.5 and `docs/claims_registry.md`; judged by a reviewer who did not write the text |
+| OUT-001 | SOW-027 OBJ-008 OBJ-011 | REQ-011 REQ-015 | AC-003 | VER-001 | SOW-027's source, PRD §16.5 in the numbering the decomposition cites, lists the eight fields. Page values are compared with the hand calculations, governed tolerance records and run reports of DEL-09-01 to DEL-09-03, which the manual did not write. That pages equal what the generator regenerates is the product's own output and only guards against hand edits |
+| OUT-001 | SOW-027 OBJ-008 OBJ-011 | REQ-007 REQ-012 | AC-004 | VER-002 | `docs/CONTRACT.md` OPS-K-AGENT-1 and OPS-K-AGENT-2 state that gaps stay visible; each reviewed mark is compared with the maintainer's recorded review, which the manual did not write; judged by a reviewer who did not write the text |
+| OUT-001 | SOW-027 OBJ-008 OBJ-011 | REQ-006 REQ-010 | AC-005 | VER-002 | The manual is compared with `docs/IP_AND_DATA_BOUNDARY.md` by the protected-content scan and by a reviewer who did not write it |
+| OUT-002 | SOW-027 OBJ-008 OBJ-011 | REQ-013 | AC-006 | VER-003 | PRD §24 R6 states what reproduction means; each command's result is compared with the exit and output the procedure states and with the suites' own outcomes |
+| OUT-002 | SOW-027 OBJ-008 OBJ-011 | REQ-013 REQ-014 | AC-007 | VER-004 | REQ-013, REQ-014 and exit criterion 12 state what a bundle records and where; the bundle is compared with the release candidate's commit, its own checksums and the exits and outputs the procedure states |

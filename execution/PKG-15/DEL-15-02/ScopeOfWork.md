@@ -60,7 +60,7 @@ It serves SOW-074 under OBJ-017 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - **REQ-011** — The contract keeps the redaction and export-control boundary: it carries the privacy context of its source and exposes nothing that context withholds (PRD §20.3).
 - **REQ-012** — The schema and the builder are target-neutral: they name no commercial tool, format or field. Concrete mappings, field coverage, taxonomy extensions and package realization of a named target wait on DEL-17-01 and DEL-17-02 (decomposition OI-015).
 - **REQ-013** — The builder emits a blocking privacy diagnostic when redaction is not affirmed or an embedded private, protected or commercial payload is reported. Carrying privacy metadata is not enforcement (decomposition DEC-074).
-- **REQ-014** — A diagnostic of the contract has the product's diagnostic form: code, class, severity, source, affected object, message, remediation and provenance, with a class that is one of the product's warning classes or maps to one (decomposition AB-00-06).
+- **REQ-014** — A diagnostic of the contract has the product's diagnostic form: code, class, severity, source, affected object, message, remediation and provenance (decomposition AB-00-06).
 
 ### Acceptance criteria
 
@@ -71,11 +71,11 @@ It serves SOW-074 under OBJ-017 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - **AC-005** — A contract without its source context, or whose source context lacks the model hash, the units manifest reference or any other required reference, is a blocking finding that names what is missing. Nothing is filled in.
 - **AC-006** — A source whose privacy context does not affirm redaction, or reports an embedded private, protected or commercial payload, yields a blocking privacy finding. The builder never turns an unsafe context into a safe one.
 - **AC-007** — A behaviour label that uses wording of approval, certification, validation or compliance is a blocking finding. The professional-boundary block is fixed, and no contract the builder emits contains such a claim.
-- **AC-008** — The same inputs give an identical contract, whatever the order of the mapping records and flags supplied.
+- **AC-008** — Building twice from the same inputs gives an identical contract. Mapping records and flags are identified by their stable identifiers, not by position (`docs/TYPES.md` §2), so the same records and flags supplied in another order give the same contract.
 - **AC-009** — For an export to a target, the contract's mapping records cover every entity and field the export wrote, its flags are exactly the behaviours the target does not carry exactly, and its source context names the model hash and units manifest of the package that was exported. A contract that validates but was not checked against an actual export establishes nothing about support for that target. This carries commitment DEL-15-02:1.
 - **AC-010** — The schema and the builder name no commercial tool, format or field.
 - **AC-011** — The schema, its fixtures and its examples contain only invented data.
-- **AC-012** — The schema's diagnostic record requires code, class, severity, source, affected object, message, remediation and provenance, and every class it admits is one of the product's six warning classes or a local class whose mapping to one of them the schema states.
+- **AC-012** — The schema's diagnostic record requires code, class, severity, source, affected object, message, remediation and provenance.
 
 ## Production and Verification Method — Praxeology
 
@@ -88,7 +88,7 @@ It serves SOW-074 under OBJ-017 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 
 **How each criterion is examined.**
 
-- **VER-001** — Executable check (observes the schema under a JSON Schema 2020-12 validator, the acceptance of a contract built for an invented target, the rejection of each contract with a required part removed, and the diagnostic record's required fields and classes): AC-001, AC-012.
+- **VER-001** — Executable check (observes the schema under a JSON Schema 2020-12 validator, the acceptance of a contract built for an invented target, the rejection of each contract with a required part removed, and the diagnostic record's required fields): AC-001, AC-012.
 - **VER-002** — Executable check (observes the builder's findings for invented inputs with each fault the criteria name, and the identity of two contracts built from the same inputs in different orders): AC-002 to AC-008.
 - **VER-003** — Comparison with a named reference (the target's own description of what it can carry: for the invented target its declared capabilities, for a named target the account DEL-17-01 holds of it; and the package that was exported): AC-009.
 - **VER-004** — Judgment by a reviewer who did not write the code (reads the schema, the builder and its messages for named commercial tools and for wording PRD §21.2 prohibits, with the protected-content scan run over them and the fixtures): AC-007, AC-010, AC-011.
@@ -103,15 +103,15 @@ It serves SOW-074 under OBJ-017 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-074 OBJ-017 | REQ-001 REQ-002 REQ-003 REQ-006 | AC-001 | VER-001 | Outside source: the JSON Schema 2020-12 specification, applied by a validator that is not product code. The required parts are an owner ruling: SOW-074 and PRD FR-HAND-003 and FR-HAND-004 |
-| OUT-001 | SOW-074 OBJ-017 | REQ-001 REQ-002 REQ-003 REQ-004 REQ-006 REQ-007 | AC-002 | VER-002 | Owner ruling: PRD §5.5 and `docs/CONTRACT.md` OPS-K-DATA-2 state that nothing unsupported passes silently; the invented inputs carry the faults |
-| OUT-001 | SOW-074 OBJ-017 | REQ-005 | AC-003 | VER-002 | Owner ruling: PRD §5.6 and `docs/CONTRACT.md` OPS-K-UNIT-1 |
-| OUT-001 | SOW-074 OBJ-017 | REQ-002 REQ-003 REQ-004 | AC-004 | VER-002 | Owner ruling: PRD FR-HAND-004; the closed statuses are the criterion's own statement |
-| OUT-001 | SOW-074 OBJ-017 | REQ-007 REQ-010 | AC-005 | VER-002 | Owner ruling: PRD §5.5; the source context is DEL-15-01's package, which this contract does not write |
-| OUT-001 | SOW-074 OBJ-017 | REQ-011 REQ-013 | AC-006 | VER-002 | Owner ruling: decomposition DEC-074 and PRD §20.3 |
-| OUT-001 | SOW-074 OBJ-017 | REQ-009 | AC-007 | VER-002 VER-004 | Owner ruling: PRD §21.2 and `docs/claims_registry.md` |
-| OUT-001 | SOW-074 OBJ-017 | REQ-001 | AC-008 | VER-002 | The product's own earlier output, which only guards against change |
+| OUT-001 | SOW-074 OBJ-017 | REQ-001 REQ-002 REQ-003 REQ-006 | AC-001 | VER-001 | Outside source: the JSON Schema 2020-12 specification, applied by a validator that is not product code, to a contract built for an invented target and to each contract with one required part removed; the required parts are those SOW-074 and PRD FR-HAND-003 and FR-HAND-004 name |
+| OUT-001 | SOW-074 OBJ-017 | REQ-001 REQ-002 REQ-003 REQ-004 REQ-006 REQ-007 | AC-002 | VER-002 | The builder's findings on invented inputs that each carry one fault; the criterion states the expected finding, because PRD §5.5 and `docs/CONTRACT.md` OPS-K-DATA-2 let nothing unsupported pass silently |
+| OUT-001 | SOW-074 OBJ-017 | REQ-005 | AC-003 | VER-002 | The builder's findings on an invented unit-bearing mapping without unit metadata; the criterion states the expected blocking finding (PRD §5.6; `docs/CONTRACT.md` OPS-K-UNIT-1) |
+| OUT-001 | SOW-074 OBJ-017 | REQ-002 REQ-003 REQ-004 | AC-004 | VER-002 | The builder's findings on invented flags with each fault; the closed statuses are the criterion's own statement (PRD FR-HAND-004) |
+| OUT-001 | SOW-074 OBJ-017 | REQ-007 REQ-010 | AC-005 | VER-002 | The builder's findings on invented contracts with each part of the source context missing (PRD §5.5); the source context is DEL-15-01's package, which this contract does not write |
+| OUT-001 | SOW-074 OBJ-017 | REQ-011 REQ-013 | AC-006 | VER-002 | The builder's findings on invented sources whose privacy context does not affirm redaction or reports an embedded payload; the criterion states the expected blocking finding (PRD §20.3; decomposition DEC-074) |
+| OUT-001 | SOW-074 OBJ-017 | REQ-009 | AC-007 | VER-002 VER-004 | The builder's findings on invented labels carrying each prohibited term, and the reviewer's reading of the builder's output and messages against PRD §21.2 and `docs/claims_registry.md` |
+| OUT-001 | SOW-074 OBJ-017 | REQ-001 | AC-008 | VER-002 | Two builds from the same inputs, and from the same records and flags in another order, compared with each other. This shows that the builder is repeatable and that supplied order changes nothing (PRD §3 asks for reproducibility); it does not show that the contract is correct |
 | OUT-001 | SOW-074 OBJ-017 | REQ-001 REQ-002 REQ-003 REQ-010 | AC-009 | VER-003 | Outside source: the target's own description of what it carries, and the exported package. Neither is written by this contract's builder |
-| OUT-001 | SOW-074 OBJ-017 | REQ-012 | AC-010 | VER-004 | Owner ruling: decomposition OI-015; target-specific content waits on DEL-17-01 and DEL-17-02 |
-| OUT-001 | SOW-074 OBJ-017 | REQ-008 | AC-011 | VER-004 | Owner ruling: `docs/IP_AND_DATA_BOUNDARY.md`; protected-content scan and review |
-| OUT-001 | SOW-074 OBJ-017 | REQ-014 | AC-012 | VER-001 | Owner ruling: decomposition AB-00-06 states the fields and the six classes; DEL-00-06 holds the vocabulary |
+| OUT-001 | SOW-074 OBJ-017 | REQ-012 | AC-010 | VER-004 | The reviewer's reading of the schema and the builder for any commercial tool, format or field; the contract stays target-neutral under decomposition OI-015 until DEL-17-01 and DEL-17-02 describe a named target |
+| OUT-001 | SOW-074 OBJ-017 | REQ-008 | AC-011 | VER-004 | The protected-content scan and the reviewer's reading of the schema, fixtures and examples against `docs/IP_AND_DATA_BOUNDARY.md` |
+| OUT-001 | SOW-074 OBJ-017 | REQ-014 | AC-012 | VER-001 | Validator results on a diagnostic with each field removed; the fields are those decomposition AB-00-06 lists and DEL-00-06 defines |

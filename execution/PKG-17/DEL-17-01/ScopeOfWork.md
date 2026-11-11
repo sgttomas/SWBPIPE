@@ -27,7 +27,7 @@ It serves SOW-030, SOW-074 and SOW-075 under OBJ-009, OBJ-017 and OBJ-018 (`exec
 - *Finding.* A statement drawn from admitted sources, with an identifier `F-17-01-nnn`, the source IDs and headings it rests on, and a label saying whether it is a documented fact or an inference.
 - *Open question.* Target behaviour that no admitted source settles, with an identifier `TBD-17-01-nnn`, the deliverables it affects and the route by which it can close.
 - *Vendor question.* A question in the dossier, `CQ-17-01-nnn`, linked to an open question, with the current public basis, the deliverables affected and what it gates.
-- *Closure rule.* An open question closes only on a recorded answer: its source and date, whether it is public-citable or private to support correspondence, the questions and deliverables it affects, and the decision on whether it may be used in public artifacts. A recorded project decision that selects a bounded profile is also an answer. Asking a question closes nothing.
+- *Closure rule.* An open question closes only on a recorded answer: its source and date, whether it is public-citable or private to support correspondence, the questions and deliverables it affects, and the decision on whether it may be used in public artifacts. A decision of the project's human scope authority, the owner, that selects a bounded profile and is recorded with the same record is also an answer. Asking a question closes nothing.
 
 **Findings in force.**
 
@@ -47,13 +47,13 @@ It serves SOW-030, SOW-074 and SOW-075 under OBJ-009, OBJ-017 and OBJ-018 (`exec
 - `TBD-17-01-005`: which PCF subset avoids hidden translator defaults (DEL-17-07).
 - `TBD-17-01-006`: which geometry fields and identity metadata suffice for glTF review without implying solver fidelity (DEL-17-08).
 
-Whether the bounded pilot selections of DEL-17-04 and DEL-17-05 are project decisions that close `TBD-17-01-001`, `TBD-17-01-002` and `TBD-17-01-004`, and who makes such a decision, is not decided.
+The bounded pilot selections of DEL-17-04 and DEL-17-05 govern those pilots only. They close `TBD-17-01-001`, `TBD-17-01-002` and `TBD-17-01-004` only if the owner records one of them as the selection under the closure rule; until then those questions stay open.
 
 **Boundary.** This deliverable implements no exporter, importer, parser, harness or schema. Its own files are the register and the dossier.
 
 - What a format deliverable does with a source fact, and which bounded profile it selects, belongs to that deliverable (DEL-17-02 to DEL-17-09).
 - The rule for what public text may say about the external prover and what stays private is DEL-01-02's (`docs/IP_AND_DATA_BOUNDARY.md`). The register and dossier follow it: a fact the public manual documents is cited to it; something learned from running the tool is never a finding of the register. It may appear only as the context of an open question or vendor question, stated plainly as observed format behaviour and without evaluation; otherwise it stays in private notes.
-- The dossier holds the questions. Whether, how and to whom a question is sent is the owner's decision.
+- The dossier holds the questions. No question is sent to the vendor or anyone outside the project except by the owner's decision, which also settles how and to whom.
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -106,6 +106,6 @@ Whether the bounded pilot selections of DEL-17-04 and DEL-17-05 are project deci
 |---|---|---|---|---|---|
 | OUT-001 | SOW-030 SOW-075 OBJ-009 OBJ-018 | REQ-001 REQ-006 | AC-001 | VER-001 VER-002 | Outside source: the public pages and project files the rows name; the comparison is against those pages and paths, not against the register |
 | OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-002 REQ-003 REQ-004 REQ-006 | AC-002 | VER-002 | Outside source: the cited vendor manual pages, the PCF translator document and the Khronos glTF 2.0 specification, read at the cited headings |
-| OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-005 | AC-003 | VER-001 | Owner ruling: the decomposition makes this register the source basis for PKG-17; the comparison is against schemas, code and scopes this deliverable did not write |
-| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-014 | AC-004 | VER-001 VER-002 | Owner ruling: decomposition OI-017 gates target claims on gathered answers; a closure is compared with the answer's own source |
-| OUT-001 | SOW-075 OBJ-018 | REQ-010 REQ-011 REQ-012 REQ-013 REQ-015 | AC-005 | VER-003 | Owner ruling: `docs/IP_AND_DATA_BOUNDARY.md` and `docs/PRD.md` §20.1 and §21.2 state what is excluded, and REQ-015 states what a vendor question may not ask; the scan's markers are synthetic |
+| OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-005 | AC-003 | VER-001 | The comparison is against the source IDs used in schemas, code, fixtures and scopes this deliverable did not write; it shows that each ID resolves, not that the fact cited under it is right, which VER-002 examines |
+| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-014 | AC-004 | VER-001 VER-002 | A closure is compared with the answer's own source, or with the owner's recorded selection |
+| OUT-001 | SOW-075 OBJ-018 | REQ-010 REQ-011 REQ-012 REQ-013 REQ-015 | AC-005 | VER-003 | `docs/IP_AND_DATA_BOUNDARY.md` and `docs/PRD.md` §20.1 and §21.2 state what is excluded, and REQ-015 states what a vendor question may not ask. The scan's markers are synthetic, so the scan finds only the kinds of content it is seeded with; the reviewer's judgment covers the rest |

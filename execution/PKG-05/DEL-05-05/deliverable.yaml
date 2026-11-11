@@ -6,7 +6,9 @@ needs:
     The primitive load engine prepares a force or moment at a node, and a uniform load per length
     on a member over its whole span or a stated part, into solver contributions in a deterministic
     order, reports each invalid load as a finding with its identity, and gives a blocked case no
-    partial set of loads.
+    partial set of loads. The user-load crate takes its load dimensions, its boundary-record
+    vocabulary and the prepared `PrimitiveAxialEffectContribution` records from the primitive-load
+    crate.
   gating: true
 - from: DEL-04-02
   condition: >-

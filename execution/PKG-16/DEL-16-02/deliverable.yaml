@@ -5,7 +5,7 @@ needs:
   condition: >-
     The operation contract defines the form of an operation and of a batch, a closed taxonomy of
     operation kinds, change kinds and target object types, and for each change kind its target
-    types, its field path and the form of its value.
+    types and the form of its value.
   gating: true
 - from: DEL-02-01
   condition: >-
@@ -50,7 +50,8 @@ code_paths:
 - schemas/operation_outcome.schema.json
 # A second, Python implementation of operation validation and preview (contract, kinds, model
 # basis, units, targets, constraint findings). The product does not call it, and the tests of
-# DEL-16-03, DEL-16-04 and DEL-07-08 import it. Whether it stays is the owner's decision.
+# DEL-16-03, DEL-16-04 and DEL-07-08 import it. It may stay as a reference beside the engine; no
+# product route may reach it (AC-009).
 - core/model_operations/validation_preview/**
 checks:
 # Examines the published outcome schema; the same file examines the rule-check run result schema,

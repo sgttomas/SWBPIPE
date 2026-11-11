@@ -9,10 +9,23 @@ needs:
   gating: true
 - from: DEL-05-04
   condition: >-
-    The status schema admits exactly the six automatic statuses as software output, human
-    acceptance exists only as a separate record, and no status is named for compliance,
-    certification or approval, so that the status labels a document carries assert none.
+    The status semantics keep the mechanics solve, a rule-pack outcome and a person's acceptance
+    distinct, with acceptance only a person's record, and name no status for compliance,
+    certification or approval, so that the document's authored status labels keep the same three
+    apart and assert none of those. The labels are not limited to the six automatic statuses.
   gating: true
+- from: DEL-00-04
+  condition: >-
+    Any change to what a persisted document can contain, including an added optional member,
+    raises at least the minor version of its schema, so that each step of the model document's
+    version follows that rule.
+  gating: false
+- from: DEL-08-02
+  when: Examining a round trip or an undo by its model hash
+  condition: >-
+    The model hash is SHA-256 over the RFC 8785 canonical form of the model document, computed by
+    one implementation that every hashing surface uses.
+  gating: false
 - from: DEL-16-06
   condition: >-
     The operation engine applies only an accepted, valid operation whose basis is the current

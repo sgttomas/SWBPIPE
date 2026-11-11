@@ -77,7 +77,7 @@ It serves SOW-074 under OBJ-017 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - **REQ-014** — A package includes the canonical model file and binds it by hash, and its manifest carries an export hash and the member inventory, so that a change to any byte of any member is detectable from the package alone (PRD §16.1; decomposition DEC-028).
 - **REQ-015** — A package names the saved model state it is based on (PRD §16.2).
 - **REQ-016** — The schema's examples and fixtures hold only invented data (PRD §20.1; `docs/IP_AND_DATA_BOUNDARY.md`).
-- **REQ-017** — A warning or diagnostic in a package has the product's diagnostic form: code, class, severity, source, affected object, message, remediation and provenance, with a class that is one of the product's warning classes or maps to one (decomposition AB-00-06).
+- **REQ-017** — A warning or diagnostic in a package has the product's diagnostic form: code, class, severity, source, affected object, message, remediation and provenance (decomposition AB-00-06).
 
 ### Acceptance criteria
 
@@ -91,7 +91,7 @@ It serves SOW-074 under OBJ-017 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - **AC-008** — No field, enumeration or constant of the schema can state certification, sealing, approval, authentication, code compliance, professional acceptance or a prover status. The professional-boundary block is fixed, and an instance that changes any of its values is rejected.
 - **AC-009** — The schema names no commercial target's fields, formats or versions.
 - **AC-010** — The schema, its fixtures and its example packages contain only invented data, each with provenance.
-- **AC-011** — The schema's diagnostic record requires code, class, severity, source, affected object, message, remediation and provenance, and every class it admits is one of the product's six warning classes or a local class whose mapping to one of them the schema states.
+- **AC-011** — The schema's diagnostic record requires code, class, severity, source, affected object, message, remediation and provenance.
 
 ## Production and Verification Method — Praxeology
 
@@ -104,7 +104,7 @@ It serves SOW-074 under OBJ-017 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 
 **How each criterion is examined.**
 
-- **VER-001** — Executable check (observes the schema under a JSON Schema 2020-12 validator, the invented manifest's acceptance, and the rejection of each manifest with a required part removed or a fixed value changed, and the diagnostic record's required fields and classes): AC-001, AC-004, AC-005, AC-007, AC-008, AC-011.
+- **VER-001** — Executable check (observes the schema under a JSON Schema 2020-12 validator, the invented manifest's acceptance, and the rejection of each manifest with a required part removed or a fixed value changed, and the diagnostic record's required fields): AC-001, AC-004, AC-005, AC-007, AC-008, AC-011.
 - **VER-002** — Comparison with a named reference (RFC 8785 and SHA-256, computed by `tests/verifiers/handoff_package.py` and its canonical-JSON sibling, which import no product code): AC-002, AC-003 and AC-006 on the committed example packages, with one byte changed in each member, a member the inventory does not list, a forged subject and a relabelled checksum each required to fail.
 - **VER-003** — Executable check (observes that the product's verifier and the independent verifier return the same verdict on the same bytes for every case of `fixtures/handoff/verifier_parity_cases.json`): AC-002, AC-003.
 - **VER-004** — Judgment by a reviewer who did not write the schema (reads the schema's names, enumerations and descriptions for target-specific terms and for any wording PRD §21.2 prohibits, with the protected-content scan run over the schema and fixtures): AC-008, AC-009, AC-010.
@@ -119,14 +119,14 @@ It serves SOW-074 under OBJ-017 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-074 OBJ-017 | REQ-001 REQ-002 REQ-007 REQ-010 REQ-015 | AC-001 | VER-001 | Outside source: the JSON Schema 2020-12 specification, applied by a validator that is not product code. The required parts are an owner ruling: PRD §16.1 and FR-HAND-002 |
+| OUT-001 | SOW-074 OBJ-017 | REQ-001 REQ-002 REQ-007 REQ-010 REQ-015 | AC-001 | VER-001 | Outside source: the JSON Schema 2020-12 specification, applied by a validator that is not product code, to the invented manifest and to each manifest with one required part removed; the required parts are those PRD §16.1 and FR-HAND-002 list |
 | OUT-001 | SOW-074 OBJ-017 | REQ-003 REQ-014 | AC-002 | VER-002 VER-003 | Outside source: RFC 8785 and SHA-256, recomputed by a verifier that imports no product code |
 | OUT-001 | SOW-074 OBJ-017 | REQ-005 REQ-006 REQ-007 REQ-015 | AC-003 | VER-002 VER-003 | The derivation rule stated in the Ontology gives the expected manifest; a verifier that imports no product code applies it to the model member |
-| OUT-001 | SOW-074 OBJ-017 | REQ-004 | AC-004 | VER-001 | Owner ruling: PRD §5.6 and `docs/CONTRACT.md` OPS-K-UNIT-1 state that a unit is never assumed; the unit identifiers are those of DEL-02-02's catalogue, which this contract does not write |
-| OUT-001 | SOW-074 OBJ-017 | REQ-006 | AC-005 | VER-001 | Owner ruling: PRD §20.1 and §20.3 and `docs/IP_AND_DATA_BOUNDARY.md` |
-| OUT-001 | SOW-074 OBJ-017 | REQ-013 | AC-006 | VER-002 | Outside source: RFC 8785 decides which digests may be labelled `JCS`; the label vocabulary is an owner ruling (decomposition DEC-074) |
-| OUT-001 | SOW-074 OBJ-017 | REQ-008 REQ-009 | AC-007 | VER-001 | Owner ruling: SOW-074 requires the two surfaces and the decomposition gives their content to DEL-15-02, whose closed statuses a flag takes |
-| OUT-001 | SOW-074 OBJ-017 | REQ-011 | AC-008 | VER-001 VER-004 | Owner ruling: PRD §21.2 and `docs/claims_registry.md` |
-| OUT-001 | SOW-074 OBJ-017 | REQ-012 | AC-009 | VER-004 | Owner ruling: decomposition DEC-028 and OI-015; target-specific content waits on DEL-17-01 and DEL-17-02 |
-| OUT-001 | SOW-074 OBJ-017 | REQ-016 | AC-010 | VER-004 | Owner ruling: `docs/IP_AND_DATA_BOUNDARY.md`; protected-content scan and review |
-| OUT-001 | SOW-074 OBJ-017 | REQ-017 | AC-011 | VER-001 | Owner ruling: decomposition AB-00-06 states the fields and the six classes; DEL-00-06 holds the vocabulary |
+| OUT-001 | SOW-074 OBJ-017 | REQ-004 | AC-004 | VER-001 | Validator results on manifests with each units part removed; the criterion states the expected rejection, because PRD §5.6 and `docs/CONTRACT.md` OPS-K-UNIT-1 never let a unit be assumed. The unit identifiers are compared with DEL-02-02's catalogue, which this contract does not write |
+| OUT-001 | SOW-074 OBJ-017 | REQ-006 | AC-005 | VER-001 | Validator results on a reference with each required part removed and on one that marks a protected, private or commercial payload as embedded, against PRD §20.1 and §20.3 and `docs/IP_AND_DATA_BOUNDARY.md`; the schema's kind values are compared with the library kinds the model document schema admits |
+| OUT-001 | SOW-074 OBJ-017 | REQ-013 | AC-006 | VER-002 | Outside source: RFC 8785 decides which digests may be labelled `JCS`; each example digest is recomputed on the basis its label names, from the label vocabulary of decomposition DEC-074 |
+| OUT-001 | SOW-074 OBJ-017 | REQ-008 REQ-009 | AC-007 | VER-001 | Validator results on manifests without either surface and on flags with a status outside the closed set or with human review off; the statuses are compared with DEL-15-02's, which this contract does not write |
+| OUT-001 | SOW-074 OBJ-017 | REQ-011 | AC-008 | VER-001 VER-004 | Validator results on instances with each boundary value changed, and the reviewer's reading of the schema against PRD §21.2 and `docs/claims_registry.md` |
+| OUT-001 | SOW-074 OBJ-017 | REQ-012 | AC-009 | VER-004 | The reviewer's reading of the schema for any commercial target's fields, formats or versions; the contract stays target-neutral under decomposition DEC-028 and OI-015 until DEL-17-01 and DEL-17-02 describe a target |
+| OUT-001 | SOW-074 OBJ-017 | REQ-016 | AC-010 | VER-004 | The protected-content scan and the reviewer's reading of the schema, fixtures and example packages against `docs/IP_AND_DATA_BOUNDARY.md` |
+| OUT-001 | SOW-074 OBJ-017 | REQ-017 | AC-011 | VER-001 | Validator results on a diagnostic with each field removed; the fields are those decomposition AB-00-06 lists and DEL-00-06 defines |

@@ -41,12 +41,12 @@ A calculated property is geometry and arithmetic on the user's numbers. It carri
 
 - **REQ-001** — The calculator uses only explicit values the user entered or lawfully imported: dimensions, densities, corrosion allowance, mill tolerance and insulation (SOW-051; `docs/CONTRACT.md` OPS-K-DATA-1, OPS-K-IP-1).
 - **REQ-002** — A missing required value is refused with a named finding. The calculator supplies no default, and an absent optional value contributes nothing (SOW-051; `docs/CONTRACT.md` OPS-K-DATA-2; PRD §5.5).
-- **REQ-003** — Every input, intermediate and output is unit-aware and dimensionally checked. A unit is checked against the unit catalog's dimension for that input, and inputs of one dimension given in different units are converted through the unit catalog or refused by name; magnitudes in different units are never combined as bare numbers (SOW-051; `docs/CONTRACT.md` OPS-K-UNIT-1; PRD §5.6; DEC-018).
+- **REQ-003** — Every input, intermediate and output is unit-aware and dimensionally checked. A unit is checked against the unit catalog's dimension for that input, and inputs of one dimension given in different units are converted through the unit catalog or refused by name; magnitudes in different units are never combined as bare numbers (SOW-051; `docs/CONTRACT.md` OPS-K-UNIT-1; PRD §5.6).
 - **REQ-004** — Provenance and redistribution status travel with the values: every input must carry its provenance, and every output carries the provenance and redistribution status of the inputs it was derived from, with the statement that it was calculated (SOW-018; `docs/CONTRACT.md` OPS-K-DATA-3).
 - **REQ-005** — No public artifact of this deliverable encodes a protected pipe dimensional table, protected material data or proprietary data. Example and test values are invented (`docs/CONTRACT.md` OPS-K-IP-1, OPS-K-IP-3; SOW-051).
 - **REQ-006** — Calculator outputs are mechanics quantities only. They carry no code-compliance, certification or approval meaning (PRD §21.2).
 - **REQ-007** — The calculator is separate from the global solver and from rule evaluation (the decomposition's PKG-03 exclusion).
-- **REQ-008** — The definitions above are the contract the product's section and mass adapter is compared with: the same explicit inputs give the same properties, with their units (DEC-111).
+- **REQ-008** — The definitions above are the contract the product's section and mass adapter is compared with: the same explicit inputs give the same properties, with their units.
 
 ### Acceptance criteria
 
@@ -80,7 +80,7 @@ A calculated property is geometry and arithmetic on the user's numbers. It carri
 
 - **AX-001** — *From the user's dimensions only.* Better is fewer inputs the calculator could obtain from anywhere but the user; the target is none. Convenience never justifies a schedule, a default density or an assumed allowance.
 - **AX-002** — *Exact over approximate.* Better is a smaller deviation from the closed-form annulus. This is never bought by loosening a tolerance.
-- **AX-003** — *One definition.* Better is fewer differences between this contract and what the solve computes, each one that remains stated with its size. Agreement is never reached by changing this contract only to match what the adapter computes; this contract's definitions change only by an owner decision on the definition itself.
+- **AX-003** — *One definition.* Better is fewer differences between this contract and what the solve computes, each one that remains stated with its size. Agreement is never reached by changing this contract only to match what the adapter computes.
 
 ## Output and Evaluation Matrix
 
@@ -88,8 +88,8 @@ A calculated property is geometry and arithmetic on the user's numbers. It carri
 |---|---|---|---|---|---|
 | OUT-001 | SOW-051 OBJ-004 OBJ-012 | REQ-001 | AC-001 | VER-001 | Outside source: closed-form geometry of a circular annulus, evaluated by a calculation witness that runs no product code |
 | OUT-002 | SOW-051 OBJ-004 OBJ-012 | REQ-008 | AC-002 | VER-002 | Two implementations of the product compared with each other, which only guards against drift. Correctness rests on AC-001; on the comparison alone there are no independent grounds |
-| OUT-001 | SOW-051 OBJ-004 OBJ-012 | REQ-002 | AC-003 | VER-003 | Owner ruling: PRD §5.5 and `docs/CONTRACT.md` OPS-K-DATA-2 state the expected refusal; the geometric conditions follow from the definition of an annulus |
-| OUT-001 | SOW-051 OBJ-012 | REQ-003 | AC-004 | VER-004 | A reference this deliverable does not write: the unit catalog's dimensions and conversion constants (DEL-02-02; DEC-018) |
+| OUT-001 | SOW-051 OBJ-004 OBJ-012 | REQ-002 | AC-003 | VER-003 | PRD §5.5 and `docs/CONTRACT.md` OPS-K-DATA-2 state the expected refusal; the geometric conditions follow from the definition of an annulus |
+| OUT-001 | SOW-051 OBJ-012 | REQ-003 | AC-004 | VER-004 | A reference this deliverable does not write: the unit catalog's dimensions and conversion constants (DEL-02-02) |
 | OUT-001 | SOW-018 OBJ-004 | REQ-004 | AC-005 | VER-005 | The criterion states the expected content: the provenance that was given on the inputs |
 | OUT-001 | SOW-051 OBJ-004 | REQ-005 REQ-006 | AC-006 | VER-006 | Protected-content scan and independent review under `docs/IP_AND_DATA_BOUNDARY.md` and `docs/claims_registry.md` |
 | OUT-001 | SOW-051 OBJ-004 | REQ-007 | AC-007 | VER-006 | The criterion states the expected dependencies (the decomposition's PKG-03 exclusion) |

@@ -24,7 +24,7 @@ It serves SOW-008 under OBJ-004 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - *Branch component.* A component of kind branch, tee or branch connection at the intersection node. It names the header pipe and the branch pipe, which meet at that node and differ, and carries the run size, header size, connection angle, connection type, reinforcement area, a reinforcement reference and a source reference for that geometry. These members of the model document, and the local modifiers, are this deliverable's definition.
 - *Local modifiers.* The user's header-side stress intensification factor, branch-side stress intensification factor and flexibility factor, with one source reference. Each is dimensionless, finite and above zero.
 - *Header side and branch side.* The header side is the end of the header pipe at the intersection node; the branch side is the end of the branch pipe there. The header factor multiplies the resultant bending stress at the header side and the branch factor that at the branch side.
-- *The joint.* In the solved frame the pipes of a branch with no supplied flexibility factor share the intersection node's six degrees of freedom. Where the user supplies a flexibility factor, a branch element carries it into the global stiffness (DEC-070).
+- *The joint.* In the solved frame the pipes of a branch with no supplied flexibility factor share the intersection node's six degrees of freedom. Where the user supplies a flexibility factor, a branch element carries it into the global stiffness.
 - *Library record of a branch.* A component library record of type branch, whose field kinds hold the run and header sizes, connection angle and type, reinforcement area and reference, the intensification and flexibility factors, and the geometry source reference.
 
 **Boundary.** This scope states the branch's definition and the criteria a branch meets. DEL-04-07 composes it into the product solve, admits it on each route, and owns the pressure junction formed where pressure regions meet at its node. DEL-05-03 owns the base stresses the factors multiply and the two section bases they are published on. DEL-02-01 owns the model document and DEL-03-02 the component library format. DEL-07-03 owns the creation form. Local checks of a branch against a design code are evaluated only through the user's rule packs (PRD §12.7); a first-class nozzle-flexibility object is not modelled (PRD §7).
@@ -45,7 +45,7 @@ A branch result is a statement about three frame members meeting at a node, with
 - **REQ-006** — A branch's values reach a solve only through the product's validation: unit, provenance and completeness checks are not bypassed on any path that creates or changes a branch (the decomposition's architecture basis for DEL-00-07; `docs/CONTRACT.md` OPS-K-IP-3).
 - **REQ-008** — The user's header-side and branch-side factors multiply the resultant bending stress recovered at their own sides (PRD §22.3).
 - **REQ-009** — A branch with user modifiers is solved on the pressure-free route and on the exact route (release target exit criterion 1; PRD §22.2, branch assembly case).
-- **REQ-010** — Where the user supplies a branch flexibility factor, it enters the global stiffness through a branch element that carries it. A factor that is in the stiffness is not applied again to stress (DEC-070; PRD §22.3).
+- **REQ-010** — Where the user supplies a branch flexibility factor, it enters the global stiffness through a branch element that carries it. A factor that is in the stiffness is not applied again to stress (PRD §22.3).
 
 ### Acceptance criteria
 
@@ -88,11 +88,11 @@ A branch result is a statement about three frame members meeting at a node, with
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-008 OBJ-004 | REQ-001 REQ-004 | AC-001 | VER-001 | Owner ruling: PRD §12.3 lists the inputs; the criterion states the expected acceptance |
-| OUT-001 | SOW-008 OBJ-004 | REQ-005 REQ-006 | AC-002 | VER-002 | Owner ruling: `docs/CONTRACT.md` OPS-K-UNIT-1 and PRD §5.6 state the expected acceptance, rejection and finding |
+| OUT-001 | SOW-008 OBJ-004 | REQ-001 REQ-004 | AC-001 | VER-001 | PRD §12.3 lists the inputs; the criterion states the expected acceptance |
+| OUT-001 | SOW-008 OBJ-004 | REQ-005 REQ-006 | AC-002 | VER-002 | `docs/CONTRACT.md` OPS-K-UNIT-1 and PRD §5.6 state the expected acceptance, rejection and finding |
 | OUT-001 | SOW-008 OBJ-004 | REQ-008 | AC-003 | VER-003 | The criterion states the expected value: the user's factor times the resultant of the published bending stresses (PRD §22.3). Correctness of the base stress rests on DEL-05-03's references |
-| OUT-001 | SOW-008 OBJ-004 | REQ-009 | AC-004 | VER-004 | Outside source: exact-arithmetic frame references for a branch assembly, from a generator that imports no product code (PRD §22.2). The tolerance is an owner ruling (DEC-026) |
-| OUT-001 | SOW-008 OBJ-004 | REQ-003 | AC-005 | VER-005 | Owner ruling: PRD §5.5 and `docs/CONTRACT.md` OPS-K-DATA-2 state the expected findings |
-| OUT-001 | SOW-008 OBJ-004 | REQ-009 | AC-006 | VER-006 | Owner ruling for the reference system's content (exit criterion 1); its expected results are the independent references of `validation/references/reference_system` |
-| OUT-001 | SOW-008 OBJ-004 | REQ-002 | AC-007 | VER-007 | Protected-content scan and independent review under `docs/IP_AND_DATA_BOUNDARY.md`; owner ruling PRD §20.1 |
-| OUT-001 | SOW-008 OBJ-004 | REQ-010 | AC-008 | VER-008 | Outside source: a closed-form or hand-calculated reference with an independent generator (DEC-070; PRD §22.3) |
+| OUT-001 | SOW-008 OBJ-004 | REQ-009 | AC-004 | VER-004 | Outside source: exact-arithmetic frame references for a branch assembly, from a generator that imports no product code (PRD §22.2). The tolerance is the governed analytic tolerance |
+| OUT-001 | SOW-008 OBJ-004 | REQ-003 | AC-005 | VER-005 | PRD §5.5 and `docs/CONTRACT.md` OPS-K-DATA-2 state the expected findings |
+| OUT-001 | SOW-008 OBJ-004 | REQ-009 | AC-006 | VER-006 | Exit criterion 1 fixes the reference system's content; its expected results are the independent references of `validation/references/reference_system` |
+| OUT-001 | SOW-008 OBJ-004 | REQ-002 | AC-007 | VER-007 | Protected-content scan and independent review under `docs/IP_AND_DATA_BOUNDARY.md`; PRD §20.1 |
+| OUT-001 | SOW-008 OBJ-004 | REQ-010 | AC-008 | VER-008 | Outside source: a closed-form or hand-calculated reference with an independent generator (PRD §22.3) |

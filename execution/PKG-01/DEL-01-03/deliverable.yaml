@@ -18,7 +18,7 @@ needs:
 - from: external:owner
   condition: >-
     The owner's contributor rules are defined. The contributor workflow and the certification
-    template are written from them and are not drafted without them.
+    template are written from them.
   when: Writing CONTRIBUTING.md and governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md
   gating: true
 - from: external:owner

@@ -95,7 +95,7 @@ These seven choices are the baseline. The rules that follow from them are stated
 |---|---|---|---|---|---|
 | OUT-001 | SOW-056 OBJ-013 | REQ-001 | AC-001 | VER-001 | The scope's definition of the four statuses (Ontology, Status) says what must hold; the comparison is the directory's files against the index |
 | OUT-001 | SOW-056 OBJ-013 | REQ-002 | AC-002 | VER-001 | The scope's Record fields list says what must be present; the comparison is each record against that list. The template is examined against the same list |
-| OUT-001 | SOW-056 OBJ-013 | REQ-003 | AC-003 | VER-002 | Owner ruling: each cited ruling, read where it is recorded and not in the record that cites it |
-| OUT-001 | SOW-056 OBJ-013 | REQ-004 | AC-004 | VER-001 | Owner ruling: decomposition AB-00-01 |
-| OUT-001 | SOW-056 OBJ-013 | REQ-005 | AC-005 | VER-002 | Owner ruling: `docs/IP_AND_DATA_BOUNDARY.md` and `docs/CONTRACT.md` OPS-K-IP-1; protected-content scan and reviewer |
-| OUT-002 | SOW-056 OBJ-013 | REQ-006 | AC-006 | VER-003 | Owner ruling: SOW-056 names the five areas and decomposition §8.2 the baseline; the decision log (§12) and the records state each decision |
+| OUT-001 | SOW-056 OBJ-013 | REQ-003 | AC-003 | VER-002 | Each cited ruling, read where it is recorded and not in the record that cites it; the comparison is the record's status and decision against that ruling |
+| OUT-001 | SOW-056 OBJ-013 | REQ-004 | AC-004 | VER-001 | Decomposition AB-00-01 states what an accepted decision names; the comparison is each accepted record's affected packages and triggers, and each superseded record's named successor |
+| OUT-001 | SOW-056 OBJ-013 | REQ-005 | AC-005 | VER-002 | `docs/IP_AND_DATA_BOUNDARY.md` and `docs/CONTRACT.md` OPS-K-IP-1 say what is protected; the protected-content scan over the record directory and the reviewer's reading of the records against them |
+| OUT-002 | SOW-056 OBJ-013 | REQ-006 | AC-006 | VER-003 | SOW-056 names the five areas and decomposition §8.2 the baseline; the comparison is each choice against the decision the index leads to, in the decision log (§12) or a record |

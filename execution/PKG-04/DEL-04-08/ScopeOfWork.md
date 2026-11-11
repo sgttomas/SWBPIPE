@@ -46,7 +46,7 @@ A verified bound states that a published value lies within a stated distance of 
 
 **This deliverable owns** the two families' receipts, tables and formation definitions, and their publication and classification law; the producer's retained, source-recovery and source-receipt parts; the product reader for these statements, with its command-line and WebAssembly bindings; the test verifier; the reader-outcome records and corpora; and the memory-pricing law with its pricing tool.
 
-**Inputs from neighbours** (`deliverable.yaml`): DEL-04-01 (the kernel's retained-precision lanes, their error proof and the exact boundary), DEL-04-07 (product solve integration and the memory budget), DEL-05-01 (primitive load records), DEL-05-05 (the distributed user load), DEL-04-02 (the consistent equivalent nodal loads and station recovery), DEL-05-03 (section bases and stress definitions), DEL-05-02 (combination semantics and the base-route readers), DEL-02-02 (units), DEL-08-02 (canonical JSON), DEL-00-06 (the diagnostics contract) and DEL-10-05 (the headless runner). These deliverables keep their scope.
+**Inputs from neighbours** (`deliverable.yaml`): DEL-04-01 (the kernel's retained-precision lanes, their error proof and the exact boundary; no deliverable currently commits to criteria for the lanes and the exact boundary themselves, and this deliverable's AC-001 and AC-002 examine only what they publish), DEL-04-07 (product solve integration and the memory budget), DEL-05-01 (primitive load records), DEL-05-05 (the distributed user load), DEL-04-02 (the consistent equivalent nodal loads and station recovery), DEL-05-03 (section bases and stress definitions), DEL-05-02 (combination semantics and the base-route readers), DEL-02-02 (units), DEL-02-05 (canonical JSON), DEL-00-06 (the diagnostics contract) and DEL-10-05 (the headless runner). These deliverables keep their scope.
 
 ### CLM-003 — Where the method runs
 
@@ -146,10 +146,11 @@ In these commitments, "exact solution" means the exact solution of the recorded 
 
 - **REQ-004** — Retained-precision invocations are admitted only within the registered memory profile.
   - **Admission.** An invocation is admitted only through the Direct entry, and only in a build whose exact compiled identity, reviewed-input digests and reader layouts match a registered profile. The caller supplies an immutable byte limit L. The invocation is admitted only when its priced requirement is within L and L ≤ M.
-  - **M and its margins.** The registered profile's M is the owner-selected 12 GiB (12,884,901,888 bytes). A profile is registered only if every priced phase, in both modes, satisfies requested + moving + R + ⌈TEXT/20⌉ ≤ ⌊0.9 M⌋ = 11,596,411,699 bytes. Here R = 64 MiB of reserved stack, and ⌈TEXT/20⌉ is the 5 % TEXT reserve.
+  - **M and its margins.** The registered profile's M is 12 GiB (12,884,901,888 bytes). A profile is registered only if every priced phase, in both modes, satisfies requested + moving + R + ⌈TEXT/20⌉ ≤ ⌊0.9 M⌋ = 11,596,411,699 bytes. Here R = 64 MiB of reserved stack, and ⌈TEXT/20⌉ is the 5 % TEXT reserve.
   - **Registration.** Registration is a reviewed source change. The pricing tool prices the actual source (D3) and reproduces the generated profile block. Any change to a priced source or to a reviewed input requires a new actual-source D3 audit.
   - **Other builds and limits.** Every other build identity reports `Stale` or `Missing` and takes the ordinary route. A caller limit above M is refused as `Unqualified`.
   - **Fixed D1 domain.** At most 32 nodes, 32 members, 32 supports and 4 materials; at most 3 load cases, each with at most 128 primitive loads; at most 2 combinations; and at most 3 result sets per invocation. A larger M admits no larger domain.
+  - **Held by the owner.** Qualifying against an M other than 12 GiB or under other margins, and admitting a larger domain than D1, are the owner's choices; work on this deliverable does not make them.
   - **What the margins mean.** They are qualification accounting. They are not measured resident memory, and they do not bound the whole desktop process.
 - **AC-004** — The memory-pricing law holds:
   - **In the registered build identity:**
@@ -219,6 +220,8 @@ In these commitments, "exact solution" means the exact solution of the recorded 
 - **REQ-009** — No product surface produces a retained-precision successor until the owner activates the method on that surface; a surface that has not been activated takes the ordinary route (PRD §12.8).
 - **AC-009** — On each product entry where the owner has not activated the method, a solve gives the ordinary-route outcome and no successor.
 
+**Held by the owner.** Two further choices are the owner's, and work on this deliverable does not make them. One is how the owner's native desktop check G10 (its observed values in `apps/desktop/native-smoke/expected.json`) is read now that the milestone model's document version, ordinary-route bytes and displayed rows have changed: witnessed against the earlier state, or re-issued against the current one. The other is any further change to the frozen UI benchmark models in `apps/desktop/e2e/ui-foundation/fixtures/` and their manifest.
+
 ### Claim boundary
 
 - **REQ-008** — A verified bound is a numerical statement about the problem the method records (PRD §12.8). PRD §21.2 governs the method's claims, and no product text of this deliverable may state or imply a claim it prohibits.
@@ -268,8 +271,8 @@ In these commitments, "exact solution" means the exact solution of the recorded 
 | OUT-001 | OBJ-003 SOW-080 | REQ-001 CLM-001 | AC-001 | VER-001 | Outside source, on the cases they cover: exact references `validation/references/o4_retained_source`, `kd5_timoshenko`, `m3_judge` and independently generated vectors, none reading product code. The committed successors and corpora are the product's own earlier output and only guard against change. For a case outside the references the bound rests on the method's internal proof: no independent grounds |
 | OUT-001 | OBJ-003 SOW-080 | REQ-002 CLM-001 | AC-002 | VER-002 | Outside source, on the cases they cover: the exact references above and the independent work oracle. The census pins are the product's own earlier output and only guard against change. For a case outside the references the interval rests on the method's exact solve: no independent grounds |
 | OUT-002 | OBJ-003 SOW-080 | REQ-003 | AC-003 | VER-003 | The criterion determines the expected bytes: the ordinary result of the same request |
-| OUT-003 | OBJ-003 SOW-080 | REQ-004 | AC-004 | VER-004 | Owner ruling: the 12 GiB budget and its margins; the arithmetic is determined by the criterion |
+| OUT-003 | OBJ-003 SOW-080 | REQ-004 | AC-004 | VER-004 | The criterion determines the expected arithmetic and verdicts. The margins are qualification accounting: agreement does not establish the desktop process's resident memory |
 | OUT-004 | OBJ-003 SOW-080 | REQ-005 | AC-005 | VER-005 | The criterion is agreement between separate consumers, which it determines; the pinned outcome records are the product's own earlier output and only guard against change |
 | OUT-005 | OBJ-003 SOW-080 | REQ-006 CLM-002 | AC-006 | VER-006 | The criterion determines the expected refusals |
-| OUT-005 | OBJ-003 SOW-080 | REQ-008 | AC-008 | VER-008 | Owner ruling: PRD §21.2 and `docs/claims_registry.md`; the pinned texts are the product's own earlier output |
-| OUT-002 | OBJ-003 SOW-080 | REQ-009 CLM-003 | AC-009 | VER-009 | Owner ruling: PRD §12.8 reserves activation to the owner; the expected outcome is the ordinary result of the same request |
+| OUT-005 | OBJ-003 SOW-080 | REQ-008 | AC-008 | VER-008 | Judgment of the texts against PRD §21.2 and `docs/claims_registry.md`; the pinned texts are the product's own earlier output and only guard against change |
+| OUT-002 | OBJ-003 SOW-080 | REQ-009 CLM-003 | AC-009 | VER-009 | The criterion determines the expected outcome on each entry not activated (PRD §12.8): the ordinary result of the same request |

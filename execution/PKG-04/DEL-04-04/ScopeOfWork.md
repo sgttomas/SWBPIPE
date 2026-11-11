@@ -27,17 +27,18 @@ It serves SOW-012 under OBJ-003 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - *State-switched test.* A support's governing quantity depends on its present state. An engaged support, a closed gap included, is judged on the sign of its reaction: it stays engaged while it bears. A released support is judged on its displacement towards the side it can bear against, or against its clearance: it engages when it would penetrate. Each is measured from the support's ground position, which an imposed support displacement moves, so re-engagement and lift-off are both observable.
 - *Friction law.* A friction support whose normal bears is sticking while its tangential reaction satisfies |T| ≤ μ·N and sliding otherwise, N being the normal reaction of the current iterate. A sliding support carries a tangential force of magnitude μ·N opposing its motion; a sticking support holds its tangential degree of freedom. The law is static and history-free: each case is solved by itself, with no loading path, accumulated slip or carry-over between cases.
 - *Convergence.* The set has converged when no support changes state and the residual is within the tolerance of its support class.
+- *Admissibility confirmation.* A check, once the iteration has converged, that the converged state satisfies the state law: each support's deciding quantity (contact reaction, separation, stick margin μ·N − |T|, slip direction) lies strictly on its state's side, with its numerical error taken into account.
 - *Active-set record.* The states of all nonlinear supports in a case, the supports that changed in the last iteration, the iteration settings, the convergence verdict, and the assumptions and limitations that apply.
 
 **Boundary.** This deliverable classifies and records. It does not assemble or solve the nonlinear system.
 
-- DEL-04-07 owns the assembled nonlinear iteration (assemble, solve, classify, update), its anti-chatter measures, and the application of the friction force and of a closed gap's prescribed position in the system.
+- DEL-04-07 owns the assembled nonlinear iteration (assemble, solve, classify, update), its anti-chatter measures, the application of the friction force and of a closed gap's prescribed position in the system, and the running of the admissibility confirmation after convergence, with the publication of its outcome.
 - DEL-04-01 assembles and solves each iteration.
 - DEL-04-03 owns linear supports and the imposed movement of a support's ground.
 - DEL-04-06 owns the diagnostic records a non-convergence is reported with.
 - DEL-08-04 owns the export vocabulary for state codes, counts and flags.
 
-**Not decided.** Which deliverable owns the final admissibility confirmation of a converged state: this one, DEL-04-07, whose code runs it, or DEL-04-01.
+What the admissibility confirmation requires is this deliverable's state law (REQ-013).
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -54,14 +55,15 @@ A classified state is a statement about the discrete model under the friction la
 - **REQ-007** — The classifier computes mechanics only; no state, verdict or text implies acceptability, compliance or approval (`docs/CONTRACT.md` OPS-K-MECH-2; PRD §21.2).
 - **REQ-008** — The active-set record carries what a report needs without parsing message text: the iteration settings, each support's state, the supports that changed, the diagnostics, and the assumptions and limitations.
 - **REQ-009** — Classification follows the state-switched test and the friction law defined above (DEC-067).
-- **REQ-010** — Convergence is judged per support class (gap, one-way, lift-off, friction) against a relative residual tolerance, an absolute residual floor and an iteration cap. A fixture may only tighten a governed value; loosening one, or raising a cap, is an owner decision (DEC-046).
+- **REQ-010** — Convergence is judged per support class (gap, one-way, lift-off, friction) against the governed relative residual tolerance, absolute residual floor and iteration cap of the class, which DEL-09-03/REQ-007 holds and restricts (DEC-046). The classifier sets and relaxes none of them.
 - **REQ-011** — Friction on a rotational degree of freedom is refused by name: a force limit μ·N cannot be applied as a moment.
 - **REQ-012** — The four classes converge on the validation cases and report diagnostics, and the reference system's gap, lift-off and friction supports are admitted and converge (PRD FR-SOL-014, §22.2; release target exit criterion 1).
+- **REQ-013** — A converged state is presented as confirmed only when the admissibility confirmation establishes it for every nonlinear support. A weakly active support, a deciding quantity that cannot be established on its state's side, or a case on which no confirmation runs leaves the state unconfirmed: the case's standing says so with a named reason, and the state is never presented as confirmed. A confirmed state with friction is one admissible state, not the only one.
 
 **Undecided.**
 
 - Convergence tolerances and caps for classes and model sizes beyond the measured fixture set are not yet set. Until one is measured and adopted, the affected case states that its tolerance policy is undecided (DEC-046).
-- A friction model with history across load steps or cases is not defined, and adopting one needs an owner ruling. It matters for differences between cases: on an invented bar whose sustained force slides it and whose operating case adds cooling, operating minus sustained gives an axial-force change of 0 N as solved, against +512 N under a sequential history that sticks from the sustained position.
+- A friction model with history across load steps or cases is not defined; adopting one is a change of scope. It matters for differences between cases: on an invented bar whose sustained force slides it and whose operating case adds cooling, operating minus sustained gives an axial-force change of 0 N as solved, against +512 N under a sequential history that sticks from the sustained position.
 
 ### Acceptance criteria
 
@@ -74,6 +76,7 @@ A classified state is a statement about the discrete model under the friction la
 - **AC-007** — Contact at exact touch, loss of contact, and friction beside a retained spring classify as the hand calculation requires.
 - **AC-008** — No classifier output or message states or implies acceptability, compliance or approval.
 - **AC-009** — The gap, lift-off and friction supports of the release target's reference system are admitted on the exact route, and each takes and reports the state of the reference system's references in the converged solve DEL-04-07's iteration reaches.
+- **AC-010** — Each converged state of the confirmation references is confirmed. A converged state with a weakly active support, or with a deciding quantity moved to the wrong side of its state, is not presented as confirmed, and its standing names the reason; no case on which the confirmation did not run is presented as confirmed.
 
 ## Production and Verification Method — Praxeology
 
@@ -91,6 +94,7 @@ A classified state is a statement about the discrete model under the friction la
 - **VER-003** — AC-003 to AC-006, executable check: observes repeat-run identity, convergence of the frictionless uniqueness cases from different starting states, the non-convergence report at the cap, a negative test for each missing-data refusal with its named support, and the record's fields.
 - **VER-004** — AC-008, judgment by a reviewer who did not write the code: examines classifier texts against `docs/claims_registry.md`.
 - **VER-005** — AC-009: the reference-system run on the exact route, with its support states compared against the reference system's frozen references.
+- **VER-006** — AC-010, comparison with a named reference and executable check: the converged states and deciding quantities of `validation/references/kd5_nonlinear`, derived in exact rational arithmetic without product code, are confirmed; the check observes each committed mutation (a weakly active support, a deciding quantity on the wrong side) left unconfirmed with its named reason, and no unconfirmed case presented as confirmed.
 
 ## Governing Values and Decisions — Axiology
 
@@ -102,12 +106,13 @@ A classified state is a statement about the discrete model under the friction la
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-012 OBJ-003 | REQ-001 REQ-002 REQ-009 REQ-012 | AC-001 | VER-001 | Outside source: hand calculations in `validation/hand_calcs/nonlinear` and the closed-form and exact-rational references `validation/references/rt_a3_nonlinear` and `kd5_nonlinear`, which import no product code. The state law is an owner ruling (DEC-067) |
-| OUT-001 | SOW-012 OBJ-003 | REQ-002 | AC-002 | VER-002 | Owner ruling: DEC-044 places assembly and the solve outside the classifier |
+| OUT-001 | SOW-012 OBJ-003 | REQ-001 REQ-002 REQ-009 REQ-012 | AC-001 | VER-001 | Outside source: hand calculations in `validation/hand_calcs/nonlinear` and the closed-form and exact-rational references `validation/references/rt_a3_nonlinear` and `kd5_nonlinear`, which import no product code |
+| OUT-001 | SOW-012 OBJ-003 | REQ-002 | AC-002 | VER-002 | DEC-044 places assembly and the solve outside the classifier; the reviewer judges that the code keeps to it |
 | OUT-001 | SOW-012 OBJ-003 | REQ-004 | AC-003 | VER-003 | Outside source for uniqueness: linear complementarity theory for the strictly complementary, nonsingular frictionless problem. Repeat-run identity is the product's own earlier output and only guards against change |
-| OUT-001 | SOW-012 OBJ-003 | REQ-003 REQ-010 | AC-004 | VER-003 | Owner ruling: DEC-046 sets the cap behaviour and `docs/CONTRACT.md` OPS-K-SOLVER-2 the report |
-| OUT-001 | SOW-012 OBJ-003 | REQ-005 REQ-006 REQ-011 | AC-005 | VER-003 | Owner ruling: PRD §5.5, `docs/CONTRACT.md` OPS-K-DATA-2 and OPS-K-UNIT-1 state the expected refusals, with hand-derived expected findings |
+| OUT-001 | SOW-012 OBJ-003 | REQ-003 REQ-010 | AC-004 | VER-003 | DEC-046 sets the cap behaviour and `docs/CONTRACT.md` OPS-K-SOLVER-2 the report |
+| OUT-001 | SOW-012 OBJ-003 | REQ-005 REQ-006 REQ-011 | AC-005 | VER-003 | PRD §5.5, `docs/CONTRACT.md` OPS-K-DATA-2 and OPS-K-UNIT-1 state the expected refusals, with hand-derived expected findings |
 | OUT-001 | SOW-012 OBJ-003 | REQ-008 | AC-006 | VER-003 | The criterion states the expected fields (`docs/CONTRACT.md` OPS-K-SOLVER-2) |
 | OUT-001 | SOW-012 OBJ-003 | REQ-009 | AC-007 | VER-001 | Outside source: hand calculations in `validation/hand_calcs/nonlinear` and `validation/references/w16_nonlinear_motion`, derived without product code |
-| OUT-001 | SOW-012 OBJ-003 | REQ-007 | AC-008 | VER-004 | Owner ruling: PRD §21.2 and `docs/claims_registry.md` |
-| OUT-001 | SOW-012 OBJ-003 | REQ-012 | AC-009 | VER-005 | Owner ruling: release target exit criterion 1; the expected states come from the reference system's frozen references, generated without product code |
+| OUT-001 | SOW-012 OBJ-003 | REQ-007 | AC-008 | VER-004 | The reviewer's reading against PRD §21.2 and `docs/claims_registry.md` |
+| OUT-001 | SOW-012 OBJ-003 | REQ-012 | AC-009 | VER-005 | Release target exit criterion 1 requires the admission; the expected states come from the reference system's frozen references, generated without product code |
+| OUT-001 | SOW-012 OBJ-003 | REQ-013 | AC-010 | VER-006 | Outside source: `validation/references/kd5_nonlinear`, exact-rational states and deciding quantities derived without product code. The confirmation concerns the discrete model: with friction it establishes one admissible state, not uniqueness or reachability through a loading history |

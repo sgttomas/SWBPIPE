@@ -13,6 +13,11 @@ needs:
     value with its unit, and an absent optional member means none. The document validator refuses a
     malformed member by a named code and path.
   gating: true
+- from: DEL-00-06
+  condition: >-
+    A diagnostic carries its class and names the value and the record it concerns as its affected
+    object.
+  gating: false
 - from: DEL-02-02
   condition: >-
     The unit catalog gives the units of each dimension, a new entry's starting unit comes from the

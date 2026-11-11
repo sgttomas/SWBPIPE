@@ -11,7 +11,8 @@ needs:
   condition: >-
     The frame kernel adds a spring's stiffness on a named degree of freedom in its assembly, and
     forms an exact restraint basis for authored skew directions (the constraint d'u = 0 exact in
-    the reduced system, jointly for several restraints at a node, the spring as k d d'/(d'd)),
+    the reduced system, together with the axis restraints and springs at the node, the spring as
+    k d d'/(d'd)),
     with the lift of the reduced solution and the attribution of each reaction, the same in the
     sparse and dense solve modes.
   gating: true
@@ -31,7 +32,7 @@ needs:
   condition: >-
     The mechanics benchmark suite holds `validation/references/w9_benchmarks` and
     `validation/references/w16_imposed_motion`, each expected value with a derivation that imports,
-    reads and runs no product code and a provenance record (DEL-09-01 AC-005).
+    reads and runs no product code and a provenance record (DEL-09-01/AC-005).
   gating: false
 code_paths:
 - core/solver/linear_supports/**

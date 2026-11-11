@@ -60,7 +60,7 @@ needs:
 - from: DEL-14-02
   when: Before a sizing run is recorded.
   condition: >-
-    The analysis-run record admits a hanger-sizing run kind in its current version.
+    The analysis-run record admits a hanger-sizing run kind that binds the sizing request.
   gating: true
 - from: DEL-04-08
   condition: >-
@@ -81,8 +81,8 @@ needs:
   gating: false
 - from: DEL-07-07
   condition: >-
-    The desktop runs engine work in a capped worker under the per-invocation memory budget, can
-    cancel the worker and release its memory, and reports progress for work that runs in steps.
+    The desktop runs engine work within the per-invocation memory budget, can cancel it and
+    release its memory, and reports progress for work that runs in steps.
   gating: false
 - from: DEL-08-01
   condition: >-

@@ -54,7 +54,7 @@ Requirement numbers are those of the earlier `DEL-06-05-REQ-0n` series.
 - **AC-003** — The example and the notice quote or reproduce no standard, clause, equation, table, allowable, material property, SIF or flexibility value, and hold no owner, vendor or project data. Every label, description, unit and value the example itself defines is invented; the member names, tokens and dimensions are the format's and the grammar's.
 - **AC-004** — The example's recorded checksum equals the checksum recomputed from its content, and every copy of the example the product bundles is byte-identical to it.
 - **AC-005** — Loaded as shipped, with no value supplied, a run of the example on the bundled demo model reports each of its checks incomplete on each of its load cases and names each unsupplied input. The example holds no limit value.
-- **AC-006** — The statuses the example declares are among rule inputs incomplete, user-rule checked, user-rule failed and human review required, and no status, text or notice of the example states or implies compliance, certification or approval.
+- **AC-006** — The statuses the example declares are among those a check may declare in the pack format (DEL-06-01), and no status, text or notice of the example states or implies compliance, certification or approval.
 
 ## Production and Verification Method — Praxeology
 
@@ -64,7 +64,7 @@ Requirement numbers are those of the earlier `DEL-06-05-REQ-0n` series.
 - The labels are artificial on their face: a demonstration quantity in a demonstration unit, in a category called invented.
 - The notice travels with the content: in the pack's own members and beside it in the repository.
 
-**How each criterion is examined.** The example is content, so the owner's definitions say what must hold and each comparison is against something the example's author did not write.
+**How each criterion is examined.** The example is content, so the definitions above say what must hold, and each comparison is against something the example's author did not write.
 
 - **VER-001** — AC-001 and AC-005, executable check: validates the example under a JSON Schema 2020-12 validator that imports no product code and under pack validation, and runs it as shipped on the bundled demo model, observing the outcome and the findings.
 - **VER-002** — AC-002, AC-003 and AC-006, judgment by a reviewer who did not write the example, with the protected-content scan: examines every name, value, status and notice of the example and of the notice document.
@@ -80,8 +80,8 @@ Requirement numbers are those of the earlier `DEL-06-05-REQ-0n` series.
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-016 OBJ-005 | REQ-006 REQ-008 | AC-001 | VER-001 | Outside source: the JSON Schema 2020-12 specification applied without product code. The format and validation are DEL-06-01's, which the example's author did not write |
-| OUT-001 | SOW-016 OBJ-005 OBJ-011 | REQ-001 REQ-003 REQ-005 | AC-002 | VER-002 | Owner ruling: PRD §17.4 and FR-RULE-007 and `docs/CONTRACT.md` OPS-K-RULE-1 say what a public example must state |
-| OUT-001 | SOW-016 OBJ-011 | REQ-001 REQ-002 | AC-003 | VER-002 | Owner ruling: PRD §20.1. The reviewer compares against sources the product did not write |
+| OUT-001 | SOW-016 OBJ-005 OBJ-011 | REQ-001 REQ-003 REQ-005 | AC-002 | VER-002 | PRD §17.4 and FR-RULE-007 and `docs/CONTRACT.md` OPS-K-RULE-1 say what a public example must state |
+| OUT-001 | SOW-016 OBJ-011 | REQ-001 REQ-002 | AC-003 | VER-002 | PRD §20.1. The reviewer compares against sources the product did not write |
 | OUT-001 | SOW-016 OBJ-005 | REQ-005 | AC-004 | VER-003 | Outside source: RFC 8785 and SHA-256, computed without product code. The equality of the copies is fixed by the criterion |
-| OUT-001 | SOW-016 OBJ-005 | REQ-004 | AC-005 | VER-001 | Owner ruling: PRD §5.5 and §17.5, nothing is defaulted and no outcome is reported without the required values. The run is DEL-06-03's |
-| OUT-001 | SOW-016 OBJ-011 | REQ-003 | AC-006 | VER-002 | Owner ruling: PRD §21.2 and `docs/claims_registry.md` |
+| OUT-001 | SOW-016 OBJ-005 | REQ-004 | AC-005 | VER-001 | PRD §5.5 and §17.5, nothing is defaulted and no outcome is reported without the required values. The run is DEL-06-03's |
+| OUT-001 | SOW-016 OBJ-011 | REQ-003 | AC-006 | VER-002 | PRD §21.2 and `docs/claims_registry.md` |

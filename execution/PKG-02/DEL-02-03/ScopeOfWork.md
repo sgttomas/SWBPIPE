@@ -101,11 +101,11 @@ Requirement numbers are those of the earlier `DEL-02-03-Rnn` series.
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-002 OBJ-001 OBJ-011 | REQ-001 REQ-002 REQ-012 | AC-001 | VER-001 | Owner ruling: the vocabulary of `docs/TYPES.md` §4 and the prohibited claims of PRD §21.2 |
+| OUT-001 | SOW-002 OBJ-001 OBJ-011 | REQ-001 REQ-002 REQ-012 | AC-001 | VER-001 | The vocabulary of `docs/TYPES.md` §4 and the prohibited claims of PRD §21.2 state what the enumerations must hold |
 | OUT-001 | SOW-002 OBJ-011 | REQ-003 REQ-004 REQ-006 REQ-007 | AC-002 | VER-001 | The records are constructed, so the criterion states which are valid; the authorities are those of PRD §5.1, §5.4 and §21, and PRD §17.5 permits a mechanics-only solve |
 | OUT-001 | SOW-002 OBJ-001 | REQ-005 | AC-003 | VER-002 | The subjects are constructed, so the criterion states the expected status and diagnostic (PRD §5.5, §17.5) |
 | OUT-001 | SOW-002 OBJ-011 | REQ-008 | AC-004 | VER-001 | The criterion states the expected evidence per status, from the table in the Ontology; the diagnostic fields are those of the architecture basis AB-00-06 of the decomposition |
-| OUT-001 | SOW-002 OBJ-011 | REQ-007 | AC-005 | VER-002 | Owner ruling: PRD §21.3 keeps a human acceptance record separate from solver and rule-pack outputs; the criterion states the expected result, that none is found |
+| OUT-001 | SOW-002 OBJ-011 | REQ-007 | AC-005 | VER-002 | PRD §21.3 keeps a human acceptance record separate from solver and rule-pack outputs; the criterion states the expected result, that none is found |
 | OUT-001 | SOW-002 OBJ-011 | REQ-010 REQ-011 | AC-006 | VER-003 | The criterion states the expected refusal; the reviewer examines the surfaces against the architecture basis AB-00-07 of the decomposition, which the product did not write |
-| OUT-001 | SOW-002 OBJ-001 | REQ-002 REQ-004 | AC-007 | VER-004 | Owner ruling: PRD §20.1 and §21.2, `docs/IP_AND_DATA_BOUNDARY.md` and `docs/claims_registry.md` |
+| OUT-001 | SOW-002 OBJ-001 | REQ-002 REQ-004 | AC-007 | VER-004 | PRD §20.1 and §21.2, `docs/IP_AND_DATA_BOUNDARY.md` and `docs/claims_registry.md` state what may not appear; the reviewer compares the texts against them |
 | OUT-001 | SOW-002 OBJ-001 | REQ-009 | AC-008 | VER-001 | Outside source: the JSON Schema 2020-12 specification, applied by a validator that imports no product code |

@@ -22,7 +22,7 @@ It serves SOW-030 and SOW-074 under OBJ-009 and OBJ-017 (`execution/_Decompositi
 **Terms the export implements.**
 
 - *Review geometry.* A simplified drawing of the model for visual inspection, in which each drawn object stands for one model entity.
-- *Selected profile.* The one profile selected for this export (owner decision DEC-074, items O11 and E7, `execution/_Decomposition/SOFTWARE_DECOMP.md`):
+- *Selected profile.* The one profile selected for this export:
   - the artifact is JSON glTF 2.0, `model.gltf`, with its buffer embedded;
   - geometry is the centerline only, one line segment per element, in line mode (`LINES`);
   - canonical identity is written in the `extras` of each node and primitive;
@@ -43,7 +43,7 @@ It serves SOW-030 and SOW-074 under OBJ-009 and OBJ-017 (`execution/_Decompositi
 - Whether a binary `.glb` artifact is produced. The deliverable's name and SOW-030 say GLB and glTF; the selected profile is JSON glTF only.
 - Whether any family beyond the centerline is drawn (bend arcs, tube or surface shapes, component and support symbols, labels, overlays), and which fields suffice for review without implying solver fidelity (DEL-17-01, TBD-17-01-006). Until a profile selects them, the coverage declaration records each as not drawn.
 - Which axis of the model's global frame maps to glTF's +Y. The model document declares one right-handed global frame and names no vertical axis; the profile declares the transform it uses.
-- The policy for the asset's generator text and for timestamps: which of deterministic, normalized, omitted or runtime-dependent is the rule for each.
+- The policy for the asset's generator text and for timestamps, which REQ-034 holds for the owner's selection.
 - The diagnostic for bend display geometry that cannot be drawn (REQ-043). The selected profile draws no bends, so it has no subject until a profile does.
 
 ## Completion and Reliance Basis — Epistemology
@@ -70,7 +70,7 @@ It serves SOW-030 and SOW-074 under OBJ-009 and OBJ-017 (`execution/_Decompositi
 - **REQ-031** — The manifest records the source model identity, the profile identity, the member inventory, the source-basis references and the boundary notes.
 - **REQ-032** — The loss report classifies each material limitation of the review geometry in one of the six categories of the common contract.
 - **REQ-033** — A binary or other non-JSON member records its hash, or the reason no hash is available.
-- **REQ-034** — Each generator and timestamp field of the asset and the package carries the declaration DEL-17-02/REQ-014 requires, and no runtime-dependent value enters a hash.
+- **REQ-034** — No runtime-dependent value enters a hash. Which of deterministic, normalized, omitted or runtime-dependent is the rule for the asset's generator text and for each timestamp field of the asset and the package is the owner's to select. Until the owner selects it, the export emits no value that depends on when or where it ran, and nothing in the profile, a package or its evidence presents a rule for those fields as selected.
 - **REQ-035** — The profile carries source-basis references to DEL-17-01, DEL-17-02 and `GLTF-2.0`, and a package without them is not accepted.
 - **REQ-040** — The profile holds the coverage declaration.
 - **REQ-041** — The coverage declaration gives every family a classification. Drawing the centerline does not settle the others: each family not drawn is declared as such and reported.
@@ -85,7 +85,7 @@ It serves SOW-030 and SOW-074 under OBJ-009 and OBJ-017 (`execution/_Decompositi
 - **AC-004** — The profile gives each family of the coverage declaration one classification. A loss report accompanies every export, including one that lost nothing, and it holds an entry for each family that is not drawn and for each shape that is approximated. A profile that leaves a family unclassified is refused.
 - **AC-005** — Each condition REQ-043 names that the profile can meet blocks the package with a diagnostic that names the entity: a missing unit, an ambiguous coordinate basis, a duplicate stable identifier, a zero-length element and a drawn entity with no mapping.
 - **AC-006** — The package for the invented model validates against the schema. Its manifest names the source model, the profile, every member and the three source-basis references, and a package missing a reference is refused. Each JSON member's hash is on the basis DEL-17-02/REQ-007 requires and carries a label that names that basis; a non-JSON member has its hash or the stated reason. Two exports of the same model under the same profile are byte-identical.
-- **AC-007** — The package a user saves from the desktop for the session's model is the package AC-001 to AC-006 describe: it validates against the schema, and its glTF opens with the session model's centerline. With AC-006 this carries commitment DEL-17-08:1.
+- **AC-007** — The package a user saves from the desktop for the session's model is the package AC-001 to AC-006 describe: it validates against the schema, and its glTF opens with the session model's centerline.
 - **AC-008** — Every package states in its boundary notes that the geometry is for visual review only, and no member of a package and no fixture presents it as anything REQ-004 excludes. The `extras` and the sidecar hold identifiers and nothing classed private. Every fixture is invented and carries its provenance.
 
 ## Production and Verification Method — Praxeology
@@ -121,9 +121,9 @@ It serves SOW-030 and SOW-074 under OBJ-009 and OBJ-017 (`execution/_Decompositi
 |---|---|---|---|---|---|
 | OUT-001 | SOW-030 OBJ-009 | REQ-001 REQ-003 REQ-010 REQ-011 REQ-014 REQ-015 | AC-001 | VER-001 | Outside source: the Khronos glTF 2.0 specification, applied by a validator or reader that shares no code with the exporter |
 | OUT-001 | SOW-030 OBJ-009 | REQ-012 REQ-013 | AC-002 | VER-002 | The invented model, which the exporter did not write; a closed form: the public definition of the metre conversion, the declared transform and rounding to the nearest IEEE 754 single-precision value, the component type `GLTF-2.0` requires of a position; and the specification's coordinate convention |
-| OUT-001 | SOW-074 OBJ-017 | REQ-020 REQ-021 REQ-022 REQ-023 REQ-024 | AC-003 | VER-003 | Owner ruling: decision DEC-074 (O11, E7) and the common contract's stable ID map; the identifiers compared are the invented model's own |
-| OUT-001 | SOW-074 OBJ-017 | REQ-032 REQ-040 REQ-041 REQ-042 | AC-004 | VER-004 | Owner ruling: the common contract's loss categories and the family list of this scope |
-| OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-043 | AC-005 | VER-005 | Owner ruling: REQ-043 carries the accepted statement of which conditions block; the seeded models, which the exporter did not write, supply the cases |
+| OUT-001 | SOW-074 OBJ-017 | REQ-020 REQ-021 REQ-022 REQ-023 REQ-024 | AC-003 | VER-003 | The invented model's own identifiers, compared with the `extras` and the sidecar read back from disk under the selected profile and the common contract's stable ID map |
+| OUT-001 | SOW-074 OBJ-017 | REQ-032 REQ-040 REQ-041 REQ-042 | AC-004 | VER-004 | The family list of this scope and the common contract's loss categories, against which the coverage declaration and the loss report are read |
+| OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-043 | AC-005 | VER-005 | The seeded models, which the exporter did not write, supply the cases; REQ-043 states which conditions block |
 | OUT-001 | SOW-074 OBJ-017 | REQ-002 REQ-030 REQ-031 REQ-033 REQ-034 REQ-035 | AC-006 | VER-006 | Outside source: RFC 8785 and SHA-256, through a canonicalizer that imports no product code, and a JSON Schema 2020-12 validator; byte equality of two exports guards against change only |
 | OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-002 REQ-030 | AC-007 | VER-007 | The invented session model, which the exporter did not write, and the schema |
-| OUT-001 | SOW-074 OBJ-017 | REQ-004 REQ-005 | AC-008 | VER-008 | Owner ruling: the decomposition row (visual handoff support only), `docs/IP_AND_DATA_BOUNDARY.md` and `docs/PRD.md` §21.2; the reviewer did not write the fixtures |
+| OUT-001 | SOW-074 OBJ-017 | REQ-004 REQ-005 | AC-008 | VER-008 | The scan and the seeded private value, which show only that what was seeded is caught, and the reading of a reviewer who did not write the fixtures against the decomposition row (visual handoff support only), `docs/IP_AND_DATA_BOUNDARY.md` and `docs/PRD.md` §21.2 |

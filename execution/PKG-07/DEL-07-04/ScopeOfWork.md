@@ -13,7 +13,7 @@ package_objective_refs: [OBJ-006, OBJ-011]
 
 This deliverable is how the desktop tells the engineer what is missing, what that stops, and what to do about it. A value the solve needs and lacks stops the solve. A value only the user's rule check needs stops or qualifies the check and leaves a valid mechanics result standing. Weak provenance, assumptions, nonlinear uncertainty and suspected protected content are shown as what they are. Nothing is filled in silently, and no finding or status reads as approval. The deliverable also holds the surface where the user runs a rule check and reads its outcome. The result it contributes is that an engineer reviewing a model or a result can tell, without reading a log, which inputs are absent, which conclusions that withholds, and where to go to supply them.
 
-It serves SOW-022 under OBJ-006 and OBJ-011 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-07, row DEL-07-04), and PRD §5.5, §14.4, §17.5, §21.2 and FR-RULE-003. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names this deliverable. The release target's ruling that a user-rule outcome is shown as within or exceeding the user's limit applies to the rule-check surface held here.
+It serves SOW-022 under OBJ-006 and OBJ-011 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-07, row DEL-07-04), and PRD §5.5, §14.4, §17.5, §21.2 and FR-RULE-003. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names this deliverable. The release target's requirement that a user-rule outcome is shown as within or exceeding the user's limit applies to the rule-check surface held here.
 
 - **OUT-001** — The presentation of findings: their classes, what each blocks, their fields, and the way from a finding to the object it concerns.
 - **OUT-002** — The rule-check run surface: starting a run, its outcomes and its aggregate status.
@@ -23,7 +23,7 @@ It serves SOW-022 under OBJ-006 and OBJ-011 (`execution/_Decomposition/SOFTWARE_
 **Terms the presentation implements.**
 
 - *Finding.* A diagnostic a producer returns about the model, a solve, a rule check, an import or an export. A finding has a code, a class, a severity, a source, an affected object, a message, a remediation and, where it applies, provenance. This deliverable shows findings; it produces none of them.
-- *Class.* One of the six classes every producer keeps: `SOLVE_BLOCKING`, `RULE_CHECK_BLOCKING`, `PROVENANCE_WARNING`, `ASSUMPTION_WARNING`, `NONLINEAR_WARNING` and `IP_BOUNDARY_WARNING`.
+- *Class.* One of the product's six warning classes: `SOLVE_BLOCKING`, `RULE_CHECK_BLOCKING`, `PROVENANCE_WARNING`, `ASSUMPTION_WARNING`, `NONLINEAR_WARNING` and `IP_BOUNDARY_WARNING`.
 - *What a finding blocks.* PRD §14.4 separates a finding that blocks model validity, one that blocks the solve, one that blocks the user-rule check, a warning and an informational note. The presentation states which of these a finding is, from its class and severity as supplied.
 - *Solve-required and rule-check-required.* A solve-required value is one the mechanics solve cannot run without. A rule-check-required value is one only the user's rule pack asks for. The producer of the finding says which; the presentation keeps them apart.
 - *Qualified result.* A result or outcome shown together with the findings that limit it, where it is shown at all.
@@ -44,7 +44,7 @@ It serves SOW-022 under OBJ-006 and OBJ-011 (`execution/_Decomposition/SOFTWARE_
 - the diagnostics panel of a solve and the gate on the Solve command: DEL-07-07, which follows the presentation rules stated here;
 - values and ratios in the results tables: DEL-07-05.
 
-**Not decided.** Whether the registered display form of the user-rule-failed status changes to follow the ruling that an outcome is shown as within or exceeding the user's limit. The registry is DEL-01-04's. Until it is decided, REQ-016 governs the wording of an outcome and the registry governs the wording of a status.
+**Not decided.** Whether the registered display form of the user-rule-failed status changes to follow the requirement that an outcome is shown as within or exceeding the user's limit. The registry is DEL-01-04's. Until it is decided, REQ-016 governs the wording of an outcome and the registry governs the wording of a status.
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -57,14 +57,14 @@ It serves SOW-022 under OBJ-006 and OBJ-011 (`execution/_Decomposition/SOFTWARE_
 - **REQ-005** — Model incomplete, mechanics solved, rule inputs incomplete, user-rule checked, user-rule failed and human review required are shown as distinct statuses, each in its registered display form with its authority domain and its token reachable. No surface shows a status of code compliance or approval, and none derives one from the others.
 - **REQ-006** — A value that exists with missing or weak provenance is shown as a provenance warning beside the value it concerns.
 - **REQ-007** — An assumption is shown as an assumption wherever the result it affects is shown. Its presence is never presented as acceptance of it.
-- **REQ-008** — Nonlinear uncertainty a producer reports is shown as a nonlinear warning on the result it qualifies. The presentation forms no convergence or support-state outcome of its own (also cited as DEL-07-04:1).
+- **REQ-008** — Nonlinear uncertainty a producer reports is shown as a nonlinear warning on the result it qualifies. The presentation forms no convergence or support-state outcome of its own.
 - **REQ-009** — Where an export, report or contribution flow returns a suspected protected or private content finding, it is shown as an IP-boundary warning, the flow is shown in the state its owner returned (blocked, redacted or held for review), and the surface offers no way past a block or a hold other than the owning flow's review.
 - **REQ-010** — No text of these surfaces states or implies certification, sealing, approval or code compliance (PRD §21.2).
 - **REQ-011** — A change that affects readiness is made only by an applied model operation. Findings follow the model: after an apply, an undo or a redo, the findings shown are those of the model as it then stands.
 - **REQ-013** — A finding's class, severity, affected object, message and remediation are available as text to assistive technology, and no class, severity or status is signalled by colour alone.
 - **REQ-014** — From a finding the user reaches the object it concerns, by keyboard as by pointer. A finding that names several objects offers each. A finding that names none says so.
 - **REQ-015** — *Rule-check run.* The user starts a run by choosing a rule pack and a solved result. The surface shows the pack's identity, version and checksum, each outcome as the runner returned it, and the aggregate status. An incomplete outcome is shown as incomplete with the findings that explain it, never as zero, as within the limit or as absent. Values are shown in the display unit the user chose without changing a stored value.
-- **REQ-016** — A user-rule outcome is worded as within or exceeding the user's limit. It is never worded as pass or fail (`docs/RELEASE_TARGET_v1.0.md`, owner calls; PRD FR-RULE-003).
+- **REQ-016** — A user-rule outcome is worded as within or exceeding the user's limit. It is never worded as pass or fail (`docs/RELEASE_TARGET_v1.0.md`, rule packs; PRD FR-RULE-003).
 
 ### Acceptance criteria
 
@@ -101,12 +101,12 @@ It serves SOW-022 under OBJ-006 and OBJ-011 (`execution/_Decomposition/SOFTWARE_
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-022 OBJ-006 | REQ-001 REQ-002 REQ-011 | AC-001 | VER-001 | Owner ruling: PRD §5.5 says a missing solve-required value blocks and is never defaulted. The expected finding is the one the model checks return for the value the fixture omits; the expected document is the fixture file itself. |
+| OUT-001 | SOW-022 OBJ-006 | REQ-001 REQ-002 REQ-011 | AC-001 | VER-001 | PRD §5.5 says a missing solve-required value blocks and is never defaulted. The expected finding is the one the model checks return for the value the fixture omits; the expected document is the fixture file itself. |
 | OUT-002 | SOW-022 OBJ-006 OBJ-011 | REQ-005 REQ-015 | AC-002 | VER-002 | The runner's envelope is the reference and the limits are set by hand in the fixture. This shows the surface alters nothing; whether the outcomes are right is DEL-06-03's to show. |
-| OUT-002 | SOW-022 OBJ-011 | REQ-003 REQ-015 | AC-003 | VER-002 | Owner ruling: PRD §17.5 says missing rule inputs leave the mechanics result valid and the check incomplete. The missing input is the one the fixture removes. |
-| OUT-001 | SOW-022 OBJ-006 | REQ-001 REQ-004 REQ-015 | AC-004 | VER-003 | Owner ruling: the decomposition's architecture basis AB-00-06, stated in DEL-00-06, fixes the fields and the six classes, and PRD §14.4 the distinctions. The expected display is the finding as the check supplies it; the units of a dimension are the unit catalog's (DEL-02-02). |
-| OUT-001 | SOW-022 OBJ-011 | REQ-005 REQ-010 REQ-016 | AC-005 | VER-004 | Owner ruling: the release target's wording of a user-rule outcome and PRD §21.2. The display forms, authority domains and withdrawn phrasings are DEL-01-04's registry, which this deliverable does not write. |
-| OUT-001 | SOW-022 OBJ-006 | REQ-013 REQ-014 | AC-006 | VER-005 | Owner ruling: the desktop's accessibility baseline (DEL-07-06) requires a keyboard alternative and a signal other than colour. The expected selection is the finding's own affected object. |
-| OUT-001 | SOW-022 OBJ-006 | REQ-006 REQ-007 REQ-008 | AC-007 | VER-006 | The supplied findings say what must be shown and where; they are written by hand for the check, not by the presentation. PRD §14.4 is the owner ruling that each stays visible. |
+| OUT-002 | SOW-022 OBJ-011 | REQ-003 REQ-015 | AC-003 | VER-002 | PRD §17.5 says missing rule inputs leave the mechanics result valid and the check incomplete. The missing input is the one the fixture removes. |
+| OUT-001 | SOW-022 OBJ-006 | REQ-001 REQ-004 REQ-015 | AC-004 | VER-003 | The decomposition's architecture basis AB-00-06, stated in DEL-00-06, fixes the fields and the six classes, and PRD §14.4 the distinctions. The expected display is the finding as the check supplies it; the units of a dimension are the unit catalog's (DEL-02-02). |
+| OUT-001 | SOW-022 OBJ-011 | REQ-005 REQ-010 REQ-016 | AC-005 | VER-004 | The release target's wording of a user-rule outcome and PRD §21.2. The display forms, authority domains and withdrawn phrasings are DEL-01-04's registry, which this deliverable does not write. |
+| OUT-001 | SOW-022 OBJ-006 | REQ-013 REQ-014 | AC-006 | VER-005 | The desktop's accessibility baseline (DEL-07-06) requires a keyboard alternative and a signal other than colour. The expected selection is the finding's own affected object. |
+| OUT-001 | SOW-022 OBJ-006 | REQ-006 REQ-007 REQ-008 | AC-007 | VER-006 | The supplied findings say what must be shown and where; they are written by hand for the check, not by the presentation. PRD §14.4 requires that each stays visible. |
 | OUT-001 | SOW-022 OBJ-011 | REQ-009 | AC-008 | VER-006 | The flow's state is its owner's (DEL-12-02 for exports, DEL-08-05 for reports), supplied by hand to the check; the expected count of releasing controls is zero. |
-| OUT-001 | SOW-022 OBJ-006 | REQ-002 | AC-009 | VER-001 | Owner ruling: PRD §5.5. The removed value is the one the check removes, and the expected marking is the requirement's. |
+| OUT-001 | SOW-022 OBJ-006 | REQ-002 | AC-009 | VER-001 | PRD §5.5. The removed value is the one the check removes, and the expected marking is the requirement's. |

@@ -54,11 +54,11 @@ Outputs:
 - The desktop shell and its permissions are DEL-07-11's and the storage paths DEL-12-01's; the bundle settings in the same configuration file are this deliverable's.
 - Coverage tooling and any coverage floor are DEL-09-05's. Numerical tolerances are the validation deliverables'.
 
-**Windows.** Windows is not a release platform for v1.0; the owner revisits it immediately after. Windows or Linux enters the release matrix only with a packaged build, a recorded smoke run of the packaged application and a release artifact record for that platform. Of the Windows native boundaries, this deliverable holds the Windows bundle configuration and icon and the build's handling of Windows paths.
+**Windows.** Windows is not a release platform for v1.0; the owner revisits it immediately after. Windows or Linux enters the release matrix only with a packaged build, a recorded smoke run of the packaged application and a release artifact record for that platform. Of the Windows native boundaries, this deliverable holds the Windows bundle configuration and icon and the build's handling of Windows paths. A Windows build or Windows check of this deliverable does not meet the Windows conditions of the other native boundaries, which the deliverables owning those acts hold: shell dispatch and security (DEL-07-11), admission and worker custody (DEL-04-07), qualification (DEL-04-08), recovery (DEL-02-05), publication (DEL-08-01), model save (DEL-15-01) and the native user experience (DEL-07-06).
 
 **Not decided.**
 
-- Where a release is published. The earlier ruling named GitHub Releases on a sanitized-export repository, which the public repository has replaced.
+- Where a release is published.
 - For Windows: the installer format, the WebView2 bootstrap policy, signing and distribution.
 - Coverage, performance and timing thresholds as merge or release conditions. No check fails on one.
 
@@ -71,7 +71,7 @@ Requirement numbers 001 to 008 are those of the earlier `REQ-10-04-nn` series.
 - **REQ-001** — The project has reproducible build, packaging and CI workflows for the platforms of its release matrix (SOW-032).
 - **REQ-002** — The checks the pipeline runs are the accepted baseline: Cargo tests, Vitest, Playwright, the Python contract and validation tests, and the protected-content and provenance gates. Together they cover the test kinds PRD §22.4 requires of every release (decomposition AB-00-08).
 - **REQ-003** — The release matrix for v1.0 is macOS on Apple Silicon. The artifact is the `.app` bundle in a zip archive with a published SHA-256 checksum and a release artifact record.
-- **REQ-004** — A pipeline choice that no owner ruling has made stays unmade: the pipeline enforces no threshold, platform or publication target that is not ruled.
+- **REQ-004** — A pipeline choice the owner has not made stays unmade: the pipeline enforces no threshold, platform or publication target the owner has not selected.
 - **REQ-005** — No build, packaging or CI step goes around unit checks, provenance checks, diagnostics, privacy controls or the adapter and plugin boundary.
 - **REQ-006** — Nothing the pipeline publishes or uploads contains protected standards text or examples, proprietary engineering values, private rule packs, private project data or private library data. Hosted jobs receive none of these, and receive no signing secret or publishing credential (PRD §20.1, §20.3, §20.5).
 - **REQ-007** — No release artifact, release note or pipeline status claims certification, sealing, approval, authentication or code compliance for reliance (PRD §21.2).
@@ -104,7 +104,7 @@ Requirement numbers 001 to 008 are those of the earlier `REQ-10-04-nn` series.
 - **AC-013** — Every generated file that ships is reproduced byte for byte by its named command from the committed inputs, and its generation record matches. A checkout made with newline conversion enabled holds the committed bytes of every protected input.
 - **AC-014** — The Windows workflows are not among the checks `harness` requires, and no workflow, record or document describes a Windows build as a release or as qualifying memory, persistence or the native user interface.
 - **AC-015** — The readiness panel lists the scripts of the root and desktop manifests as they are, reports whether the bundle is active, lists the undecided release decisions, and contains no statement of release, signing or professional acceptance.
-- **AC-016** — No workflow, check or packaging step fails on a coverage, performance or timing number other than the two-minute target of AC-005, builds a release for a platform outside the release matrix, or publishes to a target no owner ruling names.
+- **AC-016** — No workflow, check or packaging step fails on a coverage, performance or timing number, builds a release for a platform outside the release matrix, or publishes to a target the owner has not named. The two-minute target of AC-005 is measured from run records and fails no check.
 
 ## Production and Verification Method — Praxeology
 
@@ -125,7 +125,7 @@ Requirement numbers 001 to 008 are those of the earlier `REQ-10-04-nn` series.
 - **VER-005** — Comparison with a named reference: Apple's `codesign`, `stapler` and Gatekeeper assessments of the bundle extracted from the archive.
 - **VER-006** — Executable check (observes packaging and its record): packages signed, unsigned and rehearsal bundles against clean, dirty and mismatched sweep summaries, and reads the refusals, the record's members and the chain's state.
 - **VER-007** — Executable check (observes the repository, records and logs): searches them for credentials, identity names and team identifiers, reads each workflow's secrets and inputs, and reads the licence named by each manifest, the bundle and the notes.
-- **VER-008** — Judgment by a named role (the owner): signs the scan record of the v1.0 repository candidate after dispositioning every finding, and decides the release.
+- **VER-008** — Judgment by a named role (the owner): signs the scan record of the v1.0 repository candidate after dispositioning every finding.
 - **VER-009** — Executable check (observes the public repository on its own): clones it alone, builds it and reads its `harness` result, the revision its candidate records name, and the commit each cited pre-migration identity resolves to.
 - **VER-010** — Executable check (observes the supplier resource in the build): builds with a matching, a differing and an incomplete supplier input and compares the bundle's resources with the pin manifest.
 - **VER-011** — Executable check (observes generated files and checkouts): regenerates each generated file and compares it with the committed one and its record, and compares a converted-newline checkout with the committed bytes.
@@ -143,18 +143,18 @@ Requirement numbers 001 to 008 are those of the earlier `REQ-10-04-nn` series.
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-032 OBJ-008 | REQ-001 REQ-015 | AC-001 | VER-001 | The criterion itself determines the expected result: the build completes from committed inputs, and two packagings of one bundle are compared with each other |
-| OUT-002 | SOW-032 OBJ-008 | REQ-012 | AC-002 | VER-002 | Owner ruling: REQ-012's rules. Each invented case of diff and job outcomes states the selection and verdict those rules give it, written for the check and not by the selector |
-| OUT-002 | SOW-032 OBJ-008 | REQ-002 REQ-005 | AC-003 | VER-002 | Owner ruling: decomposition AB-00-08 names the check families and PRD §22.4 the test kinds |
-| OUT-002 | SOW-032 OBJ-008 | REQ-013 | AC-004 | VER-003 | Owner ruling: `execution/` holds declarative specifications only; each invented change states the route and result it must get |
-| OUT-002 | SOW-032 OBJ-008 | REQ-014 | AC-005 | VER-004 | Owner ruling: the two-minute target. The times are the hosting service's run records |
-| OUT-003 | SOW-032 OBJ-008 OBJ-009 | REQ-003 REQ-010 | AC-006 | VER-005 VER-006 | Outside source: Apple's signature, notarization and Gatekeeper assessments decide whether the bundle is signed and notarized. The matrix and format are the owner's ruling |
+| OUT-002 | SOW-032 OBJ-008 | REQ-012 | AC-002 | VER-002 | REQ-012's rules. Each invented case of diff and job outcomes states the selection and verdict those rules give it, written for the check and not by the selector |
+| OUT-002 | SOW-032 OBJ-008 | REQ-002 REQ-005 | AC-003 | VER-002 | Decomposition AB-00-08 names the check families and PRD §22.4 the test kinds |
+| OUT-002 | SOW-032 OBJ-008 | REQ-013 | AC-004 | VER-003 | `execution/` holds declarative specifications only; each invented change states the route and result it must get |
+| OUT-002 | SOW-032 OBJ-008 | REQ-014 | AC-005 | VER-004 | The two-minute target is the expected result; the times are the hosting service's run records |
+| OUT-003 | SOW-032 OBJ-008 OBJ-009 | REQ-003 REQ-010 | AC-006 | VER-005 VER-006 | Outside source: Apple's signature, notarization and Gatekeeper assessments decide whether the bundle is signed and notarized. The matrix and format are those REQ-003 states |
 | OUT-003 | SOW-032 OBJ-008 | REQ-008 REQ-010 | AC-007 | VER-006 | Each invented combination of bundle and sweep summary states the chain state the requirement gives it |
-| OUT-003 | SOW-032 OBJ-008 | REQ-006 REQ-010 | AC-008 | VER-007 | Owner ruling: credentials stay in the local keychain, and PRD §20.3 and §20.5 keep private data out of hosted jobs; the search is over the repository and the hosting service's configuration |
-| OUT-003 | SOW-032 OBJ-008 | REQ-011 | AC-009 | VER-007 | Owner ruling: the licence is MIT |
-| OUT-004 | SOW-032 OBJ-008 OBJ-009 | REQ-009 | AC-010 | VER-008 VER-009 | Owner ruling: exit criterion 16, and the owner's decision that the public repository replaces the sanitized export and keeps the practical source history. The sign-off is the owner's own act and no check supplies it |
-| OUT-003 | SOW-032 OBJ-008 | REQ-007 | AC-011 | VER-012 | Owner ruling: PRD §21.2 lists the prohibited claims; the reviewer compares |
+| OUT-003 | SOW-032 OBJ-008 | REQ-006 REQ-010 | AC-008 | VER-007 | Credentials stay in the local keychain, and PRD §20.3 and §20.5 keep private data out of hosted jobs; the search is over the repository and the hosting service's configuration |
+| OUT-003 | SOW-032 OBJ-008 | REQ-011 | AC-009 | VER-007 | The licence is MIT (exit criterion 15); the check reads the licence each place names |
+| OUT-004 | SOW-032 OBJ-008 OBJ-009 | REQ-009 | AC-010 | VER-008 VER-009 | Exit criterion 16, with the public repository replacing the sanitized export and keeping the practical source history. The sign-off is the owner's own act and no check supplies it |
+| OUT-003 | SOW-032 OBJ-008 | REQ-007 | AC-011 | VER-012 | PRD §21.2 lists the prohibited claims; the reviewer compares |
 | OUT-001 | SOW-032 OBJ-008 | REQ-016 | AC-012 | VER-010 | The pin manifest, which DEL-16-06 owns, says what the bundle must contain; the bundle is compared with it |
 | OUT-001 | SOW-032 OBJ-008 | REQ-015 | AC-013 | VER-011 | The product's own earlier output, which only guards against change: a regenerated file is compared with the committed one. That the committed values are right is the criterion of the deliverable whose results they are |
-| OUT-002 | SOW-032 OBJ-008 | REQ-017 | AC-014 | VER-012 | Owner ruling: v1.0 is macOS first and Windows is revisited after it |
+| OUT-002 | SOW-032 OBJ-008 | REQ-017 | AC-014 | VER-012 | v1.0 is macOS first and Windows is revisited after it; the reviewer compares the workflows, records and documents with REQ-017 |
 | OUT-005 | SOW-032 OBJ-009 | REQ-018 | AC-015 | VER-012 | The manifests and the not-decided list of this scope say what the panel must show; the reviewer compares |
-| OUT-002 | SOW-032 OBJ-008 | REQ-004 | AC-016 | VER-012 | Owner ruling: the release matrix, the two-minute target and the not-decided list of this scope say which thresholds, platforms and publication targets are ruled; the reviewer compares |
+| OUT-002 | SOW-032 OBJ-008 | REQ-004 | AC-016 | VER-012 | The release matrix and the not-decided list of this scope say which thresholds, platforms and publication targets are selected; the reviewer compares |

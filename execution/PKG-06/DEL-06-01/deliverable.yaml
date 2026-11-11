@@ -4,14 +4,14 @@ needs:
 - from: DEL-00-04
   condition: >-
     The persistence and schema architecture names JSON Schema 2020-12 as the schema language, and
-    requires a persisted document to declare its schema version, with a reader that accepts only
-    the current version and refuses every other by name.
+    gives each document format one current version, which a document declares, with a reader that
+    refuses every other version by name and migrates nothing.
   gating: true
 - from: DEL-00-06
   condition: >-
     The diagnostic contract fixes the members a diagnostic carries (code, class, severity, source,
-    affected object, message, remediation and provenance) and the warning classes a rule-pack
-    diagnostic maps to, rule-check blocking, provenance warning and IP-boundary warning among them.
+    affected object, message, remediation and provenance) and names the warning classes,
+    rule-check blocking, provenance warning and IP-boundary warning among them.
   gating: true
 - from: DEL-01-02
   condition: >-
@@ -37,11 +37,18 @@ needs:
     entity it concerns, and where it has them its location, component, section basis and tie-rod
     identity, so that rows of one basis can be told apart.
   gating: true
+- from: DEL-05-02
+  condition: >-
+    An operand row published under a combination (the held-status subtrahend) is marked as an
+    operand, so that the selector check can leave it aside and a selector on that combination
+    selects the combination's result.
+  gating: false
 - from: DEL-02-03
   condition: >-
-    The analysis status vocabulary has three user-rule statuses (rule inputs incomplete, user-rule
-    checked, user-rule failed) and human review required, and no automatic status for compliance,
-    certification or approval, so the statuses a check may declare are a subset of it.
+    The analysis status vocabulary states which statuses software may emit, among them three
+    user-rule statuses (rule inputs incomplete, user-rule checked, user-rule failed) and human
+    review required, with no automatic status for human approval, compliance or certification,
+    so the statuses a check may declare are drawn from those.
   gating: true
 code_paths:
 # The schema. Its expression definitions (the expression node, the expression quantity and the

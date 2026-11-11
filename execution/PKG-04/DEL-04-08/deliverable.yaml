@@ -57,11 +57,11 @@ needs:
     AC-001), so that the reader's raw and normalized projections and the test verifier can be held
     to it.
   gating: true
-- from: DEL-08-02
+- from: DEL-02-05
   condition: >-
-    Every JSON payload hash is SHA-256 over the payload's RFC 8785 canonical form, through one
-    implementation that every hashing surface of the product uses; receipts, captured invocations
-    and publication hashes are bound with it.
+    A JSON payload is hashed as SHA-256 over its RFC 8785 canonical form, by one implementation with
+    committed vectors, so that receipts, captured invocations and publication hashes are bound with
+    it and the test verifier can reproduce each digest.
   gating: true
 - from: DEL-00-06
   condition: >-

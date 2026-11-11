@@ -34,17 +34,17 @@ It serves SOW-006 under OBJ-003 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 
 - DEL-03-08 computes section and mass properties from the user's dimensions;
 - DEL-05-01 forms the weight, thermal-strain and other primitive load values; DEL-05-05 decides which member loads a user can author and applies them to members;
-- DEL-04-01 owns the frame element stiffness formula, local axes, transforms, assembly and solve; the element supplies its section to that formula;
+- DEL-04-01 owns local axes, transforms, assembly and solve. The element's stiffness is evaluated with the two-node frame element formula held in the kernel's code, which the kernel's other straight members share; this deliverable remains accountable for that stiffness meeting REQ-002;
 - DEL-05-03 recovers stresses from the resultants; the Timoshenko shear factor is its definition;
 - DEL-04-07 maps model members onto elements, forms what pressure contributes to the solve on the exact route, maps element findings into the result envelope and publishes the rows.
 
-**Not decided.** Whether the formation bounds that consumers read from the element are a commitment of this deliverable. Whether a point force on a member is a product capability, and so whether a member selected as Timoshenko refuses one; it is the same question as DEL-05-05 REQ-008, and AC-005 stands as written until the owner decides.
+**Not decided.** Whether the formation bounds that consumers read from the element are a commitment of this deliverable. Whether a point force on a member is a product capability, and so whether a member selected as Timoshenko refuses one; it is the same question as DEL-05-05/REQ-008, and AC-005 stands as written until that is decided.
 
 ## Completion and Reliance Basis — Epistemology
 
 ### Requirements
 
-- **REQ-001** — The element is a member of the 3D centerline frame model and does not bypass the frame kernel: its stiffness formula, transforms, assembly and solve are the kernel's (SOW-006; `docs/CONTRACT.md` OPS-K-MECH-1).
+- **REQ-001** — The element is a member of the 3D centerline frame model and does not bypass the frame kernel: its transforms, assembly and solve are the kernel's, and its stiffness is the one straight-member frame formula the kernel assembles (SOW-006; `docs/CONTRACT.md` OPS-K-MECH-1).
 - **REQ-002** — The element's 12×12 stiffness carries axial stiffness EA/L, bending stiffness about both local transverse axes and torsional stiffness GJ/L in the member's local coordinate system, formed from open mechanics and the caller's section and material values only (PRD §12.3, FR-SOL-003; `docs/CONTRACT.md` OPS-K-DATA-1).
 - **REQ-003** — Section properties are explicit inputs. A missing, non-finite or non-positive solve-required property is a finding that names it; nothing is defaulted (PRD §5.5; `docs/CONTRACT.md` OPS-K-DATA-2).
 - **REQ-004** — The element gives the weight per length of the member from the caller's mass per length and gravity, covering distributed pipe, contents, insulation and component weight; the equivalent nodal loads of full-span and partial-span distributed loads and of point forces; and the axial free-strain effect E·A·ε through which thermal strain enters. It applies no load of its own (PRD §12.2, §12.3).
@@ -99,11 +99,11 @@ It serves SOW-006 under OBJ-003 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 | OUT-001 | SOW-006 OBJ-003 | REQ-002 REQ-005 | AC-001 | VER-001 | Outside source: closed-form beam mechanics and `validation/references/w9_benchmarks`, `t4_u8` and `pf_timoshenko`, generated without product code |
 | OUT-001 | SOW-006 OBJ-003 | REQ-004 | AC-002 | VER-001 VER-002 | Outside source: fixed-end actions in closed form (wL/2 and ±wL²/12 for a full-span load), and `validation/references/w16_timoshenko_partial_wind`, whose values are not computed through the product's element |
 | OUT-001 | SOW-006 OBJ-003 | REQ-005 | AC-003 | VER-001 VER-002 | Outside source: statics in closed form |
-| OUT-001 | SOW-006 OBJ-003 | REQ-004 | AC-004 | VER-003 | The criterion states the expected value; that no load is supplied by the element is an owner ruling (PRD §5.5) |
-| OUT-001 | SOW-006 OBJ-003 | REQ-003 REQ-007 | AC-005 | VER-003 | Owner ruling: PRD §5.5 and §12.8 and `docs/CONTRACT.md` OPS-K-DATA-2 state the expected refusals. The refusal of a point force on a Timoshenko member rests on no ruling: it is undecided (Ontology) |
-| OUT-001 | SOW-006 OBJ-003 | REQ-008 | AC-006 | VER-003 | Owner ruling: PRD §5.6 and `docs/CONTRACT.md` OPS-K-UNIT-1 state the expected refusal |
-| OUT-001 | SOW-006 OBJ-003 | REQ-007 | AC-007 | VER-004 | Owner ruling: PRD §21.2 and `docs/claims_registry.md` |
+| OUT-001 | SOW-006 OBJ-003 | REQ-004 | AC-004 | VER-003 | The criterion states the expected value; PRD §5.5 requires that the element supply no load |
+| OUT-001 | SOW-006 OBJ-003 | REQ-003 REQ-007 | AC-005 | VER-003 | PRD §5.5 and §12.8 and `docs/CONTRACT.md` OPS-K-DATA-2 state the expected refusals. The refusal of a point force on a Timoshenko member follows from no governing requirement; whether it stays is undecided (Ontology) |
+| OUT-001 | SOW-006 OBJ-003 | REQ-008 | AC-006 | VER-003 | PRD §5.6 and `docs/CONTRACT.md` OPS-K-UNIT-1 state the expected refusal |
+| OUT-001 | SOW-006 OBJ-003 | REQ-007 | AC-007 | VER-004 | The reviewer's reading against PRD §21.2 and `docs/claims_registry.md` |
 | OUT-001 | SOW-006 OBJ-003 | REQ-006 | AC-008 | VER-003 | The product's own earlier output, which only guards against change |
-| OUT-001 | SOW-006 OBJ-003 | REQ-010 | AC-009 | VER-004 | Owner ruling: `docs/IP_AND_DATA_BOUNDARY.md`; protected-content scan and owner review |
-| OUT-001 | SOW-006 OBJ-003 | REQ-001 | AC-010 | VER-005 | Owner ruling: SOW-006 and `docs/CONTRACT.md` OPS-K-MECH-1 place the element inside the frame kernel's boundary. The comparison is against the kernel's frame element, which this deliverable does not write |
-| OUT-001 | SOW-006 OBJ-003 | REQ-009 | AC-011 | VER-006 | Owner ruling: PRD §12.3 and §12.5 state what is carried; the comparison is against the authored input |
+| OUT-001 | SOW-006 OBJ-003 | REQ-010 | AC-009 | VER-004 | Protected-content scan and the reviewer's reading under `docs/IP_AND_DATA_BOUNDARY.md` |
+| OUT-001 | SOW-006 OBJ-003 | REQ-001 | AC-010 | VER-005 | SOW-006 and `docs/CONTRACT.md` OPS-K-MECH-1 place the element inside the frame kernel's boundary. The comparison is against the kernel's frame element, which this deliverable does not write |
+| OUT-001 | SOW-006 OBJ-003 | REQ-009 | AC-011 | VER-006 | PRD §12.3 and §12.5 state what is carried; the comparison is against the authored input |

@@ -69,12 +69,12 @@ It serves SOW-075 under OBJ-017 and OBJ-018 (`execution/_Decomposition/SOFTWARE_
 - **AC-004** — The professional-boundary block is fixed. A record in which any software-authority statement is true, or which says an external tool was invoked or a commercial result ingested, is rejected by the schema and is a blocking finding of the builder.
 - **AC-005** — An attachment that embeds its payload is a blocking finding. A record contains references, hashes and notes only.
 - **AC-006** — The authority-wording screen finds each prohibited term in a string, a list and a nested record, whatever its letter case, and finds none in a value without one. Applied to a proposed authority claim of this record, a hit is a blocking finding that names the field.
-- **AC-007** — Every external reference, attachment, link, assumption, warning and flag carries provenance, and a flag without an affected object is a finding. Provenance names the source, its location, licence, contributor, contributor certification, redistribution status and review status (PRD §20.2); a field not yet known is stated as such and is never omitted.
+- **AC-007** — Every external reference, attachment, link, assumption, warning and flag carries provenance, and a flag without an affected object is a finding. In a record that becomes a public data contribution, provenance names the source, its location, licence, contributor, contributor certification, redistribution status and review status (PRD §20.2); a field not yet known is stated as such and is never omitted.
 - **AC-008** — The same inputs give an identical record.
 - **AC-009** — The record ingests nothing: building one reads no external file, invokes no tool and parses no result.
 - **AC-010** — The schema, its fixtures and its examples contain only invented data and name no commercial tool's result format.
 - **AC-011** — If the schema gains a human acceptance reference, it requires a named human actor and the hashes of the reviewed payloads, the builder never fills it, and a record whose bound hashes no longer match is a finding.
-- **AC-012** — The schema's diagnostic record requires code, class, severity, source, affected object, message, remediation and provenance, and every class it admits is one of the product's six warning classes or a local class whose mapping to one of them the schema states.
+- **AC-012** — The schema's diagnostic record requires code, class, severity, source, affected object, message, remediation and provenance.
 
 ## Production and Verification Method — Praxeology
 
@@ -88,7 +88,7 @@ It serves SOW-075 under OBJ-017 and OBJ-018 (`execution/_Decomposition/SOFTWARE_
 
 **How each criterion is examined.**
 
-- **VER-001** — Executable check (observes the schema under a JSON Schema 2020-12 validator, the acceptance of invented records, and the rejection of each record with a status field added or a boundary statement changed, and the diagnostic record's required fields and classes): AC-001, AC-002, AC-004, AC-012.
+- **VER-001** — Executable check (observes the schema under a JSON Schema 2020-12 validator, the acceptance of invented records, and the rejection of each record with a status field added or a boundary statement changed, and the diagnostic record's required fields): AC-001, AC-002, AC-004, AC-012.
 - **VER-002** — Executable check (observes the builder's findings for invented inputs with each fault the criteria name, the rejected-claim record, and the identity of two records built from the same inputs): AC-003, AC-004, AC-005, AC-007, AC-008.
 - **VER-003** — Executable check (observes the screen's result for each term of PRD §21.2's prohibited claims and of the prover-status vocabulary, in each value shape, and for clean values): AC-006.
 - **VER-004** — Judgment by a reviewer who did not write the code (reads the schema, the builder and its messages against PRD §21.2 and `docs/claims_registry.md`, confirms that the builder reaches no file, tool or network, and runs the protected-content scan over the schema and fixtures): AC-002, AC-009, AC-010, AC-011.
@@ -103,15 +103,15 @@ It serves SOW-075 under OBJ-017 and OBJ-018 (`execution/_Decomposition/SOFTWARE_
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-001 REQ-002 REQ-010 | AC-001 | VER-001 | Outside source: the JSON Schema 2020-12 specification, applied by a validator that is not product code. The groups are an owner ruling: SOW-075 and PRD §16.3 |
-| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-003 REQ-004 REQ-005 | AC-002 | VER-001 VER-004 | Owner ruling: PRD §16.3 and §21.2 and decomposition DEC-016 |
-| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-004 REQ-005 REQ-006 | AC-003 | VER-002 | Owner ruling: PRD §4.3 and §21.2 and decomposition DEC-015 |
-| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-005 REQ-006 | AC-004 | VER-001 VER-002 | Owner ruling: PRD §21.2 and decomposition DEC-016 |
-| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-002 REQ-008 | AC-005 | VER-002 | Owner ruling: PRD §20.1 and §20.3 |
-| OUT-002 | SOW-075 OBJ-017 OBJ-018 | REQ-005 | AC-006 | VER-003 | Owner ruling: PRD §21.2 lists the prohibited claims and PRD §16.3 excludes a prover status; the expected hits are those terms |
-| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-002 REQ-009 | AC-007 | VER-002 | Owner ruling: PRD §20.2; the invented inputs carry the faults |
-| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-010 | AC-008 | VER-002 | The product's own earlier output, which only guards against change |
-| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-006 | AC-009 | VER-004 | Owner ruling: SOW-075 and decomposition DEC-016 exclude result ingestion; judged by a reviewer who did not write the code |
-| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-008 | AC-010 | VER-004 | Owner ruling: `docs/IP_AND_DATA_BOUNDARY.md`; protected-content scan and review |
-| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-007 | AC-011 | VER-004 | Owner ruling: PRD §21.3 and `docs/CONTRACT.md` OPS-K-AUTH-2 |
-| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-010 | AC-012 | VER-001 | Owner ruling: decomposition AB-00-06 states the fields and the six classes; DEL-00-06 holds the vocabulary |
+| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-001 REQ-002 REQ-010 | AC-001 | VER-001 | Outside source: the JSON Schema 2020-12 specification, applied by a validator that is not product code, to invented records with each group filled and with each group empty; the groups are those SOW-075 and PRD §16.3 name |
+| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-003 REQ-004 REQ-005 | AC-002 | VER-001 VER-004 | Validator results on records with a status, stage or acceptance field added, and the reviewer's reading of the schema against PRD §16.3 and §21.2 and decomposition DEC-016 |
+| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-004 REQ-005 REQ-006 | AC-003 | VER-002 | The builder's output and findings for each invented proposed authority claim; the criterion states the expected rejected claim and blocking finding (PRD §4.3, §21.2; decomposition DEC-015) |
+| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-005 REQ-006 | AC-004 | VER-001 VER-002 | Validator results and builder findings on records with each boundary statement changed; the fixed values are the criterion's own statement (PRD §21.2; decomposition DEC-016) |
+| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-002 REQ-008 | AC-005 | VER-002 | The builder's finding on an invented attachment that embeds its payload; the criterion states the expected blocking finding (PRD §20.1, §20.3) |
+| OUT-002 | SOW-075 OBJ-017 OBJ-018 | REQ-005 | AC-006 | VER-003 | The screen's result for each term in each value shape and letter case, and for clean values; the expected hits are the claims PRD §21.2 prohibits and the prover statuses PRD §16.3 excludes |
+| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-002 REQ-009 | AC-007 | VER-002 | The builder's findings on invented inputs that each lack provenance or an affected object, and the provenance fields of an invented public contribution compared with the list in PRD §20.2 |
+| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-010 | AC-008 | VER-002 | Two builds from the same inputs, compared with each other. This shows that the builder is repeatable (PRD §3 asks for reproducibility); it does not show that the record is correct |
+| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-006 | AC-009 | VER-004 | The tracing of the builder for any file, tool or network access by a reviewer who did not write the code; SOW-075 and decomposition DEC-016 exclude result ingestion |
+| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-008 | AC-010 | VER-004 | The protected-content scan and the reviewer's reading of the schema, fixtures and examples against `docs/IP_AND_DATA_BOUNDARY.md` |
+| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-007 | AC-011 | VER-004 | The reviewer's reading of the schema and the builder against PRD §21.3 and `docs/CONTRACT.md` OPS-K-AUTH-2 |
+| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-010 | AC-012 | VER-001 | Validator results on a diagnostic with each field removed; the fields are those decomposition AB-00-06 lists and DEL-00-06 defines |

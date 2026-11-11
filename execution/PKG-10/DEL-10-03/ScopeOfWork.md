@@ -38,7 +38,7 @@ It serves SOW-031 and SOW-049 under OBJ-009 (`execution/_Decomposition/SOFTWARE_
 
 **Boundary.** This deliverable is a data contract and guidance. It builds no shell or solid analysis, generates no mesh, runs no external solver and writes no external tool's format. It gives no code-specific local-stress acceptance rule.
 
-- Exporting a local FEA submodel is separate work with its own implementing deliverables, to be scoped by a decomposition revision; this contract is its authority (also cited as DEL-10-03:1). It is distinct from the handoff package of PKG-15.
+- Exporting a local FEA submodel is owed work at Could priority, to be implemented as its own work item with implementing deliverables that a decomposition revision scopes; this contract is its authority (also cited as DEL-10-03:1). It is distinct from the handoff package of PKG-15. Deferring it again is the owner's decision.
 - The desktop panel that shows a package is DEL-07-12's. The builder it calls, with the unit rule of REQ-013, is this deliverable's, and what it builds conforms to this contract.
 - The global solver and what its frame model represents are DEL-04-01's; stress recovery is DEL-05-03's; unit symbols are DEL-02-02's; entity identity is DEL-02-01's.
 - An export adapter that writes a package for a particular tool would be subject to the API boundary contract (DEL-10-01) and the adapter framework (DEL-10-02).
@@ -47,7 +47,7 @@ It serves SOW-031 and SOW-049 under OBJ-009 (`execution/_Decomposition/SOFTWARE_
 
 - The external FEA formats a package may be written in, and which tools.
 - How global results map onto shell or solid boundary conditions for any particular solver.
-- Whether a package may carry result values converted to its declared units. The owner permits routine engineering unit conversion as a solution; a package that used it would need a witness for each converted value.
+- Whether a package may carry result values converted to its declared units. Routine engineering unit conversion is permitted as a solution; a package that used it would need a witness for each converted value.
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -98,7 +98,7 @@ Requirement numbers 001 to 011 are those of the earlier `DEL-10-03-REQ-nn` serie
 
 - **VER-001** — Executable check (observes the contract and packages validated against it): validates the contract against the JSON Schema 2020-12 meta-schema, then a complete invented package and invented packages that each carry one fault of AC-002, AC-004, AC-005 and AC-006, and reads which are accepted and refused.
 - **VER-002** — Executable check (observes packages built by the desktop from invented projects): builds a package from results in one unit, in mixed units with a governing row, in mixed units without one, and from a project lacking a unit, and reads the declared units, the witnesses, the diagnostics and the refusals.
-- **VER-003** — Judgment by a named role (the owner, acting as engineering authority): reads the guidance's factors for each label and judges whether they are sound screening criteria for the stated purpose.
+- **VER-003** — Judgment by a named role (a reviewer competent in piping stress analysis and local shell or solid analysis, who did not write the guidance): reads the guidance's factors for each label and judges whether they are sound screening criteria for the stated purpose.
 - **VER-004** — Judgment by a named role (an independent reviewer who did not write the contract or the guidance): reads both, and the examples, against SOW-031, SOW-049 and PRD §20.1 and §21.2, and reports each missing label, meaning or factor, any protected or private content, any cited code clause and any statement that reads as a decision or an approval.
 - **VER-005** — Executable check (observes how a package reaches a file): exports invented packages that each fail one of the checks of AC-009 and reads the result envelope returned and whether a file was written; presents the adapter framework with a declaration of a handoff writer that turns one of those checks off and reads the refusal.
 - **VER-006** — Comparison with a named reference: each hash in an invented package against SHA-256 over RFC 8785 canonical JSON computed by an implementation that imports no product code; and the hashes of two builds of one package against each other.
@@ -116,11 +116,11 @@ Requirement numbers 001 to 011 are those of the earlier `DEL-10-03-REQ-nn` serie
 | OUT-001 | SOW-031 OBJ-009 | REQ-002 | AC-001 | VER-001 | Outside source: the JSON Schema 2020-12 meta-schema decides the contract's validity |
 | OUT-001 | SOW-031 OBJ-009 | REQ-002 REQ-003 REQ-004 | AC-002 | VER-001 | The parts of a package are defined by this scope from SOW-031; each invented faulty package states the refusal it must receive |
 | OUT-001 | SOW-031 OBJ-009 | REQ-003 REQ-013 | AC-003 | VER-001 VER-002 | The criterion itself determines the expected result: the declared unit must equal the unit of each referenced row, read from the source results and not from the package. The unit symbols are DEL-02-02's catalog |
-| OUT-001 | SOW-049 OBJ-009 | REQ-006 | AC-004 | VER-001 | Owner ruling: PRD §4.3 and §21.2 list the prohibited claims, and SOW-049 makes the criteria guidance only |
-| OUT-001 | SOW-031 OBJ-009 | REQ-001 REQ-009 | AC-005 | VER-001 | Owner ruling: SOW-031 and the decomposition row make local FEA optional and leave formats and tools unselected |
-| OUT-001 | SOW-031 OBJ-009 | REQ-005 REQ-011 REQ-014 | AC-006 | VER-001 | Owner ruling: PRD §5.5 forbids silent defaults and decomposition AB-00-06 lists the diagnostic members; each invented incomplete package states what it must carry |
-| OUT-002 | SOW-049 OBJ-009 | REQ-010 | AC-007 | VER-003 VER-004 | Owner ruling: SOW-049 requires the criteria. Whether the factors are sound engineering screening criteria is the owner's judgment as engineering authority, not a result the product computes |
-| OUT-001 | SOW-031 OBJ-009 | REQ-007 | AC-008 | VER-004 | Owner ruling: PRD §20.1 and §21.2 list the prohibited content and claims; the reviewer compares |
-| OUT-002 | SOW-049 OBJ-009 | REQ-007 | AC-008 | VER-004 | Owner ruling: PRD §20.1 and §21.2 list the prohibited content and claims; the reviewer compares |
-| OUT-001 | SOW-031 OBJ-009 | REQ-008 | AC-009 | VER-005 | Owner ruling: decomposition AB-00-07. Each seeded bypass states the refusal it must receive, and whether a file was written is read from the file system, not from the export's own report |
+| OUT-001 | SOW-049 OBJ-009 | REQ-006 | AC-004 | VER-001 | PRD §4.3 and §21.2 list the prohibited claims, and SOW-049 makes the criteria guidance only |
+| OUT-001 | SOW-031 OBJ-009 | REQ-001 REQ-009 | AC-005 | VER-001 | SOW-031 and the decomposition row make local FEA optional and leave formats and tools unselected |
+| OUT-001 | SOW-031 OBJ-009 | REQ-005 REQ-011 REQ-014 | AC-006 | VER-001 | PRD §5.5 forbids silent defaults and decomposition AB-00-06 lists the diagnostic members; each invented incomplete package states what it must carry |
+| OUT-002 | SOW-049 OBJ-009 | REQ-010 | AC-007 | VER-003 VER-004 | SOW-049 requires the criteria. Whether the factors are sound engineering screening criteria is the competent reviewer's judgment, not a result the product computes |
+| OUT-001 | SOW-031 OBJ-009 | REQ-007 | AC-008 | VER-004 | PRD §20.1 and §21.2 list the prohibited content and claims; the reviewer compares |
+| OUT-002 | SOW-049 OBJ-009 | REQ-007 | AC-008 | VER-004 | PRD §20.1 and §21.2 list the prohibited content and claims; the reviewer compares |
+| OUT-001 | SOW-031 OBJ-009 | REQ-008 | AC-009 | VER-005 | Decomposition AB-00-07 says what no writer may go around. Each seeded bypass states the refusal it must receive, and whether a file was written is read from the file system, not from the export's own report |
 | OUT-001 | SOW-031 OBJ-009 | REQ-015 | AC-010 | VER-006 | Outside source: RFC 8785 and SHA-256, computed by an implementation that imports no product code. Determinism is one build compared with another |

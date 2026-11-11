@@ -39,6 +39,19 @@ needs:
     validation, acceptance or prover status in a string, a list or a nested record, whatever its
     letter case.
   gating: false
+- from: DEL-17-01
+  when: The package states target-specific or version-sensitive behaviour as settled
+  condition: >-
+    The source register lists each admitted source with its source ID, the evidence it is admitted
+    for and its boundary, and the open questions no admitted source answers.
+  gating: false
+- from: DEL-12-02
+  when: A package is written to a file
+  condition: >-
+    Every sink through which the product exposes project-derived content is reached only through a
+    catalogued route's wrapper; every route returns its controlled export before exposure, and when
+    the export is blocked no output file is written.
+  gating: false
 # The Python builder, reader and writer, the two schemas and the invented fixture. In
 # apps/desktop/src/features/stress-neutral/** the builder and validator functions that the panel
 # calls are this deliverable's; the panel itself and its presentation are DEL-07-12's, which lists

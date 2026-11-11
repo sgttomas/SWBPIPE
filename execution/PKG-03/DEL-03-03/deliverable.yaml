@@ -32,9 +32,10 @@ needs:
   gating: true
 - from: DEL-04-01
   condition: >-
-    The frame kernel assembles a two-node circular-arc member, formed from its end nodes, a radius
-    and a plane reference with a flexibility factor on each of its two bending planes, into the
-    global stiffness beside the straight members, the same in the sparse and dense solve modes.
+    The frame kernel assembles a two-node element's stiffness, given in the fixed order of the six
+    degrees of freedom at each end, into the global stiffness beside the straight members, and
+    solves it the same in the sparse and dense modes, so that a realized bend's arc element enters
+    the solved frame.
   gating: true
 - from: DEL-04-07
   condition: >-

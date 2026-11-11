@@ -94,13 +94,13 @@ A kernel result is a numerical statement about the discrete linear model it was 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-005 OBJ-003 | REQ-001 REQ-002 | AC-001 | VER-001 | The criterion states the expected indices (PRD FR-SOL-001) |
-| OUT-001 | SOW-005 OBJ-003 | REQ-003 REQ-004 | AC-002 | VER-002 | Outside source: closed-form beam and frame mechanics, through a reference generator that imports no product code. The tolerance is an owner ruling (DEC-026) |
-| OUT-001 | SOW-005 OBJ-003 | REQ-005 | AC-003 | VER-002 | Outside source: closed-form beam cases and equilibrium, through a reference generator that imports no product code. The tolerance is an owner ruling (DEC-026) |
+| OUT-001 | SOW-005 OBJ-003 | REQ-003 REQ-004 | AC-002 | VER-002 | Outside source: closed-form beam and frame mechanics, through a reference generator that imports no product code |
+| OUT-001 | SOW-005 OBJ-003 | REQ-005 | AC-003 | VER-002 | Outside source: closed-form beam cases and equilibrium, through a reference generator that imports no product code |
 | OUT-001 | SOW-035 OBJ-003 | REQ-006 REQ-010 | AC-004 | VER-003 | The product's own other mode and its own earlier output, which only guard against change. Correctness rests on AC-002 and AC-003; on parity alone there are no independent grounds |
-| OUT-001 | SOW-005 OBJ-003 | REQ-008 | AC-005 | VER-004 | Owner ruling: `docs/CONTRACT.md` OPS-K-DATA-2 and PRD §5.5 state the expected refusal |
-| OUT-001 | SOW-005 OBJ-003 | REQ-009 | AC-006 | VER-005 | Owner ruling: PRD §21.2 and `docs/claims_registry.md` |
-| OUT-001 | SOW-005 OBJ-003 | REQ-012 | AC-007 | VER-005 | Protected-content scan and owner review under `docs/IP_AND_DATA_BOUNDARY.md` |
+| OUT-001 | SOW-005 OBJ-003 | REQ-008 | AC-005 | VER-004 | `docs/CONTRACT.md` OPS-K-DATA-2 and PRD §5.5 state the expected refusal |
+| OUT-001 | SOW-005 OBJ-003 | REQ-009 | AC-006 | VER-005 | The reviewer's reading against PRD §21.2 and `docs/claims_registry.md` |
+| OUT-001 | SOW-005 OBJ-003 | REQ-012 | AC-007 | VER-005 | Protected-content scan and the reviewer's reading under `docs/IP_AND_DATA_BOUNDARY.md` |
 | OUT-001 | SOW-005 OBJ-003 | REQ-011 | AC-008 | VER-006 | The criterion states the expected fields (decomposition architecture basis) |
-| OUT-001 | SOW-005 OBJ-003 | REQ-007 | AC-009 | VER-004 | Owner ruling: `docs/CONTRACT.md` OPS-K-UNIT-1 and PRD §5.6 state the expected refusal |
-| OUT-001 | SOW-005 OBJ-003 | REQ-003 | AC-010 | VER-002 | Outside source: the exact static Timoshenko element in closed form, through a reference that imports no product code. That straight members may be Timoshenko is an owner ruling |
-| OUT-001 | SOW-035 OBJ-003 | REQ-013 | AC-011 | VER-003 | Outside source: the inertia of each constructed system is known from its construction (Sylvester's law of inertia), and the ordering and profile size follow from its sparsity pattern. That the factorization reports them is an owner ruling (DEC-023) |
+| OUT-001 | SOW-005 OBJ-003 | REQ-007 | AC-009 | VER-004 | `docs/CONTRACT.md` OPS-K-UNIT-1 and PRD §5.6 state the expected refusal |
+| OUT-001 | SOW-005 OBJ-003 | REQ-003 | AC-010 | VER-002 | Outside source: the exact static Timoshenko element in closed form, through a reference that imports no product code |
+| OUT-001 | SOW-035 OBJ-003 | REQ-013 | AC-011 | VER-003 | Outside source: the inertia of each constructed system is known from its construction (Sylvester's law of inertia), and the ordering and profile size follow from its sparsity pattern |

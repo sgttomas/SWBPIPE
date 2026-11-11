@@ -32,8 +32,9 @@ needs:
   condition: >-
     The product solve builds the model, assembles its stiffness and reduces it by its restraints on
     the pressure-free route and on the exact pressure route, solves a static load on that stiffness,
-    recovers element end forces and support loads from a displacement vector, and can solve a static
-    load case while leaving a named support family out.
+    recovers element end forces and support loads from a displacement vector, and composes the
+    snubber's static meaning that this deliverable defines: every static load-case solve on both
+    routes leaves a snubber out and discloses it.
   gating: true
 - from: DEL-02-02
   condition: >-
@@ -43,8 +44,9 @@ needs:
 - from: DEL-00-06
   when: Before a spectrum result is published.
   condition: >-
-    The diagnostics contract admits typed refusals and warnings with code, class, severity, source
-    and affected object.
+    The result-envelope contract gives a spectrum result's envelope its outcome kind and carries its
+    diagnostics, and the diagnostics contract admits typed refusals and warnings with code, class,
+    severity, source and affected object.
   gating: true
 - from: DEL-14-02
   when: Before a spectrum result is recorded as an analysis run.
@@ -52,6 +54,13 @@ needs:
     The analysis-run record admits a spectrum run kind that binds its request, under the
     one-version rule.
   gating: true
+- from: DEL-05-02
+  when: Before spectrum results are offered as operands of a load-case combination.
+  condition: >-
+    The load-case algebra admits a spectrum result as an unsigned operand of a combination with
+    static cases, for example sustained plus seismic by absolute sum or SRSS, and never treats it
+    as signed.
+  gating: false
 - from: DEL-10-05
   when: Before a spectrum request can be run headless.
   condition: >-
@@ -74,8 +83,7 @@ needs:
   when: If a published response-spectrum problem is compared.
   condition: >-
     A published response-spectrum piping problem can be compared as comparison evidence only under
-    that report's own redistribution evidence; a report with uncertain rights is held for the
-    owner's review. The comparison is not required.
+    that report's own redistribution evidence (DEL-04-09/REQ-009). The comparison is not required.
   gating: false
 code_paths: []
 checks: []

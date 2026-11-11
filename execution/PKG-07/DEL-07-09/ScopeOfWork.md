@@ -13,7 +13,7 @@ package_objective_refs: [OBJ-006, OBJ-015]
 
 This deliverable is the definition of what an engineer can do to a piping model by hand in the desktop, and of how those commands are arranged. It holds the vocabulary: the list of interactive model-building items, each classed as required now or as roadmap, and each bound to the structured operations that carry it out. It holds the one organization of the tool palette, so that the commands appear in one place under one grouping. And it holds the catalogue the palette is drawn from, which says by which entry and surface each required item is reached. It builds no editing surface itself. The result it contributes is that the command surface is complete against a ratified list, is organized once, and reaches the model only through structured operations.
 
-It serves SOW-077 under OBJ-006 and OBJ-015 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-07, row DEL-07-09), and PRD §14.1 and §5.3. The vocabulary is the owner-ratified annex `execution/_ScopeChange/SCA-009_2026-08-20_0000/Vocabulary_Annex.md`, with the ownership of its surfaces as amended by `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/Vocabulary_Annex.md`. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names this deliverable. It supports criterion 7, whose entry of the reference system uses the commands listed here.
+It serves SOW-077 under OBJ-006 and OBJ-015 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-07, row DEL-07-09), and PRD §14.1 and §5.3. The vocabulary is the annex `execution/_ScopeChange/SCA-009_2026-08-20_0000/Vocabulary_Annex.md`, with the ownership of its surfaces as amended by `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/Vocabulary_Annex.md`. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names this deliverable. It supports criterion 7, whose entry of the reference system uses the commands listed here.
 
 - **OUT-001** — The vocabulary as this scope states it: each item, its class and the operations it binds to, with its coverage carried by the catalogue's routes and the owners the Boundary names.
 - **OUT-002** — The palette organization and the catalogue the palette reads.
@@ -107,7 +107,7 @@ The Review group also receives every pending change from every other group.
 
 ## Governing Values and Decisions — Axiology
 
-- **AX-001** — The list is the owner's. Better is a vocabulary that equals the ratified annex, measured row for row, never an item added, dropped or reclassed because a surface happens to exist or not.
+- **AX-001** — The list is fixed by the annex. Better is a vocabulary that equals the ratified annex, measured row for row, never an item added, dropped or reclassed because a surface happens to exist or not.
 - **AX-002** — One palette, one route. Better is a command found in one group and reaching the model through the review queue, never a second toolbar or a shortcut around validation.
 - **AX-003** — Coverage is a statement of fact. Better is an item stated as uncovered, never a route claimed for a surface that does not perform the bound operations.
 
@@ -115,8 +115,8 @@ The Review group also receives every pending change from every other group.
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-077 OBJ-006 OBJ-015 | REQ-001 REQ-006 | AC-001 | VER-001 | Owner ruling: the ratified vocabulary annex and its ownership amendment, which this deliverable does not write. |
-| OUT-002 | SOW-077 OBJ-006 | REQ-004 REQ-005 REQ-006 | AC-002 | VER-002 | The vocabulary table and the seven groups stated above, which the owner ratified, are the reference for the catalogue. |
+| OUT-001 | SOW-077 OBJ-006 OBJ-015 | REQ-001 REQ-006 | AC-001 | VER-001 | The ratified vocabulary annex and its ownership amendment, which this deliverable does not write. |
+| OUT-002 | SOW-077 OBJ-006 | REQ-004 REQ-005 REQ-006 | AC-002 | VER-002 | The vocabulary table and the seven groups stated above are the reference for the catalogue. |
 | OUT-001 | SOW-077 OBJ-015 | REQ-002 | AC-003 | VER-003 | Outside this deliverable: the operation kinds the engine admits (DEL-16-01, DEL-16-06). |
-| OUT-001 | SOW-077 OBJ-006 | REQ-008 | AC-004 | VER-004 | Owner ruling: the annex makes selection and unit switching non-mutating. The model document's bytes before the acts are the reference. |
-| OUT-002 | SOW-077 OBJ-006 | REQ-007 | AC-005 | VER-005 | Owner ruling: hanger libraries are user-imported and none ships with the product. The build is scanned as built. |
+| OUT-001 | SOW-077 OBJ-006 | REQ-008 | AC-004 | VER-004 | The annex makes selection and unit switching non-mutating. The model document's bytes before the acts are the reference. |
+| OUT-002 | SOW-077 OBJ-006 | REQ-007 | AC-005 | VER-005 | Hanger libraries are user-imported and none ships with the product. The build is scanned as built. |

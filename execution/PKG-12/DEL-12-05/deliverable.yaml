@@ -27,6 +27,11 @@ needs:
     The diagnostic contract names the product's six warning classes, the provenance, assumption
     and IP-boundary classes among them.
   gating: false
+- from: DEL-00-04
+  condition: >-
+    The local storage profile has no hosted database, daemon, required network, cloud sync or
+    telemetry path, and the project store is changed only through application services.
+  gating: false
 code_paths:
 - docs/security/threat_model.md
 checks:

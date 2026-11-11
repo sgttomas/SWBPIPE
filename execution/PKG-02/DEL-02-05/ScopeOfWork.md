@@ -49,7 +49,7 @@ This is DEL-00-04's version rule applied to the model document.
 | `unsupported_schema` | The version is missing, not a string, or unparseable | Refused by name; never coerced |
 
 - The operation engine and the headless persistence service name the three refusals `MODEL_SCHEMA_VERSION_RETIRED`, `MODEL_SCHEMA_VERSION_NEWER_THAN_SUPPORTED` and `MODEL_SCHEMA_VERSION_UNSUPPORTED`.
-- There is no stale, migrated or failed state. Nothing is migrated, upgraded, down-migrated or coerced, and the product keeps no migration code.
+- There is no stale, migrated or failed state. No model document is migrated, upgraded, down-migrated or coerced, and the product keeps no model-document migration code. The project store's own schema keeps its own forward-only rule (REQ-027).
 - A document that is not current is refused for editing and for solving. Opening or saving never rewrites its stored bytes.
 - A project or saved model state that holds a retired version is refused by name on open. Recorded runs keep their own format and their existing read and compare behaviour, with no model-document version gate added. Run history is listed by the active project's identity, so the runs of a retired project are reached through a current project of the same identity, and comparison keeps its eligibility rule.
 - Every surface that shows or acts on a version state takes it from one evaluator.
@@ -61,7 +61,7 @@ This is DEL-00-04's version rule applied to the model document.
 - Automatic rotation of backup copies. It needs a stated model of what else may write to the folder and a promise the product can support; until then the product deletes no backup.
 - Which volumes a backup folder may be on, beyond a local folder that supports cloning.
 
-**Boundary.** The document format and its validator are DEL-02-01's, the unit catalog DEL-02-02's, the status vocabulary DEL-05-04's and the human acceptance record's binding DEL-02-03's. The canonical JSON implementation and the audit manifest are DEL-08-02's. Saved model states and recorded runs are DEL-14-01's and DEL-14-02's; the report package's contents are DEL-08-01's; storage paths and the local-first controls are DEL-12-01's; the operation engine is DEL-16-06's; the open and save surfaces in the desktop are DEL-07-11's. This deliverable defines no second shape for an object another schema owns.
+**Boundary.** The document format and its validator are DEL-02-01's, the unit catalog DEL-02-02's, the status vocabulary DEL-05-04's and the human acceptance record's binding DEL-02-03's. The canonical JSON implementation and the audit manifest are DEL-08-02's. Saved model states and recorded runs are DEL-14-01's and DEL-14-02's; the report package's contents are DEL-08-01's; storage paths and the local-first controls are DEL-12-01's; the operation engine is DEL-16-06's; the open and save surfaces in the desktop are DEL-07-11's. This deliverable defines no second shape for an object another schema owns. Recovery records are written through the atomic file writer in DEL-08-01's report-package code; no deliverable currently commits to that writer's behaviour (writing beside the target, syncing, renaming into place and reporting the directory sync), on which REQ-033 relies.
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -93,7 +93,7 @@ Requirement numbers 001 to 026 are those of the earlier `REQ-02-05-nnn` series.
 - **REQ-020** — A hash record names the payload it covers. A member that is not JSON is hashed by its bytes in a manifest, and a partition no hash covers is stated as uncovered.
 - **REQ-021** — An older, a newer and an unsupported document are each refused by name, the older with the re-author diagnostic. The compatibility window is the current version only, for model documents and for the portable package.
 - **REQ-022** — Create, open, save, validate and version check are commands and queries that return result envelopes.
-- **REQ-023** — Persistence diagnostics cover schema, version, unit metadata, provenance, rule-pack reference, data-boundary, private-data and professional-boundary failures, each mapped to the product's warning classes.
+- **REQ-023** — Persistence diagnostics cover schema, version, unit metadata, provenance, rule-pack reference, data-boundary, private-data and professional-boundary failures, each with a deterministic class.
 - **REQ-024** — A persisted rule-pack reference identifies whether the pack is private or public, its version, checksum, source note and redistribution status. A missing or private reference is a diagnostic, and no protected rule content appears in a public artifact.
 - **REQ-025** — Create, open and save keep the local-first, private-by-default boundary.
 - **REQ-026** — A review record, where one is stored, is bound to the hashes of the model, rule pack and report it concerns. It does not survive a change to that content, and it implies no software certification or automatic code compliance.
@@ -157,15 +157,15 @@ Requirement numbers 001 to 026 are those of the earlier `REQ-02-05-nnn` series.
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-050 OBJ-001 OBJ-012 | CLM-014 REQ-001 REQ-002 REQ-003 REQ-015 REQ-018 | AC-001 | VER-001 | The criterion fixes the expected result: what is read back is what was written. The model hash of the reopened document is recomputed and compared with the hash of the document given to save |
-| OUT-001 | SOW-050 OBJ-012 | CLM-003 REQ-006 REQ-021 REQ-030 | AC-002 | VER-002 | Owner ruling: one current version per format, nothing migrated. The table of cases and expected states is written from CLM-003, not from an implementation's output |
-| OUT-001 | SOW-050 OBJ-012 | CLM-003 REQ-021 | AC-003 | VER-001 | Owner ruling on retired projects, saved states and recorded runs, as CLM-003 states it |
+| OUT-001 | SOW-050 OBJ-012 | CLM-003 REQ-006 REQ-021 REQ-030 | AC-002 | VER-002 | CLM-003 states one current version and nothing migrated. The table of cases and expected states is written from CLM-003, not from an implementation's output |
+| OUT-001 | SOW-050 OBJ-012 | CLM-003 REQ-021 | AC-003 | VER-001 | CLM-003 states what happens to retired projects, saved states and recorded runs; the criterion states the expected refusals and the runs still reached |
 | OUT-001 | SOW-041 OBJ-012 | REQ-005 REQ-012 REQ-015 REQ-020 | AC-004 | VER-003 | Outside source: RFC 8785 and SHA-256 |
 | OUT-001 | SOW-041 OBJ-012 | REQ-004 REQ-007 REQ-009 REQ-017 REQ-024 | AC-005 | VER-004 | Outside source: the JSON Schema 2020-12 specification, applied by a validator that imports no product code. The envelopes are constructed, so the criterion states which are refused |
 | OUT-001 | SOW-050 OBJ-001 | REQ-007 REQ-008 REQ-011 REQ-019 REQ-022 REQ-023 | AC-006 | VER-004 | The inputs are constructed with a known defect each, so the criterion states the expected finding; the diagnostic fields are DEL-00-06's |
 | OUT-001 | SOW-050 OBJ-001 | REQ-027 REQ-028 REQ-029 | AC-007 | VER-005 | The criterion fixes the expected result: the store and the exported bytes are compared with a copy taken before the operation |
-| OUT-001 | SOW-050 OBJ-001 | REQ-010 REQ-013 REQ-014 REQ-016 REQ-025 REQ-026 | AC-008 | VER-006 | Owner ruling: `docs/PRD.md` §20.1, §20.3, §20.4 and §21.2 and `docs/IP_AND_DATA_BOUNDARY.md`; the reviewer compares against sources the product did not write |
-| OUT-001 | SOW-050 OBJ-012 | REQ-021 REQ-031 | AC-009 | VER-007 | Owner ruling: the package holds one version. The packages are constructed, so the criterion states which are refused; member hashes are recomputed with SHA-256 |
+| OUT-001 | SOW-050 OBJ-001 | REQ-010 REQ-013 REQ-014 REQ-016 REQ-025 REQ-026 | AC-008 | VER-006 | `docs/PRD.md` §20.1, §20.3, §20.4 and §21.2 and `docs/IP_AND_DATA_BOUNDARY.md`; the reviewer compares against sources the product did not write |
+| OUT-001 | SOW-050 OBJ-012 | REQ-021 REQ-031 | AC-009 | VER-007 | The package holds one version (REQ-031). The packages are constructed, so the criterion states which are refused; member hashes are recomputed with SHA-256 |
 | OUT-001 | SOW-050 OBJ-001 | REQ-002 REQ-031 | AC-010 | VER-007 | The criterion fixes the expected result: the model hash read from the package equals the hash of the project written |
-| OUT-002 | SOW-050 OBJ-001 | REQ-032 REQ-034 | AC-011 | VER-008 | Owner ruling: exit criterion 10 of `docs/RELEASE_TARGET_v1.0.md` sets autosave on by default and the one-interval limit. The recovered document's hash is recomputed and compared with the hash of the session's document before the end |
+| OUT-002 | SOW-050 OBJ-001 | REQ-032 REQ-034 | AC-011 | VER-008 | Exit criterion 10 of `docs/RELEASE_TARGET_v1.0.md` sets autosave on by default and the one-interval limit. The recovered document's hash is recomputed and compared with the hash of the session's document before the end |
 | OUT-002 | SOW-050 OBJ-001 | REQ-033 | AC-012 | VER-008 | The faults are injected, so the criterion states the expected result; each record is verified by recomputing its hash against its name, and an unverified record is matched to the report made when it was written |
 | OUT-002 | SOW-050 OBJ-001 | REQ-035 | AC-013 | VER-009 | The criterion fixes the expected result: the copy is compared byte for byte with the stored document, and the folder with a listing taken before |

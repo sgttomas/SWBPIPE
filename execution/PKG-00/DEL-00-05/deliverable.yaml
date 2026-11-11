@@ -8,9 +8,9 @@ needs:
   gating: true
 - from: DEL-00-06
   condition: >-
-    Every diagnostic carries one of the six warning classes, or a boundary's local class with a
-    stated mapping to them, and keeps its code, source, affected object, message and remediation
-    wherever it is carried.
+    The six warning classes are defined, and a diagnostic keeps its class when it is carried,
+    changing it only where a receiving boundary's schema requires its own class vocabulary and
+    then by that boundary's stated mapping.
   gating: true
 # This deliverable states the GUI state rule. The GUI itself (apps/desktop/src/features/**,
 # core/gui/**) is the code of the PKG-07 deliverables.

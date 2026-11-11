@@ -13,9 +13,9 @@ needs:
 - from: DEL-14-05
   condition: >-
     The mapping contract defines the mapping hierarchy, the mapping record and the unmatched
-    classifications; a tolerance profile is a schema-governed record with explicit units and no
-    default value; and the common comparison-result interface is accepted at a named version with
-    its schema.
+    classifications, and a tolerance profile is a schema-governed record with explicit units and
+    no default value. For a comparison result's conformance to the common comparison-result
+    interface, that interface is accepted at a named version with its schema.
   gating: true
 - from: DEL-02-02
   condition: >-

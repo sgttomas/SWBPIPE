@@ -13,7 +13,7 @@ package_objective_refs: [OBJ-005, OBJ-011]
 
 This deliverable fixes what the product may say about how far an analysis has got. A model can be incomplete; its mechanics can be solved; a user's rule pack can lack inputs, can have been evaluated, or can have reported a result beyond the user's limit; and every result needs a competent person's review before it is relied on. These are different facts, and the deliverable gives each one status, one meaning and one authority, so that a solve, a rule check and a person's acceptance can never be read as the same thing. Acceptance by a person is kept out of the software's statuses altogether: it exists only as a separate record that a person makes, tied to exactly what that person reviewed.
 
-It serves SOW-047 under OBJ-005 and OBJ-011 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-05, row DEL-05-04: a small state model with high governance value), and PRD §5.9, §17.5, §21.1, §21.2 and §21.3. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names it. It reaches criterion 4 (a released report carries the required notice) and criterion 13 (the documentation says that the product does not determine code compliance) through the deliverables that publish a status, all of which take its meaning from here. It carries the owner's ruling that the user's engineer issues the product's mechanics results under their own responsibility.
+It serves SOW-047 under OBJ-005 and OBJ-011 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-05, row DEL-05-04: a small state model with high governance value), and PRD §5.9, §17.5, §21.1, §21.2 and §21.3. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names it. It reaches criterion 4 (a released report carries the required notice) and criterion 13 (the documentation says that the product does not determine code compliance) through the deliverables that publish a status, all of which take its meaning from here. It carries the requirement that the user's engineer issues the product's mechanics results under their own responsibility.
 
 - **OUT-001** — The analysis status semantics: the status vocabulary and the meaning and authority of each status, the status envelope that carries them, and the human acceptance record that stands apart from them.
 
@@ -41,17 +41,16 @@ It serves SOW-047 under OBJ-005 and OBJ-011 (`execution/_Decomposition/SOFTWARE_
 
 **Boundary.** This deliverable defines what a status means. The following belong elsewhere:
 
-- the analysis boundary record, which states for each status of a subject who produced it and on what evidence: DEL-02-03. The status vocabulary and its meaning are this deliverable's, and so is the envelope schema; DEL-02-03 also states the vocabulary, and which of the two scopes owns that statement is not settled;
+- the analysis boundary record, which states for each status of a subject who produced it and on what evidence: DEL-02-03. The status vocabulary and its meaning are this deliverable's, and so is the envelope schema; DEL-02-03's record carries that vocabulary;
 - emitting a status: the product solve (DEL-04-07), the completeness checker (DEL-06-03), the rule-pack runner (PKG-06) and the reports and exports (PKG-08) each emit the statuses of their own work. The interface part of AC-001, the solve and rule-check part of AC-002 and the report part of AC-004 are observed on the surfaces of the emitting deliverables, and a shortfall there is repaired in that deliverable;
 - the numerical standing of a result, which says whether its integrity checks passed and what a reader may use it for, is not an analysis status: DEL-04-07 publishes it and DEL-04-08 defines what a reader makes of it;
-- the display form and authority domain shown for each status, the evidence labels, the report notice and the words a claim may not use: DEL-01-04. The desktop's label table carries that registry for the statuses defined here;
+- the display form and authority domain shown for each status, the evidence labels, the report notice and the words a claim may not use: DEL-01-04. The desktop's label table carries that registry for the statuses defined here. A user-rule outcome is shown as within or exceeding the user's limit, not as passed or failed (`docs/RELEASE_TARGET_v1.0.md`, rule packs), and that applies to the display form of `USER_RULE_FAILED`;
 - the result envelope and its outcome kinds: DEL-00-06.
 
 **Not decided.**
 
 - Who stores a human acceptance record, and which surface of the product, if any, presents one with the content it was made for. PRD §21.3 requires no acceptance workflow.
 - How a hash is formed for reviewed content that is not JSON.
-- Whether the display form of `USER_RULE_FAILED` follows the owner's ruling that a user-rule outcome is shown as within or exceeding the user's limit. The registry is DEL-01-04's.
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -111,10 +110,10 @@ A status is a claim about what software did. The semantics are adequate when eve
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-047 OBJ-011 | REQ-001 REQ-007 REQ-010 | AC-001 | VER-001 | Owner ruling: PRD §21.2 and `docs/CONTRACT.md` OPS-K-AUTH-1 say what software may not claim; the check compares each schema with that list |
-| OUT-001 | SOW-047 OBJ-005 | REQ-002 REQ-003 REQ-004 | AC-002 | VER-002 | Owner ruling: PRD §17.5 and §5.5 say what a solve and a rule check do when data is missing; the scenario states the expected statuses |
-| OUT-001 | SOW-047 OBJ-005 | REQ-005 | AC-003 | VER-001 | Owner ruling: PRD §21.1 and §21.2; the criterion states what validates |
-| OUT-001 | SOW-047 OBJ-011 | REQ-006 REQ-013 | AC-004 | VER-001 VER-002 | Owner ruling: PRD §19.3 and §21.2; the criterion states the required fields |
-| OUT-001 | SOW-047 OBJ-011 | REQ-008 REQ-014 | AC-005 | VER-001 VER-003 | Owner ruling: `docs/CONTRACT.md` OPS-K-AUTH-2 and PRD §21.3, both conditional on a record being used; the changed hash is computed from the content presented, not written by the record |
+| OUT-001 | SOW-047 OBJ-011 | REQ-001 REQ-007 REQ-010 | AC-001 | VER-001 | PRD §21.2 and `docs/CONTRACT.md` OPS-K-AUTH-1 say what software may not claim; the check compares each schema with that list |
+| OUT-001 | SOW-047 OBJ-005 | REQ-002 REQ-003 REQ-004 | AC-002 | VER-002 | PRD §17.5 and §5.5 say what a solve and a rule check do when data is missing; the scenario states the expected statuses |
+| OUT-001 | SOW-047 OBJ-005 | REQ-005 | AC-003 | VER-001 | PRD §21.1 and §21.2; the criterion states what validates |
+| OUT-001 | SOW-047 OBJ-011 | REQ-006 REQ-013 | AC-004 | VER-001 VER-002 | PRD §19.3 and §21.2; the criterion states the required fields |
+| OUT-001 | SOW-047 OBJ-011 | REQ-008 REQ-014 | AC-005 | VER-001 VER-003 | `docs/CONTRACT.md` OPS-K-AUTH-2 and PRD §21.3, both conditional on a record being used; the changed hash is computed from the content presented, not written by the record. While no surface presents a record, only the schema's hash binding is examined, and nothing yet establishes that a record is not applied to changed content |
 | OUT-001 | SOW-047 OBJ-005 OBJ-011 | REQ-009 REQ-013 | AC-006 | VER-001 | The criterion states the required fields; decomposition AB-00-06 lists what a diagnostic reference carries |
-| OUT-001 | SOW-047 OBJ-011 | REQ-011 REQ-012 REQ-014 | AC-007 | VER-004 | Owner ruling: PRD §20.1, §21.1 and §21.2 and the claims registry; the reviewer compares the texts with them |
+| OUT-001 | SOW-047 OBJ-011 | REQ-011 REQ-012 REQ-014 | AC-007 | VER-004 | PRD §20.1, §21.1 and §21.2 and the claims registry; the reviewer compares the texts with them |

@@ -30,8 +30,9 @@ needs:
   gating: true
 - from: DEL-01-04
   condition: >-
-    The claims registry holds the display forms of the three user-rule statuses with their
-    authority domain, and is the only source of boundary language a run may carry.
+    The claims registry states the prohibited claims and holds the display forms of the three
+    user-rule statuses with their authority domain, against which a run's statuses, findings and
+    notice are examined.
   gating: true
 - from: DEL-02-01
   condition: >-

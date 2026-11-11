@@ -120,10 +120,9 @@ needs:
 - from: external:nrc-nureg-cr
   when: For the published-benchmark comparison.
   condition: >-
-    A published piping benchmark report, first NUREG/CR-1677 Volume 1, can be transcribed under its
-    own redistribution evidence (its rights statement and distribution terms). A report with
-    uncertain rights is held for the owner's review and nothing is transcribed from it; copyrighted
-    or adapted content inside a report is excluded.
+    A published piping benchmark report, first NUREG/CR-1677 Volume 1, carries its own
+    redistribution evidence (its rights statement and distribution terms), under which a problem
+    can be transcribed without the copyrighted or adapted content inside the report.
   gating: false
 code_paths:
 # The modal entry sits in DEL-04-07's product crate; these files in it are this deliverable's. The

@@ -23,7 +23,8 @@ needs:
   condition: >-
     The control on agent surfaces is defined: an agent-authored operation carries a rationale, a
     source and declared assumptions; these stay structured through review and history; and no
-    agent output or agent surface states acceptance, approval, certification or code compliance.
+    record, status or product string on an agent surface states acceptance, approval, certification
+    or code compliance.
   gating: true
 - from: DEL-02-01
   condition: >-

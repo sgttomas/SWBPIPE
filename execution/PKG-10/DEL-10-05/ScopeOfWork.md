@@ -42,7 +42,7 @@ It serves SOW-054 and SOW-032 under OBJ-008, OBJ-009 and OBJ-012 (`execution/_De
 
 **Not decided.**
 
-- Whether the stable verb set grows beyond the five. The owner's ruling fixes five; the hosted commands `read` and `size-hangers` are not among them, and the modal and response-spectrum deliverables expect a headless entry that no verb yet gives.
+- Whether the stable verb set grows beyond the five. The stable verbs are five; the hosted commands `read` and `size-hangers` are not among them, and the modal and response-spectrum deliverables expect a headless entry that no verb yet gives.
 - Whether the runner reads a persisted project. It takes a model document in its request and opens no project store.
 
 ## Completion and Reliance Basis — Epistemology
@@ -57,7 +57,7 @@ Requirement numbers 001 to 009 are those of the earlier `R-nn` series.
 - **REQ-002** — Structured input and output are unit-aware, deterministic and reproducible (SOW-054; OBJ-012; PRD §5.6).
 - **REQ-003** — A missing solve-required or rule-check-required input, a missing verb payload and an unsupported input each produce a blocking diagnostic, and never a default (PRD §5.5).
 - **REQ-004** — Result output is the product's result export and diagnostic envelope, so that regression comparison and report and result export consume it without another shape.
-- **REQ-005** — A diagnostic keeps its code, class, severity, source, affected object, remediation and provenance, and states no compliance or certification (decomposition AB-00-06).
+- **REQ-005** — A diagnostic keeps its code, class, severity, source, affected object, message, remediation and provenance, and states no compliance or certification (decomposition AB-00-06).
 - **REQ-006** — The program is named `openpipestress-runner` and its stable verbs are the five above. Its canonical input is a schema-first JSON request from standard input or a named file, and its canonical output is structured JSON on standard output, with file output only at a path the caller gives.
 - **REQ-007** — Public examples and fixtures of the runner use invented or otherwise permitted data and embed no protected standards content (PRD §20.1).
 - **REQ-008** — The runner transmits no private project, material, component or rule-pack data, and output that holds a private value leaves the process only under explicit local-private intent (PRD §20.3 to §20.5).
@@ -115,15 +115,15 @@ Requirement numbers 001 to 009 are those of the earlier `R-nn` series.
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-054 OBJ-009 | REQ-006 | AC-001 | VER-001 | Owner ruling: the program name, the five verbs and the input and output forms |
-| OUT-001 | SOW-054 OBJ-008 | REQ-003 REQ-011 | AC-002 | VER-001 | Owner ruling: the three exit statuses and what each means; each invented invocation states the status it must get |
-| OUT-001 | SOW-054 OBJ-009 | REQ-008 REQ-010 | AC-003 | VER-002 | Owner ruling: the process policy. What the process did is read from an operating-system trace, which the runner did not write |
+| OUT-001 | SOW-054 OBJ-009 | REQ-006 | AC-001 | VER-001 | REQ-006 states the program name, the five verbs and the input and output forms; each invented invocation states whether it must be accepted |
+| OUT-001 | SOW-054 OBJ-008 | REQ-003 REQ-011 | AC-002 | VER-001 | The three exit statuses and what each means; each invented invocation states the status it must get |
+| OUT-001 | SOW-054 OBJ-009 | REQ-008 REQ-010 | AC-003 | VER-002 | The process policy says what the process may do. What the process did is read from an operating-system trace, which the runner did not write |
 | OUT-001 | SOW-054 OBJ-012 | REQ-001 REQ-002 REQ-003 | AC-004 | VER-001 | The runner contract says which requests are valid; each invented faulty request states the member its diagnostic must name. The expected unit finding comes from DEL-02-02's unit catalog, which says which symbols exist and the dimension of each |
 | OUT-001 | SOW-054 OBJ-008 OBJ-012 | REQ-012 | AC-005 | VER-003 | Equivalence only: the runner's result is compared with the desktop entry's for the same request. That the values are right is DEL-04-07's criterion, against references that import no product code |
 | OUT-001 | SOW-054 OBJ-012 | REQ-002 | AC-006 | VER-004 | Outside source: RFC 8785 and SHA-256, computed by an implementation that imports no product code. Determinism is one run compared with another |
 | OUT-001 | SOW-054 SOW-032 OBJ-008 | REQ-013 | AC-007 | VER-005 | The suites' recorded values say what each case must give; where those values come from is the criterion of DEL-09-01, DEL-09-02 and DEL-09-03. The nonlinear regression values are the product's own earlier output and only guard against change. The altered case states the mismatch the runner must report |
 | OUT-001 | SOW-054 OBJ-009 | REQ-004 REQ-014 | AC-008 | VER-006 | The schemas of DEL-08-04 and DEL-08-01 say what a valid document is, applied by a validator that is not the runner's; member hashes are recomputed outside the runner |
-| OUT-001 | SOW-054 OBJ-009 | REQ-008 | AC-009 | VER-006 | Owner ruling: PRD §20.3 keeps private data from leaving unexpectedly; each invented request states whether its output must be blocked |
-| OUT-001 | SOW-054 OBJ-008 | REQ-005 REQ-009 | AC-010 | VER-001 VER-008 | Owner ruling: PRD §4.3 and §21.2. The status and field sets are DEL-02-03's and DEL-00-06's, not the runner's |
+| OUT-001 | SOW-054 OBJ-009 | REQ-008 | AC-009 | VER-006 | PRD §20.3 keeps private data from leaving unexpectedly; each invented request states whether its output must be blocked |
+| OUT-001 | SOW-054 OBJ-008 | REQ-005 REQ-009 | AC-010 | VER-001 VER-008 | PRD §4.3 and §21.2 list the prohibited statements. The status and field sets are DEL-02-03's and DEL-00-06's, not the runner's |
 | OUT-001 | SOW-054 OBJ-009 | REQ-015 | AC-011 | VER-007 | The owning deliverable's entry says what the document must be; the hosted command's payload is compared with it by canonical value |
-| OUT-001 | SOW-054 OBJ-009 | REQ-007 | AC-012 | VER-008 | Owner ruling: PRD §20.1 lists what public content may not contain; the reviewer compares |
+| OUT-001 | SOW-054 OBJ-009 | REQ-007 | AC-012 | VER-008 | PRD §20.1 lists what public content may not contain; the reviewer compares |

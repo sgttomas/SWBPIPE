@@ -35,7 +35,7 @@ It serves SOW-071 under OBJ-016 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 
 - How a state's payloads that are not JSON, and the targets of its external references, are partitioned for hashing.
 - Whether a saved state that nothing refers to may be deleted.
-- How saved states and recorded runs travel in the portable package. The architecture makes the package's canonical JSON members the domain truth and the project store a projection of them; until this is decided, a project's states and recorded runs exist only in its local project store.
+- Which members a project's saved states and recorded runs occupy in the portable package, and how a project store is rebuilt from them. No deliverable currently commits to carrying them in the package: DEL-02-05's package round trip covers the project's model document, not its states and runs.
 
 **Boundary.**
 
@@ -63,6 +63,7 @@ A state's hash establishes that the content read is the content saved. It says n
 - **REQ-012** — A stored state whose snapshot, record or identity no longer agrees with its recorded hashes is refused by name on every read and is never presented as a valid state. Source: SOW-071 (deterministic hashes); PRD §15.1.
 - **REQ-013** — A state's labels can be edited after it is saved without changing its identity, its snapshot or any hash of its record. Source: PRD FR-CMP-001, §16.3.
 - **REQ-014** — A state saved from a session that was opened from a saved state names that state as its parent. Source: PRD §15.1 (new states are created from existing states).
+- **REQ-015** — A saved state's domain truth is its canonical JSON snapshot and record, and the project store holds them as a projection that can be rebuilt from them. A project's saved states travel with the project in its portable package and come back from it with the same snapshots, records, labels and hashes. Source: SOW-071; decomposition AB-00-04 and DEC-028.
 
 ### Acceptance criteria
 
@@ -75,6 +76,7 @@ A state's hash establishes that the content read is the content saved. It says n
 - **AC-007** — A state with an external reference returns the reference as entered. A reference without its type, target, privacy class or provenance is refused with a named finding, and a reference classed private or suspected protected does not appear in a public export or report of the state. A reference's label and target are examined by the professional-boundary check of every report or export that carries them, as the rest of that output's content is.
 - **AC-008** — The state schema is valid JSON Schema 2020-12. It admits no approval, certification, sealing, authentication or compliance value in any status, kind or field; its analysis statuses are those of DEL-05-04's vocabulary; and every public fixture and example of a state is invented and carries its provenance.
 - **AC-009** — Listing a project's states returns every saved state with its identity, name and model hash. A stored state that does not verify is named as such in the listing, neither dropped nor listed as valid. Opening a listed state gives a working model whose model hash equals the state's.
+- **AC-010** — A project with saved states, written to its portable package and read into an empty project store, lists the same states, and each returns a snapshot, record and labels byte-identical to those written, with hashes that verify as AC-003 requires.
 
 ## Production and Verification Method — Praxeology
 
@@ -93,6 +95,7 @@ A state's hash establishes that the content read is the content saved. It says n
 - **VER-005** — Executable check (observes external references that are complete and that lack each required member, the public export and report of a state holding a private reference, and the professional-boundary check's findings on a report of a state holding a reference worded as a prohibited claim).
 - **VER-006** — Comparison with a named reference (the JSON Schema 2020-12 specification, applied by a validator that imports no product code) with judgment by a reviewer who did not write the schema, who examines its vocabularies and the public fixtures with the protected-content scan.
 - **VER-007** — Executable check (observes the listing of a project after several saves and with one stored state altered, and the model hash of the working model after each listed state is opened).
+- **VER-008** — Executable check (observes the states of a project written to its portable package and read into an empty project store, against the states written).
 
 ## Governing Values and Decisions — Axiology
 
@@ -106,11 +109,12 @@ A state's hash establishes that the content read is the content saved. It says n
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-071 OBJ-016 | REQ-001 REQ-002 REQ-011 | AC-001 | VER-001 | The criterion fixes the expected result: what is read back is what was written. The snapshot and model hash are compared with the canonical text given to save, and the record with the JSON Schema 2020-12 specification under a validator that imports no product code |
-| OUT-001 | SOW-071 OBJ-016 | REQ-003 REQ-014 | AC-002 | VER-002 | Owner ruling: PRD §15.1 makes a state immutable after creation and historical states reproducible. The stored bytes are compared with a copy taken before each attempt |
+| OUT-001 | SOW-071 OBJ-016 | REQ-003 REQ-014 | AC-002 | VER-002 | The stored bytes are compared with a copy taken before each attempt |
 | OUT-001 | SOW-071 OBJ-016 | REQ-004 REQ-005 | AC-003 | VER-003 | Outside source: RFC 8785 and SHA-256 |
 | OUT-001 | SOW-071 OBJ-016 | REQ-006 REQ-007 | AC-004 | VER-001 | The inputs are constructed with known assumptions, warnings, units and provenance, so the criterion states what must come back; the comparison is with the document and labels given to save |
-| OUT-001 | SOW-071 OBJ-016 | REQ-013 | AC-005 | VER-004 | Owner ruling: PRD FR-CMP-001 lets a user tag a snapshot without mutation. The hashes after the edit are compared with those recorded before it |
+| OUT-001 | SOW-071 OBJ-016 | REQ-013 | AC-005 | VER-004 | The hashes after the edit are compared with those recorded before it |
 | OUT-001 | SOW-071 OBJ-016 | REQ-012 | AC-006 | VER-004 | Each alteration is made deliberately to a known state, so the criterion states that it is refused; nothing is compared with the product's earlier output |
-| OUT-001 | SOW-071 OBJ-016 | REQ-009 CLM-002 | AC-007 | VER-005 | Owner ruling: PRD §15.1, §20.1, §20.3 and §21.2. The references are constructed, so the criterion states which are refused, which are withheld and which the professional-boundary check examines |
-| OUT-001 | SOW-071 OBJ-016 | REQ-008 REQ-010 CLM-003 | AC-008 | VER-006 | Outside source for the schema's validity: the JSON Schema 2020-12 specification. Owner ruling for its content: PRD §16.3, §20.1 and §21.2, judged by a reviewer against those clauses |
+| OUT-001 | SOW-071 OBJ-016 | REQ-009 CLM-002 | AC-007 | VER-005 | The references are constructed, so the criterion states which are refused, which are withheld and which the professional-boundary check examines |
+| OUT-001 | SOW-071 OBJ-016 | REQ-008 REQ-010 CLM-003 | AC-008 | VER-006 | Outside source for the schema's validity: the JSON Schema 2020-12 specification. Its content is judged by a reviewer against PRD §16.3, §20.1 and §21.2 |
 | OUT-001 | SOW-071 OBJ-016 | REQ-001 REQ-011 REQ-012 | AC-009 | VER-007 | The criterion fixes the expected result: the states saved are the states listed, compared with the saves made, and the model hash of an opened state is compared with the hash recorded when it was saved. The altered state is constructed, so the criterion states that it is named |
+| OUT-001 | SOW-071 OBJ-016 | REQ-015 | AC-010 | VER-008 | The criterion fixes the expected result: the states read back from the package are the states written, compared byte for byte and with their hashes recomputed as AC-003 requires |

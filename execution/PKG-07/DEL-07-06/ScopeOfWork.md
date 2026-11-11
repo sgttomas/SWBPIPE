@@ -23,7 +23,7 @@ It serves SOW-036 under OBJ-006 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 **Terms the baseline implements.**
 
 - *Workspace control.* Any control, status indicator or drawn mark of the desktop workspace that a user reads or operates: buttons, fields, tabs, tree and table rows, menus, badges, legends and the viewport's selectable items.
-- *Accessibility target.* The WCAG 2.2 level AA criteria the owner selected for workspace controls. They include Keyboard (2.1.1), Focus Visible (2.4.7), Contrast (Minimum) (1.4.3) at 4.5:1 for text, Non-text Contrast (1.4.11) at 3:1 for graphical objects and control boundaries, and Target Size (Minimum) (2.5.8) at 24 by 24 CSS pixels, applied as that criterion states it.
+- *Accessibility target.* The WCAG 2.2 level AA criteria selected for the controls of the interactive desktop workspace, its review and results controls among them. They include Keyboard (2.1.1), Focus Visible (2.4.7), Contrast (Minimum) (1.4.3) at 4.5:1 for text, Non-text Contrast (1.4.11) at 3:1 for graphical objects and control boundaries, and Target Size (Minimum) (2.5.8) at 24 by 24 CSS pixels, applied as that criterion states it.
 - *Design token.* A named value for a colour, a size, a space or a type step. One token source generates the stylesheet every surface uses.
 - *Theme.* Light or dark, following the system setting unless the user chooses one. *Density.* Comfortable or compact.
 - *Presentation conventions.* What every surface shares: type, spacing and control size taken from one scale; tabular figures in tables; hover, pressed, selected, focus and disabled states that are distinct, each with a signal other than colour; and a comfortable and a compact density.
@@ -44,6 +44,8 @@ It serves SOW-036 under OBJ-006 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 **Not decided.** The accessibility target for the report preview and export surfaces and for generated report files.
 
 ## Completion and Reliance Basis — Epistemology
+
+The project's own examination, VER-006's checks among it, shows whether the use cases complete in the desktop. It is not an independent usability validation, and the owner's verdict is the owner's act, not that validation. The desktop's usability is not presented or relied on as independently validated until user testing, which the owner arranges, has examined it. Only the owner releases this restriction.
 
 ### Requirements
 
@@ -105,10 +107,10 @@ It serves SOW-036 under OBJ-006 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-036 OBJ-006 | REQ-001 REQ-002 | AC-001 | VER-001 | Outside source: WCAG 2.2 success criteria 2.1.1 and 2.4.7, selected by owner ruling as the target. |
+| OUT-001 | SOW-036 OBJ-006 | REQ-001 REQ-002 | AC-001 | VER-001 | Outside source: WCAG 2.2 success criteria 2.1.1 and 2.4.7, which the accessibility target includes. |
 | OUT-001 | SOW-036 OBJ-006 | REQ-004 REQ-014 | AC-002 | VER-002 | Outside source: WCAG 2.2 success criteria 1.4.3, 1.4.11 and 2.5.8, with their published thresholds. |
-| OUT-001 | SOW-036 OBJ-006 | REQ-003 REQ-006 REQ-007 REQ-010 REQ-011 | AC-003 | VER-003 | Owner ruling: the selected target, PRD §14.4 and PRD §21.2. The expected names and signals are those each surface's own scope states. |
-| OUT-001 | SOW-036 OBJ-006 | REQ-008 | AC-004 | VER-003 | Owner ruling: SOW-036 in the decomposition and PRD FR-GUI-005 for undo and redo. The expected state of undo and redo follows from whether the session holds a reversible edit, and the expected findings are those computed fresh for the model at each step. |
+| OUT-001 | SOW-036 OBJ-006 | REQ-003 REQ-006 REQ-007 REQ-010 REQ-011 | AC-003 | VER-003 | The accessibility target, PRD §14.4 and PRD §21.2. The expected names and signals are those each surface's own scope states. |
+| OUT-001 | SOW-036 OBJ-006 | REQ-008 | AC-004 | VER-003 | SOW-036 in the decomposition and PRD FR-GUI-005 for undo and redo. The expected state of undo and redo follows from whether the session holds a reversible edit, and the expected findings are those computed fresh for the model at each step. |
 | OUT-001 | SOW-036 OBJ-006 | REQ-012 REQ-013 | AC-005 | VER-004 | The token source is the reference for the stylesheet and for the applied values. This guards against a surface departing from the tokens; whether the tokens meet the target is AC-002's to show. |
-| OUT-001 | SOW-036 OBJ-006 | REQ-005 | AC-006 | VER-005 | Owner ruling: SOW-036 in the decomposition, whose cited source asks for search and filter in large model trees and copy from result tables. The check exercises each tree and table the workspace has. |
-| OUT-002 | SOW-036 OBJ-006 | REQ-016 | AC-007 | VER-006 | Owner ruling: exit criterion 8 of the release target, and the owner's own yes or no. The use cases are drawn from PRD §10 and the release target's exit criteria. The expected result of each step is the one the owning deliverable's scope states; this criterion shows that the work completes in the desktop, not that its numbers are correct. |
+| OUT-001 | SOW-036 OBJ-006 | REQ-005 | AC-006 | VER-005 | SOW-036 in the decomposition, whose cited source asks for search and filter in large model trees and copy from result tables. The check exercises each tree and table the workspace has. |
+| OUT-002 | SOW-036 OBJ-006 | REQ-016 | AC-007 | VER-006 | Exit criterion 8 of the release target, and the owner's own yes or no. The use cases are drawn from PRD §10 and the release target's exit criteria. The expected result of each step is the one the owning deliverable's scope states; this criterion shows that the work completes in the desktop, not that its numbers are correct, and it is not an independent usability validation. |

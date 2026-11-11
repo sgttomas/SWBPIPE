@@ -24,7 +24,7 @@ It serves SOW-034 and SOW-064 under OBJ-011 and OBJ-018 (`execution/_Decompositi
 
 - *Permitted claim* and *prohibited claim.* The classes of PRD §21.1 and §21.2. The software may claim mechanics results computed from recorded inputs, user-rule checks computed from user-supplied rules and data, diagnostics, provenance and validation evidence for software behaviour. It may not claim or imply that it certifies, seals, approves or authenticates engineering work, declares code compliance for professional reliance, replaces the engineer of record or project-specific review, provides standards-body approval, or makes public example data suitable for project use.
 - *Authority domain.* Who a statement speaks for: the mechanics solve, the user-rule check, or human acceptance (`docs/SPEC.md` §4.3). A fourth marking, evidence status, says what evidence stands behind a result.
-- *Boundary statement.* A registered sentence with an identifier, one canonical text, any listed short variants, and the surfaces it belongs on and must not appear on. The statements in use are the content boundary (`BS-IP`) and the validation posture (`BS-VALID`). The acceptance sentence (`BS-ACCEPT`) is withdrawn from every product surface, emitted notice and project document, and the maturity sentence (`BS-MATURITY`) from every surface; nothing replaces either.
+- *Boundary statement.* A registered sentence with an identifier, one canonical text, any listed short variants, and the surfaces it belongs on and must not appear on. The statements in use are the content boundary (`BS-IP`), the validation posture (`BS-VALID`) and the numerical-health statement with its display forms (`NQ-HEALTH`). The acceptance sentence (`BS-ACCEPT`) is withdrawn from every product surface, emitted notice and project document, and the maturity sentence (`BS-MATURITY`) from every surface; nothing replaces either.
 - *Display form.* The registered label of a status or evidence token. A label is shown with its authority domain, with its token reachable in place, and no label exists outside the registry's table.
 - *Evidence-status label.* `INTERNALLY_VERIFIED` for internal benchmark, regression or rule-check evidence; `PROVER_CORRELATED` for a recorded comparison with an external prover. `ENGINEER_ACCEPTED` is reserved for a future human acceptance record and has no display form.
 - *Required notice.* The notice of PRD §19.3, carried by every generated report.
@@ -37,6 +37,7 @@ It serves SOW-034 and SOW-064 under OBJ-011 and OBJ-018 (`execution/_Decompositi
 - the boundary record that states who produced each status and on what evidence: DEL-02-03;
 - emitting the notice in a report: DEL-08-01;
 - linting a report for prohibited claims: DEL-08-05;
+- examining the wording of any other product surface against the registry: the deliverable that owns that surface;
 - the user guide's statement that SWBPIPE does not determine code compliance: DEL-11-01;
 - what a public release must disclose: DEL-01-01;
 - the meaning of an outcome whose wording another deliverable registers here, such as the numerical-health forms: that deliverable (DEL-07-05 for numerical health).
@@ -45,9 +46,8 @@ It serves SOW-034 and SOW-064 under OBJ-011 and OBJ-018 (`execution/_Decompositi
 
 - Jurisdiction-specific professional-practice wording. It needs a qualified legal or professional reviewer.
 - How a human acceptance record would be stored and made stale by a change, should the product ever keep one.
-- Whether the display form of `USER_RULE_FAILED` changes to follow the owner's ruling that user-rule outcomes are shown as within or exceeding the user's limit.
+- Whether the display form of `USER_RULE_FAILED` changes so that a user-rule outcome is shown as within or exceeding the user's limit, as PRD FR-RULE-003 and §17.5 word it.
 - Whether the acceptance sentence and the governance fence token keep any placement in scopes of work.
-- Which deliverable examines product surfaces for retired and prohibited wording.
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -64,9 +64,9 @@ The policy is wording. It is adequate when an author of any product surface can 
 - **REQ-007** — A legal interpretation or a jurisdiction-specific professional obligation is stated as undecided until a qualified reviewer supplies it. The policy states no legal conclusion (`docs/CONTRACT.md` OPS-K-AGENT-1).
 - **REQ-008** — Public notices, templates and examples reproduce no protected standards content, private rule-pack content, private project data or proprietary engineering data (PRD §19.4; `docs/CONTRACT.md` OPS-K-IP-1, OPS-K-REPORT-2).
 - **REQ-010** — Product claims frame SWBPIPE as an analysis-grade piping design engine and stress-model authoring environment only with acceptance and professional judgment left to the responsible engineer. Design-authoring records, comparison outputs, handoff packages, export metadata and external-prover references are presented as review aids, not as validation or acceptance (SOW-064; OBJ-018; PRD §4.3, §5.1).
-- **REQ-011** — The registry is the single source of boundary language. A surface that needs boundary language uses a registered statement or a listed short variant word for word, one boundary per surface, and composes no prohibition list of its own (DEC-081).
-- **REQ-012** — The registry records each withdrawal with what it covers: the acceptance sentence on product surfaces, emitted notices and project documents (DEC-100, DEC-107), and the maturity sentence on every surface (DEC-105). A withdrawn statement has no replacement.
-- **REQ-013** — The registry holds the display-form table for the automatic statuses and the emitted evidence-status labels, with its three rules (DEC-102).
+- **REQ-011** — The registry is the single source of boundary language. A surface that needs boundary language uses a registered statement or a listed short variant word for word, one boundary per surface, and composes no prohibition list of its own.
+- **REQ-012** — The registry records each withdrawal with what it covers: the acceptance sentence on product surfaces, emitted notices and project documents, and the maturity sentence on every surface. A withdrawn statement has no replacement.
+- **REQ-013** — The registry holds the display-form table for the automatic statuses and the emitted evidence-status labels, with its three rules.
 
 ### Acceptance criteria
 
@@ -87,13 +87,13 @@ The policy is wording. It is adequate when an author of any product surface can 
 - *A registry, not a policy essay.* The professional boundary is stated once, in PRD §21. This deliverable registers the words that carry it; it writes no second statement of the boundary.
 - *Entries a test can read.* Each statement is an entry under its own identifier with its canonical text, short variants and placement rules, and the display forms are one table, so that product code and tests can read them as a contract input.
 - *Label the result, not the product.* Evidence status attaches to an individual result, report or case. The product carries no global hedge.
-- *The notice is quoted, not paraphrased.* The template holds the PRD §19.3 text exactly; a report generator may format it and may not reword it.
+- *The notice is quoted, not paraphrased.* The template holds the PRD §19.3 text exactly, so that every report takes the notice from one source.
 
 **How each criterion is examined.**
 
 - **VER-001** — Executable check (observes the table's rows): the set of tokens in the display-form table equals the automatic statuses of `docs/TYPES.md` §4 together with the two emitted evidence-status labels; each has one label and one authority domain; and no row exists for the excluded statuses.
 - **VER-002** — Comparison with a named reference (the notice text of PRD §19.3): compare the template's required notice with it, ignoring line breaks.
-- **VER-003** — Judgment by a named role (an independent reviewer who did not write the text): read both documents against PRD §4.2, §4.3, §5.1, §5.9, §19.4, §21.1 to §21.3 and §22.5, `docs/CONTRACT.md` OPS-K-AUTH-1, OPS-K-AUTH-2, OPS-K-GOV-3 and OPS-K-REPORT-1, and the registry rulings (DEC-081, DEC-100, DEC-102, DEC-105, DEC-107); report each statement that can be read as a prohibited claim, each missing disclosure slot or binding, a missing or weakened validation-posture statement or evidence-status label, each withdrawn statement still placed, and any protected or private content.
+- **VER-003** — Judgment by a named role (an independent reviewer who did not write the text): read both documents against PRD §4.2, §4.3, §5.1, §5.9, §19.4, §21.1 to §21.3 and §22.5, `docs/CONTRACT.md` OPS-K-AUTH-1, OPS-K-AUTH-2, OPS-K-GOV-3 and OPS-K-REPORT-1, and the decision register's entries on the registry (DEC-081, DEC-100, DEC-102, DEC-105, DEC-107); report each statement that can be read as a prohibited claim, each missing disclosure slot or binding, a missing or weakened validation-posture statement or evidence-status label, each withdrawn statement still placed, and any protected or private content.
 
 ## Governing Values and Decisions — Axiology
 
@@ -105,12 +105,12 @@ The policy is wording. It is adequate when an author of any product surface can 
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-034 OBJ-011 | REQ-002 REQ-013 | AC-001 | VER-001 | Owner ruling: DEC-102 gives the labels and their rules. The token set is read from `docs/TYPES.md` §4, which is DEL-05-04's vocabulary, not from the registry |
-| OUT-001 | SOW-034 OBJ-011 | REQ-001 REQ-006 REQ-007 | AC-002 | VER-003 | Owner ruling: PRD §21.2 lists the prohibited claims; the reviewer compares the wording with it |
-| OUT-002 | SOW-034 OBJ-011 | REQ-003 REQ-010 | AC-003 | VER-002 | Owner ruling: the notice text of PRD §19.3, read from the PRD and not from the template |
-| OUT-002 | SOW-034 OBJ-011 | REQ-003 | AC-004 | VER-003 | Owner ruling: `docs/CONTRACT.md` OPS-K-REPORT-1 lists the disclosures |
-| OUT-002 | SOW-034 OBJ-011 | REQ-005 | AC-005 | VER-003 | Owner ruling: PRD §21.3 and `docs/CONTRACT.md` OPS-K-AUTH-2 |
-| OUT-002 | SOW-034 OBJ-018 | REQ-008 | AC-006 | VER-003 | Owner ruling: PRD §19.4 lists what a public template may not contain |
-| OUT-001 | SOW-064 OBJ-018 | REQ-010 | AC-007 | VER-003 | Owner ruling: PRD §4.2, §4.3 and §5.1 |
-| OUT-001 | SOW-034 OBJ-018 | REQ-011 REQ-012 | AC-008 | VER-003 | Owner ruling: the registry rulings DEC-081, DEC-100, DEC-105 and DEC-107, read from the decision register |
-| OUT-001 | SOW-034 OBJ-011 | REQ-004 | AC-009 | VER-003 | Owner ruling: PRD §22.5 gives the validation posture and `docs/CONTRACT.md` OPS-K-GOV-3 requires a release to disclose its validation status; the statement and the labels are those of DEC-081, read from the decision register |
+| OUT-001 | SOW-034 OBJ-011 | REQ-002 REQ-013 | AC-001 | VER-001 | The decision register's display-form entry (DEC-102) gives the labels and their rules. The token set is read from `docs/TYPES.md` §4, which is DEL-05-04's vocabulary, not from the registry |
+| OUT-001 | SOW-034 OBJ-011 | REQ-001 REQ-006 REQ-007 | AC-002 | VER-003 | PRD §21.2 lists the prohibited claims; the reviewer compares the wording with it |
+| OUT-002 | SOW-034 OBJ-011 | REQ-003 REQ-010 | AC-003 | VER-002 | The notice text of PRD §19.3, read from the PRD and not from the template |
+| OUT-002 | SOW-034 OBJ-011 | REQ-003 | AC-004 | VER-003 | `docs/CONTRACT.md` OPS-K-REPORT-1 lists the disclosures |
+| OUT-002 | SOW-034 OBJ-011 | REQ-005 | AC-005 | VER-003 | PRD §21.3 and `docs/CONTRACT.md` OPS-K-AUTH-2 |
+| OUT-002 | SOW-034 OBJ-018 | REQ-008 | AC-006 | VER-003 | PRD §19.4 lists what a public template may not contain |
+| OUT-001 | SOW-064 OBJ-018 | REQ-010 | AC-007 | VER-003 | PRD §4.2, §4.3 and §5.1 |
+| OUT-001 | SOW-034 OBJ-018 | REQ-011 REQ-012 | AC-008 | VER-003 | The decision register's entries on the registry (DEC-081, DEC-100, DEC-105 and DEC-107), read from the register and not from the registry |
+| OUT-001 | SOW-034 OBJ-011 | REQ-004 | AC-009 | VER-003 | PRD §22.5 gives the validation posture and `docs/CONTRACT.md` OPS-K-GOV-3 requires a release to disclose its validation status; the statement and the labels are those of the decision register's claims-taxonomy entry (DEC-081), read from the register |

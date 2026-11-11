@@ -13,6 +13,11 @@ needs:
     stable identifiers, and every node position and section dimension as a value with its unit, so
     that the viewport can draw each entity from its stored record and address it by identifier.
   gating: true
+- from: DEL-00-06
+  condition: >-
+    A diagnostic in a result envelope carries its class and names its affected object by the model
+    entity's identifier.
+  gating: false
 - from: DEL-02-02
   condition: >-
     A new entry's starting unit comes from the project units, a missing project unit leaves the

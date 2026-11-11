@@ -11,11 +11,17 @@ needs:
 - from: DEL-02-01
   condition: >-
     The model document holds every entity as a typed record with a stable identifier, every
-    dimensional value with its unit, sources and provenance records, tags, notes, lines,
-    assumptions, constraints, equipment interfaces and operating-condition sets. An absent optional member
-    means none, and the document validator refuses a malformed member by a named code and path at
-    every apply and validate-only preview.
+    dimensional value with its unit, sources and provenance records with their redistribution
+    status, rule-pack references with their identity, version, checksum and redistribution status,
+    tags, notes, lines, assumptions, constraints, equipment interfaces and operating-condition
+    sets. An absent optional member means none, and the document validator refuses a malformed
+    member by a named code and path at every apply and validate-only preview.
   gating: true
+- from: DEL-00-06
+  condition: >-
+    A diagnostic in a result envelope carries its class, severity, source, affected object and
+    remediation.
+  gating: false
 - from: DEL-02-02
   condition: >-
     The unit catalog gives the units of each dimension, a new entry's starting unit comes from the
@@ -39,12 +45,6 @@ needs:
     One operation engine applies a batch only after validation, any required preview and the user's
     explicit acceptance, applies it whole or not at all, leaves the model unchanged on any refusal,
     and keeps every member an operation does not name bit for bit.
-  gating: true
-- from: DEL-16-03
-  when: Applying queued changes as one batch
-  condition: >-
-    An applied batch has exactly one decision record and one outcome record, whichever surface
-    produced the batch, and the outcome record holds every operation with its author.
   gating: true
 - from: DEL-04-03
   condition: >-

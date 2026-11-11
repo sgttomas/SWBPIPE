@@ -9,8 +9,8 @@ needs:
   gating: true
 - from: DEL-04-07
   condition: >-
-    A solve publishes one mechanics result with its identity, the solver's version and build, and
-    its rows, units and diagnostics as the primitives raised them.
+    A solve publishes one mechanics result with its identity and its rows, units and diagnostics as
+    the primitives raised them.
   gating: true
 - from: DEL-04-08
   condition: >-

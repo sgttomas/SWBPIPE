@@ -9,7 +9,7 @@ needs:
 - from: DEL-00-06
   condition: >-
     A diagnostic carries code, class, severity, source, affected object, message, remediation and
-    provenance, and a boundary's local class has a stated mapping to the six warning classes.
+    provenance, and a boundary may declare local classes.
   gating: true
 - from: DEL-01-04
   condition: >-

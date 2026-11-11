@@ -28,14 +28,14 @@ It serves SOW-069 and SOW-070 under OBJ-015 (`execution/_Decomposition/SOFTWARE_
 - *Operation history.* The durable, ordered record, per project, of decisions and outcomes. This is the audit trail of SOW-070.
 - *History record.* One batch's entry: the operations as proposed, unaltered; the entities they affect; each operation's author type and source; the rationale and the assumptions; the validation outcome and the preview it was decided on; the model hash it was decided on and, when applied, the resulting model hash; the times of proposal, decision and outcome.
 - *Author stamp.* The author type a route gives an operation. The route sets it. A claim of authorship inside imported or agent content is kept only as display context.
-- *Person-entered value.* The bend flexibility factor k, the SIFs, the other component modifiers and their source, as DEL-16-06 defines them. The owner ruled that users enter their own k and SIF. The engine's refusal of such a write by anyone else is DEL-16-06's; it relies on the author stamp.
+- *Person-entered value.* The bend flexibility factor k, the SIFs, the other component modifiers and their source, as DEL-16-06 defines them. Users enter their own k and SIF. The engine's refusal of such a write by anyone else is DEL-16-06's; it relies on the author stamp.
 - *Review context.* A record read back from a reopened project whose acceptance is not known. It can be read and requeued; it cannot be applied as it stands.
 
 **Boundary.**
 
 - The record's form is DEL-16-01's; validation and the preview are DEL-16-02's; applying a batch and returning its outcome are DEL-16-06's; what an agent's rationale and assumptions must hold are DEL-16-04's.
 - The review surface is DEL-07-08's: showing the preview, the Apply and Reject controls and the ledger panel. Collecting queued changes into one batch is DEL-07-02's.
-- The project store that keeps the history is DEL-02-05's. Saved model states are DEL-14-01's.
+- The project store is DEL-02-05's. No deliverable currently commits to keeping the operation history's records in it across save and reopen, which REQ-005 and AC-004 rely on. Saved model states are DEL-14-01's.
 - A formal professional-acceptance workflow is not required (PRD §21.3) and is not this deliverable's; the words for that boundary are DEL-01-04's.
 
 **Not decided.**
@@ -43,7 +43,6 @@ It serves SOW-069 and SOW-070 under OBJ-015 (`execution/_Decomposition/SOFTWARE_
 - Whether a person can grant an agent standing permission to apply changes without a decision on each batch (decomposition OI-016; FR-AGENT-003 allows a configured workflow, and exit criterion 17 allows autonomy the person granted). Until that is decided every batch needs the person's own act.
 - How long rejected and withdrawn records are kept, and when one may be removed.
 - Whether an author is ever a verified identity. Until that is decided author type and source are asserted metadata from the trusted desktop, and the history says so.
-- Whether a retained record that claims a person as author and writes no person-entered value is requeued as the person's. A record saved before routes stamped authors cannot be told from an import that claimed a person.
 - The precision and clock of the recorded times.
 
 ## Completion and Reliance Basis — Epistemology
@@ -62,10 +61,8 @@ It serves SOW-069 and SOW-070 under OBJ-015 (`execution/_Decomposition/SOFTWARE_
 - **REQ-010** — Acceptance is bound to the preview it was given on: the preview's model hash must be the current model's hash when the person decides.
 - **REQ-011** — Recording a decision changes no model and applies nothing.
 - **REQ-012** — A rejected batch is recorded as rejected and changes nothing.
-- **REQ-013** — The author stamp is set by the route. A desktop editor stamps the person. The embedded agent's host and offline proposal intake stamp `agent`, whatever the content claims, and keep a claimed author only as display context. A retained record requeued after reopening is stamped `agent` when its origin is recognisably an agent or an import; one that claims a person and writes a person-entered value is refused; one that names no recognisable author is refused.
+- **REQ-013** — The author stamp is set by the route. A desktop editor stamps the person. The embedded agent's host and offline proposal intake stamp `agent`, whatever the content claims, and keep a claimed author only as display context. A retained record requeued after reopening is stamped `agent` when its origin is recognisably an agent or an import; one that claims a person and writes a person-entered value is refused; one that names no recognisable author is refused. A retained record that claims a person but whose human authorship cannot be established, such as one saved before routes stamped authors, which cannot be told from an import that claimed a person, never receives person-authored treatment on requeue. It stays recoverable: a refusal or a requeue without person-authored treatment leaves it in the history as review context.
 - **REQ-014** — The decision and the outcome are two records. Application consumes the decision made before it; the history takes the actual outcome from application afterwards and never writes an outcome of its own.
-
-REQ-005 and REQ-014 carry commitments DEL-16-03:1 and DEL-16-03:2.
 
 ### Acceptance criteria
 
@@ -75,7 +72,7 @@ REQ-005 and REQ-014 carry commitments DEL-16-03:1 and DEL-16-03:2.
 - **AC-004** — After save, close and reopen, the project's history lists every accepted and every rejected batch decided before the save, in order, with every member equal. A record read back whose acceptance is not known is review context: it must be requeued and validated afresh before it can be applied.
 - **AC-005** — Recording an acceptance, a rejection, a hold or a withdrawal leaves the model document and its hash unchanged. A rejected batch is in the history as rejected and no operation of it is applied.
 - **AC-006** — Each history record carries a hash that is the SHA-256 of its RFC 8785 canonical form and is reproduced from the stored record; the same decision on the same inputs gives the same record.
-- **AC-007** — An operation from a desktop editor is stamped as the person's. An operation from the embedded agent or from offline intake is stamped `agent` with a host-set source whatever its content claims, and the claimed author appears only as display context marked unverified. On requeue after reopening, a record of agent or imported origin is stamped `agent`, a record claiming a person that writes a person-entered value is refused, and a record with no recognisable author is refused.
+- **AC-007** — An operation from a desktop editor is stamped as the person's. An operation from the embedded agent or from offline intake is stamped `agent` with a host-set source whatever its content claims, and the claimed author appears only as display context marked unverified. On requeue after reopening, a record of agent or imported origin is stamped `agent`, a record claiming a person that writes a person-entered value is refused, and a record with no recognisable author is refused. A record that claims a person but whose human authorship cannot be established is never requeued as the person's, and after any refusal it is still in the history, readable as review context.
 - **AC-008** — No history record, decision, outcome, label or exported ledger states or implies professional approval, certification, sealing, authentication or code compliance. An acceptance record says that it is the person's acceptance of a model change in a local session and is not professional approval.
 - **AC-009** — Every public example and sample record holds invented values and carries a provenance record that marks it invented.
 
@@ -93,7 +90,7 @@ REQ-005 and REQ-014 carry commitments DEL-16-03:1 and DEL-16-03:2.
 - **VER-002** — AC-002, executable check: observes the decision and outcome records after an applied batch from each surface (a desktop editor, batch review, the embedded agent, offline intake), after an accepted batch that application refuses, and after an application whose result is withheld from the history.
 - **VER-003** — AC-003 and AC-006, executable check: observes each record's members against the scripted decision that produced it, removes each input in turn to observe the missing marker, and recomputes each record's hash with an RFC 8785 and SHA-256 implementation that shares no code with the product.
 - **VER-004** — AC-004, executable check: scripts a sequence of accepted and rejected batches, saves, closes and reopens the project in the native application, and compares the history read back with the scripted sequence; then attempts to apply a record read back without requeueing it.
-- **VER-005** — AC-007, executable check: observes the stamp and source on operations sent by each route with content that claims each author type, and the result of requeueing retained records of each origin.
+- **VER-005** — AC-007, executable check: observes the stamp and source on operations sent by each route with content that claims each author type, and the result of requeueing retained records of each origin, including a record that claims a person and was saved without a route stamp, and the history after each refusal.
 - **VER-006** — AC-008 and AC-009, judgment by a named role (a reviewer who did not write the records): reads the history, the acceptance record, the labels and the exported ledger against the prohibited claims of PRD §21.2 and `docs/claims_registry.md`, and the examples for protected or private content, with an executable check of each example's provenance record.
 
 ## Governing Values and Decisions — Axiology
@@ -106,11 +103,11 @@ REQ-005 and REQ-014 carry commitments DEL-16-03:1 and DEL-16-03:2.
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-069 OBJ-015 | REQ-001 REQ-002 REQ-006 REQ-010 | AC-001 | VER-001 | Owner ruling: SOW-069, FR-AGENT-003 and decomposition OI-016. Each scripted batch states what it lacks and so what must be held |
-| OUT-002 | SOW-069 SOW-070 OBJ-015 | REQ-014 | AC-002 | VER-002 | Owner ruling: the decomposition's allocation of application to DEL-16-06 (DEC-111). The scripted scenario states what was accepted and what application returned |
-| OUT-001 | SOW-070 OBJ-015 | REQ-003 REQ-004 REQ-009 | AC-003 | VER-003 | Owner ruling: SOW-070 and FR-AGENT-004 name what is preserved. The comparison is with the scripted decision, which the product did not write |
-| OUT-001 | SOW-070 OBJ-015 | REQ-005 | AC-004 | VER-004 | Owner ruling: SOW-070. The comparison is with the scripted sequence of decisions, which the product did not write |
+| OUT-001 | SOW-069 OBJ-015 | REQ-001 REQ-002 REQ-006 REQ-010 | AC-001 | VER-001 | Each scripted batch states what it lacks and so what must be held |
+| OUT-002 | SOW-069 SOW-070 OBJ-015 | REQ-014 | AC-002 | VER-002 | The scripted scenario states what was accepted and what application returned |
+| OUT-001 | SOW-070 OBJ-015 | REQ-003 REQ-004 REQ-009 | AC-003 | VER-003 | The comparison is with the scripted decision, which the product did not write |
+| OUT-001 | SOW-070 OBJ-015 | REQ-005 | AC-004 | VER-004 | The comparison is with the scripted sequence of decisions, which the product did not write |
 | OUT-001 | SOW-069 OBJ-015 | REQ-011 REQ-012 | AC-005 | VER-001 | The criterion states the expected result: an unchanged hash, compared with the hash taken before |
 | OUT-001 | SOW-070 OBJ-015 | REQ-005 | AC-006 | VER-003 | Outside source: RFC 8785 and SHA-256, computed by an implementation that shares no code with the product |
-| OUT-001 | SOW-069 SOW-070 OBJ-015 | REQ-013 | AC-007 | VER-005 | Owner ruling: users enter their own k and SIF (`docs/RELEASE_TARGET_v1.0.md`, Pressure effects). The routes and the claims in the content state what each stamp must be |
-| OUT-001 | SOW-070 OBJ-015 | REQ-007 REQ-008 | AC-008, AC-009 | VER-006 | Owner ruling: PRD §21.2, §21.3 and `docs/claims_registry.md`, read by a reviewer who did not write the records |
+| OUT-001 | SOW-069 SOW-070 OBJ-015 | REQ-013 | AC-007 | VER-005 | The routes and the claims in the content state what each stamp must be. The check shows the stamp each route sets; it cannot show that a stamp from the trusted desktop is true, since the author is asserted metadata |
+| OUT-001 | SOW-070 OBJ-015 | REQ-007 REQ-008 | AC-008, AC-009 | VER-006 | PRD §21.2, §21.3 and `docs/claims_registry.md`, read by a reviewer who did not write the records |

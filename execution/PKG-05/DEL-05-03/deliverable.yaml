@@ -56,11 +56,17 @@ needs:
     of a component body.
   gating: true
   when: Forming a maximum or headline in a model with a scaled body
+- from: DEL-05-01
+  condition: >-
+    The stress-recovery crate takes its boundary-record vocabulary (`BoundaryRecordRef`,
+    `BoundaryQuantityRecord`, `CanonicalDimension`, `CanonicalSchemaBinding`,
+    `QuantityUnitMetadata`) from the primitive-load crate.
+  gating: false
 - from: DEL-07-03
   condition: >-
-    Authoring a pressure contract in the desktop without an explicit shear choice writes
-    timoshenko_annulus_energy_v1, and the desktop writes no model-settings shear model unless the
-    user selects one.
+    The desktop's load manager authors a document's pressure regions, with its pressure contract,
+    as model operations; that is the path on which an exact-route document's shear selection,
+    whose default this scope states, is first written.
   gating: false
   when: Examining the authored default of the shear selection
 code_paths:

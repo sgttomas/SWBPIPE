@@ -13,8 +13,8 @@ needs:
   gating: true
 - from: DEL-00-06
   condition: A diagnostic carries code, class, severity, source, affected object, message and remediation;
-    the six warning classes include the IP-boundary warning; and a boundary that uses a local class states
-    its mapping to one of the six.
+    the six warning classes include the IP-boundary warning; and a boundary may declare local classes where
+    its schema needs them.
   gating: true
 - from: DEL-08-01
   condition: The calculation report's public template, and each rendered report and its PDF, are available
@@ -32,8 +32,9 @@ needs:
   when: Before the release-candidate scan of exit criterion 14.
   gating: true
 - from: DEL-10-02
-  condition: An adapter's accepted declaration confers no runtime authority; each report or export an
-    adapter or plugin requests passes a runtime admission gate that can refuse it.
+  condition: An adapter's accepted declaration confers no authority to run, and a declaration affirms
+    the no-bypass controls, use of the public API boundary among them, so that a report or export an adapter
+    requests reaches the product only by its own route.
   when: Before an adapter or plugin runtime produces a report or export.
   gating: true
 code_paths:
@@ -41,7 +42,7 @@ code_paths:
 - schemas/report_protected_content_linter.schema.yaml
 - fixtures/report_lint/invented/**
 - apps/desktop/src/features/report-lint/ReportLintPanel.tsx
-# The release-candidate scan runner and its member helper (DEC-058).
+# The release-candidate scan runner and its member helper.
 - tools/release/run_release_candidate_scan.py
 - tools/release/release_members.py
 checks:

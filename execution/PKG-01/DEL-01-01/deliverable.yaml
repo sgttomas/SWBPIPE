@@ -4,9 +4,8 @@ needs:
 - from: external:owner
   condition: >-
     The owner's contributor rules are defined: who may contribute and on what terms, beyond what
-    the owner has recorded (sole-maintainer review, quorum one and closed external intake;
-    DEC-027, DEC-079). The maintainer and release policy is written from them and is not drafted
-    without them.
+    is already decided (sole-maintainer review, quorum one and closed external intake). The
+    maintainer and release policy is written from them.
   when: Writing governance/MAINTAINERS.md
   gating: true
 - from: DEL-01-02

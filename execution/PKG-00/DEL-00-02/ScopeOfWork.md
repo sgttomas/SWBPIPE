@@ -49,7 +49,7 @@ It serves SOW-057 and SOW-062 under OBJ-013 (`execution/_Decomposition/SOFTWARE_
 - **REQ-002** — Dependencies point inward toward the domain contracts, and none runs around the unit, provenance or data-boundary checks (decomposition AB-00-02).
 - **REQ-003** — Adapters and plugins may translate data and may not bypass governance, validation or diagnostics (decomposition AB-00-02; `docs/SPEC.md` §1).
 - **REQ-004** — The map describes the repository as it is. A layout question that has not been decided is stated as undecided, and the map invents no structure the tree does not have. Folder names may change without a change to a layer's responsibility.
-- **REQ-005** — A check detects drift before it is integrated. This requirement is under an owner review hold (PDU-007): it is not treated as met until the owner has reviewed the map and the check.
+- **REQ-005** — A check detects drift before it is integrated. This requirement is held (PDU-007): it is not treated as met until a formal review has disposed of whether the check and its evidence are sufficient to detect drift. A reviewer who did not write the map or the check may make that review; lifting the hold is the owner's.
 
 ### Acceptance criteria
 
@@ -82,8 +82,8 @@ It serves SOW-057 and SOW-062 under OBJ-013 (`execution/_Decomposition/SOFTWARE_
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-057 SOW-062 OBJ-013 | REQ-001 REQ-004 | AC-001 | VER-001 | Owner ruling: decomposition AB-00-02 and `docs/SPEC.md` §1 name the layers; the comparison is against the repository tree and manifests |
-| OUT-001 | SOW-057 OBJ-013 | REQ-004 | AC-004 | VER-001 | Owner ruling: the SOW-057 note that folder names may be refined without changing layer responsibilities |
-| OUT-002 | SOW-057 SOW-062 OBJ-013 | REQ-002 | AC-002 | VER-002 | Owner ruling: decomposition AB-00-02 states the direction; the comparison is against the manifests and imports |
-| OUT-002 | SOW-062 OBJ-013 | REQ-003 | AC-003 | VER-002 | Owner ruling: decomposition AB-00-02 and `docs/SPEC.md` §1 |
-| OUT-002 | SOW-057 OBJ-013 | REQ-005 | AC-005 | VER-002 VER-003 | Owner ruling: decomposition AB-00-02; the seeded violations state what must fail, and the reviewer did not write the map |
+| OUT-001 | SOW-057 SOW-062 OBJ-013 | REQ-001 REQ-004 | AC-001 | VER-001 | Decomposition AB-00-02 and `docs/SPEC.md` §1 name the layers; the comparison is against the repository tree and manifests |
+| OUT-001 | SOW-057 OBJ-013 | REQ-004 | AC-004 | VER-001 | The reviewer's comparison of the map's layout statements with the repository tree and with the choices the owning deliverables have made; SOW-057 lets folder names change without a change of layer responsibility |
+| OUT-002 | SOW-057 SOW-062 OBJ-013 | REQ-002 | AC-002 | VER-002 | Decomposition AB-00-02 states the direction; the comparison is against the manifests and imports |
+| OUT-002 | SOW-062 OBJ-013 | REQ-003 | AC-003 | VER-002 | Decomposition AB-00-02 and `docs/SPEC.md` §1 state the rule; the comparison is each adapter and plugin module's placement and its writes to the model document, the store and report output |
+| OUT-002 | SOW-057 OBJ-013 | REQ-005 | AC-005 | VER-002 VER-003 | Decomposition AB-00-02; the seeded violations state what must fail, and the reviewer did not write the map. The formal review of REQ-005's evidence sufficiency is separate from these checks passing |

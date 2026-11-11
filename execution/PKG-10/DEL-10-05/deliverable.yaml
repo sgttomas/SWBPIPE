@@ -10,8 +10,8 @@ needs:
 - from: DEL-00-06
   condition: >-
     A diagnostic carries code, class, severity, source, affected object, message, remediation and
-    provenance, and the runner's local classes have a stated mapping to the common classes that
-    holds when a diagnostic crosses to the result export.
+    provenance. When a runner diagnostic crosses to the result export, every field other than the
+    class arrives unchanged, and the class changes only by the result export's stated mapping.
   gating: true
 - from: DEL-04-07
   condition: >-

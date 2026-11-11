@@ -11,7 +11,8 @@ needs:
   condition: >-
     The diagnostic records classify a condition ratio against supplied thresholds, map each kernel
     failure, a singular system included, to a named blocking record, and are produced in a fixed
-    order for the same input (DEL-04-06 REQ-005, REQ-008, AC-003).
+    order for the same input (DEL-04-06/REQ-005, DEL-04-06/REQ-008,
+    DEL-04-06/AC-003).
   gating: true
 - from: DEL-04-07
   condition: >-
@@ -27,11 +28,11 @@ needs:
     The structural adapter's sparse assembled solve with its formation check can be called from
     outside its crate and gives the product's own entries for the same input.
   gating: false
-- from: DEL-04-08
+- from: DEL-04-01
   when: Observing the retained-precision lanes
   condition: >-
-    The retained-precision lanes can be run on one case from outside the kernel and report the
-    work they did by stage.
+    The kernel's retained-precision lanes can be run on one case from outside the kernel and
+    report the work they did by stage.
   gating: false
 - from: DEL-07-07
   when: Measuring exit criterion 9
@@ -39,7 +40,7 @@ needs:
     A solve job's worker reads and parses the model, calls the product solve entry, serializes the
     result and verifies it; the host then takes the result into custody, and the display reads its
     summary and pages and paints them. Each stage boundary is marked on the solve timeline with
-    its fixed code (DEL-07-07 REQ-013). A change to these stages changes what the harness must
+    its fixed code (DEL-07-07/REQ-013). A change to these stages changes what the harness must
     time.
   gating: false
 - from: DEL-02-01

@@ -9,7 +9,8 @@ needs:
 - from: DEL-12-02
   condition: >-
     A private value on a public, shared or downstream export route is redacted, a route outside
-    the catalogue exposes nothing, and the product assembles no issue or support bundle.
+    the catalogue exposes nothing, and an issue or support bundle exposes content only as a
+    catalogued route that excludes private data by default.
   gating: true
 - from: DEL-12-03
   condition: >-

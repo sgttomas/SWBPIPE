@@ -26,7 +26,7 @@ It serves SOW-060 under OBJ-013 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - *Mutation route.* A GUI action that changes the model builds a structured model operation; an application-service command validates and applies it; the GUI shows the applied result. The GUI never writes the model document itself.
 - *Undo and redo.* Steps over the applied, reversible model edits in order. Undo restores exactly the model before the edit and redo the model after it. After each step the diagnostics are those of the model at that step, so a change in solve readiness shows, and results computed for the model it replaced are no longer current. A change of transient state is not an entry in the history.
 - *Selection.* One shared selection of model entities, expressed as stable entity identifiers and not as the state of a widget. The viewport, the tree and the inspector read and set the same selection.
-- *Warning class.* One of the six classes defined by DEL-00-06, which a diagnostic keeps when the GUI shows it.
+- *Warning class.* The class a diagnostic carries, as DEL-00-06 defines it, including the six warning classes. A diagnostic keeps its class when the GUI shows it.
 
 **Boundary.** This deliverable owns the cross-cutting rule; it implements no screen, component or viewport. Its criteria are observed on the desktop the deliverables below build, and a shortfall is repaired there.
 
@@ -78,8 +78,8 @@ It serves SOW-060 under OBJ-013 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-060 OBJ-013 | REQ-001 | AC-001 | VER-001 | Owner ruling: decomposition AB-00-05; the criterion states the expected result, an unchanged hash and unchanged run records |
-| OUT-001 | SOW-060 OBJ-013 | REQ-002 | AC-002 | VER-002 | Owner ruling: `docs/PRD.md` §5.3 and decomposition AB-00-05; the comparison is the model against the operation history |
-| OUT-001 | SOW-060 OBJ-013 | REQ-003 | AC-003 | VER-001 | Owner ruling: `docs/PRD.md` FR-GUI-005; the criterion states the expected result, hash equality with the model before and after the edit |
-| OUT-001 | SOW-060 OBJ-013 | REQ-004 | AC-004 | VER-003 | Owner ruling: decomposition AB-00-05 and the allocation of tree and inspector behaviour to DEL-07-02; the journey states what must be selected |
-| OUT-001 | SOW-060 OBJ-013 | REQ-005 | AC-005 | VER-003 | Owner ruling: decomposition AB-00-06 and `docs/SPEC.md` §8 name the six classes; the comparison is the class in the envelope |
+| OUT-001 | SOW-060 OBJ-013 | REQ-001 | AC-001 | VER-001 | Decomposition AB-00-05; the criterion states the expected result, an unchanged hash and unchanged run records |
+| OUT-001 | SOW-060 OBJ-013 | REQ-002 | AC-002 | VER-002 | `docs/PRD.md` §5.3 and decomposition AB-00-05; the comparison is the model against the operation history |
+| OUT-001 | SOW-060 OBJ-013 | REQ-003 | AC-003 | VER-001 | `docs/PRD.md` FR-GUI-005; the criterion states the expected result, hash equality with the model before and after the edit |
+| OUT-001 | SOW-060 OBJ-013 | REQ-004 | AC-004 | VER-003 | Decomposition AB-00-05; the journey states what must be selected in the other two surfaces |
+| OUT-001 | SOW-060 OBJ-013 | REQ-005 | AC-005 | VER-003 | Decomposition AB-00-06 and `docs/SPEC.md` §8 name the six classes; the comparison is the class in the envelope |

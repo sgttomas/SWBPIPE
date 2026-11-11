@@ -62,6 +62,13 @@ needs:
     published end actions, the arc's loads and its section, and refuses by name when its search
     limits are reached.
   gating: true
+- from: DEL-04-01
+  when: Asserting the bound between exact-route twins and their pressure-free nonlinear controls
+  condition: >-
+    Every structural solve returns only when each free row's residual in the original equations
+    meets 64·γ(n) of its row denominator, in the sparse and dense modes, so that the derived bound
+    on the twins' differences holds for whatever kernel satisfies it.
+  gating: false
 - from: DEL-04-02
   condition: >-
     The straight pipe element gives, for a member's section, its stiffness, the equivalent nodal
@@ -149,8 +156,9 @@ needs:
 - from: DEL-07-07
   when: Running a solve in the desktop
   condition: >-
-    The desktop solve job calls the product solve entry in a capped worker, measures the worker's
-    peak physical footprint, and takes memory for the result from the shared pool under leases.
+    The desktop solve job runs each solve through the product solve entry within the per-invocation
+    budget and the shared pool, so that a completed solve's peak physical footprint can be observed
+    against the budget.
   gating: false
 code_paths:
 # The product solve crate and the nonlinear iteration. Within core/product_physics/, modules that

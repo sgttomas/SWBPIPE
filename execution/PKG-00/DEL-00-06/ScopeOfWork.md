@@ -30,8 +30,8 @@ It serves SOW-061 under OBJ-013 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
   - `ASSUMPTION_WARNING`: an assumption by the user or the model needs review.
   - `NONLINEAR_WARNING`: convergence or the active state of a support is uncertain.
   - `IP_BOUNDARY_WARNING`: a public contribution or report may contain protected or private data.
-- *Local class.* A class in a boundary's own vocabulary, permitted where its schema needs one, with a stated mapping to the six. The runner's `RUNNER_BLOCKING` and `PRIVACY_WARNING` and the result export's `EXPORT_BLOCKING` and `UNIT_WARNING` are local classes; at the export boundary `RUNNER_BLOCKING` becomes `EXPORT_BLOCKING` and `PRIVACY_WARNING` becomes `IP_BOUNDARY_WARNING`.
-- *Crossing.* The passage of a diagnostic from one boundary's record to another's. Only the class may be mapped. The code, source, affected object, message, remediation and provenance arrive unchanged.
+- *Local class.* A class in a boundary's own vocabulary, which a boundary may declare where its schema needs one. The runner's `RUNNER_BLOCKING` and `PRIVACY_WARNING` and the result export's `EXPORT_BLOCKING` and `UNIT_WARNING` are local classes; at the export boundary `RUNNER_BLOCKING` becomes `EXPORT_BLOCKING` and `PRIVACY_WARNING` becomes `IP_BOUNDARY_WARNING`.
+- *Crossing.* The passage of a diagnostic from one boundary's record to another's. Every field other than the class arrives unchanged: code, severity, source, affected object, message, remediation and provenance. The class changes only where the receiving boundary's schema requires its own class vocabulary, and then by that boundary's stated mapping.
 - *Result envelope.* The structured return of a nontrivial operation: its outcome, its diagnostics and its payload.
 - *Outcome kind.* One of five that the envelope of an operation evaluating a model distinguishes: invalid input, incomplete model, mechanics result, rule-check result, and human review needed.
 
@@ -50,7 +50,7 @@ It serves SOW-061 under OBJ-013 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 ### Requirements
 
 - **REQ-001** — Diagnostics are machine-readable and carry code, class, severity, source, affected object, message and remediation, and provenance where applicable (decomposition AB-00-06).
-- **REQ-002** — The six warning classes are preserved. A boundary may use local classes only with a stated mapping to the six, and a crossing preserves every field other than the class.
+- **REQ-002** — The six warning classes are preserved. A boundary may declare local classes where its schema needs them. A crossing preserves every field other than the class, and changes the class only where the receiving boundary's schema requires its own class vocabulary, by that boundary's stated mapping.
 - **REQ-003** — Solver, rule-pack, GUI, command-line, report, storage and adapter outputs use result envelopes for nontrivial operations.
 - **REQ-004** — Invalid input, incomplete model, mechanics result, rule-check result and human-review-needed are distinguished (`docs/PRD.md` §14.4; `docs/CONTRACT.md` OPS-K-MECH-2).
 - **REQ-005** — Diagnostics claim no certification, code compliance, approval or professional authentication (`docs/PRD.md` §21.2; `docs/CONTRACT.md` OPS-K-AUTH-1).
@@ -58,7 +58,7 @@ It serves SOW-061 under OBJ-013 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 ### Acceptance criteria
 
 - **AC-001** — Every schema that carries diagnostics requires the code, class, severity, source, affected object, message and remediation fields and provides for provenance, and every diagnostic the product emits validates against the schema of the boundary that emits it.
-- **AC-002** — Every class value declared in any schema is one of the six or a local class whose mapping to one of the six is stated in that schema or its contract. A diagnostic carried across a boundary arrives with its code, source, affected object, message, remediation and provenance equal to the original.
+- **AC-002** — A diagnostic carried across a boundary arrives with its code, severity, source, affected object, message, remediation and provenance equal to the original. Its class is unchanged, except where the receiving boundary's schema requires its own class vocabulary; there it is the class that boundary's stated mapping gives.
 - **AC-003** — The envelope returned by each of the seven kinds of output named in REQ-003 carries a list of diagnostics that meet AC-001 and a field that states its outcome.
 - **AC-004** — From the envelope's fields alone, without reading message text, a program can tell which of the five outcome kinds an envelope of a validation, solve, rule check, run record or result export holds. An input that is invalid, a model that is incomplete and a rule check that lacks data each produce their own kind and never a mechanics result with an empty payload.
 - **AC-005** — No diagnostic code, class, message or remediation, and no envelope value, states or implies certification, code compliance, approval or authentication. A remediation says what is missing and never supplies an engineering value.
@@ -68,19 +68,19 @@ It serves SOW-061 under OBJ-013 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 **Method choices that define the contract.**
 
 - Schema first: each boundary's diagnostic and envelope have a schema contract, in the dialect the baseline names (DEL-00-01).
-- A boundary keeps its own class vocabulary where its schema needs one, and the mapping to the six is part of the boundary's contract.
+- A boundary keeps its own class vocabulary where its schema needs one, and the mapping it applies to a class arriving at it is part of the boundary's contract.
 - Missing data is a diagnostic. It is never a default and never a silent omission.
 
 **How each criterion is examined.**
 
 - **VER-001** — AC-001 and AC-003, executable check: observes every schema with a diagnostics member for the required fields, and validates the diagnostics and envelopes emitted by each kind of output on inputs that provoke each class.
-- **VER-002** — AC-002, executable check: observes every declared class value against the six and the stated mappings, and carries diagnostics across each boundary pair (solver to result export, runner to export, run record to report) comparing the preserved fields.
+- **VER-002** — AC-002, executable check: carries diagnostics across each boundary pair (solver to result export, runner to export, run record to report) and observes every field other than the class against the original, and the class against the receiving boundary's stated mapping where that boundary's schema requires its own vocabulary.
 - **VER-003** — AC-004, executable check: submits an invalid input, an incomplete model, a solvable model and a rule check with missing data, and observes the outcome kind of each envelope from its fields.
 - **VER-004** — AC-005, judgment by a reviewer who did not write the diagnostics: examines the code, class and message vocabularies against `docs/claims_registry.md`, with an executable check for prohibited claim terms.
 
 ## Governing Values and Decisions — Axiology
 
-- **AX-001** — *One vocabulary.* Better is fewer class values without a stated mapping to the six; the target is none. This is never bought by merging two classes that call for different responses from the user.
+- **AX-001** — *One vocabulary.* Better is fewer class changes at a crossing that the receiving boundary's stated mapping does not give; the target is none. This is never bought by merging two classes that call for different responses from the user.
 - **AX-002** — *Findings a person can act on.* Better is a larger share of diagnostics that name the affected object and a remediation the user can carry out. A remediation never suggests an engineering value, and severity is never lowered to let a result through.
 - **AX-003** — *Machine first.* The outcome is read from fields and never from the wording of a message. Wording may improve freely; a code or a class changes only as a contract change.
 
@@ -88,8 +88,8 @@ It serves SOW-061 under OBJ-013 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-061 OBJ-013 | REQ-001 | AC-001 | VER-001 | Owner ruling: decomposition AB-00-06 names the fields; the comparison is each schema and each emitted diagnostic |
-| OUT-001 | SOW-061 OBJ-013 | REQ-002 | AC-002 | VER-002 | Owner ruling: `docs/SPEC.md` §8 and decomposition AB-00-06 name the six classes, and the owner's ruling permits local classes with a mapping; the comparison is the original diagnostic |
-| OUT-002 | SOW-061 OBJ-013 | REQ-003 | AC-003 | VER-001 | Owner ruling: decomposition AB-00-06 and SOW-061 name the outputs |
-| OUT-002 | SOW-061 OBJ-013 | REQ-004 | AC-004 | VER-003 | Owner ruling: `docs/PRD.md` §14.4 and decomposition AB-00-06; each scenario states the outcome kind that must result |
-| OUT-001 | SOW-061 OBJ-013 | REQ-005 | AC-005 | VER-004 | Owner ruling: `docs/PRD.md` §21.2 and §5.5 and `docs/claims_registry.md` |
+| OUT-001 | SOW-061 OBJ-013 | REQ-001 | AC-001 | VER-001 | Decomposition AB-00-06 names the fields; the comparison is each schema and each emitted diagnostic |
+| OUT-001 | SOW-061 OBJ-013 | REQ-002 | AC-002 | VER-002 | `docs/SPEC.md` §8 and decomposition AB-00-06 name the six classes; the comparison is each carried diagnostic against the original, and its class against the receiving boundary's stated mapping |
+| OUT-002 | SOW-061 OBJ-013 | REQ-003 | AC-003 | VER-001 | Decomposition AB-00-06 and SOW-061 name the outputs; the comparison is each kind of output's envelope against AC-001's fields and an outcome field |
+| OUT-002 | SOW-061 OBJ-013 | REQ-004 | AC-004 | VER-003 | `docs/PRD.md` §14.4 and decomposition AB-00-06; each scenario states the outcome kind that must result |
+| OUT-001 | SOW-061 OBJ-013 | REQ-005 | AC-005 | VER-004 | `docs/PRD.md` §21.2 and §5.5 and `docs/claims_registry.md` say what may not be claimed; the comparison is the code, class and message vocabularies against them |

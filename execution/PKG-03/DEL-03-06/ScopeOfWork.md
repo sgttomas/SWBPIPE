@@ -72,7 +72,7 @@ A joint result is a statement about a linear connector with the user's stiffness
 - Whether the entered stiffness is positive definite is decided exactly, on the entered coefficients and on the values the solve uses.
 - A joint replaces its span. It is never placed in parallel or in series with the pipe it stands in for.
 - Tie rods are elements of their own between the joint's ends; they are not folded into the joint's stiffness.
-- Pressure thrust is a load, formed from the effective area on the load side, and is not part of the joint's stiffness (DEC-045).
+- Pressure thrust is a load, formed from the effective area on the load side, and is not part of the joint's stiffness.
 
 **How each criterion is examined.**
 
@@ -94,11 +94,11 @@ A joint result is a statement about a linear connector with the user's stiffness
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-010 OBJ-004 | REQ-001 REQ-002 REQ-003 REQ-004 REQ-005 REQ-006 | AC-001 | VER-001 | Owner ruling: PRD §12.3 lists the inputs and PRD §20.2 the provenance members; the criterion states the expected acceptance and findings |
-| OUT-001 | SOW-010 OBJ-004 | REQ-010 | AC-002 | VER-002 | Outside source: independently derived connector references from a generator that imports no product code. The tolerance is an owner ruling (DEC-026) |
-| OUT-001 | SOW-010 OBJ-004 | REQ-011 | AC-003 | VER-003 | Outside source: independently derived tied-joint references from a generator that imports no product code; owner ruling PRD §12.3 for the published rod force |
+| OUT-001 | SOW-010 OBJ-004 | REQ-001 REQ-002 REQ-003 REQ-004 REQ-005 REQ-006 | AC-001 | VER-001 | PRD §12.3 lists the inputs and PRD §20.2 the provenance members; the criterion states the expected acceptance and findings |
+| OUT-001 | SOW-010 OBJ-004 | REQ-010 | AC-002 | VER-002 | Outside source: independently derived connector references from a generator that imports no product code. The tolerance is the governed analytic tolerance |
+| OUT-001 | SOW-010 OBJ-004 | REQ-011 | AC-003 | VER-003 | Outside source: independently derived tied-joint references from a generator that imports no product code; PRD §12.3 for the published rod force |
 | OUT-001 | SOW-010 OBJ-004 | REQ-010 | AC-004 | VER-004 | The criterion states the expected absences and refusals, which follow from the definition of a replaced span |
-| OUT-001 | SOW-010 OBJ-004 | REQ-007 REQ-010 | AC-005 | VER-004 | Owner ruling: PRD §5.5 and `docs/CONTRACT.md` OPS-K-DATA-2 state that nothing is assumed silently; the criterion names the expected refusals |
-| OUT-001 | SOW-010 OBJ-004 | REQ-008 | AC-006 | VER-005 | Owner ruling: `docs/CONTRACT.md` OPS-K-UNIT-1 and OPS-K-DATA-2 state the expected rejection and finding; the reopened joint and the report are compared with what was entered |
-| OUT-001 | SOW-010 OBJ-004 | REQ-012 | AC-007 | VER-006 | Owner ruling for the reference system's content (exit criterion 1); its expected results are the independent references of `validation/references/reference_system` |
-| OUT-001 | SOW-010 OBJ-004 | REQ-013 | AC-008 | VER-007 | Protected-content scan and independent review under `docs/IP_AND_DATA_BOUNDARY.md`; owner ruling PRD §20.1 |
+| OUT-001 | SOW-010 OBJ-004 | REQ-007 REQ-010 | AC-005 | VER-004 | PRD §5.5 and `docs/CONTRACT.md` OPS-K-DATA-2 state that nothing is assumed silently; the criterion names the expected refusals |
+| OUT-001 | SOW-010 OBJ-004 | REQ-008 | AC-006 | VER-005 | `docs/CONTRACT.md` OPS-K-UNIT-1 and OPS-K-DATA-2 state the expected rejection and finding; the reopened joint and the report are compared with what was entered |
+| OUT-001 | SOW-010 OBJ-004 | REQ-012 | AC-007 | VER-006 | Exit criterion 1 fixes the reference system's content; its expected results are the independent references of `validation/references/reference_system` |
+| OUT-001 | SOW-010 OBJ-004 | REQ-013 | AC-008 | VER-007 | Protected-content scan and independent review under `docs/IP_AND_DATA_BOUNDARY.md`; PRD §20.1 |

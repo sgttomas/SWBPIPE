@@ -13,7 +13,7 @@ package_objective_refs: [OBJ-014]
 
 The engineer edits a physical model; the solver solves an analytical one. This deliverable is the contract for getting from the first to the second. The same physical model always gives the same analytical model. Everything in the physical model either appears in the analytical model with a link back to where it came from, or is reported as omitted, unsupported or incomplete by a warning that names it. Nothing is filled in on the way. With the contract, a result can be traced to the design data it came from, and a reader can see what the idealization left out. Without it, the analytical model is an unexplained by-product of whatever code feeds the solver.
 
-It serves SOW-066 under OBJ-014 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-13, row DEL-13-04), and PRD §8.3, FR-MOD-007, §5.2 and §5.5, with §12.1 for the frame target. PKG-13 is outside v1.0 (ruling OD-1, `docs/COMPLETENESS_MAP.md` §4.2), and no exit criterion of `docs/RELEASE_TARGET_v1.0.md` names this deliverable. In the product, FR-MOD-007 is carried by the product solve's derivation of its built model from the model document, which is DEL-04-07's (owner reading, `docs/COMPLETENESS_MAP.md` §2.1).
+It serves SOW-066 under OBJ-014 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-13, row DEL-13-04), and PRD §8.3, FR-MOD-007, §5.2 and §5.5, with §12.1 for the frame target. PKG-13 is outside v1.0, and no exit criterion of `docs/RELEASE_TARGET_v1.0.md` names this deliverable. In the product, FR-MOD-007 is carried by the product solve's derivation of its built model from the model document, which is DEL-04-07's.
 
 - **OUT-001** — The transform contract: the transform, the transform result with its versioned schema, the transform reference format, and the internal solver-boundary adapter.
 
@@ -59,7 +59,7 @@ Requirement numbers 001 to 012 are those of the earlier `DEL-13-04-REQ-nnn` seri
 - **REQ-009** — The contract and its findings claim no certification, sealing, approval, authentication, engineering acceptance or code compliance (PRD §21.2).
 - **REQ-010** — Every solver-facing behaviour of the contract is examined by a deterministic check (`docs/CONTRACT.md` OPS-K-SOLVER-1).
 - **REQ-012** — The solver-boundary adapter accepts only a model of the analytical role. It is internal: it is not a public API, a desktop or runtime path, or an external-prover path, and its output is no statement of solver acceptance.
-- **REQ-013** — This deliverable owns the transform result as a production contract with one authoritative versioned schema, which preserves the physical source identity, the analytical derivation, units, findings and traceability (also cited as DEL-13-04-SCA011-REQ-001, DEL-13-04:1 and DEL-13-04:2).
+- **REQ-013** — This deliverable owns the transform result as a production contract with one authoritative versioned schema, which preserves the physical source identity, the analytical derivation, units, findings and traceability. Where an application service returns the result, it is carried in a result envelope (also cited as DEL-13-04-SCA011-REQ-001, DEL-13-04:1 and DEL-13-04:2).
 
 ### Acceptance criteria
 
@@ -74,7 +74,7 @@ Requirement numbers 001 to 012 are those of the earlier `DEL-13-04-REQ-nnn` seri
 - **AC-009** — No finding, record or schema text of the contract states or implies certification, sealing, approval, authentication, acceptance or code compliance.
 - **AC-010** — The contract's source, reference format and fixtures contain no protected or private content, and every fixture is invented and carries its provenance.
 - **AC-011** — The transform reference format is valid JSON Schema 2020-12 in strict JSON. Every committed document in that format validates against it, and so does every analytical model the transform derives.
-- **AC-012** — The transform result, serialized, validates against this deliverable's one versioned schema and carries the identity of the physical model, the analytical model, the findings and the traceability links.
+- **AC-012** — The transform result, serialized, validates against this deliverable's one versioned schema and carries the identity of the physical model, the analytical model, the findings and the traceability links. Where an application service returns it, it is carried in a result envelope with its outcome kind.
 
 ## Production and Verification Method — Praxeology
 
@@ -91,7 +91,7 @@ Requirement numbers 001 to 012 are those of the earlier `DEL-13-04-REQ-nnn` seri
 - **VER-001** — AC-001, AC-002, AC-003, AC-004, AC-005, AC-006 and AC-007, executable check: observes, for constructed physical models, the transform result across repeated runs, the physical model before and after, the outcome of every source record, each named finding, the carried quantities, and the kinds of record in the analytical model; with the reference format's dimension identifiers compared with those of `schemas/units.schema.yaml`, read from that file.
 - **VER-002** — AC-008, executable check with comparison against named references: observes the adapter's refusals, findings and emitted records for constructed analytical models, and the code paths that reach it; element axes are compared with vector geometry worked without product code, and payload hashes with SHA-256 over the RFC 8785 form computed by an implementation that shares no code with the product.
 - **VER-003** — AC-009 and AC-010, judgment by a reviewer who did not write the contract, with the protected-content scan: examines the finding texts, the reference format and each fixture with its provenance.
-- **VER-004** — AC-011 and AC-012, executable check: observes the reference format, the committed documents, the derived analytical models and the serialized transform result under a JSON Schema 2020-12 validator that imports no product code.
+- **VER-004** — AC-011 and AC-012, executable check: observes the reference format, the committed documents, the derived analytical models and the serialized transform result under a JSON Schema 2020-12 validator that imports no product code, and, where an application service returns the result, the envelope and outcome kind it is carried in.
 
 ## Governing Values and Decisions — Axiology
 
@@ -109,11 +109,11 @@ Requirement numbers 001 to 012 are those of the earlier `DEL-13-04-REQ-nnn` seri
 | OUT-001 | SOW-066 OBJ-014 | REQ-003 | AC-002 | VER-001 | The criterion fixes the expected result: the physical model read back equals the one supplied, and the role and source reference are stated by PRD §5.2 and §8.3 |
 | OUT-001 | SOW-066 OBJ-014 | REQ-002 REQ-004 | AC-003 | VER-001 | The physical models are constructed, so the criterion states the expected outcome of each record; the comparison is against the constructed source, which the product did not write |
 | OUT-001 | SOW-066 OBJ-014 | REQ-002 REQ-006 | AC-004 | VER-001 | The inputs are constructed, so the criterion states the expected finding (SOW-066; PRD §5.5). Which loss classes are final awaits OI-012 |
-| OUT-001 | SOW-066 OBJ-014 | REQ-005 | AC-005 | VER-001 | The unit schema's dimension vocabulary (DEL-02-02; owner ruling DEC-018), read from its file; the quantities are constructed |
+| OUT-001 | SOW-066 OBJ-014 | REQ-005 | AC-005 | VER-001 | The unit schema's dimension vocabulary (DEL-02-02), read from its file; the quantities are constructed |
 | OUT-001 | SOW-066 OBJ-014 | REQ-006 | AC-006 | VER-001 | The criterion states the expected result (PRD §5.5: nothing is defaulted); the comparison is against the constructed physical model |
-| OUT-001 | SOW-066 OBJ-014 | REQ-007 | AC-007 | VER-001 | Owner ruling: PRD §12.1 and `docs/CONTRACT.md` OPS-K-MECH-1 state the frame target. It establishes the model's form, not its suitability |
+| OUT-001 | SOW-066 OBJ-014 | REQ-007 | AC-007 | VER-001 | PRD §12.1 and `docs/CONTRACT.md` OPS-K-MECH-1 state the frame target. It establishes the model's form, not its suitability |
 | OUT-001 | SOW-066 OBJ-014 | REQ-010 REQ-012 | AC-008 | VER-002 | Outside source: vector geometry for element axes and RFC 8785 with SHA-256 for payload hashes, each worked without product code; the refusals are fixed by the criterion on constructed inputs |
-| OUT-001 | SOW-066 OBJ-014 | REQ-009 | AC-009 | VER-003 | Owner ruling: PRD §21.2 lists the prohibited claims; the reviewer compares against it and `docs/claims_registry.md` |
-| OUT-001 | SOW-066 OBJ-014 | REQ-008 | AC-010 | VER-003 | Owner ruling: PRD §20.1 and `docs/IP_AND_DATA_BOUNDARY.md` state what a public artifact may contain; the reviewer compares against sources the product did not write |
+| OUT-001 | SOW-066 OBJ-014 | REQ-009 | AC-009 | VER-003 | PRD §21.2 lists the prohibited claims; the reviewer compares against it and `docs/claims_registry.md` |
+| OUT-001 | SOW-066 OBJ-014 | REQ-008 | AC-010 | VER-003 | PRD §20.1 and `docs/IP_AND_DATA_BOUNDARY.md` state what a public artifact may contain; the reviewer compares against sources the product did not write |
 | OUT-001 | SOW-066 OBJ-014 | REQ-003 REQ-013 | AC-011 | VER-004 | Outside source: the JSON Schema 2020-12 specification, applied by a validator that imports no product code |
 | OUT-001 | SOW-066 OBJ-014 | REQ-013 | AC-012 | VER-004 | Outside source: the JSON Schema 2020-12 specification, applied by a validator that imports no product code, against the schema this deliverable publishes. The schema's fields await the undecided wire form |

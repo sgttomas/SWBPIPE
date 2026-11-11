@@ -37,9 +37,9 @@ It serves SOW-070 under OBJ-015 and OBJ-018 (`execution/_Decomposition/SOFTWARE_
 - The embedded agent's host and its capability catalog are DEL-16-06's. That host applies this control on its surfaces.
 - The registered boundary statements and labels are DEL-01-04's; the automatic status tokens are DEL-02-03's; linting a report for prohibited claims is DEL-08-05's; redaction and export control of private content are DEL-12-02's; the threat model is DEL-12-05's.
 - The report workflow passes no agent rationale to downstream runtime integrations, and no report infers human or professional approval from agent rationale or from an applied agent proposal.
-- Generating route or support candidates is not this deliverable's. Its ownership is unassigned (DEC-094) and the feature is deferred to v0.2 (`docs/COMPLETENESS_MAP.md` §4.2, OD-1).
+- Generating route or support candidates is not this deliverable's. Its ownership is unassigned and the feature is deferred to v0.2.
 
-**Not decided.** The owner staged the scan of agent text for prohibited claims to milestone R7 of PRD §24 (`docs/COMPLETENESS_MAP.md` §4.2, OD-5) and later put the embedded agent into v1.0. Whether the scan of AC-004 must be in place for v1.0's agent, or stays with R7, is the owner's choice. REQ-004 holds either way.
+**Staged.** The scan of agent-authored text for prohibited claims (AC-004) belongs to milestone R7 of PRD §24, and AC-004 applies from that milestone. The embedded agent of v1.0 comes before it. Until then REQ-004 is met on agent surfaces by what the product itself controls: the host's stamps and statuses, the fixed boundary record and the product's own strings (AC-005), and the absence of any agent route to acceptance (AC-003). Until then a prohibited claim the agent writes in its own text is not blocked, and it gains no standing.
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -55,14 +55,12 @@ It serves SOW-070 under OBJ-015 and OBJ-018 (`execution/_Decomposition/SOFTWARE_
 - **REQ-009** — Every path that carries agent rationale (the operation route, the history, persistence and any export) keeps the contract check, provenance, the diagnostics, the private-data and protected-content controls, the hashes and the boundary record.
 - **REQ-010** — The control works in both directions: it preserves legitimate rationale and assumptions unchanged, and it blocks prohibited claims.
 
-REQ-002, REQ-004 and REQ-009 carry commitments DEL-16-04:1 and DEL-16-04:3.
-
 ### Acceptance criteria
 
 - **AC-001** — An agent-authored operation with an empty rationale or without a complete source is refused by name before it is queued; a person's own operation needs neither. A proposal declares its assumptions as records, and one whose assumption has a duplicate identifier or names an operation outside the proposal is refused.
 - **AC-002** — After a person applies an agent proposal, the receipt and the history record show, for each operation, its rationale, the declared assumptions with the operations each affects, the affected entities, the agent attribution and the model basis. None is merged into free text or dropped, and all are equal after save and reopen. A proposal that was rejected or withdrawn, or whose outcome is unknown, keeps them too.
 - **AC-003** — Recording a rationale creates no acceptance record, starts no application and leaves the model hash unchanged. No tool, message or record available to an agent accepts a change on the person's behalf, grants autonomy or records the person's decision; a change is applied only on the person's acceptance or within autonomy the person granted.
-- **AC-004** — On every agent surface, agent-authored text that states a prohibited claim is blocked with a named diagnostic and is not shown or stored as captured rationale. This holds for the rationale, for an assumption and for copied context, and for a status-like token such as an approval or compliance status. Text that uses the same words without claiming authority, such as a reference to an approved document, is not blocked.
+- **AC-004** — On every agent surface, agent-authored text that states a prohibited claim is blocked with a named diagnostic and is not shown or stored as captured rationale. This holds for the rationale, for an assumption and for copied context, and for a status-like token such as an approval or compliance status. Text that uses the same words without claiming authority, such as a reference to an approved document, is not blocked. This criterion applies from milestone R7 of PRD §24.
 - **AC-005** — Every string, label and status the product itself puts on an agent surface is a registered statement of `docs/claims_registry.md` or makes no boundary statement, and none states acceptance of engineering work, approval, certification, sealing, authentication or code compliance. Each operation and outcome carries the boundary record with its fixed values, and one with an altered value is refused.
 - **AC-006** — A missing rationale input, source, attribution or time appears as a visible finding. Unresolved assumptions are counted and shown to the person before Apply. None is dropped or filled with a default.
 - **AC-007** — The report workflow passes no agent rationale to downstream runtime integrations, and no report infers human or professional approval from agent rationale or from an applied agent proposal. An export that carries rationale is treated as private project content under the export controls, and no public fixture, example or test holds anything but invented rationale.
@@ -93,10 +91,10 @@ REQ-002, REQ-004 and REQ-009 carry commitments DEL-16-04:1 and DEL-16-04:3.
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-070 OBJ-015 | REQ-002 | AC-001 | VER-001 | Owner ruling: FR-AGENT-004. The scripted proposals state what each lacks and so what must be refused |
-| OUT-001 | SOW-070 OBJ-015 | REQ-002 REQ-009 | AC-002 | VER-002 | Owner ruling: SOW-070 and FR-AGENT-004. The comparison is with the scripted rationale, assumptions and attribution, which the product did not write |
-| OUT-001 | SOW-070 OBJ-015 OBJ-018 | REQ-003 REQ-006 | AC-003 | VER-001 | Owner ruling: PRD §5.3 and §21.3, and exit criterion 17's rule that the agent records no acceptance |
-| OUT-001 | SOW-070 OBJ-018 | REQ-004 REQ-005 REQ-010 | AC-004 | VER-003 | Owner ruling: PRD §21.2 and `docs/claims_registry.md`. The seeded texts are written from those lists, not from the product's output |
-| OUT-001 | SOW-070 OBJ-018 | REQ-004 REQ-005 REQ-006 | AC-005 | VER-004 | Owner ruling: PRD §21.2 and the registry rulings (DEC-081), read by a reviewer who did not write the surfaces |
-| OUT-001 | SOW-070 OBJ-015 | REQ-007 | AC-006 | VER-002 | Owner ruling: PRD §5.5. The scripted proposals state which input is missing |
-| OUT-001 | SOW-070 OBJ-018 | REQ-008 REQ-009 | AC-007 | VER-004 | Owner ruling: `docs/IP_AND_DATA_BOUNDARY.md` and PRD §19.4, read by a reviewer who did not write the surfaces |
+| OUT-001 | SOW-070 OBJ-015 | REQ-002 | AC-001 | VER-001 | The scripted proposals state what each lacks and so what must be refused |
+| OUT-001 | SOW-070 OBJ-015 | REQ-002 REQ-009 | AC-002 | VER-002 | The comparison is with the scripted rationale, assumptions and attribution, which the product did not write |
+| OUT-001 | SOW-070 OBJ-015 OBJ-018 | REQ-003 REQ-006 | AC-003 | VER-001 | The criterion states the expected result: no acceptance record, no application and an unchanged hash, compared with the hash taken before; the list of tools and messages is read from the host's catalog |
+| OUT-001 | SOW-070 OBJ-018 | REQ-004 REQ-005 REQ-010 | AC-004 | VER-003 | The seeded texts are written from PRD §21.2 and `docs/claims_registry.md`, not from the product's output |
+| OUT-001 | SOW-070 OBJ-018 | REQ-004 REQ-005 REQ-006 | AC-005 | VER-004 | PRD §21.2 and `docs/claims_registry.md`, read by a reviewer who did not write the surfaces |
+| OUT-001 | SOW-070 OBJ-015 | REQ-007 | AC-006 | VER-002 | The scripted proposals state which input is missing |
+| OUT-001 | SOW-070 OBJ-018 | REQ-008 REQ-009 | AC-007 | VER-004 | `docs/IP_AND_DATA_BOUNDARY.md` and PRD §19.4, read by a reviewer who did not write the surfaces |

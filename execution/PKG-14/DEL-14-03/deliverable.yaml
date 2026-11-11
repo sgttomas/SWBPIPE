@@ -16,8 +16,8 @@ needs:
 - from: DEL-14-05
   condition: >-
     The mapping contract defines the mapping hierarchy, the mapping record and the unmatched
-    classifications, and the common comparison-result interface is accepted at a named version
-    with its schema.
+    classifications. For a comparison result's conformance to the common comparison-result
+    interface, that interface is accepted at a named version with its schema.
   gating: true
 - from: DEL-02-02
   condition: >-

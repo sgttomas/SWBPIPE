@@ -4,7 +4,9 @@ needs:
 - from: DEL-00-06
   condition: >-
     A diagnostic carries code, class, severity, source, affected object, message, remediation and
-    provenance, and a boundary's local class has a stated mapping to the six warning classes.
+    provenance; a boundary may declare local classes; and a diagnostic carried across a boundary keeps
+    every field other than its class, which changes only by the receiving boundary's stated mapping
+    where that boundary's schema requires its own class vocabulary.
   gating: true
 - from: DEL-15-01
   condition: >-
@@ -49,7 +51,9 @@ needs:
     saving a handoff package; a local-private-only route is refused in any other context, and a
     local-private export is blocked without the wrapper's stated intent; the native save refuses
     content with a blocked disposition before the save dialog; and a route the caller marks lossless
-    is withheld whole when any value would be redacted, omitted or blocked.
+    is withheld whole when any value would be redacted, omitted or blocked; and in the downstream-tool
+    context private and unresolved values are redacted unless their metadata supports the handoff, and
+    every decision that is not a plain inclusion is returned as a finding beside the controlled payload.
   gating: true
 - from: DEL-14-01
   condition: >-

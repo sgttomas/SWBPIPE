@@ -23,7 +23,7 @@ needs:
 - from: DEL-00-08
   condition: >-
     The test strategy names the test layers and the checks that realise each, and names no CI
-    provider, tool or threshold that an owner ruling has not selected.
+    provider, tool or threshold that the owner has not selected.
   gating: true
 - from: DEL-01-01
   condition: >-

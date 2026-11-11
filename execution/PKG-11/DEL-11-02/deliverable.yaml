@@ -3,8 +3,8 @@ name: Developer guide for solver and rule packs
 needs:
 - from: DEL-00-01
   condition: >-
-    The architecture decision records state the decision in force for each architecture choice,
-    with the owner's ruling. The guide states a choice only as its record does and makes none.
+    The architecture decision records state the decision in force for each architecture choice.
+    The guide states a choice only as its record does and makes none.
   gating: true
 - from: DEL-00-02
   condition: >-

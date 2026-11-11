@@ -32,6 +32,8 @@ It serves SOW-017 under OBJ-004 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 
 **Boundary.** This deliverable defines the document. DEL-03-07 decides whether an imported library is accepted, held for review, quarantined or refused, and gates the local library store. DEL-07-03 owns the editor in which a user authors a library. DEL-02-02 owns units and dimensions. DEL-02-01 owns the model's own material entity, and DEL-05-02 owns how a solve selects or interpolates a material's temperature points. Pipe section, component and hanger libraries are DEL-03-02's. Applying a library record to a model entity, reporting a library reference that no longer resolves and choosing a hanger record are DEL-07-03's. The format carries no engineering value of its own.
 
+**Not decided.** Which public sources are accepted for redistributable material values. Until one is, no example value is drawn from a public source: the example's values are invented or omitted.
+
 ## Completion and Reliance Basis — Epistemology
 
 A document that validates is well formed and complete in the stated members. That says nothing about whether its values are right or lawful to redistribute.
@@ -62,7 +64,7 @@ A document that validates is well formed and complete in the stated members. Tha
 
 **Method choices that define the format.**
 
-- The format is a JSON Schema 2020-12 document that closes every object: a member it does not define is an error (DEC-010).
+- The format is a JSON Schema 2020-12 document that closes every object: a member it does not define is an error.
 - Standing, privacy and value states are closed vocabularies. An unresolved state is itself a named value, never an absent member.
 - Values and provenance travel together: a value's source is on the value, not inferred from its record or library.
 - Public example values are invented or cleared for redistribution; where neither is available the example omits the value and shows the missing-value finding.
@@ -85,10 +87,10 @@ A document that validates is well formed and complete in the stated members. Tha
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-017 OBJ-004 | REQ-001 REQ-003 REQ-004 | AC-001 | VER-001 | Owner ruling: PRD §18.1 and §20.2 list the members; the criterion states the expected acceptance and rejections |
-| OUT-001 | SOW-017 OBJ-004 | REQ-001 | AC-002 | VER-002 | Owner ruling: SOW-017 and PRD §18.1 require properties against temperature; the criterion states the expected pairs |
-| OUT-001 | SOW-017 OBJ-004 | REQ-005 | AC-003 | VER-001 | Owner ruling: PRD §5.5 and `docs/CONTRACT.md` OPS-K-DATA-2 state the expected finding; the diagnostic fields are the decomposition's architecture basis for DEL-00-06 |
-| OUT-001 | SOW-017 OBJ-004 | REQ-002 REQ-008 | AC-004 | VER-003 | Protected-content scan and independent review under `docs/IP_AND_DATA_BOUNDARY.md`; owner ruling PRD §20.1 |
+| OUT-001 | SOW-017 OBJ-004 | REQ-001 REQ-003 REQ-004 | AC-001 | VER-001 | PRD §18.1 and §20.2 list the members; the criterion states the expected acceptance and rejections |
+| OUT-001 | SOW-017 OBJ-004 | REQ-001 | AC-002 | VER-002 | SOW-017 and PRD §18.1 require properties against temperature; the criterion states the expected pairs |
+| OUT-001 | SOW-017 OBJ-004 | REQ-005 | AC-003 | VER-001 | PRD §5.5 and `docs/CONTRACT.md` OPS-K-DATA-2 state the expected finding; the diagnostic fields are the decomposition's architecture basis for DEL-00-06 |
+| OUT-001 | SOW-017 OBJ-004 | REQ-002 REQ-008 | AC-004 | VER-003 | Protected-content scan and independent review under `docs/IP_AND_DATA_BOUNDARY.md`; PRD §20.1 |
 | OUT-001 | SOW-017 OBJ-004 | REQ-009 | AC-005 | VER-004 | A reference this deliverable does not write: the unit catalog's dimension list (DEL-02-02) |
 | OUT-001 | SOW-017 OBJ-004 | REQ-007 | AC-006 | VER-005 | The criterion states the expected result: the saved document itself, in the canonical form an outside standard defines (RFC 8785) |
-| OUT-001 | SOW-017 OBJ-004 | REQ-006 | AC-007 | VER-001 | Owner ruling: PRD §20.2 (unclear or suspicious data is quarantined) and `docs/CONTRACT.md` OPS-K-IP-3 |
+| OUT-001 | SOW-017 OBJ-004 | REQ-006 | AC-007 | VER-001 | PRD §20.2 (unclear or suspicious data is quarantined) and `docs/CONTRACT.md` OPS-K-IP-3 |

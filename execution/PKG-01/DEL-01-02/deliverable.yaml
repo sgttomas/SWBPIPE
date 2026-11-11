@@ -11,9 +11,16 @@ needs:
 - from: external:owner
   condition: >-
     The owner's contributor rules are defined. The contribution review checklist is written from
-    them and is not drafted without them.
+    them.
   when: Writing governance/CONTRIBUTION_REVIEW_CHECKLIST.md
   gating: true
+- from: external:legal-reviewer
+  condition: >-
+    A human or legal reviewer decides suspected protected content held in quarantine and content
+    whose redistribution rights are uncertain. The policy routes such content to that review and
+    draws no legal conclusion of its own; who gives the review is not yet decided.
+  when: Deciding quarantined content or content whose redistribution rights are uncertain
+  gating: false
 code_paths:
 - docs/IP_AND_DATA_BOUNDARY.md
 - governance/CONTRIBUTION_REVIEW_CHECKLIST.md

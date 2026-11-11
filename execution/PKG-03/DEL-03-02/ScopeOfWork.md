@@ -13,7 +13,7 @@ package_objective_refs: [OBJ-004]
 
 This deliverable is the product's definition of three private libraries: pipe sections, components and hangers. Each is a document in which a user holds dimensions, weights, stiffnesses and catalogue data they are entitled to use, with a unit, a source and a redistribution standing on every value. The public project ships the formats and invented examples, and no protected dimensional table, vendor catalogue or rating without documented redistribution rights.
 
-It serves SOW-018 under OBJ-004 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-03, row DEL-03-02), and PRD §18.2 and §18.3 with FR-RULE-006, FR-MOD-005 and the data boundary of §20.1 and §20.2. The hanger library is the user-imported library class of DEC-103, and its working load range is what hanger sizing reads (PRD §12.4). No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names this deliverable; it reaches exit criterion 1's hanger sizing through DEL-04-11.
+It serves SOW-018 under OBJ-004 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-03, row DEL-03-02), and PRD §18.2 and §18.3 with FR-RULE-006, FR-MOD-005 and the data boundary of §20.1 and §20.2. The hanger library is a user-imported library class, and its working load range is what hanger sizing reads (PRD §12.4). No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names this deliverable; it reaches exit criterion 1's hanger sizing through DEL-04-11.
 
 - **OUT-001** — The pipe section and component library document formats, `schemas/section.schema.yaml` and `schemas/component.schema.yaml`, with invented example libraries.
 - **OUT-002** — The hanger library document format, `schemas/hanger.schema.yaml`, in versions 1.0.0 and 1.1.0, with invented example libraries.
@@ -30,6 +30,8 @@ It serves SOW-018 under OBJ-004 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 
 **Boundary.** These formats define documents. DEL-03-07 decides whether an imported library is accepted and applies the rules the formats leave to the import boundary, among them the refusal of a working load range in a 1.0.0 document and of a range whose ends differ in unit or whose minimum is not below its maximum. DEL-04-11 owns what the working load range means in sizing. DEL-03-03 to DEL-03-06 own what each component family means in a model and a solve. DEL-03-08 calculates section properties. DEL-07-03 owns the library editors and DEL-07-09 the palette coverage of them. No catalogue is bundled.
 
+**Not decided.** Which public sources are accepted for redistributable section and component values. Until one is, no example value is drawn from a public source: the examples' values are invented or omitted.
+
 ## Completion and Reliance Basis — Epistemology
 
 A document that validates is well formed. That establishes neither the correctness of its values nor the right to redistribute them, and a hanger record that validates is not thereby ready to solve or to size.
@@ -43,11 +45,11 @@ A document that validates is well formed. That establishes neither the correctne
 - **REQ-005** — Every value that an engineer may rely on carries provenance, with its source and its licence or redistribution status (`docs/CONTRACT.md` OPS-K-DATA-3, OPS-K-IP-2).
 - **REQ-006** — Every dimensional, weight, mass, centre-of-gravity, stiffness and property field carries a unit and a dimension (`docs/CONTRACT.md` OPS-K-UNIT-1).
 - **REQ-007** — Content suspected of being protected can be recorded as such and held, in the redistribution, value and review vocabularies and by a diagnostic; it is never accepted as public content, which DEL-03-07 decides (`docs/CONTRACT.md` OPS-K-IP-3; PRD §20.2).
-- **REQ-008** — Each format is a closed JSON Schema 2020-12 document: a member it does not define is an error (DEC-010).
+- **REQ-008** — Each format is a closed JSON Schema 2020-12 document: a member it does not define is an error.
 - **REQ-009** — A library document is versioned and schema-governed, and survives storage unchanged, units and provenance included (the decomposition's architecture basis for DEL-00-04).
 - **REQ-011** — A diagnostic for an invalid, incomplete, private, unknown-source or suspected-protected record carries code, class, severity, source, affected object, message, remediation and provenance (the decomposition's architecture basis for DEL-00-06).
 - **REQ-012** — The formats' vocabularies agree with the model: every dimension is a dimension of the unit catalog, and every concrete component family the formats admit is a component kind the model document admits; a type that names no family (other, or undecided) is not a model kind.
-- **REQ-014** — The hanger format admits versions 1.0.0 and 1.1.0. A record may carry a working load range, and no other new member, which the format admits under either version. A 1.0.0 document without it remains valid unchanged and needs no migration (DEC-103; PRD §12.4).
+- **REQ-014** — The hanger format admits versions 1.0.0 and 1.1.0. A record may carry a working load range, and no other new member, which the format admits under either version. A 1.0.0 document without it remains valid unchanged and needs no migration (PRD §12.4).
 
 ### Acceptance criteria
 
@@ -87,10 +89,10 @@ A document that validates is well formed. That establishes neither the correctne
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-018 OBJ-004 | REQ-001 REQ-002 REQ-005 REQ-006 REQ-008 | AC-001 | VER-001 | Owner ruling: PRD §18.2, §18.3 and §20.2 list the members; the criterion states the expected acceptance and rejections |
-| OUT-002 | SOW-018 OBJ-004 | REQ-004 REQ-014 | AC-002 | VER-002 | Owner ruling: DEC-103 and PRD §12.4 for the format and its range; the 1.0.0 verdicts are the format's own earlier output, which only guards against change |
-| OUT-001 | SOW-018 OBJ-004 | REQ-004 REQ-011 | AC-003 | VER-001 | Owner ruling: PRD §5.5 and `docs/CONTRACT.md` OPS-K-DATA-2; the diagnostic members are the decomposition's architecture basis for DEL-00-06 |
-| OUT-001 | SOW-018 OBJ-004 | REQ-003 | AC-004 | VER-003 | Protected-content scan and independent review under `docs/IP_AND_DATA_BOUNDARY.md`; owner ruling PRD §18.2 and §20.1, and for hanger examples the release target's hanger ruling (invented example records only) |
+| OUT-001 | SOW-018 OBJ-004 | REQ-001 REQ-002 REQ-005 REQ-006 REQ-008 | AC-001 | VER-001 | PRD §18.2, §18.3 and §20.2 list the members; the criterion states the expected acceptance and rejections |
+| OUT-002 | SOW-018 OBJ-004 | REQ-004 REQ-014 | AC-002 | VER-002 | PRD §12.4 for the format and its range; the 1.0.0 verdicts are the format's own earlier output, which only guards against change |
+| OUT-001 | SOW-018 OBJ-004 | REQ-004 REQ-011 | AC-003 | VER-001 | PRD §5.5 and `docs/CONTRACT.md` OPS-K-DATA-2; the diagnostic members are the decomposition's architecture basis for DEL-00-06 |
+| OUT-001 | SOW-018 OBJ-004 | REQ-003 | AC-004 | VER-003 | Protected-content scan and independent review under `docs/IP_AND_DATA_BOUNDARY.md`; PRD §18.2 and §20.1, and for hanger examples the release target's hanger scope (invented example records only) |
 | OUT-001 | SOW-018 OBJ-004 | REQ-012 | AC-005 | VER-004 | References this deliverable does not write: the unit catalog (DEL-02-02) and the model document's component kinds (DEL-02-01) |
 | OUT-001 | SOW-018 OBJ-004 | REQ-009 | AC-006 | VER-005 | The criterion states the expected result: the saved document itself, in the canonical form an outside standard defines (RFC 8785) |
-| OUT-001 | SOW-018 OBJ-004 | REQ-007 | AC-007 | VER-001 | Owner ruling: PRD §20.2 and `docs/CONTRACT.md` OPS-K-IP-3 |
+| OUT-001 | SOW-018 OBJ-004 | REQ-007 | AC-007 | VER-001 | PRD §20.2 and `docs/CONTRACT.md` OPS-K-IP-3 |

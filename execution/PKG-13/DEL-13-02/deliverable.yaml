@@ -15,7 +15,7 @@ needs:
   condition: >-
     The diagnostic contract fixes the fields a diagnostic record carries (code, class, severity,
     source, affected object, message, remediation, provenance), names the six warning classes,
-    and permits a local class only with a stated mapping to them.
+    and lets a boundary declare its own local classes where its schema needs them.
   gating: true
 - from: DEL-01-02
   condition: >-

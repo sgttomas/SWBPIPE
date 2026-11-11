@@ -40,7 +40,7 @@ It serves SOW-069 under OBJ-015 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - The model document's rules and its validator are DEL-02-01's; the unit catalog and dimension checks are DEL-02-02's; the model hash is DEL-08-02's; the diagnostic record is DEL-00-06's.
 - What a valid value means for a change kind belongs to the deliverable that owns the records it changes. This deliverable runs those rules and reports their findings.
 
-**Deferred.** Validation against design constraints (connectivity, route, clearance, support zone, slope) is DEL-13-03's engine. It is deferred to v0.2 with design knowledge (`docs/COMPLETENESS_MAP.md` §4.2, OD-3). REQ-003 applies from the release in which those constraints exist; until then the constraints an operation meets are the model document's rules.
+**Deferred.** Validation against design constraints (connectivity, route, clearance, support zone, slope) is DEL-13-03's engine. It is deferred to v0.2 with design knowledge. REQ-003 applies from the release in which those constraints exist; until then the constraints an operation meets are the model document's rules.
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -52,13 +52,11 @@ It serves SOW-069 under OBJ-015 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - **REQ-004** — A valid operation or batch yields a deterministic preview of what it would change, before application (SOW-069; PRD §10.3).
 - **REQ-005** — An invalid operation is blocked before application and the model is unchanged (decomposition row DEL-16-02).
 - **REQ-006** — Outcomes are structured diagnostics in DEL-00-06's record, and none states certification, sealing, approval, authentication or code compliance (PRD §21.2).
-- **REQ-007** — Validation is one service that every caller reaches the same way. No GUI module, adapter, plugin or agent route validates by rules of its own or goes round it (decomposition §8; DEC-020).
+- **REQ-007** — Validation is one service that every caller reaches the same way. No GUI module, adapter, plugin or agent route validates by rules of its own or goes round it (decomposition §8).
 - **REQ-009** — An operation or batch written against another model state is refused: its claimed model hash must be the hash of the model it is evaluated on, and a before value must equal the current value.
 - **REQ-010** — A unit-bearing value is checked for a known unit and for the dimension of its target field. Nothing is converted or defaulted silently (PRD §5.5, §5.6).
 - **REQ-011** — A target, and every record an operation names, must exist in the model or be created earlier in the same batch.
 - **REQ-012** — A validate-only run gives the answer an apply would give: the same refusal, or a preview of exactly the changes the apply makes.
-
-REQ-002, REQ-003, REQ-005 and REQ-009 to REQ-011 carry commitment DEL-16-02:1.
 
 ### Acceptance criteria
 
@@ -70,13 +68,13 @@ REQ-002, REQ-003, REQ-005 and REQ-009 to REQ-011 carry commitment DEL-16-02:1.
 - **AC-006** — A unit-bearing value with a missing unit, an unknown unit or a unit of another dimension than its target field is refused by name. No stored or previewed value differs from the entered one by a conversion the author did not ask for.
 - **AC-007** — An operation that names a record absent from the model and not created earlier in its batch is refused by name with the missing reference.
 - **AC-008** — Every diagnostic carries the fields of DEL-00-06's record, and no diagnostic, state or outcome value states or implies certification, sealing, approval, authentication, acceptance of engineering work or code compliance.
-- **AC-009** — A single edit in the desktop, a batch in review, a proposal from the embedded agent and a proposal from offline intake all validate through the same engine entry. No other module holds validation rules for operations.
+- **AC-009** — A single edit in the desktop, a batch in review, a proposal from the embedded agent and a proposal from offline intake all validate through the same engine entry. No product route validates an operation by rules held in any other module, or reaches application without that entry.
 
 ## Production and Verification Method — Praxeology
 
 **Method choices that define the validation.**
 
-- One engine. Validation runs in the operation engine that applies, in its native build and its web build, and no second implementation of the rules exists (DEC-020).
+- One engine. Validation runs in the operation engine that applies, in its native build and its web build, and no product route uses a second implementation of the rules. A separate implementation kept for reference, which no product route calls, is not such a route.
 - The preview is made from the candidate document. A validate-only run builds the document an apply would publish, has the one document validator judge it, and reads the preview from it.
 - Refuse and name. A failed check is a blocking diagnostic that names the record and the rule; validation supplies no value and repairs nothing.
 - Layered tests on public examples. Validation is examined by layered tests, and every refusal on a public, invented example (decomposition AB-00-08; PRD §5.4).
@@ -88,7 +86,7 @@ REQ-002, REQ-003, REQ-005 and REQ-009 to REQ-011 carry commitment DEL-16-02:1.
 - **VER-003** — AC-003, comparison between runs and between the native and the web build of the engine: the outcomes and preview rows of the same invented operations, in canonical form.
 - **VER-004** — AC-004, comparison with a structural difference of the model document before and after apply, computed by a differ that imports no engine code: the preview rows against that difference, and the refusal of a validate-only run against the refusal of the apply.
 - **VER-005** — AC-008, executable check with judgment by a named role (a reviewer who did not write the diagnostics): validates each emitted diagnostic against DEL-00-06's record, and reads the codes, messages and state values against the prohibited claims of PRD §21.2.
-- **VER-006** — AC-009, executable check: observes, for each caller, the engine entry its validation reaches, and searches the other modules for operation validation rules.
+- **VER-006** — AC-009, executable check: observes, for each caller, the engine entry its validation reaches, and searches the modules any product route reaches for operation validation rules outside the engine.
 
 ## Governing Values and Decisions — Axiology
 
@@ -100,12 +98,12 @@ REQ-002, REQ-003, REQ-005 and REQ-009 to REQ-011 carry commitment DEL-16-02:1.
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-069 OBJ-015 | REQ-001 REQ-002 REQ-003 REQ-005 | AC-001 | VER-001 | Owner ruling: SOW-069 and FR-AGENT-002. Each invented operation states the check it must fail. The engine's recorded outcomes for the same operations are its own earlier output and only guard against change |
+| OUT-001 | SOW-069 OBJ-015 | REQ-001 REQ-002 REQ-003 REQ-005 | AC-001 | VER-001 | Each invented operation states the check it must fail. The engine's recorded outcomes for the same operations are its own earlier output and only guard against change |
 | OUT-002 | SOW-069 OBJ-015 | REQ-005 | AC-002 | VER-002 | The criterion states the expected result: the same bytes and hash, and no document or acceptance in the outcome. The comparison is with a copy taken before the run |
-| OUT-001 | SOW-069 OBJ-015 | REQ-004 | AC-003 | VER-003 | Owner ruling: SOW-069 requires a deterministic preview and DEC-020 one engine in two builds. The comparison is between runs and between builds |
+| OUT-001 | SOW-069 OBJ-015 | REQ-004 | AC-003 | VER-003 | The comparison is between runs and between the native and the web build. Agreement shows determinism and build parity, not a correct preview, which AC-004 examines |
 | OUT-001 | SOW-069 OBJ-015 | REQ-004 REQ-012 | AC-004 | VER-004 | An outside reference: a structural difference of the two documents by a differ that imports no engine code |
 | OUT-001 | SOW-069 OBJ-015 | REQ-009 | AC-005 | VER-001 | The stale cases state what must be refused. The model hash they are built from is DEL-08-02's, reproduced by an RFC 8785 and SHA-256 implementation that shares no code with the product |
-| OUT-001 | SOW-069 OBJ-015 | REQ-010 | AC-006 | VER-001 | Owner ruling: PRD §5.5 and §5.6. Unit and dimension membership comes from the unit catalog, which DEL-02-02 owns |
+| OUT-001 | SOW-069 OBJ-015 | REQ-010 | AC-006 | VER-001 | Each invented operation states the unit or dimension that must be refused. Unit and dimension membership comes from the unit catalog, which DEL-02-02 owns |
 | OUT-001 | SOW-069 OBJ-015 | REQ-011 | AC-007 | VER-001 | The criterion states the expected result; the invented operations name records that do not exist |
-| OUT-001 | SOW-069 OBJ-015 | REQ-006 | AC-008 | VER-005 | Owner ruling: PRD §21.2 lists the prohibited claims; the record's fields are DEL-00-06's |
-| OUT-001 | SOW-069 OBJ-015 | REQ-007 | AC-009 | VER-006 | Owner ruling: DEC-020 names the one engine |
+| OUT-001 | SOW-069 OBJ-015 | REQ-006 | AC-008 | VER-005 | The record's fields are DEL-00-06's; the prohibited claims are those PRD §21.2 lists, read by a reviewer who did not write the diagnostics |
+| OUT-001 | SOW-069 OBJ-015 | REQ-007 | AC-009 | VER-006 | Each caller's route is traced to the engine entry it reaches; a module no product route reaches is outside the search |

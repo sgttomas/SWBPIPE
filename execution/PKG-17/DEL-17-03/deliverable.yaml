@@ -12,6 +12,11 @@ needs:
     The model document has a schema, one current version and a validator, and every addressable
     record has an identifier that other records name.
   gating: true
+- from: DEL-00-04
+  condition: >-
+    A hashed JSON payload is hashed as SHA-256 over its RFC 8785 canonical form, and each hash
+    record names its payload.
+  gating: false
 - from: DEL-12-02
   when: A package is written to a file
   condition: >-

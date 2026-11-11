@@ -10,8 +10,8 @@ needs:
 - from: DEL-00-06
   condition: >-
     The diagnostic contract fixes the fields a diagnostic record carries (code, class, severity,
-    source, affected object, message, remediation, provenance) and the warning classes to which a
-    local class is mapped.
+    source, affected object, message, remediation, provenance) and the six warning classes, and a
+    boundary may declare local classes of its own.
   gating: true
 - from: DEL-00-07
   condition: >-
@@ -28,9 +28,11 @@ needs:
   condition: >-
     Persistence transmits nothing and opens no network connection; the project store is opened at
     the location the desktop's placement gives; a recovery record is written in the application's
-    autosave folder and a backup copy in the folder the user chose; and a persisted rule-pack
-    reference says whether the pack is private or public, keeps its version, checksum, source note
-    and redistribution status, and returns from a round trip as saved.
+    autosave folder and a backup copy in the folder the user chose; a project returns from a save
+    and open as saved; a store whose own schema is older is migrated forward and one that is newer
+    is refused before any write; and a persisted rule-pack reference says whether the pack is
+    private or public, keeps its version, checksum, source note and redistribution status, and
+    returns from a round trip as saved.
   gating: true
 - from: DEL-12-05
   condition: >-

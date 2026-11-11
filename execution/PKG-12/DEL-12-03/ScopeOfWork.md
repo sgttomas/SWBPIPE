@@ -100,10 +100,10 @@ The deliverable is adequate when no configuration, action or module of the produ
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-037 OBJ-010 | REQ-001 REQ-003 REQ-004 REQ-006 | AC-001 | VER-001 | Owner ruling: PRD §20.3 and §20.5, `docs/CONTRACT.md` OPS-K-PRIV-2 and decomposition OI-008; a reviewer who did not write the policy compares it with them |
+| OUT-001 | SOW-037 OBJ-010 | REQ-001 REQ-003 REQ-004 REQ-006 | AC-001 | VER-001 | PRD §20.3 and §20.5, `docs/CONTRACT.md` OPS-K-PRIV-2 and decomposition OI-008; a reviewer who did not write the policy compares it with them |
 | OUT-002 | SOW-037 OBJ-010 | REQ-001 REQ-005 | AC-002 | VER-002 | This scope's definitions of configuration resolution, opt-in and the event allowlist say what each configuration must resolve to and whose approval counts; the expected states are written from them, not taken from the guard |
 | OUT-002 | SOW-037 OBJ-010 | REQ-003 | AC-003 | VER-002 | This scope's definitions of the allowlist and the decision say what each invented attempt must receive |
-| OUT-002 | SOW-037 OBJ-010 | REQ-004 | AC-004 | VER-002 | Owner ruling: the forbidden content of PRD §20.3 and §20.5 and `docs/CONTRACT.md` OPS-K-PRIV-2 |
+| OUT-002 | SOW-037 OBJ-010 | REQ-004 | AC-004 | VER-002 | The forbidden content of PRD §20.3 and §20.5 and `docs/CONTRACT.md` OPS-K-PRIV-2 |
 | OUT-002 | SOW-037 OBJ-010 | REQ-002 REQ-010 | AC-005 | VER-003 | The scenario says nothing may start; connections, jobs and files are observed from outside the product |
 | OUT-003 | SOW-037 OBJ-010 | REQ-005 REQ-006 | AC-006 | VER-003 | PRD §20.5 requires opt-in and this scope lists the acts that are not opt-in; the state after each act is observed |
 | OUT-002 | SOW-037 OBJ-010 | REQ-007 REQ-008 | AC-007 | VER-004 | DEL-00-06's diagnostic contract fixes the fields; PRD §21.2 lists the prohibited claims; the sentinel values are known to the check and must be absent |

@@ -48,7 +48,7 @@ It serves SOW-030, SOW-074 and SOW-075 under OBJ-009, OBJ-017 and OBJ-018 (`exec
 **Boundary.** This deliverable owns the writer, the importer, their engine, the native export and import commands, and the round-trip check.
 
 - The export and import dialogs and the Exports panel are DEL-07-12's GUI code on this deliverable's engine and commands.
-- Reading CAEPIPE analysis results, running CAEPIPE, and the private exchange folder are DEL-17-05's. The importer reads model input only; ingestion of commercial-tool results stays deferred (decision DEC-016).
+- Reading CAEPIPE analysis results, running CAEPIPE, and the private exchange folder are DEL-17-05's. The importer reads model input only; ingestion of commercial-tool results stays deferred.
 - The package, profile, identity-map and loss-report definitions are DEL-17-02's; the admitted sources and open questions are DEL-17-01's.
 - The reference system fixture is DEL-09-01's. The model document, its validator and the open path are DEL-02-01's. The governed save route and the screening of what is saved are DEL-12-02's. The capped worker and the memory budget the desktop runs engine work under are DEL-07-07's and DEL-04-07's.
 - A family with no MBF record is a candidate release limitation under exit criterion 3, which only the owner accepts.
@@ -56,7 +56,7 @@ It serves SOW-030, SOW-074 and SOW-075 under OBJ-009, OBJ-017 and OBJ-018 (`exec
 
 **Not decided.**
 
-- The first supported target version and record-family subset (REQ-001, REQ-002; DEL-17-01 `TBD-17-01-001` and `TBD-17-01-002`). The profile writes MBF version 15.10 and a declared subset as a bounded pilot selection; whether that selection closes the two questions has not been ruled.
+- The first supported target version and record-family subset (REQ-001, REQ-002; DEL-17-01 `TBD-17-01-001` and `TBD-17-01-002`). The profile writes MBF version 15.10 and a declared subset as a bounded pilot selection. That selection governs the pilot only; the two questions stay open until they close under DEL-17-01's closure rule.
 - `TBD-17-04-005`: how the gravitational direction field is encoded and what both gravity fields default to. A present value is refused, and the writer does not write the field.
 - `TBD-17-04-006`: the text encoding, foot and inch mark characters and numeric precision of CAEPIPE's own MBF export. The importer reads strict UTF-8 and the marks the public pages show, and no bound is widened for export precision.
 - `TBD-17-04-007`: whether the layout comment `L=` is the documented load reference and which case a force or moment without `FLC` joins. Bound imports apply the writer's conventions. Unbound imports refuse both, except that a retained bounded profile decision admits both for the MBF version the writer emits, 15.10.
@@ -65,13 +65,14 @@ It serves SOW-030, SOW-074 and SOW-075 under OBJ-009, OBJ-017 and OBJ-018 (`exec
 - `TBD-17-04-010`: the unit of the rotational stiffnesses `ROTK` and `KR`, and three further support-record meanings the public pages leave open. These records are refused; a zero `ROTK` is read; the writer writes no rotational spring.
 - The solve-equality threshold of the round trip (AC-008) is provisional and is not derived from the printed precision.
 - An English-unit writer. An English import cannot be written back by the SI writer; whether iteration in English units is served by a writer extension or by documented normalization to SI is not selected.
+- The authored invented MBF cases on which the importer is examined, each stating the construct it exercises and the importer outcome expected. DEL-17-05 runs them, and no deliverable currently commits to providing them.
 
 ## Completion and Reliance Basis — Epistemology
 
 ### Requirements
 
-- **REQ-001** — The MBF profile declares its target version basis as undecided until an admitted source or a recorded profile decision selects it.
-- **REQ-002** — The first MBF record-family subset stays undecided until source evidence or an approved clarification closes it.
+- **REQ-001** — The MBF profile declares its target version basis as undecided until `TBD-17-01-001` closes under DEL-17-01's closure rule.
+- **REQ-002** — The first MBF record-family subset stays undecided until `TBD-17-01-002` closes under DEL-17-01's closure rule.
 - **REQ-003** — The writer approximates no physical or analytical model entity silently.
 - **REQ-004** — Every export has a loss report covering omitted, approximated, delegated, unsupported and undecided behaviour.
 - **REQ-005** — Canonical identifiers are not claimed to be carried inside the MBF; they are mapped in the identity file.
@@ -94,7 +95,7 @@ It serves SOW-030, SOW-074 and SOW-075 under OBJ-009, OBJ-017 and OBJ-018 (`exec
 
 ### Acceptance criteria
 
-- **AC-001** — For each invented model of the writer's test set, the writer either refuses with a named code and location, or returns the MBF, the identity file and a loss report in which every model member and field that holds a value is written, or listed as omitted with its entity, and nothing is approximated. The same model and settings give byte-identical output. Every canonical identifier of the model is in the identity file or in a loss entry.
+- **AC-001** — For each invented model of the writer's test set, the writer either refuses with a named code and location, or returns the MBF, the identity file and a loss report in which every model member and field that holds a value is written, or listed with its entity as omitted or as approximated with the approximation described; nothing is approximated without its entry. The same model and settings give byte-identical output. Every canonical identifier of the model is in the identity file or in a loss entry.
 - **AC-002** — Every item of the declared subset is read, and each has a source citation or is named as a selected interpretation. Every named refusal blocks with its code, location and effect, every loss entry and pass-through option is reported, and no option changes any SWBPIPE rule or check outcome. An unbound import of a record that depends on an open question is refused with the code naming that question; the one exception is the pair of records the retained profile decision admits (`TBD-17-04-007`). A CAEPIPE result file is refused.
 - **AC-003** — The desktop saves a model in the writer's subset as an MBF with its identity file through the native chooser, after showing the writer's loss report, and imports the pair back bound with the identity set unchanged. On an invented coverage fixture, C6-1 to C6-7 hold as applicable, every Must family is marked covered or carries its named refusal, every combination the reference system holds is likewise marked covered or carries its named refusal, though combinations are outside exit criterion 6's families, and each named refusal still occurs. Exit criterion 6 is met only when the reference system passes C6-1 to C6-6 through the actual desktop build with no Must family omitted or unsupported in the loss report.
 - **AC-004** — An export package built on the package contract validates against its schema and uses sidecar identity mapping. It blocks, with a diagnostic naming the cause, on each of: a missing subset input, identity map or loss report; a blank or weakened target-version basis, record-subset basis or carried open question; a source-basis reference set that omits a required source or names DEL-17-03; wording of a compatibility, validation, code-compliance or professional-acceptance claim in model or profile metadata; and unsupported behaviour that has no loss entry, a malformed reference or severity `info`. Unsupported behaviour with an explicit entry is a warning unless the entry marks it blocking.
@@ -142,13 +143,13 @@ It serves SOW-030, SOW-074 and SOW-075 under OBJ-009, OBJ-017 and OBJ-018 (`exec
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-003 REQ-004 REQ-005 REQ-007 | AC-001 | VER-001 VER-011 | Owner ruling: `docs/PRD.md` FR-HAND-004 and the common contract; the comparison is against the invented model's own members and identifiers. Parity with the Python reference is the product's own earlier output and guards against change only |
+| OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-003 REQ-004 REQ-005 REQ-007 | AC-001 | VER-001 VER-011 | `docs/PRD.md` FR-HAND-004 and the common contract; the comparison is against the invented model's own members and identifiers. Parity with the Python reference is the product's own earlier output and guards against change only |
 | OUT-002 | SOW-030 SOW-075 OBJ-009 OBJ-017 OBJ-018 | REQ-006 REQ-012 REQ-013 REQ-015 | AC-002 | VER-002 VER-011 | Outside source: the vendor's public manual pages admitted in the DEL-17-01 register, read by a reviewer who did not write the importer; the invented MBF text states what must be read and refused |
-| OUT-003 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-003 REQ-004 REQ-016 REQ-018 | AC-003 | VER-003 | Owner ruling: exit criterion 6 and its family list; the expected identities and model are the fixture's and the reference system's own, which the engine did not write |
-| OUT-001 | SOW-074 SOW-075 OBJ-017 OBJ-018 | REQ-001 REQ-002 REQ-008 REQ-009 REQ-010 REQ-011 REQ-021 | AC-004 | VER-004 | Owner ruling: the decomposition gates target claims on the DEL-17-01 register, and `docs/PRD.md` §21.2 names the claims no package may state, found by the DEL-15-04 screen; the seeded faults state what must block |
+| OUT-003 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-003 REQ-004 REQ-016 REQ-018 | AC-003 | VER-003 | Exit criterion 6 and its family list; the expected identities and model are the fixture's and the reference system's own, which the engine did not write |
+| OUT-001 | SOW-074 SOW-075 OBJ-017 OBJ-018 | REQ-001 REQ-002 REQ-008 REQ-009 REQ-010 REQ-011 REQ-021 | AC-004 | VER-004 | The DEL-17-01 register is the reference for the required sources and open questions, and `docs/PRD.md` §21.2 names the claims no package may state, found by the DEL-15-04 screen; the seeded faults state what must block |
 | OUT-002 | SOW-030 OBJ-009 | REQ-014 | AC-005 | VER-005 | Outside source: the public definitions of the units (the international inch and foot, standard gravity for kilogram-force), evaluated without importer code |
 | OUT-002 | SOW-074 OBJ-017 | REQ-016 | AC-006 | VER-006 | The identities compared are those of the invented model that was written, which the importer did not write |
 | OUT-002 | SOW-030 OBJ-009 | REQ-017 | AC-007 | VER-007 | Outside source: the model document schema, DEL-02-01's; byte equality of repeated imports guards against change only |
 | OUT-002 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-018 | AC-008 | VER-008 | Outside source: the authored invented model is the expected result, and each bound is a closed form of the ten-digit printed precision and binary64 rounding. The solve-equality threshold is provisional. Agreement of the two solves shows the models are solved alike, not that either result is correct |
-| OUT-002 | SOW-075 OBJ-018 | REQ-007 REQ-019 REQ-020 | AC-009 | VER-009 | Owner ruling: `docs/IP_AND_DATA_BOUNDARY.md` (interoperate openly, evaluate privately) and `docs/PRD.md` §20.2; the invented exchange folder states what must stay private |
-| OUT-003 | SOW-030 SOW-075 OBJ-009 OBJ-018 | REQ-017 REQ-019 | AC-010 | VER-010 | Owner ruling: `docs/PRD.md` §5.3 and §20.3 and the export controls of DEL-12-02; the seeded changes and cancellations state what must be refused or left unchanged |
+| OUT-002 | SOW-075 OBJ-018 | REQ-007 REQ-019 REQ-020 | AC-009 | VER-009 | `docs/IP_AND_DATA_BOUNDARY.md` (interoperate openly, evaluate privately) and `docs/PRD.md` §20.2; the invented exchange folder states what must stay private |
+| OUT-003 | SOW-030 SOW-075 OBJ-009 OBJ-018 | REQ-017 REQ-019 | AC-010 | VER-010 | `docs/PRD.md` §5.3 and §20.3 and the export controls of DEL-12-02; the seeded changes and cancellations state what must be refused or left unchanged |

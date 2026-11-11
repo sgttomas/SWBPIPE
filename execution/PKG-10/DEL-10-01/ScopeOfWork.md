@@ -113,12 +113,12 @@ Requirement numbers 001 to 014 are those of the earlier `DEL-10-01-REQ-nn` serie
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-030 OBJ-009 | REQ-001 | AC-001 | VER-001 | Outside source: the JSON Schema 2020-12 meta-schema decides validity. The pass and refuse cases are defined by this scope |
-| OUT-001 | SOW-030 OBJ-009 | REQ-002 REQ-004 REQ-016 REQ-017 | AC-002 | VER-002 | Owner ruling: the seven families of the PRD clause SOW-030 cites, which the current PRD does not carry; decomposition AB-00-03 for the request kinds. The check counts the registry against them |
-| OUT-001 | SOW-030 OBJ-009 | REQ-003 | AC-003 | VER-002 VER-004 | Owner ruling: decomposition AB-00-02, AB-00-04 and AB-00-07 say what must hold; a reviewer who did not write the contract reads it against them |
-| OUT-001 | SOW-030 OBJ-009 | REQ-010 REQ-011 | AC-004 | VER-002 | Owner ruling: PRD §4.3 and §21.2 list what software may and may not say. The field, outcome-kind and status sets are DEL-00-06's and DEL-02-03's, not this contract's |
-| OUT-001 | SOW-030 OBJ-009 | REQ-005 REQ-007 REQ-008 REQ-009 | AC-005 | VER-002 | Owner ruling: PRD §18.4 lists the import warnings and §20.2 the provenance members of a public data record and the quarantine of suspect data |
-| OUT-001 | SOW-030 OBJ-009 | REQ-012 | AC-006 | VER-002 | Owner ruling: decomposition AB-00-07 and PRD §20.4 and §20.5 |
-| OUT-001 | SOW-030 OBJ-009 | REQ-013 | AC-007 | VER-002 VER-004 | Owner ruling: the not-decided list of this scope is the list of choices no ruling has made |
+| OUT-001 | SOW-030 OBJ-009 | REQ-002 REQ-004 REQ-016 REQ-017 | AC-002 | VER-002 | The seven families of the PRD clause SOW-030 cites, which the current PRD does not carry, and decomposition AB-00-03 for the request kinds. The check counts the registry against them |
+| OUT-001 | SOW-030 OBJ-009 | REQ-003 | AC-003 | VER-002 VER-004 | Decomposition AB-00-02, AB-00-04 and AB-00-07 say what must hold; a reviewer who did not write the contract reads it against them |
+| OUT-001 | SOW-030 OBJ-009 | REQ-010 REQ-011 | AC-004 | VER-002 | PRD §4.3 and §21.2 list what software may and may not say. The field, outcome-kind and status sets are DEL-00-06's and DEL-02-03's, not this contract's |
+| OUT-001 | SOW-030 OBJ-009 | REQ-005 REQ-007 REQ-008 REQ-009 | AC-005 | VER-002 | PRD §18.4 lists the import warnings and §20.2 the provenance members of a public data record and the quarantine of suspect data |
+| OUT-001 | SOW-030 OBJ-009 | REQ-012 | AC-006 | VER-002 | Decomposition AB-00-07 and PRD §20.4 and §20.5 say what is denied by default; the check reads each permission and default against them |
+| OUT-001 | SOW-030 OBJ-009 | REQ-013 | AC-007 | VER-002 VER-004 | The not-decided list of this scope names the choices not yet made; the check and the reviewer compare the contract with it |
 | OUT-001 | SOW-030 OBJ-009 | REQ-014 | AC-008 | VER-003 | Outside source: RFC 8785 and SHA-256, computed by an implementation that imports no product code |
-| OUT-001 | SOW-030 OBJ-009 | REQ-006 REQ-011 | AC-009 | VER-004 | Owner ruling: PRD §20.1 and §21.2 list the prohibited content and claims; the reviewer compares |
+| OUT-001 | SOW-030 OBJ-009 | REQ-006 REQ-011 | AC-009 | VER-004 | PRD §20.1 and §21.2 list the prohibited content and claims; the reviewer compares |
 | OUT-001 | SOW-030 OBJ-009 | REQ-001 REQ-013 | AC-010 | VER-004 | The contract says what the document may state; the comparison is made by a reviewer who wrote neither |

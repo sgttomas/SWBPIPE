@@ -16,7 +16,7 @@ needs:
 - from: DEL-00-06
   condition: >-
     The diagnostic contract fixes the fields a finding carries and the six warning classes, and
-    permits a local class only with a stated mapping to one of the six.
+    lets a boundary declare local classes of its own.
   gating: true
 - from: DEL-00-07
   condition: >-
@@ -33,8 +33,7 @@ needs:
     Each report output (render and preview, HTML save, print, package save and user-released
     package save) leaves the desktop by its governed route, and a blocked report is rendered only
     with its blocking reasons and is not saved, printed or packaged. A user release is recorded in
-    that one report and its package and nowhere else, bound to the model hash and result identity,
-    and stated in the report's notice.
+    that one report and its package and nowhere else.
   gating: true
 - from: DEL-03-07
   condition: >-

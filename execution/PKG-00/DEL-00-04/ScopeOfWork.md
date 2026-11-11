@@ -89,9 +89,9 @@ It serves SOW-059 under OBJ-013 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-059 OBJ-013 | REQ-001 | AC-001 | VER-001 | The criterion states the expected result: two saves of one state are byte-identical. It needs no reference |
-| OUT-001 | SOW-059 OBJ-013 | REQ-002 | AC-002 | VER-002 | Owner ruling: one current version, every other refused by name and nothing migrated |
+| OUT-001 | SOW-059 OBJ-013 | REQ-002 | AC-002 | VER-002 | The criterion states the expected result: for an older, a newer, a missing and a malformed version, a refusal that names the version and its status; the comparison is the document's bytes before and after the attempt |
 | OUT-001 | SOW-059 OBJ-013 | REQ-003 | AC-003 | VER-003 | Outside source: RFC 8785 and its test vectors, and SHA-256 (FIPS 180-4), computed without product code |
-| OUT-001 | SOW-059 OBJ-013 | REQ-004 | AC-004 | VER-001 | Owner ruling: `docs/PRD.md` FR-MOD-001 states what must survive; the comparison is the authored input against the reopened document |
-| OUT-001 | SOW-059 OBJ-013 | REQ-005 | AC-005 | VER-004 | Owner ruling: `docs/PRD.md` §5.4 and `docs/IP_AND_DATA_BOUNDARY.md`; protected-content scan and reviewer |
-| OUT-001 | SOW-059 OBJ-013 | REQ-006 | AC-006 | VER-004 | Owner ruling: decomposition AB-00-04 states the profile; the deletion and offline scenarios state what must happen |
-| OUT-001 | SOW-059 OBJ-013 | REQ-007 | AC-007 | VER-005 | Owner ruling: additive changes raise the minor version (decomposition DEC-033, DEC-038); the comparison is each schema's change against its declared version |
+| OUT-001 | SOW-059 OBJ-013 | REQ-004 | AC-004 | VER-001 | `docs/PRD.md` FR-MOD-001 states what must survive; the comparison is the authored input against the reopened document |
+| OUT-001 | SOW-059 OBJ-013 | REQ-005 | AC-005 | VER-004 | `docs/PRD.md` §5.4 and `docs/IP_AND_DATA_BOUNDARY.md` say what is private or protected; the protected-content scan and the reviewer's reading of the public schemas, fixtures and examples against them |
+| OUT-001 | SOW-059 OBJ-013 | REQ-006 | AC-006 | VER-004 | Decomposition AB-00-04 states the profile; the deletion and offline scenarios state what must happen |
+| OUT-001 | SOW-059 OBJ-013 | REQ-007 | AC-007 | VER-005 | The criterion states the rule; the comparison is each schema's change against its declared version, and the reviewer judges a change the check cannot classify |

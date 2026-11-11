@@ -14,7 +14,9 @@ needs:
 - from: DEL-00-06
   condition: >-
     A diagnostic carries code, class, severity, source, affected object, message, remediation and
-    provenance, and a boundary's local class has a stated mapping to the six warning classes.
+    provenance; a boundary may declare local classes; and a diagnostic carried across a boundary keeps
+    every field other than its class, which changes only by the receiving boundary's stated mapping
+    where that boundary's schema requires its own class vocabulary.
   gating: true
 - from: DEL-08-02
   condition: >-

@@ -38,7 +38,7 @@ It serves SOW-033 under OBJ-001 and OBJ-011 (`execution/_Decomposition/SOFTWARE_
 - the validation manual and the reproduction guide: DEL-09-04;
 - the behaviour the guide describes: the deliverable that owns it. Where the guide and the product differ, the guide is the one to correct.
 
-**Not decided.** A guide for a platform other than macOS. The owner takes up Windows after v1.0.
+**Not decided.** A guide for a platform other than macOS. Windows is taken up after v1.0.
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -61,7 +61,7 @@ REQ-001 to REQ-010 keep the numbers of the earlier `UG-REQ` series.
 - **REQ-011** — The guide has an analysis entry for every required analysis (exit criterion 13).
 - **REQ-012** — The guide states, in the release target's words, that SWBPIPE does not determine code compliance, and that establishing it is the user's act, outside this software (exit criterion 13; PRD §24, V1).
 - **REQ-013** — An instruction names each control by its visible label and gives the keyboard route where the desktop has one. The desktop's accessibility baseline is DEL-07-06's.
-- **REQ-014** — The string "CAEPIPE" appears nowhere in the guide. The guide describes the export only as the export of a `.mbf` model batch file (DEC-103).
+- **REQ-014** — The string "CAEPIPE" appears nowhere in the guide. The guide describes the export only as the export of a `.mbf` model batch file, as the product does.
 
 ### Acceptance criteria
 
@@ -103,12 +103,12 @@ REQ-001 to REQ-010 keep the numbers of the earlier `UG-REQ` series.
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-033 OBJ-001 | REQ-001 | AC-001 | VER-001 | Owner ruling: the section list is this deliverable's accepted commitment under SOW-033. The check reads the guide against the list |
-| OUT-001 | SOW-033 OBJ-001 | REQ-011 | AC-002 | VER-001 | Owner ruling: exit criterion 1 lists the analyses and exit criterion 13 lists what is covered for each. The list is read from the release target, not from the guide |
+| OUT-001 | SOW-033 OBJ-001 | REQ-001 | AC-001 | VER-001 | The section list is REQ-001's, from SOW-033 and the decomposition row. The check reads the guide against the list |
+| OUT-001 | SOW-033 OBJ-001 | REQ-011 | AC-002 | VER-001 | Exit criterion 1 lists the analyses and exit criterion 13 lists what is covered for each. The list is read from the release target, not from the guide |
 | OUT-001 | SOW-033 OBJ-001 | REQ-002 REQ-003 REQ-010 | AC-003 | VER-002 | The guide says what must happen at each step; the comparison is with what the application does on the invented reference system, which the guide did not write, observed by a reviewer who did not write the guide |
-| OUT-001 | SOW-033 OBJ-011 | REQ-004 REQ-012 | AC-004 | VER-001 VER-004 | Owner ruling: exit criterion 13 requires the statement and PRD §21.2 lists the prohibited claims |
+| OUT-001 | SOW-033 OBJ-011 | REQ-004 REQ-012 | AC-004 | VER-001 VER-004 | Exit criterion 13 requires the statement and PRD §21.2 lists the prohibited claims. The check finds the statement; the reviewer reads every passage against the §21.2 list |
 | OUT-001 | SOW-033 OBJ-011 | REQ-009 | AC-005 | VER-003 | Outside source: the tokens are read from `docs/TYPES.md` §4, the claims registry and the product's diagnostic vocabulary, none of which the guide writes |
-| OUT-001 | SOW-033 OBJ-001 | REQ-005 REQ-008 | AC-006 | VER-004 | Owner ruling: PRD §20.1 lists what the public repository may not contain; the classes are DEL-01-02's policy |
-| OUT-001 | SOW-033 OBJ-011 | REQ-006 REQ-007 | AC-007 | VER-004 | Owner ruling: PRD §19.2 lists the report content and `docs/RELEASE_LIMITATIONS_v1.0.md` is the list the owner accepts under exit criterion 3 |
+| OUT-001 | SOW-033 OBJ-001 | REQ-005 REQ-008 | AC-006 | VER-004 | PRD §20.1 lists what the public repository may not contain and DEL-01-02's policy states the classes. The reviewer reads the guide's text and examples against them |
+| OUT-001 | SOW-033 OBJ-011 | REQ-006 REQ-007 | AC-007 | VER-004 | PRD §19.2 lists the report content and `docs/RELEASE_LIMITATIONS_v1.0.md` is the release limitations list of exit criterion 3. The reviewer reads the guide's report and limitation content against both |
 | OUT-001 | SOW-033 OBJ-001 | REQ-013 | AC-008 | VER-002 | The labels and keyboard routes are the desktop's, read from the application by a reviewer who did not write the guide |
-| OUT-001 | SOW-033 OBJ-011 | REQ-014 | AC-009 | VER-005 | Owner ruling: DEC-103 keeps the name out of the product and the user guide and describes the export only as that of a `.mbf` model batch file. The string scanned for is fixed by the ruling, not by the guide |
+| OUT-001 | SOW-033 OBJ-011 | REQ-014 | AC-009 | VER-005 | The string scanned for and the required description of the `.mbf` export are fixed by REQ-014, not by the guide. The check reads the guide's text against them |

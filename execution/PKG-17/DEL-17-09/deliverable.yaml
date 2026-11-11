@@ -14,21 +14,20 @@ needs:
   gating: true
 - from: DEL-02-04
   condition: >-
-    The plugin and extension contract refuses a manifest that turns off a no-bypass control, and
-    no code path in the product loads or runs a plugin.
+    The plugin and extension contract names the no-bypass controls and refuses a manifest that
+    turns off any of them.
   gating: true
 - from: DEL-10-01
   condition: >-
-    In the public API boundary every permission is denied by default, no permission can be in a
-    granted state, how a grant is given and persists is recorded as undecided, and neither the
-    contract nor its document names a transport, an endpoint, a runtime, a loader or a granted
-    permission.
+    In the public API boundary every permission is denied by default, and the permissions, their
+    grant states and how a grant is given and persists are stated there, recorded as undecided
+    until they are selected.
   gating: true
 - from: DEL-10-02
   condition: >-
-    The adapter framework's dispatch gate dispatches no adapter: an accepted declaration returns a
-    blocked outcome naming the unselected execution model, and the gate takes no argument through
-    which code could run.
+    The adapter framework's dispatch gate is the one place a declaration could become a running
+    adapter, and it dispatches no adapter until an execution model, a plugin runtime and the
+    capability grants are selected and stated in that deliverable's scope.
   gating: true
 - from: DEL-12-02
   when: A registry is written to a file

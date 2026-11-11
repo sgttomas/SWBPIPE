@@ -102,5 +102,5 @@ An applied user load is a statement about the user's input. Its correctness is e
 | OUT-001 | SOW-052 OBJ-003 | REQ-008 | AC-003 | VER-001 | Outside source: fixed-end actions of a point force on a fixed-fixed beam |
 | OUT-001 | SOW-052 OBJ-012 | REQ-003 REQ-006 | AC-004 | VER-002 | The criterion states the expected finding for each defect; PRD §5.5 and §5.6 say that none is defaulted |
 | OUT-001 | SOW-052 OBJ-012 | REQ-005 REQ-006 | AC-005 | VER-002 | The criterion states the expected fields; repeated runs compare the product with its own earlier output and only guard against change |
-| OUT-001 | SOW-052 SOW-013 OBJ-003 | REQ-002 | AC-006 | VER-003 | Owner ruling: PRD §20.1 and §21.2 list what must not appear; the reviewer compares the files with them |
+| OUT-001 | SOW-052 SOW-013 OBJ-003 | REQ-002 | AC-006 | VER-003 | PRD §20.1 and §21.2 list what must not appear; the reviewer compares the files with them |
 | OUT-001 | SOW-013 OBJ-003 | REQ-010 | AC-007 | VER-004 | Outside source: superposition of the closed forms in `tp_phys_009_combined_load_axial_effects.md` |

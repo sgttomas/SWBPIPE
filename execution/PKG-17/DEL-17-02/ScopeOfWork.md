@@ -45,7 +45,7 @@ It serves SOW-030 and SOW-074 under OBJ-009 and OBJ-017 (`execution/_Decompositi
 - Each target's schema, writer, fixtures and field layout belong to its deliverable: DEL-17-03 (native JSON), DEL-17-04 (CAEPIPE MBF), DEL-17-05 (external-run records), DEL-17-06 (stress-neutral), DEL-17-07 (PCF), DEL-17-08 (review geometry), DEL-17-09 (adapter targets).
 - Which target facts are admitted is DEL-17-01's. The canonical identifiers are the model document's (DEL-02-01). The hash basis and the one-current-version rule for persisted documents are DEL-00-04's. The provenance record and the data boundary are DEL-01-02's. The diagnostic record is DEL-00-06's.
 - The handoff package and its manifest are DEL-15-01's, and target mapping records are DEL-15-02's. An export operation offered through the API uses the envelopes of DEL-00-03 and DEL-10-01; this contract defines no envelope, transport or endpoint.
-- This deliverable owns the export-unit contract and no code that applies it (owner decisions DEC-074, item O3, and DEC-076). The desktop helper that forms a unit disclosure for every export panel is shared desktop code under DEL-07-12. The refusal of an export whose project unit is missing, and the exact conversions an export performs, are DEL-02-02's.
+- This deliverable owns the export-unit contract and no code that applies it. The desktop helper that forms a unit disclosure for every export panel is shared desktop code under DEL-07-12. The refusal of an export whose project unit is missing, and the exact conversions an export performs, are DEL-02-02's.
 
 **Not decided.** Whether a CAEPIPE MBF field can carry a canonical identifier directly (DEL-17-01 `TBD-17-01-003`). Until it is, MBF identity is sidecar-only.
 
@@ -163,12 +163,12 @@ It serves SOW-030 and SOW-074 under OBJ-009 and OBJ-017 (`execution/_Decompositi
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-010 REQ-011 REQ-012 REQ-013 REQ-040 REQ-041 REQ-043 REQ-050 | AC-001 | VER-001 | Owner ruling: `docs/PRD.md` §16.1 and decision DEC-028 name the package's contents; the comparison is against the files on disk and an invented model |
-| OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-001 REQ-002 REQ-004 REQ-005 REQ-020 REQ-021 REQ-022 REQ-023 REQ-025 REQ-026 REQ-042 REQ-092 | AC-002 | VER-002 | Owner ruling: the decomposition gates target claims on the DEL-17-01 register; the seeded faults state what must be refused |
-| OUT-001 | SOW-074 OBJ-017 | REQ-003 REQ-030 REQ-031 REQ-033 REQ-034 REQ-035 REQ-036 REQ-037 | AC-003 | VER-001 VER-002 | Owner ruling: `docs/PRD.md` FR-HAND-002 and FR-HAND-003; the identifiers compared are the invented model's own, which no exporter wrote |
-| OUT-001 | SOW-074 OBJ-017 | REQ-050 REQ-051 REQ-052 REQ-053 REQ-054 REQ-055 REQ-056 | AC-004 | VER-002 | Owner ruling: `docs/PRD.md` FR-HAND-004; the seeded unsupported entity states what must be reported |
+| OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-010 REQ-011 REQ-012 REQ-013 REQ-040 REQ-041 REQ-043 REQ-050 | AC-001 | VER-001 | `docs/PRD.md` §16.1 and decomposition decision DEC-028 name the package's contents; the comparison is against the files on disk and an invented model |
+| OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-001 REQ-002 REQ-004 REQ-005 REQ-020 REQ-021 REQ-022 REQ-023 REQ-025 REQ-026 REQ-042 REQ-092 | AC-002 | VER-002 | The DEL-17-01 register is the reference for each cited source ID and open question; the seeded faults state what must be refused |
+| OUT-001 | SOW-074 OBJ-017 | REQ-003 REQ-030 REQ-031 REQ-033 REQ-034 REQ-035 REQ-036 REQ-037 | AC-003 | VER-001 VER-002 | `docs/PRD.md` FR-HAND-002 and FR-HAND-003; the identifiers compared are the invented model's own, which no exporter wrote |
+| OUT-001 | SOW-074 OBJ-017 | REQ-050 REQ-051 REQ-052 REQ-053 REQ-054 REQ-055 REQ-056 | AC-004 | VER-002 | `docs/PRD.md` FR-HAND-004; the seeded unsupported entity states what must be reported |
 | OUT-001 | SOW-074 OBJ-017 | REQ-014 REQ-032 | AC-005 | VER-003 | The product's own earlier output, which guards against change only; determinism is the property examined |
 | OUT-001 | SOW-074 OBJ-017 | REQ-007 REQ-013 | AC-006 | VER-004 | Outside source: RFC 8785 and SHA-256, through a canonicalizer that imports no product code |
 | OUT-001 | SOW-030 OBJ-009 | REQ-006 REQ-008 | AC-007 | VER-005 | Outside source: the JSON Schema 2020-12 meta-schema; the vocabularies are this scope's definitions |
-| OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-024 REQ-090 REQ-091 REQ-093 REQ-094 | AC-008 | VER-006 | Owner ruling: `docs/IP_AND_DATA_BOUNDARY.md` and `docs/PRD.md` §21.2; the scan's markers are synthetic |
-| OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-021 REQ-060 | AC-009 | VER-007 | Owner ruling: decisions DEC-074 (O3) and DEC-076 place the export-unit contract here; the comparison is against the invented model and the file written, neither of which the disclosure wrote |
+| OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-024 REQ-090 REQ-091 REQ-093 REQ-094 | AC-008 | VER-006 | `docs/IP_AND_DATA_BOUNDARY.md` and `docs/PRD.md` §21.2 state what is excluded. The scan's markers are synthetic, so the scan finds only the kinds of content it is seeded with; the reviewer's judgment covers the rest |
+| OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-021 REQ-060 | AC-009 | VER-007 | The comparison is against the invented model and the file written, neither of which the disclosure wrote |

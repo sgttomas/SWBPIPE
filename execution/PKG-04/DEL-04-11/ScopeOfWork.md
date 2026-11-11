@@ -13,7 +13,7 @@ package_objective_refs: [OBJ-003]
 
 This deliverable sizes variable spring hangers and constant-effort supports from the user's own imported hanger catalogue and produces a hanger table. An engineer names the supports to size and the cases to size them for, and gets, for each, the catalogue record that meets the engineer's own load, travel and variation tests, or a statement that none does. It works from a weight case solved with the hanger locations rigid and from operating cases solved with the hangers replaced by their loads. Every method choice comes from the user. Sized values are reported as results with their basis, and the model changes only when the person applies a selection.
 
-It serves SOW-083 under OBJ-003 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-04, row DEL-04-11), and PRD §12.4. In `docs/RELEASE_TARGET_v1.0.md` it is the owning deliverable for hanger sizing. It contributes exit criterion 1 (the reference system's hangers sized on the exact route in the desktop) and criterion 2 (closed-form references frozen in `validation/references/` with an independent generator), with its refusals listed under criterion 3 and its table exported to CSV under criterion 5. The owner's ruling fixes what is required: size hangers from the user's private catalogue, with invented example records only in the repository, and produce a hanger table.
+It serves SOW-083 under OBJ-003 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-04, row DEL-04-11), and PRD §12.4. In `docs/RELEASE_TARGET_v1.0.md` it is the owning deliverable for hanger sizing. It contributes exit criterion 1 (the reference system's hangers sized on the exact route in the desktop) and criterion 2 (closed-form references frozen in `validation/references/` with an independent generator), with its refusals listed under criterion 3 and its table exported to CSV under criterion 5. The required capability is to size hangers from the user's private catalogue, with invented example records only in the repository, and to produce a hanger table.
 
 - **OUT-001** — The sizing request and its candidates (REQ-001, REQ-002).
 - **OUT-002** — The derived solves, with the treatment of nonlinear supports (REQ-003).
@@ -68,7 +68,7 @@ A sizing result is a numerical statement about the discrete model under the user
 
 **Undecided.**
 
-- Whether the current analysis-run version admits a hanger-sizing kind is not decided (DEL-14-02).
+- Whether a sizing run is recorded as an analysis run is not decided, and no deliverable currently commits to a hanger-sizing analysis-run kind (DEL-14-02 leaves the question open).
 - Whether the report's privacy rules for library references cover the hanger section's library-derived values is not confirmed with DEL-08-01.
 
 ### Request
@@ -95,7 +95,7 @@ A sizing result is a numerical statement about the discrete model under the user
   - A candidate restrains exactly one translational DOF, has no skew direction, is not nonlinear, a snubber or an anchor, shares its node and DOF with no other support, and is referenced by no other model object.
   - Its present family and hanger data are not read.
   - On an EX load/reference-state document, it has in every named case an ordinary support state: active, with no imposed motion or device reference. That entry is the support's own declaration, not a blocking reference.
-  - Its force acts along the positive axis of its DOF (DEC-049's convention).
+  - Its force acts along the positive axis of its DOF.
   - Each failure is refused by name, and refuses the request. A hot-load basis that is not positive also refuses the request, naming every such candidate.
 - **AC-002** — Each candidate refusal, the moved-candidate refusal on EX and the non-positive hot-load refusal are exercised by maintained tests that assert the code and the named supports. A placeholder support of each admitted family is sized.
 
@@ -176,7 +176,7 @@ A sizing result is a numerical statement about the discrete model under the user
 
     It also states the installation assumption, that each spring is set at the drawn geometry. The table labels the installed setting separately from the cold-condition load.
   - **Document.** Results are published as a closed hanger-sizing result document. It embeds the sizing request, binds the solve request and library by hash, and has two statuses: `sized`, meaning the algorithm completed (never acceptance, and always with each outcome and the verification standing), and `refused`.
-  - **Recording.** A sizing run is recordable as a hanger-sizing analysis-run kind.
+  - **Recording.** Until a hanger-sizing analysis-run kind is decided and provided (see Undecided), a sizing result is not a recordable run; the request it embeds is its record.
   - **Readers.** A Rust product reader and a test-only Python verifier that shares no code with the producer. Each establishes the document's closure, its binding to the inputs supplied, and arithmetic consistent with the published positions. The Rust reader alone can establish reproduction from the bound inputs. No reader states that the published positions are the model's mechanics without reproducing them.
   - **CSV.** The table exports to CSV through DEL-08-04's serializer.
 - **AC-007** — Maintained tests show:
@@ -300,17 +300,17 @@ A sizing result is a numerical statement about the discrete model under the user
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | OBJ-003 SOW-083 | REQ-001 | AC-001 | VER-001 | Owner ruling: the refusal list in REQ-001 (SOW-083; PRD §5.5 and §12.4) |
-| OUT-001 | OBJ-003 SOW-083 | REQ-002 | AC-002 | VER-001 | Owner ruling: the refusal list in REQ-002 (SOW-083; PRD §12.4) |
+| OUT-001 | OBJ-003 SOW-083 | REQ-001 | AC-001 | VER-001 | The criterion states the expected refusals, those REQ-001 lists, and the absence of defaults (PRD §5.5, §12.4) |
+| OUT-001 | OBJ-003 SOW-083 | REQ-002 | AC-002 | VER-001 | The criterion states the expected refusals, those REQ-002 lists |
 | OUT-002 | OBJ-003 SOW-083 | REQ-003 CLM-001 | AC-003 | VER-002 | The criterion states the expected derived documents and refusals. The stored model's byte identity after a run compares the product with its own earlier bytes and only guards against change |
 | OUT-003 | OBJ-003 SOW-083 | REQ-004 | AC-004 | VER-003 | Outside source: the frozen closed-form references in `validation/references/hanger_sizing` (continuous-beam reactions by three moments, free riser growth, the sizing arithmetic as exact identities), from generators that import no product code; the mutation outcomes follow the rules REQ-004 states. Repeat-run identity only guards against change |
 | OUT-003 | OBJ-003 SOW-083 | REQ-005 | AC-005 | VER-003 | Outside source: the one-spring closed form and the mixed and lift-off references in `validation/references/hanger_sizing`, from generators that import no product code |
 | OUT-004 | OBJ-003 SOW-083 | REQ-006 | AC-006 | VER-004 | The criterion states the expected listing; the range's shape is DEL-03-02's |
 | OUT-004 | OBJ-003 SOW-083 | REQ-007 | AC-007 | VER-005 | Outside source: a Python verifier that shares no producer code. Existing readers' handling of the document and the committed documents are the product's own earlier output and only guard against change |
-| OUT-004 | OBJ-003 SOW-083 | REQ-008 | AC-008 | VER-006 | The criterion states the batch's expected before and after; that the model changes only by the person's act is an owner ruling (SOW-083) |
-| OUT-005 | OBJ-003 SOW-083 | REQ-009 CLM-002 CLM-003 | AC-009 | VER-007 | Owner ruling: the refusals REQ-009 names and release target exit criteria 1 and 3 |
-| OUT-005 | OBJ-003 SOW-083 | REQ-010 | AC-010 | VER-008 | Outside source: the frozen reference packages, derived without reading product code, from generators that import none (release target exit criterion 2); the tolerance is an owner ruling (DEC-026) |
-| OUT-005 | OBJ-003 SOW-083 | REQ-011 | AC-011 | VER-009 | The criterion states the expected solve count and behaviour; the memory budget is an owner ruling |
-| OUT-005 | OBJ-003 SOW-083 | REQ-012 | AC-012 | VER-006 | Owner ruling: PRD §5.5 for the absence of a pre-set choice; the criterion states the expected behaviour of the surfaces |
-| OUT-005 | OBJ-003 SOW-083 | REQ-013 | AC-013 | VER-010 | Owner ruling: PRD §21.2 and `docs/claims_registry.md` |
+| OUT-004 | OBJ-003 SOW-083 | REQ-008 | AC-008 | VER-006 | The criterion states the batch's expected before and after; the criterion also states that nothing is applied without the person's acceptance |
+| OUT-005 | OBJ-003 SOW-083 | REQ-009 CLM-002 CLM-003 | AC-009 | VER-007 | The criterion states the expected refusals, those REQ-009 names; each standing refusal is compared with its entry in `docs/RELEASE_LIMITATIONS_v1.0.md` |
+| OUT-005 | OBJ-003 SOW-083 | REQ-010 | AC-010 | VER-008 | Outside source: the frozen reference packages, derived without reading product code, from generators that import none (release target exit criterion 2), at REQ-010's stated tolerance |
+| OUT-005 | OBJ-003 SOW-083 | REQ-011 | AC-011 | VER-009 | The criterion states the expected solve count and behaviour; the worker's measured peak footprint is compared with the per-invocation budget (DEL-04-07/REQ-008) |
+| OUT-005 | OBJ-003 SOW-083 | REQ-012 | AC-012 | VER-006 | The criterion states the expected behaviour of the surfaces, with no pre-set choice in a new project (PRD §5.5) |
+| OUT-005 | OBJ-003 SOW-083 | REQ-013 | AC-013 | VER-010 | Judgment of the texts against PRD §21.2 and `docs/claims_registry.md` |
 | OUT-006 | OBJ-003 SOW-083 | REQ-014 | AC-014 | VER-011 | Outside source: the closed-form preload reference (force plus spring) in `validation/references/hanger_sizing`, from a generator that imports no product code. Agreement with the force-plus-spring derived solve is the product's own output and only guards against change |

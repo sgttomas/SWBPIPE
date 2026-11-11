@@ -16,9 +16,9 @@ needs:
   gating: true
 - from: DEL-01-02
   condition: >-
-    The boundary policy defines the handling of suspected protected content (mark it, quarantine
-    it and hold it from use while unresolved) and treats an unknown redistribution status as not
-    acceptable for public use.
+    The boundary policy defines the handling of suspected protected content (stop its use, mark
+    it, quarantine it, request human or legal review and hold it from use while unresolved) and
+    treats an unknown redistribution status as not acceptable for public use.
   gating: true
 - from: DEL-02-05
   condition: >-

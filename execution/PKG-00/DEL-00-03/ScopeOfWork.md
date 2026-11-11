@@ -87,8 +87,8 @@ AC-002, AC-003 and AC-004 carry commitment DEL-00-03:1.
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-058 SOW-062 OBJ-013 | REQ-001 | AC-001 | VER-001 | Owner ruling: decomposition AB-00-03; the criterion states the expected result, an unchanged hash and store |
-| OUT-001 | SOW-058 OBJ-013 | REQ-002 | AC-002 | VER-002 | Owner ruling: decomposition AB-00-03 and AB-00-06; the forced failures state what must be returned |
-| OUT-001 | SOW-058 SOW-062 OBJ-013 | REQ-003 | AC-003 | VER-002 | Owner ruling: decomposition AB-00-03 and `docs/PRD.md` §5.3; the comparison is the model and store before the failed operation |
-| OUT-001 | SOW-058 OBJ-013 | REQ-004 | AC-004 | VER-003 | Owner ruling: decomposition AB-00-03 and `docs/PRD.md` §5.7 name the metadata; the cancel scenario states what must happen |
-| OUT-001 | SOW-058 OBJ-013 | REQ-005 | AC-005 | VER-004 | Owner ruling: `docs/PRD.md` §5.9, §21.2 and §21.3 and `docs/claims_registry.md` |
+| OUT-001 | SOW-058 SOW-062 OBJ-013 | REQ-001 | AC-001 | VER-001 | Decomposition AB-00-03; the criterion states the expected result, an unchanged hash and store |
+| OUT-001 | SOW-058 OBJ-013 | REQ-002 | AC-002 | VER-002 | Decomposition AB-00-03 and AB-00-06; the forced failures state what must be returned |
+| OUT-001 | SOW-058 SOW-062 OBJ-013 | REQ-003 | AC-003 | VER-002 | Decomposition AB-00-03 and `docs/PRD.md` §5.3; the comparison is the model and store before the failed operation |
+| OUT-001 | SOW-058 OBJ-013 | REQ-004 | AC-004 | VER-003 | Decomposition AB-00-03 and `docs/PRD.md` §5.7 name the metadata; the cancel scenario states what must happen |
+| OUT-001 | SOW-058 OBJ-013 | REQ-005 | AC-005 | VER-004 | `docs/PRD.md` §5.9, §21.2 and §21.3 and `docs/claims_registry.md` say what may not be claimed; the comparison is the envelope and status vocabularies against them |

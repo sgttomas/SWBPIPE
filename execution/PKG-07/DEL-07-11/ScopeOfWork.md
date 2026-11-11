@@ -46,7 +46,7 @@ It serves SOW-078 under OBJ-006, OBJ-010 and OBJ-015 (`execution/_Decomposition/
 - the accessibility target and presentation conventions: DEL-07-06;
 - the command, query and job rules and the GUI state rule: DEL-00-03 and DEL-00-05.
 
-**Not decided.** What the native host's security configuration is: the webview's content policy and the set of native commands the webview may call. No scope states it.
+**Not decided.** What the native host's security configuration is: the webview's content policy and the set of native commands the webview may call. No scope states it. No deliverable currently commits the project store to refusing by name a write that would replace a stored revision the session did not open or confirm, which REQ-006's save in place relies on. No deliverable currently commits the product build's configuration to leaving out the scripted-run build's features; REQ-010 states that outcome and AC-008 scans for it.
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -60,7 +60,7 @@ It serves SOW-078 under OBJ-006, OBJ-010 and OBJ-015 (`execution/_Decomposition/
 - **REQ-006** — *No silent loss or replacement.* Every replacing command, and closing the window, with unsaved edits opens one modal prompt that offers to save and continue, to discard and continue, or to cancel. Cancel is the default, holds focus, and is what Escape does. A save in place proceeds without a prompt only where the stored project is still the revision this session last opened or saved; otherwise the user is asked before anything is replaced.
 - **REQ-007** — *No implicit model.* The desktop opens no model the user did not choose. The bundled invented example opens only on request and is labelled as invented. A command that needs a model and has none is refused by name.
 - **REQ-008** — *Response integrity.* A response that does not answer the request the session last made (superseded, failed, or carrying a model other than the one sent) is refused by name and leaves the session as it was.
-- **REQ-009** — *Suggested file names.* Every suggested name has the form `swbpipe-<kind>[-<qualifier>].<ext>`: lower-case ASCII tokens joined by single hyphens, with a stem matching `^swbpipe(-[a-z0-9]+)+$`. The kind is a fixed word for each export. The qualifier is the case, filter, run or state the export covers, reduced to the same alphabet, or its stable key where that reduces to nothing. No suggested name contains a project name, a project or model identifier, or a path. A name already taken is resolved by the native dialog. A native command that writes a file checks that the name it was given a suggestion for began with its kind's prefix.
+- **REQ-009** — *Suggested file names.* Every suggested name follows one convention: a fixed word for each kind of export and, where the export covers a case, filter, run or state, a qualifier naming it, or its stable key where the name reduces to nothing, in lower-case ASCII letters and digits joined by single hyphens, with the file's extension. No suggested name contains a project name, a project or model identifier, or a path. A name already taken is resolved by the native dialog.
 - **REQ-010** — *Scripted run.* The desktop can be driven through a scripted run in the scripted-run build. No product build contains the substitution or the instrumentation.
 
 ### Acceptance criteria
@@ -71,7 +71,7 @@ It serves SOW-078 under OBJ-006, OBJ-010 and OBJ-015 (`execution/_Decomposition/
 - **AC-004** — Focus passes between panels in the stated order, every shell command can be reached and run by keyboard, and the shell's own controls meet DEL-07-06's target.
 - **AC-005** — For a file of each refused kind: the named refusal is given and the session is unchanged. For a valid file: the working model's canonical form equals the file's, and the model hash a solve reports equals the SHA-256 of that canonical form computed apart from the product.
 - **AC-006** — With unsaved edits, every replacing command and window close opens the prompt with Cancel focused; Cancel and Escape leave the model, the store and the window as they were; and a save in place prompts exactly when the stored revision is not the one the session last opened or saved.
-- **AC-007** — The suggested name of every export in the desktop matches the stem pattern with its kind's word and extension, and none contains the open project's name, its identifier, the model's identifier or a path.
+- **AC-007** — The suggested name of every export in the desktop follows the convention with its kind's word and extension, and none contains the open project's name, its identifier, the model's identifier or a path.
 - **AC-008** — A scripted run completes in the scripted-run build through the substituted chooser and menus, and a product build contains none of the substitution or instrumentation.
 - **AC-009** — At start no model is open until the user chooses one; the bundled example opens only from its command and is labelled as invented; and each command that needs a model, run with none open, is refused by its name and changes nothing.
 
@@ -87,7 +87,7 @@ It serves SOW-078 under OBJ-006, OBJ-010 and OBJ-015 (`execution/_Decomposition/
 - **VER-004** — Executable check (observes focus, keyboard input and the accessibility tree of the shell): walks focus between panels, runs each shell command by keyboard, and compares the shell's controls with DEL-07-06's target.
 - **VER-005** — Comparison with a named reference (RFC 8785 canonical form and SHA-256, computed apart from the product): opens a file of each refused kind and a valid file, reads the refusal or the adopted document, and compares the working model's canonical form and the solve's reported model hash with the reference.
 - **VER-006** — Executable check (observes a session with unsaved edits): runs each replacing command and window close, reads the prompt, its focus and the effect of each choice, and saves in place against a matching and a changed stored revision.
-- **VER-007** — Executable check (observes every save dialog's suggested name): collects the suggested name of every export for an open project whose name and identifiers are known, and tests each against the pattern and for those strings.
+- **VER-007** — Executable check (observes every save dialog's suggested name): collects the suggested name of every export for an open project whose name and identifiers are known, and tests each against the convention and for those strings.
 - **VER-008** — Executable check (observes the scripted-run build and a product build): runs a script to completion in the first and scans the second for the substitution and instrumentation.
 - **VER-009** — Executable check (observes the desktop from start): reads the open model at start, opens the bundled example and reads its label, and runs each command that needs a model with none open and reads the refusal and the session.
 
@@ -103,10 +103,10 @@ It serves SOW-078 under OBJ-006, OBJ-010 and OBJ-015 (`execution/_Decomposition/
 |---|---|---|---|---|---|
 | OUT-001 | SOW-078 OBJ-006 OBJ-015 | REQ-001 | AC-001 | VER-001 | Each owning service's own validation and refusal names are the reference; the shell writes none of them. |
 | OUT-002 | SOW-078 OBJ-006 OBJ-015 | REQ-002 REQ-008 | AC-002 | VER-002 | DEL-00-05's GUI state rule sets which state is transient. The expected identities and bytes are those the check saved, so the comparison is a round trip against what the product was given, not against its own later output. |
-| OUT-003 | SOW-078 OBJ-010 | REQ-003 | AC-003 | VER-003 | Owner ruling: PRD §20.3 and §20.4. The file system and the host are read directly; evidence from a browser preview does not count for this criterion. |
+| OUT-003 | SOW-078 OBJ-010 | REQ-003 | AC-003 | VER-003 | PRD §20.3 keeps private data in user-controlled paths and §20.4 keeps the product's work local. The file system and the host are read directly; evidence from a browser preview does not count for this criterion. |
 | OUT-004 | SOW-078 OBJ-006 | REQ-004 | AC-004 | VER-004 | The accessibility target is DEL-07-06's, from WCAG 2.2 level AA. |
 | OUT-001 | SOW-078 OBJ-006 OBJ-010 | REQ-005 | AC-005 | VER-005 | Outside source: RFC 8785 and SHA-256, computed apart from the product. The refusals of form are the document validator's (DEL-02-01). |
 | OUT-002 | SOW-078 OBJ-006 OBJ-010 | REQ-006 | AC-006 | VER-006 | The requirement defines the expected prompt, focus and effect of each choice. The comparison is against the model, the stored project and the window as they were before the command, and the stored revision the check itself wrote. |
-| OUT-001 | SOW-078 OBJ-010 | REQ-009 | AC-007 | VER-007 | The requirement states the pattern; the project's name and identifiers are set by the check, so their absence is tested against known strings. |
+| OUT-001 | SOW-078 OBJ-010 | REQ-009 | AC-007 | VER-007 | The requirement states the convention; the project's name and identifiers are set by the check, so their absence is tested against known strings. |
 | OUT-003 | SOW-078 OBJ-006 | REQ-010 | AC-008 | VER-008 | The requirement states what a product build must not contain; the build is scanned as built. |
 | OUT-001 | SOW-078 OBJ-006 | REQ-007 | AC-009 | VER-009 | The requirement defines what must happen; the comparison is against the session before each command. |

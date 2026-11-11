@@ -47,7 +47,7 @@ It serves SOW-030 and SOW-074 under OBJ-009, OBJ-017 and OBJ-018 (`execution/_De
 
 **Not decided.**
 
-- The target version basis: which PCF target profile, or which translator version, is the first one supported (DEL-17-01, TBD-17-01-005 and CQ-17-01-006). Until an admitted source or the owner selects it, the classifications of the candidate subset are candidates and no family is recorded as supported on the strength of translator behaviour.
+- The target version basis: which PCF target profile, or which translator version, is the first one supported (DEL-17-01, TBD-17-01-005 and CQ-17-01-006). Until it is selected (REQ-012), the classifications of the candidate subset are candidates and no family is recorded as supported on the strength of translator behaviour.
 - Whether PCF can carry canonical identity directly. Until a source confirms it, identity travels in the sidecar.
 - A reference for PCF syntax. No PCF format specification is admitted; the only admitted source is `CAEPIPE-PCF`, which describes one translator's reading of the format.
 - The source-basis reference `PLAN-EXPORT-INTEROP`, which REQ-015 requires a profile to carry. The plan it names is not in the repository; the candidate subset it listed is stated above.
@@ -81,8 +81,6 @@ It serves SOW-030 and SOW-074 under OBJ-009, OBJ-017 and OBJ-018 (`execution/_De
 - **REQ-042** — Public fixtures carry no code-specific compliance meaning and imply no professional acceptance.
 
 ### Acceptance criteria
-
-AC-001 to AC-008 together carry commitment DEL-17-07:1.
 
 - **AC-001** — A profile validates only when it declares everything REQ-010 and REQ-011 name, carries the four source-basis references, and classifies every family of the candidate subset. While the target version basis is undecided the profile says so, and a package that records a target version or a family as supported without an admitted source for it is refused.
 - **AC-002** — For an invented model within the subset, the PCF holds one record for each entity classified as exported and no other record. Every coordinate and dimension in the file equals the model's value converted exactly to the unit the file declares, the file declares only units the profile's unit policy states, and two exports of the same model are byte-identical.
@@ -128,11 +126,11 @@ AC-001 to AC-008 together carry commitment DEL-17-07:1.
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-001 REQ-002 REQ-010 REQ-011 REQ-012 REQ-013 REQ-015 | AC-001 | VER-001 | Owner ruling: the decomposition row bounds translator behaviour and the common contract names what a profile declares; the seeded omissions state what must be refused |
+| OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-001 REQ-002 REQ-010 REQ-011 REQ-012 REQ-013 REQ-015 | AC-001 | VER-001 | Profiles seeded with each omission, read against what the common contract (DEL-17-02) and REQ-010 and REQ-011 say a profile declares; the expected result for each is refusal |
 | OUT-001 | SOW-030 OBJ-009 | REQ-014 REQ-020 | AC-002 | VER-002 | The invented model, which the exporter did not write, and the public definitions of the units; byte equality of two exports guards against change only |
-| OUT-001 | SOW-074 OBJ-017 OBJ-018 | REQ-004 REQ-021 REQ-022 | AC-003 | VER-003 | Owner ruling: `docs/PRD.md` §5.5 (no silent engineering default); the seeded omissions state what must be diagnosed |
-| OUT-001 | SOW-074 OBJ-017 | REQ-023 REQ-024 | AC-004 | VER-004 | Owner ruling: the common contract's stable ID map; the identifiers compared are the invented model's own |
-| OUT-001 | SOW-074 OBJ-017 OBJ-018 | REQ-003 REQ-030 REQ-031 REQ-032 REQ-033 REQ-034 | AC-005 | VER-005 | Outside source: `CAEPIPE-PCF`, for which behaviours are translator-dependent; owner ruling: the common contract's loss categories |
+| OUT-001 | SOW-074 OBJ-017 OBJ-018 | REQ-004 REQ-021 REQ-022 | AC-003 | VER-003 | Invented models seeded with each omission, which the exporter did not write; `docs/PRD.md` §5.5 (no silent engineering default) states what must be diagnosed |
+| OUT-001 | SOW-074 OBJ-017 | REQ-023 REQ-024 | AC-004 | VER-004 | The invented model's own identifiers, compared with the PCF records, the sidecar and the loss report under the common contract's stable ID map |
+| OUT-001 | SOW-074 OBJ-017 OBJ-018 | REQ-003 REQ-030 REQ-031 REQ-032 REQ-033 REQ-034 | AC-005 | VER-005 | Outside source: `CAEPIPE-PCF`, for which behaviours are translator-dependent, which describes one translator and not every reader of PCF; the loss entries are read against the common contract's categories and members |
 | OUT-001 | SOW-030 OBJ-009 | REQ-001 REQ-003 | AC-006 | VER-006 | Outside source: `CAEPIPE-PCF`, for the keywords it documents. No independent grounds for whether the file is otherwise well-formed PCF: no format specification and no reference reader is admitted |
-| OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-002 REQ-030 | AC-007 | VER-007 | Outside source: RFC 8785 and SHA-256 for the hashes, and a JSON Schema 2020-12 validator for the package; owner ruling: `docs/PRD.md` FR-HAND-003 and FR-HAND-004 |
-| OUT-001 | SOW-074 OBJ-018 | REQ-040 REQ-041 REQ-042 | AC-008 | VER-008 | Owner ruling: `docs/IP_AND_DATA_BOUNDARY.md` and `docs/PRD.md` §21.2; the reviewer did not write the fixtures |
+| OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-002 REQ-030 | AC-007 | VER-007 | Outside source: RFC 8785 and SHA-256 for the hashes, and a JSON Schema 2020-12 validator for the package; `docs/PRD.md` FR-HAND-003 and FR-HAND-004 state what the package carries |
+| OUT-001 | SOW-074 OBJ-018 | REQ-040 REQ-041 REQ-042 | AC-008 | VER-008 | The scan, which shows only that it finds what it is seeded with, and the reading of a reviewer who did not write the fixtures against `docs/IP_AND_DATA_BOUNDARY.md` and `docs/PRD.md` §21.2 |

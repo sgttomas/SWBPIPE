@@ -4,9 +4,8 @@ needs:
 - from: DEL-02-02
   condition: >-
     The unit catalog decides whether a unit belongs to a dimension (length, density, area, second
-    moment of area, section modulus, volume per length, mass per length) and converts between
-    units of one dimension by exact recorded constants, so that the calculator checks its inputs
-    against the catalog and combines no magnitudes in different units.
+    moment of area, section modulus, volume per length, mass per length), so that the calculator
+    checks each input's unit against its dimension in the catalog.
   gating: true
 - from: DEL-03-02
   condition: >-

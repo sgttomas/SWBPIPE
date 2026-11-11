@@ -38,6 +38,12 @@ needs:
     touching no file and no network and running no adapter code, and its operation-result builder
     returns an envelope that validates against the declaration contract.
   gating: true
+- from: DEL-12-03
+  when: Deciding whether an extension may receive telemetry-facing data
+  condition: >-
+    Telemetry stays a no-op until a telemetry design is approved, and no plugin manifest or
+    adapter declaration changes the resolved telemetry state.
+  gating: false
 code_paths:
 - schemas/plugin_manifest.schema.yaml
 - docs/architecture/extension_domain_contracts.md

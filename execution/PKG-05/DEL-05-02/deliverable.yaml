@@ -24,7 +24,10 @@ needs:
   condition: >-
     A load case is identified and holds its primitive loads with their category, target, direction,
     dimension and magnitude, so that the loads of one case can be compared by content with those
-    of another, and a hydrostatic test case is marked as one.
+    of another, and a hydrostatic test case is marked as one. The primitive-load crate supplies the
+    `LoadDimension` vocabulary and the boundary-record types (`BoundaryQuantityRecord`,
+    `QuantityUnitMetadata`, `CanonicalSchemaBinding`) that the algebra's operands, dimension checks
+    and result-boundary records use.
   gating: true
 - from: DEL-05-03
   condition: >-

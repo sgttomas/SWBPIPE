@@ -39,7 +39,7 @@ It serves SOW-033 under OBJ-001 and OBJ-003 (`execution/_Decomposition/SOFTWARE_
 - the local FEA handoff contract: DEL-10-03;
 - which content may be public, and the quarantine rule: DEL-01-02.
 
-**Not decided.** Three source selections, each the owner's to select or discharge:
+**Not decided.** Three source selections, each resolved when a source for it is admitted with its source record under the boundary policy of DEL-01-02, or when the subject is left out of the notes:
 
 - a public or permissive source for the detailed history of piping flexibility practice;
 - a public or permissive source for formula-level 3D frame theory;
@@ -71,7 +71,7 @@ REQ-001 to REQ-011 keep the numbers of the earlier `REQ-11-03` series. Numbers 0
 
 ### Delivery commitments
 
-- **DEL-11-03:1** — Until the owner selects or discharges each of the three source selections, the notes make no detailed historical claim, hold no formula-level frame theory, and treat local FEA only as a boundary.
+- **DEL-11-03:1** — While a source selection is undecided, the notes hold none of the content that awaits it: respectively, no detailed historical claim, no formula-level frame theory, and no account of local FEA beyond the handoff boundary.
 
 ### Acceptance criteria
 
@@ -79,7 +79,7 @@ REQ-001 to REQ-011 keep the numbers of the earlier `REQ-11-03` series. Numbers 0
 - **AC-002** — For each of the ten required analyses, analysis coverage exists with all four parts, every link to it resolves, and a reader can tell from the notes' own contents which note covers which analysis.
 - **AC-003** — Every step, assumption and condition of refusal a note gives for an analysis is the method owner's, and no assumption or limit the method owner states for that analysis is missing from the note.
 - **AC-004** — Every mechanics statement in the notes is correct for the assumptions stated beside it: a reader competent in structural mechanics, without reading product code, finds each relation in its cited source and follows it from those assumptions.
-- **AC-005** — Every source in the source notes has all eight fields and one disposition. Every historical claim and every mechanics claim cites an `ACCEPTED` source whose record names that claim. No `TBD`, `REJECTED` or `QUARANTINED` source supports any sentence. The three undecided source selections appear as undecided, and the notes hold no detailed historical claim, no formula-level frame theory and no account of local FEA beyond the handoff boundary.
+- **AC-005** — Every source in the source notes has all eight fields and one disposition. Every historical claim and every mechanics claim cites an `ACCEPTED` source whose record names that claim. No `TBD`, `REJECTED` or `QUARANTINED` source supports any sentence. Each undecided source selection appears as undecided, and the notes hold none of the content DEL-11-03:1 holds back for it.
 - **AC-006** — The notes contain nothing of the classes REQ-005 names, no formula taken from a standard, and no example value that is not invented.
 - **AC-007** — The notes state that SWBPIPE does not determine code compliance. No passage states or implies a claim PRD §21.2 prohibits, mechanics results, user-rule outcomes and human acceptance are presented as three separate things, and the global model is nowhere presented as a substitute for local analysis.
 - **AC-008** — Every quantity in the notes carries a unit or dimension, and every relation whose result depends on a sign convention or a frame states it.
@@ -111,11 +111,11 @@ REQ-001 to REQ-011 keep the numbers of the earlier `REQ-11-03` series. Numbers 0
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-033 OBJ-001 OBJ-003 | REQ-001 REQ-002 REQ-003 | AC-001 | VER-001 | Owner ruling: the subjects are this deliverable's accepted commitment under SOW-033 and the PRD's product principles. The check reads the note against the list |
-| OUT-001 | SOW-033 OBJ-003 | REQ-013 | AC-002 | VER-001 | Owner ruling: exit criterion 1 lists the analyses and exit criterion 13 lists what is covered for each. The list is read from the release target, not from the notes |
+| OUT-001 | SOW-033 OBJ-001 OBJ-003 | REQ-001 REQ-002 REQ-003 | AC-001 | VER-001 | The subjects are AC-001's, from SOW-033 and the PRD's product principles. The check reads the note against the list |
+| OUT-001 | SOW-033 OBJ-003 | REQ-013 | AC-002 | VER-001 | Exit criterion 1 lists the analyses and exit criterion 13 lists what is covered for each. The list is read from the release target, not from the notes |
 | OUT-001 | SOW-033 OBJ-003 | REQ-015 | AC-003 | VER-002 | Outside source: the method owner's scope for each analysis, which the notes do not write |
 | OUT-001 | SOW-033 OBJ-003 | REQ-004 REQ-006 | AC-004 | VER-003 | Outside source: the cited public sources and closed-form classical mechanics. The reviewer looks up each relation, follows it from its assumptions and imports no product code or product output |
 | OUT-001 | SOW-033 OBJ-001 | REQ-004 REQ-007 REQ-010 REQ-011, DEL-11-03:1 | AC-005 | VER-001 VER-004 | Outside source: each cited source itself, opened by the reviewer, with its own licence statement |
-| OUT-001 | SOW-033 OBJ-001 | REQ-005 REQ-008 | AC-006 | VER-004 | Owner ruling: PRD §20.1 lists what the public repository may not contain; the classes are DEL-01-02's policy |
-| OUT-001 | SOW-033 OBJ-001 | REQ-001 REQ-002 REQ-003 REQ-014 | AC-007 | VER-001 VER-004 | Owner ruling: exit criterion 13 requires the statement and PRD §21.2 lists the prohibited claims |
+| OUT-001 | SOW-033 OBJ-001 | REQ-005 REQ-008 | AC-006 | VER-004 | PRD §20.1 lists what the public repository may not contain and DEL-01-02's policy states the classes. The reviewer reads the notes and their examples against them |
+| OUT-001 | SOW-033 OBJ-001 | REQ-001 REQ-002 REQ-003 REQ-014 | AC-007 | VER-001 VER-004 | Exit criterion 13 requires the statement and PRD §21.2 lists the prohibited claims. The check finds the statement; the reviewer reads every passage against the §21.2 list |
 | OUT-001 | SOW-033 OBJ-003 | REQ-006 | AC-008 | VER-003 | Outside source: dimensional consistency and the stated conventions, checked by a reviewer who did not write the notes |

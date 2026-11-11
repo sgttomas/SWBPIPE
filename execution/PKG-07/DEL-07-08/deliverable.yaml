@@ -111,6 +111,20 @@ needs:
     The viewport provides one scene with the model's nodes and members addressable by identifier
     and lets an overlay add and remove its own drawn resources.
   gating: true
+- from: DEL-07-05
+  when: Showing each side of a run comparison
+  condition: >-
+    The result viewer shows a result's rows with the meaning, units and labels the product result
+    reader gives them and with the result's standing, and marks a saved or recorded run reopened in
+    the session as historical.
+  gating: false
+- from: DEL-02-05
+  when: Reopening a saved state as the working model
+  condition: >-
+    The model-document version check gives a saved state's document exactly one version state from
+    one evaluator, and a saved state whose document is not of the current version is refused by
+    name on open.
+  gating: false
 code_paths:
 # The comparison views. In this folder stateComparison.ts is DEL-14-03's; runComparison.ts,
 # runComparisonSides.ts, withinRunComparison.ts and ComparisonPackageNotice.tsx are DEL-14-04's;

@@ -47,7 +47,7 @@ It serves SOW-040 and SOW-029 under OBJ-010 (`execution/_Decomposition/SOFTWARE_
 - DEL-03-07 decides whether a library is admitted and what the local library store keeps. DEL-06-04 keeps a rule pack's identity, checksum and privacy standing. DEL-02-05 owns the store. This deliverable describes and guards references to what they hold; it stores no library.
 - DEL-12-01 owns where private libraries live. DEL-12-02 owns the redaction of values on an export route; this guard decides references, not values. DEL-12-03 owns the telemetry guard that rejects private-library and credential content.
 - DEL-16-06 owns the one credential the product holds, the model-provider key of the embedded agent, and its custody in the operating system's credential store. REQ-004 applies to it.
-- DEL-10-02 and DEL-00-07 own the adapter and plugin boundary and its grants. DEL-08-05 and the owner's release scan own the search for real secrets in a release.
+- DEL-10-02 and DEL-00-07 own the adapter and plugin boundary and its grants. DEL-08-05's release scan and the real-secret check it runs, which is DEL-09-05's, own the search for real secrets in a release.
 - This deliverable is not a secret store, an encryption scheme, a key-management scheme or an integration with an external secret manager, and it requires no cloud service.
 
 **Not decided.**
@@ -80,7 +80,7 @@ The deliverable is adequate when a secret value and a private library's content 
 - **AC-001** — The contract states the members of a reference record, the guard's behaviour in each release context, everything it blocks in every context, and what it never does. It contains no real credential, no usable credential example, no real private path and no private or protected content.
 - **AC-002** — A reference record built for any private kind is private by default and carries every member of the record definition. A member that is absent, unknown or undecided is listed among the record's unresolved items and yields a finding; none is defaulted to a public value.
 - **AC-003** — A record that carries secret material in any member is blocked in every release context, and no decision, diagnostic or manifest the guard returns contains the secret's value. A secret-field reference and a credential placeholder hold only an opaque reference.
-- **AC-004** — No project document, library or rule-pack store record, report, export, diagnostic, log, fixture or test of the product contains a usable credential value. The model-provider credential exists only in the operating system's credential store.
+- **AC-004** — No project document, library or rule-pack store record, report, export, diagnostic, log, fixture or test of the product contains a usable credential value, the model-provider credential included.
 - **AC-005** — In a public fixture or example a private reference is blocked. In a public report a private-library or rule-pack reference is released as metadata only (its label, version, checksum and source note) with a warning, and nothing of its content. In a public, shared or downstream context a private reference whose redistribution status or privacy class is unknown or undecided is blocked. In a local context private metadata is released only on the user's explicit intent, with a warning.
 - **AC-006** — In every release context the guard blocks a record that carries a private-library payload, a private-path payload or any payload marker; a cloud or network reference; an external secret-manager reference; a direct-SQL marker; a storage-bypass marker; or a review status of rejected or quarantined or a source suspected protected. A concrete path in a released record is reduced to its path class. A blocked record causes no file to be written or moved.
 - **AC-007** — The same records in the same context give the same decisions and manifest, and evaluating them reads no referenced file and opens no network connection.
@@ -118,7 +118,7 @@ The deliverable is adequate when a secret value and a private library's content 
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-040 SOW-029 OBJ-010 | REQ-003 REQ-004 REQ-005 | AC-001 | VER-001 | Owner ruling: PRD §20.3 and `docs/IP_AND_DATA_BOUNDARY.md` §4 to §6; the record's members are defined by this scope; a reviewer who did not write the contract compares it with them |
+| OUT-001 | SOW-040 SOW-029 OBJ-010 | REQ-003 REQ-004 REQ-005 | AC-001 | VER-001 | PRD §20.3 and `docs/IP_AND_DATA_BOUNDARY.md` §4 to §6; the record's members are defined by this scope; a reviewer who did not write the contract compares it with them |
 | OUT-002 | SOW-040 SOW-029 OBJ-010 | REQ-001 REQ-003 REQ-010 | AC-002 | VER-002 | This scope's definition of the reference record says what each invented record must carry and list; expected results are written from it, not taken from the product |
 | OUT-002 | SOW-040 OBJ-010 | REQ-004 | AC-003 | VER-002 | The criterion determines the result: the sentinel secret is known to the check and must be absent from every output |
 | OUT-002 | SOW-040 SOW-029 OBJ-010 | REQ-004 | AC-004 | VER-004 | The criterion determines the result: the sentinel credential value is known to the check and must be found in none of the product's artifacts |
@@ -126,6 +126,6 @@ The deliverable is adequate when a secret value and a private library's content 
 | OUT-002 | SOW-040 SOW-029 OBJ-010 | REQ-006 REQ-008 | AC-006 | VER-002 | This scope's list of what every context blocks; `docs/IP_AND_DATA_BOUNDARY.md` §5 requires suspected content to stop |
 | OUT-002 | SOW-029 OBJ-010 | REQ-008 | AC-007 | VER-003 | The criterion determines the result: equal outputs, and no file or network facility in the guard |
 | OUT-002 | SOW-040 OBJ-010 | REQ-010 | AC-008 | VER-003 | DEL-00-06's diagnostic contract fixes the fields and classes; PRD §21.2 lists the prohibited claims |
-| OUT-002 | SOW-040 SOW-029 OBJ-010 | REQ-002 | AC-009 | VER-005 | Owner ruling: PRD §20.3 and §20.5 exclude this content from telemetry; the decision is DEL-12-03's guard's, which this deliverable did not write |
-| OUT-002 | SOW-029 OBJ-010 | REQ-007 REQ-008 | AC-010 | VER-005 | The owner has selected no adapter execution model or grant, so the expected result of every request is that nothing is granted and nothing runs; the decision is DEL-10-02's gate's |
-| OUT-002 | SOW-029 OBJ-010 | REQ-001 | AC-011 | VER-006 | Owner ruling: PRD §20.3 and FR-RULE-004 say where private libraries and rule packs live and how they are marked; the location is observed in the local store |
+| OUT-002 | SOW-040 SOW-029 OBJ-010 | REQ-002 | AC-009 | VER-005 | PRD §20.3 and §20.5 exclude this content from telemetry; the decision is DEL-12-03's guard's, which this deliverable did not write |
+| OUT-002 | SOW-029 OBJ-010 | REQ-007 REQ-008 | AC-010 | VER-005 | No adapter execution model or grant is selected, so the expected result of every request is that nothing is granted and nothing runs; the decision is DEL-10-02's gate's |
+| OUT-002 | SOW-029 OBJ-010 | REQ-001 | AC-011 | VER-006 | PRD §20.3 and FR-RULE-004 say where private libraries and rule packs live and how they are marked; the location is observed in the local store |

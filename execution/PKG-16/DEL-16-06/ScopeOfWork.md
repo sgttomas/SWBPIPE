@@ -13,7 +13,7 @@ package_objective_refs: [OBJ-015]
 
 There is one way a model changes. An accepted, valid, previewed batch of structured operations is applied whole, by one engine, to the model state it was written for; anything else leaves the model exactly as it was and says so. This deliverable is that mutation seam, and it is also the embedded agent that works through it: an assistant in the desktop's conversation panel that reads the model, proposes changes, solves and reports through SWBPIPE's own capability catalog, and whose changes wait for the person. The result it contributes is that every edit, by a person or an agent, arrives at the model by the same checked route, and that a person can ask the agent to build and solve a system without giving up the decision on any change.
 
-It serves SOW-069 and SOW-070 under OBJ-015 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-16, row DEL-16-06; DEC-020 names the one engine and DEC-111 puts every editor's changes through this seam), with `docs/PRD.md` §5.3, §10.3 and FR-AGENT-001 to FR-AGENT-003. `docs/RELEASE_TARGET_v1.0.md` exit criterion 17 names this deliverable: from a person's request in the conversation panel, the embedded agent builds the reference system, solves it and reports its key results through SWBPIPE's capability catalog; every change goes through the one operation route and is applied on the person's acceptance or within autonomy the person granted; and the agent records no acceptance, approval or reliance.
+It serves SOW-069 and SOW-070 under OBJ-015 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-16, row DEL-16-06), with `docs/PRD.md` §5.3, §10.3 and FR-AGENT-001 to FR-AGENT-003. `docs/RELEASE_TARGET_v1.0.md` exit criterion 17 names this deliverable: from a person's request in the conversation panel, the embedded agent builds the reference system, solves it and reports its key results through SWBPIPE's capability catalog; every change goes through the one operation route and is applied on the person's acceptance or within autonomy the person granted; and the agent records no acceptance, approval or reliance.
 
 - **OUT-001** — Application of accepted operations to the current model.
 - **OUT-002** — Refusal without change: every rejected, invalid, blocked or stale request leaves the model as it was.
@@ -31,7 +31,7 @@ It serves SOW-069 and SOW-070 under OBJ-015 (`execution/_Decomposition/SOFTWARE_
 - *Basis.* The model hash a batch was written and accepted against. Application requires it to be the hash of the document being changed.
 - *Outcome.* What an application returns: the batch, each operation with its author, the diagnostics, the hash applied to, the resulting hash, the record of the person's acceptance of the change, and whether the result has been saved.
 - *Publication.* The workspace session taking an applied document as its current model. It is the only way an edit of the current model's content reaches the session; opening, creating or replacing a project, and undo and redo of a checkpoint, are DEL-07-11's and DEL-02-05's session acts.
-- *Person-entered value.* The bend flexibility factor k, the SIFs, the other component modifiers (stiffness scaling and stiffness) and their source. The owner ruled that users enter their own k and SIF.
+- *Person-entered value.* The bend flexibility factor k, the SIFs, the other component modifiers (stiffness scaling and stiffness) and their source. Users enter their own k and SIF.
 
 **Terms of the embedded agent.**
 
@@ -62,15 +62,15 @@ It serves SOW-069 and SOW-070 under OBJ-015 (`execution/_Decomposition/SOFTWARE_
 
 - **CLM-001** — Only an explicitly accepted, valid, previewed batch of structured operations is applied, and only to the model whose hash is the batch's basis (SOW-069; PRD §5.3).
 - **CLM-002** — A rejected, invalid, blocked or stale request changes nothing, and its outcome never looks like a success (SOW-069; decomposition PKG-16, which allows no hidden model mutation).
-- **CLM-003** — One engine applies operations, with the same behaviour in its native and its web build, and with the meaning DEL-16-01's taxonomy gives each kind (DEC-020).
+- **CLM-003** — One engine applies operations, with the same behaviour in its native and its web build, and with the meaning DEL-16-01's taxonomy gives each kind.
 - **CLM-004** — An applied batch returns a deterministic outcome that says what changed, on which state and into which state. The outcome goes to DEL-16-03's history and DEL-02-05's persistence, and neither becomes another way to change a model (SOW-070).
-- **CLM-005** — The desktop embeds an agent that operates SWBPIPE through the capability catalog (`docs/RELEASE_TARGET_v1.0.md`, Embedded agent). The host validates every call against the catalog and binds it to the live session. Every agent change enters the review queue as a proposal and is applied only by the person's act, through this engine. The agent's attribution, the model basis of every call, the bounds on what it reads and the true standing of every proposal are preserved. The agent runtime has no shell, file, patch or web capability, and that is established by observing it, not by configuring it.
+- **CLM-005** — The desktop embeds an agent that operates SWBPIPE through the capability catalog (`docs/RELEASE_TARGET_v1.0.md` exit criterion 17). The host validates every call against the catalog and binds it to the live session. Every agent change enters the review queue as a proposal and is applied only by the person's act, through this engine. The agent's attribution, the model basis of every call, the bounds on what it reads and the true standing of every proposal are preserved. The agent runtime has no shell, file, patch or web capability, and that is established by observing it, not by configuring it.
 - **REQ-006** — A batch is applied whole or not at all (decomposition AB-00-03).
-- **REQ-007** — An operation whose author is not a person cannot write a person-entered value, by any route: a field edit, a component created with modifiers, a bend realization or insertion, or a library record that copies modifier members (`docs/RELEASE_TARGET_v1.0.md`, Pressure effects: users enter their own k and SIF).
-- **REQ-008** — Reconnecting a pipe end refuses a pipe that a component names (a bend span, a tee leg, a rigid component, an expansion joint or a connector span), a pipe with a component other than a terminal marker at its fixed end or at the node it leaves or joins, a pipe that is a member of a pressure region, and a move onto a pressure region's internal node. Each refusal names what blocks it. Reconnecting inside a pressure region while keeping membership is not provided. Deleting a pipe is refused while any record names it and never removes other records (owner, `docs/COMPLETENESS_MAP.md` §4.2).
-- **REQ-009** — An agent route that consumes solve or preview results tells native execution from fixture fallback. If the native call fails, the route fails; fixture output is never reported as the result of a run (owner ruling on threat TM-PIP-033).
+- **REQ-007** — An operation whose author is not a person cannot write a person-entered value, by any route: a field edit, a component created with modifiers, a bend realization or insertion, or a library record that copies modifier members.
+- **REQ-008** — Reconnecting a pipe end refuses a pipe that a component names (a bend span, a tee leg, a rigid component, an expansion joint or a connector span), a pipe with a component other than a terminal marker at its fixed end or at the node it leaves or joins, a pipe that is a member of a pressure region, and a move onto a pressure region's internal node. Each refusal names what blocks it. Reconnecting inside a pressure region while keeping membership is not provided. Deleting a pipe is refused while any record names it and never removes other records.
+- **REQ-009** — An agent route that consumes solve or preview results tells native execution from fixture fallback. If the native call fails, the route fails; fixture output is never reported as the result of a run.
 - **REQ-010** — From a person's request in the conversation panel, the agent builds the reference system from a blank model, solves it and reports its key results, through the catalog (exit criterion 17).
-- **REQ-011** — The agent works on machines other than the one it was built on: the person configures the provider, the key is kept in the keychain, the supplier is bundled for the supported Mac architectures, and where isolation is not qualified the agent is unavailable and says why (owner direction to build it to work on other machines).
+- **REQ-011** — The agent works on machines other than the one it was built on: the person configures the provider, the key is kept in the keychain, the supplier is bundled for the supported Mac architectures, and where isolation is not qualified the agent is unavailable and says why.
 
 ### Acceptance criteria
 
@@ -89,7 +89,7 @@ It serves SOW-069 and SOW-070 under OBJ-015 (`execution/_Decomposition/SOFTWARE_
 
 **Method choices that define the product.**
 
-- The engine is the Rust operation applier, compiled natively and to WebAssembly. TypeScript holds the user interface, the builders of operations and a thin routing adapter, and no validation or application logic (DEC-020; `docs/architecture/adr/ADR-0001_operation_seam_engine_unification.md`).
+- The engine is the Rust operation applier, compiled natively and to WebAssembly. TypeScript holds the user interface, the builders of operations and a thin routing adapter, and no validation or application logic (`docs/architecture/adr/ADR-0001_operation_seam_engine_unification.md`).
 - Apply is pure: it returns a new document and writes nothing. Publishing to the session and saving are separate acts.
 - The agent runtime is a stock Codex app-server, release 0.160.0 of `openai/codex`, run as a child process over private standard input and output. The catalog is offered to it as dynamic tools. The runtime is used as published and is not reimplemented.
 - `apps/desktop/src-tauri/resources/agent-capability-catalog.json` is the one catalog; there is no second copy to edit.
@@ -115,20 +115,20 @@ It serves SOW-069 and SOW-070 under OBJ-015 (`execution/_Decomposition/SOFTWARE_
 
 - **AX-001** — *One route.* Better is fewer code paths that can produce a changed model; the target is one. No caller, whether an agent, an import or a bulk edit, gets a shorter path that skips validation, the preview or the person's decision.
 - **AX-002** — *Truthful outcomes.* Better is a smaller share of outcomes that end as unknown, reached by keeping the evidence of what happened. It is never reached by guessing: an uncertain result stays unknown, and nothing that might apply twice is retried.
-- **AX-003** — *An agent that gets the work done.* Better is fewer turns, fewer refused proposals and a smaller prompt for the agent to build and solve the reference system. The owner's weight is on the agent operating the application effectively, ahead of workflow machinery around it. Effectiveness never costs the person's Apply or a person-entered value.
+- **AX-003** — *An agent that gets the work done.* Better is fewer turns, fewer refused proposals and a smaller prompt for the agent to build and solve the reference system. The weight is on the agent operating the application effectively, ahead of workflow machinery around it. Effectiveness never costs the person's Apply or a person-entered value.
 - **AX-004** — *A contained agent.* Better is a smaller set of files, addresses and secrets the agent runtime can reach. The set is never widened to make a provider, a model or a platform work; where containment is not established the agent is unavailable.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-069 OBJ-015 | CLM-001 | AC-001 | VER-001 | Owner ruling: SOW-069 and PRD §5.3 say what may be applied. The applied document is compared with the preview by a differ that imports no engine code |
+| OUT-001 | SOW-069 OBJ-015 | CLM-001 | AC-001 | VER-001 | The applied document is compared with the preview by a differ that imports no engine code |
 | OUT-002 | SOW-069 OBJ-015 | CLM-002 REQ-006 | AC-002 | VER-002 | The criterion states the expected result: the same bytes and hash, compared with a copy taken before the request |
-| OUT-003 | SOW-069 OBJ-015 | CLM-003 | AC-003 | VER-003 | Owner ruling: DEC-020 requires one engine, so the two builds must agree. The corpus's recorded outcomes are the engine's own earlier output and only guard against change; a case is relied on once the owner has reviewed it (DEC-030, DEC-032) |
-| OUT-004 | SOW-070 OBJ-015 | CLM-004 | AC-004 | VER-004 | Owner ruling: SOW-070. The stored hash is recomputed by an RFC 8785 and SHA-256 implementation that shares no code with the product (DEL-08-02) |
-| OUT-005 | SOW-069 OBJ-015 | CLM-005 | AC-005 | VER-005 | Owner ruling: the release target's Embedded agent ruling and exit criterion 17. The probes are observed at the operating system, the answered value is invented by the host, and the protocol cases state what must be refused |
-| OUT-001 | SOW-069 OBJ-015 | REQ-007 | AC-006 | VER-006 | Owner ruling: users enter their own k and SIF (`docs/RELEASE_TARGET_v1.0.md`, Pressure effects) |
-| OUT-001 | SOW-069 OBJ-015 | REQ-008 | AC-007 | VER-007 | Owner ruling: the reconnect limitation (`docs/COMPLETENESS_MAP.md` §4.2). The invented models state which blocker each must name |
+| OUT-003 | SOW-069 OBJ-015 | CLM-003 | AC-003 | VER-003 | The two builds are compared with each other on the shared corpus; agreement shows they are consistent, not that either is correct. The corpus's recorded outcomes are the engine's own earlier output and only guard against change. A corpus case is relied on only once the owner has reviewed that case; a review of earlier cases never covers a case added or changed later |
+| OUT-004 | SOW-070 OBJ-015 | CLM-004 | AC-004 | VER-004 | The stored hash is recomputed by an RFC 8785 and SHA-256 implementation that shares no code with the product (DEL-08-02) |
+| OUT-005 | SOW-069 OBJ-015 | CLM-005 | AC-005 | VER-005 | The probes are observed at the operating system, the answered value is invented by the host, and the protocol cases state what must be refused |
+| OUT-001 | SOW-069 OBJ-015 | REQ-007 | AC-006 | VER-006 | Each write path and author type states the refusal code expected; the catalog's admitted list is read against the same paths |
+| OUT-001 | SOW-069 OBJ-015 | REQ-008 | AC-007 | VER-007 | The invented models state which blocker each must name |
 | OUT-005 | SOW-069 SOW-070 OBJ-015 | REQ-010 | AC-008 | VER-008 | Exit criterion 17 defines the journey. The specification and the key-result names are DEL-09-01's; the built model is compared entity by entity with that specification; the applying is done by a person |
-| OUT-005 | SOW-069 OBJ-015 | REQ-011 | AC-009 | VER-009 | Owner ruling: the agent is built to work on other machines. The supplier's size and hash are the publisher's release values recorded in the pin manifest |
-| OUT-005 | SOW-069 OBJ-015 | REQ-009 | AC-010 | VER-010 | Owner ruling on threat TM-PIP-033. The forced failure states what must be reported |
+| OUT-005 | SOW-069 OBJ-015 | REQ-011 | AC-009 | VER-009 | The supplier's size and hash are the publisher's release values recorded in the pin manifest |
+| OUT-005 | SOW-069 OBJ-015 | REQ-009 | AC-010 | VER-010 | The forced failure states what must be reported |
