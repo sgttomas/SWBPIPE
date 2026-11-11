@@ -20,20 +20,23 @@ needs:
 - from: DEL-02-01
   condition: A material, section, component or support in the model document can record its source, and
     can carry a structured provenance record with the fields of PRD section 20.2.
+  when: Building the section's provenance records.
   gating: true
 - from: DEL-03-07
   condition: A library and every record in it carry the seven provenance members with a redistribution
     status and a review status, and a missing or unclear member is a finding, never a defaulted value.
+  when: Building library record entries and their dispositions.
   gating: true
 - from: DEL-07-03
   condition: A model entity to which a library record was applied keeps a reference to that record, and
     a reference that no longer resolves, or whose library has changed since it was applied, is reported
     against that entity.
   when: Before a report lists library records for a model that refers to a library.
-  gating: false
+  gating: true
 - from: DEL-08-02
   condition: The audit manifest names a run's model hash, its software and solver versions and each
     participating rule pack's checksum, each as a record that states what it covers.
+  when: Referring the section's records to their run.
   gating: true
 - from: DEL-01-04
   condition: The claims registry gives each boundary statement one canonical text with its placement rules,
@@ -43,14 +46,17 @@ needs:
   condition: Every report is classified with one export context before project data is exposed; the
     local-private context is admitted only with the user's explicit intent; and under a user's per-report
     release private project data is kept while every other private class is not.
+  when: Deciding a record's disposition by report context.
   gating: true
 - from: DEL-06-03
   condition: A user-rule check run reports each missing rule-check-required input as a rule-check-blocking
     finding that names the input, and reports no evaluated outcome on that basis.
+  when: Showing missing rule-required data.
   gating: true
 - from: DEL-06-04
   condition: A rule pack's identity, version, checksum and source note can be shown in a report without
     any of the pack's formulas or values.
+  when: Identifying a rule-pack reference.
   gating: true
 code_paths:
 - core/reporting/report_sections/**

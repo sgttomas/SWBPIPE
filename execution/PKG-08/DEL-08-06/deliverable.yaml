@@ -4,34 +4,41 @@ needs:
 - from: DEL-14-01
   condition: A saved model state is an immutable record with a stable identity, a name, tags, notes, external
     references, unresolved assumptions, warnings and deterministic hashes that state what they cover.
+  when: Assembling state sections.
   gating: true
 - from: DEL-14-02
   condition: An analysis-run record binds a run to one exact model state and holds its solver version, settings,
     units, load-case basis, diagnostics, results, rule-pack and library references and result hashes, each
     hash with its payload scope.
+  when: Assembling run sections.
   gating: true
 - from: DEL-14-03
   condition: A model-state comparison is deterministic for the same two states, mappings and settings,
     matches entities by stable identifier or explicit mapping, classifies each as added, removed, changed
     or unchanged, and never compares a unit-bearing value as a bare number.
+  when: Assembling state-comparison sections.
   gating: true
 - from: DEL-14-04
   condition: An analysis-run comparison is deterministic, gives result differences in a common unit only
     where unit and dimension metadata allow it, classifies them against a tolerance profile, and states
     that its output is diagnostic evidence and not validation or acceptance.
+  when: Assembling run-comparison sections.
   gating: true
 - from: DEL-14-05
   condition: The comparison mapping and tolerance contracts define manual mappings, unmatched classifications
     and tolerance profiles as schema-governed records with explicit units and no default engineering value.
+  when: Assembling comparison sections.
   gating: true
 - from: DEL-15-01
   condition: A handoff package manifest carries the model hash, a units manifest, stable entity identifiers,
     library and rule-pack references by identity and checksum, and unresolved assumptions, warnings and
     diagnostics as explicit records.
+  when: Assembling handoff sections.
   gating: true
 - from: DEL-15-03
   condition: The export workflow produces schema-compliant handoff packages and keeps their target mapping
     metadata, unsupported-target flags, diagnostics, provenance and hashes in the workflow record.
+  when: Assembling handoff sections.
   gating: true
 - from: DEL-15-04
   condition: External-prover metadata is names, tags, notes, references and attachments with no forced
@@ -40,24 +47,26 @@ needs:
 - from: DEL-05-04
   condition: The software's analysis statuses are a closed vocabulary that excludes human approval for
     a project and code compliance.
-  gating: true
+  gating: false
 - from: DEL-08-01
   condition: The calculation report admits a section contributed by another deliverable through its section
     contract and gates, and the report package carries the section set as a member bound to the package's
     model, run and result document.
+  when: Placing the section set in a report and its package.
   gating: true
 - from: DEL-08-02
   condition: A hash record states its algorithm, the basis its digest was computed on and the payload it
     covers, and a JSON payload hash is SHA-256 over the RFC 8785 canonical form.
-  gating: true
+  gating: false
 - from: DEL-08-03
   condition: A provenance record carries the seven fields of PRD section 20.2 and a privacy classification;
     an absent redistribution status reads unknown and an absent review status pending.
-  gating: true
+  gating: false
 - from: DEL-08-04
   condition: The result export document identifies each result row by a stable identifier, and each member
     it copies from a received result by the SHA-256 of that member's RFC 8785 canonical form, so that a
     run section can refer to results without copying them.
+  when: Referring a run section to its results.
   gating: true
 - from: DEL-08-05
   condition: The protected-content linter reports findings with a review route for a public text target
@@ -68,7 +77,7 @@ needs:
   condition: A report or export is classified under one export context before project data is exposed, and
     private values are retained only in a local-private context with the user's explicit intent or under
     a user's per-report release.
-  gating: true
+  gating: false
 - from: DEL-01-04
   condition: The report notice template carries the notice for reports that include authoring, comparison,
     handoff, export or external-prover material, and the registry presents those materials as review aids

@@ -32,6 +32,7 @@ needs:
     source, affected object, message, remediation and provenance).
   gating: true
 - from: DEL-04-01
+  when: Examining AC-002 and AC-003 in both solver modes
   condition: >-
     The frame kernel assembles the global stiffness of the frame system, the connector and tie-rod
     elements among its members, and repeated runs of the same model, solver version and settings
@@ -48,7 +49,7 @@ needs:
   condition: >-
     The invented reference system and its independent references are maintained, with an expansion
     joint with tie rods among its members.
-  gating: false
+  gating: true
   when: Examining the reference system's expansion joint on the exact route.
 code_paths:
 # The connector and tie-rod elements. DEL-04-01 lists the frame kernel crate and names these files

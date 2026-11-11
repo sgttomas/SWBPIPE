@@ -42,7 +42,7 @@ It serves SOW-014 under OBJ-003 and OBJ-005 (`execution/_Decomposition/SOFTWARE_
 
 **Boundary.** This deliverable defines combinations of solved results. The following belong elsewhere:
 
-- load cases, primitive loads and their generation: DEL-05-01. Solving a case, the held-status solve step itself, and publication of every row: DEL-04-07. Final support states and the active-set classifier: DEL-04-04;
+- load cases, primitive loads and their generation: DEL-05-01. Solving a case, the held-status solve step itself (DEL-04-07/REQ-012), and publication of every row: DEL-04-07. Final support states and the active-set classifier: DEL-04-04;
 - the stress definitions and section bases of the rows combined: DEL-05-03. The bound a load case's own force and moment rows carry from the solve's integrity check: DEL-04-01's code, composed by DEL-04-07. Combinations on the retained-precision routes: DEL-04-08;
 - the exact accumulator the sums use: DEL-04-01. The model-document members of a combination: DEL-02-01. The combination editor and its seismic template: DEL-07-03. Result formats: DEL-08-04;
 - code-specific combinations, factors, stress categories and limits: the user's rule pack (PKG-06). The rule-pack expression evaluator: DEL-06-02;

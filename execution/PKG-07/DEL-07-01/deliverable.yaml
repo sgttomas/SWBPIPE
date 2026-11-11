@@ -31,6 +31,7 @@ needs:
     component, each with its target types, field path and value form.
   gating: true
 - from: DEL-16-02
+  when: Refusing a gesture before it is queued
   condition: >-
     An operation or batch can be validated without being applied, returning either a deterministic
     preview of the change or the named refusal the apply would give.
@@ -41,6 +42,7 @@ needs:
     acceptance, applies it whole or not at all, and leaves the model unchanged on any refusal.
   gating: true
 - from: DEL-07-09
+  when: Building the tool palette
   condition: >-
     The operation vocabulary lists each interactive model-building item with its class
     (NORMATIVE-NOW or ROADMAP), the operation kinds it binds to and its palette group, and one

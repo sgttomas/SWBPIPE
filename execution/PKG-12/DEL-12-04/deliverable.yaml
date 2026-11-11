@@ -22,7 +22,7 @@ needs:
     The boundary policy defines the redistribution-status values (public permissive, private only,
     unknown, protected suspected) and the review-status values (pending, accepted, rejected,
     quarantined) a reference record carries.
-  gating: true
+  gating: false
 - from: DEL-03-07
   condition: >-
     The local library store keeps only a library accepted as private and local; an import with
@@ -39,12 +39,14 @@ needs:
   condition: >-
     The adapter gate dispatches no adapter, and refuses a declaration that turns off a control,
     exposes the store, or allows private-data transmission by default.
+  when: Examining AC-010 on the adapter gate
   gating: true
 - from: DEL-16-06
   condition: >-
     The model-provider key the person enters goes only to the operating system's keychain, and a
     locked keychain or a missing key gives an explicit unavailable state with no file used in its
     place.
+  when: Examining AC-004 for the model-provider credential
   gating: true
 - from: DEL-00-06
   condition: >-

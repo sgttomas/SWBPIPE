@@ -6,13 +6,13 @@ needs:
     Nodes, elements and other model entities in the model document carry stable identifiers and are
     referred to by them, so that a kernel object reference can be bound back to the model entity it
     stands for.
-  gating: true
+  gating: false
 - from: DEL-02-02
   condition: >-
     The unit catalog converts every authored quantity to one consistent basis and rejects a
     dimensional mismatch before the value reaches the kernel. The kernel records the caller's unit
     basis and converts nothing.
-  gating: true
+  gating: false
 - from: DEL-02-03
   condition: >-
     The analysis status vocabulary keeps a mechanics result distinct from a rule-check outcome and
@@ -31,7 +31,7 @@ needs:
     A_s = kappa_E A and phi = 12EI/(G A_s L^2), with the rule for which straight members a document
     selects as Timoshenko (DEL-05-03/REQ-011, DEL-05-03/AC-004). The kernel forms its Timoshenko element from
     that definition; a change to the definition changes the kernel element with it.
-  gating: true
+  gating: false
 code_paths:
 # The frame kernel crate, with the integrity check (structural/formation_check**,
 # structural/certified_recovery.rs), the arc maximum enclosure (structural/arc_maximum.rs,

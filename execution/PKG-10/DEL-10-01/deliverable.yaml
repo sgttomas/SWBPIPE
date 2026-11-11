@@ -29,17 +29,17 @@ needs:
   condition: >-
     The plugin manifest schema defines what a plugin declares, every capability it requests is
     denied by default, and a manifest that turns off a no-bypass control is refused.
-  gating: true
+  gating: false
 - from: DEL-02-01
   condition: >-
     Every path by which a model document enters the product applies the same format and validator
     checks, and no adapter or plugin admits a document that fails them.
-  gating: true
+  gating: false
 - from: DEL-02-02
   condition: >-
     At each product boundary a quantity with an unknown unit or a unit of the wrong dimension is
     refused with a unit finding, and a missing unit is never accepted as dimensionless.
-  gating: true
+  gating: false
 - from: DEL-02-03
   condition: >-
     The analysis-status vocabulary is seven statuses of which a software surface may emit six, and
@@ -50,7 +50,7 @@ needs:
   condition: >-
     The model hash is SHA-256 over the RFC 8785 canonical form of the model document and is
     reproduced by an implementation that imports no product code.
-  gating: true
+  gating: false
 code_paths:
 - api/api_boundary_contract.yaml
 - docs/architecture/plugin_boundary.md

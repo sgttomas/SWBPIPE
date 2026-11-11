@@ -24,24 +24,25 @@ needs:
   condition: >-
     Every load case and every combination in the model document has a stable identifier that other
     records name, so a pack's required load case can refer to one by that identifier.
-  gating: true
+  gating: false
 - from: DEL-02-02
   condition: >-
     The unit schema states the one dimension vocabulary, and every catalog unit has one dimension
     of it, so the dimension and unit a pack declares for an input or a slot can be checked against
     them.
-  gating: true
+  gating: false
 - from: DEL-08-04
   condition: >-
     A published result row states the load case or combination it belongs to, its kind and the
     entity it concerns, and where it has them its location, component, section basis and tie-rod
     identity, so that rows of one basis can be told apart.
+  when: Examining AC-006 on published results
   gating: true
 - from: DEL-05-02
   condition: >-
     An operand row published under a combination (the held-status subtrahend) is marked as an
     operand, so that the selector check can leave it aside and a selector on that combination
-    selects the combination's result.
+    selects the combination's result (DEL-05-02/REQ-013, DEL-05-02/AC-004).
   gating: false
 - from: DEL-02-03
   condition: >-

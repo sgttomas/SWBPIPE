@@ -19,11 +19,12 @@ needs:
     The boundary policy defines the handling of suspected protected content (stop its use, mark
     it, quarantine it, request human or legal review and hold it from use while unresolved) and
     treats an unknown redistribution status as not acceptable for public use.
-  gating: true
+  gating: false
 - from: DEL-02-05
   condition: >-
     The project store is one local store in the application's local data folder, with its own
     schema version, and persistence transmits nothing (DEL-02-05 REQ-013).
+  when: Keeping packs in the local project store
   gating: true
 - from: external:owner
   condition: >-

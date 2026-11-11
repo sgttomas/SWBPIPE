@@ -6,13 +6,14 @@ needs:
     The storage guard decides a record from its metadata alone: a private record is admitted in a
     local private context only with the user's explicit intent, a remote or direct-SQL context is
     blocked, and a context the guard does not know is refused, each with a reason code.
+  when: Admitting a route
   gating: true
 - from: DEL-01-02
   condition: >-
     The boundary policy names the classes of protected content and of private user data, defines
     the redistribution-status and review-status values, and says a user may export their own
     private data with documented redistribution rights.
-  gating: true
+  gating: false
 - from: DEL-00-06
   condition: >-
     The diagnostic contract fixes the fields a finding carries and the six warning classes, and
@@ -20,13 +21,14 @@ needs:
   gating: true
 - from: DEL-00-07
   condition: >-
-    No plugin or adapter exposes content around the report and export controls, and a declaration
-    grants nothing by itself.
-  gating: true
+    No plugin or adapter goes around the report boundary controls, and a plugin's or adapter's
+    declaration grants nothing by itself.
+  gating: false
 - from: DEL-08-02
   condition: >-
     Canonical JSON has one implementation of RFC 8785 with SHA-256 hashing, so that route evidence
     can name the exact content it concerns.
+  when: Binding route evidence to content by hash
   gating: true
 - from: DEL-08-01
   condition: >-
@@ -34,6 +36,7 @@ needs:
     package save) leaves the desktop by its governed route, and a blocked report is rendered only
     with its blocking reasons and is not saved, printed or packaged. A user release is recorded in
     that one report and its package and nowhere else.
+  when: Examining AC-007 and AC-013 at the report sinks
   gating: true
 - from: DEL-03-07
   condition: >-
@@ -41,17 +44,31 @@ needs:
     review status as text, and a library accepted as private is never accepted as public. A
     library, record or value stating suspected protected content or a quarantined review status is
     quarantined, and a rejected one is rejected.
-  gating: true
+  gating: false
 - from: DEL-06-04
   condition: >-
     A rule pack's audit reference gives its identity, version, checksum and source note without
     its formulas or values, and a pack the product creates for a user is private by default.
-  gating: true
+  gating: false
 - from: DEL-12-05
   condition: >-
     The threat model names the report, export and sharing threats and the controls it requires of
     an export.
   gating: false
+- from: DEL-10-01
+  condition: >-
+    The plugin boundary is denied by default: no bypass of a report or export control exists without
+    a grant, and no permission can be in a granted state while how a grant is given and persists is
+    undecided (DEL-10-01/REQ-012, DEL-10-01/AC-006).
+  when: Examining REQ-012 for plugin routes
+  gating: true
+- from: DEL-10-02
+  condition: >-
+    An exporting adapter the framework governs writes a payload holding a private value bound
+    outside the local project only as the export control decides, and quarantines a payload holding
+    a protected-suspected value with nothing written (DEL-10-02/AC-007).
+  when: Examining REQ-012 and AC-013 on adapter export routes
+  gating: true
 code_paths:
 - docs/security/redaction_export_controls.md
 - schemas/redaction_export_controls.schema.yaml

@@ -8,14 +8,14 @@ needs:
     with human approval only as an external record and no automatic code-compliance status. The
     registry's display-form table has one row per automatic status; a change to the status set
     changes the table with it.
-  gating: true
+  gating: false
 - from: DEL-01-02
   condition: >-
     The boundary policy names the content that public report templates and public examples must
     not contain: protected standards content, private rule-pack content, private project data and
     proprietary data. The notice template's protected-content notice repeats that boundary and
     does not define it.
-  gating: true
+  gating: false
 - from: DEL-01-01
   condition: >-
     The governance baseline's release policy names the disclosures a public release carries:

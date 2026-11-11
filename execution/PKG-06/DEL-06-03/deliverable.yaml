@@ -13,6 +13,7 @@ needs:
     Evaluating a formula over typed bound quantities returns a truth value or a quantity, or
     blocking findings and no value, the same every time; and the comparison of a quantity with a
     limit by an ordering relation is an expression of the grammar.
+  when: Computing a within or exceeding outcome
   gating: true
 - from: DEL-06-04
   condition: >-
@@ -20,6 +21,7 @@ needs:
     redistribution status, a missing or stale checksum, suspected protected content) and whether
     the pack is blocked, suspected protected content always blocking, so that a blocked pack is
     not run.
+  when: Refusing to run a blocked pack
   gating: true
 - from: DEL-00-06
   condition: >-
@@ -33,7 +35,7 @@ needs:
     The claims registry states the prohibited claims and holds the display forms of the three
     user-rule statuses with their authority domain, against which a run's statuses, findings and
     notice are examined.
-  gating: true
+  gating: false
 - from: DEL-02-01
   condition: >-
     The model document lists its load cases and its combinations, each with a stable identifier,
@@ -61,30 +63,42 @@ needs:
     A solve publishes, for each load case it solves, result rows with unit-bearing values and a
     mechanics status, and publishes no result marked solved for a case that is singular,
     ill-conditioned or not converged.
+  when: Binding a solver-result input
   gating: true
 - from: DEL-05-02
   condition: >-
     A withheld combination is withheld whole and publishes no rows; a combination's published rows
     are its result, and an operand row published under it (the held-status subtrahend) is marked
-    as an operand.
+    as an operand (DEL-05-02/REQ-013, DEL-05-02/AC-004).
+  when: Binding a row on a combination basis
   gating: true
 - from: DEL-08-04
   condition: >-
     A published result row states the load case or combination it belongs to, its kind and the
     entity it concerns, and where it has them its location, component and section basis, so that
     rows of one basis can be told apart.
+  when: Binding a solver-result input
   gating: true
 - from: DEL-04-08
   condition: >-
-    The result reader states each solved result's standing (numerically eligible, needing
-    recomputation or unsupported), and for a retained-precision result the class of each row; a
-    rule check is admitted only at numerically eligible standing.
+    For a retained-precision result the result reader states its standing (numerically eligible,
+    needing recomputation or unsupported) and the class of each row; a rule check is admitted only
+    at numerically eligible standing.
+  when: Binding a row of a retained-precision result
   gating: true
 - from: DEL-03-07
   condition: >-
     The local library store keeps a library document only when its import was accepted as private
     and local, so a value a run reads from it has passed the import boundary; each stored record's
     slot states its value with its unit.
+  when: Reading a private library value
+  gating: true
+- from: DEL-05-02
+  condition: >-
+    For a result of an ordinary identity the ordinary result reader states its standing
+    (numerically eligible, needing recomputation or unsupported) with its findings, and refuses by
+    name a result it does not admit (DEL-05-02/REQ-018 to DEL-05-02/REQ-020).
+  when: Binding a row of an ordinary result
   gating: true
 code_paths:
 # The checker and its findings; no other deliverable lists this module.

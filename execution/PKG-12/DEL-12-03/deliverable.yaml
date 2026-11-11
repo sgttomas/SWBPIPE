@@ -27,7 +27,7 @@ needs:
   condition: >-
     A plugin's or adapter's declaration grants nothing by itself, and no capability exists without
     an explicit grant.
-  gating: true
+  gating: false
 - from: DEL-01-04
   condition: >-
     The claims registry is the single source of boundary language, and no registered statement or
@@ -42,6 +42,7 @@ needs:
   condition: >-
     Every saved or downloaded file leaves the desktop only through a catalogued route whose
     wrapper returns its controlled export before any save, and a blocked export exposes nothing.
+  when: Saving the panel's state file
   gating: true
 - from: DEL-12-05
   condition: >-

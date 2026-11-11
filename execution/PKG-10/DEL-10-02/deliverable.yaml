@@ -6,7 +6,7 @@ needs:
     The API boundary contract is the public API and plugin boundary an adapter operation goes
     through: it states the no-bypass constraints every public operation keeps in force and the
     request kinds an operation may be.
-  gating: true
+  gating: false
 - from: DEL-00-07
   condition: >-
     Adapters validate units, provenance, redistribution status, diagnostics and the private or
@@ -34,13 +34,15 @@ needs:
     The data boundary policy defines the seven members of a provenance record and the value sets
     of redistribution status and review status, and requires quarantine of suspected protected
     content.
-  gating: true
+  gating: false
 - from: DEL-02-01
+  when: An adapter imports a model document
   condition: >-
     Every path by which a model document enters the product applies the same format and validator
     checks, and no adapter or plugin admits a document that fails them.
   gating: true
 - from: DEL-02-02
+  when: An adapter validates the units and dimensions of imported data
   condition: >-
     At each product boundary a quantity with an unknown unit or a unit of the wrong dimension is
     refused with a unit finding, and a missing unit is never accepted as dimensionless.

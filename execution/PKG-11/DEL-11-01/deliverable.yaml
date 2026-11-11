@@ -32,6 +32,7 @@ needs:
     desktop and publishes displacements, member actions and support loads with their units and
     diagnostics, refusing by name what it does not admit. The guide's sustained and operating
     entries describe that run and those refusals.
+  when: Writing the sustained and operating entries
   gating: true
 - from: DEL-05-01
   condition: >-
@@ -40,6 +41,7 @@ needs:
     displacement at supports and the hydrostatic test condition, each with named findings for a
     missing or refused input. The guide's hydrotest, wind, static seismic and seismic anchor
     movement entries describe those inputs and findings.
+  when: Writing the hydrotest, wind, static seismic and seismic anchor movement entries
   gating: true
 - from: DEL-05-02
   condition: >-
@@ -47,12 +49,14 @@ needs:
     basis, envelopes, absolute sums and SRSS, each withheld by name when its conditions are not
     met. The guide's expansion and seismic-combination entries describe those bases and
     withholdings.
+  when: Writing the expansion and seismic-combination entries
   gating: true
 - from: DEL-04-09
   condition: >-
     A modal request takes an extraction bound, a modulus basis and a weight-to-mass acceleration
     from the user and publishes frequencies, mode shapes and modal mass, refusing by name what
     the method does not admit. The guide's modal entry describes that request and result.
+  when: Writing the modal entry
   gating: true
 - from: DEL-04-10
   condition: >-
@@ -60,6 +64,7 @@ needs:
     directional combination choices and the missing-mass input, and publishes unsigned peak
     displacements, element end forces and support reactions, refusing by name what it does not
     admit. The guide's response-spectrum entry describes that request and result.
+  when: Writing the response-spectrum entry
   gating: true
 - from: DEL-04-11
   condition: >-
@@ -67,6 +72,7 @@ needs:
     a private hanger library, and publishes a hanger table with each candidate's selected record
     or a statement that none fits, refusing by name what it does not admit. The guide's
     hanger-sizing entry describes that request and table.
+  when: Writing the hanger-sizing entry
   gating: true
 - from: DEL-07-01
   condition: >-
@@ -127,17 +133,20 @@ needs:
     A project is kept in a local project store on the user's machine, a document of another
     format version is refused by name, and autosave is on by default. The guide's storage
     content states that location and behaviour.
+  when: Writing the storage content
   gating: true
 - from: DEL-10-04
   condition: >-
     The release is a signed and notarized macOS application archive published with a checksum
     file. The guide's installation section describes verifying and installing that artifact.
+  when: Writing the installation section
   gating: true
 - from: DEL-11-03
   condition: >-
     For every analysis of exit criterion 1 a theory note gives the method, its assumptions and
     its limitations under a heading a link can reach. Each analysis entry of the guide links
     there and does not restate the method.
+  when: Linking each analysis entry to its theory note
   gating: true
 - from: DEL-11-04
   condition: >-

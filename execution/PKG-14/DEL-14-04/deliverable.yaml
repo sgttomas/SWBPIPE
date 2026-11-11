@@ -11,6 +11,7 @@ needs:
     result.
   gating: true
 - from: DEL-14-05
+  when: Applying manual mappings or a tolerance profile, and examining AC-008
   condition: >-
     The mapping contract defines the mapping hierarchy, the mapping record and the unmatched
     classifications, and a tolerance profile is a schema-governed record with explicit units and

@@ -19,6 +19,7 @@ needs:
     member actions and support loads with their units and diagnostics, or refuses by name what
     it does not admit. Each example solves, or shows the named finding its description says it
     demonstrates.
+  when: Examining AC-003 on the release's solve
   gating: true
 - from: DEL-06-05
   condition: >-
@@ -31,13 +32,14 @@ needs:
     A pack's recorded checksum is SHA-256 over the RFC 8785 canonical form of the pack document
     with its checksum member excluded, and it does not depend on a path, a time or a session.
     The checksum the fake-rule-pack example cites for the invented pack is that one.
-  gating: true
+  gating: false
 - from: DEL-06-03
   condition: >-
     A rule-check run reports each check on each basis as within the user's limit, exceeding it
     or incomplete, names every missing input of an incomplete check, and leaves the mechanics
     status as it was. The fake-rule-pack example's description states the outcome that run
     gives on it.
+  when: Examining AC-004's rule-check run
   gating: true
 - from: DEL-01-02
   condition: >-

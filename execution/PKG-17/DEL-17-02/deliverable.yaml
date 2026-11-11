@@ -24,12 +24,12 @@ needs:
   condition: >-
     Every addressable record of the model document has an identifier that other records name, so
     that a stable ID map can account for each one.
-  gating: true
+  gating: false
 - from: DEL-01-02
   condition: >-
     The data boundary policy defines the provenance record and its value sets and states what
     public fixtures and examples may contain.
-  gating: true
+  gating: false
 # The contract has no module of its own: its definitions are realised in each target's schema and
 # writer, which belong to DEL-17-03 to DEL-17-09. The desktop helper that forms a unit disclosure,
 # apps/desktop/src/features/exportUnitDisclosure.ts, applies this contract and is listed by

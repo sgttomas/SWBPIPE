@@ -11,7 +11,7 @@ needs:
   condition: >-
     The analysis status semantics give each of the seven statuses one meaning and one authority,
     and the status schema admits exactly the six automatic statuses as software output.
-  gating: true
+  gating: false
 - from: DEL-05-04
   when: Examining that no surface writes a status outside the vocabulary
   condition: >-
@@ -24,7 +24,7 @@ needs:
   condition: >-
     Where the product presents a human acceptance record with content, a record whose bound hash
     differs from that content's hash is presented as not applying to it.
-  gating: true
+  gating: false
 code_paths:
 # The boundary record. The status vocabulary and the status envelope
 # (schemas/analysis_status.schema.yaml) are DEL-05-04's.

@@ -17,7 +17,7 @@ needs:
   condition: >-
     The analysis status vocabulary is seven statuses, of which software may emit the first six and
     never HUMAN_APPROVED_FOR_PROJECT.
-  gating: true
+  gating: false
 code_paths:
 - core/rules/expression_evaluator/**
 - fixtures/rule_expressions/conformance_corpus/**

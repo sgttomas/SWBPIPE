@@ -13,6 +13,7 @@ needs:
     support's ground (DEL-04-03/REQ-013, DEL-04-03/AC-002).
   gating: true
 - from: DEL-04-07
+  when: Examining the classifier in the assembled iteration (AC-003, AC-004, AC-009, AC-010)
   condition: >-
     The assembled nonlinear iteration assembles and solves each iterate, leaves the classification
     of every iterate to this classifier, under the governed convergence tolerances and iteration

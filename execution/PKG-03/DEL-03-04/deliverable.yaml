@@ -48,7 +48,7 @@ needs:
   condition: >-
     The invented reference system and its independent references are maintained, with a tee
     carrying user modifiers among its members.
-  gating: false
+  gating: true
   when: Examining the reference system's tee on the exact route.
 code_paths:
 # In DEL-04-07's product crate: the branch's input and topology rules in validation.rs (the bend

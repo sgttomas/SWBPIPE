@@ -24,12 +24,14 @@ needs:
     ledger from the records.
   gating: true
 - from: DEL-05-05
+  when: Covering a case with a full-span uniform member load
   condition: >-
     A distributed user load over the whole span of a straight member enters the solve as the
     member's work-consistent equivalent nodal loads in global axes, never as a lumped
     approximation (DEL-05-05 REQ-007).
   gating: true
 - from: DEL-04-02
+  when: Covering a case with a full-span uniform member load
   condition: >-
     The straight pipe element gives the equivalent nodal loads of a full-span uniform load as wL/2
     and moments of wL²/12 at each end, and recovers end and station resultants that satisfy statics
@@ -44,12 +46,14 @@ needs:
     from published rows.
   gating: true
 - from: DEL-05-02
+  when: Producing a retained combination and reading a successor at gate G7
   condition: >-
     The load-case algebra defines mechanics combination semantics and their withholding gates, which
     a retained combination reproduces, and its base-route reader gives the standing of an ordinary
     statement, which the reader applies to each successor's projected statement.
   gating: true
 - from: DEL-02-02
+  when: Forming the reader's raw and normalized projections
   condition: >-
     The unit catalog gives each unit's conversion to the canonical unit as a record with its factor
     or offset representation, converts deterministically, and each conversion agrees with the value

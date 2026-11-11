@@ -2,19 +2,21 @@ id: DEL-10-04
 name: Build, packaging, and CI/CD pipeline
 needs:
 - from: DEL-16-06
+  when: Building the supplier resource into the application
   condition: >-
     The embedded agent's supplier resource is selected and pinned: a committed pin manifest gives
     its digest, and its licence and notice payloads are committed beside it, so that a build can
     verify the resource it is given and the resources in the built bundle.
   gating: true
 - from: DEL-09-05
+  when: Binding a release artifact's authenticity chain
   condition: >-
     The release gates are listed with the evidence each needs, and the release-candidate sweep
     emits a summary bound to a commit that records whether the tree was clean and whether every
     surface passed.
   gating: true
 - from: DEL-08-05
-  when: Before the v1.0 release
+  when: Examining the owner-signed scan record of the v1.0 candidate
   condition: >-
     The release-candidate scan covers a repository-tree candidate at a named revision and emits a
     record that lists every finding with an empty disposition and a sign-off block that only the
@@ -29,7 +31,7 @@ needs:
   condition: >-
     The project's licence is MIT and its text is the repository's licence file, and the release
     policy names the five release disclosures a public release carries.
-  gating: true
+  gating: false
 code_paths:
 # The build: root workspace manifest, desktop build configuration, the WebAssembly engine build,
 # the bundle icon, and newline rules for protected inputs.

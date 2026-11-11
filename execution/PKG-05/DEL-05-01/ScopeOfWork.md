@@ -44,7 +44,7 @@ This deliverable keeps the primitive-load and self-weight generation mathematics
 - the equivalent nodal loads of a member load and the end forces of a free strain: DEL-04-02;
 - how a prescribed movement is solved, and the support families: DEL-04-03, DEL-04-04;
 - what pressure contributes to a solve (pressure regions on the exact route; the pressure-free route carries none), each pipe's mass per length, and the composition of every load into the product solve on both routes: DEL-04-07;
-- the replacement of held supports in the assembled system, and their reactions: DEL-04-07;
+- the replacement of held supports in the assembled system, and their reactions: DEL-04-07 (DEL-04-07/REQ-011);
 - concentrated and distributed loads as user loads: DEL-05-05. Combinations of cases, including what an occasional or a test case means inside one: DEL-05-02;
 - modal and response-spectrum analysis: DEL-04-09, DEL-04-10. Time-history and other dynamic loading are outside the product;
 - the model-document members for loads, conditions and the test condition: DEL-02-01. Units and their conversion: DEL-02-02;

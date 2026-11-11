@@ -53,6 +53,7 @@ needs:
     entered, and reports each inadmissible record by a named finding with the support's identity.
   gating: true
 - from: DEL-04-04
+  when: Building the nonlinear support forms
   condition: >-
     The nonlinear support model defines the members of a one-way, gap, lift-off and friction
     support and reports a record that lacks a required one by a named finding.
@@ -72,6 +73,7 @@ needs:
     reported as missing.
   gating: true
 - from: DEL-07-03
+  when: Building the run sheet's bend, valve and flange rows and the tree's component forms
   condition: >-
     The component and bend editors expose their creation forms' completeness checks and operation
     payload builders, which the run sheet's bend, valve and flange rows and the tree's component

@@ -23,6 +23,7 @@ needs:
     request are defined; and a shared memory pool grants and releases memory under leases.
   gating: true
 - from: DEL-04-06
+  when: Withholding Solve on the model checks' findings
   condition: >-
     The solver and the model checks report each finding with the governed diagnostic fields and its
     class, and the model checks can be run alone on a solve request.
@@ -57,7 +58,7 @@ needs:
   condition: >-
     The finding presentation defines how a finding's class and fields are shown, how an absent field
     reads, and how a finding leads to its affected object, which the diagnostics panel follows.
-  gating: true
+  gating: false
 - from: DEL-04-05
   when: Marking the solve timeline
   condition: >-

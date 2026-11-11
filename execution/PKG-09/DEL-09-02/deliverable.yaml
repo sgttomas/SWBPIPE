@@ -40,7 +40,7 @@ needs:
   condition: >-
     The headless runner's benchmark workflow runs the named cases of a suite and reports each
     case's outcome without silently skipping one.
-  gating: false
+  gating: true
   when: Running a benchmark case by name.
 - from: DEL-02-02
   condition: >-

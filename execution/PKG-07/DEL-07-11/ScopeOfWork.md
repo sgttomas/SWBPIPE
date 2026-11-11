@@ -39,14 +39,14 @@ It serves SOW-078 under OBJ-006, OBJ-010 and OBJ-015 (`execution/_Decomposition/
 - each panel's content and commands: the deliverable that owns the panel;
 - the review, Apply and ledger interaction: DEL-07-08. Application of operations: DEL-16-06;
 - the solve job, its progress and its result custody: DEL-07-07;
-- the stored project, its revisions, autosave and recovery: DEL-02-05. The model document's form, version and validation: DEL-02-01. Run records: DEL-14-02;
+- the stored project, its revisions, autosave and recovery: DEL-02-05. REQ-006's save in place relies on the store refusing by name a save over a revision the session did not open or write and the user did not confirm (DEL-02-05/REQ-036). The model document's form, version and validation: DEL-02-01. Run records: DEL-14-02;
 - saving the working model as a model document file: DEL-15-03. The export formats and their review panels: PKG-17 and DEL-07-12;
 - where private data may be stored and what may leave the machine: DEL-12-01 and DEL-12-02;
-- the build and packaging of the desktop: DEL-10-04;
+- the build and packaging of the desktop: DEL-10-04. That no product build contains the scripted-run build's features is this deliverable's outcome (REQ-010, AC-008); that none contains the native-smoke kit is DEL-04-05/AC-002;
 - the accessibility target and presentation conventions: DEL-07-06;
 - the command, query and job rules and the GUI state rule: DEL-00-03 and DEL-00-05.
 
-**Not decided.** What the native host's security configuration is: the webview's content policy and the set of native commands the webview may call. No scope states it. No deliverable currently commits the project store to refusing by name a write that would replace a stored revision the session did not open or confirm, which REQ-006's save in place relies on. No deliverable currently commits the product build's configuration to leaving out the scripted-run build's features; REQ-010 states that outcome and AC-008 scans for it.
+**Not decided.** What the native host's security configuration is: the webview's content policy and the set of native commands the webview may call. No scope states it.
 
 **Windows.** Windows is not a release platform for v1.0. A Windows implementation of the shell's native boundary keeps the native command names, owning services, admission rules and stale-result guards the macOS desktop has, and adds native code only at the operating-system operations. Its dispatch of menus, native dialogs, accelerators and file operations, and its security configuration, are examined in the launched Windows application; a run in a browser alone does not show them, and a Windows check of another native boundary does not meet them.
 

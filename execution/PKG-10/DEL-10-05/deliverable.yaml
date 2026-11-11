@@ -14,6 +14,7 @@ needs:
     class arrives unchanged, and the class changes only by the result export's stated mapping.
   gating: true
 - from: DEL-04-07
+  when: Building and examining the solve verb
   condition: >-
     The product solve is one entry for the desktop and the headless runner in both solver modes:
     the same request gives byte-identical published results and diagnostics on each, and an
@@ -23,19 +24,22 @@ needs:
   condition: >-
     A singular, ill-conditioned or incomplete model yields a named solver diagnostic with its
     affected object, and never a result with a substituted value.
-  gating: true
+  gating: false
 - from: DEL-02-01
+  when: Judging a request's model document before a solve
   condition: >-
     A headless solve request needs only the model document format, and the one document validator
     judges a document's members and refuses a malformed one by a named code and JSON path, so that
     the runner can refuse a document that fails either before any solve.
   gating: true
 - from: DEL-02-02
+  when: Checking the units of a request's quantities
   condition: >-
     At each product boundary a quantity with an unknown unit or a unit of the wrong dimension is
     refused with a unit finding, and a missing unit is never accepted as dimensionless.
   gating: true
 - from: DEL-05-04
+  when: Stating a result's analysis status
   condition: >-
     The analysis-status vocabulary is seven statuses of which software may emit the six automatic
     ones, and a user's rule-pack outcome is stated only by the three rule statuses
@@ -43,11 +47,13 @@ needs:
     compliance.
   gating: true
 - from: DEL-02-05
+  when: Judging a request's model document and hashing it
   condition: >-
     A model document has one current version and every other version is refused by name, and the
     model hash is SHA-256 over the RFC 8785 canonical form of the document.
   gating: true
 - from: DEL-08-02
+  when: Computing the hashes a result carries
   condition: >-
     Every surface of the product that hashes JSON uses one canonical form, so that equal values
     give equal digests through the desktop, the headless runner and the model editor.
@@ -65,6 +71,7 @@ needs:
     desktop may carry.
   gating: true
 - from: DEL-12-02
+  when: Passing or blocking output that holds a private value
   condition: >-
     The export control classes each output value and blocks a private value from leaving the
     process unless local-private intent is explicit, in which case it passes with a warning.
@@ -92,19 +99,19 @@ needs:
   condition: >-
     The base result readers take a result statement, with an optional model, invocation and
     recorded binding, and return a verdict that passes it or refuses it by code.
-  gating: false
+  gating: true
 - from: DEL-04-08
   when: Hosting the read command
   condition: >-
     The retained-precision reader validates a retained source and its transport metadata and
     returns a verdict that passes it or refuses it by code.
-  gating: false
+  gating: true
 - from: DEL-04-11
   when: Hosting the size-hangers command
   condition: >-
     The hanger sizing entry takes the sizing input as text, applies its own admission, and returns
     one published document that says whether it sized or refused.
-  gating: false
+  gating: true
 - from: DEL-10-04
   condition: >-
     Hosted verification builds the runner's crate and runs its tests when its inputs change, and

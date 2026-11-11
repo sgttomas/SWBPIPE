@@ -28,7 +28,7 @@ needs:
     The protected-content linter reports its findings deterministically for public report
     templates and examples, and each release-candidate scan writes a per-candidate record with the
     owner's sign-off block.
-  gating: false
+  gating: true
   when: Recording the report-template gate, and reading scan records into a gate record.
 - from: DEL-10-04
   condition: >-

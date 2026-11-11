@@ -2,6 +2,7 @@ id: DEL-14-02
 name: Analysis run records
 needs:
 - from: DEL-14-01
+  when: Recording a run against a saved state
   condition: >-
     A saved model state has a stable identity and a model hash that is SHA-256 over the RFC 8785
     canonical text of its snapshot, is read only after its hashes verify, and is not removed while
@@ -13,12 +14,14 @@ needs:
     the primitives raised them.
   gating: true
 - from: DEL-04-08
+  when: Building a record of a retained-precision result
   condition: >-
     The reader of retained-precision statements gives each one either a named refusal or a
     standing, with the class of each row, in its native, WebAssembly and Python bindings, and
     refuses an older result version by name.
   gating: true
 - from: DEL-05-02
+  when: Building a record of an ordinary result
   condition: >-
     The ordinary result reader gives each ordinary result statement either a named refusal or a
     standing, in its native, WebAssembly and Python bindings, and refuses an older result version
@@ -52,6 +55,7 @@ needs:
     project and code compliance.
   gating: true
 - from: DEL-02-05
+  when: Recording, listing and reading runs in the project store
   condition: >-
     The project store holds each project under its identity, changes its own schema forward only,
     and refuses a store newer than the build before writing anything.

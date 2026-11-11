@@ -16,11 +16,13 @@ needs:
     uniform load, a partial-span uniform load and a point force at a station, in global axes, for
     Euler-Bernoulli members; for a Timoshenko member it gives the exact Timoshenko loads of a
     partial span and refuses a point member force by name.
+  when: Solving a load on a straight member
   gating: true
 - from: DEL-04-01
   condition: >-
     The frame kernel's curved-bend element gives the equivalent nodal loads of a uniform load per
     unit arc length over a whole realized arc.
+  when: Applying a distributed load on a realized arc
   gating: true
 - from: DEL-02-01
   condition: >-

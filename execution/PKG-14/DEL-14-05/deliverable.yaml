@@ -5,18 +5,18 @@ needs:
   condition: >-
     A saved model state has a stable identity and hash records that state the payload each one
     covers, so that a comparison names a state by reference and hash.
-  gating: true
+  gating: false
 - from: DEL-14-02
   condition: >-
     An analysis-run record is identified by the hash of its own revision and names its model
     state, its unit system and each result row it binds, so that a comparison names a run and its
     results by reference and hash.
-  gating: true
+  gating: false
 - from: DEL-08-04
   condition: >-
     The result export document identifies each result row by a stable identifier and is itself
     identified by the hash of its canonical value.
-  gating: true
+  gating: false
 - from: DEL-02-02
   condition: >-
     The dimension vocabulary is stated once, in the unit schema, and every unit of the catalog has

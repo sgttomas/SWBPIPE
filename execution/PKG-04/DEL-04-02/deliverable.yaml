@@ -14,7 +14,7 @@ needs:
     The mechanics benchmark suite holds `validation/references/w9_benchmarks`, each expected value
     with a derivation that imports, reads and runs no product code and a provenance record
     (DEL-09-01/AC-005).
-  gating: false
+  gating: true
 code_paths:
 # The element crate. Its load-vector and recovery functions are called by DEL-05-01 (weight and
 # free strain) and DEL-05-05 (member loads), which decide the load values and which loads a user

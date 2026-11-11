@@ -18,11 +18,13 @@ needs:
     The straight pipe element gives the work-consistent equivalent nodal loads of a uniform member
     load over the whole span or a stated part of it, for Euler-Bernoulli and for Timoshenko
     members, and the end forces E·A·ε of a free strain.
+  when: Solving a member load or a free strain
   gating: true
 - from: DEL-04-03
   condition: >-
     An imposed displacement at a support's degree of freedom is solved as a prescribed value of
     the system on both routes and is not also added as a force.
+  when: Solving an imposed displacement
   gating: true
 - from: DEL-04-07
   condition: >-
@@ -30,6 +32,7 @@ needs:
     diameter, wall, mill tolerance, corrosion allowance, insulation and densities, equal to the
     closed-form annulus values on the route's own section bases, and refuses a missing or invalid
     input by name.
+  when: Generating self-weight and seismic loads in the product
   gating: true
 - from: DEL-03-08
   condition: >-
@@ -37,7 +40,7 @@ needs:
     times contents density, and the annulus between the outside diameter and the outside diameter
     plus twice the insulation thickness times insulation density; a missing dimension or an
     invalid input is refused by name with no property.
-  gating: true
+  gating: false
 - from: DEL-04-07
   condition: >-
     In a load case that declares held supports, the product solve replaces each spring, variable
@@ -45,7 +48,8 @@ needs:
     zero displacement from the authored geometry, applies neither its stiffness nor its force, and
     publishes the replacement's reaction under the support's identity. On a load and
     reference-state document it enters each generated load source in the case's ledger once, so
-    that a hydrostatic test case and static seismic cases solve in one document.
+    that a hydrostatic test case and static seismic cases solve in one document
+    (DEL-04-07/REQ-011).
   when: Solving a hydrostatic test case on the exact route
   gating: true
 - from: DEL-05-03
@@ -53,12 +57,13 @@ needs:
     The section each part of a pipe's mass is taken on is defined for each route: on the exact
     route pipe metal on the nominal section and contents on the pressure bore; on the
     pressure-free route both on its one section.
-  gating: true
+  gating: false
 - from: DEL-03-05
   condition: >-
     A rigid-family component has a total weight and a centre-of-gravity vector in global axes from
     its node, and its weight acts along gravity at the node with the moment of that force about
     the node.
+  when: Generating a mapped component's weight
   gating: true
 - from: DEL-00-06
   condition: >-

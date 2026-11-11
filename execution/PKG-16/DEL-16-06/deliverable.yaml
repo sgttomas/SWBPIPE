@@ -14,12 +14,14 @@ needs:
     the model hash it was evaluated on, and returns no model document.
   gating: true
 - from: DEL-16-03
+  when: Applying a batch that arrives by a product route
   condition: >-
     A batch reaches application only with the person's decision on a preview made on the current
     model hash, and each operation's author type is set by the route it came by, with agent and
     imported content stamped as agent-authored.
   gating: true
 - from: DEL-16-04
+  when: Building the embedded agent's host and catalog
   condition: >-
     The control on agent surfaces is defined: an agent-authored operation carries a rationale, a
     source and declared assumptions; these stay structured through review and history; and no
@@ -44,6 +46,7 @@ needs:
     engine.
   gating: true
 - from: DEL-02-05
+  when: Examining AC-004 after save and reopen
   condition: >-
     A project saved and reopened returns a model document with the same model hash as the one
     saved.
@@ -54,24 +57,28 @@ needs:
     a model edit that fails leaves the model unchanged.
   gating: true
 - from: DEL-07-11
+  when: Publishing an applied document to the session and registering proposals
   condition: >-
     The workspace session holds the working model with its hash and revision, registers a queued
     batch unchanged, takes an applied document as the working model, and keeps the document it
     replaced as one checkpoint that undo restores.
   gating: true
 - from: DEL-07-07
+  when: Giving the embedded agent its solve and result tools
   condition: >-
     A solve is started only as a job through the solve command, a completed solve's run summary
     carries the model hash and run identities its result carries, and a solve that did not run
     natively is not published as a current result.
   gating: true
 - from: DEL-04-07
+  when: Examining AC-008 on the reference system
   condition: >-
     The exact pressure route solves the reference system of exit criterion 1 in the desktop with
     no admitted family refused, and refuses a geometry-only bend by name with a message to
     realize it.
   gating: true
 - from: DEL-07-08
+  when: Applying a batch from the review surface
   condition: >-
     The review queue shows a registered batch's operations, author, model basis and declared
     assumptions equal to the batch as registered and the engine's validate-only preview, offers
@@ -79,11 +86,13 @@ needs:
     decision but the user's own Apply or Reject.
   gating: true
 - from: DEL-09-01
+  when: Examining AC-008 on the reference system
   condition: >-
     The reference system of exit criterion 1 is specified, with its model document, its run sheet
     and its named key results.
   gating: true
 - from: DEL-10-04
+  when: Examining AC-008 and AC-009 in the packaged application
   condition: >-
     The application build includes the supplier binary, its pin manifest and its licence files
     exactly as pinned, and fails when the supplier it was given differs from the pin.

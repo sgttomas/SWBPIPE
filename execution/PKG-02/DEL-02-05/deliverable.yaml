@@ -20,16 +20,19 @@ needs:
     them.
   gating: true
 - from: DEL-02-01
+  when: Classifying a document's version and validating it on open
   condition: >-
     The model document has one current version, named once per language, and one validator that
     refuses a malformed document by name wherever a document enters, without repairing it.
   gating: true
 - from: DEL-02-02
+  when: Finding a missing or incompatible unit in a persisted document
   condition: >-
     The unit catalog names each unit's dimension, so that a missing or incompatible unit in a
     persisted document is found and never defaulted.
   gating: true
 - from: DEL-08-02
+  when: Computing a model hash or an envelope hash
   condition: >-
     Canonical JSON has one implementation of RFC 8785 with SHA-256 hashing, and the model hash is
     computed by it.

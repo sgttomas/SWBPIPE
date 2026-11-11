@@ -28,7 +28,7 @@ needs:
     The data-boundary policy names the seven fields of the provenance record with the
     redistribution-status and review-status value sets, and names each class of protected
     content a public artifact may not contain.
-  gating: true
+  gating: false
 - from: DEL-01-04
   condition: >-
     The claims registry is the single source of boundary language: a surface that needs it uses
@@ -38,7 +38,7 @@ needs:
   condition: >-
     Every addressable record of the model document has a stable identifier that persists across
     edits, so that a design-knowledge record can name the model entities it applies to.
-  gating: true
+  gating: false
 - from: DEL-02-02
   condition: >-
     The dimension vocabulary is stated once, in the unit schema, and every unit has one

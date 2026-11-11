@@ -35,6 +35,7 @@ needs:
     apart from invalid input and an incomplete model.
   gating: true
 - from: DEL-03-08
+  when: Comparing the section and mass adapter with the calculator (AC-003)
   condition: >-
     The section and mass calculator gives, from explicit outside diameter, wall, mill tolerance,
     corrosion allowance and densities, the metal area, second moments, torsion constant and mass per
@@ -83,6 +84,7 @@ needs:
     displacement as a prescribed value, a moved spring base or a moved nonlinear-support ground.
   gating: true
 - from: DEL-04-04
+  when: Solving a case with nonlinear supports
   condition: >-
     The nonlinear support classifier returns, from an iterate's displacements and reactions, each
     support's state, the supports that changed and a convergence verdict, under the state-switched
@@ -104,6 +106,7 @@ needs:
     a failure level into an ill-conditioning warning or a blocking conditioning failure.
   gating: true
 - from: DEL-05-01
+  when: Forming a load case's loads
   condition: >-
     The primitive load contracts define each load a case applies, including thermal and fit free
     strain and generated self-weight, with the primitives from which each formed term can be re-
@@ -126,18 +129,21 @@ needs:
     (DEL-04-10/REQ-005).
   gating: false
 - from: DEL-05-05
+  when: Applying a distributed user load
   condition: >-
     The distributed user-load contract defines a uniform load on a straight member or a realized
     arc, its application to the member, and the primitives from which the formed term can be re-
     formed.
   gating: true
 - from: DEL-05-02
+  when: Publishing combinations and each row's ordinary sentence and standing
   condition: >-
     The load-case algebra combines solved case results under its combination rules and withholding
     gates, and its base reader gives the ordinary sentence, vocabulary and standing of each
     published row.
   gating: true
 - from: DEL-05-03
+  when: Publishing stress rows, member maxima and headlines
   condition: >-
     The stress recovery gives member stresses and section quantities from published end and station
     actions as fixed binary64 sequences, defines the nominal and reduced section bases on which
@@ -145,6 +151,7 @@ needs:
     which members a model selects as Timoshenko.
   gating: true
 - from: DEL-03-06
+  when: Solving a model that contains an expansion joint
   condition: >-
     An expansion joint is authored as an objective connector that replaces a span, with its work
     matrix, frame, offsets, reference state, hardware and pressure model, and with explicit elastic
@@ -169,7 +176,7 @@ needs:
     The mechanics benchmark suite holds `validation/references/w9_benchmarks` and the other
     benchmark packages of PRD §22.2, each expected value with a derivation that imports, reads and
     runs no product code and a provenance record (DEL-09-01 AC-005).
-  gating: false
+  gating: true
 - from: DEL-09-03
   when: Judging convergence of the nonlinear iteration
   condition: >-

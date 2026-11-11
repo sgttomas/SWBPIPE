@@ -42,6 +42,7 @@ needs:
     refusal.
   gating: true
 - from: DEL-03-01
+  when: Building the material editor
   condition: >-
     A material record can hold a name, a grade label, density, Poisson's ratio, elastic modulus and
     thermal expansion against temperature, each value with its unit and provenance, and has slots
@@ -49,6 +50,7 @@ needs:
     record lacks is a completeness finding, never a default.
   gating: true
 - from: DEL-03-02
+  when: Building the section and component editors and importing libraries
   condition: >-
     The section and component library formats define each record's members with unit, dimension and
     provenance and report a required value a record lacks as a completeness finding with a
@@ -83,6 +85,7 @@ needs:
     source, and a record lacking a required value is reported as missing.
   gating: true
 - from: DEL-05-01
+  when: Building the load manager
   condition: >-
     The load engine resolves a case's condition use into ordinary loads before validation and
     returns that resolution as a preview, generates a self-weight plan only from the selected pipes,
@@ -90,6 +93,7 @@ needs:
     value as a finding.
   gating: true
 - from: DEL-05-02
+  when: Building the combination editor
   condition: >-
     The combination algebra defines the combination bases, the operands each admits and the shapes
     it refuses, and the engine refuses by a named code the deletion of a load case or combination
@@ -110,6 +114,7 @@ needs:
     missing redistribution status or stale checksum is a diagnostic.
   gating: true
 - from: DEL-12-01
+  when: Storing private libraries and rule packs
   condition: >-
     Private materials, components, libraries and rule packs are stored in user-controlled local
     storage, and nothing transmits them without an explicit user action.

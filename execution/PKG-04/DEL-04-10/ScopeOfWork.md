@@ -76,6 +76,7 @@ Every combined response is an unsigned magnitude.
 
 - The spectrum screening class has no value. It is derived from the frozen references before any comparison run (REQ-008).
 - No deliverable currently commits to combining a spectrum result with static cases (for example sustained plus seismic). Whether and how the load-case algebra (DEL-05-02) admits a spectrum result as an unsigned operand is not decided.
+- Whether a spectrum request has a headless entry, and which deliverable builds it, is not allocated.
 - Independent support motion that moves a skewed restraint has no defined constraint, and CQC has no defined form for independent support motion; both are refused (REQ-011).
 
 ### Request
@@ -104,7 +105,7 @@ Every combined response is an unsigned magnitude.
 
 ### Snubbers
 
-- **REQ-005** — *Dynamic-only restraints.* A snubber (DEL-02-01's family) restrains its translational DOFs, or the motion along its one skew direction only, rigidly or by its stated stiffness (as k·d dᵀ/(dᵀd) for a skew direction d), in the dynamic stiffness: the modal basis used by a spectrum solve, the spectrum solve and its auxiliary static solve (REQ-004). Every static load-case solve on both routes ignores it and discloses it as "dynamic-only restraint, not active in static cases". A modal request that excludes dynamic-only restraints also ignores it, with the same disclosure. The product solve's scope (DEL-04-07) does not currently commit to leaving a snubber out of its static solves; this requirement states the meaning that solve must compose.
+- **REQ-005** — *Dynamic-only restraints.* A snubber (DEL-02-01's family) restrains its translational DOFs, or the motion along its one skew direction only, rigidly or by its stated stiffness (as k·d dᵀ/(dᵀd) for a skew direction d), in the dynamic stiffness: the modal basis used by a spectrum solve, the spectrum solve and its auxiliary static solve (REQ-004). Every static load-case solve on both routes ignores it and discloses it as "dynamic-only restraint, not active in static cases". A modal request that excludes dynamic-only restraints also ignores it, with the same disclosure.
 - **AC-003** — On the frozen `f2_spectrum` snubber references (axis and skew, rigid and finite stiffness), the product reproduces the modal basis and the spectrum response within REQ-008's verification tolerance, with perpendicular motion free under a skew snubber and a rigid response whose stiffness depends on the snubber. Every static load-case result is unchanged by the snubber, and the disclosure appears in both.
 
 ### Results and readers

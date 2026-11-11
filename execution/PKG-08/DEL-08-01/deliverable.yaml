@@ -11,6 +11,7 @@ needs:
   condition: The warnings, assumptions and provenance section defines its diagnostic, assumption, user-supplied
     value, provenance and library records, and decides from a provenance record's statuses and the report's
     context whether the record is rendered, warned or blocks the report.
+  when: Including the warnings, assumptions and provenance section.
   gating: true
 - from: DEL-08-04
   condition: The result export document has one current version, validates against its schema, copies the
@@ -21,10 +22,12 @@ needs:
   condition: The protected-content linter evaluates text targets it is given, with their surface kind and
     provenance, and returns findings with a severity, so that a blocking finding can block a report before
     and after rendering.
+  when: Blocking a report on a protected-content finding.
   gating: true
 - from: DEL-08-06
   condition: The state, comparison and handoff section set names the run it belongs to and restates the
     current state and run by identity and hash, so that the package can check it against its other members.
+  when: Checking a package's section set against its other members.
   gating: true
 - from: DEL-12-02
   condition: Export contexts include public report, local private and user-released report; a report is
@@ -44,18 +47,22 @@ needs:
 - from: DEL-06-04
   condition: A rule pack is identified by a stable identity, name, version and checksum with a source notice
     and a redistribution status, all of which can be shown without any of the pack's content.
+  when: Showing rule-pack references.
   gating: true
 - from: DEL-06-03
   condition: A user-rule check run gives, for each check and each load case or combination it was evaluated
     on, an outcome status and the names of the inputs that were missing.
+  when: Reporting user-rule outcomes.
   gating: true
 - from: DEL-05-03
   condition: A stress row states the section basis it was recovered on, so that a stress maximum can be
     identified for each basis.
+  when: Reporting an exact-route result's stress maxima.
   gating: true
 - from: DEL-05-01
   condition: A load case that declares the hydrostatic test condition is marked as a test case in the model
     and in the published result.
+  when: Marking a hydrostatic test case.
   gating: true
 - from: DEL-02-01
   condition: The model document gives nodes, pipes, components, materials, sections, supports, loads and
@@ -65,36 +72,41 @@ needs:
 - from: DEL-02-05
   condition: A persisted document has one current version; a reader accepts only that version and refuses
     every other by name, with no migration.
-  gating: true
+  gating: false
 - from: DEL-14-02
   condition: The run record of a solve names its run, the model state it solved, its input manifest and
     the hash of the result it received.
+  when: Stating the run's identity and input manifest.
   gating: true
 - from: DEL-04-07
   condition: The product solve publishes a result on the pressure-free and exact routes under a current
     result identity, and each result binds the exact request it was computed from.
   gating: true
 - from: DEL-07-07
-  condition: A completed solve job's result, and the model text the job received, are held by the native
-    host until the result is disposed of, so that a later report request can be compared with the held
-    bytes; a disposed result is no longer held.
+  condition: Until a completed solve job's result is disposed of, the native host keeps with it the digests
+    of the model text the job received and of the result it delivered, so that the model and result texts
+    a later report request submits can be compared with them; a disposed result leaves nothing to match
+    (DEL-07-07/REQ-015).
+  when: Checking a report request's native source binding.
   gating: true
 - from: DEL-04-08
   condition: The reader of retained-source statements gives such a result its standing (numerically eligible,
     needing recomputation or unsupported) as a verdict every reader surface takes, and the result's
     limitations are the texts of its semantic table, bound by the reviewed-input digests.
+  when: Stating an exact-route result's standing and limitations.
   gating: true
 - from: DEL-05-02
   condition: The ordinary result reader gives a pressure-free or exact-route result its standing (numerically
     eligible, needing recomputation or unsupported) with the route's published limitations, as a verdict
     every reader surface takes, and the result is bound to its route's semantic table by identifier and
     digest.
-  gating: false
+  when: Stating an exact-route result's standing and limitations.
+  gating: true
 - from: DEL-07-03
   condition: A model entity to which a library record was applied keeps a reference to that record, and
     a reference in the model that no longer matches its library is reported.
   when: Before a user-released report is admitted and before a report lists library records.
-  gating: false
+  gating: true
 code_paths:
 - core/reporting/report_generator/**
 - schemas/report_generator.schema.yaml

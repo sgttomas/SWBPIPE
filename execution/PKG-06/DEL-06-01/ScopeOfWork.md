@@ -38,7 +38,7 @@ It serves SOW-016 and SOW-042 under OBJ-005 (`execution/_Decomposition/SOFTWARE_
 
 **Boundary.** This deliverable defines the document and checks that a document is well formed. The expression grammar, its encoding in the pack and the unit consistency of a formula are DEL-06-02's. Binding inputs to data and running checks are DEL-06-03's. The checksum's computation and verification, the classification default of a new pack and the keeping of packs are DEL-06-04's. The invented example is DEL-06-05's. The editor is DEL-07-03's, and the model's reference to a pack is DEL-02-01's. The format carries the user's own category names, descriptions and mappings; the repository adds no code-standard text, table, allowable or category definition.
 
-**Undecided.** No deliverable currently commits that a published result row states the load case or combination it belongs to, its kind and its entity, and where it has them its location, component, section basis and tie-rod identity, nor that an operand row published under a combination is marked as one. The row selector and AC-006 rely on both.
+**Undecided.** No deliverable currently commits that a published result row states the load case or combination it belongs to, its kind and its entity, and where it has them its location, component, section basis and tie-rod identity. The row selector and AC-006 rely on it, and on the mark DEL-05-02 gives an operand row published under a combination (DEL-05-02/REQ-013, DEL-05-02/AC-004).
 
 ## Completion and Reliance Basis — Epistemology
 

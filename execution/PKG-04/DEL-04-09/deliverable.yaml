@@ -8,7 +8,7 @@ needs:
     number of non-positive pivots of the unpivoted LDLT, which is the number of negative pivots, and
     lets a caller read the stored factor entries and pivots without mutation or allocation; and it
     re-forms element stiffness in at least double-double precision from operands the caller
-    supplies.
+    supplies (DEL-04-01/REQ-019, DEL-04-01/AC-017).
   gating: true
 - from: DEL-04-02
   condition: >-
@@ -42,7 +42,7 @@ needs:
     The response-spectrum deliverable defines what a snubber is in the dynamic stiffness, a rigid
     restraint of its translational degrees of freedom or of motion along its one skew direction, or
     a spring of its stated stiffness, and that every static solve ignores it.
-  gating: true
+  gating: false
 - from: DEL-04-06
   condition: >-
     A model with no support, a part with no support and a mechanism are each detected and named by
@@ -114,8 +114,10 @@ needs:
 - from: DEL-10-05
   when: Before a modal request can be run headless.
   condition: >-
-    The headless runner hosts a modal command and supplies no extraction bound, acceleration or
-    other engineering value of its own.
+    A command the headless runner hosts passes its input to the owning deliverable's entry and
+    returns that entry's document unchanged, and the runner supplies no engineering value to it
+    (DEL-10-05/REQ-015, DEL-10-05/AC-011), so that a modal command, where one is hosted, adds no
+    extraction bound, acceleration or other value of its own.
   gating: false
 - from: external:nrc-nureg-cr
   when: For the published-benchmark comparison.

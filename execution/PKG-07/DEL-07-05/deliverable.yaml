@@ -15,6 +15,7 @@ needs:
     the result to its inputs.
   gating: true
 - from: DEL-05-03
+  when: Showing stress rows and the stress headline of each section basis
   condition: >-
     A recovered stress row names its station and its section basis, and on the exact route each
     basis, nominal and reduced, has its own member maxima.
@@ -26,6 +27,7 @@ needs:
     refuses a frame it cannot form by a named finding.
   gating: true
 - from: DEL-04-06
+  when: Showing solver findings and the conditioning figure
   condition: >-
     A solve whose reduced system is ill-conditioned publishes a diagnostic naming the case, and
     solver findings carry the governed diagnostic fields.
@@ -45,7 +47,7 @@ needs:
   condition: >-
     The claims registry gives each automatic status one display form and registers the
     numerical-health display forms and their boundary sentence.
-  gating: true
+  gating: false
 - from: DEL-06-03
   when: Showing ratios and the stress and ratio table
   condition: >-
@@ -69,13 +71,15 @@ needs:
   condition: >-
     The finding presentation defines how a finding's class and fields are shown and how a user-rule
     outcome is worded, which the results tables follow.
-  gating: true
+  gating: false
 - from: DEL-07-07
+  when: Showing a result held by the native host
   condition: >-
     A result held by the native host is summarized and read as bounded pages of rows in source
     order, so that a table can show a result too large to hold in the display.
   gating: true
 - from: DEL-07-01
+  when: Drawing results in the viewport
   condition: >-
     The viewport provides one scene with the model's nodes and members addressable by identifier,
     shows the session's selection, and lets an overlay add and remove its own drawn resources

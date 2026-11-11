@@ -2,6 +2,7 @@ id: DEL-03-08
 name: Pipe section property and mass-property calculator
 needs:
 - from: DEL-02-02
+  when: Checking an input's unit against its dimension (AC-004)
   condition: >-
     The unit catalog decides whether a unit belongs to a dimension (length, density, area, second
     moment of area, section modulus, volume per length, mass per length), so that the calculator

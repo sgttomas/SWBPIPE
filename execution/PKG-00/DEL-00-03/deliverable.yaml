@@ -6,7 +6,7 @@ needs:
     The result envelope and the diagnostic record are defined: the diagnostic's fields (code,
     class, severity, source, affected object, message, remediation, provenance) and the outcome
     kinds an envelope distinguishes, none of which states approval or compliance.
-  gating: true
+  gating: false
 # This deliverable defines the kinds of request and their guarantees. The services themselves are
 # other deliverables' code: the operation route (PKG-16), persistence (DEL-02-05), the desktop host
 # (DEL-07-11) and the headless runner (DEL-10-05).

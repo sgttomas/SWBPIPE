@@ -22,21 +22,25 @@ needs:
     defined.
   gating: true
 - from: DEL-02-05
+  when: Saving and reopening a project
   condition: >-
     The project store saves and reads back a project unchanged, identifies each stored revision,
     and refuses by name a write that would replace a revision the session did not open or confirm.
   gating: true
 - from: DEL-12-01
+  when: Storing private data
   condition: >-
     Private data is stored only in the application's own storage and in locations the user chose,
     and nothing transmits it without an explicit user action.
   gating: true
 - from: DEL-14-02
+  when: Reopening a session with its runs
   condition: >-
     An analysis-run record binds a result to its model state and can be read back as recorded, so
     that a reopened session can tell a current result from a historical one.
   gating: true
 - from: DEL-16-06
+  when: Taking an applied document as the working model
   condition: >-
     One operation engine applies a batch whole or not at all and leaves the model unchanged on any
     refusal.
@@ -49,7 +53,8 @@ needs:
 - from: DEL-10-04
   when: Scanning a product build
   condition: >-
-    A product build enables none of the scripted-run build's features.
+    The desktop's product build is produced by the project's reproducible build and packaging
+    workflow (DEL-10-04/REQ-001), so that it can be scanned for the scripted-run build's features.
   gating: false
 code_paths:
 - apps/desktop/src/main.tsx

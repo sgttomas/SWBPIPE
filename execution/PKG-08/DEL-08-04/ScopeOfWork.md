@@ -42,7 +42,7 @@ Boundary:
 
 Not decided: the version of DEL-14-05's common comparison-result interface that this export maps. Until one is accepted, no conformance of a comparison export to that interface is claimed.
 
-The rows of a derivative document are classified by the product's ordinary result reader and its base semantic table: each row by its signature (category, target dimension, disposition), with the reader's verdict giving its kind, unit, component and basis and disclosing source rows it cannot map. No deliverable currently commits to criteria for that reader or table; DEL-05-02 holds their code.
+The rows of a derivative document are classified by the product's ordinary result reader and its base semantic table: each row by its signature (category, target dimension, disposition), with the reader's verdict giving its kind, unit, component and basis and disclosing source rows it cannot map. The reader and its base semantic tables are DEL-05-02's (DEL-05-02/REQ-018 to DEL-05-02/REQ-020); the reader for retained-precision results is DEL-04-08's.
 
 - **REQ-001** — The result export is a schema-first JSON result envelope. It has one current version, 0.3.0; a reader admits that version only and refuses any other by name (also cited as DEL-08-04-R1). Source: SOW-046; decomposition AB-00-03.
 - **REQ-002** — This deliverable produces no export format other than those of CLM-001 (also cited as DEL-08-04-R2). Source: SOW-046; decomposition OI-004.

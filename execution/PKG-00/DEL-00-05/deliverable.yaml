@@ -5,13 +5,13 @@ needs:
   condition: >-
     A model edit is a command: it applies whole or not at all, leaves the model unchanged on
     failure, and returns a result envelope carrying its diagnostics.
-  gating: true
+  gating: false
 - from: DEL-00-06
   condition: >-
     The six warning classes are defined, and a diagnostic keeps its class when it is carried,
     changing it only where a receiving boundary's schema requires its own class vocabulary and
     then by that boundary's stated mapping.
-  gating: true
+  gating: false
 # This deliverable states the GUI state rule. The GUI itself (apps/desktop/src/features/**,
 # core/gui/**) is the code of the PKG-07 deliverables.
 code_paths: []

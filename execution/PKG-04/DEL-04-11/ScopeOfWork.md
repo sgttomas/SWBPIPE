@@ -45,7 +45,7 @@ Every derived solve is a modified copy of the model document, sent through the m
 - the derived-document construction and the solve loop;
 - the sizing arithmetic, fit tests and selection;
 - the verification pass;
-- the hanger table, the closed hanger-sizing result document and its schema;
+- the hanger table, the closed hanger-sizing result document and its schema, and the hanger-sizing analysis-run kind;
 - the product's reader of that document and its independent test verifier;
 - the sizing engine and its headless and desktop entries;
 - the frozen references under `validation/references/hanger_sizing/`;
@@ -68,7 +68,7 @@ A sizing result is a numerical statement about the discrete model under the user
 
 **Undecided.**
 
-- Whether a sizing run is recorded as an analysis run is not decided, and no deliverable currently commits to a hanger-sizing analysis-run kind (DEL-14-02 leaves the question open).
+- Whether a sizing run is recorded as an analysis run is not decided. The hanger-sizing analysis-run kind awaits adoption in the analysis-run record, and DEL-14-02 leaves the question open.
 - Whether the report's privacy rules for library references cover the hanger section's library-derived values is not confirmed with DEL-08-01.
 
 ### Request
@@ -176,7 +176,7 @@ A sizing result is a numerical statement about the discrete model under the user
 
     It also states the installation assumption, that each spring is set at the drawn geometry. The table labels the installed setting separately from the cold-condition load.
   - **Document.** Results are published as a closed hanger-sizing result document. It embeds the sizing request, binds the solve request and library by hash, and has two statuses: `sized`, meaning the algorithm completed (never acceptance, and always with each outcome and the verification standing), and `refused`.
-  - **Recording.** Until a hanger-sizing analysis-run kind is decided and provided (see Undecided), a sizing result is not a recordable run; the request it embeds is its record.
+  - **Recording.** Until the analysis-run record adopts the hanger-sizing run kind (see Undecided), a sizing result is not a recordable run; the request it embeds is its record.
   - **Readers.** A Rust product reader and a test-only Python verifier that shares no code with the producer. Each establishes the document's closure, its binding to the inputs supplied, and arithmetic consistent with the published positions. The Rust reader alone can establish reproduction from the bound inputs. No reader states that the published positions are the model's mechanics without reproducing them.
   - **CSV.** The table exports to CSV through DEL-08-04's serializer.
 - **AC-007** — Maintained tests show:

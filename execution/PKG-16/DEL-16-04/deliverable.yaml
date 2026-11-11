@@ -14,6 +14,7 @@ needs:
     approval.
   gating: true
 - from: DEL-16-03
+  when: Examining AC-002 in the operation history
   condition: >-
     The operation history keeps, for each operation of a decided batch, its rationale, assumptions,
     author type and source as proposed, and returns them equal after save and reopen.

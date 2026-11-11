@@ -33,6 +33,7 @@ needs:
     source, affected object, message, remediation and provenance).
   gating: true
 - from: DEL-05-01
+  when: Examining AC-003 on a supported model
   condition: >-
     A self-weight plan gives a selected pipe that a rigid-family component maps the component's
     own weight: the force W along gravity at the component's node and the moments r × F of that
@@ -40,6 +41,7 @@ needs:
     the component's weight, node and centre of gravity.
   gating: true
 - from: DEL-05-03
+  when: Examining AC-006 on published stresses
   condition: >-
     A stress row marked as a reference-section result of a scaled body is published and is
     excluded from its basis's maximum and headline.
@@ -69,7 +71,7 @@ needs:
   condition: >-
     The invented reference system and its independent references are maintained, with an eccentric
     reducer, valves and flanges among its members.
-  gating: false
+  gating: true
   when: Examining the reference system's rigid-family components on the exact route.
 code_paths:
 # In DEL-04-07's product crate: the family's eligibility, mapping and eccentric-offset rules.

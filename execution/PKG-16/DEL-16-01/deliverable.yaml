@@ -27,7 +27,7 @@ needs:
     The model hash is SHA-256 over the RFC 8785 canonical form of the model document, and the same
     document reaches the same digest through the desktop, the headless runner and the operation
     engine.
-  gating: true
+  gating: false
 - from: DEL-13-01
   condition: >-
     Design-knowledge records are identified records of a published schema, so a design-knowledge

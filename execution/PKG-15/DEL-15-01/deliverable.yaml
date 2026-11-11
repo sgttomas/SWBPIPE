@@ -22,7 +22,7 @@ needs:
   condition: >-
     A hash record states its algorithm, the basis its digest was computed on and the payload it covers,
     and a digest is never relabelled with a basis it was not computed on.
-  gating: true
+  gating: false
 - from: DEL-02-01
   condition: >-
     The model document has one current version and a schema, every addressable record in it has a stable
@@ -30,6 +30,7 @@ needs:
     provenance records and library and rule-pack references as explicit records.
   gating: true
 - from: DEL-02-02
+  when: Defining and examining the units manifest
   condition: >-
     A project's units are exact symbols of the unit catalogue, one per unit key, each with one stable
     dimension.
@@ -38,7 +39,7 @@ needs:
   condition: >-
     A saved model state is an immutable record with a stable identity and the model hash of its
     snapshot.
-  gating: true
+  gating: false
 - from: DEL-14-02
   condition: >-
     A recorded analysis run has a stable identity, is bound to one saved model state and is a record of
@@ -53,7 +54,7 @@ needs:
   condition: >-
     A behaviour flag has a status from the closed set (unsupported, approximate, requires human review,
     not implemented, undecided), names its affected objects and requires human review.
-  gating: true
+  gating: false
 - from: DEL-10-03
   condition: >-
     The local FEA handoff data contract is the schema `schemas/local_fea_handoff.schema.yaml`, which a

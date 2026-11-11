@@ -5,7 +5,7 @@ needs:
   condition: >-
     The application-service model is defined, with persistence operations as its commands, so
     that a change to the store can be told apart from one made around the services.
-  gating: true
+  gating: false
 # This deliverable states the persistence rules and owns no code. The persistence envelope, the
 # project store and the document version check are DEL-02-05's. The canonical JSON and hash
 # implementation is DEL-08-02's, and so is the desktop hash service

@@ -17,6 +17,7 @@ needs:
     as a constant force on the same degree of freedom (DEL-04-03/REQ-014, DEL-04-03/AC-009).
   gating: true
 - from: DEL-04-04
+  when: Sizing a model with nonlinear supports
   condition: >-
     Nonlinear supports converge in each solve to the states that case produces, and each support's
     final state is published, so that sizing can disclose it and compare it between solves.
@@ -63,12 +64,14 @@ needs:
     The analysis-run record admits a hanger-sizing run kind that binds the sizing request.
   gating: true
 - from: DEL-04-08
+  when: Examining the retained route's pricing and its refusal of derived solves
   condition: >-
     The retained-precision entry refuses any invocation it was not admitted for, and the memory-
     pricing law prices the actual source, the preload term included, against the registered
     profile.
   gating: true
 - from: DEL-10-05
+  when: Examining AC-001 at the headless runner
   condition: >-
     The headless runner hosts the `size-hangers` command: it passes the sizing input to this
     deliverable's entry and returns that entry's document unchanged, and supplies no engineering

@@ -27,6 +27,7 @@ needs:
     carries them.
   gating: true
 - from: DEL-02-02
+  when: Verifying the units an adapter declaration names
   condition: >-
     The unit catalog names each unit's dimension, so that a unit a declaration names can be found
     unknown or dimensionally incompatible.

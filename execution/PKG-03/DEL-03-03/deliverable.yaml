@@ -31,6 +31,7 @@ needs:
     source, affected object, message, remediation and provenance).
   gating: true
 - from: DEL-04-01
+  when: Examining AC-002 and AC-003 on solved frames
   condition: >-
     The frame kernel assembles a two-node element's stiffness, given in the fixed order of the six
     degrees of freedom at each end, into the global stiffness beside the straight members, and
@@ -40,8 +41,8 @@ needs:
 - from: DEL-04-07
   condition: >-
     The product solve admits a realized bend on the pressure-free route and on the exact route,
-    publishes its displacements, end actions and stress rows, and refuses a geometry-only bend on
-    the exact route by name.
+    publishes its displacements, end actions and stress rows (DEL-04-07/REQ-010), and refuses a
+    geometry-only bend on the exact route by name.
   gating: false
   when: Solving a model that contains a bend.
 - from: DEL-05-03
@@ -56,7 +57,7 @@ needs:
   condition: >-
     The invented reference system and its independent references are maintained, with realized
     bends among its members.
-  gating: false
+  gating: true
   when: Examining the reference system's bends on the exact route.
 code_paths:
 # The arc element: this deliverable's definition, examined under its criteria. DEL-04-01 lists the

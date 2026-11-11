@@ -18,15 +18,17 @@ needs:
 - from: DEL-08-02
   condition: One canonical JSON form, RFC 8785, with SHA-256 over it, is available to every hashing surface,
     and a hash record states its algorithm, basis and payload.
+  when: Hashing the members an export document copies.
   gating: true
 - from: DEL-06-04
   condition: A rule pack is identified by a stable identity, version and checksum that can be exported without
     any of the pack's content.
+  when: Exporting a run with a rule pack.
   gating: true
 - from: DEL-05-04
   condition: The analysis statuses are a closed vocabulary that keeps mechanics solved, rule inputs incomplete,
     user-rule checked or failed and human review required apart and excludes human approval and code compliance.
-  gating: true
+  gating: false
 - from: DEL-04-07
   condition: The product solve publishes each result as a statement of its source, rows, model and request
     under a current semantic contract identity on the pressure-free and exact routes, which an export copies
@@ -36,24 +38,29 @@ needs:
   condition: Each row of a result is classified by a base semantic-table signature (category, target dimension,
     disposition), and the reader's verdict gives each row's kind, unit, component and basis and discloses
     source rows it cannot map.
+  when: Assembling a derivative document's rows.
   gating: true
 - from: DEL-04-08
   condition: A retained-precision result carries its retained tables, the verified class of each row and
     its receipt bindings, which an export preserves without re-deriving verification.
+  when: Exporting a retained-precision result.
   gating: true
 - from: DEL-05-03
   condition: A stress row names the section basis it was recovered on by a defined token, and the result
     carries the pipe-section geometry those bases refer to.
+  when: Exporting stress rows.
   gating: true
 - from: DEL-04-04
   condition: The active-set record of a nonlinear case carries the iteration settings, each support's state,
     the supports that changed, the diagnostics and the assumptions and limitations, readable without parsing
     message text.
+  when: Exporting nonlinear active-set observations.
   gating: true
 - from: DEL-14-02
   condition: A recorded analysis run names its model state, input manifest and result by hash, can be
     verified against the result it records, and names each unresolved or checksum-mismatched rule-pack
     reference as a diagnostic and not among its rule-pack references.
+  when: Referring an export to its run.
   gating: true
 - from: DEL-14-05
   condition: The common comparison-result interface is accepted at a named version with its schema.
@@ -63,14 +70,17 @@ needs:
   condition: Each results table in the desktop renders from a view model that gives its rows with stable
     identifiers, the displayed unit and conversion function of each numeric column, and the stated status
     text of an absent value.
+  when: Exporting results tables to CSV.
   gating: true
 - from: DEL-07-08
   condition: The run-comparison and state-comparison views render from view models that give the rows their
     filters match, with each side's identity, stored values and units.
+  when: Exporting comparison tables to CSV.
   gating: true
 - from: DEL-04-11
   condition: The hanger-sizing table renders from a view model that gives every candidate and every derived
     solve with its published values, units, verification standing and disclosures.
+  when: Exporting the hanger-sizing table to CSV.
   gating: true
 - from: DEL-07-07
   condition: A result held in native custody can be read as bounded pages of rows in source order, and
@@ -80,11 +90,13 @@ needs:
 - from: DEL-08-01
   condition: The report's display rule has an exact step that gives a value in its displayed unit as exact
     decimal text, separate from its rounding step, and the two composed equal the rule.
+  when: Writing CSV values by the display rule's exact step.
   gating: true
 - from: DEL-12-02
   condition: The export route catalogue holds the result-JSON route and the CSV route, admits the CSV route
     for local-private output only and only with the user's explicit intent, gives each route one identity
     and policy wherever the catalogue is held, and screens each payload before it is written.
+  when: Saving an export on its governed route.
   gating: true
 - from: DEL-07-11
   condition: The desktop shell's suggested file names have the form swbpipe-<kind>[-<qualifier>].<ext>,
@@ -93,7 +105,7 @@ needs:
 - from: DEL-01-04
   condition: The claims registry gives the validation-posture statement one canonical text, used word for
     word as the CSV notice, and one display form for each automatic analysis status.
-  gating: true
+  gating: false
 code_paths:
 - schemas/results.schema.yaml
 - schemas/results.v0.3.schema.yaml

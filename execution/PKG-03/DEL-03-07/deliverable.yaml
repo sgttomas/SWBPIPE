@@ -27,6 +27,7 @@ needs:
     carries, which the boundary requires as the contributor certification member of provenance.
   gating: true
 - from: DEL-02-02
+  when: Refusing a unit inconsistent with its dimension on import
   condition: >-
     The unit catalog states, for each dimension, the units of that dimension, and checks a
     quantity's unit against its stated dimension without converting it, so that the import can
@@ -38,6 +39,7 @@ needs:
     source, affected object, message, remediation and provenance).
   gating: true
 - from: DEL-02-05
+  when: Storing a library document in the project store
   condition: >-
     The project store on the user's machine is opened and migrated through one entry, forward
     only, is reached only through application services and transmits nothing, so that the library

@@ -11,7 +11,7 @@ needs:
   condition: >-
     The source register states what makes a source admitted: its source ID, what it establishes,
     its boundary, and the open questions no admitted source answers.
-  gating: true
+  gating: false
 - from: DEL-02-04
   condition: >-
     The plugin and extension contract names the no-bypass controls and refuses a manifest that
@@ -22,12 +22,14 @@ needs:
     In the public API boundary every permission is denied by default, and the permissions, their
     grant states and how a grant is given and persists are stated there, recorded as undecided
     until they are selected.
+  when: Binding an admission package to a runtime loader (AC-004)
   gating: true
 - from: DEL-10-02
   condition: >-
     The adapter framework's dispatch gate is the one place a declaration could become a running
     adapter, and it dispatches no adapter until an execution model, a plugin runtime and the
     capability grants are selected and stated in that deliverable's scope.
+  when: Binding an admission package to a runtime loader (AC-004)
   gating: true
 - from: DEL-12-02
   when: A registry is written to a file

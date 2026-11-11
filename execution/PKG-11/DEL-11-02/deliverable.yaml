@@ -64,7 +64,7 @@ needs:
     No rule expression can cause the evaluator to read or write a file, open a network
     connection, start a process or load code, and every quantity in an expression carries a
     dimension and a unit. The guide's description of the evaluator boundary states that.
-  gating: true
+  gating: false
 - from: DEL-10-01
   condition: >-
     The public API and plugin contract is schema-first, with command, query, job, diagnostic and

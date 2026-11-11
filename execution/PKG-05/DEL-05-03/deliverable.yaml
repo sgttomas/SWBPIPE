@@ -6,12 +6,14 @@ needs:
     The straight pipe element recovers a member's end actions as f = K d - f_eq and its resultants
     at stations along the span, in the member's local axes, for Euler-Bernoulli members and for
     members selected as Timoshenko.
+  when: Examining criteria on solved members
   gating: true
 - from: DEL-04-01
   condition: >-
     The frame kernel forms a straight member selected as Timoshenko as the exact static two-node
     Timoshenko element with shear area kappa_E A, from the shear definition stated in this scope,
     and its integrity check covers that element.
+  when: Examining a Timoshenko member's response
   gating: true
 - from: DEL-04-07
   condition: >-
@@ -19,13 +21,14 @@ needs:
     member, its mechanical axial force and pressure; forms a pipe's nominal, reduced and
     pressure-bore geometry once from the authored outside diameter, wall, mill tolerance and
     corrosion allowance; and publishes every stress row, member maximum and headline this scope
-    defines, each naming its section basis.
+    defines, each naming its section basis (DEL-04-07/REQ-010, DEL-04-07/AC-011).
+  when: Examining stresses the product publishes
   gating: true
 - from: DEL-03-08
   condition: >-
     A circular pipe section's metal area, second moment of area, section modulus and torsion
     constant are defined as closed-form annulus formulas of an outside diameter and a wall.
-  gating: true
+  gating: false
 - from: DEL-02-01
   condition: >-
     The model document carries a pipe section's outside diameter, wall, mill tolerance and

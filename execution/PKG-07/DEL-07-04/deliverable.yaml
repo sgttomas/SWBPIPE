@@ -16,6 +16,7 @@ needs:
     the inspector, and keeps diagnostics as produced through undo and redo.
   gating: true
 - from: DEL-04-06
+  when: Examining a missing solve-required value (AC-001, AC-009)
   condition: >-
     The model checks and the solver report each missing or invalid solve-required value as a
     finding with the governed fields and a solve-blocking class, naming the affected object, and
@@ -37,8 +38,9 @@ needs:
   condition: >-
     The claims registry gives each automatic status one display form in one authority domain and
     names the statements and phrasings withdrawn from product surfaces.
-  gating: true
+  gating: false
 - from: DEL-06-03
+  when: Building the rule-check run surface
   condition: >-
     A rule-check run yields one outcome for each check on each load case or combination its category
     maps, reports no within or exceeding outcome on a basis whose required values are not all
@@ -52,6 +54,7 @@ needs:
     formulas or values.
   gating: true
 - from: DEL-02-02
+  when: Showing a finding's quantity in a display unit
   condition: >-
     A stored value can be shown in another catalog unit of its dimension without changing the
     stored value, and a value whose unit is missing or of the wrong dimension is a named finding.
@@ -80,7 +83,7 @@ needs:
     The accessibility baseline states the target for workspace controls: a keyboard alternative for
     every action, a signal other than colour for every class and status, and text available to
     assistive technology.
-  gating: true
+  gating: false
 - from: DEL-07-11
   condition: >-
     The workspace shell mounts the finding and run surfaces, holds the session's selection and

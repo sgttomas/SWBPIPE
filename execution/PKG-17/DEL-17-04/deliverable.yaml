@@ -46,7 +46,7 @@ needs:
     shared pool, and a request that would exceed them is refused by name.
   gating: false
 - from: DEL-07-12
-  when: A user exports or imports MBF in the desktop
+  when: Examining exit criterion 6 through the desktop's dialogs
   condition: >-
     The desktop offers File > Export MBF and File > Import MBF, each a dialog that shows the
     engine's review and acts only through this deliverable's native commands.

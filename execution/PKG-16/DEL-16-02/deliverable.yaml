@@ -13,6 +13,7 @@ needs:
     code and JSON path, and leaves the document's bytes unchanged by the check.
   gating: true
 - from: DEL-02-02
+  when: Checking units and dimensions
   condition: >-
     The unit catalog gives each unit symbol its dimension; an unknown symbol, a symbol of another
     dimension and a missing unit each give a named finding and no value; and the dimension

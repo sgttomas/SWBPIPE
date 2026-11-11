@@ -17,12 +17,12 @@ needs:
   condition: >-
     A plugin's or adapter's declaration grants nothing by itself and lifts no control: one that
     requests a bypass or an ungranted capability is refused.
-  gating: true
+  gating: false
 - from: DEL-02-05
   condition: >-
     The store is reached only through application services, and no adapter or plugin has SQL
     access.
-  gating: true
+  gating: false
 - from: DEL-01-02
   condition: >-
     The boundary policy names the classes of private user data, says they stay in user-controlled
@@ -38,6 +38,7 @@ needs:
     is refused before any write; and a persisted rule-pack reference says whether the pack is
     private or public, keeps its version, checksum, source note and redistribution status, and
     returns from a round trip as saved.
+  when: Examining AC-006, AC-007 and AC-011 on the project store
   gating: true
 - from: DEL-12-05
   condition: >-

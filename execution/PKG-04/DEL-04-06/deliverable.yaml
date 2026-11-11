@@ -44,6 +44,7 @@ needs:
     code, its JSON path and whether it blocks or warns, and leaves the document unchanged.
   gating: true
 - from: DEL-04-07
+  when: Examining diagnostics on product solves (AC-001, AC-005, AC-007 to AC-009)
   condition: >-
     The product solve raises the diagnostics of each primitive and of the topology checks,
     publishes a singular, ill-conditioned or non-converged case with its diagnostic and no result
@@ -53,8 +54,11 @@ needs:
 - from: DEL-04-07
   when: Running the on-demand model checks
   condition: >-
-    The product solve's input validation, restraint pre-checks and topology checks run before
-    stiffness formation, in a fixed order, as a stage the solve entry exposes.
+    The product solve reports every missing or unsupported input, and every document member the
+    built model cannot represent, as an explicit, named diagnostic; refuses an incomplete, invalid
+    or unsupported model on every entry with the same named diagnostic and affected object; and
+    lets no entry reach the kernel past a primitive's validation (DEL-04-07/CLM-001,
+    DEL-04-07/AC-001).
   gating: true
 - from: DEL-07-07
   when: Running the on-demand model checks in the desktop

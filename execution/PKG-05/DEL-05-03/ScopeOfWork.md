@@ -59,7 +59,7 @@ in that operation order, without fused multiply-add. κ_E is the energy-matched 
 
 - the frame element's stiffness, which is formed from the shear definition above, and the kernel's integrity check: DEL-04-01. A change to the definition changes that element with it;
 - a member's end actions and station resultants, and the Timoshenko behaviour of member loads: DEL-04-02;
-- the area, second moment, section modulus and torsion constant of an annulus as formulas, and mass per length: DEL-03-08. The product's computation of them, the pressure loads, the solve and the publication of every row: DEL-04-07;
+- the area, second moment, section modulus and torsion constant of an annulus as formulas, and mass per length: DEL-03-08. The product's computation of them, the pressure loads, the solve and the publication of every row (DEL-04-07/REQ-010, DEL-04-07/AC-011): DEL-04-07;
 - the desktop's pressure authoring, whose code DEL-07-03 lists, and its model-settings editor, whose code DEL-02-01 lists, are where a document's shear selection is written. The default written there and the authoring clause of AC-004 remain this deliverable's;
 - a verified bound on a published stress: DEL-04-08. Ranges and combinations across load cases as published results: DEL-05-02;
 - the stress rows' place in the result and export formats: DEL-08-04. The stress benchmark suite: DEL-09-02. The local-analysis handoff: DEL-10-03;

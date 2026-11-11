@@ -6,8 +6,10 @@ needs:
     The product solve publishes each load case's rows with their identities, its modulus basis and
     each member's resolved stiffness, and names the fixed-load sources of the model; it evaluates
     model-authored combinations through this algebra and publishes their rows, gate records and
-    evidence; and it solves one case with every nonlinear support held at a given state assignment.
+    evidence; and it solves one case with every nonlinear support held at a given state assignment
+    (DEL-04-07/REQ-012).
   gating: true
+  when: Combining product results and examining criteria on them
 - from: DEL-04-01
   condition: >-
     The frame kernel gives an exact accumulator whose sum of exact products is rounded once and
@@ -33,7 +35,7 @@ needs:
   condition: >-
     Each stress row names the section basis it was recovered on, and the stress row kinds are
     defined so that those with no combined meaning can be told apart.
-  gating: true
+  gating: false
 - from: DEL-02-01
   condition: >-
     The model document carries a combination's basis, its terms with factors or its operand

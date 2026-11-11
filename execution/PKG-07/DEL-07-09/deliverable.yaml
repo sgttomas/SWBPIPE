@@ -12,7 +12,7 @@ needs:
   condition: >-
     One operation engine applies every change to the model, only after validation, preview and the
     user's explicit acceptance.
-  gating: true
+  gating: false
 - from: DEL-07-01
   when: Relying on the one route to the model
   condition: >-
@@ -22,15 +22,18 @@ needs:
     operation route.
   gating: false
 - from: DEL-02-02
+  when: Examining that a display-unit switch changes no stored value
   condition: >-
     A display-unit choice leaves the model document and its hash unchanged.
   gating: true
 - from: DEL-03-02
+  when: Examining hanger selection coverage
   condition: >-
     The hanger library is a document format for records a user imports, and no hanger catalogue
     ships with the product.
   gating: true
 - from: DEL-07-03
+  when: Examining hanger selection coverage
   condition: >-
     A hanger record is chosen for a support by hand from a library the user imported, and the
     choice writes that record's values and nothing computed.

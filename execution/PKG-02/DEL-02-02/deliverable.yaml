@@ -2,6 +2,7 @@ id: DEL-02-02
 name: Unit system and dimensional-analysis core contract
 needs:
 - from: DEL-02-01
+  when: Working with the units a model document stores (AC-007, AC-009 to AC-011)
   condition: >-
     The model document stores each dimensional value as a quantity with the unit it was entered
     in, carries the project's units as one map of unit keys, and holds coordinates in the project

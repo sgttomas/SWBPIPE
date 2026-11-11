@@ -23,10 +23,12 @@ needs:
     footprint is within it.
   gating: true
 - from: DEL-04-07
-  when: K6 kernel observations
+  when: Building and running the registered kernel-observation checks
   condition: >-
-    The structural adapter's sparse assembled solve with its formation check can be called from
-    outside its crate and gives the product's own entries for the same input.
+    The registered K6 kernel-observation checks compile against the structural adapter's sparse
+    assembled solve with its formation check, which can be called from outside its crate and gives
+    the product's own entries for the same input. This is what those checks are built on, not a
+    requirement on the product solve.
   gating: false
 - from: DEL-04-01
   when: Observing the retained-precision lanes

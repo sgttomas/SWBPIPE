@@ -35,7 +35,7 @@ It serves SOW-069 and SOW-070 under OBJ-015 (`execution/_Decomposition/SOFTWARE_
 
 - The record's form is DEL-16-01's; validation and the preview are DEL-16-02's; applying a batch and returning its outcome are DEL-16-06's; what an agent's rationale and assumptions must hold are DEL-16-04's.
 - The review surface is DEL-07-08's: showing the preview, the Apply and Reject controls and the ledger panel. Collecting queued changes into one batch is DEL-07-02's.
-- The project store is DEL-02-05's. No deliverable currently commits to keeping the operation history's records in it across save and reopen, which REQ-005 and AC-004 rely on. Saved model states are DEL-14-01's.
+- The project store is DEL-02-05's. It keeps the operation history's records across save and reopen (DEL-02-05/REQ-037), which REQ-005 and AC-004 rely on. Saved model states are DEL-14-01's.
 - A formal professional-acceptance workflow is not required (PRD §21.3) and is not this deliverable's; the words for that boundary are DEL-01-04's.
 
 **Not decided.**

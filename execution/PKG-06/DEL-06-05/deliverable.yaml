@@ -16,19 +16,21 @@ needs:
   condition: >-
     A run of a pack with an unsupplied required input reports the check incomplete on each of its
     load cases and names the input, and supplies no value in its place.
+  when: Examining AC-005 on the demo model
   gating: true
 - from: DEL-06-04
   condition: >-
     The pack checksum is defined over the pack's canonical content without its checksum member,
     and a pack is publicly exportable when it is classified public with an invented-example
     redistribution status, an accepted review and no suspected protected content.
+  when: Recording the example's checksum and examining its public standing
   gating: true
 - from: DEL-01-02
   condition: >-
     The boundary policy states that a public example rule pack uses invented, non-code values
     only and carries a clear non-engineering notice (DEL-01-02 REQ-006), and that public content
     holds no protected standards text, table or formula and no private content.
-  gating: true
+  gating: false
 - from: DEL-02-01
   condition: >-
     The bundled demo model is a valid model document whose load cases have stable identifiers,

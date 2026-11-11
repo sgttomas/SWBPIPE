@@ -40,7 +40,7 @@ It serves SOW-074 under OBJ-017 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - DEL-15-02 owns mapping records and the taxonomy of unsupported and approximate behaviour; the target step carries them and adds none.
 - DEL-15-04 owns the screen for wording that claims authority.
 - DEL-02-01 owns the model document's format and validator; DEL-14-01 the saved states; DEL-12-02 the export contexts, the route catalogue and the native disposition screen; DEL-08-02 the canonical JSON form.
-- The model document save writes its file through the atomic file writer of the report package save, which is DEL-08-01's. No deliverable currently commits to providing that writer to other callers; REQ-012 holds this deliverable's saves to all or nothing whichever writer they use.
+- The model document save writes its file through the atomic file writer of the report package save, which is DEL-08-01's. REQ-012 holds this deliverable's saves to all or nothing whichever writer they use; whether DEL-08-01 offers its writer to other callers is unallocated.
 - DEL-07-11 owns the File menu and the dispatch of its commands; DEL-07-12 owns the Exports panels, whose handoff summary is a preview and not a handoff package.
 - PKG-17 owns every target format: MBF, PCF, stress-neutral, native JSON and review geometry. No commercial-tool parser, result ingestion or external solver invocation is on this path.
 

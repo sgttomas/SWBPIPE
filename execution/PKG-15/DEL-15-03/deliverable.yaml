@@ -9,6 +9,7 @@ needs:
     where that boundary's schema requires its own class vocabulary.
   gating: true
 - from: DEL-15-01
+  when: Producing a handoff package or an export record from one
   condition: >-
     The handoff package contract states the members of a package (the model member, the manifest
     member and any further member, each listed in the member inventory), how each part of the manifest
@@ -17,12 +18,14 @@ needs:
     member inventory.
   gating: true
 - from: DEL-15-02
+  when: Assembling the target step's export record
   condition: >-
     A target-mapping contract carries mapping records, unsupported and approximate behaviour flags
     with closed statuses, and a source context that names the model hash and units manifest of the
     package it maps.
   gating: true
 - from: DEL-15-04
+  when: Screening a target description and the export record for authority wording
   condition: >-
     The authority-wording screen reports any value that contains wording of approval, certification,
     sealing, authentication, compliance, external validation, acceptance or prover status.
@@ -36,6 +39,7 @@ needs:
     same model hash.
   gating: true
 - from: DEL-02-02
+  when: Building a package's units manifest
   condition: >-
     A project carries a unit for every unit key, each an exact symbol of the unit catalogue, and an
     export that takes a unit from the project units is refused by name when that key is missing.
@@ -56,17 +60,20 @@ needs:
     every decision that is not a plain inclusion is returned as a finding beside the controlled payload.
   gating: true
 - from: DEL-14-01
+  when: Basing a handoff package on a saved state
   condition: >-
     The project store lists a project's saved states with their model hashes, saves a new immutable
     state of a stated kind, and refuses on read a state that no longer agrees with its recorded hashes.
   gating: true
 - from: DEL-14-02
+  when: Checking a package's rule-pack references against the local store
   condition: >-
     A model's rule-pack reference resolves only to a pack the local store holds with the referenced
     identity, version and checksum; a reference to an absent pack and one whose stored pack has another
     checksum are each a named diagnostic.
   gating: true
 - from: DEL-03-07
+  when: Checking a package's library references against the local store
   condition: >-
     The local library store holds one document per project, library kind and library identifier, and
     keeps only an import accepted as private and local.
@@ -75,7 +82,7 @@ needs:
   condition: >-
     The atomic file writer replaces a file whole or leaves it as it was, for a file format its caller
     admits.
-  gating: true
+  gating: false
 code_paths:
 # The target-neutral export step and its invented target.
 - core/handoff/exporter/**

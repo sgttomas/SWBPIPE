@@ -40,7 +40,7 @@ It serves SOW-055 under OBJ-006 and OBJ-007 (`execution/_Decomposition/SOFTWARE_
 - what the solver's findings and the model checks say: DEL-04-06 and the engine deliverables that emit them. A field a producer omits is the producer's to supply;
 - the job, command and result-envelope rules: DEL-00-03. The fields and classes of a diagnostic: DEL-00-06;
 - how a finding's class and fields are shown: DEL-07-04, whose rules the diagnostics panel follows;
-- what each status means: DEL-05-04. The product result reader, which classifies a published result and gives its verdict: its code is listed by DEL-05-02, but no deliverable currently commits to criteria for it, although REQ-015 relies on it as the reference;
+- what each status means: DEL-05-04. The product result reader, which classifies a published result and gives its verdict, and REQ-015's reference: DEL-05-02/REQ-018 to DEL-05-02/REQ-020; the reader for retained-precision results is DEL-04-08's;
 - the tables and drawings that show a result: DEL-07-05;
 - the form of an analysis-run record and of a stored project: DEL-14-02 and DEL-02-05. CSV streaming of a held result: DEL-08-04;
 - which marks a performance harness keeps and what it times: DEL-04-05;

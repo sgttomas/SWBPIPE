@@ -6,7 +6,7 @@ needs:
     The data boundary policy states what the public repository may and may not contain, and the
     rule for the external prover: what public text may say about it, what stays private, and that
     no public text claims agreement.
-  gating: true
+  gating: false
 # This deliverable's product is two documents in its own folder; it owns no code. The source IDs
 # they define are cited from schemas/, core/handoff/ and the export fixtures, which belong to the
 # format deliverables (DEL-17-03 to DEL-17-09).

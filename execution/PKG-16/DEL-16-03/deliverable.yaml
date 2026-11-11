@@ -12,21 +12,24 @@ needs:
     of each check and the preview rows, and returns no model document and no acceptance record.
   gating: true
 - from: DEL-16-06
+  when: Examining AC-002 on applied batches
   condition: >-
     An application returns an outcome that names the batch, each operation with its author, the
     model hash it was applied to and the resulting model hash; a refused application returns no
     model document and says it was refused.
   gating: true
 - from: DEL-07-08
+  when: Examining AC-001 through the review surface's Apply
   condition: >-
     The review queue shows a pending batch with the engine's validate-only preview, offers Apply
     only once the batch is validated and the preview is shown, and passes the engine no decision but
     the user's own Apply or Reject.
   gating: true
 - from: DEL-02-05
+  when: Keeping the history across save and reopen
   condition: >-
     The project store keeps a project's operation history records across save and reopen and
-    returns them unchanged.
+    returns them unchanged (DEL-02-05/REQ-037).
   gating: true
 - from: DEL-08-02
   condition: >-

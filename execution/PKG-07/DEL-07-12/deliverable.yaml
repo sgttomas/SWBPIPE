@@ -18,6 +18,7 @@ needs:
     equal what the writer did.
   gating: true
 - from: DEL-02-02
+  when: Showing an export's unit basis and its missing-unit refusal
   condition: >-
     An export that takes a unit from the project units is refused by name when that key is missing
     and writes no substitute, and a length an export converts is converted exactly through the
@@ -57,7 +58,7 @@ needs:
     identity and loss report, and validates against its schema.
   gating: true
 - from: DEL-17-04
-  when: Exporting or importing a model batch file
+  when: Building the MBF export and import dialogs
   condition: >-
     The writer produces a deterministic `.mbf` with a loss report and an identity map for a model
     in its declared subset, and the importer reads a `.mbf` with its identity file into a model

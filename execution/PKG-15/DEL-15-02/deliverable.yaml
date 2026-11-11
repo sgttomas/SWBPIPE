@@ -12,12 +12,14 @@ needs:
     provenance, and a boundary may declare local classes.
   gating: true
 - from: DEL-15-01
+  when: Examining AC-009 against an exported package's manifest
   condition: >-
     A handoff package manifest carries the model hash as a checksum record, a units manifest, the
     entity manifest, library and rule-pack references, unresolved assumptions, warnings and a privacy
     context, each of which a mapping's source context can name by reference.
   gating: true
 - from: DEL-15-04
+  when: Screening behaviour labels for authority wording
   condition: >-
     The authority-wording screen reports any value that contains wording of approval, certification,
     sealing, authentication, compliance, external validation, acceptance or prover status.

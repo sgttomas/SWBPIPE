@@ -9,21 +9,24 @@ needs:
   condition: A project that is saved and reopened returns the same model document content, with no value
     inserted that the user did not enter, so that the model hash of the reopened document equals the hash
     recorded before the save.
-  gating: true
+  gating: false
 - from: DEL-02-02
   condition: A project's model document carries its project units record, a map from the seven dimension
     keys to catalog symbols with no unit-system name, and a unit-bearing value that crosses a persistence
     or report boundary carries its unit.
+  when: Recording the run's unit-system reference.
   gating: true
 - from: DEL-06-04
   condition: A rule pack's lifecycle record gives its stable identity, version, source notice and
     redistribution status, and a checksum that states its algorithm, its canonicalization and the payload
     it covers. The manifest carries that checksum as declared.
+  when: Recording a participating rule pack.
   gating: true
 - from: DEL-14-02
   condition: An analysis-run record names its input manifest and records each hash with its payload scope
     and serialization profile, so that the manifest's input-manifest hash names a payload the run itself
     identifies.
+  when: Building the manifest for a recorded run.
   gating: true
 code_paths:
 - core/serialization/canonical_json/**

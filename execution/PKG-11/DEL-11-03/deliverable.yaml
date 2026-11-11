@@ -27,7 +27,7 @@ needs:
     the supports' states, on the exact pressure route, and refuses by name what it does not
     admit. The notes' coverage of the sustained and operating analyses explains that method and
     its refusals.
-  gating: true
+  gating: false
 - from: DEL-05-01
   condition: >-
     Each load of a case becomes forces and moments at nodes, loads along members, free strain or
@@ -36,7 +36,7 @@ needs:
     with the user's pressure and contents and with spring supports held. The notes' coverage of
     the hydrotest, wind, static seismic and seismic anchor movement analyses explains those
     methods.
-  gating: true
+  gating: false
 - from: DEL-05-02
   condition: >-
     A combination is formed row by row over solved results on one of five bases (signed sum,
@@ -44,21 +44,21 @@ needs:
     sustained, and a combination is withheld by name when its fixed-load count or modulus basis
     does not allow it. The notes' coverage of expansion and of the seismic combinations
     explains those definitions.
-  gating: true
+  gating: false
 - from: DEL-04-09
   condition: >-
     Modal analysis uses the mass of the self-weight basis, takes its extraction bound, modulus
     basis and weight-to-mass acceleration from the user, checks each extracted set for
     integrity and completeness, and refuses by name what it does not admit. The notes' coverage
     of modal analysis explains that method.
-  gating: true
+  gating: false
 - from: DEL-04-10
   condition: >-
     Response-spectrum analysis forms modal responses to user-entered spectra on the modal basis,
     combines them across modes and directions by the user's choices, adds the missing-mass
     correction when applied, and treats snubbers as restraints in the dynamic analysis only.
     The notes' coverage of response spectrum explains that method.
-  gating: true
+  gating: false
 - from: DEL-04-11
   condition: >-
     Hanger sizing forms each candidate's load from a weight solve with the candidates rigid and
@@ -66,7 +66,7 @@ needs:
     load, travel and variation tests to the records of the user's library, selects by the user's
     rule and verifies the selection by solving again. The notes' coverage of hanger sizing
     explains that method.
-  gating: true
+  gating: false
 - from: DEL-09-01
   condition: >-
     Each mechanics benchmark has independently derived expected results with its derivation.

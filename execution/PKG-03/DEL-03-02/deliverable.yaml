@@ -12,7 +12,7 @@ needs:
   condition: >-
     The model document fixes the component kinds a model may contain, so that every concrete
     component family a library record names is a kind the model admits.
-  gating: true
+  gating: false
 - from: DEL-01-02
   condition: >-
     The protected-data boundary policy states what a public artifact may not contain (protected

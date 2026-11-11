@@ -7,6 +7,7 @@ needs:
     keeps selection, filters and other view state out of stored records.
   gating: true
 - from: DEL-13-01
+  when: Showing design-knowledge panels
   condition: >-
     A design-knowledge document has a record for each category of design basis, each with its
     source notes, unresolved assumptions, provenance and units, names the model it informs, and
@@ -26,12 +27,14 @@ needs:
     the constraint format and the entities it concerns, in a stable order.
   gating: true
 - from: DEL-14-01
+  when: Saving, listing and reopening model states
   condition: >-
     A saved model state is named, immutable and hashed, carries its tags, notes, external
     references, unresolved assumptions and warnings, and can be reopened as the working model of a
     session without being changed.
   gating: true
 - from: DEL-14-02
+  when: Recording, listing and reopening runs
   condition: >-
     An analysis-run record binds a result to its model state, solver version, settings, units, load
     cases and rule-pack and library references, and can be listed and read back as recorded.
@@ -59,18 +62,21 @@ needs:
     relative tolerances by result category, and the JSON and CSV forms of a comparison.
   gating: true
 - from: DEL-16-01
+  when: Building the review queue and the offline intake
   condition: >-
     A change to the model is expressed as a structured operation or an ordered batch bound to its
     model basis, each operation with its target, change, author type, source and declared
     assumptions, and the operation schema is published in a machine-readable form.
   gating: true
 - from: DEL-16-02
+  when: Showing an item's validation and preview in the review queue
   condition: >-
     An operation or batch can be validated without being applied, returning either a deterministic
     preview of the change or the named refusal the apply would give, including for a stale
     before-value.
   gating: true
 - from: DEL-16-03
+  when: Offering Apply and showing the ledger
   condition: >-
     A batch can be accepted only when its validation passed and a preview was generated for it. The
     operation history keeps each batch's decision record (accepted, rejected, held or withdrawn)
@@ -85,6 +91,7 @@ needs:
     attribution, and gains no acceptance standing from being proposed.
   gating: true
 - from: DEL-16-06
+  when: Applying a reviewed item and offering the capability list
   condition: >-
     One operation engine applies a batch only after validation, preview and the user's explicit
     acceptance, applies it whole or not at all, and leaves the model unchanged on any refusal. The
@@ -94,12 +101,12 @@ needs:
   condition: >-
     The claims registry gives each automatic status one display form and holds the boundary
     statements a surface uses word for word.
-  gating: true
+  gating: false
 - from: DEL-07-04
   condition: >-
     The finding presentation defines how a finding's class and fields are shown and how an absent
     field reads, which the constraint and warning panels follow.
-  gating: true
+  gating: false
 - from: DEL-07-11
   condition: >-
     The workspace shell mounts the panels, holds the session's pending changes, history and current
@@ -112,12 +119,12 @@ needs:
     and lets an overlay add and remove its own drawn resources (DEL-07-01/REQ-002).
   gating: true
 - from: DEL-07-05
-  when: Showing each side of a run comparison
+  when: Opening a recorded run for review
   condition: >-
     The result viewer shows a result's rows with the meaning, units and labels the product result
     reader gives them and with the result's standing, and marks a saved or recorded run reopened in
     the session as historical.
-  gating: false
+  gating: true
 - from: DEL-02-05
   when: Reopening a saved state as the working model
   condition: >-
