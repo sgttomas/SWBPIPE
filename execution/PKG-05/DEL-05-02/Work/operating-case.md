@@ -1313,7 +1313,7 @@ fn complete_iteration(
    first iterate, and the slip direction and normal branch taken from the previous iterate.
    Re-running the script is not enough.
 4. The S11-K source-site assertions for the moved sites in NI `s11k_tests.rs`, updated with their
-   owners: DEL-04-07/RT-A3 for the loop, DEL-04-01 for K-D5's S11-K ruling.
+   owners: DEL-04-07 for the loop, DEL-04-01 for K-D5's S11-K ruling.
 5. A measured cost with the pins restated in our own D3 slot. Coefficient identity is a target to
    prove, not an assumption.
 6. Frame, stack and lifetime impact assessed independently. The struct borrows and the moved

@@ -343,7 +343,7 @@ Python agree.
 **Two kinds of run record:**
 1. **Transient.** Solve-time records are unchanged: the current-run slot, the
    synthetic `model_state_ref`, the existing validators and the fixtures.
-   C1 (RT-U4; DEL-04-05 `Work/c1-native-custody-plan.md` slice 5) adds a native
+   C1 (DEL-04-05 `Work/c1-native-custody-plan.md` slice 5) adds a native
    builder of the same transient record from a retained solve result
    (`analysis_run_v03_build.rs`): the record's bytes in the stored form and its
    checksums equal the TypeScript builder's. The webview receives only its

@@ -1,6 +1,6 @@
 # Criterion 9: what is measured, and how
 
-**Basis:** `docs/RELEASE_TARGET_v1.0.md` §4, exit criterion 9 (RT-U4): on a 2,000-node rack
+**Basis:** `docs/RELEASE_TARGET_v1.0.md`, exit criterion 9: on a 2,000-node rack
 model, on the 16 GiB base machine, measured by the DEL-04-05 harness, linear static ≤ 10 s
 and nonlinear operating ≤ 60 s *(provisional)*. Main at `7e061cf2e`, model document 0.8.0.
 

@@ -1,7 +1,7 @@
 # Hanger sizing: governing design
 
 **Status.** This is DEL-04-11's governing design for hanger sizing and the hanger
-table (`docs/RELEASE_TARGET_v1.0.md` RT-A11; OC-4(a), owner, 2026-10-28: "Must: size
+table (`docs/RELEASE_TARGET_v1.0.md` exit criterion 1; OC-4(a), owner, 2026-10-28: "Must: size
 hangers from the user's private catalogue (invented example records only) and produce a
 hanger table."). Agent 0 (HELP_HUMAN) placed the scope in this new deliverable through
 SCA-015 on 2026-10-31 (D-1), adopted the method outlined by the lane's implementation

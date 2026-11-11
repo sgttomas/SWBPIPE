@@ -9,8 +9,8 @@ qualification. The remaining refusals in the import Design still stand.
 **Basis:** `main` at `153485db8c`. The SI writer `core/handoff/caepipe_mbf/si_writer.py`
 (#1652, profile `caepipe-mbf-si-pilot-1`), the importer `importer.py`, tranches 1–3 (#1670,
 #1685, #1697), the authored cases (#1702), and the import Design `caepipe-mbf-import.md`
-(cited here as "the import Design"). Release target `docs/RELEASE_TARGET_v1.0.md`: rows RT-R7
-and RT-R8 (Must) and exit criterion 6. File names follow DEL-07-01 `Work/export-file-names.md`
+(cited here as "the import Design"). Release target `docs/RELEASE_TARGET_v1.0.md`:
+exit criterion 6. File names follow DEL-07-01 `Work/export-file-names.md`
 (#1711).
 Slice 5's design (§4, §4.8, 2026-11-07) reads source on `main` at `b06e1da32`. Its implementation (§4.9) is on the
 slice-5 PR, from `main` at `394f4c623`.
@@ -24,7 +24,7 @@ the owner's acts (F-PIP-3).
 
 This design sits beside the import Design in DEL-17-04, for two reasons:
 
-- the release target names DEL-17-04 as the owner of both rows;
+- the release target names DEL-17-04 as an owner of exit criterion 6;
 - every decision here rests on the contracts of the writer and the importer.
 
 At the time of drafting, two texts placed the desktop part elsewhere:
@@ -2169,7 +2169,7 @@ candidate is narrower and is described in §5.1; it does not establish this comp
   and imported back, with C6-1 to C6-6 on it.
 - Criterion 6 for the families that the reference system actually contains.
 - Whether the target program reads the file belongs to the validation lane's private evidence
-  (RT-V2, DEL-17-05), not to criterion 6.
+  (DEL-17-05), not to criterion 6.
 
 **The reference system (O-1).** Criterion 1 calls it "an invented reference system". Agent 0
 placed it in DEL-09-01 (2026-10-31, replacing this section's earlier assignment to W-17): it
@@ -2178,8 +2178,8 @@ is specified in DEL-09-01 `Work/reference-system.md` and generated as
 starting from the families that exist now and adding the rest as their rows land. That
 specification's §11.1 lists the families criterion 6 expects in the loss report. Families without an admitted public MBF
 source (today valves, reducers, flanges, rigid elements and nozzles; Q-3) are authored in the
-fixture and expected in the loss report until their sources exist. The fixture is named here
-and in RT-R7/R8's status column; the release target's criterion text is the owner's and is
+fixture and expected in the loss report until their sources exist. The fixture is named here;
+the release target's criterion text is the owner's and is
 not edited.
 
 ### 5.1 Supported-subset connecting candidate (slice 6)

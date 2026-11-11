@@ -1,6 +1,6 @@
 # Embedded agent live session — implementation candidate
 
-RT-E1 / DEL-16-06. The owner's activation authority in embedded-agent-host.md
+DEL-16-06. The owner's activation authority in embedded-agent-host.md
 applies. This increment implements the live binding and native lifecycle while
 the compiled public Start gate permits the qualified ARM pin/profile and
 refuses unqualified Intel. A minimal panel (below) starts a session only on the

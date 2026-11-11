@@ -1,7 +1,7 @@
 # Absolute-sum and SRSS combinations, and combinations of combinations
 
-**Row:** RT-A4 (Must), serving exit criterion 1 ("three-axis static seismic
-with SRSS and absolute-sum combination") and RT-V1. The design basis was main
+**Exit criteria:** 1 ("three-axis static seismic
+with SRSS and absolute-sum combination") and 2. The design basis was main
 `8cab1b3e5` (2026-10-30). The algebra kernel is specified in §3 and the product
 wiring in §10. Numerical meaning and persistence require targeted regression
 checks and independent scrutiny (AGENTS.md, Work and verification).

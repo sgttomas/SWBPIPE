@@ -3,7 +3,7 @@
 **Basis:** `main` at `4d8cb7b0c`, model document 0.8.0. Model document 0.9.0's member
 list, frozen by Agent 0 at `31bde47a2` on `claude/rt-load-cases`
 (DEL-02-01 `Work/model-document-0.9.0.md` §1.2, §2.1, §2.2, §2.4), is cited where the
-target needs a 0.9.0 member. Release target `docs/RELEASE_TARGET_v1.0.md` §4, criteria 1,
+target needs a 0.9.0 member. Release target `docs/RELEASE_TARGET_v1.0.md`, exit criteria 1,
 6, 7 and 17.
 
 This document specifies one invented piping system that four exit criteria test

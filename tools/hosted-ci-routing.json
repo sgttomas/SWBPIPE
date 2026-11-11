@@ -26,8 +26,6 @@
   "path_rules": [
     {
       "paths": [
-        "CONTRIBUTING.md",
-        "governance/*.md",
         ".github/ISSUE_TEMPLATE/*.md"
       ],
       "checks": [
@@ -127,15 +125,13 @@
     {
       "paths": [
         "execution/**",
-        "init/**",
+        "init-prompt.md",
         ".github/workflows/governance-harness.yml",
         ".github/workflows/piping-desktop-e2e.yml",
         ".github/workflows/piping-e2e-cache.yml",
         ".github/actions/setup-piping-e2e/**",
         "docs/**",
         "execution/**",
-        "loop/**",
-        "init/**",
         "AGENTS.md",
         "README.md"
       ],
@@ -246,8 +242,7 @@
       "paths": [
         "LICENSE",
         "LICENSE.md",
-        "provenance/**",
-        "reference/migration/**"
+        "provenance/**"
       ],
       "checks": [
         "records"

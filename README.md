@@ -58,8 +58,7 @@ establish an engineering approval or product release.
 
 ## Contributing
 
-Read the [repository instructions](AGENTS.md) and
-[development loop](loop/LOOP_INIT.md), then locate the affected
+Read the [repository instructions](AGENTS.md), then locate the affected
 `execution/PKG-nn/DEL-nn-nn/` folder. `ScopeOfWork.md` states commitments and
 acceptance criteria, `Work/` holds technical detail, and `deliverable.yaml`
 states dependency conditions and code/check pointers.

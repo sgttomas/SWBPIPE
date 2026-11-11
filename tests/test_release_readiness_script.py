@@ -168,7 +168,7 @@ def _probe_public_export(project: Path, name: str) -> bool:
 
 
 def test_sparse_monorepo_clone_without_private_directories_is_not_the_export(tmp_path):
-    # A sparse clone may drop loop/, execution/ and even the root AGENTS.md;
+    # A sparse clone may drop execution/ and even the root AGENTS.md;
     # it keeps the repository's .git (a directory, or a file in a worktree).
     for index, marker in enumerate(("AGENTS.md", ".git", ".git-file")):
         repository = tmp_path / str(index)

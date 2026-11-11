@@ -1,7 +1,7 @@
 # Provider configuration and credential custody
 
 Standing: explicit, synchronous macOS core with current-host synthetic native
-credential qualification; commands and UI remain unwired. RT-E1 / exit criterion 17. This implements
+credential qualification; commands and UI remain unwired. Exit criterion 17. This implements
 the provider-config/credential part of embedded-agent-portability.md without
 changing ScopeOfWork commitments, ACs or dependency conditions. No provider
 selection, keychain lookup or persistence happens on module/global startup.

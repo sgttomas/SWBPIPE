@@ -113,9 +113,9 @@ Generated reports may reference a user rule-pack ID, version, checksum, and sour
 
 ## 8. Contribution review checklist
 
-Public contributions that add data, examples, report templates, schemas with example payloads, benchmark cases, import fixtures, or documentation excerpts must be reviewed against `governance/CONTRIBUTION_REVIEW_CHECKLIST.md` before acceptance.
+Public contributions that add data, examples, report templates, schemas with example payloads, benchmark cases, import fixtures, or documentation excerpts must be reviewed before acceptance.
 
-The checklist records:
+The review records:
 
 - contribution identity and scope;
 - source, provenance, license, redistribution, and contributor certification evidence;

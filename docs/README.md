@@ -23,7 +23,7 @@ supplies the governing data and accepts engineering reliance.
 - [Validation strategy](VALIDATION_STRATEGY.md), [validation manual](validation_manual/index.md), [theory](theory/centerline_analysis.md), [hanger sizing theory](theory/hanger_sizing.md).
 - [IP and data boundary](IP_AND_DATA_BOUNDARY.md), [claims](claims_registry.md), [security](security/threat_model.md).
 
-Development starts at [LOOP_INIT](../loop/LOOP_INIT.md) and the repository's [AGENTS.md](../AGENTS.md).
+Development starts at the repository's [AGENTS.md](../AGENTS.md).
 Current commitments, Work and dependency conditions live in the deliverable
 folders. From the repository root, use `python3 -m tools.deliverables --help`
 for neighbourhood, impact, changed-path and dependency queries. Historical

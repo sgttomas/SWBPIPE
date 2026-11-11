@@ -3,7 +3,7 @@
 **Basis:** `main` at `66ecc9f17`, at `5bb2f9ff0` for the tee (§3.6 item 2), and at `148a1089b`
 for the run sheet's id cells and numbering (#41: §2, §3.4, §3.5, §3.7); fixture `fixtures/reference_system/reference_system.json`
 (tranche 1, model document 0.8.0) and its specification `reference-system.md` beside this
-document. Release target `docs/RELEASE_TARGET_v1.0.md` §4, criterion 7. Desktop paths are
+document. Release target `docs/RELEASE_TARGET_v1.0.md`, exit criterion 7. Desktop paths are
 relative to `apps/desktop/src/`.
 
 ## 1. Purpose, reading and boundaries
@@ -15,7 +15,7 @@ follow-up forms for everything else, with small counts. The criterion text is th
 
 Every value is the fixture's own invented data; where the fixture and the specification
 differ, the fixture wins. Every duration here is an estimate per step, not a measurement.
-The measured time comes from the RT-U2 walkthrough (DEL-07-06), which Agent 0 takes to the
+The measured time comes from the walkthrough (DEL-07-06), which Agent 0 takes to the
 owner with the §11.2 reading. Following this script is a test of authoring effort, not a
 statement about the system or the product (F-PIP-2, F-PIP-3).
 

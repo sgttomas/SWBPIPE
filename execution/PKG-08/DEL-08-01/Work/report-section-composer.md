@@ -1,7 +1,7 @@
 # Calculation report section composer (RT-R4)
 
 **Implementation basis:** the current source contract at `6108037a5fb3b8a1041940e40ba7d765177743e8`.
-Paths are repository-relative. This work serves RT-R4 and exit criterion 4 in
+Paths are repository-relative. This work serves exit criterion 4 in
 `docs/RELEASE_TARGET_v1.0.md`, under the already adopted R-08-01-011 in
 [ScopeOfWork.md](../ScopeOfWork.md). It uses the report-wide exact display step
 in DEL-08-04 [csv-export.md](../../DEL-08-04/Work/csv-export.md) §3.
