@@ -1,4 +1,4 @@
-// DEL-17-04 Design `desktop-mbf-export-import.md` §3.1 (4b.2b's follow-up, "Output gate removed"): the model batch
+// DEL-17-04 (4b.2b's follow-up): the model batch
 // file export carries no result data, so no result the session holds gates it. With the same model and settings, File >
 // Export MBF… and the Exports section's Model batch file panel send the same native review and save (the canonical
 // text, its hash, the settings, the suggested name, the reviewed digests, the route evidence and the ticket's shape)

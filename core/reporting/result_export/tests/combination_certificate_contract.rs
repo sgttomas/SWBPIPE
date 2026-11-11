@@ -76,7 +76,7 @@ fn forged_model(model: &Value, forgery: &Value) -> Value {
     model
 }
 
-/// Any §4 certificate claim a document still makes: the member, or a diagnostic in the
+/// Any certificate claim a document still makes: the member, or a diagnostic in the
 /// certificate's vocabulary, restated independently of the reader (the Python test's
 /// `_claims_survive` alike). W-16b's derived-rows notice is conditional on the member.
 fn claims_survive(document: &Value) -> Vec<String> {
@@ -97,7 +97,7 @@ fn claims_survive(document: &Value) -> Vec<String> {
 }
 
 /// Absence of the member (member and notices both dropped, the current identity kept)
-/// is admitted as no §4 certificate claim: no member, no certificate notice under any
+/// is admitted as no certificate claim: no member, no certificate notice under any
 /// id, and no eligibility effect (decision (b)): numerical_quality and the standing are
 /// the certified document's.
 #[test]
@@ -128,7 +128,7 @@ fn absence_is_inspection_only_with_no_certificate_claim() {
 /// The registered W-CB3 retained combination successors, recorded before the certificate
 /// and byte-untouched (the Python test pins their SHA-256), are accepted with and
 /// without their invocation; their standing is their own retained-precision receipt's,
-/// and they make no §4 certificate claim.
+/// and they make no certificate claim.
 #[test]
 fn legacy_w_cb3_successors_are_accepted() {
     for text in [
@@ -145,7 +145,7 @@ fn legacy_w_cb3_successors_are_accepted() {
     }
 }
 
-/// §8.53 D3 (a) (Work `combination-certificate.md` §2, "Retained successors (for D3)"): on the registered build the
+/// on the registered build the
 /// W1 freeze admits the member, so the live W-CB3 successors carry the ordinary run's certificate. The full retained
 /// reader accepts them with and without their invocation (G7's base read checks the member against the projected
 /// rows), the projected base reads true from an ordinary entry too (member, records, notices and roster), and the
@@ -258,7 +258,7 @@ fn transport_reads_the_member_shape_only() {
     }
 }
 
-/// The retained base-read context (Work `combination-certificate.md` §2, Agent 0's ruling after review cert2) is
+/// The retained base-read context (Agent 0's ruling after review cert2) is
 /// entered only by the retained reader's G7 base read: `retained_base_read` is crate-private and its one caller is
 /// `retained_precision.rs` (the unit tests in `combination_certificate.rs` scan for it and read under it). From an
 /// ordinary entry the context is never set: prose under a combination ref on a W-CB3 successor's ordinary base is
@@ -319,7 +319,7 @@ fn gate<'a>(d: &'a mut Value, id: &str) -> &'a mut Value {
     d["contract_evidence"]["combination_gates"].as_array_mut().unwrap().iter_mut().find(|g| g["combination_id"] == id).unwrap()
 }
 
-/// RT-A5 (Work `combination-certificate.md` §2): a held gate's notice is set-bound, required
+/// a held gate's notice is set-bound, required
 /// once, and exactly "Combination withheld: " + R + ".", R the refusal of the document's
 /// held-status record for that combination, bound to the record and never verified as true.
 /// The same list as the Python mirror's `HELD_GATE_CASES` (`tests/test_combination_certificate.py`),
@@ -450,7 +450,7 @@ fn replace_in_released(d: &mut Value, old: &str, new: &str) {
     notice["message"] = message.replace(old, new).into();
 }
 
-/// RT-A5 (Work `combination-certificate.md` §2): one set-bound HELD_STATUS_RELEASED entry per held
+/// one set-bound HELD_STATUS_RELEASED entry per held
 /// combination whose record releases a support, its message rebuilt from the record's recorded fields
 /// only, at the full reader, with and without the model; the Python mirror's `HELD_RELEASED_CASES`.
 /// h2 is an ordinary release with a negative bit token, h7g a strict-gap one, h5 a displacement and h13

@@ -1,4 +1,4 @@
-// W-18b slice (r2b) (DEL-08-01 Design `report-user-release.md` §2.6, §6): the derivation of
+// the derivation of
 // a user-released report package request, held equal across the layers. The desktop's
 // builders (`assembleUserReleasedReportPackageRequest`, `userReleasedRenderableReportInput`)
 // build each vector's expected request from its inputs M, S, m, I, R, H and U; the native
@@ -72,7 +72,7 @@ async function solvedSession(mode: PreviewSolverMode) {
   return { model, result, inputManifest, analysisRun, pair };
 }
 
-/** The invented record U (§2.3), bound to the session's identities. */
+/** The invented record U, bound to the session's identities. */
 async function inventedRecord(session: Awaited<ReturnType<typeof solvedSession>>, documentEnvelope: Json) {
   const run = session.result.run_id;
   return {
@@ -112,7 +112,7 @@ const COMPOSITION = {
   ]
 } as const;
 
-/** Slice C5 (§2.7): a composition listing every model-input section beside all result rows;
+/** a composition listing every model-input section beside all result rows;
  * the derived request carries P(M, C) as `model_input_tables`. */
 const MODEL_INPUT_COMPOSITION = {
   composition_version: "1.0.0",

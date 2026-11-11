@@ -60,14 +60,14 @@ def test_a_retired_v2_source_label_is_refused_by_name_and_never_cross_read(ident
 def test_captured_contract_fixes_context_independently_of_received_labels():
     assert ps.SourceContract.from_invocation(invocation()) is ps.SourceContract.PRESSURE_V3
     assert list(ps.SourceContract) == [ps.SourceContract.PRESSURE_V3]
-    # O4 (§3.4): either shear model is the exact contract.
+    # either shear model is the exact contract.
     timoshenko = invocation()
     timoshenko["request"]["model"]["pressure_contract"]["shear_model"] = "timoshenko_annulus_energy_v1"
     assert ps.SourceContract.from_invocation(timoshenko) is ps.SourceContract.PRESSURE_V3
     for change in (lambda m: m.update(pressure_contract={"version": "2.0.0", "mode": "exact_straight_pressure_v2"}),
                    lambda m: m.update(schema_version="0.4.0"),
                    lambda m: m.update(shear_model="euler_bernoulli"),
-                   # O4 (§3.4): an unknown, absent, null or non-string shear model and an extra contract member.
+                   # an unknown, absent, null or non-string shear model and an extra contract member.
                    lambda m: m["pressure_contract"].update(shear_model="cowper"),
                    lambda m: m["pressure_contract"].pop("shear_model"),
                    lambda m: m["pressure_contract"].update(shear_model=None),
@@ -132,7 +132,7 @@ CA_REFUSED = {
     "null": lambda s: s.update(corrosion_allowance=None),
     "wrong dimension (0 Pa)": lambda s: s.update(corrosion_allowance={"value": 0.0, "unit": "Pa"}),
     "malformed value (string)": lambda s: s.update(corrosion_allowance={"value": "0", "unit": "m"}),
-    # O4 (§3.4): a negative or over-wall allowance, or one that with the mill tolerance reaches the wall (t = 0.01 m).
+    # a negative or over-wall allowance, or one that with the mill tolerance reaches the wall (t = 0.01 m).
     "negative": lambda s: s.update(corrosion_allowance={"value": -0.001, "unit": "m"}),
     "the wall": lambda s: s.update(corrosion_allowance={"value": 0.01, "unit": "m"}),
     "above the wall (mm)": lambda s: s.update(corrosion_allowance={"value": 20.0, "unit": "mm"}),
@@ -172,7 +172,7 @@ def _ca_statement(family, name, mode, change):
 @pytest.mark.parametrize("name", ["n05", "n06"])
 @pytest.mark.parametrize("family", sorted(CA_FAMILIES))
 def test_the_captured_exact_document_carries_an_admitted_corrosion_allowance(family, name, mode, label):
-    """B7b review finding (b7-plan "Exact-contract fields") and O4 (§3.4): a resealed pressure-source-1 statement whose
+    """a resealed pressure-source-1 statement whose
     captured invocation's allowance was absent, null, non-length, negative or over the wall is refused first by Rust
     `SourceContract::check_invocation` and the verifier, PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE; zero in any length
     unit keeps the statement's own standing (eligible on 0.3, never on a load/reference state). An admitted nonzero
@@ -232,7 +232,7 @@ def test_every_captured_pipe_section_carries_an_admitted_allowance(family, name,
     """B7b review N-1: every committed request has one pipe, so the controls above cannot tell an every-section check
     from a first-section one. With a second pipe appended (the first keeps 0 m) whose allowance is absent, null,
     non-length, malformed, negative or over the wall, both readers refuse PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE (the
-    check is the first step after the captured contract). With 0 m or (O4 §3.4) an admitted nonzero allowance on the
+    check is the first step after the captured contract). With 0 m or an admitted nonzero allowance on the
     second pipe the allowance check passes and both refuse the statement later, by the receipt's coverage of the
     captured model (SOURCE_BLOCKS_CURRENT_MODEL_SOURCE_COVERAGE: its sources name one member), never for the allowance;
     a first-section-only check would give that code throughout."""

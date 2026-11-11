@@ -6,7 +6,7 @@
 //! filesystem mutation surface.
 //!
 //! Holds no `unsafe` code: the reach scan requires `#![forbid(unsafe_code)]`
-//! at this root (DEL-08-01 Design `report-user-release.md` §2.8; code review
+//! at this root (code review
 //! r9 at #1682).
 #![forbid(unsafe_code)]
 
@@ -206,7 +206,7 @@ fn main() -> ExitCode {
 
 const SIZE_HANGERS: &str = "size-hangers";
 
-/// `size-hangers` (DEL-04-11 design §8.3.2): hanger sizing on
+/// `size-hangers`: hanger sizing on
 /// its own admission path. It takes no `CliInput.request` (no `RunnerRequest`,
 /// operation metadata or input-manifest reference is read or synthesized); the
 /// input text goes to the sizing crate's path-aware admission and pipeline. It
@@ -600,7 +600,7 @@ fn execute_export_results(
         }
     };
 
-    // W-11 (DEL-08-01 Design `exact-route-report-sections.md` §5.4): the
+    // the
     // headless runner stays refused for exact-route results after the owner
     // opened the desktop's rendered report and report package (2026-10-26).
     // Only the desktop has the Export Result JSON admission and the native
@@ -615,7 +615,7 @@ fn execute_export_results(
             format!("export_results payload is invalid: {ROUTE_NOT_ADMITTED}: the headless runner packages no exact-route result; only the desktop builds and binds their sections; found {id}"),
         ));
     }
-    // W-18b (DEL-08-01 Design `report-user-release.md` §2.8, refusal 1): the
+    // the
     // headless runner packages no user-released report. Only the desktop's
     // route DREP-PACKAGE-USER-RELEASE-010 builds one, after its model and
     // reference screening, its solve attestation and its whole-request
@@ -737,7 +737,7 @@ fn execute_export_results(
 }
 
 /// The runner's own bindings of its request to a version 2.0.0 package
-/// request (DEL-08-01 Design `report-package-current-results.md` §2.7). The
+/// request. The
 /// shared producer's checks (`report_package::bindings`) run after these, in
 /// `assemble_wire_request`. `source_model_ref` names the actual model; the
 /// runner request's model reference must equal the request alias the document's
@@ -1447,7 +1447,7 @@ mod tests {
         assert!(output.report_package.is_none());
     }
 
-    /// W-18 slice (a), DEL-08-01 Design §2.7: a disclosed request alias is
+    /// a disclosed request alias is
     /// accepted against `request_model_ref`, and a runner model naming neither
     /// that alias nor (without an alias) the actual model is refused. The
     /// actual identity alone does not satisfy the alias case.

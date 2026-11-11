@@ -1,4 +1,4 @@
-// The cases of C1 slice 2's parity (DEL-04-05 `c1-native-custody-plan.md`, slice 2): each result
+// The cases of C1 slice 2's parity: each result
 // fixture the TypeScript builders' tests, the demos and the native mechanics replay use, with its
 // model and a reader standing, and invented cases for the paths the fixtures do not reach (withheld
 // and non-eligible standings, missing members, tied and signed extrema, mixed units, other frames,
@@ -68,7 +68,7 @@ const FILE_CASES: readonly [string, CaseText, CaseText, Standings][] = [
     file("fixtures/results/pressure_v3_combination_reader_corpus.json", `/cases/${i}/model`),
     ["eligible"]
   ]),
-  // S-K1 R-6/R-7 (§7.1): the along-direction reader fixtures (product output with their models).
+  // the along-direction reader fixtures (product output with their models).
   ["results/skew_along_direction_preview", file("fixtures/results/skew_along_direction_preview.json", "/envelope"), file("fixtures/results/skew_along_direction_preview.json", "/request/model"), ["eligible", "none"]],
   ["results/skew_along_direction_combinations_preview", file("fixtures/results/skew_along_direction_combinations_preview.json", "/envelope"), file("fixtures/results/skew_along_direction_combinations_preview.json", "/request/model"), ["eligible"]],
   ["pressure_source/n05-sparse_interactive", file("fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json"), file("fixtures/product_preview/pressure_source/physics_source/n05.request.json", "/model"), ["eligible"]]

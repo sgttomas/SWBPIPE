@@ -1,8 +1,8 @@
-//! The kernel lane (T3 D1 §4.10; plan §5): each R1 case through W1a's public
+//! The kernel lane: each R1 case through W1a's public
 //! entry, `solve_case`, with no budget limit reachable (u64::MAX for the case
-//! and the invocation, recorded), then every R1 row judged (plan §6), the
-//! floor check (§7), the discrimination check (§8) and the class
-//! correspondence of the not-covered rows (§7.2).
+//! and the invocation, recorded), then every R1 row judged, the
+//! floor check, the discrimination check and the class
+//! correspondence of the not-covered rows.
 use crate::cases::{Case, ControlKind, Model, Target};
 use crate::compare::{judge, ControlTally, Observed, Tally, Verdict};
 use crate::exact::{self, Exact};
@@ -30,21 +30,21 @@ pub struct CaseRun {
     /// The not-covered keys the floor check found, in row order.
     pub not_covered: Vec<String>,
     /// Not-covered rows whose published row is not `absolute_verified` or
-    /// unpublishable (plan §7.2).
+    /// unpublishable.
     pub class_mismatches: Vec<String>,
     /// Not-covered rows whose published row is `input_derived`: a displacement
     /// at a restrained DOF, published as its exact prescription (D1 §4.1.6.1
     /// rule 2a). Listed apart from the mismatches (A1 finding for ROOT).
     pub input_derived_not_covered: Vec<String>,
     pub controls: ControlTally,
-    /// The deterministic per-case record (plan §12).
+    /// The deterministic per-case record.
     pub record: Option<Value>,
     /// The published rows, for the invariance checks.
     pub published: BTreeMap<QuantityId, PublishedRow>,
 }
 
 /// The discrimination check of a case's value controls, against its reference
-/// rows (plan §8). Outcome controls are decided by `run_case`.
+/// rows. Outcome controls are decided by `run_case`.
 pub fn value_controls(case: &Case) -> ControlTally {
     let rows: BTreeMap<&str, &crate::cases::Row> =
         case.rows.iter().map(|r| (r.key.as_str(), r)).collect();
@@ -130,7 +130,7 @@ fn sources(target: Target) -> Vec<QuantityId> {
     }
 }
 
-/// k_t and k_a of a member (DESIGN.md §4.10, with C1's pre-scaling).
+/// k_t and k_a of a member (with C1's pre-scaling).
 pub fn member_coefficients(model: &Model, member: u32) -> (f64, f64) {
     let m = model.members.iter().find(|m| m.id == member).unwrap();
     let l = floor::member_length(
@@ -348,7 +348,7 @@ pub fn run_parts(case: &Case, model: &Model, parts: SourceParts) -> CaseRun {
     }
 }
 
-/// Outcome controls (plan §8): on a mechanism, each describes publishing a
+/// Outcome controls: on a mechanism, each describes publishing a
 /// solution, so the refusal discriminates it; on a stable model (the RF-MECH
 /// companion), NC-FALSE-MECHANISM is a refusal, so the selection does.
 fn decide_outcome_controls(case: &Case, selected: bool, t: &mut ControlTally) {

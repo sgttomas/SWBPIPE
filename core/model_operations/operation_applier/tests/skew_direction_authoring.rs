@@ -55,11 +55,11 @@ fn exact_route_and_range_are_refused_by_name() {
     assert!(codes(&out).contains(&"SUPPORT_DIRECTION_SKEW_EXACT_UNSUPPORTED".to_string()), "{:?}", codes(&out));
     // An axis-aligned direction is not a skewed record: no exact-route refusal from it.
     assert!(!codes(&create(&exact, &stop(json!({"x":0,"y":-1,"z":0})))).contains(&"SUPPORT_DIRECTION_SKEW_EXACT_UNSUPPORTED".to_string()));
-    // §4.2: (1, 2^-1023, 0) has a subnormal canonical component.
+    // (1, 2^-1023, 0) has a subnormal canonical component.
     let out = create(&model(), &stop(json!({"x":1.0,"y":1.1125369292536007e-308,"z":0})));
     assert!(out.applied_model.is_none());
     assert!(codes(&out).contains(&"SUPPORT_DIRECTION_RANGE_UNSUPPORTED".to_string()), "{:?}", codes(&out));
-    // The document rules come first (§2.2 item 1): a guide with a direction is the
+    // The document rules come first: a guide with a direction is the
     // record rule's refusal, even on the exact route.
     let mut guide = stop(json!({"x":3,"y":4,"z":0}));
     guide["family"] = json!("guide");
@@ -107,7 +107,7 @@ fn update_support_keeps_or_refuses_a_kept_direction() {
     }
 }
 
-/// Manager steer (§2.2 item 2, §9): the applier's EX predicate is
+/// Manager steer: the applier's EX predicate is
 /// `condition_set_authoring::has_pressure_contract`, present and not null. Any
 /// non-null contract, a retired or invalid one included, refuses a skewed direction;
 /// an absent contract admits it; a present null is the document's own shape refusal;
@@ -135,7 +135,7 @@ fn the_pressure_contract_predicate_is_present_and_not_null() {
     assert_eq!(written(&axis)["direction"], json!({"x":0,"y":1,"z":0}));
 }
 
-/// Authoring's should-fix (§11.2): the skew gates run only after the document
+/// Authoring's should-fix: the skew gates run only after the document
 /// validator's own item-1 rules pass, on the record as the applier writes it (no
 /// re-implemented trim, case or null semantics). The validator's closed token set
 /// admits `uy`, so that record reaches item 2 exactly as the validator says. An

@@ -1,4 +1,3 @@
-// W-17 slice (b), DEL-02-02 Design `project-unit-selection.md` §2.5, §2.8, §4:
 // a project-unit change goes through the session's commit like every
 // operation, and Undo/Redo restore the checkpoint (the exact prior document and
 // model hash). A stale change is refused and leaves the document and history

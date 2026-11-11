@@ -1,4 +1,4 @@
-// A1 (DEL-07-05 Design `results-navigator.md` §2 to §4): the navigation model. Invented rows only.
+// A1: the navigation model. Invented rows only.
 import { describe, expect, it } from "vitest";
 import type { MechanicsResult } from "../../types";
 import {

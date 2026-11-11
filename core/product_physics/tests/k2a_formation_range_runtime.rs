@@ -202,10 +202,10 @@ fn assert_w2_refused(r: &Reach, reason: &str, name: &str) {
 /// criterion of the exact reference `reference_m` (m); nothing blocks; the
 /// case's integrity diagnostic carries the `range_scaling:` evidence line
 /// exactly once. Under K-D5's repair the W2 attempt carries its own member
-/// bound (DEL-04-01 kd5-member-relative-bound.md §2.2), so the unified
+/// bound, so the unified
 /// predicate judges its certified rows at b != 0 instead of R-b''s former
 /// fail-closed rule (ROOT Q5(a)): the case is `NUMERICAL_INTEGRITY_CHECKS_PASSED`
-/// with no S11-G sentence (§§3.3, 4.2's Sensitive -> Passed moves).
+/// with no S11-G sentence.
 fn assert_w2_published(r: &Reach, b: i32, reference_m: f64) {
     let line = format!("range_scaling: force_scale_exponent={b}; basis=exact power-of-two");
     let kind = format!("global_nodal_displacement_{}", r.free[1..].to_lowercase());

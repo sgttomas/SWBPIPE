@@ -1,4 +1,4 @@
-// The cases of C1 slice 3's parity (DEL-04-05 `c1-native-custody-plan.md`, slice 3): each result
+// The cases of C1 slice 3's parity: each result
 // of slice 2's summary cases (the fixtures the builders' tests, the demos and the native replay use,
 // and their invented results), two retained-source pressure results with recorded recovery evidence,
 // and invented results for the paths those do not reach (search over every member type, JavaScript

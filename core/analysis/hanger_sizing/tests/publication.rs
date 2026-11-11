@@ -1,8 +1,8 @@
-//! Publication, slice 1d-α (DEL-04-11 design §8.3): the
+//! Publication, slice 1d-α: the
 //! headless pipeline's documents and refusals, the reader's standings over the
 //! committed corpus (`fixtures/results/hanger_sizing_*.json`), the schema's
 //! fixed members against the crate's, and the existing readers' actual handling
-//! of the document (§8.3.8). All values are invented.
+//! of the document. All values are invented.
 //!
 //! The corpus inputs are formed by the builders below. With
 //! `HANGER_SIZING_WRITE_FIXTURES=1` the generator test rewrites the inputs, the
@@ -539,7 +539,7 @@ fn the_schema_states_the_crates_fixed_members() {
     assert_eq!(defs["Identity"]["properties"]["route"]["const"], publish::ROUTE);
 }
 
-// --- §8.3.8: the existing readers' actual handling ----------------------------
+// --- the existing readers' actual handling ----------------------------
 
 #[test]
 fn the_mechanics_route_reader_and_the_result_export_derivative_refuse_the_document() {

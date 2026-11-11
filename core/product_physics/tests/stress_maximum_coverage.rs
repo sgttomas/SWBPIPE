@@ -94,7 +94,7 @@ fn check_incomplete_domain(wire: Value, mode: PreviewSolverMode) {
         .diagnostics
         .iter()
         .any(|d| d.code == "EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE"));
-    // D-5 (DEL-05-03 Design §2.2, §2.5): the valid individual maximum is
+    // the valid individual maximum is
     // published on the nominal section and on the reduced one, each basis has
     // its own coverage record and headline, and no basis-free headline exists.
     let maxima: Vec<_> = output

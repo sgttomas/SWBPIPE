@@ -1,4 +1,4 @@
-// Run sheet S2 measurement (DEL-07-02 Design `run-sheet-entry.md` §3.6 Cost): a
+// Run sheet measurement: a
 // 500-row sheet (50 bend rows) on an invented model of more than 5,000
 // entities, over 100 model revisions. It reports the rows, expected ids and
 // model entities; the median and 95th-percentile reconciliation time, with the

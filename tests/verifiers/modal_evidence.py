@@ -84,10 +84,10 @@ ACCELERATION = _catalog("m/s^2", "acceleration", "unit:meter_per_second_squared"
 RAD_PER_M = _catalog("rad/m", "rotation_per_length", "unit:radian_per_meter")
 M_PER_RAD = _catalog("m/rad", "length_per_rotation", "unit:meter_per_radian")
 KG_M2 = _catalog("kg*m^2/rad^2", "rotational_generalized_mass", "unit:kilogram_square_meter_per_square_radian")
-# The mass matrix's translation-rotation coupling: kg*m/rad (Design §5.3.5).
+# The mass matrix's translation-rotation coupling: kg*m/rad.
 COUPLING = _catalog("kg*m/rad", "mass_length_per_rotation", "unit:kilogram_meter_per_radian")
 # D*M*D with D = diag(|k_ii|^-1/2) of the formed K_ff: seconds squared whatever the DOF
-# classes (Design §5.3.5).
+# classes.
 TIME_SQUARED = _catalog("s^2", "time_squared", "unit:square_second")
 # The statuses a value may carry: catalog, and equilibrated_basis for a listed kind only. The
 # former catalog_family_absent is not one: every kind now has its catalog family.
@@ -368,7 +368,7 @@ def _identity(doc):
         _count(s["case_index"], "/binding/state_case/case_index")
         _hex(s["case_sha256"], "/binding/state_case/case_sha256")
     _hex(b["integrity_parameters_sha256"], "/binding/integrity_parameters_sha256")
-    # The subject census (Design §5.3.2): formed by a solved run only.
+    # The subject census: formed by a solved run only.
     if doc.get("status") == "refused":
         if b["subject_census"] is not None:
             _fail("/binding/subject_census: a refused document states none")
@@ -963,7 +963,7 @@ def _sequential_sum(values, start=0.0):
 
 # --- What a published value can be ------------------------------------------------------
 #
-# Design §5.3.4's relation inventory, from the producer's own formation. A value object
+# relation inventory, from the producer's own formation. A value object
 # stands for the value the producer published:
 # - an unflagged number is that binary64 number; 0 is an exact zero (`WideDd::to_published`
 #   and `to_normal_or_zero`, modal_eigen dd.rs:476 and :507, publish a nonzero value
@@ -1244,7 +1244,7 @@ TO_PUBLISHED, NORMAL_OR_ZERO, BINARY64 = "to_published", "to_normal_or_zero", "b
 
 
 def _producer_domain(vo, rule, what):
-    """The field's own domain from the producer's rounding rule (Design §5.3.4):
+    """The field's own domain from the producer's rounding rule:
     `to_published` (dd.rs:476) is 0, normal, or a flagged nonzero below 2⁻¹⁰²²;
     `to_normal_or_zero` (dd.rs:507) is 0 or normal and never flagged (a subnormal refuses
     the run); a plain binary64 value is never flagged. A value outside it is no producer
@@ -1301,7 +1301,7 @@ def _payload_mass(p):
         if t.only_nonfinite() or any(e.nonfinite for e in effective) or t.nonfinite:
             scope.append(UNRESOLVED + f"Σ m_eff,{direction} ≤ T_{direction}: an operand is not finite (±∞ or NaN)")
             continue
-        # Agent 0's interim contract (Design §5.3.4): Bessel passes only where sound
+        # Agent 0's interim contract: Bessel passes only where sound
         # arithmetic establishes Σ m_eff ≤ T_k from the published operands; otherwise it
         # is unresolved, never refused. Σ m_eff ≤ T_k holds for modes orthogonal in the
         # assembled M, which the document does not evidence (the published deviation is
@@ -2014,7 +2014,7 @@ def _identity_coverage(p):
 
 
 def _subject_census(p, listed):
-    """The subject census (Design §5.3.2) against the tables. Always: along each axis the
+    """The subject census against the tables. Always: along each axis the
     identity's nodal member rows count the straight members, its resultant member rows
     the arcs and its component-body rows the bodies; the discretization table has the
     straight members' rows; the supports table has the nonlinear supports' rows, which
@@ -2222,7 +2222,7 @@ def _standing_of(function, *args):
     return {"status": status, "difference": None, "scope": scope, "unresolved": unresolved}
 
 
-# What the verdict establishes, in every verdict (Design §5.3.4).
+# What the verdict establishes, in every verdict.
 VERDICT_LIMIT = ("per-relation consistency, not joint realizability: each relation is decided on its own operands, "
                  "so a document every relation admits may still have no single coherent set of underlying values; "
                  "feasibility-oracle agreement does not establish payload coherence either")

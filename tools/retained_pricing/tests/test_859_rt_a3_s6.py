@@ -1,4 +1,4 @@
-"""RT-A3 S6 (retained-pricing-rules.md §8.59): nonlinear supports on load/reference-state documents and beside
+"""RT-A3 S6 (§8.59): nonlinear supports on load/reference-state documents and beside
 objective connectors.
 
 D1.5 refuses every analysis_state, D1.6 every nonlinear support and D1.4 every component, so the resolved-case motion

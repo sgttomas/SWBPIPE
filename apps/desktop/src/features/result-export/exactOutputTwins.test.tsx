@@ -1,4 +1,4 @@
-/** Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §5.4, §6.1, §6.2; owner ruling
+/** (owner ruling
  * 11B, 2026-10-21): the committed load/reference-state twins on the desktop's result JSON
  * export and stress-neutral export.
  *
@@ -16,7 +16,7 @@
  *   `loadReference.resultsSessionState.test.ts` solves it), recorded and manifested by
  *   the desktop, and exported by the Current builders; the source-derived members equal
  *   the committed twins'. Run-specific members are excluded by name below.
- *   `load_basis_refs` is checked against its own basis (§6.2).
+ *   `load_basis_refs` is checked against its own basis.
  * - The panels show their link and their disclosure line for these results; a model edit
  *   voids both. The refusals the design keeps are asserted: the pressure-source-1 twins
  *   and the pressure-2 fallback by standing, a copy, and a missing or mismatched record.
@@ -151,7 +151,7 @@ const DOCUMENT_ROW_EXCLUDED = ["provenance", "original_producer_row_checksum", "
  *   each source diagnostic as Rust's derivative does (`documentDiagnostic`), so every
  *   member but its `provenance` (each derivative's own) equals the Rust twin's where Rust
  *   maps the source (the plain twins; the load/reference writer's template carries its own);
- * - `load_basis_refs`, checked against its own basis instead (§6.2). */
+ * - `load_basis_refs`, checked against its own basis instead. */
 const DOCUMENT_RUN_SPECIFIC = ["envelope_id", "run_ref", "model_ref", "unit_system_ref", "solver_version", "reproducibility", "provenance", "diagnostics", "analysis_status", "professional_boundary", "rule_pack_refs", "downstream_use", "load_basis_refs"] as const;
 /** Package members copied or derived from the source, compared after the exclusion below
  * (and `source_block_recovery` for pressure-source-1). */
@@ -209,10 +209,10 @@ function expectDiagnosticsFollowSource(doc: JsonObject, rust: JsonObject, source
     expect(withoutProvenance(ours)).toStrictEqual(withoutProvenance(theirs));
   }
 }
-/** `{object_type: "LoadCase", ref}` (the record) to `{ref_type: "load_case", ref_id}` (the document, §6.2). */
+/** `{object_type: "LoadCase", ref}` (the record) to `{ref_type: "load_case", ref_id}` (the document). */
 const recordToDocumentRef = (item: ObjectRef) => { expect(item.object_type).toBe("LoadCase"); return { ref_type: "load_case", ref_id: item.ref }; };
 
-/** §6.2: solve, record, manifest and export; the source-derived members equal the twins'. */
+/** solve, record, manifest and export; the source-derived members equal the twins'. */
 async function oracle(input: Input) {
   const { document: rust, packet: python, record: pythonRecord, raw } = twins(input);
   const { model, result, inputManifest, analysisRun } = await solve(input.rawPath, input.requestPath, input.mode);
@@ -234,7 +234,7 @@ async function oracle(input: Input) {
   expect(Object.keys(doc.result_envelope).filter(key => !named.has(key))).toStrictEqual([]);
   expect(Object.keys(rust.result_envelope).filter(key => !named.has(key))).toStrictEqual([]);
 
-  // load_basis_refs against its own basis (§6.2), not the Rust document's IDs: the desktop
+  // load_basis_refs against its own basis, not the Rust document's IDs: the desktop
   // record's equal Python's committed record's, and the desktop document's are the record's
   // mapped LoadCase/ref to load_case/ref_id (and Python's record's, mapped the same way).
   expect(analysisRun.analysis_run.load_basis_refs).toStrictEqual(pythonRecord.analysis_run.load_basis_refs);
@@ -273,7 +273,7 @@ const desktopShaped = (input: Input, member: "stress_neutral" | "analysis_run") 
 const desktopText = (value: unknown) => `${JSON.stringify(value)}\n`;
 
 /* -------------------------------------------------------------------------- *
- * §6.2 validator acceptance: every committed twin, both modes
+ * validator acceptance: every committed twin, both modes
  * -------------------------------------------------------------------------- */
 describe.each([["pressure-2 load/reference-state", ORDINARY], ["pressure-source-1 load/reference-state", JOINED], ["plain", PLAIN]] as const)("%s: the desktop validators accept the committed twins with their source (§6.2)", (_, family) => {
   it.each(family)("$label: Rust's document, and Python's package with its record", async (input) => {
@@ -295,7 +295,7 @@ describe.each([["pressure-2 load/reference-state", ORDINARY], ["pressure-source-
 });
 
 /* -------------------------------------------------------------------------- *
- * §6.2 the admitted-case oracles, and §5.4 the panels
+ * the admitted-case oracles, and the panels
  * -------------------------------------------------------------------------- */
 describe("pressure-2 load/reference-state results: the Current builders equal the committed twins (§6.2)", () => {
   it.each(ORDINARY)("$label: the document and the package equal the twins' source-derived members", async (input) => {
@@ -388,7 +388,7 @@ describe("plain exact results: the Current builders equal the committed plain tw
   }, 240_000);
 });
 
-/** Design §10: a preview-physics-2 document keeps its bytes, so its `load_basis_refs`
+/** a preview-physics-2 document keeps its bytes, so its `load_basis_refs`
  * keep the record's `object_type` as `ref_type` (`currentResultDocumentBase`); only the
  * exact routes name them `load_case`, as Rust's derivative does (checked in the oracles). */
 describe("a preview-physics-2 document's load_basis_refs keep the record's object_type", () => {
@@ -455,7 +455,7 @@ describe("the stress-neutral CSV value text", () => {
 });
 
 /* -------------------------------------------------------------------------- *
- * §6.2 the pressure-source-1 twins stay refusal fixtures at the builders; the fallback
+ * the pressure-source-1 twins stay refusal fixtures at the builders; the fallback
  * -------------------------------------------------------------------------- */
 describe("pressure-source-1 load/reference-state results are refused by each builder's standing (§5.4, §6.2)", () => {
   it.each(JOINED)("$label: registered with its invocation, Rust's T1 finding; each builder refuses; the panels offer nothing", async (input) => {

@@ -163,7 +163,7 @@ for key, value in D.get("ID_AUDIT", []):
     TA["id_audit"].setdefault(key, {}).update(value); LOG["other"].append(["id_audit", key, value])
 for rule in reversed(D.get("ARGS_FIRST", [])):
     rule = dict(rule); rule["why"] = "SQ2 G5: " + rule["why"]; TA["args"].insert(0, rule); LOG["other"].append(["args", rule])
-# W8-RF (retained-pricing-rules.md §8.16): a diagnostic's affected-refs expression and its bound, placed before the
+# W8-RF (§8.16): a diagnostic's affected-refs expression and its bound, placed before the
 # inherited refs rules (o10_rules.py's O10_REFS_FIRST).
 for rule in reversed(D.get("O10_REFS_FIRST", [])):
     rule = dict(rule); rule["why"] = "O-10: " + rule["why"]; TA.setdefault("refs_rules", []).insert(0, rule)
@@ -207,7 +207,7 @@ if D.get("CENSUS"):
     _spec = importlib.util.spec_from_file_location("census_patch", D["CENSUS"]["patcher"]); _cp = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(_cp)
     _census = json.load(open(D["CENSUS"]["json"]))
     if D["CENSUS"].get("global_end_rows_per_member"):
-        # W7-RP (retained-pricing-rules.md §8.20): rows the ordinary envelope carries and the census's source fixtures omit.
+        # W7-RP (§8.20): rows the ordinary envelope carries and the census's source fixtures omit.
         _census = dict(_census, global_end_rows_per_member=D["CENSUS"]["global_end_rows_per_member"])
     LOG["census"] = _cp.apply(dst, _census, patch)
 # T4-U6 (O-10): a route's typed-chain substitution, each by exact text with its argued reason (o10_rules.py).

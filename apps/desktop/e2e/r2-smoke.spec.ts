@@ -78,7 +78,7 @@ test("recorded reference sources retain the original row, quantity, unit and dia
     expect(source.results).toHaveLength(rows);
     const magnitudes = source.results.filter((row: any) => row.kind === "displacement_magnitude");
     expect(new Set(magnitudes.map((row: any) => row.entity_ref)).size).toBe(5);
-    // W-15 (DEL-03-05 Design §6): valve C-130's member is solved with its scale 15 (was 7.635384 unscaled).
+    // valve C-130's member is solved with its scale 15 (was 7.635384 unscaled).
     expect(Math.max(...magnitudes.map((row: any) => row.value)).toFixed(6)).toBe("7.624972");
     const vectors = source.results.filter((row: any) => ["global_nodal_displacement_x", "global_nodal_displacement_y", "global_nodal_displacement_z"].includes(row.kind));
     expect(vectors.length).toBeGreaterThanOrEqual(15);
@@ -252,7 +252,7 @@ test("guided workbench shell keeps journey steps, details, and compact status re
   // properties start open, and the agent workbench is an explicit review tab.
   await expect(page.getByTestId("workspace-dock")).toHaveClass(/collapsed/);
   await expect(page.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", String(page.viewportSize()!.width >= 1280));
-  // Slice B3: the Both view's docked inspector is closed at first open (specification §2.3).
+  // Slice B3: the Both view's docked inspector is closed at first open.
   await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "false");
   await expect(page.getByTestId("viewport-canvas")).toBeVisible();
   await expect(page.getByTestId("agent-workbench-panel")).toBeHidden();
@@ -261,7 +261,7 @@ test("guided workbench shell keeps journey steps, details, and compact status re
   await expect(page.getByTestId("agent-focus-selection")).toContainText("project:invented-demo-loop-01");
   await expect(page.getByTestId("agent-proposal-summary")).toContainText("review_only_local_preview");
   await expect(page.getByTestId("workspace-status-bar")).toBeVisible();
-  // Slice B3, specification §5.4 rule 4: Human · Human review required is a chip of the Review
+  // Human · Human review required is a chip of the Review
   // page after a solved run only; the recorded value is read in the Analyze page's readiness summary.
   await expectNoStatusChip(page, "status-pill-professional");
   await expectRecordedStatusOnAnalyzePage(page, "professional", "HUMAN_REVIEW_REQUIRED");
@@ -330,7 +330,7 @@ test("DEC-077 solve temperature queues an explicit unit-bearing operation", asyn
   const editorIntentPanel = page.getByTestId("editor-intent-panel");
   await selectCompactOption(editorIntentPanel
     .getByTestId("editor-intent-field"), "modulus_basis_temperature.value");
-  // W-17 slice (c) §7.2: the default is project.units.temperature (degC in the demo), no longer K.
+  // the default is project.units.temperature (degC in the demo), no longer K.
   await expect(editorIntentPanel.getByTestId("editor-intent-unit")).toHaveAttribute("data-value", "degC");
   await editorIntentPanel.getByTestId("editor-intent-value").fill("400");
   await openNamedDisclosure(editorIntentPanel, "Operation details");
@@ -1726,7 +1726,7 @@ test("R3 guided flow routes private library, rule-pack, solve, binding, and bloc
   await ensureEngineReady(page);
 
   await expect(page.getByTestId("app-menu-bar")).toBeVisible();
-  // Slice B3, specification §5.4 rules 1 and 2: no Rule pack chip before a run; the recorded value
+  // no Rule pack chip before a run; the recorded value
   // is read in the Analyze page's readiness summary.
   await expectNoStatusChip(page, "status-pill-rule-check");
   await expectRecordedStatusOnAnalyzePage(page, "rule", "RULE_INPUTS_INCOMPLETE");

@@ -1,4 +1,4 @@
-//! VP-ROBUST (T3 D1 §4.10): R1's frozen references (`T3/REFERENCES`,
+//! VP-ROBUST: R1's frozen references (`T3/REFERENCES`,
 //! `references.json` 7b176dbb…) against the W1a kernel method, the kernel lane
 //! (slice V-K), and later the product lane (V-P).
 //!

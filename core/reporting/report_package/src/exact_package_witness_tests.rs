@@ -37,7 +37,7 @@ use serde_json::{json, Value};
 
 const ROUTE_NOT_ADMITTED: &str = "REPORT-PACKAGE-ROUTE-NOT-ADMITTED";
 
-/// The five witness shapes of §5.5.
+/// The five witness shapes.
 const WITNESSES: [(&str, &str); 5] = [
     ("pressure_2_straight", include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_straight.json")),
     (
@@ -208,7 +208,7 @@ fn container_outcome(request: &Value) -> ReportPackageContainerOutcome {
     assemble_report_package_container(&input)
 }
 
-/// W-11 opening (§5.1 item 8): every production entry point admits each
+/// every production entry point admits each
 /// witness request; the container assembly yields the same package identity
 /// as the wire assembly.
 #[test]
@@ -286,7 +286,7 @@ fn the_runner_profile_is_refused_in_the_producer_and_the_reader() {
     }
 }
 
-/// §3.5: the shared checks alone cannot see a coherent same-run substitute.
+/// the shared checks alone cannot see a coherent same-run substitute.
 /// It passes items 0-9; the native source binding of the desktop's save is
 /// what refuses it.
 #[test]
@@ -360,7 +360,7 @@ fn positional_members_refuse_and_a_positional_request_assembles_the_same_package
     }
 }
 
-/// DEL-08-01 Design `exact-route-report-sections.md` §3.6, §6.3 item 4: on an
+/// on an
 /// exact identity the report's Diagnostics are the source's projection
 /// (`bindings::check_report_diagnostics`, item 9), so the standing line's
 /// integrity lead is the result's. Through the production roots, each witness

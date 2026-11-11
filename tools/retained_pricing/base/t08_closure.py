@@ -2,7 +2,7 @@
 
 Reads text_budget.<which>.out.json and composite_text.<which>.json and writes
 text_closure.<which>.json. Every atom is a byte bound on String CONTENT or CAPACITY as
-stated; the derivations are in TEXT.md section 5.
+stated.
 Usage: python3 t08_closure.py <caps|milestone>
 """
 import json, os, sys

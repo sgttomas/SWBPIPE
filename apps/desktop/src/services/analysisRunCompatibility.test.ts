@@ -187,7 +187,7 @@ it("rejects invalid source rule statuses independently of a valid record overrid
   }
 });
 
-/** T6S, tests only (B2-C §10.4, N-8): B2-P's committed W-CB3 combination successor. Its combination rows' basis is the
+/** T6S, tests only (N-8): B2-P's committed W-CB3 combination successor. Its combination rows' basis is the
  * combination entry's (`Combination`), the record's load basis covers the model's combination beside its cases, and an
  * explicit basis without the combination is refused, as for an uncovered case. */
 it("binds a combination successor's Combination basis references (T6S, B2-C §10.4)", async () => {

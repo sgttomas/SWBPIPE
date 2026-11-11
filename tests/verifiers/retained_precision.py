@@ -36,7 +36,7 @@ PROFILE = "product_preview_retained_w1a_v2"
 DEFINITION_ID = "RP-PREPARED-ORDINARY-DUAL-v1"
 DEFINITION_HASH = "64ec69b842d6278323aa2ab2e140e999db52eb28e4a9965a567a90b04e228b41"
 TABLE_HASH = "ef59ef338d4e2cafca7017e13b7a450d1094ede8068c47cf5e44416c1adc177a"
-# B2-C (CONTRACT §8 row 4, REVISION_02 §0): DEF-C's id and H, the preview table's second formation definition.
+# B2-C (CONTRACT §8 row 4): DEF-C's id and H, the preview table's second formation definition.
 COMBINATION_DEFINITION_ID = "RP-PREPARED-COMBINATION-DUAL-v1"
 COMBINATION_DEFINITION_HASH = "a9219849d4dfecfc4e9529c6b648eb21cdf2e9872f2d681cc0c26cdfd2bdf6f1"
 PREVIEW_DEFINITIONS = [{"id": DEFINITION_ID, "sha256": DEFINITION_HASH}, {"id": COMBINATION_DEFINITION_ID, "sha256": COMBINATION_DEFINITION_HASH}]
@@ -75,7 +75,7 @@ class RetainedPrecisionError(ValueError):
 
 
 class Route(NamedTuple):
-    """The route descriptor (B3-D §6.1): one dispatch on the identity at G0; the route-specific checks (G0's table
+    """The route descriptor: one dispatch on the identity at G0; the route-specific checks (G0's table
     read, G1's and G8's preparation hash, G5b's evidence, G7's projection, G8's namespace and materials) read it."""
     exact: bool
     contract_id: str
@@ -277,7 +277,7 @@ def _fault_owner(a, path):
     completion, else the whole ProofTrace."""
     proof = a["proof"]
     if path[:2] == ("preparation", "members") and path[3:4] == ("reduced",):
-        # O4 §4.6: a fault inside a member's reduced record is owned by that record's work.
+        # a fault inside a member's reduced record is owned by that record's work.
         return a["preparation"]["members"][path[2]]["reduced"]["work"]
     if path[:2] == ("preparation", "members"):
         return a["preparation"]["members"][path[2]]["work"]
@@ -351,7 +351,7 @@ def _accounting_rules(a):
             r3 = r3 and owner is not None and o["fault"] in STATUS_FAULTS and STATUS_FAULTS[o["fault"]] <= _statuses(owner)
     r4 = True
     for m in a["preparation"]["members"]:
-        # O4 §4.6: the same rule for a member's reduced record and its own work.
+        # the same rule for a member's reduced record and its own work.
         for record in (m, m.get("reduced")):
             if not isinstance(record, dict): continue
             e = record["result"].get("error") if record["result"]["kind"] != "prepared" else None
@@ -408,7 +408,7 @@ def _native_source_encoding(source, include_loads):
     for constraint in source["constraints"]:
         dof(constraint["dof"])
         if include_loads: value(constraint["value"])
-    # O4 (DEL-04-08 Design o4-source-extension.md §4.2; FK `TimoshenkoLeafSet::encode_block`): a non-empty
+    # O4 (FK `TimoshenkoLeafSet::encode_block`): a non-empty
     # Timoshenko sidecar makes the encoding version 2 and appends, after the stiffness part, the framed block
     # b"TSH\x01", the count, then each leaf's member (u32) and shear-area bits (u64), sorted by member.
     leaves = sorted((term["member"], term["shear_area"]) for term in source["section_terms"] if "shear_area" in term)
@@ -448,7 +448,7 @@ def _native_source_encoding(source, include_loads):
 
 
 def _preparation_payload(a, definition_hash):
-    """C3 §2: `definition_sha256` is the table-bound H(definition) of the route (S-1; B3-D REVISION_01 §2): DEF-O's
+    """`definition_sha256` is the table-bound H(definition) of the route (S-1): DEF-O's
     on the preview route, DEF-E's on the exact route. Every caller passes its route's hash (G1, G8); there is no
     default (RV120 N1: "never a module constant")."""
     return {"definition_id": a["definition_id"], "definition_sha256": definition_hash,
@@ -701,7 +701,7 @@ def _g5_native_checks(body, runs, fail, wf):
         fail(call["id"] == call_id and call["invocation_before"] == current, "WORK_MISMATCH")
         mechanics = call["kind"] == "mechanics_combination"
         if mechanics:
-            # REVISION_01 §4.1 #8: one owner; one source and one Run (`runs`) or none (`pre_source_refusal`).
+            # one owner; one source and one Run (`runs`) or none (`pre_source_refusal`).
             fail(len(call["owner_refs"]) == 1 and len(call["run_refs"]) == len(call["source_refs"]) <= 1)
         else:
             fail(len(call["run_refs"]) == len(call["source_refs"]) == len(call["owner_refs"]))
@@ -709,7 +709,7 @@ def _g5_native_checks(body, runs, fail, wf):
             run = _at(runs, ri, code="ATTEMPT_MISMATCH")
             fail(run["origin"] == {"call": call_id, "position": position, "group": run["origin"]["group"], "source_ref": si, "owner_ref": oi})
             if mechanics:
-                # REVISION_01 §4.1 #9: the combination entry's Run and source, owned by its CombinationSource.
+                # the combination entry's Run and source, owned by its CombinationSource.
                 case = _at(combos, oi["index"], code="ATTEMPT_MISMATCH")
                 fail(oi["kind"] == "combination" and case.get("run") == run and case.get("source_ref") == si)
                 source = _at(body["sources"], si, code="ATTEMPT_MISMATCH")
@@ -719,7 +719,7 @@ def _g5_native_checks(body, runs, fail, wf):
                 fail(oi["kind"] == "case" and case.get("run") == run and case.get("source_ref") == si)
                 source = _at(body["sources"], si, code="ATTEMPT_MISMATCH")
                 fail(source["owner"]["case_index"] == oi["index"])
-            # REVISION_01 §4.1 #10: a combination Run may reuse its group's imported builds (CONTRACT §2.5).
+            # a combination Run may reuse its group's imported builds (CONTRACT §2.5).
             group = _ref(body["groups"], run["origin"]["group"]) if run["origin"]["group"] is not None else None
             imported = {(x["slot"], int(x["build"])) for x in (group or {}).get("imports", [])} if mechanics else set()
             fail(run["invocation_before"] == current, "WORK_MISMATCH")
@@ -851,7 +851,7 @@ def _g5_native_checks(body, runs, fail, wf):
     fail(body["work"]["charged"] == current, "WORK_MISMATCH")
     # Every Build is referenced by its building record (C1 build provenance; WORK), as Rust's
     # `builds_seen` and TypeScript's `seenBuilds` require. So no Build outlives its Run, and none
-    # names a case whose native stage failed before any Run (R-D38 (4b), DESIGN_v2 §2).
+    # names a case whose native stage failed before any Run (R-D38 (4b)).
     fail(built_refs == set(range(len(body["builds"]))), "WORK_MISMATCH")
     for call_id, call in enumerate(body["calls"]):
         # C2:143 call-local groups at first equality of full stiffness bytes, first-seen order;
@@ -980,7 +980,7 @@ def _g5_stages(a, case, fail, ai, member_values=False):
     if st["native"] == "not_entered":
         fail(a["run_ref"] is None)
     elif st["native"] == "failed" and a["run_ref"] is None:
-        # R-D38 (DESIGN_v2 §2; RR:8823): an entered native stage has a Run (4a, below), except a
+        # R-D38 (RR:8823): an entered native stage has a Run (4a, below), except a
         # native capture failure before any Run beside a registered prepared source (4b).
         fail(_d38_capture_before_run(a, case, ai))
     else:
@@ -1317,7 +1317,7 @@ def _g5_products(body, rows_by_case, route=None):
             fail(all(v == "completed" for v in a["stages"].values()) and len(pm) == len(old) == len(new) and all(m["result"]["kind"] == "prepared" for m in pm))
             fail(a["operational"]["old_coverage"] == "complete" and proof is not None and all(v["kind"] == "passed" for v in proof["checks"].values()))
             fail(all(m["result"]["kind"] == "ready" for m in new))
-            # O4 §4.6: a member's reduced record's work is held to the same exactness (absent is exact).
+            # a member's reduced record's work is held to the same exactness (absent is exact).
             wf(_exact_work(proof) and all(_exact_work(m["work"]) and _exact_work((m.get("reduced") or {}).get("work")) for m in pm) and a["adapter"]["fault"] is None and not a["g5a_work"]["lost"] and not a["overlay_work"]["lost"])
             expected = [i for i,r in enumerate(rows_by_case[case["basis_ref"]["ref_id"]]) if _owner_projected(case,r,source,route)]
             fail([x["row_index"] for x in proof["projection_outcomes"]] == expected)
@@ -1376,7 +1376,7 @@ def _g5_preparation_members(a, prefix_ok, fail, wf):
                 outcome = conversion["outcome"]
                 idx = k // 2 if k < 8 else 4
                 fail(outcome["kind"] == "normal" and outcome["value"] == m["result"]["section"][idx] and from_bits(outcome["value"]) >= 2.0 ** -1022)
-        # O4 (DEL-04-08 Design o4-source-extension.md §4.6): a distinct-basis member's reduced record is a preparation
+        # a distinct-basis member's reduced record is a preparation
         # record like the member's own, read by the same rules: present only beside a prepared member; conversions in
         # property order, each of an admitted kind; a prepared result's nine normal, positive conversions equal to its
         # section; a refused reduced annulus ends the preparation (the last member); its conversion count is WORK.
@@ -1722,7 +1722,7 @@ def _g5a_coverage(body, case, source, s, need, data_sources=None):
 
 
 def _g5b_exact_evidence(evidence, case, source, rows=()):
-    """G5b on the exact branch (B3-D §1.4 and §6.2; D2 §4.9.3 G5b): the selected case's own exact_cases entry,
+    """G5b on the exact branch: the selected case's own exact_cases entry,
     located by load_case_id, states the prepared section bit for bit. For each source member: ro_m is the actual
     radius and outside_diameter_m the normalized OD, and on both section bases (T4-U6, D-5: the one receipt section
     binds the nominal and the reduced section, which coincide on this route) As_m2 is the area, Z_m3 the section
@@ -1742,7 +1742,7 @@ def _g5b_exact_evidence(evidence, case, source, rows=()):
         for word, key in ((geometry["actual_radius"], "ro_m"), (geometry["normalized_od"], "outside_diameter_m")):
             value = stated[0].get(key)
             need(number(value) and bits(float(value)) == word)
-        # O4 §4.7: without `reduced` the one term binds both bases (the overlay rule); with it, the nominal term
+        # without `reduced` the one term binds both bases (the overlay rule); with it, the nominal term
         # binds nominal_section, `reduced` binds reduced_section and the two evidence sections differ in
         # {As, Z, I, J, wall}.
         reduced = term.get("reduced")
@@ -1760,7 +1760,7 @@ def _g5b_exact_evidence(evidence, case, source, rows=()):
             need(rg["route"] == geometry["route"] and rg["normalized_od"] == geometry["normalized_od"] and rg["actual_radius"] == geometry["actual_radius"])
             pair = [stated[0]["nominal_section"], stated[0]["reduced_section"]]
             need(any(bits(float(pair[0][k])) != bits(float(pair[1][k])) for k in ("As_m2", "Z_m3", "I_m4", "J_m4", "wall_m")))
-        # O4 §4.2: a Timoshenko member's prepared shear leaf is the evidence's beam_theory.shear_area_m2.
+        # a Timoshenko member's prepared shear leaf is the evidence's beam_theory.shear_area_m2.
         if "shear_area" in term:
             theory = stated[0].get("beam_theory")
             need(type(theory) is dict and theory.get("model") == sb.TIMOSHENKO and number(theory.get("shear_area_m2"))
@@ -1770,12 +1770,12 @@ def _g5b_exact_evidence(evidence, case, source, rows=()):
     rows = list(rows)
     distinct = _distinct_members(source)
     for i, row in enumerate(rows):
-        # T4-U4b §4.1: a derived row of either basis is its own not-covered row (G7's base read), never a twin.
+        # a derived row of either basis is its own not-covered row (G7's base read), never a twin.
         if type(row) is dict and row.get("kind") in DERIVED_KINDS:
             continue
         if not (_reduced_twin(row) or sb.id_basis(row.get("id")) == sb.REDUCED):
             continue
-        # O4 §4.7: a distinct-basis member's reduced rows are receipt rows, not overlays.
+        # a distinct-basis member's reduced rows are receipt rows, not overlays.
         if type(row) is dict and row.get("entity_ref") in distinct:
             continue
         nominal = rows[i - 1] if i > 0 else None
@@ -1797,7 +1797,7 @@ def _reduced_twin(row):
 
 
 def _distinct_members(source):
-    """O4 §4.7: the member ids whose section term in CaseSource `source` carries `reduced` (none without one)."""
+    """the member ids whose section term in CaseSource `source` carries `reduced` (none without one)."""
     if type(source) is not dict:
         return frozenset()
     members = source.get("id_maps", {}).get("members", [])
@@ -1839,7 +1839,7 @@ def _g5_numeric(body, rows_by_case, phase=None, exact_evidence=None, all_rows_by
     states = []
     per_case = []  # each G5b case's slice of `classes`, its published rows and its bound row count
     # CONTRACT §10.1 G5a-G5c: a retained combination is one more numeric owner, after the cases, on its representative
-    # source's maps and sections (REVISION_01 §3.3 N-9), with its own rows, Selection and prescribed DOFs.
+    # source's maps and sections, with its own rows, Selection and prescribed DOFs.
     owners = [("case", c) for c in body["cases"]] + [("combination", c) for c in body.get("combinations") or [] if c["disposition"] in RETAINED_DISPOSITIONS]
     for kind, case in owners:
         if (case["status"] if kind == "case" else case["disposition"]) not in ("selected", "retained_selected"):
@@ -1935,7 +1935,7 @@ def _g5_numeric(body, rows_by_case, phase=None, exact_evidence=None, all_rows_by
             member = next(m for m in source["id_maps"]["members"] if m["kernel_member"] == right["member"])
             # D18 (retained_product.rs `ScalarWork::operation`, `evaluate_operational`; endpoint_maximum.rs `endpoint_maximum`): each echoed term equals the source's and is positive.
             _need(left["member_id"] == member["id"] and all(left[k] == right[k] and from_bits(left[k]) > 0 for k in ["area", "section_modulus", "length", "axial_stiffness", "torsional_stiffness"]), "G5b", "SECTION_MISMATCH")
-            # O4 §4.6-§4.7: shear_area and reduced bind source and selection under one presence rule; route L has
+            # shear_area and reduced bind source and selection under one presence rule; route L has
             # one section and no shear model (H-1).
             _need(("shear_area" in left) == ("shear_area" in right) and ("reduced" in left) == ("reduced" in right)
                   and (exact_evidence is not None or ("shear_area" not in right and "reduced" not in right)), "G5b", "SECTION_MISMATCH")
@@ -1962,7 +1962,7 @@ def _g5_numeric(body, rows_by_case, phase=None, exact_evidence=None, all_rows_by
                         classes.append({"result_id":row["id"],"basis_ref":row["basis_ref"],"normalized_bits":bits(n),"scale_bits":None,"class":classification,"bound_bits":None}); continue
                     section = next((x for x in source["section_terms"] if x["member"] == member["kernel_member"]), None)
                     _need(section is not None, "G5b", "SECTION_MISMATCH")
-                    # O4 §4.7: a reduced row in the universe is scaled by its own (reduced) section.
+                    # a reduced row in the universe is scaled by its own (reduced) section.
                     if "reduced" in section and _reduced_twin(row):
                         section = section["reduced"]
                     k = float.fromhex("0x1.6a09e667f3bcdp+1") if row["kind"] == "pipe_elastic_normal_stress_maximum_v2" else 4. if row["kind"] == "open_formula_stress_summary" else 1.
@@ -1978,7 +1978,7 @@ def _g5_numeric(body, rows_by_case, phase=None, exact_evidence=None, all_rows_by
         deferred_class_checks.append((s["absolute_verified"] == absolute and s["not_covered"] == uncovered, "CLASSIFICATION_MISMATCH"))
         per_case.append((first, len(classes), (all_rows_by_case or rows_by_case)[case["basis_ref"]["ref_id"]], len(rows), _distinct_members(source)))
     if exact_evidence is not None:
-        # DESIGN §6.2's G5b row: the shared checks over every case first, then each selected case's exact evidence,
+        # G5b row: the shared checks over every case first, then each selected case's exact evidence,
         # as RS's `g5b_exact_evidence` and TS run it (RV120 F1).
         for case, source, s, rows, *_ in states:
             if "status" in case: _g5b_exact_evidence(exact_evidence[0], case, source, (all_rows_by_case or rows_by_case)[case["basis_ref"]["ref_id"]])
@@ -1999,8 +1999,8 @@ def _pressure_contract_is(model, expected):
 
 
 def _preview_namespace(model):
-    """G8's namespace on the preview successor, type-strict (B3-D REVISION_01 §3, N-4): branch L, a pressure-free
-    document keyed on the contract's absence (b7-plan "Model format, pressure-free half"): the current model version
+    """G8's namespace on the preview successor, type-strict (N-4): branch L, a pressure-free
+    document keyed on the contract's absence: the current model version
     0.9.0 with `pressure_contract` absent. Anything else is refused: a 0.9.0 model with any contract
     (`{}` and other falsy values included), the retired 0.1.0 and 0.2.0, and any 0.3.0 model, the retired
     {"version": "1.0.0", "mode": "legacy_pressure_v1"} included (B3a's branch L3 is dropped; the owner retired that
@@ -2011,7 +2011,7 @@ def _preview_namespace(model):
 
 
 EXACT_PRESSURE_CONTRACT = {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"}
-# O4 (DEL-04-08 Design o4-source-extension.md §4.7): either shear model is admitted on the exact route.
+# either shear model is admitted on the exact route.
 EXACT_SHEAR_MODELS = (sb.EULER_BERNOULLI, sb.TIMOSHENKO)
 
 
@@ -2033,7 +2033,7 @@ def _section_allowances(model, exact):
     pipes = model.get("pipe_segments")
     sections = [pipe.get("section") if isinstance(pipe, dict) else None for pipe in (pipes if isinstance(pipes, list) else [])]
     if exact:
-        # O4 §4.7: an explicit, finite, length-valued allowance c_a >= 0 with c_m + c_a < t (c_m absent or null is
+        # an explicit, finite, length-valued allowance c_a >= 0 with c_m + c_a < t (c_m absent or null is
         # zero), the producer's own refusals.
         def admitted(section):
             if not isinstance(section, dict):
@@ -2046,7 +2046,7 @@ def _section_allowances(model, exact):
 
 
 def _exact_namespace(model):
-    """G8's current exact namespace: the closed three-member v3 contract with either shear model (O4 §4.7) and an
+    """G8's current exact namespace: the closed three-member v3 contract with either shear model and an
     explicit admitted corrosion allowance on every pipe section. Load/reference states remain outside the retained
     domain."""
     version = model.get("schema_version")
@@ -2058,7 +2058,7 @@ def _exact_namespace(model):
 
 
 def _g8_exact_materials(body, source, invocation, case_bases):
-    """G8 on the exact branch, after the material bases (B3-D §6.2; REVISION_01 §4.2 steps 5 and 6). S-C: physics-
+    """G8 on the exact branch, after the material bases. S-C: physics-
     source-1's actual-material check over every exact_cases entry, through its own `_actual_materials` and
     `_canonical_inputs`, used as they are (B3D-12; N-9), with its code as detail only (B3D-13). N-6: each entry's
     published G_pa is, bit for bit, the receipt's shear modulus for that material."""
@@ -2173,7 +2173,7 @@ def _g8(body, source, invocation, route=PREVIEW_ROUTE):
     except (ValueError, RuntimeError): need(False, "INVOCATION_MISMATCH")
     request = invocation["request"]; model = request["model"]
     need(model["project"]["id"] == source["model_ref"], "INVOCATION_MISMATCH")
-    # Model document 0.9.0 (§3.7): a case's condition_use is declined by name, as the Rust reader does.
+    # Model document 0.9.0: a case's condition_use is declined by name, as the Rust reader does.
     need(not model_uses_conditions(model), "CONDITION_USE_UNSUPPORTED")
     # §3.8: the condition sets and spectra unless absent or [], and any pipe's condition_set_ref, as Rust's G8.
     need(not model_carries_condition_sets(model), "CONDITION_SETS_UNSUPPORTED")
@@ -2182,7 +2182,7 @@ def _g8(body, source, invocation, route=PREVIEW_ROUTE):
     # The model scope, as PP accepts it (the alignment set, item 2): no reference_configurations member (null
     # included); the route's namespace (branch L; B3b's exact one); combinations and components absent or [] (on the
     # exact route a combination is ruling 4's expected refusal).
-    # B2-C §10.1 G8 invocation (REVISION_01 §4.1 #12): on the preview route model combinations are admitted, the entries
+    # G8 invocation: on the preview route model combinations are admitted, the entries
     # being the invocation's in order, id and expression. The exact route still admits none (B3b; RR "PR-B1 cut …", 2).
     need((_exact_namespace(model) if exact else _preview_namespace(model)) and (model.get("combinations", []) == [] if exact else _model_combinations_match(body, model)), "INVOCATION_MISMATCH")
     need(model.get("components", []) == [] and "reference_configurations" not in model, "INVOCATION_MISMATCH")
@@ -2197,12 +2197,12 @@ def _g8(body, source, invocation, route=PREVIEW_ROUTE):
         need(type(q) is dict and q.get("unit") == "1" and type(q.get("value")) in (int, float) and math.isfinite(q["value"]) and -1 < q["value"] < .5)
         return float(q["value"])
     def shear_origin(material):
-        # B3-D §1.2 (B3D-7): on the exact route G is derived from E and nu; otherwise the authored G.
+        # on the exact route G is derived from E and nu; otherwise the authored G.
         return {"kind":"derived_e_nu","poisson_ratio":bits(poisson(material)),"constitutive_basis":"homogeneous_isotropic_E_nu_v1"} if exact else {"kind":"explicit_g"}
     def selected_material(material, case):
         if exact:
             # D1.5-exact: the base common E/nu only. G_hat is the producer's RN64(E/(2*RN64(1+nu))), positive and
-            # normal (B3-D §1.2, B3D-7; RV116 N-1); binary64 evaluates exactly that expression.
+            # normal (B3D-7; RV116 N-1); binary64 evaluates exactly that expression.
             need(case.get("modulus_basis_ref") is None and case.get("modulus_basis_temperature") is None)
             e = unit(material["elastic_modulus"], "stress"); g = e / (2.0 * (1.0 + poisson(material)))
             need(math.isfinite(e) and e > 0 and math.isfinite(g) and g >= 2.0 ** -1022)
@@ -2236,7 +2236,7 @@ def _g8(body, source, invocation, route=PREVIEW_ROUTE):
         axial = (x[6]*x[8])/length; torsion = (x[7]*x[9])/length
         need(math.isfinite(axial) and math.isfinite(torsion) and abs(axial) >= 2.0**-1022 and abs(torsion) >= 2.0**-1022)
         return {"kind":"ready","length":bits(length),"axial_stiffness":bits(axial),"torsional_stiffness":bits(torsion),"normalization":[bits(d*inverse) for d in delta]}
-    # DESIGN_v2 §3.3 (decision 9) and F-1 text B (§3.2, decision 8): after the invocation, project and
+    # after the invocation, project and
     # model-scope checks, one loop in request order over every case (selected, unavailable or
     # not_required: every case's rows come from the one ordinary run). G3 binds case i to ordinary
     # attempt i and to the invocation's case i. Each check is PREPARATION_MISMATCH.
@@ -2254,7 +2254,7 @@ def _g8(body, source, invocation, route=PREVIEW_ROUTE):
         named, temperature = raw_case.get("modulus_basis_ref"), raw_case.get("modulus_basis_temperature")
         need(named is None or temperature is None)
         selector = {"kind":"named","id":named} if named is not None else {"kind":"temperature","kelvin":bits(unit(temperature,"temperature"))} if temperature is not None else {"kind":"base"}
-        need(not exact or selector == {"kind":"base"})  # B3-D REVISION_01 §4.2 step 3
+        need(not exact or selector == {"kind":"base"})
         if selector not in selectors: selectors.append(selector)
         case_bases.append(selectors.index(selector))
         need(o["material_basis_ref"] == case_bases[i])
@@ -2295,7 +2295,7 @@ def _g8(body, source, invocation, route=PREVIEW_ROUTE):
             need(hashlib.sha256(_native_source_encoding(s, include_loads)).hexdigest() == s[field])
         ci = int(s["owner"]["case_index"]); case = model["load_cases"][ci]
         if exact:
-            # D1.5-exact (B3-D §4.2; REVISION_01 §4.2 step 8): pressure_regions present and [], no equivalent_static,
+            # D1.5-exact: pressure_regions present and [], no equivalent_static,
             # no analysis_state.
             need(type(case.get("pressure_regions")) is list and case["pressure_regions"] == [] and case.get("equivalent_static") is None and "analysis_state" not in case)
         else:
@@ -2330,12 +2330,12 @@ def _g8(body, source, invocation, route=PREVIEW_ROUTE):
             need(mat["id"] == raw["material"] and m["E"] == mat["elastic_modulus"] and m["G"] == mat["shear_modulus"])
             geo=section["geometry"]; d=unit(raw["section"]["outside_diameter"],"length"); wall=unit(raw["section"]["wall_thickness"],"length")
             tolerance=unit(raw["section"]["mill_tolerance"],"length") if raw["section"].get("mill_tolerance") is not None else 0.
-            # D-5 (O4 §4.7): route E's stiffness section is the nominal wall t; route L keeps t - c_m (H-1).
+            # route E's stiffness section is the nominal wall t; route L keeps t - c_m (H-1).
             t = wall if exact else wall - tolerance
             need(geo["route"] == ("exact" if exact else "preview") and geo["normalized_od"] == bits(d) and geo["effective_wall"] == bits(t) and 0 < t < d*.5)
             need(geo["actual_radius"] == bits(d*.5) and section["area"] == m["A_K"] and geo["actual_second_moment"] == m["Iy_K"] == m["Iz_K"] and geo["actual_polar_moment"] == m["J_K"])
             need(all(from_bits(m[k]) >= 2.0**-1022 for k in ["E","G","A_K","Iy_K","Iz_K","J_K"]) and from_bits(section["section_modulus"]) > 0)
-            # O4 §4.7: the reduced section (present exactly when t_r = (t - c_m) - c_a differs from t, on that wall) and
+            # the reduced section (present exactly when t_r = (t - c_m) - c_a differs from t, on that wall) and
             # the Timoshenko leaf (exactly on a timoshenko_annulus_energy_v1 document: RN(kappa_hat * A_prep), kappa_hat by
             # the fixed order from the nominal radii and the member's nu), rederived from the captured invocation.
             if exact:
@@ -2433,7 +2433,7 @@ def _g8(body, source, invocation, route=PREVIEW_ROUTE):
                 need(old[:2]==[member["E"],member["G"]] and old[2]==f[2] and old[3]==old[4]==f[3] and old[5]==f[4])
                 need(f[:2]==[section["geometry"]["normalized_od"],section["geometry"]["effective_wall"]])
                 need(new==[section["area"],section["geometry"]["actual_second_moment"],section["geometry"]["actual_polar_moment"],section["section_modulus"],section["geometry"]["actual_radius"]])
-                # O4 §4.6: the reduced preparation record is the reduced term's prepared section.
+                # the reduced preparation record is the reduced term's prepared section.
                 need(("reduced" in m) == ("reduced" in section))
                 if "reduced" in section:
                     r=section["reduced"];need(m["reduced"]["result"].get("section")==[r["area"],r["geometry"]["actual_second_moment"],r["geometry"]["actual_polar_moment"],r["section_modulus"],r["geometry"]["actual_radius"]])
@@ -2472,9 +2472,9 @@ def _g8(body, source, invocation, route=PREVIEW_ROUTE):
 # ---------------------------------------------------------------------------------------------------------------
 # B2 (B2-C, final for J1: CONTRACT with REVISION_01 and REVISION_02): model combinations, operand preparations and
 # their gates. At z = 0 (no combination entry, no operand preparation, no CombinationSource) each check below is
-# vacuous, so every existing predicate is today's (REVISION_01 §4.1).
+# vacuous, so every existing predicate is today's.
 
-# REVISION_02 §2.2: a combination's displacement magnitudes are formed in the projection's second pass, not hull-projected.
+# a combination's displacement magnitudes are formed in the projection's second pass, not hull-projected.
 COMBINATION_HULL_EXCLUDED = HULL_EXCLUDED | {"displacement_magnitude"}
 # CONTRACT §4: a CombinationAttempt has no preparation stage; its stage records are a case attempt's without it.
 COMBINATION_STAGE_ORDER = STAGE_ORDER[1:]
@@ -2515,7 +2515,7 @@ def _needs_operands(entry):
 
 
 def _source_unusable(case):
-    """CONTRACT §2.4 (i), REVISION_01 §3.3 N-1: an `unavailable` operand case with no CaseSource, or whose Run refused
+    """CONTRACT §2.4 (i): an `unavailable` operand case with no CaseSource, or whose Run refused
     `ledger_unavailable`, has no usable operand source."""
     run = case.get("run")
     ledger = run is not None and run["kernel_terminal"]["kind"] == "refused" and (run["kernel_terminal"]["reason"] or {}).get("tag") == "ledger_unavailable"
@@ -2561,7 +2561,7 @@ def _g1_combinations(body, route):
 
 
 def _g3_combination_attempt(body, a, ai, crows):
-    """REVISION_01 §4.1 #3: a CombinationAttempt's owner is its combination entry, its projection outcomes index that
+    """a CombinationAttempt's owner is its combination entry, its projection outcomes index that
     entry's own rows, and a complete summary roster lists operand 0's CaseSource bodies (a CombinationSource has none).
     The member, captured-prefix and inventory checks are a case attempt's only."""
     need = lambda ok: _need(ok, "G3", "COVERAGE_MISMATCH")
@@ -2588,7 +2588,7 @@ def _g3_combinations(snapshot, body, ids, crows):
     cids = [c["basis_ref"]["ref_id"] for c in combos]
     case_at = {cid: i for i, cid in enumerate(ids)}
     # (a) One entry per gate-evidence entry, in order and by id. It binds once the receipt has an entry or an
-    # `operand_preparations` member (PR-B2 ruling 1; REVISION_01 §4.1: today's predicate at z = 0): with neither, the
+    # `operand_preparations` member (PR-B2 ruling 1; today's predicate at z = 0): with neither, the
     # receipt is today's (07n's `t_gate_*` entries carry gate evidence for a combination outside the model).
     b2 = bool(combos) or "operand_preparations" in body
     if b2:
@@ -2666,7 +2666,7 @@ def _g4_combinations(combos, diags):
     """CONTRACT §10.1 G4 (DIAGNOSTIC_MISMATCH): one RETAINED_PRECISION_SELECTED per `retained_selected` and one
     RETAINED_PRECISION_UNAVAILABLE per `retained_unavailable` combination, each naming exactly that combination;
     none for an `ordinary` or `base_withheld` one; an unavailable entry's `diagnostic_ref` is its diagnostic's id. Their
-    message text is not checked (RT-A3 §4: Work `combination-certificate.md` §2)."""
+    message text is not checked."""
     need = lambda ok: _need(ok, "G4", "DIAGNOSTIC_MISMATCH")
     for entry in combos:
         cid, disposition = entry["basis_ref"]["ref_id"], entry["disposition"]
@@ -2681,7 +2681,7 @@ def _g5_dispositions(body, cases, diags, gates, fail):
     """CONTRACT §10.1 G5 ordinary class (ATTEMPT_MISMATCH), the disposition rule: `base_withheld` iff the aligned gate
     entry is withheld, with its reason, on a mechanics expression; retained iff mechanics with distinct term cases, at
     least one `selected`, and not withheld; otherwise `ordinary`. Then D6a's rule for each entry's diagnostic_refs.
-    D6b stays a case rule (REVISION_01 §4.5)."""
+    D6b stays a case rule."""
     status = {c["basis_ref"]["ref_id"]: c["status"] for c in cases}
     for entry, gate in zip(body["combinations"], gates):
         expression, disposition = entry["expression"], entry["disposition"]
@@ -2723,7 +2723,7 @@ def _g5_combination_native(body, runs, fail):
             ci = case_at.get(term["case_id"])
             fail(ci is not None and operand["factor"] == term["factor"] and _operand_source_ref(body, ci) is not None and operand["source_ref"] == _operand_source_ref(body, ci))
         if refused:
-            # REVISION_01 §4.1 row 8: a refused Call has no source and no Run; the entry's null members are G5 products'
+            # a refused Call has no source and no Run; the entry's null members are G5 products'
             # (CONTRACT §10.1: a CombinationReason cause with `call_ref` non-null and the rest null).
             fail(call["source_refs"] == [] and call["run_refs"] == [])
             continue
@@ -2882,7 +2882,7 @@ def _g5_operand_preparations(body, fail, wf):
 
 
 def _numeric_source(body, kind, ref):
-    """G5a-G5c's source for a numeric owner (REVISION_01 §3.3 N-9): a case's own CaseSource; for a combination, its
+    """G5a-G5c's source for a numeric owner: a case's own CaseSource; for a combination, its
     representative (operand 0's CaseSource), with the operands whose factor is nonzero as the data-fact sources (DEF-C
     `lanes.loads`: data flags come from each individual product c_i*v_ij, never from a net)."""
     source = body["sources"][int(ref)]
@@ -2893,7 +2893,7 @@ def _numeric_source(body, kind, ref):
 
 
 def _r_comb_1(body, rows_by_case):
-    """CONTRACT §5 (R) with REVISION_01 §2 and REVISION_02 §4.1: every row of a `retained_unavailable` combination, and
+    """CONTRACT §5 (R): every row of a `retained_unavailable` combination, and
     of an `ordinary` one whose expression names a case that is not `not_required`, is withheld from binding with its
     value unchanged: `not_covered` for a quantity row, `non_quantity` for a record row; `normalized_bits` from the
     row's value, `scale_bits` null. Combinations in authored order, rows in publication order. A derivation, not a check."""
@@ -3002,7 +3002,7 @@ def _transport_base(snapshot: dict[str, Any], route: Route = PREVIEW_ROUTE) -> N
     Its gate (the alignment set, item 4): the metadata check raises only SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID,
     and the header check never does (it runs first, and every header code differs), so that code is G7's and
     every other is the header's, G2. Raw reads keep Python's own header order at G7 (the declared raw codes).
-    B3b (B3-D §6.2, transport) with B7b D4 (a): on the exact branch the projection is pressure-2's and its metadata
+    B3b (transport) with B7b D4 (a): on the exact branch the projection is pressure-2's and its metadata
     check is the exact-retained transport check (results 0.3's ExactRetainedContractEvidence), whose code
     (SOURCE_PHYSICS_EVIDENCE_INVALID) is G7's in the same way."""
     projected=_project(snapshot,route)
@@ -3015,10 +3015,10 @@ def _transport_base(snapshot: dict[str, Any], route: Route = PREVIEW_ROUTE) -> N
 
 
 def _g0_exact(receipt):
-    """G0 on the exact branch, B3-D §2.4 steps 3 to 9 (step 1 is the dispatch, step 2 the envelope): the packaged
+    """G0 on the exact branch: the packaged
     physics-retained-1 table and DEF-E, the table/constant cross-check, then the receipt's bound values and
     definition ids read from the table (decision 31, N-12). Every failure is SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
-    except DEF-E's binding (step 4), RETAINED_PRECISION_FORMATION_MISMATCH."""
+    except DEF-E's binding, RETAINED_PRECISION_FORMATION_MISMATCH."""
     need = lambda ok, code="SOURCE_PRODUCER_CONTRACT_UNSUPPORTED": _need(ok, "G0", code)
     results = ROOT / "fixtures/results"
     table_bytes = (results / "semantic_contract_v0_3_physics_retained_1.json").read_bytes()
@@ -3048,7 +3048,7 @@ def _g0_exact(receipt):
         need(type(b.get(key)) is str and b[key] == value)
     w = b.get("work")
     need(type(w) is dict and _integral(w.get("case_limit")) == bound["work"]["case_limit"] and _integral(w.get("invocation_limit")) == bound["work"]["invocation_limit"])
-    # 9. Every attempt's definition is the table's (and every operand preparation's: B2-C §8 row 9; the exact table
+    # 9. Every attempt's definition is the table's (and every operand preparation's: the exact table
     # binds DEF-E only, so an operand preparation, which carries DEF-O's id, is refused on this route).
     for attempt in _definition_bearers(b):
         need(attempt.get("definition_id") == table["product_formation_definitions"][0]["id"])
@@ -3062,7 +3062,7 @@ def _definition_bearers(body):
 
 
 def _preview_statics():
-    """The preview route's packaged statics (B2-C §8): PTABLE's bytes, its pinned hash, the inherited table's bytes, and
+    """The preview route's packaged statics: PTABLE's bytes, its pinned hash, the inherited table's bytes, and
     each packaged formation definition (DEF-O, DEF-C) by id. G0's table-dependent checks take these as a parameter."""
     results = ROOT / "fixtures/results"
     return {"table": (results / "semantic_contract_v0_3_preview_physics_retained_1.json").read_bytes(), "table_hash": TABLE_HASH,
@@ -3072,7 +3072,7 @@ def _preview_statics():
 
 
 def _g0_preview(receipt, statics=None):
-    """G0 on the preview route after the dispatch (B2-C §8, N-12, decision 31), rows 4 to 9: the formation definitions
+    """G0 on the preview route after the dispatch (N-12, decision 31), rows 4 to 9: the formation definitions
     (FORMATION_MISMATCH), the table's hashes, the table/constant cross-check, the body, the receipt's bound values read
     from the table, and every attempt's and operand preparation's definition id among the table's. Every other failure
     is SOURCE_PRODUCER_CONTRACT_UNSUPPORTED. `statics` defaults to the packaged copy (tests pass a test-only copy)."""
@@ -3111,7 +3111,7 @@ def _raise(gate, code, detail=None):
 
 
 def _project(snapshot: dict[str, Any], route: Route) -> dict[str, Any]:
-    """G7's projection to the route's base (D2 §4.9.3; B3-D §6.2): no receipt, the base identity and profile, and
+    """G7's projection to the route's base: no receipt, the base identity and profile, and
     no row token. The exact branch keeps its contract_evidence for pressure-2's base validator (B7b D4 (a))."""
     projected=deepcopy(snapshot);del projected["retained_precision"]
     projected["producer"]["semantic_contract_id"]=route.base_id;projected["formulation_basis"]["profile_id"]=route.base_profile
@@ -3126,7 +3126,7 @@ def _project(snapshot: dict[str, Any], route: Route) -> dict[str, Any]:
 def _validate_draft(source: Any, invocation: Any = None, *, raw: bool = True) -> dict[str, Any]:
     """The ordered checks behind the public entry (D-U6-1). With raw=False, the transport checks
     (F-U6b-2): G1 skips the raw rows and the publication digest, as Rust's g1(source, false).
-    B3b: one dispatch on the identity at G0 selects the route (B3-D §6.1); the other gates are shared."""
+    B3b: one dispatch on the identity at G0 selects the route; the other gates are shared."""
     state={"gate":"G0","phase":["G5a"]};route=None
     try:
         producer=source.get("producer") if type(source) is dict else None;basis=source.get("formulation_basis") if type(source) is dict else None
@@ -3166,7 +3166,7 @@ def _gates_after_g0(snapshot, receipt, schema, invocation, route, raw=True, stat
                 if ai is not None and 0<=ai<len(body["product_attempts"]):
                     a=body["product_attempts"][ai]
                     if all(m["result"]["kind"]=="prepared" for m in a["preparation"]["members"]):
-                        # S-1 (B3-D REVISION_01 §2): the payload carries the route's definition hash, not DEF-O's.
+                        # the payload carries the route's definition hash, not DEF-O's.
                         _need(prep["sha256"]==_hash("retained_precision_preparation_v1",_preparation_payload(a,route.definition_hash)),state["gate"],"RECEIPT_MISMATCH")
         _g1_combinations(body,route)
         state["gate"]="G2";_encoding(receipt,schema);_need(not _negative_zero(receipt),state["gate"],"ENCODING_MISMATCH");_normalize_integrals(receipt)  # D34, then D32
@@ -3177,7 +3177,7 @@ def _gates_after_g0(snapshot, receipt, schema, invocation, route, raw=True, stat
         ids=[c["basis_ref"]["ref_id"] for c in cases]
         _need(len(set(ids))==len(ids) and [c["basis_ref"] for c in cases]==[q["basis_ref"] for q in quality] and any(c["status"]=="selected" for c in cases),state["gate"],"COVERAGE_MISMATCH")
         if invocation is not None:_need(ids==[c["id"] for c in invocation["request"]["model"]["load_cases"]],state["gate"],"COVERAGE_MISMATCH")
-        # B2-C §10.1 G3 (c), REVISION_01 §4.1 #5: a row's basis names a case or a combination entry (at z = 0, a case).
+        # G3 (c): a row's basis names a case or a combination entry (at z = 0, a case).
         combos=body["combinations"];cids=[c["basis_ref"]["ref_id"] for c in combos]
         rows={cid:[] for cid in ids};crows={cid:[] for cid in cids};seen=set()
         for row in snapshot["results"]:
@@ -3187,7 +3187,7 @@ def _gates_after_g0(snapshot, receipt, schema, invocation, route, raw=True, stat
         # T4-U6 (D-5): every published row (G5b's twin check, G5c's twin classes, G6) and the receipt's row universe,
         # which leaves out the reduced twins (RS `rows_all_for` / `rows_for`).
         all_rows={**rows,**crows}
-        # O4 §4.7: a case's distinct-basis members (its own source's section terms carrying `reduced`) keep their
+        # a case's distinct-basis members (its own source's section terms carrying `reduced`) keep their
         # reduced rows in the universe.
         def _case_distinct(case):
             ref=_integral(case.get("source_ref")) if type(case) is dict else None
@@ -3201,7 +3201,7 @@ def _gates_after_g0(snapshot, receipt, schema, invocation, route, raw=True, stat
         # source's owner is its own case, and a basis's case list is unique and in range.
         for si,s in enumerate(body["sources"]):
             if s["owner"]["kind"]=="combination":
-                # REVISION_01 §4.1 #4: a CombinationSource names its own combination entry.
+                # a CombinationSource names its own combination entry.
                 ki=_integral(s["owner"]["combination_index"])
                 _need(s["index"]==si and ki is not None and 0<=ki<len(combos) and cids[ki]==s["owner"]["combination_id"],state["gate"],"COVERAGE_MISMATCH")
                 continue
@@ -3209,12 +3209,12 @@ def _gates_after_g0(snapshot, receipt, schema, invocation, route, raw=True, stat
             _need(s["index"]==si and s["owner"]["kind"]=="case" and ci is not None and 0<=ci<len(cases) and ids[ci]==s["owner"]["case_id"],state["gate"],"COVERAGE_MISMATCH")
         for mi,mb in enumerate(body["material_bases"]):
             _need(mb["index"]==mi and len(set(mb["case_indices"]))==len(mb["case_indices"]) and all(x<len(cases) for x in mb["case_indices"]),state["gate"],"COVERAGE_MISMATCH")
-        # REVISION_01 §4.1 #1: the attempt bijection covers the cases' and the combination entries' references.
+        # the attempt bijection covers the cases' and the combination entries' references.
         refs=[c["product_attempt_ref"] for c in cases if c["product_attempt_ref"] is not None]+[c["product_attempt_ref"] for c in combos if c.get("product_attempt_ref") is not None]
         _need(sorted(refs)==list(range(len(body["product_attempts"]))),state["gate"],"COVERAGE_MISMATCH")
         for ai,a in enumerate(body["product_attempts"]):
             if a["owner_ref"]["kind"]=="combination":
-                _g3_combination_attempt(body,a,ai,crows);continue  # REVISION_01 §4.1 #3
+                _g3_combination_attempt(body,a,ai,crows);continue
             _need(a["id"]==ai and a["owner_ref"]["kind"]=="case" and a["owner_ref"]["index"]<len(cases),state["gate"],"COVERAGE_MISMATCH")
             c=cases[int(a["owner_ref"]["index"])]
             _need(c["product_attempt_ref"]==ai,state["gate"],"COVERAGE_MISMATCH")
@@ -3240,7 +3240,7 @@ def _gates_after_g0(snapshot, receipt, schema, invocation, route, raw=True, stat
                     inventory=[b["body"] for b in body["sources"][si]["body_membership"]]
                     _need(bool(inventory) and [x["body"] for x in coverage]==inventory==list(range(len(inventory))),state["gate"],"COVERAGE_MISMATCH")
         # D1 (C2:117; C1:146): each run id is its execution-order position; the order is a bijection.
-        # B2-C G3 (f), REVISION_01 §4.1 #2: the case Runs, then the combination Runs in Call order (at z = 0, the cases' only).
+        # B2-C G3 (f): the case Runs, then the combination Runs in Call order (at z = 0, the cases' only).
         order=body["work"]["execution_order"];with_run=[i for i,c in enumerate(cases) if c.get("run") is not None]
         n=next((k for k,e in enumerate(order) if e["kind"]!="case"),len(order));head,tail=order[:n],order[n:]
         _need(all(e["kind"]=="case" for e in head) and sorted(e["index"] for e in head)==with_run and all(cases[e["index"]]["run"]["id"]==k for k,e in enumerate(head)),state["gate"],"COVERAGE_MISMATCH")
@@ -3267,7 +3267,7 @@ def _gates_after_g0(snapshot, receipt, schema, invocation, route, raw=True, stat
             if d["code"] in ("RETAINED_PRECISION_SELECTED","RETAINED_PRECISION_UNAVAILABLE"):_need(type(d.get("affected_refs")) is list and len(d["affected_refs"])==1 and (d["affected_refs"][0] in ids or d["affected_refs"][0] in cids),state["gate"],"DIAGNOSTIC_MISMATCH")
         _g4_combinations(combos,diags)
         state["gate"]="G5";_g5_native(body);_g5_ordinary(body,cases,diags,quality,(snapshot.get("contract_evidence") or {}).get("combination_gates"));_g5_requested_mode(body,rows,diags,quality,snapshot["numerical_quality"].get("status"));_g5_products(body,rows,route)
-        # B3-D §6.2: on the exact branch G5b also binds each selected case's own pressure-2 section evidence.
+        # on the exact branch G5b also binds each selected case's own pressure-2 section evidence.
         state["gate"]="G5a";phase=state["phase"];classes=_g5_numeric(body,rows,phase,(snapshot.get("contract_evidence"),) if route.exact else None,all_rows)
         state["gate"]="G6"
         for c in cases:
@@ -3276,7 +3276,7 @@ def _gates_after_g0(snapshot, receipt, schema, invocation, route, raw=True, stat
             # CONTRACT §10.1 G6: recovery_method exactly on a retained_selected combination's rows.
             for row in all_rows[c["basis_ref"]["ref_id"]]:_need(row.get("recovery_method")==METHOD if c["disposition"]=="retained_selected" else "recovery_method" not in row,state["gate"],"ROW_METHOD_MISMATCH")
         state["gate"]="G7";projected=_project(snapshot,route)
-        # RT-A3 §4 (Work `combination-certificate.md` §2): the base read runs in the retained read context, without the
+        # the base read runs in the retained read context, without the
         # roster's text closure (Rust `retained_base_read`). G7 is base consistency only: it attests no combination
         # diagnostic prose, which G4 (codes, cardinalities, refs) and G5 (membership) do not bind either.
         from .combination_certificate import retained_base_read

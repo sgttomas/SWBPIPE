@@ -134,7 +134,7 @@ describe("the L line authored on the desktop (T4-U2)", () => {
     const standing = numericalResultStanding(pressure1, expected);
     expect({ eligible: standing.eligible, findings: standing.findings }).toStrictEqual({ eligible: dispatch.standing.eligible, findings: [...dispatch.standing.findings] });
     expect(standing.eligible).toBe(true);
-    // Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §5.1): the result JSON and
+    // Epoch 8: the result JSON and
     // stress-neutral exports and the rule check add no policy refusal; each takes the
     // Rust reader's standing at its own check; W-11 (owner, 2026-10-26) adds the rendered
     // report and the report package. Every other surface refuses by name.

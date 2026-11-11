@@ -1,4 +1,4 @@
-// Run-sheet entry, slice S2 (DEL-07-02 Design `run-sheet-entry.md` §3.6): the
+// Run-sheet entry: the
 // sheet's state, the session events it follows, the history ledger and the
 // reconciliation. Every function here is pure: the workspace session computes a
 // staged transition from an event in its Prepare phase (a throw changes
@@ -74,7 +74,7 @@ export type RunSheetState = Readonly<{
   idState: RunSheetIdState;
   ledger: Ledger;
   submitted: Readonly<Record<string, SubmittedBatch>>;
-  /** "changed by row ⟨n⟩" markers (§2.5), by row key: the edited row's key. */
+  /** "changed by row ⟨n⟩" markers, by row key: the edited row's key. */
   changedBy: Readonly<Record<string, string>>;
   /** Row keys counter (internal keys, never ids). */
   nextRowKey: number;
@@ -161,7 +161,7 @@ function updateRows(state: RunSheetState, update: (row: SheetRow) => SheetRow): 
 function disposeUndone(ledger: Ledger): Ledger {
   return ledger.records.length === ledger.cursor ? ledger : { ...ledger, records: ledger.records.slice(0, ledger.cursor) };
 }
-/** Fold the in-effect records into the base and discard the undone ones (§3.6). */
+/** Fold the in-effect records into the base and discard the undone ones. */
 export function foldLedger(ledger: Ledger, keep = 0): Ledger {
   const foldCount = Math.max(0, ledger.cursor - keep);
   const base: Record<string, RowEntry> = { ...ledger.base };
@@ -205,7 +205,7 @@ function sheetCheckpoint(state: RunSheetState, submitted: SubmittedBatch, applie
       valuesAfter: clone(submitted.values[built.key] ?? {}), expected: expectedFor(appliedModel, owned, removedIds),
     };
   }
-  // Rows a batch affects (§3.6): every diff row's entity in some other row's owned ids.
+  // Rows a batch affects: every diff row's entity in some other row's owned ids.
   const touched = new Set(outcomes.flatMap((step) => step.diff_preview.map((row) => row.entity_ref)));
   for (const row of state.rows) {
     if (rowEntries[row.key]) continue;
@@ -239,7 +239,7 @@ function retainSubmittedPipes(state: RunSheetState, batchId: string): RunSheetSt
   return retained ? { ...state, idState: { ...state.idState, retainedPipes: retained } } : state;
 }
 
-/** The pure ledger transition for one session event (§3.6 Transitions). It writes nothing. */
+/** The pure ledger transition for one session event. It writes nothing. */
 export function applySessionEvent(state: RunSheetState, event: SessionEvent): RunSheetState {
   switch (event.type) {
     case "queued":
@@ -321,7 +321,7 @@ export type RowReconciliation = Readonly<{
 /** Look up an entity's current record; `undefined` when absent. */
 export type RecordLookup = (ref: OwnedRef) => unknown | undefined;
 
-/** Reconciliation (§3.6): every row with a current entry, by one lookup and one
+/** Reconciliation: every row with a current entry, by one lookup and one
  * JSON-value comparison per expected id; no collection is scanned. */
 export function reconcileRunSheet(state: RunSheetState, lookup: RecordLookup): Map<string, RowReconciliation> {
   const out = new Map<string, RowReconciliation>();
@@ -349,7 +349,7 @@ export function reconcileRunSheet(state: RunSheetState, lookup: RecordLookup): M
   return out;
 }
 
-/** Adopt current values (§3.6): only when every owned id exists; replaces `expected` with no operation. */
+/** Adopt current values: only when every owned id exists; replaces `expected` with no operation. */
 export function adoptCurrentValues(state: RunSheetState, rowKey: string, lookup: RecordLookup): RunSheetState | null {
   const entry = currentEntry(state.ledger, rowKey);
   if (!entry || entry.ownedIds.some((ref) => lookup(ref) === undefined)) return null;
@@ -371,7 +371,7 @@ export function adoptCurrentValues(state: RunSheetState, rowKey: string, lookup:
   return { ...state, ledger: { ...ledger, base: { ...ledger.base, [rowKey]: adopted } } };
 }
 
-/** Remove from sheet (§3.6): the row and its tombstones go, with no operation. */
+/** Remove from sheet: the row and its tombstones go, with no operation. */
 export function removeRowFromSheet(state: RunSheetState, rowKey: string): RunSheetState {
   const strip = (entries: Readonly<Record<string, RowEntry>>) => {
     if (!entries[rowKey]) return entries;

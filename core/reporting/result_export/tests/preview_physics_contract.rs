@@ -59,14 +59,14 @@ fn derive(raw: &Value) -> Result<Value, String> {
 }
 
 // The governing maximum. On the certified basis of the now Passed invented
-// cases (DEL-04-01 kd5-nonlinear-active-set.md section 5) P-100's and P-120's
+// cases P-100's and P-120's
 // maxima are equal, and the identity tie-break publishes P-100's.
 const MAX_A: &str = "result:elastic-maximum:10:load:L-100:10:pipe:P-100";
 const MAX_B: &str = "result:elastic-maximum:10:load:L-200:10:pipe:P-100";
 const CE: &str = "support:CE-120";
 const COMB: &str = "combination:C-OPER-ALT";
 
-/// RT-A3 §4 (the closed combination-diagnostic roster): the notices the producer states for an
+/// the notices the producer states for an
 /// admitted combination on this document, whose maximum and intensified rows no combination
 /// combines (`preview_physics.rs` `append_combination_results`), and its place in the headline scope.
 fn admit_notices(raw: &mut Value, id: &str) {
@@ -90,12 +90,12 @@ fn admit_notices(raw: &mut Value, id: &str) {
 /// the reader checks structure and representation only, not the sums.
 fn with_admitted_combination() -> Value {
     let mut raw = invented();
-    // Operating-case slice 1a (DEL-05-02 `pf-nonlinear-operand-standing.md` §3): a
+    // a
     // document that admits a mechanics combination is a linear one, since a nonlinear
     // model withholds every mechanics combination. The invented document's nonlinear
     // state rows, which mark it nonlinear, are removed from this synthetic copy.
     rows(&mut raw).retain(|r| r["kind"] != "nonlinear_support_active_set_state_code");
-    // RT-A3 §4: this synthetic copy states no combination certificate (its absence is no certificate claim).
+    // this synthetic copy states no combination certificate (its absence is no certificate claim).
     raw["contract_evidence"].as_object_mut().unwrap().remove("combination_certificate");
     raw["diagnostics"].as_array_mut().unwrap().retain(|d| !d["id"].as_str().unwrap().starts_with("diagnostic:combination-certificate:"));
     raw["contract_evidence"]["combination_gates"] =
@@ -145,7 +145,7 @@ fn actual_producer_envelopes_admit_bind_and_derive() {
             raw["producer"]["semantic_contract_id"].as_str().unwrap()
         ));
         // The invented model has nonlinear supports; its converged states are
-        // confirmed (DEL-04-01 kd5-nonlinear-active-set.md section 5), so like
+        // confirmed, so like
         // the others it is Passed and numerically eligible.
         assert_eq!(raw["numerical_quality"]["status"], "checks_passed", "{name}");
         assert_eq!(s::standing_reason(&raw), None);
@@ -529,9 +529,9 @@ fn a_stored_precision_1_result_is_refused_by_name() {
         assert!(!s::is_fresh_identity(id), "{id}");
     }
     // The current fresh set: preview-physics-2, the exact contract's pressure-2
-    // (T4-U2, with its export chain) and joined pressure-source-1 (b7-plan D1),
+    // (T4-U2, with its export chain) and joined pressure-source-1,
     // and T3's F2a preview successor (U6a, D-U6-6: membership is not standing),
-    // and the pressure-free Timoshenko identity (DEL-05-03 pf-timoshenko.md §4);
+    // and the pressure-free Timoshenko identity;
     // nothing else is fresh.
     let mut fresh: Vec<&str> = s::FRESH_IDENTITIES.to_vec();
     fresh.sort_unstable();
@@ -586,7 +586,7 @@ fn numerical_standing_progression_on_a_fresh_identity() {
 
 #[test]
 fn rule_binding_refusal_is_limited_to_the_source_blocks_summary() {
-    // W-15 slice d (DEL-03-05 Design §5): the regenerated fixture's valve C-130
+    // the regenerated fixture's valve C-130
     // body (pipe:P-130, scale 15) is the only refusal; every other row binds.
     let raw = invented();
     let mut bodies = 0;

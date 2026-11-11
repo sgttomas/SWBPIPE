@@ -86,7 +86,7 @@ const R1_SCALE: f64 = 2.0;
 /// The a priori rounding allowance of the local relations (about 4500 ulp of
 /// the sum of the absolute terms).
 const LOCAL: f64 = 1e-12;
-/// The fixture's EQ criterion (spec §9.2, DEC-024/DEC-026).
+/// The fixture's EQ criterion (DEC-024/DEC-026).
 const EQ: f64 = 1e-9;
 const STATIONS: [(&str, f64); 5] = [("end_i", 0.0), ("quarter_1", 0.25), ("midspan", 0.5), ("quarter_3", 0.75), ("end_j", 1.0)];
 const BASES: [&str; 2] = ["nominal_section", "reduced_section"];
@@ -135,13 +135,13 @@ fn abs3(a: [f64; 3]) -> f64 {
     a[0].abs() + a[1].abs() + a[2].abs()
 }
 
-/// Spec §5 "CoG at the body midpoint", entered from the component's node in
+/// "CoG at the body midpoint", entered from the component's node in
 /// global axes (R10): the decimal midpoint (6, 20.2, 6.9875) m less RS-160
 /// (6, 20.4, 6.975) m, as the generator converts it (exact decimals, then
 /// binary64). `check_overlay_identity` checks it against the node geometry.
 const R1_COG: [f64; 3] = [0.0, -0.2, 0.0125];
 
-/// RS-R1 as spec §5 enters it, in the record shape the generator gives the
+/// RS-R1, in the record shape the generator gives the
 /// rigid family (`components()`), kind `reducer`, with the declared offset.
 /// `surrogate`: the same body, scale, weight and CoG as a `rigid` component
 /// without an offset (the consistency control).
@@ -163,7 +163,7 @@ fn r1(surrogate: bool) -> Value {
 }
 
 /// Every pipe the fixture's W requests select: every member but the span the
-/// expansion joint replaces (spec §8.1).
+/// expansion joint replaces.
 fn weighted_pipes(model: &Value) -> Vec<String> {
     let replaced: Vec<&Value> = model["components"].as_array().unwrap().iter()
         .filter_map(|c| c.get("objective_connector").map(|o| &o["topology"]["span_ref"])).collect();
@@ -346,7 +346,7 @@ fn mm(v: &Value) -> f64 {
 
 /// The annulus from the authored section (D-5: stiffness on the nominal wall,
 /// the pressure bore on the wall less mill tolerance and corrosion allowance),
-/// with the energy-matched annular shear factor kappa_E (DEL-05-03 §3.1).
+/// with the energy-matched annular shear factor kappa_E.
 fn section(model: &Value, pipe: &str, nu: f64) -> Section {
     let s = &model["pipe_segments"].as_array().unwrap().iter().find(|p| p["id"] == pipe).unwrap()["section"];
     let (d, t, cm, ca) = (mm(&s["outside_diameter"]), mm(&s["wall_thickness"]), mm(&s["mill_tolerance"]), mm(&s["corrosion_allowance"]));

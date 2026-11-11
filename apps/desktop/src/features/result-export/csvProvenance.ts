@@ -1,4 +1,4 @@
-// RT-R6 (DEL-08-04-R14; Design `csv-export.md` §3): the preamble's provenance values, from the
+// (DEL-08-04-R14): the preamble's provenance values, from the
 // sources the desktop already records. Nothing is invented: a result without a recorded value
 // states `not_recorded`, and a table without a result states `not_applicable`.
 import type { SessionAnalysisRun, SessionResult } from "../../services/nativeResult";

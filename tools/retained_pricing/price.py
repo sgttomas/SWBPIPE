@@ -280,7 +280,7 @@ def cmd_run(a):
     shutil.copytree(BASE, chain)
     for f in RULE_FILES:
         shutil.copy(os.path.join(m, f), os.path.join(chain, f))
-    # W1R-FG (retained-pricing-rules.md §8.11): the off-feature files and manifest lines, guarded; the scanners blank
+    # W1R-FG (§8.11): the off-feature files and manifest lines, guarded; the scanners blank
     # off-feature items and skip these files, as the registered build (no features) does not compile them.
     try:
         off_build = off_build_files(W)

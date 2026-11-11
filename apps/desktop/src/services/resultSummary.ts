@@ -1,4 +1,4 @@
-/** C1 native custody, slice 2 (DEL-04-05 `c1-native-custody-plan.md`): the reader of S, the
+/** C1 native custody, slice 2: the reader of S, the
  * summary `read_preview_mechanics_job_summary` builds natively from a retained result
  * (`src-tauri/src/result_summary.rs`, `result_planes.rs`). No panel reads it yet: the webview
  * switches in slice 4, and until then the TypeScript builders stay the oracle of S's tables

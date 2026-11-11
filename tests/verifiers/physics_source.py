@@ -10,8 +10,7 @@ B7b (A4/A5): the retained-source composite has one current contract, `pressure-s
 the header (`compatibility.py`, `reader_verdict.py`). Actual numerical eligibility additionally requires the
 independently captured full invocation, a current model document 0.9.0 with the exact contract.
 
-T4-U6 (DEL-05-03 ``section-bases-and-timoshenko.md`` §2.3, §5) and O4 (DEL-04-08 Design
-``o4-source-extension.md`` §3.4): the retained-source route admits both shear models
+the retained-source route admits both shear models
 (``euler_bernoulli``, ``timoshenko_annulus_energy_v1``) and any length-valued corrosion allowance c_a >= 0 with
 c_m + c_a < t. Each transported ``pipe_sections`` entry is its D-5 and Timoshenko rederivation
 (``section_basis.section``/``beam_theory``); each basis's stress checks and maximum bind that basis's own
@@ -42,8 +41,8 @@ SUPPORT_SIGN = physical.SUPPORT_SIGN
 SCHEMA_PATH = ROOT / "schemas/physics_source_recovery.schema.json"
 PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
 PRESSURE_PROFILE = "exact_pressure_v3"
-# T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis); 88 signatures over 51 kinds.
-# T4-U4b §4.3: + the straight derived signatures (sigma+, sigma-, tau on both bases): 94 over 53.
+# one stress signature per (recovery token x section basis); 88 signatures over 51 kinds.
+# + the straight derived signatures (sigma+, sigma-, tau on both bases): 94 over 53.
 PRESSURE_TABLE_SHA256 = "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9"
 PRESSURE_TABLE_PATH = ROOT / "fixtures/results/semantic_contract_v0_3_pressure_source_1.json"
 # The current model document and the exact contract a captured invocation must author
@@ -112,7 +111,7 @@ def _get(value, key): return value.get(key) if isinstance(value, Mapping) else N
 
 
 def _corrosion_allowances(model):
-    """Rust `corrosion_allowances` (b7-plan "Exact-contract fields"; O4 §3.4): every pipe section of the captured
+    """Rust `corrosion_allowances`: every pipe section of the captured
     exact document declares an explicit length-valued, finite corrosion allowance c_a >= 0 with c_m + c_a < t and a
     positive reduced wall (t - c_m) - c_a (c_m = 0 where the mill tolerance is absent or null). Absent, null,
     malformed, non-length, negative or over-wall allowances refuse the statement bound to that invocation; zero is
@@ -142,7 +141,7 @@ def _corrosion_allowances(model):
 
 
 def _rederived_section(section, materials):
-    """Rust `rederived_section` (O4 §3.4): one composite `pipe_sections` entry through the shared D-5 and Timoshenko
+    """Rust `rederived_section`: one composite `pipe_sections` entry through the shared D-5 and Timoshenko
     rederivation (`section_basis.section`, `section_basis.beam_theory` with the case's nu, no realized arc);
     returns its beam-theory model."""
     sections = sb.section(section)
@@ -271,11 +270,11 @@ def _validate_transport_metadata(source: Mapping[str, Any], source_contract: Sou
         cid = case["load_case_id"]
         pressure = [p for p in evidence["pressure"] if p["load_case_id"] == cid]
         _require(case["recovery_method"] == record["selected_method"], "RECOVERY_METHOD")
-        # W-16 slice c (§2): Rust `physics_source`: a selected case never carries a generation record.
+        # Rust `physics_source`: a selected case never carries a generation record.
         if "equivalent_static" in case:
             _require(record["selected_method"] != EXACT, "SOURCE_EQUIVALENT_STATIC")
             physical.equivalent_static_record(cid, case["equivalent_static"])
-        # O4 (§3.4): each section entry's nominal section, reduced section and beam theory are their D-5 and
+        # each section entry's nominal section, reduced section and beam theory are their D-5 and
         # Timoshenko rederivation from its captured authored values and the case's nu, and the case's straight
         # members share one shear model. Coincident bases remain bit-equal; distinct bases are admitted.
         try:
@@ -294,7 +293,7 @@ def _validate_transport_metadata(source: Mapping[str, Any], source_contract: Sou
             plan = record["source"]
             _require([p["pipe_id"] for p in case["pipe_sections"]] == plan["member_ids"] == [p["pipe_id"] for p in case["pipe_materials"]] == [p["pipe_id"] for p in plan["endpoint_sections"]], "PHYSICAL_MEMBER_ORDER")
             _require(case["stress_maximum_coverage"] == [{"section_basis": b, "complete": True, "unavailable_pipe_ids": []} for b in sb.BASES], "MAXIMUM_COMPLETE")
-            # T4-U6 (§2.5): one retained maximum per member per basis.
+            # one retained maximum per member per basis.
             _require(sorted((p["pipe_id"], p.get("section_basis")) for p in case["pipe_stress_extrema"]) == sorted((m, b) for m in plan["member_ids"] for b in sb.BASES), "MAXIMUM_COVERAGE")
             _section_functionals(record)
             for extremum in case["pipe_stress_extrema"]:
@@ -387,7 +386,7 @@ def _maximum_link(case: Mapping[str, Any], ex: Mapping[str, Any], receipt_case: 
     _require(ex["source_identity_sha256"] == plan["retained_identity_sha256"], "MAXIMUM_SOURCE_IDENTITY")
     section = next((s for s in case["pipe_sections"] if s["pipe_id"] == ex["pipe_id"]), None)
     endpoints = next((s for s in plan["endpoint_sections"] if s["pipe_id"] == ex["pipe_id"]), None)
-    # O4 (§3.2, §3.4): each basis's maximum binds that basis's own section, A and Z bit for bit.
+    # each basis's maximum binds that basis's own section, A and Z bit for bit.
     _require(section is not None and endpoints is not None and ex.get("section_basis") in sb.BASES
              and _same(ex["area_m2"], section[ex["section_basis"]]["As_m2"]) and _same(ex["section_modulus_m3"], section[ex["section_basis"]]["Z_m3"]), "MAXIMUM_SECTION")
     for index, endpoint in enumerate(ex["endpoints"]):
@@ -507,7 +506,7 @@ def validate_stress(source: Mapping[str, Any], case: Mapping[str, Any], row: Map
     exact = next(c for c in source["contract_evidence"]["exact_cases"] if c["load_case_id"] == case["basis_ref"]["ref_id"])
     section = next(s for s in exact["pipe_sections"] if s["pipe_id"] == row["entity_ref"])
     params = check["parameters"]
-    # O4 (§3.2, §3.4): a check's parameters are its own row's basis section (As_m2, Z_m3, J_m4, ro_m). They first name
+    # a check's parameters are its own row's basis section (As_m2, Z_m3, J_m4, ro_m). They first name
     # one of the two bases' sections (both, where the bases coincide); once the row's basis is read, they must be
     # that basis's.
     basis_parameters = lambda b: params == {"area_m2":section[b]["As_m2"],"section_modulus_m3":section[b]["Z_m3"],"torsion_radius_m":section["ro_m"],"torsion_constant_m4":section[b]["J_m4"],"pa_per_mpa":1e6}
@@ -515,7 +514,7 @@ def validate_stress(source: Mapping[str, Any], case: Mapping[str, Any], row: Map
     token = sb.split_token(row["metadata"].get("basis"))
     _require(token is not None and sb.id_basis(row["id"]) == token[1], "STRESS_SECTION_BASIS")
     _require(basis_parameters(token[1]), "STRESS_SECTION_PARAMETERS")
-    # T4-U6 (§5) and O4 (§3.4): a reduced row's check shares recipe, pipe, location, component, functional and action
+    # a reduced row's check shares recipe, pipe, location, component, functional and action
     # with its nominal twin, bit for bit; its parameters are the reduced section's (above) and its value is
     # recomputed below, so it equals its twin's only where the sections do.
     if token[1] == sb.REDUCED:
@@ -670,7 +669,7 @@ def _actual_materials(invocation, actual, exact, canonical):
     model = invocation["request"]["model"]
     materials = {m["id"]:m for m in (invocation["request"].get("materials") or model.get("materials", []))}
     _require(len(model["pipe_segments"]) == len(exact["pipe_sections"]) == len(exact["pipe_materials"]),"ACTUAL_MATERIAL_COVERAGE")
-    # T4-U8 (§3.6, §5) and O4 (§3.4): each section states the beam theory the captured contract selects for its
+    # each section states the beam theory the captured contract selects for its
     # straight member (`section_basis.selected_model`, arc = false; neither caller admits a realized arc). A contract
     # naming no admitted model fails closed; G8's exact namespace still admits only euler_bernoulli contracts.
     shear_model = _get(_get(model, "pressure_contract"), "shear_model")
@@ -704,10 +703,10 @@ def validate_physics_source(source: Mapping[str, Any], actual_invocation: Mappin
         if actual_invocation is not None:
             model = _get(_get(actual_invocation, "request"), "model")
             _require(_get(model, "schema_version") == MODEL_VERSION, "ACTUAL_MODEL_SCHEMA")
-            # Model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §3.7): a case's condition_use is
+            # Model document 0.9.0: a case's condition_use is
             # declined by name, as the Rust reader does.
             _require(not model_uses_conditions(model), "ACTUAL_CONDITION_USE")
-            # §3.8: non-empty condition sets or spectra, and any pipe's set reference, likewise.
+            # non-empty condition sets or spectra, and any pipe's set reference, likewise.
             _require(not model_carries_condition_sets(model), "ACTUAL_CONDITION_SETS")
             _require(not model_carries_spectra(model), "ACTUAL_SPECTRA")
             _require(not model_carries_condition_set_ref(model), "ACTUAL_CONDITION_SET_REF")

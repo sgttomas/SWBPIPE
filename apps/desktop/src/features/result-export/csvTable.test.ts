@@ -1,4 +1,4 @@
-// RT-R6 serializer tests (DEL-08-04 AC-002; Design `csv-export.md` §3, §5 slice 2).
+// serializer tests (DEL-08-04 AC-002).
 import { describe, expect, it } from "vitest";
 import {
   CSV_NOT_APPLICABLE,

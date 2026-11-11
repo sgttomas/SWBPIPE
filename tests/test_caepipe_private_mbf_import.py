@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Private regression of the DEL-17-04 MBF importer on CAEPIPE-exported MBFs (Design `caepipe-mbf-import.md` §18.3).
+"""Private regression of the DEL-17-04 MBF importer on CAEPIPE-exported MBFs.
 
 The exchange folder named by SWBPIPE_CAEPIPE_EXCHANGE holds, per correlation case, `caepipe_out/exported.mbf`
 (CAEPIPE's MBF export after importing the case's writer MBF: CAEPIPE output, private) and the writer sidecar

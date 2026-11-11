@@ -297,7 +297,7 @@ fn validate_case(
             block(diagnostics, "LOAD_STATE_SUPPORT_PARTICIPATION_UNSUPPORTED", &[id, support, "participation"],
                 "inactive and locked support states are outside this capability; the support is not silently kept, removed or locked");
         }
-        // R-4 §3.7 S6: an active spring's base motion is admitted (routed by
+        // an active spring's base motion is admitted (routed by
         // `resolve_case`); a device preload/reference law stays refused.
         if support_state.device_reference.is_some() {
             block(diagnostics, "LOAD_STATE_SUPPORT_REFERENCE_UNSUPPORTED", &[id, support],
@@ -400,13 +400,13 @@ pub(crate) struct ResolvedCase {
     pub pairs: HashMap<String, IsotropicENu>,
     /// Prescribed nonzero-capable boundary values by global DOF; absent
     /// restrained DOFs are explicit zero. Includes the rigid restraints of a
-    /// mixed nonlinear record (W-16 R-d's semantics, R-4 §3.7 S6).
+    /// mixed nonlinear record (W-16 R-d's semantics).
     pub prescribed: BTreeMap<usize, f64>,
-    /// R-4 §3.7 S6 (W-16 R-b's semantics): each active nonlinear support's
+    /// (W-16 R-b's semantics): each active nonlinear support's
     /// moved ground g_s (m or rad) from `boundary_motion` on its own DOF, by
     /// support id, in support-state order; an absent support's ground is 0.
     pub ground_motion: Vec<(String, f64)>,
-    /// R-4 §3.7 S6 (W-16 R-c's semantics): each active spring or variable
+    /// (W-16 R-c's semantics): each active spring or variable
     /// spring hanger's base motion g_k (m or rad) from `base_motion` on its
     /// stiffness axis, as (support id, DOF, value); an absent base is 0.
     pub spring_base: Vec<(String, FrameDof, f64)>,
@@ -614,7 +614,7 @@ fn node_position(model: &PreviewModel, id: &str) -> Option<[f64; 3]> {
         .map(|node| [node.position.x, node.position.y, node.position.z])
 }
 
-/// The natural length a fit refers to (T4-U1; T4-I1 §5.3 #12): the chord
+/// The natural length a fit refers to (T4-U1): the chord
 /// length for a straight member, and the arc length R·φ for the span of a
 /// realized curved bend, with φ from the shared arc definition
 /// (`arc_geometry`, the element's own). A bend whose arc is not admissible
@@ -1117,7 +1117,7 @@ pub(crate) fn resolve_case(
                         "prescribed_boundary"
                     }
                     "nonlinear_ground" => {
-                        // W-16 §3.2: a gap's closing position c + sigma*g_s
+                        // a gap's closing position c + sigma*g_s
                         // must be finite and exact in binary64, and a moving
                         // ground belongs to exactly one nonlinear support.
                         if crate::imposed_motion::normalized_gap_closure_exact(support, value) == Some(false) {

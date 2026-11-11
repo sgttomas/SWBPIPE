@@ -71,7 +71,7 @@ function selectedPropertyValues(model: PreviewModel, selection: EntityRef): Arra
   }
   const node = selection.type === "node" ? model.nodes.find((item) => item.id === selection.id) : null;
   if (node) {
-    // W-17 §3: positions are in project.units.length; without it they have no stated unit.
+    // positions are in project.units.length; without it they have no stated unit.
     const lengthUnit = (model.project.units as PreviewModel["project"]["units"] | undefined)?.length;
     const coordinates = `${node.position.x}, ${node.position.y}, ${node.position.z}`;
     return [
@@ -101,7 +101,7 @@ function selectedPropertyValues(model: PreviewModel, selection: EntityRef): Arra
         ? ([["Corrosion allowance", quantityDisplay(pipe.section.corrosion_allowance, "length")]] as Array<[string, PropertyValue]>)
         : []),
       ["Material", pipe.material],
-      // Model document 0.9.0 (§4.2): the pipe's condition set, or "not stated".
+      // the pipe's condition set, or "not stated".
       ["Condition set", pipe.condition_set_ref ?? "not stated"],
       ["Provenance", pipe.provenance]
     ];
@@ -257,7 +257,7 @@ function selectedPropertyValues(model: PreviewModel, selection: EntityRef): Arra
     if (loadCase.modulus_basis_ref) {
       rows.push(["Modulus basis", loadCase.modulus_basis_ref]);
     }
-    // Model document 0.9.0 (§1.2): the case's condition use, as stored.
+    // the case's condition use, as stored.
     if (loadCase.condition_use) {
       rows.push(["Condition use", Object.entries(loadCase.condition_use).map(([key, value]) => `${key} ${typeof value === "string" ? value : JSON.stringify(value)}`).join(", ")]);
     }
@@ -293,7 +293,7 @@ function selectedPropertyValues(model: PreviewModel, selection: EntityRef): Arra
   }
   const combination = model.combinations?.find((item) => item.id === selection.id);
   if (combination) {
-    // Each operand member as stored (model document 0.9.0 §2.4): an absent
+    // Each operand member as stored: an absent
     // `terms` has no row, never an empty sum.
     const terms = combinationTermsText(combination);
     const rows: Array<[string, PropertyValue]> = [["ID", combination.id], ["Basis", combination.basis]];

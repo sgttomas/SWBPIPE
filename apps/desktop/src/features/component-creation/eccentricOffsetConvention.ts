@@ -1,5 +1,5 @@
 /**
- * W-15 slice c, R-c1 (DEL-03-05 Design `eccentric-reducer-offset.md` §3.6): the one
+ * W-15 slice c, R-c1: the one
  * place the desktop states the eccentric reducer offset's convention and the
  * reference-section meaning of the reducer body's stress rows. The convention is
  * the owner's ruling of 2026-10-26, "R-c1 A, 0.8.0 a2": from the centerline at the

@@ -1,4 +1,4 @@
-// DEL-07-05 numerical health §4: the Solve panel's diagnostics tile carries the header
+// the Solve panel's diagnostics tile carries the header
 // badge (with its text, not colour alone) for a held result, and none without one.
 import { render, screen } from "@testing-library/react";
 import { readFileSync } from "node:fs";

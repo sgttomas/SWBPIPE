@@ -126,7 +126,7 @@ fn the_reply_carries_the_published_document_its_checked_hash_and_the_verdict() {
         if sized {
             assert_eq!(statuses(verdict), ["passed", "passed", "passed", "passed", "not_checked"], "{input_name}: {verdict}");
         } else {
-            // A refused document: closure and binding only (§8.3.7).
+            // A refused document: closure and binding only.
             assert_eq!(statuses(verdict), ["passed", "passed", "not_checked", "not_checked", "not_checked"], "{input_name}: {verdict}");
         }
         assert_eq!(verdict["binding"]["not_checked"], json!([]), "{input_name}");

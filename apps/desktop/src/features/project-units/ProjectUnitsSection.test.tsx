@@ -1,5 +1,4 @@
-// W-17 slice (b), DEL-02-02 Design `project-unit-selection.md` §3 "A Project
-// units section" and §4 "Vitest, section": the seven keys, the length lock, the
+// the seven keys, the length lock, the
 // missing-key notices, a refusal shown with nothing queued and a second change
 // for one key refused. Each queued change is checked and applied through the
 // wasm applier, the browser-mode engine. Invented data only.
@@ -236,7 +235,7 @@ function projectPage(model: PreviewModel, list: EditorOperationIntent[]) {
 }
 
 // Codex r1: a document opened without `project.units`, or without some keys,
-// must open the Project page and show §3's notices; reading it writes nothing.
+// must open the Project page and show notices; reading it writes nothing.
 describe("Project page on a document missing project units", () => {
   it("opens without the map: every key missing, length with nodes locked, another key offered", async () => {
     const model = seven();

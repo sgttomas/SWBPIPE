@@ -1,4 +1,4 @@
-"""DEL-05-03 Design pf-timoshenko.md §4: the pressure-free Timoshenko identity beside preview-physics-2.
+"""the pressure-free Timoshenko identity beside preview-physics-2.
 
 The Python mirrors of the readers (`tests/verifiers`) and the product's Rust-routed reading
 (`core/analysis_runs/compatibility.py`, the AnalysisRun builder and the stress-neutral package):

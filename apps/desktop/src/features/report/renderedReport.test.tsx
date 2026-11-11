@@ -1277,7 +1277,7 @@ describe("pending render work is owned by the panel instance and its source (W-3
   });
 });
 
-// DEL-07-05 numerical health §5: one line per load case before the diagnostics section
+// one line per load case before the diagnostics section
 // in the rendered report's emitted renderer input, on the generic route only; the
 // report package's input (built without the indicator) is unchanged; no conditioning
 // figure is exported. The indicators are the wasm export's readings of committed
@@ -1305,7 +1305,7 @@ describe("numerical health report line", () => {
     expect(JSON.stringify(withHealth)).not.toMatch(/roughly|decimal digits|rcond/);
   });
 
-  // W-11 slice (b) (DEL-08-01 Design `exact-route-report-sections.md` §3.1): an exact-route
+  // an exact-route
   // source is built only with its Export Result JSON admission, so the builder refuses this
   // unadmitted pressure-source result whether or not the line is supplied (it formerly
   // built a generic input). The exact path's rows are pinned below the gate in
@@ -1361,7 +1361,6 @@ describe("numerical health report line", () => {
 });
 
 // ---------------------------------------------------------------------------
-// W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md` §4, §6.2, §7):
 // FR-REP-003 on every route. Material, section, component and support records under
 // one provenance predicate, library references and the store's findings, and the
 // disposition and context boundary. Targeted regression checks for a data-boundary
@@ -1591,7 +1590,7 @@ describe("FR-REP-003 records (W-11 slice (c), §4.1)", () => {
       const input = await buildFor(model, { renderContext });
       expect("library_references" in input).toBe(false);
       const { canonicalSha256Hex } = await import("../../services/hashService");
-      // The readability slice (DEL-08-01 Design `exact-route-report-sections.md` §6.3 item 3)
+      // The readability slice
       // changed only the display policy text; with the earlier text the input is the captured one.
       const summary = input.calculation_report.model_input_summary.unit_display_summary;
       expect(summary.quantity_display_policy).toBe(QUANTITY_DISPLAY_POLICY);
@@ -1876,7 +1875,7 @@ describe("schema check of representative records (W-11 slice (c), §7)", () => {
   });
 });
 
-// The display rule (DEL-08-01 Design `report-package-current-results.md` §2.3 items 5-6):
+// The display rule:
 // `conversion_performed` is true only when the rendered report displays a value stored in Pa;
 // the report JSON packet displays no values and keeps its own disclosure.
 describe("the display rule's conversion disclosure", () => {

@@ -1,4 +1,4 @@
-// A8 render cost (DEL-07-05 Design `displacement-extremes.md` §7): the panel derives once per
+// A8 render cost: the panel derives once per
 // (model, result, standing) identity. Control changes (filter, sort, cases, page), the selected node
 // and the test-id prefix reuse it. Invented data only (`resultOverlayFixtures`).
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";

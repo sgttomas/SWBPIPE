@@ -1,4 +1,4 @@
-"""PU-X3 (retained-pricing-rules.md §8.14): the republication is its own phase only where the source republishes."""
+"""PU-X3 (§8.14): the republication is its own phase only where the source republishes."""
 from pathlib import Path
 import os
 import runpy

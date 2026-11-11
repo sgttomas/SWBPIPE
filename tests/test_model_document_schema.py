@@ -3,7 +3,7 @@
 
 Every committed JSON file and every line of every committed JSON Lines file is
 searched for model documents by `document_kind`, including documents embedded in
-requests, envelopes and corpora. Rules (DEL-02-01 Design model-document-0.7.0.md §5.1):
+requests, envelopes and corpora. Rules:
 
 - a document at the current version (0.9.0) validates against the schema root;
 - a desktop-profile document also validates against `$defs/DesktopDocument`: the
@@ -56,7 +56,7 @@ SCHEMA_ID = "https://openpipestress.org/schemas/model.schema.yaml"
 DOCUMENT_KIND = "openpipestress.product_preview.model"
 CURRENT_VERSION = "0.9.0"
 RETIRED_VERSIONS = {"0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0", "0.8.0"}
-# W-15 slice c (DEL-02-01 Design model-document-0.8.0.md §5): a retired version
+# a retired version
 # listed here classifies a non-frozen committed document as a refusal control only
 # when the document is listed under it. Any other document at that version is
 # unclassified, and the test fails, so a current fixture the version ripple did not
@@ -64,13 +64,13 @@ RETIRED_VERSIONS = {"0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0
 # retires with its explicit controls; earlier versions keep the open rule. The 0.8.0
 # ripple's one committed 0.7.0 control is the handoff witness package as the 0.7.0
 # producer wrote it: its bytes still verify, and its model is refused by the open and
-# solve paths (MD8 §3.4, §12). The second (r6, MD8 §3.2) is the model of a pressure-2 run
+# solve paths. The second (r6) is the model of a pressure-2 run
 # recorded at 0.7.0, main's request at 2e4748eada verbatim beside its record and source:
 # the run keeps its read and compare, while the model itself is refused. Every other 0.7.0
 # refusal control is built in memory.
 RETIRED_0_7_0_CONTROLS = {"fixtures/handoff/retired_0_7_0_witness.swbhandoff/model/model.json",
                           "fixtures/persistence/recorded_model_0_7_0/exact_pressure_connected_request.json"}
-# Model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §3.2, §3.5, §3.6): the 0.9.0 ripple's explicit
+# Model document 0.9.0: the 0.9.0 ripple's explicit
 # 0.8.0 list, on the same two grounds. The handoff witness package as the 0.8.0 producer wrote it (main 5bb2f9ff0)
 # and the model of a pressure-2 run recorded at 0.8.0 (main's request at 5bb2f9ff0, beside its record and source).
 # Every other 0.8.0 refusal control is built in memory; 0.8.0 documents under validation/** are frozen inputs.
@@ -470,7 +470,7 @@ PROVENANCE_RECORD_COLLECTIONS = ("materials", "sections", "components", "support
 
 
 def test_the_invented_annotated_model_carries_every_new_member():
-    """DEL-02-01 Design model-document-0.7.0.md §3: one committed invented document authors every slot."""
+    """one committed invented document authors every slot."""
     rows = [(bucket, document) for bucket, relative, pointer, document in classify()
             if relative == ANNOTATED_FIXTURE and pointer == ""]
     assert [bucket for bucket, _ in rows] == ["format"]
@@ -567,7 +567,7 @@ DESKTOP_EMISSION_PATHS = [
     "pipe_creation", "support_creation", "load_creation", "combination_creation", "project_tags_and_notes",
     "entity_tags_and_notes", "provenance_records", "line", "assumptions_and_open_issues",
     "constraints_and_equipment_interfaces", "rule_pack_ref", "library_material_insert",
-    # Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §5): a reducer's eccentric offset.
+    # Model document 0.8.0: a reducer's eccentric offset.
     "reducer_eccentric_offset",
 ]
 
@@ -603,7 +603,7 @@ APPLIER_EMISSION_KINDS = [
     "create_equipment_interface", "update_equipment_interface", "delete_equipment_interface",
     "add_rule_pack_ref", "remove_rule_pack_ref",
     "tags", "notes", "provenance_record",
-    # Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §5): a reducer's eccentric offset.
+    # Model document 0.8.0: a reducer's eccentric offset.
     "eccentric_offset",
 ]
 
@@ -654,7 +654,7 @@ def test_an_explicitly_controlled_retired_version_admits_only_its_listed_control
 
 @pytest.mark.parametrize("version", ["0.7.0", "0.8.0"])
 def test_an_unlisted_non_frozen_0_7_0_document_fails_classification(monkeypatch, version):
-    """MD8 §5, §12 (and model-document-0.9.0.md §3.5 for 0.8.0): a committed, non-frozen model
+    """a committed, non-frozen model
     document left at a ripple's retired version is unclassified, and the classification test fails on it."""
     document = json.loads((ROOT / BUNDLED_DEMO).read_text(encoding="utf-8"))
     document["schema_version"] = version

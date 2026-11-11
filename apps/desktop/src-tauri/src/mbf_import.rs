@@ -1,10 +1,10 @@
-//! File > Import MBF… (DEL-17-04 Design `desktop-mbf-export-import.md` §4.1, §4.3 and §4.5 to §4.8; slice 5; RT-R8):
+//! File > Import MBF… (RT-R8):
 //! the native source, worker task 5 and the five commands `open_mbf_import`, `review_mbf_import`, `adopt_mbf_import`,
-//! `designate_mbf_import_source` (§5.4) and `cancel_mbf_import` (`lib.rs` registers them).
+//! `designate_mbf_import_source` and `cancel_mbf_import` (`lib.rs` registers them).
 //!
-//! **Low custody (§4.8.1 (e), §4.8.2).** The host keeps one fixed-size [`Source`] record: the chosen MBF and, when one
+//! **Low custody.** The host keeps one fixed-size [`Source`] record: the chosen MBF and, when one
 //! is present, its identity file `<stem>.swbpipe-ids.json`, each as a pinned read-only handle with its file identity,
-//! size and SHA-256 at selection, or the identity file's absence, and after a designation (§5.4) a fixed record of
+//! size and SHA-256 at selection, or the identity file's absence, and after a designation a fixed record of
 //! three digests and a flag. It keeps no file bytes, model, review or report between commands. Every review and Adopt re-reads the exact selected bytes through duplicated handles into the
 //! command's own request buffer, by position, and refuses any change (`MBF-IMPORT-SOURCE-CHANGED`): an edit in place,
 //! a replacement, rename or removal at the name, growth or shrinkage, an identity file that appeared, or a symlink or
@@ -16,9 +16,9 @@
 //! A FIFO substituted after the `lstat` therefore cannot block the open waiting for a writer. Cancellation is checked
 //! before and immediately after acquisition.
 //!
-//! **Worker task 5 (§4.8.3).** [`worker_import`] runs in the capped worker process: the importer with the identity
-//! file and the material declaration only (no pressure closure, rebinding or shear model, §4.5), and in `designate`
-//! mode the designated source document, read once for that run (§5.4); a
+//! **Worker task 5.** [`worker_import`] runs in the capped worker process: the importer with the identity
+//! file and the material declaration only (no pressure closure, rebinding or shear model), and in `designate`
+//! mode the designated source document, read once for that run; a
 //! bound import's regeneration runs the writer there, inside the grant; the canonical model's native document check
 //! (`model_document_file::check_model_document`); the bounded review (`import_review`, at most R = 1 MiB); and the
 //! envelope `MBFI1\n<mode>\n<status>\n<adoptable>\n<model_sha256|->\n<review_sha256>\n<model_bytes>\n<model_len>\n
@@ -26,7 +26,7 @@
 //! [`decode_import_result`]: borrowed views, bounded header tokens, the review's fixed leading members compared from a
 //! fixed stack buffer, and SHA-256 checks of the review and (adopt mode only) the carried ASCII model.
 //!
-//! **The command's ledger (§4.8.4).** Each start is C1's form: the raw body (at most 4 KiB for Open, 1 MiB otherwise)
+//! **The command's ledger.** Each start is C1's form: the raw body (at most 4 KiB for Open, 1 MiB otherwise)
 //! copied under a capped interactive lease that seeds the command's `CommandLedger` (its budget captured as
 //! min(that lease's budget, 12 GiB)), the arguments' parse grown into it. Then H3 (the declaration's re-serialization),
 //! one `LedgerBound` holding H4 (the request buffer, into which the files are read straight), H5 (the worker's maximum
@@ -37,7 +37,7 @@
 //! the bound, H8 and H7 are released after the response is built. Between commands the import holds no pool or ledger
 //! charge.
 //!
-//! **Cancellation (§4.8.6).** At most one import run is in progress; any newer start cancels it. A keyed retirement
+//! **Cancellation.** At most one import run is in progress; any newer start cancels it. A keyed retirement
 //! (`cancel_mbf_import`, the export's id rule and limits, applied to this module's own state) cancels the run and drops
 //! the source; the dispatch ticket `expectedEpoch` binds each start to the retirement epoch it was issued under. Import
 //! writes nothing, so there is no commit point. The export's runs, retirement and the performance reset are separate.
@@ -99,10 +99,10 @@ pub(crate) const ASSUMPTION_UNAVAILABLE: &str = mbf::ASSUMPTION_UNAVAILABLE;
 const CANCELLED_MESSAGE: &str = "The import was cancelled. Nothing was imported and your model is unchanged.";
 const CHANGED_MESSAGE: &str = "The chosen file or its identity file changed since it was chosen. Choose it again.";
 
-/// The import route's own bounds (§4.8.4: new payload bounds on new commands; no budget, ceiling or pricing moves).
+/// The import route's own bounds (new payload bounds on new commands; no budget, ceiling or pricing moves).
 pub(crate) const MBF_MAX_BYTES: u64 = 16 << 20;
 pub(crate) const IDENTITY_MAX_BYTES: u64 = MAX_MODEL_DOCUMENT_BYTES;
-/// A designated source document's cap: the Open cap (§5.4).
+/// A designated source document's cap: the Open cap.
 pub(crate) const DESIGNATED_SOURCE_MAX_BYTES: u64 = MAX_MODEL_DOCUMENT_BYTES;
 pub(crate) const OPEN_ARGS_MAX_BYTES: usize = 4 << 10;
 pub(crate) const ARGS_MAX_BYTES: usize = 1 << 20;
@@ -300,7 +300,7 @@ pub(crate) enum IdentityFile {
     Present(Pinned),
 }
 
-/// A designation's fixed record (§5.4): the base review Y the designation was formed over, the designated review X
+/// A designation's fixed record: the base review Y the designation was formed over, the designated review X
 /// shown, the SHA-256 of the designated file's bytes as the host read them, and whether X was adoptable. It names a
 /// review; it holds no file bytes, model or review.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -311,7 +311,7 @@ pub(crate) struct Designation {
     pub(crate) adoptable: bool,
 }
 
-/// The one source the host keeps between commands (§4.8.2): fixed size, not charged to the pool.
+/// The one source the host keeps between commands: fixed size, not charged to the pool.
 #[derive(Debug)]
 pub(crate) struct Source {
     id: u64,
@@ -319,7 +319,7 @@ pub(crate) struct Source {
     file_name: String,
     mbf: Pinned,
     identity: IdentityFile,
-    /// The current designation, published only by a Designate run still current at its response (§5.4).
+    /// The current designation, published only by a Designate run still current at its response.
     designation: Option<Designation>,
 }
 
@@ -340,7 +340,7 @@ impl Default for ImportState {
     }
 }
 
-/// The MBF import's managed state (`MbfImportState` in §4.8.2): its retirement epoch and tokens, its one run in
+/// The MBF import's managed state (`MbfImportState`): its retirement epoch and tokens, its one run in
 /// progress and its one source. Separate from the export's `MbfRuns`.
 #[derive(Clone, Debug, Default)]
 pub(crate) struct MbfImports {
@@ -509,7 +509,7 @@ impl MbfImports {
         Ok(id)
     }
 
-    /// The current source's record with duplicated handles (§4.8.2 re-read step 1), or `MBF-IMPORT-SOURCE-RETIRED`.
+    /// The current source's record with duplicated handles, or `MBF-IMPORT-SOURCE-RETIRED`.
     fn take_source(&self, source_id: u64) -> Result<Source, Stop> {
         let state = self.lock();
         let retired = || refused(SOURCE_RETIRED, "sourceId", "The chosen file is no longer current. Choose it again.");
@@ -624,7 +624,7 @@ fn read_at(_file: &File, _buffer: &mut [u8], _offset: u64) -> io::Result<usize> 
     Err(io::Error::new(io::ErrorKind::Unsupported, "positional reads are unavailable on this platform"))
 }
 
-/// A chosen file acquired (§4.8.2 "Selection"), not yet read: `None` when `optional` and it does not exist.
+/// A chosen file acquired, not yet read: `None` when `optional` and it does not exist.
 fn acquire(path: &Path, cap: u64, member: &'static str, optional: bool, control: &RunControl) -> Result<Option<(File, FileId, u64)>, Stop> {
     let unreadable = |what: &str, error: io::Error| refused(OPEN_UNREADABLE, member, format!("The chosen file could not be {what}: {error}."));
     let meta = match fs::symlink_metadata(path) {
@@ -699,7 +699,7 @@ fn read_exact_pinned(file: &File, path: &Path, size: u64, buffer: &mut Vec<u8>, 
     Ok(Some(hasher.finalize().into()))
 }
 
-/// The name checks of a re-read (§4.8.2 step 2): the path still names a regular non-symlink file of the recorded
+/// The name checks of a re-read: the path still names a regular non-symlink file of the recorded
 /// identity and size.
 fn names_pinned(pinned: &Pinned) -> bool {
     match fs::symlink_metadata(&pinned.path) {
@@ -720,7 +720,7 @@ pub(crate) fn identity_path(chosen: &Path) -> Option<PathBuf> {
 
 // -- The worker request and envelope (task 5) -------------------------------------------------------------------------
 
-/// Mode 1 is `review`, 2 is `adopt`, 3 is `designate` (a review with a designated source, §5.4).
+/// Mode 1 is `review`, 2 is `adopt`, 3 is `designate` (a review with a designated source).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum ImportMode {
     Review,
@@ -986,7 +986,7 @@ fn put_u64<O: Out>(out: &mut O, mut value: u64) {
     out.put(&digits[at..]);
 }
 
-/// The final adopt reply (§4.7): the `NativeModelDocumentOutcome` shape `checkNativeOutcome` takes, with the model's
+/// The final adopt reply: the `NativeModelDocumentOutcome` shape `checkNativeOutcome` takes, with the model's
 /// canonical bytes embedded as the document.
 fn put_adopt_reply<O: Out>(out: &mut O, file_name: &str, model: &[u8], review_sha: &[u8; 64], model_sha: &[u8; 64]) {
     out.put(b"{\"outcome\":\"opened\",\"file_name\":");
@@ -1068,11 +1068,11 @@ fn worker_declaration(bytes: &[u8]) -> Result<Option<mbf::Value>, String> {
     mbf::parse_sidecar_json(bytes).map(Some).map_err(|_| worker_failure(WORKER_REQUEST_INVALID, "the declaration is not strict JSON"))
 }
 
-/// Task 5 (§4.8.3): the import, the candidate's document check, the bounded review and the envelope; or
+/// Task 5: the import, the candidate's document check, the bounded review and the envelope; or
 /// `<code>: <message>` of at most 64 KiB, with no engine text.
 pub(crate) fn worker_import(raw: &[u8]) -> Result<String, String> {
     let request = decode_worker_request(raw)?;
-    // Designate (§5.4): the pair's derivation and the designated source are evaluated first, each phase's working
+    // Designate: the pair's derivation and the designated source are evaluated first, each phase's working
     // values released before the next, and before the import; only fixed-size facts are kept.
     let evaluation = request.designated.map(|(_, bytes)| mbf::evaluate_designated_source(bytes, request.mbf, request.identity));
     let material_provenance = worker_declaration(request.declaration)?;
@@ -1124,7 +1124,7 @@ pub(crate) fn worker_import(raw: &[u8]) -> Result<String, String> {
     let candidate = model_sha.as_ref().map(|sha| mbf::ReviewModel { sha256: ascii(sha), bytes: model_len });
     let imported = result.status == "imported";
     let label = request.label;
-    // The transfer limit (§4.8.4): the adopt envelope and the final escaped adopt reply each within 64 MiB, and the
+    // The transfer limit: the adopt envelope and the final escaped adopt reply each within 64 MiB, and the
     // model within the Open cap; decided from the computed lengths before the result is built.
     let transfer_fits = |review_len: u64| {
         envelope_len(ImportMode::Adopt, imported, true, model_len, model_len, review_len) <= MBF_IMPORT_RESULT_MAX_BYTES
@@ -1270,7 +1270,7 @@ impl Out for Prefix {
     }
 }
 
-/// Reads task 5's envelope for `mode` (§4.8.3 "Decode"): views and checked header tokens, the mode's fixed payload
+/// Reads task 5's envelope for `mode`: views and checked header tokens, the mode's fixed payload
 /// shape, the review's fixed leading members byte for byte, its SHA-256, and in `adopt` mode with an adoptable result
 /// the carried ASCII model and its SHA-256. The host never parses the model or the review.
 pub(crate) fn decode_import_result(mode: ImportMode, result: &[u8]) -> Result<Decoded, Diag> {
@@ -1546,7 +1546,7 @@ fn task_failure(text: &str) -> Stop {
 pub(crate) enum Reply<'a> {
     Cancelled,
     Reviewed { source_id: u64, file_name: String, review_sha: [u8; 64], review: &'a [u8] },
-    /// Designate's reply: X with Y's digest; `record` is published only as the reply is handed off (§5.4).
+    /// Designate's reply: X with Y's digest; `record` is published only as the reply is handed off.
     Designated { source_id: u64, file_name: String, review_sha: [u8; 64], review: &'a [u8], record: Designation },
     Opened { file_name: String, model: &'a [u8], review_sha: [u8; 64], model_sha: [u8; 64] },
     Refused { adopt: bool, file_name: String, diagnostics: Vec<Diag> },
@@ -1635,7 +1635,7 @@ fn decode_held(command: &Command<'_>, mode: ImportMode, held: &mut Held) -> Resu
     decode_import_result(mode, &completed.result).map_err(|item| Stop::Refused(vec![item]))
 }
 
-/// `open_mbf_import` after admission and its ticket (§4.1 step 2, §4.8.2): the chooser, the selection, the first review
+/// `open_mbf_import` after admission and its ticket: the chooser, the selection, the first review
 /// in task 5, the install.
 fn open_flow<'h>(
     command: &Command<'_>,
@@ -1702,10 +1702,10 @@ fn request_too_large() -> Stop {
     refused(MEMORY_UNAVAILABLE, "", "The import's request is too large. Nothing was imported.")
 }
 
-/// A designated source acquired for one Designate run (§5.4): its name, handle, path and size. Not kept.
+/// A designated source acquired for one Designate run: its name, handle, path and size. Not kept.
 pub(crate) type DesignatedFile<'a> = (&'a str, &'a File, &'a Path, u64);
 
-/// A re-read of the current source into a new request (§4.8.2 "Re-read") and task 5 in `mode`; Designate also reads
+/// A re-read of the current source into a new request and task 5 in `mode`; Designate also reads
 /// `designated` into the request and returns its SHA-256.
 #[allow(clippy::too_many_arguments)]
 fn reread_flow(
@@ -1771,7 +1771,7 @@ fn reread_flow(
 
 // -- Declarations (H3) ------------------------------------------------------------------------------------------------
 
-/// The declaration's shape check (§4.6) and its re-serialization for the worker (H3, its exact length counted and
+/// The declaration's shape check and its re-serialization for the worker (H3, its exact length counted and
 /// leased first): `null`, or an object of MBF material names (1 to 512 bytes, never `*`) to exactly `{origin,
 /// source_name}` with `origin` `project_invented` or `user_supplied` and a non-empty `source_name` of at most 512 bytes.
 fn declaration_bytes(command: &Command<'_>, value: Option<serde_json::Value>) -> Result<(Vec<u8>, Option<CommandLease>), Stop> {
@@ -1844,7 +1844,7 @@ fn admit<'r>(registry: &'r SolveJobRegistry, raw: Vec<u8>, copy: Lease, command:
     Ok((memory, args, lease))
 }
 
-/// The members each start takes (§4.7); any other, a path included, is refused before anything else is read.
+/// The members each start takes; any other, a path included, is refused before anything else is read.
 fn members(command: &'static str) -> &'static [&'static str] {
     match command {
         OPEN_COMMAND => &[EXPECTED_EPOCH, REQUEST_SEQUENCE],
@@ -1969,7 +1969,7 @@ fn start<R>(
     let command = Command { registry, memory: &memory, args: &lease, control: Arc::clone(&registration.control), start_wait };
     let mut file_name = String::new();
     // `held` is borrowed by the reply's views; H7's lease is kept apart in `reply_held`, released after the result
-    // lease, the bound and H8 (§4.8.4 step 9).
+    // lease, the bound and H8.
     let mut reply_held = Held::default();
     let outcome = flow(&command, entry, &mut args, &mut held, &mut file_name);
     drop(args);
@@ -2020,7 +2020,7 @@ pub(crate) fn review_command<R>(registry: &SolveJobRegistry, imports: &MbfImport
     })
 }
 
-/// `adopt_mbf_import` after [`reserve`] (§4.8.7 step 2): no disk commit; a stale review or a non-adoptable result
+/// `adopt_mbf_import` after [`reserve`]: no disk commit; a stale review or a non-adoptable result
 /// returns no model.
 pub(crate) fn adopt_command<R>(registry: &SolveJobRegistry, imports: &MbfImports, raw: Vec<u8>, copy: Lease, start_wait: Duration, respond: impl FnOnce(String) -> R) -> Result<R, SolveJobError> {
     start(registry, imports, raw, copy, ADOPT_COMMAND, start_wait, respond, |command, _entry, args, held, file_name| {
@@ -2032,7 +2032,7 @@ pub(crate) fn adopt_command<R>(registry: &SolveJobRegistry, imports: &MbfImports
         let (declaration, _h3) = declaration_bytes(command, args.opt_value("declaration"))?;
         let (decoded, _) = reread_flow(command, imports, ImportMode::Adopt, source_id, &declaration, None, held, file_name)?;
         // The review shown is the ordinary review Y recomputed now, or a designated review X whose current record names
-        // exactly that Y as its base (§5.4): X is adopted only over the same pair and declaration it was formed over.
+        // exactly that Y as its base: X is adopted only over the same pair and declaration it was formed over.
         if decoded.review_sha != requested {
             match imports.designated(source_id, &decoded.review_sha, &requested) {
                 Some(record) if record.adoptable => {}
@@ -2066,7 +2066,7 @@ fn review_sha_arg(args: &mut Args) -> Result<[u8; 64], Stop> {
     }
 }
 
-/// `designate_mbf_import_source` after [`reserve`] (§5.4): over the review shown (`reviewSha256`, the base review Y)
+/// `designate_mbf_import_source` after [`reserve`]: over the review shown (`reviewSha256`, the base review Y)
 /// and the exact current declaration, the native model-document chooser, the designated file read once into the
 /// request (never kept), the pair re-read as for Review, and task 5 in `designate` mode. The worker's recomputed Y must
 /// be the review shown, or `MBF-IMPORT-REVIEW-STALE`. The reply is X; its record is published only as the reply is

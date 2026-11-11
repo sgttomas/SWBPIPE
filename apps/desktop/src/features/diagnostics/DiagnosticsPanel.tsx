@@ -46,12 +46,12 @@ export function DiagnosticsPanel({
       setPinnedId(null);
     }
   }, [requestSequence, requestId]);
-  // W-13 §6: the document validator's findings join the model's own list.
+  // the document validator's findings join the model's own list.
   const documentDiagnostics = useMemo(() => modelDocumentDiagnostics(model), [model]);
-  // W-13 §3.5: the store's library-reference warnings, keyed to the entity.
+  // the store's library-reference warnings, keyed to the entity.
   const publishedLibraryRefs = usePublishedLibraryRefFindings();
   const libraryRefs = useMemo(() => libraryRefDiagnostics(currentLibraryRefFindings(model, publishedLibraryRefs)), [model, publishedLibraryRefs]);
-  // RT-A3 §4: on a result with combinations, a message outside the reader-checked roster is
+  // on a result with combinations, a message outside the reader-checked roster is
   // listed as supplied, unverified text (`suppliedDiagnostics`), as the report quotes it.
   const resultDiagnostics = useMemo(() => presentedResultDiagnostics(result), [result]);
   const diagnostics: Diagnostic[] = [

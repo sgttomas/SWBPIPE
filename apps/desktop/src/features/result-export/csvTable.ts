@@ -1,4 +1,4 @@
-// RT-R6 CSV serializer (DEL-08-04-R14; Design `csv-export.md` §3). One pure function turns
+// CSV serializer (DEL-08-04-R14). One pure function turns
 // `{preamble, columns, rows}` into the file's text; every results table goes through it.
 // It converts no units and rounds nothing: an adapter passes the value already returned by
 // the table's own conversion function for the column's displayed unit.
@@ -23,7 +23,7 @@ export const CSV_PREAMBLE_KEYS = [
 ] as const;
 
 /** A two-sided table's keys in place of `model_hash`, `result_hash` and `analysis_route`, in
- * file order. `a` and `b` follow the view's own sides (Design `csv-export.md` §3). */
+ * file order. `a` and `b` follow the view's own sides. */
 export const CSV_PAIR_PROVENANCE_KEYS = [
   "model_hash_a",
   "model_hash_b",
@@ -99,7 +99,7 @@ export type CsvProvenance = {
  * (R11). A one-sided table states `model_hash`, `result_hash` and `analysis_route`; a
  * two-sided table (`sides`) states the `_a` and `_b` keys of `CSV_PAIR_PROVENANCE_KEYS`. */
 export type CsvPreamble = {
-  /** The DEL-07-01 `export-file-names.md` CSV kind slug, e.g. `stress-ratio`. */
+  /** The CSV kind slug, e.g. `stress-ratio`. */
   readonly table: string;
   readonly softwareVersion: string;
   readonly caseOrFilter: string;
@@ -126,7 +126,7 @@ export class CsvSerializationError extends Error {
 }
 
 const TOKEN = "[a-z0-9]+";
-/** The CSV kinds of DEL-07-01 `export-file-names.md`. `results-<group>` takes one or more
+/** The CSV kinds. `results-<group>` takes one or more
  * group tokens. */
 const CSV_KIND_SOURCE =
   `results(?:-${TOKEN})+|displacement-extremes|stress-ratio|support-loads-all|support-loads|weight-cog|weight|run-comparison|state-comparison|hanger-sizing`;
@@ -144,7 +144,7 @@ export function isCsvExportFileName(name: string): boolean {
   return CSV_EXPORT_FILE_NAME.test(name);
 }
 
-/** Slug a label to `export-file-names.md` tokens: lowercase ASCII letters and digits joined
+/** Slug a label to tokens: lowercase ASCII letters and digits joined
  * by single hyphens. Returns "" when nothing remains; the caller then falls back to the
  * stable key the label stands for. */
 export function slugToken(label: string): string {

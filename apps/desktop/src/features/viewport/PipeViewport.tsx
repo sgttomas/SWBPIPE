@@ -915,7 +915,7 @@ export function PipeViewport({
     "force",
     componentDraft.forceUnit || model.project.units.force || "TBD"
   );
-  // W-17 §3: the forms name a missing project key as the property inspector does;
+  // the forms name a missing project key as the property inspector does;
   // nothing is assumed in its place. Node positions are stored in
   // project.units.length (the hard lock when nodes exist).
   const lengthMissing = projectUnitMissing(model, "length");

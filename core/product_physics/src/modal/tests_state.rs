@@ -338,7 +338,7 @@ fn admission_refuses_every_combination_but_the_confirmed_dense_one() {
         refused(Some(&constructed_state_evidence("case:other")), dense, &[]),
         StateCaseRefusal::CaseMismatch { expected: "case:s".into(), found: "case:other".into() }
     );
-    // R-4 §3.7 S6: evidence whose consumed motion is not the bound case's
+    // evidence whose consumed motion is not the bound case's
     // (a replayed solve of another motion under the same id) is refused,
     // and so is the bound motion against evidence of no motion.
     let moved = CaseMotionEvidence { ground_motion: vec![("support:nl".into(), 0.25f64.to_bits())], ..CaseMotionEvidence::default() };
@@ -628,7 +628,7 @@ fn a_refusals_blocking_codes_are_stated_by_count() {
     assert_eq!(StateCaseRefusal::Blocking(codes.clone()), StateCaseRefusal::Blocking(codes));
 }
 
-/// R-4 §3.7 S6: a load/reference-state state case with a moved nonlinear
+/// a load/reference-state state case with a moved nonlinear
 /// ground and a moved spring base (`validation/references/rt_a3_s6`'s C-5
 /// twin). The static case solve's evidence carries the motion it consumed;
 /// the modal path admits it against the bound case's own resolved motion

@@ -34,7 +34,7 @@ exceptions are enumerated:
 
 The retained carriers (`RETAINED`: the exact and O4 successors, the exact derivative
 goldens, the compact corpus, the RV120 inputs and the native reader outcomes) were
-written on the §8.49 registered build (DEL-04-08 `retained-pricing-rules.md`). Each is
+written on the §8.49 registered build. Each is
 compared field by field like an ordinary carrier: the compact corpus through its
 lossless expansion, the RV120 inputs with both endpoints' input digests rematerialized
 from their own bases, and the reader outcomes by `check_reader_outcomes` (keys and

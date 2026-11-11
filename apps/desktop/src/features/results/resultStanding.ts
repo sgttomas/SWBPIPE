@@ -104,7 +104,7 @@ export function sourceRecoveryModeMatches(source: MechanicsResult, model: Previe
 function presented(standing: ReaderStanding): NumericalStanding {
   return { contract: standing.route, status: standing.status, eligible: standing.eligible, findings: [...standing.findings] };
 }
-/** RT-A4 §10.4: the standing a run recorded before RT-A4 read with, for its display as a recorded
+/** the standing a run recorded before RT-A4 read with, for its display as a recorded
  * (historical) run: under the record's registry variant `binding` the ordinary routes take Rust's
  * recorded dispatch (the statement as it read when recorded); a successor's standing is its
  * registration's, as for any saved successor (a saved statement never registers). It is display

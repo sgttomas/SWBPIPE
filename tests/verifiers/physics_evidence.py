@@ -15,7 +15,7 @@ The published membrane and effective force values are source observations. This
 reader validates their provenance relationships without reconstructing them from
 rounded neighbouring rows or treating pressure arithmetic as a numerical pass.
 
-T4-U6/U8 (DEL-05-03 ``section-bases-and-timoshenko.md``): each ``pipe_sections`` entry is the D-5
+each ``pipe_sections`` entry is the D-5
 shape, rederived from its captured authored values by ``section_basis.py``, with its beam theory checked as
 pressure-2's reader checks it (one straight-member shear model per document). The composite never carries a
 realized arc (D7 declines every document with one): an arc region record or a ``pipe_sections`` entry marked
@@ -59,7 +59,7 @@ SIGNS = {
 }
 SUPPORT_SIGN = "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
 
-# T4-U6 (D-5, §2.5): the pipe_sections entry's keys.
+# the pipe_sections entry's keys.
 GEOMETRY = sb.SECTION_KEYS
 MATERIAL = {"pipe_id", "material_id", "E_pa", "nu", "G_pa", "constitutive_basis", "thermal_consumed", "alpha_per_kelvin", "provenance"}
 STRESS_COMPONENTS = {"axial_membrane_stress", "lame_inner_radial_stress", "lame_outer_radial_stress", "lame_inner_hoop_stress", "lame_outer_hoop_stress"}
@@ -148,7 +148,7 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any, contr
     straight_models: set[str] = set()
     extrema_ids: set[str] = set()
     for cid, case in cases.items():
-        # W-16 slice c (DEL-05-01 Design exact-equivalent-static.md §2): a generating case's closed record,
+        # a generating case's closed record,
         # never on a selected retained case.
         generation = isinstance(case, Mapping) and "equivalent_static" in case
         if generation:
@@ -259,7 +259,7 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any, contr
                 _require(terminal["pipe_cap_transfer_global_n"] == terminal["closure_pressure_load_global_n"], "terminal wall transfer disagreement")
         for pid in members:
             physical = [row for row in rows.values() if row.get("entity_ref") == pid and row.get("basis_ref") == {"ref_type": "load_case", "ref_id": cid} and row.get("kind") in PIPE_KINDS - {"pipe_elastic_normal_stress_maximum_v2"}]
-            # T4-U6 (§2.1): a stress slot is published on both bases, a force slot once.
+            # a stress slot is published on both bases, a force slot once.
             observed = [(row.get("metadata", {}).get("location"), row.get("metadata", {}).get("component"),
                          (sb.split_token(row.get("metadata", {}).get("basis")) or (None, "unnamed"))[1] if row.get("kind") in sb.STRESS_KINDS else None) for row in physical]
             slots = {(station, component) for station in ("end_i", "end_j", "quarter_1", "midspan", "quarter_3") for component in ("wall_axial_force", "effective_axial_force", "axial_membrane_stress", "lame_inner_radial_stress", "lame_outer_radial_stress", "lame_inner_hoop_stress", "lame_outer_hoop_stress")} | {("end_i", "wall_axial_end_action"), ("end_j", "wall_axial_end_action")}
@@ -279,7 +279,7 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any, contr
         _require(basis["ref_type"] == "load_case" and basis["ref_id"] in cases, "row case scope")
         _require(all(_text(row.get(key)) for key in ("kind", "entity_ref", "unit")), "source row identity")
         _require(row.get("source_result_refs", []) == [], "unsupported direct-row derivation")
-        # T4-U6 (§2.4): an inherited thin-wall row names no section basis; every stress row names its basis.
+        # an inherited thin-wall row names no section basis; every stress row names its basis.
         _require(row.get("kind") not in sb.THIN_WALL_KINDS, "thin-wall row names no section basis")
         stress = row.get("kind") in sb.STRESS_KINDS
         section_basis = _basis(sb.row_basis, row)[1] if stress else None
@@ -312,7 +312,7 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any, contr
                 _require((cid, pid) in owners and row["id"] in bindings, "unbound pressure row")
     for components in support_components.values():
         _require(len(components) == 8 and set(components) == {"Fx", "Fy", "Fz", "Mx", "My", "Mz", "force_magnitude", "moment_magnitude"}, "support component coverage")
-    # T4-U6 (D-5, §2.1, §2.2): both families of every stress signature against the two sections; one headline per basis.
+    # both families of every stress signature against the two sections; one headline per basis.
     _basis(sb.twins, rows, sections, {key: region_pressures[key[0], rid] for key, rid in owners.items()}, _twin_order(source))
     _u4b_straight(source, cases, geometries, materials, rows, table)
     _basis(sb.headlines, source.get("summary"), rows, complete)
@@ -344,7 +344,7 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any, contr
 
 
 def _twin_order(source: Mapping[str, Any]):
-    """T4-U4b: D-5's row order (section-bases-and-timoshenko.md §2.5) on the composite, Rust's
+    """T4-U4b: D-5's row order on the composite, Rust's
     ``SOURCE_PHYSICS_ROW_BASIS_TWIN_ORDER`` at its place in the twin pass (after the twin is matched, before the pair's
     values): a U4b-family nominal row's reduced twin is the published row immediately after it. The arc maxima's
     clause is vacuous here, since the composite declines every realized arc."""
@@ -362,7 +362,7 @@ def _twin_order(source: Mapping[str, Any]):
 
 def _u4b_straight(source: Mapping[str, Any], cases: Mapping[str, Any], geometries: Mapping[str, Mapping[str, Any]],
                   materials: Mapping[str, Mapping[str, Any]], rows: Mapping[str, Any], table: Mapping[str, Any]) -> None:
-    """T4-U4b (§4.3, §5.1; S4 round 2): the straight-member derived rows of every case, exact-recovered and
+    """T4-U4b (S4 round 2): the straight-member derived rows of every case, exact-recovered and
     ordinary-method alike: their signatures and semantics, σ± and τ bit for bit (c_b from the case's ν and basis
     sections) and their station × basis coverage. Rust `physics_evidence::u4b_cases` on the composite, in its order
     and with its codes (``SOURCE_PHYSICS_EXTREME_*``, ``SOURCE_PHYSICS_SHEAR_*``)."""

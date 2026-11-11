@@ -339,7 +339,7 @@ fn physics_source(name: &str) -> Value {
 /// `modulus_basis_ref` removed: case 1 then needs recovery, which declines it
 /// ("exact source recovery requires explicitly empty pressure regions") while
 /// case 0 selects, so the invocation receipt fails (a composite requires every
-/// case to qualify; design §1.2).
+/// case to qualify).
 pub(crate) fn pre04_composite_failure_request() -> Value {
     let mut request = physics_source("mixed");
     request["model"]["load_cases"][1]
@@ -404,7 +404,7 @@ fn assert_republication_ledger(budget: &SourceRecoveryBudget, attempts: usize) {
 
 #[test]
 fn a_pre04_composite_finalization_failure_republishes_ordinarily() {
-    // Restated by the pre-0.4 failure unification (design §7). This test was
+    // Restated by the pre-0.4 failure unification. This test was
     // `the_pre04_composite_finalization_failure_is_unchanged_by_this_fallback`,
     // which asserted `Err("SOURCE_BLOCKS_FINALIZATION_FAILED")` for this S4
     // failure as a characterization, "not an endorsement", of an outcome left
@@ -432,7 +432,7 @@ fn a_pre04_composite_finalization_failure_republishes_ordinarily() {
 
 #[test]
 fn a_pre04_case_finalization_failure_republishes_ordinarily() {
-    // Design §2.1 (S3, per case): the committed `physics_source/n05` request at a
+    // (S3, per case): the committed `physics_source/n05` request at a
     // private case limit of 2c = 357,072 (live charge c = 178,536 in both
     // modes) passes the replay screen, and its finalization does not fit: the
     // composite recipe reservation refuses (measured, both modes; at 357,071 the
@@ -460,7 +460,7 @@ fn a_pre04_case_finalization_failure_republishes_ordinarily() {
 
 #[test]
 fn a_republished_case_that_needed_no_recovery_states_no_cause() {
-    // Design §2.1: in a republication, a case that needs no recovery and has no
+    // in a republication, a case that needs no recovery and has no
     // load-row finding carries no `SOURCE_BLOCK_RECOVERY_UNAVAILABLE` diagnostic.
     // The committed `physics_source/mixed` request: case 0 (live charge 178,556)
     // selects and, at a private limit of 500,000, fails its own finalization
@@ -485,7 +485,7 @@ fn a_republished_case_that_needed_no_recovery_states_no_cause() {
 
 #[test]
 fn a_support_norm_refusal_is_the_stated_cause() {
-    // Design §4: a support-norm recipe refusal (S2) is the case's finalization
+    // a support-norm recipe refusal (S2) is the case's finalization
     // cause, and the row binding is not consulted, so the missing support rows
     // never read as "not unique". The committed `physics_source/n05` request has
     // a live charge of c = 178,536 in both modes. With the replay screen skipped
@@ -534,7 +534,7 @@ fn a_support_norm_refusal_is_the_stated_cause() {
 
 #[test]
 fn a_republished_case_whose_ordinary_attempt_failed_keeps_its_blocked_result() {
-    // Design §2.1 (REQ-003 (d)): the committed `physics_source/n06` request's
+    // (REQ-003 (d)): the committed `physics_source/n06` request's
     // ordinary attempt is rejected ("NumericallyUnresolved … stabilization
     // unresolved"), and at the public limit a selection replaces it. Here a
     // private case limit of 357,071 (live charge c = 175,079 in both modes, so
@@ -707,7 +707,7 @@ fn heavy_request() -> Value {
     request
 }
 
-/// N-3's positive control (RF design §5.5): at the public limit both cases of
+/// N-3's positive control: at the public limit both cases of
 /// the republication scenario now select and the composite receipt finalizes.
 #[test]
 fn the_republication_scenario_selects_both_cases_at_the_public_limit() {

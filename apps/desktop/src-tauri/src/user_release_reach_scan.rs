@@ -179,7 +179,7 @@ const REPORTING_KEYS: [&str; 3] = ["report_package", "pdf_emitter", "report_rend
 
 /// The crate keys of the allowed dependents that are not reporting crates
 /// ([`REPORTING_DEPENDENTS`], [`DEPENDENT_MANIFESTS`]), each scanned under the
-/// shell's rules (code review r9 at #1682; §2.8, "Allowed dependents"): its
+/// shell's rules (code review r9 at #1682): its
 /// Cargo targets, its module closure from each library and binary root, the
 /// name, construction, literal, macro, attribute, namespace and test-item
 /// rules, and its target, build-script and dependency pins.
@@ -268,7 +268,7 @@ const PATH_CROSSINGS: [(&str, &str, &str); 2] = [
 pub(crate) const PROC_MACRO_PACKAGES: [&str; 0] = [];
 
 /// The `src-tauri` modules admitted to hold `unsafe` code (code review r9
-/// follow-up at #1682; §2.8, "Symbol-level FFI"), as (declaring file, `mod`
+/// follow-up at #1682), as (declaring file, `mod`
 /// name, reason): each `mod` item carries exactly the outer attribute
 /// `#[allow(unsafe_code)]`, under the roots' `#![deny(unsafe_code)]`. Any
 /// other `allow(unsafe_code)` or `expect(unsafe_code)`, in any form (direct,
@@ -434,7 +434,7 @@ pub(crate) const TEST_PROOF_ITEMS: [(&str, &str, &str); 1] = [(
     "report_package/src/user_release.rs",
     "tests::check_request_refuses_markers_and_the_entry_binds_its_form",
     // Reason: the unit test of `bindings::check_request_in` under the
-    // user-release entry (§2.8 refusal 2 and item 8, the handoff rule) needs
+    // user-release entry (the handoff rule) needs
     // that entry, and so a proof, for requests the test edits so that the
     // check refuses them; `check_derived` would refuse to derive a proof for
     // them, so the test writes one. It is compiled only into the crate's own
@@ -614,7 +614,7 @@ const MACRO_DEFINITIONS: [(&str, &str, &str); 3] = [
 ];
 
 /// The macro definitions admitted in `src-tauri`'s test-only items (code
-/// review r7 at #1682; §2.8, "Test-only items"): (file, name, SHA-256 of its
+/// review r7 at #1682): (file, name, SHA-256 of its
 /// text, reason), pinned as [`MACRO_DEFINITIONS`] is. A test-only macro
 /// could assemble a renderer path from fragments the token screen cannot
 /// join (`open_pipe_stress_report_renderer::$f`), so any other definition in
@@ -640,7 +640,7 @@ const SHELL_TEST_MACROS: [(&str, &str, &str, &str); 2] = [
 ];
 
 /// The test-only items in `src-tauri` that may name a scanned function or
-/// the renderer's pair (code review r7 at #1682; §2.8, "Test-only items"):
+/// the renderer's pair (code review r7 at #1682):
 /// (file, item path, name, reason). None does today: the shell's tests
 /// render through `render_calculation_report_value` and the save command,
 /// and never name the renderer's pair, the PDF crate's functions, the
@@ -720,7 +720,7 @@ pub(crate) const SHELL_DEPENDENCIES: [&str; 39] = [
     "normal url (cfg(target_os = \"macos\"))",
 ];
 
-/// The macro invocations admitted, by path as written (§2.8 macro rule 2).
+/// The macro invocations admitted, by path as written.
 const MACRO_INVOCATIONS: [&str; 22] = [
     "format",
     "vec",
@@ -823,7 +823,7 @@ fn is_root_forbid(attr: &syn::Attribute) -> bool {
                 && list.tokens.to_string() == "unsafe_code")
 }
 
-/// The attribute paths admitted (§2.8 macro rule 3).
+/// The attribute paths admitted.
 const ATTRIBUTES: [&str; 11] = ["cfg", "cfg_attr", "allow", "inline", "cold", "global_allocator", "derive", "doc", "default", "serde", "tauri::command"];
 /// The attributes a test-only item may carry besides [`ATTRIBUTES`] (code
 /// review r6 at #1682): the standard test harness's own.
@@ -1254,7 +1254,7 @@ impl FileScan<'_> {
     /// invocation, attribute, import and macro-definition allow-lists, and
     /// the call and entry-argument rules. A test-only item is held to the
     /// construction, literal and naming rules instead (code review r6 at
-    /// #1682; §2.8, "Test-only items"), so these are not findings there.
+    /// #1682), so these are not findings there.
     fn production_finding(&mut self, line: usize, what: impl std::fmt::Display) {
         if !self.test_only {
             self.finding(line, what);
@@ -3270,7 +3270,7 @@ const SHELL_PACKAGE: &str = "openpipestress-desktop";
 const RUNNER_PACKAGE: &str = "open_pipe_stress_headless_runner";
 
 /// The packages allowed to depend on each reporting package, by Cargo
-/// package name, exactly (code review r8 at #1682; §2.8, "Dependents"). Each
+/// package name, exactly (code review r8 at #1682). Each
 /// is identified by its name and its canonical manifest
 /// ([`dependent_locations`]): a reporting package's is the `Cargo.toml` the
 /// scan read, and the others' are in [`DEPENDENT_MANIFESTS`]. Any other
@@ -3398,7 +3398,7 @@ pub(crate) struct InRepoBuildScript {
 }
 
 /// The in-repository build scripts of the consumers' graphs (code review r7
-/// at #1682; §2.8, "Build scripts"). A build script's `cargo:rustc-cfg`
+/// at #1682). A build script's `cargo:rustc-cfg`
 /// sets a `cfg` (`test` included) for its own package's crates only, so one
 /// matters here only when its package can name a scanned function: a
 /// reporting package (whose build scripts the target pin refuses), or a
@@ -3792,7 +3792,7 @@ pub(crate) struct InRepoPackages {
 
 /// The packages of `manifests` and of every path dependency reachable from
 /// them, and which of them depend on a reporting package (code review r8 at
-/// #1682; §2.8, "Dependents"). Each manifest is read by `cargo metadata
+/// #1682). Each manifest is read by `cargo metadata
 /// --format-version 1 --offline --locked --no-deps --manifest-path`, run in
 /// its directory, which needs no download; every package it reports (a
 /// workspace's members included) is taken, and each of its dependencies'

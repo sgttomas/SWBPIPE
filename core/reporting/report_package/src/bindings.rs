@@ -136,13 +136,13 @@ fn section_basis_suffix(id: &str, metadata: &Value) -> Result<&'static str, Stri
     }
 }
 
-/// The report-row contract (§2.3 item 6): one row per source row, in order,
+/// The report-row contract: one row per source row, in order,
 /// with the desktop's projection
 /// (`apps/desktop/src/features/report/reportResultRows.ts`). The displayed
 /// value is the report's display rule ([`display_quantity`]) over the
 /// ECMAScript Number-to-String form (`canonical_number`), after `guard_json`.
-/// The four bound members the composer reads (DEL-08-01 Design
-/// `report-section-composer.md` §2.6) follow the five displayed ones: the
+/// The four bound members the composer reads
+/// follow the five displayed ones: the
 /// source `kind`; its `entity_ref`, or null when the row has none; the
 /// value's canonical text (`value_text`); and the stored `unit`, so a value
 /// stored in Pa is compared exactly in MPa. Every boundary that requires the
@@ -222,7 +222,7 @@ pub fn check_report_result_refs<'a>(report: &Value, source: &'a Value) -> Result
     Ok(row_digests)
 }
 
-/// The report's unit display summary (§2.3 item 5): the storage convention,
+/// The report's unit display summary: the storage convention,
 /// the complete display policy ([`QUANTITY_DISPLAY_POLICY`], whose statement
 /// the renderer prints near the results), `conversion_performed` exactly when
 /// the report displays a value stored in Pa
@@ -285,7 +285,7 @@ fn supplemental_message(diagnostic: &Value, message: &str, combinations: &std::c
 /// `fixtures/reports/invented/report_diagnostics_parity.json`.
 pub fn expected_report_diagnostics(source: &Value) -> Result<Vec<Value>, String> {
     let diagnostics = source["diagnostics"].as_array().ok_or_else(|| mismatch("report diagnostics: the source has no diagnostics"))?;
-    // RT-A3 §4 (DEL-05-02 Work `combination-certificate.md` §2, the residual text boundary): on a
+    // on a
     // source with combinations, a diagnostic naming none of them is no entry of the reader's closed
     // combination-diagnostic roster, and its message is quoted as supplied text (desktop
     // `suppliedDiagnosticMessage`). The source's population is always within the reader's with
@@ -365,7 +365,7 @@ pub fn check_report_diagnostics(report: &Value, source: &Value) -> Result<(), St
 }
 
 /// The safe-reference projection of the report's rule-pack checksum to its
-/// audit basis and payload reference (§2.4). Any other declared pair refuses,
+/// audit basis and payload reference. Any other declared pair refuses,
 /// and so does a checksum whose payload reference names another rule pack:
 /// projection never relabels another payload's checksum as this pack's.
 fn projected_rule_pack_checksum(checksum: &Value, rule_pack_id: &str) -> Result<(audit::Canonicalization, String), String> {
@@ -435,17 +435,17 @@ pub(crate) fn check_request_in(
     // Items 0-3: route preflight, the complete 0.3.0 form, header dispatch and
     // the self-hash (shared with the reader).
     document_form::check_route_admitted_in(document, admitted)?;
-    // W-11 §3.5: only the desktop builds exact sections, so the runner profile
+    // only the desktop builds exact sections, so the runner profile
     // does not package an exact identity, whatever the report carries.
     exact_sections::check_runner_profile(&request.export_profile_id, document)?;
-    // W-18b §2.8, refusal 2: a general entry builds no user-released package.
+    // a general entry builds no user-released package.
     let user_release = entry.is_user_release();
     if !user_release {
         if let Some(marker) = user_release::user_release_marker(&request.export_profile_id, &request.report) {
             return Err(user_release::general_entry_refusal(marker));
         }
     }
-    // D-6 (§11): legacy record 1.0.0 retains its pressure-free scope.
+    // legacy record 1.0.0 retains its pressure-free scope.
     if request.report.pointer("/report_context/user_release/record_version").and_then(Value::as_str) != Some(open_pipe_stress_report_renderer::USER_RELEASE_EXACT_RECORD_VERSION) {
         exact_sections::check_user_released_profile(&request.export_profile_id, document)?;
     }
@@ -470,7 +470,7 @@ pub(crate) fn check_request_in(
     let desktop = match (request.export_profile_id.as_str(), origin_class) {
         (DESKTOP_PROFILE, DESKTOP_ORIGIN) => true,
         (RUNNER_PROFILE, RUNNER_ORIGIN) => false,
-        // Reached only under the user-release entry (§2.8): a general entry has
+        // Reached only under the user-release entry: a general entry has
         // already refused the profile.
         (USER_RELEASED_DESKTOP_PROFILE, DESKTOP_ORIGIN) if user_release => true,
         _ => return Err(mismatch("the export profile does not match the result document's origin")),
@@ -566,8 +566,8 @@ pub(crate) fn check_request_in(
     require(package_loads == load_set, "source_basis_refs[1..] equal the document load basis")?;
 
     // The current state and run sections of the handoff record. Under the
-    // user-release entry the request carries no handoff record set (§2.8):
-    // its run record is bound natively by admission (§2.5 step 8), so the
+    // user-release entry the request carries no handoff record set:
+    // its run record is bound natively by admission, so the
     // checks that read the handoff's run section have nothing to read.
     let exact_document = document_form::producer_contract_id(document).is_some_and(exact_sections::is_exact_identity);
     let run_record: Option<&Value> = if user_release {
@@ -685,7 +685,7 @@ pub(crate) fn check_request_in(
     require(summary["input_manifest_ref"]["ref_id"].as_str() == Some(input.payload_ref.as_str()), "report input-manifest reference")?;
     if desktop {
         require(origin["qualification_ref"] == reference("current_manifest", &input.payload_ref), "origin qualification reference")?;
-        // §2.4: the desktop names its audit manifest by the input-manifest
+        // the desktop names its audit manifest by the input-manifest
         // reference, so the audit id (and with it the document's
         // `audit_manifest_ref`) and the input-manifest references name one
         // manifest. The runner names its audit manifest by its run.
@@ -781,30 +781,30 @@ pub(crate) fn check_request_in(
         return Err(format!("{REPORT_CONTEXT_NOT_LOCAL_PRIVATE}: the report package renders under local_private only"));
     }
 
-    // Item 9 (W-11 §3.5): an exact identity's sections are those of the source,
+    // Item 9: an exact identity's sections are those of the source,
     // the document and the audit; no other identity carries them. Active since
-    // the owner opened exact-route packages (§5.1; 2026-10-26). An exact
-    // identity's Diagnostics are also the source's (§3.6, §6.3 item 4), so the
+    // the owner opened exact-route packages (2026-10-26). An exact
+    // identity's Diagnostics are also the source's, so the
     // standing line's integrity lead is the result's; the pressure-free route
     // is not bound here (a remaining item).
     if exact_document {
         check_report_diagnostics(report, source)?;
     }
-    // DEL-05-03 `pf-timoshenko.md` §4: a pressure-free Timoshenko report's
+    // a pressure-free Timoshenko report's
     // Diagnostics and its limitation 0 entry are the source's; no other
     // identity carries that entry.
     crate::pf_timoshenko::check_sections(source, report)?;
     exact_sections::check_exact_sections(source, document, audit_manifest, report)?;
 
-    // Item 10 (W-18b §2.8): the record against the request's members.
+    // Item 10: the record against the request's members.
     if user_release {
         check_user_release_record(request, audit_manifest, document)?;
     }
     Ok(())
 }
 
-/// Item 10 (W-18b, DEL-08-01 Design `report-user-release.md` §2.8): the
-/// record is of its form (§2.3), and each bound member equals the request's:
+/// Item 10: the
+/// record is of its form, and each bound member equals the request's:
 /// - `model_ref` = `source_model_ref.ref_id` = the document's
 ///   `model_ref.ref_id` = `audit_manifest.model_hash.payload_ref`;
 /// - `model_document_sha256` = the audit and the document model hash;

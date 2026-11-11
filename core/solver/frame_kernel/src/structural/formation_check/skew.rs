@@ -4,19 +4,19 @@
 //! threshold. The binary64 factorization, the corrections w and w₂, the
 //! contraction test, σ and the Neumann bound are today's, on coordinates.
 //!
-//! - **Loads (ρ, §10.2).** Each physical ledger term or re-formed primitive on
+//! - **Loads (ρ).** Each physical ledger term or re-formed primitive on
 //!   DOF i enters each coordinate row r with weight q_ir (`RestraintBasis::q_row`),
 //!   exactly: q·v by `add_product`, q·a·b and a primitive's Wide2 value by error-free
 //!   parts; radii × |q_ir| upward.
-//! - **Actions (ρ, §10.2).** −Σ q_ir·k_ij·q_jc·x_c: the binary64 parts of q_ir·q_jc·x_c
+//! - **Actions (ρ).** −Σ q_ir·k_ij·q_jc·x_c: the binary64 parts of q_ir·q_jc·x_c
 //!   (`exact_triple_parts`), each times the Wide2 entry by `add_product_to`. A
 //!   product outside the split range (P1) is the named
 //!   `restraint_basis: split range at DOF {dof}` detail; nothing is rounded.
-//! - **Allowance (ε_E, §10.3).** Each physical contribution's formation bound,
+//! - **Allowance (ε_E).** Each physical contribution's formation bound,
 //!   charged to (r, c) with weight |q_ir|·|q_jc| upward; the assembly and
 //!   transform charge is today's loop on the coordinate contributions, whose
 //!   exact sum is QᵀK_asmQ (`transform_contributions`), against the stored K′.
-//! - **D5C-1 (§10.4).** Judged physically: |w_phys,i| ≤ Σ_c|q_ic||w_c| upward,
+//! - **D5C-1.** Judged physically: |w_phys,i| ≤ Σ_c|q_ic||w_c| upward,
 //!   against max(|u_p,i|, S*) with u_p = fl(Qv); the reported DOF is physical.
 //!
 //! The returned `MemberBoundInputs` is in coordinates; the caller lifts it with
@@ -30,7 +30,7 @@ fn split_range(dof: usize) -> Failure {
     Failure::Closure(format!("restraint_basis: split range at DOF {dof}"))
 }
 
-/// The intended skew spring block at p (§6.1): k·d_i d_j/(dᵀd) from the
+/// The intended skew spring block at p: k·d_i d_j/(dᵀd) from the
 /// **authored** components (scale-free), each entry formed once for i ≤ j and
 /// mirrored.
 pub(in crate::structural) fn skew_spring_matrix(a: &mut WideArith, d: [f64; 3], k: f64) -> Result<[[Wide2; 3]; 3], WideError> {
@@ -130,7 +130,7 @@ fn subtract_action(
     Ok(())
 }
 
-/// ε_E on coordinates (§10.3): the physical formation bounds mapped with
+/// ε_E on coordinates: the physical formation bounds mapped with
 /// |q_ir|·|q_jc|, plus today's assembly and projection charge on the
 /// coordinate contributions against the stored K′.
 fn epsilon_e<A, P>(
@@ -207,8 +207,8 @@ where
             return Err(Failure::Shape("spring contribution binding"));
         }
     }
-    // §10.3: each skew spring block, nine contributions row-major after the
-    // springs, bound to its §6.1 bits; its intended entries are p-formed.
+    // each skew spring block, nine contributions row-major after the
+    // springs, bound to its bits; its intended entries are p-formed.
     let mut arith = WideArith::new(FORMATION_PRECISION)?;
     for (s, spring) in basis.springs().iter().enumerate() {
         let intended = skew_spring_matrix(&mut arith, spring.direction.authored(), spring.stiffness)?;
@@ -339,7 +339,7 @@ where
     }
     subtract_action(source, basis, &index, v, &mut rho, &mut psi)?;
     let w = correction(&rho, free, scale_exponents, n, solve)?;
-    // D5C-1, physically (§10.4): the lifted u_p = fl(Qv) and the physical DOFs
+    // D5C-1, physically: the lifted u_p = fl(Qv) and the physical DOFs
     // that move (every DOF that is not an axis restraint, the pivots included).
     let mut worst: Option<FormationCheck> = None;
     if judged {

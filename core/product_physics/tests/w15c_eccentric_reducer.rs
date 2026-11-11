@@ -1,4 +1,3 @@
-//! W-15 slice c (DEL-03-05 Design `eccentric-reducer-offset.md` §3.2-§3.4, §12):
 //! the eccentric offset check through the public solve, on both routes. Every
 //! model is invented: a cantilever from an anchor at N0 through a reducer body
 //! to a free tip, sections and material chosen for the benchmark family, no
@@ -122,7 +121,7 @@ fn assert_refused(m: &Model, code: &str, needle: &str) {
     }
 }
 
-/// The §7.1 cantilever in metres: N0 → A on X, the reducer body A → B with
+/// The cantilever in metres: N0 → A on X, the reducer body A → B with
 /// chord (0.12, b_y, 0), the downstream pipe B → C on X.
 fn cantilever(b_y: f64, offset: Option<[f64; 3]>) -> Model {
     Model {
@@ -533,7 +532,7 @@ fn a_weak_bend_does_not_tilt_the_axis_full_solve() {
 /// placement residual. Under J3 the tie judges each end like both neighbours,
 /// on both routes, and placing the reducer at the other end (the ends' names
 /// swapped, the offset negated) gives the same outcome and residual. Under rule
-/// B (§3.3) the 5.859196 mm residual lies within each end's placement allowance
+/// B the 5.859196 mm residual lies within each end's placement allowance
 /// τ + ‖D‖·sin β (β of a 125 mm run, about 10.4 mm of axis allowance), so all
 /// of them are accepted with the axis-allowance warning; under the τ-only rule
 /// all of them were refused as `..._MISMATCH`.
@@ -609,7 +608,7 @@ fn three_members(nodes: [[f64; 3]; 4], e: [f64; 3]) -> Model {
     }
 }
 
-/// Rule B regressions (§9; invented geometry, not engineering data): two
+/// Rule B regressions (invented geometry, not engineering data): two
 /// ordinary eccentric reducers between 0.1 m members, entered to the mm, with
 /// the offset equal to the radius difference, both exactly consistent before
 /// rounding. Under the τ-only rule both were refused (`..._MISMATCH`, residuals

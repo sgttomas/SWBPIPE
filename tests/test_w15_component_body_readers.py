@@ -1,4 +1,4 @@
-"""W-15 slice d (DEL-03-05 Design ``rigid-component-stiffness-scaling.md`` §5): each slice-d member is permitted on
+"""each slice-d member is permitted on
 one evidence object only, through the Python verifiers and the Rust readers, on both routes.
 
 A stress-maximum coverage entry may carry ``component_body_pipe_ids`` and a stress extremum ``component_body``; the
@@ -31,7 +31,7 @@ def q(value, unit):
 
 
 def model(exact):
-    """§2.4's pair A(0) - B(1 m) - C(3 m), the body B-C a valve's mapped member at s = 4, a 3 kN force at B."""
+    """pair A(0) - B(1 m) - C(3 m), the body B-C a valve's mapped member at s = 4, a 3 kN force at B."""
     def pipe(pid, start, end):
         section = {"outside_diameter": q(0.12, "m"), "wall_thickness": q(0.01, "m")}
         if exact:

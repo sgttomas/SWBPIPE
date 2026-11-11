@@ -239,9 +239,9 @@ fn assert_contract(v: &Value) {
         }
     }
     let evidence = &v["contract_evidence"];
-    // Operating-case slice 1a (RT-A5; DEL-05-02 `pf-nonlinear-operand-standing.md` §2.1):
+    // Operating-case slice 1a (RT-A5):
     // a nonlinear model's admitted combinations add `combination_operands`.
-    // RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`): `combination_certificate`
+    // `combination_certificate`
     // accompanies every solved document's combinations, a member of its own.
     assert_eq!(evidence.get("combination_certificate").is_some(), !evidence["combination_gates"].as_array().unwrap().is_empty());
     let keys: HashSet<&str> = evidence.as_object().unwrap().keys().map(String::as_str).filter(|k| *k != "combination_certificate").collect();
@@ -811,7 +811,7 @@ fn nonlinear_mechanics_combinations_are_withheld_subtraction_kept() {
         }
         assert_eq!(gate(&v, "comb:diff")["withheld"], false);
         assert!(!combination_rows(&v, "comb:diff").is_empty());
-        // Slice 1a §2.1: the admitted subtraction states its operands, each with its
+        // the admitted subtraction states its operands, each with its
         // case's own numerical-quality record; the withheld mechanics one has none.
         let quality = |case: &str| v["numerical_quality"]["cases"].as_array().unwrap().iter().find(|c| c["basis_ref"]["ref_id"] == case).unwrap().clone();
         let operand = |case: &str| json!({"load_case_id": case, "modulus_basis_ref": null, "modulus_basis_temperature": null, "numerical_quality": quality(case)});
@@ -1026,7 +1026,7 @@ fn b1_arc_signed_rows_frames_and_arc_maximum() {
             close(stress("element_local_bending_normal_stress_y", "end_i"), num(&es["end_i_bending_normal_y_Pa"]), zs, "end_i sigma_y");
             close(stress("element_local_torsional_shear_stress", "end_i"), num(&es["end_i_torsional_shear_Pa"]), zs, "end_i tau");
             close(stress("element_local_bending_normal_stress_y", "end_j"), num(&es["end_j_bending_normal_y_Pa"]), zs, "end_j sigma_y");
-            // T4-U4b (§2.1, §2.3): the arc publishes its maximum along the arc, under
+            // the arc publishes its maximum along the arc, under
             // the arc's own convention, and enters the headline.
             assert!(maximum(&v, "pipe:b-c", "case:z").is_some(), "arc maximum");
             let row = results(&v).iter().find(|r| r["kind"] == "pipe_elastic_normal_stress_maximum_v2" && r["entity_ref"] == "pipe:b-c").unwrap();
@@ -1081,9 +1081,9 @@ fn b2_indeterminate_arc_resultants_depend_on_k() {
         let expected = &b2[key];
         close(case_action(&v, "support:roller", "case:y")[0], num(&expected["roller_on_pipe_Fx_N"]), NO_FROZEN_SCALE, "roller");
         close6(case_action(&v, "support:a", "case:y"), &vec3(&expected["anchor_on_pipe"]), NO_FROZEN_SCALE, NO_FROZEN_SCALE, "B2 anchor");
-        // C5 (b7-plan H-4 C4–C6; DEL-04-07 Design arc-frames-and-signs.md §§2–3): arc end rows
+        // C5 (b7-plan H-4 C4–C6): arc end rows
         // are node-on-element actions in the tangent frame at their end. The frozen chord-frame
-        // block maps there by §3's R_i (s = sin(φ/2), c = cos(φ/2), φ = π/2 here); the frozen
+        // block maps there by R_i (s = sin(φ/2), c = cos(φ/2), φ = π/2 here); the frozen
         // tangent-frame section at b cross-checks it (end_i = −cut(0), y toward the centre), and
         // the frozen chord block stays a negative control. No reference value is changed.
         let chord = vec3(&expected["product_end_i_rows_node_on_element"]);
@@ -1156,7 +1156,7 @@ fn high_displacement_review_uses_the_all_case_headline() {
     assert!(v["summary"]["max_displacement"]["result_ref"].as_str().unwrap().contains("case-large"));
 }
 
-/// W-16 slice a (DEL-04-03 Design `pf-imposed-displacement.md`): the support-targeted
+/// the support-targeted
 /// primitive that `IMPOSED_DISPLACEMENT_REQUIRES_LOAD_STATE_MODEL` refused now enters the
 /// prescribed boundary. Moving the cantilever's only anchor is a rigid-body motion: the
 /// support actions and member forces are the force-only case's, and every node moves by

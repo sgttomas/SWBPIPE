@@ -64,13 +64,13 @@ describe("text-only T0R UI (DESIGN §7)", () => {
     expect(screen.getByTestId("stress-neutral-notice-headline-label").textContent).toContain(N_HEADLINE);
   });
   it("report package follows the output policy's report-package cell (W-18)", () => {
-    // DEL-08-01 Design `report-package-current-results.md` §2.1: the pressure-free route is
+    // the pressure-free route is
     // ungated, so the builder's own checks apply.
     expect(reportPackageUnavailableReason(clone(inventedSparse))).toBeNull();
-    // W-11 (DEL-08-01 Design `exact-route-report-sections.md` §5.1; owner, 2026-10-26):
+    // (owner, 2026-10-26):
     // pressure-2 and the composite (pressure-source-1), with or without load/reference
     // states, pass the cell to the builder's Export Result JSON admission; the report JSON
-    // packet keeps their routes' refusal (PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE, §5.4).
+    // packet keeps their routes' refusal (PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE).
     for (const [exact, reason] of [[pressureConnected, PRESSURE_2_OUTPUT_REFUSAL], [pressureLoadReference, PRESSURE_2_OUTPUT_REFUSAL], [pressureSourceN05, PRESSURE_SOURCE_OUTPUT_REFUSAL], [pressureSourceLoadReference, PRESSURE_SOURCE_OUTPUT_REFUSAL]] as const) {
       expect(isFreshSemanticResult(clone(exact))).toBe(true);
       expect(reportPackageUnavailableReason(clone(exact))).toBeNull();

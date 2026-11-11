@@ -1,4 +1,4 @@
-"""§8.40 (retained-pricing-rules.md): model document 0.9.0 S2's pressure-free resolution on the retained route. D1.3
+"""§8.40: model document 0.9.0 S2's pressure-free resolution on the retained route. D1.3
 and D1.5 leave plan with an empty set map and every resolve_case returning Ok(None) at its first statement (S2-ZR);
 judge's refused-document conversion owns one exact-size Vec<Diagnostic> (S2-JD); the moved S1 rules follow judge
 (S2-RK); plan's by-name `as_str` has no crate target (S2-BN); the resolution's unreached format arguments keep their

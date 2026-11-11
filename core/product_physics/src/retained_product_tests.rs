@@ -526,7 +526,7 @@ fn i50_support_coverage_native_non_aliasing_and_g5a() {
             }
             _ => unreachable!(),
         }
-        // T4-U4b §4.1: the not-covered derived rows are position-bound; a removed or added
+        // the not-covered derived rows are position-bound; a removed or added
         // row ahead of them renumbers them, so the coverage refusal under test is reached.
         for (i, r) in rows.iter_mut().enumerate() {
             if let k::ProductRecipe::NotCovered { .. } = r.recipe {
@@ -1041,7 +1041,7 @@ fn actual_ordinary_zero_loaded_capture_and_final_verdict() {
             .iter()
             .all(|v| v.work.entered == 23 && !v.work.lost));
         assert!(o.adapter.fault.get().is_none());
-        // K-D5 (DEL-04-01 kd5-member-relative-bound.md §3.1): the unloaded
+        // K-D5: the unloaded
         // specimen's exactly-zero mechanical rows are certified recoveries,
         // rounded once from an exact zero, so they publish +0. Main's
         // binary64 recovery published row 35 as -0, which G5a refused
@@ -1522,7 +1522,7 @@ fn rv60_fixed_mode_sign_refuses_in_isolated_synthetic_zero_snapshot() {
     use super::retained_product::CaptureError;
     let (actual, o) = observed(specimen(false));
     let actual_bytes = serde_json::to_string(&actual).unwrap();
-    // K-D5 (DEL-04-01 kd5-member-relative-bound.md §3.1): row 35 is an
+    // K-D5: row 35 is an
     // exactly-zero certified recovery and publishes +0 (main published -0).
     assert_eq!(actual.results[35].value.to_bits(), 0);
     let (invocation, case) = o.native_pair().unwrap();
@@ -1826,7 +1826,7 @@ fn i47_actual_selected_material_zero_loaded_capture_and_final_verdict() {
         if o.error.is_some() {
             continue;
         }
-        // K-D5 (§3.1): exactly-zero certified mechanical rows publish +0, so
+        // K-D5: exactly-zero certified mechanical rows publish +0, so
         // main's negative-zero obstruction to G5a (`Zero { row }`) is gone.
         assert!(
             !e.results.iter().any(|r| (r.kind.starts_with("element_local_")
@@ -2666,7 +2666,7 @@ fn i51_frozen_owner_values_and_numeric_refusal_controls() {
             _=>k::ProductRowSpec::mechanical(r.id,r.case_id,r.unit,r.body,r.recipe).unwrap(),}).collect();
         let draft=invocation.begin_prepared_product(case.run,owner,&prepared.capture().facts,&specs).into_ready().unwrap();
         let (projected,mut builder)=draft.project().into_ready().unwrap();
-        // T4-U4b §4.1: the not-covered derived rows, as the freeze completes them.
+        // the not-covered derived rows, as the freeze completes them.
         prepared.capture().complete_not_covered_for_test(&ordinary,&base,owner,&mut builder).unwrap();
         let maxima:Vec<_>=base.iter().enumerate().filter_map(|(i,r)|if let k::ProductRecipe::CircularMaximum{member}=r.recipe {
             Some(k::ProductMaximumValue::new(member,i,if variant==4{1.0}else{*r.value}).unwrap())}else{None}).collect();
@@ -2933,8 +2933,8 @@ fn prepared_trace_prior_owned_cause_precedes_sticky_adapter_and_fresh_prelude_er
 }
 
 // ---------------------------------------------------------------- I61 summary coverage
-// The typed C3 seam borrows the proof's own vector (I57 §1–§3). Every test names
-// its I57 §5 control; "actual" means a producer run of an existing fixture.
+// The typed C3 seam borrows the proof's own vector. Every test names
+// its control; "actual" means a producer run of an existing fixture.
 fn i61_owner(capture:&ProductCapture)->&k::RetainedSolve {
     match &capture.native_pair().unwrap().1.outcome {k::ExecutionOutcome::Selected(v)=>v,_=>panic!("native owner")}
 }
@@ -2956,7 +2956,7 @@ fn i61_null(view:&retained_receipt::PreparedAttemptView<'_>) {
 }
 #[test]
 fn i61_ready_carries_complete_proof_owned_coverage_and_lower_p_charge_is_estimate() {
-    // §5: Ready → complete actual array; p128/p256 with the fixed 1024 product
+    // Ready → complete actual array; p128/p256 with the fixed 1024 product
     // proof → charge = estimate, no floor. Actual producer run, both modes.
     for mode in [PreviewSolverMode::SparseInteractive,PreviewSolverMode::DenseScrutiny] {
         let raw=i50_named_request();let (request,capture)=source_receipt::CapturedInvocation::parse(raw,mode).unwrap();
@@ -2978,7 +2978,7 @@ fn i61_ready_carries_complete_proof_owned_coverage_and_lower_p_charge_is_estimat
 }
 #[test]
 fn i61_specimen_zero_and_cancelled_bodies_keep_actual_flags() {
-    // §5: zero/no-data body in a complete source; +x/−x individual free-DOF
+    // zero/no-data body in a complete source; +x/−x individual free-DOF
     // loads with zero net give has_data=true (source witness: the cancelled control
     // in actual_sparse_zero_and_cancelled_summary_coverage_is_not_inferred_from_net).
     let mode=PreviewSolverMode::SparseInteractive;
@@ -3009,33 +3009,33 @@ fn i61_specimen_zero_and_cancelled_bodies_keep_actual_flags() {
 fn i61_failure_prefixes_null_complete_and_adapter_prefix() {
     use retained_product::{AdapterEvent as E,PreparedCandidateError,CaptureError};
     use retained_receipt::{TraceFault as F,ProjectionWork};
-    // §5: no proof → no trace and no coverage object (actual preparation/native refusals).
+    // no proof → no trace and no coverage object (actual preparation/native refusals).
     let (mut observer,ordinary)=prepared_trace_observed();observer.trace_fault=Some(F::AfterPrelude);
     let failed=match observer.prepare_case(ordinary){Err(f)=>f,Ok(_)=>panic!()};
     let view=failed.typed_trace(&mut ProjectionWork::default()).unwrap();assert!(view.proof.is_none() && view.summary_coverage.is_none());
     let (observer,ordinary)=prepared_trace_observed();let mut prepared=observer.prepare_case(ordinary).unwrap_or_else(|_|panic!());
     prepared.test_capture_mut().source=None;assert!(prepared.solve_native().is_err());
     let view=prepared.native_refusal_trace(&mut ProjectionWork::default()).unwrap();assert!(view.proof.is_none() && view.summary_coverage.is_none());
-    // §5: proof-start failure before any lane → null (actual).
+    // proof-start failure before any lane → null (actual).
     let (_,mut prepared)=i51_ready_for_controls();let r=prepared.test_capture_mut().facts[0].radius;prepared.test_capture_mut().facts[0].radius=r*2.0;
     let refusal=match prepared.project_candidate(){Err(e)=>e,Ok(_)=>panic!()};
     let view=refusal.typed_trace(&mut ProjectionWork::default()).unwrap();i61_null(&view);
     println!("I61_PROOF_START lanes={:?}",view.proof.as_ref().unwrap().lanes.iter().map(|l|l.as_ref().map(|l|l.result.is_ok())).collect::<Vec<_>>());
-    // §5: an actual admitted-K lane refusal (invalid proposed material) → null with the entered lane prefix.
+    // an actual admitted-K lane refusal (invalid proposed material) → null with the entered lane prefix.
     let (_,mut prepared)=i51_ready_for_controls();prepared.test_capture_mut().facts[0].material=k::ProductMaterial::Base{e:-1.0,g:-1.0};
     let refusal=match prepared.project_candidate(){Err(e)=>e,Ok(_)=>panic!()};
     let view=refusal.typed_trace(&mut ProjectionWork::default()).unwrap();i61_null(&view);
     let lanes:Vec<_>=view.proof.as_ref().unwrap().lanes.iter().map(|l|l.as_ref().map(|l|(l.law,l.result.is_ok()))).collect();
     println!("I61_LANE_FAILURE error={:?} lanes={lanes:?}",refusal.error);
     assert!(matches!(lanes[0],Some((k::ReadoutLaw::AdmittedK,false))),"actual K lane failure");
-    // §5: maxima abandonment and values-completion failure → null (actual hooks).
+    // maxima abandonment and values-completion failure → null (actual hooks).
     for fault in [F::Maxima,F::ValuesCompletion] {
         let (_,mut prepared)=i51_ready_for_controls();prepared.test_capture_mut().trace_fault=Some(fault);
         let refusal=match prepared.project_candidate(){Err(e)=>e,Ok(_)=>panic!()};
         let view=refusal.typed_trace(&mut ProjectionWork::default()).unwrap();i61_null(&view);
         assert!(view.proof.as_ref().unwrap().lanes.iter().all(|l|l.as_ref().is_some_and(|l|l.result.is_ok())));
     }
-    // §5: summary completed, then the certificate fails → complete actual array (old source).
+    // summary completed, then the certificate fails → complete actual array (old source).
     let (observer,ordinary)=prepared_trace_observed();let old_source=observer.source.clone().unwrap();let old_facts=observer.facts.clone();
     let mut prepared=observer.prepare_case(ordinary).unwrap_or_else(|_|panic!());
     prepared.test_capture_mut().source=Some(old_source);prepared.test_capture_mut().facts=old_facts;prepared.solve_native().unwrap();
@@ -3045,7 +3045,7 @@ fn i61_failure_prefixes_null_complete_and_adapter_prefix() {
     let view=refusal.typed_trace(&mut ProjectionWork::default()).unwrap();
     i61_assert_roster(&view,i61_owner(refusal.capture()),failure.work().summary_coverage());
     assert!(matches!(view.checks[0],retained_receipt::CheckRef::Failed(_)),"complete coverage does not imply certificate success");
-    // §5: adapter copy fails partway → the proof-owned complete vector, never the
+    // adapter copy fails partway → the proof-owned complete vector, never the
     // adapter prefix. Actual run; the MapWrite permit is located by bisection so the
     // first coverage write is the one refused.
     let (_,prepared)=i51_ready_for_controls();let before=prepared.capture().adapter.counts.get()[E::MapWrite as usize];
@@ -3080,7 +3080,7 @@ fn i61_fk_certificate_failure(variant:usize)->(retained_product::PreparedCase,k:
             _=>k::ProductRowSpec::mechanical(r.id,r.case_id,r.unit,r.body,r.recipe).unwrap(),}).collect();
         let draft=invocation.begin_prepared_product(case.run,owner,&prepared.capture().facts,&specs).into_ready().unwrap();
         let (projected,mut builder)=draft.project().into_ready().unwrap();
-        // T4-U4b §4.1: the not-covered derived rows, as the freeze completes them.
+        // the not-covered derived rows, as the freeze completes them.
         prepared.capture().complete_not_covered_for_test(&ordinary,&base,owner,&mut builder).unwrap();
         let maxima:Vec<_>=base.iter().enumerate().filter_map(|(i,r)|if let k::ProductRecipe::CircularMaximum{member}=r.recipe {
             Some(k::ProductMaximumValue::new(member,i,if variant==4{1.0}else{*r.value}).unwrap())}else{None}).collect();
@@ -3105,7 +3105,7 @@ fn i61_stage_trace(capture:&ProductCapture,certificate:Option<bool>,ready:bool)-
 fn i61_certificate_prefixes_and_stage_rules_with_actual_fk_proofs() {
     use retained_receipt::{project,ResultRef,FailureRef,TraceProjectionError as T,ProjectionWork,Stage,StageState};
     static ZERO:retained_product::ScalarWork=retained_product::ScalarWork{entered:0,checks:0,lost:false};
-    // §5: certificate entered, fails before the summary assignment → null.
+    // certificate entered, fails before the summary assignment → null.
     let (prepared,early)=i61_fk_certificate_failure(0);assert!(early.work().summary_coverage().is_empty());
     let trace=i61_stage_trace(prepared.capture(),Some(false),false);
     let view=project(&trace,prepared.capture(),&[],&[],&ZERO,ResultRef::Unavailable(FailureRef::Proof(early.failure())),
@@ -3125,7 +3125,7 @@ fn i61_certificate_prefixes_and_stage_rules_with_actual_fk_proofs() {
     let view=project(&trace,prepared.capture(),&[],&[],&ZERO,ResultRef::Unavailable(FailureRef::Proof(early.failure())),
         Some(early.work()),None,None,&mut ProjectionWork::default()).unwrap();
     i61_null(&view);
-    // §5: summary completed, then a certificate predicate fails → complete array.
+    // summary completed, then a certificate predicate fails → complete array.
     let (prepared,late)=i61_fk_certificate_failure(4);assert_eq!(late.failure().category(),"numeric_predicate");
     let owner=i61_owner(prepared.capture());
     let trace=i61_stage_trace(prepared.capture(),Some(false),false);
@@ -3143,7 +3143,7 @@ fn i61_certificate_prefixes_and_stage_rules_with_actual_fk_proofs() {
     }
     // RV77-N4, deliberately flipped (I61 U1 grant 2, U2 on the failure path): this seam
     // formerly accepted a proof *failure* projected against a different selected owner
-    // with identical public facts (custody only; I57 §5, RV77-N3). The proof work now
+    // with identical public facts (custody only; RV77-N3). The proof work now
     // carries its anchor, so the foreign owner is refused structurally; the same failure
     // against its own owner still projects (the late-failure roster above).
     let (_,other)=i51_ready_for_controls();let mut capture_trace=i61_stage_trace(other.capture(),Some(false),false);capture_trace.source_ready=true;
@@ -3211,7 +3211,7 @@ fn rv77_stage_rules_null_and_non_null_prerequisites() {
 }
 }
 
-/// B3b-P (B3-D P-3; §1.2): the exact route's material check of one used material, each refusal on
+/// B3b-P (B3-D P-3): the exact route's material check of one used material, each refusal on
 /// its own: the constitutive basis absent or another; ν absent; the represented Ĝ absent, one ulp
 /// off RN64(E/(2·RN64(1+ν))), or subnormal (equal to that expression). An admitted material
 /// returns its ν; the check counts its adapter events, and the preview route never runs it.

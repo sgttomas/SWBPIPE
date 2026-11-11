@@ -1,5 +1,5 @@
-// Comparison of two saved model states (W-12 S3a; DEL-14-01 Design
-// `desktop-states-runs-comparison.md` §4.1; FR-CMP-003, and FR-CMP-006 for
+// Comparison of two saved model states (W-12 S3a;
+// FR-CMP-003, and FR-CMP-006 for
 // states). Deterministic and automatic: entities are mapped by their stable id
 // within their family, with no manual mapping (FR-CMP-005/007 stay v0.2) and no
 // tolerance or unit conversion (FR-CMP-008 stays v0.2). The reference behaviour

@@ -1,10 +1,9 @@
-//! T4-U8 (DEL-05-03 Design `section-bases-and-timoshenko.md` §§3, 7 and 8):
 //! the product against the frozen independent layer-B references in
 //! `validation/references/t4_u8/product_cases.json`, through the captured
 //! entry in both solver modes, under the references' own criterion. Every
 //! expected and wrong value is read from the reference files; none is computed
 //! through the product. A disagreement goes back to the reference owner and
-//! its refuter, never to an edited expectation (§7).
+//! its refuter, never to an edited expectation.
 
 use serde_json::{json, Value};
 use std::collections::BTreeMap;

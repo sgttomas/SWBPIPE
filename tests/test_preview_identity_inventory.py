@@ -1,4 +1,4 @@
-"""Inventory guard of the preview-physics-2 identity (DEL-05-03 Design pf-timoshenko.md §4, "Inventory guard").
+"""Inventory guard of the preview-physics-2 identity.
 
 The pressure-free Timoshenko identity (`preview-physics-timoshenko-1`) is admitted beside preview-physics-2 at every
 identity-aware site. Sites that name one identity were found across review rounds, so this test scans the tracked Rust,

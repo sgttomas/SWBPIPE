@@ -33,7 +33,7 @@
 //! inputs (π itself is the interval [fl(π), fl(π)⁺]). Round-to-nearest is
 //! monotone, so a binary64 evaluation of an operation on operands inside
 //! these intervals rounds into the result's interval. The producer's
-//! section scalars (m̄, j̄; Design §2.1–§2.2) are binary64; their products
+//! section scalars (m̄, j̄) are binary64; their products
 //! and sums are allowed any association, through Higham's (1 ± u)^(k−1)
 //! bound for k nonnegative factors or terms. The global entries are formed
 //! by the producer in double-double and rounded once; that formation is
@@ -81,12 +81,12 @@ pub(super) const MM_RIGID_FAMILY: [&str; 5] = ["valve", "flange", "reducer", "ri
 pub(super) const MM_GEOMETRY_ONLY: &str = "mechanics_geometry_only";
 pub(super) const MM_ARC: &str = "curved_bend_macro_element";
 const MM_TIMOSHENKO: &str = "timoshenko_annulus_energy_v1";
-/// The component-weight primitives' method (§2.3 item 5): their recorded
+/// The component-weight primitives' method: their recorded
 /// acceleration agreement is not re-derived here.
 const MM_COMPONENT_WEIGHT_METHOD: &str = "component_weight_at_center_of_gravity_global_offset/v1";
 
 /// The premise on the producer's double-double formation (the kernel's
-/// element mass re-formation, Design §2.2–§2.4): each double-double operation
+/// element mass re-formation): each double-double operation
 /// has relative error below 2⁻¹⁰⁰ and no entry's evaluation path exceeds 2¹⁰
 /// operations (frame, local entry, rotation, the series summed to 2⁻¹¹⁰), so
 /// one contribution deviates from the real value of its binary64 operands by
@@ -287,7 +287,7 @@ fn mm_pi() -> Iv {
 }
 
 // ---------------------------------------------------------------------------
-// Series with their alternating remainder bounds (Design §2.4).
+// Series with their alternating remainder bounds.
 
 /// f₁(x) = x − sin x = Σ_{k≥1} (−1)^{k+1} x^{2k+1}/(2k+1)!, for 0 ≤ x ≤ π.
 /// The terms decrease from the first (x² < 4·5), so the remainder after a
@@ -471,14 +471,14 @@ fn mm_dof(token: &str) -> Option<usize> {
 }
 
 /// A member's section scalars: m̄ (kg/m) and j̄ (kg·m, polar per length);
-/// ī = j̄/2 (Design §2.2). Enclosures of the real values and of the
+/// ī = j̄/2. Enclosures of the real values and of the
 /// producer's binary64 evaluation.
 struct SectionMass {
     mbar: Iv,
     jbar: Iv,
 }
 
-/// m̄ and j̄ of a pipe section (Design §2.1, §2.2): metal on the route's mass
+/// m̄ and j̄ of a pipe section: metal on the route's mass
 /// wall (t − c_m on PF, t on EX), contents on the bore wall (t − c_m on PF,
 /// (t − c_m) − c_a on EX), insulation outside; annulus areas and polar
 /// moments in their cancellation-free forms π·w·(D − w), π(D/2 − w)²,
@@ -674,7 +674,7 @@ fn mm_form(p: &Parsed, request: &Value) -> S<Formed> {
     }
     let mut scope = Vec::new();
 
-    // The route (Design §2.1, D-r) and the shear model (Timoshenko is refused).
+    // The route (D-r) and the shear model (Timoshenko is refused).
     let contract = model.get("pressure_contract").filter(|c| !c.is_null());
     let exact = match contract {
         None => false,
@@ -734,7 +734,7 @@ fn mm_form(p: &Parsed, request: &Value) -> S<Formed> {
     }
     let ndof = nodes.len().checked_mul(6).ok_or_else(|| Stop::Scope("DOF count overflows".to_string()))?;
 
-    // The state case (Design §1.4): condition contents are refused.
+    // The state case: condition contents are refused.
     let cases = mm_list(model.get("load_cases"), "model.load_cases")?;
     if let Some(state) = request.get("state_case").and_then(Value::as_str) {
         let case = cases.iter().find(|c| c.get("id").and_then(Value::as_str) == Some(state));
@@ -808,7 +808,7 @@ fn mm_form(p: &Parsed, request: &Value) -> S<Formed> {
             }
         }
     }
-    // Rigid-family bodies (Design §2.3): the self-weight eligibility rule,
+    // Rigid-family bodies: the self-weight eligibility rule,
     // stated here independently. Mapping conflicts refuse; an unmet condition
     // keeps the member's pipe mass.
     let acceleration = match request.get("weight_to_mass_acceleration").filter(|a| !a.is_null()) {
@@ -894,7 +894,7 @@ fn mm_form(p: &Parsed, request: &Value) -> S<Formed> {
         let Some(a) = acceleration else {
             return mm_fail(format!("component {id}'s weight enters the mass, but the request names no weight_to_mass_acceleration (MODAL_WEIGHT_ACCELERATION_REQUIRED)"));
         };
-        // The §2.3 item 6 binary64 range premise, in the producer's stated order
+        // The binary64 range premise, in the producer's stated order
         // (`component_range`): a body outside it is refused
         // (MODAL_COMPONENT_MASS_OUT_OF_RANGE), so a solved document bound to it is a
         // contradiction. A nonzero exact product that rounds to zero is out of range.
@@ -986,7 +986,7 @@ fn mm_form(p: &Parsed, request: &Value) -> S<Formed> {
         members.push(Member { id: id.to_string(), from, to, y, kind });
     }
 
-    // Supports (Design §1.3): the rigid partition, then the nonlinear states.
+    // Supports: the rigid partition, then the nonlinear states.
     let supports = mm_list(model.get("supports"), "model.supports")?;
     let mut restrained = vec![false; ndof];
     let mut nonlinear: Vec<(&str, &str, usize)> = Vec::new();
@@ -1090,7 +1090,7 @@ fn mm_form(p: &Parsed, request: &Value) -> S<Formed> {
             }
         }
         if hanger_type == Some("constant_effort_support") {
-            continue; // zero stiffness and zero mass (Design §1.2)
+            continue; // zero stiffness and zero mass
         }
         if family == Some("spring") || matches!(hanger_type, Some("variable_spring_hanger" | "spring_hanger")) {
             continue; // a spring's DOF is free
@@ -1290,7 +1290,7 @@ fn mm_frame(y: [f64; 3], e: &[Iv; 3], id: &str) -> S<(f64, [Iv; 3])> {
     Ok((kappa, unit))
 }
 
-/// A straight member's consistent mass (module docs; Design §2.2).
+/// A straight member's consistent mass (module docs).
 fn mm_straight(acc: &mut HashMap<(usize, usize), Acc>, member: &Member, positions: &[[f64; 3]], s: &SectionMass) -> S<()> {
     let (_, l, e) = mm_chord(positions, member.from, member.to, &member.id)?;
     let (kappa, _) = mm_frame(member.y.unwrap_or([0.0, 0.0, 0.0]), &e, &member.id)?;
@@ -1299,7 +1299,7 @@ fn mm_straight(acc: &mut HashMap<(usize, usize), Acc>, member: &Member, position
     let translation = s.mbar.mul(l).div(Iv::pt(420.0));
     let rotary = ibar.div(l.mul(Iv::pt(30.0)));
     // The plane matrix on [v_i, θ_i, v_j, θ_j]: m̄L/420·[156, 22L, 54, −13L; …]
-    // + ī/(30L)·[36, 3L, −36, 3L; …] (Design §2.2).
+    // + ī/(30L)·[36, 3L, −36, 3L; …].
     let mass_plane: [[(f64, u8); 4]; 4] = [
         [(156.0, 0), (22.0, 1), (54.0, 0), (-13.0, 1)],
         [(22.0, 1), (4.0, 2), (13.0, 1), (-3.0, 2)],
@@ -1409,7 +1409,7 @@ fn mm_cross(u: &[Iv; 3], v: &[Iv; 3]) -> [Iv; 3] {
     [u[1].mul(v[2]).sub(u[2].mul(v[1])), u[2].mul(v[0]).sub(u[0].mul(v[2])), u[0].mul(v[1]).sub(u[1].mul(v[0]))]
 }
 
-/// A realized arc's two half-arc lumps (module docs; Design §2.4). With ĉ the
+/// A realized arc's two half-arc lumps (module docs). With ĉ the
 /// unit chord, p̂ the bow side (the y reference normal to ĉ), s = L/(2R),
 /// c = √((1 − s)(1 + s)) and α = asin s, each half about its end node has
 /// position ρ(φ) = R sin φ t̂ + R(1 − cos φ) n̂, φ ∈ [0, α], with t̂ the
@@ -1490,7 +1490,7 @@ fn mm_arc(acc: &mut HashMap<(usize, usize), Acc>, member: &Member, positions: &[
     Ok(())
 }
 
-/// A component body m = W/a at offset r (Design §2.3).
+/// A component body m = W/a at offset r.
 fn mm_body(acc: &mut HashMap<(usize, usize), Acc>, node: usize, m: Iv, r: [f64; 3], component: &str) -> S<()> {
     let rv = [Iv::pt(r[0]), Iv::pt(r[1]), Iv::pt(r[2])];
     let first = [m.mul(rv[0]), m.mul(rv[1]), m.mul(rv[2])];
@@ -1691,7 +1691,7 @@ pub(super) fn mm_mass_relation(p: &Parsed, d: &Derived, mut items: Vec<String>) 
     Ok(items)
 }
 
-/// The mass centre from M's first moments (Design §2.2's resultant): with
+/// The mass centre from M's first moments: with
 /// F_k = M R_k, the moment about the origin is T_k·(c × e_k), so
 /// c_x = −Mom_z,y/T_z, c_y = Mom_z,x/T_z and c_z = Mom_x,y/T_x. The producer
 /// forms it about the node centroid p and publishes fl(p + fl(c − p)): the

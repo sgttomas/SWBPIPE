@@ -15,18 +15,18 @@ use crate::{
 };
 
 /// Blocking runner-diagnostic code for a STRUCTURAL envelope production or
-/// validation failure on an otherwise-completed solve (brief §3.5).
+/// validation failure on an otherwise-completed solve.
 pub const RESULT_ENVELOPE_PRODUCTION_FAILED_CODE: &str =
     "HEADLESS_RUNNER_RESULT_ENVELOPE_PRODUCTION_FAILED";
 
 /// Non-blocking per-row vocabulary-boundary disclosure code, carried in the
-/// envelope document's own diagnostics (brief §3.2 v3). Never a runner
+/// envelope document's own diagnostics. Never a runner
 /// diagnostic; never changes exit codes or serialized CLI output.
 pub const VOCABULARY_BOUNDARY_DISCLOSURE_CODE: &str =
     "HEADLESS_RUNNER_ENVELOPE_VOCABULARY_BOUNDARY_ROW";
 
 /// Non-blocking assumption/limitation context codes for the assembled
-/// nonlinear active-set loop (brief §3.3).
+/// nonlinear active-set loop.
 pub const NONLINEAR_LOOP_ASSUMPTION_CODE: &str = "NONLINEAR_ASSEMBLED_LOOP_ASSUMPTION";
 pub const NONLINEAR_LOOP_LIMITATION_CODE: &str = "NONLINEAR_ASSEMBLED_LOOP_LIMITATION";
 
@@ -105,7 +105,7 @@ fn export_analysis_status(status: AnalysisStatus) -> export::AnalysisStatus {
 
 
 /// Provenance naming the assembled-loop source crate for the nonlinear
-/// assumption/limitation context rows (brief §3.3).
+/// assumption/limitation context rows.
 fn nonlinear_context_provenance(component_name: &str) -> export::Provenance {
     export::Provenance {
         source_name: component_name.to_string(),
@@ -153,7 +153,7 @@ fn export_diagnostic_class(code: &str, severity: &str) -> export::DiagnosticClas
 }
 
 /// Map one solve diagnostic into the envelope, preserving its source string
-/// in the diagnostic provenance (brief §3.2: source preserved).
+/// in the diagnostic provenance.
 fn export_mechanics_diagnostic(diagnostic: &MechanicsDiagnostic) -> export::Diagnostic {
     let source_name = diagnostic
         .source
@@ -181,7 +181,7 @@ fn export_mechanics_diagnostic(diagnostic: &MechanicsDiagnostic) -> export::Diag
     }
 }
 
-/// Per-row NON-BLOCKING vocabulary-boundary disclosure (brief §3.2 v3).
+/// Per-row NON-BLOCKING vocabulary-boundary disclosure.
 
 
 fn nonlinear_context_diagnostic(
@@ -217,11 +217,11 @@ fn production_failed(envelope_id: &str, detail: String) -> Diagnostic {
 /// Build the DEL-08-04 result-export envelope document (the exact
 /// `result_export_document` wrapper shape, `deliverable_id: "DEL-08-04"`)
 /// from a completed preview solve, using only `open_pipe_stress_result_export`
-/// public vocabulary (brief §3.1).
+/// public vocabulary.
 ///
 /// Returns the document on the clean path (both validators free of blocking
 /// diagnostics), or one blocking runner diagnostic on a STRUCTURAL production
-/// or validation failure for the caller to append fail-closed (brief §3.5).
+/// or validation failure for the caller to append fail-closed.
 /// The per-row vocabulary-boundary disclosure is NOT a failure: it rides the
 /// document's own diagnostics with non-blocking severity.
 /// Typed legacy callers lack the exact authored solve payload. Raw result
@@ -295,7 +295,7 @@ fn build_base_result_export_document(
     let mut diagnostics: Vec<export::Diagnostic> = mechanics.diagnostics.iter().map(export_mechanics_diagnostic).collect();
 
     // Nonlinear assembled-loop context binds only when the solve actually
-    // exercised nonlinear supports (no false context, brief §3.3).
+    // exercised nonlinear supports (no false context).
     let exercised = nonlinear_exercised(mechanics);
     let mut solver_build_ref = format!(
         "headless_preview_producer; solver_component={}@{}",
@@ -331,7 +331,7 @@ fn build_base_result_export_document(
     }
 
     // Reproducibility rides the existing checksum machinery only (no
-    // invented facts, brief §3.6): the runner-request checksum and the
+    // invented facts): the runner-request checksum and the
     // result-envelope checksum already carried by the runner result.
     let Some(request_checksum) = runner_result
         .checksums

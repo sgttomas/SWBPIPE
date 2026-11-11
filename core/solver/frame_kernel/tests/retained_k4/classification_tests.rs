@@ -115,7 +115,7 @@ fn the_classification_matches_the_binary64_reimplementation_bit_for_bit() {
 
 #[test]
 fn the_classifications_boundaries_hold_exactly() {
-    // One ulp either side of t = fl(R·S*) (§7.3-20), with S* = 1.
+    // One ulp either side of t = fl(R·S*), with S* = 1.
     let t = threshold(1.0);
     assert_eq!(t, f64::from_bits(FLOOR_RATIO_BITS));
     let below = f64::from_bits(t.to_bits() - 1);
@@ -262,7 +262,7 @@ fn input_derived_rows_and_s8_ws_far_node_rows_are_classified_as_the_design_says(
     }
 }
 
-/// SD-J1's item-6a vectors (D1 revision 5a.3, R7 §5.3): at a selected 512
+/// SD-J1's item-6a vectors (D1 revision 5a.3): at a selected 512
 /// only, S\* of force and moment is max(item 6's coupled S\*, Φ) with
 /// Φ = fl↑(2^-438·ê), applied before the threshold and the bound.
 #[test]

@@ -1,4 +1,4 @@
-//! importer.py assembly (§15, §16): nodes, materials, pipes, supports and load cases into the model document.
+//! importer.py assembly: nodes, materials, pipes, supports and load cases into the model document.
 
 use super::{Element, Importer, Num, Stop, MODEL_KIND, R};
 use crate::dict;
@@ -129,7 +129,7 @@ impl<'a> Importer<'a> {
             self.incomplete("node_map", &in_file, &in_sidecar, "nodes");
         }
 
-        // materials (§7) and library sections (§15, Format 4)
+        // materials and library sections (Format 4)
         let (materials, material_ids) = self.assemble_materials(&mut id_map, &mut claims)?;
         let (sections, section_of) = self.assemble_sections(&mut id_map, &mut claims, length_unit)?;
 
@@ -604,7 +604,7 @@ impl<'a> Importer<'a> {
                 }
             }
             if self.bound && self.sidecar_format == Some(crate::sidecar::SIDECAR_FORMAT) {
-                // Format 6 records the tangent node the source component names (Design §15, Format 6). It is restored
+                // Format 6 records the tangent node the source component names (Format 6). It is restored
                 // as the byte-bound pair declares it, at the sidecar's source-free trust level: consistent with this
                 // file, not independently verified. It must be one of this bend's own tangent nodes.
                 if let Some(bend) = &bend {
@@ -861,7 +861,7 @@ impl<'a> Importer<'a> {
         Ok((materials, material_ids))
     }
 
-    /// Design §15, Format 4: a format-4 or format-6 sidecar's `section_map` restores, for each PIPE record with a library
+    /// Format 4: a format-4 or format-6 sidecar's `section_map` restores, for each PIPE record with a library
     /// section id, one `sections` entry (type pipe, OD and wall as the record's pipes get them, named by the record,
     /// its line as provenance) and the pipes' `section_ref`; bound by digest, or rebound by record name, unconfirmed.
     /// Returns the entries and the id by record name. Other formats and unbound imports form none.

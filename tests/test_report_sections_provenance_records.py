@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Schema check of the desktop's representative FR-REP-003 records (W-11 slice (c)).
 
-DEL-08-01 Design `exact-route-report-sections.md` section 7: the desktop builder
+the desktop builder
 writes `fixtures/reports/invented/report_sections_provenance_records.json`
 (`apps/desktop/src/features/report/renderedReport.test.tsx`, stale fails) from an
 invented model whose material, section, component and support each appear with

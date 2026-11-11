@@ -4,7 +4,7 @@ import { validateOperationBatch } from "../../services/operationBatchService";
 import { computeModelHash } from "../../services/hashService";
 import { buildReconnectBatch, emptyGeometryDraft, RECONNECT_CHANGE_KIND } from "./geometryDraft";
 
-/** W-10 capability reference (DEL-16-06 Design `pipe-reconnect.md` §1): the
+/** capability reference: the
  * schema's `OperationChange` is not the intake shape, so the reference carries
  * the wire constants and one complete batch for the open model, built by the
  * Geometry tools builder and checked by the shared engine's batch validation.

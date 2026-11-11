@@ -42,7 +42,7 @@ const RECORD_TABLES: Readonly<Record<string, RecordTable>> = Object.freeze({
   [pressureTable.semantic_contract_id]: pressureTable,
   [pressureSourceTable.semantic_contract_id]: pressureSourceTable,
   [previewPhysicsTable.semantic_contract_id]: previewPhysicsTable,
-  // DEL-05-03 pf-timoshenko.md §4: the pressure-free Timoshenko identity's own table.
+  // the pressure-free Timoshenko identity's own table.
   [previewPhysicsTimoshenkoTable.semantic_contract_id]: previewPhysicsTimoshenkoTable,
   [previewPhysicsRetainedTable.semantic_contract_id]: previewPhysicsRetainedTable,
   [physicsRetainedTable.semantic_contract_id]: physicsRetainedTable,
@@ -210,7 +210,7 @@ export async function buildAnalysisRunV03(result: MechanicsResult, inputManifest
  * record, as Python builds it: the ordinary exact route, with or without the
  * load/reference-state group, carrying neither contract_evidence nor source_block_recovery.
  * Holding a record grants no output by itself: each output surface applies its own policy
- * entry and Rust's standing (epoch 8, DEL-04-07 Design `desktop-exact-outputs.md`). */
+ * entry and Rust's standing (epoch 8). */
 type V03Route = "pressure" | "pressure_source" | "preview_physics" | "retained_preview_physics" | "retained_physics";
 async function buildAnalysisRecord(result: MechanicsResult, inputManifest: ManifestEvidence, route: V03Route, ruleCheckStatus?: string | null, loadBasisRefs?: ObjectRef[], rulePackExclusions: readonly ExcludedRulePackRef[] = []): Promise<AnalysisRunEnvelope> {
   // Preview-evidence check: a preview-physics-2 source is recorded only after its closed reader checks pass.
@@ -291,7 +291,7 @@ export async function verifyAnalysisRunRecord(record: AnalysisRunEnvelope): Prom
   return claim.value === await canonicalSha256HexCheckedV1(analysisRecordProjection(record)) ? "match" : "mismatch";
 }
 
-// --- Recorded revisions (W-12 S2; DEL-14-01 Design `desktop-states-runs-comparison.md` §3) ---
+// --- Recorded revisions (W-12 S2) ---
 // Record Run stores a new immutable revision of a solve's transient record, tied
 // to a saved model state. The native store (`apps/desktop/src-tauri/src/analysis_runs.rs`)
 // allocates `created_at` and computes the revision's hash; this builder is the
@@ -435,7 +435,7 @@ async function validateRecordedBinding(record: AnalysisRunEnvelope, source: Mech
   }
 }
 
-/** RT-A4 §10.4: the recorded-run read of a record whose binding names a registry variant
+/** the recorded-run read of a record whose binding names a registry variant
  * (`recordedPreRtA4.ts`): its statement read by Rust's recorded entries under that binding, and
  * its rows interpreted under the variant's table. */
 type RecordedRead = { binding: RecordedBinding; table: RecordTable; route: V03Route | "unsupported" };
@@ -450,7 +450,7 @@ async function recordedRead(record: AnalysisRunEnvelope, source: MechanicsResult
 /** Source interpretation validation is distinct from checksum verification and producer authentication.
  * A transient record (no `recordedState`) names its synthetic state; a recorded revision
  * (W-12 S2) names the stored state passed in, checked against that state's model hash.
- * `options.recordedRead` (RT-A4 §10.4): the recorded-run read and compare paths only. A record
+ * `options.recordedRead`: the recorded-run read and compare paths only. A record
  * binding a registry variant then reads as it did when recorded; without it (the record
  * builder, the exports) only the current tables are read. */
 export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source: MechanicsResult, expectedBasisRefs?: ObjectRef[], recordedState?: RecordedStateBinding, options?: { recordedRead?: boolean }): Promise<void> {

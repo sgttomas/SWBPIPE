@@ -1,4 +1,4 @@
-// Run sheet S2 (DEL-07-02 Design `run-sheet-entry.md` §3.6): the sheet's
+// Run sheet: the sheet's
 // transient state, held beside the workspace session so it follows every
 // session checkpoint whichever surface is shown. It listens on the session's
 // event channel: a staged transition is the pure `applySessionEvent` of the

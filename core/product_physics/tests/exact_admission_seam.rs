@@ -455,8 +455,7 @@ fn each_family_not_yet_admitted_is_refused_by_name_on_v3() {
     }
 }
 
-/// RT-A3 increment 3 (DEL-04-07 `pressure-contract.md`, "Constant-effort
-/// supports (RT-A3 increment 3)"): the seam admits a constant-effort support
+/// the seam admits a constant-effort support
 /// on the plain document and on the load/reference-state document (D-2: a
 /// device action of the active support in every state), so the family
 /// refusal never names it. The consuming record (one translational DOF, a
@@ -484,8 +483,7 @@ fn a_constant_effort_support_is_admitted_at_the_seam() {
     }
 }
 
-/// RT-A3 increment 4 (R-4 §3.5 S5; DEL-04-07 `pressure-contract.md`,
-/// "Nonlinear supports on EX (RT-A3 increment 4)") and S6 (R-4 §3.7): the seam
+/// the seam
 /// admits a nonlinear support on the plain document and on the
 /// load/reference-state document, which solve through the shared active-set
 /// loop (an open gap here, R1's unqualified standing). On the
@@ -521,7 +519,7 @@ fn a_nonlinear_support_is_admitted_on_plain_and_load_state_documents() {
     }
 }
 
-/// W-16 slice b (DEL-05-02 Design `exact-combinations.md`): the seam admits a
+/// the seam admits a
 /// model-authored combination, so the family refusal never names it. On both
 /// bases the document solves and states the combination's evidence record.
 #[test]
@@ -541,7 +539,7 @@ fn a_load_combination_is_admitted_at_the_seam() {
     }
 }
 
-/// W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md`): the seam
+/// the seam
 /// admits a case's `equivalent_static`, so the family refusal never names it.
 /// On the plain document a wind generation solves and publishes its record;
 /// on the load/reference-state document the route refuses generation by name,
@@ -672,7 +670,7 @@ fn a3_realized_bend_in_a_v3_exact_region_is_admitted_and_recovered_on_the_arc() 
             for kind in ["pipe_lame_hoop_stress_v2", "pipe_lame_radial_stress_v2", "element_local_axial_force"] {
                 assert!(!kinds.contains(kind), "{base:?}: {kind} published on an arc");
             }
-            // T4-U4b (§2.1, §2.3): the arc publishes its certified maximum.
+            // the arc publishes its certified maximum.
             assert!(kinds.contains("pipe_elastic_normal_stress_maximum_v2"), "{base:?}: no arc maximum");
             assert!(!has_code(&envelope, "EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE"), "{base:?}");
             // Every diagnostic id stays unique (X0 has two cases).
@@ -780,7 +778,7 @@ fn the_pressure_1_table_is_a_reviewed_input() {
     assert!(identity.contains("\"../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json\""));
 }
 
-/// W-15 (DEL-03-05 Design `rigid-component-stiffness-scaling.md` §2.7): a
+/// a
 /// rigid-family component, `kind` at `node`, mapping `pipe` with scale `s`.
 fn rigid(id: &str, kind: &str, node: &str, pipe: &str, s: f64) -> Value {
     json!({"id":id,"kind":kind,"node":node,
@@ -863,7 +861,7 @@ fn w15_rigid_family_is_admitted_on_v3() {
     }
 }
 
-/// W-15 §2.1, §2.7: on a closed-end cantilever region (X0), a scaled valve
+/// on a closed-end cantilever region (X0), a scaled valve
 /// body is an equivalent pipe of its mapped section: the wall axial force is
 /// unchanged, and the elastic pressure strain, so the tip's axial motion, is
 /// s times smaller.
@@ -888,7 +886,7 @@ fn w15_scaled_body_in_a_region_keeps_its_wall_force() {
     }
 }
 
-/// W-15 §2.7 with RT-A3 reducer 2a: a reducer whose mapped member belongs to a
+/// RT-A3 reducer 2a: a reducer whose mapped member belongs to a
 /// pressure region is refused case by case by name unless it is the
 /// concentric pressure-bore step (its own single-member region joined at both
 /// ends to one collinear straight member of another region,
@@ -936,7 +934,7 @@ fn w15_reducer_is_refused_only_where_its_member_is_in_a_region() {
     }
 }
 
-/// W-15 §2.3: a body mapped onto a span an objective connector replaces is
+/// a body mapped onto a span an objective connector replaces is
 /// refused by name (blocking) on v3; no member is solved for it.
 #[test]
 fn w15_body_on_a_replaced_span_is_a_mapping_conflict() {

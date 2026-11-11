@@ -6,7 +6,7 @@
 //! currently admits overlaid in this test only.
 //!
 //! **Input.** The maintained fixture `fixtures/reference_system/reference_system.json`
-//! (read only). Overlaid here, as spec §5 and §6 enter them: RS-R1 (the
+//! (read only). Overlaid here: RS-R1 (the
 //! eccentric reducer, RT-A3 2b), RS-CE1 (constant effort, increment 3), RS-LO1
 //! (lift-off), RS-FR1 (friction, mu 0.30) and RS-G1 (gap, 5 mm), each with an
 //! `active_model_device` support state in every case. RS-FR1's normal comes from
@@ -70,7 +70,7 @@ const R1: &str = "component:RS-R1";
 const BODY: &str = "pipe:RS-P150";
 const R1_NODE: &str = "node:RS-160";
 const R1_WEIGHT_N: f64 = 300.0;
-/// Spec §5: the CoG at the body midpoint, from RS-160 in global axes (the 2b test's R1_COG).
+/// the CoG at the body midpoint, from RS-160 in global axes (the 2b test's R1_COG).
 const R1_COG: [f64; 3] = [0.0, -0.2, 0.0125];
 const CE1: &str = "support:RS-CE1";
 const LO1: &str = "support:RS-LO1";
@@ -78,7 +78,7 @@ const FR1: &str = "support:RS-FR1";
 const FR1V: &str = "support:RS-FR1V";
 const G1: &str = "support:RS-G1";
 const NONLINEAR: [&str; 3] = [LO1, FR1, G1];
-/// The fixture's EQ criterion (spec §9.2).
+/// The fixture's EQ criterion.
 const EQ: f64 = 1e-9;
 /// The subtraction rows' rounding allowance (the 2b test's LOCAL).
 const LOCAL: f64 = 1e-12;
@@ -110,7 +110,7 @@ fn cross(a: [f64; 3], b: [f64; 3]) -> [f64; 3] {
     [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]
 }
 
-/// RS-R1 as spec §5 enters it (the 2b test's record, kind `reducer`).
+/// RS-R1 (the 2b test's record, kind `reducer`).
 fn r1() -> Value {
     json!({"id": R1, "label": "Reducer R1", "kind": "reducer", "node": R1_NODE,
         "geometry": {"rigid_pipe_ref": BODY, "rigid_body_length": q(0.160625f64.sqrt(), "m"),
@@ -125,7 +125,7 @@ fn r1() -> Value {
         "provenance": fixture()["components"][0]["provenance"].clone()})
 }
 
-/// The spec §6 support records this stage overlays, keyed by the fixture support
+/// The support records this stage overlays, keyed by the fixture support
 /// each follows. `intended` replaces RS-FR1V by its intended `one_way` form.
 fn supports(intended: bool, nonlinear: bool) -> Vec<(&'static str, Value)> {
     let p = provenance();
@@ -157,7 +157,7 @@ fn weighted_pipes(model: &Value) -> Vec<String> {
     model["pipe_segments"].as_array().unwrap().iter().map(|p| p["id"].as_str().unwrap().to_string()).filter(|p| p != "pipe:RS-P180").collect()
 }
 
-/// The fixture with RS-R1 and the §6 supports overlaid, a support state for each
+/// The fixture with RS-R1 and the supports overlaid, a support state for each
 /// in every case, and W regenerated on the result. `intended`: RS-FR1V in its
 /// intended `one_way` form (the S7 control).
 fn overlay(intended: bool) -> Value {

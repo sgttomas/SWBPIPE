@@ -1,4 +1,4 @@
-//! On-demand model checks (DEL-04-06 Design `on-demand-model-checks.md`): the
+//! On-demand model checks: the
 //! solve's own input checks, run without forming a stiffness or solving.
 //!
 //! [`LinearStaticPreviewRequest::pre_formation_checks_value`] takes the request the desktop's solve takes

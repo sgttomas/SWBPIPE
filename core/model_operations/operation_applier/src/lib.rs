@@ -660,7 +660,6 @@ fn field_rules(object_type: &str) -> &'static [FieldRule] {
                 field_path: "geometry.center_of_gravity",
                 kind: FieldKind::OptionalVectorQuantity { dimension: "length" },
             },
-            // W-15 slice c (DEL-03-05 Design `eccentric-reducer-offset.md` §4):
             // a reducer's eccentric offset, an explicit length vector like the
             // centre of gravity; refused on other kinds in `resolve_field`. The
             // solve checks it against the node geometry, which governs.
@@ -940,7 +939,7 @@ fn collection_for(object_type: &str) -> Option<&'static str> {
         "Component" => Some("components"),
         "Load" => Some("load_cases"),
         "Combination" => Some("combinations"),
-        // W-13 §6: the model-data record families (lines, assumptions,
+        // the model-data record families (lines, assumptions,
         // constraints, equipment interfaces, rule-pack references). Their
         // records are found by each family's id key
         // (`model_data_authoring::target`); `Project` is a singleton target
@@ -1058,7 +1057,7 @@ pub fn reader_row_semantics_each_json(rows_json: &str, source_json: Option<&str>
     Ok(rv::row_semantics_each(&rows, source.as_ref()).to_string())
 }
 
-/// RT-A4 §10.4: [`reader_row_semantics_each_json`] of a recorded statement under its record's
+/// [`reader_row_semantics_each_json`] of a recorded statement under its record's
 /// binding (`reader_verdict::row_semantics_each_recorded`): a registry variant's rows read
 /// under that variant's table, for the recorded-run display and compare paths only.
 pub fn reader_recorded_row_semantics_each_json(binding_json: &str, rows_json: &str, source_json: &str) -> Result<String, String> {
@@ -1071,8 +1070,7 @@ pub fn reader_recorded_row_semantics_each_json(binding_json: &str, rows_json: &s
     Ok(rv::row_semantics_each_recorded(&rows, &source, &binding).to_string())
 }
 
-/// RT-A4 §10.4 (DEL-05-02 `absolute-sum-srss-combinations.md`, "Recorded results from
-/// before RT-A4"): the recorded-run read entries (`reader_verdict::*_recorded`) over JSON
+/// the recorded-run read entries (`reader_verdict::*_recorded`) over JSON
 /// text, under the record's binding `{id, sha256}`: `dispatch`, `preview-physics`,
 /// `preview-physics-transport`, `retained-precision` and `retained-precision-transport`.
 /// Each returns its current entry's outcome shape. The desktop calls this only from its
@@ -1114,7 +1112,7 @@ fn parse_reader_input(label: &str, text: &str) -> Result<Value, String> {
 /// the shim surfaces it as an explicit diagnostic, never a silent fallback.
 /// Native builds and tests do not compile this module.
 ///
-/// RT-A4 §10.4: every export runs inside `recorded_tables::entry_scope`. The wasm32 target
+/// every export runs inside `recorded_tables::entry_scope`. The wasm32 target
 /// aborts on panic, so a recorded read that traps skips its guard and leaves its table
 /// selection set in this instance; each export clears it before it reads anything.
 /// (`wasm_exports_run_as_outermost_entries` checks that none is missed.)
@@ -1170,7 +1168,7 @@ mod wasm_api {
         })
     }
 
-    /// W-13 §5.3: the one model-document validator, for the webview open
+    /// the one model-document validator, for the webview open
     /// path. Returns the validation report (`document_validator::validation_report`)
     /// as JSON text, or the input-error envelope when the text is not JSON.
     #[wasm_bindgen]
@@ -1183,7 +1181,7 @@ mod wasm_api {
         })
     }
 
-    /// B11 on-demand model checks (DEL-04-06 Design `on-demand-model-checks.md`):
+    /// B11 on-demand model checks:
     /// the solve's own checks before stiffness formation, without solving.
     /// Returns `model_checks_text`'s bounded report as JSON text: a model text
     /// above the browser bound is refused unparsed, and a text that is not JSON
@@ -1312,7 +1310,7 @@ mod wasm_api {
         })
     }
 
-    /// W-17 §2.3a: the shear modulus a library insert derives from E and ν,
+    /// the shear modulus a library insert derives from E and ν,
     /// as `{"value": <G in Pa>, "unit": "Pa"}`, or `{"error": …}`.
     #[wasm_bindgen]
     pub fn derived_shear_modulus_json(elastic_modulus: f64, unit: &str, poisson_ratio: f64) -> String {
@@ -1444,7 +1442,7 @@ mod wasm_api {
         })
     }
 
-    /// RT-A4 §10.4: a recorded-run read entry under the record's binding.
+    /// a recorded-run read entry under the record's binding.
     #[wasm_bindgen]
     pub fn reader_recorded_json(
         entry: &str,
@@ -1459,7 +1457,7 @@ mod wasm_api {
         })
     }
 
-    /// RT-A4 §10.4: each row's semantics of a recorded statement under the record's binding.
+    /// each row's semantics of a recorded statement under the record's binding.
     #[wasm_bindgen]
     pub fn reader_recorded_row_semantics_each_json(binding_json: &str, rows_json: &str, source_json: &str) -> Result<String, JsError> {
         entry_scope(|| {
@@ -1604,7 +1602,7 @@ fn run_with_context(
     check_intent_structure(intent, &operation_id, &mut checker);
     check_audit_boundary(intent, &operation_id, &mut checker);
     check_kinds(&operation_kind, &change_kind, &operation_id, &mut checker);
-    // Model document 0.8.0 (DEL-02-01 Design `model-document-0.8.0.md` §3.1): the applier
+    // Model document 0.8.0: the applier
     // operates only on a current document. Any other version is refused by name with the
     // desktop's state and code (`model_document_version`): an older one as
     // MODEL_SCHEMA_VERSION_RETIRED with the re-author text, a newer one as
@@ -1709,7 +1707,7 @@ fn run_with_context(
             }
         }
     }
-    // W-10 (DEL-16-06 Design `pipe-reconnect.md` §1): reconnect one pipe end.
+    // reconnect one pipe end.
     // Its typed warnings are pushed in validate and apply mode alike, so the
     // preview reports exactly what apply will; warnings never block.
     if change_kind == pipe_reconnect::CHANGE_KIND {
@@ -1746,7 +1744,7 @@ fn run_with_context(
         }
     }
 
-    // W-13 §6: model-data record operations (lines, assumptions,
+    // model-data record operations (lines, assumptions,
     // constraints, equipment interfaces, rule-pack references). They resolve
     // to a candidate document and diff rows like the geometry operations.
     if model_data_authoring::is_record_change_kind(&change_kind) && !checker.schema_blocked {
@@ -1772,7 +1770,7 @@ fn run_with_context(
         }
     }
 
-    // Model settings (DEL-02-01 Design §3.8): set or clear
+    // Model settings: set or clear
     // `model_settings.node_proximity_tolerance` on the Project singleton.
     if model_settings_authoring::is_change_kind(&change_kind) && !checker.schema_blocked {
         match model_settings_authoring::resolve(model, intent) {
@@ -1797,7 +1795,7 @@ fn run_with_context(
         }
     }
 
-    // Model document 0.9.0 S3a (DEL-02-01 Work `model-document-0.9.0.md` §11):
+    // Model document 0.9.0:
     // condition sets, pipe assignment and case condition use. The solve's
     // judgement of the candidate is classified (staged findings warn, all else
     // blocks) in validate and apply mode alike.
@@ -1827,7 +1825,7 @@ fn run_with_context(
         }
     }
 
-    // Project units (DEL-02-02 Design project-unit-selection.md §2.7): one
+    // Project units: one
     // key of `project.units` on the Project singleton.
     if project_units_authoring::is_change_kind(&change_kind) && !checker.schema_blocked {
         match project_units_authoring::resolve(model, intent) {
@@ -1852,7 +1850,7 @@ fn run_with_context(
         }
     }
 
-    // W-17 (DEL-03-01 Design apply-library-records.md §2.2): a library
+    // a library
     // record applied to an existing material, section or component. The
     // change names every member it writes; a section carries its bound pipes.
     if change_kind == library_apply::CHANGE_KIND && !checker.schema_blocked {
@@ -1900,7 +1898,7 @@ fn run_with_context(
         ("Model", "reference_configurations") | ("Material", "expansion_laws") => Some("set_field"),
         ("Load", "analysis_state") => Some("update_load"),
         ("Load", "equivalent_static.wind.exposure" | "generated_self_weight") => Some("update_load"),
-        // W-13 §6: tags, notes and provenance_record on each family's existing
+        // tags, notes and provenance_record on each family's existing
         // change kind; clearing removes the member.
         (object, field) if model_data_authoring::is_annotation(object, field) => {
             Some(model_data_authoring::annotation_change_kind(object))
@@ -2504,7 +2502,7 @@ fn run_with_context(
 
     if !blocking {
         diff_preview.extend(section_diffs);
-        // W-13 §3.2: deleting a pipe also removes it from its line.
+        // deleting a pipe also removes it from its line.
         if let Some(pipe_id) = &deleted_pipe {
             diff_preview.extend(model_data_authoring::remove_pipe_from_lines(&mut model.clone(), pipe_id));
         }
@@ -2512,7 +2510,7 @@ fn run_with_context(
 
     // The candidate result is built in both modes so the one document
     // validator judges a validate-only preview exactly as it judges the
-    // apply (W-13 §5.3); a validate-only outcome never returns it.
+    // apply; a validate-only outcome never returns it.
     let mut applied_model = None;
     let mut applied_model_backend_hash = None;
     if !blocking {
@@ -2711,7 +2709,7 @@ fn run_with_context(
         }
     }
 
-    // W-13 §5.3: the one document validator checks every applied result. A
+    // the one document validator checks every applied result. A
     // result whose model-data slots are malformed is refused (the operation
     // is blocked and no document is returned); warnings ride along.
     if let Some(candidate) = &applied_model {
@@ -2861,7 +2859,7 @@ struct QuantityEdit {
 
 fn check_intent_structure(intent: &Value, operation_id: &str, checker: &mut Checker) {
     // `set_project_unit` names its own refusals for its target and change
-    // members (DEL-02-02 Design §2.7): a missing or non-string member is
+    // members: a missing or non-string member is
     // `OP-PROJECT-UNIT-SHAPE-INVALID`, an absent `after` a refused removal.
     let own_shape = string_at(intent, &["change", "change_kind"]).as_deref() == Some(project_units_authoring::SET);
     let required: [&[&str]; 10] = [
@@ -3310,7 +3308,7 @@ fn resolve_expansion_joint_creation(
         // U5a does not activate a document version. T3 owns the v3 selector
         // above; this new-kind validation becomes reachable when B7b adds0.5.
         if let Some(connector) = connector {
-            // T4-U5b (DEL-04-07 Design u4b-u5b-implementation.md §5.2): connector
+            // connector
             // creation validates its hardware as the solver classifies it, as it
             // validates a constant-effective-area pressure model.
             let pressure = connector.pointer("/pressure_model/kind").and_then(Value::as_str) == Some("constant_effective_area_reference_v1");
@@ -3801,7 +3799,7 @@ fn resolve_rigid_creation_geometry(
     ) {
         return None;
     }
-    // W-15 slice c (Design `eccentric-reducer-offset.md` §4): a reducer may be
+    // a reducer may be
     // created with an optional explicit offset vector; it is never defaulted,
     // and no other kind accepts one.
     let eccentric_offset = match geometry.get("eccentric_offset") {
@@ -4255,7 +4253,7 @@ fn resolve_connect_pipe_run(
         );
         return None;
     };
-    // Model document 0.9.0 (§4.1): connect_pipe_run's payload is unchanged; a pipe's
+    // Model document 0.9.0: connect_pipe_run's payload is unchanged; a pipe's
     // condition set is assigned by its own operation, never dropped here.
     if record.contains_key("condition_set_ref") {
         checker.push(
@@ -4430,7 +4428,7 @@ fn resolve_connect_pipe_run(
     }
 
     let (yrx, yry, yrz) = y_reference.unwrap();
-    // O4 (DEL-07-02 `run-sheet-entry.md` §8): the kernel orientation predicate
+    // the kernel orientation predicate
     // reconnect applies as R6/R7, so a pipe the solve's frame constructor
     // would refuse is refused here, by name, when it is authored.
     if !connect_orientation(model, target_ref, from, to, stored_unit, [yrx, yry, yrz], checker) {
@@ -4559,7 +4557,7 @@ fn entity_reference_paths(
         }
         Value::Object(map) => {
             for (key, item) in map {
-                // W-13 §6: tags, notes and provenance records are annotations,
+                // tags, notes and provenance records are annotations,
                 // never references.
                 if model_data_authoring::ANNOTATION_MEMBERS.contains(&key.as_str()) {
                     continue;
@@ -4658,7 +4656,7 @@ fn resolve_delete_entity(
         .and_then(Value::as_array_mut)
         .unwrap()
         .retain(|row| row.get("id").and_then(Value::as_str) != Some(target_ref));
-    // W-13 §3.3, §6: naming an entity in a line, assumption, constraint,
+    // naming an entity in a line, assumption, constraint,
     // equipment interface or rule-pack reference never blocks its deletion;
     // a missing subject is the document validator's warning.
     if let Some(root) = remainder.as_object_mut() {
@@ -4771,7 +4769,7 @@ fn resolve_delete_pipe_run(
     }
     let mut references = pipe_primitive_load_references(model, target_ref);
     references.extend(load_state_authoring::pipe_references(model, target_ref));
-    // W-10 §7: every other record naming the pipe (components, wind exposure
+    // every other record naming the pipe (components, wind exposure
     // and any other slot) refuses too; deletion never cascades. Hits at the
     // slots the two checks above report are not repeated.
     let dependents = pipe_reconnect::delete_dependents(model, target_ref);
@@ -5036,7 +5034,7 @@ fn resolve_create_section(
         },
         "provenance": provenance,
     });
-    // W-13 §3.5 / W-17 §2.5: structured provenance travels with the created
+    // structured provenance travels with the created
     // record; the document validator judges its members.
     if let Some(record) = record.get("provenance_record") {
         section["provenance_record"] = record.clone();
@@ -5263,7 +5261,7 @@ fn resolve_create_material(
             "unit": thermal.unit,
         });
     }
-    // W-13 §3.5 / W-17 §2.5: structured provenance travels with the created
+    // structured provenance travels with the created
     // record; the document validator judges its members.
     if let Some(record) = record.get("provenance_record") {
         material["provenance_record"] = record.clone();
@@ -6290,7 +6288,7 @@ use open_pipe_stress_product_physics::document_members as pp_members;
 use open_pipe_stress_product_physics::operating_conditions as pp_conditions;
 
 /// Model document 0.9.0: authoring a member whose slice has not landed is refused by its
-/// interim code (DEL-02-01 Design `model-document-0.9.0.md` §2.2, §2.4), never dropped.
+/// interim code, never dropped.
 fn refuse_interim_member(checker: &mut Checker, target_ref: &str, code: &'static str, message: String) {
     checker.push(code, "blocking", message, "Author the record without this member; documents carrying it still open, validate and edit.", vec![target_ref.to_string()]);
 }
@@ -6589,7 +6587,7 @@ fn check_combination_payload_shape(
 }
 
 /// A subtraction's or envelope's operand names a load case, or a combination when no
-/// load case has the id (absolute-sum-srss §2).
+/// load case has the id.
 fn check_combination_operand_load_case(
     model: &Value,
     operand_ref: &str,
@@ -6667,7 +6665,7 @@ fn resolve_create_mechanics_combination(
 }
 
 /// One term payload of a terms-basis combination: exactly one of `load_case` and
-/// `combination` (absolute-sum-srss §2), a finite factor, an existing operand of that
+/// `combination`, a finite factor, an existing operand of that
 /// kind, and no operand repeated (a load case and a combination may share an id).
 fn resolve_combination_term_payload(
     model: &Value,
@@ -6944,7 +6942,7 @@ fn resolve_create_combination_term(
         );
         return None;
     };
-    // absolute-sum-srss §2: a term may name a combination (exactly one of load_case and
+    // a term may name a combination (exactly one of load_case and
     // combination); the document validator refuses a cycle in the result.
     if record.contains_key("combination") {
         let operand = record.get("combination").and_then(Value::as_str).unwrap_or("").trim();
@@ -9000,7 +8998,7 @@ fn apply_deleted_pipe(model: &mut Value, pipe_id: &str) -> bool {
         return false;
     };
     pipes.remove(index);
-    // W-13 §3.2: the pipe leaves its line in the same operation.
+    // the pipe leaves its line in the same operation.
     model_data_authoring::remove_pipe_from_lines(model, pipe_id);
     true
 }
@@ -16160,7 +16158,7 @@ mod tests {
         // The same create without the member applies.
         let outcome = combination(json!({}));
         assert!(outcome.applied_model.is_some(), "{:?}", codes(&outcome));
-        // R-6/R-7 S-K1 (DEL-04-03 Work `skew-restraints.md` §11): a skewed and an exactly
+        // a skewed and an exactly
         // axis-aligned direction are authored on the pressure-free route, as entered.
         for direction in [json!({"x": 0.0, "y": 3.0, "z": 4.0}), json!({"x": 0.0, "y": 1.0, "z": 0.0})] {
             let outcome = create("Support", "support:S-2", "create_support", "supports", json!({"id": "support:S-2", "label": "Stop", "node": "node:N-2",
@@ -16169,7 +16167,7 @@ mod tests {
             let written = applied["supports"].as_array().unwrap().iter().find(|s| s["id"] == "support:S-2").unwrap();
             assert_eq!(written["direction"], direction);
         }
-        // The RT-A4 wiring (absolute-sum-srss §2): the unsigned bases and combination
+        // The RT-A4 wiring: the unsigned bases and combination
         // operands are authored.
         for (extra, stored) in [
             (json!({"basis": "absolute_sum", "terms": [{"load_case": "load:L-1", "factor": 1.0}]}), json!([{"load_case": "load:L-1", "factor": 1.0}])),

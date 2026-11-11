@@ -1,4 +1,4 @@
-"""RT-A3 §4 D3 (DEL-05-02 Work combination-certificate.md; retained-pricing-rules.md §8.53): the positive owners the
+"""D3 (§8.53): the positive owners the
 combination certificate adds outside the chain's TEXT inventory on D1.
 
 D1.9: route E refuses every combination and route L admits z <= 2, so at the profile's points L(3,0) and E(3) (z = 0)

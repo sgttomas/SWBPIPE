@@ -1,10 +1,10 @@
-// The webview's MBF writer and importer (DEL-17-04 Design `desktop-mbf-export-import.md` §2, §3.9.5; slice 4a): the
+// The webview's MBF writer and importer (slice 4a): the
 // wasm32 build of `core/handoff/caepipe_mbf_wasm`, a JSON-text wrapper of the Rust MBF engine. The glue and wasm
 // artifact are produced by `npm run build:wasm` into `public/mbf-engine/` and are not committed; an absent artifact is
 // a named failure (MBF-ENGINE-ASSET-ABSENT) with the build command, never a fallback. Loading follows
 // `wasmEngine/loadSelfWeightEngine.ts`.
 //
-// The export entry point (`renderMbfExport`) is an unconnected test resource only (§3.9.5): the export dialog never
+// The export entry point (`renderMbfExport`) is an unconnected test resource only: the export dialog never
 // runs the wasm writer, whose memory the webview does not govern; it asks the native `review_mbf_export`, which runs
 // the writer in the capped worker. Whether the import runs here is slice 5's design.
 import type { MbfUnitConversion } from "../features/caepipe-mbf/mbfExport";

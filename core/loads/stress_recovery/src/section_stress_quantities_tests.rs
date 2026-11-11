@@ -1,7 +1,7 @@
 //! T4-U4b: the section quantities against the frozen t4_u4b references
 //! (`validation/references/t4_u4b/oracle.json`, read as data), at the README
 //! criterion |obs − exp| ≤ 1e-9·max(|exp|, zero_scale), with the field-level
-//! discriminators of the U4b design §7.1 shown separated.
+//! discriminators shown separated.
 use super::fields::{fibre_normal, saint_venant_field, toroidal_hoop_at};
 use super::*;
 use std::collections::HashMap;
@@ -481,7 +481,7 @@ fn listed_rows<'a>(case: &'a Value, mutant: &str) -> Vec<(Vec<&'a str>, f64, f64
 
 #[test]
 fn field_function_discriminators_are_separated() {
-    // §7.1: sv_vy_vz_swapped, fibre_mz_y_sign_flipped and
+    // sv_vy_vz_swapped, fibre_mz_y_sign_flipped and
     // fibre_frame_rotated_y_away_from_centre are field-function mutants. On
     // every oracle row listed for them, the field function reproduces the
     // expected value at the criterion, the mutant reproduces the oracle's wrong
@@ -872,7 +872,7 @@ fn every_sequence_matches_the_independent_expected_bits() {
     println!("bit vectors: {counts:?}");
 }
 
-/// The x = 1/(1+ν) sequence (§2.4, the preview route below E/(2G) = 1/2):
+/// The x = 1/(1+ν) sequence (the preview route below E/(2G) = 1/2):
 /// its fixed operations, its refusals, and the same value as the ν sequence
 /// where that sequence is exact (x = 1, 4/5, 1/(1+ν) with ν + 1 exact).
 #[test]

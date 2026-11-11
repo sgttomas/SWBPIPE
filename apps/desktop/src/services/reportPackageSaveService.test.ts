@@ -142,7 +142,7 @@ describe("prepareReportPackageSave", () => {
     const requestText = await canonicalJsonString(REQUEST);
     expect(prepared.args.requestCanonicalText).toBe(requestText);
     expect(prepared.args.modelCanonicalText).toBe(await canonicalJsonString(MODEL));
-    // The run's input manifest, for the native rule-pack re-check (§2.6 item 3).
+    // The run's input manifest, for the native rule-pack re-check.
     expect(prepared.args.inputManifestCanonicalText).toBe(await canonicalJsonString(INPUT_MANIFEST));
     const independent = `sha256:${createHash("sha256").update(requestText, "utf8").digest("hex")}`;
     expect(prepared.requestSha256).toBe(independent);

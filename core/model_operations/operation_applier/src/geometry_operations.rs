@@ -134,7 +134,7 @@ pub(crate) fn record_shape(record: &Value, node: bool) -> Result<()> {
             return Err(err(format!("Selected {key} metadata must be text or null")));
         }
     }
-    // W-13 §6: nodes and pipes may carry tags and notes (never a
+    // nodes and pipes may carry tags and notes (never a
     // provenance_record); split, transform and copy carry them with the record.
     if node {
         fields(record, &["id", "position"], &["label", "provenance", "tags", "notes"])?;
@@ -143,7 +143,7 @@ pub(crate) fn record_shape(record: &Value, node: bool) -> Result<()> {
         fields(
             record,
             &["id", "from", "to", "section", "material"],
-            // Model document 0.9.0 (§1.4): a pipe's condition_set_ref is carried with it.
+            // Model document 0.9.0: a pipe's condition_set_ref is carried with it.
             &["label", "provenance", "y_reference", "section_ref", "condition_set_ref", "tags", "notes"],
         )?;
         fields(
@@ -243,7 +243,7 @@ pub(crate) enum Seg {
 /// The one reference scanner: every exact occurrence of `ids` under `v`, as
 /// segment paths below `path`. Text metadata is not a link: the subtrees under
 /// `label`, `name` and `provenance` are skipped, and so are the `tags`, `notes`
-/// and `provenance_record` annotations (W-13 §6). All other occurrences are
+/// and `provenance_record` annotations. All other occurrences are
 /// reported, including aliases.
 pub(crate) fn reference_segments(v: &Value, ids: &BTreeSet<String>, path: &mut Vec<Seg>, out: &mut Vec<Vec<Seg>>) {
     match v {
@@ -312,7 +312,7 @@ fn attachments(
     all.extend(node_ids.iter().cloned());
     let mut found = vec![];
     for (key, collection) in model.as_object().unwrap() {
-        // W-13 §6: lines, assumptions, constraints, equipment interfaces and
+        // lines, assumptions, constraints, equipment interfaces and
         // rule-pack references are not attachments. A split pipe's line is
         // extended explicitly; a missing subject is the validator's warning.
         if super::model_data_authoring::MODEL_DATA_COLLECTIONS.contains(&key.as_str()) {
@@ -455,7 +455,7 @@ fn split(model: &Value, intent: &Value, payload: &Value, unit: &str) -> Result<G
     list.push(second.clone());
     frame(&candidate, &first, unit, false)?;
     frame(&candidate, &second, unit, false)?;
-    // W-13 §3.2: the new pipe (which inherits the source's tags and notes)
+    // the new pipe (which inherits the source's tags and notes)
     // joins the source pipe's line.
     let line_row = super::model_data_authoring::join_source_line(&mut candidate, id, text(&second, "id")?);
     Ok(GeometryEdit {
@@ -800,7 +800,7 @@ mod tests {
     fn hash_claim(model: &Value) -> Value {
         json!({"algorithm":"sha256","canonicalization":"rfc8785_jcs","payload_scope":"model_payload","value":format!("sha256:{}",crate::sha256_hex(&canonical_json(model)))})
     }
-    /// Model document 0.9.0 (§1.4): an operation that creates a pipe from a pipe carries
+    /// Model document 0.9.0: an operation that creates a pipe from a pipe carries
     /// its condition_set_ref. split_pipe_run gives both halves the source's set.
     #[test]
     fn split_pipe_run_carries_the_condition_set_ref() {
@@ -818,7 +818,7 @@ mod tests {
         blocked(&m, &split_payload(), true);
     }
 
-    /// §1.4: transform_pipe_run (copy) gives each copy its source's condition_set_ref.
+    /// transform_pipe_run (copy) gives each copy its source's condition_set_ref.
     #[test]
     fn transform_pipe_run_copy_carries_the_condition_set_ref() {
         let mut m = model();

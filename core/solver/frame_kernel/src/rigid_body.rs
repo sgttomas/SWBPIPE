@@ -39,7 +39,7 @@ pub fn assess_rigid_body(
     assess_rows(coordinates, ground_dofs.iter().map(|&d| BasisGroundRow::Axis(d)), family)
 }
 
-/// DEL-04-03 Work `skew-restraints.md` §9: `assess_rigid_body` over ground
+/// `assess_rigid_body` over ground
 /// rows. An axis row is today's `motion_rows` line, by the same code; a
 /// direction row (a skewed stop or positive skewed spring, `d` its canonical
 /// d̃ with norm in [1, 2√3)) is Σ_a d_a·motion_rows(node)[a]. Every row is
@@ -300,7 +300,7 @@ fn original_rigid_witness(
 
 // ------------------------------------------------------------------ K5 (W4)
 //
-// T3 D1 revision 5a.2 §4.9 (W4): the constrained-body witness. A body made of
+// the constrained-body witness. A body made of
 // objective sub-bodies (nodes joined by straight frames, or by curved elements
 // qualified by their matched macro source), joined by user-element ties and
 // held by ground rows, is assessed with six unknowns (the tie reduction below).
@@ -423,7 +423,7 @@ const RANGE: StructuralError = StructuralError::Range("constrained relative coor
 const SNAP_GRID: f64 = 1_048_576.0;
 /// 2^-24: the largest move a rationalized candidate's snap may make.
 const SNAP_RESIDUAL: f64 = 5.960_464_477_539_063e-8;
-/// 2^-20: the prefilter bound on |B·c| relative to ‖c‖∞ (§5.3 of I14's plan).
+/// 2^-20: the prefilter bound on |B·c| relative to ‖c‖∞.
 const PREFILTER: f64 = 9.536_743_164_062_5e-7;
 /// 2^-26: a reduced basis vector below this is dependent.
 const DEPENDENT: f64 = 1.490_116_119_384_765_6e-8;
@@ -867,7 +867,7 @@ impl WitnessContext<'_> {
             return None;
         }
         // Performance only: an exact null vector passes (its computed |B·c| is
-        // a few hundred ε·‖c‖∞ at most; I14's plan §5.3).
+        // a few hundred ε·‖c‖∞ at most).
         let scaled = [
             p[0] / self.length,
             p[1] / self.length,
@@ -1457,7 +1457,7 @@ mod ground_row_tests {
         assert_eq!(0.75 * motion[0] + motion[1], 0.0);
     }
 
-    /// RT-A3 F-3 (§11.2): the `64·γ(n)·max` screen's n counts every ground row,
+    /// the `64·γ(n)·max` screen's n counts every ground row,
     /// direction rows included: six axis rows plus one stop give n = 7.
     #[test]
     fn screen_n_counts_direction_rows() {
@@ -1469,7 +1469,7 @@ mod ground_row_tests {
         assert_ne!(a.rank_screen.to_bits(), (64.0 * gamma(6) * max).to_bits());
     }
 
-    /// RT-U4 (§11.2): the row iterator chain collects nothing on any path.
+    /// the row iterator chain collects nothing on any path.
     #[test]
     fn assess_rows_collects_nothing() {
         let source = include_str!("rigid_body.rs");

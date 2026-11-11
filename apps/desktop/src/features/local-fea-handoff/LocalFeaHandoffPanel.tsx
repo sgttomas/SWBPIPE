@@ -52,7 +52,7 @@ export function LocalFeaHandoffPanel({
   result: MechanicsResult | null;
   analysisRun: AnalysisRunEnvelope | null;
 }) {
-  // W-17 slice (c), DEL-02-02 Design §7.4 and §7.7: the handoff is refused by name when a
+  // W-17 slice (c): the handoff is refused by name when a
   // project unit it writes is missing or no result family has one consistent unit.
   const refusal = result && analysisRun ? localFeaHandoffRefusal(model, result) : null;
   const packet = result && analysisRun && !refusal ? buildLocalFeaHandoffPacket({ model, result, analysisRun }) : null;
@@ -484,7 +484,7 @@ function localFeaDiagnostics(selected: ReturnType<typeof selectedLocalRegion>, b
     );
   }
   if (bodyNotices.length > 0) {
-    // W-15 slice d (DEL-03-05 Design §5): appended last, so the standing findings keep their indices.
+    // appended last, so the standing findings keep their indices.
     items.push(
       diagnostic(
         "LOCAL-FEA-COMPONENT-BODY-REFERENCE-SECTION",
@@ -496,7 +496,7 @@ function localFeaDiagnostics(selected: ReturnType<typeof selectedLocalRegion>, b
     );
   }
   for (const row of omittedRows) {
-    // W-17 slice (c), DEL-02-02 Design §7.7: appended after the standing findings. The
+    // W-17 slice (c): appended after the standing findings. The
     // omission is visible: the row is named with its unit and the declared unit.
     items.push(
       diagnostic(
@@ -561,24 +561,24 @@ function assumption(assumptionId: string, label: string, basisLocator: string, s
   };
 }
 
-/** A project unit the handoff writes is missing (DEL-02-02 Design §7.4). */
+/** A project unit the handoff writes is missing. */
 export const LOCAL_FEA_PROJECT_UNIT_MISSING = "LOCAL-FEA-PROJECT-UNIT-MISSING";
-/** No referenced result family can be given one consistent unit (DEL-02-02 Design §7.7). */
+/** No referenced result family can be given one consistent unit. */
 export const LOCAL_FEA_RESULT_UNIT_INCONSISTENT = "LOCAL-FEA-RESULT-UNIT-INCONSISTENT";
-/** A candidate result row in another unit than its family's declared unit is not referenced (§7.7). */
+/** A candidate result row in another unit than its family's declared unit is not referenced. */
 export const LOCAL_FEA_RESULT_ROW_UNIT_OMITTED = "LOCAL-FEA-RESULT-ROW-UNIT-OMITTED";
 
 type ResultUnitFamily = "force" | "stress";
 type OmittedResultRow = { id: string; family: ResultUnitFamily; unit: string; declared: string };
 
 /**
- * W-17 slice (c), DEL-02-02 Design §7.7 (Agent 0's B-c): the handoff refers to results
+ * W-17 slice (c): the handoff refers to results
  * and preserves their units, so each of `force_unit` and `stress_unit` is declared from
  * the rows it labels and only rows in that unit are referenced. The declared unit is
  * the governing row's (the summary maximum, for stress); without one, the candidate
  * rows' shared unit; where the rows disagree and nothing governs, the handoff is
  * refused. A candidate in another unit is left out and named, never converted.
- * With no row of a family referenced, its member keeps the project key (§7.4).
+ * With no row of a family referenced, its member keeps the project key.
  */
 export function referencedResultUnits(result: MechanicsResult): {
   refs: string[];

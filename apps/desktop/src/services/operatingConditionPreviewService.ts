@@ -1,4 +1,4 @@
-// Model document 0.9.0 S3b (DEL-02-01 Work `model-document-0.9.0.md` §4.2, §10): the
+// Model document 0.9.0 S3b: the
 // load manager's per-pipe condition-resolution preview. A thin wrapper, beside
 // operationService, over the engine's read-only export
 // `preview_operating_conditions_json` (`operating_conditions::preview_operating_conditions`,

@@ -57,7 +57,7 @@ fn parameters() -> SturmParameters {
     }
 }
 
-/// Test-local resolution-floor parameters c_μ and κ_μ (design §3.2 item 5);
+/// Test-local resolution-floor parameters c_μ and κ_μ;
 /// the production values are recorded under DEC-026, not here. On the
 /// equilibrated pencil (review round 4), with c_μ = 1, the review-round-3
 /// artifact lies 2.4× below δ_μ and the smallest μ of the admitted fixture
@@ -65,7 +65,7 @@ fn parameters() -> SturmParameters {
 /// stiff modes lie below it and use the separately checked recovery band.
 const RESOLUTION_FLOOR_CONSTANT: f64 = 1.0;
 const RESOLUTION_FLOOR_MULTIPLE: f64 = 10.0;
-/// Test-local c_f of the screen τ_f = c_f·n·u (design §3.2 item 5); the
+/// Test-local c_f of the screen τ_f = c_f·n·u; the
 /// production value is recorded under DEC-026 (README for the measured
 /// η_f).
 const FORMED_BACKWARD_ERROR_MULTIPLE: f64 = 64.0;
@@ -929,7 +929,7 @@ fn neighbour_quotients_and_separations_out_of_range_are_refused() {
     }
 }
 
-/// Finding 3, under the condensation rule (design §3.2 item 5, revised
+/// Finding 3, under the condensation rule (revised
 /// after review round 2): K = [[2, 1], [1, 1]], M = diag(1, 0). DOF 1 is
 /// structurally massless; uncondensed, C's zero eigenvalue came back as
 /// μ ≈ −1.1·10⁻¹⁶. Condensed, K̂ = 2 − 1·1⁻¹·1 = 1 and M̂ = 1: one μ = 1,
@@ -996,7 +996,7 @@ fn a_finite_mode_traded_for_a_structural_zero_is_not_concealed() {
     assert!(solution.finite_count_unresolved);
 }
 
-/// Review round 3, finding 5 (design §3.2 item 5, "Resolution floor"):
+/// Review round 3, finding 5:
 /// K = [[1, 1], [1, 3]], M = diag(1, 2⁻¹⁰⁰), τ_μ = 10⁻¹⁸. The true second
 /// μ is about 2⁻¹⁰⁰/2, far below the reduction's resolution; it came back as
 /// a rounding artifact near 2⁻⁵² (λ ≈ 2⁵²) above τ_μ·μ_max, retained, with
@@ -1406,7 +1406,7 @@ fn assert_same_dense_outcome(
     }
 }
 
-/// Design §5.3.8 S1: with no allotment, a generous one, or one exactly at
+/// S1: with no allotment, a generous one, or one exactly at
 /// the counts, every fixture pencil (cases and witnesses) and the
 /// overflowing reduction give `solve_dense_pencil`'s outcome bit for bit,
 /// refusals included; one below a nonzero count refuses by its own name.
@@ -1503,7 +1503,7 @@ fn resource_allotments_not_reached_change_no_fixture_outcome() {
 }
 
 // ---------------------------------------------------------------------------
-// I3a A2 observations (design §5.3.7; Agent 0 held κ_c and κ_s pending this
+// I3a A2 observations (Agent 0 held κ_c and κ_s pending this
 // evidence). TEST-LOCAL observations on this suite's pencils; nothing is
 // pinned, and no ratio observed here is a bound outside this population.
 // ---------------------------------------------------------------------------

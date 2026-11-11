@@ -1,4 +1,4 @@
-// Run-sheet entry S1 (DEL-07-02 Design `run-sheet-entry.md` §7): the resolver,
+// Run-sheet entry: the resolver,
 // the builder and the record projection against the hand-built fixture
 // `fixtures/model_operations/run_sheet_authoring.json`, applied by the wasm
 // engine. The native lane applies the same batches in
@@ -293,7 +293,7 @@ describe("run sheet S1: existing-node ownership", () => {
   });
 });
 
-// ---- Inheritance (§2.1–2.4) and the sheet rules (§4.2), on the fixture's basis model.
+// ---- Inheritance and the sheet rules, on the fixture's basis model.
 const SOURCE = "invented resolver test input";
 function sheet(rows: RunSheetRowInput[], extra: Partial<RunSheetInput> = {}): RunSheetInput {
   return { sheetKey: "t", batchSeq: 1, source: SOURCE, rows, ...extra };
@@ -747,7 +747,7 @@ describe("run sheet S1: numbering terminates (r1 P2-2)", () => {
   });
 });
 
-// ---- Ids and sources, padding and pipe numbering (G1–G3; design §1.2, §3.2, §4.2).
+// ---- Ids and sources, padding and pipe numbering (G1–G3).
 const RS = { nodePrefix: "node:RS-", pipePrefix: "pipe:RS-P", start: 10, step: 10, pad: 3 } as const;
 
 describe("run sheet ids: padded numbers (G3)", () => {

@@ -207,7 +207,7 @@ export function LibraryManagerPanel({
   onQueueBatch?: (batch: OperationBatch) => void;
   operationBusy?: boolean;
 }) {
-  // W-17 (DEL-03-01 Design apply-library-records.md §3): the stored library
+  // the stored library
   // opened from the list (never the editable draft) is what applies, and the
   // model's library references are checked against the store on refresh.
   const [opened, setOpened] = useState<{ entry: LocalLibraryIndexEntry; document: Record<string, unknown> } | null>(null);

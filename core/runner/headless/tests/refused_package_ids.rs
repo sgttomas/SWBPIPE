@@ -1,4 +1,3 @@
-//! W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md` §6.2),
 //! Codex review round 3 of #1639: the headless runner's `export-results` on a
 //! request whose report carries quarantined FR-REP-003 records with authored
 //! ids (paths, private text) refuses the package, and neither its structured

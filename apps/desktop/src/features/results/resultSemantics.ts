@@ -18,7 +18,7 @@ export type RowLabels = Readonly<{
 /** The labels of one source's rows (the legacy table without a source). Read every row
  * of a source through one call. */
 export function semanticLabels(source?: MechanicsResult | null, recordedTableRead?: ContractBinding | null): RowLabels {
-  // RT-A4 §10.4: a reopened run recorded before RT-A4 reads its rows under its recorded table.
+  // a reopened run recorded before RT-A4 reads its rows under its recorded table.
   const semantics = source && recordedTableRead ? recordedReaderRowSemantics(source, recordedTableRead) : readerRowSemantics(source);
   const signature = (row: SourceRow) => semantics(row).signature;
   return {

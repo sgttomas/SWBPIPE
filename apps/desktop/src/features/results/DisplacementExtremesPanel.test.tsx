@@ -1,4 +1,4 @@
-// A8, the displacement extremes panel (DEL-07-05 Design `displacement-extremes.md` §5 to §7, §9):
+// A8, the displacement extremes panel:
 // the display rule, the case chooser, the filter, the sort, paging, node selection and the
 // render-cost contract. Invented data only (`resultOverlayFixtures`).
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";

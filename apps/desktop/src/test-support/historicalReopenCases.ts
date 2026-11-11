@@ -316,7 +316,7 @@ function fileValue(ref: FileRef): Json {
   const value = JSON.parse(readFileSync(resolve(ROOT, ref.path), "utf8"));
   return ref.pointer.split("/").slice(1).reduce((at: Json, key: string) => at[key.replace(/~1/g, "/").replace(/~0/g, "~")], value);
 }
-/** RT-A4 §10.4: main's runs recorded before RT-A4 (`recorded_pre_rt_a4_pf`, verbatim), one per
+/** main's runs recorded before RT-A4 (`recorded_pre_rt_a4_pf`, verbatim), one per
  * registry variant with a renderable record, each as a saved project's run (its model as
  * `recordedPreRtA4Display.test.tsx` reopens it); the preview-physics-2 run also with its binding's
  * digest unknown (read under the current tables: no recorded read, no historical finding), and
@@ -340,7 +340,7 @@ async function preRtA4Cases(): Promise<{ saved: SavedCase[]; recorded: RecordedC
     { name: "physics-retained-1-pr101", ...retained("physics_retained_1/pr101", "retained_precision_exact_successor_sparse_interactive") },
     // RT-A3 increment 4: main's RT-A4 exact successor (040ef9a6…, a recorded binding only).
     { name: "physics-retained-1-main-bbf384dec", ...retained("physics_retained_1/main_bbf384dec", "retained_precision_exact_successor_sparse_interactive") },
-    // RT-A3 §4: main's exact successor at 252bef969 (85c2678a…, a recorded binding only).
+    // main's exact successor at 252bef969 (85c2678a…, a recorded binding only).
     { name: "physics-retained-1-main-252bef969", ...retained("physics_retained_1/main_252bef969", "retained_precision_exact_successor_sparse_interactive") },
   ];
   const saved: SavedCase[] = [];
@@ -373,10 +373,10 @@ async function preRtA4Cases(): Promise<{ saved: SavedCase[]; recorded: RecordedC
 
 const PRE_RT_A5_1B = "fixtures/persistence/recorded_pre_rt_a5_1b_pf";
 const PRE_RT_A5_MF = "fixtures/persistence/recorded_pre_rt_a5_mf_pf";
-/** Operating-case slice 1b (PF1b, DEL-05-02 `operating-case.md` "As built (1b)"): main's
+/** Operating-case slice 1b (PF1b): main's
  * preview-physics-2 run recorded before 1b restated the combination policy (verbatim; it binds
  * e7b93f41…, a registry variant), as a saved project's run and as main's recorded revision of it.
- * RT-A5 `minuend_final` (`operating-case.md` §7.6): main's run recorded before it restated the
+ * RT-A5 `minuend_final`: main's run recorded before it restated the
  * policy again (`recorded_pre_rt_a5_mf_pf`, verbatim; it binds f41b9d3e…), the same two ways.
  * Main holds no record of a timoshenko-1 or retained-1 run before either (the fixture READMEs'
  * "Gap"). */

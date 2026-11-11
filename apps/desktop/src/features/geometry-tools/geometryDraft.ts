@@ -60,7 +60,7 @@ export function selectedGeometry(model: PreviewModel, refs: string[]) {
   return { nodes, pipe_segments: pipes };
 }
 export const RECONNECT_CHANGE_KIND = "reconnect_pipe_run";
-/** The reconnect payload (DEL-16-06 Design `pipe-reconnect.md` §1): the engine enforces every rule. */
+/** The reconnect payload: the engine enforces every rule. */
 export function reconnectPayload(model: PreviewModel, draft: GeometryDraft): Record<string, unknown> {
   if (draft.pipeRefs.length !== 1) throw new Error("Reconnect requires exactly one source pipe.");
   const [pipe] = selectedGeometry(model, draft.pipeRefs).pipe_segments;

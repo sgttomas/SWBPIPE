@@ -28,7 +28,7 @@ mod integrity;
 mod mass;
 mod outcome;
 mod prepare;
-mod request; mod resource; // design §5.3.8 P0, on this line so that no line moves.
+mod request; mod resource; // on this line so that no line moves.
 mod state;
 mod stiffness; mod skew_pencil;
 mod weight_basis;
@@ -45,7 +45,7 @@ mod observation_tests;
 #[cfg(test)]
 mod phase_measurand_tests;
 
-/// The request names neither `mode_count` nor `frequency_cutoff` (§1.4).
+/// The request names neither `mode_count` nor `frequency_cutoff`.
 pub(crate) const MODAL_EXTRACTION_BOUND_REQUIRED: &str = "MODAL_EXTRACTION_BOUND_REQUIRED";
 /// A named bound that is not positive: `mode_count` 0, or a `frequency_cutoff`
 /// that is not a finite positive frequency of the units catalog.
@@ -60,16 +60,16 @@ pub(crate) const MODAL_STATE_CASE_UNAVAILABLE: &str = "MODAL_STATE_CASE_UNAVAILA
 /// A request modulus basis together with a state case.
 pub(crate) const MODAL_MODULUS_BASIS_CONFLICT: &str = "MODAL_MODULUS_BASIS_CONFLICT";
 /// A component body enters the mass and the request names no
-/// `weight_to_mass_acceleration` (§2.3 item 4).
+/// `weight_to_mass_acceleration`.
 pub(crate) const MODAL_WEIGHT_ACCELERATION_REQUIRED: &str = "MODAL_WEIGHT_ACCELERATION_REQUIRED";
 /// `weight_to_mass_acceleration` is not a finite positive acceleration.
 pub(crate) const MODAL_WEIGHT_ACCELERATION_INVALID: &str = "MODAL_WEIGHT_ACCELERATION_INVALID";
 /// A current applied component-weight primitive's acceleration magnitude is
-/// not a, bit for bit (§2.3 item 5).
+/// not a, bit for bit.
 pub(crate) const MODAL_WEIGHT_ACCELERATION_MISMATCH: &str = "MODAL_WEIGHT_ACCELERATION_MISMATCH";
 /// A component body outside §2.3 item 6's binary64 range premise.
 pub(crate) const MODAL_COMPONENT_MASS_OUT_OF_RANGE: &str = "MODAL_COMPONENT_MASS_OUT_OF_RANGE";
-/// The weight-basis identity fails (§2.5).
+/// The weight-basis identity fails.
 pub(crate) const MODAL_MASS_WEIGHT_BASIS_MISMATCH: &str = "MODAL_MASS_WEIGHT_BASIS_MISMATCH";
-/// Timoshenko straight members, on either route, until M4 (§1.2).
+/// Timoshenko straight members, on either route, until M4.
 pub(crate) const MODAL_TIMOSHENKO_MASS_UNSUPPORTED: &str = "MODAL_TIMOSHENKO_MASS_UNSUPPORTED";

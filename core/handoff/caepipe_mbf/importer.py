@@ -1,4 +1,4 @@
-"""CAEPIPE MBF model importer (DEL-17-04; Design `caepipe-mbf-import.md`).
+"""CAEPIPE MBF model importer (DEL-17-04).
 
 `import_caepipe_mbf` reads the declared first-tranche subset of a CAEPIPE MBF
 (model batch file) into a SWBPIPE model document of the current model-document
@@ -14,7 +14,7 @@ their MBF unit (pressure too: bar or psi). The only conversions are the two exac
 file is turned into SWBPIPE's Y-vertical axes by an exact rotation (§5.1).
 
 An import is bound when the writer sidecar's `mbf_sha256` equals the SHA-256 of
-the input bytes; only then are the writer's own conventions applied (§1).
+the input bytes; only then are the writer's own conventions applied.
 
 From the project root:
 
@@ -66,7 +66,7 @@ from .si_writer import (
 IMPORT_PROFILE_ID = "caepipe-mbf-import-1"
 REPORT_KIND = "swbpipe.caepipe_mbf_import_report"
 MODEL_KIND = "openpipestress.product_preview.model"
-# MBF versions whose field layouts this importer reads (§4.2); adding one is a reviewed edit with its own tests.
+# MBF versions whose field layouts this importer reads; adding one is a reviewed edit with its own tests.
 ACCEPTED_VERSIONS = (MBF_VERSION,)
 # Appendix PD-1 (a retained, bounded profile decision): unbound imports of these versions admit the load
 # reference `L=` and FOR/MOM without FLC. An empty tuple restores the base rule (TBD-17-04-007).
@@ -86,7 +86,7 @@ _ANALYSIS_STATUS = {"mechanics": "ready_for_preview_diagnostics",
                     "professional_acceptance": "not_provided"}
 DOFS = ("UX", "UY", "UZ", "RX", "RY", "RZ")
 _AXES = "XYZ"
-# OPTIONS Z (Design §5.1): the file's global (X, Y, Z) becomes SWBPIPE's Y-vertical (x, y, z) = (X, Z, -Y), the
+# OPTIONS Z: the file's global (X, Y, Z) becomes SWBPIPE's Y-vertical (x, y, z) = (X, Z, -Y), the
 # proper rotation by -90 degrees about X that takes the file's vertical +Z to +y. It permutes axes and changes one
 # sign, so it is exact. File axis j goes to SWBPIPE axis _Z_TARGET[j][0] with sign _Z_TARGET[j][1].
 _Z_TARGET = {0: (0, 1), 1: (2, -1), 2: (1, 1)}
@@ -94,17 +94,17 @@ _FORCE_DIRECTIONS = ("global_x", "global_y", "global_z")
 _THERMAL_DIRECTION = "global_x"  # the token the invented correlation cases use; the solve does not read it
 # Exact catalog factors to Pa (core/units: MPa = 1e6 Pa; psi = lbf / in^2), used only to derive G in Pa.
 _PA_PER_UNIT = {"MPa": 1_000_000.0, "psi": 4.448_221_615_260_5 / 0.000_645_16}
-# Pressure (Design §9.4). LOADS Pressure 1 is in bar in SI files and psi in English files (Format of .MBF, LOADS);
+# Pressure. LOADS Pressure 1 is in bar in SI files and psi in English files (Format of .MBF, LOADS);
 # it keeps that unit, which the units catalog reads to Pa by its binary64 factors (bar 1e5; psi PSI_IN_PASCALS).
 PRESSURE_UNIT = {True: "bar", False: "psi"}
 # A document with pressure takes the exact pressure contract (schemas/model.schema.yaml, PressureContract). An
 # unbound import takes the contract's default shear model, Timoshenko with the energy-matched annular shear factor
-# (owner D-6), or the caller's `shear_model`; a bound import keeps the sidecar's (Design §9.4).
+# (owner D-6), or the caller's `shear_model`; a bound import keeps the sidecar's.
 PRESSURE_CONTRACT = {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "timoshenko_annulus_energy_v1"}
 SHEAR_MODELS = ("euler_bernoulli", "timoshenko_annulus_energy_v1")
 PRESSURE_BASIS = "internal_differential_zero_external_v1"
 CLOSURE_TRANSFERS = ("transfers_to_wall", "separately_supported_or_compensated")
-# What a bound or rebound import admits from a sidecar, field by field (Design §15): the rigid support families the
+# What a bound or rebound import admits from a sidecar, field by field: the rigid support families the
 # writer exports and the exact route admits (absent for a restraint), and the direction tokens the solve parses
 # (product_physics `parse_direction`), the only restored direction being a thermal primitive's, which it does not read.
 RESTORABLE_SUPPORT_FAMILIES = (None, "anchor", "guide", "line_stop", "vertical_support")
@@ -125,7 +125,7 @@ OPPRES_DEFAULTS = ("0", "1", "1", "1.00", "0")
 # collinear_run), and the catalog factors (core/units: value * factor + 0.0) by which it reads node positions in m.
 REPRESENTATION_GUARD = 64 * 2.0 ** -52
 # The exact route's mitre threshold alpha_tan (curved_bend TANGENCY_TOLERANCE_RAD): a direction change above it,
-# measured as its `kink`, 2 atan2(|a - t|, |a + t|) of the unit directions, is a corner (Design §9.4).
+# measured as its `kink`, 2 atan2(|a - t|, |a + t|) of the unit directions, is a corner.
 TANGENCY_TOLERANCE_RAD = 1.0e-3
 # frame_kernel AXIS_TOLERANCE: a vector whose norm (sqrt of the dot product) is at most this cannot be normalized.
 AXIS_TOLERANCE = 1.0e-12
@@ -153,18 +153,18 @@ PIPING_CODE_OPTIONS = (
 )
 # Documented field counts per record for VERSION 15.10.
 # OPMISC's documented layout has 10 fields; the layout CAEPIPE's MBF export writes has 13 (observed format
-# behaviour, Design §6): fields 1-8 as documented, field 9 not publicly described, field 10 the gravitational
+# behaviour): fields 1-8 as documented, field 9 not publicly described, field 10 the gravitational
 # acceleration and fields 11-13 the gravitational direction as three components.
 OPMISC_EXPORT_FIELDS = 13
 # The gravitational setting every observed export writes for the default (earth) environment, Y vertical: 386.4
-# (in/s^2, in SI files too) and direction (0, -1, 0). Only this setting is read (Design §6, TBD-17-04-005).
+# (in/s^2, in SI files too) and direction (0, -1, 0). Only this setting is read (TBD-17-04-005).
 EARTH_GRAVITY = (Fraction("386.4"), (Fraction(0), Fraction(-1), Fraction(0)))
 # In a Z-vertical file the same setting is read only with its direction along the file's -Z, the vertical the
-# option declares (selected interpretation, Design §6; no Z-vertical export has been observed).
+# option declares (selected interpretation; no Z-vertical export has been observed).
 EARTH_GRAVITY_DIRECTION_Z = (Fraction(0), Fraction(0), Fraction(-1))
 # The documented 10-field layout gives the acceleration in the file's unit (Format of .MBF, OPMISC: in/sec2 or
 # m/sec2). It is read only as standard gravity, 9.80665 m/s^2 or 9.80665 / 0.0254 in/s^2, printed correctly rounded
-# to its own digits with at least three significant digits (Design §6).
+# to its own digits with at least three significant digits.
 STANDARD_GRAVITY_BY_MODE = {True: Fraction("9.80665"), False: Fraction("9.80665") / Fraction("0.0254")}
 GRAVITY_MIN_DIGITS = 3
 FIELD_COUNTS = {"OPCODE": 9, "OPTEMP": 5, "OPPRES": 5, "OPMISC": 10, "MATERIAL_FIRST": 13,
@@ -209,18 +209,18 @@ _ROTATION_NAMES = {"ROT": None, **{f"ROT{axis}": index for index, axis in enumer
 _FIXD_NAMES = {"FIXD": None, "F": None, **{f"FIXD{axis}": index for index, axis in enumerate(_AXES)},
                **{f"F{axis}": index for index, axis in enumerate(_AXES)}}
 _FIXR_NAMES = {"FIXR": None, **{f"FIXR{axis}": index for index, axis in enumerate(_AXES)}}
-# Guides, limit stops, skewed restraints and flexible anchors (Design §12, tranche 3; Format of .MBF, comment list).
+# Guides, limit stops, skewed restraints and flexible anchors (tranche 3; Format of .MBF, comment list).
 # A row carries at most one support type, and its data comments belong to it: GGAP to a guide, MU and STIFF to a guide
 # or limit stop, DV to a limit stop or skewed restraint. TRAK and ROTK are a flexible anchor's (KA) stiffnesses.
 _SUPPORT_TYPES = {"G": "guide", "LS": "stop", "K": "skew"}
-# Two spellings MBF files carry (observed format behaviour; Design §12): `STIFF=Rigid` on a guide or limit stop, the
+# Two spellings MBF files carry (observed format behaviour): `STIFF=Rigid` on a guide or limit stop, the
 # rigid stiffness the technical reference names as both supports' default (Guide; Limit Stop), and `None` for a blank
 # limit stop limit, the technical reference's display of a blank limit, free on that side (Limit Stop).
 RIGID_STIFFNESS = "Rigid"
 BLANK_LIMIT = "None"
 _SUPPORT_DATA = {"GGAP": ("G",), "MU": ("G", "LS"), "STIFF": ("G", "LS"), "DV": ("LS", "K")}
 _SUPPORT_NAMES = {"G": "a guide (G)", "LS": "a limit stop (LS)", "K": "a skewed restraint (K)"}
-# Support comments whose meaning the public manual leaves open (TBD-17-04-010, Design §20.1).
+# Support comments whose meaning the public manual leaves open (TBD-17-04-010).
 _TBD_010_COMMENTS = {
     "AXIAL": "AXIAL sets a limit stop along its element's local x, but no public page says which element's axes a "
              "limit stop takes",
@@ -258,7 +258,7 @@ _KEYWORD_LIKE = re.compile(r"[A-Z][A-Z0-9]{2,}\Z")
 
 @dataclass
 class IdentityRecoveryFacts:
-    """The importer's identity-recovery accounting (DEL-17-04 Design `desktop-mbf-export-import.md` §5.3), counted
+    """The importer's identity-recovery accounting, counted
     at the emissions that report it: Rust `IdentityRecoveryFacts`. Fixed-size producer facts for the bounded review,
     not part of to_dict(), the report, the model or the id map. Neither count establishes that the original source
     was completely represented; the exchange never establishes that.
@@ -276,7 +276,7 @@ class IdentityRecoveryFacts:
 
 @dataclass(frozen=True)
 class SidecarExportSettings:
-    """A format-6 sidecar's `derivation.export_settings` (Design §15, Format 6): the writer inputs outside the model
+    """A format-6 sidecar's `derivation.export_settings` (Format 6): the writer inputs outside the model
     document that can change the MBF bytes, as the writer used them. Rust `SidecarExportSettings`."""
 
     title: str  # the printed title line
@@ -288,7 +288,7 @@ class SidecarExportSettings:
 
 @dataclass(frozen=True)
 class SidecarDerivation:
-    """A bound format-6 sidecar's `derivation` (Design §15, Format 6), as the sidecar declares it: the SHA-256 of the
+    """A bound format-6 sidecar's `derivation` (Format 6), as the sidecar declares it: the SHA-256 of the
     canonical model document the writer read, and the export settings. Held at the sidecar's source-free trust level
     for a later check against a designated source document; the import neither verifies nor uses it. Rust
     `SidecarDerivation`."""
@@ -355,11 +355,11 @@ def import_caepipe_mbf(
     """Import the declared MBF subset into a SWBPIPE model document, or refuse by name.
 
     `sidecar` is the writer sidecar as parsed JSON, or its JSON text (bytes or str), which the importer parses
-    strictly (parse_sidecar_json; Design §15): a repeated member name, a NaN or Infinity, or bytes that are not strict
+    strictly (parse_sidecar_json): a repeated member name, a NaN or Infinity, or bytes that are not strict
     UTF-8 are refused by JSON path. A caller passing parsed JSON has resolved its own parse.
 
     `pressure_closure` is the caller's closure-transfer declaration for the terminals of pressure regions an
-    unbound import forms (Design §9.4): {"closure_transfer": "transfers_to_wall" or
+    unbound import forms: {"closure_transfer": "transfers_to_wall" or
     "separately_supported_or_compensated", "provenance": "<basis>", "nodes": {"<CAEPIPE node>": <closure>}}, with
     "nodes" optional. It governs the real ends of regions (free ends, tees, pressure or bore changes); a terminal at a
     straight-to-straight corner takes transfers_to_wall, deduced from the continuous pipe wall, unless "nodes" names
@@ -375,7 +375,7 @@ def import_caepipe_mbf(
 
 def documented_orientations(data: bytes) -> dict[tuple[str, str], tuple[float, float, float]] | None:
     """CAEPIPE's documented local y of each straight of the MBF `data`, keyed by its (from, to) CAEPIPE names, as an
-    import derives it from the MBF's own positions (Design §10.5); None if the import refuses the file before its
+    import derives it from the MBF's own positions; None if the import refuses the file before its
     positions are read. The SI writer records these for straights without an authored y_reference."""
     importer = _Importer(data, None, None, False, "documented orientations", derive_only=True)
     importer.run()
@@ -461,7 +461,7 @@ def fraction_of(text: str) -> Fraction:
 
 
 def half_unit(text: str) -> Fraction:
-    """Half a unit in the last printed digit of a decimal (§10.1 conflict bound); 0 for an exact zero."""
+    """Half a unit in the last printed digit of a decimal (conflict bound); 0 for an exact zero."""
     mantissa, _, exponent = text.lstrip("+-").lower().partition("e")
     if exact_decimal(mantissa or "0") == 0:
         return Fraction(0)
@@ -485,7 +485,7 @@ def tenth_digit(value: Fraction) -> Fraction:
 
 
 def parse_english_length(text: str) -> Fraction | None:
-    """Exact inches for one documented English length form (§5.4), or None when the form is not documented."""
+    """Exact inches for one documented English length form, or None when the form is not documented."""
     match = _FEET_ONLY.match(text)
     if match:
         value = fraction_of(match.group(2)) * 12
@@ -519,7 +519,7 @@ def english_length_bound(text: str) -> Fraction:
 # Coordinate System; DEL-17-01 CAEPIPE-LOCAL-AXES): a non-vertical element's local y lies in the plane of its
 # local x and global Y, toward +Y; a vertical element's local y is global -X. The manual gives no angle for
 # "vertical"; this profile treats an element as vertical when the horizontal part of its unit direction is at
-# most VERTICAL_SINE (selected interpretation, Design §10.5).
+# most VERTICAL_SINE (selected interpretation).
 VERTICAL_SINE = 1e-6
 
 
@@ -527,7 +527,7 @@ def local_y_reference(start: Iterable[float], end: Iterable[float], *,
                       z_vertical: bool = False) -> tuple[float, float, float]:
     """The documented local y of a straight from `start` to `end`, in SWBPIPE's Y-vertical axes.
 
-    With `z_vertical`, the file's vertical was Z and the points are already rotated (§5.1): the documented local z
+    With `z_vertical`, the file's vertical was Z and the points are already rotated: the documented local z
     is then the projected vertical +y and local y = z x x = (x_z, 0, -x_x) / |(x_x, x_z)|, horizontal; a vertical
     element's local y is the file's global Y, which is SWBPIPE's -z."""
     x = _unit(_sub(tuple(end), tuple(start)))
@@ -851,13 +851,13 @@ def runtime_bend_tangents(start_m, end_m, radius_m: float, y_reference) -> tuple
 
 
 # ---------------------------------------------------------------------------
-# the sidecar (Design §15)
+# the sidecar
 # ---------------------------------------------------------------------------
 _SHA256 = re.compile(r"[0-9a-f]{64}\Z")
-# The sidecar formats this importer reads (Design §15): 2; 3, which is 2 with its self-digest; 4, which is 3 with
+# The sidecar formats this importer reads: 2; 3, which is 2 with its self-digest; 4, which is 3 with
 # `section_map` (Format 4: section identities); and the current writer's 6, which is 4 with `derivation` and each bend
 # entry's `node` (Format 6). Formats 3, 4 and 6 carry the self-digest and may record springs. Format 5, the held
-# Route 1 design (§20.4.5), is not read: it is refused as any other unknown format.
+# Route 1 design, is not read: it is refused as any other unknown format.
 SIDECAR_FORMATS = (2, 3, 4, SIDECAR_FORMAT)
 DIGESTED_FORMATS = (3, 4, SIDECAR_FORMAT)
 SECTION_FORMATS = (4, SIDECAR_FORMAT)  # the formats with `section_map` of library section ids
@@ -896,7 +896,7 @@ def runtime_support_findings(supports: Iterable[tuple[str, str, str | None, list
 
 def canonical_sidecar(sidecar: Mapping[str, Any]) -> dict[str, Any]:
     """`sidecar` without its digests (`mbf_sha256`, which decides the route, and the self-digest), in the form the
-    regeneration identity compares (Design §14): every number a binary64 (1 and 1.0 are one value), key order
+    regeneration identity compares: every number a binary64 (1 and 1.0 are one value), key order
     immaterial, and each load direction as the axis it names through its aliases (`global_y`, `GLOBAL_Y`, `UY`, `uy`:
     UY; `rotation_x`, `rx`: RX)."""
     def walk(value: Any) -> Any:
@@ -992,7 +992,7 @@ def primitive_key(entry: Mapping[str, Any]) -> tuple:
 
 
 class _SidecarParser:
-    """The strict sidecar parser, run before anything reads the sidecar (Design §15). Every key has an exact JSON
+    """The strict sidecar parser, run before anything reads the sidecar. Every key has an exact JSON
     type (a bool is not a number, null is not a default), an allowed vocabulary, a non-empty value where an id or
     name is required, and finite binary64 range for numbers; unknown keys and wrong shapes are refused by JSON path.
     A sidecar with `sidecar_format` 2, 3 (2 with its self-digest `sidecar_sha256`, which _Importer.self_digest
@@ -1117,7 +1117,7 @@ class _SidecarParser:
 
     def support(self, value: Any, path: str) -> Any:
         common = {"node": self.text, "restrained": self.items(self.choice(DOFS))}
-        if self.current:  # formats 3 and 4 also record springs (Design §12, tranche 3); format 2 rigid families only
+        if self.current:  # formats 3 and 4 also record springs (tranche 3); format 2 rigid families only
             families = (*_RIGID_FAMILIES, SPRING_FAMILY) if self.format_number in DIGESTED_FORMATS else _RIGID_FAMILIES
             entry = self.record(value, path, {**common, "family": self.choice(families),
                                               "family_authored": self.flag})
@@ -1156,7 +1156,7 @@ class _SidecarParser:
                                          "elements": self.items(self.text)})
 
     def section_identity(self, value: Any, path: str) -> Any:
-        """Format 4: the library section a PIPE record's pipes reference, or null for none (Design §15)."""
+        """Format 4: the library section a PIPE record's pipes reference, or null for none."""
         return self.record(value, path, {"swbpipe_section": lambda item, where: None if item is None
                                          else self.text(item, where)})
 
@@ -1232,7 +1232,7 @@ class _SidecarParser:
         return None if value is None else self.count(value, path)
 
     def derivation(self, value: Any, path: str) -> Any:
-        """Format 6 (Design §15): the SHA-256 of the canonical model document the writer read, and the export settings
+        """Format 6: the SHA-256 of the canonical model document the writer read, and the export settings
         the writer used: the printed title, the reference temperature argument with its unit, the row limit or null,
         and the piping code, null or a documented OPTIONS token the writer writes."""
         reference = lambda item, where: self.record(item, where, {  # noqa: E731
@@ -1473,7 +1473,7 @@ class _Importer:
 
     def incomplete(self, map_name: str, in_file: Iterable[Any], in_sidecar: Iterable[Any], what: str) -> None:
         """A byte-bound sidecar was written for exactly this file: each of its entries names something in the file,
-        and each such thing has its entry, or the sidecar is refused (Design §15)."""
+        and each such thing has its entry, or the sidecar is refused."""
         in_file, in_sidecar = list(in_file), list(in_sidecar)
         missing = [item for item in in_file if item not in in_sidecar]
         extra = [item for item in in_sidecar if item not in in_file]
@@ -1514,7 +1514,7 @@ class _Importer:
         )
 
     def derivation(self) -> SidecarDerivation | None:
-        """A bound format-6 sidecar's derivation, as it declares it (Design §15, Format 6); None otherwise."""
+        """A bound format-6 sidecar's derivation, as it declares it (Format 6); None otherwise."""
         recorded = self.maps.get("derivation") if self.bound and self.sidecar_format == SIDECAR_FORMAT else None
         if recorded is None:
             return None
@@ -1560,7 +1560,7 @@ class _Importer:
         self.add_assumptions()
         return self.result(model, id_map)
 
-    # -- §4.1 bytes, lines and encoding ----------------------------------
+    # -- bytes, lines and encoding ----------------------------------
     def decode(self) -> None:
         try:
             text = bytes(self.data).decode("utf-8", errors="strict")
@@ -1584,7 +1584,7 @@ class _Importer:
             parts.pop()
         self.lines = [(index + 1, part.rstrip(" \t")) for index, part in enumerate(parts)]
 
-    # -- §4.2 heading and sections -----------------------------------------
+    # -- heading and sections -----------------------------------------
     def keyword(self, text: str, line: int) -> str | None:
         if text in SECTION_KEYWORDS:
             return text
@@ -1737,7 +1737,7 @@ class _Importer:
                             f"OPTIONS {key}", f"OPTIONS {key.replace('_', ' ')} is pass-through target configuration "
                             "only; it does not become SWBPIPE rule or code-checking logic")
 
-    # -- sidecar (§15) -----------------------------------------------------
+    # -- sidecar -----------------------------------------------------
     def bind_sidecar(self) -> None:
         if self.sidecar is None:
             if self.rebind:
@@ -1750,9 +1750,9 @@ class _Importer:
                 for path, reason in error.findings:
                     self.refuse("MBF-IMPORT-SIDECAR-INVALID", 0, path, f"the sidecar JSON at {path} {reason}")
                 return
-        if not self.self_digest():  # before anything else reads the sidecar, on every route (Design §15)
+        if not self.self_digest():  # before anything else reads the sidecar, on every route
             return
-        parser = _SidecarParser()  # strict, before anything reads the sidecar (Design §15)
+        parser = _SidecarParser()  # strict, before anything reads the sidecar
         parsed = parser.parse(self.sidecar)
         if parsed is None:
             for path, reason in parser.errors:
@@ -1790,7 +1790,7 @@ class _Importer:
         self.ambiguous()
 
     def self_digest(self) -> bool:
-        """Design §15: a sidecar claiming format 3, 4 or 6 must carry its self-digest `sidecar_sha256`, the SHA-256 of
+        """a sidecar claiming format 3, 4 or 6 must carry its self-digest `sidecar_sha256`, the SHA-256 of
         its canonical content without it (si_writer.sidecar_canonical_bytes), and that digest must be the content's, or
         the import is refused, before the parser or any route reads it. It catches an accidental or partial edit; a
         deliberate editor can recompute it, so the parser, the agreement rule and the regeneration identity still
@@ -1860,7 +1860,7 @@ class _Importer:
                     f"version {self.version}")
         return False
 
-    # -- §6 analysis options -------------------------------------------------
+    # -- analysis options -------------------------------------------------
     def read_analysis_options(self) -> None:
         if "OPTEMP" in self.sections:
             lines = self.data_lines("OPTEMP")
@@ -1922,7 +1922,7 @@ class _Importer:
                         f"{name} configures CAEPIPE's own analysis; pass-through target configuration only")
 
     def read_opmisc(self, line: int, fields: list[str]) -> None:
-        """OPMISC (§6): dynamics options pass through; the gravitational setting is read only as the earth default."""
+        """OPMISC: dynamics options pass through; the gravitational setting is read only as the earth default."""
         if len(fields) != OPMISC_EXPORT_FIELDS and self.too_many(fields, FIELD_COUNTS["OPMISC"], line, "OPMISC"):
             return
         self.target_options["OPMISC"] = {"fields": fields[:8]}
@@ -1966,7 +1966,7 @@ class _Importer:
                     + (" (the file's -Z, rotated)" if self.z_vertical else ""))
         self.used_conventions.add(("gravity", "the earth gravity setting"))
 
-    # -- §7 MATERIAL -----------------------------------------------------------
+    # -- MATERIAL -----------------------------------------------------------
     def read_materials(self) -> None:
         order: list[str] = []
         for line, text in self.sections.get("MATERIAL", (0, []))[1]:
@@ -2081,7 +2081,7 @@ class _Importer:
             return
         record["rows"].append((modulus, alpha, temperature))
 
-    # -- §8 PIPE -------------------------------------------------------------
+    # -- PIPE -------------------------------------------------------------
     def read_pipes(self) -> None:
         for line, text in self.data_lines("PIPE"):
             fields = self.fields(line, text, "PIPE")
@@ -2099,7 +2099,7 @@ class _Importer:
             self.pipes[name] = record
             if self.too_many(fields, FIELD_COUNTS["PIPE"], line, location):
                 continue
-            allowance_given = len(fields) > 3 and fields[3] != ""  # field 4 present, for the pressure contract (§9.4)
+            allowance_given = len(fields) > 3 and fields[3] != ""  # field 4 present, for the pressure contract
             fields = fields + [""] * (FIELD_COUNTS["PIPE"] - len(fields))
             od = self.real(fields[1], line, f"{location} field 2 (OD)")
             thk = self.real(fields[2], line, f"{location} field 3 (thickness)")
@@ -2121,7 +2121,7 @@ class _Importer:
             if ok:
                 record.update(refused=False, od=od, thk=thk, allowance_given=allowance_given)
 
-    # -- §9 LOADS ------------------------------------------------------------
+    # -- LOADS ------------------------------------------------------------
     def read_loads(self) -> None:
         for line, text in self.data_lines("LOADS"):
             fields = self.fields(line, text, "LOADS")
@@ -2204,7 +2204,7 @@ class _Importer:
                                  "message": f"load {name}: thermal load {n} (T{n}, P{n}) is inactive and dropped: "
                                             f"{reason}"})
 
-    # -- §14 other sections -------------------------------------------------
+    # -- other sections -------------------------------------------------
     def read_other_sections(self) -> None:
         for name, (header, entries) in self.sections.items():
             kind = SECTION_KEYWORDS[name]
@@ -2234,7 +2234,7 @@ class _Importer:
             if required not in self.sections:
                 self.refuse("MBF-IMPORT-SECTION-MISSING", 0, required, f"the MBF has no {required} section")
 
-    # -- §4.4 layout rows -------------------------------------------------------
+    # -- layout rows -------------------------------------------------------
     def read_layout_rows(self) -> list[_Row | tuple[int, str]]:
         rows: list[_Row | tuple[int, str]] = []
         entries = [(line, text) for line, text in self.sections.get("LAYOUT", (0, []))[1] if text]
@@ -2326,7 +2326,7 @@ class _Importer:
             row.keys[letter] = value[1:]
         return row
 
-    # -- §5.4 lengths ------------------------------------------------------------
+    # -- lengths ------------------------------------------------------------
     def length(self, text: str, line: int, location: str) -> tuple[Fraction, Fraction] | None:
         """(exact value, half-unit bound) in the length unit (in or mm)."""
         if self.si:
@@ -2340,7 +2340,7 @@ class _Importer:
             return None
         return value, english_length_bound(text)
 
-    # -- §10-§13 the model -----------------------------------------------------------
+    # -- the model -----------------------------------------------------------
     def build(self, rows: list[_Row | tuple[int, str]]) -> tuple[dict[str, Any], dict[str, Any]]:
         self.nodes: dict[int, dict[str, Any]] = {}
         self.node_order: list[int] = []
@@ -2418,7 +2418,7 @@ class _Importer:
         return model, id_map
 
     def checked_json_domain(self, model: dict[str, Any]) -> None:
-        """Design §9.4 guard map: every number of the emitted document lies in the checked-JSON numeric domain the
+        """every number of the emitted document lies in the checked-JSON numeric domain the
         solve reads it under (canonical_json `validate_checked_value`, profile openpipestress_jcs_ijson_v1): an
         integer within +-(2^53 - 1) (CHECKED-JSON-UNSAFE-INTEGER), a finite number (CHECKED-JSON-NON-FINITE), and no
         integral float beyond 2^53 - 1 (CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT). The importer writes each number as
@@ -2453,7 +2453,7 @@ class _Importer:
         walk(model, "", 0)
 
     def regeneration_identity(self, model: dict[str, Any], id_map: dict[str, Any]) -> None:
-        """The exact-digest route's guard of record (Design §14, VER-002 r13): the writer regenerates the sidecar
+        """The exact-digest route's guard of record (VER-002 r13): the writer regenerates the sidecar
         from the imported model (no MBF is written), and the format-2, -3, -4 or -6 sidecar given must equal it after
         canonicalisation (sidecar_difference); otherwise MBF-IMPORT-SIDECAR-NOT-REPRODUCED names the first differing
         JSON path. The one input beyond the model is the import's record of which straights' y_reference it derived
@@ -2478,7 +2478,7 @@ class _Importer:
             # is not that document (its project, labels, provenance and every member the writer does not export
             # differ) and the regeneration has no export settings, so no derivation can be regenerated from it. It is
             # held as recorded, at the sidecar's source-free trust level, for a later check against a designated
-            # source (Design §15, Format 6). Each format-6 bend's `node` is compared: it regenerates from the restored
+            # source (Format 6). Each format-6 bend's `node` is compared: it regenerates from the restored
             # component.
             regenerated.pop("derivation", None)
             if self.sidecar_format == SIDECAR_FORMAT:
@@ -2506,7 +2506,7 @@ class _Importer:
 
     def straight_ends(self) -> list[tuple[str, str, tuple[float, ...], tuple[float, ...]]]:
         """Each element's straight as (CAEPIPE from name, to name, from position, to position), the positions as the
-        import reads them: a bend's tangent nodes nA and nB stand in for its TI (§11)."""
+        import reads them: a bend's tangent nodes nA and nB stand in for its TI."""
         def end(number: int, near: bool) -> tuple[str, tuple[float, ...]]:
             if number in self.bend_geometry:
                 bend = self.bend_geometry[number]
@@ -2565,7 +2565,7 @@ class _Importer:
 
     def to_swb(self, values: dict[int, Any], *, signed: bool = True) -> dict[int, Any]:
         """Per-axis values keyed by file axis, keyed by SWBPIPE axis: unchanged for Y vertical; for Z vertical
-        rotated by _Z_TARGET (§5.1). A signed value is a Num or a (value, bound) pair; a flag only moves."""
+        rotated by _Z_TARGET. A signed value is a Num or a (value, bound) pair; a flag only moves."""
         if not self.z_vertical:
             return values
         out: dict[int, Any] = {}
@@ -2596,7 +2596,7 @@ class _Importer:
             return
         if values:
             # A missing axis on a From row that gives coordinates is 0: CAEPIPE's MBF export writes only the
-            # non-zero absolute coordinates (observed format behaviour, Design §10.1).
+            # non-zero absolute coordinates (observed format behaviour).
             exact = [values.get(index, (Fraction(0), Fraction(0)))[0] for index in range(3)]
             bound = [values.get(index, (Fraction(0), Fraction(0)))[1] for index in range(3)]
         elif first:
@@ -2772,7 +2772,7 @@ class _Importer:
                 if number is not None:
                     self.elements[-1].factor = number
                 record["comment_lines"].remove(line)  # FF is bend data, not a node comment
-            elif name == "BSIF":  # Format of .MBF, BSIF: a bend's SIFs, in-plane then out-of-plane (§11)
+            elif name == "BSIF":  # Format of .MBF, BSIF: a bend's SIFs, in-plane then out-of-plane
                 if row.keys.get("K") != "I":
                     self.refuse("MBF-IMPORT-COMMENT-INVALID", line, where, "BSIF is read on a KI bend row only")
                     continue
@@ -2844,7 +2844,7 @@ class _Importer:
 
     def row_supports(self, record: dict[str, Any], data: dict[str, tuple[str | None, str | None, int, str]],
                      location: str) -> None:
-        """Design §12, tranche 3: the guide (G), limit stop (LS) or skewed restraint (K) one row carries, with its data
+        """the guide (G), limit stop (LS) or skewed restraint (K) one row carries, with its data
         comments. Each is read only rigid and axis-aligned, or as a spring along one global axis; gaps, friction and
         skewed directions are refused by name."""
         start = self.errors()
@@ -2883,7 +2883,7 @@ class _Importer:
                             "a friction coefficient (MU) makes the support nonlinear, its friction opposing motion "
                             "normal to the restraint; only MU=0 is read")
         if "STIFF" in data and data["STIFF"][0] == RIGID_STIFFNESS and data["STIFF"][1] is None:
-            pass  # STIFF=Rigid: the documented default, read exactly as a row without STIFF (Design §12)
+            pass  # STIFF=Rigid: the documented default, read exactly as a row without STIFF
         elif "STIFF" in data:
             stiffness = self.single_value("STIFF", data["STIFF"])
             if stiffness is not None and not stiffness.exact > 0:
@@ -2959,7 +2959,7 @@ class _Importer:
                                 "a location row, support or load at a tangent-intersection node is not read")
 
     def check_flexible_anchor(self, number: int, record: dict[str, Any]) -> None:
-        """Design §12, tranche 3: KA with TRAK(kx,ky,kz) and ROTK(kxx,kyy,kzz) is a flexible anchor, one stiffness per
+        """KA with TRAK(kx,ky,kz) and ROTK(kxx,kyy,kzz) is a flexible anchor, one stiffness per
         global DOF; 0 leaves the DOF free (documented: technical reference, Anchor). Its translational stiffnesses
         become springs; ROTK is read only as all zero, its unit being open (TBD-17-04-010)."""
         location = f"node {number}"
@@ -3023,7 +3023,7 @@ class _Importer:
             return None
         return along[0]
 
-    # -- §11 bends ---------------------------------------------------------------
+    # -- bends ---------------------------------------------------------------
     def resolve_bends(self) -> None:
         self.positions = {number: tuple(self.binary64(value, node["line"], f"node {number}", "node coordinate")
                                         for value in node["exact"]) for number, node in self.nodes.items()}
@@ -3100,7 +3100,7 @@ class _Importer:
                             "tangent nodes are rounded to binary64")
                 raise _Refused
 
-    # -- assembly (§15, §16) --------------------------------------------------------------
+    # -- assembly --------------------------------------------------------------
     def node_name_id(self, name: str) -> str:
         formed = f"node:{name}"
         if (self.bound or self.rebound) and name in getattr(self, "node_ids", {}):
@@ -3150,7 +3150,7 @@ class _Importer:
         if self.bound:
             self.incomplete("node_map", node_id, self.node_ids, "nodes")
 
-        # materials (§7) and library sections (§15, Format 4)
+        # materials and library sections (Format 4)
         materials, material_ids = self.assemble_materials(id_map, provenance, claim)
         sections, section_of = self.assemble_sections(id_map, provenance, claim, length_unit)
         # pipes, weights and temperatures
@@ -3218,7 +3218,7 @@ class _Importer:
                     elif entry.get("y_reference_authored") is False:
                         derived_y.append(swb_id)
                         # Recorded as derived: it must be the derivation, the documented local y on the MBF's
-                        # positions (Design §15, agreement rule).
+                        # positions (agreement rule).
                         derived = dict(zip("xyz", local_y_reference(point_of[a], point_of[b],
                                                                      z_vertical=self.z_vertical)))
                         if pipe["y_reference"] != derived:
@@ -3282,7 +3282,7 @@ class _Importer:
         name_of = {swb_id: name for name, swb_id in id_map["node_map"].items()}
         radius_of = {component["geometry"]["bend_pipe_ref"]: component["geometry"]["bend_radius"]["value"]
                      for component in components}
-        # What the runtime forms on the positions in m, read by the pressure region checks (Design §9.4): each pipe's
+        # What the runtime forms on the positions in m, read by the pressure region checks: each pipe's
         # frame axis and length, and each realized bend's end tangents; None where the runtime forms none.
         self.frame_x: dict[str, list[float] | None] = {}
         self.length_m: dict[str, float] = {}
@@ -3344,7 +3344,7 @@ class _Importer:
                             "motion only in load-state form (EXACT_IMPOSED_DISPLACEMENT_PRIMITIVE_UNSUPPORTED), which "
                             "this importer does not write")
                 raise _Refused
-            # The contract needs an explicit allowance on every section. PIPE field 4 is read only as 0 (§8); the
+            # The contract needs an explicit allowance on every section. PIPE field 4 is read only as 0; the
             # manual documents no default for an omitted field, so a section without it is refused, not zeroed.
             missing = sorted({element.section for element in self.elements
                               if not self.pipes[element.section]["allowance_given"]})
@@ -3421,7 +3421,7 @@ class _Importer:
                 if self.rebound:
                     self.unconfirmed.append(component_id)
             if self.bound and self.sidecar_format == SIDECAR_FORMAT:
-                # Format 6 records the tangent node the source component names (Design §15, Format 6). It is
+                # Format 6 records the tangent node the source component names (Format 6). It is
                 # restored as the byte-bound pair declares it, at the sidecar's source-free trust level: consistent
                 # with this file, not independently verified. It must be one of this bend's own tangent nodes.
                 if bend is not None and bend["node"] in (near_id, far_id):
@@ -3465,7 +3465,7 @@ class _Importer:
         return component
 
     def weight_per_length(self, element: _Element) -> float:
-        """w = -rho A (English, lbf/in) or -rho g0 A (SI, N/m), A the bare-metal area (§7.3)."""
+        """w = -rho A (English, lbf/in) or -rho g0 A (SI, N/m), A the bare-metal area."""
         density = self.materials[element.material]["density"].value
         if density == 0:
             return 0.0
@@ -3581,7 +3581,7 @@ class _Importer:
         return materials, material_ids
 
     def assemble_sections(self, id_map: dict[str, Any], provenance: Any, claim: Any, length_unit: str):
-        """Design §15, Format 4: a format-4 or format-6 sidecar's `section_map` restores, for each PIPE record with a library
+        """a format-4 or format-6 sidecar's `section_map` restores, for each PIPE record with a library
         section id, one `sections` entry (type pipe, OD and wall as the record's pipes get them, named by the record,
         its line as provenance) and the pipes' `section_ref`; bound by digest, or rebound by record name, unconfirmed.
         Returns the entries and the id by record name. Other formats and unbound imports form none."""
@@ -3638,7 +3638,7 @@ class _Importer:
             if record is None:
                 continue
             name = str(number)
-            # (id, DOFs, family, line, label): an anchor, a restraint, a guide, limit stops, then springs (§10.4, §12)
+            # (id, DOFs, family, line, label): an anchor, a restraint, a guide, limit stops, then springs
             imported: list[tuple[str, list[str], str | None, int, str]] = []
             springs: dict[str, tuple[Num, int]] = {}
 
@@ -3669,7 +3669,7 @@ class _Importer:
                 imported.append((f"support:{name}-restraint", dofs, None, line, "restraint"))
             for item in record["supports"]:
                 axis, line, stiffness = item["axis"], item["line"], item["stiffness"]
-                if item["kind"] == "guide":  # restrains its element's two lateral translations (§12)
+                if item["kind"] == "guide":  # restrains its element's two lateral translations
                     lateral = [DOFS[index] for index in range(3) if index != axis]
                     if stiffness is None:
                         add((f"support:{name}-guide", lateral, "guide", line, "guide"), "guide")
@@ -3868,7 +3868,7 @@ class _Importer:
                                 f"the bound sidecar's load_map records no primitive for {formed}, which the file has")
                 # A recorded direction the MBF determines (all but a thermal one, which the MBF does not carry) must be
                 # the MBF's: the gravity axis for a weight, the comment's axis for a force or moment, the moved DOF
-                # for a displacement (Design §15, agreement rule).
+                # for a displacement (agreement rule).
                 for map_key, recorded in (match[3] if self.bound and match is not None else []):
                     if (item["category"] != "thermal" and recorded is not None
                             and _DIRECTION_AXIS.get(recorded) != _DIRECTION_AXIS.get(item["direction"])):
@@ -3911,7 +3911,7 @@ class _Importer:
             case = {"id": case_id, "label": LOAD_CASE_LABELS[label_key], "kind": case_kind, "status": "draft",
                     "primitive_loads": loads, "provenance":
                     f"imported from MBF sha256:{self.sha}; CAEPIPE load case {LOAD_CASE_LABELS[label_key]}"}
-            if regions is not None:  # Pressure 1 acts in the sustained case, not in the expansion case (§9.4)
+            if regions is not None:  # Pressure 1 acts in the sustained case, not in the expansion case
                 case["pressure_regions"] = regions if kind == "sustained" else []
             load_cases.append(case)
         if self.bound:
@@ -3921,7 +3921,7 @@ class _Importer:
                             list(self.maps["load_case_map"].values()), "load cases")
         return load_cases
 
-    # -- §9.4 pressure ----------------------------------------------------------
+    # -- pressure ----------------------------------------------------------
     def assemble_pressure(self, pipes, pressures, arcs, point_of, id_map, claim):
         """(contract, regions) from LOADS Pressure 1, or None when the model has no pressure."""
         active = {pipe_id: number for pipe_id, (number, _) in pressures.items()
@@ -4035,7 +4035,7 @@ class _Importer:
     def route_checks(self, pressures, ends, arcs, point_of, name_of):
         """The exact route's whole-region checks, as ported: (runs, collinear, failures). `failures(members, start)`
         gives, for members in traversal order from `start`, the straight runs collinear_run refuses, whether the
-        equal-bore guard refuses, and the bend-adjacent junctions the tangency check refuses (Design §9.4)."""
+        equal-bore guard refuses, and the bend-adjacent junctions the tangency check refuses."""
         factor = _METRES_PER_UNIT["mm" if self.si else "in"]
 
         def far(pipe_id: str, node: str) -> str:
@@ -4084,7 +4084,7 @@ class _Importer:
             theta = kink(t_in, t_out) exceeds alpha_tan (PRESSURE_REGION_MITRE_UNSUPPORTED), and (place, None)
             where a bend's tangents, a junction's angle or a member's frame orientation is not formed
             (PRESSURE_REGION_GEOMETRY_INVALID). A straight no longer than 1e-12 m, which no orientation fits, is left
-            to the solve's named refusal (§10.1)."""
+            to the solve's named refusal."""
             found: list[tuple[str, float | None]] = [
                 (f"element {self.labels[member]}", None) for member in members
                 if (member in arcs and self.arc_tangents.get(member) is None)
@@ -4110,7 +4110,7 @@ class _Importer:
 
     def check_restored(self, restored, pressures, ends, arcs, point_of, name_of, label_of):
         """Bound regions checked whole as the route checks them, in their declared traversal order (from the first
-        terminal), never cut or reordered; None after a refusal (Design §9.4)."""
+        terminal), never cut or reordered; None after a refusal."""
         _, _, failures = self.route_checks(pressures, ends, arcs, point_of, name_of)
         line = self.loads_line()
         for region_id, members, terminals in restored:
@@ -4370,7 +4370,7 @@ class _Importer:
     def printed(self, recorded: float, number: Num | None, path: str, line: int) -> None:
         """A legacy record of a number the MBF prints. The writer printed it correctly rounded to ten significant
         digits, so the record lies within half a unit in the tenth significant digit of the printed value
-        (tenth_digit, §15), or is refused by path."""
+        (tenth_digit), or is refused by path."""
         if number is not None and abs(Fraction(recorded) - number.exact) <= tenth_digit(number.exact):
             return
         shown = "nothing" if number is None else number.text
@@ -4394,7 +4394,7 @@ class _Importer:
 
     def legacy_element(self, swb_id: str, entry: Mapping[str, Any], element: _Element, name: str, order: int,
                        bend: Mapping[str, Any] | None) -> None:
-        """What a legacy element entry repeats of the file (§15): its MBF record names, its member order and row, and
+        """What a legacy element entry repeats of the file: its MBF record names, its member order and row, and
         for a bend its radius and factor (printed), its TI (summed printed offsets, within their accumulated
         printing bounds), its angle (from those positions, within the angle the bounds subtend) and row node."""
         where = f"element_map[{swb_id}]"
@@ -4438,7 +4438,7 @@ class _Importer:
                         "positions allow")
 
     def legacy_tables(self) -> None:
-        """What legacy material and section entries repeat of the file (§15): each printed number within its printing
+        """What legacy material and section entries repeat of the file: each printed number within its printing
         bound, the temperatures in order, and the elements that carry the record, in layout order."""
         for name, entry in self.maps["material_map"].items():
             record, where = self.materials.get(name), f"material_map[{name}]"
@@ -4583,7 +4583,7 @@ class _Importer:
 
 
 # ---------------------------------------------------------------------------
-# command line (§3, §16.4)
+# command line
 # ---------------------------------------------------------------------------
 def declared_invented(path: Path) -> bool:
     """True when `path` has a provenance sidecar declaring it invented and not produced by CAEPIPE."""
@@ -4622,7 +4622,7 @@ def _json_path(path: str, key: str) -> str:
 
 
 def parse_sidecar_json(text: bytes | bytearray | str) -> Any:
-    """Sidecar JSON text, parsed strictly and changed in nothing (Design §15): bytes must be strict UTF-8, the text
+    """Sidecar JSON text, parsed strictly and changed in nothing: bytes must be strict UTF-8, the text
     RFC 8259 JSON (no NaN, Infinity or -Infinity), and no object may repeat a member name, which json.loads would
     resolve silently to its last value. Raises SidecarJsonInvalid naming each repeated member by JSON path."""
     if isinstance(text, (bytes, bytearray)):
@@ -4668,7 +4668,7 @@ def parse_sidecar_json(text: bytes | bytearray | str) -> Any:
 
 
 def load_sidecar(path: Path) -> bytes | dict[str, Any]:
-    """The sidecar file as the import reads it (Design §15): its bytes, unchanged, which the importer parses strictly
+    """The sidecar file as the import reads it: its bytes, unchanged, which the importer parses strictly
     and a format-3 or format-4 sidecar's self-digest then verifies as supplied. The one exception is a legacy sidecar
     (no `sidecar_format`) without `mbf_sha256`, the layout of main's earliest pilot runs, which kept the digest in
     `mbf_render.json` beside it: that sidecar is parsed strictly here and takes its companion's digest. A format-2,

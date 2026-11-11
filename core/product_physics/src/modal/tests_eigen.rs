@@ -25,7 +25,7 @@ const EIGEN_REFERENCES: &str = include_str!("../../../../validation/references/f
 const FE_CONVERGENCE: &str = include_str!("../../../../validation/references/f1_modal/continuum/fe_convergence.json");
 
 /// **TEST-LOCAL, NON-PRODUCTION parameters.** No modal threshold is pinned
-/// (DEC-026; design §9 O-6): these values exist only for these tests'
+/// (DEC-026): these values exist only for these tests'
 /// assertions, and no production path reads them. Where I1 used a test-local
 /// value it is taken from I1 (`modal_eigen/tests/sturm_counts.rs`,
 /// `reformation.rs`): τ_μ = τ_m = 10⁻¹², c_μ = 1, κ_μ = 10, c_f = 64,
@@ -58,7 +58,7 @@ pub(super) fn test_local_parameters() -> ModalIntegrityParameters {
 }
 
 /// **TEST-LOCAL, NON-PRODUCTION** class (a) comparison bound: the design's
-/// seed of 10⁻⁹ relative in frequency (§4.1, DEC-026, not pinned). The
+/// seed of 10⁻⁹ relative in frequency (DEC-026, not pinned). The
 /// frozen references state no product tolerance of their own.
 const TEST_LOCAL_CLASS_A_FREQUENCY: f64 = 1e-9;
 

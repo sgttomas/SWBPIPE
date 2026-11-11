@@ -47,7 +47,7 @@ _TO_SI = {
     "rad": 1.0, "deg": math.pi / 180.0, "1": 1.0, "none": 1.0,
 }
 # The same factors as exact rationals (the definitions: 1 in = 0.0254 m, 1 lbf = 4.4482216152605 N, degF intervals
-# x 5/9; degrees by the binary64 pi), for summing primitives without cancellation error (Design §18.2).
+# x 5/9; degrees by the binary64 pi), for summing primitives without cancellation error.
 _TO_SI_EXACT = {
     "m": Fraction(1), "mm": Fraction(1, 1000), "in": Fraction("0.0254"), "ft": Fraction("0.3048"),
     "N": Fraction(1), "kN": Fraction(1000), "lbf": Fraction("4.4482216152605"),
@@ -196,7 +196,7 @@ def read_printed(text: str) -> Printed:
             current = row["node"]
         coordinate_max = max([coordinate_max, *map(abs, position[row["node"]])])
     printed = Printed(t_ref, materials, sections, loads, pressures, {}, coordinate_max, rows)
-    # Node coordinates (Design §18.2): along the path from its run start, per axis, the sum of
+    # Node coordinates: along the path from its run start, per axis, the sum of
     # delta(p) + 2 eps C over the printed start coordinate and every printed offset, plus 4 eps C for the import.
     c_eps = 2 * EPS * coordinate_max
     bound: dict[str, list[float]] = {}
@@ -270,7 +270,7 @@ def canonical(model: Mapping[str, Any], names: Mapping[str, str], case_kinds: Ma
                             ("E", e), ("nu", nu), ("G", g), ("alpha", alpha)):
             out.values[("pipe", key, name)] = value
         out.sets[("pipe", key)] = pipe["material"]
-    if oriented:  # bound (Design §15, Format 4): each pipe's library section, and each referenced section's OD and t
+    if oriented:  # bound (Format 4): each pipe's library section, and each referenced section's OD and t
         library = {section["id"]: section for section in model.get("sections") or []}
         for pipe in model["pipe_segments"]:
             reference = pipe.get("section_ref")
@@ -306,7 +306,7 @@ def canonical(model: Mapping[str, Any], names: Mapping[str, str], case_kinds: Ma
         if modifiers.get("flexibility_factor_user_value"):
             out.values[("bend", key, "k")] = si(modifiers["flexibility_factor_user_value"])
         for name, label in (("sif_in_plane_user_value", "i_ip"), ("sif_out_of_plane_user_value", "i_op")):
-            if modifiers.get(name):  # the directional SIF pair travels as BSIF (Design §11)
+            if modifiers.get(name):  # the directional SIF pair travels as BSIF
                 out.values[("bend", key, label)] = si(modifiers[name])
         out.sets[("bend", key, "plane")] = direction
         out.sets[("bend", key, "node")] = names[component["node"]]
@@ -342,7 +342,7 @@ def canonical(model: Mapping[str, Any], names: Mapping[str, str], case_kinds: Ma
 
 
 # ---------------------------------------------------------------------------
-# tolerances (Design §18.2)
+# tolerances
 # ---------------------------------------------------------------------------
 def bend_residuals(model: Mapping[str, Any], bend_pipe_id: str) -> dict[str, float]:
     """A's writer-admitted bend residuals, with the writer's own formulas (si_writer.tangent_intersection):
@@ -561,7 +561,7 @@ def unoriented(form: Canonical, limits: Mapping[tuple, float]) -> tuple[Canonica
             {_unoriented_key(key): value for key, value in limits.items() if key[0] not in bound_only})
 
 
-# --- the sidecar's self-digest (Design §15), written independently of si_writer.sidecar_canonical_bytes ---------------
+# --- the sidecar's self-digest, written independently of si_writer.sidecar_canonical_bytes ---------------
 SELF_DIGEST_KEY = "sidecar_sha256"
 
 

@@ -2,7 +2,7 @@
  * `hanger-sizing.md` §8.3; `schemas/hanger_sizing_result.schema.json`).
  *
  * Types only. A value typed as `HangerSizingDocument` has not been validated by holding the
- * type: closure, binding and arithmetic are the readers' standings (§8.3.7), and the desktop
+ * type: closure, binding and arithmetic are the readers' standings, and the desktop
  * shows them only as supplied evidence bound to the exact document (`hangerSizingView.ts`).
  * Nullable members are typed as nullable, exactly where the schema admits null. */
 

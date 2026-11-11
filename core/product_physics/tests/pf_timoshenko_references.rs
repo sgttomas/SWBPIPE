@@ -1,4 +1,4 @@
-//! PF Timoshenko (DEL-05-03 Design `pf-timoshenko.md` §5): the product against
+//! PF Timoshenko: the product against
 //! the frozen, refuted independent references in
 //! `validation/references/pf_timoshenko/product_cases.json`, through the public
 //! value entry in both solver modes, under the package's own criterion: relative
@@ -151,7 +151,7 @@ fn request(case: &Value) -> Value {
     let path = binding["path"].as_str().unwrap();
     let text = REQUESTS.iter().find(|(p, _)| *p == path).unwrap_or_else(|| panic!("{path} is not included")).1;
     assert_eq!(sha256_hex(text.as_bytes()), binding["sha256"].as_str().unwrap(), "{path}: the request the reference binds");
-    // Model document 0.9.0 (model-document-0.9.0.md §3.6): the bound 0.8.0 bytes stay; the copy is re-authored.
+    // Model document 0.9.0: the bound 0.8.0 bytes stay; the copy is re-authored.
     let mut request: Value = serde_json::from_str(text).unwrap();
     current_model::reauthor_model(&mut request["model"]);
     let model = &request["model"];

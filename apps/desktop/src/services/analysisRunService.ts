@@ -1,10 +1,10 @@
-// Analysis runs recorded against model states (W-12 S2; DEL-14-01 Design
-// `desktop-states-runs-comparison.md` §3; FR-CMP-002 and FR-MOD-006's run level).
+// Analysis runs recorded against model states (W-12 S2;
+// FR-CMP-002 and FR-MOD-006's run level).
 // The native store (`apps/desktop/src-tauri/src/analysis_runs.rs`) is the only
 // store of recorded runs: it checks the binding of the solve's transient record,
 // result and input manifest to a saved state, allocates the recording time and
 // computes the recorded revision and its hash. The browser preview keeps no
-// recorded runs (SQLite-only history, design §7), so every call there is refused
+// recorded runs (SQLite-only history), so every call there is refused
 // by name.
 import { invokeWithIngress } from "./nativeIngress";
 import { partitionListed, type UnreadableRow } from "./historyListEntries";
@@ -185,7 +185,7 @@ export type AnalysisRunComparisonAdmission = {
   budget_bytes: number;
 };
 
-/** The size admission of a run comparison (W-12 S3b; DEL-14-01 Design §4.2, Memory): the
+/** The size admission of a run comparison (W-12 S3b): the
  * store verifies each named run as its list does and refuses by name
  * (`COMPARISON-RUNS-TOO-LARGE`), before either run is read, when the runs' stored results
  * and input manifests, with `currentRunBytes` (the session's current run when it is the

@@ -34,7 +34,7 @@ const DERIVATIVE: &str = "444444444444444444444444444444444444444444444444444444
 const BYTES: &str = "5555555555555555555555555555555555555555555555555555555555555555";
 
 /// The production step 0's refusal of an exact identity outside its set
-/// (physics-retained-1), naming the admitted set (§5.1 item 4).
+/// (physics-retained-1), naming the admitted set.
 const RETAINED_REFUSAL: &str = "REPORT-RENDER-ROUTE-NOT-ADMITTED: the rendered report admits only the exact-route identities openpipestress.result_semantics/0.3.0/pressure-2, openpipestress.result_semantics/0.3.0/pressure-source-1; found openpipestress.result_semantics/0.3.0/physics-retained-1.";
 /// The same refusal's prefix, for any `found`.
 const ADMITS_ONLY: &str = "REPORT-RENDER-ROUTE-NOT-ADMITTED: the rendered report admits only the exact-route identities openpipestress.result_semantics/0.3.0/pressure-2, openpipestress.result_semantics/0.3.0/pressure-source-1; found";
@@ -207,7 +207,6 @@ fn refusal_text(outcome: Result<impl std::fmt::Debug, CommandError>) -> String {
     }
 }
 
-/// W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md` §6.2),
 /// Codex review round 1 of #1639: the production native command, called
 /// directly with a pressure-free input that carries a private FR-REP-003
 /// record, renders it only under `local_private`; under `public_report` or
@@ -804,7 +803,7 @@ mod direct_native {
     const SUBSTITUTE_OVERLAY: &str =
         include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_straight_substitute.overlay.json");
     const SOURCE_1: &str = include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_source_1.json");
-    /// The five witness shapes of §5.5.
+    /// The five witness shapes.
     const SHAPES: [(&str, &str); 5] = [
         ("pressure_2_straight", STRAIGHT),
         ("pressure_2_load_reference_states", LOAD_REFERENCE),
@@ -815,7 +814,7 @@ mod direct_native {
     const ROWS_MISMATCH: &str = "REPORT-PACKAGE-REPORT-ROWS-MISMATCH";
     /// The standing line's start, HTML-escaped: without an integrity warning,
     /// and on pressure-source-1 (synthetic n05), whose Diagnostics carry
-    /// `NUMERICAL_INTEGRITY_SENSITIVE` (§3.2).
+    /// `NUMERICAL_INTEGRITY_SENSITIVE`.
     const PLAIN_STANDING: &str = "Numerical standing: integrity checked (the Rust reader&#39;s standing for the result";
     const SENSITIVE_STANDING: &str = "Numerical standing: integrity warning present in the Diagnostics: NUMERICAL_INTEGRITY_SENSITIVE (see the Diagnostics table under Warnings, Assumptions, And Provenance); integrity checked (the Rust reader&#39;s standing for the result";
 
@@ -955,7 +954,7 @@ mod direct_native {
         assert_eq!((code.as_str(), message.contains("exact_route")), (SECTIONS_MISMATCH, true), "{message}");
     }
 
-    /// Every witness shape (§5.5), through the production roots: with its live
+    /// Every witness shape, through the production roots: with its live
     /// job and genuine texts, the render input renders (HTML and the derived
     /// print view, export gates passed, no numerical-health line), and the
     /// save request passes the native binding and is assembled into an
@@ -968,7 +967,7 @@ mod direct_native {
             let rendered = production_render_on(&live, &genuine_render_args(&w, &live.job)).unwrap_or_else(|error| panic!("{name}: {error:?}"));
             assert_eq!(rendered["export_blocked"], json!(false), "{name}: {}", rendered["blocking_reasons"]);
             let html = rendered["html"].as_str().unwrap();
-            // Observation 4 (owner, 2026-10-26, option A; §3.2): beside an
+            // Observation 4 (owner, 2026-10-26, option A): beside an
             // integrity warning the standing line names it and points to it.
             let standing = if name == "pressure_source_1" { SENSITIVE_STANDING } else { PLAIN_STANDING };
             assert!(html.contains(EXACT_ROUTE_SUBHEADING) && html.contains(standing), "{name}");
@@ -1001,7 +1000,7 @@ mod direct_native {
         }
     }
 
-    /// W-11 opening, §5.5 evidence for the owner (test-only write mode): with
+    /// W-11 opening, evidence for the owner (test-only write mode): with
     /// `OPENPIPESTRESS_WRITE_EXACT_REPORT_EVIDENCE=<dir>`, each witness shape's
     /// local-private report through the production roots is written outside
     /// the repository: `<shape>.html`, the native render command's canonical
@@ -1671,7 +1670,7 @@ mod direct_native {
         assert_eq!(refused, format!("{SECTIONS_MISMATCH}: exact_route"));
     }
 
-    /// The rows' full-precision binding on both identities (§3.7; Codex review
+    /// The rows' full-precision binding on both identities (Codex review
     /// round 1 of #1655): the displayed rows are rounded, so the render binds
     /// each row's reference and checksum to the delivered source. A checksum,
     /// a reference or the entry count that is not the delivered source's
@@ -2024,10 +2023,10 @@ mod direct_native {
     /// The whole-command counting-allocator check of the genuine exact render
     /// (from the raw body through the ingress admission and the production
     /// root) and of the genuine exact save (through the shared producer's
-    /// assembly of the admitted package, §5.1 item 8): each priced peak
+    /// assembly of the admitted package): each priced peak
     /// is within its lease, less the buffered body's envelope, which is
     /// allocated before the command runs. W M_r and the save's W M are measured
-    /// provisions for these witness inputs, not proven bounds (§3.6).
+    /// provisions for these witness inputs, not proven bounds.
     #[test]
     fn the_genuine_exact_render_and_save_stay_within_their_leases() {
         for (shape, text) in SHAPES {
@@ -2120,7 +2119,7 @@ mod direct_native {
         }
     }
 
-    /// Slice C5 (DEL-08-01 Design `report-section-composer.md` §2.7): on every
+    /// on every
     /// exact witness, the exact render binds the model-input tables to its bound
     /// intake model and the local-private save (route 009) to its model; the
     /// genuine projection is admitted at both, and an edited cell, an extra

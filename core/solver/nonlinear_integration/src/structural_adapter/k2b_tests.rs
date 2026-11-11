@@ -1,4 +1,4 @@
-//! K2b adapter tests (T3 D1 revision 5a.2 §4.7, W2 force-radix scaling and the
+//! K2b adapter tests (W2 force-radix scaling and the
 //! kernel half of formation-time scaling; ROOT's K2b rulings of 2026-09-28):
 //! the force-scaled evidence and entries in both representations and both
 //! modes, the orchestrator `solve_with_force_scaling` (the b-rule's steps
@@ -1536,8 +1536,6 @@ fn k2b_nonlinear_loop_reaches_no_force_scaled_entry() {
 }
 
 // ------------------------------------------------------------------ RV11 fixes
-// (T3 `ROOT_RULINGS_V1.md`, "K2b: rulings on RV11's review (ROOT)"; RV11's
-// review `REVIEW/K2B_REVIEW.md`, findings RV11-1 and RV11-4.)
 
 /// RV11's probe F-A2: a long member W (N0 -> N1 along x, L = 2^300 m,
 /// E = G = 2^200 Pa, A = I = J = 1) with only N0 RZ free, loaded with a moment
@@ -1722,8 +1720,6 @@ fn k2b_rv11_the_orchestrators_census_includes_the_curved_slots() {
 }
 
 // ------------------------------------------------------------------ RV11 delta fixes
-// (T3 `ROOT_RULINGS_V1.md`, ROOT's rulings on RV11's delta check; RV11's
-// review `REVIEW/K2B_REVIEW.md`, "Delta check at f385a8bc8", RV11D-1.)
 
 /// RV11D-1, pinned in both modes and both representations: RV11's probe F-S.
 /// The long member W of F-A2 with N0 UY also free and a ground spring of

@@ -1550,10 +1550,10 @@ struct StoredProjectEntry {
     /// What a Replace of this project confirms (`stored_revision`).
     revision: String,
     /// The saved model states attached to this project id; a Replace keeps
-    /// them, and the prompt says how many (W-12 §2).
+    /// them, and the prompt says how many.
     saved_state_count: i64,
     /// The recorded analysis runs attached to this project id; a Replace keeps
-    /// them too, and the prompt counts them (W-12 §3).
+    /// them too, and the prompt counts them.
     recorded_run_count: i64,
 }
 
@@ -1884,7 +1884,6 @@ fn get_unit_catalog() -> UnitCatalogResponse {
 /// camelCase arguments. Each command's arguments are decoded by its `*_args`
 /// function; the response is serialized while the lease is held.
 ///
-/// W-11 slice (b) (DEL-08-01 Design `exact-route-report-sections.md` §3.6):
 /// the render runs on a blocking worker thread, as the save does, because an
 /// exact input's native source binding parses and re-derives under the held
 /// lease; every other input renders there unchanged.
@@ -1947,7 +1946,6 @@ fn render_calculation_report_value(input: Value) -> Result<Value, String> {
     // offending value (W-11 slice (c), Codex review round 3 of #1639).
     let renderable = open_pipe_stress_report_renderer::decode_renderable_report_input(input)?;
     let outcome = open_pipe_stress_report_renderer::render_calculation_report(&renderable);
-    // W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md` §6.2):
     // a render refused for its provenance records is metadata-only, so no
     // print view is derived from it either.
     let derived_print_html = if outcome.content_withheld {
@@ -2323,7 +2321,7 @@ fn choose_mbf_save_path(app: &AppHandle, suggested_file_name: &str, directory: O
     selected.into_path().map(Some).map_err(|error| error.to_string())
 }
 
-/// Recovery export (W-17, DEL-02-02 Design §3): a stored project's document
+/// Recovery export: a stored project's document
 /// (`state_id` absent) or a saved state's, which the desktop refuses at open,
 /// written to a file the user chooses exactly as the store holds it
 /// (`stored_model_document_export`). It needs the explicit local-private
@@ -2862,7 +2860,7 @@ fn dispose_preview_mechanics_result(
 /// (`beginSessionResultCustodyReset`), when the calling page holds no result copy and no handle
 /// on an earlier page's jobs. The command carries no page identity, so it disposes whatever the
 /// registry holds when it executes: a reset delivered late, after a later page has loaded,
-/// would also retire that page's work (DEL-04-05 plan §7 item 7). Returns
+/// would also retire that page's work. Returns
 /// `{released_results, released_bytes, abandoned_jobs}`.
 #[tauri::command]
 fn dispose_all_preview_mechanics_results(
@@ -3214,14 +3212,14 @@ fn refuse_model_document(status: &ModelDocumentVersionStatus) -> String {
         "Model document refused for editing: status={}; source_schema_version={}; target_schema_version={}; {}",
         status.status, status.source_schema_version, status.target_schema_version, status.detail
     );
-    // A retired project: what it means for its recorded runs (MD8 §3.3, ruling a2).
+    // A retired project: what it means for its recorded runs (ruling a2).
     match status.refusal_suffix() {
         "" => refusal,
         note => format!("{refusal} {note}"),
     }
 }
 
-/// W-13 §5.3: the one document validator's blocking findings, named with
+/// the one document validator's blocking findings, named with
 /// their JSON paths, refuse the document. Warnings never refuse.
 fn refuse_malformed_model_slots(model: &Value) -> Result<(), String> {
     let blocking: Vec<String> = open_pipe_stress_operation_applier::validate_model_document(model)
@@ -3238,7 +3236,7 @@ fn refuse_malformed_model_slots(model: &Value) -> Result<(), String> {
 /// The one-current-version check alone (DEL-02-05 CLM-003): a document that is
 /// not current is refused by name. Project persistence adds the blocking-slot
 /// refusal (`check_model_document_for_persist`); a saved model state uses this
-/// alone, since a state may hold an incomplete model (W-12 §2, `MODEL_INCOMPLETE`).
+/// alone, since a state may hold an incomplete model (`MODEL_INCOMPLETE`).
 fn check_model_document_version(model: &Value) -> Result<ModelDocumentVersionStatus, String> {
     let status = evaluate_model_document(model);
     if status.is_refused() {
@@ -3253,7 +3251,7 @@ fn check_model_document_version(model: &Value) -> Result<ModelDocumentVersionSta
 /// or re-stamped.
 fn check_model_document_for_persist(model: &Value) -> Result<ModelDocumentVersionStatus, String> {
     let status = check_model_document_version(model)?;
-    // W-13 §5.3 (S2): create and save refuse a document whose model-data
+    // create and save refuse a document whose model-data
     // slots carry a blocking validator finding, named with its JSON path;
     // nothing is repaired. Warnings never refuse.
     refuse_malformed_model_slots(model)?;
@@ -3456,7 +3454,7 @@ fn open_project_in_store(
             if status.is_refused() {
                 return Err(refuse_model_document(&status));
             }
-            // W-13 §5.3: a stored document with a malformed model-data slot is
+            // a stored document with a malformed model-data slot is
             // refused by name, never repaired.
             refuse_malformed_model_slots(&record.model)?;
             let model = record.model;
@@ -3844,12 +3842,12 @@ fn validate_rule_pack_value(
 
 /// Run a rule pack's checks against a solved model and return one outcome per
 /// check and load case or combination (completion plan C4; rule-pack format
-/// 0.5.0, DEL-06-01 Design `rule-pack-0.5.0.md` §2.7). The pack is validated
+/// 0.5.0). The pack is validated
 /// first; a pack with blocking validation findings (any format other than
 /// 0.5.0 among them) is reported as `RULE_INPUTS_INCOMPLETE` without running
 /// checks. Solver values are resolved from the solved mechanics envelope
 /// supplied via `solved_envelope` (a solve-job result; this command does not
-/// solve) by each input's in-pack selector on each basis (§2.5); user values and value-slot limits come from
+/// solve) by each input's in-pack selector on each basis; user values and value-slot limits come from
 /// `supplied_value_bindings`. This emits only the automatic rule-check statuses
 /// and makes no professional, certification, sealing, authentication, approval,
 /// or code-compliance claim.
@@ -4996,7 +4994,7 @@ fn delete_local_library(
 }
 
 /// One `provenance_record.library_ref` of the model, as the webview sends it
-/// for the store check (W-13 §3.5; W-17 §2.7).
+/// for the store check.
 #[derive(Debug, Deserialize)]
 struct ModelLibraryRef {
     entity_ref: String,
@@ -5136,7 +5134,7 @@ fn library_ref_findings(
 }
 
 /// Checks the model's library references against the local store at project
-/// open and load and on library-list refresh (W-13 §3.5). Read-only.
+/// open and load and on library-list refresh. Read-only.
 #[tauri::command]
 fn check_model_library_refs(
     app: AppHandle,
@@ -6063,7 +6061,7 @@ fn save_local_result_json_args(args: &mut Args) -> Result<native_result_download
     args.decode("request")
 }
 
-/// C1 native custody (DEL-04-05 `c1-native-custody-plan.md` §5): the CSV table route written
+/// C1 native custody: the CSV table route written
 /// in bounded chunks (`native_csv_stream`). Each command is bound to the calling
 /// webview's label and, through the stream, to the held job it began on; the raw args body is
 /// admitted under the ingress lease up to one JSON-escaped chunk, and the file work runs in a
@@ -6770,7 +6768,7 @@ mod tests {
         }
     }
 
-    // Epoch 8 (DEL-04-07 Design desktop-exact-outputs §6.1, VER-007): the backend's
+    // Epoch 8 (VER-007): the backend's
     // unchanged rule-check qualification and row binding, read on committed exact
     // fixtures. The desktop jsdom tests mock this backend, so these are its check.
     fn exact_rule_fixture(relative: &str) -> Value {
@@ -6781,7 +6779,7 @@ mod tests {
 
     const EXACT_RULE_MODES: [&str; 2] = ["sparse_interactive", "dense_scrutiny"];
 
-    /// Rule-pack format 0.5.0 (DEL-06-01 Design `rule-pack-0.5.0.md` §2.5): bind
+    /// Rule-pack format 0.5.0: bind
     /// `row` through the run path's selector resolution, with a one-input pack
     /// whose selector names the row and whose one required load case is the
     /// row's basis. Asserts nothing was refused or unavailable.
@@ -6953,7 +6951,7 @@ mod tests {
         assert_eq!(accelerated, vec![("file.save-local", "CmdOrCtrl+S")]);
     }
 
-    /// DEL-17-04 slice 4b.2b (Design `desktop-mbf-export-import.md` §3.1): File > Export MBF… follows Save Handoff…
+    /// File > Export MBF… follows Save Handoff…
     /// and dispatches its id to the webview like every other File item.
     #[test]
     fn native_file_menu_offers_export_mbf_after_save_handoff() {
@@ -6968,7 +6966,7 @@ mod tests {
         assert!(native_menu_dispatch_script("file.export-mbf").contains("detail: \"file.export-mbf\""));
     }
 
-    /// DEL-17-04 slice 5 (Design `desktop-mbf-export-import.md` §4.1): File > Import MBF… follows Open Model
+    /// File > Import MBF… follows Open Model
     /// Document…, is disabled while a project operation is busy, and dispatches its id to the webview.
     #[test]
     fn native_file_menu_offers_import_mbf_after_open_model_document() {
@@ -6983,7 +6981,7 @@ mod tests {
         assert!(native_menu_dispatch_script("file.import-mbf").contains("detail: \"file.import-mbf\""));
     }
 
-    /// W-18b (DEL-08-01 Design `report-user-release.md` §2.2): File > Save Shareable Report
+    /// File > Save Shareable Report
     /// Package… follows Save Report Package…, is enabled exactly as it is (neither is in
     /// the shell state's enablement list; the webview's command sink decides), and
     /// dispatches its id to the webview.
@@ -9002,7 +9000,7 @@ mod tests {
     fn assert_bundled_demo_solved(solved: &Value) {
         assert_eq!(solved["model_ref"], json!("project:invented-demo-loop-01"));
         assert_eq!(solved["status"]["mechanics"], json!("MECHANICS_SOLVED"));
-        // DEL-04-01 kd5-nonlinear-active-set.md §5: the invented demo's converged
+        // the invented demo's converged
         // nonlinear-support cases are confirmed and published CHECKS_PASSED (two
         // info diagnostics, each with the confirmation's evidence line).
         assert_eq!(solved["numerical_quality"]["status"], json!("checks_passed"));
@@ -9275,7 +9273,7 @@ mod tests {
                 .expect_err("retired documents must be refused by name");
             assert!(error.contains("retired_schema") && error.contains("MODEL_SCHEMA_VERSION_RETIRED"), "{error}");
             assert!(error.contains(version) && error.contains("re-author"), "{error}");
-            // A retired project states what it means for its recorded runs (MD8 §3.3).
+            // A retired project states what it means for its recorded runs.
             assert!(error.ends_with(&format!(" {}", crate::model_document_version::RETIRED_PROJECT_RUNS_NOTE)), "{error}");
         }
         let newer = json!({ "schema_version": "0.9.1", "project": { "id": "project:newer", "name": "Newer" } });
@@ -9336,7 +9334,7 @@ mod tests {
         std::fs::remove_dir_all(root).unwrap();
     }
 
-    /// W-13 §5.3 at project load: a stored document carrying every model-data
+    /// at project load: a stored document carrying every model-data
     /// slot opens exactly as stored with its model hash; a stored document with
     /// a malformed slot is refused by name and its stored bytes are untouched.
     #[test]
@@ -9375,7 +9373,7 @@ mod tests {
         std::fs::remove_dir_all(root).unwrap();
     }
 
-    /// W-13 §5.4 (S2): a desktop-emitted document carrying every model-data
+    /// a desktop-emitted document carrying every model-data
     /// member goes through Save Local Project and back with equal content and
     /// model hash; an edit (create a line) saved in place and its undo (the
     /// inverse operation) saved again return the original document and hash.
@@ -10350,7 +10348,7 @@ mod tests {
         assert!(codes.contains(&"MISSING_GRAMMAR_VERSION"));
     }
 
-    /// W-17 (DEL-06-02 `Design/rule-pack-unit-check.md` §4): the example
+    /// the example
     /// pack with a second check whose formula subtracts quantities in two
     /// different units (and a second required input for it).
     fn example_rule_pack_with_unit_inconsistent_check(other_unit: &str, restamp: bool) -> Value {
@@ -11554,8 +11552,7 @@ mod tests {
         }
     }
 
-    /// DEL-02-02 Design `project-unit-selection.md` §2.8, §4 "Through the apply
-    /// command": a force-key change applied through the apply command changes
+    /// a force-key change applied through the apply command changes
     /// `project.units.force` and nothing else, and the same model solves to the
     /// same rows (the solver reads only the length key). Invented data only.
     #[test]

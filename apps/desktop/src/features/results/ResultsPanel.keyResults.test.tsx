@@ -6,7 +6,7 @@ import { SUPPORT_LOAD_WITHHELD_NO_STATE, supportLoadWithheldStateText } from "./
 import { SUPPORT_STATE_ROW_KIND, withheldSupportStateRows } from "./keyResults";
 import { ResultsPanel, type ResultsViewRequest } from "./ResultsPanel";
 
-// A6's results-table request (DEL-07-05 Design `key-results-panel.md` §2, §4): "Show contact and
+// A6's results-table request: "Show contact and
 // lift-off state" shows exactly the support-state rows of this run, with every other filter at its
 // default, once per request, and marks each row the numerical standing withholds with the reason
 // the A2 and A3 panels give. Invented data only.

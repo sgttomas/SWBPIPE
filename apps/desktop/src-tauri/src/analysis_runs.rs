@@ -67,7 +67,7 @@ use std::path::{Path, PathBuf};
 use tauri::AppHandle;
 
 /// Store v13: the run and run-label tables, the per-state index and the
-/// immutability triggers, as design §3 gives them. Every statement is
+/// immutability triggers. Every statement is
 /// `IF NOT EXISTS`, so the step is safe to re-run. Since store v14 each step
 /// runs in one transaction with its `user_version` update (`apply_store_migrations`).
 /// `analysis_runs_immutable` refuses any `UPDATE`; `analysis_runs_no_replace`
@@ -573,7 +573,7 @@ pub(crate) fn library_refs(model_payload: &Value) -> Vec<Value> {
     found.iter().map(|text| reference("Library", text)).collect()
 }
 
-/// The recorded revision of a transient record (design §3), and its hash. The
+/// The recorded revision of a transient record, and its hash. The
 /// received-result checksum and every other member are unchanged.
 pub(crate) fn recorded_revision(
     memory: &dyn ReadMemory,
@@ -2029,7 +2029,7 @@ impl RunRowRefusal {
     }
 }
 
-/// The run list's check of one decoded row (W-12, DEL-14-01 Design §3), the
+/// The run list's check of one decoded row, the
 /// same for the list and for a delete by handle's re-check: its verified run,
 /// or why the list shows it unreadable. Memory refusals and database errors
 /// are the caller's (`Err`).
@@ -2197,7 +2197,7 @@ pub(crate) fn list_runs_with(
 
 /// Whether the run row `rowid` of `project_id` is still shown unreadable by
 /// the list's own check (a delete by handle's re-check, inside its write
-/// transaction; W-12, DEL-14-01 Design §3): an oversized column, or
+/// transaction): an oversized column, or
 /// [`checked_run_row`] refusing it. The row is loaded only as the list loads
 /// it: its oversized columns never, the rest within the summary's reservation.
 fn run_row_unreadable(connection: &Connection, project_id: &str, rowid: i64, memory: &dyn ReadMemory) -> Result<bool, String> {
@@ -2832,7 +2832,7 @@ pub(crate) fn delete_run_in_store_finishing<R>(
 }
 
 /// Deletes the run row a list's unreadable entry names by its `handle`
-/// ([`stored_read::row_handle`]; W-12, DEL-14-01 Design §3), on a
+/// ([`stored_read::row_handle`]), on a
 /// `BEGIN IMMEDIATE` transaction: the row of the project with that rowid whose
 /// whole stored id still has the handle's length and digest (hashed in chunks
 /// inside the transaction), exactly that row and its labels. A handle that
@@ -2898,7 +2898,7 @@ pub(crate) fn delete_unreadable_run_in_store(path: &Path, project_id: &str, hand
 }
 
 // ---------------------------------------------------------------------------
-// Native Record Run (C1 slice 5; DEL-04-05 `c1-native-custody-plan.md`): a
+// Native Record Run: a
 // record built in this process from the held result, never submitted. The
 // command, its admission and its texts are `native_persistence`'s; the checks,
 // the state, the time, the revision's row and its labels are this store's,
@@ -3189,7 +3189,7 @@ pub(crate) fn write_native_run<R>(
 }
 
 // ---------------------------------------------------------------------------
-// Run comparison admission (W-12 S3b; DEL-14-01 Design §4.2).
+// Run comparison admission.
 // ---------------------------------------------------------------------------
 
 /// The refusal of a run comparison whose stored inputs are larger together

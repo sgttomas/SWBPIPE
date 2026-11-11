@@ -1,4 +1,4 @@
-//! K1 kernel tests (T3 D1 revision 5a.2 §4.8; the K1 row of §6). Invented
+//! K1 kernel tests. Invented
 //! inputs only: every section, stiffness, spring and load below is stated here.
 //!
 //! The parity basis is bitwise: the pattern path must reproduce the dense
@@ -1756,7 +1756,7 @@ fn k1_matrix_references_have_the_same_outcome_class_in_both_representations() {
 
 // ------------------------------------------------------------------ R-7 node blocks (S-K1 F-1)
 
-/// A skewed spring block (DEL-04-03 Work `skew-restraints.md` §6.1): k = 5e5
+/// A skewed spring block: k = 5e5
 /// along d̃ = (0.75, 1, 0), fl(k·fl(fl(d̃_i·d̃_j)/n)).
 fn skew_block() -> [[f64; 3]; 3] {
     let d = [0.75, 1.0, 0.0];
@@ -1807,7 +1807,7 @@ fn skew_node_block_is_its_dense_addition_after_the_springs() {
 #[test]
 fn skew_node_block_refusals() {
     let model = chain(3, 2.0e11, 0.0);
-    // A node with no element: its block is not in the pattern (§2.2 item 6).
+    // A node with no element: its block is not in the pattern.
     let mut unconnected = chain(3, 2.0e11, 0.0);
     unconnected.node_count += 1;
     let options = SparseAssemblyOptions::new().with_node_blocks(vec![(4, skew_block())]);

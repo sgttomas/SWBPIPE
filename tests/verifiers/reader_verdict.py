@@ -21,7 +21,7 @@ retires (`numericalResultQuality.ts`'s `sourceContract` and `numericalResultStan
 - G5: one header dispatch: the downgrade guard, a carrier namespace, the metadata header, then the
   TypeScript header's checks (the source route's receipt shape, the evidence object the pressure route
   needs, no identity outside these routes).
-- pressure-2 (DEL-04-07 `pressure-contract.md`, "Reading pressure-2"): its own route, read here by the
+- pressure-2: its own route, read here by the
   independent `pressure_2` verifier with G2's model checks and the ordinary standing; it has no transport
   reader, so a transported pressure-2 statement is refused by name.
 - B7b (A4/A5): five routes (`pressure_source`, `preview_physics`, `pressure`, `retained_preview_physics`,
@@ -56,7 +56,7 @@ PRESSURE_PROFILE = c.PRESSURE_PROFILE
 PRESSURE_CONTRACT_SHA256 = c.PRESSURE_CONTRACT_SHA256
 PRESSURE_TRANSPORT_UNSUPPORTED = c.PRESSURE_TRANSPORT_UNSUPPORTED
 ROUTE_READERS = {"preview_physics": "preview-physics", "pressure_source": "pressure-source", "pressure": "pressure"}
-# pf-timoshenko.md §4: the preview-physics route admits two identities; a source's binding is keyed by its
+# the preview-physics route admits two identities; a source's binding is keyed by its
 # `semantic_contract_id` (`binding_of`), and a route's default binding is its first identity here.
 _IDENTITY_ROUTES = {c.PRESSURE_SOURCE_CONTRACT_ID: "pressure_source", c.PREVIEW_PHYSICS_CONTRACT_ID: "preview_physics",
                     c.PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID: "preview_physics",
@@ -253,7 +253,7 @@ def bind_preview_shear_model(source: Mapping[str, Any], model: Mapping[str, Any]
 
 
 def _model_section_bound(section: Any, segments: list[Any]) -> bool:
-    """Rust `reader_verdict::model_section_bound` (T4-U6, D-5 §1, §2.5, §5): one ``pipe_sections`` entry's captured
+    """Rust `reader_verdict::model_section_bound` (T4-U6): one ``pipe_sections`` entry's captured
     authored values are the model's section of the same pipe, bit for bit, as pressure-source-1 binds them against its
     invocation (``physics_source._actual_materials``): ``outside_diameter_m``, ``wall_thickness_m``,
     ``mill_tolerance_m`` (0.0 where the model's section has none) and ``corrosion_allowance_m``, each the model's
@@ -302,7 +302,7 @@ def physics_model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) ->
         for case in cases:
             if not same(ids(case.get("pipe_materials"), "pipe_id"), pipes):
                 raise Refused("SOURCE_PHYSICS_MODEL_MEMBER_COVERAGE")
-        # T4-U6 (§1, §5; FINAL-B): the evidence reader rederived each case section's three geometries from its captured
+        # T4-U6 (FINAL-B): the evidence reader rederived each case section's three geometries from its captured
         # (D, t, c_m, c_a); those are the model's, bit for bit.
         segments = model["pipe_segments"] if isinstance(model["pipe_segments"], list) else []
         for case in cases:
@@ -310,7 +310,7 @@ def physics_model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) ->
             for section in sections if isinstance(sections, list) else []:
                 if not _model_section_bound(section, segments):
                     raise Refused("SOURCE_PHYSICS_MODEL_SECTION_GEOMETRY")
-    # T4-U8 (§3.6, §5): every section entry states the beam theory the model's contract selects for its member (a
+    # every section entry states the beam theory the model's contract selects for its member (a
     # realized arc, Euler-Bernoulli).
     if model.get("pressure_contract") is not None:
         try:
@@ -375,21 +375,21 @@ def validate(reader: str, source: Any, model: Any = None, invocation: Any = None
             # RT-A4 (review r1 P2): with the model, the combination gates and unsigned rows are re-derived from it.
             preview_physics_evidence.validate_preview_physics_evidence(source, model)
             if model is not None:
-                # pf-timoshenko.md §4: with the model, a crossed identity is refused first.
+                # with the model, a crossed identity is refused first.
                 bind_preview_shear_model(source, model)
-                # T4-U4b (§5.1): τ bit for bit with the captured model (G2).
+                # τ bit for bit with the captured model (G2).
                 from . import u4b_model
                 u4b_model.preview_model_checks(source, model)
-                # W-15 slice d (DEL-03-05 Design §5): the model's bodies and their records.
+                # the model's bodies and their records.
                 from . import component_body
                 component_body.model_checks(source, model, preview_physics_evidence.TABLE)
-                # Operating-case slice 1a (§3): the operand records bound to the model's combinations.
+                # the operand records bound to the model's combinations.
                 from . import preview_combination_operands
                 preview_combination_operands.model_checks(source, model)
                 # RT-A4 (review r1 P2): the gates and unsigned rows, re-derived from the model.
                 from . import preview_combination_gates
                 preview_combination_gates.check(source, model)
-                # RT-A3 §4: the certificate's records bound to the model's combinations, then the certificate last.
+                # the certificate's records bound to the model's combinations, then the certificate last.
                 from . import combination_certificate
                 combination_certificate.model_checks(source, model)
                 preview_physics_evidence.certificate_check(source, model)
@@ -398,26 +398,26 @@ def validate(reader: str, source: Any, model: Any = None, invocation: Any = None
             if model is None:
                 pressure_2.validate_pressure_evidence(source)
             else:
-                # RT-A3 §4: with the model, the certificate is read after the model checks.
+                # with the model, the certificate is read after the model checks.
                 pressure_2.validate_pressure_evidence_without_certificate(source)
             if model is not None:
                 physics_model_checks(source, model)
                 # T4-U4b review item 1: the directional binding (the pressure-2 reader only).
                 from . import u4b
                 u4b.directional_model_checks(source, model, True)
-                # W-15 slice d (DEL-03-05 Design §5): the model's bodies and their records.
+                # the model's bodies and their records.
                 from . import component_body
                 component_body.model_checks(source, model, pressure_2.pressure_table())
                 # RT-A3 increment 1: the branch rows bound to the model's tee associations (Rust `exact_model_checks`).
                 u4b.branch_model_checks(source, model)
-                # W-16 slice b (§6): the combination records bound to the model.
+                # the combination records bound to the model.
                 from . import exact_combinations
                 exact_combinations.model_checks(source, model)
-                # RT-A3 increment 4 (R-4 §2.4): the nonlinear supports bound to the model's records and the DEC-067
+                # the nonlinear supports bound to the model's records and the DEC-067
                 # laws that need their inputs (Rust `nonlinear_support_evidence::model_checks`).
                 from . import nonlinear_support_evidence
                 nonlinear_support_evidence.model_checks(source, model)
-                # RT-A3 §4: the certificate's records bound to the model's combinations, then the certificate last.
+                # the certificate's records bound to the model's combinations, then the certificate last.
                 from . import combination_certificate
                 combination_certificate.model_checks(source, model)
                 pressure_2.certificate_check(source, model)
@@ -476,7 +476,7 @@ def source_findings(source: Mapping[str, Any], invocation: Mapping[str, Any]) ->
             if treatment.get("treatment") in ("qualified_projection", ordinary, "checked_derived"):
                 continue
             row = rows.get(treatment.get("result_id"))
-            # T4-U4b §4.3: `derived_not_qualified` is neutral for the two derived kinds only.
+            # `derived_not_qualified` is neutral for the two derived kinds only.
             if treatment.get("treatment") == "derived_not_qualified" and row is not None and row.get("kind") in (
                     "element_local_normal_stress_extreme", "element_local_transverse_shear_stress_maximum"):
                 continue

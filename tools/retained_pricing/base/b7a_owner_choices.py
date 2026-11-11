@@ -25,7 +25,7 @@ FK = "core/solver/frame_kernel/src/"
 # RT-A3 P D3 (§8.53): structural.rs's export list gains P's three pattern-sibling re-exports above every FK key
 # here, so load_fidelity, audit_load_fidelity, row_sources (and its clone site), unaudited_row and audit_load_row
 # carry +3, and sparse.rs's load_fidelity +100 and audit_sparse_load_fidelity +291 (P's binary64 preparation and
-# pattern siblings precede them), unchanged text and callers. lib.rs's helpers carry +27 (RT-A3 §4's LoadCaseSolve
+# pattern siblings precede them), unchanged text and callers. lib.rs's helpers carry +27 (LoadCaseSolve
 # field, operand map and publish lines precede them), unchanged text.
 # R-6/R-7 S-K1 D3 (§8.55): sparse.rs gains SparseStiffness::from_pattern_values and SparseAssemblyOptions' node_blocks
 # member, constructor and accessors above both keys, so load_fidelity and audit_sparse_load_fidelity carry +53
@@ -41,7 +41,7 @@ SOURCE_RULE = "structural.rs:%d" % SOURCE_LINE
 # sparse.rs +40, retained_product.rs +6..+203, lib.rs +314/+356). U4B-W1 adds one mutually exclusive base recipe, the
 # NotCovered arm's `result:stress:{suffix}:{loc}:{tail}` (3398): 16 literal bytes + suffix 128 + location <= 9
 # ("quarter-1") + tail <= 20 ("transverse-shear-max") = 173 B, below the group's 338 B upper.
-# O4 S5 (retained-pricing-rules.md §8.9): every snapshot line moved with unchanged text (structural.rs +3 from the
+# O4 S5 (§8.9): every snapshot line moved with unchanged text (structural.rs +3 from the
 # retained_api re-exports; retained_product.rs +137 to +411 from the O4 sidecars and ProductCaseView's second lifetime,
 # bind_rows_subject's signature line among them). No recipe, error, source-copy or helper site changed.
 # Stack-headroom D3 (§8.10): freeze_combination carries +59 through the line map; its text and callers are unchanged.
@@ -73,7 +73,7 @@ ROWS_ERROR_LINE = 2803          # the one error site owned by bind_rows_subject 
 # the wiring's lib.rs additions precede them).
 # I2b-2 on RT-U4's candidate (§8.48): both moves, 15014/15015 -> 15119/15120 and 15487/15488 -> 15592/15593, mapped
 # line by line from the merge base 6c3cb46d3 through each side's hunks; unchanged text.
-# RT-A3 §4 D3 (§8.53): the helpers move +27 with unchanged text (15119/15120 -> 15146/15147, 15592/15593 -> 15619/15620).
+# D3 (§8.53): the helpers move +27 with unchanged text (15119/15120 -> 15146/15147, 15592/15593 -> 15619/15620).
 # RT-S3 CE fallback publication: the maintained line mapper carries the unchanged
 # lib.rs owner/site text +6 after the support loop; counts, bounds and caller sets stay.
 HELPER_FNS = (PP + "lib.rs:15303:qualified_load_case_result_id", PP + "lib.rs:15812:stable_suffix")

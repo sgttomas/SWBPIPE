@@ -5,7 +5,7 @@
 // cross-engine contract corpus (operationContractCorpus.test.ts: 44 cases,
 // native↔wasm parity including canonical hashes) — there is no TypeScript
 // engine logic left to test. The 17 former browser-engine tests were
-// superseded by that corpus per the operation-seam plan §3 T4.
+// superseded by that corpus.
 
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";

@@ -1,4 +1,4 @@
-//! W-16 slice b (DEL-05-02 Design `exact-combinations.md` §6): the combination
+//! W-16 slice b: the combination
 //! pass of the pressure-2 reader.
 //!
 //! The direct-case pass validates a document's primitive cases first, on a view
@@ -25,7 +25,7 @@
 //! ties to the smallest operand id; a recomputed magnitude is the correctly
 //! rounded norm of the combined components. Nothing here calls product code.
 //!
-//! RT-A4 (DEL-05-02 `absolute-sum-srss-combinations.md` §2-§6): absolute sums and
+//! RT-A4: absolute sums and
 //! SRSS are re-derived with the kernel's definitions (`load_case_algebra`), and so
 //! is the fixed-load count κ that gate 3 reads; a combination operand supplies its
 //! own published rows; the records follow the evaluation order (each operand
@@ -34,7 +34,7 @@
 //!
 //! These checks establish internal source consistency, not solver accuracy.
 //! Combination rows carry no numerical check of their own and never enter
-//! numerical eligibility (§5), which stays with the primitive cases.
+//! numerical eligibility, which stays with the primitive cases.
 use crate::combination_graph::{self as graph, Graph, Operand};
 use crate::section_basis::bit_equal;
 use open_pipe_stress_correct_norm::norm3;
@@ -82,9 +82,9 @@ const LINEAR_SIGN: &str = "positive value follows explicit user linear combinati
 const SUBTRACTION_SIGN: &str = "positive value follows explicit user result-state subtraction (minuend minus subtrahend) of matching source result sign conventions; a signed difference of solved states, not an equilibrium state";
 const MODULUS_SIGN: &str = "presence record; each range operand's solve basis is recorded explicitly";
 const INSTALLED_REFERENCE_UNSIGNED: &str = "INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND";
-/// absolute-sum-srss §5.1: gate 4 on an absolute sum or SRSS (PF's code and text).
+/// gate 4 on an absolute sum or SRSS (PF's code and text).
 const CONSTANT_EFFORT_UNSIGNED: &str = "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND";
-/// absolute-sum-srss §5.1: gate 4 on a `mechanics` combination naming an operand whose
+/// gate 4 on a `mechanics` combination naming an operand whose
 /// κ is undefined (PF's code and text).
 const CONSTANT_EFFORT_OPERAND_MIXED: &str = "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED";
 const NONLINEAR: &str = "NONLINEAR_COMBINATION_REQUIRES_SOLVE";
@@ -329,8 +329,8 @@ impl ExactProducts {
     }
 }
 
-/// §4 gates 3 and 4's rule over flat factors: the exact sum of the factors is within 2^-46
-/// of 1, compared exactly and inclusively. Gates 3 and 4 read κ (absolute-sum-srss §5.1),
+/// gates 3 and 4's rule over flat factors: the exact sum of the factors is within 2^-46
+/// of 1, compared exactly and inclusively. Gates 3 and 4 read κ,
 /// which equals this sum for a flat combination; the test below pins the rule.
 #[cfg(test)]
 fn unit_factor_sum(factors: &[f64]) -> bool {
@@ -761,7 +761,7 @@ fn consuming_constant_effort(model: &Value) -> Vec<ConstantEffortSupport<'_>> {
         .collect()
 }
 
-/// The gates (§4; absolute-sum-srss §5) of the combination `id`, read after every
+/// The gates of the combination `id`, read after every
 /// earlier record: a withheld operand combination; then, for the term bases, gates 1
 /// and 2 over every load case the combination reaches, and gates 3 and 4 on κ.
 #[allow(clippy::too_many_arguments)]
@@ -796,7 +796,7 @@ fn gate(
     if !graph::term_basis(basis) {
         return Ok(None);
     }
-    // absolute-sum-srss §5.2: with nonlinear supports, a mechanics combination outside
+    // with nonlinear supports, a mechanics combination outside
     // decision OQ-1 is withheld.
     if let Expression::Terms("mechanics", terms) = expression {
         if nonlinear && !graph.solved_state_plus_increments(terms) {
@@ -826,9 +826,9 @@ fn gate(
             return gated(RESOLVED_STIFFNESS_MIXED);
         }
     }
-    // Gates 3 and 4 (absolute-sum-srss §5.1): one κ rule per fixed-load source,
+    // Gates 3 and 4: one κ rule per fixed-load source,
     // each under its own codes, gate 3 first where both sources hold. Gate 3 names
-    // an undefined mechanics operand under its own code (§10); gate 4, as on PF,
+    // an undefined mechanics operand under its own code; gate 4, as on PF,
     // as CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED.
     let fixed_load_withholding = || {
         let kappas: Vec<_> = operands.iter().map(|o| graph.kappa_of(o)).collect();
@@ -1220,7 +1220,7 @@ pub(crate) fn validate(source: &Value) -> Check {
     let mut expected_diagnostics: Vec<Value> = Vec::new();
     let mut modulus_rows: Vec<Value> = Vec::new();
     let mut ids: Vec<&str> = Vec::new();
-    // absolute-sum-srss §2-§5: the records in evaluation order, κ and the reached load
+    // the records in evaluation order, κ and the reached load
     // cases of each, the modulus key of every load-case operand stated so far, and
     // the combinations withheld whole with their codes.
     let mut combination_graph = Graph::default();
@@ -1385,7 +1385,7 @@ fn gate_message(code: &str) -> &'static str {
 
 /// G2: each record's expression and its operands' modulus selections are the
 /// captured model's, one record per model combination in the model's evaluation
-/// order (absolute-sum-srss §2: topological, the earliest ready in the array first).
+/// order (topological, the earliest ready in the array first).
 /// A supplied model is complete: an absent or null `combinations` is the input's
 /// default, none, so the document then states no combination record.
 pub(crate) fn model_checks(source: &Value, model: &Value) -> Check {

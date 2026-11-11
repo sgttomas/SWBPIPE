@@ -1,4 +1,4 @@
-// Hanger sizing in the desktop (DEL-04-11 Design `hanger-sizing.md` §13, increment 3c part 2): the native
+// Hanger sizing in the desktop (increment 3c part 2): the native
 // `size_hangers` command (worker task 4 in the capped worker, `hanger_sizing_job.rs`), its keyed retirement
 // `cancel_hanger_sizing`, and the generation guard that keeps an obsolete start from being sent and a stale completion
 // off the page.
@@ -54,7 +54,7 @@ export const HANGER_SIZING_REPLY_UNREADABLE = "HANGER-SIZING-REPLY-UNREADABLE";
 export const HANGER_SIZING_NATIVE_ONLY = "HANGER-SIZING-NATIVE-ONLY";
 export const HANGER_SIZING_RETIREMENT_UNCONFIRMED = "HANGER-SIZING-RETIREMENT-UNCONFIRMED";
 
-/** The headless input (§8.3.2), exactly what the native entry admits: the desktop solve's request, the sizing request
+/** The headless input, exactly what the native entry admits: the desktop solve's request, the sizing request
  * and the full hanger library document. */
 export type HangerSizingInput = {
   request: { model: unknown; materials: [] };

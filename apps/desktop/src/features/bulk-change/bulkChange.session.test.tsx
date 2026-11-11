@@ -1,4 +1,4 @@
-/** B2 (DEL-07-02 Design `bulk-change.md`): every bulk change, built with the engine's own
+/** every bulk change, built with the engine's own
  * canonical JSON, queues as one batch through the session's existing registration, validates
  * with no blocking finding, applies once, and one Undo restores the original model. The session
  * runs the actual wasm engine on an invented inline model. */

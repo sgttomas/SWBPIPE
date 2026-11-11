@@ -1,4 +1,4 @@
-//! Hanger sizing arithmetic (DEL-04-11 design §6 and §7).
+//! Hanger sizing arithmetic.
 //!
 //! Pure functions on the hot-load basis and the positions that the derived
 //! solves supply: the loads of a variable spring set at the installed position,
@@ -30,7 +30,7 @@ pub enum Dof {
     Uz,
 }
 
-/// Where a variable spring carries the hot-load basis W (Design §6.1).
+/// Where a variable spring carries the hot-load basis W.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LoadDesign {
     /// W in the design operating case: `F_cold = W + k·u_D`.
@@ -39,7 +39,7 @@ pub enum LoadDesign {
     Cold,
 }
 
-/// The reference load of the load variation (Design §6.2).
+/// The reference load of the load variation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum VariationReference {
     /// Each operating case's own load, `F_i`.
@@ -48,7 +48,7 @@ pub enum VariationReference {
     DesignLoad,
 }
 
-/// The rule that chooses among fitting records (Design §6.5).
+/// The rule that chooses among fitting records.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SelectionRule {
     /// Smallest `F_max`, then smallest maximum variation, then `hanger_id`.
@@ -57,7 +57,7 @@ pub enum SelectionRule {
     LeastVariation,
 }
 
-/// Which record families a candidate may take (Design §2, §6.5).
+/// Which record families a candidate may take.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum FamilyPolicy {
     Variable,
@@ -120,7 +120,7 @@ pub struct Candidate {
     pub design_index: usize,
 }
 
-/// The fit tests, in the order they are applied (Design §6.4).
+/// The fit tests, in the order they are applied.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Test {
     /// The record carries the quantities sizing needs ("not sizable" otherwise).
@@ -162,7 +162,7 @@ pub struct Refusal {
 }
 
 /// The travel span over the installed position, the cold condition and every
-/// operating case (Design §6.3).
+/// operating case.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Span {
     pub min_m: f64,
@@ -284,7 +284,7 @@ fn sizable_range(record: &Record) -> Option<(f64, f64, f64)> {
 }
 
 /// The variation of each operating case, `k·|u_i − u_C| / R_i`. `None` where the
-/// reference load is not positive, so no ratio is formed (Design §6.2).
+/// reference load is not positive, so no ratio is formed.
 fn variations(k: f64, positions: &Positions, f_operating: &[f64], w_n: f64, reference: VariationReference) -> Vec<Option<f64>> {
     positions
         .u_operating_m
@@ -310,7 +310,7 @@ fn f_cold_for(candidate: &Candidate, k: f64, design: LoadDesign) -> f64 {
 
 /// Evaluates one record for one candidate, applying the tests in order and
 /// stopping at the first failure. This is the function the detail view lists
-/// every record with (Design §8.1).
+/// every record with.
 pub fn evaluate(candidate: &Candidate, record: &Record, method: &Method) -> Evaluation {
     let positions = &candidate.positions;
     let span = Span::of(positions);
@@ -427,7 +427,7 @@ fn to_selected(index: usize, evaluation: Evaluation, records: &[Record], candida
     }
 }
 
-/// Sizes one candidate under its family policy (Design §6.5).
+/// Sizes one candidate under its family policy.
 pub fn size_candidate(candidate: &Candidate, records: &[Record], method: &Method) -> CandidateResult {
     let span = Span::of(&candidate.positions);
     let mut result = CandidateResult {
@@ -466,7 +466,7 @@ fn refusal(code: &'static str, names: Vec<String>, message: &str) -> Refusal {
     Refusal { code, names, message: message.to_string() }
 }
 
-/// Checks the method's values (Design §2).
+/// Checks the method's values.
 pub fn check_method(method: &Method) -> Vec<Refusal> {
     let mut refusals = Vec::new();
     if !finite_positive(method.variation_limit) {
@@ -481,7 +481,7 @@ pub fn check_method(method: &Method) -> Vec<Refusal> {
 }
 
 /// Checks the method and the request's candidates and records. Every refusal
-/// refuses the whole request, with every finding listed (Design §3).
+/// refuses the whole request, with every finding listed.
 pub fn check_request(candidates: &[Candidate], records: &[Record], method: &Method) -> Vec<Refusal> {
     let mut refusals = check_method(method);
     if candidates.is_empty() {
@@ -539,7 +539,7 @@ pub fn size(candidates: &[Candidate], records: &[Record], method: &Method) -> Re
     Ok(candidates.iter().map(|c| size_candidate(c, records, method)).collect())
 }
 
-/// The verified values of a variable selection (Design §7).
+/// The verified values of a variable selection.
 #[derive(Debug, Clone, PartialEq)]
 pub struct VerifiedVariable {
     /// F_C^v = F_cold − k·u_C^v.
@@ -552,7 +552,7 @@ pub struct VerifiedVariable {
     pub departure_n: f64,
 }
 
-/// One candidate's verification (Design §7).
+/// One candidate's verification.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Verification {
     pub positions: Positions,
@@ -628,7 +628,7 @@ pub fn verify(
 }
 
 /// Whether the verification describes a configuration that applying the
-/// selections reproduces (Design §7).
+/// selections reproduces.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum VerificationStanding {
     Unconditional,

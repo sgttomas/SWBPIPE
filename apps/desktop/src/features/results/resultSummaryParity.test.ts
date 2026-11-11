@@ -33,7 +33,7 @@ import { semanticLabels } from "./resultSemantics";
 import { buildStressRatioTable } from "./stressRatioTable";
 import { buildSupportLoadSummaries, supportLoadCases } from "./supportLoadSummary";
 
-/** C1 slice 2 (DEL-04-05 `c1-native-custody-plan.md`): the TypeScript builders over the full rows
+/** C1 slice 2: the TypeScript builders over the full rows
  * are the oracle of S, the native summary (`src-tauri/src/result_summary.rs`). For every case of
  * `resultSummaryCases.ts` (committed as `fixtures/results/result_summary_cases.json`), the response
  * the Rust test commits (`result_summary_outcomes.json`) is decoded and each table compared with

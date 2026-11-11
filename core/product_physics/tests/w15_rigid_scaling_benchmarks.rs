@@ -16,7 +16,7 @@
 //! expectation uses 1e-9 times the case's frozen zero scale of its family. Both solver
 //! modes run against the same reference, and the product's own readers (with the
 //! captured model) admit every envelope. Every case whose body scale is below the
-//! product's precision-warning threshold (1e5, Design §2.5, measured on this
+//! product's precision-warning threshold (1e5, measured on this
 //! benchmark) asserts the full criterion; at and above it a case asserts only the
 //! warning and the unchanged formation and recovery qualification, and no accuracy.
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, MechanicsEnvelope, PreviewSolverMode, ResultItem};

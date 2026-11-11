@@ -331,7 +331,7 @@ pub(crate) fn scan(graph: &Graph, files: &BTreeMap<String, String>) -> Vec<Strin
             }
         }
     }
-    // 4: no test-only set exists (W-11 opening, §5.1 item 8): in every source,
+    // 4: no test-only set exists: in every source,
     // its `#[cfg(test)]` items and test modules included, the set is
     // constructed only in the struct and `PRODUCTION`'s definition, and no
     // other constant of the set's type is declared. The scan's own test files

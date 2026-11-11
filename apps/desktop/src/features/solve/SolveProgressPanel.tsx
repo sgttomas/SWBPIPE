@@ -76,7 +76,7 @@ function runView(solveJob: SolveJobAuditState, running: boolean, tracker: RunTra
 }
 
 /**
- * The solve progress panel (DEL-07-07; Design `solve-progress-panel.md`). From
+ * The solve progress panel (DEL-07-07). From
  * the moment a solve starts until the user closes it, the panel shows that
  * run's job record as the session's solve-job audit holds it: the state, the
  * latest event's message (the stage), the run's events in order, the queue

@@ -108,7 +108,7 @@ fn retained_timoshenko_cantilever_matches_the_closed_form() {
     }
 }
 
-/// §4.2: the formed d₁, d₂ and d̄ at p follow the fixed rounding schedule;
+/// the formed d₁, d₂ and d̄ at p follow the fixed rounding schedule;
 /// at φ = 2 exactly d₂ is an exact zero.
 #[test]
 fn retained_timoshenko_entries_follow_the_fixed_schedule() {
@@ -169,7 +169,7 @@ fn retained_timoshenko_entries_follow_the_fixed_schedule() {
     assert!(eb[0].bounded().dbar.is_none());
 }
 
-// ------------------------------------------- §4.4 item 7: exact/directed controls
+// ------------------------------------------- exact/directed controls
 
 #[allow(dead_code)]
 #[path = "support.rs"]
@@ -320,7 +320,7 @@ fn reference_cases() -> Vec<Case> {
 
 /// The formed K_e at P against the exact element, within `factor`·2^-P·Ā,
 /// Ā = g·B̄ᵀD̄B̄ the member's bounded operator (R7 Lemma B (i)'s 67 under t₁'s
-/// 2^7, with D̄ in place of |D|, §4.4). Returns (entries tested, max ratio).
+/// 2^7, with D̄ in place of |D|). Returns (entries tested, max ratio).
 fn formation_against_exact(factor: u64, exponent: Option<i64>) -> (usize, f64) {
     use super::bounded_block;
     let (mut tested, mut worst) = (0usize, 0.0f64);
@@ -355,7 +355,7 @@ fn formation_against_exact(factor: u64, exponent: Option<i64>) -> (usize, f64) {
     (tested, worst)
 }
 
-/// §6: the retained Timoshenko formation against the exact element at
+/// the retained Timoshenko formation against the exact element at
 /// P = 128/256/512/1024 (φ = 2 − 2^-40, 2, 2 + 2^-40, ≈1e-6, > 10; skew
 /// members, φ = 2 on a skew member; g at P − 16). A Euler–Bernoulli
 /// formation, a wrong factor, A for A_s, swapped I_y/I_z or a flipped d₂
@@ -368,7 +368,7 @@ fn retained_timoshenko_formation_matches_exact_element() {
     eprintln!("matches_exact_element: {tested} entries, worst |K-K*|/(2^-100·Ā) = {worst:.3e}");
 }
 
-/// §4.4 item 7: the actual formation error against t₁'s allowance: every
+/// the actual formation error against t₁'s allowance: every
 /// formed entry within 67·2^-P·Ā_T (Lemma B (i)), Ā_T = g·B̄ᵀD̄B̄.
 #[test]
 fn retained_timoshenko_formation_error_is_within_t1() {
@@ -378,7 +378,7 @@ fn retained_timoshenko_formation_error_is_within_t1() {
     eprintln!("formation_error_is_within_t1: {tested} entries, worst ratio {worst:.3} (allowance 67, t1 2^7)");
 }
 
-/// §4.4 item 7: member recovery (end actions, stations), reactions and
+/// member recovery (end actions, stations), reactions and
 /// support magnitudes at P against the exact Timoshenko recovery of the
 /// same u, within 69·2^-P·E_q, E formed with D̄ (Ā_T and Q̄ = D̄·ē).
 /// Returns (rows tested, worst ratio).
@@ -421,7 +421,7 @@ fn recovery_against_exact() -> (usize, f64) {
                 worst = worst.max(ratio(actual, lo, bound));
                 tested += 1;
             }
-            // Q̄ = D̄·ē (§4.2): on the aligned φ ≈ 2 designs e₂ = e₄ = 0, so the
+            // Q̄ = D̄·ē: on the aligned φ ≈ 2 designs e₂ = e₄ = 0, so the
             // end moments' E rows pin D̄: E(M_z,i) = g·RN(d̄_z·(ē₂ + ē₃)).
             if case.name.starts_with("phi2") {
                 let t = members[0].timoshenko.unwrap();
@@ -460,7 +460,7 @@ fn timoshenko_twin(source: &PrimitiveSource, shear_ratio: f64) -> TimoshenkoLeaf
     TimoshenkoLeafSet::new(source, leaves).unwrap()
 }
 
-/// §4.4 item 7 and §4.2's note on D̄: the D̄-inflated path through E, the
+/// the D̄-inflated path through E, the
 /// p = 512 Φ floor, body scales, classes and absolute bounds, exercised on a
 /// whole retained solve. SKEW-K1E-60 selects at 512. Its Timoshenko twin with
 /// a very stiff shear leaf (φ ≈ 0) solves the Euler–Bernoulli state to many
@@ -519,9 +519,9 @@ fn retained_timoshenko_d_bar_path_through_e_and_the_512_floor() {
         stiff.evidence().resolution_scale.iter().map(|e| f64::from_bits(e.2)).collect::<Vec<_>>());
 }
 
-// ------------------------------------------- §4.2: the sidecar and its identity
+// ------------------------------------------- the sidecar and its identity
 
-/// §4.2: association of the member-only sidecar. A sidecar entry without its
+/// association of the member-only sidecar. A sidecar entry without its
 /// member, a Timoshenko document's member without its entry and a repeated
 /// entry refuse with `RETAINED_TIMOSHENKO_REFUSAL`; a non-normal shear area
 /// refuses by name; `from_frame` keeps refusing a Timoshenko frame and
@@ -570,7 +570,7 @@ fn timoshenko_sidecar_association_and_constructors() {
     assert_eq!(prepared.shear_area.to_bits(), (kappa * 0.0035408).to_bits());
 }
 
-/// §4.2: K4STF and K4SRC carry the Timoshenko block (count, then each entry's
+/// K4STF and K4SRC carry the Timoshenko block (count, then each entry's
 /// member and shear-area bits) after the stiffness part, only for a non-empty
 /// sidecar; every Euler–Bernoulli source keeps its bytes. The recorded case
 /// sources, the case identity and the group identity bind every leaf.
@@ -622,7 +622,7 @@ fn timoshenko_k4stf_k4src_block_encoding() {
     assert_eq!(e.prep.stiffness_identity(), source.stiffness_encoding());
 }
 
-/// §4.2, §4.5: the receipt-recorded layouts O4 must not grow, pinned at their
+/// the receipt-recorded layouts O4 must not grow, pinned at their
 /// pre-O4 sizes (checked against base 3826a62881): the adapter's types
 /// (`StraightMember`, `PrimitiveSource`, `SourceParts`, `MemberSourceRef`,
 /// `ProductMemberFacts`), `ProductRecipe`, the `TraceCopyWork`-recorded kernel

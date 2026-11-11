@@ -1,4 +1,4 @@
-"""T4-U4b τ_v,max on preview-physics-2 with G > E (DEL-04-07 Design u4b-u5b-implementation.md §2.4): the Python
+"""T4-U4b τ_v,max on preview-physics-2 with G > E: the Python
 reader against the product, read from the fixture the Rust test `u4b_preview_shear_cross_reader_fixture_is_current`
 keeps current (`core/product_physics/tests/fixtures/u4b_preview_shear_moduli.json`).
 

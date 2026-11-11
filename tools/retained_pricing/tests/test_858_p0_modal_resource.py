@@ -1,4 +1,4 @@
-"""DEL-04-09 O-4 P0 and S1 (retained-pricing-rules.md §8.58): the modal resource preflight's pricing rules.
+"""DEL-04-09 O-4 P0 and S1 (§8.58): the modal resource preflight's pricing rules.
 
 No retained root reaches modal, so every resource.rs and tests_resource.rs site is at multiplicity zero. The rules:
 - MODAL-ID re-keys run_modal_dense's three sites to run_modal_dense_with_budget, which now holds the body, and stops

@@ -1,4 +1,4 @@
-/** Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §4.1): once an exact result can
+/** Epoch 8: once an exact result can
  * be Current, the surfaces that read the Current result receive it too. With an eligible
  * pressure-2 Current result (plain, and with the load/reference-state group), each of them
  * renders, and none carries result values to a file or a handoff:
@@ -11,7 +11,7 @@
  *   Results and Review stages from the same qualification.
  * The results reach the actual workspace session through the native solve-job transport
  * replay of committed producer bytes, as in `loadReference.resultsSessionState.test.ts`.
- * C1 (DEL-04-05 `c1-native-custody-plan.md` slice 4): the Current result is held natively; the
+ * C1: the Current result is held natively; the
  * comparison (a C2 consumer) is built once its full copy is requested, and the panel reads that
  * copy, as the app's comparisons gate passes it; the other surfaces read the native result.
  * Unit transport replay; NOT a native UI qualification witness. All inputs are invented. */

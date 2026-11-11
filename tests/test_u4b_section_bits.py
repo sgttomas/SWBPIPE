@@ -1,4 +1,4 @@
-"""T4-U4b (DEL-04-07 Design u4b-u5b-implementation.md §5.1): the test-only verifier's normative sequences
+"""the test-only verifier's normative sequences
 (``tests/verifiers/u4b.py``) reproduce every expected bit pattern of the stress_recovery vectors, read unmodified
 from ``core/loads/stress_recovery/tests/u4b_section_bits/section_quantity_bits.json`` (exact-rational generator,
 independent of both the Rust producer and this verifier)."""

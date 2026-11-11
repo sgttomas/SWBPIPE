@@ -1,6 +1,3 @@
-//! RT-A3 increment 4 (DEL-04-07 Design `route-unification-r4.md` §3.5 S5,
-//! §2.1-§2.4 and §00; DEL-04-01 `kd5-nonlinear-active-set.md`; DEL-04-07
-//! `pressure-contract.md`, "Nonlinear supports on EX (RT-A3 increment 4)"):
 //! gap, one-way and friction supports on the exact pressure route against the
 //! frozen independent references (`validation/references/rt_a3_nonlinear/`),
 //! through PP's public entry in both solver modes.
@@ -47,7 +44,7 @@
 //! binding pins that refusal and invents no load. The other 20 cases bind.
 //!
 //! The pressure reader binds the nonlinear rows, their DEC-067 laws and their
-//! standings (R-4 §2.4; `result_export::nonlinear_support_evidence`): every
+//! standings (`result_export::nonlinear_support_evidence`): every
 //! forged control is refused by this binding and by the reader, with and
 //! without the model, by the code named in the test, except the readers'
 //! limits pinned there (a consistently scaled contact; a non-Passed inactive
@@ -839,7 +836,7 @@ fn restate(envelope: &mut Value, support: &str, from: &str, to: &str, code: f64,
 }
 
 /// Relabel the case's integrity code `from` as Passed; with `quality`, its
-/// `numerical_quality` record and aggregate too, and with `line`, kd5 §3.3's
+/// `numerical_quality` record and aggregate too, and with `line`,
 /// evidence line appended to its message.
 fn relabel_passed(envelope: &mut Value, from: &str, quality: bool, line: bool) {
     for d in envelope["diagnostics"].as_array_mut().unwrap() {
@@ -959,7 +956,7 @@ fn forged_contacts_states_friction_and_standings_are_refused() {
     assert!(standing_violation(p0, &forged).is_some(), "the binding refuses the wrong standing");
     assert_eq!(reader_codes(&forged, &document_p0), both("STANDING"), "F1-P0 standing forged Passed");
     // With its quality record and the evidence line: a derived normal that is
-    // not established fails closed (kd5 §2.2), never Passed.
+    // not established fails closed, never Passed.
     let mut forged = clean_p0.clone();
     relabel_passed(&mut forged, SENSITIVE, true, true);
     assert_eq!(reader_codes(&forged, &document_p0), both("FRICTION_NORMAL_STANDING"), "F1-P0 standing, quality and line forged Passed");
@@ -1195,7 +1192,7 @@ fn reader_binds_inactive_residuals_support_nodes_and_standings() {
     // Consistently relabelled Sensitive: a gap-bearing case stays unqualified (R1).
     set_quality(&mut forged, ["passive_model_basis", "sensitive", "represented_equations_retained", "not_claimed"]);
     assert_eq!(reader_codes(&forged, &document_g1), both("GAP_STANDING"), "G1 consistently relabelled sensitive");
-    // Limit (kd5 §2.4, preserved earlier reasons): a consistent non-Passed
+    // Limit (preserved earlier reasons): a consistent non-Passed
     // relabel of a non-gap case states a standing the producer can publish.
     let mut forged = clean_p0.clone();
     set_code(&mut forged, SENSITIVE, "NUMERICAL_INTEGRITY_UNRESOLVED");
@@ -1203,7 +1200,7 @@ fn reader_binds_inactive_residuals_support_nodes_and_standings() {
     assert_eq!(reader_codes(&forged, &document_p0), (None, None), "F1-P0 consistently relabelled unresolved: the reader's limit");
 }
 
-/// The admission seam after S6 (R-4 §3.7): a nonlinear support beside an
+/// The admission seam after S6: a nonlinear support beside an
 /// objective connector is admitted, so the family refusal no longer names it,
 /// while a malformed connector law is still refused by the connector's own
 /// validation; nothing is solved.
@@ -1229,7 +1226,7 @@ fn s6_admits_the_support_and_still_refuses_a_malformed_connector() {
 /// Every flat mechanics combination of these nonlinear models (the singleton
 /// included) is withheld on EX with `NONLINEAR_COMBINATION_REQUIRES_SOLVE`, in
 /// both solver modes, with the gate's text and no combined row (#98's gate,
-/// `exact_combinations::gate_reason`, absolute-sum-srss §5.2); both readers
+/// `exact_combinations::gate_reason`); both readers
 /// admit each envelope with and without its model.
 #[test]
 fn flat_mechanics_combinations_of_nonlinear_models_are_withheld() {
@@ -1298,7 +1295,7 @@ fn exact_gate(envelope: &Value, id: &str) -> Value {
         .find(|r| r["combination_id"] == id).unwrap_or_else(|| panic!("no record {id}"))["gate"].clone()
 }
 
-/// Decision OQ-1 on EX (absolute-sum-srss §5.2, #98's
+/// Decision OQ-1 on EX (#98's
 /// `combination_plan::Plan::solved_state_plus_increments`, unchanged): in a model
 /// with nonlinear supports a mechanics combination is admitted exactly when it is
 /// one solved load case at factor exactly 1 plus at least one combination whose

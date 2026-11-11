@@ -1,4 +1,4 @@
-// W-12 (DEL-14-01 Design §2, §3): the History panel shows each stored row the
+// the History panel shows each stored row the
 // native store cannot read by its id, its named refusal and what to do, apart
 // from the readable rows, with nothing that reads it offered (only delete);
 // a run recorded before rule-pack resolution says to re-record it. Against a

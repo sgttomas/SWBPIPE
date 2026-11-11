@@ -1,4 +1,4 @@
-//! DEL-04-09 O-4 phase measurand (Design §5.3.8) and the phase replay it
+//! DEL-04-09 O-4 phase measurand and the phase replay it
 //! times. Test code only: nothing here is reachable from a product entry,
 //! and no product source carries instrumentation.
 //!
@@ -16,7 +16,7 @@
 //!
 //! **The measurand** (`o4_phase_measurand_sec_a_cantilever`) is `#[ignore]`d
 //! and kept out of the normal test path: it runs only inside a separately
-//! authorized measurement window (§5.3.8's stage plan). It pins nothing,
+//! authorized measurement window. It pins nothing,
 //! applies no budget and has no production parameter set: it uses the
 //! labelled **TEST-LOCAL, EXPERIMENTAL** set of the fixtures.
 //!
@@ -108,7 +108,7 @@ impl ModalReplay {
         }
     }
 
-    /// Whether computed mode i is a band-recovered pair (§3.2), by the same
+    /// Whether computed mode i is a band-recovered pair, by the same
     /// bit comparison `run_modal_dense` uses.
     pub(super) fn band_recovered(&self, i: usize) -> bool {
         let lambda = self.solution.eigenvalues[i];
@@ -121,7 +121,7 @@ impl ModalReplay {
     }
 }
 
-/// The bounding-box diagonal ℓ of §1.5, as `run_modal_dense` forms it (its
+/// The bounding-box diagonal ℓ, as `run_modal_dense` forms it (its
 /// helper is private to `outcome`; the equality test holds this copy to it).
 fn bounding_box_diagonal(positions: &[[f64; 3]]) -> f64 {
     let mut low = [f64::INFINITY; 3];
@@ -144,7 +144,7 @@ pub(super) fn replay_modal_phases(req: &ModalPreviewRequest, params: &ModalInteg
         return Err(refusals);
     }
     let prepared = prepare_modal(req)?;
-    // R-6/R-7 S-K1 (§11.3 C8, B2 (b)): the replay mirrors the axis path only; a model with a
+    // R-6/R-7 S-K1 (B2 (b)): the replay mirrors the axis path only; a model with a
     // restraint basis is refused by name, never replayed through it.
     if prepared.built.skew.is_some() {
         return Err(vec![crate::diag(

@@ -1,4 +1,4 @@
-"""T03's typed-request string census (retained-pricing-rules.md §8.36, S1-TS): the admitted request's heap strings that
+"""T03's typed-request string census (§8.36, S1-TS): the admitted request's heap strings that
 the typed residence (`ordinary_caps.py` T_resident, `t25_g4.py` T25.1a) charges at one D1 text capacity (ID) each.
 
 The chain's count was fixed at the basis (`6 + 2n + 12m + 6g + r + 2c + 7L`, plus the materials). Read against the

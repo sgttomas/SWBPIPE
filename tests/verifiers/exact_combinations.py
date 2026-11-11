@@ -21,7 +21,7 @@ correctly rounded square root of the exact sum of squares; gate 3's unit factor-
 decided on the exact rational sum. Internal source consistency only: never producer origin,
 solver accuracy or numerical eligibility (combination rows never enter it).
 
-RT-A4 (DEL-05-02 ``absolute-sum-srss-combinations.md`` sections 2-6): absolute sums and SRSS, combination operands
+absolute sums and SRSS, combination operands
 (a combination's own published rows), the records in evaluation order, kappa for gate 3 and the withheld-operand
 rule, all re-derived independently in ``combination_graph``.
 """

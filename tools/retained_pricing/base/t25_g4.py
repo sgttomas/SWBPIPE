@@ -41,7 +41,7 @@ import ra_owners_model as _ra_model
 _ra_model.active(os.environ.get("RP_SNAPSHOT"))
 
 RF = rf_active(os.environ.get("RP_SNAPSHOT"))
-# O4 S5 D3 (retained-pricing-rules.md §8.9): o4_owners_model binds commitment, stress_operands, derived_for, the case
+# O4 S5 D3 (§8.9): o4_owners_model binds commitment, stress_operands, derived_for, the case
 # solve and composite_exact's second maximum; the O4 owners below are added only on its source.
 import o4_owners_model as _o4_model
 _o4 = _o4_model.inspect(os.environ["RP_SNAPSHOT"])
@@ -114,14 +114,14 @@ class VF:
     def text(self):
         return EPS * self.strb + self.keyb + 8 * self.values() + 24 * self.nums
 
-# U6-SH (T4-U6 D3, option A; retained-pricing-rules.md "U6-SH"): every T25 hash route is source_receipt.rs `hash`
+# U6-SH (T4-U6 D3, option A): every T25 hash route is source_receipt.rs `hash`
 # (its only definition in the crate; source.rs and composite.rs call it through `use super::*`). Where `hash`
 # serializes the borrowed DomainPayload {domain, payload} through `hash_text` (checked: their exact text and the one
 # struct) instead of `checked(&json!({"domain":domain,"payload":payload}))`, no copy of the payload is made; the
 # to_string text, the checked parse and the canonical output are `checked`'s and stay priced. Any other form stops
 # (u6_owners_model.receipt_hash_copies).
 import u6_owners_model as _u6_model
-# S6-HS (T4-S6, retained-pricing-rules.md §8.8): where `hash` streams the checked canonical text of the borrowed
+# S6-HS (T4-S6, §8.8): where `hash` streams the checked canonical text of the borrowed
 # {domain, payload} into SHA-256 (u6_owners_model.receipt_hash_streams: its exact text and the canonical writer's pin),
 # every T25 hash route holds only the streamed route, and T25's moving is the string temporary's previous backing.
 _SR_TEXT = open(os.path.join(os.environ["RP_SNAPSHOT"], "core/product_physics/src/source_receipt.rs"), encoding="utf-8").read()
@@ -143,7 +143,7 @@ rows = {}
 # ---------------------------------------------------------------- per-case exact finalization
 # (1) check_input -> check_input_with_physical (source_receipt.rs:270-366)
 RAW = (s("Value") * (2 * RAWV) + X({"Node(String,Value)": RAWV + RAWV // 5}) + B(2 * RAWS + 2 * RAWK + 128))
-# S1-TS (retained-pricing-rules.md §8.36): requested()'s typed request holds the same admitted strings as T_resident.
+# S1-TS (§8.36): requested()'s typed request holds the same admitted strings as T_resident.
 import typed_strings_model as _ts_model
 _ts = _ts_model.inspect(os.environ.get("RP_SNAPSHOT")) or {"pipe": 12, "model": 0}
 strings_typed = 8 * (7 + 16 * 7) + 6 + _ts["model"] + 2 * n + _ts["pipe"] * m + 6 * g + r + 2 * CC + 7 * LL
@@ -170,7 +170,7 @@ rows["T25.1d dense stiffness, loads, application, force, prescribed, free"] = (
     + B(8 * N) + V("ForceTerm", l) + V("Option<FormationRecord>", l) + s("Vec<usize>") * N
     + B(8 * (4 * N + 2 * l) + 8 * pushcap(min(l, N)) + l * ID) + Xc("(usize,f64)", k) + B(8 * pushcap(F)))
 rows["T25.1e replay_against: Sources #2 and prepare_sources locals"] = t07("A1", "A2", "A3", "A4", "A5", "A6", "B1", "B2", "B3", "B4", "B5", "B6", "B7")
-# R-A D3 (retained-pricing-rules.md §8.13): the replay evaluation's Shortcuts (T07 F3, absent before R-A) and the
+# R-A D3 (§8.13): the replay evaluation's Shortcuts (T07 F3, absent before R-A) and the
 # replay's own B1 hint vector, which replay_against builds from PP's index rule and holds through that evaluation
 # (RA-HS). The plan's hints (T07 E3) are not repeated: the replay builds no plan.
 rows["T25.1f replay: Context #2, Response #2, values #2, temporaries"] = (
@@ -194,7 +194,7 @@ rows["T25.3 rows::bind ledger, maps, primary/derived, supports (+ json! copy)"] 
     + X({"Node(usize,ResultItem)": max(1, Fn // 5 + 1)}) + B(Fn * ROW)           # primary
     + Xc("Derived", R) + B(R * (ROW + 4 * (24 + RID)))                           # derived rows
     + supports_vf.tree() * 2 + Xc("RowTreatment", R))
-# T4-S5 D3 (retained-pricing-rules.md §8.8, U4B-NQ): bind_for's derived_not_qualified treatments are built in their
+# T4-S5 D3 (§8.8, U4B-NQ): bind_for's derived_not_qualified treatments are built in their
 # own vector before they move into the ledger (u4b_u5b_owners_model binds not_qualified_for and its inputs).
 import u4b_u5b_owners_model as _u45_model
 if _u45_model.inspect(os.environ["RP_SNAPSHOT"])["not_qualified"]:

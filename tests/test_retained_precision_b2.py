@@ -163,7 +163,7 @@ def test_b2_g0_row_9_definition_ids_are_the_tables():
 
 
 # ---------------------------------------------------------------------------------------------------------------
-# G1: the three inner hashes (REVISION_01 §5.2), each edited and the publication and receipt hashes resealed.
+# G1: the three inner hashes, each edited and the publication and receipt hashes resealed.
 
 def resealed_outer(source):
     body(source)["publication_sha256"] = rp._hash("retained_precision_publication_mp_v2", {k: v for k, v in source.items() if k != "retained_precision"})
@@ -200,7 +200,7 @@ def test_b2_g1_shapes_and_g2_encodings():
 
 
 # ---------------------------------------------------------------------------------------------------------------
-# G3 (CONTRACT §10.1 (a)-(g), REVISION_01 §4.2 (h)-(i), C3a-7).
+# G3 (CONTRACT §10.1 (a)-(g), C3a-7).
 
 def renumber_attempts(source):
     """The combination attempt moved before the case attempt (m26), every reference renumbered."""
@@ -341,7 +341,7 @@ def test_b2_g4_combination_diagnostics():
 
 
 # ---------------------------------------------------------------------------------------------------------------
-# G5 native class (CONTRACT §10.1; REVISION_01 §4.1 #7-#10).
+# G5 native class (CONTRACT §10.1).
 
 @pytest.mark.parametrize("label, edits, change, expected", [
     ("requested_operands swapped (m38)", [], lambda s: body(s)["calls"][1]["requested_operands"].reverse(), ATTEMPT),
@@ -421,7 +421,7 @@ def test_b2_g5_disposition_rule_and_d6a():
 
 
 # ---------------------------------------------------------------------------------------------------------------
-# G5 products: the combination attempt, the reason table, operand preparations and N-5 (CONTRACT §4; REVISION_01 §3.3).
+# G5 products: the combination attempt, the reason table, operand preparations and N-5 (CONTRACT §4).
 
 ORIGIN = {"kind": "origin", "cause": {"kind": "missing_selected_origin", "operand": 1}}
 
@@ -567,7 +567,7 @@ def test_b2_g5a_combination_data_facts_come_from_the_nonzero_operands():
 
 
 def test_b2_r_comb_1_classes_reader_logic():
-    """CONTRACT §5 (R), REVISION_01 §2, REVISION_02 §4.1: a retained_unavailable combination's rows, and an ordinary
+    """CONTRACT §5 (R): a retained_unavailable combination's rows, and an ordinary
     combination's naming a case that is not not_required, are not_covered (records non_quantity), scale_bits null and
     normalized_bits from the value; an ordinary combination over not_required cases only adds nothing."""
     source, _ = base()
@@ -693,14 +693,14 @@ def test_b2_n1_negative_extrema_values(field):
 # Entry 22 (COMMON ruling 3) on the preview route, and the 07e index rule at B2's new reference sites.
 
 def test_b2_entry_22_preview_twin_invocation_combination_without_its_entry():
-    """B2-C §10.1 G8 invocation admits model combinations; an invocation combination with no receipt entry fails the
+    """G8 invocation admits model combinations; an invocation combination with no receipt entry fails the
     entries' equality, still at G8 INVOCATION_MISMATCH (the exact route keeps refusing any combination: B3b)."""
     extra = lambda m: m["combinations"].append({"id": "combination:x", "basis": "mechanics", "label": "x", "terms": [{"load_case": "case:a", "factor": 1.0}]})
     assert verdict(*edited([], invocation_change=extra)) == INVOCATION
 
 
 def test_b2_rehash_rule_at_the_new_reference_sites():
-    """S-6 (REVISION_01 §5.2) with 07e's index rule: an `operand_preparation_ref`, an operand's `source_ref` and a
+    """S-6 with 07e's index rule: an `operand_preparation_ref`, an operand's `source_ref` and a
     combination entry's `source_ref` that are not strict indices are skipped (left to the reader); strict ones rehash."""
     source, _ = base()
     for ref in (True, 0.5, -0.0, 7, None):

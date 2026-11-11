@@ -1,4 +1,4 @@
-//! K6b: the W1 mode's library side (T3 K6b plan §6; ROOT's rulings on I16's
+//! K6b: the W1 mode's library side (ROOT's rulings on I16's
 //! plan). Debug tests stay at 100 members or fewer. No time or memory bound is
 //! asserted anywhere.
 //!

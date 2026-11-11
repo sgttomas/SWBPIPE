@@ -1,12 +1,12 @@
 //! T4-U4b frozen references (`validation/references/t4_u4b/`): the builder
 //! that authors the eight model 0.9.0 requests from `cases.json` by the
 //! README's "Binding" rules, and the PP reference test over both modes and
-//! both entries (DEL-04-07 Design `u4b-u5b-implementation.md` §7.1).
+//! both entries.
 //!
 //! The requests are formed in memory from the SHA-bound `cases.json`; their
 //! own SHA-256 values are pinned here ([`REQUEST_SHA256`]). The frozen tree
 //! stays unchanged: no request or request SHA-256 is written into
-//! `oracle.json`, and the binding stays pinned in this test (design §1.4, as
+//! `oracle.json`, and the binding stays pinned in this test (as
 //! for t4_u5b).
 use super::*;
 use serde_json::{json, Value};
@@ -268,7 +268,7 @@ fn location(label: &str, published: f64, expected: &Value) {
     }
 }
 
-/// §7.1: every mapped row of one case's envelope against the oracle.
+/// every mapped row of one case's envelope against the oracle.
 fn check_case(out: &MechanicsEnvelope, case: &Value, label: &str, agreement: &mut Agreement) {
     assert_eq!(out.status.mechanics, "MECHANICS_SOLVED", "{label}: {:?}", out.diagnostics);
     let exact = case["route"] == "exact";
@@ -279,7 +279,7 @@ fn check_case(out: &MechanicsEnvelope, case: &Value, label: &str, agreement: &mu
         let arc = derived["kind"] != "straight";
         let ro = n(&derived["section_bases"][if exact { "nominal_section" } else { "preview_single_section" }]["ro"]);
         for station in STATIONS {
-            // §7.1 (review 7(a)): the j-side section resultants against the
+            // the j-side section resultants against the
             // published force and moment rows (no section basis): the section rows
             // inside and at end_j, and at end_i the node-on-element end rows, whose
             // sign is the opposite of the j-side cut. On a pressurized exact member
@@ -310,14 +310,14 @@ fn check_case(out: &MechanicsEnvelope, case: &Value, label: &str, agreement: &mu
                 agreement.close("sigma_plus_minus", &format!("{label} {pipe} {station} {basis} sigma+"), plus, n(&ne["sigma_plus"]), normal_scale);
                 agreement.close("sigma_plus_minus", &format!("{label} {pipe} {station} {basis} sigma-"), minus, n(&ne["sigma_minus"]), normal_scale);
                 agreement.close("max_abs_normal", &format!("{label} {pipe} {station} {basis} max_abs"), plus.abs().max(minus.abs()), n(&ne["max_abs_normal"]), normal_scale);
-                // §2.3: the fibres from the published bending rows, at zero scale r_o.
+                // the fibres from the published bending rows, at zero scale r_o.
                 let sy = value_on(out, "element_local_bending_normal_stress_y", pipe, station, "", basis);
                 let sz = value_on(out, "element_local_bending_normal_stress_z", pipe, station, "", basis);
                 let moment_scale = scales.member(pipe, "moment");
                 let modulus = n(&derived["section_bases"][*basis]["Z"]);
                 let hypot_moment = norm2(sy, sz) * 1e6 * modulus;
                 if !ne["sigma_plus_fibre"].is_object() {
-                    // §7.1 (review 7(b)): the oracle ties the fibre (zero bending); the
+                    // the oracle ties the fibre (zero bending); the
                     // published hypot is zero within the criterion before the fibre is skipped.
                     agreement.close("tied_fibre_hypot", &format!("{label} {pipe} {station} {basis} tied"), hypot_moment, 0.0, moment_scale);
                 } else if hypot_moment > 1e-9 * moment_scale {
@@ -397,7 +397,7 @@ fn check_case(out: &MechanicsEnvelope, case: &Value, label: &str, agreement: &mu
     discriminators(out, case, label);
 }
 
-/// §7.1: every listed mutant row the product publishes lies at least 1e3
+/// every listed mutant row the product publishes lies at least 1e3
 /// tolerances from the product's row (field-function and not-formed rows are
 /// checked in stress_recovery or not formed).
 fn discriminators(out: &MechanicsEnvelope, case: &Value, label: &str) {
@@ -432,7 +432,7 @@ fn discriminators(out: &MechanicsEnvelope, case: &Value, label: &str) {
                     };
                     (headline.unwrap().value, scales.case_scale(path[1], "normal_stress"))
                 }
-                // Not published (§2.2): field functions (stress_recovery tests) and not-formed measures.
+                // Not published: field functions (stress_recovery tests) and not-formed measures.
                 "fibre_normal" | "sv_transverse_shear" | "flexure_plus_torsion_check" | "axial_plus_intensified_bending" => continue,
                 other => panic!("{label} {mutant}: unmapped discriminator row {other}"),
             };
@@ -523,7 +523,7 @@ fn u4b_frozen_references_both_entries_and_modes() {
                     run_linear_static_preview_with_mode(serde_json::from_value(request.clone()).unwrap(), mode)
                 };
                 check_case(&out, case, &format!("{id} {mode:?} captured={captured}"), &mut agreement);
-                // §5.1: the product reader (with the captured model) admits it.
+                // the product reader (with the captured model) admits it.
                 let reader = if case["route"] == "exact" { "pressure" } else { "preview-physics" };
                 let verdict = crate::result_export::reader_verdict::validate(reader, &serde_json::to_value(&out).unwrap(), Some(&request["model"]), None);
                 assert_eq!(verdict["ok"], true, "{id} {mode:?}: {verdict}");
@@ -664,7 +664,7 @@ fn expected_tau(out: &MechanicsEnvelope, row: &ResultItem, e: f64, g: f64, od: f
     open_pipe_stress_stress_recovery::section_stress_quantities::transverse_shear_maximum_mpa(shear("element_local_shear_force_y"), shear("element_local_shear_force_z"), factor)
 }
 
-/// §2.4 / §7.4: ν by route. preview-physics-2 derives ν = E/(2G) − 1 from the
+/// ν by route. preview-physics-2 derives ν = E/(2G) − 1 from the
 /// moduli the solve uses (base, named point, interpolated); a derived ν
 /// outside −1 < ν < 1/2 removes the member's τ rows with the named warning;
 /// pressure-2 uses the authored ν (the t4_u4b exact cases and the exact
@@ -729,7 +729,7 @@ fn u4b_poisson_controls_by_route() {
     assert_eq!(crate::result_export::reader_verdict::validate("preview-physics", &tampered, None, None)["ok"], true);
 }
 
-/// §2.5: the torus domain guard. R below, at and one ulp above r_o, and at
+/// the torus domain guard. R below, at and one ulp above r_o, and at
 /// (r_i + r_o)/2, on a pressurized arc of pressure-2.
 #[test]
 fn u4b_torus_domain_guard() {
@@ -769,7 +769,7 @@ fn u4b_torus_domain_guard() {
     }
 }
 
-/// Review item 1 (§2.6, §5.1): the directional rows and records are bound to the
+/// the directional rows and records are bound to the
 /// captured model on both routes. Model-free reads cannot see a whole dropped
 /// family or consistently changed factors; the model-holding readers refuse
 /// both. One dropped basis is refused either way (the twin rule).
@@ -847,7 +847,7 @@ fn u4b_directional_rows_bind_to_the_captured_model() {
     }
 }
 
-/// Review item 3 (§2.4): the Poisson exemption is bound. pressure-2 admits only
+/// the Poisson exemption is bound. pressure-2 admits only
 /// −1 < ν < 1/2, so a forged warning with the member's τ rows deleted is
 /// refused by the envelope reader; on preview-physics-2 in the domain the
 /// same tamper passes a model-free read (custody, as designed) and is refused
@@ -879,7 +879,7 @@ fn u4b_forged_poisson_warnings_are_refused() {
     }
 }
 
-/// Review item 4 (§2.4): the preview readers no longer exempt load-state cases
+/// the preview readers no longer exempt load-state cases
 /// from the bit-for-bit τ check. No such case exists on preview-physics-2: the
 /// producer refuses `analysis_state` without the exact pressure contract, by
 /// name and with no row, so only interpolated moduli keep the model-free checks.
@@ -901,7 +901,7 @@ fn u4b_load_state_cases_never_reach_preview() {
     assert!(out.diagnostics.iter().any(|d| d.code == "LOAD_STATE_CONTRACT_VERSION_MISMATCH" && d.severity == "blocking"), "{:?}", out.diagnostics);
 }
 
-/// §2.5 (review item 9): only R <= r_o is the named domain warning, with no
+/// only R <= r_o is the named domain warning, with no
 /// hoop or radial row. Any other failure from finite inputs, here an
 /// overflowing hoop (p = f64::MAX), takes its own blocking path,
 /// `ARC_TOROIDAL_HOOP_EVALUATION_FAILED`, which withholds the whole run.
@@ -929,7 +929,7 @@ fn u4b_toroidal_evaluation_failure_blocks_by_name() {
     }
 }
 
-/// §2.6: the directional SIF pair's named refusals (MODEL_INCOMPLETE, no rows).
+/// the directional SIF pair's named refusals (MODEL_INCOMPLETE, no rows).
 #[test]
 fn u4b_directional_sif_refusals() {
     let (cases, _) = inputs();
@@ -1097,7 +1097,7 @@ fn u4b_geometry_only_bend_is_disclosed_as_a_chord() {
     assert!(found.is_empty(), "{found:?}");
 }
 
-/// §7.4: end-i tension and compression with nonzero bending: σ± follow the
+/// end-i tension and compression with nonzero bending: σ± follow the
 /// j-side stress rows, not the node-on-element end-force rows.
 #[test]
 fn u4b_end_i_extremes_follow_the_j_side_rows() {
@@ -1191,7 +1191,7 @@ const PREVIEW_SHEAR_FAMILY: [(usize, u64, u64, u64, u64); 38] = [
         (1, 0x41cdcd6500000000, 0x45165a0bc0000000, 0x43b6f58d0fac6880, 0xc05a170b5af2e2a9), // E/(2G) = 7.4014868308343765e-17, q = 7.401486830834377e-17, nu = -0.9999999999999999
 ];
 
-/// DEL-04-07 §2.4: on preview-physics-2, c_b from the moduli is within 8.5u of the exact
+/// on preview-physics-2, c_b from the moduli is within 8.5u of the exact
 /// Saint-Venant value for every E/(2G) in (0, 3/2), down to E/(2G) → 0. Forming 1 + ν as
 /// RN(RN(E/(2G)) − 1) + 1 recovered 1+ν* only to within u + 2^-54/q* relative to the exact
 /// q* = E/(2G), below E/(2G) = 1/2 (33% at
@@ -1266,7 +1266,7 @@ const G_ABOVE_E_DOCUMENTS: [(&str, f64, f64, f64, u64, u64); 2] = [
     ("moderate_q_0_1", 200.0, 1000.0, 1500.0, 0x407feecc3359c847, 0xbd07ffe48fdbe857),
 ];
 
-/// DEL-04-07 §2.4 on documents: each τ_v,max row of a G > E preview member is within 11.5u of |V|·c*/1e6; forming
+/// on documents: each τ_v,max row of a G > E preview member is within 11.5u of |V|·c*/1e6; forming
 /// 1 + ν from the rounded ν published Codex's 1.584022414149910e-7 MPa, 33.3% low (Codex's independent value
 /// 2.376033621224861803e-7 MPa at |V| = 1e-18 N, with an exact I, agrees to 1e-14). Euler–Bernoulli only: this base
 /// refuses `timoshenko_annulus_energy_v1` at solve. The Rust preview-physics reader recomputes the same bits; the

@@ -1,4 +1,4 @@
-//! R-6/R-7 S-K1 product cases (DEL-04-03 Work `skew-restraints.md` §13, §15 step 8)
+//! R-6/R-7 S-K1 product cases
 //! against the frozen references `validation/references/skew_restraints/references.json`
 //! (`product`): the guided cantilever (one Euler-Bernoulli member A–B along +X, anchor at
 //! A, rotations held at B) with each case's records at B and a concentrated force at B,
@@ -6,7 +6,7 @@
 //! (`generators/skew_reference.py`, `product_cases`), restated here; every expectation is
 //! read from the references, never derived from product code.
 //!
-//! Criterion (§13): |obs − exp| ≤ 1e-9 |exp|; an exact zero uses 1e-9 of the case's largest
+//! Criterion: |obs − exp| ≤ 1e-9 |exp|; an exact zero uses 1e-9 of the case's largest
 //! magnitude.
 use open_pipe_stress_product_physics::{
     run_linear_static_preview_value_with_mode, run_linear_static_preview_with_mode, LinearStaticPreviewRequest, PreviewSolverMode,
@@ -247,7 +247,7 @@ fn s_k1_product_cases_match_references_in_both_modes() {
     }
 }
 
-/// §4.3 I1 on the static product path (the modal review asked for every direction
+/// on the static product path (the modal review asked for every direction
 /// consumer): a stop or a spring authored at d·2^600, d·2^-600, d·2^-1020, or as the
 /// subnormal pair (2^-1074, 2^-1074, 0) against (1, 1, 0), publishes its twin's result
 /// rows and diagnostics bit for bit, in both modes, through the typed entry (2^600 is
@@ -280,7 +280,7 @@ fn power_of_two_rescaled_directions_publish_their_twins_rows_bit_for_bit() {
     }
 }
 
-/// §7.1 and §4.3: an exactly axis-aligned direction is lowered and publishes the
+/// an exactly axis-aligned direction is lowered and publishes the
 /// same document bytes as the plain record (no along-direction row).
 #[test]
 fn axis_aligned_twins_are_byte_identical() {
@@ -300,7 +300,7 @@ fn axis_aligned_twins_are_byte_identical() {
     }
 }
 
-/// Each §2.2 code of S-K1, named on its object, with the whole document withheld.
+/// Each code of S-K1, named on its object, with the whole document withheld.
 #[test]
 fn s_k1_refusals_are_named() {
     let refused = |doc: &Value, code: &str, what: &str| {
@@ -341,7 +341,7 @@ fn s_k1_refusals_are_named() {
     nonlinear["model"]["supports"].as_array_mut().unwrap().push(json!({"id": "gap_B", "node": "B", "family": "nonlinear", "restraints": [], "provenance": PROV,
         "nonlinear": {"behavior": "gap", "dof": "UZ", "initial_state": "inactive", "closes_when": "positive_displacement", "gap": qv(1000.0, "mm")}}));
     refused(&nonlinear, "SUPPORT_DIRECTION_SKEW_NONLINEAR_MODEL_UNSUPPORTED", "nonlinear");
-    // Item 4: §4.2's range rule.
+    // Item 4: range rule.
     refused(&document(&[stop("stop_B", [1.0, f64::from_bits(1u64 << 51), 0.0])], ly), "SUPPORT_DIRECTION_RANGE_UNSUPPORTED", "range");
     // Item 6: a skewed record on a node with no element.
     let mut lone = document(&[stop("stop_B", [3.0, 4.0, 0.0])], ly);
@@ -360,7 +360,7 @@ fn s_k1_refusals_are_named() {
     refused(&ground, "IMPOSED_DISPLACEMENT_SKEW_SUPPORT_UNSUPPORTED", "skew ground motion");
 }
 
-/// RT-A3's condition on hunk 02 (`InvalidInput` is a backstop only): the named §2.2
+/// RT-A3's condition on hunk 02 (`InvalidInput` is a backstop only): the named
 /// codes for an unconnected skewed node (item 6) and a force-scaled skew case
 /// (item 10) are what the product reports, never the backstop's "invalid input".
 #[test]
@@ -373,7 +373,7 @@ fn named_codes_win_over_the_invalid_input_backstop() {
     // A tip load whose ordinary attempt leaves the binary64 normal range: the W2
     // force-scaled route, which S-K1 does not carry.
     let tiny = document(&[stop("stop_B", [3.0, 4.0, 0.0])], [0.0, -1.0e-307, 0.0]);
-    // §6.2: a coordinate transform product below the split range (P1: a guide UZ
+    // a coordinate transform product below the split range (P1: a guide UZ
     // and a stop (1, 2^-600, 0) give q = 2^-600 on two free axes, so k·q·q < 2^-969)
     // is refused on the ordinary failure path with the error named.
     let split = document(&[axis("guide_uz_B", "UZ"), stop("stop_B", [1.0, p(-600), 0.0])], [0.0, -1024.0, 0.0]);
@@ -464,7 +464,7 @@ fn the_reader_fixture_is_the_product_output() {
     assert_eq!(text, include_str!("../../../fixtures/results/skew_along_direction_preview.json"), "rewrite with OPENPIPESTRESS_WRITE_SKEW_ALONG_FIXTURE");
 }
 
-/// R-1 desktop (Agent 0's correction 2, §7.1): the committed combinations fixture
+/// R-1 desktop (Agent 0's correction 2): the committed combinations fixture
 /// (`fixtures/results/skew_along_direction_combinations_preview.json`) for the desktop's
 /// along-direction list. P_RS_stop_and_spring with two cases (case:skew, −1024 N along Y;
 /// case:b, 512 N along X) and one combination of each PF form: a signed mechanics
@@ -520,7 +520,7 @@ fn the_combinations_reader_fixture_is_the_product_output() {
     assert_eq!(text, include_str!("../../../fixtures/results/skew_along_direction_combinations_preview.json"), "rewrite with OPENPIPESTRESS_WRITE_SKEW_ALONG_COMBINATIONS_FIXTURE");
 }
 
-/// Astra B4 (§6.2, RT-A3's re-check criteria): a skewed stop d = (1.5, 1, 0) at B under the
+/// Astra B4 (RT-A3's re-check criteria): a skewed stop d = (1.5, 1, 0) at B under the
 /// finite force (−1e308, 1e308, 0) has a free-coordinate force 2.5e308 outside binary64. The
 /// case is refused on the existing `NumericallyUnresolved` arm with its `restraint_basis:`
 /// reason in both modes, never the `InvalidInput` backstop, and the case publishes no rows.

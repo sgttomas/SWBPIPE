@@ -282,7 +282,7 @@ export function readerRowSemantics(source?: MechanicsResult | null): (row: Sourc
   };
 }
 
-/** RT-A4 §10.4: the row semantics of a recorded statement under its record's binding (Rust's
+/** the row semantics of a recorded statement under its record's binding (Rust's
  * `row_semantics_each_recorded`): a registry variant's rows read under that variant's table.
  * For the recorded-run display and compare paths only; no current path calls it. It throws
  * the reader's refusal (a refused binding refuses every row). */
@@ -332,7 +332,7 @@ export function recordedReaderRowSemantics(source: MechanicsResult, binding: Con
 export function sourceContract(source: MechanicsResult | NativeResult): SourceContract {
   return readerDispatch(source).route;
 }
-/** RT-A4 §10.4: the route a display surface classifies a statement under. A reopened run
+/** the route a display surface classifies a statement under. A reopened run
  * recorded before RT-A4 names its recorded table, and is classified by the recorded dispatch
  * under it (a refused binding is `unsupported`; it never falls back to the current reader);
  * without one (every current caller) this is `sourceContract`. Display only: it grants no

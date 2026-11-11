@@ -4,7 +4,7 @@ import { healthStanding } from "../../test-support/resultOverlayFixtures";
 import { keyModel, keyResult } from "../../test-support/keyResultsFixtures";
 import { SupportLoadSummaryPanel } from "./SupportLoadSummaryPanel";
 
-// A6's repeated "Show support load summary" (DEL-07-05 Design `key-results-panel.md` §2): each new
+// A6's repeated "Show support load summary": each new
 // focus request shows the requested support again, even when the session's selection is unchanged
 // and the user stepped the panel to another support meanwhile. Invented data only.
 

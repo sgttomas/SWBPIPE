@@ -1,4 +1,4 @@
-"""RT-A3 §4 (DEL-05-02 Work ``combination-certificate.md``; ``operating-case.md`` §4.3): test-only mirror of RE
+"""test-only mirror of RE
 ``combination_certificate.rs``. Re-derives ``contract_evidence.combination_certificate`` on preview-physics-2 and
 pressure-2 bit for bit from the published rows and the operand cases' published group statements, and refuses a
 forged bound, verdict, row binding, operand-bound binding, eligibility or diagnostic with the Rust reader's codes.
@@ -105,7 +105,7 @@ def _reserved(source: Mapping[str, Any], d: Any) -> bool:
 
 
 def _bound_held_gate(source: Mapping[str, Any], d: Any) -> bool:
-    """RT-A5 (Work combination-certificate.md section 2; Rust `bound_held_gate`): whether a diagnostic is a withheld
+    """RT-A5 (Rust `bound_held_gate`): whether a diagnostic is a withheld
     held gate's own notice, by typed identity and its whole canonical message: one of the five held gate codes, exactly
     one named combination, that combination's gate id, the document's gate for it withheld with that code, exactly one
     held-status record, a withheld one of that outcome, and the message exactly "Combination withheld: " + R + "." with
@@ -243,7 +243,7 @@ def group_norm(values: list[float]) -> float | None:
     return None
 
 
-# ----------------------------------------------------------------------------- coverage (Work §1 table)
+# ----------------------------------------------------------------------------- coverage
 
 def row_sets(group: str, location: str) -> list[list[tuple[str, str, str | None]]]:
     at = location if location in ("end_i", "end_j", "quarter_1", "midspan", "quarter_3") else None
@@ -346,7 +346,7 @@ def _eligible(diagnostics: list[Any], case: str) -> bool:
 
 
 def held_reason(token: Any) -> str | None:
-    """Premise (Work `combination-certificate.md` §1): the operand bounds are each operand case's own. A held subtrahend
+    """Premise: the operand bounds are each operand case's own. A held subtrahend
     (any `subtrahend_support_state` but absent or `own`) is a different system from its load case: not assessed."""
     if token is None or token == "own":
         return None
@@ -446,7 +446,7 @@ def _member_check(source: Mapping[str, Any]) -> None:
     solved = isinstance(source.get("status"), Mapping) and source["status"].get("mechanics") == "MECHANICS_SOLVED"
     gate_list = _gates(evidence) or []
     member = evidence.get(MEMBER)
-    # Absence of the member is no §4 certificate claim, whatever the document's age; it selects no historical
+    # Absence of the member is no certificate claim, whatever the document's age; it selects no historical
     # semantics. No certificate notice may then stand, under any id. A stated member is read in full, and only on a
     # solved document with a combination; a partial or malformed one is refused, never read as absence (Rust alike).
     if MEMBER not in evidence:
@@ -767,7 +767,7 @@ def _combination_population(source: Mapping[str, Any], model: Mapping[str, Any] 
     return ids
 
 
-# RT-A5 (DEL-05-02 operating-case.md section 7.5): the held gates (preview_held_status.GATES, Rust
+# the held gates (preview_held_status.GATES, Rust
 # `preview_held_status::GATES`) and their record member.
 HELD_GATES = ("HELD_STATUS_SOURCE_UNAVAILABLE", "HELD_STATUS_SOURCE_UNQUALIFIED", "HELD_STATUS_BINDING",
               "HELD_STATUS_SLIDING_GROUND_DIFFERS", "HELD_STATUS_SOLVE_FAILED")
@@ -775,7 +775,7 @@ HELD_MEMBER = "held_status_derivation"
 
 
 def _held_gate_message(evidence: Mapping[str, Any], cid: str, code: str) -> str:
-    """A held gate's notice (Rust `held_gate_message`; Work combination-certificate.md section 2): exactly
+    """A held gate's notice (Rust `held_gate_message`): exactly
     "Combination withheld: " + R + ".", R the refusal the document's held-status record for this combination states.
     R is bound to that record, never verified as true, and no certificate claim is read from it. The held-status reader,
     which precedes this one in both readings, has bound the record to the combination and its refusal code to the
@@ -792,7 +792,7 @@ HELD_RELEASED = "HELD_STATUS_RELEASED"
 
 
 def _held_released_entry(record: Any) -> dict[str, Any] | None:
-    """RT-A5 (DEL-05-02 operating-case.md section 7.5; Rust `held_released_entry`): the HELD_STATUS_RELEASED entry of a
+    """RT-A5 (Rust `held_released_entry`): the HELD_STATUS_RELEASED entry of a
     held combination whose held-status record releases a support, None otherwise, rebuilt from the record's recorded
     fields only (support ids, held and classified states, release reasons, and the deciding bit token or strict-gap
     signs); no binary64 value is formatted. The held-status reader, which precedes the roster, validated the record."""

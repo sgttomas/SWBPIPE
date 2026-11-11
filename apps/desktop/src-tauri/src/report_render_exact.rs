@@ -72,7 +72,7 @@ use std::fmt::Write as _;
 
 /// The exact identities whose `exact_route` the native render admits:
 /// pressure-2 and pressure-source-1, since the owner opened exact-route report
-/// outputs (§5.1; owner, 2026-10-26).
+/// outputs (owner, 2026-10-26).
 pub(crate) const RENDER_ADMITTED_EXACT_CONTRACTS: [&str; 2] = [PRESSURE_ID, PRESSURE_SOURCE_ID];
 
 /// The exact-route identities step 0 recognizes at the input's identity
@@ -81,7 +81,7 @@ pub(crate) const EXACT_IDENTITIES: [&str; 3] = [PRESSURE_ID, PRESSURE_SOURCE_ID,
 
 pub(crate) const RENDER_ROUTE_NOT_ADMITTED: &str = "REPORT-RENDER-ROUTE-NOT-ADMITTED";
 
-/// The render input's top-level pressure-free Timoshenko section (`pf-timoshenko.md` §4).
+/// The render input's top-level pressure-free Timoshenko section.
 pub(crate) const PF_TIMOSHENKO_SECTION: &str = "pf_timoshenko";
 
 /// An exact-route render whose `report_context.export_context` is not
@@ -111,7 +111,7 @@ impl RenderAdmittedSet {
 pub(crate) const PRODUCTION: RenderAdmittedSet = RenderAdmittedSet(&RENDER_ADMITTED_EXACT_CONTRACTS);
 
 /// The render command's path after ingress: step 0 against `admitted`, then,
-/// for an input with `exact_route`, the native source binding (§3.6) under
+/// for an input with `exact_route`, the native source binding under
 /// the command's `lease`, then the renderer.
 pub(crate) fn render_calculation_report_args_in(
     args: &mut Args,
@@ -176,7 +176,7 @@ pub(crate) fn check_exact_render_context(input: &Value) -> Result<(), String> {
     }
 }
 
-/// The texts an exact render resubmits (§3.6); none for any other input.
+/// The texts an exact render resubmits; none for any other input.
 pub(crate) struct ExactRenderTexts {
     pub result: Option<String>,
     pub intake: Option<String>,
@@ -193,7 +193,7 @@ fn refused(refusal: ExactRefusal) -> CommandError {
     CommandError::Command(refusal.message)
 }
 
-/// The render's lease growth before its parse (§3.6, "Pricing"): the three
+/// The render's lease growth before its parse: the three
 /// texts' priced parses ([`text_parse_bytes`]) plus W M_r, the render's
 /// working-memory provision, with M_r the result text's materialization bound
 /// and W [`REPORT_PACKAGE_WORKING_MEMORY_FACTOR`]. A measured provision for
@@ -213,7 +213,7 @@ pub(crate) fn exact_render_growth_bytes(result: &str, intake: &str, input_manife
         .saturating_add(working))
 }
 
-/// The size caps of the save, before any parse (§3.6).
+/// The size caps of the save, before any parse.
 fn check_render_text_sizes(texts: &ExactRenderTexts) -> Result<(), String> {
     for (what, text, cap) in [
         ("result", texts.result.as_deref(), MAX_REQUEST_TEXT_BYTES),
@@ -228,11 +228,11 @@ fn check_render_text_sizes(texts: &ExactRenderTexts) -> Result<(), String> {
     Ok(())
 }
 
-/// The native source binding of an exact render (§3.6): steps 1-5, then the
+/// The native source binding of an exact render: steps 1-5, then the
 /// input manifest and the re-derivation of the rows, their references and
 /// checksums, the unit display summary, the Diagnostics, the exact limitation
 /// entries and the `exact_route` section from the delivered result. Refuses
-/// with the first difference; the renderer's own checks (§3.2, §3.5) follow.
+/// with the first difference; the renderer's own checks follow.
 fn bind_exact_render_input(
     input: &Value,
     texts: &ExactRenderTexts,
@@ -242,7 +242,7 @@ fn bind_exact_render_input(
     bind_render_admission(input, &input["exact_route"]["admission"], texts, registry, lease, rederive)
 }
 
-/// The pressure-free Timoshenko section's binding (`pf-timoshenko.md` §4): the
+/// The pressure-free Timoshenko section's binding: the
 /// exact steps on its admission, then [`rederive_pf_timoshenko`].
 fn bind_pf_timoshenko_render_input(
     input: &Value,
@@ -288,25 +288,25 @@ fn bind_render_admission(
         .map_err(|_| refused(sections_mismatch("input_manifest.model_basis")))?;
     drop(manifest);
     rederive(input, &bound.source, &bound.model_sha256, &digests).map_err(|section| refused(sections_mismatch(&section)))?;
-    // Slice C5 (DEL-08-01 Design `report-section-composer.md` §2.7): the
+    // the
     // model-input tables are P(M, C) of the bound intake model and the input's
     // own composition; the refusal names a JSON pointer, never a value.
     open_pipe_stress_report_package::model_input::check_model_input_tables(&bound.model, input).map_err(CommandError::Command)
 }
 
-/// The re-derivation (§3.6) with the functions the package's items 5, 6 and 9
+/// The re-derivation with the functions the package's items 5, 6 and 9
 /// use: the result rows, exactly (an exact report carries no numerical-health
 /// line, so no row is admitted that the delivered result does not derive);
 /// the rows' references and full-precision checksums, since the displayed
-/// rows are rounded (§3.7) and two sources can display the same rows; the
+/// rows are rounded and two sources can display the same rows; the
 /// unit display summary, so the display policy, its statement and
-/// `conversion_performed` are the delivered source's (§3.7); the Diagnostics
+/// `conversion_performed` are the delivered source's; the Diagnostics
 /// (`check_report_diagnostics`, item 9's), so the integrity warnings the
-/// standing line names are the delivered result's (§6.3 item 4); the exact
+/// standing line names are the delivered result's; the exact
 /// limitation entries with the profile reference; and the `exact_route`
 /// section. `input_manifest_ref` and
 /// `derivative_sha256` are checked for form here and against the report's own
-/// records by the renderer (§3.2). `Err` names the section.
+/// records by the renderer. `Err` names the section.
 fn rederive(input: &Value, source: &Value, model_sha256: &str, digests: &crate::solve_jobs::CustodyDigests) -> Result<(), String> {
     let rows = expected_report_result_rows(source).map_err(|_| "result_rows".to_string())?;
     let found = input["result_rows"].as_array().map(Vec::as_slice).unwrap_or(&[]);
@@ -359,7 +359,7 @@ fn rederive(input: &Value, source: &Value, model_sha256: &str, digests: &crate::
     check_exact_limitation_entries(&entries, &core.run_ref, limitations).map_err(|detail| format!("limitations: {detail}"))
 }
 
-/// The pressure-free Timoshenko re-derivation (`pf-timoshenko.md` §4), with the
+/// The pressure-free Timoshenko re-derivation, with the
 /// package's functions: the result rows exactly, their references and
 /// checksums, the unit display summary, the Diagnostics
 /// (`check_report_diagnostics`, so the arc diagnostic's text and references are
@@ -399,7 +399,7 @@ fn rederive_pf_timoshenko(input: &Value, source: &Value, model_sha256: &str, dig
     check_pf_timoshenko_limitations(source, &run, limitations).map_err(|_| "limitations".to_string())
 }
 
-/// Step 0 (§3.6). It reads only structured markers at the input's defined
+/// Step 0. It reads only structured markers at the input's defined
 /// paths, never free text (labels, notes, statements, descriptions,
 /// provenance or any other user-supplied value). An input is an exact-route
 /// input when it carries:
@@ -440,7 +440,7 @@ pub(crate) fn check_render_route_admitted(input: &Value, admitted: RenderAdmitte
     }
 }
 
-/// The refusal message names the admitted set (§5.1 item 4).
+/// The refusal message names the admitted set.
 fn refusal(admitted: RenderAdmittedSet, found: &dyn std::fmt::Display) -> String {
     let mut message = format!("{RENDER_ROUTE_NOT_ADMITTED}: the rendered report admits ");
     if admitted.0.is_empty() {

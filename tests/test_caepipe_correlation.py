@@ -2591,7 +2591,7 @@ def test_restore_recorded_settings_goes_through_the_restore_routine(tmp_path):
     assert [step["name"] for step in result["steps"]][:2] == ["precondition_process_list", "settings_current"]
 
 
-# The literal recent-files value (Design §5): the configured executable's folder with one trailing backslash.
+# The literal recent-files value: the configured executable's folder with one trailing backslash.
 RECENT = INVENTED_KEY + "\\Recent list"
 LITERAL = "C:\\Invented\\"  # fake_config's guest_executable is C:\\Invented\\tool.exe
 

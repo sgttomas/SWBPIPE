@@ -56,9 +56,9 @@ pub(crate) const DISCARD_COMMAND: &str = "discard_project_autosave";
 pub(crate) const GET_SETTINGS_COMMAND: &str = "get_autosave_settings";
 pub(crate) const SET_SETTINGS_COMMAND: &str = "set_autosave_settings";
 
-/// The record commands' argument budget: the history commands' (§6).
+/// The record commands' argument budget: the history commands'.
 pub(crate) const RECORD_COMMAND_MAX_ARGS_BYTES: usize = crate::model_states::HISTORY_COMMAND_MAX_ARGS_BYTES;
-/// The settings commands' argument budget (§6: scalars).
+/// The settings commands' argument budget (scalars).
 pub(crate) const SETTINGS_COMMAND_MAX_ARGS_BYTES: usize = 4 * 1024;
 
 /// A worker that did not complete.
@@ -78,7 +78,7 @@ pub(crate) fn args_budget(command: &str) -> Option<usize> {
     }
 }
 
-/// Admits one autosave command's raw body under its rule (§6).
+/// Admits one autosave command's raw body under its rule.
 pub(crate) fn admit_body(
     registry: &SolveJobRegistry,
     body: &InvokeBody,
@@ -165,12 +165,12 @@ pub(crate) fn file_name_request(args: &mut Args) -> Result<String, SolveJobError
 #[derive(Debug, Clone, Serialize, PartialEq)]
 #[serde(tag = "outcome", rename_all = "snake_case")]
 pub(crate) enum AutosaveReadOutcome {
-    /// Every check of §5 passed.
+    /// Every check passed.
     Read { file_name: String, slot: String, written_unix_millis: u64, model_hash: String, byte_count: u64, document: Value },
     Refused { diagnostics: Vec<DispositionDiagnostic> },
 }
 
-/// One record, read verified for recovery (§3, §5).
+/// One record, read verified for recovery.
 pub(crate) fn read_at(data: Result<PathBuf, String>, file_name: &str, memory: &dyn ReadMemory) -> Metered<AutosaveReadOutcome> {
     let refused = |diagnostics| Metered::new(AutosaveReadOutcome::Refused { diagnostics });
     let data = match data {
@@ -201,7 +201,7 @@ pub(crate) fn discard_at(data: Result<PathBuf, String>, file_name: &str) -> Auto
 }
 
 // ---------------------------------------------------------------------------
-// Settings (§2).
+// Settings.
 // ---------------------------------------------------------------------------
 
 pub(crate) const SETTINGS_FILE: &str = "autosave-settings.json";
@@ -400,12 +400,12 @@ pub(crate) fn settings_from_bytes(bytes: &[u8]) -> Result<SettingsRecord, Dispos
     Ok(SettingsRecord { autosave_minutes, backup_folder, backup_keep, backup_local_private_intent })
 }
 
-/// Reads the settings file in `data` (§2), as a response shows it.
+/// Reads the settings file in `data`, as a response shows it.
 pub(crate) fn read_settings(data: &Path, memory: &dyn ReadMemory) -> Metered<AutosaveSettingsRead> {
     read_settings_record(data, memory).map(|read| read.shown())
 }
 
-/// Reads the settings file's record in `data` (§2). It must be a regular file
+/// Reads the settings file's record in `data`. It must be a regular file
 /// (a symlink is not followed) of at most [`MAX_SETTINGS_FILE_BYTES`], read
 /// with a hard cap; its load is reserved in `memory` first. Nothing is
 /// written: a file that is not used is rewritten only by a change.
@@ -529,7 +529,7 @@ pub(crate) fn set_settings_at(data: Result<PathBuf, String>, autosave_minutes: u
 // The Tauri commands.
 // ---------------------------------------------------------------------------
 
-/// A command's memory: the pool, counted from its ingress lease (§6: "seeded
+/// A command's memory: the pool, counted from its ingress lease ("seeded
 /// with the lease"), so each reservation is admitted with the lease held.
 pub(crate) fn seeded_memory<'a>(registry: &'a SolveJobRegistry, lease: &Lease) -> PoolReadMemory<'a> {
     PoolReadMemory::new(registry, lease)
@@ -556,7 +556,7 @@ async fn on_worker<T: Serialize + Send + 'static>(
     .unwrap_or_else(|_| Err(CommandError::Command(format!("{WORKER_FAILED}: the `{command}` worker did not complete."))))
 }
 
-/// The session's model document text as its slot's newest record (§1, §5).
+/// The session's model document text as its slot's newest record.
 #[tauri::command]
 pub async fn write_project_autosave(
     app: AppHandle,
@@ -569,7 +569,7 @@ pub async fn write_project_autosave(
     on_worker(app, WRITE_COMMAND, lease, move |app, memory| Metered::new(write_at(data_directory(app), request, now_unix_millis(), memory))).await
 }
 
-/// The records, names and sizes only (§3).
+/// The records, names and sizes only.
 #[tauri::command]
 pub async fn list_project_autosaves(
     app: AppHandle,
@@ -581,7 +581,7 @@ pub async fn list_project_autosaves(
     on_worker(app, LIST_COMMAND, lease, |app, memory| list_at(data_directory(app), memory)).await
 }
 
-/// One record, read verified for recovery (§3, §5).
+/// One record, read verified for recovery.
 #[tauri::command]
 pub async fn read_project_autosave(
     app: AppHandle,
@@ -594,7 +594,7 @@ pub async fn read_project_autosave(
     on_worker(app, READ_COMMAND, lease, move |app, memory| read_at(data_directory(app), &file_name, memory)).await
 }
 
-/// Removes one record the user chose to discard (§3).
+/// Removes one record the user chose to discard.
 #[tauri::command]
 pub async fn discard_project_autosave(
     app: AppHandle,
@@ -607,7 +607,7 @@ pub async fn discard_project_autosave(
     on_worker(app, DISCARD_COMMAND, lease, move |app, _| Metered::new(discard_at(data_directory(app), &file_name))).await
 }
 
-/// The settings in force (§2).
+/// The settings in force.
 #[tauri::command]
 pub async fn get_autosave_settings(
     app: AppHandle,
@@ -619,7 +619,7 @@ pub async fn get_autosave_settings(
     on_worker(app, GET_SETTINGS_COMMAND, lease, |app, memory| get_settings_at(data_directory(app), memory)).await
 }
 
-/// Sets the interval, or off (§2).
+/// Sets the interval, or off.
 #[tauri::command]
 pub async fn set_autosave_settings(
     app: AppHandle,

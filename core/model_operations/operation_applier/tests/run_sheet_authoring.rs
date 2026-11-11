@@ -1,4 +1,4 @@
-//! Run-sheet entry S1 (DEL-07-02 Design `run-sheet-entry.md` §7): the native
+//! Run-sheet entry: the native
 //! lane of native/wasm equivalence (DEL-16-06 CLM-003). The hand-built batches of
 //! `fixtures/model_operations/run_sheet_authoring.json` are applied natively to
 //! the fixture's basis model and must give its expected applied models, the same
@@ -92,7 +92,7 @@ fn created_coordinates_keep_the_emitted_bits() {
     }
 }
 
-/// §6.2: 0.1 m + 0.3 in is convert_for_dimension(0.3, in → m) plus one addition,
+/// 0.1 m + 0.3 in is convert_for_dimension(0.3, in → m) plus one addition,
 /// 0.10762000000000001 m, not the absolute-entry value 0.10762000000000002 m.
 #[test]
 fn non_identity_increment_is_converted_then_added() {

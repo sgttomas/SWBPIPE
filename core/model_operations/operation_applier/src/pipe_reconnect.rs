@@ -1,9 +1,9 @@
 //! Pipe reconnect (W-10, FR-GUI-004): `reconnect_pipe_run` moves one end of a
 //! pipe P from the node O it leaves to an existing node T; its other end F
-//! stays. Called solely by the common applier. The rules, refusals R1-R13 and
-//! warnings are DEL-16-06 Design `pipe-reconnect.md` §1-§2. The same scan
+//! stays. Called solely by the common applier.
+//! The same scan
 //! (`references`, with the root `diagnostics` skipped) finds the dependents a
-//! `delete_pipe_run` refuses on (§7).
+//! `delete_pipe_run` refuses on.
 //!
 //! Orientation is checked through the frame kernel's own element calls
 //! (`FrameElement::length` and `FrameElement::orientation`), the ones the
@@ -22,11 +22,11 @@ use serde_json::Value;
 use std::collections::{BTreeMap, BTreeSet};
 
 pub(crate) const CHANGE_KIND: &str = "reconnect_pipe_run";
-/// Relative tolerance of the coincident-span warning (§2.4).
+/// Relative tolerance of the coincident-span warning.
 const COINCIDENT_RELATIVE: f64 = 1.0e-9;
 
 /// One reconnect warning; never blocking. Code and refs are kept typed so the
-/// review shows them (§1, "Return type").
+/// review shows them.
 pub(crate) struct ReconnectWarning {
     pub code: &'static str,
     pub message: String,
@@ -39,7 +39,7 @@ pub(crate) struct ReconnectEdit {
     pub warnings: Vec<ReconnectWarning>,
 }
 /// One refusal. Each blocker is its own diagnostic; `affected_refs` lists P
-/// first, then the blocker ids (§3, "Refusal display").
+/// first, then the blocker ids.
 pub(crate) struct ReconnectBlock {
     pub code: &'static str,
     pub message: String,
@@ -99,7 +99,7 @@ pub(crate) fn render(segs: &[Seg]) -> String {
     let text = render_suffix(segs);
     text.strip_prefix('.').map(str::to_string).unwrap_or(text)
 }
-/// §7 owner mapping: the first `collection[i]` segment gives the owning
+/// owner mapping: the first `collection[i]` segment gives the owning
 /// record (its `id`); the rest of the path is the slot. A root object member
 /// owns itself.
 pub(crate) fn owner_of(model: &Value, segs: &[Seg]) -> (String, String) {
@@ -161,7 +161,7 @@ pub(crate) fn scan(model: &Value, ids: &BTreeSet<String>, skip_pipe: Option<&str
     out
 }
 
-/// §7: the dependents of pipe `pipe` that `delete_pipe_run`'s two existing
+/// the dependents of pipe `pipe` that `delete_pipe_run`'s two existing
 /// checks do not already report, as (owner, slot), sorted and de-duplicated.
 pub(crate) fn delete_dependents(model: &Value, pipe: &str) -> Vec<(String, String)> {
     let ids = BTreeSet::from([pipe.to_string()]);
@@ -319,7 +319,7 @@ pub(crate) fn kernel_orientation(from: Vec3, to: Vec3, unit: &str, y: Option<Vec
     })
 }
 
-/// R6 then R7 (§2.3) for the reconnected pipe running `from` → `to`.
+/// R6 then R7 for the reconnected pipe running `from` → `to`.
 fn orientation(from: Vec3, to: Vec3, unit: &str, y: Option<Vec3>, pipe: &str, refs: &[String]) -> Result<(), ReconnectBlock> {
     kernel_orientation(from, to, unit, y).map_err(|fault| match fault {
         OrientationFault::Chord(detail) => block(
@@ -680,7 +680,7 @@ fn keys_within(value: Option<&Value>, allowed: &[&str], required: &[&str]) -> bo
     })
 }
 
-/// §2.2, pipe id P: the allowed slots (kept, with their warnings), R10 and
+/// pipe id P: the allowed slots (kept, with their warnings), R10 and
 /// R13; any other slot refuses (R12). Components are R9's.
 fn pipe_slots(model: &Value, ends: &Ends, blocks: &mut Blocks, warnings: &mut Vec<ReconnectWarning>) {
     let pipe = ends.pipe;
@@ -735,7 +735,7 @@ fn pipe_slots(model: &Value, ends: &Ends, blocks: &mut Blocks, warnings: &mut Ve
         } else if matches(&segs, &["load_cases", "*", "equivalent_static", "wind", "exposed_spans", "*", "pipe_ref"]) {
             blocks.push(unsupported(model, ends, pipe, &segs, true));
         } else if matches(&segs, &["load_cases", "*", "analysis_state", "element_states", "*", "pipe_ref"]) {
-            // Kept with no diagnostic (§2.2).
+            // Kept with no diagnostic.
         } else if matches(&segs, &["reference_configurations", "*", "member_references", "*", "pipe_ref"]) {
             let member = at(model, &segs[..4]);
             if !keys_within(member, &["pipe_ref", "basis", "fit", "provenance"], &["pipe_ref"]) {
@@ -758,7 +758,7 @@ fn pipe_slots(model: &Value, ends: &Ends, blocks: &mut Blocks, warnings: &mut Ve
     }
 }
 
-/// §2.2, node ids F, O, T: the allowed slots; any other refuses (R12).
+/// node ids F, O, T: the allowed slots; any other refuses (R12).
 /// Components are R9's.
 fn node_slots(model: &Value, ends: &Ends, blocks: &mut Blocks, warnings: &mut Vec<ReconnectWarning>) {
     let pipe = ends.pipe;
@@ -822,7 +822,7 @@ pub(crate) fn pipe_graph_parts(model: &Value) -> usize {
     nodes.iter().map(|n| root(&mut parent, n)).collect::<BTreeSet<_>>().len()
 }
 
-/// §2.4 topology and geometry warnings, on the reconnected candidate.
+/// topology and geometry warnings, on the reconnected candidate.
 fn topology_warnings(model: &Value, candidate: &Value, ends: &Ends, warnings: &mut Vec<ReconnectWarning>) -> Result<(), GeometryError> {
     let (pipe, fixed, old, target) = (ends.pipe, ends.fixed.as_str(), ends.old.as_str(), ends.target.as_str());
     let pair = BTreeSet::from([fixed, target]);

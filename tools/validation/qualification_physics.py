@@ -34,8 +34,8 @@ TABLE = 'fixtures/results/semantic_contract_v0_3_pressure_2.json'
 # whenever the reader changes. B7b re-pinned all three: physics-1's reader and table (a6681f69...) are retired.
 MODULE = 'core/reporting/result_export/src/physics_evidence.rs'
 UNITS = 'core/units/src/lib.rs'
-# T4-U6 (D-5, §2.4): the table's per-basis stress signatures (106 signatures, 59 kinds); T4-U5b's tie-rod force
-# and T4-U4b's (§2.2) per-basis kinds (129 signatures, 66 kinds).
+# T4-U6 (D-5): the table's per-basis stress signatures (106 signatures, 59 kinds); T4-U5b's tie-rod force
+# and T4-U4b's per-basis kinds (129 signatures, 66 kinds).
 TABLE_SHA256 = 'c5fe09a2dc82068f46ce8dd0b5873071af1ec13e62c9bacf0a009570d7e5d2ad'
 DEPENDENCIES = {
     # T4-U6/U8 re-pins: the D-5 section bases and the Timoshenko beam theory (8bf263d6..., was 38302413...);
@@ -191,7 +191,7 @@ REQUIRED_ASSERTION_IDS = (
 REQUIRED_SECTION_IDS = tuple('section.' + name for name in (
     'outside_diameter_m', 'effective_wall_thickness_m', 'ro_m', 'ri_m',
     'As_m2', 'Ai_m2', 'I_m4', 'J_m4', 'Z_m3'))
-# T4-U6 (D-5; DEL-05-03 section-bases-and-timoshenko.md §2.1, §2.5): every exact stress row is published on the
+# T4-U6 (D-5): every exact stress row is published on the
 # nominal and on the reduced section, each naming its basis. The frozen selectors (bare recovery tokens, basis-free
 # ids) are never edited; the gate derives a declared re-authored copy (``reauthor_selectors``): each stress selector
 # becomes its nominal twin and its reduced twin, with the same expected value and criterion. The frozen 'stress.*'
@@ -202,7 +202,7 @@ STRESS_KINDS = (
     'element_local_axial_normal_stress', 'element_local_bending_normal_stress_y', 'element_local_bending_normal_stress_z',
     'element_local_torsional_shear_stress', 'pipe_elastic_normal_stress_maximum_v2', 'pipe_axial_membrane_stress_v2',
     'pipe_lame_radial_stress_v2', 'pipe_lame_hoop_stress_v2')
-# §2.5: these id families end in the underscore basis; the element-stress and source-derived families in the hyphenated one.
+# these id families end in the underscore basis; the element-stress and source-derived families in the hyphenated one.
 UNDERSCORE_ID_FAMILIES = ('result:pressure-exact:', 'result:elastic-maximum:')
 SELECTOR_REAUTHORING = 'openpipestress.section_basis_selector_reauthoring/1'
 DERIVED_ASSERTION_IDS = tuple(name for aid in REQUIRED_ASSERTION_IDS
@@ -210,7 +210,7 @@ DERIVED_ASSERTION_IDS = tuple(name for aid in REQUIRED_ASSERTION_IDS
 
 
 def section_basis_id(result_id: str, basis: str) -> str:
-    """§2.5's id segment for one basis of a stress row."""
+    """id segment for one basis of a stress row."""
     return f'{result_id}:{basis}' if result_id.startswith(UNDERSCORE_ID_FAMILIES) else f"{result_id}:{basis.replace('_', '-')}"
 
 
@@ -222,7 +222,7 @@ def reauthor_selectors(assertions: list, values: list) -> tuple[list, list, dict
     """The declared re-authored copy of a frozen first-static selector list and its reference values.
 
     Each stress-kind selector becomes two, nominal then reduced: assertion id ``<id>.<basis>``, selector id with
-    §2.5's basis segment, ``metadata.basis`` with ``; section_basis=<basis>``, and the same kind, unit, entity,
+    basis segment, ``metadata.basis`` with ``; section_basis=<basis>``, and the same kind, unit, entity,
     case basis, dimension, criterion and expected value. Every other selector is unchanged. The frozen lists are
     not modified; the record carries both hashes."""
     require(type(assertions) is list and type(values) is list, 'selectors and reference values must be lists')

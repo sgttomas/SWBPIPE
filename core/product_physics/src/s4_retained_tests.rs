@@ -1,4 +1,4 @@
-//! T4-U4b S4 (DEL-04-07 Design `u4b-u5b-implementation.md` §4.1, §4.2; the owner's Q2,
+//! T4-U4b S4 (the owner's Q2,
 //! "Form from own resultants"): the straight-member derived kinds on W1-L and W1-E successors.
 //!
 //! - Every derived row (σ⁺, σ⁻ and τ_v,max at five stations on each basis) is a recipe-free
@@ -14,7 +14,7 @@ use open_pipe_stress_result_export::{reader_verdict, retained_precision as reade
 
 /// The two derived kinds W1 carries (straight members only; arcs never reach W1).
 pub(super) const DERIVED: [&str; 2] = ["element_local_normal_stress_extreme", "element_local_transverse_shear_stress_maximum"];
-/// W-7 (DEL-04-01 Design `global-end-actions.md`, GLOBAL_END_ROWS_NOT_COVERED): the global end
+/// W-7 (GLOBAL_END_ROWS_NOT_COVERED): the global end
 /// actions, the other recipe-free not-covered rows W1 carries (twelve per member).
 pub(super) const GLOBAL_END: [&str; 2] = ["element_global_end_force_v1", "element_global_end_moment_v1"];
 const STATIONS: [&str; 5] = ["end_i", "end_j", "quarter_1", "midspan", "quarter_3"];
@@ -33,7 +33,7 @@ fn bits(v: &Value) -> u64 {
 }
 
 /// Every derived row of `document` is recomputed from its own rows: σ⁺/σ⁻ bit for bit from the
-/// same station's and basis's axial and bending stress rows (§2.3), and τ checked against its two
+/// same station's and basis's axial and bending stress rows, and τ checked against its two
 /// shear rows' norm being finite (its c_b is the reader's, `base_read_with_model`). Returns the
 /// number of derived rows, per member and station: two σ and one τ per basis.
 pub(super) fn derived_rows_follow_own_rows(label: &str, document: &Value) -> usize {
@@ -102,7 +102,7 @@ pub(super) fn receipt_and_reader_classify(label: &str, successor: &Value, raw: &
     validation
 }
 
-/// S4 round 2 (§4.1, §5.1): the shipped reader entry recomputes route L's τ with the invocation.
+/// the shipped reader entry recomputes route L's τ with the invocation.
 /// One τ row one ulp up, its publication and receipt resealed, is refused at G7 with the base's
 /// code; without the invocation (no model, so no c_b) the read admits it but is never eligible.
 pub(super) fn tau_tamper_is_refused_by_the_reader(label: &str, successor: &Value, raw: &Value, mode: PreviewSolverMode) {
@@ -145,7 +145,7 @@ fn s4_w1l_derived_rows_are_a_not_covered_passthrough_formed_from_own_rows() {
 
 /// The kernel side of the same transaction: each derived row binds a `NotCovered { row }` recipe at
 /// its own position, its verdict is class `None` and passed, and every other verdict is exactly
-/// the one the case's verified rows had without it (§7.8: no not-covered entry changes a
+/// the one the case's verified rows had without it (no not-covered entry changes a
 /// verified row's class, bound or scale).
 #[test]
 fn s4_w1l_not_covered_recipes_are_position_bound_class_none_verdicts() {
@@ -180,7 +180,7 @@ fn s4_w1l_not_covered_recipes_are_position_bound_class_none_verdicts() {
     }
 }
 
-/// §4.1's divergence control: the owned ordinary envelope's resultants, stresses and derived rows
+/// divergence control: the owned ordinary envelope's resultants, stresses and derived rows
 /// are deliberately changed before the freeze. The successor is byte-identical to the
 /// unperturbed one (every value is the retained owner's), its derived rows follow its own
 /// retained resultants, and they differ from the formula applied to the perturbed ordinary rows.
@@ -298,7 +298,7 @@ fn s4_w1e_derived_rows_bind_in_either_sigma_order() {
     }
 }
 
-/// §4.2: a retained-selected mechanics combination publishes no never_combined derived row, and
+/// a retained-selected mechanics combination publishes no never_combined derived row, and
 /// REQ-001's 7n + 50m + 8g rows per combination stay exact, plus (W-7) each member's 12 global end
 /// rows, which are signed linear and combined; its operand cases carry theirs.
 #[test]

@@ -1,4 +1,4 @@
-// W-12 S2 (DEL-14-01 Design §3, §4.3): the History panel's recorded runs, under their
+// the History panel's recorded runs, under their
 // states, with their labels, label editing, the record check, delete and Record Run…,
 // against a fake of the session's history slice. The flows behind these controls are
 // `recordRun.session.test.tsx`; the store's checks are the Rust tests.

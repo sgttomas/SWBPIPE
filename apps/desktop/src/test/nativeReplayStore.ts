@@ -62,7 +62,7 @@ export class NativeReplayUnrecorded extends Error {
   }
 }
 
-/** The reply the actual command gave for this request, delivered as Tauri delivers it. RT-A4 §10.4:
+/** The reply the actual command gave for this request, delivered as Tauri delivers it.
  * `recordedTable` is the registry table a restored handle holds (`nativeReopenEmulation.ts`); the
  * request is then answered on a restored handle read under it (`native_replay_tests.rs`), and the
  * table is part of its key. Without one the key is the request's alone. */

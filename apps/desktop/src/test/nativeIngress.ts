@@ -81,7 +81,7 @@ export const INGRESS_COMMANDS: ReadonlySet<string> = new Set([
   "open_mbf_import",
   "review_mbf_import",
   "adopt_mbf_import",
-  // DEL-17-04 §5.4: Import MBF…'s Designate original source….
+  // Import MBF…'s Designate original source….
   "designate_mbf_import_source"
 ]);
 

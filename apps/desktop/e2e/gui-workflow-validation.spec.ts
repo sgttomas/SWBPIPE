@@ -124,7 +124,7 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
 
   // Bind the documented pre-solve state directly to the repository fixture.
   await expectTreeEntity(page, "project", modelFixture.project.id);
-  // Slice B3, specification §5.4 rule 2: the fixture records a model that is ready and unsolved,
+  // the fixture records a model that is ready and unsolved,
   // so the status bar carries no chip. The recorded values are read, with their tokens, in the
   // Analyze page's readiness summary just below.
   expect(modelFixture.analysis_status.mechanics).toBe("ready_for_preview_diagnostics");

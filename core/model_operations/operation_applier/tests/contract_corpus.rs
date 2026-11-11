@@ -38,7 +38,7 @@
 //! Boundary: all corpus data is invented (PUBLIC_DOMAIN_OR_ORIGINAL); no
 //! protected standards content; no compliance/certification/approval claims.
 //!
-//! Model document 0.9.0 S3a (DEL-02-01 Work `model-document-0.9.0.md` §11): the
+//! Model document 0.9.0: the
 //! condition-set operations' cases are one file in the same case format,
 //! `fixtures/model_operations/condition_set_contract_corpus.json`, run here under
 //! the same comparison rules (bless with `CONDITION_SET_CORPUS_BLESS=1`). It sits

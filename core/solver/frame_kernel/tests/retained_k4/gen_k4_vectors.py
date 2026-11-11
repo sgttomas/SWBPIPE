@@ -7,7 +7,7 @@ test. It imports, read-only, and records the sha256 of:
   oracle and the stream operand rules, reused for the N5 streams);
 - R1's `references.py` (the exact pi PI_Q and the full model of the RF-MECH
   case whose JSON model is abbreviated), with `references.json` hash-checked;
-- D1's `floor_kinds.json` (the enumerated not-covered list of D1 §4.10),
+- D1's `floor_kinds.json` (the enumerated not-covered list),
 and reads model inputs (binary64 bits) from `kd5_models.rs` (K-D5's D5C-1
 controls) and `k2b_models.rs` (K2b's spring-carried case).
 
@@ -20,7 +20,7 @@ Oracles:
 - the §4.1.6.1 formulas are reimplemented with Python floats (IEEE-exact
   + - * / sqrt and max).
 
-D1 revision 5a.3 (R7 §5; ROOT's A3-0 rulings; this generator is the bit
+D1 revision 5a.3 (ROOT's A3-0 rulings; this generator is the bit
 oracle, DS1's emu7 the selection-level cross-check), checkpoint A3a:
 - `directed.txt`: R7 7b's directed roundings (nearest, then one step when on
   the wrong side of the exact Fraction) and the least binary64 not below x;
@@ -1322,7 +1322,7 @@ def models():
         m["stations"].append(dict(id=1, member=1, t=0.5))
         m["supports"].append(dict(id=1, node=0, r=[1, 1, 1, 0, 1, 1], springs=[1], dsprings=[]))
         out.append(m)
-    # D1's probes (§3.1, §3.2).
+    # D1's probes.
     skew = (3.0, 4.0, 0.0)
     mom = lambda k: (1e-8 * k / 1e-4, 2e-8 * k / 1e-4, 0.0)
     out.append(pin_case("SKEW-K1E-28", skew, 1e-28, mom(1e-28)))
@@ -1353,7 +1353,7 @@ def models():
         load(m, 1, 1, 1000.0)
         load(m, 1, 5, 300.0)
         out.append(m)
-    # §7.3-16's duplicate-operand control: two identical collinear members meet
+    # duplicate-operand control: two identical collinear members meet
     # at node 1 (their node-1 translation-rotation couplings cancel exactly) and
     # a third member, 2^-300 as stiff, leaves node 1 along (3,4,0), so it adds
     # to the same entries. The weak member's id sorts between the two (the
@@ -1614,7 +1614,7 @@ def formation_lines():
 # Assembly of the files
 # ----------------------------------------------------------------------------
 # ----------------------------------------------------------------------------
-# Q10: the canonical encodings built independently (plan §9): K4SRC, K4STF
+# Q10: the canonical encodings built independently: K4SRC, K4STF
 # and K4LED for a representative set, and combination ledgers
 # ----------------------------------------------------------------------------
 def u32b(v):
@@ -1950,7 +1950,7 @@ def o8_lines():
 
 
 # ----------------------------------------------------------------------------
-# J: S* and the classification (D1 §4.1.6 item 1, §4.1.6.1), a binary64
+# J: S* and the classification, a binary64
 # reimplementation (Python floats are IEEE binary64, round to nearest)
 # ----------------------------------------------------------------------------
 R_FLOOR = f64_of(0x3DD0000000000000)  # 2^-34
@@ -2044,7 +2044,7 @@ def classification_lines():
         rows = [(rng.next() % 4, rng.next() % bodies, rng.next() % 8 == 0, rand_value(rng))
                 for _ in range(1 + rng.next() % 24)]
         sets.append((bodies, extents, rows))
-    # Targeted: one ulp either side of t = fl(R·S*) (§7.3-20); S* < 2^-988;
+    # Targeted: one ulp either side of t = fl(R·S*); S* < 2^-988;
     # 0 < S* < 2^-1011 (b is at least the least subnormal); S* = 0 (b = 0).
     t = R_FLOOR * 1.0
     sets.append((1, [0.0], [(0, 0, False, ("N", 1.0)), (0, 0, False, ("N", t)),
@@ -2095,7 +2095,7 @@ def classification_lines():
 
 
 # ----------------------------------------------------------------------------
-# K: R1's frozen references through the adapter (plan §12.1)
+# K: R1's frozen references through the adapter
 # ----------------------------------------------------------------------------
 R1_FAMILIES = ("RF-CHAIN", "RF-SKEW", "RF-WEAK", "RF-FINITE", "RF-MECH", "RF-CANCEL")
 AXIS_DOF = {"UX": 0, "UY": 1, "UZ": 2, "RX": 3, "RY": 4, "RZ": 5}
@@ -2118,7 +2118,7 @@ def r1_cases():
 
 
 def r1_adapt(cid, c, model):
-    """The kernel's binary64 model of an R1 case (plan §12.1) and its key maps."""
+    """The kernel's binary64 model of an R1 case and its key maps."""
     basis = c.get("basis") or "intended"
     num = r1.parse_input
     dec = (lambda x: num(x)) if basis == "intended" else (lambda x: r1.rep(num(x)))
@@ -2254,7 +2254,7 @@ def r1_case_lines(cid, c, model, floors):
 
 
 # ----------------------------------------------------------------------------
-# D1 revision 5a.3 (R7 §5), checkpoint A3a: directed rounding, g, the bounded
+# D1 revision 5a.3, checkpoint A3a: directed rounding, g, the bounded
 # operator Ā, the formation scale E, the free-free blocks, est_c, Uc, the
 # shifted factorization and exact block norms. Every rounding mirrors K4's
 # order (ROOT's A3-0 ruling Q1: this generator is the bit oracle; DS1's emu7
@@ -2471,7 +2471,7 @@ LARGE_A3A = ("RF-LARGE-CHAIN-n00010-AX", "RF-LARGE-CHAIN-n00010-ROT", "RF-LARGE-
 
 
 def large_models(ids):
-    """R1's RF-LARGE frames through K4's adapter (plan §12.1)."""
+    """R1's RF-LARGE frames through K4's adapter."""
     ref = json.loads(R1_JSON.read_text())["cases"]
     out = []
     for cid in ids:
@@ -2505,7 +2505,7 @@ def g_exp_em(yr, yc):
 
 
 def form_member_g(nodes, m, p):
-    """form_member_em plus g (R7 §4.1.6.2 item 2), from the same yc."""
+    """form_member_em plus g, from the same yc."""
     op = form_member_em(nodes, m, p)
     F = Fr
     xi, xj = nodes[m["i"]], nodes[m["j"]]
@@ -2785,7 +2785,7 @@ def emulate(model, p, state=True, seeds=()):
         if passes:
             break
         if corrections == 3 or worst >= prior:
-            # The bounded test on the best evaluated state (R7 §4.1.4 step 3).
+            # The bounded test on the best evaluated state.
             pick = bounded_fallback_em(model, p, q, Kq, pattern, ledger, free, u, evaluated)
             if pick is None:
                 out["stop"] = "ResidualGate"
@@ -2799,7 +2799,7 @@ def emulate(model, p, state=True, seeds=()):
         delta = solve(residuals)
         u_free = [rnd(xv + dv) for xv, dv in zip(u_free, delta)]
         corrections += 1
-    # A test-only seed of the final state (R7 §7), after the gate.
+    # A test-only seed of the final state, after the gate.
     for g, v in seeds:
         u[g] = rnd(u[g] + Fr(v))
     out.update(u=list(u), corrections=corrections, gate=gate)
@@ -3722,7 +3722,7 @@ def schedule_of(K, P, sig):
 
 
 def sdg5_profile_lines():
-    """SD-G5's searched profiles (R7 §6.2): t just below 1 and at 1; a shift
+    """SD-G5's searched profiles: t just below 1 and at 1; a shift
     that fails once and succeeds at σ/2; three failures with Uc (B = Uc) and
     without (`uc`); passed pivots with σ′ ≤ 0. Deterministic searches."""
     lines = []
@@ -3792,8 +3792,8 @@ def sdg5_profile_lines():
 
 
 # ----------------------------------------------------------------------------
-# D1 revision 5a.3, checkpoint A3b: R7 §7's remaining controls, and K4's
-# verification pass (R7 §4.1.6.3 items 1-12), its decision (§5.1 (a)-(d), in
+# D1 revision 5a.3, checkpoint A3b: remaining controls, and K4's
+# verification pass, its decision (in
 # emu7's order: ROOT's A3-0 ruling Q7) and its schedule, emulated in K4's
 # order with R7's directed roundings.
 # ----------------------------------------------------------------------------
@@ -4041,7 +4041,7 @@ SEEDS5A3 = {"SEEDED-COMMON": [(6 * 1 + 1, 2.0 ** -110)], "SEEDED-SOFT": [(6 * 2 
 
 
 def models5a3_b():
-    """A3b's controls (R7 §7), in addition to `models5a3`."""
+    """A3b's controls, in addition to `models5a3`."""
     out = []
     base = {m["name"]: m for m in models()}
     out.append(f2_model())
@@ -4068,7 +4068,7 @@ def models5a3_b():
     load(m, 1, 0, 2.0 ** -60)
     load(m, 2, 1, 1.0)
     out.append(m)
-    # PRESCRIBED-TAIL in combination form (R7 §7): 1·A + 2^-100·B, A prescribing
+    # PRESCRIBED-TAIL in combination form: 1·A + 2^-100·B, A prescribing
     # ux = 1 at both nodes, B ux(1) = 2^-1000; the net prescription at node 1 is
     # 1 + 2^-1100. PRESCRIBED-TAIL-FREE likewise at node 0 of a two-member run.
     for name, vals in (("PT-A", ((0, 1.0), (1, 1.0))), ("PT-B", ((0, 0.0), (1, 2.0 ** -1000)))):
@@ -4831,7 +4831,7 @@ def hp_em(model):
 
 
 def estimate_lines():
-    """E-ESTIMATE's reference (plan §5.1; ROOT's A3-0 ruling Q10): for every
+    """E-ESTIMATE's reference (ROOT's A3-0 ruling Q10): for every
     control with an exact solution u* (RF-LARGE excepted) and P in (256, 512),
     K4's P state u_P as `emulate` reproduces it, and on every force and moment
     row the error |R*(u_P) − q*| = |R*(u_P − u*)|, with R* the recovery at

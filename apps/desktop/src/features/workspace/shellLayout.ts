@@ -22,7 +22,7 @@ import type { StatusAuthorityDomain } from "./statusLabels";
 import type { WorkspaceSectionId } from "./workspaceSections";
 
 // ---------------------------------------------------------------------------
-// Stages and views (§2.3)
+// Stages and views
 
 export type ShellStage = "model" | "loads" | "results" | "review";
 export type ShellView = "table" | "model" | "both";
@@ -45,7 +45,7 @@ export const FIRST_OPEN_VIEWS: Readonly<Record<ShellStage, ShellView>> = Object.
   review: "table"
 });
 
-/** The Review stage has no canvas (§2.3): it is the Review page, in Table view only. */
+/** The Review stage has no canvas: it is the Review page, in Table view only. */
 export function stageViews(stage: ShellStage): readonly ShellView[] {
   return stage === "review" ? ["table"] : SHELL_VIEWS;
 }
@@ -113,7 +113,7 @@ export function viewSwitchItems(stage: ShellStage, memory: StageViewMemory): Vie
 export type InspectorToggleState = { enabled: boolean; latched: boolean; tooltip: string; reason: string | null };
 
 /**
- * The toolbar's Inspector toggle (§2.3, §5.5). Table view has no inspector and
+ * The toolbar's Inspector toggle. Table view has no inspector and
  * Model view always docks it, so the toggle acts in Both view only.
  */
 export function inspectorToggleState(view: ShellView, inspectorOpen: boolean): InspectorToggleState {
@@ -259,7 +259,7 @@ export function sectionAfterPageClose(stageSurface: StageSurface): WorkspaceSect
 }
 
 // ---------------------------------------------------------------------------
-// The rail's states (§2.3, §2.6). The Stale caption is not drawn in this
+// The rail's states. The Stale caption is not drawn in this
 // tranche (G-11): after a model change there is no run to show, as today.
 
 export type RunPresence = {
@@ -270,7 +270,7 @@ export type RunPresence = {
   /** Derived eligibility only; never written into the received result. */
   needsRecompute?: boolean;
   /**
-   * DEL-07-05 numerical health §3: present only with `needsRecompute` when the
+   * present only with `needsRecompute` when the
    * result is held back by its numerical verdict alone (`numericalHealthHold`). The
    * chip shows its headline and the rail its short form instead of "Needs recompute";
    * nothing else about the run's standing changes.
@@ -331,7 +331,7 @@ export function railStageState(stage: ShellStage, run: RunPresence): RailStageSt
       else reason = "No run yet";
     }
   }
-  // A tooltip that also summarises content puts the summary first and the control last (§2.8).
+  // A tooltip that also summarises content puts the summary first and the control last.
   const tooltip = reason ?? (caption ? `${caption} · ${label}` : label);
   return { stage, label, enabled, reason, caption, tooltip };
 }
@@ -368,7 +368,7 @@ export const RAIL_FOOT_ITEMS: readonly RailFootItem[] = Object.freeze([
 ] as const);
 
 // ---------------------------------------------------------------------------
-// The status chip policy (§5.4). The status bar speaks for the current model
+// The status chip policy. The status bar speaks for the current model
 // and its Current run, and for nothing else.
 
 export type StatusChip = {
@@ -495,7 +495,7 @@ export function statusChipInputsFromCells(cells: {
 }
 
 // ---------------------------------------------------------------------------
-// The regions' designed geometry (design system §5.2, §5.3; D-72's canvases).
+// The regions' designed geometry (D-72's canvases).
 // jsdom lays nothing out, so the built shell is measured by Playwright; this
 // is the arithmetic the stylesheet is written to, kept where a unit test holds it.
 

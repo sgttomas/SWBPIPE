@@ -131,7 +131,7 @@ describe("actual pressure-2 source consumers (B7b: the v3 twin of physics-1)", (
     await validateAnalysisRunV03(JSON.parse(JSON.stringify(analysisRun)), JSON.parse(JSON.stringify(source)), modelLoadBasisRefs(model()));
     const changed = raw(mode); evidence(changed).pressure[0].provenance += ":changed";
     await expect(validateAnalysisRunV03(analysisRun, changed, modelLoadBasisRefs(model()))).rejects.toThrow("ANALYSIS_RECEIVED_SOURCE_MISMATCH");
-    // Epoch 8 (§4.2): the surface admits pressure-2 at Rust's standing (no policy refusal),
+    // the surface admits pressure-2 at Rust's standing (no policy refusal),
     // and the Current builder keeps its refusal of a result without its manifest.
     expect(surfaceOutputRefusal(source, model(), "result-export")).toBeNull();
     await expect(buildCurrentResultExport({ model: model(), result: source, analysisRun, inputManifest: null })).rejects.toThrow("CURRENT_INPUT_MANIFEST_UNAVAILABLE");

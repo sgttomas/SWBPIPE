@@ -270,14 +270,14 @@ fn w1_annulus_boundary_is_a_real_preparation_fallback() {
     }
 }
 
-/// W1 coverage repair §2.2's gating check (corner 2): on every committed successor and
+/// gating check (corner 2): on every committed successor and
 /// producer-solved or hook-produced corpus base (the hook-driven genuine-exhaustion
 /// control only under `--features loaded-maximum-hooks`), the receipt's body scales, now the
 /// final scales the product gate used, equal the committed ones (formerly native), body
 /// by body and kind by kind, and the unchanged reader gives the regenerated document
 /// exactly the verdict it gives the committed one (both pass, or both refuse at the same
 /// gate and code). The census ran the same check over every census input where it is
-/// observable (Design `w1-coverage-repair.md` §3.5).
+/// observable.
 #[test]
 fn w1_final_scales_equal_reader_scales() {
     let scales = |s: &Value| -> Vec<Value> {
@@ -328,7 +328,7 @@ fn w1_final_scales_equal_reader_scales() {
             Some(other) if other.starts_with("o4_w1e_unavailable_") => hooks::fail_freeze_of_case(1),
             _ => (),
         }
-        // W1 coverage repair §1.4, option 2: the genuine-exhaustion control is hook-driven
+        // the genuine-exhaustion control is hook-driven
         // at reduced search limits. Its hook exists only under `loaded-maximum-hooks`, so the
         // ordinary build cannot produce it and that command covers it.
         let exhaustion = hook.as_deref().is_some_and(|h| h.starts_with("w1_member_exhaustion_"));

@@ -1,4 +1,4 @@
-// W-17 library apply (DEL-03-01 Design apply-library-records.md §4): mapping
+// mapping
 // tables, the E/ν rule, dispositions, components, the batch through the real
 // wasm applier, undo/redo through the session, and the private-data boundary.
 // Every library value here is invented.

@@ -1,6 +1,6 @@
-// Open autosave (DEL-02-05 Design `autosave-and-backup.md` §3): after the
+// Open autosave: after the
 // unsaved-changes guard, the record is read verified (`read_project_autosave`,
-// every check of §5) and given the open path's webview checks (the shape check
+// every check) and given the open path's webview checks (the shape check
 // and the validator, `checkNativeOutcome`). The session then adopts it exactly
 // as Open Model Document adopts a file, with no stored base: a later Save Local
 // Project onto a stored id asks through the replace prompt.

@@ -1,4 +1,4 @@
-// DEL-07-05 numerical health §3: "Show solver diagnostic" opens the Diagnostics panel
+// "Show solver diagnostic" opens the Diagnostics panel
 // filtered to exactly that diagnostic, once. The request is cleared when the drawer
 // closes and when the result or the run changes; a later ordinary opening is unfiltered.
 import { act, fireEvent, render, renderHook, screen } from "@testing-library/react";

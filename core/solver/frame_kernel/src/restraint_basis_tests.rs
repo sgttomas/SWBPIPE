@@ -14,7 +14,7 @@ const REFERENCES: &str =
     include_str!("../../../../validation/references/skew_restraints/references.json");
 
 
-/// M-1: the adopted §2.2 strings, test-local; the product's one source is PP
+/// M-1: the adopted strings, test-local; the product's one source is PP
 /// `document_members::skew_code` (the product references test asserts them by name,
 /// against the references).
 fn code_text(code: SkewCode) -> &'static str {
@@ -405,7 +405,7 @@ fn full(dense: &[Vec<f64>]) -> SparseStiffness {
 }
 
 /// Test-local binary64 Cholesky (no pivoting, sums in index order): odd in a
-/// diagonal sign flip, so it meets P-SYM (§4.3).
+/// diagonal sign flip, so it meets P-SYM.
 fn cholesky_solve(a: &[Vec<f64>], b: &[f64]) -> Vec<f64> {
     let n = b.len();
     let mut l = vec![vec![0.0; n]; n];
@@ -452,7 +452,7 @@ struct Run {
     r: [f64; 3],
 }
 
-/// §15 step 1's single-node model: a 6×6 node, translations diag(tip) plus
+/// single-node model: a 6×6 node, translations diag(tip) plus
 /// the skewed spring blocks (after any axis spring), rotations 1 and
 /// restrained; the coordinate solve by Cholesky; the lift; the residual rows.
 fn run(
@@ -842,7 +842,7 @@ fn check_attribution_block(name: &str, run: &Run, node: &NodeBasis, block: &Json
             assert_eq!(bits(node.q[i][c]), bits(column.items()[i].b64()), "{name}: Q[{i}][{c}]");
         }
     }
-    // §10.4: each physical translation's free coordinates, or i32::MIN.
+    // each physical translation's free coordinates, or i32::MIN.
     let n = 6;
     let exponents: Vec<i32> = (0..n)
         .map(|c| if run.basis.restrained_coordinates().contains(&c) { i32::MIN } else { 0 })
@@ -1049,7 +1049,7 @@ fn invariance_groups() {
     }
     // I3 under P-SYM: u and R bit for bit (up to the sign of a zero), the
     // along-direction values exactly negated. A failure is reported, not
-    // silenced (§4.3).
+    // silenced.
     for pair in inv.at("negation").items() {
         let names: Vec<&str> = pair.items().iter().map(|n| n.text()).collect();
         let base = outputs(policy(names[0]));
@@ -1245,7 +1245,7 @@ fn transform_matches_the_dense_congruence_bit_for_bit() {
         }
     }
     assert_eq!(max_terms, 4, "S-K1: at most 2 entries per Q column, ≤ 4 (≤ 9) terms");
-    // A node block missing from the pattern (§2.2 item 6) is refused.
+    // A node block missing from the pattern is refused.
     let diag: Vec<Vec<f64>> = (0..n).map(|i| (0..n).map(|j| if i == j { 1.0 } else { 0.0 }).collect()).collect();
     assert_eq!(
         basis.transform_stiffness(&SparseStiffness::from_dense(&diag).unwrap()).unwrap_err(),
@@ -1479,7 +1479,7 @@ fn ground_rows_and_identity_capacity() {
     );
 }
 
-// ------------------------------------------------------------------ §10.5 certified attribution
+// ------------------------------------------------------------------ certified attribution
 
 /// The kernel node as K-D5's certified source: the tip's axis springs (the
 /// translations' diag(tip)); the skewed spring blocks come from the basis.
@@ -1499,7 +1499,7 @@ fn certified_inputs(tip: [f64; 3], load: [f64; 3]) -> (crate::structural::Format
 }
 
 /// The certified displacement as K-D5 hands it over: the coordinate solution v
-/// with an empty correction and a valid remainder, lifted by §10.4
+/// with an empty correction and a valid remainder, lifted
 /// (`lift_member_bound`: u_p = fl(Qv) and the lift radius enclosing the exact
 /// lift). The kernel nodes are well conditioned (K = diag(tip) + blocks, tip
 /// entries 1 or 4), so |v* − v| ≤ 2^-40 per free coordinate is a generous valid

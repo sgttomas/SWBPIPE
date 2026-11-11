@@ -1,4 +1,4 @@
-//! Nondeleting backups of the verified stored model (RT-U3, DEL-02-05 §4).
+//! Nondeleting backups of the verified stored model.
 //!
 //! The native chooser and explicit private-copy intent authorize a local folder.
 //! Only All is implemented: no backup-copy path removes, renames or replaces any
@@ -1339,7 +1339,7 @@ fn update_backup_settings_at(
     update_settings_at(Ok(data), memory, change).into()
 }
 
-/// Turns backups on or off (§4). Off clears the folder and the intent and
+/// Turns backups on or off. Off clears the folder and the intent and
 /// deletes nothing. On needs the explicit local-private intent before the
 /// chooser (`choose`) is shown; a cancelled chooser writes nothing. The
 /// folder, the rotation and the intent are written together under the

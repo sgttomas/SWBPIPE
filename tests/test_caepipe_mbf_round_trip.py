@@ -54,7 +54,7 @@ INVENTED = {"*": {"origin": "project_invented", "source_name": "invented round-t
 
 
 def import_caepipe_mbf(data: bytes, *, sidecar=None, **options):
-    """The importer, given `sidecar` as a deliberate editor leaves it (Design §15): each edit in this module has its
+    """The importer, given `sidecar` as a deliberate editor leaves it: each edit in this module has its
     self-digest recomputed (canon.redigested), so it reaches the parser, the agreement rule and the regeneration
     identity behind the self-digest; an unedited writer sidecar is unchanged by it. `import_as_given` imports a
     sidecar exactly as given: the writer's own sidecars, and every edit again with its self-digest left stale."""
@@ -97,7 +97,7 @@ def bend_with_sifs():
 
 
 def bend_boundary(residual: bool = True):
-    """Invented 90 degree bend, R = 999 mm, tangent lengths 999.0000008991 mm, adjacent straights 0.5 mm (§18.1 item 5)."""
+    """Invented 90 degree bend, R = 999 mm, tangent lengths 999.0000008991 mm, adjacent straights 0.5 mm."""
     tangent = 999.0000008991 if residual else 999.0
     model = writer_tests.model_shell("mm")
     ti = 0.5 + tangent
@@ -123,7 +123,7 @@ def bend_boundary(residual: bool = True):
 
 
 CLOSURE = {"closure_transfer": "transfers_to_wall", "provenance": "invented round-trip declaration"}
-# Invented Z-vertical files (Design §5.1) with pressure (§9.4), in SI (bar) and English (psi) units. The SI file's
+# Invented Z-vertical files with pressure, in SI (bar) and English (psi) units. The SI file's
 # skew straight meets the next straight at a corner, so its import has two regions.
 Z_VERTICAL_SI = (
     "INVENTED Z-VERTICAL SI", "VERSION", "15.10", "OPTIONS", "HGRA,SI,Z", "OPTEMP", "20", "MATERIAL",
@@ -168,15 +168,15 @@ def models() -> dict[str, tuple[dict, str, float]]:
 
 
 MODELS = models()
-# Reversible subset (§18.2): written, no MBF-SI-SHEAR-MODULUS-NOT-EXPORTED, printed values valid, distinct keys kept.
+# Reversible subset: written, no MBF-SI-SHEAR-MODULUS-NOT-EXPORTED, printed values valid, distinct keys kept.
 REVERSIBLE = sorted(MODELS)
 # Excluded by name, with the reason: none. Sidecar format 6 records the tangent node each bend component names, so
 # the reversed bend, whose component names the far tangent node and which formats 2 to 4 cannot carry, is restored
 # (test_every_excluded_loss_and_model_is_listed).
 EXCLUDED: dict[str, tuple[dict, str]] = {}
-# Byte-reproducible subset (§18.2): bound sidecar, identical writer settings, no formatting collision.
+# Byte-reproducible subset: bound sidecar, identical writer settings, no formatting collision.
 BYTE_REPRODUCIBLE = sorted(MODELS)
-SOLVE_THRESHOLD_FACTOR = 1e3  # ASSUMPTION (Design §18.1(d)): provisional, not a derived bound
+SOLVE_THRESHOLD_FACTOR = 1e3  # ASSUMPTION: provisional, not a derived bound
 SOLVE_R_IN_LIMIT = 1e-8
 # Models whose source A the headless solve itself refuses, so there is no solve to compare (listed by name).
 SOLVE_EXCLUDED = {
@@ -184,7 +184,7 @@ SOLVE_EXCLUDED = {
     "writer-straight-run": "A has no primitive load",
 }
 PRESSURE_MODELS = {name for name, (model, _, _) in MODELS.items() if model.get("pressure_contract")}
-# The identity-recovery taxonomy (DEL-17-04 Design `desktop-mbf-export-import.md` §5.3): an original id not
+# The identity-recovery taxonomy: an original id not
 # preserved; the formed group of summed originals; a field or reference not recovered; the general limitation.
 ID_LOST = "MBF-IMPORT-ID-UNRECOVERABLE"
 IDS_MERGED = "MBF-IMPORT-IDENTITIES-MERGED"
@@ -286,7 +286,7 @@ def test_every_excluded_loss_and_model_is_listed():
 @pytest.mark.parametrize("name", REVERSIBLE)
 def test_unbound_import_under_pd1_equals_by_caepipe_name(trips, name):
     trip = trips[name]
-    # The shear model is not in the MBF: the caller states the source's (Design §9.4), else Timoshenko applies.
+    # The shear model is not in the MBF: the caller states the source's, else Timoshenko applies.
     shear = (trip.model.get("pressure_contract") or {}).get("shear_model")
     result = import_caepipe_mbf(trip.data, material_provenance=INVENTED, pressure_closure=unbound_closure(trip),
                                 shear_model=shear, source_label=name)
@@ -331,7 +331,7 @@ def test_bound_import_restores_the_sidecar_identities_and_reports_the_rest(trips
                         support.get("family")) for support in source["supports"]}
     assert ids(imported["components"]) == ids(source.get("components"))
     assert ids(imported["materials"]) == {pipe["material"] for pipe in source["pipe_segments"]}
-    # Sidecar format 4: each pipe's section_ref, and the library sections the pipes reference (Design §15).
+    # Sidecar format 4: each pipe's section_ref, and the library sections the pipes reference.
     assert {pipe["id"]: pipe.get("section_ref") for pipe in imported["pipe_segments"]} == {
         pipe["id"]: pipe.get("section_ref") for pipe in source["pipe_segments"]}
     assert ids(imported.get("sections")) == {pipe["section_ref"] for pipe in source["pipe_segments"]
@@ -367,7 +367,7 @@ def test_bound_import_restores_the_sidecar_identities_and_reports_the_rest(trips
 
 
 def test_two_library_sections_of_equal_od_and_wall_keep_their_ids_through_a_round_trip(trips):
-    # C6-5 for sections (Design §15, Format 4): section:A and section:B have one OD and wall, and S3 has the same
+    # C6-5 for sections (Format 4): section:A and section:B have one OD and wall, and S3 has the same
     # with no section. A bound import restores both ids and every section_ref; nothing about them is reported
     # unrecoverable; the re-export is the same text; the unreferenced section:unused is the writer's listed omission.
     trip = trips["writer-sections"]
@@ -487,7 +487,7 @@ def test_a_bend_node_that_is_not_that_bends_tangent_node_is_refused_by_path():
     # absent from node_map and the other bend's tangent node are each refused (MBF-IMPORT-SIDECAR-CONFLICT at
     # element_map[<pipe id>].bend.node), with the self-digest recomputed (a deliberate editor); the regeneration
     # identity alone refuses each too. Swapping to the bend's own other tangent node is a consistent edit: it imports
-    # as stated, the far node restored, and regenerates as given (Design §14).
+    # as stated, the far node restored, and regenerates as given.
     model = two_bend_u()
     data, sidecar = bound_parts(model)
     base = import_caepipe_mbf(data, sidecar=sidecar, material_provenance=INVENTED, source_label="base")
@@ -607,7 +607,7 @@ def test_bound_import_restores_the_pressure_contract_and_regions(trips, name):
 
 
 def test_the_shear_model_travels_only_in_the_sidecar():
-    # Agent 0's decision under the owner's delegation, 2026-10-27 (Design §9.4): an unbound pressure import takes the
+    # Agent 0's decision under the owner's delegation, 2026-10-27: an unbound pressure import takes the
     # contract's default timoshenko_annulus_energy_v1 (owner D-6) or the caller's shear_model, one of the contract's
     # two; a bound import keeps the sidecar's, and a different shear_model with it is refused.
     trip = Trip("euler", writer_tests.pressurized_l(shear="euler_bernoulli"), "EULER", 20.0)
@@ -971,7 +971,7 @@ def refusals(result) -> set[tuple[str, str]]:
 
 def comparable(sidecar: dict) -> dict:
     """`sidecar` as the regeneration identity compares it: a format-6 sidecar without its `derivation`, which no
-    regeneration from the restored model reproduces and the identity excludes (Design §14, §15 Format 6)."""
+    regeneration from the restored model reproduces and the identity excludes."""
     if isinstance(sidecar, dict) and sidecar.get("sidecar_format") == SIDECAR_FORMAT:
         return {key: value for key, value in sidecar.items() if key != "derivation"}
     return sidecar
@@ -1033,7 +1033,7 @@ def set_aside(result) -> set[str]:
 
 
 def regeneration_difference(sidecar: dict, result) -> tuple[str, str, str] | None:
-    """The regeneration identity alone (Design §14): `sidecar` against what the writer regenerates from the imported
+    """The regeneration identity alone: `sidecar` against what the writer regenerates from the imported
     model of `result`, the summed primitives' identities aside; None when they are equal."""
     return sidecar_difference(comparable(sidecar), regenerated_from(result, like=sidecar), summed=groups(result))
 
@@ -1142,7 +1142,7 @@ def test_importing_twice_gives_identical_bytes(trips, name):
     assert again.id_map_bytes() == trip.bound.id_map_bytes()
 
 
-# --- bend boundary case (§18.1 item 5) ---------------------------------------------------------------------
+# --- bend boundary case ---------------------------------------------------------------------
 def test_bend_boundary_residuals_are_covered_only_with_the_residual_term(trips):
     trip = trips["bend-boundary"]
     assert trip.writer.diagnostics == [] or all(item["severity"] != "error" for item in trip.writer.diagnostics)
@@ -1180,7 +1180,7 @@ def test_delta_is_half_a_unit_in_the_tenth_significant_digit():
 
 
 def test_small_delta_t_has_an_absolute_bound_only():
-    # Design §18.2 example: dT 0.123456789 C at 20 C prints T1 = 20.12345679; the import returns about 1e-9 C off.
+    # example: dT 0.123456789 C at 20 C prints T1 = 20.12345679; the import returns about 1e-9 C off.
     model = writer_tests.cantilever()
     model["load_cases"].append({"id": "case:th", "primitive_loads": [
         {"id": "dt", "category": "thermal", "target": {"type": "element", "pipe": "S1"}, "direction": "global_x",
@@ -1193,7 +1193,7 @@ def test_small_delta_t_has_an_absolute_bound_only():
     error = abs(imported.values[key] - reference.values[key])
     assert error == pytest.approx(1e-9, rel=0.05)
     assert error / 0.123456789 > 5e-9  # about 8e-9 relative: a relative bound would be meaningless here
-    # delta(20.12345679) = 5e-9 and delta(20) = 0.5e-8 by the 10-digit formula (§18.2), plus 4 eps |T1|.
+    # delta(20.12345679) = 5e-9 and delta(20) = 0.5e-8 by the 10-digit formula, plus 4 eps |T1|.
     assert trip.limits(reference)[key] == pytest.approx(5e-9 + 5e-9 + 4 * canon.EPS * 20.12345679, rel=1e-12)
     assert canon.compare(reference, imported, trip.limits(reference)).failures == []
 
@@ -1217,7 +1217,7 @@ def test_g_bound_adds_the_writer_agreement_threshold_when_both_were_authored():
     assert trip.limits(reference)[key] == pytest.approx(expected, rel=1e-12)
 
 
-# --- units check, independent of the writer (§18.1 item 4) -----------------------------------------------------
+# --- units check, independent of the writer -----------------------------------------------------
 INCH = Fraction("0.0254")
 LBF = Fraction("4.4482216152605")
 POUND = Fraction("0.45359237")
@@ -1327,7 +1327,7 @@ def test_an_english_import_round_trips_through_the_si_writer_by_exact_normalizat
     assert canon.compare(reference, trip.imported(trip.bound, oriented=True), trip.limits(reference)).failures == []
 
 
-# --- schema (§18.1 item 6) -----------------------------------------------------------------------------------------
+# --- schema -----------------------------------------------------------------------------------------
 def all_imports(trips):
     found = [(name, trip.bound.model) for name, trip in trips.items()]
     for stem in ("units_english", "units_si"):
@@ -1773,7 +1773,7 @@ _DELETE = object()
 def sidecar_replacements(sidecar: dict, data: bytes) -> list[tuple[str, dict, str]]:
     """Each format-2 field of `sidecar` set to a different well-formed value, with what the import must do: refuse
     where the MBF or a derivation determines the value, import where the writer copies it from the model unchanged
-    (so it regenerates as given; Design §14)."""
+    (so it regenerates as given)."""
     from core.handoff.caepipe_mbf.importer import documented_orientations
     derived = documented_orientations(data)
     found: list[tuple[str, dict, str]] = []
@@ -1795,7 +1795,7 @@ def sidecar_replacements(sidecar: dict, data: bytes) -> list[tuple[str, dict, st
         if "bend" in entry:
             at(f"element_map[{swb_id}].bend.component", "imported",
                lambda s, k=swb_id: s["element_map"][k]["bend"].update(component="component:other"))
-            if "node" in entry["bend"]:  # format 6: the bend's other tangent node is a consistent edit (Design §14);
+            if "node" in entry["bend"]:  # format 6: the bend's other tangent node is a consistent edit;
                 # any other node is refused (MBF-IMPORT-SIDECAR-CONFLICT)
                 names = {name: node for node, name in sidecar["node_map"].items()}
                 (other,) = {names[entry["from"]], names[entry["to"]]} - {entry["bend"]["node"]}
@@ -1831,7 +1831,7 @@ def sidecar_replacements(sidecar: dict, data: bytes) -> list[tuple[str, dict, st
     for swb_id, label in sidecar["load_case_map"].items():
         at(f"load_case_map[{swb_id}]", "refused", lambda s, k=swb_id, v=other_label[label]: s["load_case_map"].update(
             {k: v}))
-    for name, entry in sidecar.get("section_map", {}).items():  # ids pass unchanged (Design §15, Format 4)
+    for name, entry in sidecar.get("section_map", {}).items():  # ids pass unchanged (Format 4)
         at(f"section_map[{name}].swbpipe_section", "imported",
            lambda s, k=name: s["section_map"][k].update(swbpipe_section="section:other"))
     for name, entry in sidecar["material_map"].items():
@@ -1877,7 +1877,7 @@ def sidecar_replacements(sidecar: dict, data: bytes) -> list[tuple[str, dict, st
                                                  else "transfers_to_wall"))
             at(f"pressure_map.regions[{index}].terminals[{end}].provenance", "imported",
                lambda s, t=terminal: t(s).update(provenance="another invented provenance"))
-    if "derivation" in sidecar:  # format 6: held as recorded (no regeneration reproduces it, Design §15 Format 6)
+    if "derivation" in sidecar:  # format 6: held as recorded (no regeneration reproduces it)
         settings = sidecar["derivation"]["export_settings"]
         for name, value in (("title", "ANOTHER TITLE"), ("max_layout_rows", 7 if settings["max_layout_rows"] != 7
                                                                               else None),
@@ -1986,7 +1986,7 @@ def test_every_mutated_sidecar_is_refused_by_name_or_restores_the_same_model(bas
     summed = groups(expected)  # only these identities are set aside; every field of their entries is compared
     assert bool(summed) == (base_model == "summed") and set_aside(expected) == reported(expected)
     assert bool(expected.model.get("pressure_contract")) == (base_model not in PRESSURE_FREE_BASES)
-    unbound = run(None, "unbound")  # a digest that is not this file's leaves the sidecar unapplied (§15)
+    unbound = run(None, "unbound")  # a digest that is not this file's leaves the sidecar unapplied
     assert unbound.status == "imported", unbound.diagnostics
     mutations = sidecar_mutations(base)
     for name in SIDECAR_MAPS:  # format 2 leaves section_map to the MBF: adding it (emptied) is refused too
@@ -2023,15 +2023,15 @@ def test_every_mutated_sidecar_is_refused_by_name_or_restores_the_same_model(bas
             assert {code for code, _ in refusals(given)} == {"MBF-IMPORT-SIDECAR-INVALID"}, label
 
     # Removing one of the summed entries leaves a sidecar the writer writes for a model with one primitive there: a
-    # consistent edit, which imports as that model (§14); it is the only mutation that imports.
+    # consistent edit, which imports as that model; it is the only mutation that imports.
     consistent = {f"load_map/{key}: removed" for keys in summed.values() for key in keys}
     # A record's null library section given an id is a consistent edit too: the import restores that section and
-    # the writer regenerates the id (Design §15, Format 4). An id set to null is not, in these bases: the record's
+    # the writer regenerates the id (Format 4). An id set to null is not, in these bases: the record's
     # pipes would then merge with a null record of the same OD and wall, which the writer writes as one.
     consistent |= {f"section_map/{name}/swbpipe_section: string for null"
                    for name, entry in base["section_map"].items() if entry["swbpipe_section"] is None}
     # Format 6's row limit and piping code may be null, and its derivation is held as recorded, never regenerated
-    # (Design §15, Format 6): a null row limit is a consistent edit.
+    # (Format 6): a null row limit is a consistent edit.
     consistent |= {"derivation/export_settings/max_layout_rows: null for number"}
     for label, sidecar in mutations:
         stale(sidecar, label)
@@ -2078,7 +2078,7 @@ def test_every_mutated_sidecar_is_refused_by_name_or_restores_the_same_model(bas
     # VER-002 r12, r13: each field set to a different well-formed value. A value the MBF or a derivation determines
     # must agree with it, and the regeneration identity alone refuses it too. A value the writer copies from the model
     # unchanged (an id, `reversed`, an authored orientation or family, an origin, a thermal direction, the shear
-    # model, a closure) regenerates as given: a consistent edit, which imports as stated (Design §14: the guard
+    # model, a closure) regenerates as given: a consistent edit, which imports as stated (the guard
     # proves consistency, not authorship).
     replaced = sidecar_replacements(base, data)
     for label, sidecar, expected in replaced:
@@ -2142,7 +2142,7 @@ def test_nested_sidecar_values_are_refused_by_path_and_the_writer_reads_no_unhas
     assert written.status == "refused" and "MBF-SI-INPUT-INVALID" in {item["code"] for item in written.diagnostics}
 
 
-# --- §9.4 rulings (Agent 0's decisions under the owner's delegation, 2026-10-27) -------------------------------------
+# --- rulings (Agent 0's decisions under the owner's delegation, 2026-10-27) -------------------------------------
 def terminal_transfers(output: Any, node: str) -> list[list[float]]:
     """Every region terminal at `node` in the solve's pressure evidence: its pipe cap transfer, in N."""
     found = []
@@ -2585,7 +2585,7 @@ def test_the_regeneration_identity_refuses_what_no_other_check_reads():
 
 
 def test_the_rebind_route_is_taken_on_request_whatever_the_digest():
-    # Design §15: rebind_by_node_number applies the sidecar by CAEPIPE name and marks every restored identity
+    # rebind_by_node_number applies the sidecar by CAEPIPE name and marks every restored identity
     # unconfirmed, also for a sidecar whose digest is this file's; it is where a sidecar the exact-digest route
     # refuses can be applied. The rebind route does not run the regeneration identity.
     data, sidecar = bound_parts(writer_tests.cantilever())
@@ -2683,7 +2683,7 @@ def printed_text(value: float) -> str:
 
 
 def legacy_replacements(sidecar: dict) -> list[tuple[str, dict, str]]:
-    """Each MBF-determined field of a legacy `sidecar` (Design §15's table) set to a different valid value, with what
+    """Each MBF-determined field of a legacy `sidecar` set to a different valid value, with what
     the import must do. A printed number goes just outside (1.01) and just inside (0.99) the writer's printing bound,
     half a unit in the tenth significant digit; a derived one (TI, angle) moves 1e-6 relative (outside) and four
     binary64 steps (inside)."""
@@ -2846,7 +2846,7 @@ def test_a_mixed_legacy_thermal_set_keeps_the_agreed_direction_and_says_so():
     assert result.identity_recovery == Facts(known_missing_ids=2, unrecovered_fields=1)
 
 
-# --- the sidecar's self-digest (Design §15) --------------------------------------------------------------------------
+# --- the sidecar's self-digest --------------------------------------------------------------------------
 # A tiny invented sidecar-shaped object (it need not pass the parser), with its canonical form and SHA-256 written by
 # hand: keys sorted by UTF-16 code units (U+1F600 is D83D DE00 and sorts before U+E000, against code-point order),
 # numbers as ECMAScript writes them, and the escapes RFC 8785 requires and no others (U+007F and U+00E9 are literal).
@@ -3126,7 +3126,7 @@ def test_the_companion_digest_backfills_only_a_legacy_sidecar(tmp_path):
         importer_module.load_sidecar(tmp_path / "legacy" / "id_map.json")
 
 
-# --- tranche 3: imported guides, limit stops and springs solve as hand-derived (Design §12) ---------------------------
+# --- tranche 3: imported guides, limit stops and springs solve as hand-derived ---------------------------
 def support_force(output, support_id: str, component: str = "Fy") -> float:
     """The solve's one reaction component of `support_id`, in N."""
     values = [row["value"] * SI_RESULT[row["unit"]] for row in output["payload"]["mechanics_envelope"]["results"]
@@ -3175,7 +3175,7 @@ def test_an_imported_spring_shares_a_tip_load_with_the_cantilever_as_hand_derive
 
 
 def test_a_format_3_spring_entry_is_held_to_its_vocabulary_and_format_2_admits_none():
-    # The parser (Design §15): a spring acts on exactly one translation with an authored family, and only format 3
+    # The parser: a spring acts on exactly one translation with an authored family, and only format 3
     # records springs; format 2 sidecars keep their rigid vocabulary unchanged.
     trip = Trip("springs", writer_tests.sprung_cantilever(), "SPRING", 20.0)
     assert trip.bound.status == "imported", trip.bound.diagnostics
@@ -3207,7 +3207,7 @@ TIP_SPRING = ("F10,KA,MM1,PP1,CL=L1", "T20,X3000,CK={},DV(0,1,0),FOR(0,-6000,0),
 
 
 def test_a_negligible_spring_is_imported_and_refused_by_name_by_the_solve():
-    # VER-002 r2 (tranche 3), classified with the guard map's solve-time arithmetic row (Design §9.4, §12): a
+    # VER-002 r2 (tranche 3), classified with the guard map's solve-time arithmetic row: a
     # stiffness negligible against the assembled stiffness is the file's, and the solve refuses it by name when its
     # assembly absorbs the spring. The import keeps the spring as written; no bound is applied.
     result = importer_tests.run(importer_tests.mbf(*(row.format("1e-300") for row in TIP_SPRING)))
@@ -3221,7 +3221,7 @@ def test_a_negligible_spring_is_imported_and_refused_by_name_by_the_solve():
 
 def test_the_checked_json_guard_is_the_solves_own_refusal(monkeypatch):
     # Without the import's guard, k = 1e20 N/mm imports and the solve refuses the document as
-    # CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT; with it, the import refuses it by name first (Design §9.4 guard map).
+    # CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT; with it, the import refuses it by name first.
     data = importer_tests.mbf(*(row.format("1e20") for row in TIP_SPRING))
     assert importer_tests.run(data).status == "refused"
     monkeypatch.setattr(importer_module._Importer, "checked_json_domain", lambda self, model: None)

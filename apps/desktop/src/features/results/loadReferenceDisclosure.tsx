@@ -1,4 +1,4 @@
-/** Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §5.4; owner ruling 11B,
+/** Epoch 8 (owner ruling 11B,
  * 2026-10-21): the one disclosure line each opened output panel shows for a result that
  * carries resolved load/reference states. It reads only the published records'
  * `reference_configuration_id`, `load_case_id` and `history.kind`, in published order,
@@ -7,9 +7,9 @@
  * Under `docs/claims_registry.md` §4 each line is a deliverable-specific scope statement
  * in ordinary prose, not a boundary statement. UI text, except one line: the
  * `rendered-report` surface's line is written into the rendered report's exact-route
- * result block (W-11, DEL-08-01 Design `exact-route-report-sections.md` §3.2), which
+ * result block (W-11), which
  * the rendered report and the report package carry since the owner opened them
- * (2026-10-26, §5.1). No other line is written into a document, package, record or run result. */
+ * (2026-10-26). No other line is written into a document, package, record or run result. */
 import { sourceContract } from "./resultReader";
 import type { MechanicsResult } from "../../types";
 
@@ -27,7 +27,7 @@ export const N_LOAD_REFERENCE_INCLUDED = "This result includes resolved load/ref
 export const N_LOAD_REFERENCE_EXPORT = `${N_LOAD_REFERENCE_INCLUDED} ${TAILS["result-export"]}`;
 export const N_LOAD_REFERENCE_PACKAGE = `${N_LOAD_REFERENCE_INCLUDED} ${TAILS["stress-neutral"]}`;
 export const N_LOAD_REFERENCE_RULE_CHECK = `${N_LOAD_REFERENCE_INCLUDED} ${TAILS["rule-check"]}`;
-/** The rendered report's line (W-11 §3.2); the report package's Rust producer composes the same text. */
+/** The rendered report's line; the report package's Rust producer composes the same text. */
 export const N_LOAD_REFERENCE_RENDERED_REPORT = `${N_LOAD_REFERENCE_INCLUDED} ${TAILS["rendered-report"]}`;
 
 const TEMPLATES: Readonly<Record<LoadReferenceDisclosureSurface, string>> = Object.freeze({

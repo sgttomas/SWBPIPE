@@ -158,7 +158,7 @@ export function modelDocumentVersionCheckDiagnostic(
 function requireEditableModelDocument(model: PreviewModel): ModelDocumentVersionStatus {
   const status = evaluateModelDocumentLocal(model);
   if (status.status !== "current") {
-    // A retired project: what it means for its recorded runs (MD8 §3.3, ruling a2).
+    // A retired project: what it means for its recorded runs (ruling a2).
     const note = status.status === "retired_schema" ? ` ${RETIRED_PROJECT_RUNS_NOTE}` : "";
     throw new Error(
       `Model document refused for editing: status=${status.status}; source_schema_version=${status.source_schema_version}; target_schema_version=${status.target_schema_version}; ${status.detail}${note}`
@@ -168,7 +168,7 @@ function requireEditableModelDocument(model: PreviewModel): ModelDocumentVersion
   return status;
 }
 
-/** W-13 §5.3 (S2): the browser-preview project store refuses to create, save or
+/** the browser-preview project store refuses to create, save or
  * open a document whose model-data slots carry a blocking validator finding,
  * named with its JSON path, as the native store does in src-tauri
  * (`refuse_malformed_model_slots`). The check is `modelDocumentSlotValidation`,
@@ -418,7 +418,7 @@ export async function getLocalStorageCapability(): Promise<LocalStorageCapabilit
   return invoke<LocalStorageCapability>("get_local_storage_capability");
 }
 
-// W-17 slice (a) (DEL-02-02 Design `project-unit-selection.md` §2.2-2.3): every new
+// W-17 slice (a): every new
 // project carries these seven keys, each a canonical DEC-018 catalog symbol for its
 // dimension. The map is the record; a preset is only UI shorthand.
 export const PROJECT_UNIT_KEYS = ["length", "force", "moment", "pressure", "stress", "temperature", "angle"] as const;
@@ -549,7 +549,7 @@ export async function createLocalProject(
 }
 
 /** A stored project's index entry and the revision a Replace of it confirms.
- * `saved_state_count` and `recorded_run_count` (W-12 §2, §3): the saved model
+ * `saved_state_count` and `recorded_run_count`: the saved model
  * states and recorded runs a Replace keeps; the native store reports them, the
  * browser preview keeps neither. */
 export type StoredProjectEntry = LocalProjectIndexEntry & { revision: string; saved_state_count?: number; recorded_run_count?: number };

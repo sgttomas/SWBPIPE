@@ -1,8 +1,8 @@
 //! The Hager–Higham estimate of ‖A⁻¹‖₁ for a symmetric A given by its
 //! solves (Hager 1984; Higham 1988, Algorithm 4.1, with its alternative
 //! estimate; LAPACK xLACN2 uses the same iteration limit). Used by the Sturm
-//! counts' conditioning premise (design §3.4 check 4) and by the dense
-//! path's resolution floor (design §3.2 item 5).
+//! counts' conditioning premise and by the dense
+//! path's resolution floor.
 
 /// The estimator's iteration limit.
 pub const INVERSE_NORM_MAX_ITERATIONS: usize = 5;

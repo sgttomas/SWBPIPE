@@ -41,7 +41,7 @@ type Props = Readonly<{
   onSelect?: (ref: EntityRef) => void;
 }>;
 
-/** The engine check of the built batch runs this long after a committed change (§4.2, debounced). */
+/** The engine check of the built batch runs this long after a committed change (debounced). */
 export const RUN_SHEET_TIMING = { engineCheckDelayMs: 250 };
 const ORIGIN_GLYPH: Readonly<Record<string, string>> = { inherited: "↑", stored: "⤷" };
 const isPrintable = (event: ReactKeyboardEvent) => event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey;
@@ -89,7 +89,7 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
     loadUnitCatalog().then((route) => { if (active) setUnitRoute(route); }).catch(() => { if (active) setUnitRoute(null); });
     return () => { active = false; };
   }, []);
-  // Conversions through the engine's display-conversion facade (§6.2); never a reimplemented factor.
+  // Conversions through the engine's display-conversion facade; never a reimplemented factor.
   useEffect(() => {
     const missing = [...baseView.resolved.missingConversions, ...baseView.displayConversions];
     if (missing.length === 0) return;
@@ -104,7 +104,7 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
     }).catch(() => { /* The rows keep "converting"; Queue stays disabled. */ });
     return () => { active = false; };
   }, [baseView.resolved.missingConversions, baseView.displayConversions]);
-  // The engine's rules (§4.2): the built batch is validated after each committed change, debounced.
+  // The engine's rules: the built batch is validated after each committed change, debounced.
   useEffect(() => {
     if (baseView.queueBlocked || queueing) return;
     const at = version;
@@ -126,7 +126,7 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
     return () => { active = false; clearTimeout(timer); };
   }, [baseView, model, version, queueing]);
 
-  // §3.2 A pipe id numbered by its start node is fixed the first time it is shown.
+  // A pipe id numbered by its start node is fixed the first time it is shown.
   useLayoutEffect(() => {
     if (store.current() !== state) return;
     const next = recordShownPipeIds(state, baseView);
@@ -134,7 +134,7 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
   }, [baseView, state, store]);
 
   /** Show or hide a column group. Collapsing the group that holds the focused cell moves the
-   * sheet's tab stop to the nearest shown cell before it in the same row (§5.1). */
+   * sheet's tab stop to the nearest shown cell before it in the same row. */
   function toggleGroup(group: SheetColumnGroup) {
     const hiding = shownGroups[group];
     setShownGroups((current) => ({ ...current, [group]: !current[group] }));
@@ -171,7 +171,7 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
     if (editing && editing.rowKey === target.rowKey && editing.column === target.column) return;
     cellElement(target)?.focus();
   });
-  // A focused row that is no longer shown (Undo, Redo, deletion) follows the Delete-row rule (§5.1).
+  // A focused row that is no longer shown (Undo, Redo, deletion) follows the Delete-row rule.
   const lastShown = useRef<string[]>(shownKeys);
   useLayoutEffect(() => {
     const previous = lastShown.current;
@@ -202,7 +202,7 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
     const row = after.rows.find((item) => item.sheetRow.key === rowKey);
     if (row?.refusals.length) announce(`Row ${row.resolved.number} refused: ${sentenceFragment(row.refusals[0].message)}.`);
   }
-  /** §2.5 Later cells whose effective value the edit changed read "changed by row ⟨n⟩". */
+  /** Later cells whose effective value the edit changed read "changed by row ⟨n⟩". */
   function markChanges(before: SheetView, after: SheetView, editedKey: string) {
     const edited = after.rows.find((row) => row.sheetRow.key === editedKey);
     if (!edited) return;
@@ -258,7 +258,7 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
     announce(`Filled ${column.label} into ${targets.length} row${targets.length === 1 ? "" : "s"}.`);
   }
 
-  // ---- Queue (§3.5): one batch from all draft rows, validated, then handed to the review queue.
+  // ---- Queue: one batch from all draft rows, validated, then handed to the review queue.
   // Queue never reads a render: an edit committed in the same keystroke (Ctrl/Cmd+Enter in an
   // editor) is already in the store's latest state. The batch and the ledger's queued values come
   // from one snapshot of that state, resolved against the latest model; if the sheet changes while
@@ -271,7 +271,7 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
     const { model: basis, reservedIds: reserved, conversions: known } = latest.current;
     const viewOf = (state: RunSheetState) => sheetView({ state, statuses: reconcileRunSheet(state, store.lookup), model: basis, conversions: known, reservedIds: reserved, lookup: store.lookup });
     // Pipe ids an edit in the same keystroke shows for the first time are fixed before the
-    // snapshot (§3.2), so the display's own recording cannot look like a change to the sheet.
+    // snapshot, so the display's own recording cannot look like a change to the sheet.
     const shown = store.current();
     const recorded = recordShownPipeIds(shown, viewOf(shown));
     if (recorded !== shown) store.update(() => recorded);
@@ -322,8 +322,8 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
     }
   }
 
-  // ---- Keys (§5.1, §5.2).
-  /** The next or previous editable cell in column order, wrapping rows, from any cell (§5.1 Tab). */
+  // ---- Keys.
+  /** The next or previous editable cell in column order, wrapping rows, from any cell (Tab). */
   function tabTarget(address: Address, backwards: boolean): Address | "footer" | null {
     const order = view.rows.flatMap((row) => columns.map((column) => ({ rowKey: row.sheetRow.key, column: column.key, editable: editableAt(row, column) })));
     const at = order.findIndex((item) => item.rowKey === address.rowKey && item.column === address.column);
@@ -450,7 +450,7 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
     }
   }
 
-  // ---- Menus (§5.3).
+  // ---- Menus.
   function openMenu(rowKey: string, invoker: HTMLElement) {
     setMenu({ rowKey, serial: ++menuSerial.current, request: keyboardMenuRequest(invoker, invoker, () => [
       cellElement({ rowKey, column: focus?.column ?? "dx" }),
@@ -520,7 +520,7 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
   const unitLock = lengthUnitLock(view);
   const numberingLocked = Object.keys(state.idState.assigned).length > 0;
   const lengthUnit = state.header.lengthUnit || projectUnit("length");
-  /** A numbering change; a new start moves the counter, and every refused row is numbered again (§3.2). */
+  /** A numbering change; a new start moves the counter, and every refused row is numbered again. */
   const setNumbering = (patch: Partial<RunSheetNumbering>) => update((current) => retryNumbering({
     ...current,
     idState: patch.start !== undefined ? { ...current.idState, next: patch.start } : current.idState,
@@ -529,7 +529,7 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
 
   function unitControl(label: string, dimension: string, value: string, onChange: (unit: string) => void, disabledReason: string | null = null) {
     const options = unitOptions(dimension, value);
-    // Without the catalog (the browser preview) the unit is typed; the engine's conversion checks it (§6.2).
+    // Without the catalog (the browser preview) the unit is typed; the engine's conversion checks it.
     if (options.length === 0) {
       return <input aria-label={`${label} unit`} placeholder="Choose unit" value={value} disabled={Boolean(disabledReason)} title={disabledReason ?? undefined}
         onChange={(event) => onChange(event.target.value.trim())} />;

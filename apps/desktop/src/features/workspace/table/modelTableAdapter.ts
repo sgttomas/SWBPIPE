@@ -17,7 +17,7 @@ export type GridColumn = {
   options?: readonly string[];
   /** The text an option shows, when it differs from its value (an empty value's label). */
   optionLabel?: (option: string) => string;
-  /** W-17 §7.2, §7.3, §7.6: why the column's default gives an empty cell no unit,
+  /** why the column's default gives an empty cell no unit,
    * either the absent project key or a notice; the grid's refusal names it. */
   emptyUnit?: { missingKey: string | null; notice: string | null };
 };
@@ -47,7 +47,7 @@ export function buildGridOperationIntent({
 }): EditorOperationIntent {
   const operationToken = `${safeToken(row.id)}-${safeToken(column.fieldPath)}-${sequence.toString().padStart(2, "0")}`;
   const unit = column.unit(row);
-  // Model document 0.9.0 §11: `assign_condition_set` carries `{"condition_set_ref": id}` or
+  // `assign_condition_set` carries `{"condition_set_ref": id}` or
   // `not_present` on both sides (a one-string-member object, so its JSON text is canonical).
   const conditionSet = column.changeKind === "assign_condition_set";
   const current = column.value(row);

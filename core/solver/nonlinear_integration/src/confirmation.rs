@@ -23,10 +23,10 @@ use open_pipe_stress_nonlinear_supports::{
 };
 use std::collections::HashMap;
 
-/// Closure family of the sliding-friction summands (§1.6).
+/// Closure family of the sliding-friction summands.
 pub const SLIDING_FRICTION_FAMILY: &str = "nonlinear_sliding_friction";
 
-/// One nonlinear support's published slot row (§3.1): the certified reaction
+/// One nonlinear support's published slot row: the certified reaction
 /// (active, sticking), the certified friction force (sliding, mu > 0), or an
 /// exact zero (inactive, sliding with mu = 0).
 #[derive(Debug, Clone, Copy)]
@@ -41,7 +41,7 @@ pub struct ConfirmedRow {
 pub struct ConfirmedState {
     pub member_bound: MemberBoundInputs,
     /// The ledger force of Stage B: the case ledger plus one formed term per
-    /// sliding support with mu > 0 (§1.6).
+    /// sliding support with mu > 0.
     pub force: AssembledForce,
     /// Every nonlinear support's slot row, by support id.
     pub supports: HashMap<String, ConfirmedRow>,
@@ -53,7 +53,7 @@ pub struct ConfirmedState {
 #[derive(Debug)]
 pub enum Confirmation {
     Established(Box<ConfirmedState>),
-    /// The case fails closed with this named reason (§2.4).
+    /// The case fails closed with this named reason.
     NotEstablished { reason: String },
 }
 
@@ -70,7 +70,7 @@ struct SlidingTerm {
     global_dof: usize,
     coefficient: f64,
     normal: Normal,
-    /// The expected slip sign: the sign of the loop's final u_t (§1.6).
+    /// The expected slip sign: the sign of the loop's final u_t.
     direction: f64,
 }
 
@@ -82,7 +82,7 @@ pub fn confirm_converged_state(
     solve: &NonlinearFrameSolveResult,
     force: &AssembledForce,
     curved_sources: &[CurvedBendMacroElement],
-    // T4-U8 (DEL-05-03 Design §4 item 2): each of `input.elements`' member
+    // each of `input.elements`' member
     // identity (`AssemblyEvidence::with_frame_members`).
     frame_members: &[String],
     mode: LinearSolveMode,
@@ -110,7 +110,7 @@ fn support_dof(support: &NonlinearSupport) -> usize {
 }
 
 /// The supplied side of the closure takes the loop's applied-force evidence;
-/// tests pass a mutated list to exercise the closure (§6).
+/// tests pass a mutated list to exercise the closure.
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn confirm_with_applied(
     input: &NonlinearFrameSolveInput,
@@ -118,7 +118,7 @@ pub(crate) fn confirm_with_applied(
     solve: &NonlinearFrameSolveResult,
     force: &AssembledForce,
     curved_sources: &[CurvedBendMacroElement],
-    // T4-U8 (DEL-05-03 Design §4 item 2): each of `input.elements`' member
+    // each of `input.elements`' member
     // identity (`AssemblyEvidence::with_frame_members`).
     frame_members: &[String],
     mode: LinearSolveMode,
@@ -147,11 +147,11 @@ pub(crate) fn confirm_with_applied(
         .copied()
         .zip(last.active_prescribed_displacements.iter().copied())
         .collect::<Vec<_>>();
-    // §2.4 item 2: the loop's u against the state's prescribed map, bit for bit.
+    // the loop's u against the state's prescribed map, bit for bit.
     if prescribed_row_mismatch(u, &prescribed) {
         return not_established("prescribed row mismatch");
     }
-    // §2.4 item 2, revision 2 (W-16 stage 2): that map against the case's
+    // that map against the case's
     // motion, built here independently of the loop's boundary, bit for bit.
     if prescribed_map_mismatch(
         intended_prescribed_map(input, &solve.final_states).as_deref(),
@@ -163,7 +163,7 @@ pub(crate) fn confirm_with_applied(
         .filter(|dof| !last.active_restrained_dofs.contains(dof))
         .collect::<Vec<_>>();
 
-    // §2.4 item 3: preconditions, per support in support-id order.
+    // preconditions, per support in support-id order.
     let states = solve
         .final_states
         .iter()
@@ -226,7 +226,7 @@ pub(crate) fn confirm_with_applied(
             return not_established(format!("support {id}: constrained state is not a prescribed row"));
         }
     }
-    // The sliding set L (mu > 0), enumerated from the converged state (§1.6).
+    // The sliding set L (mu > 0), enumerated from the converged state.
     let mut sliding = Vec::new();
     for support in &supports {
         let mu = support.friction_coefficient.unwrap_or(0.0);
@@ -401,7 +401,7 @@ pub(crate) fn confirm_with_applied(
     }
 }
 
-/// §2.4 item 2: a constrained DOF whose published displacement is not its
+/// a constrained DOF whose published displacement is not its
 /// prescribed value bit for bit (a -0.0 against a +0.0 is a mismatch).
 pub(crate) fn prescribed_row_mismatch(u: &[f64], prescribed: &[(usize, f64)]) -> bool {
     prescribed
@@ -409,7 +409,7 @@ pub(crate) fn prescribed_row_mismatch(u: &[f64], prescribed: &[(usize, f64)]) ->
         .any(|&(dof, value)| dof >= u.len() || u[dof].to_bits() != value.to_bits())
 }
 
-/// §2.4 item 2, revision 2: the intended prescribed map of the case's motion
+/// the intended prescribed map of the case's motion
 /// and the converged state, formed without the loop's boundary code: every
 /// base-restrained DOF at its case value g_b (+0 when the case prescribes
 /// none), and every Active or Sticking support's DOF at its prescribed value
@@ -490,7 +490,7 @@ pub(crate) fn intended_prescribed_map(
     Some(map)
 }
 
-/// §2.4 item 2, revision 2: the complete intended map against the loop's
+/// the complete intended map against the loop's
 /// active prescribed map, entry for entry: the same DOFs in the same order
 /// and the same bits (a -0.0 against a +0.0 is a mismatch). An intended map
 /// that cannot be formed is a mismatch.
@@ -623,7 +623,7 @@ struct CoupledBall {
     radius: f64,
 }
 
-/// The appended friction terms (§1.6). The expected manifest is enumerated
+/// The appended friction terms. The expected manifest is enumerated
 /// from the converged state's sliding set; the supplied primitives come from
 /// the loop's applied-force evidence, each re-indexed to its support's term
 /// (an applied force with no term is an extra primitive). The derived force
@@ -715,7 +715,7 @@ fn appended_ledger(
     ledger
 }
 
-/// Stage A (§1.4, k = 1): N⁰ from the symmetric system with φ⁰ as an input,
+/// Stage A (k = 1): N⁰ from the symmetric system with φ⁰ as an input,
 /// g from the unjudged influence system at 0, β, and the ball of φ* =
 /// φ⁰ + (c·N⁰ − φ⁰)/(1 − c·g), c = −dir·μ·β, published as (v, r').
 fn stage_a(
@@ -738,7 +738,7 @@ fn stage_a(
         Err(error) => return Err(format!("formation check: stage A: {error}")),
     };
     // The influence evaluation precedes A-3, so every formation-check failure
-    // of Stage A's two evaluations is reported before β (§2.4 items 5 and 7).
+    // of Stage A's two evaluations is reported before β.
     let mut unit = LoadLedger::new();
     unit.push("nonlinear influence unit", term.global_dof, 1.0);
     let unit = unit
@@ -801,7 +801,7 @@ fn coupled_ball(
     })
 }
 
-/// The per-support evidence the pure predicate decides (§2.2).
+/// The per-support evidence the pure predicate decides.
 #[derive(Debug, Clone, Copy)]
 pub(crate) enum SupportEvidence {
     /// One-way or lift-off; `positive` when it bears with a positive reaction.
@@ -809,7 +809,7 @@ pub(crate) enum SupportEvidence {
         positive: bool,
         active: bool,
         ball: CertifiedRow,
-        /// The support's ground g_s (§2.2, revision 2): an inactive
+        /// The support's ground g_s: an inactive
         /// support's displacement ball is compared with it.
         ground: f64,
     },
@@ -845,7 +845,7 @@ fn slip_established(tangential: &CertifiedRow, direction: f64, ground: f64) -> b
     }
 }
 
-/// The pure §2.2 predicate: `None` when the support's state is established,
+/// The pure predicate: `None` when the support's state is established,
 /// otherwise the named reason's suffix.
 pub(crate) fn support_reason(evidence: &SupportEvidence) -> Option<&'static str> {
     match *evidence {
@@ -929,7 +929,7 @@ pub(crate) fn support_reason(evidence: &SupportEvidence) -> Option<&'static str>
     }
 }
 
-/// §2.4 item 7: at most six named supports, in support-id order.
+/// at most six named supports, in support-id order.
 pub(crate) fn certificate_reason(failures: &[(String, &'static str)]) -> Option<String> {
     if failures.is_empty() {
         return None;
@@ -945,7 +945,7 @@ pub(crate) fn certificate_reason(failures: &[(String, &'static str)]) -> Option<
     Some(items.join("; "))
 }
 
-/// §2.4 item 7: the name under which a support whose own ball (its reaction
+/// the name under which a support whose own ball (its reaction
 /// when constrained, its displacement when free) cannot be formed fails, by
 /// support kind and state (review M2). An inactive friction support is decided
 /// by its normal, so it fails under that name.
@@ -1023,8 +1023,8 @@ fn certify_state(
             NonlinearSupportBehavior::Friction => {
                 let coefficient = support.friction_coefficient.unwrap_or(0.0);
                 let term = sliding.iter().find(|t| t.support_id == id);
-                // dir: opposite the applied force for mu > 0 (§1.1); the sign
-                // of the loop's u_t - g_t for mu = 0 (revision 2).
+                // dir: opposite the applied force for mu > 0; the sign
+                // of the loop's u_t - g_t for mu = 0.
                 let direction = match term {
                     Some(_) => applied_force(applied, id).map_or(0.0, |f| -sign_or_zero(f)),
                     None => sign_or_zero(relative(u[dof], ground)),

@@ -61,7 +61,7 @@ fn t15_body(k: f64) -> CurvedFormation {
     }
 }
 
-/// DESIGN_R01 §3.5 class of a failure.
+/// class of a failure.
 fn class_of(failure: &ArcCertificateFailure) -> u8 {
     match failure {
         ArcCertificateFailure::DivisorReachesZero { .. } => 2,
@@ -632,7 +632,7 @@ fn enclosure_against_frozen_references() {
             }
         }
     }
-    // Refused naturally by ρ̂ ≥ 1/2 only (DESIGN_R01 §7.1; RV129's extra set).
+    // Refused naturally by ρ̂ ≥ 1/2 only (RV129's extra set).
     assert_eq!(
         refused,
         [
@@ -669,7 +669,7 @@ fn near_pi_radius_stays_small() {
 }
 
 // ---------------------------------------------------------------------------
-// V2e: the nine failed-precondition classes (DESIGN_R01 §3.5)
+// V2e: the nine failed-precondition classes
 // ---------------------------------------------------------------------------
 
 /// Class 1 (admissibility) falls to class 3 at its exact edges.
@@ -963,7 +963,7 @@ fn generated_operand_bound_bits() {
 }
 
 /// A-5 (T15d's premise): at k = 1e10 on T15's body the radius is small (the
-/// design's emulation: 5e-16 of max|m|); and T15c's window (§7.1): refused at
+/// design's emulation: 5e-16 of max|m|); and T15c's window: refused at
 /// k = 1e36 with ρ̂ ∈ [1/2, 1).
 #[test]
 fn large_flexibility_certifies_with_a_small_radius() {

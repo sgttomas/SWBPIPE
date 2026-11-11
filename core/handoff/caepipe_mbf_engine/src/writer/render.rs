@@ -395,7 +395,7 @@ impl<'m> Writer<'m> {
             entry.as_dict_mut().expect("dict").insert("origin".into(), Value::str(material.origin.unwrap_or("undeclared")));
             state.material_map.insert(name, entry);
         }
-        // A record per library section (or none) and OD and wall (Design §15, Format 4), as materials are per id.
+        // A record per library section (or none) and OD and wall (Format 4), as materials are per id.
         let section_key = (section_ref.clone(), num(od), num(thk));
         if !state.sections.contains_key(&section_key) {
             let name = format!("P{}", state.sections.len() + 1);
@@ -837,10 +837,10 @@ impl<'m> Writer<'m> {
         for (key, value) in self.case_labels.iter() {
             load_case_map.insert(key.clone(), Value::str(value.clone()));
         }
-        // Format 6's derivation (Design §15): the SHA-256 of the canonical model document this writer read, and every
+        // Format 6's derivation: the SHA-256 of the canonical model document this writer read, and every
         // writer input outside it that can change the written bytes, as the writer used it: the printed title line
         // (`title` reproduces itself), the reference temperature argument in its own unit, the row limit (it adds only
-        // a warning) and the piping code. No Route 1 input (§20.4.5) is recorded.
+        // a warning) and the piping code. No Route 1 input is recorded.
         let source_model_sha256 = match crate::sidecar::model_canonical_bytes(self.model) {
             Ok(bytes) => crate::sidecar::hex(&Sha256::digest(&bytes)),
             Err(Ok(error)) => {
@@ -908,7 +908,7 @@ impl<'m> Writer<'m> {
         Ok(result)
     }
 
-    /// Design §9.4, §12 and §14: every export as the printed MBF gives it back (the writer's own bound re-import).
+    /// every export as the printed MBF gives it back (the writer's own bound re-import).
     fn survives_reimport(&mut self, result: &WriterResult) -> R<bool> {
         let data = result.text.as_ref().expect("text").as_bytes();
         let sha = crate::sidecar::hex(&Sha256::digest(data));

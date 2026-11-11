@@ -2,14 +2,14 @@ export type Vec3 = { x: number; y: number; z: number };
 
 export type QuantityValue = { value: number; unit: string };
 
-/** W-13 §3.1: free-form tags (unique, trimmed, at most 64 characters) and
+/** free-form tags (unique, trimmed, at most 64 characters) and
  * notes (one non-empty string). Absent means none; clearing removes them. */
 export type ModelAnnotations = {
   tags?: string[];
   notes?: string;
 };
 
-/** W-13 §3.5: structured provenance on materials, sections, components and
+/** structured provenance on materials, sections, components and
  * supports (the library import's field names and enums). `review_status`
  * describes source-data review only ("Source review" in the UI). */
 export type ProvenanceRecord = {
@@ -26,10 +26,10 @@ export type ProvenanceRecord = {
   library_ref?: { library_kind: "material" | "section" | "component" | "hanger"; library_id: string; library_version?: string; record_id?: string };
 };
 
-/** W-13 §3.2: a typed line groups existing pipes (grouping only; the solve does not read it). */
+/** a typed line groups existing pipes (grouping only; the solve does not read it). */
 export type ModelLine = ModelAnnotations & { id: string; label?: string; pipe_refs: string[]; provenance?: string };
 
-/** W-13 §3.3: `model_state.schema.json` AssumptionRecord vocabulary. */
+/** `model_state.schema.json` AssumptionRecord vocabulary. */
 export type ModelAssumption = ModelAnnotations & {
   assumption_id: string;
   kind: "assumption" | "open_issue";
@@ -39,7 +39,7 @@ export type ModelAssumption = ModelAnnotations & {
   resolution_note?: string;
 };
 
-/** W-13 §3.6: a constraint record with no evaluation (ConstraintRecord subset). */
+/** a constraint record with no evaluation (ConstraintRecord subset). */
 export type ModelConstraint = ModelAnnotations & {
   constraint_id: string;
   name: string;
@@ -50,7 +50,7 @@ export type ModelConstraint = ModelAnnotations & {
   provenance?: string;
 };
 
-/** W-13 §3.6: an equipment interface record with no evaluation. */
+/** an equipment interface record with no evaluation. */
 export type EquipmentInterfaceRecord = ModelAnnotations & {
   id: string;
   label?: string;
@@ -59,7 +59,7 @@ export type EquipmentInterfaceRecord = ModelAnnotations & {
   provenance?: string;
 };
 
-/** W-13 §3.4: a rule-pack reference: identity and the pack's stamped checksum only. */
+/** a rule-pack reference: identity and the pack's stamped checksum only. */
 export type RulePackReference = {
   rule_pack_id: string;
   name: string;
@@ -340,7 +340,7 @@ export type LoadReferenceSupportComponent = {
   support_id: string; node_id: string; dof: "UX" | "UY" | "UZ" | "RX" | "RY" | "RZ"; global_dof: number;
   prescribed_value: number; unit: "m" | "rad"; meaning: "absolute_reference_displacement";
 } & (
-  // R-4 §3.7 S6: each law with its required source (schemas/load_reference_state.schema.json).
+  // each law with its required source (schemas/load_reference_state.schema.json).
   | { law_kind: "rigid_prescribed" | "nonlinear_ground"; physical_state_source: "support_state.boundary_motion" }
   | { law_kind: "spring_base"; physical_state_source: "support_state.base_motion" }
 );
@@ -452,7 +452,7 @@ export type PreviewModel = {
     section_ref?: string;
     material: string;
     y_reference?: Vec3;
-    /** Model document 0.9.0 (§1.2): the one operating-condition set this pipe carries, by id.
+    /** Model document 0.9.0: the one operating-condition set this pipe carries, by id.
      * Absent means none; it is written only by `assign_condition_set`. */
     condition_set_ref?: string;
     provenance: string;
@@ -532,7 +532,7 @@ export type PreviewModel = {
     equivalent_static?: EquivalentStaticGenerationInput;
     /** Model 0.4.0: the case-owned resolved-state request. */
     analysis_state?: AnalysisStateInput | null;
-    /** Model document 0.9.0 (§1.2): the case's use of its pipes' condition sets. */
+    /** Model document 0.9.0: the case's use of its pipes' condition sets. */
     condition_use?: ConditionUse;
   }>;
   combinations?: Array<ModelAnnotations & {
@@ -542,7 +542,7 @@ export type PreviewModel = {
      * "mechanics" | "result_state_subtraction" | "range_envelope", and (model
      * document 0.9.0) "absolute_sum" | "srss". */
     basis: string;
-    /** Model document 0.9.0 (§2.4): optional; a term names exactly one operand,
+    /** Model document 0.9.0: optional; a term names exactly one operand,
      * a load case or a combination. A subtraction or range envelope may omit
      * `terms`, and the desktop keeps it absent. */
     terms?: Array<{ load_case: string; combination?: never; factor: number } | { combination: string; load_case?: never; factor: number }>;
@@ -551,7 +551,7 @@ export type PreviewModel = {
     subtrahend_id?: string;
     operand_ids?: string[];
     mode?: string;
-    /** Model document 0.9.0 (§2.2), carried as stored. */
+    /** Model document 0.9.0, carried as stored. */
     difference_basis?: string;
     subtrahend_support_state?: string;
     provenance: string;
@@ -559,19 +559,19 @@ export type PreviewModel = {
   diagnostics: Diagnostic[];
   /** Model 0.4.0: reference configurations (stress-free installed states). */
   reference_configurations?: ReferenceConfigurationInput[] | null;
-  /** Model 0.7.0 (W-13 §3): model-data slots the solve does not read. Absent means none. */
+  /** Model 0.7.0: model-data slots the solve does not read. Absent means none. */
   lines?: ModelLine[];
   unresolved_assumptions?: ModelAssumption[];
   constraints?: ModelConstraint[];
   equipment_interfaces?: EquipmentInterfaceRecord[];
   rule_pack_refs?: RulePackReference[];
-  /** Model 0.7.0 (W-13 Design §3.8): model-level settings; absent members take their defaults. */
+  /** Model 0.7.0: model-level settings; absent members take their defaults. */
   model_settings?: ModelSettings;
-  /** Model document 0.9.0 (§1.2): operating-condition sets. Absent means none. */
+  /** Model document 0.9.0: operating-condition sets. Absent means none. */
   condition_sets?: ConditionSet[];
 };
 
-/** Model document 0.9.0 (DEL-02-01 Work `model-document-0.9.0.md` §1.2): a keyed operating
+/** Model document 0.9.0: a keyed operating
  * condition of a set. Every member but `key` is optional; nothing is defaulted. */
 export type OperatingCondition = {
   key: string;
@@ -611,7 +611,7 @@ export type ConditionUse = {
 /** `model_settings`: a closed record. `node_proximity_tolerance` is the near-duplicate node
  * tolerance, a length quantity; absent means 5 mm. `shear_model` (model document 0.8.0) is the
  * pressure-free document's beam theory, absent meaning Euler–Bernoulli, or
- * `timoshenko_annulus_energy_v1` (DEL-05-03 Design `pf-timoshenko.md`); it is refused beside a
+ * `timoshenko_annulus_energy_v1`; it is refused beside a
  * pressure contract.
  * The desktop never writes a default. */
 export type ModelSettings = {
@@ -730,7 +730,7 @@ export type MechanicsResult = {
       basis: string;
       sign_convention: string;
     };
-    /** W-15 slice d (DEL-03-05 Design §5): present only on a component body's stress
+    /** W-15 slice d: present only on a component body's stress
      * row; the row is a stress of the mapped pipe section, a reference section, not of
      * the body. */
     component_body?: ComponentBodyRecord;
@@ -1155,14 +1155,14 @@ export type EditorOperationObjectType =
   | "Support"
   | "Load"
   | "Combination"
-  // W-13 §6: the project singleton (tags, notes) and the model-data record families.
+  // the project singleton (tags, notes) and the model-data record families.
   | "Project"
   | "Line"
   | "Assumption"
   | "Constraint"
   | "EquipmentInterface"
   | "RulePackRef"
-  // Model document 0.9.0 §11: operating-condition sets.
+  // operating-condition sets.
   | "ConditionSet";
 
 export type EditorOperationSource = {
@@ -1214,7 +1214,7 @@ export type EditorOperationIntent = {
       | "insert_bend_at_corner"
       | "delete_combination_term"
       | "insert_component_symbol"
-      // W-13 §6: model-data record operations.
+      // model-data record operations.
       | "create_line"
       | "update_line"
       | "delete_line"
@@ -1229,14 +1229,14 @@ export type EditorOperationIntent = {
       | "delete_equipment_interface"
       | "add_rule_pack_ref"
       | "remove_rule_pack_ref"
-      // W-17 (DEL-03-01 Design apply-library-records.md §2.2).
+      // W-17.
       | "apply_library_record"
-      // Model settings (DEL-02-01 Design model-document-0.7.0.md §3.8).
+      // Model settings.
       | "set_model_setting"
       | "clear_model_setting"
-      // Project units (DEL-02-02 Design project-unit-selection.md §2.7).
+      // Project units.
       | "set_project_unit"
-      // Model document 0.9.0 §11 (S3a): condition sets, pipe assignment and case use.
+      // Model document 0.9.0 (S3a): condition sets, pipe assignment and case use.
       | "create_condition_set"
       | "update_condition_set"
       | "delete_condition_set"

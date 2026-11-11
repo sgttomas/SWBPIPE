@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Targeted data-boundary guard for the CAEPIPE correlation pilot (DEL-17-05 Design §8).
+"""Targeted data-boundary guard for the CAEPIPE correlation pilot.
 
 CAEPIPE outputs and everything derived from them stay in the private exchange
 folder. These checks look at the files Git tracks or would add (tracked plus
@@ -41,7 +41,7 @@ FORBIDDEN_SEGMENTS = {"caepipe-oracle", "caepipe_out", "oracle_cases"}
 # unrelated `_harness/adapter.yaml` (the agent harness adapter) is not an exchange path, so the segment is
 # refused only together with the exchange file names.
 FORBIDDEN_HARNESS_FILES = {"Invoke-CaepipeRoundTrip.ps1", "round_trip.lock"}
-# Artefacts of the private exchange layers (Design §5): CAEPIPE output or derived from it.
+# Artefacts of the private exchange layers: CAEPIPE output or derived from it.
 PRIVATE_LAYER_NAMES = {"caepipe_results.json", "parser_diagnostics.json", "comparison.json", "run_record.json",
                        "guest_log.json", "guest_stdout.txt", "guest_stderr.txt", "case_manifest.json",
                        "import_outcome.json", "export_guest_log.json", "export_guest_stdout.txt",
@@ -155,7 +155,7 @@ def exchange_style(name: str) -> bool:
         return True
     if "_harness" in parts[:-1] and parts[-1] in FORBIDDEN_HARNESS_FILES:
         return True
-    # The importer's private layer: cases/<case id>/imported/... (DEL-17-05 Design §5).
+    # The importer's private layer: cases/<case id>/imported/....
     return any(part == "imported" and index >= 2 and parts[index - 2] == "cases" for index, part in enumerate(parts[:-1]))
 
 

@@ -1,4 +1,4 @@
-// Constraints and equipment interfaces (W-13 §3.6, FR-MOD-002): typed records
+// Constraints and equipment interfaces (FR-MOD-002): typed records
 // stored with the model. Nothing evaluates them (OD-1; HELP_HUMAN 2026-10-23,
 // "keep them in"), and the panel says so. The user adds and edits records;
 // every edit is a structured operation queued for review.

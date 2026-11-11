@@ -1,4 +1,4 @@
-// Model document 0.9.0 S3b (DEL-02-01 Work `model-document-0.9.0.md` §4.2, §11): the
+// the
 // desktop's condition-set surfaces through the real wasm operation engine. Each form
 // queues an intent (checked validate-only by the engine), and the test applies it with
 // `applyModelOperation`, the route Review/Apply uses. Base documents are S3a's committed

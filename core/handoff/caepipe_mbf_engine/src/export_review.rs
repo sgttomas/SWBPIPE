@@ -1,8 +1,8 @@
-//! The bounded export review (DEL-17-04 Design `desktop-mbf-export-import.md` §3.3 and §3.9.5; slice 4b.1): what the
+//! The bounded export review: what the
 //! desktop's MBF worker task returns in place of the writer's own report, in `review` mode and with the files in
 //! `save` mode.
 //!
-//! [`export_review`] classifies the writer's result as §3.3 does (this logic moved here from the dialog's
+//! [`export_review`] classifies the writer's result (this logic moved here from the dialog's
 //! `mbfExport.ts`; the product descriptions keyed by code stay there), over the full result, then serializes it
 //! within an allowance (at most [`MBF_REVIEW_MAX_BYTES`], R = 1 MiB, counted after escaping):
 //!
@@ -49,9 +49,9 @@ pub const MBF_EXPORT_OUTPUT_MAX_BYTES: u64 = 64 << 20;
 /// The per-field bound: a longer string is carried as its prefix (at most this many bytes), its length and its
 /// SHA-256. Escaped, a prefix is at most six times as long, so one entry stays well below R.
 pub const REVIEW_FIELD_MAX_BYTES: usize = 512;
-/// A truncated review blocks the save (§3.3).
+/// A truncated review blocks the save.
 pub const REVIEW_TRUNCATED: &str = "MBF-REVIEW-TRUNCATED";
-/// A save result above [`MBF_EXPORT_OUTPUT_MAX_BYTES`] is refused (§3.7).
+/// A save result above [`MBF_EXPORT_OUTPUT_MAX_BYTES`] is refused.
 pub const EXPORT_OUTPUT_TOO_LARGE: &str = "MBF-EXPORT-OUTPUT-TOO-LARGE";
 
 /// The review's lists, in the order they are listed.
@@ -287,7 +287,7 @@ fn text<'v>(item: &'v Value, key: &str) -> &'v str {
     item.get_or_null(key).as_str().unwrap_or("")
 }
 
-/// §3.3's classification over the full result, in listing order, without copying any string.
+/// classification over the full result, in listing order, without copying any string.
 struct Classified<'r> {
     result: &'r WriterResult,
     /// (code, entity) of each `unsupported` loss entry: an error of the same pair is that entry.
@@ -460,7 +460,7 @@ fn unit_conversions(result: &WriterResult) -> Vec<(String, String, Option<String
         .collect()
 }
 
-/// The bounded review of `result` (§3.9.5) within `allowance` bytes (the desktop uses [`MBF_REVIEW_MAX_BYTES`]).
+/// The bounded review of `result` within `allowance` bytes (the desktop uses [`MBF_REVIEW_MAX_BYTES`]).
 /// `files` are the written files' digests and lengths (None for a refused result). `output_fits` is given the
 /// review's exact length and decides `output_ceiling`; it is called once, before the text is built.
 pub fn export_review(

@@ -1,8 +1,7 @@
 //! The native export disposition screens, shared by File > Save Model
 //! Document… (W-6a, `model_document_save`), File > Save Handoff… (W-6b,
 //! `handoff_package`) and File > Save Report Package… (W-18a slice (b1),
-//! `report_package_save`). DEL-08-01 Design `report-package-current-results.md`
-//! §2.6, "Sharing with W-6a"; DEL-15-01 Design `canonical-model-export.md`.
+//! `report_package_save`).
 //!
 //! Two screens, moved here unchanged from their first callers:
 //! - the store-resolved screen of W-6a ([`screen_model_document_dispositions`],
@@ -28,7 +27,7 @@ use std::collections::BTreeMap;
 
 /// The webview screener's code for a blocked disposition (`redactionExportControls.ts`).
 pub const PROTECTED_CONTENT_BLOCKED: &str = "PROTECTED_CONTENT_BLOCKED";
-/// The store check's code (`check_model_library_refs`, W-13 §3.5).
+/// The store check's code (`check_model_library_refs`).
 pub const LIBRARY_REF_UNRESOLVED: &str = crate::MODEL_LIBRARY_REF_UNRESOLVED;
 /// The store-resolved screen's code for a screened record its verdict cannot
 /// read (W-17 object form; DEL-15-01 Design `canonical-model-export.md`,

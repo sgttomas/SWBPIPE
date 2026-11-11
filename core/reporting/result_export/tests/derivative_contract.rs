@@ -106,7 +106,7 @@ fn derived_documents_bind_by_value_across_json_forms() {
     assert!(d::validate_document(&wrong, &source).is_err());
 }
 
-/// Operating-case slice 1b (DEL-05-02 `operating-case.md` §6.5): the derivative path reads its
+/// the derivative path reads its
 /// source through `semantic_contract::for_source`, without the model, so a document with a
 /// declared operating comparison derives when its evidence re-derives its verdict (option A),
 /// and a forged one is refused by name.

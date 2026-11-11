@@ -39,7 +39,7 @@ def member(items, pipe):
 
 
 def _arc_hoop_row(e):
-    # T4-U6 (D-5 §2.1, §2.5): the straight's hoop row is published on both section bases, each id ending in its
+    # the straight's hoop row is published on both section bases, each id ending in its
     # basis; the arc copy keeps the pair.
     twins = [r for r in e["results"] if r["kind"] == "pipe_lame_hoop_stress_v2" and r["entity_ref"] == "pipe:S1"
              and r["metadata"]["location"] == "midspan"][:2]
@@ -173,7 +173,7 @@ def _swap_pair(e):
         m["i_in_plane"], m["i_out_of_plane"] = m["i_out_of_plane"], m["i_in_plane"]
 
 
-# T4-U4b (§2.4): directional intensified rows on the directional-SIF arc case (as the Rust test).
+# directional intensified rows on the directional-SIF arc case (as the Rust test).
 DIRECTIONAL_MUTATIONS = [
     ("directional value", _scale(DIRECTIONAL, "midspan"), "directional value"),
     ("directional maximum value", _scale(DIRECTIONAL_MAXIMUM, "governing_station", factor=0.9), "arc maximum bounds"),
@@ -216,7 +216,7 @@ def _arc_pipes(e):
 
 @pytest.mark.parametrize("label,envelope", CASES)
 def test_a_straight_group_above_one_is_refused(label, envelope):
-    """DEL-04-07 `pressure-contract.md` "Direction magnitudes of arc tangents": a group with no arc term keeps the
+    """a group with no arc term keeps the
     bound 1 (a straight member's frame axis is at most 1)."""
     arcs = _arc_pipes(envelope)
     straight = [i for i, g in enumerate(_groups(envelope)) if not any(t["pipe_id"] in arcs for t in g["terms"]) and "effective_area_bits" not in g]

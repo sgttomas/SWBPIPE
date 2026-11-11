@@ -46,7 +46,7 @@
 //! and term lists, the re-formed pencil's element lists and its retained
 //! stage workspace (`crate::workspace`) grow by std's infallible
 //! allocation, as before, and an allocation failure there still aborts.
-//! The whole-invocation memory ledger remains open (§5.3.8).
+//! The whole-invocation memory ledger remains open.
 
 use std::fmt;
 

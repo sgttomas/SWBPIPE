@@ -200,7 +200,7 @@ fn case_row(envelope: &MechanicsEnvelope, case: &str, id_suffix: &str) -> f64 {
         .filter(|r| r.id.ends_with(id_suffix))
         .collect();
     if matched.is_empty() {
-        // D-5 (DEL-05-03 Design §2.1, §2.5): a stress row's id ends with its
+        // D-5: a stress row's id ends with its
         // section basis, the nominal row immediately followed by its reduced
         // twin; these documents' bases coincide, so the twins are bit-equal.
         let nominal: Vec<_> = envelope.results.iter().filter(in_case)

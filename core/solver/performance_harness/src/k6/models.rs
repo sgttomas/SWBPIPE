@@ -1,4 +1,4 @@
-//! K6's sealed kernel models (T3 D1 §4.8; ROOT's K6 rulings Q10 and N4).
+//! K6's sealed kernel models (ROOT's K6 rulings Q10 and N4).
 //!
 //! - **RF-LARGE** (24 cases): R1's families (`T3/REFERENCES/references.py`,
 //!   sha256 `80d473a7…`; `lg_chain_defn`, `lg_tree_defn`, `continuous_defn`,

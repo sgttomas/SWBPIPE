@@ -1,4 +1,4 @@
-// W-13 S2a (DEL-02-01 Design model-document-0.7.0.md §6): structured
+// structured
 // operations for the model-data slots. Every edit is an EditorOperationIntent
 // that the applier validates, diffs and applies (and the session can undo);
 // nothing here writes the model directly.

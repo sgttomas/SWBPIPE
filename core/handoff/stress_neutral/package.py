@@ -101,7 +101,7 @@ SUPPORTED_METHODS = {PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, PREVIEW_
 PHYSICAL_METHODS = {PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID}
 RECEIPT_METHODS = {PRESSURE_SOURCE_CONTRACT_ID}
 # preview-physics-2 retains its closed preview statement; no receipt namespace. The pressure-free Timoshenko
-# identity (DEL-05-03 pf-timoshenko.md §4) carries the same statement under its own table.
+# identity carries the same statement under its own table.
 PREVIEW_METHODS = {PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID}
 
 

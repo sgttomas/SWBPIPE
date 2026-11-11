@@ -1,4 +1,4 @@
-//! The comparison and report engine (T3 D1 §4.10's table; plan §6.3).
+//! The comparison and report engine.
 //!
 //! Each R1 row gets exactly one verdict: `pass`, `fail`, `not_covered` (with
 //! whether the predicate held, never a pass), `pass_absolute_range` (the
@@ -19,7 +19,7 @@ pub enum Observed {
     Value(f64),
     /// The two components of a bending magnitude.
     Magnitude(f64, f64),
-    /// No row by construction (plan §4.2).
+    /// No row by construction.
     StructuralZero,
     /// Nothing comparable was published (missing, or overflowed).
     Unavailable(String),
@@ -131,7 +131,7 @@ impl fmt::Display for Tally {
     }
 }
 
-/// The discrimination tally of a set of cases (plan §8).
+/// The discrimination tally of a set of cases.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct ControlTally {
     /// Discriminating controls that fail the predicate (or, for outcome

@@ -1,4 +1,4 @@
-/** "Show solver diagnostic" (DEL-07-05 numerical health §3): a one-time request that the
+/** "Show solver diagnostic": a one-time request that the
  * Issues drawer's Diagnostics panel open filtered to exactly one diagnostic. It is
  * consumed once: cleared when the drawer closes and when the result or the run changes,
  * so a later ordinary opening of Issues is unfiltered. */

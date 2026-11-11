@@ -31,7 +31,7 @@ MODEL_VERSION = '0.9.0'
 PRESSURE_CONTRACT = {'version': '3.0.0', 'mode': PROFILE, 'shear_model': 'euler_bernoulli'}
 ZERO_CORROSION_ALLOWANCE = {'value': 0, 'unit': 'm'}
 CASE_BASIS = {'ref_type': 'load_case', 'ref_id': 'case'}
-# T4-U6 (D-5; DEL-05-03 section-bases-and-timoshenko.md §2.2, §2.5): each section basis has its own maximum row,
+# T4-U6 (D-5): each section basis has its own maximum row,
 # extremum, coverage record and headline; the basis-free headline is null on exact documents.
 SECTION_BASES = ('nominal_section', 'reduced_section')
 MAXIMUM_ID = 'result:elastic-maximum:4:case:4:pipe'

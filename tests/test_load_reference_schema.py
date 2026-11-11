@@ -32,7 +32,7 @@ CARRIERS = ("results.v0.3.schema.yaml", PRESSURE_SCHEMA_NAME, "analysis_run.v0.3
 CONTRACT = "openpipestress.load_reference_state/1.0.0"
 RECORD_PROFILE = "resolved_straight_load_state_v1"
 PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
-# T4-U6 (D-5, DEL-05-03 section-bases-and-timoshenko.md §2.4): the per-basis stress signatures (106).
+# T4-U6 (D-5): the per-basis stress signatures (106).
 PRESSURE_SHA = "c5fe09a2dc82068f46ce8dd0b5873071af1ec13e62c9bacf0a009570d7e5d2ad"
 PRESSURE_PROFILE = "exact_pressure_v3"
 PRESSURE_SOURCE_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
@@ -49,7 +49,7 @@ PREVIEW_RAW = PROJECT / "fixtures/product_preview/invented_demo_result_preview_p
 SOURCE_BLOCKS_RAW = PROJECT / "fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json"
 CARRIER_STEMS = [f"{stem}_{short}" for stem in ("connected", "pressure") for short in ("sparse", "dense")]
 
-# Authored keys the wire (CP2_WIRE.md) and the typed DTO make optional.
+# Authored keys the wire and the typed DTO make optional.
 OPTIONAL_AUTHORED = {"label", "operating_temperature", "analysis_basis_override", "mass_state_ref",
                      "boundary_motion", "base_motion", "device_reference"}
 
@@ -611,7 +611,7 @@ def _support_component(law, source, dof="UX", unit="m"):
     ("spring_base", "support_state.base_motion", "spring_base_motion"),
 ))
 def test_s6_support_laws_and_their_contributions_have_a_shape(law, source, classification):
-    """R-4 §3.7 S6: the producer publishes each resolved motion's law with its required source (the RE reader's
+    """the producer publishes each resolved motion's law with its required source (the RE reader's
     `support_law_classification`); the closed shape admits exactly those three pairs and their classifications."""
     evidence, state = _first_state()
     state["support_components"] = [_support_component(law, source)]
@@ -681,7 +681,7 @@ def test_carrier_branches_are_the_current_identities():
     publication is carried on pressure-2's (or pressure-source-1's) branch, whose evidence is PressureContractEvidence."""
     ids = [branch["properties"]["producer"]["properties"]["semantic_contract_id"]["const"]
            for branch in envelope_branches(schema("results.v0.3.schema.yaml"))]
-    # PF Timoshenko (DEL-05-03 pf-timoshenko.md §4): its branch follows preview-physics-2's.
+    # PF Timoshenko: its branch follows preview-physics-2's.
     assert ids == [PRESSURE_SOURCE_ID, PREVIEW_ID, "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1", PRESSURE_ID,
                    "openpipestress.result_semantics/0.3.0/preview-physics-retained-1",
                    "openpipestress.result_semantics/0.3.0/physics-retained-1"]

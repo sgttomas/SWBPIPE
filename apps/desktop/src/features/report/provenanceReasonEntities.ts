@@ -1,4 +1,4 @@
-// W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md` §6.2; Codex review
+// (Codex review
 // round 3 of #1639): the native render names a record it refuses by its collection position
 // only, since ids, labels and source text are user-authored. The panel holds the input it
 // sent, so it resolves the position to the record's entity for its own message. The

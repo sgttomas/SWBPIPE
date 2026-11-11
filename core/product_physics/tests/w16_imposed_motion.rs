@@ -1,4 +1,3 @@
-//! W-16 slice a, stage 1 (DEL-04-03 Design `pf-imposed-displacement.md` §5):
 //! imposed displacement on the pressure-free route (PF).
 //!
 //! The nozzle movement is read from the frozen references in
@@ -424,7 +423,7 @@ fn route_parity_with_exact_boundary_motion() {
     }
 }
 
-// ------------------------------------------------------------------ refusals (design §3)
+// ------------------------------------------------------------------ refusals
 fn with_supports(mut wire: Value, extra: Vec<Value>) -> Value {
     wire["model"]["supports"].as_array_mut().unwrap().extend(extra);
     wire
@@ -510,7 +509,7 @@ fn a_coincident_rigid_restraint_is_refused_before_the_repeated_dof_refusal() {
     refused(&plain, "SUPPORT_INPUT_INVALID", "repeated rigid DOF without motion");
 }
 
-/// Stage 2, R-a (DEL-04-03 Design `pf-nonlinear-imposed-motion.md`): motion
+/// motion
 /// of a rigid anchor in a model with nonlinear supports solves; the retired
 /// `IMPOSED_DISPLACEMENT_WITH_NONLINEAR_SUPPORTS` is gone. An authored zero
 /// motion is the no-motion path, row for row. The gap case keeps its recovery

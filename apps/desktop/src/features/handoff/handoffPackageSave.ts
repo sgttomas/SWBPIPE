@@ -1,4 +1,4 @@
-// File > Save Handoff… (DEL-15-01 Design `canonical-model-export.md` §3, W-6b;
+// File > Save Handoff… (W-6b;
 // FR-HAND-001/002, PRD §16.1). The package is a directory `<name>.swbhandoff/`
 // holding the W-6a canonical model document (`model/model.json`) and a
 // `schemas/handoff_package.schema.json` manifest (`handoff_package.json`) that

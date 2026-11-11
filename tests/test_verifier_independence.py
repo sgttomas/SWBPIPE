@@ -348,7 +348,7 @@ def test_the_base_verifiers_read_raw_statements_without_any_process(no_processes
 
 @pytest.mark.parametrize("name", ["two_span", "four_span"])
 def test_the_hanger_sizing_verifier_reads_the_producers_documents_without_any_process(no_processes, name):
-    """DEL-04-11 §8.3.7: the hanger-sizing verifier admits the producer's document, hashes the bound request,
+    """the hanger-sizing verifier admits the producer's document, hashes the bound request,
     solve request, library and each selected record (every digest equal to the one the producer published),
     converts the library's lbf, lbf/in, mm and in through `units` and recomputes the arithmetic, with no
     process spawned."""

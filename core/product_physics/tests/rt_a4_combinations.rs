@@ -82,7 +82,7 @@ fn blocking(out: &Value) -> Vec<String> {
     diagnostics(out).iter().filter(|d| d["severity"] == "blocking").map(|d| format!("{}: {}", d["code"], d["message"])).collect()
 }
 /// A solved envelope that the product reader admits with its model and without it
-/// (design §10.3: preview-physics-2 publishes `combination_derivation`, so a document
+/// (preview-physics-2 publishes `combination_derivation`, so a document
 /// verifies its combinations without its model).
 fn read_solved(out: Value, wire: &Value, what: &str) -> Value {
     assert_eq!(out["status"]["mechanics"], "MECHANICS_SOLVED", "{what}: {:?}", blocking(&out));
@@ -275,7 +275,7 @@ fn v5_three_axis_static_seismic_on_both_routes() {
                     // Every row of an unsigned combination states its derivation (review r1
                     // P4): absent metadata fails.
                     let metadata = row["metadata"].as_object().unwrap_or_else(|| panic!("{what} {id}: no metadata on {row}"));
-                    // EX's combined stress rows keep their operand's whole basis (§4).
+                    // EX's combined stress rows keep their operand's whole basis.
                     if !metadata["basis"].as_str().unwrap().contains("; section_basis=") {
                         assert_eq!(metadata["basis"], basis, "{what} {id}");
                     }
@@ -614,7 +614,7 @@ fn v6_gate_4_forgeries_are_refused_on_the_exact_route() {
     }
 }
 
-/// The fixed-load withholdings that §5.1 distinguishes, by EX source: an operand with an
+/// The fixed-load withholdings, by EX source: an operand with an
 /// undefined κ (`mech-env`) and a combination whose own κ is undefined although its operands'
 /// are defined (`M3`, `Q`: V-10's chain, κ(M3) = 1 + t⁴ needs more than 4,096 bits).
 const GATE_TEXTS: [(&str, &str); 3] = [
@@ -872,7 +872,7 @@ fn v7_evaluation_order_is_topological_and_a_function_of_the_document() {
     }
 }
 
-/// §6: an unsigned result outside the binary64 range withholds the row as
+/// an unsigned result outside the binary64 range withholds the row as
 /// "load-case algebra refused"; the other rows publish.
 #[test]
 fn a_non_representable_unsigned_row_is_withheld_by_name() {
@@ -909,7 +909,7 @@ fn overflow_model(exact: bool, combinations: Value) -> Value {
     wire
 }
 
-/// P2 r1 (absolute-sum-srss §3, §6): an unsigned combination whose recomputed
+/// an unsigned combination whose recomputed
 /// magnitude leaves the binary64 range from finite combined components withholds
 /// that row, or its whole support group, as "load-case algebra refused", and every
 /// other result publishes. Before the fix the norm published as an infinity and the
@@ -1092,7 +1092,7 @@ fn pf_readers_refuse_tampered_gates_and_unsigned_rows() {
     assert_refused(&changed, model, "SOURCE_PREVIEW_PHYSICS_COMBINATION_UNSIGNED_VALUE", "value change (nonlinear)");
 
     // A linear model with a consuming constant-effort support: `combination_derivation`
-    // states every unsigned and nested combination's factors and κ inputs (§10.3).
+    // states every unsigned and nested combination's factors and κ inputs.
     let wire = pf_cantilever(true, pf_cases(), json!([
         terms("srss-cases", "srss", &[("case", "W1", 1.0), ("case", "W2", 1.0)]),
         sub("d1", "W1", "W2"),
@@ -1122,7 +1122,7 @@ fn pf_readers_refuse_tampered_gates_and_unsigned_rows() {
     }
 }
 
-// ------------------------------------------------------------------ model-free derivation (§10.3)
+// ------------------------------------------------------------------ model-free derivation
 const DERIVATION: &str = "combination_derivation";
 const EVIDENCE: &str = "SOURCE_PREVIEW_PHYSICS_COMBINATION_DERIVATION_EVIDENCE";
 fn derivation_record<'a>(out: &'a mut Value, id: &str) -> &'a mut Value {
@@ -1376,7 +1376,7 @@ fn pf_readers_re_derive_unsigned_combination_rows() {
     }
 }
 
-/// §10.3, V-8: a document with flat combinations only publishes no derivation, and
+/// V-8: a document with flat combinations only publishes no derivation, and
 /// one stated on it is refused.
 #[test]
 fn pf_flat_documents_publish_no_derivation() {
@@ -1386,7 +1386,7 @@ fn pf_flat_documents_publish_no_derivation() {
         range("env", &["W1", "W2"]),
     ]));
     let out = solved(&wire, PreviewSolverMode::SparseInteractive, "flat");
-    // RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`): the certificate accompanies the combinations.
+    // the certificate accompanies the combinations.
     let mut members: Vec<&String> = out["contract_evidence"].as_object().unwrap().keys().filter(|k| *k != "combination_certificate").collect();
     members.sort();
     assert!(out["contract_evidence"].get("combination_certificate").is_some());

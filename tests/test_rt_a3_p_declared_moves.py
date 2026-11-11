@@ -3,7 +3,7 @@
 P put the sparse-mode friction coupling on the pattern (step 4, a declared φ⁰ move) and left dense scrutiny's path
 unchanged. This guard compares the committed carriers at P's base, main 252bef969, and P's final candidate 78580da7e
 (both fixed revisions, so later stages' regenerations do not reach it). Increment 4's guard ends at 252bef969 and the
-§4 certificate's begins at 78580da7e; P's interval is this file's alone. P is not a text-only stage.
+certificate's begins at 78580da7e; P's interval is this file's alone. P is not a text-only stage.
 
 - **The carrier set.** The fixtures that changed are exactly the declared ones: the three sparse captures of the
   invented coupled model (the result fixture, the range envelope and the demo), their two generation records, the

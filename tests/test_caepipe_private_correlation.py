@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Private CAEPIPE correlation regression check (DEL-17-05 Design §9).
+"""Private CAEPIPE correlation regression check.
 
 Reads the private corpus through SWBPIPE_CAEPIPE_EXCHANGE. Skips, with the
 reason, when the harness is not configured, when no case holds a stored

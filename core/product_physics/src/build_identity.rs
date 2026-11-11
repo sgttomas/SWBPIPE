@@ -1,4 +1,4 @@
-// U4 G5 (D-6 = (a); R/I65/u4_g3_01/G2_AMENDMENTS.md §1): the one encoder of the
+// U4 G5 (D-6 = (a)): the one encoder of the
 // retained build identity. It has three users and no dependencies:
 // - build.rs, through `include!("src/build_identity.rs")`, which emits the value
 //   as one `cargo:rustc-env=OPS_RETAINED_BUILD_IDENTITY=<encoded>` line;
@@ -17,7 +17,7 @@ pub(crate) const IDENTITY_UNAVAILABLE: &str = "v1;unavailable";
 /// The environment variable build.rs sets and the crate reads with `option_env!`.
 #[allow(dead_code)]
 pub(crate) const IDENTITY_VARIABLE: &str = "OPS_RETAINED_BUILD_IDENTITY";
-/// The keys, in their fixed order (BUILD.md §2.1's table).
+/// The keys, in their fixed order.
 #[allow(dead_code)]
 pub(crate) const IDENTITY_KEYS: [&str; 16] = [
     "rustc.release",
@@ -165,7 +165,7 @@ pub(crate) const REVIEWED_INPUTS: [&str; REVIEWED_INPUT_COUNT] = [
     // physics-source-1 tables with v2 (A4/A5); the others keep their order.
     "../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json",
     // B4/D1 (b) removed the retired source-blocks-1 table and its receipt schema.
-    // B2/B3 J1 (I93 REVISION_01 §1.4; B3-D decision B3D-18: appended, so existing
+    // B2/B3 J1 (B3-D decision B3D-18: appended, so existing
     // positions keep their meaning): the combination and exact formation definitions
     // and the physics-retained-1 table.
     "../../fixtures/results/retained_precision_prepared_combination_v1.json",

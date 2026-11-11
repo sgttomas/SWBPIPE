@@ -7,9 +7,9 @@
 //! can judge:
 //!
 //! - the members written are the fixed copy table's destinations for the
-//!   target's family (§2.3, §2.3b), plus the label, the short `provenance`
+//!   target's family, plus the label, the short `provenance`
 //!   string, the group source-reference strings and `provenance_record`;
-//! - every quantity has the destination's dimension and sign (§2.4); nothing
+//! - every quantity has the destination's dimension and sign; nothing
 //!   is converted;
 //! - `before` is the current value of every named member that exists (absent
 //!   members are created), so a stale change is refused;

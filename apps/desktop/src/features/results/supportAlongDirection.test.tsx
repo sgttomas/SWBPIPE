@@ -1,4 +1,4 @@
-// R-6/R-7 S-K1 (DEL-04-03 Work `skew-restraints.md` §7.1; R-1's desktop change, with authoring's
+// R-6/R-7 S-K1 (R-1's desktop change, with authoring's
 // should-fix and Agent 0's corrections 1-3): how the webview treats
 // `support_reaction_along_direction_v1`, on the committed product fixtures written by
 // product_physics' `the_reader_fixture_is_the_product_output` (one case and 2·case:

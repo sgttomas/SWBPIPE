@@ -960,12 +960,12 @@ pub fn validate_rule_pack_document(
         });
     }
 
-    // Format 0.5.0 (W-17; DEL-06-01 Design `rule-pack-0.5.0.md` §2.1): any
+    // Format 0.5.0: any
     // other declared version is refused by name, with no migration. The
     // checksum and every other finding are still computed below, so a refused
     // pack never also reads as a checksum mismatch.
     document_findings.extend(schema_version_finding(document));
-    // §2.5 and §2.9: categories, required load cases, mappings, reachability
+    // categories, required load cases, mappings, reachability
     // and the solver-row selector; all blocking.
     document_findings.extend(format_findings(document));
 
@@ -1242,7 +1242,7 @@ pub fn validate_rule_pack_document(
 }
 
 // ---------------------------------------------------------------------------
-// Static unit check (W-17, FR-RULE-002; DEL-06-02 `Design/rule-pack-unit-check.md`)
+// Static unit check (W-17, FR-RULE-002)
 // ---------------------------------------------------------------------------
 
 /// One unit-check operand: a quantity with its dimension and unit tokens, a
@@ -1261,7 +1261,7 @@ pub struct UnitCheckOperand {
 /// One unit-check finding. It carries a code, a subject id, a path into the
 /// pack, the operand dimension and unit tokens and a fixed message; it never
 /// carries a magnitude, a table row, a payload summary or a rendered
-/// expression (design §2.6).
+/// expression.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct UnitCheckFinding {
     /// An evaluator finding code as the runner reports it (`UnitMismatch`),
@@ -1461,7 +1461,7 @@ fn ref_ids(value: Option<&Value>) -> Vec<(usize, &str)> {
         .unwrap_or_default()
 }
 
-/// Declared units outside the DEC-018 catalog (design §2.4): a warning, not
+/// Declared units outside the DEC-018 catalog: a warning, not
 /// an error. A binding with the identical unit string still binds.
 fn catalog_findings(
     declarations: &[(&str, usize, &Value)],
@@ -1498,7 +1498,7 @@ fn catalog_findings(
     }
 }
 
-/// The static unit check of a rule-pack document (design §2).
+/// The static unit check of a rule-pack document.
 pub fn check_rule_pack_units(document: &Value) -> UnitCheck {
     let required_inputs = indexed(document, "required_inputs", "input_id");
     let value_slots = indexed(document, "value_slots", "slot_id");
@@ -1583,7 +1583,7 @@ fn check_one_unit_check(
 
     let mut findings = Vec::new();
 
-    // The environment (design §2.2): a variable is typed (or unknown) when
+    // The environment: a variable is typed (or unknown) when
     // the formula lists it in `input_refs`, the check lists it in
     // `required_input_refs`, and `required_inputs` declares it. The runner
     // binds exactly these; any other variable never binds.

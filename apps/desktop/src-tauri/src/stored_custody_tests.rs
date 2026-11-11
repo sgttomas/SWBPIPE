@@ -248,7 +248,7 @@ fn the_native_findings_are_the_typescript_contexts() {
     assert!(failures.is_empty(), "{} of {} cases differ:\n{}", failures.len(), cases.len(), failures.join("\n"));
 }
 
-/// RT-A4 §10.4: main's runs recorded before RT-A4 (`recorded_pre_rt_a4_pf`) reopen natively as the
+/// main's runs recorded before RT-A4 (`recorded_pre_rt_a4_pf`) reopen natively as the
 /// webview reopens them: read under their recorded table, their standing findings the historical
 /// reader's (kept apart, labelled by that table), and none of a current-only reader's refusals among
 /// the findings. Without the native recorded read they read under the current tables and are refused
@@ -289,7 +289,7 @@ fn runs_recorded_before_operating_case_1b_reopen_natively_under_their_recorded_t
     runs_recorded_before_a_policy_restatement_reopen_natively("pre-rt-a5-1b", "e7b93f416f700f8efdb31bf1ba26dedde52963d768d6ead5a73dbf1c645a360c");
 }
 
-/// RT-A5 `minuend_final` (DEL-05-02 `operating-case.md` §7.6): main's preview-physics-2 run
+/// main's preview-physics-2 run
 /// recorded before `minuend_final` restated the combination policy (`recorded_pre_rt_a5_mf_pf`,
 /// binding f41b9d3e…, a registry variant) reopens natively as the webview reopens it, saved and as
 /// main's recorded revision, under its recorded table, as above.
@@ -513,7 +513,7 @@ fn the_recorded_table_bases_are_the_typescript_and_python_tables() {
     assert_eq!(python, native, "the Python table");
 }
 
-/// RT-A4 §10.4: the registry the native reopen reads under (`recorded_tables::VARIANTS`, the
+/// the registry the native reopen reads under (`recorded_tables::VARIANTS`, the
 /// same Rust the wasm engine and runner read) is the webview's (`recordedPreRtA4.ts`
 /// `RECORDED_PRE_RT_A4_TABLES`) and Python's (`compatibility.py` `RECORDED_PRE_RT_A4_TABLES`),
 /// variant for variant and in order, each twin's table file the same verbatim bytes, hashing to
@@ -685,7 +685,7 @@ fn recorded_basis_fixtures_reopen_natively_with_the_webviews_findings() {
 // ---------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
-// RT-A4 §10.4: a run recorded before RT-A4, through the native commands
+// a run recorded before RT-A4, through the native commands
 // ---------------------------------------------------------------------------
 
 const PRE_RT_A4_REPLIES: &str = "apps/desktop/src/test-support/native-reopen/native_reopen_pre_rt_a4_replies.json";
@@ -826,7 +826,7 @@ fn reader_reply(registry: &SolveJobRegistry, command: &'static str, args: &Value
     outcome.map_err(|error| serde_json::to_string(&error).unwrap())
 }
 
-/// RT-A4 §10.4 review F1: a reader takes the held bytes and the recorded table they are read
+/// a reader takes the held bytes and the recorded table they are read
 /// under as one snapshot. A disposal or a session reset between a reader's acquisition of its
 /// share and its read (the test gate in `held_result`) must not change the table that read uses:
 /// every native reader of the handle (S, row semantics, the rows page and its family filter, the

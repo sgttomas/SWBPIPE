@@ -1,4 +1,4 @@
-// A3 render cost (DEL-07-05 Design `stress-ratio-table.md` §8): the panel derives its table once per
+// A3 render cost: the panel derives its table once per
 // (model, result, standing, ruleCheckRun) identity. Control changes (category, mode, threshold),
 // the selected row and the test-id prefix reuse it. Invented data only (`resultOverlayFixtures`).
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";

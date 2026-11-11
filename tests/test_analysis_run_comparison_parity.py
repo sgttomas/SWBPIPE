@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Parity of the desktop's analysis-run comparison with the reference engine.
 
-W-12 S3b (DEL-14-01 Design ``desktop-states-runs-comparison.md`` section 4.2):
 ``fixtures/comparison/analysis_run_comparison_golden.json`` holds runs as the
 desktop flattened them (committed producer results and invented edits of one),
 with the desktop's comparison of each pair under an open standing gate. It is

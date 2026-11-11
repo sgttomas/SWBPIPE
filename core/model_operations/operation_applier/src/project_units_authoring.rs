@@ -15,7 +15,7 @@
 //! - `after`: the canonical catalog symbol; there is no remove form.
 //! - `unit`: the `after` symbol; `dimension`: the key's dimension.
 //!
-//! Refusals run in the Design's §2.7 order, so a stale `before` is reported
+//! Refusals run in order, so a stale `before` is reported
 //! before the length lock:
 //! `OP-PROJECT-UNIT-SHAPE-INVALID`, `OP-TARGET-NOT-FOUND`,
 //! `OP-PROJECT-UNIT-DOCUMENT-INVALID`, `OP-PROJECT-UNIT-UNKNOWN-KEY`,
@@ -40,7 +40,7 @@ use serde_json::{Map, Value};
 /// Sets one key of `project.units` to a canonical catalog symbol.
 pub(crate) const SET: &str = "set_project_unit";
 
-/// The seven keys a project carries (Design §2.2). Each key's catalog
+/// The seven keys a project carries. Each key's catalog
 /// dimension has the key's name.
 pub(crate) const KEYS: [&str; 7] = ["length", "force", "moment", "pressure", "stress", "temperature", "angle"];
 

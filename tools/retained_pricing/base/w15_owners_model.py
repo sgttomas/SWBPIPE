@@ -1,4 +1,4 @@
-"""W-15 D3 (DEL-03-05 Design rigid-component-stiffness-scaling.md §2.8; retained-pricing-rules.md §8.21): the positive
+"""W-15 D3 (§8.21): the positive
 owners the rigid-component stiffness scaling (slice a) and the reference-section identification (slice d) add outside
 the chain's TEXT inventory. D1 admits no component (P2), so no member is scaled, no row carries `component_body` and no
 coverage entry lists bodies; what remains on D1 is the predicate's and the readers' working sets, priced here.
@@ -21,7 +21,7 @@ the preview extremum (<= 15 entries, keys <= 40 B), componentwise; a coverage en
 (no coverage entry lists bodies and the captured model's components are empty, P2). Both clones are charged, with the
 case and entry lists, beside U4B-RD's and W7-RD's sets.
 
-W15C (W-15 slice c, the eccentric offset; retained-pricing-rules.md §8.26): Topology::of builds a third pipe map with
+W15C (W-15 slice c, the eccentric offset; §8.26): Topology::of builds a third pipe map with
 the node positions, the per-node member lists, the mapping table and the realized and replaced sets, but only for
 judge_all, which both offset entry points call after their allocation-free first pass; that pass returns when no
 component carries `eccentric_offset`, which P2 makes every D1 request (W15C-NO, o10_rules.py). So nothing of it is

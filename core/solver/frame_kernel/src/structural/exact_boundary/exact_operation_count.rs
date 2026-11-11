@@ -1,5 +1,5 @@
 //! Dev-only operation counter: the maintained control of the metered
-//! work-charging rule (RF source-method design §5.4).
+//! work-charging rule.
 //!
 //! Compiled only in the frame kernel's own test build or with the
 //! `exact-operation-count` feature, which only test builds enable; the product
@@ -18,7 +18,7 @@
 //! `totals().shortfalls() == 0` (and, to rule out a vacuous run,
 //! `totals().mul.calls > 0`).
 //!
-//! It also carries R-A's row trace (source-work design §3.2): each functional
+//! It also carries R-A's row trace: each functional
 //! evaluation records the path each row took, B1's negation or the long
 //! evaluation with the count of terms B2 skipped, for [`take_row_paths`]. The
 //! gating tests compare those rows with `evaluate_functionals_long`, the
@@ -71,7 +71,7 @@ pub struct Totals {
     pub min_pair_slack: Option<i64>,
     /// The largest two-product count of one term pair: the product, its fused
     /// residual and the radix scalings, which the per-pair constant covers
-    /// (at most 66 by §5.3).
+    /// (at most 66).
     pub max_pair_two_product: u64,
 }
 impl Totals {
@@ -210,7 +210,7 @@ impl Probe {
     }
 }
 
-/// R-A's row paths (DEL-04-08 Design `source-work-nondyadic-inputs.md` §3.2, the gating
+/// R-A's row paths (the gating
 /// test's coverage assertion): for each functional evaluation on this thread since the
 /// last [`take_row_paths`], the path each row took. A thread records only after its
 /// first [`take_row_paths`], which only the gating tests call. So the code that enables

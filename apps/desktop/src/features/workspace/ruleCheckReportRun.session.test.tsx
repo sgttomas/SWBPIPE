@@ -3,7 +3,7 @@
  * that aggregate is current. A re-solve retires it; a failed aggregate recording rolls
  * it back with the aggregate. Unit transport replay of committed producer bytes through
  * mocked IPC; the rule-check run is an invented unit fixture, NOT rule-evaluation
- * evidence. All data are invented. C1 (DEL-04-05 `c1-native-custody-plan.md` slice 4): the
+ * evidence. All data are invented. C1: the
  * result is held natively, so a revised record is the native analysis-run preview (the actual
  * Rust command's recorded reply); a failed recording is that command failing. */
 import { act, cleanup, renderHook, waitFor } from "@testing-library/react";

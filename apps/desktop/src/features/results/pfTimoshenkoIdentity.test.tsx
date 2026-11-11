@@ -1,4 +1,4 @@
-/** DEL-05-03 Design `pf-timoshenko.md` §4: the desktop admits the pressure-free Timoshenko
+/** the desktop admits the pressure-free Timoshenko
  * identity (`preview-physics-timoshenko-1`) beside preview-physics-2, keyed by the envelope's
  * `semantic_contract_id`: the Rust reader's binding, the fresh set (the Current result), the
  * AnalysisRun record tables, the result export, the report package's admitted set and its

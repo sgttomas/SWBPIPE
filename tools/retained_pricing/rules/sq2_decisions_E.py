@@ -88,7 +88,7 @@ if B7B_EXACT_BASE:
                               "B7b-LR (route E): " + LOAD_STATE_OFF + "; the producer adds contract_evidence.load_reference_states only "
                               "under is_load_state and RS project() copies contract_evidence, so the successor has none and "
                               "validate_pressure_evidence takes its physics arm (validate_physics_evidence_in(.., false, PressureV3))")]
-# W16-NS (route E; retained-pricing-rules.md §8.23): imposed_motion::validate takes its pressure-free branch only when
+# W16-NS (route E; §8.23): imposed_motion::validate takes its pressure-free branch only when
 # pressure_runtime::is_exact is false; route E is the exact branch (EXACT), so validate_pressure_free never runs there.
 _W16_IM = "core/product_physics/src/imposed_motion.rs"
 if os.path.exists(os.path.join(os.environ["SQ2_SNAP"], _W16_IM)):
@@ -156,7 +156,7 @@ if U6_D5:
     CENSUS["json"] = os.path.join(os.path.dirname(H), "data", "census_u4b_7c77bf8072.json")
     if json.load(open(CENSUS["json"]))["rows_per_member"] != 51 + 21 + 30:
         raise SystemExit("U6-RP: the U4b census no longer measures 102 rows per member; re-review")
-    # W7-RP (W-7, DEL-04-01 Design global-end-actions.md; retained-pricing-rules.md §8.20): the census is taken on the
+    # W7-RP (W-7, §8.20): the census is taken on the
     # pressure-source-1 producer fixtures, which omit the global end rows by the named rule `global_end_rows_published`
     # (a source-recovery publication); route E's ordinary pressure-2 envelope carries them on every run, twelve per
     # member and case, so route E's P_final and R0 take 102 + 12 = 114 rows per member. Guard: the rule and the producer

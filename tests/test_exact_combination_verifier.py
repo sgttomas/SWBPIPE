@@ -1,4 +1,4 @@
-"""W-16 slice b (DEL-05-02 Design `exact-combinations.md` §6, §8): the test-only Python verifier
+"""the test-only Python verifier
 of the pressure-2 combination pass (`tests/verifiers/exact_combinations.py`) over the shared
 combination corpus, mirroring the Rust reader's forgery tests
 (`core/reporting/result_export/tests/exact_combination_contract.rs`) with the same refusal codes.

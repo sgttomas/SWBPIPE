@@ -1,4 +1,4 @@
-//! Numerical health indicator (DEL-07-05 Design `numerical-health-indicator.md`):
+//! Numerical health indicator:
 //! a presentation projection of the ordinary solve's existing diagnostics, per
 //! load case, for the desktop. Nothing here changes a state, a threshold, a
 //! reader verdict or output admission; it reads the published envelope only.
@@ -41,7 +41,7 @@ const EVIDENCE_INCOMPLETE: &str = "NUMERICAL_CASE_EVIDENCE_INCOMPLETE";
 pub(crate) const LEAD_A: &str =
     "M03-INTEGRITY-v1 represented original-equation structural evidence for load case ";
 pub(crate) const LEAD_B: &str = ": StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: ";
-/// `StructuralReport`'s Debug fields around rcond (§2.6).
+/// `StructuralReport`'s Debug fields around rcond.
 const RCOND_FIELD: &str = ", reciprocal_condition_estimate: ";
 const RESIDUAL_FIELD: &str = ", residual_rows: ";
 /// The end of the report span, then the Debug DOF map and `. `.
@@ -157,7 +157,7 @@ struct CombinationHealth {
     withheld: bool,
 }
 
-/// The numerical health of a result envelope, as JSON text (design §2.6).
+/// The numerical health of a result envelope, as JSON text.
 /// `reader_findings_json` is the Rust reader's findings for the same result:
 /// an array of finding codes (or of objects with a `code`), or the
 /// `reader_dispatch_json` outcome itself (its `standing.findings`). `None`, or
@@ -221,7 +221,7 @@ impl<'a> Diagnostics<'a> {
         self.by_id.get(id).map(Vec::as_slice).unwrap_or(&[])
     }
 
-    /// §2.6's integrity diagnostic: exactly one diagnostic with the case's id,
+    /// integrity diagnostic: exactly one diagnostic with the case's id,
     /// and its `affected_refs` exactly `[case]`.
     fn integrity(&self, case_id: &str) -> Option<&'a Value> {
         let [d] = self.with_id(&format!("{INTEGRITY_ID_PREFIX}{case_id}")) else {
@@ -259,7 +259,7 @@ fn numerical_health(source: &Value, reader_findings: Option<&Value>) -> Health {
         }
     }
     // A load case the envelope names but `numerical_quality` omits is not
-    // assessed (§2.6 "Grey").
+    // assessed.
     for case_id in named_load_cases(source) {
         if seen.insert(case_id.to_string()) {
             cases.push(case_health(&index, case_id, "not_assessed"));
@@ -298,7 +298,7 @@ fn load_case_id(entry: &Value) -> Option<&str> {
         .flatten()
 }
 
-/// §3: the state of a `solve_quality`; an unknown or absent value is not
+/// the state of a `solve_quality`; an unknown or absent value is not
 /// assessed.
 fn state_of(solve_quality: Option<&str>) -> &'static str {
     match solve_quality {
@@ -734,7 +734,7 @@ fn strip_and_more(text: &str) -> Option<&str> {
     }
 }
 
-/// §2.6: `, reciprocal_condition_estimate: ` exactly once in the span,
+/// `, reciprocal_condition_estimate: ` exactly once in the span,
 /// followed by a number token and `, residual_rows: `; the token is Rust's
 /// shortest round-trip `f64` form of a finite value with 0 < rcond <= 1.
 fn parse_rcond(span: &str) -> Option<f64> {
@@ -832,7 +832,7 @@ fn counted_list<'t>(text: &'t str, tail: &str) -> Option<(usize, &'t str)> {
     Some((count, text[digits..].strip_prefix(tail)?))
 }
 
-/// §2.6's result-level flag: a presentation projection, never admission.
+/// result-level flag: a presentation projection, never admission.
 fn verdict_only(
     route: &str,
     source: &Value,
@@ -861,7 +861,7 @@ fn is_verdict_pair(findings: &Value) -> bool {
     codes == [EVIDENCE_INCOMPLETE, NOT_QUALIFIED]
 }
 
-/// §2.6's evidence clauses over `numerical_quality` and the diagnostics.
+/// evidence clauses over `numerical_quality` and the diagnostics.
 fn quality_consistent(source: &Value, index: &Diagnostics) -> bool {
     const ORDER: [&str; 5] = [
         "checks_passed",
@@ -1075,7 +1075,7 @@ fn resolve<'a>(
     unreachable!("the start row is popped last")
 }
 
-/// §2 decision 5: a combination inherits the worst badge of the load cases
+/// a combination inherits the worst badge of the load cases
 /// its rows are formed from (red > grey > green); a named case without a
 /// state, or an unresolved branch, reads not assessed. A withheld combination
 /// publishes no rows and gets no state.

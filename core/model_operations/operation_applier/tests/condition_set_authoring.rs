@@ -17,7 +17,7 @@ use serde_json::{json, Value};
 
 const PROV: &str = "invented_s3a_condition_set_test_input";
 
-/// The eight staged findings of §11, by code.
+/// The eight staged findings, by code.
 const STAGED: [&str; 8] = [
     "OPERATING_CONDITION_SET_MISSING",
     "OPERATING_CONDITION_KEY_MISSING",
@@ -29,7 +29,7 @@ const STAGED: [&str; 8] = [
     "EQUIVALENT_STATIC_INPUT_MISSING",
 ];
 
-/// S-K1 (§2.2 item 4): (1, 2^-1023, 0), a skewed direction with a subnormal canonical
+/// (1, 2^-1023, 0), a skewed direction with a subnormal canonical
 /// component: admitted by the document rules, refused by name at the solve.
 static RANGE_DIRECTION: std::sync::LazyLock<Value> = std::sync::LazyLock::new(|| json!({"x": 1.0, "y": f64::from_bits(1u64 << 51), "z": 0.0}));
 
@@ -252,7 +252,7 @@ fn create_update_and_delete_with_their_inverses() {
     let (reverted, _) = applied(&updated, &update_set(&updated, &set_a()));
     assert_eq!(bytes(&reverted), bytes(&created), "update's inverse restores the document");
 
-    // Delete the last set: the collection stays an empty array (§11), and the
+    // Delete the last set: the collection stays an empty array, and the
     // delete's inverse (create at the deleted index) restores the document.
     let (deleted, outcome) = applied(&created, &delete_set(&created, "cs:a"));
     assert_eq!(deleted["condition_sets"], json!([]));
@@ -289,7 +289,7 @@ fn create_update_and_delete_with_their_inverses() {
     }
 }
 
-/// The record refusals of §11's table, and the validator's document-level codes
+/// The record refusals, and the validator's document-level codes
 /// on the candidate with the solve's own messages.
 #[test]
 fn record_operations_refuse_by_name() {
@@ -544,7 +544,7 @@ fn every_s1_authoring_refusal_is_preserved() {
     // direction on supports.
     let support = |direction: Value| op("create", "create_support", "Support", "S-2", "supports", "not_present",
         &json!({"id": "S-2", "label": "Stop", "node": "N2", "family": "line_stop", "restraints": ["UY"], "direction": direction, "provenance": PROV}).to_string());
-    // R-6/R-7 S-K1 (DEL-04-03 Work `skew-restraints.md` §11): a skewed direction is
+    // a skewed direction is
     // authored on the pressure-free route, written as entered.
     let authored = apply_operation(&model, &support(json!({"x": 0.0, "y": 3.0, "z": 4.0})), Some(&claim(&model)));
     let written = authored.applied_model.as_ref().unwrap_or_else(|| panic!("{:?}", records(&authored)));
@@ -561,9 +561,9 @@ fn every_s1_authoring_refusal_is_preserved() {
         }
         op("create", "create_combination", "Combination", "C-NEW", "combinations", "not_present", &payload.to_string())
     };
-    // Operating-case slice 1b and RT-A5 (0.9.0 §2.2, §3.8): a declared difference is
+    // a declared difference is
     // authored on the pressure-free route, as authored, with `own` (which behaves as absence)
-    // or `minuend_final` (operating-case §7); an unknown or misplaced member is the document
+    // or `minuend_final`; an unknown or misplaced member is the document
     // validator's.
     for extra in [
         json!({"difference_basis": "operating_minus_sustained"}),

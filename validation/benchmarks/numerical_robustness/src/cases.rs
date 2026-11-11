@@ -104,7 +104,7 @@ pub struct Model {
     pub nodes: Vec<[f64; 3]>,
     pub members: Vec<Member>,
     pub springs: Vec<SpringSpec>,
-    /// R1 springs with k = 0, omitted by the adapter (RF-MECH-K0; plan §4.1).
+    /// R1 springs with k = 0, omitted by the adapter (RF-MECH-K0).
     pub omitted_springs: Vec<String>,
     pub constraints: Vec<(u32, usize)>,
     pub loads: Vec<(u32, usize, f64, String)>,
@@ -126,7 +126,7 @@ pub struct Case {
     pub scales: BTreeMap<String, String>,
     pub rows: Vec<Row>,
     pub controls: Vec<Control>,
-    /// The committed not-covered keys of this case (DESIGN.md §4.10's list).
+    /// The committed not-covered keys of this case.
     pub not_covered: Vec<String>,
     /// S(kind) of the complete reference solution (n ≥ 1,000 only).
     pub s_full: Option<BTreeMap<String, String>>,
@@ -388,7 +388,7 @@ pub fn load_large_model_described(
     (model, crate::sha256::sha256_hex(text.as_bytes()), facts)
 }
 
-/// The kernel quantity an R1 key is compared with (plan §4.2).
+/// The kernel quantity an R1 key is compared with.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Target {
     Displacement(Dof),

@@ -21,7 +21,7 @@ import { isFreshSemanticResult } from "./knownSemanticLimitations";
 import { analysisRowSemantics, analysisRecordProjection, modelLoadBasisRefs, validateAnalysisRunV03 } from '../../services/analysisRunCompatibility';
 import { readerRowSemantics, sourceContract } from './resultReader';
 const resultSemantics = (row: Parameters<ReturnType<typeof readerRowSemantics>>[0], source?: Parameters<typeof readerRowSemantics>[0]) => readerRowSemantics(source)(row).signature;
-/** T4-U6 (D-5 §2.4): pressure-source-1's maximum signature for a recovery token on one section basis. */
+/** T4-U6: pressure-source-1's maximum signature for a recovery token on one section basis. */
 const SECTION_BASES = ["nominal_section", "reduced_section"] as const;
 function maximumSignature(basis: string): string {
   const [token, section] = basis.split("; section_basis=");
@@ -146,7 +146,7 @@ describe("joined composite (pressure-source-1) native transport unit simulation"
     expect(numericalResultStanding(source,model).eligible).toBe(true);
     expect(numericalResultStanding(structuredClone(source),model).eligible).toBe(false);
     expect(retainedSourceRecoveryInvocation(source,model)).toEqual({ request, solver_mode: mode });
-    // T4-U6 (D-5 §2.4): one signature per (recovery token x section basis).
+    // T4-U6: one signature per (recovery token x section basis).
     for (const row of source.results.filter(r=>r.kind==='pipe_elastic_normal_stress_maximum_v2')) {
       const signature=maximumSignature(row.metadata!.basis as string);
       expect(resultSemantics(row,source)?.signature_id).toBe(signature);
@@ -155,7 +155,7 @@ describe("joined composite (pressure-source-1) native transport unit simulation"
     }
     expect(analysisRun.analysis_run.source_block_recovery).toEqual(source.source_block_recovery);
     await validateAnalysisRunV03(analysisRun, source);
-    // Epoch 8 (design §5.1): the result JSON export, the stress-neutral export and the rule
+    // Epoch 8: the result JSON export, the stress-neutral export and the rule
     // check add no policy refusal, nor (W-11, owner 2026-10-26) the rendered report and the
     // report package; every other surface refuses pressure-source-1 by name (b7-plan D6),
     // under pressure-2's code.
@@ -163,12 +163,12 @@ describe("joined composite (pressure-source-1) native transport unit simulation"
     for (const surface of OUTPUT_SURFACES) {
       expect(surfaceOutputRefusal(source,model,surface),surface).toBe(["result-export","stress-neutral","rule-check","rendered-report","report-package"].includes(surface)?null:PRESSURE_SOURCE_OUTPUT_REFUSAL);
     }
-    // Design §4.2: the eligible result exports, carrying its contract evidence and received
+    // the eligible result exports, carrying its contract evidence and received
     // receipt whole, as Rust's derivative does.
     const document = await buildCurrentResultExport({model,result:source,analysisRun,inputManifest}) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
     expect(document.result_envelope.contract_evidence).toEqual(source.contract_evidence);
     expect(document.result_envelope.source_block_recovery).toEqual(source.source_block_recovery);
-    // Design §4.3: the stress-neutral package likewise, and it validates against its source.
+    // the stress-neutral package likewise, and it validates against its source.
     const packet = await buildStressNeutralExportPacket({model,result:source,analysisRun});
     expect(packet.contract_evidence).toEqual(source.contract_evidence);
     expect(packet.source_block_recovery).toEqual(source.source_block_recovery);
@@ -177,7 +177,7 @@ describe("joined composite (pressure-source-1) native transport unit simulation"
     const copy = structuredClone(source);
     await expect(buildCurrentResultExport({model,result:copy,analysisRun,inputManifest})).rejects.toThrow("CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE");
     await expect(buildStressNeutralExportPacket({model,result:copy,analysisRun})).rejects.toThrow("SN-NUMERICAL-INTEGRITY-NEEDS-RECOMPUTE");
-    // W-11 (DEL-08-01 Design `exact-route-report-sections.md` §5.1; owner, 2026-10-26): the
+    // W-11 (owner, 2026-10-26): the
     // report package admits the eligible result, with its exact-route sections.
     const packageRequest=await buildReportPackageRequest({model,result:source,analysisRun,inputManifest,projectSummary:null,comparison:null,ruleCheckAggregate:null,ruleCheckRun:null}) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
     expect(packageRequest.result_documents[0].result_envelope.producer.semantic_contract_id).toBe(source.producer!.semantic_contract_id);
@@ -188,7 +188,7 @@ describe("joined composite (pressure-source-1) native transport unit simulation"
     expect(sourceRecoveryModeMatches(source,model,mode)).toBe(true);
     expect(sourceRecoveryModeMatches(source,model,otherMode)).toBe(false);
     // Through the workspace session: the solve completes and records the result, which is
-    // Current with its registered invocation (design §4.1).
+    // Current with its registered invocation.
     const session = await sessionReceived(name,mode,generation);
     expect(session.copy).toEqual(session.original);
     expect(session.inputManifest.manifest.solver_basis.solver_mode).toBe(mode);
@@ -212,7 +212,7 @@ describe("joined composite (pressure-source-1) native transport unit simulation"
 });
 it('rejects rehashed analysis signatures that substitute ordinary and retained maxima',async()=>{
   const {source,analysisRun}=await received('mixed','sparse_interactive');
-  // T4-U6 (D-5 §2.4): each maximum names its section basis; the substituted signature is the
+  // T4-U6: each maximum names its section basis; the substituted signature is the
   // other recovery token's on the same basis.
   for(const basis of SECTION_BASES.flatMap(section=>['retained_source_endpoint_normal_max_v1','recovered_from_open_mechanics_stress_components'].map(token=>`${token}; section_basis=${section}`))) {
     const row=source.results.find(r=>r.kind==='pipe_elastic_normal_stress_maximum_v2'&&r.metadata?.basis===basis)!;

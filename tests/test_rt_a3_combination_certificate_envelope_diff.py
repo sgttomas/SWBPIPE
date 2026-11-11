@@ -2,7 +2,7 @@
 
 The preserved endpoint is RT-A3 P's final candidate 78580da7e (over main 252bef969);
 test_rt_a3_nonlinear_text_only_envelope_diff keeps increment 4's proof frozen at
-its merge 252bef969. This stage (DEL-05-02 Work `combination-certificate.md`)
+its merge 252bef969. This stage
 publishes `contract_evidence.combination_certificate` on a document with a
 combination, with one info diagnostic per assessed or not-assessed combination
 (`diagnostic:combination-certificate:<combination>`), and restates the pressure-2
@@ -44,7 +44,7 @@ only its moved texts and digests back to the endpoint's reproduces the endpoint'
 bytes (`test_desktop_carriers_restate_back_to_the_endpoint_bytes`).
 
 The endpoint was the working tree: the stage's carriers as committed on its branch.
-Its D3 registration (DEL-04-08 `retained-pricing-rules.md` §8.53) merges dynamics I3a
+Its D3 registration merges dynamics I3a
 (with operating-case slice 1b and RT-U4 order), whose producer and table changes move
 carriers again, and regenerates the retained carriers on the registered build. This
 proof keeps this stage's endpoint: 268c8289f, the reviewed certificate candidate.
@@ -64,7 +64,7 @@ from tests import test_rt_a3_constant_effort_text_only_envelope_diff as ce
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "78580da7e0334c35fd1fc7906057844de07e2e69"
-# This stage's endpoint, frozen when its D3 registration (retained-pricing-rules.md §8.53) merged dynamics I3a
+# This stage's endpoint, frozen when its D3 registration merged dynamics I3a
 # (with PF1b and RT-U4 order) and regenerated the retained carriers on the registered build.
 END = "268c8289f00ec77abec80ae9cb18234a8b476c37"
 
@@ -80,7 +80,7 @@ TABLES = {
 }
 TABLE_SHA256 = TABLES["fixtures/results/semantic_contract_v0_3_pressure_2.json"]
 TABLE_PAIRS = frozenset(TABLES.values())
-# The restated table texts (DEL-05-02 Work `combination-certificate.md` §1; the table's limitation 6 tail and
+# The restated table texts (the table's limitation 6 tail and
 # combination_policy.standing).
 OLD_LIMITATION_TAIL = ("Combination rows carry no numerical check of their own and never count towards numerical "
                        "eligibility, and a document with a combination attempts no retained-source recovery.")

@@ -1,5 +1,5 @@
 """T4-U6/U8 D3: resident owners the D-5/D-6 source adds outside the chain's TEXT inventory, priced positively
-(retained-pricing-rules.md, "T4-U6/U8: actual-source D3": U6-ES, U6-WS, U6-RS, U8-FM). Each owner is detected
+(U6-ES, U6-WS, U6-RS, U8-FM). Each owner is detected
 by its exact source text and a half-changed form stops the run; a snapshot without it adds nothing, so earlier
 registered trees keep their coefficients. No zero and no reuse credit is taken."""
 import os
@@ -59,7 +59,7 @@ def receipt_hash_copies(source_receipt_text):
         "#[derive(Serialize)]\nstruct DomainPayload<'a> {\n    domain: &'a str,\n    payload: &'a Value,\n}\n")
 
 
-# S6-HS (T4-S6, retained-pricing-rules.md §8.8): the three publication-hash families stream the checked canonical text
+# S6-HS (T4-S6, §8.8): the three publication-hash families stream the checked canonical text
 # of the borrowed {domain, payload} into SHA-256 through open_pipe_stress_canonical_json::checked_v1_domain_canonical
 # (no wrapper copy, no to_string text, no checked parse, no canonical text). The writer's production code, from
 # validate_checked_value to the test module, is bound by its sha256; each site by its exact text.

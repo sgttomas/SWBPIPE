@@ -72,7 +72,7 @@ export type ViewportViewCommand =
   | Readonly<{ type: "isolate-selection" }>
   | Readonly<{ type: "show-all" }>
   | Readonly<{ type: "fit-model" | "fit-visible" | "fit-selection" }>
-  // Key results (A6; DEL-07-05 Design `key-results-panel.md` §2): the same view state the
+  // Key results (A6): the same view state the
   // result-colour toggle with its quantity and case selectors, and the deformation popover's case
   // selector, set. They carry ids the viewport already offers and form no value.
   | Readonly<{ type: "show-result-colour"; quantityId: string; caseKey: string }>

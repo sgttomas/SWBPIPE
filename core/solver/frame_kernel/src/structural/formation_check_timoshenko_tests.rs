@@ -138,7 +138,7 @@ fn unavailable_detail(solution: &super::super::StructuralSolution) -> String {
     }
 }
 
-/// Design §4 item 1: frame_matrix forms phi, 1+phi, 4+phi, 2-phi at p from
+/// frame_matrix forms phi, 1+phi, 4+phi, 2-phi at p from
 /// the frame's own leaves; it agrees with the binary64 formation to
 /// round-off, is not the Euler–Bernoulli matrix, is exact where binary64 is
 /// (phi = 2, k2 = 0), scales exactly with 2^b, and keeps the rigid null space.
@@ -217,7 +217,7 @@ fn kd5_timoshenko_frame_reformation_agrees_with_binary64() {
     }
 }
 
-/// Design §4 items 1 and 4: a closed Timoshenko cantilever with a full-span
+/// a closed Timoshenko cantilever with a full-span
 /// uniform load passes K-D5, and its full-span load vector is the
 /// Euler–Bernoulli re-formation bit for bit (uniform_straight_balls keeps its
 /// exact formula).
@@ -371,7 +371,7 @@ fn kd5_timoshenko_partial_span_ball_encloses_the_rational_vector() {
     }
 }
 
-/// W-16t TPS-K (Design §4 item 4 (ii)): a closed Timoshenko cantilever with a
+/// a closed Timoshenko cantilever with a
 /// proper-span uniform load passes K-D5, and its certified recovery gives
 /// the root actions of statics. w = (0, -1500, 400) N/m on [1, 2] m of a
 /// 2 m cantilever: Fy = 1500 N, Fz = -400 N, Mz = 2250 N·m, My = 600 N·m.
@@ -414,7 +414,7 @@ fn kd5_timoshenko_partial_span_closes_and_passes() {
     }
 }
 
-/// W-16t §2.4: the binary64 vector stale (the Euler–Bernoulli twin's values)
+/// the binary64 vector stale (the Euler–Bernoulli twin's values)
 /// against the correct Timoshenko re-formation leaves Passed on a
 /// nonsymmetric span: the closed residual measures the disagreement.
 #[test]
@@ -432,7 +432,7 @@ fn kd5_timoshenko_partial_span_stale_binary64_leaves_passed() {
     }
 }
 
-/// W-16t §5.2: TPS-K under a nonzero force-scale exponent. The scaled
+/// TPS-K under a nonzero force-scale exponent. The scaled
 /// re-formation is 2^b times the unscaled one (midpoints exactly, radii
 /// rounded upward), and the primitive binds to a W2 source that holds E and G
 /// times 2^b, with its exponent in the closure entry.
@@ -463,7 +463,7 @@ fn kd5_timoshenko_partial_span_force_scaled() {
     }
 }
 
-/// W-16t §5.2: a failure inside the new ball correction is
+/// a failure inside the new ball correction is
 /// FormationCheckUnavailable (fail closed). G A_s l^2 below the binary64
 /// range makes the "timoshenko phi" divisor ball reach zero; the same frame's
 /// full span (no correction) re-forms.
@@ -491,8 +491,7 @@ fn kd5_timoshenko_partial_span_correction_failure_is_unavailable() {
     assert!(detail.starts_with("load closure:") && detail.contains("timoshenko phi"), "{detail}");
 }
 
-/// Design §4 item 2 and §8 ("Timoshenko leaf missing from a recovery or
-/// primitive frame"): straight primitive frames and certified-recovery frames
+/// straight primitive frames and certified-recovery frames
 /// are bound to the FormationSource frame of the same member, leaf included;
 /// a frame without the leaf, or with a different leaf, fails closed.
 #[test]

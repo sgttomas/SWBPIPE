@@ -549,7 +549,7 @@ fn workload(raw: Vec<u8>, task: WorkerTask) -> Result<(String, Option<SolveAttes
 }
 
 /// Task 4: the crate's size-and-read entry on the raw headless input, its one
-/// JSON reply text `{document, evidence}` (DEL-04-11 Design §13, 3c part 1),
+/// JSON reply text `{document, evidence}`,
 /// or `<code>: <message>` of its typed refusal.
 fn hanger_sizing(raw: &[u8]) -> Result<String, String> {
     open_pipe_stress_hanger_sizing::desktop::size_and_read(raw)
@@ -1290,7 +1290,7 @@ pub(crate) fn supervise(
                     break;
                 }
                 lease.set_purpose(LeasePurpose::Result);
-                // Nothing follows the result (§2.4): a byte after it, a frame
+                // Nothing follows the result: a byte after it, a frame
                 // (a second `ATST` included) or not, is a violation.
                 if let Some(trailing) = trailing_output(&mut process.stdout) {
                     verdict = end(protocol(trailing));
@@ -2251,7 +2251,7 @@ pub(crate) mod tests {
         assert_eq!(pool.reserved_total(), 0);
     }
 
-    /// W-18b (r2a), §2.4: the `ATST` frame carries the worker's attestation
+    /// W-18b (r2a): the `ATST` frame carries the worker's attestation
     /// into the outcome, read into a fixed buffer before the result; status 0
     /// carries none and leaves the result unchanged.
     #[test]
@@ -2273,7 +2273,7 @@ pub(crate) mod tests {
         assert_eq!(pool.reserved_total(), 0);
     }
 
-    /// §2.4: an `ATST` anywhere but directly before the result, a second one,
+    /// an `ATST` anywhere but directly before the result, a second one,
     /// another status, nonzero fields, a body that does not match the status,
     /// a result without its `ATST`, and any output after the result (a second
     /// `ATST` of either status, a second result, bytes that are no frame),
@@ -2325,7 +2325,7 @@ pub(crate) mod tests {
         assert!(crate::solve_attestation::streamed_digest(SOLVED_MODEL_DOMAIN, model).is_some(), "the model itself is admitted");
     }
 
-    /// §2.4: the worker's attested solve gives the unchanged solve's exact
+    /// the worker's attested solve gives the unchanged solve's exact
     /// bytes, `d_M` over the model value and `d_S` over the value those bytes
     /// hold; a solve whose result the checked profile refuses is delivered
     /// unchanged and not attested.
@@ -2374,7 +2374,7 @@ pub(crate) mod tests {
         assert_eq!(pool.reserved_total(), 0);
     }
 
-    /// §6: the worker's counted peak with the digest passes stays within its
+    /// the worker's counted peak with the digest passes stays within its
     /// grant (the counting allocator's own peak in the real worker, not a
     /// footprint), and the grant within the budget.
     #[test]

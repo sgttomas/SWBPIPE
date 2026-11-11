@@ -11,7 +11,7 @@ deformation, the formulation of SWBPIPE's frame preview). Where shear
 deformation changes a compared quantity, `alternative_analytic_values(case_id)`
 gives the independent Timoshenko value itself (bending plus transverse shear
 flexibility L / (kappa G A)), keyed by hypothesis id and quantity id; a case
-declaration of that hypothesis compares it with CAEPIPE (DEL-17-05 Design §6).
+declaration of that hypothesis compares it with CAEPIPE.
 The shear coefficient KAPPA = 0.5, i.e. a shape factor 1 / kappa = 2 in the
 shear flexibility "shape factor x L / (G A)", is an ASSUMPTION: the CAEPIPE
 technical reference (docs.sstcae.com, "Fiber Reinforced Plastic Piping (FRP)",

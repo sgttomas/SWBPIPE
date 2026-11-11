@@ -24,7 +24,7 @@ export const COMPONENT_WEIGHT_NOT_APPLIED = "SELF_WEIGHT_COMPONENT_WEIGHT_NOT_AP
 
 /** The request's own fields: a diagnostic naming one is never a pipe's. */
 const REQUEST_LEVEL_FIELDS = new Set(["case_id", "label", "provenance", "source_model_hash", "gravity", "gravity.axis", "pipe_refs"]);
-/** The allow-list of pipe-local refusals (Design §3.2): the engine codes whose condition is a
+/** The allow-list of pipe-local refusals: the engine codes whose condition is a
  * property of one requested pipe, its section, or its mapped component, so it recurs whenever that
  * pipe is requested, alone or with others. Any other code is never split. */
 export const PIPE_LOCAL_CODES: ReadonlySet<string> = new Set([
@@ -169,7 +169,7 @@ export type SelfWeightEvidenceCollection =
       combined?: boolean;
     }>;
 
-/** Whether one diagnostic is known to belong to one requested pipe (Design §3.2). Fail closed:
+/** Whether one diagnostic is known to belong to one requested pipe. Fail closed:
  * an unlisted code, a request field, no reference, or references to two requested pipes are not
  * pipe-local. A component reference is pipe-local only for the engine's per-component range
  * checks (`SELF_WEIGHT_RANGE_INVALID`); an input refusal naming a component is its generated
@@ -357,7 +357,7 @@ function binaryExponent(value: number): number {
   return exponent;
 }
 
-/** Σ(wᵢ·pᵢ)/Σwᵢ (Design §3.4), range-safe. Every weight is first scaled by the power of two 2^s
+/** Σ(wᵢ·pᵢ)/Σwᵢ, range-safe. Every weight is first scaled by the power of two 2^s
  * that brings the largest into [1, 2), so Σwᵢ cannot overflow and a subnormal weight does not
  * underflow its products. Each step is guarded so that no rounding happens below the normal range:
  * - Scaling a weight is guaranteed exact when its exact scaled value is normal. Otherwise it may
@@ -400,7 +400,7 @@ function weightedCentre(entities: readonly WeightEntity[]): { centre: Vec3 } | {
   return { centre: Object.freeze(centre) };
 }
 
-/** The components whose stated weight the summary does not include, in every scope (Design §3.3):
+/** The components whose stated weight the summary does not include, in every scope:
  * components mapped (`geometry.rigid_pipe_ref`) onto a scope pipe or naming a scope bend span
  * (`geometry.bend_pipe_ref`), every component in the whole-model scope, and every component the
  * generator's warnings name. Read from the model, so a refused pipe or a bend span keeps its

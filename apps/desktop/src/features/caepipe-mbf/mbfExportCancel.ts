@@ -1,4 +1,4 @@
-// File > Export MBF… (DEL-17-04 Design `desktop-mbf-export-import.md` §3.9.5, slice 4b.2a): the export's one
+// File > Export MBF… (slice 4b.2a): the export's one
 // session barrier. Every native MBF start (`review_mbf_export`, `saveMbfExport`'s `save_mbf_export`) and every
 // retirement (`cancel_mbf_export`) goes through this module.
 //

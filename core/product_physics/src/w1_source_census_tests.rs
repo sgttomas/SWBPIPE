@@ -482,7 +482,7 @@ fn controls() -> Vec<Control> {
 /// those cases' basis ids, and the trial's recorded numerical-use standing. 54 trials; the
 /// census's other 14 trials selected nothing or were refused. The four group-3 trials'
 /// rows (F6/partial, T18, T19/pre-K-D5, T19) record W1's outcome after the coverage
-/// repair (`w1-coverage-repair.md` §1.4): their `case-b`, formerly unavailable with an
+/// repair: their `case-b`, formerly unavailable with an
 /// exhausted loaded-maximum search, is selected and the trial is numerically eligible.
 /// So 70 cases: the legacy route's 62 and those eight.
 const FORMERLY_SELECTED: [(&str, &str, &[&str], &str); 54] = [
@@ -598,10 +598,10 @@ fn b4_w1_covers_every_formerly_selected_source_block_case() {
 /// T19/pre-K-D5 and T19. Before the W1 coverage repair it was unavailable with "loaded
 /// maximum search exhausted" in both modes: the search's stop rule was applied to the
 /// width of the represented-Z hull, which subdivision cannot close. The repair drives the
-/// admitted lane at the hull's binding endpoint (`w1-coverage-repair.md` §1.2, §1.4), so the
+/// admitted lane at the hull's binding endpoint, so the
 /// search converges and the unchanged gate decides the case. The expectation is that
 /// decision, read from the attempt's own certificate check: the case is selected exactly
-/// when the gate passed every row. The census (§3.5, C1-a) found the gate passing on all
+/// when the gate passed every row. The census (C1-a) found the gate passing on all
 /// eight trials, and that is asserted too.
 fn w1_partial_case_cause(name:&str,mode:PreviewSolverMode,source:&Value) {
     let body=&source["retained_precision"]["body"];
@@ -618,7 +618,7 @@ fn w1_partial_case_cause(name:&str,mode:PreviewSolverMode,source:&Value) {
     let passed=gate=="passed";
     assert_eq!(other["status"],if passed {"selected"} else {"unavailable"},"{name} {mode:?}: the status is the gate's ({gate})");
     assert_eq!(attempt["result"]["kind"],if passed {"ready"} else {"unavailable"},"{name} {mode:?}");
-    // Census cross-check (§3.5): the unchanged gate passes this member in every trial and mode.
+    // Census cross-check: the unchanged gate passes this member in every trial and mode.
     assert!(passed,"{name} {mode:?}: the census found the gate passing: {gate}");
     assert!(other.get("reason").is_none_or(Value::is_null),"{name} {mode:?}");
     eprintln!("W1_MEMBER_CENSUS {}",json!({"control":name,"mode":mode.as_str(),
@@ -1306,19 +1306,19 @@ fn opt_in_feature_is_named_only_by_its_definition_and_forward(feature: &str) {
     assert!(violations.is_empty(), "{feature} named outside its definition and forward: {violations:#?}");
     assert_eq!((definitions, forwards), (1, 1), "the kernel defines {feature} and product_physics forwards it, once each");
 }
-/// W1 coverage repair §3.2 (revision 8): the census probe's feature.
+/// the census probe's feature.
 #[test]
 fn census_probe_is_named_only_by_its_definition_and_forward() {
     opt_in_feature_is_named_only_by_its_definition_and_forward("census-probe");
 }
-/// W1 coverage repair §1.4, option 2: the loaded-maximum capacity hook follows the same
+/// the loaded-maximum capacity hook follows the same
 /// rule. Only the genuine-exhaustion control's maintained command passes it.
 #[test]
 fn loaded_maximum_hooks_are_named_only_by_their_definition_and_forward() {
     opt_in_feature_is_named_only_by_its_definition_and_forward("loaded-maximum-hooks");
 }
 
-/// W1 coverage repair §3.2: the census probe is opt-in. No dev-dependency enables it,
+/// the census probe is opt-in. No dev-dependency enables it,
 /// so the ordinary test build (and the stack-witness build) compiles the kernel without
 /// it. A census command, which passes `--features census-probe`, does not run this test.
 #[test]
@@ -1327,7 +1327,7 @@ fn census_probe_is_off_in_the_ordinary_test_build() {
         "the frame kernel was compiled with the census probe in an ordinary test build");
 }
 
-/// W1 coverage repair §1.4, option 2: the loaded-maximum capacity hook is opt-in. No
+/// the loaded-maximum capacity hook is opt-in. No
 /// dev-dependency enables it, so the ordinary test build (and the stack-witness build)
 /// compiles the kernel without it and every search runs at its production limits. The
 /// genuine-exhaustion control's command, which passes `--features loaded-maximum-hooks`,
@@ -1339,7 +1339,7 @@ fn loaded_maximum_hooks_are_off_in_the_ordinary_test_build() {
         "the frame kernel was compiled with the loaded-maximum capacity hook in an ordinary test build");
 }
 
-/// T4-U4b S4 (DEL-04-07 Design u4b-u5b-implementation.md §4.1): the failed-ordinary manifest
+/// the failed-ordinary manifest
 /// carries each member's 15 derived rows after its circular maximum (66 rows per member, in
 /// preview-physics-2's order) as placeholders, and the freeze forms them from the projected rows.
 /// CX-F and the two committed N06 controls stay selected, bound and eligible in both modes; every
@@ -1381,7 +1381,7 @@ fn s4_failed_ordinary_manifest_carries_derived_rows_formed_after_projection() {
     }
 }
 
-/// S4 round 2 (§2.4, §4.1): a failed-ordinary member whose ν is out of domain (E ≥ 3G; I47's
+/// a failed-ordinary member whose ν is out of domain (E ≥ 3G; I47's
 /// moduli, E = 195 GPa and G = 55 GPa, ν = 0.7727…) stays selected. Its manifest omits the τ rows
 /// (61 rows per member) and carries `TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN` for the case and
 /// member, as the ordinary rows do; σ± are formed after projection and every reader admits it.

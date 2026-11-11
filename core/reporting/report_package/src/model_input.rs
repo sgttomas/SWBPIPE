@@ -110,7 +110,7 @@ fn row(cells: Vec<(&str, Value)>) -> Value {
     Value::Object(cells.into_iter().map(|(key, value)| (key.to_string(), value)).collect())
 }
 
-/// A combination's operands (§2.7), by its basis: `result_state_subtraction` as
+/// A combination's operands, by its basis: `result_state_subtraction` as
 /// `"<minuend_id> − <subtrahend_id>"` (null unless both are stored);
 /// `range_envelope` as `operand_ids` joined by `", "`; any other basis as each term
 /// `"<factor> × <load_case or combination>"` joined by `"; "` (null when no `terms`
@@ -290,7 +290,7 @@ fn input_supports(model: &Value) -> Result<Value, String> {
     Ok(Value::Array(rows))
 }
 
-/// A load's target (§2.7): `"<type>:<node, pipe or support>"`, followed by
+/// A load's target: `"<type>:<node, pipe or support>"`, followed by
 /// `" <dof>"` when the target names one; null when the target names none of
 /// the three.
 fn target(load: &Value, pointer: &str) -> Result<Value, String> {
@@ -378,7 +378,7 @@ pub fn model_input_tables(model: &Value, composition: Option<&Value>) -> Result<
     Ok(Some(Value::Object(tables)))
 }
 
-/// The binding (§2.7) of a renderer input `report` (the request's `report`
+/// The binding of a renderer input `report` (the request's `report`
 /// member or the render input) to the bound model: its `model_input_tables`
 /// must be `P(M, C)` for its own `report_composition`. Tables without a
 /// listing id, or a listing id without tables, are refused; a difference is

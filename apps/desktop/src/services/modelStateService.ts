@@ -1,9 +1,9 @@
-// Named immutable model states (W-12 S1; DEL-14-01 Design
-// `desktop-states-runs-comparison.md` §2; FR-CMP-001 and FR-MOD-006's state
+// Named immutable model states (W-12 S1;
+// FR-CMP-001 and FR-MOD-006's state
 // level). The native store (`apps/desktop/src-tauri/src/model_states.rs`) is the
 // only store of states: it re-canonicalizes and hashes every snapshot, computes
 // the record hash and refuses what does not match. The browser preview keeps no
-// states (SQLite-only history, design §7), so every call there is refused by name.
+// states (SQLite-only history), so every call there is refused by name.
 import { invokeWithIngress } from "./nativeIngress";
 import { partitionListed, type UnreadableRow } from "./historyListEntries";
 import { canonicalJsonString, computeModelHash } from "./hashService";

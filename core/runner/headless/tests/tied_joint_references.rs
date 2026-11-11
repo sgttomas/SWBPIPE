@@ -1,10 +1,10 @@
 //! T4-U5b references (`validation/references/t4_u5b/`) through the actual
 //! typed, captured and headless consumers, in both solver modes, with export
-//! (DEL-04-07 Design `u4b-u5b-implementation.md` §7 item 2). Each of the 38
+//! (DEL-04-07). Each of the 38
 //! requests is authored in model 0.9.0 in memory from its SHA-bound case
 //! description by the shared builder (`product_physics/tests/common/t4_u5b.rs`):
 //! its t4_u5a base is re-expressed by the current-model rule and the rods are
-//! added in §3.1's shape, offsets in the connector axes. Every frozen
+//! added, offsets in the connector axes. Every frozen
 //! observable the product publishes is compared at t4_u5b's criterion
 //! (|obs − exp| ≤ 1e-9·max(|exp|, F)); the discriminators' wrong values must
 //! lie outside it. Oracle values never move. These controls grant no
@@ -468,7 +468,7 @@ fn u5b_discriminator_wrong_values_are_separated_from_the_product_in_both_modes()
 }
 
 /// The committed builder outputs (README "Binding to model 0.9.0"), kept beside
-/// this test, outside the frozen reference tree (DEL-04-07 Design §1.4).
+/// this test, outside the frozen reference tree.
 const COMMITTED: [(&str, &str); 39] = [
     ("AS-A.request.json", include_str!("t4_u5b_requests/AS-A.request.json")),
     ("AS-A-ER.request.json", include_str!("t4_u5b_requests/AS-A-ER.request.json")),

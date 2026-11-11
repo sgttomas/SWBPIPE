@@ -26,7 +26,7 @@ describe("report display rule parity", () => {
     expect(displayQuantity(-0, "Pa")).toBe("0 MPa");
   });
 
-  // `conversion_performed` (§2.3 item 5): true only when a displayed value is stored in Pa.
+  // `conversion_performed`: true only when a displayed value is stored in Pa.
   it("states a conversion only when a displayed value is stored in Pa", () => {
     const row = (unit: string) => ({ id: "r", kind: "k", value: 1, unit });
     const source = (results: unknown[], id?: string, summary?: unknown) =>

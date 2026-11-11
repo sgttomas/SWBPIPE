@@ -60,7 +60,7 @@ def test_unknown_schema_keyword_fails_closed():
 
 def test_range_rules_run_only_on_a_well_formed_range():
     # A range that fails the shape check gets its shape findings and no range-order
-    # finding (DEL-04-11 Design §8.2; persistence review of #79).
+    # finding (persistence review of #79).
     shape_failing = [c for c in CASES if c['name'] in (
         '1.1.0 working load range negative ends fail shape only',
         '1.1.0 working load range not an object',
@@ -77,7 +77,7 @@ def test_range_rules_run_only_on_a_well_formed_range():
 def test_range_magnitude_beyond_binary64_is_refused_by_shape():
     # The bounded interpreters admit only finite binary64 magnitudes. A full JSON Schema
     # validator admits 10**400 as a positive integer; the boundary refuses it, as for
-    # every force quantity before format 1.1.0 (Design §8.2, numeric domain).
+    # every force quantity before format 1.1.0 (numeric domain).
     case = next(c for c in CASES if c['name'] == '1.1.0 working load range valid')
     payload = copy.deepcopy(case['payload'])
     payload['hanger_records'][0]['hanger']['working_load_range']['maximum']['magnitude'] = 10**400

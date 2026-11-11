@@ -1,4 +1,4 @@
-//! R-6/R-7 S-K1 (DEL-04-03 Work `skew-restraints.md` §7.1, §10.5, §11.1 R-1): the
+//! R-6/R-7 S-K1: the
 //! independent reader's re-check of `support_reaction_along_direction_v1`. It imports
 //! no product code: the row's exact strings, one row per skewed record and case beside
 //! that record's Fx/Fy/Fz rows, and, with the model, s·|d| = dᵀR within a
@@ -44,7 +44,7 @@ pub(crate) fn row_semantics(row: &Value, direct: bool) -> Check {
 /// axis-aligned direction is lowered and publishes no row).
 /// Whether the document or its model has anything for `check_case` to read: an
 /// along-direction row, or a skewed record in the model. Without either every case's
-/// check is a no-op, so the reader groups nothing (§12: nothing is formed on D1).
+/// check is a no-op, so the reader groups nothing (nothing is formed on D1).
 pub(crate) fn applies(rows: &[Value], model: Option<&Value>) -> bool {
     rows.iter().any(|row| row["kind"] == KIND)
         || model.is_some_and(|m| m["supports"].as_array().into_iter().flatten().any(|s| skewed_direction(s).is_some()))
@@ -66,7 +66,7 @@ fn exact_source_identity(parts: &[&str]) -> String {
 /// positive scale, and the scaled norm never under- or overflows.
 ///
 /// Astra re-check item 3: the scaling is exact on the admitted domain only, every nonzero
-/// component of the canonical direction normal (§4.2). There each step down keeps every
+/// component of the canonical direction normal. There each step down keeps every
 /// intermediate between the original and the final normal value, and each step up is exact,
 /// so no admitted component is rounded. Outside it, for example d = (8, 5·2^-1074, 0), repeated
 /// halving may round or flush a component that becomes subnormal; the product refuses such a

@@ -1,4 +1,4 @@
-"""DEL-04-09 I3a (retained-pricing-rules.md §8.52): the modal result document's format arguments (MODAL-ID).
+"""DEL-04-09 I3a (§8.52): the modal result document's format arguments (MODAL-ID).
 
 No retained root reaches modal, so every document.rs and tests_document.rs format site is at multiplicity zero; the
 audits classify the arguments no existing class covers and correct three by-name classes below the helpers' bound

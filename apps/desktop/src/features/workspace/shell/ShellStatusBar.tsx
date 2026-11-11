@@ -22,7 +22,7 @@ const CHIP_TEST_IDS: Record<StatusAuthorityDomain, string> = {
 const DISPLAY_UNIT_FACES = { entered: "Entered", SI: "SI", US: "US" } as const;
 
 /**
- * The status bar (specification §5.4, §5.5): the chips of the policy, the
+ * The status bar: the chips of the policy, the
  * issues count, the selection, the display units and the About control.
  * Nothing else lives here. A chip is read, never clicked to change anything:
  * the click opens its popover with the raw token and the domain.

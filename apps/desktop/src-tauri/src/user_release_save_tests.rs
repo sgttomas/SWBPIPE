@@ -1,5 +1,5 @@
 //! Route `DREP-PACKAGE-USER-RELEASE-010`'s native admission (W-18b slice
-//! (r2c); DEL-08-01 Design `report-user-release.md` §2.5, §2.7, §2.10, §6):
+//! (r2c)):
 //! the outer command's route-aware pricing, steps 1-10, the save and the
 //! read-back, and the refusal formatting's price. The basis is the committed
 //! derivation vectors (`fixtures/reports/invented/user_release_derivation_vectors.json`):
@@ -105,7 +105,7 @@ impl Basis {
     }
 }
 
-/// Route-010 evidence (§2.5 step 1), bound to the request text.
+/// Route-010 evidence, bound to the request text.
 fn user_release_evidence(args: &mut ReportPackageSaveRequest) {
     let screening = &mut args.screening;
     screening.route_id = REPORT_PACKAGE_USER_RELEASE_ROUTE_ID.to_string();
@@ -206,7 +206,7 @@ fn route_010_admits_saves_and_reads_back_a_user_released_package() {
     let _ = std::fs::remove_dir_all(&dir);
 }
 
-// --- The outer command (§2.5, "The outer command") ---------------------------
+// --- The outer command ---------------------------
 
 /// D-6: pressure-free requests still refuse extraneous exact texts; an exact
 /// request with no live custody refuses before any text parse or picker.
@@ -222,7 +222,7 @@ fn user_release_unbound_exact_route_refused() {
     refused(basis.args_for(&request, &basis.model, &basis.manifest), &registry, "REPORT-EXACT-CUSTODY-RELEASED");
 }
 
-// --- Steps 1-9: each refusal (§2.5, §2.10, §6) -------------------------------
+// --- Steps 1-9: each refusal -------------------------------
 
 #[test]
 fn route_010_refuses_forged_evidence() {
@@ -250,7 +250,7 @@ fn route_010_refuses_forged_evidence() {
     refused(args, &registry, crate::report_package_save::EVIDENCE_UNBOUND);
 }
 
-/// No replay (§2.10), native rows, and the record's form (§2.5 step 4).
+/// No replay, native rows, and the record's form.
 #[test]
 fn route_010_binds_the_record() {
     let basis = basis();
@@ -389,7 +389,7 @@ fn route_010_checks_the_run_record_and_the_derivation() {
     assert!(code == ANALYSIS_RECORD_UNBOUND || code == CONTENT_NOT_DERIVED, "{code}");
 }
 
-// --- The lease and the refusal formatting (§2.7 "Cost"; Codex r2 at #1673) --
+// --- The lease and the refusal formatting (Codex r2 at #1673) --
 
 /// Codex round 2 at #1673: formatting the refusal from a site whose pointer
 /// runs through 124 enclosing keys of 4,000 bytes allocated 8,388,656 bytes,
@@ -1016,7 +1016,7 @@ fn every_route_010_error_form_leaves_within_its_bound() {
     }
 }
 
-// --- The render command (§2.8) ----------------------------------------------
+// --- The render command ----------------------------------------------
 
 /// The render command refuses, before it decodes, a pressure-free input under
 /// `user_released_report`, and a `local_private` input with a record, with no
@@ -1038,7 +1038,7 @@ fn the_render_command_refuses_a_user_released_input() {
 }
 
 /// `user_release_render_admits_only_the_user_released_class`, the native
-/// cases (§6): the derived request's session provenance is the user-released
+/// cases: the derived request's session provenance is the user-released
 /// class, so route 010 renders it (`route_010_admits_saves_and_reads_back_a_user_released_package`);
 /// a record of another non-public class is refused natively (step 6); and a
 /// record written in positional form is refused by the object-form check at
@@ -1407,7 +1407,7 @@ fn d6_ineligible_delivered_exact_source_is_refused() {
     }
 }
 
-/// Slice C5 (DEL-08-01 Design `report-section-composer.md` §2.7): on route
+/// on route
 /// 010, on the pressure-free and both exact routes, the derived request's
 /// model-input tables are admitted and saved, and an edited cell, an extra
 /// row, tables without a listing id and a listing id without tables are

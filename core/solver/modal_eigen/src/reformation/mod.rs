@@ -1,5 +1,5 @@
 //! Re-formation of K and M from their leaves, the formation difference, and
-//! the residual check on the re-formed pencil (design §3.4 checks 1 to 3).
+//! the residual check on the re-formed pencil.
 //!
 //! **Operands** ([`ElementOperand`]) are neutral: authored geometry,
 //! sections, moduli, stiffness scales, flexibility factors, springs,
@@ -34,7 +34,7 @@
 //! gives η, κ_λ and e_λ = η·κ_λ (check 2); [`cluster_error_estimates`] the
 //! cluster-level e_λ; `orthogonality::m_orthogonality_reformed` check 3 on
 //! M̂. These are numerical-integrity checks with stated premises, not
-//! bounds (§3.4); the thresholds they are judged against belong to the
+//! bounds; the thresholds they are judged against belong to the
 //! caller (DEC-026).
 
 pub mod mass;
@@ -183,7 +183,7 @@ pub enum ReformationFailure {
     LimbAllotmentExceeded(LimbAllotmentExceeded),
     /// A reservation of the assembly (`T7.assembly`: its visit count, keys,
     /// counting orders, slots or entries) overflowed or was refused by the
-    /// allocator (`MODAL_RESOURCE_*`, design §5.3.8); refused before that
+    /// allocator (`MODAL_RESOURCE_*`); refused before that
     /// structure exists, with no pencil. It is the assembly's refusal, not
     /// an element's: `element` is the operand count, naming none.
     SupportResource(SupportResourceError),
@@ -426,7 +426,7 @@ pub fn reform_element_mass(
     }
 }
 
-/// R-6/R-7 (DEL-04-03 skew-restraints.md §11.3 D-1 (a)): one global DOF's
+/// one global DOF's
 /// reduced coordinates under a restraint basis: the free coordinate indices c
 /// with q_g,c ≠ 0 and their weights (at most 3; restrained coordinates are
 /// omitted). Q is node-local and division-free; the same `congruence_terms`
@@ -610,7 +610,7 @@ impl ReformedPencil {
     }
 
     /// [`ReformedPencil::new`] with an optional limb allotment on the
-    /// assembled entries' exact sums (the formation maps, design §5.3.8):
+    /// assembled entries' exact sums (the formation maps):
     /// an entry whose sum would need more limbs refuses
     /// (`ReformationFailure::LimbAllotmentExceeded`) before that growth is
     /// allocated. `None` is `new`.
@@ -888,7 +888,7 @@ impl ReformedPencil {
     /// contributions, ascending by (row, col) with each position once. Under
     /// a limb allotment, an entry whose sum would grow past it refuses
     /// before that growth, naming the contributing element (the
-    /// formation-map guard, design §5.3.8).
+    /// formation-map guard).
     ///
     /// **Former map.** This was a `BTreeMap` filled by `entry(key)
     /// .or_default()` at each position visit, in [`for_each_position`]'s
@@ -1063,7 +1063,7 @@ pub enum FormationError {
     /// A reservation of the formation difference (`T7.assembly`: the
     /// assembly's, the formed order's, the accumulators, the off-pattern
     /// list, the scaling or a norm's rows) overflowed or was refused by the
-    /// allocator (`MODAL_RESOURCE_*`, design §5.3.8); refused before that
+    /// allocator (`MODAL_RESOURCE_*`); refused before that
     /// structure exists, with no result.
     SupportResource(SupportResourceError),
 }
@@ -1447,7 +1447,7 @@ pub struct ResidualEstimate {
     pub generalized_mass: f64,
     /// ‖D r̂‖₂ and φᵀM̂φ are published (they scale with φ): each nonzero but
     /// below the binary64 normal range is published as 0 with its flag
-    /// (design §3.2, admission range). η, κ_λ and e_λ are compared (with
+    /// (admission range). η, κ_λ and e_λ are compared (with
     /// τ_r and in the Sturm separation) and must be normal or exactly zero.
     pub scaled_residual_below_normal_range: bool,
     pub generalized_mass_below_normal_range: bool,
@@ -1737,7 +1737,7 @@ mod tests {
             .collect()
     }
 
-    /// The formation-map guard (design §5.3.8): under a limb allotment the
+    /// The formation-map guard: under a limb allotment the
     /// re-formation and the formation difference refuse before the growth
     /// that would exceed it, naming the element; at or above the largest
     /// span they used, their results are those without one.

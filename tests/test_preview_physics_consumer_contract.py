@@ -1,4 +1,4 @@
-"""preview-physics-2 Python reader, standing and packaging (T0R S1 §9-§10).
+"""preview-physics-2 Python reader, standing and packaging.
 
 Hand-built envelopes follow the frozen S1 interface exactly; they are reader
 controls, not producer output. Tests over the actual producer fixtures are at
@@ -46,7 +46,7 @@ def L(*parts):
 
 
 def R(*parts):
-    """Row identities (S1 §3): segments joined by ':'."""
+    """Row identities: segments joined by ':'."""
     return ":".join(f"{len(p.encode('utf-8'))}:{p}" for p in parts)
 
 
@@ -131,7 +131,7 @@ def envelope():
         value = math.hypot(math.hypot(sums[names[0]], sums[names[1]]), sums[names[2]])
         combined.append({"id": f"result:combination:C-OK:support-action:{R('support:S1')}:{component}", "kind": kind, "value": value, "unit": unit, "entity_ref": "support:S1", "basis_ref": {"ref_type": "combination", "ref_id": comb}, "source_result_refs": [f"result:combination:C-OK:support-action:{R('support:S1')}:{name}" for name in names], "metadata": meta(component, "global", "node", linear)})
     results.extend(combined)
-    # RT-A3 §4 (the closed combination-diagnostic roster): the producer's notices for the two combinations, in its
+    # the producer's notices for the two combinations, in its
     # canonical form: the headline scope, the admitted combination's maximum and intensified notices, and the gate's.
     diagnostics.append({"id": "diagnostic:preview-physics:headline-scope", "code": "PREVIEW_HEADLINE_SCOPE_LOAD_CASES", "severity": "info",
                         "message": "headlines cover the load cases only; combinations are excluded", "source": "core/product_physics",
@@ -446,7 +446,7 @@ def test_incomplete_coverage_withholds_headline_but_keeps_rows():
     case = source["contract_evidence"]["preview_cases"][0]
     extremum = case["pipe_stress_extrema"].pop()
     source["results"] = [row for row in source["results"] if row["id"] != extremum["result_id"]]
-    # T4-U4b (§2.1, review item 6): no member is outside the maximum's domain on preview-physics-2; an unavailable
+    # T4-U4b (review item 6): no member is outside the maximum's domain on preview-physics-2; an unavailable
     # member withholds the headline.
     case["stress_maximum_coverage"] = {"complete": False, "unavailable_pipe_ids": [], "outside_domain_pipe_ids": [extremum["pipe_id"]]}
     source["summary"]["max_open_formula_stress"] = None
@@ -562,12 +562,12 @@ def _nonlinear_row(support, kind="nonlinear_support_final_displacement", unit="m
 
 def test_a1_b_per_support_nonlinear_rows_name_listed_supports():
     source = envelope()
-    # Operating-case slice 1a (DEL-05-02 `pf-nonlinear-operand-standing.md` §3): a document that publishes a
+    # a document that publishes a
     # nonlinear state row withholds every mechanics combination, so this copy withholds the admitted one.
     source["results"] = [row for row in source["results"] if (row.get("basis_ref") or {}).get("ref_type") != "combination"]
     for gate in source["contract_evidence"]["combination_gates"]:
         gate.update(withheld=True, reason="NONLINEAR_COMBINATION_REQUIRES_SOLVE")
-    # RT-A3 §4 (the closed roster): a withheld combination has the producer's gate notice and no maximum or
+    # a withheld combination has the producer's gate notice and no maximum or
     # intensified notice.
     source["diagnostics"] = [d for d in source["diagnostics"] if d["affected_refs"] != ["combination:C-OK"]]
     source["diagnostics"].append({"id": f"diagnostic:preview-physics:combination-gate:{L('combination:C-OK')}", "code": "NONLINEAR_COMBINATION_REQUIRES_SOLVE",
@@ -580,7 +580,7 @@ def test_a1_b_per_support_nonlinear_rows_name_listed_supports():
 
 
 def test_w16_relative_displacement_rows_name_listed_supports():
-    """W-16 stage 2 (R-b, DEL-04-03 Design pf-nonlinear-imposed-motion.md §4): the
+    """W-16 stage 2 (R-b): the
     relative-displacement observation row is a per-support nonlinear row."""
     kind = "nonlinear_support_final_relative_displacement"
     source = envelope()
@@ -1193,7 +1193,7 @@ def test_factor_sum_bound_is_closed_and_the_next_dyadic_is_refused():
 def test_contract_tables_state_the_unit_factor_sum_rule(table):
     policy = json.loads((PROJECT / f"fixtures/results/semantic_contract_v0_3_{table}.json").read_text(encoding="utf-8"))["combination_policy"]
     (gate,) = [g for g in policy["mechanics_gates"] if g["code"] == "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE"]
-    # RT-A4 (DEL-05-02 Design absolute-sum-srss-combinations.md §10.2): the rule reads the combination's
+    # the rule reads the combination's
     # fixed-load count κ, which over load cases is the exact sum of the binary64 factors.
     assert gate["condition"] == (
         "the model has a consuming constant-effort support and the combination's own \u03ba is undefined or "

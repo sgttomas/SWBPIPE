@@ -1,5 +1,5 @@
 // RT-R6 CSV adapter of the results panel's row tables, one per group, and its endpoint pair
-// (DEL-08-04-R14; Design `csv-export.md` §2). The panel passes each row as it renders it, with
+// (DEL-08-04-R14). The panel passes each row as it renders it, with
 // the readout its value cell shows (`useDisplayQuantity`, through `useDisplayQuantityResolver`:
 // the same preference, converter and request). HELP_HUMAN engineering-judgment resolution,
 // 2026-10-28: the CSV writes that converter's binary64 value, the value the panel shows, as its
@@ -82,7 +82,7 @@ function valueColumns(rows: readonly ValueRow[], layout: ResultRowsCsvLayout = l
 
 type Context = Readonly<{ provenance: CsvProvenance; softwareVersion: string; unitBasis: string; caseOrFilter: string; caseQualifier?: string }>;
 
-/** The group's kind: `results-<group>` (DEL-07-01 `export-file-names.md`). */
+/** The group's kind: `results-<group>`. */
 export function resultGroupCsvKind(title: string): string {
   return `results-${slugToken(title)}`;
 }

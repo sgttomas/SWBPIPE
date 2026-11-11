@@ -38,7 +38,7 @@ fn valve(id: &str, node: &str, pipe: &str, s: f64) -> Value {
         "mechanics_interface": {"solver_consumption": "mechanics_geometry_only"}, "provenance": PROV})
 }
 
-/// §2.4's pair A(0) - B(1 m) - C(3 m): `PIPE` A-B and `BODY` B-C, anchored at
+/// pair A(0) - B(1 m) - C(3 m): `PIPE` A-B and `BODY` B-C, anchored at
 /// A and C, a 3 kN axial force at B. `components` are the case's valves.
 fn request(route: Route, components: Vec<Value>) -> Value {
     let exact = route == Route::Exact;
@@ -164,7 +164,7 @@ fn w15_headline_stays_on_the_pipe_while_the_body_carries_its_record() {
                 admitted(route, &source, &wire["model"], &label);
                 let (pipe, body) = (maxima(&source, PIPE), maxima(&source, BODY));
                 assert!(!pipe.is_empty() && pipe.len() == body.len(), "{label}");
-                // §2.4: s = 1 lets the pipe govern; s = 4 makes the body's
+                // s = 1 lets the pipe govern; s = 4 makes the body's
                 // reference-section stress the larger one.
                 let governs = pipe.iter().zip(&body).all(|(p, b)| if s == 1.0 { p > b } else { b > p });
                 assert!(governs, "{label}: pipe {pipe:?} body {body:?}");
@@ -251,7 +251,7 @@ fn carriers(value: &Value, path: String, out: &mut Vec<(String, Value)>) {
     }
 }
 
-/// §5 Exports: the Rust derivative exporter copies the record verbatim onto the
+/// the Rust derivative exporter copies the record verbatim onto the
 /// body's quantity rows and source annotations and validates it against the
 /// source row; a dropped, forged or altered copy is refused.
 #[test]
@@ -309,7 +309,7 @@ fn row_mut<'a>(source: &'a mut Value, pick: impl Fn(&Value) -> bool) -> &'a mut 
     source["results"].as_array_mut().unwrap().iter_mut().find(|r| pick(r)).expect("a matching row")
 }
 
-/// §5 Row record: missing, forged and inconsistent records, a basis twin's
+/// missing, forged and inconsistent records, a basis twin's
 /// disagreement, a coverage disagreement, a headline on a body and a model
 /// mismatch are each refused.
 #[test]
@@ -423,7 +423,7 @@ fn w15_missing_forged_and_inconsistent_records_are_refused() {
     }
 }
 
-/// §5 Maximum: a case whose every member is a body has a null headline, with
+/// a case whose every member is a body has a null headline, with
 /// every member's maximum and extremum still published and coverage complete.
 #[test]
 fn w15_an_all_body_case_has_a_null_headline() {
@@ -461,7 +461,7 @@ fn w15_an_all_body_case_has_a_null_headline() {
 /// A result that is not solved formed no member, so it carries no record and
 /// the model-bound reader expects none, whatever the model declares: here the
 /// body's scaled moduli leave binary64's normal range and the producer refuses
-/// the member (`PIPE_SECTION_INPUT_INVALID`, Design §2.2).
+/// the member (`PIPE_SECTION_INPUT_INVALID`).
 #[test]
 fn w15_an_unsolved_result_carries_no_body_whatever_the_model_declares() {
     for route in ROUTES {
@@ -477,7 +477,7 @@ fn w15_an_unsolved_result_carries_no_body_whatever_the_model_declares() {
     }
 }
 
-/// §5 Row record, on combination rows (#1573's preview combination rows; the
+/// on combination rows (#1573's preview combination rows; the
 /// exact route refuses a combination by name, EXACT_PRESSURE_FAMILY_NOT_ADMITTED):
 /// a combination of the case publishes the body's combined stress rows with its
 /// record, the headline stays off the body, and the readers admit the result

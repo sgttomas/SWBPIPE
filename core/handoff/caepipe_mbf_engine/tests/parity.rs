@@ -107,7 +107,7 @@ struct Replay {
     labels: BTreeSet<String>,
     bound_labels: BTreeSet<String>,
     count: usize,
-    /// Results whose structured assumptions do not pair with their assumption strings (§4.3, REQ-015).
+    /// Results whose structured assumptions do not pair with their assumption strings (REQ-015).
     assumption_problems: Vec<String>,
     /// Every structured assumption identifier the replay's results recorded.
     assumption_ids: BTreeSet<&'static str>,

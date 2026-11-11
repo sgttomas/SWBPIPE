@@ -1,5 +1,4 @@
-// RT-A4 §10.4 (DEL-05-02 Design `absolute-sum-srss-combinations.md`, "Recorded results from before
-// RT-A4 (historical read)"): runs recorded before RT-A4 keep main's read on the recorded-run read
+// runs recorded before RT-A4 keep main's read on the recorded-run read
 // and compare paths only. Fixtures: fixtures/persistence/recorded_pre_rt_a4_pf (main 6c3cb46d3's
 // recorded preview-physics-2 runs verbatim; main-built records of main's verbatim Timoshenko and
 // successor statements; #101's physics-retained-1). At a4ff570dc every one of these records was

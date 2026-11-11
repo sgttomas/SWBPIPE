@@ -1,4 +1,4 @@
-// W-17 object form (DEL-03-01 Design apply-library-records.md §2.5): a stored
+// a stored
 // library record whose disposition no verdict can read is refused by name
 // (MODEL-DISPOSITION-RECORD-MALFORMED), with the native export screen's rule
 // (export_disposition_screen.rs StoredMembers::Refuse): a redistribution_status

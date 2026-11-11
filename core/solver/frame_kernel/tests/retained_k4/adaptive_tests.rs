@@ -430,8 +430,8 @@ fn golden_work_counts() {
     // evidenced by its correction and its refinement and residual-formation
     // work). Per attempt: (p, own context work, K4 sum work, shared work,
     // stop-rule work, refinement, residual formation), in limb-multiply
-    // equivalents. Re-pinned at A3a for D1 revision 5a.3 (R7 §6.2 SD-L1):
-    // every formation now forms g exactly (R7 §4.1.6.2 item 2), and at
+    // equivalents. Re-pinned at A3a for D1 revision 5a.3:
+    // every formation now forms g exactly, and at
     // p ≥ 256 the condition screen's solves also give est_c per block (R7
     // 7c); own, K4-sum, stop-rule and refinement work are unchanged.
     let golden: [(&str, &[(u32, u64, u64, u64, u64, u64, u64)]); 4] = [
@@ -479,7 +479,7 @@ fn golden_work_counts() {
             ],
         ),
     ];
-    // Re-pinned at A3b (D1 revision 5a.3's method; plan §5.2 SD-L1). The table
+    // Re-pinned at A3b (D1 revision 5a.3's method). The table
     // above stays A3a's: the gate passes on all four (no fallback), so
     // shared work, refinement and residual formation do not move, and each
     // attempt's own and K4-sum work outside the stop rule and the verification

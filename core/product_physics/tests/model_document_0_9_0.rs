@@ -138,7 +138,7 @@ fn with_unused_members(mut document: Value) -> Value {
     document
 }
 
-/// E5 (§1.8): a document with condition sets, assignments and spectra but no
+/// E5: a document with condition sets, assignments and spectra but no
 /// `condition_use` solves byte-identically to the same document without them, on both
 /// solver modes; on the exact route every solved member is identical and only the
 /// hashes bound to the authored request differ.
@@ -152,7 +152,7 @@ fn e5_unused_sets_assignments_and_spectra_change_no_published_byte() {
             assert_eq!(solved["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}: {:?}", diagnostics(&solved));
             if exact {
                 // The exact route's source-block custody hashes bind the authored request
-                // (§1.8's hash-bound exception, as `model_hash` is); everything solved is equal.
+                // (hash-bound exception, as `model_hash` is); everything solved is equal.
                 for member in ["status", "results", "diagnostics", "summary", "numerical_quality", "formulation_basis"] {
                     assert_same_bytes(&solved[member], &reference[member], &format!("exact {mode:?}: {member}"));
                 }
@@ -167,7 +167,7 @@ fn support_mut<'a>(document: &'a mut Value, id: &str) -> &'a mut Value {
     document["supports"].as_array_mut().unwrap().iter_mut().find(|s| s["id"] == id).unwrap()
 }
 
-/// §5's S1 row: an exactly axis-aligned `direction` takes today's path, byte for byte.
+/// an exactly axis-aligned `direction` takes today's path, byte for byte.
 /// d = −e_x and (2,0,0) on a UX record solve as the record without direction; (0,3,0) on
 /// a UX spring or line stop solves as its UY twin.
 #[test]
@@ -201,7 +201,7 @@ fn axis_aligned_directions_solve_as_their_twins_byte_for_byte() {
     assert_ne!(text(&solve(&uy_twin("spring"), MODES[0])), text(&solve(&model(), MODES[0])));
 }
 
-/// absolute-sum-srss §2 (r1 F3): an id that names both a load case and a combination
+/// an id that names both a load case and a combination
 /// resolves to the load case, as every reference did before 0.9.0, with no diagnostic. The
 /// subtraction over `L1` solves exactly as when the shadowing combination has another id.
 #[test]
@@ -339,7 +339,7 @@ fn every_direction_code_refuses_at_the_solve() {
     assert_refused_by(&mutated(|d| { let s = support_mut(d, "stop"); s["direction"] = json!({"x": 1, "y": 0, "z": 0});
             s["nonlinear"] = json!({"behavior": "one_way", "dof": "UX", "initial_state": "active", "active_when": "negative_reaction"}); }),
         "SUPPORT_DIRECTION_RECORD_UNSUPPORTED", "nonlinear member");
-    // S-K1 (DEL-04-03 skew-restraints.md §2.2): two or more nonzero components are a
+    // two or more nonzero components are a
     // skewed record, admitted and solved; the slice's refusals are exercised by
     // `skew_restraints_references.rs`.
     let skewed = direct("spring", json!({"x": 0.0, "y": 3.0, "z": 4.0}));
@@ -360,7 +360,7 @@ fn snubber(extra: Value) -> Value {
     record
 }
 
-/// §2.4 (r2 F5): a valid stiff snubber reaches `SNUBBER_DYNAMIC_ONLY_UNSUPPORTED` and no
+/// a valid stiff snubber reaches `SNUBBER_DYNAMIC_ONLY_UNSUPPORTED` and no
 /// other code, on every static solve on both routes.
 #[test]
 fn a_valid_stiff_snubber_reaches_only_its_dynamic_only_refusal_on_both_routes() {

@@ -101,7 +101,7 @@ def loads_of(result) -> list[tuple]:
             for case in result.model["load_cases"] for load in case["primitive_loads"]]
 
 
-# --- §5.4 English lengths ---------------------------------------------------------------------------------
+# --- English lengths ---------------------------------------------------------------------------------
 @pytest.mark.parametrize("text, inches", [
     ("7", Fraction(84)), ("-2", Fraction(-24)), ("4.25", Fraction(51)), (".5", Fraction(6)),
     ("7'3", Fraction(87)), ("7-3", Fraction(87)), ("7'3\"", Fraction(87)), ("7\u20193\u201d", Fraction(87)),
@@ -145,7 +145,7 @@ def test_half_unit_of_the_last_printed_digit():
     assert half_unit("2.5E-3") == Fraction(1, 20000)
 
 
-# --- §4 fields, numbers, comments and continuation -------------------------------------------------------------
+# --- fields, numbers, comments and continuation -------------------------------------------------------------
 def test_fields_keep_commas_inside_parentheses():
     assert split_fields("T20,X5,CFIXD(1,0,1),FOR( 1, 2 ,3)") == ["T20", "X5", "CFIXD(1,0,1)", "FOR( 1, 2 ,3)"]
     assert split_fields("A , B") == ["A", "B"]
@@ -196,7 +196,7 @@ def test_a_documented_comment_with_an_empty_value_is_counted_and_carries_nothing
     assert result.status == "imported" and result.summary["empty_comments"] == 2
 
 
-# --- §4.1 encoding and line ends --------------------------------------------------------------------------------
+# --- encoding and line ends --------------------------------------------------------------------------------
 def test_a_non_utf8_byte_is_refused_naming_its_offset():
     data = mbf()
     broken = data.replace(b"invented steel", b"invented st\xe9el")
@@ -230,7 +230,7 @@ def test_non_ascii_is_read_only_in_free_text_and_length_marks():
     refused(run(data), "MBF-IMPORT-CHARACTER-UNSUPPORTED", layout_line(data, "T20"))
 
 
-# --- §4.2 keywords, version and sections ---------------------------------------------------------------------------
+# --- keywords, version and sections ---------------------------------------------------------------------------
 def test_three_character_keywords_are_read_when_they_name_one_section():
     text = mbf().decode("utf-8")
     for full, short in (("MATERIAL", "MAT"), ("PIPE", "PIP"), ("LOADS", "LOA"), ("LAYOUT", "LAY")):
@@ -272,7 +272,7 @@ def test_all_zero_load_sections_are_omitted_and_check_sections_delegated():
     assert "FC1" not in json.dumps(result.to_dict())  # the delegated values are not copied
 
 
-# --- §5, §6 options ------------------------------------------------------------------------------------------------
+# --- options ------------------------------------------------------------------------------------------------
 def test_unknown_option_tokens_are_refused():
     # The vertical-axis option Z is read since tranche 2 (Z-vertical tests below).
     data = mbf(options="HGRA,SI,QQ")
@@ -460,7 +460,7 @@ def test_the_gravitational_direction_is_refused_in_a_bound_import_too():
     refused(run(data, sidecar=sidecar), "MBF-IMPORT-TBD-17-04-005")
 
 
-# --- §7 materials ---------------------------------------------------------------------------------------------------
+# --- materials ---------------------------------------------------------------------------------------------------
 def test_material_records():
     data = mbf(material=("M1,0,0.3,1,1,FR,invented frp", "M1,20,1,2,3,4"))
     refused(run(data), "MBF-IMPORT-MATERIAL-FRP-UNSUPPORTED", layout_line(data, "M1,0"))
@@ -539,7 +539,7 @@ def test_material_description_is_the_label_and_unused_records_are_listed():
     assert unused == {"MATERIAL M9", "PIPE P9", "LOADS L9"}
 
 
-# --- §8 sections, §9 loads ------------------------------------------------------------------------------------------
+# --- sections, loads ------------------------------------------------------------------------------------------
 @pytest.mark.parametrize("pipe, code", [
     ("P1,168.3,7.11,1.5", "MBF-IMPORT-SECTION-FIELD-UNSUPPORTED"),
     ("P1,168.3,7.11,0,12.5", "MBF-IMPORT-SECTION-FIELD-UNSUPPORTED"),
@@ -558,7 +558,7 @@ def test_zero_section_fields_are_written_as_absent():
 
 
 @pytest.mark.parametrize("record, code", [
-    ("L1,20,-5,0", "MBF-IMPORT-PRESSURE-UNSUPPORTED"),  # negative (external) pressure; positive is read (§9.4)
+    ("L1,20,-5,0", "MBF-IMPORT-PRESSURE-UNSUPPORTED"),  # negative (external) pressure; positive is read
     ("L1,20,0,1", "MBF-IMPORT-CONTENTS-UNSUPPORTED"),
     ("L1,20,0,0,150,0", "MBF-IMPORT-THERMAL-LOADS-UNSUPPORTED"),
     ("L1,20,0,0,,,,,3", "MBF-IMPORT-LOAD-FIELD-UNSUPPORTED"),
@@ -579,7 +579,7 @@ def test_a_second_thermal_load_at_the_reference_is_inactive_and_peak_values_dele
     assert ("case:mbf-expansion-t1", "thermal", "pipe:10-20", "global_x", 80.0, "degC") in loads_of(result)
 
 
-# --- §10 layout -----------------------------------------------------------------------------------------------------
+# --- layout -----------------------------------------------------------------------------------------------------
 @pytest.mark.parametrize("rows, code, at", [
     (("T20,X3000",), "MBF-IMPORT-ROW-SYNTAX-INVALID", "T20"),
     (("F10,KA,MM1,PP1,CL=L1", "T20A,X3000"), "MBF-IMPORT-NODE-NUMBER-INVALID", "T20A"),
@@ -650,7 +650,7 @@ def test_unbound_imports_follow_the_base_rule_without_pd1(monkeypatch):
     assert run(mbf("F10,KA,MM1,PP1", "T20,X3000,CFOR(0,-1,0),FLC=1", loads=None, optemp=None)).status == "imported"
 
 
-# --- §12 supports, §13 point loads -------------------------------------------------------------------------------------
+# --- supports, point loads -------------------------------------------------------------------------------------
 def test_supports():
     result = run(mbf("F10,KA,MM1,PP1,CL=L1,LA=0", "T20,X3000,CFIXD(1,0,1),TAG=invented guide-like"))
     assert [(item["id"], item["restraints"], item.get("family"), item["label"]) for item in result.model["supports"]] == [
@@ -711,7 +711,7 @@ def test_point_loads_displacements_and_their_cases():
     assert "combinations" not in result.model
 
 
-# --- §11 bends -------------------------------------------------------------------------------------------------------
+# --- bends -------------------------------------------------------------------------------------------------------
 L_BEND = ("F10,KA,MM1,PP1,CL=L1", "T20,KI,B250,X4000,CFF=1", "T30,KA,Z3000")
 
 
@@ -799,7 +799,7 @@ def test_bend_refusals(rows, code, at):
     refused(run(data), code, layout_line(data, at))
 
 
-# --- exact conversions with hand-derived expected values (§5.3, §7.2, §7.3, §9.2) -------------------------------------------
+# --- exact conversions with hand-derived expected values -------------------------------------------
 def test_si_weight_density_becomes_weight_per_length_by_standard_gravity():
     result = run(mbf(material=("M1,7850,0.3", "M1,20,200000,1.2e-05")))
     weight = next(load for load in loads_of(result) if load[1] == "weight")
@@ -848,7 +848,7 @@ def test_kgf_is_exactly_standard_gravity_newtons():
     assert importer_module.STANDARD_GRAVITY == 9.80665
 
 
-# --- sidecar binding and ids (§15) ------------------------------------------------------------------------------------
+# --- sidecar binding and ids ------------------------------------------------------------------------------------
 def test_unbound_ids_are_formed_from_caepipe_names():
     result = run(mbf(*L_BEND))
     assert result.id_map["node_map"] == {"10": "node:10", "20A": "node:20A", "20B": "node:20B", "30": "node:30"}
@@ -881,7 +881,7 @@ def test_a_sidecar_with_another_hash_is_not_applied_unless_rebinding_is_requeste
     refused(run(data, rebind_by_node_number=True), "MBF-IMPORT-SIDECAR-INVALID")
 
 
-# --- outputs, determinism and the report (§3, §16) -----------------------------------------------------------------
+# --- outputs, determinism and the report -----------------------------------------------------------------
 def test_identical_inputs_give_identical_bytes_and_the_report_is_typed():
     first, second = run(mbf(*L_BEND)), run(mbf(*L_BEND))
     assert (first.model_bytes(), first.report_bytes(), first.id_map_bytes()) == (
@@ -967,13 +967,13 @@ def test_a_bound_import_restores_straight_orientation_from_the_sidecar():
     # A sidecar orientation that is not a usable vector (here zero length) is refused by name with the element, and
     # nothing is substituted (lane manager, after VER-002 r6).
     sidecar["element_map"]["S"]["y_reference"] = {"x": 0.0, "y": 0.0, "z": 0.0}
-    sidecar["sidecar_sha256"] = sidecar_self_digest(sidecar)  # a deliberate edit, past the self-digest (§15)
+    sidecar["sidecar_sha256"] = sidecar_self_digest(sidecar)  # a deliberate edit, past the self-digest
     zero = run(data, sidecar=sidecar)
     assert refused(zero, "MBF-IMPORT-ORIENTATION-UNUSABLE")["location"] == "S"
     assert "MBF-IMPORT-ORIENTATION-DEFAULTED" not in {item["code"] for item in zero.diagnostics}
 
 
-# --- command line (§3, §16.4) -------------------------------------------------------------------------------------------
+# --- command line -------------------------------------------------------------------------------------------
 def test_command_line_refuses_outputs_in_a_git_work_tree_for_an_undeclared_input(tmp_path, capsys):
     repo = tmp_path / "repo"
     subprocess.run(["git", "init", "-q", str(repo)], check=True)
@@ -1088,7 +1088,7 @@ def test_absolute_coordinates_and_english_fractions_are_read_exactly():
 
 
 
-# --- CAEPIPE's own MBF export: full positional records (Design §6, §9.1, §10.1) -------------------------------------
+# --- CAEPIPE's own MBF export: full positional records -------------------------------------
 # Invented values in the shape the export writes (observed format behaviour): every OPTIONS, OPCODE, OPTEMP, OPPRES
 # and OPMISC field present, an empty FCYCLE, full MATERIAL rows with zero strength columns, and LOADS with every
 # T1..T10 and pressure slot filled; unused temperature slots hold a default temperature and unused pressures 0.
@@ -1243,7 +1243,7 @@ def test_the_export_layout_alone_reads_386_4():
     refused(run(export_shaped(opmisc="33,20,1,1,1,2,2,2,0,9.80665,0.00,-1.00,0.00")), "MBF-IMPORT-GRAVITY-UNSUPPORTED")
 
 
-# --- §9.4 pressure (tranche 2) --------------------------------------------------------------------------------------
+# --- pressure (tranche 2) --------------------------------------------------------------------------------------
 CLOSURE = {"closure_transfer": "transfers_to_wall", "provenance": "invented importer test declaration"}
 
 
@@ -1371,7 +1371,7 @@ def test_pressure_refusals():
     assert run(mbf("F10,KA,MM1,PP1,CL=L1", "T20,KA,X3000,CD(0,5,0)")).status == "imported"  # without pressure
 
 
-# --- §5.1 Z vertical (tranche 2) ------------------------------------------------------------------------------------
+# --- Z vertical (tranche 2) ------------------------------------------------------------------------------------
 def z_file(*rows: str, **options) -> bytes:
     return mbf(*rows, options="HGRA,SI,Z", **options)
 
@@ -1484,7 +1484,7 @@ def test_a_z_vertical_file_and_its_hand_rotated_y_vertical_twin_import_alike():
     assert unprovenanced(strip(z.model)) == unprovenanced(strip(y.model))  # bit-equal positions, bend and loads
 
 
-# --- §9.4 regions by the exact route's own collinearity check (VER-002 r1, item 1) ------------------------------------
+# --- regions by the exact route's own collinearity check (VER-002 r1, item 1) ------------------------------------
 # Codex's reproduction: 16 rows each 1000 mm along X, with Y offsets k e-11 mm (k = 1..16). Each adjacent pair turns
 # by about 1e-14 rad, below 64 eps = 1.42e-14, but the run bows: its whole-span residual is about 2e-14.
 DRIFT = tuple(f"T{10 * (k + 1)},X1000,Y{k}e-11" for k in range(1, 16)) + ("T170,KA,X1000,Y16e-11",)
@@ -1570,7 +1570,7 @@ def test_straight_runs_between_bends_are_checked_each_whole():
                                                               "pipe:30B-40"]]
 
 
-# --- §9.4 corrosion allowance: field presence (VER-002 r1, item 2) ------------------------------------------------------
+# --- corrosion allowance: field presence (VER-002 r1, item 2) ------------------------------------------------------
 @pytest.mark.parametrize("record", ["P1,168.3,7.11", "P1,168.3,7.11,,0"])
 def test_a_section_without_a_corrosion_allowance_is_refused_under_pressure(record):
     # The manual's PIPE record documents no default for an omitted field, so none is supplied.
@@ -1675,7 +1675,7 @@ def test_the_ported_arc_angle_matches_the_runtime_bit_for_bit():
     assert importer_module.twice_atan2_nonnegative(2.0, 0.0) == math.pi
 
 
-# --- tranche 3: guides, limit stops, springs and flexible anchors (§12) ----------------------------------------------
+# --- tranche 3: guides, limit stops, springs and flexible anchors ----------------------------------------------
 def supports_of(result) -> list[tuple]:
     return [(item["id"], item["restraints"], item.get("family"),
              (item["stiffness"]["dof"], item["stiffness"]["value"]["value"], item["stiffness"]["value"]["unit"])
@@ -1791,7 +1791,7 @@ def test_support_axes_and_stiffnesses_move_with_the_z_vertical_rotation():
     (("T20,X3000,KA,CTRAK(1,0,0),ROTK(0,0,0),FIXDY",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),  # not alone
     (("T20,X3000,KA,CTRAK(1,0,0),ROTK(0,0,0),D(0,1,0)",), "MBF-IMPORT-DISPLACEMENT-UNSUPPORTED", "T20"),
     (("T20,X3000,KA,CTRAKX=1,ROTK(0,0,0)",), "MBF-IMPORT-COMMENT-UNKNOWN", "T20"),  # only TRAK(kx,ky,kz)
-    # hangers stay refused by name (§12): CAEPIPE designs VS and CS, and a hanger's loads act by case
+    # hangers stay refused by name: CAEPIPE designs VS and CS, and a hanger's loads act by case
     (("T20,X3000,CVS=2",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),
     (("T20,X3000,CCS",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),
     (("T20,X3000,CUS(2,600,1540)",), "MBF-IMPORT-SUPPORT-UNSUPPORTED", "T20"),
@@ -1874,7 +1874,7 @@ def test_every_emitted_number_lies_in_the_solves_checked_json_domain(row, path):
     assert edge.model["supports"][1]["stiffness"]["value"]["value"] == 9007199254740991.0
 
 
-# --- sidecar format 4: section identities (Design §15, Format 4) -----------------------------------------------------
+# --- sidecar format 4: section identities (Format 4) -----------------------------------------------------
 def sectioned_parts():
     """The writer's text and format-6 sidecar (format 4's section_map included) of the invented sectioned L
     (test_caepipe_mbf_si_writer): records P1 (section:A), P2 (section:B) and P3 (none), one OD and wall."""
@@ -1972,7 +1972,7 @@ def test_a_malformed_format_4_section_map_is_refused_by_path(location, change):
         assert errors(result) == {("MBF-IMPORT-SIDECAR-INVALID", location)}, (options, result.diagnostics)
 
 
-# --- sidecar format 6: derivation and bend nodes (Design §15, Format 6) ----------------------------------------------
+# --- sidecar format 6: derivation and bend nodes (Format 6) ----------------------------------------------
 def _settings(s: dict) -> dict:
     return s["derivation"]["export_settings"]
 
@@ -2034,7 +2034,7 @@ def _settings(s: dict) -> dict:
     ("element_map[BEND].bend.zz", lambda s: s["element_map"]["BEND"]["bend"].update(zz="T1")),
 ])
 def test_a_malformed_format_6_sidecar_is_refused_by_path(location, change):
-    # The strict parser (Design §15): format 6 is format 4 plus `derivation` and each bend entry's `node`, every
+    # The strict parser: format 6 is format 4 plus `derivation` and each bend entry's `node`, every
     # field required, nothing null but the row limit and the piping code, nothing outside the closed field list. Each
     # edit has its self-digest recomputed (a deliberate editor), on the bound and the rebind route.
     data, sidecar = sectioned_parts()
@@ -2046,7 +2046,7 @@ def test_a_malformed_format_6_sidecar_is_refused_by_path(location, change):
 
 
 def test_format_5_the_held_route_1_format_stays_refused():
-    # Format 5 is the held Route 1 design (§20.4.5): not read, whatever it holds, and never read as format 6.
+    # Format 5 is the held Route 1 design: not read, whatever it holds, and never read as format 6.
     data, sidecar = sectioned_parts()
     for change in (lambda s: s.update(sidecar_format=5),
                    lambda s: (s.update(sidecar_format=5), s.pop("derivation"))):

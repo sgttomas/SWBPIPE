@@ -90,7 +90,7 @@ fn explicit_headless_refusal_preserves_output_and_completion_fields_both_modes()
         // run's (above). The oracle is the Direct entry on an input that D1 refuses after the
         // build clause, C_eq + 1 case-equivalents (D1.9), so this workspace, whose lock is not
         // PP's reviewed one, is never granted a permit and never runs W1 (RV89 G6r N-1).
-        // B2-A (I93 PLAN §1.2.4; B2-C §9), re-basing B1's C + 1 load cases (PLAN_v2 SF-2):
+        // B2-A (I93 PLAN §1.2.4), re-basing B1's C + 1 load cases (PLAN_v2 SF-2):
         // C_eq + 1 is the literal 4, that is
         // `product_physics::retained_memory::caps::CASE_EQUIVALENTS` + 1, built as C = 3
         // copies of the case and one mechanics combination. This crate cannot read `caps`

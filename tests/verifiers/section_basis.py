@@ -13,9 +13,9 @@ nominal radii and the member's nu (this module's own implementation of §3.1's o
 Python floats never fuse a multiply-add). The section leaves stay leaves: the
 retained exact successor overlays them with its prepared bits (DEF-E).
 
-A realized arc's entry, and only an arc's, carries ``member_kind = "realized_arc"`` (§2.5, ``marked_section``), so a
+A realized arc's entry, and only an arc's, carries ``member_kind = "realized_arc"`` (``marked_section``), so a
 reader without the model knows every arc, including one outside every pressure region: a marked entry is
-Euler-Bernoulli and the unmarked entries share one straight shear model. Where a reader has the captured model (§5),
+Euler-Bernoulli and the unmarked entries share one straight shear model. Where a reader has the captured model,
 the beam theory each entry states is bound to it: the marked entries are the model's realized arcs, a straight member
 states the contract's ``pressure_contract.shear_model``, a realized arc Euler-Bernoulli (``bind_shear_model``,
 ``selected_model``).
@@ -38,7 +38,7 @@ NOMINAL = "nominal_section"
 REDUCED = "reduced_section"
 BASES = (NOMINAL, REDUCED)
 GEOMETRY_BASIS = "authored_od_wall_d5_sections_v1"
-# §2.5: the key and the one value of a realized arc's marker; a straight member's entry has no member_kind.
+# the key and the one value of a realized arc's marker; a straight member's entry has no member_kind.
 MEMBER_KIND = "member_kind"
 REALIZED_ARC = "realized_arc"
 SECTION_KEYS = {"pipe_id", "geometry_basis", "outside_diameter_m", "ro_m", "wall_thickness_m", "mill_tolerance_m",
@@ -48,7 +48,7 @@ BORE_KEYS = {"ri_m", "Ai_m2"}
 EULER_BERNOULLI = "euler_bernoulli"
 TIMOSHENKO = "timoshenko_annulus_energy_v1"
 STRESS_KINDS = (
-    # T4-U4b (§2.2): the new per-basis kinds.
+    # the new per-basis kinds.
     "element_local_normal_stress_extreme", "element_local_transverse_shear_stress_maximum",
     "pipe_toroidal_membrane_hoop_stress_v1", "pipe_toroidal_radial_surface_stress_v1",
     "curved_bend_directional_intensified_bending_stress_v1", "curved_bend_directional_intensified_bending_maximum_v1",
@@ -120,12 +120,12 @@ def row_basis(row: Mapping[str, Any]) -> tuple[str, str]:
 
 
 def reduced_wall(wall: float, mill_tolerance: float, corrosion_allowance: float) -> float:
-    """§1's fixed order, t_r = (t - c_m) - c_a."""
+    """fixed order, t_r = (t - c_m) - c_a."""
     return (wall - mill_tolerance) - corrosion_allowance
 
 
 def timoshenko_shear_factor(ri: float, ro: float, nu: float) -> float:
-    """§3.1: kappa_E in its fixed binary64 order (not Cowper, not 5/6)."""
+    """kappa_E in its fixed binary64 order (not Cowper, not 5/6)."""
     m = ri / ro
     m2 = m * m
     a = 1.0 + m2
@@ -145,7 +145,7 @@ def _annulus(value: Any, od: float, wall: float) -> dict[str, float]:
 
 
 def arc_marker(value: Any) -> bool:
-    """§2.5: an entry's realized-arc marker: True for ``member_kind = "realized_arc"``, False without
+    """an entry's realized-arc marker: True for ``member_kind = "realized_arc"``, False without
     ``member_kind``; any other ``member_kind`` is refused by name (Rust ``SOURCE_PHYSICS_MEMBER_KIND``)."""
     if not isinstance(value, Mapping) or MEMBER_KIND not in value:
         return False
@@ -201,7 +201,7 @@ def bits(value: float) -> int:
 
 
 def bit_equal(a: Any, b: Any) -> bool:
-    """T4-U6 (§2.5, A2): structural equality whose numbers compare by their binary64 bits, the one equality of twins
+    """T4-U6 (A2): structural equality whose numbers compare by their binary64 bits, the one equality of twins
     and links in the Python verifiers and the Rust readers (``section_basis::bit_equal``): -0.0 is not 0.0, and the
     same binary64 number in another JSON form (``1e6`` or ``1000000``, ``0`` or ``0.0``) is the same number. A
     non-finite or non-number leaf is unequal to a number."""
@@ -226,9 +226,9 @@ def beam_theory(sections: Mapping[str, Any], nu: float, arc: bool) -> None:
 
 
 def realized_arcs(model: Any) -> set[str]:
-    """§3.6: the realized arcs of a captured model document, as the producer realizes them: the pipes named by
+    """the realized arcs of a captured model document, as the producer realizes them: the pipes named by
     ``geometry.bend_pipe_ref`` of its ``bend`` or ``elbow`` components whose ``mechanics_interface.solver_consumption``
-    is ``curved_bend_macro_element``. The evidence marks each arc's ``pipe_sections`` entry and region geometry (§2.5);
+    is ``curved_bend_macro_element``. The evidence marks each arc's ``pipe_sections`` entry and region geometry;
     the model names which pipes those are."""
     components = model.get("components") if isinstance(model, Mapping) else None
     arcs: set[str] = set()
@@ -243,7 +243,7 @@ def realized_arcs(model: Any) -> set[str]:
 
 
 def selected_model(shear_model: Any, arc: bool) -> Any:
-    """§3.6, §5: a realized arc is Euler-Bernoulli whatever the document selects; a straight member takes the
+    """a realized arc is Euler-Bernoulli whatever the document selects; a straight member takes the
     contract's ``pressure_contract.shear_model``."""
     return EULER_BERNOULLI if arc else shear_model
 
@@ -310,7 +310,7 @@ def lame_station(values: Mapping[str, float], annulus: Mapping[str, float], p: f
 
 def twins(rows: Mapping[str, Any], sections: Mapping[tuple[str, str], Any], pressures: Mapping[tuple[str, str], float],
           order: Callable[[Mapping[str, Any], Mapping[str, Any]], None] | None = None) -> None:
-    """§2.1, §2.5: both families of every stress signature. Each nominal row's twin is the row of the same id with the
+    """both families of every stress signature. Each nominal row's twin is the row of the same id with the
     reduced segment, the same recovery token and the same declared semantics; each pair is checked against its member's
     two sections, and each straight member's Lame rows against each basis's own annulus and its region's pressure
     (``pressures`` by (case, member)). ``order(row, twin)``, when given, is the caller's row-order check on each
@@ -372,12 +372,12 @@ def extrema_twins(nominal: Mapping[str, Any], reduced: Mapping[str, Any], sectio
 
 
 def headlines(summary: Any, rows: Mapping[str, Any], complete: Mapping[str, bool], bodies: Any = frozenset()) -> None:
-    """§2.2: ``max_open_formula_stress`` null, both basis keys present, each non-null headline on complete coverage of
+    """``max_open_formula_stress`` null, both basis keys present, each non-null headline on complete coverage of
     its basis, bound to a maximum row of its own basis (its value bit for bit, ``bit_equal``) and not below any
     maximum of that basis."""
     _require(isinstance(summary, Mapping) and "max_open_formula_stress" in summary and summary["max_open_formula_stress"] is None
              and all(f"max_open_formula_stress_{b}" in summary for b in BASES), "stress maximum headline bases")
-    # W-15 slice d (DEL-03-05 Design §5): the headlines range over the non-body members.
+    # the headlines range over the non-body members.
     maxima = [row for row in rows.values() if row.get("kind") == "pipe_elastic_normal_stress_maximum_v2" and row.get("entity_ref") not in bodies]
     for basis in BASES:
         headline = summary[f"max_open_formula_stress_{basis}"]

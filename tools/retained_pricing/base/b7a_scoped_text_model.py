@@ -29,7 +29,7 @@ RE = 'core/reporting/result_export/src/'
 # T4-S5 (epoch): every line moved with unchanged text: pressure_runtime.rs -3 (ARC_WITHHELD_REASON removed) and -25
 # more after exact_member_recovery (the arc maximum policy removed), +3 after assemble_pressure_case's bend radius;
 # lib.rs +314/+356; retained_product.rs +27; preview_physics.rs +31.
-# O4 S5 (retained-pricing-rules.md §8.9): every line moved with unchanged text: lib.rs +4 before the case solve's
+# O4 S5 (§8.9): every line moved with unchanged text: lib.rs +4 before the case solve's
 # maximum (0 after it: SOURCE_MAXIMUM_BASES_DISTINCT and its comment, -4, offset the case-solve +3 and module +3 lines);
 # physics_source.rs +29 (the contract and allowance readers); retained_product.rs +167 (the O4 sidecars).
 # Pre-0.4 failure unification D3 (§8.14): lib.rs's four bound lines move +103 with unchanged text (the republication,
@@ -65,7 +65,7 @@ LN = {
     # RT-A4 D3 (§8.46): +7 (unit_message: the `mod combination_plan;` line and the derivation call's six lines precede
     # it) and +79 (the three helpers: the wiring's lib.rs additions precede them), unchanged text.
     # I2b-2 on RT-U4's candidate (§8.48): both moves, +33 (unit_message) and +105 (the three helpers), unchanged text.
-    # RT-A3 §4 D3 (§8.53): all four lib.rs sites +27, unchanged text (the certificate's module lines, LoadCaseSolve
+    # D3 (§8.53): all four lib.rs sites +27, unchanged text (the certificate's module lines, LoadCaseSolve
     # field, operand map, take, publish call, seven early-return `certificate_operand: None` lines and the operand's
     # formation precede them).
     # RT-A3 S6 D3 (§8.59): +16 (unit_message: the S6 formulation-basis bindings and the case solve's motion lines

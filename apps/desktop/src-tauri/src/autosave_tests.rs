@@ -1,4 +1,4 @@
-//! Tests of `autosave.rs` (DEL-02-05 Design `autosave-and-backup.md` §8, slice 1).
+//! Tests of `autosave.rs`.
 //! Every test uses invented documents in its own temporary directory.
 
 use super::*;

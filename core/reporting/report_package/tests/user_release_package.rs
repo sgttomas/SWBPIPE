@@ -173,7 +173,7 @@ fn with_identity(request: &Value, id: &str) -> Value {
 
 // --- Pinned bytes ---------------------------------------------------------
 
-/// Owner property 2 (§4, §6): a package without a user release, and a render
+/// Owner property 2: a package without a user release, and a render
 /// outside `user_released_report`, are byte-identical to the parent head's
 /// (`8ed4ec6103`, recorded before (r2c) changed the writer and the renderer).
 /// Main's model document 0.8.0 (#1649, `187b67bb6b`) changed the four package
@@ -183,8 +183,8 @@ fn with_identity(request: &Value, id: &str) -> Value {
 /// (S1, #50) moved the same four container hashes: with the version token
 /// alone reverted in their two inputs (the DEL-10-05 witness input's model
 /// hash and `precision_connected_ui_model.json`), the probe gives the 0.8.0
-/// values; the render hashes did not change. RT-A4 (DEL-05-02 Design
-/// absolute-sum-srss-combinations.md §10.2) moved the same four: with the result
+/// values; the render hashes did not change. RT-A4
+/// moved the same four: with the result
 /// schema, the preview-physics-2 table and its pin, and the PF documents and
 /// vectors carrying LIMITATIONS[6] reverted, the probe gives the former values;
 /// the render hashes did not change.
@@ -272,7 +272,7 @@ fn the_committed_record_is_the_vectors() {
 
 // --- The admitting entry ----------------------------------------------------
 
-/// Owner property 3 (§6): the admitting entry assembles the coherent request.
+/// Owner property 3: the admitting entry assembles the coherent request.
 /// The manifest's record is the report context's plus a `content_binding` of
 /// the four members, the four notes are written, there is no handoff member,
 /// both renderings carry the notice, and the reader returns the record.
@@ -316,7 +316,7 @@ fn the_admitting_entry_writes_the_record_its_binding_and_notes() {
 }
 
 /// Every member of the derived request is bound: one changed member is
-/// refused by the derivation, naming its pointer, never a value (§2.5 step 9).
+/// refused by the derivation, naming its pointer, never a value.
 #[test]
 fn the_admitting_entry_requires_the_whole_request_derived() {
     let case = case();
@@ -344,7 +344,7 @@ fn the_admitting_entry_requires_the_whole_request_derived() {
     assert!(error.starts_with(&format!("{CONTENT_NOT_DERIVED}: the input manifest differs")), "{error}");
 }
 
-/// No replay (§2.10), producer rows: each bound member mismatched alone, with
+/// No replay, producer rows: each bound member mismatched alone, with
 /// the derivation coherent (the record is the basis's), is refused by item 10.
 #[test]
 fn the_producer_binds_each_record_member() {
@@ -377,7 +377,7 @@ fn the_producer_binds_each_record_member() {
 
 // --- Exact routes (§0) --------------------------------------------------------
 
-/// `user_release_exact_route_refused`, the producer's cases (§6): through the
+/// `user_release_exact_route_refused`, the producer's cases: through the
 /// admitting entry an exact document is refused by the preflight, whatever the
 /// report carries and whatever the profile, with no pointer named; a retained
 /// identity gets item 0's own refusal. Through each general entry the same
@@ -417,9 +417,9 @@ fn user_release_exact_route_refused() {
     refused_with(case.assemble(with_identity(&case.request(), PHYSICS_RETAINED_ID)), ROUTE_NOT_ADMITTED);
 }
 
-// --- The general entries (§2.8, refusal 2) --------------------------------
+// --- The general entries --------------------------------
 
-/// `user_release_runner_refused`, the producer's cases (§6): the coherent
+/// `user_release_runner_refused`, the producer's cases: the coherent
 /// request, and each marker alone, are refused by every general entry; the
 /// admitting entry admits the coherent request.
 #[test]
@@ -467,7 +467,7 @@ fn the_general_entries_refuse_every_user_release_marker() {
     assert!(!case.assemble(coherent).unwrap().export_blocked);
 }
 
-// --- The reader (§2.9, §2.10) --------------------------------------------
+// --- The reader --------------------------------------------
 
 /// Rebuilds a package's archive from its members (stored, fixed order), as
 /// the writer encodes it, after `edit` changed members or the manifest.
@@ -569,7 +569,7 @@ fn the_reader_checks_a_user_released_package() {
     // The test's archive builder reproduces the writer's bytes.
     assert_eq!(repacked(&outcome, |_, _| {}), outcome.container_bytes);
 
-    // `model_ref` or `report_id` alone changed (§2.10).
+    // `model_ref` or `report_id` alone changed.
     unbound(&repacked(&outcome, record_edit(|record| record["bound_to"]["model_ref"] = json!("project:other"))), "model_ref");
     unbound(&repacked(&outcome, record_edit(|record| record["scope"]["report_id"] = json!("report:run:other"))), "report_id");
     // An altered statement, standing or `not_carried`.
@@ -595,7 +595,7 @@ fn the_reader_checks_a_user_released_package() {
     );
 }
 
-/// `user_release_extra_member_refused` (§6): a second, valid result member,
+/// `user_release_extra_member_refused`: a second, valid result member,
 /// or a valid state/comparison/handoff member, added with the inventory
 /// restamped.
 #[test]
@@ -634,7 +634,7 @@ fn user_release_extra_member_refused() {
     );
 }
 
-/// `user_release_same_source_member_substitution_refused` (§6): the HTML and
+/// `user_release_same_source_member_substitution_refused`: the HTML and
 /// PDF of another user-released save of the same model and run (another
 /// `user_released_at`), and an equal-identity audit variant, each swapped in
 /// with the inventory restamped and the record unchanged.
@@ -669,7 +669,7 @@ fn user_release_same_source_member_substitution_refused() {
     assert!(error.contains("notice"), "{error}");
 }
 
-/// `user_release_exact_route_refused`, the reader's case (§6): a user-released
+/// `user_release_exact_route_refused`, the reader's case: a user-released
 /// package whose result member is an exact document, re-hashed coherently.
 #[test]
 fn the_reader_refuses_an_exact_result_member() {
@@ -688,7 +688,7 @@ fn the_reader_refuses_an_exact_result_member() {
     assert!(error.contains(EXACT_ROUTE_NOT_ADMITTED) || error.contains("pressure-free"), "{error}");
 }
 
-/// The documented limit (§2.9, O-G): a package whose record, members,
+/// The documented limit: a package whose record, members,
 /// `content_binding` and inventory are all re-written together is accepted.
 /// The reader's checks establish consistency, not consent or origin.
 #[test]

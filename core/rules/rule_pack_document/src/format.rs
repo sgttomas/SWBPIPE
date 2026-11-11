@@ -20,32 +20,32 @@ use serde_json::Value;
 
 use crate::ValidationFinding;
 
-/// The one current rule-pack format (design §2.1). Top-level `schema_version`
+/// The one current rule-pack format. Top-level `schema_version`
 /// and `metadata.schema_version` must both equal it; any other value is
 /// refused by [`RULE_PACK_SCHEMA_VERSION_UNSUPPORTED`], with no migration.
 pub const RULE_PACK_SCHEMA_VERSION: &str = "0.5.0";
 
-// --- Static (validation) finding codes, design §2.1, §2.5 and §2.9 ---------
+// --- Static (validation) finding codes ---------
 
 /// A pack declaring any version other than [`RULE_PACK_SCHEMA_VERSION`]
 /// (absent, `0.4.0`, or a top-level value differing from
 /// `metadata.schema_version`). Blocking; no check of the pack runs.
 pub const RULE_PACK_SCHEMA_VERSION_UNSUPPORTED: &str = "RULE_PACK_SCHEMA_VERSION_UNSUPPORTED";
 /// A mapping's category or required load case, or a check's category, that
-/// names nothing declared (design §2.9).
+/// names nothing declared.
 pub const RULE_PACK_REFERENCE_UNRESOLVED: &str = "RULE_PACK_REFERENCE_UNRESOLVED";
 /// A duplicate id, a duplicate `basis_ref`, or the same required load case
-/// twice in one mapping (design §2.9).
+/// twice in one mapping.
 pub const RULE_PACK_DUPLICATE_ID: &str = "RULE_PACK_DUPLICATE_ID";
 /// A category with no mapping or more than one, a required load case in no
-/// mapping, or a required load case no check reaches (design §2.9).
+/// mapping, or a required load case no check reaches.
 pub const RULE_PACK_MAPPING_INCOMPLETE: &str = "RULE_PACK_MAPPING_INCOMPLETE";
 /// A `solver_result` input without a usable `solver_result_ref` selector
 /// (design §2.5).
 pub const RULE_SOLVER_RESULT_REF_MISSING: &str = "RULE_SOLVER_RESULT_REF_MISSING";
 /// A required load case or stress category without its required `name` (a
 /// non-empty string), with a `description` that is not a string, or without
-/// a `provenance` object (design §2.3; `schemas/rule_pack.schema.yaml`
+/// a `provenance` object (`schemas/rule_pack.schema.yaml`
 /// `RequiredLoadCase`, `StressCategory`).
 pub const RULE_PACK_RECORD_INCOMPLETE: &str = "RULE_PACK_RECORD_INCOMPLETE";
 /// A required load case's or stress category's `provenance` object missing a
@@ -53,15 +53,15 @@ pub const RULE_PACK_RECORD_INCOMPLETE: &str = "RULE_PACK_RECORD_INCOMPLETE";
 /// (`schemas/rule_pack.schema.yaml` `ProvenanceRecord`).
 pub const RULE_PACK_PROVENANCE_INCOMPLETE: &str = "RULE_PACK_PROVENANCE_INCOMPLETE";
 
-// --- Run-time finding codes, design §2.5 and §2.6 ---------------------------
+// --- Run-time finding codes ---------------------------
 
 /// A required load case absent from the model's `load_cases` or
-/// `combinations` (design §2.6).
+/// `combinations`.
 pub const RULE_REQUIRED_LOAD_CASE_MISSING: &str = "RULE_REQUIRED_LOAD_CASE_MISSING";
 /// A required load case present in the model with no rows in the solved
-/// envelope, for example a withheld combination (design §2.6).
+/// envelope, for example a withheld combination.
 pub const RULE_REQUIRED_LOAD_CASE_UNSOLVED: &str = "RULE_REQUIRED_LOAD_CASE_UNSOLVED";
-/// No envelope row matches an input's selector on a basis (design §2.5).
+/// No envelope row matches an input's selector on a basis.
 pub const RULE_SOLVER_RESULT_ROW_MISSING: &str = "RULE_SOLVER_RESULT_ROW_MISSING";
 /// More than one envelope row matches an input's selector on a basis
 /// (design §2.5). The input is unsupplied; never a pass.
@@ -133,7 +133,7 @@ const SELECTOR_REQUIRED: [&str; 2] = ["result_kind", "entity_ref"];
 const SELECTOR_OPTIONAL: [&str; 4] = ["location", "component", "section_basis", "tie_rod"];
 
 /// A load case or combination of the model, as a required load case names it
-/// and as an envelope row's `basis_ref` carries it (design §2.3).
+/// and as an envelope row's `basis_ref` carries it.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct BasisRef {
     /// `load_case` or `combination`.
@@ -168,7 +168,7 @@ impl BasisRef {
     }
 }
 
-/// The selector a 0.5.0 `solver_result_ref` carries (design §2.5). An absent
+/// The selector a 0.5.0 `solver_result_ref` carries. An absent
 /// optional member matches only a row without that member. It serializes as
 /// the pack member (absent members omitted).
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
@@ -236,7 +236,7 @@ pub fn parse_solver_result_ref(value: &Value) -> Result<SolverResultSelector, St
 }
 
 /// One basis of a check: a required load case mapped to the check's category,
-/// in the mapping's order (design §2.4).
+/// in the mapping's order.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PlannedBasis {
     pub required_load_case_id: String,
@@ -439,7 +439,7 @@ fn finding(
     }
 }
 
-/// The version finding (design §2.1): `None` when both the top-level and the
+/// The version finding: `None` when both the top-level and the
 /// metadata `schema_version` equal [`RULE_PACK_SCHEMA_VERSION`].
 pub fn schema_version_finding(document: &Value) -> Option<ValidationFinding> {
     let top = document.get("schema_version").and_then(Value::as_str);

@@ -81,7 +81,7 @@ function joined(object: JsonObject, pointer: string, key: string, separator: str
   }).join(separator);
 }
 
-/** §2.7, by the combination's basis: `result_state_subtraction` as `"<minuend_id> − <subtrahend_id>"`
+/** by the combination's basis: `result_state_subtraction` as `"<minuend_id> − <subtrahend_id>"`
  * (null unless both are stored); `range_envelope` as `operand_ids` joined by `", "`; any other
  * basis as each term `"<factor> × <load_case or combination>"` joined by `"; "` (null when no
  * `terms` is stored). A stored member the basis does not use is not shown. */
@@ -196,7 +196,7 @@ export function listedModelInputIds(composition: ReportComposition | null | unde
   return MODEL_INPUT_SECTION_IDS.filter((id) => listed.has(id));
 }
 
-/** `P(M, C)` (§2.7): null when the composition lists no model-input id; otherwise one member
+/** `P(M, C)`: null when the composition lists no model-input id; otherwise one member
  * per listed id, each a list of rows in the model's array order. The Rust mirror is
  * `report_package::model_input::model_input_tables`, held equal by
  * `fixtures/reports/invented/report_model_input_vectors.json`. */

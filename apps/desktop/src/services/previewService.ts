@@ -525,7 +525,7 @@ export async function takePreviewMechanicsJobResult(jobId: string): Promise<Mech
 }
 
 /* -------------------------------------------------------------------------- *
- * C1 native custody (DEL-04-05 `c1-native-custody-plan.md` slice 4): a fresh
+ * C1 native custody: a fresh
  * solve's result stays held natively; the webview holds a `NativeResult`.
  * -------------------------------------------------------------------------- */
 
@@ -754,7 +754,7 @@ export function deliveredMechanicsResultJob(result: MechanicsResult | NativeResu
   return delivered && !delivered.disposed ? delivered.jobId : null;
 }
 
-/** Query only (W-11, DEL-08-01 Design `exact-route-report-sections.md` §3.6): the model
+/** Query only (W-11): the model
  * text `startPreviewMechanicsJob` sent for the job that delivered this held result,
  * re-serialized with `checkedJsonText` from the result's native registration. Null
  * without a valid registration (a copy, an unregistered or edited result) and once the
@@ -953,7 +953,7 @@ export function declaredSourceResultDimension(
   const declarations: Record<string, CanonicalResultDimension> = {
     component_user_stress_multiplier_review: "stress",
     displacement_magnitude: "length",
-    // W-7 (DEL-04-01 Design global-end-actions.md): member end actions in global coordinates.
+    // W-7: member end actions in global coordinates.
     element_global_end_force_v1: "force",
     element_global_end_moment_v1: "moment",
     // R-6/R-7 S-K1: a skewed support's reaction along its stored direction (one signed force).

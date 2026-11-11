@@ -944,8 +944,8 @@ fn exact_route_texts_pass_the_claims_check() {
     }
 }
 
-// --- Rule-pack format 0.5.0: one outcome per check and load case (DEL-06-01
-// Design `rule-pack-0.5.0.md` §2.7, §6) -------------------------------------
+// --- Rule-pack format 0.5.0: one outcome per check and load case
+// -------------------------------------
 
 fn outcome_on(check_id: &str, ref_type: &str, ref_id: &str, status: UserRuleCheckStatus) -> UserRuleCheckOutcome {
     UserRuleCheckOutcome {
@@ -1712,7 +1712,7 @@ fn the_readability_texts_pass_the_claims_check() {
 }
 
 // --- W-18b (r2c): the user-released class rule, the notice and the rows
-// (DEL-08-01 Design `report-user-release.md` §2.6, §4, §5.1) -----------------
+// -----------------
 
 fn invented_user_release_record() -> open_pipe_stress_report_renderer::UserReleaseRecord {
     use open_pipe_stress_report_renderer::*;
@@ -1869,7 +1869,7 @@ fn user_release_texts_pass_the_claims_check() {
 }
 
 // ---------------------------------------------------------------------------
-// Report composition (DEL-08-01 Design `report-section-composer.md`, slice C2).
+// Report composition (slice C2).
 
 const COMPOSITION_VECTORS: &str = include_str!("../../../../fixtures/reports/invented/report_composition_vectors.json");
 

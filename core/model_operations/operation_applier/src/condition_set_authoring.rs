@@ -5,7 +5,7 @@
 //! Every operation is one record or one member, identity-preserving
 //! (FR-MOD-003). The shape, quantities, range, provenance and references of a
 //! set, a reference and a use are the one document validator's findings on the
-//! candidate (§1.3), as for every applier edit; this module checks only what the
+//! candidate, as for every applier edit; this module checks only what the
 //! validator cannot see: the target, identity, staleness, the payload's JSON
 //! type, the reference guard on delete and the route admission of a use.
 //!
@@ -101,7 +101,7 @@ pub(crate) const CONDITION_SET_IN_USE: &str = "OP-CONDITION-SET-IN-USE";
 /// The solve's request parse refuses the candidate document.
 pub(crate) const JUDGEMENT_REFUSED: &str = "OP-CONDITION-JUDGEMENT-REFUSED";
 /// The solve's code for missing equivalent-static inputs; an empty wind
-/// exposure resolved from the sets meets it (§1.5 step 3).
+/// exposure resolved from the sets meets it.
 pub(crate) const EQUIVALENT_STATIC_INPUT_MISSING: &str = "EQUIVALENT_STATIC_INPUT_MISSING";
 
 /// One finding of the solve's judgement that is a staged state, reported as a
@@ -118,7 +118,7 @@ pub(crate) enum Staged {
     EmptyGeneratedWindExposure,
 }
 
-/// The staged-state findings (§11, SWBPIPE Agent 0, 2026-11-02): exactly these
+/// The staged-state findings (SWBPIPE Agent 0, 2026-11-02): exactly these
 /// are warnings. Every other finding blocks.
 pub(crate) const STAGED_FINDINGS: [Staged; 8] = [
     Staged::Code(pp_resolution::OPERATING_CONDITION_SET_MISSING),
@@ -199,7 +199,7 @@ pub(crate) fn has_pressure_contract(model: &Value) -> bool {
     model.get("pressure_contract").is_some_and(|contract| !contract.is_null())
 }
 
-/// The route admission of a case's `condition_use` (§11). Returns every
+/// The route admission of a case's `condition_use`. Returns every
 /// refusal; empty means admitted. A use that is not an object, an empty use and
 /// `false` in a `true`-only member are the validator's findings on the
 /// candidate.
@@ -257,7 +257,7 @@ fn empty_exposure_solve_message(case: Option<&Value>) -> String {
     )
 }
 
-/// Classify the preview's report on `candidate` (§11): the staged findings are
+/// Classify the preview's report on `candidate`: the staged findings are
 /// warnings with the solve's code and message; everything else blocks.
 pub(crate) fn classify(candidate: &Value, preview: &Value) -> Vec<JudgedFinding> {
     let mut found = Vec::new();
@@ -325,7 +325,7 @@ pub(crate) fn judgement(candidate: &Value) -> Vec<JudgedFinding> {
 /// judged here (lib.rs's own kind).
 pub(crate) const CREATE_LOAD_CASE: &str = "create_load_case";
 
-/// The route and admission refusals of a case's use (§11): never a permitted
+/// The route and admission refusals of a case's use: never a permitted
 /// carried refusal, wherever they appear.
 const ROUTE_ADMISSION_CODES: [&str; 4] = [
     pp_conditions::LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED,
@@ -378,7 +378,7 @@ fn entity_ids(model: &Value) -> BTreeSet<String> {
 }
 
 /// The edit's transitive dependency scope S (SWBPIPE Agent 0, 2026-11-02,
-/// option (b); §11): the entities whose judgement the edit can change. It is
+/// option (b)): the entities whose judgement the edit can change. It is
 /// computed on the union of the document before the edit and the candidate:
 /// - **Set operations** (`create_condition_set`, `update_condition_set`,
 ///   `delete_condition_set` of set X): X; every pipe whose `condition_set_ref`
@@ -756,7 +756,7 @@ fn resolve_record(model: &Value, intent: &Value) -> Result<GeometryEdit, Geometr
                         affected_refs: std::iter::once(target_ref.to_string()).chain(pipes).collect(),
                     });
                 }
-                // An emptied collection stays an empty array (§11). The diff row
+                // An emptied collection stays an empty array. The diff row
                 // names the deleted index, `condition_sets[<index>]`, so the
                 // inverse create restores the record at its place.
                 list.remove(index);

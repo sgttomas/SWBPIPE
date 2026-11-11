@@ -1,4 +1,4 @@
-"""RT-A4 (DEL-05-02 ``absolute-sum-srss-combinations.md`` sections 4-5 and 10; review r1 P2; section 10.3): test-only
+"""RT-A4 (DEL-05-02; review r1 P2): test-only
 mirror of RE ``preview_combination_gates.rs``. Re-derives preview-physics-2's combination gates and unsigned rows from the
 received document and, when it is supplied, from its model.
 
@@ -433,7 +433,7 @@ LINEAR_STATE_KINDS = frozenset({
     "element_local_bending_normal_stress_y", "element_local_bending_normal_stress_z", "element_local_torsional_shear_stress",
     "pipe_section_pressure_hoop_stress", "pipe_section_pressure_longitudinal_stress", "support_reaction_component_v2",
     "constant_effort_support_applied_load", "element_global_end_force_v1", "element_global_end_moment_v1",
-    # R-6/R-7 S-K1 (DEL-04-03 skew-restraints.md section 7.1): a skewed record's along-direction value.
+    # a skewed record's along-direction value.
     "support_reaction_along_direction_v1"})
 DIMENSIONS = {"mm": "displacement", "m": "displacement", "rad": "rotation", "N": "force", "N*m": "moment", "MPa": "pressure", "Pa": "pressure"}
 SECTION = "; section_basis="

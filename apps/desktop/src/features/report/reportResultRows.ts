@@ -3,7 +3,7 @@ import { displayQuantity } from "./reportQuantityDisplay";
 
 export const REPORT_ROW_SECTION_BASIS_UNREADABLE = "REPORT-ROW-SECTION-BASIS-UNREADABLE";
 
-/** The section-basis suffix (§3.4): `metadata.basis` split on ";", each token trimmed.
+/** The section-basis suffix: `metadata.basis` split on ";", each token trimmed.
  * Exactly one `section_basis=nominal_section` token adds " [nominal section]", exactly one
  * `section_basis=reduced_section` adds " [reduced section]", and no `section_basis=` token
  * adds nothing. Any other value, or more than one such token, refuses. The Rust helper
@@ -44,7 +44,7 @@ export type ReportResultRow = {
  * `fixtures/reports/invented/report_result_rows_parity.json`. A change here
  * changes the contract, the Rust helper and the vectors together.
  *
- * W-11 (DEL-08-01 Design `exact-route-report-sections.md` §3.4): a row whose
+ * a row whose
  * `metadata.basis` names its section basis adds it to the label (`sectionBasisSuffix`);
  * no preview-physics-2 row carries the token, so its rows are unchanged.
  *

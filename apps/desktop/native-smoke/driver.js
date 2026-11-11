@@ -46,7 +46,7 @@
   // is sent only when the section is not shown; then the wait is for it to show.
   // Sending it regardless raced: right after a second choice of an open page the
   // wait passed only if its first sample ran before the close was drawn, and
-  // otherwise timed out (DEL-07-11 Design `model-document-open-and-native-smoke.md`).
+  // otherwise timed out.
   const sectionShown = (section) => {
     const element = byTestId(`workspace-section-${section}`);
     return Boolean(element && element.offsetParent !== null);
@@ -236,7 +236,7 @@
     return record;
   }
 
-  // A3 (DEL-07-05 Design stress-ratio-table.md): the stress and ratio table's structure; no values are read.
+  // the stress and ratio table's structure; no values are read.
   function stressRatioStructure() {
     const panel = byTestId("stress-ratio-panel");
     if (!panel) return null;
@@ -257,7 +257,7 @@
     };
   }
 
-  // A8 (DEL-07-05 Design displacement-extremes.md): the displacement extremes panel's structure; no values are read.
+  // the displacement extremes panel's structure; no values are read.
   function displacementExtremesStructure() {
     const panel = byTestId("displacement-extremes-panel");
     if (!panel) return null;
@@ -277,7 +277,7 @@
     };
   }
 
-  // A9 (DEL-07-05 Design weight-cog-summary.md): the weight summary is model data, computed on
+  // the weight summary is model data, computed on
   // request with an entered gravity (an invented smoke input; no value is read or pinned).
   async function weightSummaryStructure() {
     if (!byTestId("weight-summary-panel")) return null;
@@ -808,7 +808,7 @@
       report_package_refusal: text("report-package-source-unavailable"),
       report_package_controls: Boolean(byTestId("report-package-controls"))
     };
-    // W-11 §5.1 item 6: the exact report rendered under the local-private selection, and
+    // the exact report rendered under the local-private selection, and
     // its package saved and re-read with the product's reader.
     gates.report_render = await renderLocalPrivateReport("exact/report");
     if (plan.exact.report_package) gates.report_package = await saveReportPackage(plan.exact.report_package.path, "exact/report-package");

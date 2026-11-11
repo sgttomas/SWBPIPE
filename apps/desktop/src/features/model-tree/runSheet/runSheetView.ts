@@ -1,4 +1,4 @@
-// Run sheet S2 (DEL-07-02 Design `run-sheet-entry.md` §1–§2, §3.4, §4): the
+// Run sheet: the
 // sheet's view, pure. It resolves every shown row with S1's resolver and lists
 // what each cell shows and why. Applied rows are views of the model: their
 // values are the entered values their checkpoint put in effect, resolved
@@ -26,7 +26,7 @@ export type SheetColumnKey = ComponentColumnKey
   | "bendRadius" | "k" | "kSource" | "sifInPlane" | "sifOutOfPlane" | "label" | "nodeId" | "pipeId"
   | "supportId" | "supportLabel" | "bendStartId" | "bendEndId" | "bendArcId" | "bendComponentId" | "bendSource"
   | "position" | "length";
-/** The collapsible column groups (§1.2), each shown and hidden by its own header toggle. */
+/** The collapsible column groups, each shown and hidden by its own header toggle. */
 export type SheetColumnGroup = "sectionExtras" | "idsAndSources" | "componentDetails";
 export const COLUMN_GROUP_LABELS: Readonly<Record<SheetColumnGroup, string>> = { sectionExtras: "Section extras", idsAndSources: "Ids and sources", componentDetails: "Component details" };
 export type SheetColumn = Readonly<{
@@ -80,10 +80,10 @@ export const SHEET_COLUMNS: readonly SheetColumn[] = [
   { key: "position", label: "Position", editable: false },
   { key: "length", label: "Length", editable: false },
 ];
-/** §5.1 The Enter fast path: dX → dY → dZ → Kind → Support → the next row's dX. */
+/** The Enter fast path: dX → dY → dZ → Kind → Support → the next row's dX. */
 export const FAST_PATH: readonly SheetColumnKey[] = ["dx", "dy", "dz", "kind", "support"];
 export const KIND_NAMES: Readonly<Record<string, string>> = { run: "run", bend: "bend run", support: "support only", from: "start from node", point: "start at point", valve: "valve run", flange: "flange run" };
-/** The id cells and the row input's `ids` member each writes (§3.2). */
+/** The id cells and the row input's `ids` member each writes. */
 export const ID_COLUMNS: Readonly<Partial<Record<SheetColumnKey, keyof NonNullable<RowValues["ids"]>>>> = {
   nodeId: "node", pipeId: "pipe", supportId: "support",
   bendStartId: "bendStart", bendEndId: "bendEnd", bendArcId: "bendArc", bendComponentId: "bendComponent",
@@ -98,7 +98,7 @@ export const CODE_LISTS = {
 
 /** The row input as entered, for any row (draft rows read their buffer; others their in-effect
  * values). An applied or detached row that created its end node carries that node's stored
- * position, so the chain after it continues from stored geometry (§3.4, §6.2 x_{k−1}). */
+ * position, so the chain after it continues from stored geometry. */
 export function rowInput(state: RunSheetState, row: SheetRow, status: RowStatus, lookup?: RecordLookup): RunSheetRowInput {
   if (status === "draft" || status === "queued") return { key: row.key, ...shownValues(state, row) };
   const entry = currentEntry(state.ledger, row.key);
@@ -148,7 +148,7 @@ const finitePosition = (record: unknown): Vec3 | null => {
   return position && [position.x, position.y, position.z].every((value) => typeof value === "number" && Number.isFinite(value)) ? { x: position.x, y: position.y, z: position.z } : null;
 };
 type StoredEnd = { end?: Vec3; endId?: string; pipeEnd?: Vec3; endMissing?: string; pipeEndMissing?: string };
-/** The stored geometry an applied row continues from (§3.4, §6.2), when the model still holds it:
+/** The stored geometry an applied row continues from, when the model still holds it:
  * - a run or P row that created its end node: that node;
  * - a bend row: the bend removed its corner, so its own pipe ends at the stored incoming tangent
  *   point T1 and the chain continues from the stored outgoing tangent point T2, by its id. Each
@@ -244,7 +244,7 @@ export const LIFECYCLE_MESSAGES = {
 /** "⟨cell⟩ ⟨id⟩ is already used." for each id cell (`MESSAGES.idUsed`). */
 const USED_ID = new RegExp(`^(${["Id", "Support id", ...BEND_ID_CELLS.map((cell) => cell.label)].join("|")}) (.+) is already used\\.$`);
 
-/** The view of the whole sheet (§2, §4.2), resolved synchronously with the conversions known so far. */
+/** The view of the whole sheet, resolved synchronously with the conversions known so far. */
 export function sheetView(input: {
   state: RunSheetState;
   statuses: ReadonlyMap<string, RowReconciliation>;
@@ -322,7 +322,7 @@ function modelLookup(model: PreviewModel): RecordLookup {
   return (ref) => ref.type === "node" ? nodes.get(ref.id) : ref.type === "component" ? components.get(ref.id) : undefined;
 }
 
-/** §3.2 A pipe id numbered by its start node is fixed the first time it is shown: each draft or
+/** A pipe id numbered by its start node is fixed the first time it is shown: each draft or
  * queued row that shows one, with a start node and no entered or stored id, records it in the
  * id state. Nothing is recorded while a conversion is pending, since positions decide starts. */
 export function recordShownPipeIds(state: RunSheetState, view: SheetView): RunSheetState {
@@ -338,7 +338,7 @@ export function recordShownPipeIds(state: RunSheetState, view: SheetView): RunSh
   return pipes ? { ...state, idState: { ...state.idState, pipes } } : state;
 }
 
-/** A numbering change retries every row whose number was refused (§3.2), in sheet order. */
+/** A numbering change retries every row whose number was refused, in sheet order. */
 export function retryNumbering(state: RunSheetState, model: PreviewModel, reserved: Iterable<string>): RunSheetState {
   const held = [...reserved];
   return state.rows.reduce((next, row) => {
@@ -363,7 +363,7 @@ function displayIncrements(stored: Vec3, storedUnit: string, sheetUnit: string, 
 const hasValues = (row: ViewRow) => Object.values(shownLike(row)).some((value) => value !== undefined && value !== "");
 const shownLike = (row: ViewRow) => ({ ...row.sheetRow.restored, ...row.sheetRow.edits }) as Record<string, unknown>;
 
-/** The ids a row's operations leave in the model, typed (§3.4 ownership). */
+/** The ids a row's operations leave in the model, typed. */
 export function ownedRefsOf(row: ResolvedRunSheetRow, ownedIds: readonly string[]): OwnedRef[] {
   const types = new Map<string, OwnedRef["type"]>();
   if (row.ids.node) types.set(row.ids.node, "node");
@@ -379,7 +379,7 @@ export function ownedRefsOf(row: ResolvedRunSheetRow, ownedIds: readonly string[
   return ownedIds.map((id) => ({ type: types.get(id) ?? "node", id }));
 }
 
-/** Build the one batch from the draft rows (§3.5): the builder over the real model. */
+/** Build the one batch from the draft rows: the builder over the real model. */
 export async function buildDraftBatch(view: SheetView, model: PreviewModel): Promise<RunSheetBuild> {
   if (view.queueBlocked) throw new Error(view.queueBlocked);
   return buildRunSheetBatch({ ...view.resolved, basis: model, rows: view.draftRows.map((row) => row.resolved), queueable: true });
@@ -390,7 +390,7 @@ export function queuedValues(state: RunSheetState, row: SheetRow): RowValues {
   return shownValues(state, row);
 }
 
-/** Queue (§3.6 Transitions): each acting row gets a pending marker, not in the
+/** Queue: each acting row gets a pending marker, not in the
  * ledger; its values stay in the buffer. The batch's rows, operations, owned ids
  * and queued values are kept for its checkpoint. The batch sequence moves on. */
 export function markSubmitted(shown: RunSheetState, view: SheetView, build: RunSheetBuild): RunSheetState {
@@ -558,7 +558,7 @@ export function cellView(view: SheetView, row: ViewRow, column: SheetColumn, col
       if (cell.error) return { ...base, text: entered(quantity), unit: columnUnit(quantity), origin: "entered" };
       if (cell.absent) return { ...base, text: "—", muted: cell.origin.kind !== "entered", origin: originText(cell.origin, true) };
       if (!cell.value) return { ...base, text: "", unit: columnUnit(quantity), origin: originText(cell.origin) };
-      // A value inherited from a stored pipe keeps its stored unit and shows it (§1.2).
+      // A value inherited from a stored pipe keeps its stored unit and shows it.
       return {
         ...base, text: fmt(cell.value.value), unit: cell.value.unit,
         muted: cell.origin.kind !== "entered", italic: cell.origin.kind === "derived", origin: originText(cell.origin),
@@ -567,11 +567,11 @@ export function cellView(view: SheetView, row: ViewRow, column: SheetColumn, col
   }
 }
 
-/** The accessible name of a cell (§5.3): "Row ⟨n⟩ ⟨column⟩: ⟨value⟩ ⟨unit⟩". */
+/** The accessible name of a cell: "Row ⟨n⟩ ⟨column⟩: ⟨value⟩ ⟨unit⟩". */
 export function cellName(row: ViewRow, column: SheetColumn, cell: CellView): string {
   return `Row ${row.resolved.number} ${DIMENSION_LABEL(column)}: ${[cell.text, cell.unit].filter(Boolean).join(" ")}`.trimEnd();
 }
-/** The row header (§5.3): "Row 4, bend run, draft, refused: a bend needs the next run". */
+/** The row header: "Row 4, bend run, draft, refused: a bend needs the next run". */
 export function rowHeaderText(row: ViewRow): string {
   const kind = row.resolved.kind ? KIND_NAMES[row.resolved.kind] : "invalid kind";
   const parts = [`Row ${row.resolved.number}`, kind, row.status];
@@ -588,7 +588,7 @@ export const sentenceFragment = (message: string) => {
 
 // ---- Edits (pure).
 
-/** Write one cell of a draft row; blank text returns it to inheritance (§2.4). */
+/** Write one cell of a draft row; blank text returns it to inheritance. */
 export function setCell(state: RunSheetState, rowKey: string, column: SheetColumnKey, text: string): RunSheetState {
   const row = state.rows.find((item) => item.key === rowKey);
   const fixed = state.idState.pipes?.[rowKey];
@@ -618,7 +618,7 @@ export function setCell(state: RunSheetState, rowKey: string, column: SheetColum
   };
 }
 
-/** §3.2 New F/S rows need no entity number. Existing assignments are never changed. */
+/** New F/S rows need no entity number. Existing assignments are never changed. */
 export function assignIds(state: RunSheetState, rowKey: string, model: PreviewModel, reserved: Iterable<string>): RunSheetState {
   if (state.idState.assigned[rowKey] !== undefined) return state;
   const row = state.rows.find((item) => item.key === rowKey);
@@ -654,12 +654,12 @@ export function deleteDraftRow(state: RunSheetState, rowKey: string): RunSheetSt
   }
   return { ...state, idState, rows: state.rows.filter((row) => row.key !== rowKey) };
 }
-/** Discard edit (§3.6): the row returns to its current entry's values. */
+/** Discard edit: the row returns to its current entry's values. */
 export function discardEdit(state: RunSheetState, rowKey: string): RunSheetState {
   return { ...state, rows: state.rows.map((row) => row.key === rowKey ? { ...row, edits: {}, restored: {} } : row) };
 }
 
-/** Values the inheriting cells take (§2.1), for Fill down's "effective value". */
+/** Values the inheriting cells take, for Fill down's "effective value". */
 export function effectiveText(row: ResolvedRunSheetRow, column: SheetColumnKey, typed: string): string {
   const field = componentField(column);
   if (field && row.component) return row.component[field];
@@ -674,7 +674,7 @@ export function effectiveText(row: ResolvedRunSheetRow, column: SheetColumnKey, 
   return cell.absent ? "-" : cell.value ? String(cell.value.value) : "";
 }
 
-/** Draft rows that have entered increments lock the sheet's length unit (§4.2 Mixed units). */
+/** Draft rows that have entered increments lock the sheet's length unit. */
 export function lengthUnitLock(view: SheetView): string | null {
   const locked = view.draftRows.some((row) => {
     const values = { ...row.sheetRow.restored, ...row.sheetRow.edits };

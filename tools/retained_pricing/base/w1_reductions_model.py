@@ -41,7 +41,7 @@ RF_PINS = {
     "core/solver/nonlinear_integration/src/structural_adapter.rs": "bf42cfa532f0f36823fb78128ad175d6bb9a5765e8fd7374599da89df4232a8b",
     "core/solver/straight_pipe/src/lib.rs": "9a4cb59ab52b6f4340fbd74bab9c83847b89691835d0e043a4971b261df452f7"
 }
-# T4-S5 D3 (epoch; retained-pricing-rules.md §8.8): the reduced cohort is re-bound after its diffs were read.
+# T4-S5 D3 (epoch; §8.8): the reduced cohort is re-bound after its diffs were read.
 # FormationSource.loads stays the Cow (L1a); load_closure only adds the TieRodReference arm and the reformation adds the
 # connectors' tie rods (P3: none on D1), so L1b/L1c are unchanged; the L2 constructors, the L3 Value moves and the L5
 # guard/shadow/insert/call texts (checked below) are unchanged. lib.rs's U4b rows, preview_physics.rs's kind predicates

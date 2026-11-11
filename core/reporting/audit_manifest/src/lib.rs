@@ -1090,7 +1090,7 @@ mod tests {
             .count()
     }
 
-    /// W-18 (DEL-08-01 Design `report-package-current-results.md` §2.4): the two
+    /// the two
     /// recorded bases are accepted in their slots and refused elsewhere; the
     /// existing bases keep their slots.
     #[test]

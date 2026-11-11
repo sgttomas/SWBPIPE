@@ -1207,7 +1207,7 @@ fn an_unblocked_package_whose_audit_identity_differs_from_its_result_member_is_r
     }
 }
 
-/// Checksum subjects at the reader (DEL-08-01 Design §2.4): an unblocked
+/// Checksum subjects at the reader: an unblocked
 /// package whose audit asset hash or result-member carrier checksum names
 /// another subject is refused, although its inventory is consistent.
 #[test]

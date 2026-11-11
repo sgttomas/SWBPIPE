@@ -1603,7 +1603,7 @@ fn validate_finite(name: &'static str, value: f64) -> Result<(), EvaluationError
 }
 
 // ---------------------------------------------------------------------------
-// Static type check (W-17, DEL-06-02 `Design/rule-pack-unit-check.md` §2.1)
+// Static type check
 // ---------------------------------------------------------------------------
 //
 // [`check_expression_types`] derives, without values, every finding the point
@@ -2062,7 +2062,7 @@ fn static_table(
 }
 
 // ---------------------------------------------------------------------------
-// Interval mode: conservative interval binding (T3 D2 §4.11, option C)
+// Interval mode: conservative interval binding
 // ---------------------------------------------------------------------------
 //
 // [`evaluate_interval`] evaluates the same frozen formula language over
@@ -2072,7 +2072,7 @@ fn static_table(
 // version, statuses and bindings), so an expression the point path rejects
 // for its structure is rejected here with the same findings.
 //
-// Soundness (D2 §4.11.4). Every floating operation is followed by one outward
+// Soundness. Every floating operation is followed by one outward
 // ulp step on each end (`next_down` on the lower end, `next_up` on the upper
 // end), which emulates directed rounding. Each enclosure therefore contains
 // both the exact real result and the binary64 result the point path computes,
@@ -2086,7 +2086,7 @@ fn static_table(
 // eager, as in the point path, so such a part decides the check even inside a
 // branch that is not taken.
 
-/// Kleene three-valued truth of an interval-mode predicate (D2 §4.11.3).
+/// Kleene three-valued truth of an interval-mode predicate.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Truth {
     /// The predicate holds for every value in the input box.
@@ -2150,7 +2150,7 @@ impl Enclosure {
         self.lo == self.hi
     }
 
-    /// The fixed bit form used in runner findings (D2 §4.11.5):
+    /// The fixed bit form used in runner findings:
     /// `[0x<lo bits>,0x<hi bits>]`.
     pub fn bits_text(&self) -> String {
         format!(
@@ -2162,7 +2162,7 @@ impl Enclosure {
 }
 
 /// Forms the binding enclosure of a verified row from its published value
-/// `value` (q) and its listed bound `bound` (b), D2 §4.11.2:
+/// `value` (q) and its listed bound `bound` (b):
 /// `[next_down(fl(q - b)), next_up(fl(q + b))]`.
 ///
 /// `bound == 0` binds the exact point `q` with no widening. Returns `None`
@@ -2180,7 +2180,7 @@ pub fn enclosure_from_bound(value: f64, bound: f64) -> Option<Enclosure> {
 }
 
 /// One outward ulp step on each end of a just-rounded floating result
-/// (directed-rounding emulation, D2 §4.11.3). Any non-finite end gives `None`.
+/// (directed-rounding emulation). Any non-finite end gives `None`.
 fn outward(lo: f64, hi: f64) -> Option<Enclosure> {
     if !lo.is_finite() || !hi.is_finite() {
         return None;
@@ -2254,7 +2254,7 @@ fn interval_hull(a: Enclosure, b: Enclosure) -> Enclosure {
     }
 }
 
-/// `abs` over an enclosure (exact, D2 §4.11.3).
+/// `abs` over an enclosure (exact).
 fn interval_abs(e: Enclosure) -> Enclosure {
     if e.lo >= 0.0 {
         e
@@ -2271,7 +2271,7 @@ fn interval_abs(e: Enclosure) -> Enclosure {
     }
 }
 
-/// The six comparisons over enclosures (D2 §4.11.3). Strictness is respected
+/// The six comparisons over enclosures. Strictness is respected
 /// at the ends; `equal` is `True` only for two equal points.
 fn interval_compare(
     operator: ComparisonOperator,
@@ -2339,7 +2339,7 @@ fn interval_equal(a: Enclosure, b: Enclosure) -> Truth {
 pub enum IntervalNoteCode {
     /// A divisor enclosure contains zero (or has no finite enclosure): the
     /// point path would block at some value. The runner reports it as
-    /// `RULE_INTERVAL_DIVIDE_BY_ZERO_RANGE` (D2 §4.11.3).
+    /// `RULE_INTERVAL_DIVIDE_BY_ZERO_RANGE`.
     DivideByZeroRange,
     /// An interpolation or step-lookup argument enclosure is not inside the
     /// table's closed row-argument range (or has no finite enclosure): the
@@ -2422,13 +2422,13 @@ impl IntervalEvaluationResult {
     }
 }
 
-/// Interval mode over the whole formula language (D2 §4.11.3).
+/// Interval mode over the whole formula language.
 ///
 /// `input` is read exactly as [`evaluate`] reads it; `intervals` overlays
 /// enclosures on some of its bound variables. With no overlays every input is
 /// a point, but every floating operation still widens outward, so this is not
 /// a substitute for [`evaluate`]: callers use interval mode only for a check
-/// with at least one interval input (D2 §4.11.1).
+/// with at least one interval input.
 pub fn evaluate_interval(
     input: &EvaluationInput,
     intervals: &[IntervalBinding],
@@ -4660,7 +4660,7 @@ mod tests {
 
     #[test]
     fn the_comparison_truth_table_is_unreachable() {
-        // I87 §2.4: every row pairs a non-finite operand (or two) with a
+        // every row pairs a non-finite operand (or two) with a
         // comparison. Each operand's producer now blocks first, so no row is
         // decided; the finding is the first (left-hand) producer's.
         let positive = || {
@@ -4970,7 +4970,7 @@ mod tests {
     }
 }
 
-/// Interval mode (T3 D2 §4.11): per-operator enclosure bits, three-valued
+/// Interval mode: per-operator enclosure bits, three-valued
 /// outcomes, structural parity with the point path, and a seeded soundness
 /// property against the unchanged point path. All values are invented.
 #[cfg(test)]
@@ -5125,7 +5125,7 @@ mod interval_tests {
     fn bound_forms_outward_ends_and_zero_bound_is_an_exact_point() {
         assert_eq!(enclosure_from_bound(1.0, 0.0), Some(Enclosure::point(1.0)));
         assert_eq!(enclosure_from_bound(1.0, 0.5), Some(enc(nd(0.5), nu(1.5))));
-        // A subnormal bound needs no special case (D2 §4.11.2).
+        // A subnormal bound needs no special case.
         let tiny = f64::from_bits(1);
         assert_eq!(
             enclosure_from_bound(0.0, tiny),

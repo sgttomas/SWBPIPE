@@ -1,9 +1,9 @@
-// B5 (DEL-07-01 Design `split-and-slope-entry.md` §3): an end point from a length and a
+// an end point from a length and a
 // direction, a length and an angle from the horizontal, or a "1 in n" slope. It is an entry aid:
 // it computes the node coordinates the existing operations take (create_node, reconnect to a new
 // point) and nothing else. The slope, angle and direction are never written to the model.
 //
-// The arithmetic is binary64, round to nearest, in the order written below (§3.2):
+// The arithmetic is binary64, round to nearest, in the order written below:
 //   Ls     = convert_for_dimension(L, entry unit -> project length unit)    up to two inexact roundings (the multiplication and the division)
 //   u      = scaled normalization of d (see unitDirection): s = max|d_i|, e = d / s,
 //            n = sqrt(ex*ex + ey*ey + ez*ez), u_i = e_i / n; no underflow or overflow

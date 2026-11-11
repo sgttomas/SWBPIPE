@@ -1,4 +1,4 @@
-//! F1b (T3 D1 revision 5a.2 §4.7, W2 at formation in the product; ROOT's F1b
+//! F1b (W2 at formation in the product; ROOT's F1b
 //! rulings of 2026-09-28): product-level tests of force scaling through both
 //! public entries (the captured `run_linear_static_preview_value_with_mode`
 //! and the historical typed `run_linear_static_preview_with_mode`) where the
@@ -214,7 +214,7 @@ fn scaled_chain(pl: i32, pm: i32, pf: i32) -> Value {
     )
 }
 
-/// K2b's documented-limitation chain (K2b RETURN §13.3) at product level:
+/// K2b's documented-limitation chain at product level:
 /// N0-N1-N2 along x, 1 m bars, OD 0.2 m, wall 0.01 m, E = 2^440 Pa,
 /// G = 2^439 Pa, UX loads of 2^-1010 N at N1 and 1 N at N2; N1 and N2 are free
 /// in UX only.
@@ -531,7 +531,7 @@ fn within(observed: f64, expected: f64) -> bool {
 
 // ------------------------------------------------------------------ tests
 
-/// Scope §6, PHYS-R4 (ROOT Q10 as approved): the public fixture is not solved
+/// PHYS-R4 (ROOT Q10 as approved): the public fixture is not solved
 /// with K2b's census. Its exact-pressure end-cap operand is subnormal at
 /// formation, so the census refuses it, by name, with M03's step-1 trigger and
 /// no b. Both entries (F1b adds the captured one) and both modes.
@@ -547,7 +547,7 @@ fn f1b_w2_phys_r4_fixture_is_refused_by_the_census() {
     );
 }
 
-/// Scope §6, PHYS-R4 without pressure: published at b = 536 on both entries
+/// PHYS-R4 without pressure: published at b = 536 on both entries
 /// and in both modes. u_y, theta_z and theta_x at the tip are within 1e-9 of
 /// the exact cantilever values from the product's binary64 section
 /// (Iz = 1.178097245096172e-307 m^4, J = 2.356194490192344e-307 m^4,
@@ -610,7 +610,7 @@ fn f1b_w2_phys_r4_without_pressure_is_published_at_b_536() {
     }
 }
 
-/// Scope §6, K2b's documented limitation (not fixed): the product analogue of
+/// K2b's documented limitation (not fixed): the product analogue of
 /// the E = 2^440 chain is refused at the rule's b (census span [-1010, 443],
 /// b = 312) by name, with M03's trigger and no b (OQ1, c2). The captured
 /// entry refuses 2^440 at capture. (F1b's forced-even-b probe records that
@@ -835,9 +835,9 @@ fn f1b_w2_publication_refuses_a_value_outside_binary64() {
 /// outcomes are rendered with their fields (RV11-N3): K2a's partial-underflow
 /// case (b = 898) publishes its whole evidence line, identically on both
 /// entries and in both modes, with S11-G's `NAMED` (6) entries and `more=1`.
-/// The case is `CHECKS_PASSED`: the W2 attempt's own member bound (DEL-04-01
-/// kd5-member-relative-bound.md §2.2) replaces R-b''s fail-closed rule at
-/// b != 0, and the unified predicate passes its certified rows (§§3.3, 4.2).
+/// The case is `CHECKS_PASSED`: the W2 attempt's own member bound
+/// replaces R-b''s fail-closed rule at
+/// b != 0, and the unified predicate passes its certified rows.
 #[test]
 fn f1b_w2_evidence_line_renders_subnormal_values_and_records() {
     let request = reach(

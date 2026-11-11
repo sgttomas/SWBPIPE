@@ -245,7 +245,7 @@ export function buildDisplacementExtremes(input: {
   });
 }
 
-// --- The view: chosen cases, filter and sort (§5) -------------------------------------------
+// --- The view: chosen cases, filter and sort -------------------------------------------
 
 export type DisplacementSort = "model" | DisplacementComponentId;
 
@@ -301,7 +301,7 @@ function extremeOf(node: DisplacementNode, component: DisplacementComponentId, c
   return Object.freeze({ max, min, note: null });
 }
 
-/** The view of the derivation under the user's case choice, filter and sort (§5). Pure; frozen. */
+/** The view of the derivation under the user's case choice, filter and sort. Pure; frozen. */
 export function displacementExtremesView(
   data: DisplacementExtremes,
   options: { caseKeys: readonly string[] | null; filter: string; sort: DisplacementSort }

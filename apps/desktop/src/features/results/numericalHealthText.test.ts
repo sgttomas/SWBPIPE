@@ -1,4 +1,4 @@
-// DEL-07-05 numerical health §3, §5 and §7: every literal of numericalHealthText.ts
+// every literal of numericalHealthText.ts
 // pinned to the design's wording, and the module's vocabulary fence.
 import { readFileSync } from "node:fs";
 import path from "node:path";

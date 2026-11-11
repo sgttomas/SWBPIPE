@@ -1,4 +1,4 @@
-"""W-16 slice a D3 (DEL-04-03 Design pf-imposed-displacement.md; retained-pricing-rules.md §8.23): the positive owners
+"""W-16 slice a D3 (§8.23): the positive owners
 imposed displacement on the pressure-free route adds outside the chain's TEXT inventory. D1.7 refuses every
 support-targeted primitive (W16-NS), so no admitted case carries motion; what remains on D1 is priced here.
 
@@ -17,7 +17,7 @@ exact branch pushes nothing on D1), as W7-QF is.
 Not owners on D1: validate_pressure_free's per-case `prescribed` HashMap (inserted into only on a support target), the
 DOF name `to_ascii_uppercase()` (support branch) and refuse's `support.map(str::to_string)` (None at the one reachable call).
 
-W-16 stage 2 D3 (DEL-04-03 Design pf-nonlinear-imposed-motion.md §7, §10.4, §11.5; retained-pricing-rules.md §8.29):
+W-16 stage 2 D3 (§8.29):
 W16S-SG (both routes, per case solve, CasePrefix): `imposed_motion::case_spring_ground` runs for every case solved
 without a load state and allocates `ground`, a vec![0.0; s] (f64), and `moved`, a vec![false; s] (bool), each of the
 case's s prepared springs, even without a spring target; `moved` ends at its return and `ground` lives through the case's

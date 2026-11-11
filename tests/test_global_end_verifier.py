@@ -1,4 +1,4 @@
-"""W-7 (DEL-04-01 Design global-end-actions.md): the Python verifier's checks of the member end actions in global
+"""the Python verifier's checks of the member end actions in global
 coordinates (`tests/verifiers/global_end.py`), mirroring the Rust reader's unit controls
 (`core/reporting/result_export/src/global_end_evidence.rs`). Invented rows only."""
 from __future__ import annotations

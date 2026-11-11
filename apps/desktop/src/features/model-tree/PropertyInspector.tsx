@@ -113,7 +113,7 @@ export function PropertyInspector({
   const editableFields = useMemo(() => editorFieldOptions(model, draftTarget, unitCatalogRoute), [draftTarget, model, unitCatalogRoute]);
   const [selectedFieldPath, setSelectedFieldPath] = useState(editableFields[0]?.fieldPath ?? "");
   const [proposedValue, setProposedValue] = useState(fieldEntryValue(editableFields[0]));
-  // W-17 slice (c) §7.3: a unit the user picks is kept; until then the field's own
+  // a unit the user picks is kept; until then the field's own
   // (inherited) default is used, recomputed whenever the field is, so a catalog that
   // arrives late, or a project-unit change, replaces an inherited default but never a
   // chosen unit. A stored unit is the field's default and is kept.
@@ -171,7 +171,7 @@ export function PropertyInspector({
     "thermal_expansion_coefficient",
     thermalExpansionUnit(model, unitCatalogRoute)
   );
-  // W-17 §2.4: a composed default the catalog lacks leaves the unit unselected, and says why.
+  // a composed default the catalog lacks leaves the unit unselected, and says why.
   const supportStiffnessUnitNotice = supportDraft.linearStiffnessUnit === "" ? linearStiffnessUnitNotice(model, unitCatalogRoute) : null;
   const supportFamilySuggestion = suggestedSupportFamily(supportDraft.restraints, supportDraft.linearStiffness);
   const thermalExpansionUnitNotice = materialDraft.thermalExpansionUnit === "" ? thermalExpansionUnitNoticeFor(model, unitCatalogRoute) : null;
@@ -185,7 +185,7 @@ export function PropertyInspector({
     "force",
     componentDraft.forceUnit || storedProjectUnits(model).force || "TBD"
   );
-  // W-17 §3: a draft unit left unselected because its project key is absent names the key.
+  // a draft unit left unselected because its project key is absent names the key.
   const componentUnitNotices = componentDraftMissingUnitNotices(model, componentDraft);
   const nodeTargetOptions = useMemo(() => model.nodes.map((node) => ({ value: node.id, label: node.label || node.id })), [model.nodes]);
   const connectedPipeTargetOptions = useMemo(() => model.pipe_segments
@@ -1248,9 +1248,9 @@ type EditableField = {
   /** The entry form of the current value where it differs from `before`
    * (a vector's three components without its unit). */
   initialValue?: string;
-  /** W-17 §3: the field's default unit is this project key's, which the document lacks. */
+  /** the field's default unit is this project key's, which the document lacks. */
   missingProjectUnit?: { key: ProjectUnitKey; mode: MissingProjectUnitMode };
-  /** W-17 §7.3, §7.6: why a composed default gives no unit (not a catalog unit, or an invalid key). */
+  /** why a composed default gives no unit (not a catalog unit, or an invalid key). */
   unitNotice?: string;
 };
 
@@ -1699,7 +1699,7 @@ function UnitCatalogPanel({ bases, route }: { bases: UnitBasisDisplay[]; route: 
 
 function unitOptions(route: UnitCatalogRoute | null, dimensionId: string, fallbackSymbol: string): UnitOption[] {
   const fallbackBasis = describeUnitBasis(route, fallbackSymbol, dimensionId);
-  // "" is an unselected default (W-17 §2.4): offer a placeholder and the catalog, nothing in its place.
+  // "" is an unselected default: offer a placeholder and the catalog, nothing in its place.
   const fallback = fallbackSymbol === ""
     ? { symbol: "", label: "Choose a unit" }
     : {
@@ -2639,12 +2639,12 @@ function quantityField(
 }
 
 /** A field whose default unit is a project key's: with the key absent the field has
- * no unit ("", unselected) and names the key; nothing is assumed (W-17 §3). */
+ * no unit ("", unselected) and names the key; nothing is assumed. */
 function projectUnitDefault(field: EditableField, key: ProjectUnitKey, mode: MissingProjectUnitMode): EditableField {
   return field.unit === "" ? { ...field, missingProjectUnit: { key, mode } } : field;
 }
 
-/** A field whose default unit is composed from project keys (W-17 §7.3, §7.6): a
+/** A field whose default unit is composed from project keys: a
  * stored unit is kept; otherwise the composed default, or no unit ("") with the
  * absent key named or the notice given. The field has its own unit selector, so a
  * unit picked there lifts the refusal. */
@@ -3224,7 +3224,7 @@ function isSupportDraftValid(model: PreviewModel, draft: SupportDraft): boolean 
   );
 }
 
-// An opened document may lack some `project.units` keys (W-17 §3): each then
+// An opened document may lack some `project.units` keys: each then
 // reads as absent, shown as missing ("TBD" or unselected) and offered on the
 // Project page, never written or defaulted here. A document without the map is
 // refused at open (MODEL-FILE-SHAPE); an absent map still reads as empty here.
@@ -3240,7 +3240,7 @@ function stressUnit(model: PreviewModel): string {
   return storedProjectUnits(model).pressure ?? "TBD";
 }
 
-// Composed defaults (W-17 §2.4): `1/<temperature>` and `<force>/<length>`, each
+// Composed defaults: `1/<temperature>` and `<force>/<length>`, each
 // checked against the loaded catalog. A composition the catalog lacks gives ""
 // (unselected), never a substitute. A declared `linear_stiffness` key is used as is.
 function thermalExpansionUnit(model: PreviewModel, route: UnitCatalogRoute | null = null): string {
@@ -3288,7 +3288,7 @@ function deepFreezeIntent(intent: EditorOperationIntent): EditorOperationIntent 
 }
 
 /** The inspector's create paths (default drafts and intent builders), for the
- * desktop emission golden that drives each authoring path (W-13 §5.2). */
+ * desktop emission golden that drives each authoring path. */
 export const inspectorAuthoringPaths = {
   defaultMaterialDraft,
   buildCreateMaterialIntent,
@@ -3296,7 +3296,7 @@ export const inspectorAuthoringPaths = {
   buildCreateSectionIntent,
   defaultSupportDraft,
   buildCreateSupportIntent,
-  // W-15 slice c (DEL-02-01 Design model-document-0.8.0.md §5): the reducer's
+  // the reducer's
   // eccentric-offset field and the inspector's edit intent, for the emission golden.
   eccentricOffsetField: (vector: { x: number; y: number; z: number; unit: string } | undefined, defaultUnit: string) =>
     vectorField("Eccentric offset", "geometry.eccentric_offset", vector, defaultUnit, ECCENTRIC_OFFSET_CONVENTION),

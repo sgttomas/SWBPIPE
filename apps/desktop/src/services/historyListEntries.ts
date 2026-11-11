@@ -1,4 +1,4 @@
-// The history lists' entries (W-12; DEL-14-01 Design §2, §3): the native store
+// The history lists' entries (W-12): the native store
 // lists each saved state or recorded run it can read as its verified summary,
 // and each row it cannot read only by its id and its named refusal. One
 // unreadable row never hides a project's history; none of its unverified fields

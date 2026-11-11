@@ -1,4 +1,4 @@
-// DEL-07-05 numerical health §3: under the verdict-only hold the Solver chip's title is
+// under the verdict-only hold the Solver chip's title is
 // the health headline and its popover shows the headline and the output sentence, not
 // the internal `needs_recompute` token; without the hold the chip is unchanged.
 import { fireEvent, render, screen } from "@testing-library/react";

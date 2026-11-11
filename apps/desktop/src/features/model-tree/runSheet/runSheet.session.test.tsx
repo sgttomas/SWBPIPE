@@ -1,4 +1,4 @@
-// Run sheet S2 (DEL-07-02 Design `run-sheet-entry.md` §3.6, §7 S2) against the
+// Run sheet against the
 // workspace session itself, with the sheet's store listening on the session's
 // event channel and the actual wasm engine: injected failures in Prepare and
 // Notify for apply, Undo and Redo; the apply order and the retirement of stale

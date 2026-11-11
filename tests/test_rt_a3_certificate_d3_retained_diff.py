@@ -1,8 +1,8 @@
-"""RT-A3 §4 D3 (DEL-04-08 `retained-pricing-rules.md` §8.53): the retained carriers regenerated on the registered build.
+"""the retained carriers regenerated on the registered build.
 
 On the registered build the W1 freeze admits the certificate's member (retained_product.rs preview_case_evidence), so
 every retained successor with a combination carries the ordinary run's `contract_evidence.combination_certificate`
-and its notices (DEL-05-02 Work `combination-certificate.md`, "Retained successors (for D3)"). The preserved endpoint
+and its notices. The preserved endpoint
 is BASE, the registration commit before the carriers were regenerated (§8.53's profile on the old carriers). Across
 this regeneration only these may change:
 

@@ -1,4 +1,4 @@
-//! Sidecar format 6 (DEL-17-04 Design `caepipe-mbf-import.md` §15, Format 6), the Rust twin of the format-6 tests in
+//! Sidecar format 6, the Rust twin of the format-6 tests in
 //! `tests/test_caepipe_mbf_si_writer.py`, `tests/test_caepipe_mbf_importer.py` and `tests/test_caepipe_mbf_round_trip.py`:
 //! the writer records the digest of the canonical model document it read, every export setting that can change the
 //! bytes, and the tangent node each bend component names; the strict parser refuses a malformed format-6 sidecar by

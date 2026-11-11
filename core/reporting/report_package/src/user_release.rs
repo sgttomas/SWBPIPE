@@ -1,16 +1,16 @@
 //! The derivation of a user-released report package request (W-18b slice
-//! (r2b); DEL-08-01 Design `report-user-release.md` §2.6). Under scope R
+//! (r2b)). Under scope R
 //! native admission does not label or bound caller content: it derives the
 //! whole request from the bound basis and requires canonical equality.
 //!
-//! D-6 extends this derivation to exact results with record 1.1.0 (§11):
+//! D-6 extends this derivation to exact results with record 1.1.0:
 //! native admission checks custody and delivered texts, then the derivation
 //! rebuilds exact sections, limitations and Diagnostics from the bound source.
 //! The older pressure-free record and its vectors remain unchanged.
 //!
 //! The bound basis is the model `M`, the source carrier `S` (attested for `M`
 //! with the solver mode `m`), the run record `R` (checked by native
-//! admission, §2.5 step 8), the host's software identity `H` and the user's
+//! admission), the host's software identity `H` and the user's
 //! record `U`. The input manifest `I` is derived from `M`, `S` and `m`; the
 //! request's `I` must equal it. Every builder here is the Rust mirror of a
 //! desktop builder, held equal by the committed vectors
@@ -52,7 +52,7 @@
 //! Slice (r2c) adds, here, the route-010 vocabulary every layer refuses with,
 //! the user-release markers ([`user_release_marker`]), the producer entry
 //! ([`ProducerEntry`], [`DerivedUserRelease`]) and the producer's one entry
-//! that admits the user-released profile, [`assemble_derived`] (§2.8): its
+//! that admits the user-released profile, [`assemble_derived`]: its
 //! preflight (item 0, then the user-released exact check), then the
 //! whole-request derivation (`check_derived`), then the shared producer under
 //! the user-release entry. Its one caller is native admission's route-010
@@ -75,13 +75,13 @@ use serde_json::{json, Map, Value};
 use std::cmp::Ordering;
 use std::collections::BTreeSet;
 
-/// The user-released export profile (§2.1).
+/// The user-released export profile.
 pub const USER_RELEASED_DESKTOP_PROFILE: &str = "desktop_user_released_report_package_1";
-/// The user-released export context (DEL-12-02 runtime vocabulary, §3.1).
+/// The user-released export context (DEL-12-02 runtime vocabulary).
 pub const USER_RELEASED_CONTEXT: &str = "user_released_report";
-/// The package id prefix of a user-released package (§2.1).
+/// The package id prefix of a user-released package.
 pub const USER_RELEASED_PACKAGE_PREFIX: &str = "desktop-user-released-report-";
-/// A request member is not its derivation (§2.5 step 9).
+/// A request member is not its derivation.
 pub const CONTENT_NOT_DERIVED: &str = "REPORT-USER-RELEASE-CONTENT-NOT-DERIVED";
 /// The source is an exact-route (`pressure-2`, `pressure-source-1`) result
 /// (§0): a shareable package carries pressure-free results only.
@@ -90,7 +90,7 @@ pub const EXACT_ROUTE_NOT_ADMITTED: &str = "REPORT-USER-RELEASE-EXACT-ROUTE-NOT-
 /// or not of the builders' form).
 pub const BASIS_INVALID: &str = "REPORT-USER-RELEASE-BASIS-INVALID";
 
-// The route-010 vocabulary (§2.5, §2.7, §2.8, §2.9), one definition for every
+// The route-010 vocabulary, one definition for every
 // layer that refuses with it: native admission (`src-tauri`), the producer
 // and the headless runner.
 
@@ -98,15 +98,15 @@ pub const BASIS_INVALID: &str = "REPORT-USER-RELEASE-BASIS-INVALID";
 /// §2.5 steps 3-4).
 pub const RECORD_INVALID: &str = "REPORT-USER-RELEASE-RECORD-INVALID";
 /// A bound record member differs from the value native admission computed or
-/// bound (§2.5 step 4).
+/// bound.
 pub const UNBOUND: &str = "REPORT-USER-RELEASE-UNBOUND";
-/// A user-release record on the local-private route 009 (§2.5 step 3).
+/// A user-release record on the local-private route 009.
 pub const NOT_THIS_ROUTE: &str = "REPORT-USER-RELEASE-NOT-THIS-ROUTE";
-/// The model carries a detectable library reference (§2.7).
+/// The model carries a detectable library reference.
 pub const LIBRARY_REFERENCED: &str = "REPORT-USER-RELEASE-LIBRARY-REFERENCED";
-/// The model or its input manifest carries a rule-pack reference (§2.7).
+/// The model or its input manifest carries a rule-pack reference.
 pub const RULE_PACK_REFERENCED: &str = "REPORT-USER-RELEASE-RULE-PACK-REFERENCED";
-/// An object carries a non-project private class (§2.7).
+/// An object carries a non-project private class.
 pub const PRIVATE_CLASS: &str = "REPORT-USER-RELEASE-PRIVATE-CLASS";
 /// This session's solver holds no attested solve of the model and result
 /// (§2.4, §2.5 step 7).
@@ -121,14 +121,14 @@ pub const RUNNER_NOT_ADMITTED: &str = "REPORT-USER-RELEASE-RUNNER-NOT-ADMITTED";
 /// refusal 2).
 pub const PACKAGE_NOT_ADMITTED: &str = "REPORT-PACKAGE-USER-RELEASE-NOT-ADMITTED";
 /// Under the admitting entry, the request is not a user-released request, or
-/// its record differs from the request's members (§2.8 items 8 and 10, the
+/// its record differs from the request's members (items 8 and 10, the
 /// handoff rule).
 pub const PACKAGE_UNBOUND: &str = "REPORT-PACKAGE-USER-RELEASE-UNBOUND";
 
-/// The three user-release markers (§2.8), each by its fixed path, in order.
+/// The three user-release markers, each by its fixed path, in order.
 pub const MARKER_PATHS: [&str; 3] = ["export_profile_id", "report.report_context.export_context", "report.report_context.user_release"];
 
-/// The first user-release marker a request carries (§2.8): its
+/// The first user-release marker a request carries: its
 /// `export_profile_id` is the user-released profile; its
 /// `report.report_context.export_context` is `user_released_report`; or its
 /// `report.report_context` has a `user_release` member, whatever its value.
@@ -148,7 +148,7 @@ pub fn user_release_marker(export_profile_id: &str, report: &Value) -> Option<&'
     }
 }
 
-/// The general entries' refusal of a marker (§2.8, refusal 2).
+/// The general entries' refusal of a marker.
 pub(crate) fn general_entry_refusal(marker: &str) -> String {
     format!(
         "{PACKAGE_NOT_ADMITTED}: this producer entry packages no user-released report; only the desktop's route DREP-PACKAGE-USER-RELEASE-010 builds one, through user_release::assemble_derived (marker: {marker})"
@@ -171,7 +171,7 @@ pub(crate) fn container_marker(export_profile_id: &str, report: &open_pipe_stres
     }
 }
 
-/// Proof that the whole-request derivation held (§2.8). Its field is private
+/// Proof that the whole-request derivation held. Its field is private
 /// and it derives neither `Clone`, `Copy` nor `Default`: only
 /// [`check_derived`] constructs one, and only [`assemble_derived`] calls that
 /// (`user_release_reach_scan`).
@@ -179,7 +179,7 @@ pub(crate) struct DerivedUserRelease {
     _derived: (),
 }
 
-/// Which producer entry a request came through (§2.8). The general entries
+/// Which producer entry a request came through. The general entries
 /// pass [`ProducerEntry::General`], which refuses every user-release marker;
 /// only [`assemble_derived`] passes [`ProducerEntry::UserRelease`]. It is not
 /// an admitted set and changes no item-0 decision.
@@ -228,7 +228,7 @@ pub struct SoftwareIdentity {
     pub version: String,
 }
 
-/// The bound basis of §2.6. Each member is a validation input only; none is
+/// The bound basis. Each member is a validation input only; none is
 /// written to the package except as the derivation writes it.
 pub struct UserReleaseBasis<'a> {
     /// `M`, the model text's value.
@@ -250,7 +250,7 @@ pub struct UserReleaseBasis<'a> {
 
 /// The bound basis without `S` and `C`: the admitting entry takes `S` from the
 /// request it admits (`/source_results/0`), which native admission has bound
-/// to this session's attested solve of `M` (§2.4, §2.5 step 7).
+/// to this session's attested solve of `M`.
 pub struct UserReleaseInputs<'a> {
     /// `M`.
     pub model: &'a Value,
@@ -392,8 +392,8 @@ pub fn session_provenance(model: &Value) -> Result<Value, String> {
 /// The input manifest `buildCurrentSessionInputManifest` builds for a desktop
 /// solve of `model` in `solver_mode` whose producer is `source`'s: the solve's
 /// fixed settings for the mode (`workspaceSession.ts`), `active_rule_packs: []`
-/// and `external_assets: []` (§2.6; every model with a rule-pack reference is
-/// refused before the derivation, §2.7).
+/// and `external_assets: []` (every model with a rule-pack reference is
+/// refused before the derivation).
 pub fn derive_input_manifest(model: &Value, source: &Value, solver_mode: &str) -> Result<Value, String> {
     if !SOLVER_MODES.contains(&solver_mode) {
         return Err(invalid(format_args!("the solver mode {solver_mode:?} is not a desktop solve's")));
@@ -526,7 +526,7 @@ fn mapped_object_ref(item: &Value, what: &str) -> Result<Value, String> {
 /// (`resultExportAdapter.ts`) from the run record's `analysis_run` and the
 /// input manifest's reference and solver basis. Its diagnostics are the
 /// source's: a run record with any further diagnostic (a rule-pack reference
-/// exclusion) is outside scope R (§2.7) and is refused here.
+/// exclusion) is outside scope R and is refused here.
 pub fn current_result_document_base(model: &Value, source: &Value, run_record: &Value, manifest_ref: &str, solver_basis: &Value) -> Result<Value, String> {
     let run = run_record.get("analysis_run").ok_or_else(|| invalid("the run record has no analysis_run"))?;
     let (model_id, source_run, run_id) = (text(model, "/project/id")?, text(source, "/run_id")?, text(run, "/run_id")?);
@@ -651,7 +651,7 @@ fn report_envelope(payload_ref: Value, schema_id: &str, value: Option<&str>, pro
 
 /// The report context `buildReportContext` writes, under
 /// `user_released_report` with `generated_at` null, `H`'s software identity
-/// and the record `U` (§2.6). The solver mode and settings are the bound input
+/// and the record `U`. The solver mode and settings are the bound input
 /// manifest's.
 fn report_context(source: &Value, run: &Value, input_manifest: &Value, software: &SoftwareIdentity, record: &UserReleaseRecord) -> Result<Value, String> {
     let solver_basis = input_manifest.get("solver_basis").ok_or_else(|| invalid("the input manifest has no solver basis"))?;
@@ -687,7 +687,7 @@ fn report_context(source: &Value, run: &Value, input_manifest: &Value, software:
     }))
 }
 
-/// The minimal native renderer input (§2.6): the title, the model summary,
+/// The minimal native renderer input: the title, the model summary,
 /// the load cases, the solve's result rows and diagnostics, the status
 /// disclosures, the fixed technical-preview limitation, the run context and
 /// the record. It carries no rule-pack reference, user-rule outcome,
@@ -915,9 +915,9 @@ fn check_pressure_free(source: &Value) -> Result<(), String> {
     }
 }
 
-/// `E(M, S, m, I, R, H, U, C)` (§2.6): the derived input manifest and the whole
+/// `E(M, S, m, I, R, H, U, C)`: the derived input manifest and the whole
 /// derived request. The run record's rule status must be the solve's own
-/// (no rule-check aggregate, §2.5 step 8), and the run record must name the
+/// (no rule-check aggregate), and the run record must name the
 /// derived input manifest. The derived report is checked with the producer's
 /// own row-checksum and unit-summary checks, so a source whose rows are not
 /// the run record's is refused here as by the producer.
@@ -975,7 +975,7 @@ fn derive_in(basis: &UserReleaseBasis<'_>, custody: Option<(&str, &str)>) -> Res
     if let Some(composition) = composition {
         report["report_composition"] = derived_composition(composition)?;
     }
-    // Slice C5 (§2.7): `P(M, C)` for the derived composition, so whole-request
+    // Slice C5: `P(M, C)` for the derived composition, so whole-request
     // equality binds the model-input tables to M.
     if let Some(tables) = crate::model_input::model_input_tables(model, report.get("report_composition"))? {
         report["model_input_tables"] = tables;
@@ -1208,7 +1208,7 @@ pub(crate) fn first_difference_shown(expected: &Value, found: &Value) -> Option<
 }
 
 /// The input manifest, then the whole request, must canonically equal their
-/// derivations (§2.5 step 9). The refusal names the first differing JSON
+/// derivations. The refusal names the first differing JSON
 /// pointer, never a value.
 pub fn check_matches_derivation(derivation: &UserReleaseDerivation, input_manifest: &Value, request: &Value) -> Result<(), String> {
     if let Some(pointer) = first_difference_shown(&derivation.input_manifest, input_manifest) {
@@ -1220,7 +1220,7 @@ pub fn check_matches_derivation(derivation: &UserReleaseDerivation, input_manife
     Ok(())
 }
 
-/// The derivation check (§2.5 step 9, §2.8): `E(M, S, m, I, R, H, U, C)`, then
+/// The derivation check: `E(M, S, m, I, R, H, U, C)`, then
 /// the input manifest and the whole request must equal it canonically. Only
 /// [`assemble_derived`] calls it, and only it constructs a
 /// [`DerivedUserRelease`].

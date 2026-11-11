@@ -1,4 +1,4 @@
-//! W-17 library apply (DEL-03-01 Design `apply-library-records.md` §2.2, §4):
+//! W-17 library apply:
 //! `apply_library_record` on materials, sections and components, the
 //! `provenance_record` carriage of the create kinds, and real solves of a
 //! model holding an inserted E/nu/G material on the exact and pressure-free

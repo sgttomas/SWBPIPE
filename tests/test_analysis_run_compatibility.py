@@ -233,7 +233,7 @@ def test_copy_checks_accept_exact_stored_and_javascript_written_copies(joined) -
     validate_analysis_run_v0_3(written, source)
 
 
-# Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §3.2; owner ruling "0.8.0 a2"): a
+# Model document 0.8.0 (owner ruling "0.8.0 a2"): a
 # pressure-2 run recorded before the ripple, main's record at 2e4748eada verbatim, binds the 0.7.0-era table
 # (3e2aac3c…) and keeps its existing read; that digest is the recorded basis of exactly the current table.
 _RECORDED_070 = Path(__file__).resolve().parents[1] / "fixtures/persistence/recorded_model_0_7_0"
@@ -262,7 +262,7 @@ def test_the_recorded_basis_warrants_no_other_digest():
         c.validate_analysis_run_v0_3(mixed, source, expected_basis_refs=mixed["analysis_run"]["load_basis_refs"])
 
 
-# Model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §3.2; owner ruling "0.8.0 a2"): a pressure-2 run
+# Model document 0.9.0 (owner ruling "0.8.0 a2"): a pressure-2 run
 # recorded before the 0.9.0 ripple, main's record at 5bb2f9ff0 verbatim, binds the 0.8.0-era table (5451fbf3…, matched
 # by prefix; the fixture is outside semantic_contract_tables.py repin's reach) and keeps its existing read.
 _RECORDED_080 = Path(__file__).resolve().parents[1] / "fixtures/persistence/recorded_model_0_8_0"
@@ -331,7 +331,7 @@ def test_a_pressure_2_run_recorded_before_constant_effort_reads_as_before():
         c.validate_analysis_run_v0_3(mixed, source, expected_basis_refs=mixed["analysis_run"]["load_basis_refs"])
 
 
-# RT-A4 (DEL-05-02 Design absolute-sum-srss-combinations.md §10.2): the pressure-2 table restates its combination
+# the pressure-2 table restates its combination
 # policy (v2) and adds three vocabulary tokens, rows unchanged, so its digest moves (be29fabc… -> current). A pressure-2
 # run recorded under the constant-effort table, RT-A3's final candidate's record at 01e05a486 verbatim with its source
 # and request (fixtures/persistence/recorded_model_0_9_0_pre_rt_a4, outside semantic_contract_tables.py repin's
@@ -359,7 +359,7 @@ def test_a_pressure_2_run_recorded_before_rt_a4_reads_as_before():
         c.validate_analysis_run_v0_3(mixed, source, expected_basis_refs=mixed["analysis_run"]["load_basis_refs"])
 
 
-# RT-A3 increment 4 (DEL-04-07 Design pressure-contract.md, "Nonlinear supports on EX (RT-A3 increment 4)"): the
+# the
 # pressure-2 table restates its admitted-families and combinations limitations, rows and gates unchanged, so its digest
 # moves (10455bf3… -> current). A pressure-2 run recorded under the RT-A4 table, main's record at bbf384dec verbatim with
 # its source and request (fixtures/persistence/recorded_model_0_9_0_pre_nl, outside semantic_contract_tables.py repin's
@@ -387,7 +387,7 @@ def test_a_pressure_2_run_recorded_before_nonlinear_supports_reads_as_before():
         c.validate_analysis_run_v0_3(mixed, source, expected_basis_refs=mixed["analysis_run"]["load_basis_refs"])
 
 
-# RT-A3 §4 (DEL-05-02 Work combination-certificate.md): the pressure-2 table restates its combination standing and the
+# the pressure-2 table restates its combination standing and the
 # combinations limitation (derived groups carry the combination certificate's stated bound and verdict; rows never count
 # towards numerical eligibility), rows and gates unchanged, so its digest moves (2c20583d… -> current). A pressure-2 run
 # recorded under main's table at 252bef969, main's record verbatim with its source and request

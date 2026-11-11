@@ -1,4 +1,4 @@
-// File > Import MBF… (DEL-17-04 Design `desktop-mbf-export-import.md` §4.8.6, slice 5): the import's one session
+// File > Import MBF…: the import's one session
 // barrier. Every native import start (`open_mbf_import`, `review_mbf_import`, `adopt_mbf_import`,
 // `designate_mbf_import_source`) and every retirement
 // (`cancel_mbf_import`) goes through this module. It has the export barrier's rules (`mbfExportCancel.ts`), on its own
@@ -15,7 +15,7 @@
 //   is never sent and resolves cancelled;
 // - `cancel_mbf_import` is sent as Tauri's own JSON arguments, the one form that survives the transport's `postMessage`
 //   fallback; the starts are raw-body only, and after the fallback they are refused `INGRESS-RAW-BODY-REQUIRED`. Import
-//   writes nothing, so that outcome is known and no "unavailable" page state is needed (§4.8.6).
+//   writes nothing, so that outcome is known and no "unavailable" page state is needed.
 //
 // The ticket and ids authorize nothing: a retirement only cancels the run in progress and drops the chosen source.
 import { invoke } from "@tauri-apps/api/core";
@@ -161,7 +161,7 @@ export function adoptMbfImport(args: MbfAdoptImportArgs, stillCurrent?: MbfImpor
   return start<MbfImportAdoptOutcome>("adopt_mbf_import", args, stillCurrent, (code) => ({ outcome: "refused", file_name: "", diagnostics: diagnostic(code) }));
 }
 
-/** The native `designate_mbf_import_source` (the model-document chooser and the designated-source review, §5.4)
+/** The native `designate_mbf_import_source` (the model-document chooser and the designated-source review)
  * through the barrier. */
 export function designateMbfImportSource(args: MbfDesignateImportArgs, stillCurrent?: MbfImportStillCurrent): Promise<MbfImportStarted<MbfImportDesignateOutcome>> {
   return start<MbfImportDesignateOutcome>("designate_mbf_import_source", args, stillCurrent, (code) => ({ outcome: "refused", fileName: "", diagnostics: diagnostic(code) }));

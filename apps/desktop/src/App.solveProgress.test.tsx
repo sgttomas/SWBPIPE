@@ -6,7 +6,7 @@ vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("./test/nat
 
 import { App } from "./App";
 
-// DEL-07-07 Design `solve-progress-panel.md`: the shell's solve progress panel
+// the shell's solve progress panel
 // follows a native job (invented replies) from its start, and its own Cancel
 // control sends the job's cancellation through the session's handler.
 afterEach(() => {

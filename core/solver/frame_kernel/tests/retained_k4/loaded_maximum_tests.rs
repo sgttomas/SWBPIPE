@@ -43,7 +43,7 @@ fn w1_loaded_maximum_exhaustion_widens_and_refuses(){
     let value=0.;let rows=[ProductFinalRow{id:"m",case_id:"c",value:&value,unit:ProductUnit::Pascal,body:0,recipe:ProductRecipe::CircularMaximum{member:11}}];
     let mut spent=ProductCertificateSpent::new(&rows);
     assert!(gate(&mut spent,0,interval,1e30,false).unwrap().passed);
-    // W1 coverage repair §5: the same on a non-point represented-Z hull, driven at z_lo.
+    // the same on a non-point represented-Z hull, driven at z_lo.
     // Bending only, M(t) = 8t(1 − t) over Z in [2, 4]: the maximum is 1 at z_lo and 1/2
     // at z_hi. Exhaustion at the reduced limits still refuses with the named cause,
     // its diagnostic is a widened enclosure of the maximum over the whole hull, and
@@ -225,7 +225,7 @@ fn w1_loaded_maximum_keeps_axial_and_bending_divisors_distinct(){
     }
 }
 
-// ---- W1 coverage repair §1.2 (corner 1): the driven search on an interval Z ----
+// ---- W1 coverage repair (corner 1): the driven search on an interval Z ----
 
 fn run_z(ends:[[f64;3];2],q:[f64;2],z:Enclosure,driven:bool)->(Result<Enclosure,ProductFailure>,ProductCertificateSpent<'static>){
     let mut spent=ProductCertificateSpent::new(&[]);
@@ -264,7 +264,7 @@ fn w1_represented_z_hull_converges_at_the_binding_endpoint(){
 
 /// The driven search's convergence, uppers and pruning are the point problem's:
 /// its U equals the undriven search's at the point z_lo, and its hull-valid
-/// evaluations are counted at actual cost on top (stage 2 §5, R-1).
+/// evaluations are counted at actual cost on top (R-1).
 #[test]
 fn w1_hull_search_work_is_counted(){
     for (ends,q) in [([[0.;3];2],[8.,0.]),([[0.,1.,0.],[0.,0.,1.]],[1.,1.]),([[1.,0.,0.],[2.,0.,0.]],[7.,0.])] {

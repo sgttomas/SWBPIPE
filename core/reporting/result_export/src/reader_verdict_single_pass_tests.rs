@@ -125,12 +125,11 @@ fn reference_validate(reader: &str, source: &Value, model: Option<&Value>, invoc
     };
     match reader {
         "source-recovery" => checked(source_recovery(source)),
-        // T4-U4b (§5.1): with the captured model, τ bit for bit (G2).
-        // pf-timoshenko.md §4: with the model, a crossed identity is refused first.
+        // with the captured model, τ bit for bit (G2).
+        // with the model, a crossed identity is refused first.
         // RT-A4 (review r1 P2): with the model, the combination gates and unsigned rows
         // are re-derived from it; without, refused where the document cannot verify them.
         "preview-physics" => checked(crate::preview_physics_evidence::validate_preview_physics_evidence_with_model(source, model).and_then(|()| {
-            // Operating-case slice 1a (DEL-05-02 `pf-nonlinear-operand-standing.md` §3):
             // the operand records bound to the model's combinations.
             model.map_or(Ok(()), |m| {
                 bind_preview_shear_model(source, m)
@@ -138,9 +137,9 @@ fn reference_validate(reader: &str, source: &Value, model: Option<&Value>, invoc
                     .and_then(|()| crate::preview_combination_operands::model_checks(source, m))
                     // RT-A4 (review r1 P2): the gates and unsigned rows, from the model.
                     .and_then(|()| crate::preview_combination_gates::check(source, Some(m)))
-                    // RT-A3 §4: the certificate's records bound to the model's combinations.
+                    // the certificate's records bound to the model's combinations.
                     .and_then(|()| crate::combination_certificate::model_checks(source, m))
-                    // RT-A3 §4: the certificate last, after every other check.
+                    // the certificate last, after every other check.
                     .and_then(|()| crate::combination_certificate::check_with(source, Some(m)))
             })
         })),
@@ -148,7 +147,7 @@ fn reference_validate(reader: &str, source: &Value, model: Option<&Value>, invoc
         // which read only the cases, members, connectors and support rows.
         "pressure" => checked(match model {
             None => sc::validate_pressure_evidence(source),
-            // RT-A3 §4: with the model, the certificate is read after the model checks.
+            // with the model, the certificate is read after the model checks.
             Some(_) => crate::physics_evidence::validate_pressure_evidence_without_certificate(source),
         }.and_then(|()| {
             // W-16 slice b (§6): the combination records bound to the model's

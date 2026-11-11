@@ -342,7 +342,7 @@ fn exact_generated_model() -> Value {
     model["load_cases"] = json!([case]); model
 }
 
-/// D-5 (DEL-05-03 Design §1): the applier admits a refresh under the exact
+/// the applier admits a refresh under the exact
 /// mass method `source_od_nominal_wall_pressure_bore_areas/v1` only when the
 /// record carries the corrosion allowance as a length among its mass inputs
 /// and among its normalized dependencies. Each refusal is the applier's own

@@ -944,7 +944,7 @@ fn validate_hanger_import(payload: &Value, visibility: IntendedVisibility) -> Im
 }
 
 
-/// Format 1.1.0 (DEL-03-02 CLM-030; DEL-04-11 Design §8.2). The schema admits
+/// Format 1.1.0 (DEL-03-02 CLM-030). The schema admits
 /// `working_load_range` under either version, so the version rule is applied here:
 /// a 1.0.0 document refuses the member as an unknown field, as before 1.1.0. A range
 /// whose subtree passes the shape check is refused when its ends differ in unit (the

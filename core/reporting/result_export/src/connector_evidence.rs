@@ -1,6 +1,6 @@
 //! T4-U3 (S14): the objective connector's evidence on `pressure-2`
 //! (`3.0.0/exact_pressure_v3`) only. `contract_evidence.connector` holds one
-//! record per connector (JR §7: topology and replaced span, frame, installed
+//! record per connector (topology and replaced span, frame, installed
 //! reference temperature and q_ref, matrix scale and provenance), and every
 //! `connector_*` row is bound to exactly one record. Any other contract
 //! refuses both (`CONNECTOR_UNSUPPORTED`).
@@ -22,7 +22,7 @@ pub(crate) const LOCAL_SIGN: &str = "generalized coordinates of the connector fr
 pub(crate) const END_SIGN: &str =
     "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f";
 pub(crate) const MOTION_BASIS: &str = "symmetric_midpoint_small_rotation_v1";
-/// T4-U5b (DEL-04-07 Design `u4b-u5b-implementation.md` §3.3): one force row
+/// T4-U5b: one force row
 /// per explicit elastic tie rod, along the rod's own axis, bound to its
 /// `tie_rods` evidence entry by row ID (not by metadata).
 pub const TIE_ROD_KIND: &str = "connector_tie_rod_force_v1";
@@ -159,13 +159,13 @@ pub(crate) fn is_connector_kind(kind: &str) -> bool {
 /// the row's `entity_ref`, never through the basis text.
 pub const ROW_BASIS: &str = "objective_connector_v1;symmetric_midpoint_small_rotation_v1";
 
-/// One validated `tie_rods` entry (§3.3): its ID and published axial share.
+/// One validated `tie_rods` entry: its ID and published axial share.
 struct TieRod<'v> {
     id: &'v str,
     axial_share: f64,
 }
 
-/// The closed `tie_rods` entries of a record with rods (§3.3, §5.1): unique
+/// The closed `tie_rods` entries of a record with rods: unique
 /// IDs (also after the row-ID encoding), the `bilateral_linear` law, finite
 /// global offsets, positive stiffness and length, a finite reference
 /// extension, a unit direction and its axial share n·Q_x rounded once from
@@ -206,7 +206,7 @@ fn stable_suffix(id: &str) -> String {
     id.replace(':', "-")
 }
 
-/// The base row ID of a rod's force (§3.3), as the producer forms it; a row
+/// The base row ID of a rod's force, as the producer forms it; a row
 /// of any load case other than the first carries it under
 /// `result:loadcase:{case}:` (`qualified_load_case_result_id`).
 fn tie_rod_row_tail(component: &str, rod: &str) -> String {
@@ -220,7 +220,7 @@ fn is_tie_rod_row_id(id: &str, case: &str, tail: &str) -> bool {
 fn connector_record(r: &Value) -> Result<(&str, &str), String> {
     let constant = r["pressure_model"] == "constant_effective_area_reference_v1";
     let rods = r["hardware"] == RODS_KIND;
-    // §5.1: an untied record never carries rods (contradictory hardware).
+    // an untied record never carries rods (contradictory hardware).
     require_connector(!(r["hardware"] == "untied" && r.get("tie_rods").is_some()), "TIE_ROD_UNTIED")?;
     let mut record_keys = RECORD_KEYS.to_vec();
     if constant { record_keys.extend(["effective_area_m2", "pressure_basis", "pressure_source_reference"]); }
@@ -386,7 +386,7 @@ pub(crate) fn validate(
                 let component = text(&record["component_id"]).unwrap();
                 let constant = record["pressure_model"] == "constant_effective_area_reference_v1";
                 let rods = record["tie_rods"].as_array().map_or(0, Vec::len);
-                // A rod record without its rows is refused by name (§5.1).
+                // A rod record without its rows is refused by name.
                 for rod in record["tie_rods"].as_array().into_iter().flatten().filter_map(|r| r["id"].as_str()) {
                     require_connector(slots.contains(&(case, component, TIE_ROD_KIND, "t_r", TIE_ROD_LOCATION, rod)), "TIE_ROD_ROWS")?;
                 }
@@ -451,7 +451,7 @@ fn validate_pressure(records: &[Value], regions: &Value, source_rows: &[Value], 
                 require_connector(region["member_pipe_ids"].as_array().is_some_and(|members| members.iter().any(|member| member == pipe))
                     && !terminals.iter().any(|terminal| terminal["node_ref"] == edge[if end==0 {"node_i_ref"} else {"node_j_ref"}]), "PRESSURE_FACE_BINDING")?;
                 let geometry = region["geometry"].as_array().ok_or("SOURCE_PHYSICS_CONNECTOR_PRESSURE_GEOMETRY")?.iter().find(|geometry| geometry["pipe_id"] == pipe).ok_or("SOURCE_PHYSICS_CONNECTOR_PRESSURE_FACE")?;
-                // T4-U6 (D-5, §1, §2.3): the joint face p(Ae - Ai) acts on the
+                // T4-U6 (D-5): the joint face p(Ae - Ai) acts on the
                 // pressure bore; the region geometry carries Ai only there.
                 let ai = number(&geometry["pressure_bore"]["Ai_m2"])?;
                 require_connector(geometry.get("member_kind").is_none() && edge["face_bore_area_m2"][end].as_f64()==Some(ai), "PRESSURE_FACE_AREA")?;
@@ -512,7 +512,7 @@ fn validate_pressure(records: &[Value], regions: &Value, source_rows: &[Value], 
     Ok(())
 }
 
-/// §5.1's s_x binding: |s_x − Σ| ≤ (64 + n_r)ε(|g_x| + |Pe| + Σ|t_r·axial_share|)
+/// s_x binding: |s_x − Σ| ≤ (64 + n_r)ε(|g_x| + |Pe| + Σ|t_r·axial_share|)
 /// + (n_r + 2)·2^-1074, with Σ = g_x − Pe + Σ_r RN(t_r·axial_share_r)
 /// accumulated exactly and rounded once, so the reader adds no addition
 /// error for any rod count. Each term is scaled before it is added, so a
@@ -790,7 +790,7 @@ mod projection_tests {
 
 #[cfg(test)]
 mod u5b_effective_axial_tests {
-    //! T4-U5b (DEL-04-07 Design `u4b-u5b-implementation.md` §5.1): the s_x
+    //! T4-U5b: the s_x
     //! binding with rods and its exact sum.
     use super::{effective_axial_binding, exact_dot3, ExactSum};
     const TINY: f64 = f64::from_bits(1);
@@ -1084,7 +1084,7 @@ mod u5b_effective_axial_tests {
 
 #[cfg(test)]
 mod d5_face_area_tests {
-    //! T4-U6 (D-5, §1, §2.3, §2.5): a joint face's bore area is the region
+    //! T4-U6 (D-5): a joint face's bore area is the region
     //! geometry's `pressure_bore.Ai_m2`, on distinct bases (a nonzero corrosion
     //! allowance puts the pressure bore off the nominal bore).
     use super::validate_pressure;
@@ -1107,7 +1107,7 @@ mod d5_face_area_tests {
         let ri = OD * 0.5 - wall;
         (PI * ri) * ri
     }
-    /// One region geometry entry in the D-5 shape (§2.5, plus `traversal_forward`).
+    /// One region geometry entry in the D-5 shape (plus `traversal_forward`).
     fn geometry(pipe: &str) -> Value {
         let reduced = (WALL - 0.0) - ALLOWANCE;
         json!({"pipe_id": pipe, "geometry_basis": "authored_od_wall_d5_sections_v1", "outside_diameter_m": OD,

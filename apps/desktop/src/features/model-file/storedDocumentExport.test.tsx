@@ -1,4 +1,4 @@
-// W-17 recovery export (DEL-02-02 Design `project-unit-selection.md` §3): a
+// a
 // stored project refused at open for lacking `project.units` is offered "Save
 // the stored document to a file…", behind the explicit intent. The webview
 // sends only the stored row's identity; the native command writes the stored
@@ -125,7 +125,7 @@ describe("Open local project refused for lacking project.units", () => {
     expect(invokeMock).toHaveBeenCalledWith("save_stored_model_document_file", { projectId: PROJECT, stateId: null, explicitLocalPrivateIntent: true });
     // Only the open's read and the export reached the native host: nothing was stored. D5 autosave's
     // settings read and record listing (RT-U3) are reads too, and the session retirement's MBF export cancel
-    // (DEL-17-04 §3.7) writes nothing; any autosave write or discard still fails this.
+    // writes nothing; any autosave write or discard still fails this.
     expect(invokeMock.mock.calls.map(([command]) => command).filter((command) => command !== "sync_native_shell_state" && command !== "get_autosave_settings" && command !== "list_project_autosaves" && command !== "cancel_mbf_export"))
       .toEqual(["open_local_project", "save_stored_model_document_file"]);
     spine(hook.result.current).forEach((value, index) => expect(value).toBe(was[index]));

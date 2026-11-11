@@ -31,7 +31,7 @@ NORMAL_MIN = Fraction(1, 1 << 1022)           # least positive normal binary64
 SUBNORMAL_HALF = Fraction(1, 1 << 1075)       # half the least positive subnormal
 LARGEST = Fraction(float.fromhex("0x1.fffffffffffffp+1023"))
 PROFILE_FLOOR = Fraction(1 << 53)             # magnitudes the checked profile cannot carry
-# Double-double (≈106-bit) formation and accumulation, Design §3.4 check 1. The
+# Double-double (≈106-bit) formation and accumulation. The
 # kernel's `dd.rs` operations are AccurateDWPlusDW (`add`, 3u²), DWPlusFP (`add_f64`,
 # 2u²), DWTimesFP1 (`mul_f64`, 1.5u²) and DWTimesDW1 (`mul`, 7u²) (Joldes, Muller and
 # Popescu, "Tight and rigorous error bounds for basic building blocks of double-word

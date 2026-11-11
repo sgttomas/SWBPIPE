@@ -277,7 +277,7 @@ import { EXPENSIVE_LIFECYCLE_SECTIONS } from "./workspaceSections";
 import { createSessionEventChannel } from "./sessionEvents";
 import type { WorkspaceSectionId } from "./workspaceSections";
 
-/** W-13 §3.5 / W-17 §2.7: the model's library references checked against the
+/** the model's library references checked against the
  * local store at open and load. Warnings only; the recorded versions stand. */
 async function libraryReferenceWarnings(model: PreviewModel): Promise<string> {
   publishLibraryRefFindings(model.project.id, []);
@@ -409,7 +409,7 @@ export function useWorkspaceSession() {
   const modalHolds = useRef<ModalHolds | null>(null);
   if (!modalHolds.current) modalHolds.current = createModalHolds(replacePromptOpenRef);
   const holdModal = () => modalHolds.current!.hold();
-  // The open "Units at creation" dialog (W-17 §3), if a blank project is waiting
+  // The open "Units at creation" dialog, if a blank project is waiting
   // for its units. It is modal in the same way as the replace prompt.
   const [blankProjectUnitsRequest, setBlankProjectUnitsRequest] = useState<BlankProjectUnitsRequest | null>(null);
   const projectUnitsDialogOpenRef = useRef(false);
@@ -426,7 +426,7 @@ export function useWorkspaceSession() {
   // The open Export MBF… dialog (DEL-17-04 slice 4b.2b), modal in the same way.
   const [mbfExportRequest, setMbfExportRequest] = useState<MbfExportDialogRequest | null>(null);
   const mbfExportDialogOpenRef = useRef(false);
-  // File > Import MBF… (DEL-17-04 §4.1, §4.8.6): the open dialog's request, its modal hold (in every list that holds
+  // File > Import MBF…: the open dialog's request, its modal hold (in every list that holds
   // project commands), and the request's one logical retirement (the dialog's close, or after Adopt the import
   // flow's; a session's end calls the same one, so only the first call sends anything).
   const [mbfImportRequest, setMbfImportRequest] = useState<MbfImportDialogRequest | null>(null);
@@ -518,7 +518,7 @@ export function useWorkspaceSession() {
     setHeldWithinRunSelection,
     setDroppedWithinRunBases
   } = useResultsSessionState();
-  // C2 interim (DEL-04-05 `c1-native-custody-plan.md` slice 4): the inputs each native record was
+  // C2 interim: the inputs each native record was
   // built with, so a C2 consumer's full record is the same record, built on the full copy.
   const nativeRunInputs = useRef(new WeakMap<object, { inputManifest: CurrentSessionInputManifestEvidence; ruleCheckAggregate: RuleCheckStatus | null; rulePackExclusions: readonly ExcludedRulePackRef[] }>());
   const analysisRunRef = useRef<SessionAnalysisRun | null>(null);
@@ -634,7 +634,7 @@ export function useWorkspaceSession() {
     projectBusy, setProjectBusy
   } = useProjectSessionState();
 
-  // Run sheet S2 (DEL-07-02 Design `run-sheet-entry.md` §3.6): the session's
+  // Run sheet S2: the session's
   // one transient event callback. A listener's failure outside a publication
   // is reported in the batch message and changes nothing else.
   const [sessionEvents] = useState(() => createSessionEventChannel((error, event) => {
@@ -847,7 +847,7 @@ export function useWorkspaceSession() {
       releaseUnreferencedRestoredRuns();
     }
     modelRevision.current += 1;
-    // Run sheet S2 (§3.6 step 1): a registration prepared on an earlier model is retired.
+    // Run sheet S2: a registration prepared on an earlier model is retired.
     retireStaleBatchRegistrations();
     solveRunGate.current.invalidate();
     activeSolveJob.current = null;
@@ -880,11 +880,11 @@ export function useWorkspaceSession() {
   // before any solve can start (a start waits for it). Tauri runtime only; a
   // failure never blocks the session.
   useEffect(() => { void beginSessionResultCustodyReset(); }, []);
-  // File > Export MBF… (DEL-17-04 §3.9.5): the page's (and each workspace's) first MBF interaction is a keyed
+  // File > Export MBF…: the page's (and each workspace's) first MBF interaction is a keyed
   // retirement, sent at mount whether or not the export is ever opened: it retires natively whatever an old page left
   // queued or running (the reset above does not touch the MBF export), and the starts wait for its acknowledgement.
   useEffect(() => { void retireMbfExportSession(); }, []);
-  // File > Import MBF… (DEL-17-04 §4.8.6): the import's own keyed retirement at mount (page load included), so an old
+  // File > Import MBF…: the import's own keyed retirement at mount (page load included), so an old
   // page's chosen source and run are dropped natively; its starts wait for the acknowledgement. Separate from the
   // export's, and the performance reset touches neither. The browser-only route has no native import (it is refused
   // before anything is sent), so it sends none.
@@ -1120,7 +1120,7 @@ export function useWorkspaceSession() {
     return {
       ...history,
       findings: [...found.findings],
-      // RT-A4 §10.4: the stored project's findings in their scopes (the re-save keeps the stored texts,
+      // the stored project's findings in their scopes (the re-save keeps the stored texts,
       // so a run recorded before RT-A4 is still read under its recorded table).
       checkFindings: [...found.check_findings],
       recordedTableRead: found.recorded_table_read ? { id: found.recorded_table_read.id, sha256: found.recorded_table_read.sha256 } : null,
@@ -1688,7 +1688,7 @@ export function useWorkspaceSession() {
     batchQueueEpoch.current += 1;
     for (const { entry } of withdrawn) sessionEvents.emit({ type: "withdrawn", batchId: entry.batch.batch_id, key: entry.key });
   }
-  // Run sheet S2 (DEL-07-02 Design `run-sheet-entry.md` §3.6 step 1): after the
+  // Run sheet S2: after the
   // revision advances, every registration prepared on another revision is
   // revoked, whatever its producer (none of them could run). Its Pending
   // changes entry becomes a retired notice whose only action is Dismiss, and
@@ -1734,7 +1734,7 @@ export function useWorkspaceSession() {
   }
 
   /** Queue a batch and return its registration key, or null when it was not registered.
-   * `reveal: false` (the run sheet, §5.1) leaves the section and focus where they are. */
+   * `reveal: false` (the run sheet) leaves the section and focus where they are. */
   async function registerOperationBatch(batch: OperationBatch, options: { reveal?: boolean; agentContext?: AgentContext; importContext?: ImportContext } = {}): Promise<string | null> {
     if (!model) return null;
     const revision = modelRevision.current;
@@ -1799,7 +1799,7 @@ export function useWorkspaceSession() {
     if (apply) agentApplyingRef.current.add(entry.key);
     operationRequest.current.busy = true;
     const stillCurrent = () => operationRequest.current.sequence === request && modelRevision.current === revision;
-    // §3.6 step 3: a run that ends with neither an outcome nor a retirement or
+    // a run that ends with neither an outcome nor a retirement or
     // withdrawal of its registration (both emit their own event) is abandoned.
     const abandon = (reason: string) => {
       if (registered()) sessionEvents.emit({ type: "abandoned", batchId: entry.batch.batch_id, key: entry.key, reason });
@@ -1878,7 +1878,7 @@ export function useWorkspaceSession() {
       };
       const prunedSelection = prunedSelectionForPublication(appliedModel);
       const appliedSolveJob = sessionHistoryChangedSolveJob("batch", entry.batch.batch_id);
-      // Run sheet S2: the session event listeners' staged transition (§3.6).
+      // Run sheet S2: the session event listeners' staged transition.
       const publishEvents = sessionEvents.stage({ type: "checkpoint", operationId: entry.batch.batch_id, appliedModel, operationOutcomes: outcome.operation_outcomes });
 
       // Publish: one synchronous block of state setters and session-owned ref
@@ -2699,7 +2699,7 @@ export function useWorkspaceSession() {
     }
   }
 
-  /** W-17 §3: "New blank", "Blank load/reference model" and `file.new-blank` ask for
+  /** "New blank", "Blank load/reference model" and `file.new-blank` ask for
    * the project units first. Create builds the blank with the chosen map; Cancel
    * creates nothing. */
   function requestBlankProject(kind: BlankProjectKind) {
@@ -2964,7 +2964,7 @@ export function useWorkspaceSession() {
       setProjectSummary(opened.summary);
       setProjectEnvelopeHash(opened.project_envelope_hash ?? null);
       setModelDocumentVersion(opened.model_document_version ?? null);
-      // W-13 §5.3: the validator's warnings show at project load (blocking
+      // the validator's warnings show at project load (blocking
       // findings were refused by the store).
       // RT-U4: a saved run above the display limit was withheld natively; the person is told.
       const withheldRun = opened.stored_result_withheld ? ` ${describeStoredResultWithheld(opened.stored_result_withheld)}` : refusedRun ? ` ${refusedRun.message}` : "";
@@ -2977,7 +2977,7 @@ export function useWorkspaceSession() {
       if (recomputedHash && openedGeneration === projectSessionGenerationRef.current && openedBasisSequence === savedBasisSequence.current) {
         setSavedModelBasis({ generation: openedGeneration, revision: openedRevision, hash: recomputedHash.value, source: "open" });
       }
-      // D5 §3: the opened project's autosaves are offered once it has opened.
+      // the opened project's autosaves are offered once it has opened.
       void autosave.afterStoredProjectOpened(opened.model.project.id, recomputedHash?.value ?? null);
       if (!stillOwnsOpenedObservation()) return;
       setModelHashIntegrity(deriveModelHashIntegrity(opened.model_hash ?? null, recomputedHash, opened.model.project.id));
@@ -3200,7 +3200,7 @@ export function useWorkspaceSession() {
     });
   }
 
-  /** File > Import MBF…'s document source (DEL-17-04 §4.1 step 5, §4.8.7): a `ModelDocumentSource` for the maintained
+  /** File > Import MBF…'s document source: a `ModelDocumentSource` for the maintained
    * Open transaction. `read()` is the native Adopt through the barrier, a check of the reply's bounded identities
    * against the captured ones, then the one `checkNativeOutcome` (shape check and the wasm validator). It captures only
    * the bounded identities and status summary, never the review, model or file bytes. */
@@ -3227,7 +3227,7 @@ export function useWorkspaceSession() {
     };
   }
 
-  /** File > Import MBF… (DEL-17-04 Design `desktop-mbf-export-import.md` §4.1): mounts the import dialog with the
+  /** File > Import MBF…: mounts the import dialog with the
    * barrier's native starts. It does nothing while another project operation or modal holds the session, and in the
    * browser-only route it is refused `MBF-IMPORT-NATIVE-ONLY` before anything is sent. A review touches nothing in the
    * session; Adopt releases the modal hold and adopts through `handleOpenModelDocument`, whose unsaved-changes guard,
@@ -3898,7 +3898,7 @@ export function useWorkspaceSession() {
         });
         return;
       }
-      // W-11 (DEL-08-01 Design `exact-route-report-sections.md` §3.1, §3.6): a request
+      // W-11: a request
       // from an exact source carries the texts the native save binds, and its admission
       // is re-checked immediately before each send (null for a pressure-free request).
       const exactSubmission = reportPackageExactSubmission(request);
@@ -3990,7 +3990,7 @@ export function useWorkspaceSession() {
     });
   }
   // A basis member that changes while the dialog is open closes it; the next attempt needs a
-  // new confirmation (§2.3 "Session").
+  // new confirmation.
   useEffect(() => {
     if (!userReleaseDialogOpenRef.current) return;
     userReleaseDialogOpenRef.current = false;
@@ -4047,7 +4047,7 @@ export function useWorkspaceSession() {
     }
   }
 
-  // B11 on-demand model checks (DEL-04-06 Design `on-demand-model-checks.md`):
+  // B11 on-demand model checks:
   // the session's last run, shown in the Issues drawer. The checks read the
   // model as it stands and never change it.
   // In the app the solve's checks run natively under the memory pool, so a run
@@ -4068,7 +4068,7 @@ export function useWorkspaceSession() {
     setModelCheckBusy(false);
     setModelCheckRun(null);
   }, [projectSessionGeneration]);
-  // File > Export MBF… (DEL-17-04 §3.9.5): a review or save in progress belongs to the project session that started
+  // File > Export MBF…: a review or save in progress belongs to the project session that started
   // it. Retiring that session (each new generation, a project replaced by one with the same id included) or
   // unmounting the workspace retires the export (`retireMbfExportSession`): a start not yet sent is never sent, every
   // run started so far is cancelled natively, and the next start waits for that cancel to be acknowledged. It does not
@@ -4965,7 +4965,7 @@ function deepFreeze<T>(value: T): T {
 }
 
 /** W-10: one queued submission as the live registry holds it. */
-/** The retired notice of a queued batch whose basis is no longer current (§3.6 step 1). */
+/** The retired notice of a queued batch whose basis is no longer current. */
 export const RETIRED_BATCH_NOTICE = "Prepared on an earlier model and withdrawn. Prepare it again.";
 
 type BatchRegistration = {

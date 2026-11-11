@@ -13,11 +13,11 @@ use open_pipe_stress_units::{canonical_unit, convert, unit_by_symbol, Dimension}
 use serde_json::{json, Value};
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 
-/// The nonlinear-support state the hot-load basis is formed in (Design §5).
+/// The nonlinear-support state the hot-load basis is formed in.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum WeightSupportState {
     /// The weight case's own converged states. The only value admitted until the
-    /// solve can hold another case's states (Design §14, O-1).
+    /// solve can hold another case's states.
     OwnSolve,
 }
 
@@ -27,7 +27,7 @@ pub struct RequestCandidate {
     pub family_policy: FamilyPolicy,
 }
 
-/// The sizing request (Design §2). Every member is the person's input.
+/// The sizing request. Every member is the person's input.
 #[derive(Debug, Clone)]
 pub struct SizingRequest {
     pub weight_case: String,
@@ -36,7 +36,7 @@ pub struct SizingRequest {
     pub check_operating_cases: Vec<String>,
     pub candidates: Vec<RequestCandidate>,
     pub method: Method,
-    /// The solver mode the caller's own solve of these cases uses (Design §4.1).
+    /// The solver mode the caller's own solve of these cases uses.
     pub solver_mode: PreviewSolverMode,
 }
 
@@ -57,7 +57,7 @@ pub struct Site {
     pub dof: Dof,
 }
 
-/// A non-blocking disclosure of the run (Design §5).
+/// A non-blocking disclosure of the run.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Disclosure {
     pub code: &'static str,
@@ -127,7 +127,7 @@ fn array<'a>(value: &'a Value, key: &str) -> &'a [Value] {
     value.get(key).and_then(Value::as_array).map(Vec::as_slice).unwrap_or(&[])
 }
 
-/// Case checks (Design §2): every named case exists, carries no test condition and
+/// Case checks: every named case exists, carries no test condition and
 /// has one role; the exact route waits for increment 4.
 pub fn check_cases(request_doc: &Value, request: &SizingRequest) -> Vec<Refusal> {
     let model = model(request_doc);
@@ -165,7 +165,7 @@ pub fn check_cases(request_doc: &Value, request: &SizingRequest) -> Vec<Refusal>
 
 /// A `support_ref` or `support_id` naming `id` anywhere in an analysis state, other
 /// than the support's own entry in `support_states` (its participation declaration,
-/// Design §3, handled with the exact route in increment 4).
+/// handled with the exact route in increment 4).
 fn state_refers(value: &Value, id: &str, in_support_states: bool) -> bool {
     match value {
         Value::Object(map) => map.iter().any(|(key, v)| {
@@ -178,7 +178,7 @@ fn state_refers(value: &Value, id: &str, in_support_states: bool) -> bool {
 }
 
 /// Whether a model object refers to the candidate through a member that references
-/// a support (Design §3): a primitive load targeted at it, another support's friction
+/// a support: a primitive load targeted at it, another support's friction
 /// normal-reaction source, or an analysis-state support reference. Text that merely
 /// equals the id, such as a provenance note, is not a reference.
 fn referenced(model: &Value, id: &str) -> bool {
@@ -208,7 +208,7 @@ fn effective_dofs(support: &Value) -> Vec<Dof> {
     dofs
 }
 
-/// Candidate checks (Design §3).
+/// Candidate checks.
 pub fn check_candidates(request_doc: &Value, request: &SizingRequest) -> Result<Vec<Site>, Vec<Refusal>> {
     let model = model(request_doc);
     let supports = array(model, "supports");
@@ -278,7 +278,7 @@ pub enum Role {
     /// Removed, and replaced by this force along its DOF's positive axis (S_C, S_Oi;
     /// constant and unfitted candidates in verification).
     Force(f64),
-    /// A spring of rate k on its DOF with the force F_cold: F(u) = F_cold − k·u (§7).
+    /// A spring of rate k on its DOF with the force F_cold: F(u) = F_cold − k·u.
     Spring { k: f64, f_cold: f64 },
 }
 
@@ -298,7 +298,7 @@ fn force_primitive(site: &Site, value: f64) -> Value {
     })
 }
 
-/// The derived document for one case (Design §4.1): only that case, no
+/// The derived document for one case: only that case, no
 /// combinations, and each candidate in its role.
 pub fn derived_document(request_doc: &Value, case: &str, sites: &[Site], roles: &[Role]) -> Value {
     let mut doc = request_doc.clone();
@@ -331,7 +331,7 @@ pub fn derived_document(request_doc: &Value, case: &str, sites: &[Site], roles: 
                         added.push(force_primitive(site, *f_cold));
                     } else {
                         // `guide` is the product's family for a rigid restraint of
-                        // named translational DOFs (Design §4.1).
+                        // named translational DOFs.
                         support.insert("family".into(), json!("guide"));
                     }
                 }
@@ -362,7 +362,7 @@ fn all_ids(value: &Value, out: &mut BTreeSet<String>) {
     }
 }
 
-/// The one call site of every derived solve (Design §10).
+/// The one call site of every derived solve.
 fn solve(doc: Value, mode: PreviewSolverMode, label: &str) -> Result<MechanicsEnvelope, Refusal> {
     let envelope = run_linear_static_preview_value_with_mode(doc, mode)
         .map_err(|error| refusal("HANGER_SIZING_DERIVED_SOLVE_FAILED", vec![label.to_string()], error))?;
@@ -463,7 +463,7 @@ fn state_differences(a: &SolveStates, b: &SolveStates) -> Vec<String> {
         .collect()
 }
 
-/// The whole sizing run (Design §1): checks, S_W, S_C and S_Oi, the arithmetic,
+/// The whole sizing run: checks, S_W, S_C and S_Oi, the arithmetic,
 /// the verification solves and the disclosures. Any refusal refuses the request.
 pub fn run(request_doc: &Value, records: &[Record], request: &SizingRequest) -> Result<SizingRun, Vec<Refusal>> {
     let mode = request.solver_mode;
@@ -490,7 +490,7 @@ pub fn run(request_doc: &Value, records: &[Record], request: &SizingRequest) -> 
     let weight = request.weight_case.as_str();
     let rigid = vec![Role::Rigid; sites.len()];
     // The full envelope is dropped once W and the states are read, before the next
-    // solve starts (Design §10).
+    // solve starts.
     let (w, weight_states) = {
         let envelope = solve(derived_document(request_doc, weight, &sites, &rigid), mode, "S_W").map_err(|r| vec![r])?;
         (sites.iter().map(|s| reaction(&envelope, s)).collect::<Vec<Option<f64>>>(), states(&envelope, "S_W"))
@@ -536,7 +536,7 @@ pub fn run(request_doc: &Value, records: &[Record], request: &SizingRequest) -> 
         .collect();
     let results = size(&candidates, records, &request.method)?;
 
-    // Verification: the selections in place (§7).
+    // Verification: the selections in place.
     let roles: Vec<Role> = results
         .iter()
         .zip(&candidates)
@@ -562,7 +562,7 @@ pub fn run(request_doc: &Value, records: &[Record], request: &SizingRequest) -> 
         verifications.push(verify(candidate, result, records, &request.method, &verified).map_err(|r| vec![r])?);
     }
 
-    // Disclosures (§5).
+    // Disclosures.
     let mut disclosures = Vec::new();
     let by_label = |label: &str| solve_states.iter().find(|s| s.solve == label).expect("solve states recorded");
     let differs = state_differences(by_label("S_W"), by_label("S_O1"));

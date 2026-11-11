@@ -1,4 +1,4 @@
-// U4 G5 (D-6 = (a); BUILD.md §2.1 as amended by G2_AMENDMENTS.md §1): record the
+// U4 G5 (D-6 = (a)): record the
 // compiler and target identity the retained memory profile is qualified for.
 //
 // The script reads cargo-provided environment variables, `$RUSTC -vV`, and the

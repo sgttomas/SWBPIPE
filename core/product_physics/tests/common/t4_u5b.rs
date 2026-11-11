@@ -129,7 +129,7 @@ fn offset(v: &Value) -> Value {
     json!({"x": quantity(x, "m"), "y": quantity(y, "m"), "z": quantity(z, "m")})
 }
 
-/// The 0.8.0 `hardware` object of a case description's rods (§3.1).
+/// The 0.8.0 `hardware` object of a case description's rods.
 pub fn hardware(description: &Value) -> Value {
     let rods = description["physical_inputs"]["connector"]["hardware"]["rods"].as_array().unwrap();
     json!({"kind": "explicit_axial_rods_v1", "rods": rods.iter().map(|rod| {

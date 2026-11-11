@@ -1,4 +1,4 @@
-// RT-A4 on the desktop (DEL-05-02 Work `absolute-sum-srss-combinations.md` §2, §5; DEL-07-03):
+// RT-A4 on the desktop (DEL-07-03):
 // the combination editor's unsigned bases, typed nested operands and three-axis static seismic
 // template, through the real wasm operation engine. Each form queues an intent and the test
 // applies it with `applyModelOperation`, the route Review/Apply uses. Models are built in test

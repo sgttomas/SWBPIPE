@@ -1,4 +1,4 @@
-/** W-11 slice (b) (DEL-08-01 Design `exact-route-report-sections.md` §3.1): the Export
+/** the Export
  * Result JSON admission of an exact-route report's source, bound to the admitted bytes.
  *
  * Equal identities and runs do not show that Export Result JSON admitted these result
@@ -15,7 +15,7 @@
  *
  * This is an equality check, not an output gate: the `rendered-report` and
  * `report-package` cells admit pressure-2 and pressure-source-1 since the owner opened
- * them (DEL-08-01 Design `exact-route-report-sections.md` §5.1; owner, 2026-10-26), and
+ * them (owner, 2026-10-26), and
  * the native render and the package's Rust boundary bind and check what this admission
  * yields; the report JSON packet and the other surfaces keep refusing an exact result.
  * Standard claim fence applies (claims taxonomy per DEC-081). */
@@ -34,7 +34,7 @@ import { isExactReportSource } from "./exactReportSections";
 import { isPfTimoshenkoReportSource } from "./pfTimoshenkoReport";
 
 /** Whether a rendered report of `result` takes the admission: an exact-route source, or a
- * pressure-free Timoshenko source (DEL-05-03 `pf-timoshenko.md` §4), whose `pf_timoshenko`
+ * pressure-free Timoshenko source, whose `pf_timoshenko`
  * section the native render binds the same way. */
 export function takesReportAdmission(result: MechanicsResult | null | undefined): boolean {
   return isExactReportSource(result) || isPfTimoshenkoReportSource(result);
@@ -69,7 +69,7 @@ export type ExactReportAdmissionInputs = {
   inputManifest: CurrentSessionInputManifestEvidence;
 };
 
-/** The texts an exact render or save resubmits to the native host (§3.6). */
+/** The texts an exact render or save resubmits to the native host. */
 export type ExactSourceSubmission = { exactResultText: string; exactIntakeText: string };
 
 type Recorded = ExactReportAdmissionInputs & { text: string; solverMode: string; bytes: string };
@@ -99,7 +99,7 @@ async function utf8Sha256(text: string): Promise<string> {
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
-/** Admits an exact-route source for a report (§3.1). Refuses a source that is not an
+/** Admits an exact-route source for a report. Refuses a source that is not an
  * exact-route result, anything `buildCurrentResultExport` refuses, and any binding field
  * whose document value and recomputed value differ. */
 export async function admitExactReportSource(inputs: ExactReportAdmissionInputs): Promise<ExactReportAdmission> {
@@ -161,7 +161,7 @@ export async function admitExactReportSource(inputs: ExactReportAdmissionInputs)
   return admission;
 }
 
-/** Re-checks a recorded admission against the live session, synchronously (§3.1): the
+/** Re-checks a recorded admission against the live session, synchronously: the
  * builder at its start and after its last await, and its callers immediately before
  * IPC. An unrecorded admission refuses `REPORT-EXACT-ADMISSION-REQUIRED`; a recorded one
  * offered for other objects, or whose text, native invocation, standing, custody or
@@ -182,7 +182,7 @@ export function checkExactReportAdmission(admission: unknown, inputs: ExactRepor
   if (receivedResultBytes(result) !== record.bytes) throw stale();
 }
 
-/** The live check, then the texts the native host re-reads (§3.6): the bytes the job
+/** The live check, then the texts the native host re-reads: the bytes the job
  * delivered and the model text it was sent. Synchronous, for the pre-IPC re-check. */
 export function exactSourceSubmission(admission: unknown, inputs: ExactReportAdmissionInputs): ExactSourceSubmission {
   checkExactReportAdmission(admission, inputs);

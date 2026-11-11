@@ -330,7 +330,7 @@ describe("operation contract corpus — wasm engine lane (native↔wasm parity)"
   }
 });
 
-// Model document 0.9.0 S3a/S3b (DEL-02-01 Work `model-document-0.9.0.md` §11, §12): S3a's
+// Model document 0.9.0 S3a/S3b: S3a's
 // condition-set corpus (`fixtures/model_operations/condition_set_contract_corpus.json`,
 // the same case format and comparison rules, blessed by the native runner with
 // CONDITION_SET_CORPUS_BLESS=1). S3a kept it outside contract_corpus/ until the desktop's

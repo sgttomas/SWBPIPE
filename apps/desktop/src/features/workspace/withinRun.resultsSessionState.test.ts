@@ -1,4 +1,4 @@
-// "Within this run" in the results cells (W-12 S3c; DEL-14-01 Design §4.3): a choice
+// "Within this run" in the results cells (W-12 S3c): a choice
 // is revalidated against each Current run. Two actual producer outputs are made
 // Current in turn (unit transport replay of their bytes; NOT a native UI
 // qualification witness): the range-envelope run offers L-100, L-200 and

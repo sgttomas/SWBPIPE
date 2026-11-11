@@ -133,7 +133,7 @@ fn row<'a>(source: &'a Value, entity: &str, kind: &str, component: Option<&str>)
         .collect();
     basis_pair(found).unwrap_or_else(|| panic!("{entity}/{kind}/{component:?}"))
 }
-/// D-5 (DEL-05-03 Design §2.1, §2.5): a stress row is published on the nominal
+/// a stress row is published on the nominal
 /// section and immediately followed by its reduced twin. The source family
 /// admits zero mill tolerance and zero allowance only, so the twins are
 /// bit-equal and the nominal row stands for both. `None` unless exactly one
@@ -511,7 +511,7 @@ const CURRENT_SOURCE_BASIS: [(Family, &str, &str, PreviewSolverMode, usize, &str
     (Family::LoadReference, "mixed", "97556596c03da64534ff962bd7d3a07100702e6e867dffe200a46d5e72c9977b", PreviewSolverMode::SparseInteractive, 376271, "93095b19c2ca86d9bf5339f999c23b102756533c6dca51f997342ff7b7cd740f"),
     (Family::LoadReference, "mixed", "97556596c03da64534ff962bd7d3a07100702e6e867dffe200a46d5e72c9977b", PreviewSolverMode::DenseScrutiny, 376252, "4032596e511b534ee8235a3d849a30b8918894beb41e0a91d49c05cfe3871819"),
 ];
-// RT-A3 S6 (§3.7): the ten load/reference-state publications restate S13 and S15 (the uniform ordinary load-state
+// the ten load/reference-state publications restate S13 and S15 (the uniform ordinary load-state
 // motion and history limitations; +465 B each) and re-seal; every other byte is unchanged (the S6 text-only guard).
 
 /// MJ6's kill (B7b meaning): changing the established source work limit

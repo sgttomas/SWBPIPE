@@ -588,7 +588,7 @@ struct Source {
     fixed: Vec<(usize, f64)>,
     /// The gap proof the functional chain retains and replays.
     gap: (usize, f64),
-    /// RF design §3.3: the functional entry's congruence members.
+    /// the functional entry's congruence members.
     congruence: Vec<CongruenceMember>,
 }
 impl Source {
@@ -1118,14 +1118,14 @@ fn sweep(
 /// `sweeps` is set.
 fn every_entry(check: &mut Checker, sweeps: bool) {
     functional_chain(&Source::new(), &descriptors(), &[], Limits::default().operations, check).unwrap();
-    // RF design §2: the order-3 and order-4 arithmetic (preparation, solve,
+    // the order-3 and order-4 arithmetic (preparation, solve,
     // reactions, evaluation and replay) through the same oracle.
     let higher = Source::higher();
     let mut blocks = Checker::default();
     let orders = functional_chain(&higher, &higher_descriptors(), &[], Limits::default().operations, &mut blocks);
     assert_eq!(orders.unwrap(), [3, 4]);
     check.absorb(blocks);
-    // RF design §3.3: a congruence member's exact formation, in the
+    // a congruence member's exact formation, in the
     // functional entry's preparation and again in its replay, through the
     // same oracle.
     let mut members = Checker::default();
@@ -1541,7 +1541,7 @@ fn metered_mul_keeps_the_expansion_term_refusal() {
 
 #[test]
 fn metered_operation_count_control_has_no_shortfall() {
-    // The maintained control over every entry (§5.4): every Work::mul and
+    // The maintained control over every entry: every Work::mul and
     // Work::add call charged at least the operations it executed, and the
     // counter agrees with the oracle's count of the same arithmetic.
     count::reset();

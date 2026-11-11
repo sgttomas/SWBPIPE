@@ -282,7 +282,7 @@ export function defaultComponentDraft(
     node,
     primaryPipeRef: kind === "bend" ? (connectedPipes[0]?.id ?? "") : "",
     secondaryPipeRef: "",
-    // W-17 §3: an absent project key leaves the unit unselected ("TBD"); nothing is assumed.
+    // an absent project key leaves the unit unselected ("TBD"); nothing is assumed.
     lengthUnit: units?.length ?? "TBD",
     endASizeUnit: units?.length ?? "TBD",
     endBSizeUnit: units?.length ?? "TBD",

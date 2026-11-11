@@ -238,7 +238,7 @@ class Watchdog(unittest.TestCase):
         self.assertFalse(r.watchdog_exceeds(1000, cap))
 
     def test_poll_interval_is_the_designs_100_ms(self):
-        # RV18-N1: the watchdog polls every 100 ms (DESIGN.md:826). The live test's tolerance,
+        # RV18-N1: the watchdog polls every 100 ms. The live test's tolerance,
         # one poll's growth, scales with the interval, so the interval is pinned here.
         self.assertEqual(r.POLL_S, 0.1)
         self.assertEqual(r.launch.__kwdefaults__['poll_s'], 0.1)

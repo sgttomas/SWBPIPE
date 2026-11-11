@@ -1,4 +1,4 @@
-// RT-R4 slice C5 (DEL-08-01 Design `report-section-composer.md` §2.7): the model-input
+// the model-input
 // projection P(M, C), held equal across the layers. This test projects committed model
 // fixtures with `modelInputTables` and writes
 // `fixtures/reports/invented/report_model_input_vectors.json`, and fails when it is stale;

@@ -1,4 +1,4 @@
-"""W16B-CB, W16B-RD, W16C-ES, W16BC-BN and W16BC-ID (retained-pricing-rules.md §8.27): W-16 slices b and c add the
+"""W16B-CB, W16B-RD, W16C-ES, W16BC-BN and W16BC-ID (§8.27): W-16 slices b and c add the
 exact route's load combinations and equivalent-static generation. D1 admits neither on a retained branch, so their
 entry edges are zero; the pressure-2 reader's combination test runs and its direct pass is counted once; by-name edges
 into the two new modules' private functions are zero; a changed premise or guard stops the run."""
@@ -42,7 +42,7 @@ def test_the_entry_edges_are_zero(monkeypatch, route):
     zero = lambda label: {(short(a), short(b)) for a, b, why in d["O10_EDGE_ZERO"] if label + ":" in why}
     assert zero("W16B-CB") == {("run_linear_static_preview_observed_inner", "append"),
                                ("run_linear_static_preview_observed_inner", "state_operand_standing")}
-    # RT-A3 §4 (§8.53, RTA3C-WC): the combination dispatch is the uncertified pass, which the certificate's wrapper
+    # (§8.53, RTA3C-WC): the combination dispatch is the uncertified pass, which the certificate's wrapper
     # reaches through one of two exclusive arms.
     assert zero("W16B-RD") == {("validate_pressure_evidence_uncertified", "direct_view"),
                                ("validate_pressure_evidence_uncertified", "validate")}

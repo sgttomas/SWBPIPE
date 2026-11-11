@@ -23,7 +23,7 @@ describe("report diagnostics projection parity", () => {
     expect(vectors.vectors.length).toBeGreaterThanOrEqual(20);
     for (const vector of vectors.vectors) {
       expect(vector.reason.length).toBeGreaterThan(0);
-      // RT-A3 §4: a vector may state the result's combination evidence, rows and numerical cases.
+      // a vector may state the result's combination evidence, rows and numerical cases.
       const stated = vector as { contract_evidence?: unknown; results?: unknown; numerical_quality?: unknown };
       const result = {
         diagnostics: vector.diagnostics,

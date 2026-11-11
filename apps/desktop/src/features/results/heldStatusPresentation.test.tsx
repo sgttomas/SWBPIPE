@@ -1,4 +1,4 @@
-// RT-A5 (DEL-05-02 `operating-case.md` §7.5; Work `combination-certificate.md` §2): a held gate
+// a held gate
 // notice's refusal text R is bound to its held-status record by the reader, not verified as true,
 // and supplies no row bound, eligibility, certificate notice or standing. Every presenting path
 // therefore quotes a diagnostic whose typed code is a held gate code whole as supplied text, even

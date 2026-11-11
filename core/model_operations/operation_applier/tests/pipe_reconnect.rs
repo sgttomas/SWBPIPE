@@ -1,9 +1,9 @@
 //! W-10 pipe reconnect (`reconnect_pipe_run`, FR-GUI-004): the applier rules
-//! of DEL-16-06 Design `pipe-reconnect.md` §1-§2 and §4 "Applier rules". Every
+//! of DEL-16-06. Every
 //! model is an inline invented fixture built from `MODEL_SCHEMA_VERSION`; no
 //! value is library, catalog or code-rule data.
 //!
-//! Notation (design): P is the reconnected pipe, F its fixed end node, O the
+//! Notation: P is the reconnected pipe, F its fixed end node, O the
 //! end node it leaves and T the node it joins.
 use open_pipe_stress_operation_applier::{
     apply_operation, apply_operation_batch, canonical_json, sha256_hex, validate_operation,
@@ -266,7 +266,7 @@ fn r6_degenerate_or_nonfinite_chord() {
 
 #[test]
 fn r7_kernel_orientation_and_y_reference_rules() {
-    // Design §2.3 counterexample: chord (1,1,0) with the kept y_reference
+    // counterexample: chord (1,1,0) with the kept y_reference
     // (1.00001,1,0). The y-projection check alone passes it.
     let mut model = base();
     model["nodes"].as_array_mut().unwrap().push(node("node:E", 1.0, 1.0, 0.0));
@@ -408,7 +408,7 @@ fn r10_member_and_r11_internal_branch() {
 fn primitive(id: &str, category: &str, target: Value) -> Value {
     json!({"id": id, "category": category, "target": target, "direction": "global_z", "magnitude": {"value": -100.0, "unit": "N/m"}, "dimension": "force_per_length", "provenance": PROV})
 }
-/// Every §2.2 allowed slot naming P, with its exact supported shape.
+/// Every allowed slot naming P, with its exact supported shape.
 fn slots_model() -> Value {
     let mut model = base();
     model["load_cases"] = json!([{"id": "case:w", "provenance": PROV,
@@ -485,7 +485,7 @@ fn r12_unknown_slots_refuse_and_stored_diagnostics_are_skipped() {
     m["extension"] = json!({"required_input_refs": [{"id": "pipe:P"}]});
     let refusal = refused(&m, &intent, "OP-RECONNECT-ATTACHMENT-UNSUPPORTED");
     assert_eq!(refusal[0].message, "Cannot reconnect pipe:P: pipe:P is named at extension.required_input_refs[0].id, which reconnect does not carry across a geometry change.");
-    // S2 (0.7.0 design §6; §2.2 here): the scan does not read the model-data
+    // the scan does not read the model-data
     // collections. A line keeps P by id across the reconnect; an assumption, a
     // constraint or an equipment interface naming P or O never blocks; tags and
     // notes are annotations, not links.
@@ -805,7 +805,7 @@ fn parts(model: &Value) -> usize {
     }
     count
 }
-/// The §2.4 warnings this random family can raise, recomputed independently.
+/// The warnings this random family can raise, recomputed independently.
 fn expected_warnings(before: &Value, after: &Value, pipe_id: &str, old: &str) -> BTreeSet<String> {
     let mut out = BTreeSet::new();
     let p = record(after, "pipe_segments", pipe_id);
@@ -882,7 +882,7 @@ fn property_random_graphs_every_pipe_end_and_target() {
                     let old = p[end].as_str().unwrap();
                     let warnings: BTreeSet<String> = outcome.diagnostics.iter().filter(|d| d.severity == "warning").map(|d| d.code.clone()).collect();
                     assert_eq!(warnings, expected_warnings(&model, &after, pipe_id, old), "seed {seed} {pipe_id} {end} -> {target}");
-                    // The inverse reconnect, where representable (§1 Undo).
+                    // The inverse reconnect, where representable.
                     let had_y = p.get("y_reference").cloned();
                     if y.is_some() && had_y.is_none() {
                         continue;
@@ -901,7 +901,7 @@ fn property_random_graphs_every_pipe_end_and_target() {
 
 // ------------------------------------------------------------------ physics
 //
-// §4 "Numerical scrutiny": each physical expectation is stated independently
+// each physical expectation is stated independently
 // of the product (closed-form beam statics, wind and fit equations), every
 // solve asserts its status, and both solver modes run. Canonical equality with
 // a directly authored model is an identity check only.
@@ -1260,7 +1260,7 @@ fn runtime_equivalence_witness_native() {
     )]);
 }
 
-/// Model document 0.9.0 (DEL-02-01 Design `model-document-0.9.0.md` §1.4): a reconnected
+/// Model document 0.9.0: a reconnected
 /// pipe keeps its condition_set_ref; the applied document still validates.
 #[test]
 fn a_reconnected_pipe_keeps_its_condition_set_ref() {

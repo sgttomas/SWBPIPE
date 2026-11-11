@@ -113,7 +113,7 @@ fn committed_combinations_follow_their_algebra_class() {
             let class = classes.get(kind).map(String::as_str);
             assert!(matches!(class, Some("signed_linear" | "recomputed_from_combined")), "{}: {kind} {class:?}", path.display());
             if let Some(mode) = range_modes.get(row["basis_ref"]["ref_id"].as_str().unwrap()) {
-                // §2.7: every range-envelope row, a magnitude included, is its own
+                // every range-envelope row, a magnitude included, is its own
                 // operands' mode-selected row.
                 ranged += 1;
                 let operands: Vec<f64> = row["source_result_refs"].as_array().unwrap().iter().map(|id| {

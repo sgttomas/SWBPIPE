@@ -16,7 +16,7 @@ export const PRESSURE_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.
 /** T4-U2: the ordinary exact identity (3.0.0/exact_pressure_v3). */
 export const PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-2";
 export const PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2";
-/** DEL-05-03 Design `pf-timoshenko.md` §4: the pressure-free Timoshenko identity, a second
+/** the pressure-free Timoshenko identity, a second
  * complete identity on the `preview_physics` route (a document whose
  * `model_settings.shear_model` selects `timoshenko_annulus_energy_v1`). Its table is
  * preview-physics-2's with the identity, the profile and limitation 0 replaced. */
@@ -28,7 +28,7 @@ export const PREVIEW_PHYSICS_CONTRACT_IDS: readonly string[] = Object.freeze([PR
  * standing comes only from that reader's registered validation
  * (`retainedPrecisionStanding.ts`). */
 export const PREVIEW_PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1";
-/** B3b (B3-D §6.1, §7): the exact successor `<physics-retained>`, likewise. */
+/** B3b: the exact successor `<physics-retained>`, likewise. */
 export const PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1";
 /** Either successor identity: only these may carry a `retained_precision` receipt. */
 export function isRetainedIdentity(id: unknown): boolean {

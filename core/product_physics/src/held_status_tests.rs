@@ -1,4 +1,4 @@
-//! RT-A5 `minuend_final` (DEL-05-02 Work `operating-case.md` §7.4, §7.6, §7.9 H-8): the
+//! `minuend_final`: the
 //! binding's nine checks in order, each refused by its own name (and each mutant of a check
 //! killed), and the evidence's outcomes on real held solves.
 use super::*;
@@ -204,7 +204,7 @@ fn h8_every_binding_check_refuses_by_name_in_order() {
     assert_eq!(code(bind(Some(&captured), &context(token, Some(&evidence), &moved, &ids))).0, SLIDING_GROUND_DIFFERS);
 }
 
-/// §7.6, §7.3: outcomes on real held solves: kept and established (E), released by a
+/// outcomes on real held solves: kept and established (E), released by a
 /// tensile held reaction (R), and released by a reversed derived normal (R, Sliding kept).
 #[test]
 fn derived_evidence_states_each_outcome() {
@@ -245,7 +245,7 @@ fn derived_evidence_states_each_outcome() {
     assert_eq!(evidence.outcome, Outcome::Released);
     assert_eq!(evidence.outcome.kind(), "not_established");
     assert_eq!(evidence.released[0].reason, "changed_state");
-    // P1 (§7.5): the recorded reaction bit token that decided it (-100.0 N: the tensile reaction), never a
+    // the recorded reaction bit token that decided it (-100.0 N: the tensile reaction), never a
     // formatted binary64.
     assert_eq!(evidence.released[0].quantity, "reaction_bits c059000000000000");
     assert_eq!(evidence.supports[0]["inputs"]["reaction_bits"], "c059000000000000");

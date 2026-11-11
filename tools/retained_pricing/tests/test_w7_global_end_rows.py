@@ -1,4 +1,4 @@
-"""W7-RL, W7-RP, W7-NC, W7-QF, W7-RD, W7-L1 and W7-ID (retained-pricing-rules.md §8.20): W-7's global end rows are
+"""W7-RL, W7-RP, W7-NC, W7-QF, W7-RD, W7-L1 and W7-ID (§8.20): W-7's global end rows are
 priced only where their code exists, raise each route's rows per member by twelve, charge their owners positively and
 stop on a changed source."""
 from tools.repository_history import source_spec as _source_spec

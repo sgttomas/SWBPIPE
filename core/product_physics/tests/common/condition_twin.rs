@@ -1,5 +1,5 @@
 //! An independent twin builder for model document 0.9.0's pressure-free
-//! condition resolution (DEL-02-01 Work `model-document-0.9.0.md` §1.5, §1.8),
+//! condition resolution,
 //! written from the design text on JSON values. It does not call the product's
 //! lowering or its arithmetic: each temperature difference is read from the
 //! independent reference table `validation/references/rt_g5_s2_conditions/`

@@ -15,7 +15,7 @@ fn ball(m: f64, r: f64) -> CertifiedRow {
     CertifiedValue::with_radius(m, r).unwrap().into_row().unwrap()
 }
 
-// ------------------------------------------------ the §2.2 predicate
+// ------------------------------------------------ the predicate
 
 #[test]
 fn unilateral_signs_need_the_whole_ball_strictly_on_their_side() {
@@ -133,7 +133,7 @@ fn at_most_six_supports_are_named_in_support_id_order() {
 }
 
 /// Review M2: a support whose own ball cannot be formed fails under the name
-/// of its kind and state (§2.4 item 7), not under one name for every support.
+/// of its kind and state, not under one name for every support.
 #[test]
 fn an_unformed_ball_is_named_by_support_kind_and_state() {
     use NonlinearSupportBehavior as B;
@@ -158,7 +158,7 @@ fn prescribed_rows_must_match_bit_for_bit() {
     assert!(prescribed_row_mismatch(&[0.0], &[(3, 0.0)]));
 }
 
-// ------------------------------------------------ the Stage-A ball (§1.4)
+// ------------------------------------------------ the Stage-A ball
 
 /// The exact coupled force of a constructed case: φ = c·(N⁰ + g·(φ − φ⁰)).
 fn exact_coupled(c: f64, normal: f64, gain: f64, phi0: f64) -> f64 {
@@ -381,7 +381,7 @@ fn a_zero_coefficient_sliding_support_carries_no_term_and_is_established() {
     }
 }
 
-/// The K-D5 evaluations judge the loop's own displacement (§1.5): Stage A and
+/// The K-D5 evaluations judge the loop's own displacement: Stage A and
 /// Stage B take `solve.displacements`, never the gate's solution, and the
 /// influence system is the only unjudged evaluation.
 #[test]
@@ -396,8 +396,8 @@ fn evaluations_take_the_loops_displacement_and_only_the_influence_is_unjudged() 
     assert!(!code.contains("gate.displacements"));
 }
 
-// ------------------------------------------------ W-16 stage 2, R-a
-// (DEL-04-03 Design pf-nonlinear-imposed-motion.md §1, §2.4): rigid anchors
+// ------------------------------------------------
+// rigid anchors
 // and restraints carry the case's motion as base prescribed values.
 
 /// The 2 m cantilever with a tip one-way prop on UZ (pushing up), a 100 N
@@ -480,7 +480,7 @@ fn base_prescribed_entries_are_validated_at_the_loop_boundary() {
     );
 }
 
-/// §2.4 item 2, revision 2: the intended map, formed independently of the
+/// the intended map, formed independently of the
 /// loop's boundary, against the loop's active prescribed map: complete
 /// canonical maps (default zeros, coverage, duplicates and bits).
 #[test]
@@ -523,8 +523,8 @@ fn the_intended_map_binds_the_loops_boundary_bit_for_bit() {
     assert!(prescribed_map_mismatch(None, &actual));
 }
 
-// ------------------------------------------------ W-16 stage 2, R-b
-// (DEL-04-03 Design pf-nonlinear-imposed-motion.md §1-§2): a primitive on a
+// ------------------------------------------------
+// a primitive on a
 // nonlinear support's own DOF moves its ground by g_s.
 
 /// The 2 m cantilever with a tip lift-off on UZ (pushing up), a 100 N
@@ -648,7 +648,7 @@ fn the_intended_map_carries_the_moved_ground() {
     assert!(intended_prescribed_map(&unknown, &solve.final_states).is_none());
 }
 
-/// §2.2, revision 2: the inactive unilateral and the slip conditions compare
+/// the inactive unilateral and the slip conditions compare
 /// the displacement ball with the ground g_s, exactly.
 #[test]
 fn shifted_conditions_compare_with_the_ground_exactly() {
@@ -684,7 +684,7 @@ fn inclined_coupled(px: f64) -> (NonlinearFrameSolveInput, AssembledForce) {
     (input, force)
 }
 
-/// RT-A3 P step 4 (DEL-04-07 design §3): in sparse
+/// in sparse
 /// mode the coupling solves moved from dense Cholesky to the skyline LDL, so
 /// φ⁰'s bits may move. The move stays inside the published bound: with the
 /// old and the new coupling the loop reaches the same states in the same

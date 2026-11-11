@@ -1,6 +1,6 @@
 """W-12 S2: the desktop store's recorded analysis-run revision against the schema and Python.
 
-DEL-14-01 Design `desktop-states-runs-comparison.md` section 3. Record Run in the
+Record Run in the
 desktop store (apps/desktop/src-tauri/src/analysis_runs.rs) writes a new immutable
 revision of a solve's transient analysis_run.v0.3 record, tied to a saved model
 state. The committed witness `fixtures/persistence/recorded_run_witness.json` was

@@ -20,7 +20,7 @@ import {
 
 export type BlankProjectKind = "local" | "load_state";
 
-/** An open "Units at creation" request (W-17 §3). Create builds the blank with the map; Cancel creates nothing. */
+/** An open "Units at creation" request. Create builds the blank with the map; Cancel creates nothing. */
 export type BlankProjectUnitsRequest = {
   kind: BlankProjectKind;
   opener: HTMLElement | null;

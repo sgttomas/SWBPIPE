@@ -1,4 +1,4 @@
-// G5 (DEL-07-03, DEL-09-01 run sheet §3.2): the E/nu create form reproduces the
+// G5 (DEL-07-03): the E/nu create form reproduces the
 // reference system's material RS-M1, including its material-level thermal
 // expansion coefficient, through the operation engine (the wasm export apply uses).
 // G5b: the coefficient is added to an existing material afterwards, to the same record.

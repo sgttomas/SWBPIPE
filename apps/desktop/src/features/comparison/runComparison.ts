@@ -1,5 +1,5 @@
-// Comparison of two analysis runs of one project (W-12 S3b; DEL-14-01 Design
-// `desktop-states-runs-comparison.md` §4.2; FR-CMP-004, and FR-CMP-006 for
+// Comparison of two analysis runs of one project (W-12 S3b;
+// FR-CMP-004, and FR-CMP-006 for
 // runs). Deterministic and automatic: result rows are mapped when their whole
 // identity is equal, with no manual mapping (FR-CMP-005/007 stay v0.2), and no
 // tolerance profile or unit conversion (FR-CMP-008 stays v0.2). The reference
@@ -152,7 +152,7 @@ function basisRefOf(value: unknown): RunRowIdentity["basis_ref"] {
 export function flattenRunResult(result: MechanicsResult, recordedTableRead: ContractBinding | null = null): FlatRunRow[] {
   const rows = Array.isArray(result.results) ? result.results : [];
   let semantics: ReturnType<typeof readerRowSemantics> | null = null;
-  // RT-A4 §10.4: a run recorded before RT-A4 reads its rows under its recorded table.
+  // a run recorded before RT-A4 reads its rows under its recorded table.
   try { semantics = recordedTableRead ? recordedReaderRowSemantics(result, recordedTableRead) : readerRowSemantics(result); } catch { semantics = null; }
   return rows.map((row, row_index) => {
     let family: string | null = null;

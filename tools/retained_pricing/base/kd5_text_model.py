@@ -10,7 +10,7 @@ no field is presumed fixed merely because a fixture showed it.
 # unchanged source text; historical preimages retain their original identities.
 import hashlib, os, re
 
-# Pre-0.4 failure unification D3 (retained-pricing-rules.md §8.14): solve_prepared_load_case screens selection by the
+# Pre-0.4 failure unification D3 (§8.14): solve_prepared_load_case screens selection by the
 # captured replay's reservation and declines a withheld join on both exact routes (0.4's withheld text, now reachable
 # on route E: PU-TX), keeps a selected case's first support-norm refusal as its finalization cause (PU-TX) and records
 # the S2/S3 cause on both routes. No record constructor, label, route string, carrier, staging, fallback attempt or
@@ -296,7 +296,7 @@ FALLBACK_METHOD_PINS = {
     "mul": "b7a13d3aa95f1a81250596c2894aa53c08261ef50678482907ca925eb89fd375",
     "divided": "42236c96706c6fd58796004eca2d9791bd37e011f0e77c1ee482673d74a501d8",
 }
-# W-15 D3 (retained-pricing-rules.md §8.21): append_exact_pressure_results, render and append_arc_pressure_results
+# W-15 D3 (§8.21): append_exact_pressure_results, render and append_arc_pressure_results
 # re-pinned for `component_body: None` in their row constructors; render also collects the formed bodies' ids
 # (`bodies`, from built.scaled_members: empty on D1 by P2, so the set allocates nothing) and passes them to
 # render_members, which keeps them out of the case maximum. No fallback method call changes.

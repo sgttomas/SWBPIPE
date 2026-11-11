@@ -238,7 +238,7 @@ mod tests {
         }
     }
 
-    // --- allocation checks (§2.4, §6) -----------------------------------------
+    // --- allocation checks -----------------------------------------
 
     /// The price of a `Vec` of `n` 8-byte entries (`Vec<&String>`).
     fn pointers(n: usize) -> u64 {
@@ -272,7 +272,7 @@ mod tests {
     /// `shortest_digits` the digit text with one growth and the digits (80).
     const NUMBER_TEMPORARIES: u64 = 160;
 
-    /// The §2.4 account of a value's streamed digest: the key vectors of the
+    /// The account of a value's streamed digest: the key vectors of the
     /// objects on the deepest-priced open path, plus the largest single
     /// transient (one object's sort scratch, one escaped string or the number
     /// temporaries), and the domain string's escaped form.
@@ -337,7 +337,7 @@ mod tests {
         )
     }
 
-    /// §2.4 and §6: each transient piece, maximized on its own invented value,
+    /// each transient piece, maximized on its own invented value,
     /// stays within the account. The numeric value, whose pieces are all
     /// small, shows that no canonical text is held.
     #[test]
@@ -363,7 +363,7 @@ mod tests {
         }
     }
 
-    /// §2.4 and §6, in the worker: the `d_S` pass digests the value the
+    /// in the worker: the `d_S` pass digests the value the
     /// producer's bytes hold (one bounded piece at a time since RT-U4), so its
     /// peak is within the text's materialization bound (the ingress prescan's,
     /// over the same requested sizes) plus the streamed digest's account; the `d_M` pass over the
@@ -398,7 +398,7 @@ mod tests {
         assert!(measured.peak_priced <= account(&model), "{measured:?}");
     }
 
-    /// §2.4 and §6, on raw text (RT-U4 review): the `d_S` pass over texts as
+    /// on raw text (RT-U4 review): the `d_S` pass over texts as
     /// written, not reserialized (raw whitespace, escaped keys, duplicates,
     /// split levels), peaks within the text's materialization bound plus the
     /// streamed digest's account plus the open split containers' parser frames

@@ -745,7 +745,7 @@ pub(crate) fn resolve_strain(
 #[cfg(test)]
 mod tests {
     //! Invented analytical test inputs from the reviewed load/reference-state
-    //! design controls (VERIFICATION.md 4-6); no product output is an oracle.
+    //! design controls; no product output is an oracle.
     use super::*;
 
     const ZERO_C: f64 = 273.15;

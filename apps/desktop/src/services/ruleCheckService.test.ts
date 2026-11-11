@@ -398,7 +398,7 @@ describe("runRuleChecks", () => {
     });
 
     expect(route.route).toBe("tauri_backend");
-    // An ungated (preview-physics-2) run carries no load/reference-state line (epoch 8, §4.4).
+    // An ungated (preview-physics-2) run carries no load/reference-state line (epoch 8).
     expect(route).toMatchObject({ loadReferenceDisclosure: null });
     // The transient solve goes through the job path and is released after the rule run used it.
     expect(invokeMock.mock.calls.map(([command]) => command)).toEqual([
@@ -469,7 +469,7 @@ describe("loadDemoRuleCheckPack", () => {
     const plan = deriveRuleCheckBindingPlan(demo);
     expect(demo.schema_version).toBe("0.5.0");
     expect(plan.solverInputs.map((input) => input.input_id)).toContain("demo_actual_quantity");
-    // The demo's selector names an invented kind no producer publishes (design §4).
+    // The demo's selector names an invented kind no producer publishes.
     expect(plan.solverInputs[0].solver_result_ref).toEqual({ result_kind: "invented_demo_quantity", entity_ref: "pipe:P-100" });
     expect(plan.requiredLoadCases.map((entry) => entry.basis_ref)).toEqual([
       { ref_type: "load_case", ref_id: "load:L-100" },
@@ -597,7 +597,7 @@ describe("T0R rule-binding pre-check (mirror of rule_binding_refusal; display on
 });
 
 /* -------------------------------------------------------------------------- *
- * Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §4.4, §5.4, §6.1 "Rule check"):
+ * Epoch 8:
  * the exact routes reach `run_rule_checks` only at the Rust reader's eligible standing,
  * on the Current path (a supplied envelope) and the transient path (the service solves,
  * then disposes). Unit transport replay of committed producer bytes through mocked IPC;

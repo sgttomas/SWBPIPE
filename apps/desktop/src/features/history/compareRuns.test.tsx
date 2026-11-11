@@ -1,4 +1,3 @@
-// W-12 S3b (DEL-14-01 Design `desktop-states-runs-comparison.md` §4.2, §4.3):
 // Compare… of two runs. The session's flow (the one-owner check, the busy
 // refusal, the native size admission before either read, the metered reads, the
 // webview's exactness check, the S2-era refusal) runs against a fake of the native
@@ -165,7 +164,7 @@ describe("the session's Compare… of two runs", () => {
     expect(hook.current.runComparison).toBeNull();
   });
 
-  // Owner ruling, 2026-10-26, "R-c1 A, 0.8.0 a2" (DEL-02-01 Design model-document-0.8.0.md §3.2):
+  // Owner ruling, 2026-10-26, "R-c1 A, 0.8.0 a2":
   // a run recorded on a 0.7.0 model is listed for the project id and compares with a 0.9.0 run
   // exactly as two 0.9.0 runs do. No model-document-version gate is added for runs; the
   // existing eligibility gate decides.
@@ -523,7 +522,7 @@ describe("the run comparison view", () => {
     expect(rows()).toEqual(["run-comparison-row-compared-r:1"]);
     // View-only, and no wording of standing beyond the reader's status.
     const view = screen.getByTestId("run-comparison");
-    // RT-R6 (DEL-08-04 Design `csv-export.md` §1 C1): the one export is the table's local-private
+    // the one export is the table's local-private
     // CSV; the comparison envelope export stays later (FR-CMP-010).
     expect(within(view).getAllByRole("button", { name: /export|download|save/i }).map((button) => button.getAttribute("aria-label"))).toEqual(["Export CSV: Run comparison"]);
     expect(view.textContent).not.toMatch(/certif|accept|approv/i);

@@ -33,6 +33,6 @@ mod support;
 mod workspace;
 
 pub use matrix::{MatrixError, SymmetricMatrix};
-/// The support operations' typed reservation refusal (design §5.3.8; carried
+/// The support operations' typed reservation refusal (carried
 /// by `DenseError`, `ReformationFailure`, `FormationError` and `SturmError`).
 pub use support::SupportResourceError;

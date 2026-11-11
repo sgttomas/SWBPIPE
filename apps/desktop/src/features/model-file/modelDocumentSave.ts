@@ -114,7 +114,7 @@ function text(value: unknown): string | null {
 
 type DispositionItem = { path: string; record: string; item: PlainObject };
 
-/** A model document is the user's private project data (§2), so every
+/** A model document is the user's private project data, so every
  * disposition it carries is screened as such: private data needs the explicit
  * intent, and a quarantined or rejected disposition blocks in every context. */
 const MODEL_DOCUMENT_PRIVACY_CLASS = "private_project_data";
@@ -308,7 +308,7 @@ export function storedDispositions(kind: string, item: PlainObject): Array<{ red
 }
 
 export const MODEL_DOC_SAVE_LIBRARY_STORE_UNAVAILABLE = "MODEL-DOC-SAVE-LIBRARY-STORE-UNAVAILABLE";
-// The store check's code (`libraryImportService` / `check_model_library_refs`, W-13 §3.5).
+// The store check's code (`libraryImportService` / `check_model_library_refs`).
 export { MODEL_LIBRARY_REF_UNRESOLVED };
 
 /** The library references resolved against the local store. `storeError` is

@@ -1,4 +1,4 @@
-//! The bounded import review (DEL-17-04 Design `desktop-mbf-export-import.md` §4.3, §4.8.9; slice 5): status and
+//! The bounded import review: status and
 //! blocking state before truncation with exact counts, the fixed leading members byte for byte, determinism and what
 //! changes the review's digest, the per-class identity counts of one bound and one unbound import of the writer's own
 //! output for the maintained invented export model, the structured mapping assumptions (each applied assumption's
@@ -199,7 +199,7 @@ fn bound_and_unbound_imports_pin_the_identity_counts() {
     let (text, sidecar) = written_pair();
     let bound = import(&text, Some(&sidecar), None, "invented.mbf");
     let bound_value = parsed(&review_of(&bound, &text, Some(&sidecar), None, MBF_REVIEW_MAX_BYTES, true).review);
-    assert_recovery(&bound_value, 0, 0); // format 6 records the bend component's node (Design §15, Format 6)
+    assert_recovery(&bound_value, 0, 0); // format 6 records the bend component's node (Format 6)
     assert_taxonomy(&bound, &bound_value);
     assert_eq!(bound_value.get_or_null("binding").get_or_null("state").as_str(), Some("bound"));
     assert_eq!(bound_value.get_or_null("identity").get_or_null("basis").as_str(), Some("restored_from_identity_file"));

@@ -64,7 +64,7 @@ type Props = {
   treeRecords?: React.ReactNode;
   /** Pending intents, for the Condition sets section's pending-change check (optional). */
   queuedIntents?: EditorOperationIntent[];
-  /** Run sheet S2 (DEL-07-02 Design `run-sheet-entry.md`): the Grid mode's "Run sheet" tab. */
+  /** Run sheet: the Grid mode's "Run sheet" tab. */
   runSheet?: RunSheetHost;
 };
 
@@ -423,7 +423,7 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
         )
       ) : null}
       {treeRecords || onQueueIntent ? <div className="model-tree-records" hidden={layoutMode === "grid"} inert={layoutMode === "grid"}>
-        {/* Model document 0.9.0 S3b (§4.2): Condition sets in the model tree, beside the Lines section. */}
+        {/* Condition sets in the model tree, beside the Lines section. */}
         {onQueueIntent ? <ConditionSetsSection key={`condition-sets:${projectSessionGeneration}`} model={model} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy} /> : null}
         {treeRecords}
       </div> : null}
@@ -952,7 +952,7 @@ function EntityGrid({
       return [headers.find((element) => element.dataset.testid === testId), ...headers, bulkScrollRef.current];
     };
   }
-  // W-17 §7.3, §7.6: composed column defaults are checked against the DEC-018 catalog,
+  // composed column defaults are checked against the DEC-018 catalog,
   // as in the property inspector; until it loads (or in the browser preview) they stay unchecked.
   const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
   useEffect(() => {
@@ -1551,7 +1551,7 @@ function row(id: string, label: string, type: EntityRef["type"], raw: unknown, k
 
 function gridColumns(model: PreviewModel, entityType: GridEntityType, route: UnitCatalogRoute | null = null): GridColumn[] {
   const units = (model.project.units as PreviewModel["project"]["units"] | undefined) ?? {};
-  // W-17 §3: an absent key gives no unit (""), never a substitute; queuing such a cell is refused by name.
+  // an absent key gives no unit (""), never a substitute; queuing such a cell is refused by name.
   const lengthUnit = model.project.units.length ?? "";
   if (entityType === "nodes") {
     return [
@@ -1967,7 +1967,7 @@ function composedGridColumn(
   };
 }
 
-/** Model document 0.9.0 S3b (§4.2): a pipe's condition set, chosen from the model's sets or
+/** a pipe's condition set, chosen from the model's sets or
  * cleared (blank). The cell queues `assign_condition_set` (buildGridOperationIntent). */
 function conditionSetGridColumn(model: PreviewModel): GridColumn {
   return {
@@ -1994,11 +1994,11 @@ function gridCellReadonly(column: GridColumn, row: GridRow): boolean {
   return Boolean(column.readonly || (column.fieldPath === "provenance" && ((row.type === "section" && typeof (row.raw as { provenance?: unknown }).provenance !== "string") || ((row.type === "node" || row.type === "material") && typeof (row.raw as { provenance?: unknown }).provenance !== "string"))));
 }
 
-/** W-17 §3: a changed quantity cell whose unit would come from a missing project key
+/** a changed quantity cell whose unit would come from a missing project key
  * is refused by name, and nothing is queued; grid cells have no unit selector. */
 function missingProjectUnitCellRefusal(model: PreviewModel, cells: Array<{ row: GridRow; column: GridColumn }>): string | null {
   for (const { row, column } of cells) {
-    // W-17 §7.2, §7.3, §7.6: a column with a composed or key default; the grid has no
+    // a column with a composed or key default; the grid has no
     // unit selector, so the refusal sends the user to the property inspector.
     if (column.quantity && column.emptyUnit && column.unit(row).trim() === "") {
       const { missingKey, notice } = column.emptyUnit;

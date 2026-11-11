@@ -37,7 +37,7 @@ fn member<'a>(input: &'a Map<String, Value>, name: &str) -> Option<&'a Value> {
     input.get(name).filter(|value| !value.is_null())
 }
 
-/// RT-A4 §10.4: the recorded binding `{id, sha256}` of a recorded-run read. With it, a
+/// the recorded binding `{id, sha256}` of a recorded-run read. With it, a
 /// reader runs as `reader_verdict::*_recorded` (a registry variant of the statement's
 /// identity is read under its own tables; any other binding but the current one is
 /// refused by name); without it, as the current reader. Only the recorded-run read,
@@ -251,7 +251,7 @@ pub fn read(reader: &str, input: &str) -> Result<(u8, Value), String> {
             "{reader} input has an unsupported member {unknown}"
         ));
     }
-    // RT-A4 §10.4: the command is an outermost entry, so it reads with no recorded table
+    // the command is an outermost entry, so it reads with no recorded table
     // selection left over (`recorded_tables::entry_scope`); a recorded reader selects its own.
     let outcome = open_pipe_stress_result_export::recorded_tables::entry_scope(|| (entry.read)(&members));
     let code = if outcome["ok"] == true {
@@ -308,7 +308,7 @@ mod tests {
             ("classification-summary", r#"{"source":{},"model":{}}"#),
             ("row-semantics", r#"{"source":{}}"#),
             ("row-semantics", r#"{"row":{},"invocation":null}"#),
-            // RT-A4 §10.4: only the recorded-run read's readers admit a recorded binding.
+            // only the recorded-run read's readers admit a recorded binding.
             ("pressure", r#"{"source":{},"recorded_binding":{}}"#),
             ("pressure-source", r#"{"source":{},"recorded_binding":{}}"#),
             ("source-recovery", r#"{"source":{},"recorded_binding":{}}"#),
@@ -389,7 +389,7 @@ mod tests {
         );
     }
 
-    /// RT-A4 §10.4: with a recorded binding, each recorded-run reader is its
+    /// with a recorded binding, each recorded-run reader is its
     /// `reader_verdict::*_recorded` entry; a null binding reads as absent.
     #[test]
     fn a_recorded_binding_runs_the_recorded_entry() {

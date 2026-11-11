@@ -184,7 +184,7 @@ it.each([["pressure_source", "pressure_source/physics_source", "n05.request.json
  expect(result.current.currentSolvedResult).toBeNull();
 });
 
-// DEL-07-05 numerical health §3: the factored Current predicate and the session's
+// the factored Current predicate and the session's
 // indicator. Admission is unchanged: the indicator never makes or unmakes Current, and
 // the hold applies only to a non-Current result whose other requirements hold.
 const engineForHealth = loadedWasmEngine() as WasmOperationEngine;

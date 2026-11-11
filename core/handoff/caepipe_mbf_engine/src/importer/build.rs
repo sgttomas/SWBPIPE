@@ -452,7 +452,7 @@ impl<'a> Importer<'a> {
                     // settings, and the restored model is not that document (its project, labels, provenance and
                     // every member the writer does not export differ) and the regeneration has no export settings,
                     // so no derivation can be regenerated from it. It is held as recorded, at the sidecar's
-                    // source-free trust level, for a later check against a designated source (Design §15, Format 6).
+                    // source-free trust level, for a later check against a designated source (Format 6).
                     // Each format-6 bend's `node` is compared: it regenerates from the restored component.
                     dict.remove(&"derivation".to_string());
                     if !format6 {

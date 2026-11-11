@@ -170,10 +170,10 @@ pub(crate) const HARDWARE_LAW_UNSUPPORTED: &str = "JOINT_HARDWARE_LAW_UNSUPPORTE
 pub(crate) const PRESSURE_INTERFACE_UNRESOLVED: &str = "JOINT_PRESSURE_INTERFACE_UNRESOLVED";
 pub(crate) const PRESSURE_AREA_MISSING: &str = "JOINT_PRESSURE_AREA_MISSING";
 pub(crate) const SPAN_LOAD_UNOWNED: &str = "JOINT_REPLACED_SPAN_LOAD_UNOWNED";
-/// T4-U5b (DEL-04-07 Design `u4b-u5b-implementation.md` §3.1): a tie-rod
+/// a tie-rod
 /// hardware record that is incomplete, contradictory or out of range.
 pub(crate) const TIE_ROD_INPUT_INVALID: &str = "JOINT_TIE_ROD_INPUT_INVALID";
-/// T4-U5b (§3.1): a rod whose represented length is degenerate (the FK
+/// a rod whose represented length is degenerate (the FK
 /// representation guard `tie_rod::LENGTH_GUARD`).
 pub(crate) const TIE_ROD_ZERO_LENGTH: &str = "JOINT_TIE_ROD_ZERO_LENGTH";
 /// T4-U5b: the explicit elastic tie-rod hardware kind and its one law.
@@ -208,7 +208,7 @@ pub(crate) struct ConnectorSpec {
     pub tie_rods: Vec<TieRodSpec>,
 }
 
-/// T4-U5b (§3.1): one decoded `explicit_axial_rods_v1` rod, in SI: offsets
+/// one decoded `explicit_axial_rods_v1` rod, in SI: offsets
 /// in the connector axes Q (m), stiffness N/m, reference extension m.
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) struct TieRodSpec {
@@ -222,7 +222,7 @@ pub(crate) struct TieRodSpec {
 /// Absent hardware is `JOINT_HARDWARE_NOT_DEFINED`, never untied. A kind or
 /// rod law other than the two kinds and `bilateral_linear` is
 /// `JOINT_HARDWARE_LAW_UNSUPPORTED`, naming it; any other defect of the
-/// closed objects (§3.1) is `JOINT_TIE_ROD_INPUT_INVALID`.
+/// closed objects is `JOINT_TIE_ROD_INPUT_INVALID`.
 fn hardware(connector: &Value, component: &str) -> Result<Vec<TieRodSpec>, Vec<Finding>> {
     let Some(hardware) = connector.get("hardware") else {
         return Err(vec![(HARDWARE_NOT_DEFINED, format!(
@@ -290,7 +290,7 @@ fn hardware(connector: &Value, component: &str) -> Result<Vec<TieRodSpec>, Vec<F
     if findings.is_empty() { Ok(rods) } else { Err(findings) }
 }
 
-/// One closed `Rod` object (§3.1). `Err(Some(problem))` is an input defect;
+/// One closed `Rod` object. `Err(Some(problem))` is an input defect;
 /// `Err(None)` a law other than `bilateral_linear`, recorded in `laws`.
 fn tie_rod(rod: &Value, index: usize, laws: &mut Vec<String>) -> Result<TieRodSpec, Option<String>> {
     let Some(object) = rod.as_object() else {
@@ -390,7 +390,7 @@ fn dimension_name(dimension: Dimension) -> &'static str {
     }
 }
 
-/// The code of an FK rod refusal (§3.1): a degenerate represented length is
+/// The code of an FK rod refusal: a degenerate represented length is
 /// `JOINT_TIE_ROD_ZERO_LENGTH`; every other formation refusal (non-finite or
 /// subnormal inputs, an unrepresentable offset arm, stiffness or reference
 /// load) is `JOINT_TIE_ROD_INPUT_INVALID` (range).
@@ -707,7 +707,7 @@ fn model_findings(
         None => findings.push((BASIS_UNSUPPORTED, format!(
             "objective connector {}: no stiffness calibration basis is declared", spec.component_id))),
     }
-    // T4-U5b (§3.1): untied or explicit elastic tie rods; U5a's admission
+    // untied or explicit elastic tie rods; U5a's admission
     // condition 2 is lifted for valid rods. The rods' formation refusals
     // (degenerate length, range) follow their field findings.
     match hardware(connector, &spec.component_id) {
@@ -721,7 +721,7 @@ fn model_findings(
     findings
 }
 
-/// The v3 connector classifier (slot table §4.2), blocking codes only. A
+/// The v3 connector classifier, blocking codes only. A
 /// connector that passes is admitted; its numbers are checked again by the
 /// FK constructor in the builder.
 pub(crate) fn classify_connectors(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
@@ -979,7 +979,7 @@ pub(crate) struct TieRodRecord {
     pub source_reference: String,
 }
 
-/// T4-U5b (§3.3): the rod force row's fixed metadata.
+/// the rod force row's fixed metadata.
 pub(crate) const TIE_ROD_FORCE_KIND: &str = "connector_tie_rod_force_v1";
 pub(crate) const TIE_ROD_COMPONENT: &str = "t_r";
 pub(crate) const TIE_ROD_LOCATION: &str = "tie_rod";
@@ -987,7 +987,7 @@ pub(crate) const TIE_ROD_FRAME: &str = "element_local";
 pub(crate) const TIE_ROD_BASIS: &str = "recovered_from_tie_rod_extension_v1";
 pub(crate) const TIE_ROD_SIGN: &str = "tension positive along the rod axis: T_r = k_r(e - e_ref), e = n.(v_bj - v_bi) with n from the end-i attachment to the end-j attachment; e_ref < 0 is pretension";
 
-/// The row ID of a rod's force (§3.3).
+/// The row ID of a rod's force.
 pub(crate) fn tie_rod_row_id(component: &str, rod: &str) -> String {
     format!("result:connector:{}:tie-rod-force:{TIE_ROD_LOCATION}:{}:{TIE_ROD_COMPONENT}", stable_suffix(component), stable_suffix(rod))
 }
@@ -1053,7 +1053,7 @@ pub(crate) fn connector_rows(
     ]
 }
 
-/// The disclosure that no joint temperature law is provided (JR §6 J3: the
+/// The disclosure that no joint temperature law is provided (the
 /// replaced pipe's thermal expansion cannot supply one).
 pub(crate) const TEMPERATURE_LAW_CODE: &str = "CONNECTOR_TEMPERATURE_LAW_NOT_PROVIDED";
 
@@ -1108,12 +1108,12 @@ pub(crate) fn disclose_connector_temperature_law(model: &PreviewModel, diagnosti
 }
 
 /// `contract_evidence.connector` on a v3 envelope: one record per admitted
-/// objective connector, in model order (JR §7: topology and replaced span,
+/// objective connector, in model order (topology and replaced span,
 /// frame, reference temperature and q_ref, matrix scale and provenance), in
 /// SI. The readers bind every connector row to its record. Empty on any
 /// other contract.
 ///
-/// T4-U5b (§3.3): `hardware` is the authored kind; with rods, `tie_rods`
+/// `hardware` is the authored kind; with rods, `tie_rods`
 /// lists each built rod (global offsets, stiffness, reference extension,
 /// represented length, direction and axial share n.Q_x, as formed by FK).
 pub(crate) fn connector_evidence(model: &PreviewModel, connectors: &[ObjectiveConnector], records: &[ConnectorRecord]) -> Value {

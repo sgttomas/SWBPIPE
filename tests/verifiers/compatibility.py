@@ -24,7 +24,7 @@ SOURCE_BLOCKS_1_RETIRED = "SOURCE_BLOCKS_1_RETIRED"
 # B1: precision-1 is no longer read; a stored precision-1 result is refused by name.
 RETIRED_PRECISION_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/precision-1"
 SOURCE_PRECISION_1_RETIRED = "SOURCE_PRECISION_1_RETIRED"
-# Model 0.6.0 (DEL-04-07 Design u4b-u5b-implementation.md §1.2): the ordinary pressure-1 and preview-physics-1
+# Model 0.6.0: the ordinary pressure-1 and preview-physics-1
 # identities are retired and their tables deleted; a stored result under either is refused by name (re-run), as
 # Rust's `current_header` refuses it.
 RETIRED_PRESSURE_1_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
@@ -45,7 +45,7 @@ MODEL_VERSION = "0.9.0"
 SOURCE_EXACT_PRESSURE_V2_RETIRED_TEXT = (f"{SOURCE_EXACT_PRESSURE_V2_RETIRED}: 2.0.0/exact_straight_pressure_v2 results are no longer read; "
                                          f"re-author the model as {MODEL_VERSION} with the current exact pressure contract and re-run the analysis")
 PRESSURE_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
-# T4-U6 (D-5, §2.4): the per-basis stress signatures.
+# the per-basis stress signatures.
 PRESSURE_SOURCE_CONTRACT_SHA256 = "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9"
 _PRESSURE_SOURCE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_source_1.json"
 # pressure-2 (`3.0.0/exact_pressure_v3`): the ordinary exact route. Its raw statements are read by the independent
@@ -58,7 +58,7 @@ PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-phy
 PREVIEW_PHYSICS_CONTRACT_SHA256 = "16eeb49cb298c6d3634594bbd9ebf6bf86be8f114e2e524dbd624e401e31a729"
 _PREVIEW_PHYSICS_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_2.json"
 PREVIEW_PHYSICS_PROFILE = "product_preview_mechanics_v1"
-# DEL-05-03 Design pf-timoshenko.md §4: the pressure-free Timoshenko identity, a second complete identity on the
+# the pressure-free Timoshenko identity, a second complete identity on the
 # preview-physics route (preview-physics-2's table with its identity, profile and limitation 0 replaced).
 PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1"
 PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_SHA256 = "8a0abaeac93729b5d6ee6c922f2a60f0caf9332948622bb8b5896747ce41442d"
@@ -76,7 +76,7 @@ PREVIEW_PHYSICS_CONTRACTS = {
 PREVIEW_PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
 PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "ef59ef338d4e2cafca7017e13b7a450d1094ede8068c47cf5e44416c1adc177a"
 _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_retained_1.json"
-# B3b (B3-D §2, §6.1): the exact successor, whose base is pressure-2 since B7b D4 (a). As the preview successor, its
+# the exact successor, whose base is pressure-2 since B7b D4 (a). As the preview successor, its
 # statements are checked only by the accepted reader, which dispatches on this identity, and its standing comes only
 # from that reader.
 PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
@@ -90,7 +90,7 @@ RULE_QUANTITY_BELOW_VERIFIED_FLOOR = "RULE_QUANTITY_BELOW_VERIFIED_FLOOR"
 RULE_QUANTITY_NOT_COVERED = "RULE_QUANTITY_NOT_COVERED"
 # pressure-2 has no transport (metadata-only) reading outside the exact successor's G7 step (Rust `reader_verdict`).
 PRESSURE_TRANSPORT_UNSUPPORTED = "SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED"
-# Static fresh-publication identities (S1 §10; Rust `FRESH_IDENTITIES`); no route predicate.
+# Static fresh-publication identities (Rust `FRESH_IDENTITIES`); no route predicate.
 FRESH_CONTRACT_IDS = frozenset({PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID,
                                 # T4-U2: pressure-2 (`3.0.0/exact_pressure_v3`).
                                 PRESSURE_CONTRACT_ID,
@@ -433,7 +433,7 @@ def is_fresh_contract_id(contract_id: Any) -> bool:
 
 
 def rule_binding_refusal(envelope: Mapping[str, Any], row: Mapping[str, Any]) -> str | None:
-    """Mirror of Rust ``semantic_contract::rule_binding_refusal`` (S1 §10).
+    """Mirror of Rust ``semantic_contract::rule_binding_refusal``.
 
     A successor row is refused by its validated class. B4/D1 (b) retired the
     non-composite source-blocks-1 summary refusal with that identity.

@@ -248,7 +248,7 @@ def test_every_key_result_is_named_with_a_basis_and_no_unrecorded_expected_value
 
 
 # -- (f) EQ-1, EQ-2, EQ-3 and EQ-5 in both solver modes ---------------------------------------------------------------
-# Spec §9.2; the frozen references and the conventions are in validation/references/reference_system/ (README). The
+# the frozen references and the conventions are in validation/references/reference_system/ (README). The
 # criterion is DEC-024/DEC-026's, as validation/references/w16_imposed_motion/README.md states it: a nonzero row passes
 # when |obs - exp| <= 1e-9 |exp|; a zero row when |obs| <= 1e-9 * zero_scale, the largest nonzero magnitude of its
 # family in the case. Product sign convention for support_reaction_component_v2: the action of the support on the
@@ -439,7 +439,7 @@ def test_eq3_expansion_equals_operating_minus_sustained_on_every_component_row(m
     assert not failures, failures[:20]
 
 
-# KR-05 (spec §9.1): presence is an identity, checked here; its values come later from a verified solve, so no value is
+# KR-05: presence is an identity, checked here; its values come later from a verified solve, so no value is
 # read. The tee RS-T1 at RS-130 names RS-P120 (header, which ends there: end_j) and RS-P210 (branch, which starts there:
 # end_i); each side publishes one row per section basis, bound to its intensified_measures record.
 BRANCH_KIND = "branch_intensified_bending_stress_v1"

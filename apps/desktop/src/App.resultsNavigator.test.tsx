@@ -1,4 +1,4 @@
-// A1 (DEL-07-05 Design `results-navigator.md` §3, §6): in the app, a navigator step selects the
+// in the app, a navigator step selects the
 // current row's entity through the session's selection, which the viewport, the tree and the
 // inspector draw from, and changes no model: nothing is edited, queued or put on the undo stack.
 // The solve is a unit transport replay of captured producer bytes for the invented preview model,

@@ -1,4 +1,4 @@
-"""RT-A4 (DEL-05-02 absolute-sum-srss-combinations.md): the independent verifier's combination algebra.
+"""the independent verifier's combination algebra.
 
 The Python mirror (``tests/verifiers/combination_graph.py``) reproduces every row of the frozen V-1 kernel table bit
 for bit, computes kappa exactly with the 4,096-bit representation (V-10's chain), and decides decision OQ-1 as the

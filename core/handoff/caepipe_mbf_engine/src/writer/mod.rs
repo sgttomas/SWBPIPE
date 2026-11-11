@@ -1,4 +1,4 @@
-//! The SI MBF writer (DEL-17-04 Design `desktop-mbf-export-import.md` §2, slice 2): a byte-faithful port of
+//! The SI MBF writer: a byte-faithful port of
 //! `core/handoff/caepipe_mbf/si_writer.py`.
 //!
 //! [`render_si`] turns a SWBPIPE model document into MBF text in the SI unit set, or refuses it by name, with the
@@ -442,7 +442,7 @@ pub struct WriterResult {
     /// `degF absolute`), each with its stated definition, in key order: the data the `MBF-SI-UNITS-NORMALIZED`
     /// diagnostic and the assumptions state in prose. Not part of `to_dict()`, which is the Python's.
     pub unit_normalizations: Vec<(String, String)>,
-    /// Format 6's `derivation` (Design §15): `{source_model_sha256, export_settings}`; null when refused. Not part of
+    /// Format 6's `derivation`: `{source_model_sha256, export_settings}`; null when refused. Not part of
     /// `to_dict()`, as in the Python.
     pub derivation: Value,
 }
@@ -715,7 +715,7 @@ pub(crate) struct Pipe {
     pub to: String,
     pub material: String,
     pub y_reference: Value,
-    /// The library section the pipe binds (Design §15, Format 4), or None.
+    /// The library section the pipe binds (Format 4), or None.
     pub section_ref: Option<String>,
     pub od: f64,
     pub thk: f64,

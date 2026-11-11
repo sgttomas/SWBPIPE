@@ -3,7 +3,7 @@
 //!
 //! The webview never runs the writer. It asks the native review (`review_mbf_export`) for the bounded review of the
 //! session's canonical model text with the settings text, then sends the save the same text, its claimed hash, the
-//! settings text, the suggested name, the digests it reviewed and its route evidence. The save runs, in order (§3.6):
+//! settings text, the suggested name, the digests it reviewed and its route evidence. The save runs, in order:
 //!
 //! 1. the route evidence of the governed route `DOTH-MBF-012` (local-private, explicit intent, lossless, exact
 //!    payload; A-4), bound to the SHA-256 of the canonical text; then the settings, read by the engine's one mapping
@@ -22,7 +22,7 @@
 //!    reads the envelope by [`decode_worker_result`]: views, a shape fixed by the mode, and a review that agrees;
 //! 6. the staleness check: the MBF's SHA-256 and the identity file's SHA-256, computed from the envelope's bytes, must
 //!    equal the reviewed ones (`MBF-EXPORT-REVIEW-STALE`);
-//! 7. the chooser: the suggested name must be `swbpipe-model[-<slug>].mbf` (DEL-07-01 `export-file-names.md`), the
+//! 7. the chooser: the suggested name must be `swbpipe-model[-<slug>].mbf`, the
 //!    path comes only from the chooser and must end `.mbf`; the identity file is `<chosen stem>.swbpipe-ids.json`
 //!    beside it (A-5). A run retired before the chooser opens none, and after it returns the save commits
 //!    ([`MbfWriterRun::commit`]) before the first write: a cancel that came first refuses `MBF-EXPORT-CANCELLED` with
@@ -45,7 +45,7 @@
 //! that would alter the payload blocks the save instead.
 //!
 //! The review ([`MbfReviewRequest`]: the text, its claimed hash and the settings text) takes the same settings
-//! mapping and §3.6 steps 2 and 3, then task 3 in `review` mode, and replies with the bounded review. It holds no route
+//! mapping and steps 2 and 3, then task 3 in `review` mode, and replies with the bounded review. It holds no route
 //! evidence and opens no store, file, destination or chooser.
 //!
 //! Task 3's request is `u32 mode ‖ u32 settings_len ‖ settings JSON ‖ model canonical text` (little-endian; mode 1
@@ -53,14 +53,14 @@
 //! followed by the bodies; `review` mode's status is `reviewed` with no MBF or identity bytes, `save` mode's is
 //! `written` with both, or `writer-refused`, `review-truncated` or `output-too-large` with only the review.
 //!
-//! Connected (slice 4b.2a, §3.7). The production entry points [`save_mbf_export_admitted`] and
+//! Connected. The production entry points [`save_mbf_export_admitted`] and
 //! [`review_mbf_export_admitted`] run task 3 in the capped worker process ([`crate::mbf_worker::CappedWorkerRun`], the
 //! only production [`MbfWriterRun`]): worker task 3 (`solve_worker::WorkerTask::MbfRender`), its grant and request copy
 //! and its result lease counted in the command's ledger, the result refused above the 64 MiB output ceiling at
 //! `result_limit` before the parent allocates or reads it, and the result lease held until the response is built. The
 //! in-process run ([`InProcessWriterRun`]) is compiled for tests only.
 //!
-//! Host-side memory (§3.7): each of these is reserved before it is made, within the command's memory (in production
+//! Host-side memory: each of these is reserved before it is made, within the command's memory (in production
 //! `stored_read::NativeLeaseMemory`, whose `CommandLedger` is seeded with the argument lease; DEL-14-01 r4): the
 //! settings' parse, the admission's parse and canonical copy, the worker's result (its result lease; in process, a
 //! reservation), the reply's copy of the review, the response (bounded for a receipt and for a refusal after a write,
@@ -141,7 +141,7 @@ pub const BACKUP_CLEANUP_FAILED: &str = "MBF-EXPORT-BACKUP-CLEANUP-FAILED";
 pub const CLEANUP_SKIPPED: &str = "MBF-EXPORT-CLEANUP-SKIPPED";
 pub const CLEANUP_FAILED: &str = "MBF-EXPORT-CLEANUP-FAILED";
 
-/// The read-back block (§3.7).
+/// The read-back block.
 pub const READBACK_BLOCK_BYTES: usize = 64 * 1024;
 /// The settings text's parse and mapping, at most [`mbf::MAX_EXPORT_SETTINGS_JSON_BYTES`] of text
 /// (`the_settings_parse_stays_within_its_reservation`).
@@ -160,7 +160,7 @@ pub const AFTER_WRITE_REFUSAL_BYTES: u64 = 4 * DIAGNOSTIC_JSON_BYTES + 256;
 const MAX_SUGGESTED_NAME_BYTES: usize = 200;
 
 /// The test seam of the in-process writer run ([`InProcessWriterRun`]), compiled for tests only, as the run is: no
-/// production code runs the writer in process (§3.7). The production entry points [`save_mbf_export_admitted`] and
+/// production code runs the writer in process. The production entry points [`save_mbf_export_admitted`] and
 /// [`review_mbf_export_admitted`] run task 3 in the capped worker process.
 #[cfg(test)]
 pub(crate) struct InProcessWriterTestSeam {
@@ -320,7 +320,7 @@ pub struct MbfFiles<'a> {
 
 // -- Worker task 3 (slice 4b.1: built and tested through the test seam; 4b.2 runs it in the capped worker) ---------
 
-/// Task 3's two modes (§3.9.5): `review` returns only the bounded review; `save` returns the MBF, the identity file
+/// Task 3's two modes: `review` returns only the bounded review; `save` returns the MBF, the identity file
 /// and the bounded review, or on a refusal only the review.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum MbfMode {
@@ -402,11 +402,11 @@ pub const EPOCH_EXHAUSTED: &str = "MBF-EXPORT-EPOCH-EXHAUSTED";
 pub const RETIREMENT_ID_INVALID: &str = "MBF-EXPORT-RETIREMENT-ID-INVALID";
 /// The writer refused the model: the reply carries the bounded review, which lists what is not written.
 pub const WRITER_REFUSED: &str = "MBF-EXPORT-WRITER-REFUSED";
-/// Any truncated review blocks the save (§3.3).
+/// Any truncated review blocks the save.
 pub const REVIEW_TRUNCATED: &str = mbf::REVIEW_TRUNCATED;
-/// A save result above [`mbf::MBF_EXPORT_OUTPUT_MAX_BYTES`] (§3.7).
+/// A save result above [`mbf::MBF_EXPORT_OUTPUT_MAX_BYTES`].
 pub const OUTPUT_TOO_LARGE: &str = mbf::EXPORT_OUTPUT_TOO_LARGE;
-/// The review's worker run was refused memory, or its result exceeded R and the frame (§3.9.5).
+/// The review's worker run was refused memory, or its result exceeded R and the frame.
 pub const REVIEW_MEMORY_UNAVAILABLE: &str = "MBF-REVIEW-MEMORY-UNAVAILABLE";
 /// The envelope's first line.
 pub const ENVELOPE_MAGIC: &str = "MBF1";
@@ -559,7 +559,7 @@ fn envelope(mode: MbfMode, status: WorkerStatus, mbf_text: &str, ids: &str, revi
     Ok(out)
 }
 
-/// Worker task 3 (§3.9.5): reads the request, runs the writer over the model with the settings (both read as the
+/// Worker task 3: reads the request, runs the writer over the model with the settings (both read as the
 /// engine reads JSON, by its one settings mapping), forms the bounded review and returns the result envelope
 /// (`MBF1\n<mode>\n<status>\n<mbf_len>\n<ids_len>\n<review_len>\n` and the bodies, lengths in decimal bytes).
 ///
@@ -804,7 +804,7 @@ impl WriterOutput {
     }
 }
 
-/// How §3.6 step 5 and the review run task 3: the capped worker process ([`CappedWorkerRun`], the only production
+/// How step 5 and the review run task 3: the capped worker process ([`CappedWorkerRun`], the only production
 /// run), or in process through the test seam.
 pub(crate) trait MbfWriterRun {
     fn run(&mut self, request: &WorkerRequest<'_>) -> Result<WriterOutput, WriterRunFailure>;
@@ -822,7 +822,7 @@ pub(crate) trait MbfWriterRun {
     }
 }
 
-/// Task 3 in process, compiled for tests only (with its seam): no production code runs the writer in process (§3.7).
+/// Task 3 in process, compiled for tests only (with its seam): no production code runs the writer in process.
 #[cfg(test)]
 pub(crate) struct InProcessWriterRun<'s> {
     _seam: &'s InProcessWriterTestSeam,
@@ -891,7 +891,7 @@ impl PartialEq for MbfReviewText {
 }
 
 /// The refusal before the chooser of a save whose worker run refused: its code and product text, and the bounded
-/// review only (§3.6 step 5).
+/// review only.
 fn worker_refusal_message(status: WorkerStatus) -> (&'static str, &'static str) {
     match status {
         WorkerStatus::ReviewTruncated => (REVIEW_TRUNCATED, "The loss report is too large to show in full, so the export is not offered. Nothing was written."),
@@ -1515,7 +1515,7 @@ fn save_mbf_export_with<R>(
 }
 
 /// The production entry point, everything after the arguments are decoded (`save_mbf_export`, `mbf_worker.rs`):
-/// within `memory`, the command's ledger seeded with its argument lease and held by the caller (`args`), §3.6 steps 1
+/// within `memory`, the command's ledger seeded with its argument lease and held by the caller (`args`), steps 1
 /// to 10 with step 5's task 3 in `save` mode run in the capped worker ([`CappedWorkerRun`]), registered in `runs` for
 /// the command that entered at `entry` (cancelled from the start if a retirement came since). A review is no
 /// authorization: this run re-forms the review and refuses a truncated one itself.
@@ -1543,12 +1543,12 @@ pub(crate) fn save_mbf_export_refused<R>(memory: &dyn ReadMemory, code: &str, me
     response
 }
 
-// -- review_mbf_export (§3.9.5; slice 4b.1 built it, 4b.2a registers it) ------------------------------------------
+// -- review_mbf_export (slice 4b.1 built it, 4b.2a registers it) ------------------------------------------
 
 /// The native review command's name.
 pub const REVIEW_COMMAND: &str = "review_mbf_export";
 
-/// `{canonicalText, claimedModelHash, settingsJson}` (§3.9.5): the same model, settings and binding a save would
+/// `{canonicalText, claimedModelHash, settingsJson}`: the same model, settings and binding a save would
 /// write, with no route evidence.
 #[derive(Debug)]
 pub struct MbfReviewRequest {
@@ -1608,7 +1608,7 @@ fn review_memory_refusal(error: String) -> MbfReviewOutcome {
     MbfReviewOutcome::refused_one(REVIEW_MEMORY_UNAVAILABLE, stored_read::capped(error))
 }
 
-/// The review within `memory` (§3.9.5): the settings by the engine's one mapping, §3.6 steps 2 and 3 (the cap, the
+/// The review within `memory`: the settings by the engine's one mapping, steps 2 and 3 (the cap, the
 /// canonical text and its hash against the claim, the open path's checks), then task 3 in `review` mode, and the
 /// bounded review. It opens no store, file, destination or chooser and writes nothing; a review is not an
 /// authorization.
@@ -2947,7 +2947,7 @@ mod tests {
             assert_eq!(diagnostics[0].code, code);
             assert!(run.runs.is_empty(), "{code}: no worker run");
         }
-        // A protected disposition is not the review's to screen (§3.9.5): the save refuses it (step 4).
+        // A protected disposition is not the review's to screen: the save refuses it (step 4).
         let protected = edited(|document| document["materials"][0]["provenance_record"]["review_status"] = json!("quarantined"));
         let (outcome, _) = review_with(&mut in_process(&seam), review_request(&protected, &settings()));
         assert!(matches!(outcome, MbfReviewOutcome::Reviewed { .. }), "{outcome:?}");

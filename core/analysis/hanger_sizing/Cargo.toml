@@ -10,14 +10,14 @@ path = "src/lib.rs"
 
 # The arithmetic (lib.rs) uses no dependency. The derived solves (derived.rs) go
 # through the product's public JSON solve entry and normalize units through the
-# unit catalog (DEL-04-11 Design §4.1, §8.2). serde_json carries no feature of its
+# unit catalog. serde_json carries no feature of its
 # own, so the product's features are unchanged by unification; Cargo.lock pins the
 # product's versions.
 [dependencies]
 open_pipe_stress_product_physics = { path = "../../product_physics" }
 open_pipe_stress_units = { path = "../../units" }
 serde_json = "1"
-# Publication (Design §8.3): the checked canonical profile every hash uses, the
+# Publication: the checked canonical profile every hash uses, the
 # library import boundary the headless entry admits a library through, and the
 # SHA-256 of the canonical text. Each is already in the product's dependency
 # closure (product_physics links canonical_json and sha2), so Cargo.lock pins
@@ -28,6 +28,6 @@ serde = "1"
 sha2 = "0.10"
 
 [dev-dependencies]
-# Design §8.3.8: the existing readers' actual handling of the document is tested,
+# the existing readers' actual handling of the document is tested,
 # not presumed. Already a dependency of product_physics.
 open_pipe_stress_result_export = { path = "../../reporting/result_export" }

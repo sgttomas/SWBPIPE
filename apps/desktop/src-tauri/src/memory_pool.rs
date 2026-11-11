@@ -530,7 +530,7 @@ impl MemoryPool {
     }
 
     /// [`Self::acquire_resampling`] for a native reader's parse of a held
-    /// result (C1 native custody, DEL-04-05 `c1-native-custody-plan.md`):
+    /// result (C1 native custody):
     /// before every attempt, under the pool lock, `bytes` above the
     /// per-invocation budget, and never above the owner-adopted
     /// [`DEFAULT_INVOCATION_BUDGET_BYTES`] whatever budget is configured, is
@@ -614,7 +614,7 @@ impl MemoryPool {
     }
 
     /// [`Self::acquire_interactive`] for a native reader's arguments (C1
-    /// native custody, DEL-04-05 `c1-native-custody-plan.md` §8): the lease
+    /// native custody): the lease
     /// and every growth of it ([`Lease::grow_to`], under the pool lock) are
     /// bounded by the per-invocation budget and never above the owner-adopted
     /// [`DEFAULT_INVOCATION_BUDGET_BYTES`], whatever budget is configured.
@@ -1054,9 +1054,9 @@ impl Drop for Lease {
 // ---------------------------------------------------------------------------
 
 /// One C1 native command's running total against its per-invocation budget
-/// (DEL-14-01 `desktop-states-runs-comparison.md` §3, repair r4: the budget
+/// (the budget
 /// bounds the command's live leases together, starting from its argument
-/// lease; DEL-04-05 `c1-native-custody-plan.md` slice 5; no new budget or
+/// lease; no new budget or
 /// rule). Record Run, Save or Create Project, a restored run's re-save, the
 /// native reopen of a project or a recorded run and the analysis-run
 /// preview each keep one (`stored_read::NativeLeaseMemory`).

@@ -1,4 +1,4 @@
-// Run sheet S2 (DEL-07-02 Design `run-sheet-entry.md` §4, §5, §7 S2): the sheet's
+// Run sheet: the sheet's
 // keyboard flow, codes, focus recovery, accessible names and live region, the
 // unit lock, and draft-row deletion, on the invented S1 fixture model.
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";

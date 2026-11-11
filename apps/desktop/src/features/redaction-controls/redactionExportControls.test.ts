@@ -60,7 +60,7 @@ const WALK_REFUSAL = /^USER_RELEASE_ROUTE_REQUIRED: the redaction walk does not 
 
 /** The two new-context corpus items that state no privacy at all. The item rule decides them by
  * step 13 (`USER_RELEASE_VALUE_UNBOUND`); on the user-release projector an object that states no
- * privacy passes its leaves the default label, `private_project_data` / `private_only` (§3.2), so
+ * privacy passes its leaves the default label, `private_project_data` / `private_only`, so
  * with the wrapper's intent they carry `USER_RELEASED_PROJECT_DATA`. */
 const PROJECTOR_DEFAULT_LABEL_CASES = new Set(["user-released-missing-metadata-blocked", "user-released-storage-metadata-only-unbound"]);
 
@@ -123,7 +123,7 @@ describe("redactionExportControls parity with the core python contract", () => {
       expect(decision.source_metadata_present).toBe(parityCase.expected.source_metadata_present);
 
       if (parityCase.export_context === USER_RELEASED_REPORT_CONTEXT) {
-        // The redaction walk refuses the context (§3.2); the case's finding is checked on the
+        // The redaction walk refuses the context; the case's finding is checked on the
         // user-release projector, the only payload entry for it.
         expectUserReleaseCorpusFindingOnProjector(parityCase);
         return;
@@ -661,7 +661,7 @@ describe("route projection", () => {
   });
 });
 
-// W-18b (r1), DEL-08-01 Design `report-user-release.md` §3 and §6: the user-released
+// the user-released
 // context. Twins of the python checks in `tests/security/test_redaction_export_controls.py`.
 
 /** Keys sorted, no whitespace: the same text as python's
@@ -1443,7 +1443,7 @@ describe("existing_contexts_preserve_raw_intent_named_members (§3.3, §6)", () 
 // Codex r3 of the r1 slice: the walk decided a value-bearing parent as a whole, so a labelled
 // parent hid restricted descendants (a nested secret marker, a nested non-project private class,
 // a non-project private parent's unredacted `rows`). The walk now refuses the context; the
-// user-release projector, which decides every node, is the only payload entry (§3.2).
+// user-release projector, which decides every node, is the only payload entry.
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -1914,7 +1914,7 @@ describe("DOTH-CSV-011 route catalogue", () => {
   });
 });
 
-// DEL-17-04 Design `desktop-mbf-export-import.md` A-4: File > Export MBF… (twin of the python
+// File > Export MBF… (twin of the python
 // `test_mbf_export_route_is_governed_local_private_lossless_with_explicit_intent` and
 // `test_mbf_export_route_agrees_across_python_typescript_and_rust`).
 describe("DOTH-MBF-012 route catalogue", () => {

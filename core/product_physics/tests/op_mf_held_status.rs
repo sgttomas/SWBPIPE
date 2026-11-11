@@ -1,4 +1,4 @@
-//! RT-A5 `minuend_final` (DEL-05-02 Work `operating-case.md` §7): a pressure-free
+//! RT-A5 `minuend_final`: a pressure-free
 //! `result_state_subtraction` declaring `difference_basis: operating_minus_sustained` and
 //! `subtrahend_support_state: minuend_final`, through the captured value entry, in both
 //! solver modes.
@@ -311,7 +311,7 @@ fn held_bar_cases_match_the_references_in_both_modes() {
             if name == "H-15c" {
                 assert_eq!(entry["inputs"]["coefficient_bits"], format!("{:016x}", 1u64), "{what}");
             }
-            // The rows (§7.6): held rows under the combination, typed, with the clause; the
+            // The rows: held rows under the combination, typed, with the clause; the
             // difference rows with the held sign; nothing under a case is held.
             for row in rows(&v).iter().filter(|r| r["kind"] != "combination_modulus_basis_record") {
                 let id = row["id"].as_str().unwrap();
@@ -329,7 +329,7 @@ fn held_bar_cases_match_the_references_in_both_modes() {
     }
 }
 
-/// The mutants §7.9 names: the product's held solve is not the frozen source normal, an
+/// The mutants: the product's held solve is not the frozen source normal, an
 /// uncoupled normal, or a hold of the source's displacement.
 #[test]
 fn the_held_solve_kills_the_reference_mutants() {
@@ -353,7 +353,7 @@ fn reference_value(v: &Value) -> f64 {
     hex(v["binary64"].as_str().unwrap())
 }
 
-/// H-14 and H-14r, the strongly coupled L-frame (§7.9; coupling g = dR_n/dphi = -24/19): the
+/// H-14 and H-14r, the strongly coupled L-frame (coupling g = dR_n/dphi = -24/19): the
 /// held friction force follows the held solve's own normal, not the source's normal (frozen
 /// mutant) and not the normal of the frame without the friction force (uncoupled mutant), in
 /// both modes; H-14 keeps its state, H-14r is released by its slip sense.
@@ -421,7 +421,7 @@ fn h14_the_coupled_l_frame_matches_the_references_and_kills_its_mutants() {
     }
 }
 
-/// §7.9's linear held twins: each reference model with its held support replaced by its held
+/// linear held twins: each reference model with its held support replaced by its held
 /// linear boundary (Active or Sticking: a rigid restraint on its DOF; Sliding: its applied
 /// friction force; Inactive: nothing), the subtrahend's loads only, solved on the linear
 /// route. Its rows equal S_held's closed forms by the 1e-9 rule, as do the held-operand rows;
@@ -547,7 +547,7 @@ fn a_released_held_result_is_published_unconverged_and_never_promoted() {
 }
 
 /// Repeat calls are byte-identical, and the target case's own rows are the rows of the
-/// document without the combination (§7.6: it never fakes case rows).
+/// document without the combination (it never fakes case rows).
 #[test]
 fn repeat_calls_are_identical_and_the_case_rows_are_untouched() {
     for name in ["H-2", "H-4", "H-13"] {
@@ -567,7 +567,7 @@ fn repeat_calls_are_identical_and_the_case_rows_are_untouched() {
     }
 }
 
-/// §7.5's held gates, each withholding the combination by name with an empty record; the
+/// held gates, each withholding the combination by name with an empty record; the
 /// solve of every other combination and case publishes.
 #[test]
 fn the_held_gates_withhold_by_name() {

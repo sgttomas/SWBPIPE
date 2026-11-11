@@ -69,7 +69,7 @@ from tests.test_rt_a3_reducer_2b_text_only_envelope_diff import (
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "3983f51cfcef6af26a7846bd63f267425379cfd3"
-# This stage's endpoint, frozen when RT-A4 applied its policy texts (§10.2).
+# This stage's endpoint, frozen when RT-A4 applied its policy texts.
 END = "92708b3e42e3760969aa0e2e1df818c9f3f7581c"
 
 TEE_TAIL = "and a realized arc it names carries none"

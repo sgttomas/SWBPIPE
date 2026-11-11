@@ -12,7 +12,7 @@ import type { useRunSheetStore } from "../features/model-tree/runSheet/runSheetS
 import { COMPONENT_FIELDS, componentColumn, type ComponentRowInput } from "../features/model-tree/runSheet/runSheetComponents";
 import { assignIds, recordShownPipeIds, setCell, sheetView, type SheetColumnKey } from "../features/model-tree/runSheet/runSheetView";
 
-/** ⟨P⟩ and ⟨S5⟩ of the run sheet (§1). */
+/** ⟨P⟩ and ⟨S5⟩ of the run sheet. */
 export const P = "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data";
 export const S5 = "invented user value, DEL-09-01";
 
@@ -48,7 +48,7 @@ export const REFERENCE_ROWS: Array<{ cells: Cells; grid?: true; component?: stri
   { cells: { dx: "2", nodeId: "node:RS-230", pipeId: "pipe:RS-P230", orientation: "0 0 1", ...support("A", "*", "support:RS-C", "Anchor C (nozzle C)") } },
 ];
 
-/** The valve and flanges' Component details (§3.4), from the reference table. */
+/** The valve and flanges' Component details, from the reference table. */
 export function referenceComponentCells(reference: PreviewModel, id: string): ComponentRowInput {
   const record = reference.components.find((item) => item.id === `component:${id}`)!;
   const g = record.geometry!;
@@ -62,7 +62,7 @@ export function referenceComponentCells(reference: PreviewModel, id: string): Co
 
 type Store = ReturnType<typeof useRunSheetStore>;
 
-/** The run sheet's header (§2): Source ⟨P⟩, m, node:RS- / pipe:RS-P, 10/10, pad 3, from its start node; the six column units.
+/** The run sheet's header: Source ⟨P⟩, m, node:RS- / pipe:RS-P, 10/10, pad 3, from its start node; the six column units.
  * Draft setup: it sets the sheet's draft state directly, not through the header controls' handlers. */
 export function enterReferenceHeader(store: Store, model: PreviewModel): void {
   act(() => store.update(() => {
@@ -78,7 +78,7 @@ export function enterReferenceHeader(store: Store, model: PreviewModel): void {
 export const runSheetCell = (rowKey: string, column: string) => screen.getByTestId(`run-sheet-cell-${rowKey}-${column}`);
 
 /**
- * Enters §3.4's 26 rows in table order on the mounted `RunSheet` whose store `store()` returns.
+ * Enters 26 rows in table order on the mounted `RunSheet` whose store `store()` returns.
  * `grid` rows are typed through the real cells (a code key in a code cell; otherwise a printable
  * key opens the editor and Enter commits); the other rows go through the commit path's own
  * functions, cell by cell (`RunSheet` commit and its shown-id recording). `extra` adds cells to a

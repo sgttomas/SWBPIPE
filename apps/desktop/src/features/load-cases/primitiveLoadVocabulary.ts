@@ -54,7 +54,7 @@ export function primitiveLoadDraftDimension(category: PrimitiveLoadCategory, dir
 }
 
 /**
- * The default unit of a new primitive (W-17 §2.4). The moment reads
+ * The default unit of a new primitive. The moment reads
  * `project.units.moment` when the key is present, and only when it is absent
  * falls back to `<force>*<length>`. The distributed force is composed as
  * `<force>/<length>`. A present but invalid key, or (once the catalog is loaded)

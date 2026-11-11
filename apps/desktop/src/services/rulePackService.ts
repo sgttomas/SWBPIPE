@@ -266,7 +266,7 @@ export const RULE_PACK_SCHEMA_VERSION_UNSUPPORTED = "RULE_PACK_SCHEMA_VERSION_UN
 // "The application shall mark such rule packs as private by default");
 // every placeholder is either TBD or invented non-engineering wording. The
 // editor never prefils code equations or standards values (PRD §14.5).
-// Format 0.5.0 (design §3): one stress category, one required load case and
+// Format 0.5.0: one stress category, one required load case and
 // the mapping between them, with empty text (and an empty load-case id) for the
 // user to fill; no category is named after any standard.
 export function buildDraftRulePackDocument(): RulePackDocument {

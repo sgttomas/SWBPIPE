@@ -258,7 +258,7 @@ def test_nonlinear_ex_carries_nonlinear_pfs_supports_and_linear_ex_none(nodes):
 
 @pytest.mark.parametrize("nodes", SIZES)
 def test_nonlinear_ex_avoids_every_refusal_increment_4_keeps(nodes):
-    """pressure-contract.md "Nonlinear supports on EX", Still refused: no load/reference-state group key
+    """Still refused: no load/reference-state group key
     (case_state::carries_fields), no objective connector, no nonlinear friction normal source, no rotational gap or
     friction, no linear restraint on a nonlinear DOF, no difference_basis."""
     document, _ = rm.build("nonlinear-ex", nodes)

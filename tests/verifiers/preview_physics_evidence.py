@@ -1,4 +1,4 @@
-"""Closed preview-physics-2 reader checks (T0R S1 §9); never producer authentication.
+"""Closed preview-physics-2 reader checks; never producer authentication.
 
 Test verifier (b7-plan R2): the product reader is Rust's (`core/reporting/result_export/src/preview_physics_evidence.rs`), which
 product Python reaches only through `openpipestress-runner read`. Tests only: no module outside `tests/` imports
@@ -28,7 +28,7 @@ ROOT = Path(__file__).resolve().parents[2]
 TABLE_PATH = ROOT / "fixtures/results/semantic_contract_v0_3_preview_physics_2.json"
 TABLE = json.loads(TABLE_PATH.read_text(encoding="utf-8"))
 LIMITATIONS = list(TABLE["supported_profile_limitations"])
-# DEL-05-03 Design pf-timoshenko.md §4: the pressure-free Timoshenko identity. Its table is
+# the pressure-free Timoshenko identity. Its table is
 # preview-physics-2's rows, vocabulary and policies with the identity, the profile and
 # limitation 0 replaced, so the row checks below read either table alike; the header admits
 # either complete identity (identity, profile and limitation array together).
@@ -88,7 +88,7 @@ GATE_REASONS = ("NONLINEAR_COMBINATION_REQUIRES_SOLVE", "CONSTANT_EFFORT_COMBINA
 RANGE_BASIS = "explicit_user_range_envelope"
 PER_SUPPORT_NONLINEAR_KINDS = ("nonlinear_support_final_reaction", "nonlinear_support_final_displacement",
                                "nonlinear_support_final_relative_displacement", "nonlinear_support_active_set_state_code")
-# Representation guard only (S1 §9.7); not an engineering tolerance.
+# Representation guard only; not an engineering tolerance.
 GUARD = 64.0 * sys.float_info.epsilon
 TINY = sys.float_info.min
 
@@ -169,7 +169,7 @@ def _length_prefixed(*parts: str) -> str:
 
 
 def _row_segments(*parts: str) -> str:
-    """Row-id segments (S1 §3): ``{L(part)}:{part}`` joined by ``:``, unlike ID()."""
+    """Row-id segments: ``{L(part)}:{part}`` joined by ``:``, unlike ID()."""
     return ":".join(f"{len(part.encode('utf-8'))}:{part}" for part in parts)
 
 
@@ -218,7 +218,7 @@ def _consistent_norm(magnitude: float, components: list[float]) -> bool:
 def signature(row: Mapping[str, Any]) -> Mapping[str, Any] | None:
     """First table variant, in table order, whose ``source_basis`` is absent or equal.
 
-    Same rule as the other readers (S1 §1); uniqueness is not required for
+    Same rule as the other readers; uniqueness is not required for
     this table because arc variants precede their generic variants.
     """
     kind, unit = row.get("kind"), row.get("unit")
@@ -250,9 +250,9 @@ def _header(source: Mapping[str, Any]) -> None:
     _shape(formulation, {"profile_id", "limitations"}, "formulation basis")
     _require(formulation["profile_id"] == profile and formulation["limitations"] == limitations, "formulation profile or limitations")
     evidence = source.get("contract_evidence")
-    # Operating-case slice 1a: `combination_operands` only beside a nonlinear model's admitted combinations. RT-A4
-    # section 10.3: `combination_derivation` beside an unsigned or nested combination (`preview_combination_gates`).
-    # RT-A3 §4: `combination_certificate` beside a solved document's combinations (`combination_certificate`).
+    # Operating-case slice 1a: `combination_operands` only beside a nonlinear model's admitted combinations.
+    # `combination_derivation` beside an unsigned or nested combination (`preview_combination_gates`).
+    # `combination_certificate` beside a solved document's combinations (`combination_certificate`).
     _require(isinstance(evidence, Mapping) and {"preview_cases", "combination_gates"} <= set(evidence)
              <= {"preview_cases", "combination_gates", "combination_operands", "combination_derivation", "difference_basis_derivation",
                     "held_status_derivation", "combination_certificate"},
@@ -289,7 +289,7 @@ def _cases(evidence: Mapping[str, Any], *, withheld_multiset: bool = False) -> d
         for extremum in case["pipe_stress_extrema"]:
             _shape(component_body.extremum_without_record(extremum), EXTREMA_KEYS, "extrema shape")
             _require(component_body.RECORD not in extremum or component_body.record_shape(extremum[component_body.RECORD]), "extrema body record")
-            # T4-U4b (§2.3): the straight tokens or, on an arc (checked against the rows below), the arc tokens.
+            # the straight tokens or, on an arc (checked against the rows below), the arc tokens.
             arc_constants = dict(zip(EXTREMA_CONSTANTS, ("arc_closed_form_section_statics", "arc_end_j_force_and_uniform_intensities_binary64_enclosures",
                                                          "published_binary64_end_j_force_and_uniform_intensity_operand_enclosures; solution error is separate")))
             _require(_text(extremum["pipe_id"]) and _text(extremum["result_id"]) and (all(extremum[key] == value for key, value in EXTREMA_CONSTANTS.items())
@@ -304,7 +304,7 @@ def _cases(evidence: Mapping[str, Any], *, withheld_multiset: bool = False) -> d
         pipes = [extremum["pipe_id"] for extremum in case["pipe_stress_extrema"]]
         _require(len(set(pipes)) == len(pipes) and not set(pipes) & (set(coverage["unavailable_pipe_ids"]) | set(coverage["outside_domain_pipe_ids"])), "extrema member partition")
         for measure in case["intensified_measures"]:
-            # T4-U4b (§2.6): a directional record is told apart by its own key set (checked against the rows).
+            # a directional record is told apart by its own key set (checked against the rows).
             if isinstance(measure, Mapping) and set(measure) != INTENSIFIED_KEYS and {"i_in_plane", "i_out_of_plane"} <= set(measure):
                 continue
             _shape(measure, INTENSIFIED_KEYS, "intensified measure shape")
@@ -346,7 +346,7 @@ def validate_preview_physics_evidence(source: Mapping[str, Any], model: Mapping[
     except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
         raise ValueError("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: malformed evidence") from error
     if model is None:
-        # RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`): the certificate last, after every other check; with
+        # the certificate last, after every other check; with
         # the model, reader_verdict reads it after the model checks (Rust `validate_with`).
         certificate_check(source)
 
@@ -431,7 +431,7 @@ def _along_guard(d: Sequence[float], r: Sequence[float], s: float) -> bool:
 
 
 def _along_direction(source: Mapping[str, Any], model: Mapping[str, Any] | None) -> None:
-    """R-6/R-7 S-K1 (DEL-04-03 skew-restraints.md sections 7.1 and 10.5, R-1): each case's
+    """each case's
     `support_reaction_along_direction_v1` rows: the exact strings, one per record and case beside its Fx/Fy/Fz rows,
     and with the model s*|d| = d.R within a representation guard (d exactly rescaled to max|d_i| in [1, 2))."""
     by_case: dict[str, list[Mapping[str, Any]]] = {}
@@ -521,7 +521,7 @@ def _validate(source: Mapping[str, Any]) -> None:
         if isinstance(headline, Mapping) and headline.get("result_ref") is not None:
             _require(headline["result_ref"] in rows, f"dangling summary result reference {field}")
 
-    # Operating-case slice 1a (DEL-05-02 `pf-nonlinear-operand-standing.md` §3): the operand records and their notices.
+    # the operand records and their notices.
     from . import preview_combination_operands
     preview_combination_operands.check(source, source.get("status", {}).get("mechanics") == "MECHANICS_SOLVED")
 
@@ -539,7 +539,7 @@ def _validate(source: Mapping[str, Any]) -> None:
         _require(not results, "blocked envelope carries result rows")
         _require(summary.get("max_displacement") is None and summary.get("max_open_formula_stress") is None, "blocked envelope carries a headline")
         _require("component_stress_modifier_count" not in summary or (_integer(summary["component_stress_modifier_count"]) and summary["component_stress_modifier_count"] == 0), "blocked envelope counts intensified rows")
-    # W-15 slice d (DEL-03-05 Design §5): the component bodies and their reference-section records
+    # the component bodies and their reference-section records
     # (after the blocked-envelope rule, as the Rust reader).
     bodies = component_body.source_bodies(source, TABLE)
     for row in results:
@@ -591,7 +591,7 @@ def _validate(source: Mapping[str, Any]) -> None:
             _require(lower <= value <= upper and value == lower + 0.5 * (upper - lower), "maximum outside or off its enclosure")
             _require((extremum["approximation"] == "arc_closed_form_section_statics") == (extremum["pipe_id"] in arcs), "arc maximum tokens only on arcs")
             bound.add(row["id"])
-        # T4-U4b (§5.1): σ± (bit for bit), τ (model-free here), the arc maxima's station cover, directional records.
+        # σ± (bit for bit), τ (model-free here), the arc maxima's station cover, directional records.
         exempt = u4b.poisson_exempt(diagnostics, cid)
         index = u4b.Rows(results)
         covers = {pipe: u4b.member_stations(index, cid, pipe, [""], {"": None}, pipe in exempt, None).get("", []) for pipe in members}
@@ -656,7 +656,7 @@ def _validate(source: Mapping[str, Any]) -> None:
             _require(_consistent_norm(slots["force_magnitude"]["value"], [slots[c]["value"] for c in SUPPORT_COMPONENTS[:3]]), "support force magnitude inconsistent with components")
             _require(_consistent_norm(slots["moment_magnitude"]["value"], [slots[c]["value"] for c in SUPPORT_COMPONENTS[3:]]), "support moment magnitude inconsistent with components")
         # A1 b: in every case the withheld records equal the withholding
-        # diagnostics (support = affected_refs[0], reason = code, §8 ids).
+        # diagnostics (support = affected_refs[0], reason = code, ids).
         records = {(record["support_id"], record["reason"]) for record in attribution["withheld"]}
         _require(len(records) == len(attribution["withheld"]) and records == withheld_diagnostics, "withheld support record and diagnostic disagree")
         listed = set(attribution["attributed_support_ids"]) | {support for support, _ in records}
@@ -736,7 +736,7 @@ def validate_transport_metadata(source: Mapping[str, Any]) -> None:
         _require(formulation["profile_id"] == profile and formulation["limitations"] == limitations, "formulation profile or limitations")
         schema = json.loads((ROOT / "schemas/results.v0.3.schema.yaml").read_text(encoding="utf-8"))
         evidence = source.get("contract_evidence")
-        # RT-A3 §4: a carried certificate's shape is read below (Rust's transport alike).
+        # a carried certificate's shape is read below (Rust's transport alike).
         shaped = {k: v for k, v in evidence.items() if k != "combination_certificate"} if isinstance(evidence, Mapping) else evidence
         _require(schema_shape(shaped, schema["$defs"]["PreviewPhysicsContractEvidence"], schema), "transport evidence shape")
         _finite_tree(evidence)
@@ -744,7 +744,7 @@ def validate_transport_metadata(source: Mapping[str, Any]) -> None:
         _gates(evidence)
     except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
         raise ValueError("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: malformed evidence") from error
-    # RT-A3 §4: transport has no rows, so a carried certificate's closed shape only (Rust's transport alike); the
+    # transport has no rows, so a carried certificate's closed shape only (Rust's transport alike); the
     # source reading checks it against the rows.
     if "combination_certificate" in evidence:
         member = evidence["combination_certificate"]

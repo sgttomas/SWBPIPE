@@ -26,12 +26,12 @@ if str(Path(__file__).resolve().parent) not in sys.path:
 from retained_precision_corpus import load_corpus  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
-# PP retained_facade_tests.rs `PINNED` pins the same bytes. W1's DEF-O meaning-hash move (DEL-04-08
-# w1-member-load-certification.md §6.4) re-sealed only the DEF-O-bound preparation, source-identity and receipt
+# PP retained_facade_tests.rs `PINNED` pins the same bytes. W1's DEF-O meaning-hash move
+# re-sealed only the DEF-O-bound preparation, source-identity and receipt
 # hashes and replaced e3e0830d.../c24d4a1c....
-# Model 0.9.0 re-pin (S1; DEL-02-01 Design model-document-0.9.0.md §3.6): read from the regenerated producer bytes on the
+# Model 0.9.0 re-pin (S1): read from the regenerated producer bytes on the
 # registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-# RT-A4 D3 re-pin (DEL-04-08 §8.46): the regenerated carriers move only formulation_basis.limitations[6] (§10.2) and the
+# RT-A4 D3 re-pin (DEL-04-08 §8.46): the regenerated carriers move only formulation_basis.limitations[6] and the
 # digests binding it; each restated to the former sentence and resealed (Python 07e) reproduces its former pin.
 PINNED = {"sparse_interactive": "49dfe6ebab459bbfdb68a541080313199cc24f85e649f1bbfb005c5be155a567",
           "dense_scrutiny": "d1c8edd1efcaf0986d2625714d76dbca81275e2fa32acaf9f4ade798dba48b11"}
@@ -51,7 +51,7 @@ def milestone(mode):
 
 def reseal(source, invocation, definition_hash=rp.DEFINITION_HASH):
     """The 07e format rule on a copy: the invocation digest, each complete preparation hash with the route's
-    definition hash (S-1; B3-D REVISION_01 §2), the selected cases' source identities, then publication and receipt."""
+    definition hash (S-1), the selected cases' source identities, then publication and receipt."""
     source = deepcopy(source)
     body = source["retained_precision"]["body"]
     body["invocation"]["value"] = rp._hash("source_blocks_invocation_v1", invocation)
@@ -84,7 +84,7 @@ def edited_invocation(invocation, change):
 
 
 # ---------------------------------------------------------------------------------------------------------------
-# B3a dropped: G8 refuses 0.3.0 with the retired legacy_pressure_v1 contract (formerly B3-D §6.3; REVISION_01 §3, N-4);
+# B3a dropped: G8 refuses 0.3.0 with the retired legacy_pressure_v1 contract;
 # B3D-10's tightenings stay.
 
 
@@ -240,7 +240,7 @@ def test_b3a_dropped_namespace_table(name, base, changes, expected):
 
 
 # ---------------------------------------------------------------------------------------------------------------
-# B3b: the `<physics-retained>` branch (B3-D §6 with REVISION_01; RV116's rulings). The synthetic exact base is the
+# B3b: the `<physics-retained>` branch (RV116's rulings). The synthetic exact base is the
 # milestone successor re-expressed on I99's m3x request (0ffbea35…), B7b's current exact document: model 0.9.0, the
 # current contract {3.0.0, exact_pressure_v3, euler_bernoulli} with an authored zero corrosion_allowance on every pipe
 # section, E and nu = 0.25 (so G_hat = E/2.5 = 80 GPa, the milestone's G, bit for bit), explicitly empty regions; the
@@ -275,14 +275,14 @@ def m3x_invocation(invocation, nu=NU):
 
 
 def _d5_id(row_id, basis):
-    """§2.5 ids: `result:elastic-maximum:…` and `result:pressure-exact:…` end in the underscore basis, others in the
+    """ids: `result:elastic-maximum:…` and `result:pressure-exact:…` end in the underscore basis, others in the
     hyphenated one."""
     underscore = row_id.startswith(("result:elastic-maximum:", "result:pressure-exact:"))
     return row_id + ":" + (basis if underscore else sb.hyphenated(basis))
 
 
 def d5_rows(source):
-    """T4-U6 (D-5, §2.2 and §2.5) on a preview base re-stated on the exact route, in place: each stress row is
+    """T4-U6 (D-5) on a preview base re-stated on the exact route, in place: each stress row is
     published on the nominal section and immediately followed by its reduced twin, with the same value (the bases
     coincide on this route); the receipt's references follow the nominal row (a reduced twin is outside the receipt's
     row universe, as W1-E stages it); the basis-free headline is null and each basis has its own."""
@@ -356,7 +356,7 @@ DERIVED_KINDS = (u4b.EXTREME, u4b.SHEAR_MAX)
 
 def _exact_tau(source, rows, row):
     """τ on the exact re-statement: |V| c_b / 1e6, V from the row's case, member and station shear rows, c_b from the
-    evidence's ν and the member's basis annulus (§2.4's fixed sequence)."""
+    evidence's ν and the member's basis annulus (fixed sequence)."""
     case, pipe, location = row["basis_ref"]["ref_id"], row["entity_ref"], row["metadata"]["location"]
     shear = lambda kind: next(r["value"] for r in rows if r["basis_ref"]["ref_id"] == case and r["entity_ref"] == pipe and r["kind"] == kind
                               and r["metadata"]["location"] == location)
@@ -368,7 +368,7 @@ def _exact_tau(source, rows, row):
 
 
 def d5_extrema(extrema):
-    """Each preview extremum on both coincident bases, nominal then reduced (§2.5)."""
+    """Each preview extremum on both coincident bases, nominal then reduced."""
     out = []
     for extremum in extrema:
         for basis in sb.BASES:
@@ -483,8 +483,8 @@ def _set_body(key, value):
     return _receipt(lambda b: b.update({key: value}))
 
 
-# Corrosion-allowance edits of one pipe section (b7-plan "Exact-contract fields"): refused on an exact document, and
-# zero in any length unit admitted. O4 (W1-E, o4-source-extension §4.6): a finite c_a >= 0 with c_m + c_a < t is inside
+# Corrosion-allowance edits of one pipe section: refused on an exact document, and
+# zero in any length unit admitted. O4 (W1-E): a finite c_a >= 0 with c_m + c_a < t is inside
 # DEF-E's namespace, so a nonzero allowance is no longer refused there; negative and wall-consuming ones are.
 CA_REFUSED = {
     "negative -0.001 m": lambda s: s.update(corrosion_allowance={"value": -0.001, "unit": "m"}),
@@ -920,7 +920,7 @@ def test_b3b_producer_m3x_successor_pins(mode):
     assert outcome(source, None, transport=True) == ("pass", False, "needs_recompute")
     got = rp.validate_retained_precision(source, invocation)["classifications"]
     counts = [sum(1 for c in got if c["class"] == k) for k in ("relative_verified", "absolute_verified", "input_derived", "non_quantity")]
-    # T4-U6 (D-5 §2.5): each of the member's 21 reduced stress twins takes its nominal row's class (5 relative,
+    # each of the member's 21 reduced stress twins takes its nominal row's class (5 relative,
     # 16 absolute), beside the milestone's 25, 69, 3 and 1.
     assert counts == [25 + 5, 69 + 16, 3, 1]
     # Every quantity row as the synthetic base classes it, bit for bit. E14 removed
@@ -936,7 +936,7 @@ def test_b3b_producer_m3x_successor_pins(mode):
                                         ("26 shear_origin.poisson_ratio bits changed", False), ("x26 G_hat one ulp high, every copy consistent", False),
                                         ("28 S-C only: an entry's pipe_materials nu one ulp", True), ("x12 authored constitutive_basis changed", True)])
 def test_b3b_g8_material_binding_precedes_s_c(label, s_c):
-    """REVISION_01 §4.2's G8 order on the exact branch: step 4 (the receipt's E, G_hat and nu against the authored
+    """G8 order on the exact branch: step 4 (the receipt's E, G_hat and nu against the authored
     material) before step 5 (S-C), whose own code is the detail of G8's PREPARATION_MISMATCH (B3D-13)."""
     source, invocation = exact_shape("sparse_interactive", label)
     with pytest.raises(rp.RetainedPrecisionError) as error:
@@ -982,7 +982,7 @@ def test_b3b_transport(kind, mode):
 
 
 def _packaged(tmp_path, monkeypatch, edit_table=None, edit_definition=None):
-    """A test-only packaged copy of the exact route's three statics (B3-D §2.4; REV §2: a corpus entry cannot change a
+    """A test-only packaged copy of the exact route's three statics (a corpus entry cannot change a
     table), with the reader's ROOT pointed at it and its table constant pinned to the copy's bytes."""
     results = tmp_path / "fixtures/results"
     results.mkdir(parents=True)
@@ -1191,7 +1191,7 @@ def test_addendum01_sourced_case_on_the_preview_route(mode, key, value, expected
 # Repair 01 (RV120, RV-R2): the preserved mutations use current bases and DEF-E.
 # input_sha256 pins Python sorted-compact [source, invocation]; the full constructed values also bind to native R1's JCS inputs.
 # - F1: on the exact route G5b runs the shared checks over every selected case first, then each case's exact
-#   evidence (DESIGN §6.2's G5b row), as RS and TS do. With a fault in case 0's evidence and one in case 1's shared
+#   evidence, as RS and TS do. With a fault in case 0's evidence and one in case 1's shared
 #   checks, the shared one is read.
 # - F2: E or G-hat moved by one ulp in all five receipt copies, with the derived stiffness (and for G-hat the evidence
 #   G_pa) moved with it and the native hashes resealed. G8 step 4's bits are what anchor the receipt to the authored
@@ -1423,7 +1423,7 @@ def test_b7a_preview_namespace_keys_on_the_contracts_absence_not_the_version():
         assert not rp._exact_namespace(model("0.9.0", pressure_contract=exact, shear_model=value))
 
 
-# Model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §3.8): G8 declines condition_sets and spectra other than
+# Model document 0.9.0: G8 declines condition_sets and spectra other than
 # absent or [], and any pipe's condition_set_ref, by name after the invocation binding, as Rust's
 # `g8_declines_condition_sets_spectra_and_set_references_by_name` does; the control stops later, at the namespace.
 @pytest.mark.parametrize("change,code", [

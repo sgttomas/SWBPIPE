@@ -14,7 +14,7 @@
 //! the case Sensitive and refuses the source route's block search. The trigger is a separate body:
 //! the judged document's exact rows are unchanged by it, and only those rows are judged.
 //!
-//! Judging (§5 "Acceptance"): every published row of every selected W1-E case that the references
+//! Judging: every published row of every selected W1-E case that the references
 //! cover is judged against BOTH readouts. A `relative_verified` row must lie within 1e-9·|value| of
 //! the exact value (SI and published-unit decimal forms) and within the kernel's sharper allowance
 //! (DEF-E `acceptance.final`: max(|x|,S)(2^-64 + 2^-85) + 2^-53|x| + 2^-1074); an
@@ -65,7 +65,7 @@ const PROVENANCE: &str = "invented_o4_m3_judging_no_library_data";
 fn sha(bytes: &[u8]) -> String { format!("{:x}", Sha256::digest(bytes)) }
 
 /// The model version the frozen unit pinned J2's committed requests at (model 0.6.0). Model 0.7.0
-/// (DEL-02-01 Design `model-document-0.7.0.md` §2) re-authored those committed requests by their
+/// re-authored those committed requests by their
 /// version token alone, so a request binds to its frozen pin with that one token restored: the
 /// frozen files are not edited, and any other byte change still fails the pin.
 const J2_FROZEN_MODEL_VERSION: &str = "0.6.0";

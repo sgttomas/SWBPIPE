@@ -116,7 +116,7 @@ describe("the route gate (§2.1): the output policy's report-package cell", () =
     expect(reportPackageUnavailableReason(null)).toBeNull();
   });
 
-  // W-11 (DEL-08-01 Design `exact-route-report-sections.md` §5.1; owner, 2026-10-26):
+  // (owner, 2026-10-26):
   // the cell admits the exact routes to the builder's Export Result JSON admission.
   it("admits a genuine exact-route source (pressure-2) to the builder's own checks (W-11 opening)", async () => {
     const { model } = nativeMechanicsReplayPair("sparse_interactive", { profile: "pressure" });
@@ -168,7 +168,7 @@ describe("the route gate (§2.1): the output policy's report-package cell", () =
     const refusal = reportPackageUnavailableReason(result);
     expect(refusal).toBe(surfaceRouteRefusal(result, "report-package"));
     expect(refusal).toBeNull();
-    // §5.4: the report JSON packet still refuses it.
+    // the report JSON packet still refuses it.
     expect(surfaceRouteRefusal(result, "report")?.startsWith("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE: ")).toBe(true);
   });
 });
@@ -192,7 +192,7 @@ describe("admission and the request's members (§2.1-§2.4)", () => {
     expect(request.source_basis_refs[0]).toEqual({ ref_type: "analysis_run", ref_id: result.run_id });
     expect(request.source_basis_refs.slice(1)).toEqual(document.result_envelope.load_basis_refs);
 
-    // §2.4: the audit manifest is named by the input-manifest reference, its unit system is
+    // the audit manifest is named by the input-manifest reference, its unit system is
     // the document's, and both hashes carry the basis they were computed on.
     const modelHash = await canonicalSha256Hex(model);
     expect(request.audit_manifest).toMatchObject({
@@ -238,7 +238,7 @@ describe("admission and the request's members (§2.1-§2.4)", () => {
     );
     expect([...REPORT_PACKAGE_ADMITTED_CONTRACT_IDS]).toEqual([
       PREVIEW_PHYSICS_CONTRACT_ID,
-      // DEL-05-03 `pf-timoshenko.md` §4: the pressure-free Timoshenko identity.
+      // the pressure-free Timoshenko identity.
       "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1",
       "openpipestress.result_semantics/0.3.0/pressure-2",
       "openpipestress.result_semantics/0.3.0/pressure-source-1"
@@ -450,7 +450,7 @@ describe("the report input the package carries", () => {
     expect(JSON.stringify(session)).toBe(before);
   });
 
-  // Slice C5 (DEL-08-01 Design `report-section-composer.md` §2.7): the local-private input
+  // the local-private input
   // carries P(M, C) exactly when the composition lists a model-input section.
   it("carries the model-input tables P(M, C) only when the composition lists a model-input section", async () => {
     const session = await syntheticPreviewSession(structuredClone(inventedPreviewModel) as unknown as PreviewModel);

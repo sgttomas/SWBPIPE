@@ -1,4 +1,4 @@
-//! Store tests of recorded analysis runs (W-12 S2; DEL-14-01 Design §3 and §6).
+//! Store tests of recorded analysis runs.
 use super::*;
 use crate::command_ingress::test_support::{admit_json, check_decode_bound, headers, registry};
 use crate::command_ingress::{admit_body_within, INGRESS_ARGS_JSON_V1};
@@ -1181,8 +1181,7 @@ fn the_recorded_run_witness_is_what_the_record_path_emits_for_a_typescript_built
     compare_or_write_witness(&text, WITNESS, WITNESS_PATH_ENV);
 }
 
-/// RT-A4 §10.4 (DEL-05-02 `absolute-sum-srss-combinations.md`, "Recorded results from before
-/// RT-A4"): main's preview-physics-2 run recorded before RT-A4 (main 6c3cb46d3, verbatim under
+/// main's preview-physics-2 run recorded before RT-A4 (main 6c3cb46d3, verbatim under
 /// `fixtures/persistence/recorded_pre_rt_a4_pf/preview_physics_2`) is stored and read back by
 /// this store as main's store emitted it, byte for byte: the record path reads hashes and
 /// bytes, never a semantic table, so its binding to the pre-RT-A4 table (1ccc9561…), its
@@ -3003,7 +3002,7 @@ fn the_history_commands_reach_long_project_ids_written_by_the_real_writers() {
 }
 
 // ---------------------------------------------------------------------------
-// Rule-pack reference diagnostics (FR-CMP-002; DEL-14-01 Design §3): the
+// Rule-pack reference diagnostics (FR-CMP-002): the
 // record's diagnostics are the result's, then one per model reference the
 // manifest leaves out of active_rule_packs, each exactly its code's and
 // identity's, at Record Run and at read. All rule-pack data are invented.
@@ -3193,7 +3192,7 @@ fn a_model_without_references_excludes_nothing_whatever_the_manifest_holds() {
 }
 
 // ---------------------------------------------------------------------------
-// W-12 (DEL-14-01 Design §2, §3): a run recorded before rule-pack resolution is
+// a run recorded before rule-pack resolution is
 // refused by name; the history lists show each unreadable row by its id and
 // refusal only, and the other rows as usual; an unreadable run, or an
 // unreadable state nothing depends on, may be deleted.
@@ -4025,7 +4024,7 @@ fn sqlite_allocations_for_an_oversized_id_are_admitted_before_sqlite_loads_it() 
 }
 
 /// SQLite's page cache, which stays within the accepted residual estimate
-/// (DEL-14-01 Design §3; Codex r8 measured up to 2.48 MB of cache): an
+/// (Codex r8 measured up to 2.48 MB of cache): an
 /// interval's SQLite peak may exceed what the read holds by at most this, and
 /// a command that never loads a large value peaks within it.
 const SQLITE_PAGE_CACHE_SLACK: u64 = 3 << 20;
@@ -4170,7 +4169,7 @@ fn a_blocked_delete_names_its_children_from_their_verification_without_reloading
 }
 
 // ---------------------------------------------------------------------------
-// Run comparison admission (W-12 S3b; DEL-14-01 Design §4.2, Memory): the
+// Run comparison admission: the
 // combined stored size of the two runs' results and input manifests (with the
 // session's current run when it is one side) against the per-invocation
 // budget, in one read transaction that reserves SQLite's working set first;

@@ -20,9 +20,9 @@ from tests.verifiers import compatibility as v
 
 ROOT = Path(__file__).resolve().parents[1]
 SUCC = c.PREVIEW_PHYSICS_RETAINED_CONTRACT_ID
-# Model 0.9.0 re-pin (S1; DEL-02-01 Design model-document-0.9.0.md §3.6): read from the regenerated producer bytes on the
+# Model 0.9.0 re-pin (S1): read from the regenerated producer bytes on the
 # registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-# RT-A4 D3 re-pin (DEL-04-08 §8.46): the regenerated carriers move only formulation_basis.limitations[6] (§10.2) and the
+# RT-A4 D3 re-pin (DEL-04-08 §8.46): the regenerated carriers move only formulation_basis.limitations[6] and the
 # digests binding it; each restated to the former sentence and resealed (Python 07e) reproduces its former pin.
 PINNED = {
     "sparse_interactive": ("49dfe6ebab459bbfdb68a541080313199cc24f85e649f1bbfb005c5be155a567",

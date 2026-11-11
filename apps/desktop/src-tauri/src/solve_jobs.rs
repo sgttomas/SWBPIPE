@@ -153,7 +153,7 @@ const ABANDONED_AT_PUBLICATION: &str = "abandoned_by_session_reset_result_discar
 
 /// The largest solve result the desktop hands to its webview: 64 MiB.
 ///
-/// Basis (RT-U4; DEL-04-05 design §6): an
+/// Basis (RT-U4): an
 /// exclusive window on 2026-10-31 on the development host (Apple M5 Max,
 /// 128 GiB, not the base machine), native-smoke release build `6c2f02d81`,
 /// with injected linear-ex rack results. Each run reached the reader verdict;
@@ -357,7 +357,7 @@ impl SolveJobError {
     }
 }
 
-/// A job's custody digests (§3.6): the SHA-256 of the raw model body `start`
+/// A job's custody digests: the SHA-256 of the raw model body `start`
 /// admitted, of the result bytes the job published, and the admitted mode.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) struct CustodyDigests {
@@ -371,7 +371,7 @@ pub(crate) fn sha256_in_place(bytes: &[u8]) -> [u8; 32] {
     Sha256::digest(bytes).into()
 }
 
-/// The one owner of a job's digest metadata (§3.6): the intake digest and the
+/// The one owner of a job's digest metadata: the intake digest and the
 /// mode from admission, the result digest from publication.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 struct JobDigests {
@@ -431,7 +431,7 @@ struct SolveJobRecord {
 /// still held. Its row index (slice 3, [`crate::result_detail`]), built on
 /// the first detail query with its own lease, lives and is released with it.
 ///
-/// RT-A4 §10.4: a restored result also holds the recorded table its readers
+/// a restored result also holds the recorded table its readers
 /// read it under ([`Self::recorded_table`]), fixed when it is restored. The
 /// bytes and that table are one immutable snapshot: a reader takes both with
 /// one share ([`SolveJobRegistry::held_result`], under the registry lock), and
@@ -547,7 +547,7 @@ impl HeldResult {
         self.evidence.as_ref().is_some_and(|evidence| evidence.pressure_passed.load(std::sync::atomic::Ordering::Acquire))
     }
 
-    /// RT-A4 §10.4: these restored bytes are read under `table`, the registry
+    /// these restored bytes are read under `table`, the registry
     /// variant the stored record binds, established by the host from the
     /// stored record at restoration (`analysis_run_v03_validate::recorded_record_binding`),
     /// never from a request. Set before the bytes are held; fixed from then.
@@ -556,7 +556,7 @@ impl HeldResult {
         self
     }
 
-    /// RT-A4 §10.4: the recorded table these bytes are read under: the
+    /// the recorded table these bytes are read under: the
     /// native readers of a restored run (S, row semantics, the detail index,
     /// filter, navigator and lookup) read under it; nothing else does, and it
     /// grants no standing. `None` for a solve and a restored run read under
@@ -655,7 +655,7 @@ const RESTORED_CANCELLATION: &str = "not_applicable_restored_stored_result";
 struct SolveJobTable {
     next_job_number: u64,
     records: HashMap<String, SolveJobRecord>,
-    /// The most recent attested solves (§2.4), apart from the records.
+    /// The most recent attested solves, apart from the records.
     attested: AttestationTable,
     /// Advanced by every session reset (C1 slice 6): a restoration begun
     /// before a reset is refused at registration, so a page that is gone
@@ -1082,7 +1082,7 @@ impl SolveJobRegistry {
                 ));
             }
         }
-        // Hashed in place, before the body is copied for the worker (§3.6).
+        // Hashed in place, before the body is copied for the worker.
         let intake_sha256 = sha256_in_place(body);
         // The reservation precedes this process's copy of the raw bytes.
         let ingress_bytes = ingress::allocation_envelope(bound.raw_len).unwrap_or(u64::MAX);
@@ -1404,7 +1404,7 @@ impl SolveJobRegistry {
             }
             Ok(WorkerOutcome::Completed { result, lease, attestation }) => match String::from_utf8(result) {
                 Ok(result) => {
-                    // Hashed in place, before publication takes the registry lock (§3.6).
+                    // Hashed in place, before publication takes the registry lock.
                     let result_sha256 = sha256_in_place(result.as_bytes());
                     self.publish(&job_id, result, lease, result_sha256, attestation.map(|a| (mode, a)))
                 }
@@ -1529,7 +1529,7 @@ impl SolveJobRegistry {
         self.table().attested.record(job_number, solver_mode, attestation);
     }
 
-    /// The job's custody digests (§3.6), a copy, only while its result is in
+    /// The job's custody digests, a copy, only while its result is in
     /// this app's custody: delivered with its custody lease held, or (C1) held
     /// natively for a native-custody job until its disposal. None for an
     /// unknown job, an untaken webview-custody (retained) result, or after
@@ -1620,7 +1620,7 @@ impl SolveJobRegistry {
     /// `PREVIEW-SOLVE-RESULT-BUSY`, and a disposal while a share is held
     /// releases the bytes and their lease when the share is dropped.
     ///
-    /// RT-A4 §10.4: the share is the whole immutable snapshot, the bytes and
+    /// the share is the whole immutable snapshot, the bytes and
     /// the recorded table they are read under ([`HeldResult::recorded_table`]),
     /// taken together under this one registry lock; a reader reads its table
     /// from the share only, never from the registry again.
@@ -1986,7 +1986,7 @@ impl SolveJobRegistry {
                 released.push((result, lease));
             }
         }
-        // The attestation table goes with the session (§2.4).
+        // The attestation table goes with the session.
         table.attested.clear();
         table.reset_epoch += 1;
         let receipt = SolveResultsDisposal {
@@ -2084,7 +2084,7 @@ pub(crate) mod test_support {
         wait_for(registry, job_id, |s| !matches!(s.state, "queued" | "running"))
     }
 
-    /// W-11 (§3.6): a gated registry job admitted from `intake` under `mode`,
+    /// a gated registry job admitted from `intake` under `mode`,
     /// released with `result` and taken into custody, as a delivered result is.
     /// Returns the registry, its gate (kept alive by the caller) and the job id.
     pub(crate) fn delivered_in_custody(
@@ -3257,7 +3257,7 @@ mod tests {
         assert_eq!((registry.pool().reserved_total(), registry.pool().running_workers()), (0, 0));
     }
 
-    // --- W-18b (r2a): the attestation table (DEL-08-01 Design `report-user-release.md` §2.4) ---
+    // --- W-18b (r2a): the attestation table ---
 
     use crate::solve_attestation::MAX_ATTESTED_SOLVES;
     use crate::solve_worker::tests::scripted_attestation;
@@ -3321,7 +3321,7 @@ mod tests {
         assert_eq!(registry.pool().reserved_total(), 0);
     }
 
-    /// §2.4 and §6: the solved demo's `d_M` and `d_S` equal the digests that
+    /// the solved demo's `d_M` and `d_S` equal the digests that
     /// admission computes over the session model and the received result
     /// after the webview round trip (parse, RFC 8785 text, native parse), in
     /// both modes; another mode, a result with one added annotation and

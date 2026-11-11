@@ -4,7 +4,7 @@ import type { PreviewModel } from "../../types";
 import type { ModelCheckRun } from "./modelChecks";
 import { ModelChecksPanel } from "./ModelChecksPanel";
 
-// DEL-04-06 Design `on-demand-model-checks.md`: the panel lists a run's
+// the panel lists a run's
 // findings by check with their own code and text; choosing one selects the
 // entity it names. Invented findings.
 const model = { diagnostics: [] } as unknown as PreviewModel;

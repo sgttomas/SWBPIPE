@@ -244,7 +244,7 @@ const HANDOFF_SAVE = { path: path.join(savedHandoffs, "saved-demo.swbhandoff") }
 const savedReportPackages = path.join(root, "saved-report-packages");
 mkdirSync(savedReportPackages);
 const REPORT_PACKAGE_SAVE = { path: path.join(savedReportPackages, "saved-demo.opsproj") };
-// W-11 (DEL-08-01 Design exact-route-report-sections.md §5.1): the exact route's package.
+// the exact route's package.
 const EXACT_REPORT_PACKAGE_SAVE = { path: path.join(savedReportPackages, "saved-exact.opsproj") };
 const documents = expected.cases.map((entry) => {
   const source = path.join(project, entry.fixture);
@@ -332,16 +332,16 @@ function checkObservation(prefix, seen, want, modelHash, supportCount) {
   check(`${prefix}: solve proof model_sha256`, seen.proof_model_sha256 === modelHash, seen.proof_model_sha256);
   check(`${prefix}: solve proof identity`, seen.solve_proof?.includes("identity=match") && seen.proof_project === seen.project_id, seen.proof_project);
   check(`${prefix}: no retained-precision diagnostics`, seen.retained_precision_codes.length === 0 && seen.retained_precision_elements === 0, seen.retained_precision_codes);
-  // A2 (DEL-07-05 Design support-load-summary.md): structure only; the support count is the opened model's.
+  // structure only; the support count is the opened model's.
   const loads = seen.support_load;
   check(`${prefix}: support load summary, one support of the model's ${supportCount} with every row stated and the extreme rows`,
     loads?.table && new RegExp(`^Support \\d+ of ${supportCount}$`).test(loads.position ?? "") && loads.rows > 0 && loads.rows_stated === loads.rows && loads.extreme_rows === 2, loads);
-  // A3 (DEL-07-05 Design stress-ratio-table.md): structure only. With no rule-check run the table
+  // structure only. With no rule-check run the table
   // lists emitted stress kinds, sorted by magnitude, and offers no ratio.
   const table = seen.stress_ratio;
   check(`${prefix}: stress and ratio table lists emitted stresses with no ratio while no rule-check run is held`,
     table?.table && table.mode === "stress" && table.ratio_disabled && table.rule_groups === 0 && table.stress_groups > 0 && table.rows > 0, table);
-  // A8 (DEL-07-05 Design displacement-extremes.md): structure only. Either the admitted cases are
+  // structure only. Either the admitted cases are
   // chosen and one page of node rows lists twelve extreme cells each, or no case is admitted and
   // the panel says so with every case disabled. A model with supports offers support filters.
   const extremes = seen.displacement_extremes;
@@ -350,7 +350,7 @@ function checkObservation(prefix, seen, want, modelHash, supportCount) {
       ? extremes.cases_chosen > 0 && extremes.rows > 0 && extremes.rows <= 50 && extremes.cells_per_row.every((count) => count === 12)
         && /^Nodes 1–\d+ of \d+$/.test(extremes.page ?? "") && !extremes.no_case
       : extremes.no_case && extremes.cases_chosen === 0 && extremes.cases_disabled === extremes.cases), extremes && { ...extremes, cells_per_row: [...new Set(extremes.cells_per_row)] });
-  // A9 (DEL-07-05 Design weight-cog-summary.md): structure only. With an entered gravity the summary
+  // structure only. With an entered gravity the summary
   // either lists its three category rows, with a centre of gravity or the reason none is formed, and
   // either every pipe counted or the pipes not counted; or it states the generator's refusal.
   const weight = seen.weight_summary;
@@ -369,7 +369,7 @@ function checkStressRatioAfterRuleChecks(prefix, rules) {
 
 const first = await launch("open-solve-save", { report_package: REPORT_PACKAGE_SAVE, exact_report_package: EXACT_REPORT_PACKAGE_SAVE });
 check("phase open-solve-save completed", first.ok, first.error);
-// W-6a (DEL-15-01 Design canonical-model-export.md §2). Nothing here is pinned:
+// Nothing here is pinned:
 // the expected bytes and hash are computed from the bundled demo fixture.
 {
   const saved = first.model_document?.saved;
@@ -616,7 +616,7 @@ for (const doc of documents) {
     named.length === integrity.count && named.every((item) => item.severity === integrity.severity && item.message?.includes(integrity.sentence))
       && !(run?.diagnostics ?? []).some((item) => item.severity === "blocking" || item.severity === "error"), named.map((item) => item.severity));
 }
-// W-18 (b2; DEL-08-01 Design report-package-current-results.md §4). File > Save
+// File > Save
 // Report Package… on the demo's Current pressure-free result. Nothing here is
 // pinned: the receipt, the file and the product reader's re-read are compared with
 // each other and with the result JSON the same session exported.
@@ -677,7 +677,7 @@ for (const doc of documents) {
   check("from blank, reopened: the unfiltered results count every solved row", after && after.all_rows_summary === `${after.proof_rows} of ${after.proof_rows} results match filter`, after?.all_rows_summary);
 }
 
-// W-6b (DEL-15-01 Design canonical-model-export.md §3). File > Save Handoff… on
+// File > Save Handoff… on
 // the stored demo, twice. Nothing here is pinned: the bytes and hashes are
 // computed from the stored demo model and from the saved package itself.
 {

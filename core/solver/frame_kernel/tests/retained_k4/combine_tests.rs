@@ -594,7 +594,7 @@ fn checked_work_recorded_combination_keeps_early_and_run_custody_distinct() {
 }
 
 // ---------------------------------------------------------------- B2-K
-// The prepared-operand API without custody (KD §1.2-§1.4).
+// The prepared-operand API without custody.
 use super::super::adaptive::PreparedCaseSource;
 fn source_combine(operands: &[(f64, CombinationOperand<'_>)]) -> CombinationOutcome {
     let mut meter = InvocationMeter::new(u64::MAX);

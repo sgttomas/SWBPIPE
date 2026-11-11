@@ -63,7 +63,7 @@ it('a bundled record stays unavailable even with a correctly bound reference ana
  const analysisRun=await buildAnalysisRunPreview(result,{inputManifest});
  render(<ResultExportPanel model={model} result={result} analysisRun={analysisRun} inputManifest={inputManifest}/>);
  // The bundled reference is the demo's preview-physics-2 output: its numerical evidence passes
- // (its nonlinear cases are confirmed, DEL-04-01 kd5-nonlinear-active-set.md §5),
+ // (its nonlinear cases are confirmed),
  // so the invocation gate refuses it (no native solve produced it).
  await waitFor(()=>expect(screen.getByTestId('result-export-empty')).toHaveTextContent('CURRENT_NATIVE_INVOCATION_REQUIRED'));
  expect(screen.queryByTestId('result-export-link')).toBeNull();

@@ -241,7 +241,7 @@ fn claimed_hex(claimed: &str) -> Option<&str> {
         .filter(|hex| hex.len() == 64 && hex.bytes().all(|byte| matches!(byte, b'0'..=b'9' | b'a'..=b'f')))
 }
 
-/// The admission of §2 over the webview's canonical text, before any file is
+/// The admission over the webview's canonical text, before any file is
 /// chosen, with no reservation before the screening (tests).
 #[cfg(test)]
 pub fn admit_model_document_text<V: std::borrow::Borrow<Value>>(
@@ -284,7 +284,7 @@ pub(crate) fn admit_model_document_text_screened_with<V: std::borrow::Borrow<Val
 }
 
 /// The admission's checks before the screening, without route evidence or the disposition screen (the MBF export
-/// review, DEL-17-04 `desktop-mbf-export-import.md` §3.9.5: §3.6 steps 2 and 3): the 64 MiB cap, the canonical text,
+/// review): the 64 MiB cap, the canonical text,
 /// its hash against the claim, and the open path's checks. Returns the canonical text.
 #[cfg_attr(not(test), allow(dead_code))] // Slice 4b.2 registers the MBF review command that calls it.
 pub(crate) fn admit_model_document_text_unscreened(
@@ -426,8 +426,8 @@ pub fn write_admitted_model_document(destination: &Path, admitted: AdmittedModel
 }
 
 /// The save after its ingress and its route-evidence check (`lib.rs`
-/// `save_model_document_decoded`), on one blocking worker: the admission of
-/// §2, with each referenced library read from the local store (`open_store`,
+/// `save_model_document_decoded`), on one blocking worker: the admission
+/// with each referenced library read from the local store (`open_store`,
 /// opened only if the document references one) within the command's memory
 /// (`StoreLibraryReads`: started from the ingress lease `ingress`, so every
 /// library reservation is counted with it against the per-invocation budget);

@@ -1,4 +1,4 @@
-"""RT-S3 CE fallback publication (retained-pricing-rules.md §8.61): CEF-PJ and CEF-D1.
+"""RT-S3 CE fallback publication (§8.61): CEF-PJ and CEF-D1.
 
 The CE correction adds one branch to solve_prepared_load_case's support loop and two lib.rs tests. CEF-PJ compares
 every existing full-file and case-solve body pin without exactly that delta, so the pins keep S6's reviewed bytes.

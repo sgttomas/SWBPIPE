@@ -1,4 +1,4 @@
-// Rule Pack Manager: "Use with this model" and "Remove from model" (W-13 §3.4).
+// Rule Pack Manager: "Use with this model" and "Remove from model".
 // A reference carries the stored pack's identity and its stamped checksum,
 // projected to the subset the document validator checks; rule content never
 // enters the model. A reference never makes a check pass. References whose

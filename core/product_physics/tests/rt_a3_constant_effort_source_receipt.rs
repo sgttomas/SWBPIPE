@@ -1,5 +1,4 @@
-//! RT-A3 increment 3 (DEL-04-07 `pressure-contract.md`, "Constant-effort
-//! supports (RT-A3 increment 3)"): an admitted constant-effort support on the
+//! an admitted constant-effort support on the
 //! exact route gives an honest outcome on the retained-source path.
 //!
 //! The retained-source family is straight members, linear restraints or

@@ -1,7 +1,7 @@
-"""W8-BF, NP-MS and NP-PT (retained-pricing-rules.md §8.18): the branch warning's applied-factors statement, added
+"""W8-BF, NP-MS and NP-PT (§8.18): the branch warning's applied-factors statement, added
 after publication over the model's components, stays at multiplicity 0 under W8-BT's premise with its texts bounded, the node-proximity tolerance's refusal and the accessor's
 five texts are priced positively at their audited bytes, and a changed text or call stops the run. SM-MS and SM-PT
-(§8.26, "The shear-model member"): the shear-model refusal's diagnostic and three texts are priced the same way."""
+(§8.26): the shear-model refusal's diagnostic and three texts are priced the same way."""
 from pathlib import Path
 import runpy
 import shutil

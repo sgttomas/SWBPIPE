@@ -1,4 +1,4 @@
-//! The scale runs' counts and estimate (checkpoint B; plan §13; `src/scale.rs`),
+//! The scale runs' counts and estimate (checkpoint B; `src/scale.rs`),
 //! checked without a solve.
 //! - V-K's O(nnz) pattern and profile counts equal K4's own `StorageCounts`, as
 //!   the committed per-case records hold them, on every CI case that K4

@@ -23,7 +23,7 @@ fn write_exact_pin_input(kind: &str, raw: &Value, mode: PreviewSolverMode, succe
     }
 }
 
-// W1 re-pin (w1-member-load-certification.md §§6.4, 10, 12, 14): DEF-O-bound
+// W1 re-pin: DEF-O-bound
 // preparation/source identities and the outer receipt move; all other nodal successor
 // fields remain identical to merged RF. The raw publication pins below are hashes of
 // serde_json::to_vec from the maintained Rust writers, alongside their document and
@@ -31,27 +31,27 @@ fn write_exact_pin_input(kind: &str, raw: &Value, mode: PreviewSolverMode, succe
 // bytes; W-CB1z dense and RV123 additionally reproduce RF byte for byte after replacing
 // only those same authorized hash leaves. No numeric expectation is re-pinned.
 //
-// Model 0.7.0 re-pin (W-13 S1b; DEL-02-01 Design `model-document-0.7.0.md` §2): every pinned
+// Model 0.7.0 re-pin (W-13 S1b): every pinned
 // request and witness input was re-authored by its version token alone. The input sha256 pins, the
 // successors' invocation digests, the exact route's DEF-E-bound preparation and source identity
 // hashes, and the receipt, publication and document hashes binding them moved and follow the
 // maintained writers' bytes; no numeric leaf, class, selection, status or verdict moved.
 //
-// W-7 re-pin (DEL-04-01 Design `global-end-actions.md`; DEL-04-08 §8.20): every successor gains its
+// W-7 re-pin (DEL-04-08 §8.20): every successor gains its
 // members' twelve global end rows per case and result set, not covered, with the figures the receipt
 // counts over the published rows (the adapter counters, the proof's row capacities, prepared capacity
 // bytes and visits, and the later rows' projection positions) and the hashes binding them; no earlier
 // row's value, class, selection, status or verdict moved. The pins follow the maintained writers' bytes.
 
 /// U1's committed successor bytes (retained_wire_tests::SUCCESSOR_SHA256).
-/// K-D5 re-pin (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 5, 6): read from the producer
+/// K-D5 re-pin: read from the producer
 /// at the K-D5 head; against main the successors differ only by the current maximum declaration
 /// literals and fallback enclosures, the two linear limitation sentences, the CHECKS_PASSED base
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
-/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
+/// Model 0.9.0 re-pin (S1): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-/// RT-A4 D3 re-pin (DEL-04-08 §8.46): only `formulation_basis.limitations[6]` (§10.2's sentence) and the publication
+/// RT-A4 D3 re-pin (DEL-04-08 §8.46): only `formulation_basis.limitations[6]` and the publication
 /// and receipt seals binding it moved; restated to the former sentence and resealed by the Python 07e rule, each
 /// regenerated document reproduces its former pins byte for byte.
 const PINNED: [(&str, &str, &str); 2] = [
@@ -97,7 +97,7 @@ fn with_notice(plain: &[u8], case: &str, detail: Option<&str>) -> Vec<u8> {
     let sep = if items.is_empty() { "" } else { "," };
     format!(r#"{head}"diagnostics":[{items}{sep}{}{rest}"#, notice_json(case, detail)).into_bytes()
 }
-/// B1 (PLAN_v2 §2.1; RV107 SF-2): an out-of-domain oracle's request, `raw` with C + 1 load
+/// B1 (RV107 SF-2): an out-of-domain oracle's request, `raw` with C + 1 load
 /// cases (`caps::LOAD_CASES` + 1). Each added case copies the first. With `renamed` the
 /// copies take the ids `case-2`, `case-3`, …; otherwise they keep the first case's id, as
 /// each oracle built its second case before B1. While C = 1 (before SA) this is the same
@@ -239,7 +239,7 @@ fn u3_each_stage_fault_falls_back_to_the_ordinary_bytes() {
     assert_eq!(retained.err(), Some(W1Fallback::Domain), "C + 1 cases: outside D1.4");
     check(&envelope, &over_plain, "C + 1 cases");
     // No W1 work ran: a combination D1.4 does not admit. B2-A widened D1.4 to combinations
-    // (B2-C §9: z ≤ 2, C_eq ≤ 3, h ≤ 3, a range over ≤ 3 ids, ids disjoint), and B2-P's
+    // (z ≤ 2, C_eq ≤ 3, h ≤ 3, a range over ≤ 3 ids, ids disjoint), and B2-P's
     // re-check reads the same clauses, so a mechanics combination of four terms (h = 4,
     // C_eq = 2) is outside D1.4 (RV122 N-3).
     let mut combined = raw.clone();
@@ -321,7 +321,7 @@ fn u3_r1_carrier_names_exactly_one_publication() {
     }
 }
 
-/// STACK_PLAN §1: the reserved-stack runner returns the work's value, re-raises a
+/// the reserved-stack runner returns the work's value, re-raises a
 /// panic with its original payload, and reports a spawn failure without running.
 #[test]
 fn u3_reserved_stack_runner() {
@@ -445,7 +445,7 @@ fn u3_n9_single_parse_custody() {
         "from_reader(", "deserialize(", "Deserialize", "LinearStaticPreviewRequest {"] {
         assert!(!permitted.contains(forbidden), "{forbidden}");
     }
-    // Pre-0.4 failure unification (DEL-04-08 Design `pre04-failure-unification.md` §2.2), the
+    // Pre-0.4 failure unification, the
     // one stated exception: exactly one `capture.requested()`, in the republication arm that
     // ends in `W1Fallback::Coexistence`, after the first envelope and the observer drop. The
     // Direct entry must republish a selected source that could not finalize, and the first run
@@ -504,13 +504,13 @@ fn u3_n9_single_parse_custody() {
 /// RV85 S3 and N1 (structural; the permitted path needs a permit, so its behaviour
 /// is in the stub evidence). S3: `admit` yields the report with the permit and every
 /// permitted output carries it. N1: G-C is consulted only after coexistence and G-B's
-/// outcome, in I51 COMPOSITION §2's order, each recorded as its own cause.
+/// outcome, each recorded as its own cause.
 #[test]
 fn u3_permitted_outputs_keep_the_report_and_gate_order() {
     let lib = include_str!("lib.rs");
     let permitted = &lib[lib.find("fn permitted_dispatch(").unwrap()..lib.find("pub(crate) const RETAINED_UNAVAILABLE_NOTICE").unwrap()];
     assert!(!permitted.contains("admission: None"), "S3: no permitted output drops the report");
-    // Pre-0.4 failure unification (Design `pre04-failure-unification.md` §2.2): a fourth
+    // Pre-0.4 failure unification: a fourth
     // report-bearing output, the republication of a selected source that could not finalize
     // (`Coexistence`). The Direct entry must republish rather than refuse, and that output
     // carries the report like every other permitted output.
@@ -624,10 +624,10 @@ fn u3_r2_base_readers_accept_the_unavailable_notice() {
 
 use super::retained_tests_hooks::{self as hooks, Counts};
 
-/// The registered dev/test identity (R/I65/u4_g6_01/QUALIFICATION.md; the admission test's).
+/// The registered dev/test identity (the admission test's).
 /// Shared with `b7b_admission_tests`, which follows the same two-build convention.
 pub(super) const REGISTERED_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
-/// W1 coverage repair §1.4, option 2: the genuine-exhaustion control's reduced
+/// the genuine-exhaustion control's reduced
 /// loaded-maximum search limits (live, depth, splits), applied through the kernel's
 /// opt-in capacity hook. Its writer and the corner-2 gating check share them.
 #[cfg(feature = "loaded-maximum-hooks")]
@@ -811,7 +811,7 @@ fn u3g2_direct_entry_no_w1_refusals_keep_exact_bytes() {
         }
         assert_eq!(published(output), plain_milestone, "G-C {mode:?}");
         // The reserved stack cannot be spawned: the ordinary route on the caller's thread,
-        // with the report and the private cause (STACK_PLAN §1); faults come back (RV85 U2).
+        // with the report and the private cause; faults come back (RV85 U2).
         super::retained_memory::RESERVED_STACK_OVERRIDE.with(|c| c.set(Some(1usize << 62)));
         hooks::corrupt_next_precommit();
         let (output, counts) = direct(&milestone, mode);
@@ -980,7 +980,7 @@ fn u8_two_body_case_b() -> Value {
             "dimension": "moment", "magnitude": {"value": tip, "unit": "N*m"}, "provenance": p}]);
     raw
 }
-/// W-C2's case C (B0 DESIGN_v2 §1.4; R/I81/b1_probe_01 PROBE §4): case A's loads (the milestone's
+/// W-C2's case C: case A's loads (the milestone's
 /// three moments on body 0) followed by case B's (the tip force and torque on body 1), as one load
 /// case. W-C1's input and W6's stack-witness input since B1 (RR "I81's B1-0 probe verified…",
 /// ruling 3): Sensitive, W2-published (b = 518), and the native run ends Unresolved(Ceiling).
@@ -990,7 +990,7 @@ pub(super) fn w_c2_case_c() -> Value {
     raw["model"]["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().extend(tip);
     raw
 }
-/// PROBE §4's input sha256 of case C, and PROBE §2.3's of two-body case B (`serde_json::to_vec`).
+/// input sha256 of case C, and of two-body case B (`serde_json::to_vec`).
 pub(super) const W_C2_CASE_C_INPUT_SHA256: &str = "c327e9a6f78e9247a6330cebb8904c5fa42fa1732f7cb1f55b556b732124bdb0";
 const TWO_BODY_B_INPUT_SHA256: &str = "1819efa75f5739beb23a377f5c7cd059c4e09de9765dca5b6cd52fe46fef9f32";
 /// The L = 0 base (PLAN §1.2): the milestone plus node N2 at (3, 0, 0), which no member
@@ -1047,15 +1047,15 @@ fn u8_real_input_fallbacks_append_one_notice() {
 }
 
 /// U8's L = 0 pins, per mode: the successor document's sha256 (id `u8_l0_isolated_node_<mode>`,
-/// U1's document form), its receipt sha256 and the published bytes' sha256 (R/I68/u8_probe_01 §3).
-/// K-D5 re-pin (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 5, 6): read from the producer
+/// U1's document form), its receipt sha256 and the published bytes' sha256.
+/// K-D5 re-pin: read from the producer
 /// at the K-D5 head; against main the successors differ only by the current maximum declaration
 /// literals and fallback enclosures, the two linear limitation sentences, the CHECKS_PASSED base
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
-/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
+/// Model 0.9.0 re-pin (S1): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-/// RT-A4 D3 re-pin (DEL-04-08 §8.46): only `formulation_basis.limitations[6]` (§10.2's sentence) and the publication
+/// RT-A4 D3 re-pin (DEL-04-08 §8.46): only `formulation_basis.limitations[6]` and the publication
 /// and receipt seals binding it moved; restated to the former sentence and resealed by the Python 07e rule, each
 /// regenerated document reproduces its former pins byte for byte.
 const U8_L0_PINNED: [(&str, &str, &str, &str); 2] = [
@@ -1126,7 +1126,7 @@ fn u8_l0_value_controls(name: &str, raw: &Value, successor: &Value, milestone_do
             AccuracyClass::AbsoluteVerified { bound_bits } => (value - reference_value).abs() <= f64::from_bits(*bound_bits),
             AccuracyClass::InputDerived => value.to_bits() == reference_value.to_bits(),
             AccuracyClass::NonQuantity => true,
-            // T4-U4b §4.1: body 0's derived not-covered rows carry no bound; each is formed from
+            // body 0's derived not-covered rows carry no bound; each is formed from
             // bit-identical operands, so it is bit-identical (as asserted above), normalized alike.
             AccuracyClass::NotCovered => value.to_bits() == reference_value.to_bits(),
         };
@@ -1203,9 +1203,9 @@ fn u8_d_u6_5_l0_fixtures_are_the_live_successors() {
 
 // ---- B1 ST (I85): T-4's per-case trigger, decision 21 and `NoTriggeredCase` ------------------
 //
-// R/I84/b1_plan_01/PLAN_v2.md §2.1 (B0 DESIGN_v2 §1.2, T-4; decisions 1 and 21). The classifier
+// The classifier
 // `case_triggers` is pinned on hand-built published verdicts and seeds. Decision 21's branch is
-// pinned only here, because no audited committed input reaches it (R/I81/b1_probe_01 PROBE §3).
+// pinned only here, because no audited committed input reaches it.
 // `NoTriggeredCase` is pinned on real inputs (RR "I81's B1-0 probe verified…", ruling 4).
 
 fn verdict_entry(case: &str, verdict: NumericalQualityStatus) -> NumericalCaseQuality {
@@ -1242,7 +1242,7 @@ fn classified(quality: &NumericalQuality, seeds: &[rp::OrdinarySeed], ids: &[&st
     case_triggers(quality, seeds, ids).collect()
 }
 
-/// T-4's unit tests (PLAN_v2 §2.1's list): each published verdict; W2-published Passed; report
+/// T-4's unit tests: each published verdict; W2-published Passed; report
 /// Passed; the verdict, not the seed's `initial`, decides; each excluded tag with and without W2;
 /// the other failure tags; no seed (in A, unless the verdict is Passed); quality entries and seeds
 /// out of request order, which the case-id lookup reads correctly; and an entry or seed that is
@@ -1286,7 +1286,7 @@ fn b1_t4_classifier_reads_the_published_verdict_by_case_id() {
         // A Passed verdict is not_required whatever the seed says.
         assert_eq!(one(Some(V::ChecksPassed), Some(seed_of("case", failure_seed(error.clone()), rp::W2Seed::NotTriggered))), NotRequired, "{error:?} Passed");
     }
-    // The other attempted failures stay in A (tiny_spring's NumericallyUnresolved among them; PROBE §3).
+    // The other attempted failures stay in A (tiny_spring's NumericallyUnresolved among them).
     for initial in [failure_seed(StructuralError::Range("arithmetic outside normal range")),
         failure_seed(StructuralError::NumericallyUnresolved { reason: "positive diagonal contribution absorbed by assembly; stabilization unresolved", global_dof: Some(3) }),
         failure_seed(StructuralError::NegativeEnergy { direction: vec![1.0], energy: -1.0, allowance: 0.0 }),
@@ -1386,7 +1386,7 @@ pub(super) fn assert_no_triggered_case_pin(label: &str, raw: &Value, input_sha25
 }
 
 /// B1 ST (T-4; RR "I81's B1-0 probe verified…", ruling 4): two-body case B is W2-published with
-/// the published verdict `checks_passed` (PROBE §2.3), so it is `not_required` and A is empty:
+/// the published verdict `checks_passed`, so it is `not_required` and A is empty:
 /// the `NoTriggeredCase` pin above, on the private driver and the actual Direct entry.
 #[test]
 fn b1_t4_two_body_case_b_is_a_no_triggered_case_pin() {
@@ -1432,12 +1432,12 @@ fn b1_t4_retained_w1_applies_decision_21_and_keeps_a_seedless_case() {
 
 // ---- B1 SP (I85): the n-case transaction, T-2 to T-7 ------------------------------------------
 //
-// R/I84/b1_plan_01/PLAN_v2.md §2.2 (B0 DESIGN_v2 §1.2, T-2 to T-7). Until I2 merges SA's
+// Until I2 merges SA's
 // `LOAD_CASES` = 3, `retained_w1` refuses c ≥ 2 with `Domain` (RV107 A1-S-2), so these tests drive
 // the capture and the preparation directly, below `retained_w1`: the observed ordinary run with the
 // capture installed (T-2), invocation custody (T-6) and the per-case product attempts (T-7).
 
-/// W-C2 (B0 DESIGN_v2 §1.4; decision 2): three cases on U8's two-body model, in request order:
+/// W-C2 (decision 2): three cases on U8's two-body model, in request order:
 /// - `case-a`: the milestone's three moments on body 0 (two-body case A's loads);
 /// - `case-b`: the tip force and torque on body 1 (two-body case B's loads);
 /// - `case-c`: A's loads followed by B's (case C), each id suffixed `:c`, because primitive-load ids
@@ -1466,7 +1466,7 @@ const W_C2_IDS: [&str; 3] = ["case-a", "case-b", "case-c"];
 /// requested case in its own slot, in request order: its scope and custody counters, its solver
 /// observations, and its late old-source capture (the source with that case's loads, and its facts
 /// and operational records). The seeds are per case, and the published verdicts are A Sensitive,
-/// B Passed and C Sensitive (PROBE §2.3 and §4), so T-4's A is {A, C}.
+/// B Passed and C Sensitive, so T-4's A is {A, C}.
 #[test]
 fn b1_sp_t2_the_capture_holds_each_requested_case() {
     let raw = w_c2();
@@ -1614,7 +1614,7 @@ fn b1_sp_t5_one_reserved_notice_per_case_in_a() {
     assert_eq!(serde_json::to_vec(&colliding).unwrap(), before, "nothing reserved, nothing changed");
 }
 
-/// The domain re-check (PLAN_v2 §2.2; RV107 SF-2; B2-P, B2-C §9): `w1_case_ids` gives the
+/// The domain re-check (RV107 SF-2; B2-P): `w1_case_ids` gives the
 /// request's cases in request order for 1 ≤ c ≤ C with the combinations D1.4 admits, and `None`
 /// (`Domain`) for C + 1 cases and for no case. B2-A widened D1.4 to combinations (RV122 N-3): a
 /// combination within it is admitted, and one outside it (z = 3 so C_eq = 4, h = 4, a range
@@ -1668,7 +1668,7 @@ fn b1_sp_domain_recheck_names_the_requested_cases() {
 
 // ---- B1 SP (I85): the n-case transaction, T-8 to T-13 -----------------------------------------
 //
-// PLAN_v2 §2.2's tests. Below `retained_w1`, `w1_transaction` (T-6 to T-11) returns the cause and
+// Below `retained_w1`, `w1_transaction` (T-6 to T-11) returns the cause and
 // the selected attempts that T-12 publishes with (written before I2, when `LOAD_CASES` = 1). Since
 // I2 the same inputs also run through `retained_w1` with their notices
 // (`b1_sp_w_c2_through_retained_w1_publishes_t12`) and the Direct entry. Before SR-RS (I3) the accepted Rust
@@ -1714,7 +1714,7 @@ fn run_records(outcome: &k::ExecutionOutcome) -> &[k::AttemptRecord] {
 /// PLAN_v2 N-16 with RV109's SF-1 (RR "RV109 passes SP in RV-P round 2; …", ruling 1): one
 /// `CaseBatchCall` over `raw`'s cases `attempted` (all prepared), against each case's one-case Run
 /// (`singles`, in batch order). Each Run's terminal facts are the one-case ones, and so is every
-/// field of every physical record, but for C2 §4's group-build sharing: one stiffness gives one
+/// field of every physical record, but for group-build sharing: one stiffness gives one
 /// group, the first Run builds s128, s256 and v256, and every later Run reuses them. So a later
 /// Run's records differ from its one-case records in exactly `shared_built_here` at p128 and p256
 /// and `verification_shared_built_here` at p256 (false in the batch, true alone). Returns each
@@ -1754,7 +1754,7 @@ fn n16_batch_against_one_case(label: &str, raw: &Value, mode: PreviewSolverMode,
     facts
 }
 
-/// W-C2 (PLAN_v2 §2.2, N-1, N-2, N-16) below `retained_w1`, both modes, with A = {A, C}:
+/// W-C2 (N-1, N-2, N-16) below `retained_w1`, both modes, with A = {A, C}:
 /// - T-8: one call over A's and C's prepared sources; A's Run ends `selected`, C's
 ///   `unresolved {space: unresolved, tag: ceiling}`; T-9 freezes A.
 /// - Since I3 the precommit (SR-RS's reader, with the invocation) accepts the successor, which
@@ -1770,7 +1770,7 @@ fn n16_batch_against_one_case(label: &str, raw: &Value, mode: PreviewSolverMode,
 /// - **The record point (T-11):** C's snapshot is taken at its Run (T-8), before A's freeze, so
 ///   it records fewer adapter events than A's, taken at A's last proof stage.
 /// - **N-16** (with RV109's SF-1): each Run's terminal facts and every physical record equal the
-///   case's one-case Run's, but for C's p128 and p256 build-provenance flags: C2 §4's group-build
+///   case's one-case Run's, but for C's p128 and p256 build-provenance flags: group-build
 ///   sharing (`n16_batch_against_one_case`).
 /// - Staging order (T-11): A's selected diagnostic, then C's unavailable diagnostic, last.
 #[test]
@@ -1956,20 +1956,20 @@ fn b1_sp_w_c2_through_retained_w1_publishes_t12() {
     }
 }
 
-/// The pinned W-C2 successors (PLAN_v2 §2.2, after I3): (name, document sha256, receipt sha256,
+/// The pinned W-C2 successors (after I3): (name, document sha256, receipt sha256,
 /// published bytes' sha256). One pin for every platform: support magnitudes are correctly rounded
 /// norms (`correct_norm`, I109), so the bytes no longer depend on the platform's libm. Dense was
 /// re-pinned by I109 (PR-N): case C's `rigid:N0` support force magnitude is the correctly rounded
 /// 1.6258317075882523e-12, one ulp above macOS libm's `hypot` chain (glibc's value).
-/// K-D5 re-pin (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 5, 6): read from the producer
+/// K-D5 re-pin: read from the producer
 /// at the K-D5 head; against main the successors differ only by the current maximum declaration
 /// literals and fallback enclosures, the two linear limitation sentences, the CHECKS_PASSED base
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 /// W-8 topology warning added; no number moved.
-/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
+/// Model 0.9.0 re-pin (S1): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-/// RT-A4 D3 re-pin (DEL-04-08 §8.46): only `formulation_basis.limitations[6]` (§10.2's sentence) and the publication
+/// RT-A4 D3 re-pin (DEL-04-08 §8.46): only `formulation_basis.limitations[6]` and the publication
 /// and receipt seals binding it moved; restated to the former sentence and resealed by the Python 07e rule, each
 /// regenerated document reproduces its former pins byte for byte.
 const W_C2_PINNED: [(&str, &str, &str, &str); 2] = [
@@ -2031,7 +2031,7 @@ fn b1_sp_w_c2_direct_entry_publishes_the_pinned_successor() {
 }
 
 /// n05's formerly source-block request with a second case (a copy of its one case, `case-2`, its
-/// load id suffixed `:2`; PLAN_v2 §2.2, N-5; decision 26, RV107 A1-N-7).
+/// load id suffixed `:2`; N-5; decision 26, RV107 A1-N-7).
 fn n05_two_cases() -> Value {
     let mut raw: Value = serde_json::from_str(include_str!("../../../fixtures/product_preview/w1_controls/n05-sparse_interactive.request.json")).unwrap();
     let mut second = raw["model"]["load_cases"][0].clone();
@@ -2267,7 +2267,7 @@ fn b1_sp_first_g_b_refusal_stands_and_stops_later_late_hooks() {
     }
 }
 
-/// D-U6-5 (PLAN_v2 §2.2, after I3): the two W-C2 fixtures are byte-identical copies of the pinned
+/// D-U6-5 (after I3): the two W-C2 fixtures are byte-identical copies of the pinned
 /// W-C2 successor documents. In the registered build each is compared byte for byte with the
 /// document the actual Direct entry publishes; in any other build (no permit), with the private
 /// driver's successor document. Either way the fixture carries the pinned hashes.
@@ -2315,15 +2315,15 @@ fn w_c2_plus_a2(ids: &[&str]) -> Value {
     raw
 }
 /// The pinned successors of RV109's SF-2 inputs: (mode, receipt sha256, successor bytes sha256).
-/// K-D5 re-pin (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 5, 6): read from the producer
+/// K-D5 re-pin: read from the producer
 /// at the K-D5 head; against main the successors differ only by the current maximum declaration
 /// literals and fallback enclosures, the two linear limitation sentences, the CHECKS_PASSED base
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 /// W-8 topology warning added; no number moved.
-/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
+/// Model 0.9.0 re-pin (S1): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-/// RT-A4 D3 re-pin (DEL-04-08 §8.46): only `formulation_basis.limitations[6]` (§10.2's sentence) and the publication
+/// RT-A4 D3 re-pin (DEL-04-08 §8.46): only `formulation_basis.limitations[6]` and the publication
 /// and receipt seals binding it moved; restated to the former sentence and resealed by the Python 07e rule, each
 /// regenerated document reproduces its former pins byte for byte.
 const CBA_PINNED: [(&str, &str, &str); 2] = [
@@ -2331,15 +2331,15 @@ const CBA_PINNED: [(&str, &str, &str); 2] = [
     // Re-pinned by I109 (PR-N): W-C2 case C's correctly rounded `rigid:N0` magnitude; every platform.
     ("dense_scrutiny", "dc8ab16458d05e00a802308765068e8c6cb64a709a708c500cc007e12f6b6327", "306398a2ff5a4a57aac62c1a813daf7d2694fbed1244b51ef35bfa733f03ef79"),
 ];
-/// K-D5 re-pin (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 5, 6): read from the producer
+/// K-D5 re-pin: read from the producer
 /// at the K-D5 head; against main the successors differ only by the current maximum declaration
 /// literals and fallback enclosures, the two linear limitation sentences, the CHECKS_PASSED base
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 /// W-8 topology warning added; no number moved.
-/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
+/// Model 0.9.0 re-pin (S1): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-/// RT-A4 D3 re-pin (DEL-04-08 §8.46): only `formulation_basis.limitations[6]` (§10.2's sentence) and the publication
+/// RT-A4 D3 re-pin (DEL-04-08 §8.46): only `formulation_basis.limitations[6]` and the publication
 /// and receipt seals binding it moved; restated to the former sentence and resealed by the Python 07e rule, each
 /// regenerated document reproduces its former pins byte for byte.
 const AA2_PINNED: [(&str, &str, &str); 2] = [
@@ -2430,7 +2430,7 @@ fn b1_sp_sf2_selected_not_first_and_two_selected_pins() {
     }
 }
 
-/// I98's `cause_milestone_reversed` (R/I98/b2_w_probe_01/PROBE.md §7): the milestone with its
+/// I98's `cause_milestone_reversed`: the milestone with its
 /// three moments authored RZ, RY, RX, so its authored order is not the kernel's canonical order.
 fn milestone_reversed() -> Value {
     let mut raw = raw();
@@ -2438,14 +2438,14 @@ fn milestone_reversed() -> Value {
     raw
 }
 /// Its pinned successor: (mode, receipt sha256, published bytes sha256).
-/// K-D5 re-pin (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 5, 6): read from the producer
+/// K-D5 re-pin: read from the producer
 /// at the K-D5 head; against main the successors differ only by the current maximum declaration
 /// literals and fallback enclosures, the two linear limitation sentences, the CHECKS_PASSED base
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
-/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
+/// Model 0.9.0 re-pin (S1): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-/// RT-A4 D3 re-pin (DEL-04-08 §8.46): only `formulation_basis.limitations[6]` (§10.2's sentence) and the publication
+/// RT-A4 D3 re-pin (DEL-04-08 §8.46): only `formulation_basis.limitations[6]` and the publication
 /// and receipt seals binding it moved; restated to the former sentence and resealed by the Python 07e rule, each
 /// regenerated document reproduces its former pins byte for byte.
 const REVERSED_PINNED: [(&str, &str, &str); 2] = [
@@ -2549,7 +2549,7 @@ fn model_of(raw: &Value) -> PreviewModel {
     source_receipt::CapturedInvocation::parse(raw.clone(), PreviewSolverMode::SparseInteractive).unwrap().0.model
 }
 
-/// The witnesses are B3-W's (I99 §2: the Value sha256 of each built input; the committed
+/// The witnesses are B3-W's (the Value sha256 of each built input; the committed
 /// requests' file sha256), and P-1's route is decided from the namespace branch: L on the
 /// preview route, E on the exact route, a load-state or 0.4.0 model, and B3a's dropped `m3l`, on
 /// none.
@@ -2594,7 +2594,7 @@ fn b3b_witness_inputs_and_routes() {
 /// validates every `physics-retained-1` successor the tests below produce.
 /// The exact successor's pinned bytes, both modes: (mode, receipt sha256, successor bytes sha256,
 /// fixture document sha256).
-/// K-D5 re-pin (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 5, 6): read from the producer
+/// K-D5 re-pin: read from the producer
 /// at the K-D5 head; against main the successors differ only by the current maximum declaration
 /// literals and fallback enclosures, the two linear limitation sentences, the CHECKS_PASSED base
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
@@ -2605,23 +2605,23 @@ fn b3b_witness_inputs_and_routes() {
 /// counter that follows the compared profile text, and the hashes that bind them changed
 /// (B7b evidence `w1/evidence-exact-successors.txt`); every physical and certificate value is
 /// bit-identical.
-/// T4-U6 re-pin (D-5, DEL-05-03 Design §2.6), read from the producer through the private
+/// T4-U6 re-pin (D-5), read from the producer through the private
 /// driver: the reduced stress twins, basis tokens and id segments, per-basis headlines, extrema
 /// and coverage, the D-5 section evidence and limitations, and the hashes that bind them.
-/// O4 re-pin (DEL-04-08 Design `o4-source-extension.md` §4.8, §4.9; the E14 precedent): read from
+/// O4 re-pin (the E14 precedent): read from
 /// the producer through the private driver; only DEF-E's H moved, so against the T4-U6 bytes only
 /// the preparation hash, the source identity and the receipt hash differ.
-/// O4 limitation re-pin (§3.3, §4.9): the pressure-2 base's limitation [7] restated; against
+/// O4 limitation re-pin: the pressure-2 base's limitation [7] restated; against
 /// the DEF-E re-pin only that string and the hashes that bind it differ
 /// (`o4_text_only_envelope_diff`).
 // W-15 (DEL-03-05): re-pinned for the pressure-2 identity limitation (identity bytes only).
 // W-16 slice b (DEL-05-02): re-pinned again for the pressure-2 identity limitation (identity bytes only).
 // RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only).
-/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
+/// Model 0.9.0 re-pin (S1): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 /// RT-A3 increment 3 (identity and, after review, S7): read from the producer; independently, restating the
 /// two texts back and resealing with the Python 07e rule reproduces #96's pins byte for byte (DEL-04-08
-/// `retained-pricing-rules.md` §8.44, "Preservation of the in-memory successors").
+/// §8.44).
 /// RT-A3 increment 4 (S1's nonlinear clause and S7; §8.49): read from the producer on the registered build; restating
 /// both texts to main aa794eb68's and resealing with the Python 07e rule reproduces main's pins byte for byte.
 /// RT-A3 S6 (S1's nonlinear clause: admitted beside objective connectors and on load/reference-state documents;
@@ -2641,16 +2641,16 @@ const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
 /// T4-U6 re-pin (D-5): read from the producer through the private driver, on the same D-5
 /// classes as `EXACT_PINNED`'s T4-U6 re-pin.
 /// O4 re-pin (E14 precedent): only DEF-E's H moved; read from the producer through the private driver.
-/// O4 limitation re-pin (§3.3, §4.9): the pressure-2 base's limitation [7] and the hashes that bind
+/// O4 limitation re-pin: the pressure-2 base's limitation [7] and the hashes that bind
 /// it moved (with the old text these pins reproduce); read from this test's writer line.
 // W-15 (DEL-03-05) on W-7: re-pinned for the pressure-2 identity limitation (identity bytes only).
 // W-16 slice b (DEL-05-02): re-pinned again for the pressure-2 identity limitation (identity bytes only).
 // RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only).
-/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
+/// Model 0.9.0 re-pin (S1): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 /// RT-A3 increment 3 (identity and, after review, S7): read from the producer; independently, restating the
 /// two texts back and resealing with the Python 07e rule reproduces #96's pins byte for byte (DEL-04-08
-/// `retained-pricing-rules.md` §8.44, "Preservation of the in-memory successors").
+/// §8.44).
 /// RT-A3 increment 4 (S1's nonlinear clause and S7; §8.49): read from the producer on the registered build; restating
 /// both texts to main aa794eb68's and resealing with the Python 07e rule reproduces main's pins byte for byte.
 /// RT-A3 S6 (S1's nonlinear clause: admitted beside objective connectors and on load/reference-state documents;
@@ -2685,11 +2685,11 @@ fn exact_outcome(label: &str, retained: &Result<RetainedSuccessor, W1Fallback>, 
         Err(other) => panic!("{label}: B3's RS reader validates the exact successor: {other:?}"),
     }
 }
-/// RN64(E/(2·RN64(1+ν))) (B3-D §1.2).
+/// RN64(E/(2·RN64(1+ν))).
 fn derived_g(e: f64, nu: f64) -> f64 { e / (2.0 * (1.0 + nu)) }
 fn hex_bits(v: &Value) -> u64 { u64::from_str_radix(v.as_str().unwrap(), 16).unwrap() }
 fn num_bits(v: &Value) -> u64 { v.as_f64().unwrap().to_bits() }
-/// C3 §2's preparation payload of a product attempt, with the definition hash `h` (built here
+/// preparation payload of a product attempt, with the definition hash `h` (built here
 /// from the receipt, independently of the serializer).
 fn preparation_hash(attempt: &Value, h: &str) -> String {
     let members: Vec<Value> = attempt["preparation"]["members"].as_array().unwrap().iter().map(|m| json!({
@@ -2766,7 +2766,7 @@ fn assert_exact_successor(label: &str, successor: &Value, plain: &Value, statuse
         let attempt = &body["product_attempts"][case["product_attempt_ref"].as_u64().unwrap() as usize];
         let (sections, old) = (now["pipe_sections"].as_array().unwrap(), was["pipe_sections"].as_array().unwrap());
         assert_eq!(sections.len(), old.len(), "{label}");
-        // D-5 (DEL-05-03 Design §2.3, §2.5): W1-E's one section (its admitted documents have
+        // W1-E's one section (its admitted documents have
         // coincident bases) is written to both nested sections, nominal and reduced.
         const BASES: [&str; 2] = ["nominal_section", "reduced_section"];
         for (s, o) in sections.iter().zip(old) {
@@ -2812,7 +2812,7 @@ fn assert_exact_successor(label: &str, successor: &Value, plain: &Value, statuse
             let (lo, hi) = (x["value_lower_pa"].as_f64().unwrap(), x["value_upper_pa"].as_f64().unwrap());
             assert_eq!(row["value"].as_f64().unwrap().to_bits(), (lo + 0.5 * (hi - lo)).to_bits(), "{label} {id}: the maximum is the midpoint");
         }
-        // The rows (C1 §4) and diagnostics (G-a; T1 (a), P-11).
+        // The rows and diagnostics (G-a; T1 (a), P-11).
         assert!(successor["results"].as_array().unwrap().iter().filter(|r| r["basis_ref"]["ref_id"] == id)
             .all(|r| r["recovery_method"] == json!(wire::METHOD)), "{label} {id}");
         let diagnostics = successor["diagnostics"].as_array().unwrap();
@@ -2825,7 +2825,7 @@ fn assert_exact_successor(label: &str, successor: &Value, plain: &Value, statuse
 const PREPARED_MAX_KEYS_TEST: [&str; 8] = ["station_fraction", "span_index", "local_fraction", "value_lower_pa", "value_upper_pa",
     "global_upper_bound_pa", "certified_gap_pa", "subdivisions"];
 
-/// B3b-P's exact successor (P-13; B3-D §5 and REVISION_01): `m3x` in both modes, through the
+/// B3b-P's exact successor (P-13): `m3x` in both modes, through the
 /// private driver. Its one case is `selected` (native Selected, the dual-readout certificate, the
 /// observables and G5a pass), and the successor precommit receives meets B3-D's requirements and
 /// is pinned; the ordinary owner is untouched. Today RS refuses it at G0 (no reader yet), so W1
@@ -2844,7 +2844,7 @@ fn b3b_exact_successor_is_pinned_in_both_modes() {
         let successor = captured.unwrap_or_else(|| panic!("{name}: {retained:?}"));
         exact_outcome(name, &retained, &successor, &envelope, &plain, &["case"]);
         assert_exact_successor(name, &successor, &plain_value, &["selected"]);
-        // T4-U6 (D-5 §2.1, §2.5): the 98 current rows after E14's observation retirement, plus
+        // the 98 current rows after E14's observation retirement, plus
         // the reduced twin of each of the member's 21 stress rows (20 element-local stress rows
         // and its maximum); T4-U4b (U4B-RP): σ⁺, σ⁻ and τ_v,max at five stations on both bases
         // (30 derived not-covered rows, 15 of them on the reduced basis); W-7: the member's 12
@@ -2934,7 +2934,7 @@ fn n11_base_readers_accept(raw: &Value, mode: PreviewSolverMode, plain: &[u8], n
     }
 }
 
-/// N-11 (B3-D REVISION_01 §9): an exact invocation whose W1 ran and was abandoned after W1 work
+/// N-11: an exact invocation whose W1 ran and was abandoned after W1 work
 /// started (a serializer refusal with C1:68's detail, an evidence-overlay staging fault, a
 /// precommit corruption) publishes the ordinary physics-1 envelope byte for byte, plus `case`'s N1
 /// notice (the detail only on the serializer's), which physics-1's Rust base readers accept with
@@ -3015,7 +3015,7 @@ fn b3b_coexistence_publishes_the_exact_ordinary_bytes_under_p2() {
     }
 }
 
-/// Pre-0.4 failure unification (DEL-04-08 Design `pre04-failure-unification.md` §2.2): on the
+/// Pre-0.4 failure unification: on the
 /// Direct entry a selected source that cannot finalize republishes the invocation as the shared
 /// route does, on the same budget, and W1 does not start (`Coexistence`, REQ-003 (a)). The input is
 /// the invented O4 declared-problem document PEXACT-A (phi = 2 exactly, r = 1e-8, Timoshenko, no
@@ -3249,12 +3249,12 @@ fn b3b_refused_exact_requests_take_the_ordinary_route() {
     }
 }
 
-// ---- O4 (DEL-04-08 Design `o4-source-extension.md` §4.1, §4.2, §4.5, §4.6, §6): W1-E's admitted
+// ---- W1-E's admitted
 // Timoshenko and dual-basis documents ----
 //
 // The controls are m3x with N1 at (2, 4, 4) and a D = 0.4 m, t = 0.02 m section (moments only, control A), or with a
-// 0.01 N global-X tip force added (control B, which publishes on the Timoshenko documents only). They were chosen,
-// as §8's coupling rule 2 asks, where the receipt's native body scales and the final rows agree: m3x itself in its
+// 0.01 N global-X tip force added (control B, which publishes on the Timoshenko documents only). They were chosen
+// where the receipt's native body scales and the final rows agree: m3x itself in its
 // Timoshenko form withdrew at G5b SCALE_MISMATCH before the W1 repair's second corner landed; it now publishes
 // (`o4_w1e_m3x_timoshenko_publishes_with_the_gate_scales`).
 // No row here is near phi = 2, and no test asserts a row's relative class.
@@ -3317,7 +3317,7 @@ fn o4_universe(successor: &Value) -> Vec<String> {
     }).map(|r| r["id"].as_str().unwrap().to_owned()).collect()
 }
 
-/// O4 §4.1, §4.2, §6 (replaces `o4_w1e_declines_at_admission`): G-A admits a Timoshenko document on branch E (no
+/// (replaces `o4_w1e_declines_at_admission`): G-A admits a Timoshenko document on branch E (no
 /// `ShearModel` fact), the case is selected and published, in both modes. Every section term, in both shapes, carries
 /// the prepared shear-area leaf A_s,prep = RN(κ̂·A_prep), κ̂ the evidence's factor and A_prep the prepared nominal
 /// area; the evidence states that leaf; and the source's K4SRC and K4STF carry the Timoshenko block, so their hashes
@@ -3352,7 +3352,7 @@ fn o4_w1e_timoshenko_case_is_admitted_and_selected() {
     }
 }
 
-/// O4 §4.1, §4.5 (replaces the `SectionAllowance` decline): a nonzero corrosion allowance, a nonzero mill tolerance and
+/// (replaces the `SectionAllowance` decline): a nonzero corrosion allowance, a nonzero mill tolerance and
 /// both, on Euler–Bernoulli and Timoshenko documents, are inside D1, selected and published in both modes; each
 /// member's source term carries `reduced` on the wall t_r = (t − c_m) − c_a, and its preparation record the reduced run.
 #[test]
@@ -3376,7 +3376,7 @@ fn o4_w1e_dual_basis_case_is_admitted() {
     }
 }
 
-/// O4 §2, §4.5: stiffness uses the nominal wall t. A dual-basis document's kernel source (K4STF and K4SRC, the
+/// stiffness uses the nominal wall t. A dual-basis document's kernel source (K4STF and K4SRC, the
 /// members' A, I, J), its nodal displacements and its nominal stress rows are bit-identical to its zero-allowance twin's;
 /// only the reduced section, its rows and the request differ.
 #[test]
@@ -3397,7 +3397,7 @@ fn o4_w1e_stiffness_uses_the_nominal_wall() {
     }
 }
 
-/// O4 §4.5: where the two sections differ, each reduced stress and maximum row is certified on the reduced section as
+/// where the two sections differ, each reduced stress and maximum row is certified on the reduced section as
 /// a receipt row (in the universe, with its own class and value), not overlaid: its value differs from its nominal
 /// twin's by the section ratio (the same resultant over its own A, Z or J), and its maximum record is formed on the
 /// reduced section.
@@ -3430,7 +3430,7 @@ fn o4_w1e_distinct_bases_certify_reduced_rows() {
     }
 }
 
-/// O4 §4.5: where the walls agree (an allowance that rounds away, c_a = 2^-80·t), the sections are one, the twin keeps
+/// where the walls agree (an allowance that rounds away, c_a = 2^-80·t), the sections are one, the twin keeps
 /// today's overlay: no `reduced` key, the reduced rows outside the universe, carrying their nominal twins' values.
 #[test]
 fn o4_w1e_bit_equal_bases_keep_the_overlay() {
@@ -3451,7 +3451,7 @@ fn o4_w1e_bit_equal_bases_keep_the_overlay() {
     }
 }
 
-/// O4 §4.5 (`o4_overlay_equality_includes_the_wall`): the overlay rule compares {As, Z, I, J, wall}. With t = 0.1 m
+/// (`o4_overlay_equality_includes_the_wall`): the overlay rule compares {As, Z, I, J, wall}. With t = 0.1 m
 /// on D = 0.4 m and c_a = t − pred(t), the reduced wall is the predecessor of t while the prepared A, Z, I and J round
 /// equal, so the annular lane's annuli still differ: the member has a reduced section and its reduced rows are
 /// certified, not overlaid.
@@ -3476,7 +3476,7 @@ fn o4_overlay_equality_includes_the_wall() {
     }
 }
 
-/// O4 §4.2 (`prepared_shear_area_follows_the_prepared_area`): at D = 0.168 m, t = 0.007 m, ν = 0.3 the ordinary leaf
+/// (`prepared_shear_area_follows_the_prepared_area`): at D = 0.168 m, t = 0.007 m, ν = 0.3 the ordinary leaf
 /// RN(κ̂·A_ordinary) and the prepared leaf RN(κ̂·A_prep) differ. The producer's sidecar takes the prepared leaf, its
 /// association records both, and the published evidence states it; the pressure-2 base reader's beam-theory check (G7)
 /// accepts the prepared leaf with the prepared nominal area and refuses the ordinary one.
@@ -3511,7 +3511,7 @@ fn prepared_shear_area_follows_the_prepared_area() {
     assert_eq!(sb::beam_theory(&sb::section(&entry).unwrap(), nu, false), Err("SOURCE_PHYSICS_SHEAR_FACTOR".into()), "G7 refuses the ordinary leaf");
 }
 
-/// O4 §4.5 (U4b's derived rows on route E): on a distinct-basis member, σ⁺/σ⁻ of the reduced basis are
+/// (U4b's derived rows on route E): on a distinct-basis member, σ⁺/σ⁻ of the reduced basis are
 /// `normal_stress_extremes` of the reduced stress rows of the same station, and τ_v,max of the reduced basis uses c_b
 /// from the reduced annulus (r_i = D/2 − t_r, Î_r) with the shear rows, not the nominal annulus; the case selects (the
 /// "derived operand identity" refusal is not reached). Control B (Timoshenko, with a tip force) has nonzero shear.
@@ -3549,7 +3549,7 @@ fn o4_w1e_reduced_derived_rows_use_their_own_basis() {
     }
 }
 
-/// O4 §4.5 (`o4_w1e_twin_predicate_is_per_member`): a mixed document (RV123's two-member m3x, M2 with a 1 mm
+/// (`o4_w1e_twin_predicate_is_per_member`): a mixed document (RV123's two-member m3x, M2 with a 1 mm
 /// allowance, M1 with none). The case selects; M2's reduced rows are receipt rows and M1's reduced twins keep their
 /// overlay; every bound not-covered row's kernel recipe index is its own bound position (the index the kernel's
 /// `complete_not_covered` checks). Each consumer site's metadata-only mutant fails closed (recorded with the PR).
@@ -3675,7 +3675,7 @@ fn two_member_exact(reversed: bool) -> Value {
     raw
 }
 /// RV123 S-1's pins: (members reversed, mode, sha256 of the successor's bytes).
-/// K-D5 re-pin (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 5, 6): read from the producer
+/// K-D5 re-pin: read from the producer
 /// at the K-D5 head; against main the successors differ only by the current maximum declaration
 /// literals and fallback enclosures, the two linear limitation sentences, the CHECKS_PASSED base
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
@@ -3687,16 +3687,16 @@ fn two_member_exact(reversed: bool) -> Value {
 /// T4-U6 re-pin (D-5): read from the producer through the private driver, on the same D-5
 /// classes as `EXACT_PINNED`'s T4-U6 re-pin.
 /// O4 re-pin (E14 precedent): only DEF-E's H moved; read from the producer through the private driver.
-/// O4 limitation re-pin (§3.3, §4.9): the pressure-2 base's limitation [7] and the hashes that bind
+/// O4 limitation re-pin: the pressure-2 base's limitation [7] and the hashes that bind
 /// it moved (with the old text these pins reproduce); read from this test's writer line.
 // W-15 (DEL-03-05): re-pinned for the pressure-2 identity limitation (identity bytes only).
 // W-16 slice b (DEL-05-02): re-pinned again for the pressure-2 identity limitation (identity bytes only).
 // RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only).
-/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
+/// Model 0.9.0 re-pin (S1): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 /// RT-A3 increment 3 (identity and, after review, S7): read from the producer; independently, restating the
 /// two texts back and resealing with the Python 07e rule reproduces #96's pins byte for byte (DEL-04-08
-/// `retained-pricing-rules.md` §8.44, "Preservation of the in-memory successors").
+/// §8.44).
 /// RT-A3 increment 4 (S1's nonlinear clause and S7; §8.49): read from the producer on the registered build; restating
 /// both texts to main aa794eb68's and resealing with the Python 07e rule reproduces main's pins byte for byte.
 /// RT-A3 S6 (S1's nonlinear clause: admitted beside objective connectors and on load/reference-state documents;
@@ -3726,7 +3726,7 @@ fn b3b_rv123_s1_two_member_exact_overlays_each_member() {
             assert_exact_successor(&label, &successor, &plain_value, &["selected"]);
             let section = |e: &Value| e["exact_cases"][0]["pipe_sections"].as_array().unwrap().iter().find(|s| s["pipe_id"] == "M2").unwrap().clone();
             let (now, was) = (section(&successor["contract_evidence"]), section(&plain_value["contract_evidence"]));
-            // D-5: the prepared section is written to both nested sections (Design §2.3).
+            // D-5: the prepared section is written to both nested sections.
             for basis in ["nominal_section", "reduced_section"] {
                 assert!(["As_m2", "I_m4", "J_m4", "Z_m3"].iter().any(|k| num_bits(&now[basis][*k]) != num_bits(&was[basis][*k])),
                     "{label}: M2's prepared {basis} is not its source annulus's");
@@ -3746,23 +3746,23 @@ fn b3b_rv123_s1_two_member_exact_overlays_each_member() {
 /// same route and value classes as `EXACT_PINNED`.
 /// T4-U6 re-pin (D-5): read from the producer through the private driver, on the same D-5
 /// classes as `EXACT_PINNED`'s T4-U6 re-pin.
-/// RF re-pin (DEL-04-08 `rf-source-method-extension.md` §5.5, §9): read from this test's
+/// RF re-pin: read from this test's
 /// writer line. The W1 route-E successor's case-2 source decline now reaches the exact
 /// context as a congruence member: its first cause is `UnsupportedBlock { order: 9 }` in place
 /// of "actual transform is not a signed permutation", with its work. That diagnostic message
 /// and the two hashes binding it (`publication_sha256`, `receipt_sha256`) are the only
 /// changed leaves, in both modes.
 /// O4 re-pin (E14 precedent): only DEF-E's H moved; read from the producer through the private driver.
-/// O4 limitation re-pin (§3.3, §4.9): the pressure-2 base's limitation [7] and the hashes that bind
+/// O4 limitation re-pin: the pressure-2 base's limitation [7] and the hashes that bind
 /// it moved (with the old text these pins reproduce); read from this test's writer line.
 // W-15 (DEL-03-05) on W-7: re-pinned for the pressure-2 identity limitation (identity bytes only).
 // W-16 slice b (DEL-05-02): re-pinned again for the pressure-2 identity limitation (identity bytes only).
 // RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only).
-/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
+/// Model 0.9.0 re-pin (S1): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 /// RT-A3 increment 3 (identity and, after review, S7): read from the producer; independently, restating the
 /// two texts back and resealing with the Python 07e rule reproduces #96's pins byte for byte (DEL-04-08
-/// `retained-pricing-rules.md` §8.44, "Preservation of the in-memory successors").
+/// §8.44).
 /// RT-A3 increment 4 (S1's nonlinear clause and S7; §8.49): read from the producer on the registered build; restating
 /// both texts to main aa794eb68's and resealing with the Python 07e rule reproduces main's pins byte for byte.
 /// RT-A3 S6 (S1's nonlinear clause: admitted beside objective connectors and on load/reference-state documents;
@@ -3876,7 +3876,7 @@ fn b2w_combination(a: &str, b: &str, factor: f64, label: &str) -> Value {
     json!({"id": "combination:ab", "label": label, "basis": "mechanics",
         "terms": [{"load_case": a, "factor": 1.0}, {"load_case": b, "factor": factor}], "provenance": B2W})
 }
-/// W-CB3 (I98 `r7_cb3_v1`; REVISION_01 §5.1): the L = 0 base, case A its milestone moments,
+/// W-CB3 (I98 `r7_cb3_v1`): the L = 0 base, case A its milestone moments,
 /// case B a 1 N `global_y` force on the restrained isolated node N2, and A + B.
 fn w_cb3() -> Value {
     let mut raw = u8_l0_isolated_node();
@@ -3896,7 +3896,7 @@ pub(super) fn w_cb2() -> Value {
     raw["model"]["combinations"] = json!([b2w_combination("case:a", "case:b", 1.0, "I98 B2-W R-7 count: A + B")]);
     raw
 }
-/// W-CB3's two cases with one other combination (W-CB4a, W-CB4b, W-CB5; REVISION_01 §5.1).
+/// W-CB3's two cases with one other combination (W-CB4a, W-CB4b, W-CB5).
 fn w_cb3_with(combination: Value) -> Value {
     let mut raw = w_cb3();
     raw["model"]["combinations"] = json!([combination]);
@@ -3915,7 +3915,7 @@ fn w_cb5() -> Value {
     w_cb3_with(json!({"id": "combination:2b", "label": "B2-P W-CB5: 2 B", "basis": "mechanics",
         "terms": [{"load_case": "case:b", "factor": 2.0}], "provenance": B2P}))
 }
-/// `b2_c1_range_mechanics` (REVISION_01 §5.1, REVISION_02 A-3): the milestone (c = 1) with
+/// `b2_c1_range_mechanics` (REVISION_02 A-3): the milestone (c = 1) with
 /// `[range(case), 2·case]`, in that order (z = 2, C_eq = 3): S-2's layout.
 pub(super) fn b2_c1_range_mechanics() -> Value {
     let mut raw = raw();
@@ -3925,7 +3925,7 @@ pub(super) fn b2_c1_range_mechanics() -> Value {
     raw
 }
 
-/// B2-P (B2-C §2.3–§2.6; REVISION_01 §5.1): each producer-solved witness through the private
+/// B2-P: each producer-solved witness through the private
 /// driver, both modes: its combinations' dispositions and its cases' statuses in the successor
 /// precommit receives. W-CB3: `retained_selected` with one operand preparation; W-CB2:
 /// `retained_unavailable` (`combination_unresolved`, phase `kernel`); W-CB4a, W-CB4b and W-CB5:
@@ -3990,7 +3990,7 @@ fn b2p_successor(raw: &Value, mode: PreviewSolverMode) -> (Result<RetainedSucces
     (retained, successor)
 }
 
-/// B2-P's hooks and failure set (B2-C §2.6; C3a-6; REVISION_01 C-4), each one combination's own
+/// B2-P's hooks and failure set (C3a-6), each one combination's own
 /// outcome, never an abandonment, in both modes:
 /// - an operand preparation refused (`fail_operand_preparation`): W-CB3's combination is
 ///   `retained_unavailable`, `operand_preparation_failure`, with no Call; the record is refused,
@@ -4172,7 +4172,7 @@ fn assert_duplicate_term_refused(envelope: &Value, combination: &str, label: &st
     assert_eq!((&refusal["severity"], &refusal["affected_refs"][0]), (&json!("blocking"), &json!(combination)), "{label}");
 }
 
-/// B2-P (REVISION_01 §1.2; DEF-C r2 `stages.observables`): the combination observables stage on
+/// B2-P (DEF-C r2 `stages.observables`): the combination observables stage on
 /// W-CB3's ordinary combination block (its values pass the guard, as the ordinary route forms
 /// them), and each check refusing one tamper.
 #[test]
@@ -4217,7 +4217,7 @@ fn b2p_combination_observables_stage() {
     prepared.capture.native_invocation = None;
 }
 
-/// B2-P (B2-C §2.7): a combination's expression from the invocation: a range's operand ids are
+/// B2-P: a combination's expression from the invocation: a range's operand ids are
 /// sorted as the producer sorts them (UTF-8 byte order), whatever their authored order; a
 /// subtraction keeps minuend then subtrahend; mechanics terms keep their authored order and their
 /// factors' bits.
@@ -4444,10 +4444,10 @@ fn b2p_dispositions(name: &str) -> &'static [&'static str] {
         _ => &["retained_selected"],
     }
 }
-/// B2-P's witness pins (PLAN §1.2.6; REVISION_01 §5.1), both modes: (witness, mode, receipt
+/// B2-P's witness pins (PLAN §1.2.6), both modes: (witness, mode, receipt
 /// sha256, sha256 of the successor's bytes), from the private driver's successor that precommit
 /// receives.
-/// K-D5 re-pin (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 5, 6): read from the producer
+/// K-D5 re-pin: read from the producer
 /// at the K-D5 head; against main the successors differ only by the current maximum declaration
 /// literals and fallback enclosures, the two linear limitation sentences, the CHECKS_PASSED base
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
@@ -4456,12 +4456,12 @@ fn b2p_dispositions(name: &str) -> &'static [&'static str] {
 /// Silent-drop guard re-pin (2026-10-23): W-CB1's and W-CB1z's request carries its depth-16 value
 /// on the declared `diagnostics` member instead of an unknown root member (`sw_stressed`), so
 /// their four rows moved with the request-bound hashes only (scratch structural proof).
-/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
+/// Model 0.9.0 re-pin (S1): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-/// RT-A4 D3 re-pin (DEL-04-08 §8.46): only `formulation_basis.limitations[6]` (§10.2's sentence) and the publication
+/// RT-A4 D3 re-pin (DEL-04-08 §8.46): only `formulation_basis.limitations[6]` and the publication
 /// and receipt seals binding it moved; restated to the former sentence and resealed by the Python 07e rule, each
 /// regenerated document reproduces its former pins byte for byte.
-/// RT-A3 §4 D3 re-pin (DEL-04-08 §8.53): on the registered build the W1 freeze admits the certificate's member, so
+/// D3 re-pin (DEL-04-08 §8.53): on the registered build the W1 freeze admits the certificate's member, so
 /// each successor carries the ordinary run's combination_certificate and its notice (ids also in the receipt's
 /// refs), and each product attempt's or operand preparation's adapter counts rise by k times the three-key freeze
 /// (RowVisit +1, ValidationEntry +3, IdentityByteRead +46, KeyProbe +3). Removing those, restoring the counts for one
@@ -4571,7 +4571,7 @@ fn b2p_constants_bound_to_in_tree_fixtures() {
     assert!(table["product_formation_definitions"].as_array().unwrap().contains(&json!({"id": wire::COMBINATION_DEFINITION_ID, "sha256": h})));
 }
 
-/// B2-P's producer requirements on one witness successor (B2-C §2.5–§2.7, §4, C3a; REVISION_01),
+/// B2-P's producer requirements on one witness successor,
 /// against its ordinary envelope `plain`:
 /// - `combinations[]` one entry per model combination, in authored order, with its basis, its
 ///   rows in publication order and its expression; R-COMB-1's producer side: an `ordinary` or
@@ -4616,7 +4616,7 @@ fn assert_combination_successor(label: &str, successor: &Value, plain: &Value) {
         let row = successor["results"].as_array().unwrap().iter().find(|x| &x["id"] == r).unwrap();
         assert_eq!(row["basis_ref"]["ref_type"], json!("load_case"), "{label}: {headline}");
     }
-    // The meter chain and the Runs (B2-C §2.7): calls[0] is the batch; each later Call's before is
+    // The meter chain and the Runs: calls[0] is the batch; each later Call's before is
     // the previous Call's after; charged is the last Call's after.
     let calls = body["calls"].as_array().unwrap();
     assert_eq!(calls[0]["kind"], json!("case_batch"), "{label}");
@@ -4841,7 +4841,7 @@ fn b2p_d14_predicate_at_its_caps() {
     assert!(!admitted(&["a"], &[("a", 1, 0)]), "ids disjoint (C-9)");
 }
 
-/// B2-P (B2-C §2.7): the serializer refuses a successor whose Calls do not chain the
+/// B2-P: the serializer refuses a successor whose Calls do not chain the
 /// invocation's meter (`break_next_meter_chain`): W1 falls back at the serializer with
 /// `work_counter_inconsistent` (`work.charged`), and publishes the plain bytes plus case A's
 /// notice with that detail. With one Call (z = 0) there is no pair to check: a control.
@@ -4951,7 +4951,7 @@ mod s4_retained_tests;
 #[path = "w1_successor_census_tests.rs"]
 mod w1_successor_census_tests;
 
-/// O4 §8 coupling rule 2 and W1 coverage repair §2.2 (corner 2): m3x's Timoshenko twin, whose
+/// m3x's Timoshenko twin, whose
 /// receipt formerly stated native body scales one ulp from the final rows' (and so withdrew at
 /// G5b SCALE_MISMATCH), now states the scales the product gate used, and publishes in both
 /// modes, read by the unchanged reader. Formerly `o4_w1e_m3x_timoshenko_withdraws_at_the_body_scale_corner`.
@@ -4969,7 +4969,7 @@ fn o4_w1e_m3x_timoshenko_publishes_with_the_gate_scales() {
     }
 }
 
-/// O4 §4.2, §4.5 (`timoshenko_sidecar_preserves_receipt_layouts`, PP side): the sidecars keep every receipt-recorded
+/// (`timoshenko_sidecar_preserves_receipt_layouts`, PP side): the sidecars keep every receipt-recorded
 /// layout. The layouts the adapter records keep their sizes, and the full adapter counters (counts, fault and the
 /// capacity arrays) of every committed route-L and route-E successor equal the live producer's.
 #[test]
@@ -4994,7 +4994,7 @@ fn timoshenko_sidecar_preserves_receipt_layouts() {
     }
 }
 
-/// O4 §4.9 ("New bytes"): the Timoshenko dual-basis route-E control (control B with c_m = 0.5 mm and c_a = 1 mm),
+/// the Timoshenko dual-basis route-E control (control B with c_m = 0.5 mm and c_a = 1 mm),
 /// in both modes, as committed successor documents (D-U6-5's form), byte for byte the live successors. They are the
 /// shared reader corpus's O4 bases. `O4_W1E_OUT=<dir>` writes them.
 #[test]
@@ -5074,7 +5074,7 @@ fn o4_w1e_mixed_request() -> Value {
 /// The O4 fixture's request: control B, Timoshenko, c_m = 0.5 mm and c_a = 1 mm.
 fn o4_w1e_fixture_request() -> Value { o4_control(O4_TIM, 0.001, Some(0.0005), Some(0.01)) }
 
-// ---- W-15 slice b (DEL-04-08 retained-pricing-rules.md §8.22, W15B-NS): the generated self-weight namespace on a
+// ---- W-15 slice b (DEL-04-08 §8.22, W15B-NS): the generated self-weight namespace on a
 // node target ----
 //
 // `self_weight::inspect_applied_self_weight` treats a node-targeted load whose id starts with `load:self-weight:` as
@@ -5191,7 +5191,7 @@ fn w15b_hand_written_nodal_weight_stays_admitted() {
         }
     }
 }
-/// Model document 0.9.0 (DEL-02-01 Design `model-document-0.9.0.md` §3.7, §3.8): a document carrying
+/// Model document 0.9.0: a document carrying
 /// condition sets, spectra or a pipe's `condition_set_ref` is declined at D1.3 on the actual Direct
 /// entry, before any charged work: one ordinary run and no G-C consultation, no W1 and no
 /// successor, and the publication is the ordinary route's bytes. The ordinary route keeps its
@@ -5257,7 +5257,7 @@ fn model_0_9_0_condition_members_are_declined_at_d1_and_take_the_ordinary_route_
         }
     }
 }
-/// PF Timoshenko (DEL-05-03 Design `pf-timoshenko.md` §3): a pressure-free document selecting
+/// PF Timoshenko: a pressure-free document selecting
 /// `timoshenko_annulus_energy_v1` is declined at D1 under `ShearModel`, before any charged work:
 /// no W1 and no successor, and the publication is the ordinary route's bytes, under the
 /// Timoshenko identity. An explicit `euler_bernoulli` document is not declined by it, and exact

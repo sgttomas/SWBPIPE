@@ -1,15 +1,15 @@
-"""Two-way benchmark comparison: SWBPIPE's own results against CAEPIPE's printed results (DEL-17-05 Design §11, RT-V2).
+"""Two-way benchmark comparison: SWBPIPE's own results against CAEPIPE's printed results (RT-V2).
 
 `build_benchmark_record` compares, for every load case the MBF writer mapped and for the operating case, every
 displacement, rotation, element end force and moment, and support load SWBPIPE solved with the value CAEPIPE
 printed, bound through the writer's id maps (nodes, members by `bind_element_rows`, supports by node). No analytic
-value is needed. Each scalar is screened against the RT-V2 §3 screening profile and classified as
+value is needed. Each scalar is screened against the screening profile and classified as
 `within_profile`, `finding`, `unmatched` or `status_mismatch`. A closed-form value the benchmark model carries is
 kept as the third value with its own checks.
 
-The record is built from CAEPIPE output and is private (Design §8): it stays in the exchange folder. It is
+The record is built from CAEPIPE output and is private: it stays in the exchange folder. It is
 screening evidence for Agent 0 and the owner's review of the full record, not validation, compatibility proof,
-code compliance or professional acceptance. The screening profile is a proposal under RT-V2 §3; the owner's review
+code compliance or professional acceptance. The screening profile is a proposal; the owner's review
 of the full record decides, not the profile.
 """
 
@@ -36,7 +36,7 @@ CLASSIFICATIONS = (WITHIN, FINDING, UNMATCHED, STATUS_MISMATCH)
 
 EXACT = "exact"
 NAMED_INEXACT = "named_inexact"
-# RT-V2 §3 screening profile (docs/RELEASE_TARGET_v1.0.md): relative tolerance by class, plus one printed unit of
+# screening profile (docs/RELEASE_TARGET_v1.0.md): relative tolerance by class, plus one printed unit of
 # each result kind as the floor, with scalars below eta of their kind's case maximum judged against that scale.
 SCREENING_PROFILE = {
     "basis": ("RT-V2 section 3 screening profile, proposed by the validation lane; the owner's review of the full "
@@ -260,7 +260,7 @@ def _closed_form_key(entry: Mapping[str, Any], mbf: Mapping[str, Any]) -> Key | 
 # -- record ----------------------------------------------------------------------------------------------------------
 def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result_payload: Mapping[str, Any],
                            mbf_result: Any, mbf_text: str, parsed_caepipe: Mapping[str, Any] | None) -> dict[str, Any]:
-    """The two-way comparison record of one benchmark model (private; Design §8, §11.5)."""
+    """The two-way comparison record of one benchmark model (private)."""
     mbf = mbf_result.to_dict() if hasattr(mbf_result, "to_dict") else dict(mbf_result)
     envelope = swbpipe_result_payload.get("mechanics_envelope", swbpipe_result_payload)
     results = list(envelope.get("results") or [])

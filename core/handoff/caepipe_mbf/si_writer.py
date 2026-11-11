@@ -8,7 +8,7 @@ is refused by name and listed in the loss report, never silently dropped.
 
 SI units scale to the MBF unit by exact powers of ten. US-customary units
 (in, lbf, psi, lbf*in, lbf*ft, lbf/in, degF, 1/degF) are normalized to the SI
-profile by their exact definitions (Design `caepipe-mbf-import.md` §5.2, O-2),
+profile by their exact definitions,
 and the result lists the factors (`MBF-SI-UNITS-NORMALIZED`). Every other unit
 is refused. The other non-decimal conversions are stated in the result's
 `assumptions` (radians to degrees, weight per length to weight density by
@@ -35,7 +35,7 @@ MBF_SI_PROFILE_ID = "caepipe-mbf-si-pilot-1"
 STANDARD_GRAVITY = 9.80665  # m/s^2; converts SWBPIPE weight per length to CAEPIPE weight density only.
 
 MBF_VERSION = "15.10"
-# The retired model document versions, refused by name (DEL-02-01 Design model-document-0.8.0.md §3.1); the
+# The retired model document versions, refused by name; the
 # current one is the schema's (`current_model_schema_version`).
 RETIRED_MODEL_VERSIONS = ("0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0", "0.8.0")
 # The target tool's labels for the load cases the writer requests.
@@ -70,7 +70,7 @@ _EXPANSION_TO_PER_C = {"1/K": 0, "1/degC": 0}
 _TEMPERATURE_INTERVAL_TO_C = {"K": 0, "degC": 0, "C": 0}
 _ROTATION_TO_DEG = {"rad": "rad", "deg": 0}
 _DIMENSIONLESS = {"1": 0, "none": 0}
-# Exact definitional normalization of US-customary units to the SI profile (Design §5.2, O-2): 1 in = 25.4 mm,
+# Exact definitional normalization of US-customary units to the SI profile: 1 in = 25.4 mm,
 # 1 lb = 0.45359237 kg, 1 kgf = 9.80665 N, so 1 lbf = 0.45359237 x 9.80665 N; degF intervals x 5/9.
 INCH_MM = Fraction("25.4")
 POUND_FORCE_N = Fraction("0.45359237") * Fraction("9.80665")
@@ -97,7 +97,7 @@ _STIFFNESS_TO_N_PER_MM: dict[str, int | Fraction] = {"N/m": -3, "N/mm": 0, "kN/m
 _EXPANSION_TO_PER_C["1/degF"] = NORMALIZATION["1/degF"][0]
 _TEMPERATURE_INTERVAL_TO_C["degF"] = NORMALIZATION["degF"][0]
 # Pressure regions become LOADS Pressure 1 in bar (Format of .MBF, LOADS, SI): 1 bar = 1e5 Pa exactly, and psi by
-# its exact definition (Design §9.4).
+# its exact definition.
 _PRESSURE_TO_BAR: dict[str, int | Fraction] = {"Pa": -5, "kPa": -2, "MPa": 1, "bar": 0,
                                                  "psi": NORMALIZATION["psi"][0] * 10}
 PRESSURE_CONTRACT_VERSION = ("3.0.0", "exact_pressure_v3")
@@ -120,7 +120,7 @@ _REGION_CHECK_CODES = ("MBF-IMPORT-PRESSURE-RUN-NONCOLLINEAR", "MBF-IMPORT-PRESS
                        "MBF-IMPORT-PRESSURE-MITRE", "MBF-IMPORT-PRESSURE-GEOMETRY-INVALID")
 _BEND_SOLVER_CONSUMPTION = "curved_bend_macro_element"
 # A realized bend's directional SIF pair, written as the bend comment BSIF(in-plane,out-plane) (Format of .MBF, BSIF);
-# the solve takes both or neither (DEL-04-07 Design `u4b-u5b-implementation.md` §2.6).
+# the solve takes both or neither.
 BEND_SIF_FIELDS = ("sif_in_plane_user_value", "sif_out_of_plane_user_value")
 _BEND_RELATIVE_TOLERANCE = 1e-9  # tangent lengths, line intersection, bend angle and bend plane
 _PROJECT_UNITS = {"length": ("m", "mm", "in"), "force": ("N", "lbf"), "temperature": ("degC", "degF")}
@@ -135,7 +135,7 @@ INVENTED_CERTIFICATION = "invented non-engineering example"
 USER_SUPPLIED_CERTIFICATION = "user-supplied own source"
 MATERIAL_ORIGINS = ("project_invented", "user_supplied")
 
-# The field sweep (Design §17.1). The fields each member's reader writes (to the MBF or the sidecar), checks against
+# The field sweep. The fields each member's reader writes (to the MBF or the sidecar), checks against
 # what is written, or refuses by name; every other non-empty field is listed once, as one omitted loss entry per field.
 _HANDLED_MEMBERS = {"schema_version", "document_kind", "pressure_contract", "project", "materials", "sections",
                     "nodes", "pipe_segments", "supports", "components", "load_cases", "combinations",
@@ -186,13 +186,13 @@ IMPORTED_PROJECT_UNITS = {"length": "mm", "force": "N", "moment": "N*m", "pressu
 
 _TITLE_MAX = 70
 _DESCRIPTION_MAX = 30
-# The writer sidecar's format (Design §15). Format 2 records the effective value of every field, never null or another
+# The writer sidecar's format. Format 2 records the effective value of every field, never null or another
 # sentinel for a default to fill; format 3 is format 2 with its self-digest `sidecar_sha256`; format 4 is format 3
 # with `section_map`, each PIPE record's library section id or null (Format 4: section identities). Format 6, which
 # this writer records for every export, is format 4 plus the top-level `derivation` (the SHA-256 of the canonical model
 # document the writer read and every non-model writer input that can change the bytes) and each bend entry's `node`,
 # the tangent node its source component names (Format 6: derivation and bend nodes). Format 5 is the held Route 1
-# design (§20.4.5): never written, and refused by the importer. A sidecar without `sidecar_format` is a legacy one,
+# design: never written, and refused by the importer. A sidecar without `sidecar_format` is a legacy one,
 # from main's tranche-1 writer.
 SIDECAR_FORMAT = 6
 SIDECAR_DIGEST_KEY = "sidecar_sha256"
@@ -217,7 +217,7 @@ class MbfSiResult:
     layout_row_count: int = 0
     loss_report: list[dict[str, Any]] = field(default_factory=list)
     assumptions: list[str] = field(default_factory=list)
-    # Format 6's `derivation` (Design §15): the source model digest and the export settings; empty when refused. Not
+    # Format 6's `derivation`: the source model digest and the export settings; empty when refused. Not
     # part of to_dict().
     derivation: dict[str, Any] = field(default_factory=dict)
 
@@ -241,7 +241,7 @@ class MbfSiResult:
         }
 
     def sidecar(self, mbf_sha256: str) -> dict[str, Any]:
-        """The writer sidecar of the written text whose SHA-256 is `mbf_sha256` (Design §15), format 6: what a bound
+        """The writer sidecar of the written text whose SHA-256 is `mbf_sha256`, format 6: what a bound
         import restores and the MBF does not carry, each field with its effective value. What the MBF determines
         (layout order, record names, numbers, bend geometry, section values) is not repeated in it; `section_map`
         holds each PIPE record's library section id, or null; each bend entry names its component and the tangent
@@ -308,7 +308,7 @@ def sidecar_canonical_bytes(sidecar: Mapping[str, Any]) -> bytes:
 
 def model_canonical_bytes(model: Any) -> bytes:
     """The RFC 8785 (JCS) canonical bytes of the whole model document `model`, by the same serialisation as
-    sidecar_canonical_bytes (nothing removed): what format 6's `derivation.source_model_sha256` digests (Design §15).
+    sidecar_canonical_bytes (nothing removed): what format 6's `derivation.source_model_sha256` digests.
     A value with no canonical form raises SidecarNotCanonical naming its path in the document."""
     if type(model) is not dict:
         raise SidecarNotCanonical("model", "must be an object")
@@ -361,7 +361,7 @@ def _jcs(document: dict[str, Any]) -> bytes:
 
 
 def sidecar_self_digest(sidecar: Mapping[str, Any]) -> str:
-    """The sidecar's self-digest (Design §15): the lowercase hex SHA-256 of sidecar_canonical_bytes."""
+    """The sidecar's self-digest: the lowercase hex SHA-256 of sidecar_canonical_bytes."""
     return hashlib.sha256(sidecar_canonical_bytes(sidecar)).hexdigest()
 
 
@@ -414,7 +414,7 @@ def _known(value: Any, table: Mapping[str, Any]) -> bool:
 
 
 def documented_orientations(data: bytes) -> dict[tuple[str, str], tuple[float, float, float]] | None:
-    """The importer's documented local y of each straight of `data` (Design §10.5); deferred: the importer imports
+    """The importer's documented local y of each straight of `data`; deferred: the importer imports
     this module."""
     from .importer import documented_orientations as derive
     return derive(data)
@@ -477,7 +477,7 @@ def regenerate_caepipe_sidecar(
     reference_temperature_f: float | None = None,
 ) -> tuple[dict[str, Any] | None, list[dict[str, Any]]]:
     """The sidecar this writer records for `model`, as `render_caepipe_mbf_si` records it, for the importer's
-    regeneration identity (Design §14). Two inputs are not in the model: each straight named in `derived_y_reference`
+    regeneration identity. Two inputs are not in the model: each straight named in `derived_y_reference`
     records its y_reference as derived (`y_reference_authored` false, the model's vector, which the import derived),
     and the export preflight is not run (the import is the caller). Returns (sidecar, []) or (None, the writer's
     error diagnostics)."""
@@ -560,7 +560,7 @@ class _Writer:
     def quantity(self, record: Any, table: Mapping[str, Any], target: str, entity: str, name: str,
                  *, exact: bool = False) -> Any:
         """The quantity in the MBF unit, rounded once to binary64; with `exact`, the unrounded rational (the
-        radians-to-degrees case is rounded once first), so sums round once at the end (Design §18.2)."""
+        radians-to-degrees case is rounded once first), so sums round once at the end."""
         if not isinstance(record, Mapping) or "value" not in record or "unit" not in record:
             self.invalid(entity, f"{entity} {name} must be a {{value, unit}} quantity")
             return None
@@ -692,7 +692,7 @@ class _Writer:
 
     def check_document(self) -> None:
         version = self.model.get("schema_version")
-        # Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §3.1): only the current document is read;
+        # Model document 0.8.0: only the current document is read;
         # a retired one is refused by name with the solve's code and text, any other version as not readable.
         current = current_model_schema_version()
         if version in RETIRED_MODEL_VERSIONS:
@@ -721,7 +721,7 @@ class _Writer:
         if self.model.get("reference_configurations"):
             self.refuse("MBF-SI-REFERENCE-CONFIGURATION-UNSUPPORTED", "model.reference_configurations",
                         "reference configurations are not exported by the pilot writer")
-        # Model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §2.4, §3.5): spectra are refused by name.
+        # Model document 0.9.0: spectra are refused by name.
         if _present(self.model.get("spectra")):
             self.refuse("MBF-SI-SPECTRUM-UNSUPPORTED", "model.spectra",
                         "response spectra are not exported by the pilot writer")
@@ -827,7 +827,7 @@ class _Writer:
                                               "origin": material_origin(material)}
 
     def read_sections(self) -> None:
-        """The section library (Design §15, Format 4): each record a pipe segment's `section_ref` may bind."""
+        """The section library (Format 4): each record a pipe segment's `section_ref` may bind."""
         for section in _list(self.model.get("sections"), self, "model.sections"):
             if not isinstance(section, Mapping) or not isinstance(section.get("id"), str):
                 self.invalid("model.sections", "each section needs a string id")
@@ -1141,7 +1141,7 @@ class _Writer:
                 self.diag("MBF-SI-REFERENCE-UNRESOLVED", "error", entity, f"{entity} is at unknown node {node!r}")
                 continue
             family = support.get("family")
-            # Model document 0.9.0 (§2.4, §3.5): a snubber is refused by name.
+            # Model document 0.9.0: a snubber is refused by name.
             if family == "snubber":
                 self.refuse("MBF-SI-SNUBBER-UNSUPPORTED", entity,
                             f"{entity} is a snubber, a dynamic-only restraint the pilot writer "
@@ -1199,7 +1199,7 @@ class _Writer:
                         "anchor (KA with TRAK), which the importer reads alone at its node")
 
     def axis_aligned(self, support: Mapping[str, Any], entity: str) -> Mapping[str, Any] | None:
-        """Model document 0.9.0 (§2.1, §3.5): an exactly axis-aligned `direction` (one nonzero component) is the
+        """Model document 0.9.0: an exactly axis-aligned `direction` (one nonzero component) is the
         record on that axis, as the solve's lowering reads it: the direction is removed and the record's single DOF
         token (restraint and stiffness) becomes UX, UY or UZ for it. Any other direction is refused by name."""
         if "direction" not in support:
@@ -1227,7 +1227,7 @@ class _Writer:
         return lowered
 
     def read_spring(self, support: Mapping[str, Any], entity: str, node: str) -> None:
-        """A spring support (Design §12, tranche 3): one translational DOF, named by its stiffness and its restraint
+        """A spring support (tranche 3): one translational DOF, named by its stiffness and its restraint
         list alike, with a positive stiffness. It is written as a flexible anchor KA,TRAK(kx,ky,kz),ROTK(0,0,0) in
         N/mm; a zero TRAK component leaves its DOF free (technical reference, Anchor). Rotational springs are not
         written: ROTK's unit is open (TBD-17-04-010)."""
@@ -1281,7 +1281,7 @@ class _Writer:
             for name in ("equivalent_static", "modulus_basis_ref", "modulus_basis_temperature", "analysis_state"):
                 if case.get(name) is not None:
                     self.refuse("MBF-SI-LOAD-CASE-FEATURE-UNSUPPORTED", entity, f"{entity} {name} is not exported")
-            # Model document 0.9.0 (§1.2, §2.4, §3.5): a case's condition use and test condition are refused by name.
+            # Model document 0.9.0: a case's condition use and test condition are refused by name.
             if "condition_use" in case:
                 self.refuse("MBF-SI-CONDITION-USE-UNSUPPORTED", entity,
                             f"{entity} uses operating conditions (condition_use), which the "
@@ -1356,7 +1356,7 @@ class _Writer:
                       f"combination {identity!r} is not exported; the target program forms its own combinations")
 
     def read_regions(self, regions: Any, entity: str) -> list[tuple[dict[str, Any], float]]:
-        """The case's non-zero pressure regions with their pressure in bar, rounded once (Design §9.4)."""
+        """The case's non-zero pressure regions with their pressure in bar, rounded once."""
         if regions is None:
             return []
         if not isinstance(regions, list):
@@ -1409,7 +1409,7 @@ class _Writer:
 
     def round_sums(self) -> None:
         """Round each summed load once: the primitives on one target were added as exact rationals in the MBF
-        unit, so cancellation loses nothing (Design §18.2)."""
+        unit, so cancellation loses nothing."""
         for name, store in (("forces", self.forces), ("moments", self.moments), ("displacements", self.anchor_disp),
                             ("rotations", self.anchor_rot)):
             for node, values in store.items():
@@ -1530,7 +1530,7 @@ class _Writer:
         self.sweep_fields()
 
     def sweep_fields(self) -> None:
-        """Design §17.1: every non-empty model member and field no reader writes, checks or refuses is listed, one
+        """every non-empty model member and field no reader writes, checks or refuses is listed, one
         omitted loss entry per member or field naming its entities, never dropped silently."""
         for name, value in self.model.items():
             if name not in _HANDLED_MEMBERS and _present(value):
@@ -1705,7 +1705,7 @@ class _Writer:
                 "elements": [],
             }
             material_map[name]["origin"] = material["origin"] or "undeclared"  # the import then needs a declaration
-        # A record per library section (or none) and OD and wall (Design §15, Format 4), as materials are per id.
+        # A record per library section (or none) and OD and wall (Format 4), as materials are per id.
         section_key = (pipe["section_ref"], _num(pipe["od"]), _num(pipe["thk"]))
         if section_key not in sections:
             name = f"P{len(sections) + 1}"
@@ -1883,7 +1883,7 @@ class _Writer:
             return self.refused()
         text = "".join(line + "\r\n" for line in lines)
         # An unauthored straight records the documented local y that the import derives from this text's own
-        # positions, so the record and the derivation agree exactly (Design §15).
+        # positions, so the record and the derivation agree exactly.
         derived = documented_orientations(text.encode("ascii"))
         for member_id, entry in element_map.items():
             if entry.get("y_reference_authored") is False and entry["y_reference"] is None:
@@ -1945,10 +1945,10 @@ class _Writer:
                  "provenance": region["provenance"], "pressure_bar": self.pipe_pressure[region["member_pipe_ids"][0]]}
                 for region in self.regions]}
         self.add_assumptions(temperatures)
-        # Format 6's derivation (Design §15): the SHA-256 of the canonical model document this writer read, and every
+        # Format 6's derivation: the SHA-256 of the canonical model document this writer read, and every
         # writer input outside it that can change the written bytes, as the writer used it: the printed title line
         # (_title reproduces itself), the reference temperature argument in its own unit, the row limit (it adds only
-        # a warning) and the piping code. No Route 1 input (§20.4.5) is recorded.
+        # a warning) and the piping code. No Route 1 input is recorded.
         try:
             source_model_sha256 = hashlib.sha256(model_canonical_bytes(self.model)).hexdigest()
         except SidecarNotCanonical as error:
@@ -1977,18 +1977,18 @@ class _Writer:
             assumptions=self.assumptions,
             derivation=derivation,
         )
-        try:  # the self-digest covers canonical JSON content only (Design §15)
+        try:  # the self-digest covers canonical JSON content only
             result.sidecar("0" * 64)
         except SidecarNotCanonical as error:
             self.invalid(error.path, f"the sidecar's {error.path} {error.reason}; the sidecar has no self-digest")
             return self.refused()
-        # The preflight is total (Design §14): every export but the regeneration route's, whose caller is the import.
+        # The preflight is total: every export but the regeneration route's, whose caller is the import.
         if self.regenerating is None and not self.survives_reimport(result):
             return self.refused()
         return result
 
     def survives_reimport(self, result: MbfSiResult) -> bool:
-        """Design §9.4, §12 and §14: every export as the printed MBF gives it back. The writer's own bound re-import
+        """every export as the printed MBF gives it back. The writer's own bound re-import
         reads the printed values exactly as an import will (positions summed from the printed offsets, bend tangent
         nodes rebuilt, OD and wall as printed) and applies the exact route's whole-region checks to the restored
         regions in their declared order. The export stands only if that re-import succeeds completely and checks
@@ -1999,7 +1999,7 @@ class _Writer:
 
         data = result.text.encode("ascii")  # type: ignore[union-attr]
         sidecar = result.sidecar(sha256(data).hexdigest())
-        # Only an undeclared material takes a declaration; a recorded origin is the import's (Design §7.4).
+        # Only an undeclared material takes a declaration; a recorded origin is the import's.
         materials = sidecar.get("material_map")
         undeclared = {name: {"origin": "project_invented", "source_name": "writer preflight; never output"}
                       for name, entry in (materials.items() if isinstance(materials, Mapping) else ())

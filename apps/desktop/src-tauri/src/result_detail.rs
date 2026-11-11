@@ -8,7 +8,7 @@
 //!   ranges are indexed: one `(start, end)` pair per element of `results`,
 //!   the exact token the producer published, in publication order. A page's
 //!   rows are those byte ranges of the held text, so a row returned is the
-//!   envelope's row, byte for byte (design §2(2)). The index also keeps the
+//!   envelope's row, byte for byte. The index also keeps the
 //!   route's semantic table (`reader_verdict::route`, the table
 //!   `reader_verdict::row_semantics` reads), the largest row's priced parse
 //!   and the held text's scan allowances. It lives in the [`HeldResult`]
@@ -91,7 +91,7 @@
 //!   member the TypeScript would throw on (a `null` row, a
 //!   `source_result_refs` that is not iterable) refuses the query by name
 //!   ([`FILTER_TYPE_ERROR`]), where the panel's filter would throw.
-//! - **Admission and memory** (plan §8). Every lease is pool-admitted before
+//! - **Admission and memory**. Every lease is pool-admitted before
 //!   what it covers is allocated, and none exceeds the per-invocation budget
 //!   or, whatever budget is configured, the owner-adopted 12 GiB default:
 //!   - the args lease, as the verdict's: the raw body's copy, grown by the
@@ -115,7 +115,7 @@
 //!   - the response lease of the response's exact length, admitted after
 //!     the selection and before the response is allocated; it covers
 //!     construction and ends when the command returns.
-//! - **Residuals, unpriced** (plan §7 item 3, for slice 7): the readers' own
+//! - **Residuals, unpriced** (for slice 7): the readers' own
 //!   working memory (`route`'s, `row_semantics_each`'s outcomes for the
 //!   requested rows, one row's searchable text); serde_json's key scratch
 //!   beyond the prescan's allowances (none: the allowances price it); and the
@@ -1141,7 +1141,7 @@ pub(crate) fn run_semantics(registry: SolveJobRegistry, raw: Vec<u8>, copy: Leas
     let text = held.text();
     let source: Value = serde_json::from_str(text).map_err(read_failed)?;
     let rows = ordinals.iter().map(|&ordinal| serde_json::from_str::<Value>(index.row(text, ordinal as usize))).collect::<Result<Vec<_>, _>>().map_err(read_failed)?;
-    // RT-A4 §10.4: a restored run's held recorded table reads its rows as `recordedReaderRowSemantics`
+    // a restored run's held recorded table reads its rows as `recordedReaderRowSemantics`
     // does; a refused binding is one refusal, which every row takes.
     let outcomes = match held.recorded_table() {
         None => rv::row_semantics_each(&rows, Some(&source)),

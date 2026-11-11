@@ -23,13 +23,13 @@ afterEach(() => { cleanup(); vi.restoreAllMocks(); RUN_SHEET_TIMING.engineCheckD
 useModelledVisibility();
 
 const reference = referenceJson as unknown as PreviewModel;
-/** The project's records the sheet does not create (spec §2: sections and the material are created first). */
+/** The project's records the sheet does not create (sections and the material are created first). */
 function basisModel(): PreviewModel {
   const model = structuredClone(reference);
   for (const key of ["nodes", "pipe_segments", "components", "supports", "load_cases", "combinations", "reference_configurations", "diagnostics"] as const) (model as unknown as Record<string, unknown>)[key] = [];
   return model;
 }
-/** The fixture's records this route produces, by id. Labels the sheet fixes (§3.14) are the sheet's. */
+/** The fixture's records this route produces, by id. Labels the sheet fixes are the sheet's. */
 function expectedRecords(): Array<[string, "nodes" | "pipe_segments" | "components", unknown]> {
   const out: Array<[string, "nodes" | "pipe_segments" | "components", unknown]> = [];
   const take = (collection: "nodes" | "pipe_segments" | "components", id: string, label?: string) => {
@@ -67,7 +67,7 @@ describe("reference bends with SIFs and the valve/flange rows, entered through t
     render(<Harness />);
     await screen.findByTestId("run-sheet");
     const model = current.session.model.model!;
-    // Header (run sheet §2) and the 26 rows (§3.4), shared with the reference-entry journey.
+    // Header and the 26 rows, shared with the reference-entry journey.
     enterReferenceHeader(current.store, model);
     const gridEntries = enterReferenceRows(() => current.store, model, reference);
     // B1 13, B2 12 (Bend R inherits) and B3 14 bend-row cells, six of them SIFs; each valve/flange

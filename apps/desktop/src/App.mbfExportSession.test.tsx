@@ -18,7 +18,7 @@ import {
 } from "./features/caepipe-mbf/mbfExportCancel";
 import type { MbfExportArgs, MbfReviewArgs } from "./features/caepipe-mbf/mbfExport";
 
-// DEL-17-04 Design `desktop-mbf-export-import.md` §3.9.5 (slice 4b.2a): File > Export MBF…'s review and save belong
+// DEL-17-04 (slice 4b.2a): File > Export MBF…'s review and save belong
 // to the project session that started them. Retiring that session (a new generation, a project replaced by one with
 // the same id, unmount, React Strict Mode's re-run) retires the export through its one barrier
 // (`mbfExportCancel.ts`): runs started so far are cancelled natively (`cancel_mbf_export`), a start not yet sent is

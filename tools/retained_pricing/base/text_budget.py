@@ -418,7 +418,7 @@ def id_candidate(expr):
         return True
     return bool(ID_TOKEN.search(a1)) or first_rule_class(a1) in ID_CLASSES | {"refs_vec"}
 CANDIDATES = []   # (site, key, expr) of every identifier-bearing expression at a positive-multiplicity site
-# G7 (QUALIFICATION §11, RV87 G6r N-1): every positive-multiplicity priced expression with its
+# G7 (RV87 G6r N-1): every positive-multiplicity priced expression with its
 # candidacy, so the non-candidates can be swept by type at each re-qualification (TB_NONCAND_OUT)
 NONC = []
 

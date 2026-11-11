@@ -1,4 +1,4 @@
-"""W-15 slice d (DEL-03-05 Design ``rigid-component-stiffness-scaling.md`` §5), test-only: the reference-section
+"""test-only: the reference-section
 identification of a component body's results, checked independently of the Rust reader
 (``core/reporting/result_export/src/component_body.rs``). Standard library only.
 
@@ -120,7 +120,7 @@ def headline_not_body(headline: Any, bodies: Mapping[str, Any]) -> None:
 
 
 def model_bodies(model: Mapping[str, Any]) -> dict[str, tuple[str, float]]:
-    """The model's expected bodies by the producer's eligibility predicate (DEL-03-05 Design §2.3)."""
+    """The model's expected bodies by the producer's eligibility predicate."""
     pipes = model.get("pipe_segments") or []
     bodies: dict[str, tuple[str, float]] = {}
     for component in model.get("components") or []:

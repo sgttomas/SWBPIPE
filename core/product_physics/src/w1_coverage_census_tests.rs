@@ -1,5 +1,5 @@
-//! The W1 coverage repair census (DEL-04-08 Design `w1-coverage-repair.md` §3) and
-//! W1-E's product-side confirmation census (`w1e-sharper-exact-coverage.md` §6.2),
+//! The W1 coverage repair census and
+//! W1-E's product-side confirmation census,
 //! through the actual producer: the observed ordinary run, then `retained_w1`
 //! (preparation, native solve, freeze, serialization, precommit reader).
 //!
@@ -101,7 +101,7 @@ fn corpus_hook(label: &str) {
     }
 }
 
-/// C1-a (§3.2): the committed route-L member-load inputs (the group-3 trials and
+/// C1-a: the committed route-L member-load inputs (the group-3 trials and
 /// every corpus member-load base). The cap witnesses run as their own targets.
 fn c1a_inputs() -> Vec<Input> {
     let mut v = Vec::new();
@@ -157,7 +157,7 @@ fn uniform(id: &str, direction: &str, value: f64) -> Value {
 }
 /// One loaded member `ss:pipe` from `ss:root` at (4, 0, 0) to `ss:root` + `span`, added
 /// to n05's sensitive torque case, whose independent soft-spring member makes the
-/// ordinary result Sensitive (stage 2 §4.4's controls).
+/// ordinary result Sensitive.
 fn loaded_member(span: [f64; 3], d: f64, t: f64, mill: Option<f64>, supports: [&[&str]; 2], loads: Vec<Value>) -> Value {
     let mut raw = n05_request(vec![n05_torques()]);
     let m = &mut raw["model"];
@@ -189,7 +189,7 @@ fn annulus(d: f64, t: f64) -> (f64, f64) {
     let z = std::f64::consts::PI * (d.powi(4) - di.powi(4)) / (32.0 * d);
     (a, z)
 }
-/// §3.2 C1-b's five shapes on one section: (shape, request). UDL 3.5 N/m, length 2 m.
+/// C1-b's five shapes on one section: (shape, request). UDL 3.5 N/m, length 2 m.
 fn c1b_shapes(d: f64, t: f64, mill: Option<f64>) -> Vec<(&'static str, Value)> {
     let w = 3.5;
     let skew = [2.0 * 3.0 / 13.0, 2.0 * 4.0 / 13.0, 2.0 * 12.0 / 13.0];
@@ -266,7 +266,7 @@ fn control_request(label: &str, text: &str) -> Input {
     let raw = if v.get("request").is_some() { v["request"].clone() } else { v };
     input(label, raw, vec![mode])
 }
-/// C2-a (§3.2): every corpus base, the successor fixtures, the W1 controls, the 54
+/// C2-a: every corpus base, the successor fixtures, the W1 controls, the 54
 /// B4/D1 trials (with N06 and CX-F among the controls) and the route-E successors.
 /// C1-a is its own target, measured with the corner-1 switch as well.
 fn c2a_inputs(group: &str) -> Vec<Input> {
@@ -343,7 +343,7 @@ fn abs_max(a: (i128, i32), b: (i128, i32)) -> (i128, i32) {
     let (x, y) = (a.0.abs() << (a.1 - e), b.0.abs() << (b.1 - e));
     (x.max(y), e)
 }
-/// §3.2 C2-b's constructed halfways on the point-hull section, length 2, each verified
+/// C2-b's constructed halfways on the point-hull section, length 2, each verified
 /// exactly: the coupled body force or moment maximum of the loaded member's body is a
 /// binary64 halfway. Simply supported (pins) with a UDL and end moments: reactions
 /// |w ± (M_r + M_t)/2|, end moments |M_r|, |M_t|. Cantilever (fixed root) with a UDL,
@@ -394,7 +394,7 @@ fn c2b_halfways() -> Vec<(String, Value)> {
     }
     ss.into_iter().chain(cant).collect()
 }
-/// §3.2 C2-b's 32 decimal controls: both shapes, lengths {1.5, 2.5, 3.7, 6.1} m and
+/// C2-b's 32 decimal controls: both shapes, lengths {1.5, 2.5, 3.7, 6.1} m and
 /// forces {1.1, 2.3, 4.7, 9.9} kN on the committed 0.168 m, t = 0.007 m section
 /// (cantilever tip force F; simply supported UDL of total F).
 fn c2b_decimals() -> Vec<(String, Value)> {
@@ -435,7 +435,7 @@ c2b_targets! {
     w1_coverage_census_c2b_controls: "controls";
 }
 
-/// §3.2's switched-path control (revision 8): under (b) the annular lane takes the
+/// switched-path control: under (b) the annular lane takes the
 /// admitted hull, so its loaded maximum must be driven as the admitted lane's is.
 /// On the stage-2 D = 0.2 m control both lanes' searches are driven and converge.
 #[test]
@@ -454,7 +454,7 @@ fn w1_coverage_census_switched_path_control() {
     }
 }
 
-/// C1-a's cap inputs (§3.2): the cap-law input and the two 4 MiB member-cap witnesses'
+/// C1-a's cap inputs: the cap-law input and the two 4 MiB member-cap witnesses'
 /// inputs (`witness_w1_member_load_three_case_three_basis_128` and `..._dyadic`), on
 /// one large-stack thread (the census measures outcomes, not stack; the witnesses
 /// themselves stay the stack evidence).
@@ -470,7 +470,7 @@ fn w1_coverage_census_c1a_cap_inputs() {
         .unwrap().join().unwrap();
 }
 
-// ---------------------------------------------------------------- §5: the annular lane is unchanged
+// ---------------------------------------------------------------- the annular lane is unchanged
 
 /// The annular lane's loaded-maximum searches of one input in one mode, from a run with
 /// `switches`: (phase, row, member, driven, outcome, splits, max_live, max_depth, the
@@ -506,7 +506,7 @@ fn annular_lane_unchanged(inputs: Vec<Input>, hook: &dyn Fn(&str)) -> (usize, us
     (undriven, compared)
 }
 
-/// W1 coverage repair §1.2 and §5: the annular lane keeps today's search on its tight z;
+/// the annular lane keeps today's search on its tight z;
 /// the drive-and-hull split never applies to it. Its work and enclosures are byte-identical
 /// to today's on every committed loaded input: the group-3 trials, every corpus member-load
 /// base (`w1_member_*`) and the two 128-term member-cap witnesses' inputs, in both modes.

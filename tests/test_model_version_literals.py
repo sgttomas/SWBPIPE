@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """No stray model-document version literal in desktop or applier production code.
 
-DEL-02-01 Design model-document-0.7.0.md §2 ("Guard test"): the current model
+the current model
 document version and the retired list are defined once per language
 (`core/product_physics/src/model_format.rs`, which the desktop's Rust side and the
 operation applier import, and `apps/desktop/src/services/modelSchemaVersion.ts`).
@@ -30,16 +30,16 @@ TS_DEFINITION = ROOT / "apps" / "desktop" / "src" / "services" / "modelSchemaVer
 DESKTOP_TS = ROOT / "apps" / "desktop" / "src"
 DESKTOP_RS = ROOT / "apps" / "desktop" / "src-tauri" / "src"
 APPLIER_RS = ROOT / "core" / "model_operations" / "operation_applier" / "src"
-# W-15 slice c (DEL-02-01 Design model-document-0.8.0.md §2, §5): the product-physics
+# the product-physics
 # and result-export production sources are scanned too. Their production code names the
 # current version through `crate::MODEL_SCHEMA_VERSION`, except the independent readers'
-# gates and texts, which the version ripple edits by token (MD8 §2, §7: they are priced
+# gates and texts, which the version ripple edits by token (they are priced
 # and do not depend on the producer crate). Those sites are listed here, tied to the
 # version they were taken at: the test fails when a file gains or loses one, and when the
 # current version moves while the list still names the old one, so the next ripple
 # re-checks each site and cannot leave one silently at a retired version.
 EXTENDED_RS = (ROOT / "core" / "product_physics" / "src", ROOT / "core" / "reporting" / "result_export" / "src")
-# Re-checked at model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §3.5): each site below edited by
+# Re-checked at model document 0.9.0: each site below edited by
 # token, the counts unchanged.
 READER_TOKEN_VERSION = "0.9.0"
 READER_TOKEN_SITES = {
@@ -50,7 +50,7 @@ READER_TOKEN_SITES = {
     # `semantic_contract.rs` :508: the retired v2 contract's re-author text.
     "core/reporting/result_export/src/semantic_contract.rs": 1,
 }
-# The Python verifiers and validation tools that state a model version (MD8 §5). Each
+# The Python verifiers and validation tools that state a model version. Each
 # names the current version once, as a module-level `MODEL_VERSION` definition that every
 # gate and message reads; any other literal holding the current version, or naming a
 # model version in words, is refused. Docstrings and comments are free text.
@@ -294,7 +294,7 @@ def test_a_cfg_test_module_file_is_not_production_code():
 
 
 def test_python_verifiers_and_tools_name_the_version_only_through_their_definition():
-    """MD8 §5: the Python verifiers and validation tools hold the current version only in
+    """the Python verifiers and validation tools hold the current version only in
     their module-level `MODEL_VERSION` definitions, each current."""
     found, definitions = python_version_literals()
     assert not found, "\n".join(f"{where}: {kind}: {text}" for where, kind, text in found)

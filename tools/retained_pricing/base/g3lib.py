@@ -3,8 +3,8 @@
 An `X` is a linear form over named layout atoms with integer coefficients plus a
 constant byte term '1'. Counts are substituted at the D1 caps before any layout
 value, so every row evaluates to `sum(coef * atom) + bytes`. Atoms are:
-  s(T)            size_of::<T>() in the qualified build (BUILD.md section 3);
-  Node(K,V)       max(Leaf_up, Internal_up) of a BTreeMap<K,V> (BUILD.md section 4);
+  s(T)            size_of::<T>() in the qualified build;
+  Node(K,V)       max(Leaf_up, Internal_up) of a BTreeMap<K,V>;
   named residual atoms (for example Text(...)) that another record closes.
 `assumed()` substitutes ILLUSTRATIVE 64-bit values. They are not qualified facts; G5
 evaluates every atom in the actual build. All arithmetic is exact integer arithmetic.

@@ -8,7 +8,7 @@ import { App } from "./App";
 import * as previewService from "./services/previewService";
 import type { PreviewModel } from "./types";
 
-// DEL-04-06 Design `on-demand-model-checks.md`: Analyze → Check Model (⇧⌘M)
+// Analyze → Check Model (⇧⌘M)
 // runs the model's existing checks in the full shell, lists their findings in
 // the Issues drawer, and a chosen finding selects its entity. The demo gains
 // an invented second line that no element joins to it.

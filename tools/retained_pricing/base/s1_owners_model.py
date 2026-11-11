@@ -1,4 +1,4 @@
-"""Model document 0.9.0 S1 D3 (DEL-02-01 Design model-document-0.9.0.md; retained-pricing-rules.md §8.36): the positive
+"""Model document 0.9.0 S1 D3 (§8.36): the positive
 owners the 0.9.0 lowering and withholding add outside the chain's TEXT inventory, on D1.
 
 D1.3 refuses a non-empty condition_sets or spectra and any pipe's condition_set_ref, D1.4 a difference basis, a
@@ -21,7 +21,7 @@ S1-WH (document_members::withhold_interim_combinations, once per ordinary run, r
   `(&str, String)`, push-grown), the combination's view (<= 3 TermView, <= 3 operand `&str`s in four slots) and its operand
   references (<= 3, push-grown). The diagnostics' texts are TEXT.
 
-S2-JD (model document 0.9.0 S2, retained-pricing-rules.md §8.40; route L with z >= 1, transient): S2 moves the
+S2-JD (model document 0.9.0 S2, §8.40; route L with z >= 1, transient): S2 moves the
   lowering's judgement into operating_conditions::judge, which lower applies. A document the findings refuse now has its
   findings converted by `found.into_vec().into_iter().map(..).collect()` into judge's own Vec<Diagnostic> before lower
   extends its caller's vector (S1 pushed each into the caller's vector). Diagnostic is larger than Finding, so the

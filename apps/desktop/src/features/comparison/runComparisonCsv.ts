@@ -1,4 +1,4 @@
-// RT-R6 CSV adapter of the run comparison table (DEL-08-04-R14; Design `csv-export.md` §2). The
+// RT-R6 CSV adapter of the run comparison table (DEL-08-04-R14). The
 // view's rows (`runComparisonEntries`) and filter (`matchesRunComparisonFilters`) live here, so
 // the view and the file list the same rows: every page of the rows the filters match, in the
 // view's order. Values and deltas are written as stored, in the rows' own units, as the view

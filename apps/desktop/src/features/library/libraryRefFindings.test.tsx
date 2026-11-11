@@ -1,4 +1,4 @@
-// W-13 §3.5 / W-17 §2.7: the store's library-reference warnings appear as
+// the store's library-reference warnings appear as
 // warning entries of the diagnostics list, keyed to the entity, and in that
 // entity's Provenance record section; they disappear once the entity no
 // longer carries the reference they were raised on. Invented data.

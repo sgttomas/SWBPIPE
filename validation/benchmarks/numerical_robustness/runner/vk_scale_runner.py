@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""V-K checkpoint B: the scale runs (plan §13; brief Scope 12; ROOT's Q5 ruling).
+"""V-K checkpoint B: the scale runs (brief Scope 12; ROOT's Q5 ruling).
 
 Standard library only. It imports K6's runner by path
 (`P/core/solver/performance_harness/runner/k6_runner.py`) and uses:

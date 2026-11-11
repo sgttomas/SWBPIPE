@@ -1,4 +1,4 @@
-// DEL-07-05 numerical health §3, §4 and §7: the Results panel's health header, the
+// the Results panel's health header, the
 // output sentence, the per-case detail, row badges, located-cause navigation and the
 // solver-diagnostic open. The indicator is a hand-written fixture of the Rust
 // `numerical_health_json` output shape, presented through `numericalHealthView`.

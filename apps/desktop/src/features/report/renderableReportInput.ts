@@ -95,7 +95,7 @@ export type ReportRenderContext = {
   generatedAt: string | null;
 };
 
-/** The user-released report context (W-18b, DEL-08-01 Design `report-user-release.md` §2.6),
+/** The user-released report context,
  * the DEL-12-02 vocabulary's single definition (`redactionExportControls.ts`; Rust
  * `report_package::user_release::USER_RELEASED_CONTEXT`), re-exported here. Only the
  * user-released report builder below writes it. */
@@ -207,7 +207,7 @@ export function diagnosticsForSections(
   }));
 }
 
-/** RT-A3 §4 (DEL-05-02 Work `combination-certificate.md` §2, the residual text boundary): the
+/** the
  * report quotes a diagnostic message by the Diagnostics panel's classification
  * (`../results/suppliedDiagnostics`), taking the roster as checked, because the exact and PF
  * report routes are admitted by the reader before assembly (`checkExactReportAdmission`).
@@ -248,7 +248,7 @@ function componentProvenanceRecord(
   };
 }
 
-// W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md` §4.1, FR-REP-003 on
+// (FR-REP-003 on
 // every route): the provenance of materials, sections, components and supports.
 
 type ReportProvenanceRecord = ReturnType<typeof sessionProvenance>;
@@ -762,7 +762,7 @@ function userRuleChecks(run: SessionRuleCheckRun) {
     grammar_version: run.result.grammar_version,
     aggregate_status: status(run.result.aggregate_status),
     // One outcome per check and load case or combination (rule-pack format
-    // 0.5.0; DEL-06-01 Design `rule-pack-0.5.0.md` §2.7, §6): each carries
+    // 0.5.0): each carries
     // the basis it was evaluated on. An outcome without one (a check the pack
     // gives no basis) omits the member, and the report shows "load case not
     // recorded".
@@ -786,12 +786,12 @@ type RenderableReportInputArgs = {
   renderContext: ReportRenderContext;
   inputManifest?: CurrentSessionInputManifestEvidence | null;
   ruleCheckRun?: SessionRuleCheckRun | null;
-  /** DEL-07-05 numerical health §5: the rendered report's one line per load case,
+  /** the rendered report's one line per load case,
    * placed after the result rows and so before the diagnostics section, on the generic
    * route only. Absent, the input is unchanged (the report package passes none). No
    * figure is exported. */
   numericalHealth?: NumericalHealthView | null;
-  /** W-11 (DEL-08-01 Design `exact-route-report-sections.md` §3.1): the recorded Export
+  /** the recorded Export
    * Result JSON admission of an exact-route source (`admitExactReportSource`), required
    * for an exact source and refused for any other. A pressure-free source takes none, so
    * its input is unchanged. */
@@ -805,7 +805,7 @@ export async function buildRenderableReportInput(args: RenderableReportInputArgs
   return renderableReportInput(args, null);
 }
 
-/** The user-released record as the report context carries it (W-18b §2.3). Its form and
+/** The user-released record as the report context carries it. Its form and
  * bound members are checked natively; the builder carries it as given. */
 export type UserReleaseRecordValue = Record<string, unknown>;
 
@@ -870,7 +870,7 @@ async function renderableReportInput(
     throw new Error("REPORT-COMPOSITION-CONTEXT-NOT-ADMITTED: composition requires a local private or user-released report");
   }
   const exact = isExactReportSource(result);
-  // DEL-05-03 `pf-timoshenko.md` §4: a pressure-free Timoshenko source carries its
+  // a pressure-free Timoshenko source carries its
   // limitation 0 entry always, and its `pf_timoshenko` section when it took the admission
   // (the rendered report; the package binds the entry against its source instead).
   const pfTimoshenko = isPfTimoshenkoReportSource(result);
@@ -1103,7 +1103,7 @@ async function renderableReportInput(
 
   const resultRows = reportResultRows(result);
   if (reportComposition) composeReportRows(resultRows, reportComposition);
-  // Slice C5 (DEL-08-01 Design `report-section-composer.md` §2.7): `P(M, C)` when the
+  // `P(M, C)` when the
   // composition lists a model-input section; every native boundary that holds the model
   // re-derives it and requires equality.
   const tables = modelInputTables(model, reportComposition);
@@ -1113,7 +1113,7 @@ async function renderableReportInput(
     report_title: `${model.project.name} — Calculation Report`,
     calculation_report: calculationReport,
     report_sections: reportSections,
-    // W-11 (DEL-08-01 Design `exact-route-report-sections.md` §6.1): an exact-route
+    // an exact-route
     // report carries no numerical-health line until the native render can re-derive it
     // from the delivered result; its rows are exactly the source rows' projection.
     result_rows: resultRows.concat((numericalHealth?.route === "generic" && !exactInputs ? numericalHealth.cases : []).map((item) => ({
@@ -1127,7 +1127,7 @@ async function renderableReportInput(
     // The minimal input carries no user-rule outcome member at all (§2.6).
     ...(minimal ? {} : { user_rule_checks: ruleCheckRun ? userRuleChecks(ruleCheckRun) : null }),
     ...(exactRoute ? { exact_route: exactRoute } : {}),
-    // DEL-05-03 `pf-timoshenko.md` §4: absent on every other source, so its input is unchanged.
+    // absent on every other source, so its input is unchanged.
     ...(pfInputs ? { pf_timoshenko: pfTimoshenkoSection(exactAdmission!.binding) } : {}),
     // W-11 slice (c) (§4.2): absent without references, so such an input is unchanged.
     ...(libraryRefs.length > 0 ? { library_references: libraryRefs } : {})

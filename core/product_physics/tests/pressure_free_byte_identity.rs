@@ -1,4 +1,4 @@
-//! T4-U6 (DEL-05-03 Design `section-bases-and-timoshenko.md` §2.5, §9): D-5's
+//! D-5's
 //! two section bases are exact-contract only. Pressure-free envelopes do not
 //! change, and any pressure-free byte change is a defect. Each committed
 //! pressure-free product output below is regenerated through the entry its
@@ -114,7 +114,7 @@ fn desktop_milestone_copies_are_byte_identical() {
     }
 }
 
-/// U6-RB (DEL-05-03 Design §9): the per-base-id row index is built only when the preview
+/// the per-base-id row index is built only when the preview
 /// exists and has combinations, and its one reader, `append_combination_results`, runs only then;
 /// with no preview or no combinations there are no combinations to append. So the
 /// clones are skipped exactly where nothing reads them, and the published rows are unchanged
@@ -132,7 +132,7 @@ fn u6_rb_rows_by_base_id_is_built_and_read_only_with_the_preview() {
     let read = &lib[call_guard..uses[2]];
     assert!(read.contains("preview_physics::append_combination_results("), "{read}");
     assert!(!read.contains('}'), "the call is inside the combination guard");
-    // RT-A5 (operating-case §7.6): the reader also takes the held operands, built only for a
+    // the reader also takes the held operands, built only for a
     // `minuend_final` combination on the preview route.
     assert!(lib[uses[2]..].starts_with("rows_by_base_id, &held_operands, &mut results, &mut diagnostics)\n    } else {\n        Vec::new()"));
 }

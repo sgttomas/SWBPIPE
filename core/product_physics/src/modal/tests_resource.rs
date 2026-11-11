@@ -1,4 +1,4 @@
-//! Design §5.3.8 P0 and S1 in the product (`resource`, `eigen`, `outcome`).
+//! P0 and S1 in the product (`resource`, `eigen`, `outcome`).
 //! Every budget here is **TEST-LOCAL**: no weight, allotment or ceiling is
 //! adopted, and none of these values is a proposal. The tests check:
 //! - the counts against their formulas evaluated independently;
@@ -127,7 +127,7 @@ fn construction_steps(n: u128) -> u128 {
     39 * p + 16 * n + 38 + (n + 3) * (3 * n + 2 * p) + 3 * n * (n + 1)
 }
 
-/// §5.3.8's terms as `resource` derives them, written out again in plain
+/// terms as `resource` derives them, written out again in plain
 /// arithmetic; the values here are small, so nothing overflows.
 fn formulas(d: &ModalResourceDimensions) -> [Option<u128>; MODAL_RESOURCE_TERM_COUNT] {
     use ModalResourceTerm as T;

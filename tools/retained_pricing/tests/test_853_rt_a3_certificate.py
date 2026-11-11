@@ -1,4 +1,4 @@
-"""RT-A3 P and the §4 combination certificate (retained-pricing-rules.md §8.53).
+"""RT-A3 P and the combination certificate (§8.53).
 
 - The line map's reviewed text resolution re-keys a site line rewritten in place only when the OLD text is gone, the
   named NEW text occurs exactly once and the named function encloses it; any other case stays unmapped (the run stops).

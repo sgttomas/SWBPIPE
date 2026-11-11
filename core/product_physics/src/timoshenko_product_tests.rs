@@ -154,8 +154,7 @@ fn timoshenko_shear_area_uses_the_stiffness_section() {
     }
 }
 
-/// Design §3.1 ("A missing nu or G basis blocks a Timoshenko solve by name; no
-/// default factor exists"): a timoshenko_annulus_energy_v1 straight member
+/// a timoshenko_annulus_energy_v1 straight member
 /// whose material carries G but no Poisson ratio is not built; the build blocks
 /// with EXACT_PRESSURE_SHEAR_FACTOR_UNAVAILABLE naming the member and the
 /// missing nu, while its Euler-Bernoulli twin builds from the same inputs. On
@@ -210,7 +209,6 @@ fn timoshenko_without_a_nu_basis_is_blocked_by_name() {
     }
 }
 
-/// Design §3.1, §8 ("Base-material nu instead of the resolved per-case nu"):
 /// on a load-state document whose cases resolve different E/nu pairs, each
 /// case's kappa_E and A_s are FK's functions of that case's own nu, and they
 /// differ between the cases.
@@ -268,8 +266,7 @@ fn records_with<'a>(value: &'a Value, key: &str, out: &mut Vec<&'a Value>) {
     }
 }
 
-/// Design §3.6, §8 ("Shear deformation applied to a realized arc, or arc
-/// evidence claiming Timoshenko"): on a mixed L-line under
+/// on a mixed L-line under
 /// timoshenko_annulus_energy_v1 every realized arc's element stiffness is the
 /// Euler-Bernoulli document's, bit for bit, and its evidence names
 /// euler_bernoulli; the straight members carry the Timoshenko leaf.
@@ -314,7 +311,7 @@ fn timoshenko_realized_arcs_stay_euler_bernoulli() {
     }
 }
 
-/// Design §2.5: a straight member's `pipe_sections` entry has exactly these keys; a realized
+/// a straight member's `pipe_sections` entry has exactly these keys; a realized
 /// arc's has these and `member_kind`.
 const PIPE_SECTION_KEYS: [&str; 11] = ["pipe_id", "geometry_basis", "outside_diameter_m", "ro_m", "wall_thickness_m",
     "mill_tolerance_m", "corrosion_allowance_m", "nominal_section", "reduced_section", "pressure_bore", "beam_theory"];
@@ -327,7 +324,7 @@ fn mixed_l_line(shear_model: &str) -> (Value, std::collections::BTreeSet<String>
     assert!(!arcs.is_empty() && arcs.len() < b.pipes.len(), "precondition: a mixed L-line");
     (request, arcs, b.pipes.len())
 }
-/// One exact case's `pipe_sections` entries by pipe id, each checked for the §2.5 key set: a
+/// One exact case's `pipe_sections` entries by pipe id, each checked for the key set: a
 /// realized arc (and only a realized arc) carries `member_kind = "realized_arc"` and
 /// Euler-Bernoulli beam theory.
 fn checked_pipe_sections<'a>(case: &'a Value, arcs: &std::collections::BTreeSet<String>, members: usize, label: &str)
@@ -351,7 +348,7 @@ fn checked_pipe_sections<'a>(case: &'a Value, arcs: &std::collections::BTreeSet<
     by_id
 }
 
-/// Design §2.5 (the arc marker): a Timoshenko document whose realized arc lies outside every
+/// a Timoshenko document whose realized arc lies outside every
 /// pressure region (explicitly empty regions, so no region geometry names any member) still
 /// marks the arc's `pipe_sections` entry `member_kind = "realized_arc"` with Euler-Bernoulli beam
 /// theory, and each straight member's entry has exactly the D-5 keys and its Timoshenko leaf.
@@ -388,7 +385,7 @@ fn pipe_sections_mark_a_realized_arc_outside_every_pressure_region() {
     }
 }
 
-/// Design §2.5: with the arc inside a pressure region, under either shear model, the region
+/// with the arc inside a pressure region, under either shear model, the region
 /// geometry and `pipe_sections` mark the same members, exactly the realized arcs, and each region
 /// geometry record's section part (without its traversal and tangent keys) is its member's
 /// `pipe_sections` entry, marker included.
@@ -422,7 +419,7 @@ fn pipe_sections_and_region_geometry_mark_the_same_realized_arcs() {
                     let object = part.as_object_mut().unwrap();
                     object.remove("traversal_forward").expect("a region geometry record");
                     object.remove("arc_end_tangents_global");
-                    // T4-U4b (§2.5): an arc's region record also states its bend radius.
+                    // an arc's region record also states its bend radius.
                     object.remove("bend_radius_m");
                     assert_eq!(&part, sections[id], "{label} {id}: region geometry section part is the pipe_sections entry");
                 }
@@ -432,8 +429,7 @@ fn pipe_sections_and_region_geometry_mark_the_same_realized_arcs() {
     }
 }
 
-/// Design §4 item 2, §8 ("Timoshenko leaf missing from a recovery or
-/// primitive frame"), at the product level: a member with no load primitive
+/// at the product level: a member with no load primitive
 /// has nothing to bind its recovery frame to but its formation-source frame.
 /// The product's certified member recovery binds it there by member identity:
 /// the unmutated frame certifies; the same member's frame with its Timoshenko
@@ -465,7 +461,7 @@ fn kd5_straight_frames_are_bound_to_the_formation_source() {
     }
 }
 
-/// O4 (DEL-04-08 Design `o4-source-extension.md` §3.1, §6; formerly
+/// O4 (formerly
 /// `o4_timoshenko_declines_are_reached_by_published_documents`): the
 /// Timoshenko twin of the N05 retained-source control now selects
 /// pressure-source-1 in both modes, as its Euler-Bernoulli original does. Its

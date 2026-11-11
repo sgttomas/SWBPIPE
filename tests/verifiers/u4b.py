@@ -1,9 +1,9 @@
-"""T4-U4b reader checks of the new kinds (DEL-04-07 Design u4b-u5b-implementation.md §5.1), test-only.
+"""T4-U4b reader checks of the new kinds, test-only.
 
 Written from the design, not from the Rust reader; it shares no code with it.
 
 - σ⁺/σ⁻ (``element_local_normal_stress_extreme``): recomputed bit for bit from the same station's and basis's
-  published stress rows (§2.3; the membrane row /1e6 on a pressurized pressure-2 member), with the norm from an
+  published stress rows (the membrane row /1e6 on a pressurized pressure-2 member), with the norm from an
   exact-integer oracle (the same as ``preview_physics_evidence.correctly_rounded_norm``, restated here so this module
   is standard library only); present exactly where its operands are.
 - τ (``element_local_transverse_shear_stress_maximum``): custody, coverage (members named by
@@ -131,7 +131,7 @@ def shear_factor(nu: float, ro: float, ri: float, inertia: float) -> float | Non
 
 
 def preview_shear_factor(e: float, g: float, ro: float, ri: float, inertia: float) -> float | None:
-    """c_b on preview-physics-2 from the moduli (§2.4), bit for bit with the product: the ν sequence of
+    """c_b on preview-physics-2 from the moduli, bit for bit with the product: the ν sequence of
     ``shear_factor`` with ν = RN(q − 1) while q = RN(E/RN(2·G)) >= 1/2; below, with no 1+ν formed,
     x = RN(RN(2·G)/E) and c_b = RN(RN(RN(2·RN(RN(r_o·r_o) + RN(r_i·r_i))) + RN(x·RN(RN(r_o − r_i)·RN(r_o + r_i))))/RN(4·I)).
     None outside -1 < ν < 1/2 (admission by the rounded ν)."""
@@ -214,7 +214,7 @@ SHEAR_OPERANDS = ("element_local_shear_force_y", "element_local_shear_force_z")
 
 class Rows:
     """The case rows by (case, entity, kind, component, location, basis), and the shear operands by slot without
-    the component (§5.1): every row of such a slot carries the same value bit for bit, or none carries a number;
+    the component: every row of such a slot carries the same value bit for bit, or none carries a number;
     otherwise the envelope is refused (``SHEAR_OPERAND_AMBIGUOUS``), after a duplicate slot of a new kind. ``fail``,
     when given, states that refusal by code (a caller's ``fail(ok, code)``). ``operands=False`` builds the row index
     alone, for a check that reads no shear operand (Rust ``Index::rows_only``)."""
@@ -413,7 +413,7 @@ def branch_records(case: str, records: list[Any], rows_by_id: Mapping[str, Mappi
 
 
 def twin_order(results: list[Mapping[str, Any]], arcs: set[str]) -> None:
-    """D-5 row order (section-bases-and-timoshenko.md §2.5) for the U4b families and the arc maxima on pressure-2:
+    """D-5 row order for the U4b families and the arc maxima on pressure-2:
     each nominal row is immediately followed by its reduced twin (same case, entity, kind, component and location)."""
     for position, row in enumerate(results):
         kind = row.get("kind")
@@ -433,7 +433,7 @@ DIRECTIONAL_MAX_UNAVAILABLE = "DIRECTIONAL_INTENSIFIED_MAXIMUM_UNAVAILABLE"
 
 
 def directional_arcs(model: Mapping[str, Any]) -> dict[str, tuple[float, float]]:
-    """The model's realized arcs with the directional pair (§2.6): a bend or elbow consumed as
+    """The model's realized arcs with the directional pair: a bend or elbow consumed as
     curved_bend_macro_element with a nonempty bend_pipe_ref, both factors dimensionless ("1" or "none"), finite and
     above zero; the pair as authored. Any other placement of the pair is refused (the producer blocks it)."""
     arcs: dict[str, tuple[float, float]] = {}

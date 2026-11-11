@@ -1,4 +1,4 @@
-//! W-10 §7 (DEL-16-06 Design `pipe-reconnect.md`): `delete_pipe_run` refuses,
+//! `delete_pipe_run` refuses,
 //! with named dependents, while any record still names the pipe. It never
 //! cascades. Inline invented fixtures from `MODEL_SCHEMA_VERSION`.
 use open_pipe_stress_operation_applier::{

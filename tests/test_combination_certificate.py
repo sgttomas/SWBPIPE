@@ -1,4 +1,4 @@
-"""RT-A3 §4 combination certificate (DEL-05-02 Work ``combination-certificate.md`` §3): the Python consumer.
+"""combination certificate: the Python consumer.
 
 Over the shared corpus (``fixtures/results/combination_certificate_corpus.json``, written by PP
 ``tests/combination_certificate.rs``):
@@ -399,7 +399,7 @@ def _forgery(document: str, what: str) -> dict:
 
 
 def _claims_survive(document: dict) -> list:
-    """Any §4 certificate claim the document still makes: the member (its bounds and verdicts), or a diagnostic in the
+    """Any certificate claim the document still makes: the member (its bounds and verdicts), or a diagnostic in the
     certificate's vocabulary, restated here independently of the readers (id namespace, the `COMBINATION_ROWS_` code
     family, or a sentence placing rows within, or assessing them against, a stated bound). W-16b's derived-rows
     notice ("only the derived row groups that contract_evidence.combination_certificate establishes carry a stated
@@ -417,7 +417,7 @@ def _claims_survive(document: dict) -> list:
 @pytest.mark.parametrize("with_model", [False, True], ids=["without-model", "with-model"])
 @pytest.mark.parametrize("name", ["ex_cantilever", "pf_cantilever"])
 def test_absence_is_inspection_only_with_no_certificate_claim(name, with_model):
-    """Absence of the member (member and notices both dropped, the current identity kept) is admitted as no §4
+    """Absence of the member (member and notices both dropped, the current identity kept) is admitted as no
     certificate claim: no member, no certificate notice under any id, and no eligibility effect, the document's
     numerical_quality and its desktop standing being those of the certified document (decision (b))."""
     e = entry(name)
@@ -443,7 +443,7 @@ W_CB3 = {
 def test_legacy_w_cb3_successors_are_accepted_with_their_own_receipt_and_no_certificate_claim(mode):
     """The registered W-CB3 retained combination successors (recorded before the certificate, bytes untouched) are
     accepted with and without their invocation; their retained-precision standing is their own receipt's, and they
-    make no §4 certificate claim (Rust `legacy_w_cb3_successors_are_accepted` alike)."""
+    make no certificate claim (Rust `legacy_w_cb3_successors_are_accepted` alike)."""
     import hashlib
 
     from tests.verifiers import retained_precision
@@ -642,7 +642,7 @@ def test_w16_line_rows_lie_within_their_bound_of_the_frozen_exact_rows(combinati
 
 @pytest.mark.parametrize("with_model", [False, True], ids=["without-model", "with-model"])
 def test_an_appended_ex_limitation_claim_is_untrusted_text_and_attests_nothing(with_model):
-    """Review cert2, item 2 withdrawn (Work `combination-certificate.md` §2): the reader does not attest the whole EX
+    """Review cert2, item 2 withdrawn: the reader does not attest the whole EX
     limitation roster, and raw limitation prose never supplies a reader-attested certificate claim. An appended
     establishment sentence is admitted as untrusted text; the member, the diagnostics, numerical_quality and the
     reader standing are the unmodified document's. The exact-report builder's refusal of the unregistered limitation is
@@ -676,7 +676,7 @@ def _base_of(successor: dict) -> dict:
 
 
 def test_the_retained_base_read_context_is_g7_s_only():
-    """The retained base-read context (Work §2, Agent 0's ruling after review cert2) has one caller, the retained
+    """The retained base-read context (Agent 0's ruling after review cert2) has one caller, the retained
     reader's G7 base read, and is never reachable from an ordinary read (Rust alike). Under it only the roster's text
     closure is lifted; from an ordinary entry the same base's combination prose is refused, and the context is clear."""
     import re
@@ -721,7 +721,7 @@ def _corpus_case(case_id: str) -> dict:
 @pytest.mark.parametrize("label", ["fixture:sparse_interactive", "fixture:dense_scrutiny", "corpus:w_cb5_sparse_interactive",
                                    "corpus:w_cb5_dense_scrutiny", "corpus:w_cb2_sparse_interactive"])
 def test_a_registered_retained_successor_carries_the_certificate_and_it_reads_true(label):
-    """§8.53 D3 (a) (DEL-05-02 Work §2, "Retained successors (for D3)"): on the registered build the W1 freeze admits the
+    """on the registered build the W1 freeze admits the
     member, so the successor carries the ordinary run's certificate. The full retained reader accepts it with and
     without its invocation (G7's base read checks the member against the projected rows); the projected base reads
     true outside the retained context too (member, records and notices re-derived from the unchanged rows, and the
@@ -816,7 +816,7 @@ HELD_GATE_CASES = [
 @pytest.mark.parametrize("with_model", [False, True], ids=["without-model", "with-model"])
 @pytest.mark.parametrize("what,corpus,name,edit,code", HELD_GATE_CASES, ids=[c[0] for c in HELD_GATE_CASES])
 def test_a_held_gate_notice_is_the_records_refusal_in_its_frame(what, corpus, name, edit, code, with_model):
-    """RT-A5 (Work combination-certificate.md section 2): a held gate's notice is set-bound, required once, and exactly
+    """a held gate's notice is set-bound, required once, and exactly
     "Combination withheld: " + R + ".", R the refusal of the document's held-status record for that combination,
     bound to the record and never verified as true."""
     e = _held_entry(name) if corpus == "held" else entry(name)
@@ -982,7 +982,7 @@ HELD_RELEASED_CASES = [
 @pytest.mark.parametrize("with_model", [False, True], ids=["without-model", "with-model"])
 @pytest.mark.parametrize("what,name,edit,code", HELD_RELEASED_CASES, ids=[c[0] for c in HELD_RELEASED_CASES])
 def test_a_held_status_released_notice_is_rebuilt_from_its_record(what, name, edit, code, with_model):
-    """RT-A5 (Work combination-certificate.md section 2): one set-bound HELD_STATUS_RELEASED entry per held combination
+    """one set-bound HELD_STATUS_RELEASED entry per held combination
     whose record releases a support, its message rebuilt from the record's recorded fields only, at the full reader."""
     e = _held_entry(name)
     if edit is not None:

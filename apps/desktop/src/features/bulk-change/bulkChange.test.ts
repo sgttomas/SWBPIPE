@@ -1,4 +1,4 @@
-/** B2 (DEL-07-02 Design `bulk-change.md`): each generated batch equals a hand-built batch of
+/** each generated batch equals a hand-built batch of
  * the existing operations, and the family refusals hold. The canonicalizer is a stand-in that
  * labels its input, so the expected `before` values show what each operation is given. */
 import { describe, expect, it } from "vitest";

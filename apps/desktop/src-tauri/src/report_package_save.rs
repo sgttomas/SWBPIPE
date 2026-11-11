@@ -132,7 +132,7 @@ pub const EVIDENCE_UNBOUND: &str = "REPORT-PACKAGE-SAVE-EVIDENCE-UNBOUND";
 pub const MODEL_UNBOUND: &str = "REPORT-PACKAGE-SAVE-MODEL-UNBOUND";
 pub const INPUT_MANIFEST_UNBOUND: &str = "REPORT-PACKAGE-SAVE-INPUT-MANIFEST-UNBOUND";
 pub const INPUT_MANIFEST_INVALID: &str = "REPORT-PACKAGE-SAVE-INPUT-MANIFEST-INVALID";
-/// The package's rule packs are not the packs the solve recorded (§2.5; the
+/// The package's rule packs are not the packs the solve recorded (the
 /// webview's early refusal has the same code, `reportPackageRequest.ts`).
 pub const RULE_PACKS_DISAGREE: &str = "REPORT-PACKAGE-RULE-PACKS-DISAGREE";
 pub const LIBRARY_STORE_UNAVAILABLE: &str = "REPORT-PACKAGE-SAVE-LIBRARY-STORE-UNAVAILABLE";
@@ -150,8 +150,8 @@ pub const REQUEST_POSITIONAL: &str = "REPORT-PACKAGE-SAVE-REQUEST-POSITIONAL";
 /// The webview screener's code for a blocked disposition (`redactionExportControls.ts`).
 pub use crate::export_disposition_screen::PROTECTED_CONTENT_BLOCKED;
 
-/// Route 010's refusal bounds (W-18b, DEL-08-01 Design `report-user-release.md`
-/// §2.5, "Refusals on route 010"; Codex round 1 at #1682, P1): a route-010
+/// Route 010's refusal bounds (W-18b,
+/// Codex round 1 at #1682, P1): a route-010
 /// refusal carries at most one diagnostic, whose path is at most this many
 /// bytes (the finding's JSON pointer, or its nearest enclosing pointer within
 /// that length) ...
@@ -222,7 +222,7 @@ pub struct ReportPackageSaveScreening {
     /// `sha256:<hex>` of the request text the webview screened; it must be the
     /// SHA-256 of the text admitted.
     pub payload_sha256: String,
-    /// The wrapper's user-release intent (W-18b §2.5 step 1): true only on
+    /// The wrapper's user-release intent: true only on
     /// route 010, false (or absent) on route 009.
     #[serde(default)]
     pub explicit_user_release_intent: bool,
@@ -240,7 +240,7 @@ pub struct ReportPackageLocalFirstEvidence {
     pub blocked: bool,
     pub metadata_only: bool,
     pub explicit_local_private_intent: bool,
-    /// The wrapper's user-release intent (W-18b §2.5 step 1).
+    /// The wrapper's user-release intent.
     #[serde(default)]
     pub explicit_user_release_intent: bool,
 }
@@ -255,11 +255,11 @@ pub struct ReportPackageSaveRequest {
     pub input_manifest_text: String,
     pub screening: ReportPackageSaveScreening,
     pub local_first: Option<ReportPackageLocalFirstEvidence>,
-    /// W-11 (§3.6): for an exact-route request only, the bytes its solve job
+    /// for an exact-route request only, the bytes its solve job
     /// delivered and the model text the job was sent.
     pub exact_result_text: Option<String>,
     pub exact_intake_text: Option<String>,
-    /// W-18b (§2.5 step 2): on route 010 only, the solve's DEL-14-02 0.3.0
+    /// on route 010 only, the solve's DEL-14-02 0.3.0
     /// transient run record as its canonical text; a validation input only,
     /// never saved.
     pub analysis_run_text: Option<String>,
@@ -338,7 +338,7 @@ pub struct ReportPackageSaveReceipt {
     /// Non-blocking findings of the native screen, e.g.
     /// `MODEL-LIBRARY-REF-UNRESOLVED`.
     pub warnings: Vec<Diagnostic>,
-    /// W-18b (§2.3): whether the package records the user's per-report user
+    /// whether the package records the user's per-report user
     /// release (route 010), and the model document SHA-256 it is bound to
     /// ("" when not recorded).
     pub user_release_recorded: bool,
@@ -504,7 +504,7 @@ pub fn validate_report_package_save_evidence(
     Ok(())
 }
 
-/// The size caps of §2.6 item 3, before anything is parsed or priced.
+/// The size caps, before anything is parsed or priced.
 pub fn check_text_sizes(request_text: &str, model_text: &str, input_manifest_text: &str) -> Result<(), ReportPackageSaveCommandError> {
     for (what, text, cap) in [
         ("request", request_text, MAX_REQUEST_TEXT_BYTES),
@@ -519,7 +519,7 @@ pub fn check_text_sizes(request_text: &str, model_text: &str, input_manifest_tex
     Ok(())
 }
 
-/// The size caps of an exact-route request's resubmitted texts (§3.6): the
+/// The size caps of an exact-route request's resubmitted texts: the
 /// result text's is the request text's, since the source is a member of the
 /// request; the intake text's is the model text's.
 pub fn check_exact_text_sizes(exact_result_text: Option<&str>, exact_intake_text: Option<&str>) -> Result<(), ReportPackageSaveCommandError> {
@@ -534,7 +534,7 @@ pub fn check_exact_text_sizes(exact_result_text: Option<&str>, exact_intake_text
 
 /// [`parse_lease_bytes`] plus the priced parse of an exact-route request's two
 /// resubmitted texts, each M plus its re-serialization
-/// ([`crate::command_ingress::text_parse_bytes`]; §3.6, "Pricing"). The
+/// ([`crate::command_ingress::text_parse_bytes`]). The
 /// native standing, the digests and the comparisons run under the held lease
 /// as the command's working memory, within the existing W M provision.
 pub fn parse_lease_bytes_with_exact(
@@ -555,7 +555,7 @@ pub fn parse_lease_bytes_with_exact(
     Ok(base.saturating_add(priced("exact_result", exact_result_text)?).saturating_add(priced("exact_intake", exact_intake_text)?))
 }
 
-/// The run record text of route 010 (§2.5 step 2): present, within
+/// The run record text of route 010: present, within
 /// [`MAX_ANALYSIS_RUN_TEXT_BYTES`].
 fn analysis_run_text_of(analysis_run_text: Option<&str>) -> Result<&str, ReportPackageSaveCommandError> {
     let text = analysis_run_text.ok_or_else(|| {
@@ -586,7 +586,7 @@ fn analysis_run_text_of(analysis_run_text: Option<&str>) -> Result<&str, ReportP
 ///     whose length the texts bound (Codex round 2 at #1673), and is then
 ///     bounded (Codex round 1 at #1682).
 ///
-/// Rule 3 (b)'s growth (§2.7) comes later, inside admission, by the largest
+/// Rule 3 (b)'s growth comes later, inside admission, by the largest
 /// embedded candidate's priced parse. Every growth is refused above the
 /// budget the command was admitted under (`ingress_exceeds_budget`).
 pub fn ingress_lease_bytes(request: &ReportPackageSaveRequest) -> Result<u64, ReportPackageSaveCommandError> {
@@ -706,10 +706,10 @@ pub struct AdmittedReportPackage {
     pub screening: ReportPackageSaveScreening,
     pub local_first: ReportPackageLocalFirstEvidence,
     pub warnings: Vec<Diagnostic>,
-    /// W-11 (§3.6): an exact-route request's job and the digests its binding
+    /// an exact-route request's job and the digests its binding
     /// checked, re-checked after the save dialog and before the write.
     pub exact_custody: Option<(String, CustodyDigests)>,
-    /// W-18b (§2.3): the model document SHA-256 a route-010 package's
+    /// the model document SHA-256 a route-010 package's
     /// user-release record is bound to; `None` on route 009.
     pub user_release_model_document_sha256: Option<String>,
 }
@@ -718,7 +718,7 @@ fn text_at<'a>(value: &'a Value, pointer: &str) -> Option<&'a str> {
     value.pointer(pointer).and_then(Value::as_str)
 }
 
-/// The disposition screens of §2.6 item 4 over both parsed values, each
+/// The disposition screens over both parsed values, each
 /// finding named by its JSON pointer under `/request` or `/model`:
 /// - the structural screen (W-6b's, [`screen_value`] and [`malformed_values`],
 ///   with no exemption: model documents carry rule-pack references only,
@@ -769,8 +769,8 @@ fn screen_content(request: &Value, model: &Value, project_id: &str, lookup: &mut
     if blocking.is_empty() { Ok(warnings) } else { Err(ReportPackageSaveCommandError::refused(blocking)) }
 }
 
-/// Route 010's disposition screen (W-18b, DEL-08-01 Design
-/// `report-user-release.md` §2.5, "Refusals on route 010"; Codex round 1 at
+/// Route 010's disposition screen (W-18b,
+/// Codex round 1 at
 /// #1682, P1): [`screen_content`]'s rules over the same two values, in its
 /// order, refused at the first finding, which is named as
 /// [`screen_content`] names it:
@@ -943,7 +943,7 @@ pub(crate) fn check_manifest_model(input_manifest: &Value, model: &Value, model_
     Ok(())
 }
 
-/// One rule pack's identity in the §2.5 comparison: `{rule_pack_id, version,
+/// One rule pack's identity in the comparison: `{rule_pack_id, version,
 /// checksum value}`.
 type RulePackIdentity = (String, String, String);
 
@@ -1054,7 +1054,7 @@ fn check_request_object_form(request: &Value) -> Result<(), ReportPackageSaveCom
     }
 }
 
-/// Whether the parsed request is an exact-route request (§3.6): its result
+/// Whether the parsed request is an exact-route request: its result
 /// document has an exact identity or its report carries `exact_route`.
 fn exact_request(request: &Value) -> bool {
     let identity = text_at(request, "/result_documents/0/result_envelope/producer/semantic_contract_id");
@@ -1062,7 +1062,7 @@ fn exact_request(request: &Value) -> bool {
         || request.pointer("/report/exact_route").is_some_and(|route| !route.is_null())
 }
 
-/// The native source binding of an exact-route save (§3.6): steps 1-5, then
+/// The native source binding of an exact-route save: steps 1-5, then
 /// the request's source and the model text against the delivered result and
 /// the solved model. Returns the job and the digests it checked.
 fn bind_exact_save_source(
@@ -1094,8 +1094,8 @@ fn bind_exact_save_source(
     Ok((job, digests))
 }
 
-/// The admission of §2.6 items 2-6, before any file is chosen, with no
-/// custody: every exact-route request refuses at its custody binding (§3.6).
+/// The admission, before any file is chosen, with no
+/// custody: every exact-route request refuses at its custody binding.
 #[cfg_attr(not(test), allow(dead_code))]
 pub fn admit_report_package(
     request: ReportPackageSaveRequest,
@@ -1105,7 +1105,7 @@ pub fn admit_report_package(
     admit_report_package_in(request, software, lookup, &no_custody)
 }
 
-/// The admission of §2.6 items 2-6 with the registry's custody lookup, before
+/// The admission with the registry's custody lookup, before
 /// any file is chosen, with no session: a route-010 request refuses at its
 /// solve attestation (`REPORT-USER-RELEASE-RESULT-NOT-ATTESTED`), since only
 /// the command's session ([`UserReleaseSession`]) holds attested solves.
@@ -1147,7 +1147,7 @@ impl From<ReportPackageSaveCommandError> for SaveRefusal {
 }
 
 /// The admission of both routes, before any file is chosen. The route id in
-/// the evidence selects the branch (W-18b §2.5). Every existing check runs on
+/// the evidence selects the branch. Every existing check runs on
 /// both routes in its order; route 010 adds the run record text (step 2), the
 /// exact-route source binding after the object-form check (D-6), its
 /// context (step 3) and, after the rule-pack agreement, steps 4-9: the
@@ -1192,7 +1192,7 @@ pub fn save_report_package_session(
 }
 
 /// The route a save command's outcome leaves under, read from the screening
-/// evidence's route id (§2.5 step 1), as admission selects its branch.
+/// evidence's route id, as admission selects its branch.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum SaveRoute {
     /// Route `DREP-PACKAGE-SAVE-009` (and any other id, which admission
@@ -1202,8 +1202,8 @@ pub enum SaveRoute {
     UserReleased,
 }
 
-/// The save command's error as the command returns it (W-18b, DEL-08-01
-/// Design `report-user-release.md` §2.5, "Refusals on route 010"; Codex round
+/// The save command's error as the command returns it (W-18b,
+/// Codex round
 /// 2 at #1682, P2). Only [`SaveRoute::exit`] makes one, so every command
 /// error of the save leaves through that one step, whatever stage refused:
 /// the outer command's pricing, admission, the save dialog, the custody
@@ -1305,8 +1305,8 @@ fn elided(text: &str, limit: usize) -> String {
     out
 }
 
-/// A route-010 refusal within its bounds (W-18b, DEL-08-01 Design
-/// `report-user-release.md` §2.5, "Refusals on route 010"; Codex round 1 at
+/// A route-010 refusal within its bounds (W-18b,
+/// Codex round 1 at
 /// #1682, P1, and round 2, P2), so the error the command returns has a fixed
 /// bound, [`ROUTE_010_REFUSAL_TEXT_BYTES`] of text, whatever stage refused:
 /// - at most one diagnostic, the first (route 010's checks refuse at their
@@ -1477,7 +1477,7 @@ fn admit_both_routes(
         )
         .into());
     }
-    // Slice C5 (DEL-08-01 Design `report-section-composer.md` §2.7): the
+    // the
     // report's model-input tables are P(M, C) of this bound model and the
     // report's own composition, on both routes; tables without a listing id,
     // or a listing id without tables, are refused. The refusal names a JSON
@@ -1554,7 +1554,7 @@ fn admit_both_routes(
             (admit_user_released(request_value, bound, run_text, software, session)?, Some(model_hex.clone()))
         }
         _ => {
-            // Typed conversion and the shared producer (§2.3).
+            // Typed conversion and the shared producer.
             (report_package_bridge::assemble_request(typed_request(request_value)?).map_err(ReportPackageSaveCommandError::bridge)?, None)
         }
     };
@@ -1598,7 +1598,7 @@ fn refused_sized(code: &str, path: &str, detail: &str) -> ReportPackageSaveComma
     ReportPackageSaveCommandError::refused_one(Diagnostic { code: code.to_string(), path: path.to_string(), message: owned })
 }
 
-/// Step 4 (§2.5): the record is of its form (§2.3; no `content_binding`) and
+/// Step 4: the record is of its form (no `content_binding`) and
 /// each bound member equals a value admission itself computed or already
 /// bound, never another caller field alone.
 fn check_user_release_record(
@@ -1653,7 +1653,7 @@ fn admit_user_released(
 ) -> Result<open_pipe_stress_report_package::ReportPackageContainerOutcome, SaveRefusal> {
     // Step 4: the record's form and bindings.
     let record = check_user_release_record(&request, &bound)?;
-    // Step 5: the reference refusals (§2.7).
+    // Step 5: the reference refusals.
     match user_release_native::refuse_library_referenced(&bound.model, session.lease) {
         Ok(()) => {}
         Err(LibraryRefusal::Referenced(message)) => return Err(coded("/model", &message).into()),
@@ -1767,7 +1767,7 @@ pub fn save_admitted_report_package(
 
 /// [`save_admitted_report_package`] with the registry's custody lookup: an
 /// exact-route package's custody is checked again after the dialog returns
-/// and before the write, against the digests its binding checked (§3.6).
+/// and before the write, against the digests its binding checked.
 pub fn save_admitted_report_package_in(
     admitted: AdmittedReportPackage,
     custody: &CustodyLookup<'_>,
@@ -1787,7 +1787,7 @@ pub fn save_admitted_report_package_in(
     Ok(admitted.receipt("saved", "complete", code.to_string(), Some(save)))
 }
 
-/// The shared invented report-package basis builder (DEL-08-01 Design §2.7),
+/// The shared invented report-package basis builder,
 /// by path inclusion, as the headless witness generator includes it.
 #[cfg(test)]
 #[path = "../../../../core/reporting/report_package/tests/common/package_basis.rs"]
@@ -2196,7 +2196,7 @@ mod tests {
     }
 
     /// The model's own dispositions are screened, although the report input
-    /// relabels its provenance (§2.6 item 4).
+    /// relabels its provenance.
     #[test]
     fn model_only_content_is_screened() {
         let mut blocked = model();
@@ -2255,7 +2255,7 @@ mod tests {
     }
 
     /// The structural screen: what W-6a's record screen does not judge
-    /// (§2.6 item 4) is refused in either value, every object at every depth.
+    /// is refused in either value, every object at every depth.
     #[test]
     fn the_structural_screen_judges_every_object_in_both_values() {
         let model_cases: Vec<(&str, fn(&mut Value), &str)> = vec![
@@ -2342,7 +2342,7 @@ mod tests {
         assert!(outcome.is_ok() && calls.is_empty());
     }
 
-    /// The raw context and the model-text bindings (§2.6 item 5).
+    /// The raw context and the model-text bindings.
     #[test]
     fn context_and_model_text_bindings_are_checked() {
         let (code, paths) = refusal(admit(edited(|r| r["report"]["report_context"]["export_context"] = json!("public_report"))));
@@ -2574,7 +2574,7 @@ mod tests {
     /// references and the origin's qualification name another manifest of the
     /// same model (bound by its text), with the derivative hash recomputed, is
     /// refused: the desktop names its audit manifest by the input-manifest
-    /// reference (§2.4), which the shared producer now requires.
+    /// reference, which the shared producer now requires.
     #[test]
     fn an_audit_manifest_id_other_than_the_input_manifest_reference_is_refused() {
         let first = input_manifest(&model(), json!([]));

@@ -1,4 +1,4 @@
-/** Key results after a solve (survey item A6; DEL-07-05 Design `key-results-panel.md`).
+/** Key results after a solve (survey item A6).
  *
  * What the key-results panel offers for one result, read from the derivations the views it opens
  * already use: the stress and ratio table's rule categories (A3) and the viewport's ratio
@@ -29,7 +29,7 @@ import { rowCaseKey } from "./resultsNavigator";
 type ResultRow = MechanicsResult["results"][number];
 
 /* -------------------------------------------------------------------------- *
- * Actions and keys (§2, §5)
+ * Actions and keys
  * -------------------------------------------------------------------------- */
 
 export type KeyResultsActionId =
@@ -63,7 +63,7 @@ export function keyResultsKeyAction(event: Readonly<{ key: string; altKey?: bool
 }
 
 /* -------------------------------------------------------------------------- *
- * The panel's contents (§3, §4)
+ * The panel's contents
  * -------------------------------------------------------------------------- */
 
 /** The support-state rows of the nonlinear active-set solve (DEL-04-04, DEL-04-07): one per
@@ -270,7 +270,7 @@ export function buildKeyResults(input: {
 }
 
 /* -------------------------------------------------------------------------- *
- * Opening after a solve (§3)
+ * Opening after a solve
  * -------------------------------------------------------------------------- */
 
 /** What the auto-open rule remembers across results: the last result it saw, and whether it has

@@ -1,5 +1,5 @@
 """T4-S5 D3 (shared epoch 4): heap owners the T4-U4b/U5b source adds outside the chain's TEXT inventory, priced
-positively (retained-pricing-rules.md §8.8: U5B-PD, U4B-ST, U5B-AB, U4B-W1, U4B-RD, U4B-NQ). Each owner is bound to
+positively (§8.8: U5B-PD, U4B-ST, U5B-AB, U4B-W1, U4B-RD, U4B-NQ). Each owner is bound to
 the exact function bodies (sha256 of the text from `fn <name>` to its closing brace at the same indentation) or
 exact source lines that allocate it. A snapshot without the function adds nothing, so earlier registered trees keep
 their coefficients; a changed body stops the run for review. No zero and no reuse credit is taken: every owner below
@@ -23,7 +23,7 @@ PHYS = "core/reporting/result_export/src/physics_evidence.rs"
 ROWS = "core/product_physics/src/source_receipt/rows.rs"
 NI = "core/solver/nonlinear_integration/src/structural_adapter.rs"
 
-# O4 S5 (retained-pricing-rules.md §8.9, O4-NC): prepared_not_covered keeps U4B-W1's operand table (type, reservation,
+# O4 S5 (§8.9, O4-NC): prepared_not_covered keeps U4B-W1's operand table (type, reservation,
 # events) and adds a separate reduced table (one per distinct-basis member) and a bound-position bitmap of the case's
 # rows, both only when a member's bases differ; those are O4's owners (o4_owners_model.py), not this model's.
 BODY_PINS = {
@@ -33,7 +33,7 @@ BODY_PINS = {
     # lookups and `sigma_n` read through it (RTA3B-MR prices its slots); every allocation priced below is unchanged.
     (U4B, "append_station_quantities"): "1865cd487cbea499a29ee9dd02f722ebf173eb9bac0a11d9f4a2583bd8effb5b",
     (SPARSE, "sparse_contribution_sums"): "3a7bb0911b4646798f6cbc6f104f0b852ba5beaf3ef439d6535004b06c8f4a7a",
-    # W-7 D3 (retained-pricing-rules.md §8.20): failed_manifest adds each member's twelve global end placeholders after
+    # W-7 D3 (§8.20): failed_manifest adds each member's twelve global end placeholders after
     # its maximum (rows inside FAILED_MEMBER_ROWS = 78, W7-RL; their texts are TEXT sites), and prepared_not_covered
     # adds its end-action table (W7-NC, w7_owners_model) and completes the global end rows; the Poisson flags, the
     # grown diagnostics and this operand table are unchanged.
@@ -57,7 +57,7 @@ ABSORPTION_PIN = "2acbe81068e36d74474cb2f7014f9dcbf65c0bdde660c783af7ced048534e5
 # the Index also holds `operands`, the component-free shear operand map `new` builds after the row index (RT-U4
 # determinism: an ambiguous slot is refused by name), instead of scanning `rows`.
 INDEX_PIN = "c2415acb104e529d2ee803b48f04f514e4262db06e66063a6e446117d9bb5836"
-# RTA3B-PS/RTA3B-MR (RT-A3 increment 1b, retained-pricing-rules.md §8.37): u4b_rows.rs from
+# RTA3B-PS/RTA3B-MR (RT-A3 increment 1b, §8.37): u4b_rows.rs from
 # `pub(crate) struct PublishedScope {` to `/// §2.3: σ_N of one station` (the scope, its entity hash, `begin`,
 # MemberRows and `published`).
 PUBLISHED_INDEX_PIN = "1bca396b2bf2d204baf8492eb7649701cb34f68a9c7b13fdf03dcb9db98f68de"

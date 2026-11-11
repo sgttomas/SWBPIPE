@@ -28,14 +28,14 @@
 //!   unresolved at p and escalates." It is model information: "sensitivity to
 //!   matrix-entry perturbation, not to authored parameters".
 //!
-//!   **The estimate's role (D1 revision 5a.3, R7 §5.9).** The estimate est
+//!   **The estimate's role.** The estimate est
 //!   serves availability only. It screens ill-conditioned candidates early
-//!   (rcond ≤ 2^-(p−1), unchanged), and its solves choose the shift σ_c of
-//!   §4.1.6.3 item 7c (`bound.rs`: an optional read-only observer collects the
+//!   (rcond ≤ 2^-(p−1), unchanged), and its solves choose the shift σ_c
+//!   (`bound.rs`: an optional read-only observer collects the
 //!   per-block ratios est_c; ROOT's A3-0 ruling Q4). It carries no part of the
 //!   honesty argument.
 //!
-//! **Lemmas D and E (R7 §4.1.6.3)** take `factor()`'s loop as read at
+//! **Lemmas D and E** take `factor()`'s loop as read at
 //! `cef218a10`. `factor()`, `pivot_passes`, `negative_pair`, `solve_scaled` and
 //! `solve` are unchanged since then; the certified bounds read L and D through
 //! the read-only accessors below, and the shifted factorization is a separate
@@ -130,7 +130,7 @@ fn axis(component: usize) -> [f64; 3] {
 pub(crate) fn geometry_first(
     source: &PrimitiveSource,
 ) -> Result<Vec<BodyGeometry>, GeometryRefusal> {
-    // V-K seeded fault VK-F07 (§7.3-7): the geometric mechanism check disabled.
+    // V-K seeded fault VK-F07: the geometric mechanism check disabled.
     #[cfg(any(test, feature = "mutation-controls"))]
     if super::seeded::active(super::seeded::Fault::F07) {
         return Ok(vec![
@@ -617,7 +617,7 @@ where
     Wide<L>: SupportedWidth,
 {
     /// L's (i, j) entry for j < i, D's for j = i, in elimination order (read
-    /// by the certified bounds, R7 §4.1.6.3 item 7b).
+    /// by the certified bounds).
     pub(crate) fn get(&self, i: usize, j: usize) -> Wide<L> {
         if j < self.first[i] {
             Wide::<L>::ZERO
@@ -700,7 +700,7 @@ where
     }
 
     /// `condition`, with an optional read-only observer that sees each of the
-    /// screen's solves y = K̃⁻¹x (R7 §4.1.6.3 item 7c's est_c). The observer
+    /// screen's solves y = K̃⁻¹x (est_c). The observer
     /// changes nothing the screen computes.
     pub(crate) fn condition_observed(
         &self,

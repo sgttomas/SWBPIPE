@@ -23,7 +23,7 @@ const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, Pre
 /// every target: the dense bytes used to differ across targets through libm `hypot`
 /// (`rigid:N0`'s support force magnitude); since I109 (PR-N) magnitudes are correctly
 /// rounded norms, and dense is re-pinned at the correctly rounded value.
-/// K-D5 (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 6) re-pinned both
+/// K-D5 re-pinned both
 /// modes: the milestone case stays Sensitive (K-D5's estimate), and against main
 /// the bytes differ only by the two linear limitation sentences, the current
 /// maximum declaration literals and the fallback maximum's enclosure. B7a's H-4
@@ -42,19 +42,19 @@ const ORDINARY_SHA256: [(&str, usize, &str); 2] = [
 ];
 /// The serializer's committed milestone output: sha256 of the pretty-printed
 /// successor envelope, and its receipt_sha256 (byte-stable, both modes).
-/// K-D5 re-pin (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 6): against main the milestone
+/// K-D5 re-pin: against main the milestone
 /// successor differs only by the current maximum declaration and fallback enclosure, the two
 /// linear limitation sentences, and the receipt and publication hashes that bind them.
-/// Model 0.7.0 re-pin (W-13 S1b; DEL-02-01 Design `model-document-0.7.0.md` §2): every pinned
+/// Model 0.7.0 re-pin (W-13 S1b): every pinned
 /// request and witness input was re-authored by its version token alone. The input sha256 pins, the
 /// successors' invocation digests, the exact route's DEF-E-bound preparation and source identity
 /// hashes, and the receipt, publication and document hashes binding them moved and follow the
 /// maintained writers' bytes; no numeric leaf, class, selection, status or verdict moved.
-/// W-7 re-pin (DEL-04-01 Design `global-end-actions.md`): the member's twelve not-covered global end
+/// W-7 re-pin: the member's twelve not-covered global end
 /// rows, the receipt figures counted over the rows, and the hashes binding them moved.
-/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
+/// Model 0.9.0 re-pin (S1): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-/// RT-A4 D3 re-pin (DEL-04-08 §8.46): only `formulation_basis.limitations[6]` (§10.2's sentence) and the publication
+/// RT-A4 D3 re-pin (§8.46): only `formulation_basis.limitations[6]` and the publication
 /// and receipt seals binding it moved; restated to the former sentence and resealed by the Python 07e rule, each
 /// regenerated document reproduces its former pins byte for byte.
 const SUCCESSOR_SHA256: [(&str, &str, &str); 2] = [
@@ -221,7 +221,7 @@ fn u1_milestone_successor_both_modes() {
             assert_eq!(c.result_id, rows[v.row]);
             let derived = rp::derived_kind(successor["results"][v.row]["kind"].as_str().unwrap());
             if derived {
-                // T4-U4b §4.1: a recipe-free not-covered verdict carries the published value as
+                // a recipe-free not-covered verdict carries the published value as
                 // published (final_case.rs records `r.value`), while the reader normalizes a
                 // stress row to SI; the reader's value is the published one, normalized.
                 let published = successor["results"][v.row]["value"].as_f64().unwrap();
@@ -236,7 +236,7 @@ fn u1_milestone_successor_both_modes() {
                 Some(k::RowClass::AbsoluteVerified { bound_bits }) => reader::AccuracyClass::AbsoluteVerified { bound_bits },
                 Some(k::RowClass::InputDerived) => reader::AccuracyClass::InputDerived,
                 Some(k::RowClass::Unpublishable) => panic!("unpublishable"),
-                // T4-U4b §4.1: a class-None verdict is a record's (non_quantity) or a
+                // a class-None verdict is a record's (non_quantity) or a
                 // not-covered derived row's (its recipe is NotCovered).
                 // W-7: a global end row is a named not-covered row too (GLOBAL_END_ROWS_NOT_COVERED).
                 None if rp::derived_kind(successor["results"][v.row]["kind"].as_str().unwrap())
@@ -273,7 +273,7 @@ fn u2_foreign_owner_refused() {
     assert_eq!(wire::serialize_cases(&mut second, &second_staged, &capture).err().map(|f| f.field_path), Some("cases[].selection.owner"));
 }
 
-/// ROOT correction (I65 D-4 §3): every record amount is read through its checked
+/// ROOT correction: every record amount is read through its checked
 /// accessor. A record whose `work_status` latch holds a fault (here a stage total
 /// overflow) refuses on every latched view while its legacy fields look plausible.
 #[test]
@@ -333,7 +333,7 @@ fn u1_stage_slots_require_an_exact_status() {
     assert_eq!(failures, vec![wire::ReceiptFailure { check: wire::ReceiptCheck::WorkCounter(k::WorkFault::Overflow), field_path: "stages" }]);
 }
 
-/// D-4 §3 item 5: the producer checks C1 §1 conservation before emission
+/// the producer checks conservation before emission
 /// (record: own = W+K, own stages = O, shared stages = S+V, D+Q <= O; run:
 /// the logical partition and after = before + increment).
 #[test]
@@ -396,7 +396,7 @@ fn u1_receipt_check_wire_vocabulary() {
     }
 }
 
-/// D-4 §3 item 2: a trace Count is exact or abandons.
+/// a trace Count is exact or abandons.
 #[test]
 fn u1_exact_or_abandon_counts() {
     let mut overflow = k::StageWork::default();
@@ -409,7 +409,7 @@ fn u1_exact_or_abandon_counts() {
     assert_eq!((count, failures.len()), (json!({"kind":"exact","value":0}), 0));
 }
 
-/// U6-DH, T4-S6 (DEL-05-03 Design §9): `domain_hash` streams the checked canonical text of the
+/// U6-DH, T4-S6: `domain_hash` streams the checked canonical text of the
 /// borrowed `{domain, payload}` into the hasher. Its hash, and its refusal (None), are the former
 /// path's — `json!({"domain": d, "payload": p})`, serialized, checked-parsed, canonicalized, hashed —
 /// over the in-tree definition and table, every hashed domain name and adversarial payloads (key
@@ -505,7 +505,7 @@ fn u1_refusals_are_typed() {
 /// G-b on an actual load-row case (captured entry): the finding demotes a
 /// Passed report, so its sentence is disclosed in the integrity diagnostic. Capture leaves the ordinary bytes
 /// unchanged here too. S11-G T1's RF-CANCEL-UDL-W1e8 is now Sensitive at the solve
-/// under K-D5's closure (DEL-04-01 kd5-member-relative-bound.md §§1, 4.2), so the
+/// under K-D5's closure, so the
 /// Passed load-row case is the same request with a soft branch
 /// (`f1a_tests::udl_w1e8_with_soft_branch`).
 #[test]
@@ -655,7 +655,7 @@ fn u2_failure_path_foreign_owner_refused() {
     assert_eq!(refused.err(), Some(wire::ReceiptFailure { check: wire::ReceiptCheck::Association, field_path: "product_attempts[].proof.owner" }));
 }
 
-/// C1 §1 item 2 (grant 2): a failed verification keeps its translated failure
+/// (grant 2): a failed verification keeps its translated failure
 /// reason; a completed one has none. The milestone's records, with the
 /// verification outcome replaced (a projection control, not a native run).
 #[test]
@@ -677,7 +677,7 @@ fn u1g2_failed_verification_keeps_its_reason() {
     assert_eq!(failures.iter().map(|f| f.field_path).collect::<Vec<_>>(), vec!["run.attempts[].verification.phase"]);
 }
 
-/// C1 §4 Run.kernel_terminal for each kernel outcome (grant 2).
+/// Run.kernel_terminal for each kernel outcome (grant 2).
 #[test]
 fn u1g2_kernel_terminals() {
     let (candidate, _, _) = milestone_candidate(PreviewSolverMode::SparseInteractive);
@@ -833,7 +833,7 @@ fn u1g2_initial_quality_crosscheck_negative() {
         Some(wire::ReceiptFailure { check: wire::ReceiptCheck::Association, field_path: "ordinary_attempts[].initial.outcome" }), "R13");
 }
 
-/// B3b-P (B3-D P-9; REVISION_01 §1.2, S-1): the exact route's wire constants are bound to the
+/// B3b-P (B3-D P-9): the exact route's wire constants are bound to the
 /// in-tree statics J1 landed: DEF-E's H is `EXACT_DEFINITION_SHA256` and the physics-retained-1
 /// table binds it, its identity, profile, policies and `receipt_bindings` (B3D-8, the serializer's
 /// own values); its inherited hash is pressure-2's table bytes (B7b D4 (a)). The preview route's descriptor is

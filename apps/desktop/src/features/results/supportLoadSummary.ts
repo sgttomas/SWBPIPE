@@ -15,7 +15,7 @@
  * values and says why; it and every row that is not one solved state stay out of the extremes,
  * and the summary counts them. Stored values and units are kept unchanged for an export (D2).
  *
- * R-6/R-7 S-K1 (DEL-04-03 Work `skew-restraints.md` §7.1): a skewed support also emits one
+ * R-6/R-7 S-K1: a skewed support also emits one
  * `support_reaction_along_direction_v1` row per solved state, its reaction along its stored
  * `direction` (component `along_direction`, coordinate system `support_direction`). That row is
  * not a global component: it is never a column, never in the extremes and never in the CSV

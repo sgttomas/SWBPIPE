@@ -44,7 +44,7 @@
 //!   solve's model body holding it is refused at the solve's own ingress
 //!   prescan, so only a caller-supplied text that was never solved can meet
 //!   this refusal (`a_raw_value_token_key_is_the_one_refused_exception`).
-//! - **Admission and memory** (plan §2, slice 1, and §8). Every lease this
+//! - **Admission and memory**. Every lease this
 //!   command takes is pool-admitted before what it covers is allocated, and
 //!   none exceeds the per-invocation budget or, whatever budget is
 //!   configured, the owner-adopted 12 GiB default:
@@ -70,7 +70,7 @@
 //!   so neither input-sized admission nor reads occupy the runtime's workers.
 //! - **Residual.** The readers' own working memory runs under these leases
 //!   but is not separately priced, as `command_ingress` states for every
-//!   command's working memory (plan §7, item 3).
+//!   command's working memory.
 
 use crate::command_ingress::{self, ArgsDecoding, CommandError};
 use crate::ingress;

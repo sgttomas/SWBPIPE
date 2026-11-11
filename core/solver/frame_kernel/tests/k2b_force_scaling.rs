@@ -1,4 +1,4 @@
-//! K2b kernel tests (T3 D1 revision 5a.2 §4.7, W2 force-radix scaling and the
+//! K2b kernel tests (W2 force-radix scaling and the
 //! kernel half of formation-time scaling; ROOT's K2b rulings of 2026-09-28):
 //! the force scale, exact scaling at formation, the b-rule's census and
 //! window, the ledger's force-scaled terms, the sparse assembly option, and
@@ -958,8 +958,6 @@ fn k2b_unscaled_error_payloads() {
 }
 
 // ------------------------------------------------------------------ RV11 fixes
-// (T3 `ROOT_RULINGS_V1.md`, "K2b: rulings on RV11's review (ROOT)"; RV11's
-// review `REVIEW/K2B_REVIEW.md`, findings RV11-1, RV11-2 and RV11-4.)
 
 /// RV11-2: a scaled value is accepted only when the **exact** result is
 /// normal. RV11's probe F-B: (2 - 2^-52)*2^-1021 at b = -2 is exactly
@@ -1159,9 +1157,6 @@ fn k2b_rv11_force_scaled_end_actions_are_checked_and_unscaled_once() {
 }
 
 // ------------------------------------------------------------------ RV11 delta fixes
-// (T3 `ROOT_RULINGS_V1.md`, ROOT's rulings on RV11's delta check; RV11's
-// review `REVIEW/K2B_REVIEW.md`, "Delta check at f385a8bc8", RV11D-1 and
-// RV11D-2.)
 
 /// RV11D-2: `force_scaled_end_actions` checks the local-displacement stage
 /// T * u_e too, at every b, b = 0 included. A member along (3, 4, 0) m has

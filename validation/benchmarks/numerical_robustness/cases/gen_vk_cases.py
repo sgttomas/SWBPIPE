@@ -6,7 +6,7 @@ and `references.py` and D1's `floor_kinds.json`, and writes the files next to it
 
   rf_<family>.jsonl        one JSON object per R1 case (RF-CANCEL's three UDL cases,
                            which are W1b's, are excluded)
-  not_covered.json         the enumerated not-covered list (DESIGN.md §4.10)
+  not_covered.json         the enumerated not-covered list
   expected_unresolved.json the cases W1a is expected to leave unresolved (ROOT's
                            ruling on I17's A1 stop), with their reason
   absolute_range_rows.json the rows whose expected value lies outside binary64's range
@@ -157,7 +157,7 @@ def section_values(sec, basis, pi_q):
 
 def y_reference(xi, xj):
     """The global unit axis on which the exact chord has the smallest |component|, the
-    lowest index on ties (V-K's rule; K4's differs, plan §4.4)."""
+    lowest index on ties (V-K's rule; K4's differs)."""
     d = [abs(Fr(b) - Fr(a)) for a, b in zip(xi, xj)]
     k = min(range(3), key=lambda c: (d[c], c))
     y = [0.0, 0.0, 0.0]
@@ -309,8 +309,8 @@ def k4src_from_model_json(mj, basis, pi_q):
 # ----------------------------------------------------------------------------- the floor check (generator's own)
 
 def s_star(rows, adapted):
-    """S* per kind and per member (variant F) from the reference values, D1 §4.1.6.1 items
-    4-7 in binary64 (Python floats are IEEE binary64, math.sqrt correctly rounded)."""
+    """S* per kind and per member (variant F) from the reference values
+    in binary64 (Python floats are IEEE binary64, math.sqrt correctly rounded)."""
     s = {k: 0.0 for k in KINDS}
     for key, value, cls, _scale in rows:
         base = cls.split('@')[0]
@@ -340,7 +340,7 @@ def member_length(xi, xj):
 
 
 def coefficient(a, b, length):
-    """k = fl(fl(a*b)/L) (DESIGN.md §4.10), with ROOT's C1 ruling: where fl(a*b) or the
+    """k = fl(fl(a*b)/L), with ROOT's C1 ruling: where fl(a*b) or the
     quotient is not a normal number, the same two operations on operands pre-scaled by an
     exact power of two, the result unscaled exactly.  Identical bits where the design's
     formula is defined (normal intermediates)."""
@@ -513,7 +513,7 @@ def full_rows_of(r1, case):
 
 def s_full(full_rows):
     """S(kind) of the complete reference solution (R1's 40-digit strings of the largest
-    magnitude of each class), for the floor check at n >= 1,000 (plan §7.2)."""
+    magnitude of each class), for the floor check at n >= 1,000."""
     best = {}
     for key, value, cls, _ in full_rows:
         v = abs(Fr(Decimal(value)))

@@ -231,7 +231,7 @@ fn exact_witness_requests() -> Vec<(String, Value)> {
     requests
 }
 
-/// W-11 (DEL-08-01 Design `exact-route-report-sections.md` §5.1, §5.4): since
+/// since
 /// the owner opened the desktop's exact-route report package (2026-10-26), the
 /// shared producer's public root admits pressure-2 and pressure-source-1 under
 /// the desktop profile (the desktop's save calls it after its native source
@@ -252,7 +252,7 @@ fn the_shared_root_refuses_the_exact_witness_requests_under_the_runner_profile()
     }
 }
 
-/// W-11 §5.4: the headless runner stays refused for exact-route results. Its
+/// the headless runner stays refused for exact-route results. Its
 /// `export-results` command, given the committed runner witness input with
 /// each exact witness request as its payload, under the desktop and the
 /// runner profile, refuses with `REPORT-PACKAGE-ROUTE-NOT-ADMITTED` and

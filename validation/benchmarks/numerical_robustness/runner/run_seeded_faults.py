@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""V-K A2: the seeded-fault kill matrix (T3 D1 §4.10 and §7.3; plan §10.5).
+"""V-K A2: the seeded-fault kill matrix.
 
 Standard library only. It builds VR's tests once with `--features
 seeded-faults`, then runs them once per fault, with `FK_SEEDED_FAULT` naming
 the fault:
 - NONE first, which must pass every test;
-- every fault of plan §10.4 (VK-F05 added by ROOT's ruling), each of which must
+- every fault (VK-F05 added by ROOT's ruling), each of which must
   fail at least one test: a fault no test fails is a survivor and a stop;
 - an unknown id, which must make the tests that reach a site panic, naming it.
 

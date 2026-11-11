@@ -1,4 +1,4 @@
-//! Exact decisions for VP-ROBUST (T3 D1 §4.10): the unchanged predicate
+//! Exact decisions for VP-ROBUST: the unchanged predicate
 //! `|obs − exp| ≤ 1e-9·max(|exp|, scale)`, the magnitude form, the floor
 //! comparison and the binary64-range test, all decided on exact rationals.
 //!
@@ -8,7 +8,7 @@
 //! - Every value is `±m·2^a·10^b` with an unsigned big integer `m`; two values
 //!   are compared after scaling both by one common `2^A·10^B` to integers.
 //!   Nothing is rounded, so no decision depends on a binary64 rounding of a
-//!   reference value (plan §6.1).
+//!   reference value.
 //! - Standard library only: `Nat` is a little-endian `u32`-limb integer with
 //!   the few operations the comparisons need.
 use std::cmp::Ordering;
@@ -473,7 +473,7 @@ pub fn predicate(obs: &Exact, exp: &Exact, scale: &Exact) -> bool {
 }
 
 /// The predicate on a magnitude `√(my² + mz²)`, exactly, without forming the
-/// square root (plan §6.2): with t = 10⁻⁹·max(|exp|, scale), it holds iff
+/// square root: with t = 10⁻⁹·max(|exp|, scale), it holds iff
 /// `my² + mz² ≤ (exp + t)²` (and exp + t ≥ 0) and, where exp − t > 0,
 /// `my² + mz² ≥ (exp − t)²`.
 pub fn magnitude_predicate(my: f64, mz: f64, exp: &Exact, scale: &Exact) -> bool {
@@ -503,7 +503,7 @@ pub fn outside_binary64(exp: &Exact) -> bool {
     a.cmp(&tiny) != Ordering::Greater || a.cmp(&huge) != Ordering::Less
 }
 
-/// The floor comparison (D1 §4.10): the comparison scale max(|exp|, scale) is
+/// The floor comparison: the comparison scale max(|exp|, scale) is
 /// at least R·S*, R = 2^-34, decided exactly (no rounding of R·S*).
 pub fn covered(exp: &Exact, scale: &Exact, s_star: f64) -> bool {
     let comparison = Exact::max(&exp.abs(), scale);

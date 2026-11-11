@@ -89,7 +89,7 @@ fn index(v: &Value) -> Option<usize> {
         .then_some(n as usize)
 }
 /// The 07e format rule (SHARED_SNAPSHOT_07E `format_rule`) with 07o's steps
-/// (B2-C REVISION_01 §5.2, S-6), in dependency order: 1 preparation hashes, for
+/// in dependency order: 1 preparation hashes, for
 /// each `sources[*].preparation.attempt_ref` that resolves and whose members are
 /// all prepared; 2 operand-preparation hashes, for each
 /// `sources[*].preparation.operand_preparation_ref` that resolves to a prepared
@@ -100,7 +100,7 @@ fn index(v: &Value) -> Option<usize> {
 /// 6 publication hash; 7 receipt hash. A reference that is not an index, or
 /// does not resolve, is skipped.
 fn rehash(source: &mut Value) {
-    // S-1 (REVISION_01 §2): every preparation hash carries the route's
+    // every preparation hash carries the route's
     // definition H: DEF-E's on the exact identity, DEF-O's otherwise.
     let h = if source["producer"]["semantic_contract_id"] == rp::EXACT_CONTRACT_ID {
         rp::EXACT_DEFINITION_HASH
@@ -375,7 +375,7 @@ fn apply_on(case: &Value, entry: &Value) -> (Value, Value) {
 
 
 /// Snapshot-07l pins (U8-2; I69) on the two producer-solved L = 0 bases:
-/// SNAPSHOT_05_PLAN §1.2's isolated rotation stop, has_data and coupled estimate
+/// isolated rotation stop, has_data and coupled estimate
 /// (sparse, then dense), then I69's translation-plus-rotation stop (sparse, then
 /// dense), mutations 278..286.
 
@@ -2762,10 +2762,10 @@ fn d30_native_run_ref_on_nonselected_run() {
     assert_eq!((got.gate, got.code.as_str()), ("G5", PRODUCT));
 }
 
-/// D31, as B7a keys it (b7-plan "Model format, pressure-free half"): G8's preview
+/// D31, as B7a keys it: G8's preview
 /// namespace is the current model version 0.9.0 without a pressure contract; the
-/// retired 0.1.0 and 0.2.0 are refused, and 0.4.0 stays excluded. B3a (B3-D §6.3,
-/// decision B3D-10): 0.3.0 without a contract is outside D1.3 (the producer cannot
+/// retired 0.1.0 and 0.2.0 are refused, and 0.4.0 stays excluded.
+/// 0.3.0 without a contract is outside D1.3 (the producer cannot
 /// emit it, `PRESSURE_CONTRACT_REQUIRED`), so it is G8 INVOCATION_MISMATCH; 0.3.0
 /// with the legacy contract is `b3a_legacy_pressure_contract_namespace_at_g8`'s.
 /// The invocation edit rebinds the receipt's invocation digest. The verifier's
@@ -3234,7 +3234,7 @@ fn u7_07j_not_required_case_omitted_or_reordered_is_not_current() {
 }
 
 // ---------------------------------------------------------------------------
-// B1 SR-RS (I90; PLAN_v2 §2.4; DESIGN_v2 §2 and §3.2-§3.3): reader-local tests on
+// B1 SR-RS (I90): reader-local tests on
 // synthetic n-case receipts, derived from the shared two-case bases and must-pass entries.
 // They are not shared corpus entries: SC's 07n pins the shared ones (W-C2,
 // `d38_beside_selected` with m1-m8, F-1's five, and `not_required`'s three).
@@ -3294,7 +3294,7 @@ const PREP: &str = "RETAINED_PRECISION_PREPARATION_MISMATCH";
 const NOT_REQUIRED: &str = "not_required_second_case_checks_passed";
 const UNAVAILABLE_ROW: &str = "case:unavailable-row";
 
-/// R-D38 (4b), DESIGN_v2 §2, on F_BASE: case 1 (unavailable, with its own CaseSource and a
+/// R-D38 (4b), on F_BASE: case 1 (unavailable, with its own CaseSource and a
 /// prepared attempt) is rewritten so that its native stage failed before any Run, beside
 /// selected case 0, as SC's `d38_beside_selected` rewrites W-C2's case C: no Run, no
 /// `execution_order`, Call or Group entry, the call's after-value and `charged` recomputed
@@ -3330,7 +3330,7 @@ fn d38_edits(shared: &Value) -> Vec<Value> {
 
 /// R-D38 (4b) admitted beside a selected case: G0-G8 pass and the standing is
 /// needs_recompute. Before B1 the reader refused it (an entered native stage needed a Run).
-/// m1-m8 (DESIGN_v2 §2) and the other (4b) conjuncts are refused, each at this reader's
+/// m1-m8 and the other (4b) conjuncts are refused, each at this reader's
 /// first failure.
 #[test]
 fn b1_d38_capture_before_any_run_beside_a_selected_case() {
@@ -3539,7 +3539,7 @@ fn b1_d38_4a_native_failure_with_a_run_is_admitted() {
     assert!(misses.is_empty(), "{}", misses.join("\n"));
 }
 
-/// G5's `not_required` rule (DESIGN_v2 §3.3, decision 9), on 07j's two-case statement
+/// G5's `not_required` rule, on 07j's two-case statement
 /// (selected, then not_required): a W2-published case with the verdict checks_passed (T-4's
 /// case B, by an evaluation or a formation trigger) is admitted and the statement is
 /// eligible. A non-null product attempt (another case's, at G3; the case's own, by the rule
@@ -3599,7 +3599,7 @@ fn b1_g5_not_required_admits_a_w2_published_case() {
     assert!(misses.is_empty(), "{}", misses.join("\n"));
 }
 
-/// F-1 text B's P1 and the requested mode (DESIGN_v2 §3.2-§3.3), in G8's per-case loop:
+/// F-1 text B's P1 and the requested mode, in G8's per-case loop:
 /// every case is checked, here the second one, unavailable (F_BASE) or not_required (07j).
 #[test]
 fn b1_g8_mode_row_and_requested_mode_for_every_case() {
@@ -4869,7 +4869,7 @@ fn b1_i4p_transport_metadata_demands_alone() {
 }
 
 /// B3a dropped (RR "Owner decisions: the legacy pressure contract is retired
-/// product-wide; ..."; formerly B3-D §6.3 and §6.4; REVISION_01 §3, N-4): G8's
+/// product-wide; ..."): G8's
 /// namespace predicate is type-strict. Only branch L (current 0.9.0,
 /// `pressure_contract` absent; B7a: a JSON null is present, so refused) is admitted; any other value is G8
 /// INVOCATION_MISMATCH. "L3" in the entry names is B3a's retired contract
@@ -5325,7 +5325,7 @@ const FILE_BASE: &str = "<file>";
 // W-15 (DEL-03-05): re-pinned for the pressure-2 identity limitation (identity bytes and the hashes binding them).
 // W-16 slice b (DEL-05-02): re-pinned again for the pressure-2 identity limitation (identity bytes and the hashes binding them).
 // RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only).
-/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
+/// Model 0.9.0 re-pin: read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 /// RT-A3 S6 (§8.59): S1's nonlinear clause restated; PP `EXACT_PINNED`'s S6 re-pin (reseal-to-base proven).
 const M3X: [(&str, &str, &str, &str, &str); 2] = [
@@ -5385,7 +5385,7 @@ const EXACT_BASES: [&str; 3] = [ORD, "ordinary_prepared_dense_synthetic", "two_c
 const INVOCATION: &str = "RETAINED_PRECISION_INVOCATION_MISMATCH";
 const PREPARATION: &str = "RETAINED_PRECISION_PREPARATION_MISMATCH";
 const SECTION: &str = "RETAINED_PRECISION_SECTION_MISMATCH";
-/// REVISION_01 §4.3's B3b list on the synthetic exact successor (entries 1-32;
+/// B3b list on the synthetic exact successor (entries 1-32;
 /// entry 9 relabels the shared preview base), plus this reader's added shapes; then
 /// every row, the base and S-1's shape on each of lane P's two m3x successors.
 /// The expected first failures are bound; `B3B_SHAPES_OUT` writes every shape's
@@ -5645,7 +5645,7 @@ fn b3b_repair03_n2b_physics_code_is_array_ordered_and_stable() {
 /// inputs were re-derived from `B3B_INPUTS_OUT` and the pins are the Python materialization.
 const REPAIR03_N2B_INPUTS: [&str; 2] = ["c0cdddbdad028646a386dc5bff22a3ce3987acd1151a97207463d4cbe2dc55c5", "7467b8eb324765e911e93f33c18f86b3aa8fc7cc0f651b5b7634f48930e85eea"];
 /// RV120's N2 probe inputs (sha256 of the canonical `[source, invocation]`), as in its index.
-/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
+/// Model 0.9.0 re-pin: read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 const RV120_N2_INPUTS: [&str; 2] = ["5216d411ba5f0bb54e4d6291523758af82dd59f3cc120fb44777692af9685fa5", "25e2675a7f278d3d84e13bb4e7b65dd3faba462f36c3a9939b63a1b6635f25f6"];
 fn sha256_canonical(v: &Value) -> String {
@@ -5655,7 +5655,7 @@ fn sha256_canonical(v: &Value) -> String {
 }
 /// The forgeries' materialized inputs: sha256 of the canonical JSON of `[source, invocation]`
 /// (`canonical_json`), the same bytes as RV120's input lines (checked against its index).
-/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
+/// Model 0.9.0 re-pin: read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 const RV120_FORGERY_INPUTS: [(&str, &str, &str); 4] = [
     ("RV120 F2: E +1 ulp", "ordinary_prepared_synthetic", "51ebaeab172f6d145964b7f0f362ed03798f74e4cf7edb93d7d709d705ca7b17"),
@@ -5915,7 +5915,7 @@ fn b3b_exact_successor_readings_standing_and_dispatch() {
     assert_eq!(sc::physics_retained_contract()["formulation_profile_id"], rp::EXACT_PROFILE);
 }
 
-/// B3b (D2 §4.9.7; B3-D §7): derivative.rs carries the exact successor's
+/// derivative.rs carries the exact successor's
 /// `contract_evidence` and its receipt whole, and validates the document against
 /// the source (the synthetic exact successors and lane P's m3x successors). The base and origin are a minimal 0.2.0 scaffold of the desktop's
 /// (T6S-2's `desktop_base` and `desktop_origin`, retained_precision_derivative_golden.rs);
@@ -6056,7 +6056,7 @@ fn b3_add1_g8_sourced_case_on_the_preview_and_exact_routes() {
 }
 
 // ---------------------------------------------------------------------------
-// Snapshot 07n (B1 SC, I100; PLAN_v2 §2.5), appended to 07m: W-C2's two
+// Snapshot 07n (B1 SC, I100), appended to 07m: W-C2's two
 // producer-solved bases, `d38_beside_selected`, the out-of-order-authored and
 // SF-2 successors, and 290 entries. Every 07n entry states its bound expectation
 // (per reader only in the declared class: Rust's own raw G7 code where Python and
@@ -6118,7 +6118,7 @@ fn b2_w_cb3(mode: &str) -> (Value, Value) {
 }
 const B2_MODES: [&str; 2] = ["sparse_interactive", "dense_scrutiny"];
 /// S-6 from step `from` (4, 5 or 6) on: the hashes that depend on an edited
-/// inner hash, leaving that inner hash as written (REVISION_01 §5.2's inner-hash
+/// inner hash, leaving that inner hash as written (inner-hash
 /// tests: each inner conjunct is then the only one a test can reach).
 fn b2_reseal(source: &mut Value, from: u8) {
     use open_pipe_stress_result_export::source_blocks::domain_hash;
@@ -6213,9 +6213,9 @@ fn b2_w_cb3_successors_validate() {
     }
 }
 
-/// B2-C §10.1, every new check by gate, on W-CB3 (both modes): each edit reaches
+/// every new check by gate, on W-CB3 (both modes): each edit reaches
 /// its gate and code. Rows name CONTRACT §10.3's mutation where one is the
-/// same edit. The `inner` rows are REVISION_01 §5.2's three inner-hash tests:
+/// same edit. The `inner` rows are three inner-hash tests:
 /// each inner hash edited and only the publication and receipt hashes resealed.
 #[test]
 fn b2_w_cb3_new_checks_first_failures() {
@@ -6377,7 +6377,7 @@ fn b2_w_cb3_rows(mode: &str, misses: &mut Vec<String>) {
     }
 }
 
-/// B2-C §4's reason table for a `retained_unavailable` combination with an
+/// reason table for a `retained_unavailable` combination with an
 /// attempt, by the attempt's own error (reader logic).
 #[test]
 fn b2_combination_reason_table_rows() {
@@ -6398,7 +6398,7 @@ fn b2_combination_reason_table_rows() {
     assert!(!ok(entry("combination_unresolved", "preparation", "unresolved"), attempt(json!({"kind": "preparation"}))), "a preparation error is refused");
 }
 
-/// B2-C §10.1 G5 products: each `retained_unavailable` entry's cause (reader
+/// G5 products: each `retained_unavailable` entry's cause (reader
 /// logic, on a two-case body: A selected, B as the row states).
 #[test]
 fn b2_combination_cause_rows() {
@@ -6453,7 +6453,7 @@ fn b2_combination_cause_rows() {
     }
 }
 
-/// R-COMB-1 (R) (B2-C §5; REVISION_01 §2, S-3; REVISION_02 §4.1): after the G5c
+/// R-COMB-1 (R): after the G5c
 /// classes, every row of a `retained_unavailable` combination, and of an
 /// `ordinary` one naming a case that is not `not_required`, in authored and then
 /// publication order: quantity rows `not_covered`, record rows `non_quantity`,
@@ -6525,7 +6525,7 @@ fn n1_negative_extrema_numbers_refused_zero_accepted() {
                         assert_eq!((e.gate, e.code.as_str()), ("G7", base), "{k} {value}");
                     }
                 }
-                // K-D5 (DEL-04-01 kd5-member-relative-bound.md §3.2): value_upper_pa equals
+                // value_upper_pa equals
                 // global_upper_bound_pa, so a zero global bound beside the base's nonzero upper
                 // passes this demand and fails the bounds one; a zero gap is accepted.
                 None if k == "global_upper_bound_pa" => {
@@ -6543,7 +6543,7 @@ fn n1_negative_extrema_numbers_refused_zero_accepted() {
     }
 }
 
-/// 07o (B2-C CONTRACT §10.2-§10.3 with REVISION_01 §5 and REVISION_02 §4; lane C's
+/// 07o (B2-C CONTRACT §10.2-§10.3; lane C's
 /// corpus, appended after 07n): 19 bases (45), 69 mutations (603) and 19 must-pass
 /// entries (97), ids unique; the format rule states S-6's seven steps; each 07o
 /// must-pass entry's standing (`expected_eligibility.standing`) is this reader's.
@@ -7164,7 +7164,7 @@ fn b7b_corrosion_allowance_namespace_at_g8() {
                 "{name}: {what}"
             );
         }
-        // O4 (DEL-04-08 Design `o4-source-extension.md` §4.7): a nonzero allowance is inside
+        // a nonzero allowance is inside
         // the namespace; G8's D-5 rederivation refuses this receipt, whose section term has no
         // `reduced` for the now distinct reduced wall.
         let (source, invocation) = reseal(&doc, vec![set(ca.clone(), json!({"value": 0.001, "unit": "m"}))]);
@@ -7212,7 +7212,7 @@ fn n1_allowance(pipe: usize) -> Value {
 fn n1_refused(pipe: usize) -> [(&'static str, Value); 4] {
     use serde_json::json;
     [
-        // O4 (§4.7): a nonzero allowance is inside the namespace; a negative one is not.
+        // a nonzero allowance is inside the namespace; a negative one is not.
         ("-0.001 m", set(n1_allowance(pipe), json!({"value": -0.001, "unit": "m"}))),
         ("absent", remove(n1_allowance(pipe))),
         ("null", set(n1_allowance(pipe), Value::Null)),

@@ -1,4 +1,4 @@
-// DEL-07-05 numerical health §2.6, §3 and §7: the presentation over hand-written
+// the presentation over hand-written
 // fixtures of `numerical_health_json`'s output shape (the Rust export is exercised by
 // its own tests). States, header counts, combination inheritance, the pressure-source
 // wording, the output sentence, the chip/rail hold predicate, the figure's format and

@@ -11,7 +11,7 @@ import { LABELS_DO_NOT_CHANGE_STATE, MODEL_STATE_STORE_UNAVAILABLE, type ModelSt
 import type { StoredProjectEntry } from "../../services/projectService";
 import type { LocalProjectEnvelope, PreviewModel } from "../../types";
 
-// W-12 S1 (DEL-14-01 Design `desktop-states-runs-comparison.md` §2): the
+// the
 // session's Save Model State…, Open State, label edit and delete flows, against
 // a fake of the native store's commands. The store's own checks (hashes,
 // immutability, blockers, transactions) are the Rust tests in model_states.rs.
@@ -264,7 +264,7 @@ describe("model states in the session (W-12 S1)", () => {
     expect(await screen.findByTestId("model-history-empty")).toBeInTheDocument();
     await saveStateNamed("Basis – rev A");
     await waitFor(() => expect(historyMessage()).toHaveTextContent(`Saved model state "Basis – rev A"`));
-    // The session retirement's MBF export cancel (DEL-17-04 §3.7) is not a store write.
+    // The session retirement's MBF export cancel is not a store write.
     expect(commandOrder().filter((name) => name !== "find_local_project" && name !== "cancel_mbf_export")).toEqual(["save_local_project", "save_model_state"]);
     const [request] = calls("save_model_state").map((args) => args.request as SaveRequest);
     expect(request.expected_base).toBe(BASE);

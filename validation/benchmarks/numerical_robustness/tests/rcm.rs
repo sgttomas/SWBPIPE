@@ -1,4 +1,4 @@
-//! RCM equality (K4's brief Q7; plan §11): K4's exported port and
+//! RCM equality (K4's brief Q7): K4's exported port and
 //! `sparse_direct`'s RCM give the same order on every CI model's free–free
 //! adjacency and on seeded synthetic graphs.
 use piping_numerical_robustness::cases::load_all;

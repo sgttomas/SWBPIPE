@@ -163,7 +163,7 @@ fn pressure_case_context_uses_one_domain_without_changing_its_payload_shape() {
 /// zero allowance and euler_bernoulli; the held pre-join text went with its
 /// test-only helper.
 const JOINED_LIMITATION_7: &str = "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.";
-/// T4-U6 (§2.4): limitation [0] of pressure-2, the B7b text with the
+/// limitation [0] of pressure-2, the B7b text with the
 /// shear-model parenthesis, the realized-bend clause and the section-bases
 /// sentences of the design (the latter after the admitted-families sentence).
 /// RT-A3 S6: S1's nonlinear clause as exact_admission.rs restates it (admitted beside objective connectors and on
@@ -215,7 +215,7 @@ fn formulation_helpers_preserve_held_callers_and_name_the_actual_publication() {
             assert_eq!(&selected.limitations[1..7], &unselected.limitations[1..7]);
             assert_eq!(&selected.limitations[8..], &unselected.limitations[8..]);
             assert!(selected.limitations[0].contains("under pressure-source-1 semantics"));
-            // O4 §3.3: the selected response follows the contract's shear
+            // the selected response follows the contract's shear
             // model on both section bases; no O4 decline is stated.
             assert!(selected.limitations[0].contains("The selected retained-source response uses the contract's shear model and publishes its stress rows on both section bases."));
             assert!(selected.limitations[7].contains("selected retained-source response"));
@@ -630,7 +630,7 @@ fn cached_source_context_preserves_current_public_serializations() {
     println!("cache_serialization_controls={controls}");
 }
 
-/// T4-U4b §4.3 (S4): the pre-U4b work counters of every current control, as the S1 producer
+/// the pre-U4b work counters of every current control, as the S1 producer
 /// committed them (f468da4651, `fixtures/product_preview/pressure_source/*/*.raw.json`): (family,
 /// name, mode, selected case id, its `work.charged`,
 /// `invocation_work.publication_charged`). No case then published a derived row.
@@ -734,7 +734,7 @@ fn ra_work_for(family: &str, raw: &Value, mode: PreviewSolverMode, case_id: &str
     measured.unwrap_or_else(|e| panic!("{label}: {e}"))
 }
 
-/// T4-U4b §4.3's complete work law, checked independently on every current control (twelve
+/// complete work law, checked independently on every current control (twelve
 /// requests x two modes) against the pre-U4b counters, with R-A's change since then: for each
 /// selected case, `work.charged` changes by exactly 24ΔE + ΔF_k + ΔQ_k + ΔR_k, and
 /// `publication_charged` by 24ΔE + ΔP + ΔD_k.
@@ -743,7 +743,7 @@ fn ra_work_for(family: &str, raw: &Value, mode: PreviewSolverMode, case_id: &str
 /// - ΔQ_k: the composite wrapper's own 64 per new row; the new treatment reserves no recipe
 ///   work (no `derived_recipe_entry`, no 4096 per row), so its per-recipe charge is zero.
 /// - ΔP: the publication's 32 per new row and 256 per new row per load case.
-/// - ΔR_k (R-A, DEL-04-08 Design `source-work-nondyadic-inputs.md` §3.1 "As built", §4):
+/// - ΔR_k (R-A):
 ///   measured by `ra_work` on the replay's own input against the pre-R-A path (the plain
 ///   plan and the long evaluation). The live attempt changes by the plan term (two units
 ///   per descriptor for the hint rule, checked) plus the evaluation term; the replay, on the
@@ -827,7 +827,7 @@ fn u4b_source_work_law_reconciles_every_control_with_its_pre_u4b_counters() {
     println!("U4B_SOURCE_WORK maximum per-case charge {maximum} of 8000000");
 }
 
-/// T4-U4b §4.3 (S4): genuine `derived_not_qualified` receipts on both families and modes, and
+/// genuine `derived_not_qualified` receipts on both families and modes, and
 /// their named refusals. Each selected case's σ⁺/σ⁻ and τ rows carry the treatment with no
 /// projection, their own formula recipe and exactly the station rows the formula reads; the
 /// Rust reader admits it neutrally (no finding, eligibility unchanged) for the two kinds only.

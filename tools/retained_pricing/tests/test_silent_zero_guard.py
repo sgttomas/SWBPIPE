@@ -1,4 +1,4 @@
-"""SZ-TX, SZ-ID and SZ-LS (retained-pricing-rules.md §8.15): the silent-zero guard's rules apply only where its code
+"""SZ-TX, SZ-ID and SZ-LS (§8.15): the silent-zero guard's rules apply only where its code
 exists, price its per-case validation diagnostic's identifiers, keep load-state resolution's findings guarded at
 multiplicity 0, and stop on a changed diagnostic."""
 from pathlib import Path

@@ -383,7 +383,7 @@ pub(crate) fn assemble_wire_request_in(
     admitted: AdmittedSet,
 ) -> Result<package::ReportPackageContainerOutcome, String> {
     // Item 0, the route preflight, comes before any other check, including the
-    // audit conversion (DEL-08-01 Design §2.3).
+    // audit conversion.
     for document in &request.result_documents {
         crate::document_form::check_route_admitted_in(document, admitted)?;
     }
@@ -738,7 +738,7 @@ mod tests {
         assert!(audit_error.contains("REPORT-PACKAGE-SHA256-INVALID"));
     }
 
-    /// DEL-08-01 Design §2.4: the two recorded bases decode; other labels
+    /// the two recorded bases decode; other labels
     /// (the report's own `JCS` declaration among them) do not.
     #[test]
     fn recorded_checksum_bases_decode_by_their_tokens() {

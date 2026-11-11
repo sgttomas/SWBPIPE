@@ -1,4 +1,4 @@
-/** Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §5.4, §6.1; owner ruling 11B,
+/** Epoch 8 (owner ruling 11B,
  * 2026-10-21): the one disclosure line each opened output panel shows for an exact-route
  * result that carries resolved load/reference states. The line reads only the published
  * records' reference configuration, load case and history kind, in published order and
@@ -43,7 +43,7 @@ describe("the disclosure texts (§5.4)", () => {
     expect(N_LOAD_REFERENCE_EXPORT).toBe(`${N_LOAD_REFERENCE_INCLUDED} The export carries them in contract_evidence.load_reference_states, with the producer's limitations.`);
     expect(N_LOAD_REFERENCE_PACKAGE).toBe(`${N_LOAD_REFERENCE_INCLUDED} The package carries them in contract_evidence.load_reference_states, with the producer's limitations.`);
     expect(N_LOAD_REFERENCE_RULE_CHECK).toBe(`${N_LOAD_REFERENCE_INCLUDED} Rules bind the published rows of these load cases, which are solved with these states' resolved contributions.`);
-    // W-11 §3.2; the report package's Rust producer composes the same text (`LOAD_REFERENCE_TEMPLATE`).
+    // the report package's Rust producer composes the same text (`LOAD_REFERENCE_TEMPLATE`).
     expect(N_LOAD_REFERENCE_RENDERED_REPORT).toBe(`${N_LOAD_REFERENCE_INCLUDED} Their published limitations are listed under Limitations.`);
     // A deliverable-specific scope statement in ordinary prose (docs/claims_registry.md §4):
     // no boundary statement, status label or finding about the result.
@@ -99,7 +99,7 @@ describe("loadReferenceDisclosure(source, surface)", () => {
       "result-export": included + " " + "The export carries them in contract_evidence.load_reference_states, with the producer's limitations.",
       "stress-neutral": included + " " + "The package carries them in contract_evidence.load_reference_states, with the producer's limitations.",
       "rule-check": included + " " + "Rules bind the published rows of these load cases, which are solved with these states' resolved contributions.",
-      // W-11 (DEL-08-01 Design `exact-route-report-sections.md` §3.2): the rendered report's line.
+      // W-11: the rendered report's line.
       "rendered-report": included + " " + "Their published limitations are listed under Limitations.",
     };
     for (const [surface] of SURFACES) {

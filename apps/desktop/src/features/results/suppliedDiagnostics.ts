@@ -1,10 +1,10 @@
-/** RT-A3 §4 (DEL-05-02 Work `combination-certificate.md` §2, the residual text boundary): the one
+/** the one
  * classification of a result diagnostic's message, used by the report's projection
  * (`renderableReportInput.ts` `diagnosticsForSections`, mirrored by Rust
  * `report_package::bindings::expected_report_diagnostics`) and by the Diagnostics panel's list
  * and explanation (`presentedResultDiagnostics`). It reads typed identities and a reader's
  * verdict only (for a retained successor, the registered retained reader's acceptance of its exact
- * bytes; DEL-04-08 §8.53), never a message's wording, and derives no standing or certificate fact. */
+ * bytes), never a message's wording, and derives no standing or certificate fact. */
 import type { Diagnostic, MechanicsResult } from "../../types";
 import { isNativeResult, nativeDiagnosticsPresentation, type NativeResult, type SessionResult } from "../../services/nativeResult";
 import { readerDispatch, readerValidate, type ReaderName } from "./resultReader";
@@ -13,7 +13,7 @@ import { retainedPrecisionRegistration } from "./retainedPrecisionStanding";
 /** The label before a diagnostic message passed through as supplied text. */
 export const SUPPLEMENTAL_DIAGNOSTIC_LABEL = "Supplied diagnostic text, unverified (not a combination certificate statement): ";
 
-/** RT-A5 (DEL-05-02 `operating-case.md` §7.5; Work `combination-certificate.md` §2): the five typed held
+/** RT-A5: the five typed held
  * gate codes (Rust `result_export::HELD_STATUS_GATE_CODES`). Such a notice's refusal text is bound to its
  * held-status record by the reader, not verified as true, and supplies no row bound, eligibility,
  * certificate notice or standing, so it is always quoted whole as supplied text, whatever the roster or
@@ -143,7 +143,7 @@ function wholeValueFacts(result: MechanicsResult): PresentationFacts {
  * quoted as supplied. A native handle whose facts are unavailable reads it (fail closed). */
 const UNVERIFIED_POPULATION: ReadonlySet<string> = new Set([""]);
 
-/** C1 (DEL-04-05 `c1-native-custody-plan.md`, "Native diagnostics presentation"): a native handle's
+/** C1: a native handle's
  * facts, Rust's on its held bytes and delivered in S (`nativeDiagnosticsPresentation`), each the
  * whole-value helper's on the same bytes. Read from the handle's custody only: never its guarded
  * members (`results`, `retained_precision`) and never a reader on the webview handle. Unavailable

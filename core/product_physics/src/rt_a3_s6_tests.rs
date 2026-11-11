@@ -1,4 +1,4 @@
-//! RT-A3 S6 (DEL-04-07 Design `route-unification-r4.md` §3.7): the PP
+//! RT-A3 S6: the PP
 //! consumers of the independent references in `validation/references/rt_a3_s6/`
 //! (exact rational, generated without product code), in both solver modes.
 //!

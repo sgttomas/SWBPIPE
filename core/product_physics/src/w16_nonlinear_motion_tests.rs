@@ -35,7 +35,7 @@ pub(super) struct Request {
 pub(super) enum Expect {
     /// Passed with the confirmation; one strict state.
     Passed,
-    /// The confirmation fails closed with this named §2.4 reason (a weak
+    /// The confirmation fails closed with this named reason (a weak
     /// boundary the loop converges on).
     NotEstablished(&'static str),
     /// As `NotEstablished`, with either reason: at a weak unilateral boundary
@@ -245,7 +245,7 @@ pub(super) fn run_case(
         assert_eq!(publications[0].published[index].to_bits(), lo.to_bits(), "{at}: {key} publishes g exactly");
         assert_eq!(publications[0].solve[index].to_bits(), lo.to_bits(), "{at}: {key} is the loop's g");
     }
-    // R-b (§4): one relative-displacement row per moved ground, an authored
+    // R-b: one relative-displacement row per moved ground, an authored
     // zero included, fl(U - g_s) from the actual published displacement U and
     // then the row's unit; none for a case that moves no ground.
     let strict = exact["strict_states"].as_array().unwrap();
@@ -373,7 +373,7 @@ pub(super) fn run_case(
     (output, records)
 }
 
-/// §5 R-a: A-1, A-2, A-3 and the translated A-2, both modes.
+/// R-a: A-1, A-2, A-3 and the translated A-2, both modes.
 #[test]
 fn r_a_references_bind_and_match_in_both_modes() {
     for request in &R_A {
@@ -435,7 +435,7 @@ fn an_authored_zero_base_motion_keeps_every_output() {
 }
 
 
-// ------------------------------------------------ R-a negatives (§3)
+// ------------------------------------------------ R-a negatives
 
 fn codes(output: &MechanicsEnvelope) -> Vec<String> {
     output.diagnostics.iter().map(|d| d.code.clone()).collect()
@@ -466,7 +466,7 @@ fn refused_whole(wire: &serde_json::Value, code: &str, at: &str) {
     }
 }
 
-/// R-c retires the spring refusals (§11.3): a linear spring's base moves in a
+/// R-c retires the spring refusals: a linear spring's base moves in a
 /// model with nonlinear supports.
 #[test]
 fn a_linear_spring_base_moves() {
@@ -489,7 +489,7 @@ fn admitted(wire: &serde_json::Value, at: &str) {
 
 /// A mixed document, one valid motion case and one invalid, is refused whole;
 /// a combination with a motion case in a nonlinear model stays withheld
-/// (`NONLINEAR_COMBINATION_REQUIRES_SOLVE`, §3.1).
+/// (`NONLINEAR_COMBINATION_REQUIRES_SOLVE`).
 #[test]
 fn a_mixed_document_is_refused_whole_and_combinations_stay_withheld() {
     let (wire, _) = bound_request(&R_A[0]);
@@ -518,7 +518,7 @@ fn a_mixed_document_is_refused_whole_and_combinations_stay_withheld() {
     }
 }
 
-// ------------------------------------------------ R-b (§5): a nonlinear support's own ground moves
+// ------------------------------------------------ R-b: a nonlinear support's own ground moves
 
 const LIFT_STICK: &str = "support support:NL-F: stick capacity not established";
 
@@ -600,7 +600,7 @@ pub(super) const R_B: [Request; 12] = [
     },
 ];
 
-/// §10.4 R-d: the rigid restraints of a mixed nonlinear record take base
+/// R-d: the rigid restraints of a mixed nonlinear record take base
 /// values. D-1 (a mixed tip record, a rotational lift-off with rigid UY and
 /// UZ; UZ drops), D-3 (one record moving its lift-off ground and its rigid
 /// UZ, each alone and together) and D-1 translated rigidly in Y (the
@@ -628,7 +628,7 @@ const TIP_WEAK: &[&str] = &["support support:TIP: separation not established", "
 // weak state and the confirmation fails closed (R3).
 const D1: &[(&str, Expect)] = &[("load:ACTIVE", Passed), ("load:LIFTED", Passed), ("load:BOUNDARY", NotEstablishedAny(TIP_WEAK))];
 
-/// §5 R-b: B-1 (with its spring and rotational twins), B-2 (both senses, the
+/// R-b: B-1 (with its spring and rotational twins), B-2 (both senses, the
 /// equality, cancellation and a negative effective clearance), B-3 (both
 /// signs, the weak sticking boundary, an explicit normal and P_x != 0) and the
 /// property (B-1, B-2 and B-3 translated rigidly with every relevant ground),
@@ -648,14 +648,14 @@ fn r_b_references_bind_and_match_in_both_modes() {
     }
 }
 
-/// §3.2: the R-b refusals, each withholding the whole document.
+/// the R-b refusals, each withholding the whole document.
 #[test]
 fn r_b_refusals_are_named() {
     // A DOF other than the record's nonlinear DOF.
     let other = a1_with(|m| m["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().push(motion_on("support:PROP", "UY", 1.0e-4)));
     refused_whole(&other, "IMPOSED_DISPLACEMENT_NONLINEAR_DOF_MISMATCH", "another DOF of the prop");
     // A spring on the nonlinear record itself, on a disjoint DOF: R-c retires
-    // this refusal; the nonlinear ground moves alone (§11.3).
+    // this refusal; the nonlinear ground moves alone.
     let sprung = a1_with(|m| {
         let prop = m["supports"].as_array_mut().unwrap().iter_mut().find(|s| s["id"] == "support:PROP").unwrap();
         prop["family"] = serde_json::json!("spring");
@@ -735,7 +735,7 @@ fn an_authored_zero_ground_motion_adds_only_its_relative_row() {
 }
 
 
-/// §4 registration: the actual Rust reader (`semantic_contract::for_source`)
+/// registration: the actual Rust reader (`semantic_contract::for_source`)
 /// admits each R-b output with its relative-displacement rows, and refuses one
 /// whose relative row names an unlisted support.
 #[test]
@@ -759,7 +759,7 @@ fn the_rust_reader_admits_the_relative_rows() {
     }
 }
 
-/// §10.4 R-d, both modes; each mixed record's signed support components
+/// R-d, both modes; each mixed record's signed support components
 /// (its rigid restraints' reactions and its nonlinear slot) within 1e-9
 /// relative of the exact rows.
 #[test]
@@ -830,7 +830,7 @@ fn a_mixed_record_restraint_moves_as_a_separate_rigid_record() {
     }
 }
 
-/// §10.3 R-d admission: what stays refused on a nonlinear record, and the
+/// R-d admission: what stays refused on a nonlinear record, and the
 /// coincident-restraint count that now includes a mixed record's restraints.
 #[test]
 fn r_d_refusals_are_named() {
@@ -869,7 +869,7 @@ fn r_d_refusals_are_named() {
             assert!(!codes(&output).contains(&"SUPPORT_INPUT_INVALID".to_string()), "{target} {mode:?}: the named check runs first");
         }
     }
-    // Unchanged refusals on a nonlinear record (§10.1): a constant-effort
+    // Unchanged refusals on a nonlinear record: a constant-effort
     // record carrying a nonlinear field, on any DOF; a rigid restraint
     // overlapping the record's own nonlinear DOF. A spring-family record's
     // spring axis moves its base (R-c).
@@ -886,7 +886,7 @@ fn r_d_refusals_are_named() {
         tip["restraints"] = serde_json::json!(["UZ"]);
         tip["stiffness"] = serde_json::json!({"dof": "UZ", "value": {"value": 1.0e6, "unit": "N/m"}});
     });
-    // At the R-d layer this spring axis was refused; R-c moves its base (§11).
+    // At the R-d layer this spring axis was refused; R-c moves its base.
     admitted(&sprung, "the spring axis of a nonlinear record");
     let overlap = with(&|m| {
         let tip = m["supports"].as_array_mut().unwrap().iter_mut().find(|s| s["id"] == "support:TIP").unwrap();
@@ -925,13 +925,13 @@ fn an_authored_zero_on_a_mixed_restraint_keeps_every_output() {
 }
 
 
-// ------------------------------------------------ R-c (§11): a linear spring's base moves
+// ------------------------------------------------ R-c: a linear spring's base moves
 
 const C1: &[(&str, Expect)] = &[("load:AXIAL", Linear), ("load:AXIAL-NEG", Linear), ("load:INEXACT", Linear)];
 const C5: &[(&str, Expect)] = &[("load:ACTIVE", Passed), ("load:LIFTED", Passed), ("load:UNEQUAL", Passed)];
 const D2: &[(&str, Expect)] = &[("load:SPRING", Passed), ("load:GROUND", Passed), ("load:ALL", Passed)];
 
-/// §11.4: C-1 (axial, its RX twin and its hanger twin, with an inexact k·g),
+/// C-1 (axial, its RX twin and its hanger twin, with an inexact k·g),
 /// C-2, C-3 (a pair and its equivalent), C-5 (equal and unequal grounds, and
 /// the property), a moved spring on a rigidly prescribed DOF, a moved spring
 /// reducing a derived friction normal, and D-2 with its same-record twin.
@@ -988,7 +988,7 @@ fn component(output: &MechanicsEnvelope, support: &str, index: usize) -> f64 {
 }
 
 /// Each spring's six published components within their certified family
-/// bound of the exact -k·(u - g) (§11.2); returns the largest relative error.
+/// bound of the exact -k·(u - g); returns the largest relative error.
 fn spring_actions_match(
     output: &MechanicsEnvelope,
     records: &[formation_guard::RecoveryRecord],
@@ -1028,7 +1028,7 @@ fn spring_actions_match(
     worst
 }
 
-/// §11.4: every R-c reference in both modes, each spring's action against
+/// every R-c reference in both modes, each spring's action against
 /// its exact row within its certified bound.
 #[test]
 fn r_c_references_bind_and_match_in_both_modes() {
@@ -1090,7 +1090,7 @@ fn set_spring_motion(wire: &mut serde_json::Value, value: Option<f64>) {
     }
 }
 
-/// §11.1: an authored zero spring base, of either sign, is the fixed-base
+/// an authored zero spring base, of either sign, is the fixed-base
 /// case: every row, bit for bit, and every diagnostic.
 #[test]
 fn a_zero_spring_base_of_either_sign_is_the_fixed_base_case() {
@@ -1114,7 +1114,7 @@ fn a_zero_spring_base_of_either_sign_is_the_fixed_base_case() {
     }
 }
 
-/// C-4 (§11.4): the spring-base case against the same model with the nodal
+/// C-4: the spring-base case against the same model with the nodal
 /// force k·g (exact here): displacements and member rows bit for bit; the
 /// spring actions, each exactly representable here, differ by exactly k·g.
 #[test]
@@ -1149,7 +1149,7 @@ fn c4_a_spring_base_is_the_force_k_g_on_the_displacements() {
     }
 }
 
-/// §11.4: closure mutants on the spring-base primitive. A missing operand, a
+/// closure mutants on the spring-base primitive. A missing operand, a
 /// wrong factor and a wrong DOF binding each fail the K-D5 closure.
 #[test]
 fn spring_base_closure_mutants_fail_closed() {
@@ -1196,7 +1196,7 @@ fn spring_base_closure_mutants_fail_closed() {
     }
 }
 
-/// §11.3 R-c admission: what stays refused, the per-spring duplicate key,
+/// R-c admission: what stays refused, the per-spring duplicate key,
 /// parallel springs moving independently, and combinations.
 #[test]
 fn r_c_admission_and_combinations() {

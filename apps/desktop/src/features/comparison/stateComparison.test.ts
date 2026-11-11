@@ -1,4 +1,3 @@
-// W-12 S3a (DEL-14-01 Design `desktop-states-runs-comparison.md` §4.1, §6):
 // the state comparison's flattening (complete and fail-closed against the 0.9.0
 // schema), the equal-hash invariant (including a reorder-only pair),
 // classification by stable id, the duplicate-id refusal and the desktop's own

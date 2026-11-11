@@ -1,4 +1,4 @@
-// A2 render cost (DEL-07-05 Design `support-load-summary.md` §6): the panel derives its
+// A2 render cost: the panel derives its
 // summaries once per (model, result, standing) identity. Re-renders that change none of
 // them (the session's focus, the test-id prefix, stepping between supports) reuse the
 // derivation. Invented data only (`resultOverlayFixtures`).

@@ -43,14 +43,14 @@ import type { CurrentSessionInputManifestEvidence } from "../../services/inputMa
 // while the selection that produced it is still current; clearing the
 // selection discards it.
 //
-// W-11 slice (b) (DEL-08-01 Design `exact-route-report-sections.md` §3.1): the panel's
+// the panel's
 // check is the surface's own (`surfaceOutputRefusal` on `rendered-report`), which refuses
 // exactly as the route-level check did while the cell refuses an exact result (ruling
 // 10A). Behind it, an exact source is built with its Export Result JSON admission, which
 // is re-checked immediately before IPC, and the render resubmits the texts the native
 // host binds (`renderedReportAssembly.ts`).
 
-/** A route-010 receipt's record (§2.3): the bound model document SHA-256 when the package
+/** A route-010 receipt's record: the bound model document SHA-256 when the package
  * records the user's per-report user release, else null. */
 function userReleaseReceipt(receipt: object): string | null {
   const fields = receipt as { user_release_recorded?: unknown; user_release_model_document_sha256?: unknown };
@@ -96,7 +96,7 @@ export function RenderedReportPanel({
   packageRoute?: ReportPackageSaveRoute | null;
   onPackagePrivateIntentChange?: (value: boolean) => void;
   onSaveReportPackage?: () => void;
-  /** W-18b (DEL-08-01 Design `report-user-release.md` §2.2): opens the user-release dialog. */
+  /** opens the user-release dialog. */
   onSaveShareableReportPackage?: () => void;
 }) {
   const [panelComposition, setPanelComposition] = useState<ReportComposition | null>(null);

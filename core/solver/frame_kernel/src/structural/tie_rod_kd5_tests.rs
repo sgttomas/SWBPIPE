@@ -791,7 +791,7 @@ fn support_reactions_include_the_rods_and_connector_member_loads_exclude_their_r
     }
 }
 
-/// §3.3's certified S_joint = g_x + Σ T_r·(n_r·Q_x) − Pe from certified rows:
+/// certified S_joint = g_x + Σ T_r·(n_r·Q_x) − Pe from certified rows:
 /// `add_row` and `product_value` keep the true value inside the bound.
 #[test]
 fn certified_rows_combine_into_s_joint_with_their_remainders() {

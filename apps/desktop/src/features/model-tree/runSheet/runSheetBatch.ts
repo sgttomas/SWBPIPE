@@ -1,8 +1,8 @@
-// Run-sheet entry, slice S1 (DEL-07-02 Design `run-sheet-entry.md` §3.3): the
+// Run-sheet entry: the
 // row-to-operation mapping and the record projection. Its only input is the
 // resolver's output (`runSheetModel.ts`). It emits ordinary operations of the
 // existing vocabulary and computes no number: coordinates are the resolver's
-// normalized values (§6.2), and tangent points are the engine's.
+// normalized values, and tangent points are the engine's.
 //
 // The record projection is the basis model plus the records this batch's own
 // earlier steps write, by id and verbatim payload only (O10). It forms the
@@ -22,7 +22,7 @@ export const RUN_SHEET_SOURCE = {
   source_channel: "local_desktop_preview",
   source_role: "gui_editor",
 } as const;
-/** The form's labels for a bend's records (§3.2, `InsertBendAtCornerForm`). */
+/** The form's labels for a bend's records (`InsertBendAtCornerForm`). */
 export const BEND_LABELS = { start: "Bend start", end: "Bend end", arc: "Bend arc", component: "Bend" } as const;
 
 type NodeRecord = PreviewModel["nodes"][number];
@@ -34,7 +34,7 @@ const CURVED = "curved_bend_macro_element";
 export type RunSheetRowBuild = {
   key: string;
   operationIds: string[];
-  /** §3.4 ownership: the ids this row's operations leave in the model. Never a node the row did not create. */
+  /** ownership: the ids this row's operations leave in the model. Never a node the row did not create. */
   ownedIds: string[];
 };
 export type RunSheetBuild = { batch: OperationBatch; rows: RunSheetRowBuild[]; projection: PreviewModel };
@@ -101,7 +101,7 @@ function intent(input: {
 }
 
 /** The node record `create_node` writes, as the applier stores it. The resolver
- * already normalized −0 (§6.2), so the displayed value is the emitted one; the
+ * already normalized −0, so the displayed value is the emitted one; the
  * normalization is repeated here so no −0 can reach a payload or the projection. */
 export function nodeRecord(row: ResolvedRunSheetRow, source: string): NodeRecord {
   const { x, y, z } = row.end!.position;
@@ -132,7 +132,7 @@ export function pipeRecord(row: ResolvedRunSheetRow, source: string): PipeRecord
   };
 }
 
-/** Build the one batch for the resolved rows (§3.3). Refuses a sheet the rules refuse. */
+/** Build the one batch for the resolved rows. Refuses a sheet the rules refuse. */
 export async function buildRunSheetBatch(resolved: ResolvedRunSheet): Promise<RunSheetBuild> {
   if (!resolved.queueable) throw new Error("The run sheet has refused rows, sheet-level findings or pending conversions; nothing is built.");
   const source = resolved.source;
@@ -173,7 +173,7 @@ export async function buildRunSheetBatch(resolved: ResolvedRunSheet): Promise<Ru
       stored.section.outside_diameter = clone(section.properties.outside_diameter!);
       stored.section.wall_thickness = clone(section.properties.wall_thickness!);
     }
-    // Model document 0.9.0 §4.1: one `assign_condition_set` after `connect_pipe_run` (and
+    // one `assign_condition_set` after `connect_pipe_run` (and
     // `assign_section`), only when the effective value is present. `connect_pipe_run` never
     // carries `condition_set_ref`, so `before` is `not_present`; the projection adds the
     // reference, since a later bend's `before` context holds full pipe records.
@@ -280,7 +280,7 @@ export async function buildRunSheetBatch(resolved: ResolvedRunSheet): Promise<Ru
       default:
         throw new Error(`Row ${row.number} has no kind.`);
     }
-    // A bend run's insertion follows the next run row's operations (§3.3).
+    // A bend run's insertion follows the next run row's operations.
     if (pendingBend) {
       await insertBend(pendingBend);
       if (pendingBend.bend!.sifs) await realizeSifs(pendingBend);
@@ -318,7 +318,7 @@ export type RunSheetRowCheck =
   | { status: "refused"; diagnostics: OperationOutcomeDiagnostic[] }
   | { status: "not_checked"; message: string };
 
-/** §4.2 Map an engine outcome to rows through the `rowKey` in each `operation_id`.
+/** Map an engine outcome to rows through the `rowKey` in each `operation_id`.
  * The batch stops at its first blocked step, so a row with an operation the
  * engine did not reach, or a row after the refused one, is "not checked". */
 export function mapOutcomeToRows(outcome: Pick<OperationBatchOutcome, "operation_outcomes">, build: Readonly<{ batch: OperationBatch; rows: readonly RunSheetRowBuild[] }>): Map<string, RunSheetRowCheck> {

@@ -1,4 +1,3 @@
-//! Operating-case slice 1a (DEL-05-02 Design `pf-nonlinear-operand-standing.md`):
 //! a subtraction or range envelope of a pressure-free model with nonlinear supports
 //! states each operand's numerical standing and names the supports whose reported
 //! state differs between its operands. Every model goes through the captured value
@@ -22,7 +21,7 @@
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
 use serde_json::{json, Value};
 
-// Model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §3.6): the frozen 0.8.0 requests keep their
+// Model document 0.9.0: the frozen 0.8.0 requests keep their
 // bytes; each parsed copy is re-authored to the current version by its token (common/current_model.rs).
 #[path = "common/current_model.rs"]
 mod current_model;
@@ -210,13 +209,13 @@ fn v1_gap_closing_under_thermal_growth_states_operand_standing_and_the_state_cha
         assert!(rows(&v).iter().all(|r| r["basis_ref"]["ref_id"] != "comb:sum"));
         assert_eq!(diagnostics(&v, "NONLINEAR_COMBINATION_REQUIRES_SOLVE").len(), 1);
 
-        // §2.1: the records, with the cases' own quality records verbatim.
+        // the records, with the cases' own quality records verbatim.
         assert_eq!(v["contract_evidence"]["combination_operands"], expected_records(&v));
-        // Both operands are gap-bearing, so neither passes (DEL-04-01 kd5 §0, R1).
+        // Both operands are gap-bearing, so neither passes.
         for case in ["case:O", "case:S"] {
             assert_ne!(quality(&v, case)["solve_quality"], "checks_passed", "{case}");
         }
-        // §2.2: one state notice and one standing notice per combination.
+        // one state notice and one standing notice per combination.
         let states = diagnostics(&v, STATES_DIFFER);
         assert_eq!(states.len(), 2);
         for (id, notice) in ["comb:o-s", "comb:range"].iter().zip(&states) {
@@ -339,7 +338,7 @@ fn opposite_slip_senses_differ_in_reported_state() {
     write_corpus("slip", corpus);
 }
 
-/// V-2 (design note §1.5; stage 2 R-a, W-16 A-1 operands): the A-1 propped
+/// V-2 (stage 2 R-a, W-16 A-1 operands): the A-1 propped
 /// cantilever (L = 4 m, P at midspan, one-way prop at the tip on UZ) whose
 /// anchor rises by s, with s* = 5PL^3/(48EI) = 2^-10 m by A-1's construction.
 /// Sustained: prop active, R = 5P/16, anchor My = RL - PL/2 = -3PL/16. Anchor
@@ -473,7 +472,7 @@ fn v4_operand_swap_negates_and_case_order_changes_no_case_row() {
 #[test]
 fn documents_without_the_condition_publish_no_member_and_no_notice() {
     let absent = |v: &Value, what: &str| {
-        // RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`): `combination_certificate`
+        // `combination_certificate`
         // accompanies every solved document's combinations, a member of its own.
         let has_gates = !v["contract_evidence"]["combination_gates"].as_array().unwrap().is_empty();
         assert_eq!(v["contract_evidence"].get("combination_certificate").is_some(), has_gates, "{what}");

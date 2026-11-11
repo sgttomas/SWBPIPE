@@ -2,7 +2,7 @@
 //! overflowing same-dimension quotient, or a NaN interpolation or step-lookup
 //! argument) now block with the evaluator's `NonFiniteInput` finding, and the
 //! run carries on to its other checks. A verified bound of exactly zero runs
-//! the same point path (T3 D2 §4.11.2) and gives the same bytes.
+//! the same point path and gives the same bytes.
 //!
 //! T3-SI1c: every arithmetic and interpolation result must be finite (option
 //! D), so a check whose formula overflows blocks at the operation that

@@ -472,7 +472,7 @@ fn i61_check(owner:&adaptive::RetainedSolve,coverage:Vec<ProductSummaryCoverage>
 }
 #[test]
 fn i61_actual_native_coverage_is_borrowed_and_all_nine_flags_rederive() {
-    // §5 controls: zero/no-data body (ALL-ZERO-BODY body 1); native p512 (SKEW-K1E-60)
+    // controls: zero/no-data body (ALL-ZERO-BODY body 1); native p512 (SKEW-K1E-60)
     // charge = force/moment stop; native p128/p256 charge = estimate. Actual native runs.
     let mut seen=std::collections::BTreeSet::new();
     for name in ["ALL-ZERO-BODY","SKEW-K1E-60","SKEW-K1E-28","SKEW6-K1E-12","TWO-SPAN","PRESCRIBED","REACTIONS-ONLY","ZERO-TORSION-345"] {
@@ -957,7 +957,7 @@ fn b3k_restored_material_gate_fails_stress_and_maximum_rows_with_represented_z()
     }
 }
 
-// T4-U4b (DEL-04-07 Design u4b-u5b-implementation.md §4.1): the recipe-free
+// the recipe-free
 // not-covered passthrough. Its rows enter no lane, scale, bound or coverage
 // set; PP completes each value after projection; its verdict is class None.
 #[test]
@@ -1040,7 +1040,7 @@ fn cause_of(f: ProductFailure) -> &'static str {
 }
 
 // ---------------------------------------------------------------- B2-K
-// The combination specimen (I94 KD §6, with RV115's SF-2, SF-3 and N-9): one
+// The combination specimen (with RV115's SF-2, SF-3 and N-9): one
 // cantilever, eight operand cases, C1-C9 through the recorded source API, and
 // the independent oracle's exact targets (product_certificate_vectors.py).
 #[path = "product_certificate_combination_vectors.rs"]
@@ -1377,7 +1377,7 @@ fn b2k_k10_mutation_controls_fail_containment() {
     };
     // (a) The representative's loads at the free rows instead of the ledger:
     // containment fails, and the K-lane tip motions enclose the oracle's
-    // response to operand 0's loads alone (KD §6 item 4 (ii)).
+    // response to operand 0's loads alone.
     super::super::source_residual::hooks::set_representative(true, false);
     for name in ["C1", "C2", "C4"] {
         let bad = failing(name, 0);
@@ -1432,11 +1432,11 @@ fn b2k_c05_the_combination_coverage_rule() {
     assert_eq!(begin(&rows), None);
     assert_eq!(begin(&b3k_rows(owner, true, false)), Some("combination row family"), "a maximum");
     assert_eq!(begin(&b3k_rows(owner, false, true)), Some("combination row family"), "a mode record");
-    // §4.2: a combination publishes no never_combined not-covered row.
+    // a combination publishes no never_combined not-covered row.
     let mut derived = rows.clone();
     derived.push(("derived".into(), ProductUnit::Megapascal, 0, ProductRecipe::NotCovered { row: rows.len() as u32 }));
     assert_eq!(begin(&derived), Some("combination row family"), "a not-covered derived row");
-    // W-7 (DEL-04-01 Design global-end-actions.md): a not-covered force or moment row (a member's
+    // a not-covered force or moment row (a member's
     // global end action, signed linear) is combined, so a combination admits it.
     for unit in [ProductUnit::Newton, ProductUnit::NewtonMetre] {
         let mut global = rows.clone();
@@ -1677,7 +1677,7 @@ fn b2k_k06_both_certificate_entries_accept_a_recorded_combination_owner_only() {
     assert_eq!(s.invocation.product_owner(run, &legacy), None);
     assert_eq!(s.invocation.product_owner(s.cases[0].run, s.case("A")), Some(NativeOwner::Case(0)));
 }
-/// SA4-1's vectors and the A-5 midpoints (REVISION_02 §1.5), each expected bit
+/// SA4-1's vectors and the A-5 midpoints, each expected bit
 /// pattern computed by the oracle's independent integer square root; MIN = MIN_POSITIVE.
 const B2K_NORM3: &[(u64, u64, u64, Option<u64>)] = &[
     (0x3de0000002000000, 0x3f80000004000000, 0, Some(0x3f80000004000000)), // A-5: a tie, to even
@@ -1915,14 +1915,14 @@ fn n06_seeded_congruence_lane_encloses_the_closed_form() {
     }
 }
 
-/// W1 coverage repair §2.2 (corner 2): the certified proof's final scales are exactly
+/// the certified proof's final scales are exactly
 /// the coupled (and, at p = 512, floored) scales its gate judged with. Every native and
 /// support row's verdict records the scale it was judged at; that scale must be the
 /// proof's final scale for its body and kind, and the coupling must be active (the
 /// final moment scale exceeds every published moment, from the extent times the force
 /// scale), so a receipt stating uncoupled maxima would differ. The floor is applied in
 /// place on the same vector before any row is judged; no product input selects p = 512
-/// (the W1 coverage census, §3.5), so this control runs at the selected precision.
+/// (the W1 coverage census), so this control runs at the selected precision.
 #[test]
 fn w1_receipt_scales_are_the_gate_scales() {
     let (invocation, case) = b3k_case(80e9);
@@ -2001,7 +2001,7 @@ fn w1_certified(invocation: &super::super::super::origins::RecordedInvocation, c
             e.work().verdicts().iter().filter(|v| !v.passed).map(|v| (&rows[v.row].0, v.failed)).collect::<Vec<_>>()),
     }
 }
-/// W1 coverage repair §2.2 and §5 (corner 2, the p = 512 floor): at p = 512 the gate
+/// at p = 512 the gate
 /// floors each body's coupled force and moment scales by the solve's Φ in place before
 /// judging any row; the certified proof must state those floored scales, not the coupled
 /// maxima. Input: `w1_floor_source`, the b3k cantilever (one body, extent 1) with its
@@ -2072,7 +2072,7 @@ fn w1_receipt_scales_keep_the_p512_floor() {
     }
     assert_eq!(bound, [true, true], "the floor binds the force and the moment scale");
 }
-/// W1 coverage repair §2.2 (layout pin): the certified proof's final scales are the
+/// (layout pin): the certified proof's final scales are the
 /// vector `row_scales_reduced` reserved, moved, not copied, so its capacity is the
 /// serialized `capacities[6]` (the body count). The public API exposes the scales as a
 /// slice only; the vector's capacity is read here through the field, from the kernel's

@@ -1,4 +1,4 @@
-// RT-R6 CSV adapter of the stress and ratio table (DEL-08-04-R14; Design `csv-export.md` §2).
+// RT-R6 CSV adapter of the stress and ratio table (DEL-08-04-R14).
 // One file per group. It reads the view the panel renders (`stressRatioView` under the current
 // mode and threshold, every page: `stressRatioPage` with no row limit), in the view's order, and
 // writes the user-rule outcome columns with the table's own wording. Rule packs appear in the
@@ -25,7 +25,7 @@ export const STRESS_RATIO_STATUS_TEXT: Readonly<Record<string, string>> = Object
   USER_RULE_FAILED: "Failed by your rule (USER_RULE_FAILED)",
   USER_RULE_CHECKED: "Checked by your rule (USER_RULE_CHECKED)"
 });
-/** Each ratio row's direction (§3.1), in the Direction column. */
+/** Each ratio row's direction, in the Direction column. */
 export const RATIO_DIRECTION_TEXT: Readonly<Record<RatioDirection, string>> = Object.freeze({
   upper: "Upper bound: computed ÷ limit",
   lower: "Lower bound: limit ÷ computed"

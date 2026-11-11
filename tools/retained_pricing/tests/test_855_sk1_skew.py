@@ -1,4 +1,4 @@
-"""S-K1 skewed restraint directions, R-6/R-7 (retained-pricing-rules.md §8.55).
+"""S-K1 skewed restraint directions, R-6/R-7 (§8.55).
 
 - SKW-D1: D1.6 refuses `direction` on every support, so no skewed record is admitted: the skew basis, its solve,
   attribution, the along-direction rows and their combination rows, and the readers' along checks are zero edges, each

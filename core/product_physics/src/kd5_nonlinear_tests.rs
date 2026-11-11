@@ -10,7 +10,7 @@ struct Reference {
     request: &'static str,
     oracle: &'static str,
     /// Each load case's expected standing: `None` is Passed, `Some(reason)`
-    /// the named §2.4 reason in the integrity sentence.
+    /// the named reason in the integrity sentence.
     expected: &'static [(&'static str, Option<&'static str>)],
 }
 
@@ -107,7 +107,7 @@ fn single_case(request: &serde_json::Value, case: &str) -> serde_json::Value {
     wire
 }
 
-/// §6: the published state, every certified member and support group within
+/// the published state, every certified member and support group within
 /// its B of the exact reference (‖v‖ against the exact norm, with one unit in
 /// the last place of q for the group norm's own rounding), the nonlinear slot
 /// rows within B of the exact signed value, and the named reasons.
@@ -201,7 +201,7 @@ fn kd5_nonlinear_references_bind_and_match_in_both_modes() {
     }
 }
 
-/// §5: the 8 committed case-modes publish Passed with the evidence line, and
+/// the 8 committed case-modes publish Passed with the evidence line, and
 /// the retired nonlinear-route sentence is gone.
 #[test]
 fn kd5_eight_committed_nonlinear_case_modes_pass_with_the_confirmation() {
@@ -249,7 +249,7 @@ fn rotational_friction_is_refused_by_name_at_validation() {
     }
 }
 
-/// G-1, the R1 containment control (kd5-nonlinear-active-set.md §6): a
+/// G-1, the R1 containment control: a
 /// gap-bearing case, closed or open, keeps its recovery-basis branch in both
 /// modes; no confirmation runs and no certified row is published.
 #[test]

@@ -29,7 +29,7 @@ fn frame() -> FrameElement {
     )
     .unwrap()
 }
-/// T4-U8 (Design §4 item 2): a certified straight recovery is bound to its
+/// a certified straight recovery is bound to its
 /// member's formation-source frame. These controls' one member is `MEMBER`.
 const MEMBER: &str = "member:1:m:";
 fn member_source(frame: &FrameElement) -> FormationSource<'static> {
@@ -57,7 +57,7 @@ fn exact_projection_uses_guard_and_sticky_bits() {
     assert_eq!(midpoint_publication(ball.m).unwrap(), 1.0);
     assert_eq!(ball.r, 0.0);
 }
-/// v_g = fl(m_g) (DEL-04-01 kd5-member-relative-bound.md §3.1): a nonzero
+/// v_g = fl(m_g): a nonzero
 /// midpoint whose correct rounding is zero publishes 0, with its whole
 /// magnitude kept in the row's rounding gap, instead of making the member
 /// bound unavailable. Kills the regression that demoted F1b's PHYS-R4 W2 case
@@ -1206,7 +1206,6 @@ fn source_control_resource_atoms_are_in_build_type_sizes() {
 }
 
 // ---------------------------------------------------------------- nonlinear K-D5
-// DEL-04-01 kd5-nonlinear-active-set.md §1.3, §1.6, §2.1, §2.2.
 
 fn friction_primitive(formula: LoadFormula) -> LoadPrimitive {
     LoadPrimitive {
@@ -1282,7 +1281,7 @@ fn coupled_sliding_friction_re_forms_as_its_stage_a_ball() {
     }
 }
 
-/// §2.1: the displacement ball u + w + w2 with the remainder 2^e*LambdaSigma,
+/// the displacement ball u + w + w2 with the remainder 2^e*LambdaSigma,
 /// and an exact value at a prescribed DOF.
 #[test]
 fn displacement_ball_carries_both_corrections_and_the_remainder() {
@@ -1308,7 +1307,7 @@ fn displacement_ball_carries_both_corrections_and_the_remainder() {
     assert!(!free.upper_below(1.0 + 2.0_f64.powi(-40)));
 }
 
-/// §2.2: exact decisions, strict at the boundary and with both radii.
+/// exact decisions, strict at the boundary and with both radii.
 #[test]
 fn certified_signs_and_stick_capacity_are_decided_exactly() {
     let row = |m: f64, r: f64| CertifiedValue::with_radius(m, r).unwrap().into_row().unwrap();

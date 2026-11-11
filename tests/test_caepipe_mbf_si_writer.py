@@ -170,7 +170,7 @@ def test_cantilever_matches_hand_written_mbf():
         "F10,KA,MM1,PP1,CL=L1",
         "T20,X3000,CFOR(0,-6000,0)",
     )
-    # No piping code was chosen: none is written, and that is stated, not silent. The field sweep (Design §17.1)
+    # No piping code was chosen: none is written, and that is stated, not silent. The field sweep
     # lists what the MBF does not keep; nothing else is diagnosed.
     assert sorted((item["severity"], item["code"], item["entity"]) for item in result.diagnostics) == sorted([
         ("info", "MBF-SI-PIPING-CODE-NOT-WRITTEN", next(item["entity"] for item in result.diagnostics
@@ -204,7 +204,7 @@ def test_a_chosen_b31_piping_code_is_written_with_b31j_off():
     assert lines[3:9] == ["OPTIONS", "HGRA,B311-80,SI", "OPCODE", "0,0,0", "OPTEMP", "20"]
     # Only the OPTIONS token and the OPCODE section differ from the text written without a code.
     assert result.text.replace("HGRA,B311-80,SI\r\nOPCODE\r\n0,0,0\r\n", "HGRA,SI\r\n") == default.text
-    # Only the field sweep's omitted entries (Design §17.1) are diagnosed.
+    # Only the field sweep's omitted entries are diagnosed.
     assert {item["code"] for item in result.diagnostics} <= _SWEEP_CODES
     assert any(note.startswith("Piping code B311-80, chosen by the caller") and "B31J off" in note
                for note in result.assumptions)
@@ -471,7 +471,7 @@ def test_temperature_dependent_material_is_refused():
 
 
 def test_hanger_support_is_refused():
-    # Hangers stay refused (Design §12): a hanger's loads act by case, which no SWBPIPE member carries.
+    # Hangers stay refused: a hanger's loads act by case, which no SWBPIPE member carries.
     model = cantilever()
     model["supports"].append({"id": "hanger:N1", "node": "N1", "family": "spring_hanger", "restraints": ["UY"],
                               "hanger": {"hanger_type": "spring_hanger",
@@ -529,7 +529,7 @@ def test_springs_the_writer_does_not_write_are_refused_by_name(change, code, fra
 
 
 def test_a_spring_export_is_checked_by_its_own_bound_reimport(monkeypatch):
-    # The preflight runs for every spring export (Design §12). 1e306 N/mm prints as 1e+306, which the solve reads as
+    # The preflight runs for every spring export. 1e306 N/mm prints as 1e+306, which the solve reads as
     # 1e309 N/m: the re-import refuses it (MBF-IMPORT-VALUE-UNREPRESENTABLE), so the export is refused by name.
     model = cantilever("mm")
     model["supports"].append(spring("huge", "N1", "UY", 1e306, "N/mm"))
@@ -548,7 +548,7 @@ def test_a_spring_export_is_checked_by_its_own_bound_reimport(monkeypatch):
     assert render_caepipe_mbf_si(sprung_cantilever(), title="SPRING").status == "written"
     assert calls == ["written"]
     assert render_caepipe_mbf_si(cantilever(), title="PLAIN").status == "written"
-    assert calls == ["written", "written"]  # the preflight is total (Design §14, VER-002 r3)
+    assert calls == ["written", "written"]  # the preflight is total (VER-002 r3)
 
 
 def test_the_preflight_is_total_and_refuses_what_printing_or_normalization_breaks(monkeypatch):
@@ -775,7 +775,7 @@ def library_section(section_id, od=0.1683, wall=0.00711, unit="m"):
 
 
 def sectioned_bent_l():
-    """bent_l continued by a straight S3 from B, every pipe of one OD and wall (Design §15, Format 4): S1 and the bend
+    """bent_l continued by a straight S3 from B, every pipe of one OD and wall (Format 4): S1 and the bend
     bind section:A, S2 binds section:B, S3 binds none, and section:unused is bound by no pipe."""
     model = bent_l()
     model["nodes"].append(node("C", 4.0, 0.0, 6.0))
@@ -787,7 +787,7 @@ def sectioned_bent_l():
 
 
 def decorated_bent_l():
-    """bent_l with every member and field the MBF does not keep (Design §17.1), each non-empty."""
+    """bent_l with every member and field the MBF does not keep, each non-empty."""
     model = bent_l_with_sifs()
     meta = {"label": "invented", "provenance": "invented", "tags": ["t"], "notes": "n"}
     record = {"contributor_certification": "invented", "redistribution_status": "public_permissive"}
@@ -819,7 +819,7 @@ def decorated_bent_l():
     return model
 
 
-SWEPT = {  # entity -> the model entities its reason names (Design §17.1)
+SWEPT = {  # entity -> the model entities its reason names
     **{f"model.{name}": () for name in ("data_boundary", "analysis_status", "diagnostics", "lines",
                                         "unresolved_assumptions", "rule_pack_refs", "constraints",
                                         "equipment_interfaces")},
@@ -998,7 +998,7 @@ def test_bend_with_other_properties_than_its_incoming_straight_is_refused():
     assert_refused(render_caepipe_mbf_si(model, title="B"), "MBF-SI-BEND-UNSUPPORTED", "one layout row")
 
 
-# Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §3.1): the writer reads only the current model
+# Model document 0.8.0: the writer reads only the current model
 # document. A retired one is refused by name with the solve's code and text, and nothing is written; any other
 # non-current version is refused as MBF-SI-SCHEMA-VERSION.
 def test_a_retired_model_document_is_refused_by_name_and_nothing_is_written():
@@ -1022,13 +1022,13 @@ def test_a_newer_or_unversioned_model_document_is_refused():
     assert render_caepipe_mbf_si(cantilever(), title="Invented current cantilever").status == "written"
 
 
-# Sidecar fields the MBF importer reads back (Design `caepipe-mbf-import.md` §7.4, §12, §15, §19).
+# Sidecar fields the MBF importer reads back.
 def test_support_map_records_each_support_family():
     model = branched()
     model["supports"][0]["family"] = "anchor"
     result = render_caepipe_mbf_si(model, title="FAMILY")
     assert result.status == "written", result.diagnostics
-    # The effective family (Design §15, format 2): the authored one, or the solve's inference, with the flag.
+    # The effective family (format 2): the authored one, or the solve's inference, with the flag.
     assert (result.support_map["A1"]["family"], result.support_map["A1"]["family_authored"]) == ("anchor", True)
     assert (result.support_map["A3"]["family"], result.support_map["A3"]["family_authored"]) == ("anchor", False)
     restraints = result.support_map["R4"]["restrained"]
@@ -1192,7 +1192,7 @@ def test_a_tangent_intersection_beyond_binary64_is_refused():
                for item in result.diagnostics)
 
 
-# --- pressure (Design §9.4, tranche 2) -----------------------------------------------------------------------------
+# --- pressure (tranche 2) -----------------------------------------------------------------------------
 EXACT = {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"}
 
 
@@ -1343,7 +1343,7 @@ def test_an_exact_pressure_section_without_an_allowance_is_refused_not_written_a
     assert render_caepipe_mbf_si(plain, title="P").status == "written"
 
 
-# Model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §2.1, §2.2, §2.4, §3.5): the writer refuses each member
+# Model document 0.9.0: the writer refuses each member
 # it cannot express by name, never dropping it; an exactly axis-aligned direction is the record on that axis.
 def current(model):
     model["schema_version"] = current_model_schema_version()
@@ -1427,7 +1427,7 @@ def test_a_spring_at_a_node_no_pipe_reaches_is_refused_by_name():
                    "node:N9", "carries a support or load but no pipe segment")
 
 
-# --- sidecar format 4: section identities (Design §15, Format 4) -----------------------------------------------------
+# --- sidecar format 4: section identities (Format 4) -----------------------------------------------------
 def test_library_sections_get_their_own_pipe_records_and_section_map_entries():
     # Three pipes of one OD and wall: two library sections and no section are three PIPE records, numbered in layout
     # order; the sidecar's section_map gives each record's section id, or null. The unbound section is listed.
@@ -1500,7 +1500,7 @@ def test_an_integer_library_value_equal_to_the_inline_float_binds():
     assert _with_section(change).status == "written"
 
 
-# --- sidecar format 6: derivation and bend nodes (Design §15, Format 6) ----------------------------------------------
+# --- sidecar format 6: derivation and bend nodes (Format 6) ----------------------------------------------
 def _canonical_sha256(document) -> str:
     """The SHA-256 of the RFC 8785 text of `document`, by the tests' own independent implementation."""
     if str(ROOT / "tests") not in sys.path:
@@ -1587,7 +1587,7 @@ def test_a_model_document_without_a_canonical_form_is_refused_by_path():
 
 
 def _pin(name: str):
-    """One model per A-3 identity-set class with an entity the writer does not carry (DEL-17-04 desktop design §1.3):
+    """One model per A-3 identity-set class with an entity the writer does not carry:
     (model, the entity's id, the loss entry (code, entity) that must name it, or None where the writer refuses the
     export instead, with the refusal (code, entity))."""
     model = cantilever()

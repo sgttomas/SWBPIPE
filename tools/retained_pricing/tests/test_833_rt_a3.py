@@ -1,4 +1,4 @@
-"""RTA3-JW, RTA3-ID and RTA3-BB (retained-pricing-rules.md §8.33): RT-A3 increment 1's junction warnings and branch
+"""RTA3-JW, RTA3-ID and RTA3-BB (§8.33): RT-A3 increment 1's junction warnings and branch
 rows are zero on D1 under guarded premises (D1.5's empty regions, D1.4's refusal of every component); their texts keep
 classes. The template inventory reads Rust's `\\u{...}` escape as its one character. A changed premise stops the run."""
 from pathlib import Path

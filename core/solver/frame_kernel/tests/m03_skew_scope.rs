@@ -1,7 +1,4 @@
-//! I9: the skew M03 pin (T3; tests only). RV7's review of K2a, finding B1
-//! (`T3/REVIEW/K2A_REVIEW.md`), and K2a's `RETURN_ADDENDUM_1.md` §1 and §1.4
-//! (`T3/IMPLEMENTATION/K2A/`), where `T3/` is the numerical-integrity folder
-//! under `projects/chirality-piping/execution/_Coordination/`.
+//! I9: the skew M03 pin (T3; tests only).
 //!
 //! **M03's element-entry floor.** `transform_roundoff` bounds each global
 //! entry (i, j) of T^T (K T) by g·(inherited/(1 − g) + second)·(1 + 64ε),
@@ -470,7 +467,7 @@ fn m03_skew_pin_preconditions_hold() {
     }
 }
 
-/// The kernel pin on RV7's confirmed cases (K2A_REVIEW.md B1): the outcome
+/// The kernel pin on RV7's confirmed cases: the outcome
 /// per case and orientation, and the figures that make it a pin.
 #[test]
 fn m03_skew_pin_rv7_cases_outcomes_and_figures() {

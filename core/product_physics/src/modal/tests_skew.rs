@@ -179,7 +179,7 @@ fn pow2(e: i32) -> f64 {
     f64::from_bits(((e + 1023) as u64) << 52)
 }
 
-/// The modal review's blocking finding (§4.3 I1, references `invariance`): a
+/// The modal review's blocking finding (references `invariance`): a
 /// direction rescaled by a power of two (2^600, 2^-600, 2^-1020) or authored as a
 /// subnormal pair has the same canonical d̃ and pivot as its twin, so the modal
 /// result is bit for bit its twin's, for a stop and for a spring. The spring's

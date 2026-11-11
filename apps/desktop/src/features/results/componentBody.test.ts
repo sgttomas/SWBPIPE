@@ -1,4 +1,4 @@
-// W-15 slice d (DEL-03-05 Design `rigid-component-stiffness-scaling.md` §5, §6): the
+// the
 // desktop's reading of a component body's reference-section rows. The source is the
 // bundled demo's regenerated preview-physics-2 result, whose valve C-130 (scale 15)
 // maps pipe:P-130; the export rows are projected through the pure desktop exporter.

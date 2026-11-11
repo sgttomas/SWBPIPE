@@ -1,4 +1,4 @@
-//! The bounded import review (DEL-17-04 Design `desktop-mbf-export-import.md` §4.3; slice 5): what the desktop's MBF
+//! The bounded import review: what the desktop's MBF
 //! import worker (task 5) returns in place of the importer's own report, model and id map.
 //!
 //! [`import_review`] reads the importer's result over its whole extent, then serializes it within an allowance (the
@@ -26,7 +26,7 @@
 //!
 //! - **Designation (format 3).** The identity summary ends with `source_completeness` and `designation`: null, or
 //!   the designated source's `{file_name, sha256, bytes, outcome, reasons, differing_classes}`
-//!   ([`crate::designation`], §5.4). `source_completeness` is `established_for_identity_set` only when a designation is
+//!   ([`crate::designation`]). `source_completeness` is `established_for_identity_set` only when a designation is
 //!   given, its every check passed and the review is complete; a truncated review adds the reason `review_truncated`.
 //!   Without a designation it is `not_established`, as in format 2.
 //!
@@ -41,13 +41,13 @@ use crate::{ImportResult, ASSUMPTION_IDS, INVENTORY_CLASSES};
 pub const IMPORT_REVIEW_DOCUMENT_KIND: &str = "swbpipe.mbf_import_review";
 /// The review's `format`.
 pub const IMPORT_REVIEW_FORMAT: u64 = 3;
-/// A truncated review blocks adoption (§4.3).
+/// A truncated review blocks adoption.
 pub const IMPORT_REVIEW_TRUNCATED: &str = "MBF-IMPORT-REVIEW-TRUNCATED";
-/// An applied mapping assumption lacks its bounded source-safe representation (§4.3).
+/// An applied mapping assumption lacks its bounded source-safe representation.
 pub const ASSUMPTION_UNAVAILABLE: &str = "MBF-IMPORT-ASSUMPTION-UNAVAILABLE";
-/// The adopt result or reply would exceed the transfer limit (§4.8.4).
+/// The adopt result or reply would exceed the transfer limit.
 pub const MODEL_TOO_LARGE: &str = "MBF-IMPORT-MODEL-TOO-LARGE";
-/// The importer refused, or the document check blocked (§4.6).
+/// The importer refused, or the document check blocked.
 pub const NOT_ADOPTABLE: &str = "MBF-IMPORT-NOT-ADOPTABLE";
 
 /// The identity file beside the MBF, as the host read it.
@@ -312,7 +312,7 @@ struct Header<'r> {
 
 impl Header<'_> {
     fn push<S: Sink>(&self, out: &mut S) {
-        // The fixed leading members (§4.3), in this order and byte form.
+        // The fixed leading members, in this order and byte form.
         out.push("{\"document_kind\":\"");
         out.push(IMPORT_REVIEW_DOCUMENT_KIND);
         out.push("\",\"format\":");
@@ -512,12 +512,12 @@ fn framing_len() -> usize {
     LISTS.iter().map(|list| list.name().len() + 6).sum::<usize>() + 1
 }
 
-/// Whether every applied assumption has its structured counterpart (§4.3).
+/// Whether every applied assumption has its structured counterpart.
 fn assumptions_available(result: &ImportResult) -> bool {
     result.assumption_facts.len() == result.assumptions.len() && result.assumption_facts.iter().all(|fact| ASSUMPTION_IDS.contains(&fact.id))
 }
 
-/// The bounded review of `result` (§4.3) within `allowance` bytes. `model` is the candidate model's digest and length
+/// The bounded review of `result` within `allowance` bytes. `model` is the candidate model's digest and length
 /// (None when the importer refused); `document_check` the worker's check of it; `declaration_sha256` the SHA-256 of
 /// the declaration bytes the worker was given. `transfer_fits` is given the review's exact length, as it would be if
 /// adoptable, and decides `transfer_limit` (called once, and only when there is a candidate model).
@@ -533,7 +533,7 @@ pub fn import_review(
     import_review_designated(result, source, declaration_sha256, model, document_check, None, allowance, transfer_fits)
 }
 
-/// [`import_review`] stating a designated source (§5.4): `designation` from [`crate::designation::designation`] for
+/// [`import_review`] stating a designated source: `designation` from [`crate::designation::designation`] for
 /// the same `result`, whose model must still be present when that is formed. None gives [`import_review`]'s text.
 #[allow(clippy::too_many_arguments)]
 pub fn import_review_designated(

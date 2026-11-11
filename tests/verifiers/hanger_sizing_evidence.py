@@ -596,7 +596,7 @@ def _binding(doc, solve_request, library, sized):
     return standing, not_checked, library_bound
 
 
-# --- arithmetic (§6, §7, §8.3.6), binary64 in the stated order --------------------------------
+# --- arithmetic, binary64 in the stated order --------------------------------
 
 def _quantity(value, dimension):
     """A library quantity in SI, or None when absent or unreadable (the record then fails E1)."""
@@ -756,7 +756,7 @@ def _size_candidate(c, records, method):
 
 
 def _request_refused(candidates, records, method):
-    """Whether the engine's request checks (§2, §3) refuse these published inputs."""
+    """Whether the engine's request checks refuse these published inputs."""
     limit, allowance = method["variation_limit"], method["travel_allowance_m"]
     ids = [r["hanger_id"] for r in records]
     supports = [c["id"] for c in candidates]

@@ -1,4 +1,4 @@
-//! O4 (DEL-04-08 Design `o4-source-extension.md` §3, §5 and §6): the
+//! O4: the
 //! retained-source route (`pressure-source-1`) on Timoshenko and dual-basis
 //! documents. Every control here is an in-memory re-authoring of a committed
 //! current request (n05, fields), never a committed corpus entry:
@@ -166,7 +166,7 @@ fn dumped(records: &[Value], index: usize, key: &str) -> Value {
     serde_json::from_str::<Value>(records[index][key].as_str().unwrap()).unwrap()["payload"].clone()
 }
 
-/// O4 §3.2 and §6: documents with a nonzero mill tolerance and allowance
+/// documents with a nonzero mill tolerance and allowance
 /// select pressure-source-1 in both modes and read eligible with their
 /// captured invocation (Rust raw reader, G2's model checks and transport).
 /// A member whose sections differ publishes reduced stress rows formed on its
@@ -213,7 +213,7 @@ fn o4_dual_basis_source_case_selects() {
     }
 }
 
-/// O4 §3.2 (stress checks): each reduced `section_stress_checks` entry binds
+/// each reduced `section_stress_checks` entry binds
 /// its nominal twin's functional and action bit for bit, with the reduced
 /// section's parameters (A_r, Z_r, J_r, r_o), and its row value is the
 /// existing recipe on those parameters. The private plan's reduced recipes
@@ -299,7 +299,7 @@ fn o4_source_reduced_checks_bind_the_reduced_section() {
     assert_eq!(refused(&full, &request, mode), "SOURCE_PHYSICS_ROW_BASIS_SECTION");
 }
 
-/// O4 §3.2 (endpoint maximum) and §3.5: each basis's maximum is evaluated
+/// each basis's maximum is evaluated
 /// from the same retained endpoint functionals on its own section, the
 /// reduced call taking the reduced section explicitly: the reduced
 /// extremum's A and Z are the reduced section's bits, its endpoint values are
@@ -397,7 +397,7 @@ fn o4_source_maximum_per_basis() {
     }
 }
 
-/// O4 §3.1, §3.2 and §5 (the test-only dump): the private payload names a
+/// the private payload names a
 /// Timoshenko frame's shear-area leaf (`formation_inputs.shear_area_bits`,
 /// the evidence's A_s bit for bit) and only there, and a member's
 /// `reduced_recovery_section` (A_r, Z_r, J_r, r_o) exactly where its stress
@@ -446,7 +446,7 @@ fn o4_source_payload_members_are_conditional() {
     }
 }
 
-/// O4 §3.2, §3.5 and §6 (MJ6/MJ9's twelve requests): every committed
+/// O4 (MJ6/MJ9's twelve requests): every committed
 /// Euler-Bernoulli, zero-allowance source control keeps its numbers, work and
 /// bytes: in both modes the producer's exact serialization equals the
 /// committed raw fixture, and its private payload carries no O4 member.
@@ -601,7 +601,7 @@ fn predicted_identity_delta(a: &Captured, b: &Captured) -> i128 {
     delta
 }
 
-/// O4 §3.5 (the D5/MJ9 law; no charging rule changes), as measured here: for
+/// O4 (the D5/MJ9 law; no charging rule changes), as measured here: for
 /// a document newly admitted under O4 against its Euler-Bernoulli,
 /// zero-allowance twin, every term is derived from the actual inputs and the
 /// actual charging sites, and the sum reconciles with the case, publication
@@ -735,7 +735,7 @@ fn o4_source_work_deltas_follow_the_d5_law() {
     }
 }
 
-/// O4 §3.4 and §6 (`shear_area_changed`, `kappa_changed`): the reader binds
+/// O4 (`shear_area_changed`, `kappa_changed`): the reader binds
 /// each section's beam theory to its rederivation. On the Timoshenko control
 /// a one-ulp A_s or κ_E (resealed) is refused by the transport rederivation,
 /// and a dropped Timoshenko leaf by the contract's selection; on the
@@ -775,7 +775,7 @@ fn o4_source_shear_area_and_kappa_mutations_are_refused() {
     assert_eq!(refused(&stated, &request, mode), "PHYSICS_SOURCE_ACTUAL_SHEAR_MODEL");
 }
 
-/// O4 §6 (MJ9's both-bases tamper, revised): on a member whose sections
+/// O4 (MJ9's both-bases tamper, revised): on a member whose sections
 /// differ each basis is judged on its own, so a one-ulp τ_v,max on one basis
 /// alone (resealed) is refused by that basis's own shear check, the twin rule
 /// not standing in; on the bit-equal member today's both-bases tamper keeps
@@ -844,7 +844,7 @@ fn o4_source_controls_are_current() {
     assert!(committed == document, "{CONTROLS_PATH} is current (SWBPIPE_O4_SOURCE_CONTROLS_WRITE=1 rewrites it)");
 }
 
-/// O4 §5: the test-only declared-problem dump (`source.rs`
+/// the test-only declared-problem dump (`source.rs`
 /// `with_source_dump`, whose doc comment states the format). Always: the
 /// records of the Timoshenko dual-basis control hash to its receipt's
 /// commitments. With `SWBPIPE_O4_SOURCE_DUMP_REQUEST` (a request JSON file)

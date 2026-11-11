@@ -1,4 +1,4 @@
-/** B5 (DEL-07-01 Design `split-and-slope-entry.md` §3): the end-point entry aid in the Geometry
+/** the end-point entry aid in the Geometry
  * tools' reconnect to a new point. The displayed coordinates are the ones the form takes and the
  * create_node operation emits, bit for bit; nothing is assumed (no up direction, no slope). */
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";

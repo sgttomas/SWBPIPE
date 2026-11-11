@@ -1,7 +1,6 @@
-// W-17 slice (c) (DEL-02-02 Design `project-unit-selection.md` §7.2, §7.3, §7.6):
 // the load case's solve temperature takes project.units.temperature, the seismic
 // gravity takes the composition <length>/s^2, and the component modifiers take
-// the §2.4 compositions. A missing key (absent, empty or whitespace-only) or a
+// the compositions. A missing key (absent, empty or whitespace-only) or a
 // composition the catalog lacks gives no unit and is refused by name; a unit the
 // user picks in the inspector lifts it; the grid refuses and points to the
 // inspector. Stored units are kept. Invented data only.

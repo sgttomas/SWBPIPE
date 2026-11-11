@@ -1,11 +1,11 @@
-//! K-D5 product tests (T3 D1 revision 5a.2 §4.3.1, §6 K-D5 row) through both
+//! K-D5 product tests through both
 //! public entries: the captured `run_linear_static_preview_value_with_mode`
 //! and the historical typed `run_linear_static_preview_with_mode`, in both
 //! solver modes.
 //!
 //! The requests are P1's detection inputs (T3 `DETECTION/scripts/gen.py.txt`
 //! run on the frozen R1 references `c0f14201c`), byte for byte: invented
-//! inputs with no library data. On main (P1, `DETECTION/RETURN.md`) 122 is
+//! inputs with no library data. On main (P1) 122 is
 //! published Passed and eligible with a breach of 2.43 (dense) and 1.21
 //! (sparse) of the criterion; 345 and the RF-CHAIN r1e-04 continuity
 //! controls pass. The PP-route large-coordinate elbows (RV5-B1, ROOT's
@@ -356,7 +356,7 @@ impl PpRouteElbow {
     }
 
     /// max over the free rows of |u − u_int| / (1e-9·max(|u_int|, S*_kind)),
-    /// S* per D1 §4.1.6.1 items 4–6 (one body; L_b the chord's extent).
+    /// S* (one body; L_b the chord's extent).
     fn actual_ratio(&self, envelope: &MechanicsEnvelope) -> f64 {
         let names = ["ux", "uy", "uz", "rx", "ry", "rz"];
         let published = |dof: usize| {

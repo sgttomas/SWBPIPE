@@ -21,7 +21,7 @@
 //! - requires the basis state the webview names to be a saved state of the
 //!   project (W-12 S1's store, read with `list_model_states`' query) whose
 //!   model hash is the admitted text's SHA-256;
-//! - builds every manifest field from its source (design §3 table): nothing
+//! - builds every manifest field from its source: nothing
 //!   is defaulted to look complete; what is not known is `TBD` or a named
 //!   warning, and a unit that cannot be derived refuses
 //!   `HANDOFF-UNIT-UNDERIVABLE`.
@@ -65,7 +65,7 @@ pub const LABEL_INVALID: &str = "HANDOFF-LABEL-INVALID";
 pub const PICKER_PATH_INVALID: &str = "HANDOFF-PICKER-PATH-INVALID";
 pub const WORKER_FAILED: &str = "HANDOFF-WORKER-FAILED";
 pub const DISPOSITION_MALFORMED: &str = "HANDOFF-DISPOSITION-MALFORMED";
-/// The store check's codes (W-13 §3.5; `check_model_library_refs`, the Rule
+/// The store check's codes (`check_model_library_refs`, the Rule
 /// Pack Manager's reference list).
 pub const LIBRARY_REF_VERSION_CHANGED: &str = crate::MODEL_LIBRARY_REF_VERSION_CHANGED;
 pub const RULE_PACK_REF_UNRESOLVED: &str = "MODEL-RULE-PACK-REF-UNRESOLVED";
@@ -305,7 +305,7 @@ fn rank(order: &[&str], value: &str) -> usize {
 }
 
 /// The least permissive of the redistribution dispositions a record includes
-/// (design §3 `redistribution_classification`).
+/// (`redistribution_classification`).
 fn least_permissive<'a>(values: impl IntoIterator<Item = &'a str>) -> &'a str {
     values.into_iter().max_by_key(|value| rank(&REDISTRIBUTION_ORDER, value)).unwrap_or("TBD")
 }
@@ -622,7 +622,7 @@ fn catalogue_unit(units: Option<&Map<String, Value>>, key: &str, dimension: Dime
     })
 }
 
-/// The units derivation table (design §3): identifiers from the unit
+/// The units derivation table: identifiers from the unit
 /// catalogue; `moment` when present, else the catalogue's `<force>*<length>`
 /// unit, else a refusal.
 pub fn units_manifest(document: &Value) -> Result<Value, Vec<Diagnostic>> {
@@ -688,7 +688,7 @@ fn members<'a>(document: &'a Value, member: &str) -> impl Iterator<Item = (usize
     document.get(member).and_then(Value::as_array).into_iter().flatten().enumerate().filter_map(|(index, item)| item.as_object().map(|item| (index, item)))
 }
 
-/// `entity_ids` (design §3): sorted ids in the `EntityIdManifest` slots, and
+/// `entity_ids`: sorted ids in the `EntityIdManifest` slots, and
 /// the families without a slot as model-qualified `mapping_id_refs`.
 pub fn entity_ids(document: &Value, project_id: &str, state_id: &str) -> Result<Value, Vec<Diagnostic>> {
     let mut refusals = Vec::new();
@@ -746,7 +746,7 @@ pub fn entity_ids(document: &Value, project_id: &str, state_id: &str) -> Result<
     }))
 }
 
-/// `unresolved_assumptions` (design §3): the document's `unresolved` records;
+/// `unresolved_assumptions`: the document's `unresolved` records;
 /// `kind: open_issue` folds into the statement prefix "Open issue: "; `tags`,
 /// `notes` and `resolution_note` are dropped. `affected_refs`: the project id
 /// is `{Project}`, an assumption id `{Assumption}`, any other entity id
@@ -851,10 +851,10 @@ fn collect_library_refs(value: &Value, path: &str, out: &mut Vec<LibraryReferenc
     }
 }
 
-/// `library_refs` (design §3): one per distinct `provenance_record.library_ref`
+/// `library_refs`: one per distinct `provenance_record.library_ref`
 /// (kind, id, recorded version), resolved against the local store with W-6a's
 /// identity and record-matching rules. A recorded version that differs from a
-/// matching stored record is `MODEL-LIBRARY-REF-VERSION-CHANGED` (W-13 §3.5).
+/// matching stored record is `MODEL-LIBRARY-REF-VERSION-CHANGED`.
 ///
 /// Each stored library is shared with the screening's cache (`Rc`), never
 /// copied: the references borrow it.
@@ -971,7 +971,7 @@ fn library_refs(document: &Value, project_id: &str, lookup: &mut SharedLibraryLo
         let (library_kind, source_notice) = match kind.as_str() {
             "material" | "section" | "component" => (kind.as_str(), notice),
             // The store's hanger kind has no handoff enum value (an open
-            // contract gap of the handoff schema, design §3).
+            // contract gap of the handoff schema).
             "hanger" => ("TBD", format!("hanger library: {notice}")),
             _ => ("TBD", notice),
         };
@@ -1049,7 +1049,7 @@ pub(crate) fn rule_pack_ref_exclusion(reference: &Map<String, Value>, stored: Op
     None
 }
 
-/// `rule_pack_refs` (design §3): the document's references, each with a
+/// `rule_pack_refs`: the document's references, each with a
 /// checksum over its reference metadata `{rule_pack_id, version,
 /// stamped_checksum_value, basis, grammar_version}`; the grammar version is the
 /// stored pack's whose stamped checksum is the reference's (null, with a
@@ -1368,7 +1368,7 @@ fn package_token(project_id: &str, model_hex: &str) -> String {
     format!("{}:{}", if token.is_empty() { "model" } else { token }, &model_hex[..12])
 }
 
-/// The manifest without `checksums` (design §3 table).
+/// The manifest without `checksums`.
 pub fn handoff_manifest(prepared: &PreparedHandoff, stamp: &PackageStamp<'_>) -> Map<String, Value> {
     let project_id = &prepared.project_id;
     let token = package_token(project_id, &prepared.model_hex);
@@ -2352,7 +2352,7 @@ mod tests {
         assert_eq!(codes(&prepare(&store, &model, "state:absent")), vec![(BASIS_STATE_MISSING.to_string(), String::new())]);
     }
 
-    /// Order (design §3): the state is committed first; a publication that
+    /// Order: the state is committed first; a publication that
     /// fails leaves it, harmless and reusable by the next save.
     #[test]
     fn a_failed_publication_leaves_a_reusable_state() {
@@ -2671,7 +2671,7 @@ mod tests {
 
     // --- The witness ----------------------------------------------------------
 
-    /// Model document 0.8.0 (DEL-02-01 Design `model-document-0.8.0.md` §3.4, §12): the
+    /// Model document 0.8.0: the
     /// witness package as the 0.7.0 producer wrote it
     /// (`fixtures/handoff/retired_0_7_0_witness.swbhandoff/`). Its bytes still verify
     /// (`tests/test_handoff_package_witness.py`), but its model is not admitted as current:
@@ -2695,7 +2695,7 @@ mod tests {
         }
     }
 
-    /// Model document 0.9.0 (DEL-02-01 Design `model-document-0.9.0.md` §3.2, §3.6): the
+    /// Model document 0.9.0: the
     /// witness package as the 0.8.0 producer wrote it
     /// (`fixtures/handoff/retired_0_8_0_witness.swbhandoff/`, main `5bb2f9ff0`'s bytes). Its
     /// bytes still verify, and File › Open and the solve refuse its model by name.

@@ -1,4 +1,4 @@
-"""Interval-mode rule evaluation (T3 D2 revision 5b.3 §4.11, option C).
+"""Interval-mode rule evaluation.
 
 The shared case file ``fixtures/rule_interval/rule_interval_cases.json`` is
 consumed here by the Python reference evaluator and in
@@ -39,7 +39,7 @@ EVERY_FEATURE = {
     "interpolate", "lookup:exact", "lookup:step", "unsupported_form", "unsafe_host_access",
 }
 
-# D2 §4.11.5's negative controls, each pinned by at least one case.
+# negative controls, each pinned by at least one case.
 D2_NEGATIVE_CONTROLS = {
     "abs_straddle_ge", "square_le", "divide_by_zero_range", "not_straddle",
     "two_inputs_interior_extremum", "equal_overlap", "not_equal_overlap",

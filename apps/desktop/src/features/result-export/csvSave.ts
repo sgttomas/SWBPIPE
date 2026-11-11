@@ -1,4 +1,4 @@
-// RT-R6 CSV save (DEL-08-04-R14; Design `csv-export.md` §4). The one save function the
+// CSV save (DEL-08-04-R14). The one save function the
 // table export controls call. The CSV text is screened on the governed local-first route
 // `DOTH-CSV-011`, admitted only for `local_private` output with explicit user intent. In the
 // desktop app it is written by the native save command (`save_local_result_json`, CSV
@@ -88,7 +88,7 @@ export async function saveCsvTable(input: CsvSaveInput, doc: Document = document
 }
 
 /* -------------------------------------------------------------------------- *
- * Streamed CSV (C1 native custody, DEL-04-05 `c1-native-custody-plan.md` §5)
+ * Streamed CSV
  * -------------------------------------------------------------------------- */
 
 /** The most UTF-16 units one streamed chunk carries (at most 768 KiB of UTF-8); a longer text is

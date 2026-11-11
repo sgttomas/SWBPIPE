@@ -1,4 +1,4 @@
-// "Within this run" (W-12 S3c; DEL-14-01 Design §4.3): the options, the default
+// "Within this run" (W-12 S3c): the options, the default
 // (today's fixed pair when offered), the choice held with its run, the stale-id
 // guard, the empty states, the packaged comparison and the panel's selects. The
 // comparison itself is `buildPreviewComparison`, unchanged. Invented data only.

@@ -86,7 +86,7 @@ const PRODUCT: &[Source] = &[
         name: "PP/formation_guard.rs",
         text: include_str!("../src/formation_guard.rs"),
     },
-    // K-D5 (DEL-04-01 kd5-member-relative-bound.md §§1, 3, 6): the product's
+    // the product's
     // load-closure producers and its certified recovery publication. Appended
     // so the indices above are unchanged.
     Source {
@@ -103,7 +103,7 @@ const PRODUCT: &[Source] = &[
         name: "PP/bend_pressure.rs",
         text: include_str!("../src/bend_pressure.rs"),
     },
-    // S-K1 P-2 (DEL-04-03 skew-restraints.md §15 step 7): the skew solve and
+    // the skew solve and
     // the node attribution read the case force; appended so the indices
     // above are unchanged.
     Source {
@@ -155,21 +155,21 @@ const KERNEL: &[Source] = &[
         name: "FK/structural/sparse.rs",
         text: include_str!("../../solver/frame_kernel/src/structural/sparse.rs"),
     },
-    // K-D5 (DEL-04-01 kd5-member-relative-bound.md §§3, 6): the certified
+    // the certified
     // recovery at p reads the ledger's classification and re-forms the load
     // primitives; appended so the indices above are unchanged.
     Source {
         name: "FK/structural/certified_recovery.rs",
         text: include_str!("../../solver/frame_kernel/src/structural/certified_recovery.rs"),
     },
-    // Nonlinear K-D5 (DEL-04-01 kd5-nonlinear-active-set.md §1.6): the
+    // the
     // confirmation appends the sliding-friction terms to the case ledger;
     // appended so the indices above are unchanged.
     Source {
         name: "nonlinear_integration/confirmation.rs",
         text: include_str!("../../solver/nonlinear_integration/src/confirmation.rs"),
     },
-    // S-K1 F-2 (DEL-04-03 skew-restraints.md §6, §15 step 6): K-D5 on the
+    // K-D5 on the
     // transformed system reads the physical ledger and force through
     // SkewFormation, and the basis forms f' = Q^T f; appended so the indices
     // above are unchanged.
@@ -281,14 +281,14 @@ const PRODUCERS: &[(&str, &str, &str)] = &[
     ("FK/restraint_basis.rs", "transform_force", "S-K1 (DEL-04-03 skew-restraints.md §6.1): f' = Q^T f into a fresh ledger, each physical term moved by sign (unit weight) or as an exact product q*a (q*a*b split error-free, P1 at SPLIT_EXACT_MIN); the solve's coordinate force only, never the case force K-D5 reads (SkewFormation::physical_force)"),
     ("PP/source_recovery.rs", "prepare_sources", "T1 site (section 4.5): the retained nodal terms, in a ledger compared with the actual force"),
     ("PP/source_recovery.rs", "close_load_state", "T1 site (section 4.5): the retained eigen terms, the same terms the product pushes"),
-    // K-D5 (DEL-04-01 kd5-member-relative-bound.md §1): the live nodal
+    // the live nodal
     // producer and the closure metadata writers. `push_nodal_loads` above now
     // serves only the retained-source replay (`nodal_and_eigen_case_force`).
     ("PP/certified_loads.rs", "nodal", "live nodal producer (`case_force_ledger`): an unscaled authored load is a plain input term; a load-source-factored load is a formed RoundedProduct term with its NodalProduct summand"),
     ("PP/certified_loads.rs", "spring_base_motion", "W-16 R-c (DEL-04-03 pf-nonlinear-imposed-motion.md §11.1; called from `solve_prepared_load_case`): each moved spring's fl(k*g), a formed RoundedProduct term with its NodalProduct summand; no term when g compares equal to zero"),
     ("PP/certified_loads.rs", "attach", "closure metadata (§1 complete summands): installs the term's source-enumerated manifest, then attaches the supplied primitives; pushes no term"),
     ("PP/certified_loads.rs", "attach_last", "closure metadata: `attach` on the last pushed term (forwards its ledger)"),
-    // Nonlinear K-D5 (DEL-04-01 kd5-nonlinear-active-set.md §1.4, §1.6): the
+    // the
     // confirmation's appended ledgers, never the case force the loop solves.
     ("nonlinear_integration/confirmation.rs", "appended_ledger", "the sliding-friction terms appended after the case ledger: a formed RoundedProduct (explicit) or Bounded (coupled Stage-B ball) term with its source-enumerated manifest, or the Stage-A input φ⁰"),
     ("nonlinear_integration/confirmation.rs", "stage_a", "the influence system's unit right-hand side e_d, an input term of its own ledger"),
@@ -475,7 +475,7 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
         "solve_linearized_pattern_evidence",
         "RT-A3 P: the loop's binary64 solves on the pattern (option (c) pins)",
     ),
-    // K-D5's closure (DEL-04-01 kd5-member-relative-bound.md §1): `check` and
+    // K-D5's closure: `check` and
     // the sparse `formation_check` now pass the whole ledger (`AssembledForce`)
     // through untouched and are no longer force sites; with no ledger the
     // evaluation fails closed instead of folding the force.
@@ -551,7 +551,7 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
         "force_scale_census",
         "K2b: reads each ledger term's exponent for the b-rule's census; read-only",
     ),
-    // K-D5 (DEL-04-01 kd5-member-relative-bound.md §§1-3, 6): every function
+    // every function
     // that forms a load at p, binds its closure, or recovers at p from the
     // ledger's classification and primitives. None reads a folded ledger value
     // (`rule_6b_kd5_takes_no_folded_ledger_value`).
@@ -589,7 +589,7 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
     ("FK/structural/formation_check.rs", "mass_binding", "K-D5 §1: exact operand bits of a mass primitive; read-only"),
     ("FK/structural/formation_check.rs", "points_binding", "K-D5 §1: exact operand bits of a thermal table; read-only"),
     ("FK/structural/formation_check.rs", "strain_binding", "K-D5 §1: exact operand bits of an eigenstrain; read-only"),
-    // T4-U8 (DEL-05-03 Design §4 item 2): the frame-binding check of the
+    // the frame-binding check of the
     // closure. Each names a load primitive or formula in its signature and
     // reads only its frame's bits and its source identity; none forms, folds or
     // reads a force value.
@@ -694,7 +694,6 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
         "solve_skew_with_formation_check",
         "S-K1 A-1 (DEL-04-03 skew-restraints.md §6, §15 step 6): the linear skew entry; forms f' = Q^T f and attaches the physical primitives and force to FormationSource::restraint (SkewFormation); read-only",
     ),
-    // Nonlinear K-D5 (DEL-04-01 kd5-nonlinear-active-set.md §1.5, §1.6).
     (
         "SA/structural_adapter.rs",
         "confirm_with_formation_check",
@@ -768,7 +767,7 @@ const FORCE_TOKENS: &[&str] = &[
     ".load_primitives()",
     "load_reformation(",
     "term.accumulate(",
-    // K-D5 §3.1: a recovered row's load addends (see FORCE_SIGNATURE_TOKENS).
+    // a recovered row's load addends (see FORCE_SIGNATURE_TOKENS).
     "RowLoad",
 ];
 
@@ -821,9 +820,9 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     // passed, mapping a published row to its bound row index.
     ("PP/retained_product.rs", "bound_row_indices", 1, "integer: the reduced twins passed (D-5 published-to-bound row index)"),
     ("PP/retained_product.rs", "apply_prepared_overlay", 1, "integer: the reduced twins passed (D-5 published-to-bound row index)"),
-    // T4-U4b S4 (§4.1): the not-covered derived rows' formation; no f64 accumulation.
+    // the not-covered derived rows' formation; no f64 accumulation.
     ("PP/retained_product.rs", "prepared_not_covered", 2, "integer: the pending not-covered rows' count and the published-to-bound row index"),
-    // O4 (DEL-04-08 Design `o4-source-extension.md` §4.5): locating a recipe's nth bound row
+    // locating a recipe's nth bound row
     // (a distinct-basis member's maximum on its reduced section); no f64 accumulation.
     ("PP/retained_product.rs", "prepared_row_index_nth", 1, "integer: the matching recipes passed (the nth bound row of a recipe)"),
     // ---- PP/self_weight.rs
@@ -1460,7 +1459,7 @@ fn rule_1_and_forbidden_calls_the_product_never_folds_or_uses_untyped_seams() {
     assert!(!case.contains("reduce_assembled_system_with_prescribed_displacements("));
     assert!(!case.contains("reduce_assembled_system("));
     // E14 retired the DEC-050/053 LU lane and its dense reductions.
-    // The ordinary route retains the pattern's partition (F1b §4.8).
+    // The ordinary route retains the pattern's partition.
     assert!(case.contains("reduce_assembled_sparse_system("));
     assert!(case.contains("finish_case_ledger("));
     assert!(body("append_nonlinear_support_loop_results")
@@ -1584,13 +1583,13 @@ const FORCE_SIGNATURE_TOKENS: &[&str] = &[
     "ThermalPointPrimitive",
     "CertifiedMemberLoads",
     "CertifiedUniformLoad",
-    // K-D5 §3.1 (9ef0cbc78a): a recovered row's intended load part, each load
+    // a recovered row's intended load part, each load
     // contribution its own exact addend, joined by the row's stiffness
     // products in `evaluate_row_inner`.
     "RowLoad",
 ];
 
-/// Rule 6, K-D5 §3.1: a parameter of these names carries a recovered row's
+/// Rule 6: a parameter of these names carries a recovered row's
 /// load addend(s) into the row's exact sum (`evaluate_row`'s `load`,
 /// `evaluate_ends`'s `loads`), so the function is a force site whatever the
 /// parameter's type.
@@ -2175,7 +2174,7 @@ fn t8_every_case_force_producer_is_classified() {
             }
         }
     }
-    // K-D5 (DEL-04-01 kd5-member-relative-bound.md §1): the live nodal
+    // the live nodal
     // producer is mixed. An unscaled authored load is a plain input term; a
     // load-source-factored load is a formed RoundedProduct term (not
     // self-equilibrated) carrying its NodalProduct summand, and only that
@@ -2199,7 +2198,7 @@ fn t8_every_case_force_producer_is_classified() {
     assert!(nodal.body.find("ledger.push_formed(").unwrap() < else_at && else_at < plain);
     assert!(nodal.body[..else_at].contains("attach_last("));
     assert!(!nodal.body[else_at..].contains("attach"));
-    // W-16 R-c (DEL-04-03 pf-nonlinear-imposed-motion.md §11.1): one formed
+    // one formed
     // RoundedProduct term (not self-equilibrated) with its NodalProduct
     // summand per moved spring, after the zero test; no input push.
     let spring = items(&certified)
@@ -2270,7 +2269,7 @@ fn t8_every_case_force_producer_is_classified() {
         .chain([("PP/certified_loads.rs".to_string(), "nodal".to_string())])
         // W-16 R-c: the spring-base producer, a formed product per moved spring.
         .chain([("PP/certified_loads.rs".to_string(), "spring_base_motion".to_string())])
-        // Nonlinear K-D5 (kd5-nonlinear-active-set.md §1.6): the confirmation's
+        // the confirmation's
         // appended sliding-friction terms, outside the case force.
         .chain([("nonlinear_integration/confirmation.rs".to_string(), "appended_ledger".to_string())])
         .collect();

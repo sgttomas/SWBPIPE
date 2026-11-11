@@ -279,7 +279,7 @@ fn the_pressure_free_save_grows_within_the_budget() {
     });
 }
 
-/// Slice C5 (DEL-08-01 Design `report-section-composer.md` §2.7): a
+/// a
 /// composition listing every model-input section beside all result rows.
 pub(crate) fn model_input_composition() -> Value {
     json!({"composition_version": "1.0.0", "sections": [
@@ -300,7 +300,7 @@ pub(crate) fn with_model_input_tables(report: &mut Value, model: &Value, composi
     }
 }
 
-/// The forged model-input variants of a genuine composed `report` (§2.7): an
+/// The forged model-input variants of a genuine composed `report`: an
 /// edited cell, an extra row, tables without a listing id, and a listing id
 /// without tables. Each is named, and carries a marker no refusal may echo.
 pub(crate) const FORGED_CELL: &str = "forged-model-input-cell";

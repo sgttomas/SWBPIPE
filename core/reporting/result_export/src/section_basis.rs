@@ -10,17 +10,17 @@
 //! pressure bore on the reduced inner radius, and, for
 //! `timoshenko_annulus_energy_v1`, the energy-matched shear factor kappa_E and
 //! the shear area kappa_E * A_n from the nominal radii and the member's nu (this
-//! module's own implementation of §3.1's order, without fused multiply-add).
+//! module's own implementation, without fused multiply-add).
 //! The section leaves A, I, J, Z and Ai stay leaves: the retained exact
 //! successor overlays them with its prepared bits (DEF-E), so no reader
 //! recomputes them. Coincident bases (equal walls) carry bit-equal leaves.
 //!
 //! A realized arc's entry, and only an arc's, carries `member_kind =
-//! "realized_arc"` (§2.5, [`marked_section`]), so a reader without the model
+//! "realized_arc"` ([`marked_section`]), so a reader without the model
 //! knows every arc, including one outside every pressure region: a marked
 //! entry is Euler-Bernoulli and the unmarked entries share one straight shear
 //! model. The beam theory each entry states is bound to the captured model
-//! where a reader has it (§5): the marked entries are the model's realized
+//! where a reader has it: the marked entries are the model's realized
 //! arcs, a straight member states the contract's
 //! `pressure_contract.shear_model`, a realized arc Euler-Bernoulli
 //! ([`bind_shear_model`], [`selected_model`]).
@@ -40,13 +40,13 @@ type Check = Result<(), String>;
 pub const NOMINAL: &str = "nominal_section";
 pub const REDUCED: &str = "reduced_section";
 pub const BASES: [&str; 2] = [NOMINAL, REDUCED];
-/// The D-5 `pipe_sections` basis (§2.3).
+/// The D-5 `pipe_sections` basis.
 pub const GEOMETRY_BASIS: &str = "authored_od_wall_d5_sections_v1";
-/// §2.5: the key and the one value of a realized arc's marker. A straight
+/// the key and the one value of a realized arc's marker. A straight
 /// member's entry has no `member_kind`.
 pub const MEMBER_KIND: &str = "member_kind";
 pub const REALIZED_ARC: &str = "realized_arc";
-/// §2.5: a `pipe_sections` entry's keys (a realized arc's adds [`MEMBER_KIND`]).
+/// a `pipe_sections` entry's keys (a realized arc's adds [`MEMBER_KIND`]).
 pub const SECTION_KEYS: [&str; 11] = [
     "pipe_id",
     "geometry_basis",
@@ -60,16 +60,16 @@ pub const SECTION_KEYS: [&str; 11] = [
     "pressure_bore",
     "beam_theory",
 ];
-/// §2.5: a section object's keys.
+/// a section object's keys.
 pub const ANNULUS_KEYS: [&str; 6] = ["wall_m", "ri_m", "As_m2", "I_m4", "J_m4", "Z_m3"];
-/// §2.5: the pressure bore's keys.
+/// the pressure bore's keys.
 pub const BORE_KEYS: [&str; 2] = ["ri_m", "Ai_m2"];
 pub const EULER_BERNOULLI: &str = "euler_bernoulli";
 pub const TIMOSHENKO: &str = "timoshenko_annulus_energy_v1";
-/// §2.1: the kinds whose pressure-2 table family is `stress` and which the
+/// the kinds whose pressure-2 table family is `stress` and which the
 /// exact route publishes, once per section basis.
 pub const STRESS_KINDS: [&str; 15] = [
-    // T4-U4b (§2.2): the new per-basis kinds.
+    // the new per-basis kinds.
     "element_local_normal_stress_extreme",
     "element_local_transverse_shear_stress_maximum",
     "pipe_toroidal_membrane_hoop_stress_v1",
@@ -87,14 +87,14 @@ pub const STRESS_KINDS: [&str; 15] = [
     "pipe_lame_hoop_stress_v2",
     "pipe_elastic_normal_stress_maximum_v2",
 ];
-/// §2.4: the inherited thin-wall kinds (supported-source-019/059). The exact
+/// the inherited thin-wall kinds (supported-source-019/059). The exact
 /// producer never publishes them; a row of them names no section basis and is
 /// refused on an exact envelope.
 pub const THIN_WALL_KINDS: [&str; 2] = [
     "pipe_section_pressure_hoop_stress",
     "pipe_section_pressure_longitudinal_stress",
 ];
-/// §2.5: the separator between a recovery token and its section basis.
+/// the separator between a recovery token and its section basis.
 pub const TOKEN_SEPARATOR: &str = "; section_basis=";
 
 fn require(ok: bool, code: &str) -> Check {
@@ -116,7 +116,7 @@ fn number(v: &Value) -> Result<f64, String> {
 fn items(v: &Value) -> &[Value] {
     v.as_array().map(Vec::as_slice).unwrap_or(&[])
 }
-/// T4-U6 (§2.5, A2): structural equality whose numbers compare by their
+/// structural equality whose numbers compare by their
 /// binary64 bits, the one equality of twins and links in the Rust readers and
 /// the Python verifiers (`section_basis.bit_equal`): -0.0 is not 0.0, and the
 /// same binary64 number in another JSON form (`1e6` or `1000000`, `0` or
@@ -240,11 +240,11 @@ impl Sections {
     }
 }
 
-/// §1: the reduced wall in its fixed binary64 order, t_r = (t - c_m) - c_a.
+/// the reduced wall in its fixed binary64 order, t_r = (t - c_m) - c_a.
 pub fn reduced_wall(wall: f64, mill_tolerance: f64, corrosion_allowance: f64) -> f64 {
     (wall - mill_tolerance) - corrosion_allowance
 }
-/// §3.1: kappa_E, the energy-matched annular shear factor, in its fixed
+/// kappa_E, the energy-matched annular shear factor, in its fixed
 /// binary64 order (no fused multiply-add) from the nominal binary64 radii and
 /// the member's nu. Not Cowper's factor and not 5/6.
 pub fn timoshenko_shear_factor(ri: f64, ro: f64, nu: f64) -> f64 {
@@ -273,7 +273,7 @@ fn annulus(v: &Value, od: f64, wall: f64) -> Result<Annulus, String> {
     Ok(Annulus { wall: w, ri, area, second_moment, polar_moment, modulus })
 }
 
-/// §2.5: an entry's realized-arc marker: `true` for `member_kind =
+/// an entry's realized-arc marker: `true` for `member_kind =
 /// "realized_arc"`, `false` without `member_kind`. Any other `member_kind` is
 /// refused by name.
 pub fn arc_marker(v: &Value) -> Result<bool, String> {
@@ -283,13 +283,13 @@ pub fn arc_marker(v: &Value) -> Result<bool, String> {
         Some(_) => Err("SOURCE_PHYSICS_MEMBER_KIND".into()),
     }
 }
-/// One `pipe_sections` entry (§2.5) with exactly [`SECTION_KEYS`], checked
+/// One `pipe_sections` entry with exactly [`SECTION_KEYS`], checked
 /// against its own captured authored values. `beam_theory` is parsed here and
 /// bound by [`beam_theory`]. A marked entry is read by [`marked_section`].
 pub fn section(v: &Value) -> Result<Sections, String> {
     section_in(v, false)
 }
-/// One `pipe_sections` entry (§2.5) and its realized-arc marker ([`arc_marker`]):
+/// One `pipe_sections` entry and its realized-arc marker ([`arc_marker`]):
 /// a marked entry carries [`SECTION_KEYS`] and [`MEMBER_KIND`], an unmarked one
 /// exactly [`SECTION_KEYS`].
 pub fn marked_section(v: &Value) -> Result<(Sections, bool), String> {
@@ -352,7 +352,7 @@ fn section_in(v: &Value, marked: bool) -> Result<Sections, String> {
     })
 }
 
-/// §3.1/§3.6: a realized arc states Euler-Bernoulli whatever the document
+/// a realized arc states Euler-Bernoulli whatever the document
 /// selects; a Timoshenko straight states kappa_E and A_s = kappa_E * A_n bit
 /// for bit from its nominal radii and its case's nu.
 pub fn beam_theory(sections: &Sections, nu: f64, arc: bool) -> Check {
@@ -379,11 +379,11 @@ pub fn model(sections: &Sections) -> &'static str {
     }
 }
 
-/// §3.6: the realized arcs of a captured model document, as the producer
+/// the realized arcs of a captured model document, as the producer
 /// realizes them: the pipes named by `geometry.bend_pipe_ref` of its `bend` or
 /// `elbow` components whose `mechanics_interface.solver_consumption` is
 /// `curved_bend_macro_element`. The evidence marks each arc's `pipe_sections`
-/// entry and region geometry (§2.5); the model names which pipes those are.
+/// entry and region geometry; the model names which pipes those are.
 pub fn realized_arcs(model: &Value) -> std::collections::HashSet<&str> {
     items(&model["components"])
         .iter()
@@ -394,7 +394,7 @@ pub fn realized_arcs(model: &Value) -> std::collections::HashSet<&str> {
         .filter_map(|c| c["geometry"]["bend_pipe_ref"].as_str().filter(|r| !r.trim().is_empty()))
         .collect()
 }
-/// §3.6, §5: the beam theory a captured contract selects for one member: a
+/// the beam theory a captured contract selects for one member: a
 /// realized arc is Euler-Bernoulli whatever the document selects; a straight
 /// member takes the contract's `pressure_contract.shear_model`.
 pub fn selected_model(shear_model: &str, arc: bool) -> &str {
@@ -475,7 +475,7 @@ pub fn twin_values(kind: &str, nominal: f64, reduced: f64, sections: &Sections) 
     }
     Ok(())
 }
-/// §2.1: a straight member's Lame rows at one station on one basis: radial -p
+/// a straight member's Lame rows at one station on one basis: radial -p
 /// (inner) and 0 (outer); hoop at the outer surface 2p*pi*ri_b^2/A_b and at the
 /// inner surface that plus p, on the basis's own annulus.
 pub fn lame_station(values: &HashMap<&str, f64>, annulus: &Annulus, p: f64) -> Check {
@@ -494,7 +494,7 @@ pub fn lame_station(values: &HashMap<&str, f64>, annulus: &Annulus, p: f64) -> C
     )
 }
 
-/// §2.5 per-basis records: a case's `stress_maximum_coverage`, the nominal
+/// per-basis records: a case's `stress_maximum_coverage`, the nominal
 /// entry then the reduced entry; returns each basis's unavailable pipes.
 pub fn coverage(v: &Value) -> Result<[(Vec<&str>, bool); 2], String> {
     let entries = v.as_array().ok_or("SOURCE_PHYSICS_STRESS_COVERAGE_SHAPE")?;
@@ -547,7 +547,7 @@ pub fn extrema_twins(nominal: &Value, reduced: &Value, sections: &Sections) -> C
     Ok(())
 }
 
-/// §2.2: the summary's per-basis headlines. `max_open_formula_stress` is null,
+/// the summary's per-basis headlines. `max_open_formula_stress` is null,
 /// both basis keys are present, and each non-null headline needs its basis's
 /// complete coverage, binds a maximum row of its own basis (its value bit for
 /// bit, [`bit_equal`]) and is not below any maximum of that basis.

@@ -1,5 +1,5 @@
-//! K4 tests of `retained/bound.rs` on raw profiles (D1 revision 5a.3, R7
-//! §4.1.6.3 item 7, Lemmas D and E; E-UC and SD-G5): V4's F2 family at P =
+//! K4 tests of `retained/bound.rs` on raw profiles (D1 revision 5a.3,
+//! E-UC and SD-G5): V4's F2 family at P =
 //! 128, 256 and 512, DS1's low-precision stress (P = 10 to 32, the kill of
 //! R7-M27 at low precision), and the searched boundary profiles. Every value
 //! equals the generator's emulation bit for bit (`profiles.txt`), and every

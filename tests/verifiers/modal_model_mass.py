@@ -86,7 +86,7 @@ from tests.verifiers.modal_model_mass_interval import (
     exact, pi, published_image, relative, scaled, sqrt,
 )
 
-# The model document version this reader's basis covers (MD8 §5: named only here).
+# The model document version this reader's basis covers (named only here).
 MODEL_VERSION = "0.9.0"
 UNRESOLVED = "unresolved: "
 COMPONENTS = ("ux", "uy", "uz", "rx", "ry", "rz")
@@ -367,7 +367,7 @@ def _coefficient(entry, length: Iv) -> Iv:
 
 
 def _straight_blocks(xi, xj, mbar: Iv, ibar: Iv, jbar: Iv, geometry, floors: list):
-    """The 12×12 consistent mass of Design §2.2 in global axes, frame-free (a circular
+    """The 12×12 consistent mass in global axes, frame-free (a circular
     section's mass does not depend on the member's y/z orientation): transverse
     displacement d = (I − eeᵀ)u and slope s = θ × e = −[e]×θ (so that along +x the planes
     act on [u_y, θ_z] and [u_z, −θ_y]); Hermitian translation m̄L/420·H and Rayleigh
@@ -488,7 +488,7 @@ def _floor_reason(floors: list, owner: str) -> str | None:
 
 
 def _body_block(mass: Iv, cog, floors: list) -> dict:
-    """A point mass at the centre of gravity r from its node (Design §2.2, §2.3):
+    """A point mass at the centre of gravity r from its node:
     [[m·I, −m[r]×], [m[r]×, m(|r|²I − rrᵀ)]]; its own inertia is unentered, so zero."""
     r = [Iv(v) for v in cog]
     first = [mass * r[a] for a in range(3)]
@@ -501,7 +501,7 @@ def _body_block(mass: Iv, cog, floors: list) -> dict:
 
 
 def _arc_lumps(xi, xj, radius, y, mbar: Iv, ibar: Iv, jbar: Iv, trig, floors: list):
-    """Design §2.4: two rigid half-arcs (half-angle α, mass m̄Rα each) about their end
+    """two rigid half-arcs (half-angle α, mass m̄Rα each) about their end
     nodes, with first moment ∫m̄ρ ds and second moment ∫m̄(|ρ|²I − ρρᵀ) ds + ∫(j̄ttᵀ +
     ī(I − ttᵀ)) ds. In the half's own frame (e1 radial outward at the node, e2 the
     tangent into the half, e3 = e1 × e2), ρ(θ) = R((cos θ − 1)e1 + sin θ e2), θ ∈ [0, α]:
@@ -802,7 +802,7 @@ def derive(request: Any) -> ModelMass:
     for pipe_id, body in bodies.items():
         node, weight, cog = body
         _body_range(weight, acceleration, cog, pipe_id)
-        mass_x = Iv(weight) / Iv(acceleration)            # W/a, Design §2.3
+        mass_x = Iv(weight) / Iv(acceleration)            # W/a
         mass_e = binary64(mass_x, f"component body on {pipe_id}")  # the producer's fl(W/a)
         floors = []
         exact_block, envelope_block = (_body_block(m, cog, floors) for m in (mass_x, mass_e))
@@ -874,7 +874,7 @@ def _weight(component):
 
 
 def _component_bodies(model, components, pipes, selected, curved, replaced, request, out):
-    """Self-weight's eligibility (Design §2.3, W-15 slice b), by its stated rules: a
+    """Self-weight's eligibility (W-15 slice b), by its stated rules: a
     mapping conflict refuses; `not_solver_consumed` keeps the pipe mass silently; an
     unmet condition (consumption undeclared or not geometry-only, the member not ending
     at the node, no finite positive weight, no finite centre of gravity, in that order)
@@ -939,7 +939,7 @@ def _component_bodies(model, components, pipes, selected, curved, replaced, requ
 
 
 def _body_range(weight, a, cog, pipe_id):
-    """Design §2.3 item 6's four-part binary64 premise, in binary64 and in the order the
+    """four-part binary64 premise, in binary64 and in the order the
     producer evaluates it (`component_range`): first = m·r_i, then first·r_j, each
     zero or normal, and a nonzero exact product that rounds to zero is out of range;
     then the rotational diagonal's sums are finite. The producer refuses a body
@@ -971,7 +971,7 @@ def _body_range(weight, a, cog, pipe_id):
 
 
 def _applied_acceleration_agreement(model, acceleration):
-    """Design §2.3 item 5: an applied component-weight primitive's recorded acceleration
+    """an applied component-weight primitive's recorded acceleration
     must equal a, unless that primitive is stale or overridden. Staleness is not decided
     here, so only a disagreeing record is scoped."""
     for case in model.get("load_cases") or []:
@@ -1077,7 +1077,7 @@ def _direction_axis(support, support_id, restraints):
 
 
 def _partition(model, index, out):
-    """The axis restraint partition (Design §1.3): a rigid support restrains its listed
+    """The axis restraint partition: a rigid support restrains its listed
     DOFs; a spring or (variable) spring hanger leaves its DOF free; a constant-effort
     support is absent; a nonlinear support with no restraints and no stiffness enters
     only through the state case. A skewed record (modal-1 refuses skew before
@@ -1151,7 +1151,7 @@ def _state(request, model, index, out):
     out.state_case = case_id
 
 
-# --- the subject census (Design §5.3.2) ---------------------------------------------------------
+# --- the subject census ---------------------------------------------------------
 
 class Census:
     """The subjects a bound request's model gives a run, each list in model order: the
@@ -1182,7 +1182,7 @@ def _cog_entered(component) -> bool:
 
 
 def census(request: Any) -> Census:
-    """The subject rule of Design §5.3.2, from the bound request's model alone and from
+    """The subject rule, from the bound request's model alone and from
     its structure only (no quantity is enclosed, so no subject is ever dropped because
     a mass value is unresolved or outside the rounding model):
 
@@ -1368,7 +1368,7 @@ def _bind_nodes(model: ModelMass, view):
 
 
 def _state_rigid(behavior, state):
-    """Design §1.3's table: True rigid, False free, None not admitted."""
+    """True rigid, False free, None not admitted."""
     if behavior == "friction":
         return {"sticking": True, "sliding": False, "inactive": False}.get(state)
     return {"active": True, "inactive": False}.get(state)
@@ -1519,7 +1519,7 @@ def mass_items(model: ModelMass, view) -> list[str]:
 
 
 def _centre(model: ModelMass, view, rounded, n_dofs, items):
-    """The mass centre from M's first moments (Design §1.5): with F = M R_k about a point
+    """The mass centre from M's first moments: with F = M R_k about a point
     p, the resultant moment is T_k·(c − p) × e_k, so c_x and c_y come from R_z and c_z
     from R_x. The producer takes p̃ = the node centroid (double word, rounded), divides
     the double-word moments by the binary64 totals and publishes fl(p̃ + fl(d))."""
@@ -1568,7 +1568,7 @@ def _centre(model: ModelMass, view, rounded, n_dofs, items):
 
 def participation_items(model: ModelMass, view) -> list[str]:
     """m_i, Γ, m_eff, the fractions and their cumulative sums from the model-derived M
-    and the published shapes (Design §1.5, D-v): m = φᵀM_ffφ summed exactly and published
+    and the published shapes (D-v): m = φᵀM_ffφ summed exactly and published
     once; p_k = (M R_k)_f, each row a double-word sum rounded to binary64, so the
     restrained-point coupling M_fc stays in it; φᵀp_k summed exactly; Γ = φᵀp_k/m,
     m_eff = (φᵀp_k)²/m and the fraction (φᵀp_k)²/(m·T_k) in double word, each published

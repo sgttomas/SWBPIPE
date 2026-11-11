@@ -154,7 +154,7 @@ describe("the objective connector form (T4-U2)", () => {
     expect(JSON.parse(intent.change.after).objective_connector.pressure_model).toEqual({ kind: "constant_effective_area_reference_v1", effective_area: { value: 0.004, unit: "m^2" }, pressure_basis: "internal_differential_zero_external_v1", source_reference: "invented explicit area" });
   });
 
-  // T4-U5b (DEL-04-07 Design u4b-u5b-implementation.md §3.1, §5.2): the rod table.
+  // the rod table.
   const rodRow = (id: string, y: string) => ({ id, offsetI: `-0.05 ${y} 0`, offsetJ: `0.05 ${y} 0`, offsetUnit: "m", stiffness: "10000", stiffnessUnit: "kN/m",
     referenceExtension: "-0.025", referenceExtensionUnit: "mm", sourceReference: "invented rod" });
   it("offers explicit tie rods on 0.9.0 with a rod table, and builds the hardware the engine accepts", async () => {

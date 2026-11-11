@@ -1,5 +1,5 @@
 //! T4-U4b: the certified along-arc stress maximum of a realized arc
-//! (DEL-04-07 Design `u4b-u5b-implementation.md` §2.3 and §2.6; the
+//! (the
 //! definitions are those of `validation/references/t4_u4b/README.md` item 4).
 //!
 //! # The represented problem
@@ -24,7 +24,7 @@
 //! The exact derivatives in ψ are N′ = −R w·t + V_y, M_y′ = R V_z − T and
 //! M_z′ = −R V_y (t4_u4b item 4). The elastic measure is
 //! f = |N_eff|/A + hypot(M_y, M_z)/Z; the directional intensified measure is
-//! g = hypot(i_ip M_z, i_op M_y)/Z (§2.6). Both are suprema of functions with
+//! g = hypot(i_ip M_z, i_op M_y)/Z. Both are suprema of functions with
 //! second derivative ≥ −K (item 4: N″ = −2R w_y − N, M_y″ = −R² w_z − M_y,
 //! M_z″ = R² w_y + R N), so on a cell of width h the maximum is at most the
 //! larger endpoint value plus K h²/8, with
@@ -61,7 +61,7 @@
 //! difference is part of the station rows' binary64 formation, which the
 //! station cover below absorbs upward.
 //!
-//! # The station cover (§2.3 step 5)
+//! # The station cover
 //!
 //! The published station values of this arc and basis (max(|σ⁺|, |σ⁻|), or
 //! the intensified rows), converted to Pa and rounded upward by the caller,
@@ -95,7 +95,7 @@
 //! directed binary64 intervals: every lower value is rounded downward and
 //! every upper value upward.
 //!
-//! # Method (§2.3 steps 1–7)
+//! # Method
 //!
 //! A uniform grid of 4,096 cells; branch and bound on the cell bound above
 //! with `elastic_extrema`'s gap rule (gap ≤ 1e-12 Pa + 1e-12·lower) and

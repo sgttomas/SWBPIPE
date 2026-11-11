@@ -1,4 +1,4 @@
-// On-demand model checks (DEL-04-06 Design `on-demand-model-checks.md`): the
+// On-demand model checks: the
 // model's existing checks, run when the user asks, with their findings as the
 // checks state them. No check is defined here; each comes from its owner:
 // - the solve's own checks before stiffness formation (input validation, the

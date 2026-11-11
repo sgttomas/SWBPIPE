@@ -7,7 +7,7 @@
 //! or code-compliance claims.
 //!
 //! Holds no `unsafe` code: the reach scan requires `#![forbid(unsafe_code)]`
-//! at this root (DEL-08-01 Design `report-user-release.md` §2.8; code review
+//! at this root (code review
 //! r9 at #1682).
 #![forbid(unsafe_code)]
 
@@ -986,7 +986,7 @@ fn run_preview_with_producer(
 }
 
 /// Produce and attach the DEL-08-04 envelope document for a completed solve
-/// (R14 W1 T1, fail-closed per the governing brief §3.5): on a clean
+/// (R14 W1 T1, fail-closed): on a clean
 /// production (both validators free of blocking diagnostics) the document is
 /// returned for the new library-only `PreviewRunnerOutput` field; on a
 /// STRUCTURAL production or validation failure a blocking runner diagnostic
@@ -1513,7 +1513,7 @@ mod tests {
         // legacy pressure primitive from a local input; keep fixture bytes intact.
         // A linear-route preview model whose cases are CHECKS_PASSED, so the qualified export
         // is exercised. (The invented model has nonlinear supports, whose converged cases K-D5
-        // publishes Sensitive and not exportable: DEL-04-01 kd5-member-relative-bound.md §5.)
+        // publishes Sensitive and not exportable.)
         let mut ordinary: Value = serde_json::json!({"model": serde_json::from_str::<Value>(include_str!(
             "../../../../fixtures/model_operations/precision_connected_ui_model.json"
         )).unwrap(), "materials": []});

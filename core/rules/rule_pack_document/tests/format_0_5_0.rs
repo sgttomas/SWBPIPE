@@ -103,7 +103,7 @@ fn other_versions_are_refused_by_name_and_the_checksum_is_still_computed() {
             "{label}: {}",
             refusal.message
         );
-        // A refused pack is never also a checksum mismatch (design §2.1).
+        // A refused pack is never also a checksum mismatch.
         assert_eq!(outcome.checksum.match_status, "match", "{label}");
         assert!(outcome.checksum.computed.is_some(), "{label}");
         assert!(!codes(&outcome).contains(&"CHECKSUM_MISMATCH"), "{label}");
@@ -117,7 +117,7 @@ fn other_versions_are_refused_by_name_and_the_checksum_is_still_computed() {
     assert!(message.contains("'0.4.0'"), "{message}");
 }
 
-/// Each §2.9 finding, reached by one edit of the valid demo pack.
+/// Each finding, reached by one edit of the valid demo pack.
 #[test]
 fn each_static_finding_is_reached() {
     type Edit = fn(&mut Value);
@@ -319,7 +319,7 @@ fn a_required_load_case_no_check_reaches_is_refused() {
     assert!(unreached[0].message.contains("reached by no check"));
 
     // The same load case also mapped by the checked category is reached: a
-    // load case may feed more than one category (design §2.3).
+    // load case may feed more than one category.
     pack["load_case_mappings"][0]["required_load_case_refs"]
         .as_array_mut()
         .unwrap()
@@ -400,7 +400,7 @@ fn a_structural_defect_gives_the_check_no_basis_list() {
 }
 
 /// PR #1629 review r1 finding 2: the required members of the new records
-/// (design §2.3; `RequiredLoadCase`, `StressCategory`, `LoadCaseMapping` and
+/// (`RequiredLoadCase`, `StressCategory`, `LoadCaseMapping` and
 /// `ProvenanceRecord` of the schema) are validated as blocking findings, so a
 /// pack missing one (with its checksum re-stamped) never validates. The
 /// desktop run command refuses such a pack with no outcome

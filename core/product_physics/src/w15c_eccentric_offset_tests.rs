@@ -95,7 +95,7 @@ fn two_rounded_parallel_hundred_millimetre_spans_agree() {
     assert_eq!(outcome_name(&outcome), "realized", "{outcome:?}");
 }
 
-/// The §7.1 geometry: 1 m runs on X, the body chord (0.12, −0.05, 0) m.
+/// The geometry: 1 m runs on X, the body chord (0.12, −0.05, 0) m.
 fn axis_x() -> (EndStatus, EndStatus, [f64; 3], [f64; 3]) {
     let (n0, a, b, c) = ([0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.12, -0.05, 0.0], [2.12, -0.05, 0.0]);
     (run(n0, a), run(b, c), a, b)
@@ -152,7 +152,7 @@ fn bits(o: &OffsetOutcome) -> Vec<u64> {
     [m.axial_length, m.offset_axial, m.allowance, m.residual, m.beta_run].iter().map(|v| v.to_bits()).collect()
 }
 
-/// §3.3, Codex: a sign-only convention change (the ends' names swapped and the
+/// Codex: a sign-only convention change (the ends' names swapped and the
 /// offset negated, as option A against option B with the member reversed) gives
 /// the same outcome and bit-identical measures, because the axis is chosen
 /// independently of endpoint naming and oriented by D.
@@ -187,7 +187,7 @@ fn ambiguity_and_unsupported_evidence_are_refused_before_directions() {
     assert_eq!(decide_axis(&EndStatus::None, &ok).unwrap(), RunAxis::One([1.0, 0.0, 0.0], 1e-3));
 }
 
-/// A realized arc's tangent at its ends and β_arc (§3.3): a quarter circle of
+/// A realized arc's tangent at its ends and β_arc: a quarter circle of
 /// radius 1 m in the XY plane bowing toward +Y.
 #[test]
 fn a_realized_arc_gives_its_end_tangents() {
@@ -380,7 +380,7 @@ fn consensus(n: &EndStatus, f: &EndStatus) -> ([f64; 3], f64) {
 /// end with a 5.859196 mm placement residual. Under J3 the tie judges each end
 /// like both neighbours, its measure bit-identical to the neighbour whose
 /// governing end has unchanged evidence, and the ends' names swapped give the
-/// identical outcome. Under rule B (§3.3) that residual is within τ plus the
+/// identical outcome. Under rule B that residual is within τ plus the
 /// axis allowance ‖D‖·sin β (about 10.4 mm here), so all three are realized
 /// in the warning band; under the τ-only rule all three were `Mismatch`.
 #[test]
@@ -481,7 +481,7 @@ fn j3_a_tie_reports_signed_zeros_identically_under_either_naming() {
     assert_ne!(raw(x_n, x_f), raw(x_f, x_n));
 }
 
-/// Rule B (§3.3): the placement accepts a residual up to τ + ‖D‖·sin β_run and
+/// Rule B: the placement accepts a residual up to τ + ‖D‖·sin β_run and
 /// refuses beyond it; on X with 0.1 m runs and a 0.6 m body the allowance is
 /// about 15.4317 mm. The measure records the axis allowance.
 #[test]

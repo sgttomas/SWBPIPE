@@ -4,7 +4,7 @@
 //! acceleration. No value is defaulted: an absent input is refused by name
 //! where it is required, and recorded as absent otherwise.
 //!
-//! Every member is a request member, as `solver_mode` is (Design §1.4, D-h);
+//! Every member is a request member, as `solver_mode` is (D-h);
 //! none is a model-document member, so no document version changes.
 use super::{
     MODAL_EXTRACTION_BOUND_INVALID, MODAL_EXTRACTION_BOUND_REQUIRED, MODAL_MODULUS_BASIS_CONFLICT,
@@ -15,7 +15,7 @@ use open_pipe_stress_units::Dimension;
 use serde::Deserialize;
 
 /// The modal analysis request: the static request's `{model, materials}`
-/// and the modal members of Design §1.4.
+/// and the modal members.
 #[derive(Debug, Clone)]
 pub(crate) struct ModalPreviewRequest {
     pub(crate) model: PreviewModel,
@@ -142,7 +142,7 @@ impl ModalPreviewRequest {
         })
     }
 
-    /// The request-level refusals of Design §1.4, all of them, in a fixed
+    /// The request-level refusals, all of them, in a fixed
     /// order; or the validated inputs.
     pub(crate) fn validate_modal_request(&self) -> Result<RequestInputs, Vec<Diagnostic>> {
         let mut found = Vec::new();

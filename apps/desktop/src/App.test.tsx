@@ -85,7 +85,7 @@ import type {
   SolveJobAuditState,
 } from "./types";
 
-// Slice B3: the status bar carries the chips of specification §5.4. A chip's face is
+// Slice B3: the status bar carries the chips. A chip's face is
 // "Domain · Label" from statusLabels.ts; the recorded token is its tooltip (and, on a
 // click, its popover). These helpers hold both, where a pill's body used to show the token.
 function expectStatusChip(testId: string, token: string, face: string) {
@@ -641,7 +641,7 @@ describe("SWBPIPE desktop preview", () => {
     const packet = JSON.parse(decodeURIComponent(href.split(",", 2)[1]));
     expect(packet.summary.persisted_mechanics_result_count).toBe(0);
     expect(packet.summary.persisted_analysis_run_count).toBe(0);
-    // Only the session's keyed MBF export/import retirements reached native (DEL-17-04 §3.7, §4.8.6).
+    // Only the session's keyed MBF export/import retirements reached native.
     expect(invokeMock.mock.calls.filter(([command]) => command !== "cancel_mbf_export" && command !== "cancel_mbf_import")).toEqual([]);
   });
 
@@ -3519,7 +3519,7 @@ describe("SWBPIPE desktop preview", () => {
         "export-review-record-validation_release_evidence_review",
       ).textContent,
     ).toContain("available");
-    // Slice B3, specification §5.4 rule 4: Human · Human review required is a chip of the
+    // Human · Human review required is a chip of the
     // Review page after a solved run and of no other page. The recorded value stays readable
     // in the Analyze page's readiness summary.
     expect(screen.queryByTestId("status-pill-professional")).not.toBeInTheDocument();
@@ -7112,7 +7112,7 @@ describe("SWBPIPE desktop preview", () => {
     const nodeCount = new Set(displacements.map(row => row.entity_ref)).size;
     expect(new Set(displacements.map(row => row.unit))).toEqual(new Set(["mm"]));
     const referenceOverlay = buildDeformationOverlay(referenceModel, fixtureResult);
-    // W-15 (DEL-03-05 Design §6): the regenerated demo solves valve C-130's member with its scale 15
+    // the regenerated demo solves valve C-130's member with its scale 15
     // (was 7.635384 unscaled).
     expect(maximum.toFixed(6)).toBe("7.624972");
     expect(referenceOverlay.summary).toContain(`available; nodes=${nodeCount}; max=7.624972 mm`);
@@ -9102,7 +9102,7 @@ describe("SWBPIPE desktop preview", () => {
     );
     expect(screen.getByText("Blank Local Model", { selector: ".titlebar p" })).toBeInTheDocument();
     expectStatusChip("status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
-    // Slice B3, specification §5.4 rule 1: before any run the status bar carries one chip,
+    // before any run the status bar carries one chip,
     // Solver · Model incomplete. The other two recorded values stay readable in the Analyze
     // page's readiness summary.
     expect(screen.queryByTestId("status-pill-rule-check")).not.toBeInTheDocument();
@@ -10509,7 +10509,7 @@ describe("SWBPIPE desktop preview", () => {
   });
 
   it("preserves the 837-row stress-neutral format as a pure reference projection", async () => {
-    // The demo's converged nonlinear cases are confirmed and published CHECKS_PASSED (DEL-04-01 kd5-nonlinear-active-set.md §5),
+    // The demo's converged nonlinear cases are confirmed and published CHECKS_PASSED,
     // so the pure packet projection admits the reference again.
     const basis = await referenceAnalysis(), expectedModel = basis.model, expectedSource = basis.result;
     const before = JSON.stringify(basis);
@@ -10898,7 +10898,7 @@ describe("SWBPIPE desktop preview", () => {
     const { model, source } = await loadBundledMechanicsReference();
     const knowledge = await loadDesignKnowledge();
     const expectedDiagnostics = [...model.diagnostics, ...knowledge.diagnostics, ...source.diagnostics];
-    // The demo's nonlinear cases are confirmed and published CHECKS_PASSED (DEL-04-01 kd5-nonlinear-active-set.md §5).
+    // The demo's nonlinear cases are confirmed and published CHECKS_PASSED.
     expect(source.diagnostics.filter(item => item.code === "NUMERICAL_INTEGRITY_CHECKS_PASSED")).toHaveLength(model.load_cases.length);
     const selected = vi.fn();
     const view = render(<DiagnosticsPanel model={model} knowledge={knowledge} result={source} selectedDiagnosticId={null} onSelectDiagnostic={selected} />);
@@ -14494,7 +14494,7 @@ describe("workflow current and historical result boundaries", () => {
       });
       await delayedRuleRun.promise;
     });
-    // Slice B3: with no rule-check aggregate there is no Rule pack chip at all (§5.4 rule 3).
+    // Slice B3: with no rule-check aggregate there is no Rule pack chip at all.
     expect(screen.queryByTestId("status-pill-rule-check")).not.toBeInTheDocument();
     // W-18 (b2): the replacement's package carries no stale rule check: no aggregate, no
     // user-rule outcomes and no rule-pack reference, and the record's rule status is the solve's.

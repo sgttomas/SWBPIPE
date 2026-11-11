@@ -1,4 +1,4 @@
-/** B5 (DEL-07-01 Design `split-and-slope-entry.md` §2): the equal-part split through the session
+/** the equal-part split through the session
  * and the actual wasm engine. The batch validates, applies once, stores every intermediate node
  * bit-identical to A + (B − A) · (k / N) (Object.is per component), and one Undo restores the
  * model. Refusals match the engine's own. Invented inline model; project unit ft. */

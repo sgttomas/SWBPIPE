@@ -151,7 +151,7 @@ fn table() -> Vec<Row> {
         Row { name: "axis chord, y just inside tolerance", unit: "m", a: O, b: [2.0, 0.0, 0.0], y: [1.0, 0.0, 2e-12], refused: None },
         // A perpendicular y whose whole length is below the kernel tolerance.
         Row { name: "axis chord, y below tolerance in length", unit: "m", a: O, b: [2.0, 0.0, 0.0], y: [0.0, 0.0, 1e-13], refused: Some(CONNECT_ORIENTATION) },
-        // Design §2.3 counterexample: the projection is nonzero (about 7.07e-6)
+        // counterexample: the projection is nonzero (about 7.07e-6)
         // but the kernel's |x.y| after normalization exceeds 1e-12.
         Row { name: "oblique chord, y near-parallel (§2.3)", unit: "m", a: O, b: [1.0, 1.0, 0.0], y: [1.00001, 1.0, 0.0], refused: Some(CONNECT_ORIENTATION) },
         Row { name: "oblique chord, y well off the chord", unit: "m", a: O, b: [1.0, 1.0, 0.0], y: [1.0, 1.0, 1.0], refused: None },

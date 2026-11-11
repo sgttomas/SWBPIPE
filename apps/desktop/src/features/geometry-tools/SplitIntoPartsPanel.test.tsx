@@ -1,4 +1,4 @@
-/** B5 (DEL-07-01 Design `split-and-slope-entry.md` §2): the Split into equal parts panel. The
+/** the Split into equal parts panel. The
  * preview shows the exact coordinates the batch writes; queueing hands over exactly the planner's
  * one batch; a refusal or a model change queues nothing; an open request moves focus. */
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";

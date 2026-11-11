@@ -1,4 +1,4 @@
-//! The designated-source check (DEL-17-04 Design `desktop-mbf-export-import.md` §5.4) and review format 3's
+//! The designated-source check and review format 3's
 //! designation: an exact source establishes the identity set; a changed source, a missing or older identity file, a
 //! derivation whose settings do not reproduce the pair, and a non-model document do not; substitution, a duplicate and
 //! a missing id in any class are detected class by class; and a truncated review never states an established outcome.

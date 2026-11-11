@@ -1,4 +1,4 @@
-// Run-sheet bend SIF cells (DEL-07-02 `run-sheet-entry.md` §1.2, §3.3, §4.2; RT-G2/RT-A3):
+// Run-sheet bend SIF cells (RT-G2/RT-A3):
 // B rows take an explicit directional SIF pair, both or neither, under the row's k
 // source. The batch realizes the pair with one `bend_realization` after the bend's
 // insertion, inside the same preview-gated batch, with `before` from the record

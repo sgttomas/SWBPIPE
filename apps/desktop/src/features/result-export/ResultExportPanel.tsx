@@ -44,7 +44,7 @@ export function ResultExportPanel({
   const [publicationFingerprint, setPublicationFingerprint] = useState<string|null>(null);
   const retainedSummary = retainedPrecisionSummaryLine(result, model);
   const currentFingerprint = liveResultBinding(model, result, analysisRun, inputManifest);
-  // Epoch 8 (design §5.4): shown only while the live binding admits the result.
+  // shown only while the live binding admits the result.
   const loadReferenceLine = currentFingerprint !== null ? loadReferenceDisclosure(result, "result-export") : null;
   const currentPacket = binding?.[0]===model && binding?.[1]===result && binding?.[2]===analysisRun && binding?.[3]===inputManifest
     && currentFingerprint !== null && currentFingerprint === publicationFingerprint ? packet : null;

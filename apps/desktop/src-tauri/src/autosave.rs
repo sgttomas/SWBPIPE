@@ -567,7 +567,7 @@ impl AutosaveWriteOutcome {
     }
 }
 
-/// A record read for recovery, after every check of §5.
+/// A record read for recovery, after every check.
 #[derive(Debug, Clone, Serialize, PartialEq)]
 pub(crate) struct VerifiedAutosave {
     pub(crate) file_name: String,
@@ -732,7 +732,7 @@ pub(crate) fn list_autosaves(directory: &Path, memory: &dyn ReadMemory) -> Resul
 }
 
 /// Writes the session's canonical model document text as the newest record of
-/// its slot in `directory` (§1, §5).
+/// its slot in `directory`.
 pub(crate) fn write_autosave(
     directory: &Path,
     canonical_text: &str,
@@ -860,7 +860,7 @@ pub(crate) fn write_autosave_with_io(
     }
 }
 
-/// Reads one record for recovery (§3, §5), contained: the name must parse; the
+/// Reads one record for recovery, contained: the name must parse; the
 /// directory must be a real directory; the entry must be a regular file within
 /// the open cap, opened without following a link and confirmed by `fstat` as
 /// the inspected file; it is read with a hard cap at the inspected size, which
@@ -911,7 +911,7 @@ pub(crate) fn read_autosave(directory: &Path, file_name: &str, memory: &dyn Read
     Ok(verified.holding(load))
 }
 
-/// What a discard did (§3, Discard).
+/// What a discard did.
 #[derive(Debug, Clone, Serialize, PartialEq)]
 #[serde(tag = "outcome", rename_all = "snake_case")]
 pub(crate) enum AutosaveDiscardOutcome {
@@ -921,7 +921,7 @@ pub(crate) enum AutosaveDiscardOutcome {
     Refused { diagnostics: Vec<DispositionDiagnostic> },
 }
 
-/// Removes one record the user chose to discard (§3), contained as every read
+/// Removes one record the user chose to discard, contained as every read
 /// is: the name must parse as a record's, the directory must be a real
 /// directory (opened `O_DIRECTORY | O_NOFOLLOW`), and the entry, resolved once
 /// relative to it, must be a regular file (never a symlink, which is refused

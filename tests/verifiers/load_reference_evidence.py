@@ -624,7 +624,7 @@ def _validate_member(member: Any) -> None:
     _require(fitted, "FIT_BINDING")
 
 
-# R-4 §3.7 S6: a support component's (law, source) pair and its contribution
+# a support component's (law, source) pair and its contribution
 # classification (Rust ``load_reference::support_law_classification``).
 SUPPORT_LAWS = {
     ("rigid_prescribed", "support_state.boundary_motion"): "prescribed_boundary",

@@ -588,7 +588,7 @@ fn option_c_structural_adapter_legacy_variants_reach_only_binary64_entry_points(
             code.replace_range(range, "{");
         }
     }
-    // R2 (DEL-04-01 kd5-nonlinear-active-set.md, 2026-10-12): the nonlinear
+    // the nonlinear
     // route's single confirmation entry prepares the converged state's system
     // exactly as `solve_assembled` does; it is an exact variant, defined once,
     // in `impl AssemblyEvidence` only, and its body is blanked the same way.
@@ -1025,7 +1025,7 @@ fn option_c_product_equilibrium_uses_the_binary64_residual() {
 }
 
 // ---------------------------- K-D5: the nonlinear loop reaches no formation check
-// (T3 D1 §4.3.1 callers; mutation 32). Source pin backed by a behavioural pin
+// (mutation 32). Source pin backed by a behavioural pin
 // whose precondition shows the formation-checked and loop paths differ.
 
 /// Every K-D5 entry point: none may appear in the loop's sources.
@@ -1368,7 +1368,7 @@ fn kd5_nonlinear_sources_name_no_formation_check_entry_point() {
     let case_body=function_body(product_lib,"fn solve_prepared_load_case(");
     let compact=case_body.split_whitespace().collect::<String>();
     assert!(compact.contains("letmember_bound=linear_solve.as_ref().filter(|solve|pre_guard_passed&&load_row_finding.is_none()&&built.nonlinear_supports.is_empty()&&solve.structural_report.quality==SolveQuality::Passed&&selected_source.is_none()).and_then(|solve|solve.member_bound.as_ref());"));
-    // R2 (§3.1): the nonlinear route's member bound is the confirmed state's
+    // the nonlinear route's member bound is the confirmed state's
     // Stage B, present only for an established confirmation of a nonlinear
     // case, and its recovery view takes Stage B's force.
     assert!(compact.contains("letconfirmed=confirmed_state.as_deref().filter(|_|pre_guard_passed&&load_row_finding.is_none()&&!built.nonlinear_supports.is_empty());"));
@@ -1692,7 +1692,7 @@ fn kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check() {
 }
 
 // ------------------------- K2b: the force-scaled entries (pin extension)
-// (T3 D1 revision 5a.2 §4.7; ROOT's K2b rulings 5 and 6, on K1's precedent.)
+// (ROOT's K2b rulings 5 and 6, on K1's precedent.)
 // Additive: no existing list, count or assertion above changes meaning.
 
 /// K2b: the force-scaled siblings that define exact variants (blanked by
@@ -1822,11 +1822,11 @@ fn uniform_constructor_and_attach_staging_is_sequential() {
     assert!(attach.ends_with("forprimitiveinsupplied{ledger.attach_load_primitive(primitive);}"));
 }
 
-/// R2 (DEL-04-01 kd5-nonlinear-active-set.md, HELP_HUMAN 2026-10-12): the
+/// the
 /// nonlinear route's single formation-check entry.
 const CONFIRMATION_ENTRY: &str = "confirm_with_formation_check";
 
-/// R-6/R-7 S-K1 A-1 (DEL-04-03 Work `skew-restraints.md` §11.1): the PF linear skew
+/// the PF linear skew
 /// entry, the formation-checked exact variant on the transformed system. It is
 /// defined once, in `impl SparseAssemblyEvidence` only; the loop never reaches it
 /// (`structural_adapter::skew_tests::the_loop_never_carries_a_basis`). R2's
@@ -1915,7 +1915,7 @@ fn r2_confirmation_entry_violations(
                         out.push(format!("{name} names {token}: a formation-check entry inside the nonlinear iteration"));
                     }
                 }
-                // RT-A5 `minuend_final` (DEL-05-02 Work `operating-case.md` §7.3; R2 amended,
+                // RT-A5 `minuend_final` (R2 amended,
                 // option A, approved by RT-A3): the held-status wrapper's one confirmation
                 // attempt, strictly after the loop's own tail has finished its one held
                 // iterate. lib.rs names the entry exactly once, inside that wrapper; nothing
@@ -2231,7 +2231,7 @@ const F1B_PRODUCT_SITES: &[(&str, &str, &str, usize)] = &[
     // B7a's failed-ordinary ruling (5): CX-F's closed wire translation of K2b's named
     // refusal reads `ForceScaleReason` only; it reaches no force-scaled entry.
     ("retained_wire.rs", "fn force_refusal", "ForceScale", 4),
-    // S-K1 §2.2 item 10 (DEL-04-03 skew-restraints.md): the skew refusal names
+    // the skew refusal names
     // `SkewCode::ForceScaledUnsupported` only; it reaches no force-scaled entry.
     ("skew.rs", "fn force_scaled_refusal", "ForceScale", 1),
     ("source_recovery.rs", "fn solve_ordinary", "ForceScale", 1),
@@ -2241,7 +2241,7 @@ const F1B_PRODUCT_SITES: &[(&str, &str, &str, usize)] = &[
         "ForceScale",
         1,
     ),
-    // S-K1 M-1: the §2.2 code strings' one source (`SkewCode::ForceScaledUnsupported`).
+    // S-K1 M-1: the code strings' one source (`SkewCode::ForceScaledUnsupported`).
     ("document_members.rs", "fn skew_code", "ForceScale", 1),
 ];
 

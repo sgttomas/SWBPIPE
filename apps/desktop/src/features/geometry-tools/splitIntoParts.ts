@@ -1,4 +1,4 @@
-// B5 (DEL-07-01 Design `split-and-slope-entry.md` §2): split one pipe into N equal parts in one
+// split one pipe into N equal parts in one
 // reviewed batch of existing operations. Nothing here writes the model.
 //
 // Operations, for k = 1 … N−1 in order:

@@ -1,7 +1,7 @@
 import { FileText } from "lucide-react";
 import type { PreviewModel } from "../../types";
 
-/** The Exports section's Model batch file panel (DEL-17-04 Design `desktop-mbf-export-import.md` §3.1, slice 4b.2b).
+/** The Exports section's Model batch file panel (slice 4b.2b).
  * Its one action opens the same Export MBF… dialog as File > Export MBF…, where the native writer reviews the session's
  * model and the save writes the model batch file and its identity file through the native chooser. The panel builds no
  * package or MBF text of its own: the TypeScript preview builder, its download links and its project-id file names are

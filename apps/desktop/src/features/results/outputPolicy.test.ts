@@ -5,7 +5,7 @@
  * own capture registers them; a load/reference-state fixture; and the preview-physics-2
  * transport replay. Unit tests over mocked IPC only: NOT a native witness (CQ-10, CQ-11).
  *
- * Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §5.1-5.4, §6.1; owner, 2026-10-21):
+ * Epoch 8 (owner, 2026-10-21):
  * the exact routes (pressure-2, pressure-source-1) are `admitted` on the result JSON
  * export, the stress-neutral export and the rule check, and refused with
  * PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE and the reworded texts on every other surface, the
@@ -69,7 +69,7 @@ const OPENED = ["result-export", "stress-neutral", "rule-check", "rendered-repor
 /** The gated (group a) surfaces opened to the exact routes. */
 const OPENED_GATED = ["rule-check", "rendered-report"];
 const EXACT_ROUTES = ["pressure", "pressure_source"] as const;
-/** The exact entries, cell by cell (design §5.1): admitted on the five opened surfaces,
+/** The exact entries, cell by cell: admitted on the five opened surfaces,
  * refused on every other, the report JSON packet included. */
 const EXACT_SURFACES = {
   "pcf-export": "refused", "caepipe-external": "refused", "export-adapter-sdk": "refused",
@@ -79,14 +79,14 @@ const EXACT_SURFACES = {
   "report": "refused", "rendered-report": "admitted", "report-package": "admitted",
   "result-export": "admitted", "stress-neutral": "admitted",
 } as const;
-/** §5.2: the gate's refuse/admit decision before epoch 8, per route, on the seventeen gated
+/** the gate's refuse/admit decision before epoch 8, per route, on the seventeen gated
  * surfaces. pressure-2 and pressure-source-1 refused everywhere (B7b); the retained
  * successors refuse on all seventeen (their two admitted panels are not gated surfaces);
  * the ungated routes add no refusal. */
 const PRE_EPOCH_8_GATED_REFUSES: Record<SourceContract, boolean> = {
   pressure: true, pressure_source: true, retained_preview_physics: true, retained_physics: true, preview_physics: false, unsupported: false,
 };
-/** The cells opened on a gated surface: the exact routes on `rule-check` (epoch 8, §5.2)
+/** The cells opened on a gated surface: the exact routes on `rule-check` (epoch 8)
  * and on `rendered-report` (W-11). */
 const opened = (route: string, surface: string) => (EXACT_ROUTES as readonly string[]).includes(route) && OPENED_GATED.includes(surface);
 const refuses = (decided: ReturnType<typeof routeSurfaceDecision>) => decided !== null && decided.decision === "refused";
@@ -115,7 +115,7 @@ describe("the output policy (T6S-3)", () => {
     expect(OUTPUT_SURFACES as readonly string[]).not.toContain("caepipe-mbf");
     for (const policy of Object.values(OUTPUT_POLICY)) if (policy.gate === "per_surface") expect(Object.hasOwn(policy.surfaces, "caepipe-mbf")).toBe(false);
     for (const route of ["preview_physics", "unsupported"] as const) expect(OUTPUT_POLICY[route]).toStrictEqual({ gate: "none" });
-    // Epoch 8 (design §5.1) and W-11: pressure-2 and pressure-source-1 (with or without
+    // Epoch 8 and W-11: pressure-2 and pressure-source-1 (with or without
     // load/reference states) are admitted on the five opened surfaces and refused, by
     // their own reason, on every other, cell by cell.
     for (const [route, reason] of [["pressure", PRESSURE_2_OUTPUT_REFUSAL], ["pressure_source", PRESSURE_SOURCE_OUTPUT_REFUSAL]] as const) {
@@ -130,7 +130,7 @@ describe("the output policy (T6S-3)", () => {
       expect(Object.entries(policy.surfaces).filter(([, decision]) => decision === "admitted").map(([surface]) => surface).sort()).toStrictEqual([...OPENED].sort());
       expect(policy.surfaces["report-package"]).toBe("admitted");
       expect(policy.surfaces["rendered-report"]).toBe("admitted");
-      // §5.4: the report JSON packet stays refused.
+      // the report JSON packet stays refused.
       expect(policy.surfaces.report).toBe("refused");
     }
     const successor = OUTPUT_POLICY.retained_preview_physics as Json;
@@ -138,7 +138,7 @@ describe("the output policy (T6S-3)", () => {
     expect(Object.keys(successor.surfaces).sort()).toStrictEqual([...OUTPUT_SURFACES].sort());
     expect(Object.entries(successor.surfaces).filter(([, decision]) => decision === "admitted_when_eligible").map(([surface]) => surface)).toStrictEqual(PANELS);
     expect(Object.entries(successor.surfaces).filter(([, decision]) => decision === "refused").map(([surface]) => surface)).toStrictEqual([...GATED_PREFIXES, "report-package"]);
-    // B3b (B3-D §7; B3D-14): the exact successor's own entry and reason, the same two panels.
+    // B3b: the exact successor's own entry and reason, the same two panels.
     const exact = OUTPUT_POLICY.retained_physics as Json;
     expect([exact.gate, exact.reason]).toStrictEqual(["per_surface", RETAINED_PHYSICS_OUTPUT_REFUSAL]);
     expect(Object.keys(exact.surfaces)).toStrictEqual([...OUTPUT_SURFACES]);
@@ -251,7 +251,7 @@ describe("the output policy (T6S-3)", () => {
     expect(Array.isArray((result.contract_evidence as Json).load_reference_states)).toBe(true);
     for (const surface of OUTPUT_SURFACES) {
       const expected = OPENED.includes(surface) ? null : reason;
-      // The policy functions do not read standing on an `admitted` cell (§5.1), so the
+      // The policy functions do not read standing on an `admitted` cell, so the
       // never-eligible pressure-source-1 raws and the fallback decide as the eligible ones.
       expect(surfaceRouteRefusal(result, surface), surface).toBe(expected);
       expect(surfaceOutputRefusal(result, model, surface), surface).toBe(expected);

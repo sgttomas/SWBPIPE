@@ -1,5 +1,5 @@
 //! K6b's staged W1 sequence, its work accounting and the budget-truncated
-//! prefixes (T3 K6b plan §3.3, Q1(c); ROOT's rulings on I16's plan).
+//! prefixes (Q1(c); ROOT's rulings on I16's plan).
 //!
 //! K4's entry is one call, so the stages the binary can time are the adapter
 //! (`w1_source`) and the call as a whole (`w1_solve`). K4's evidence reports
@@ -106,7 +106,7 @@ pub fn attempts_of(outcome: &CaseOutcome) -> &[AttemptRecord] {
     }
 }
 
-/// The 19 stage fields of a `StageWork`, by name (K4 RETURN §14).
+/// The 19 stage fields of a `StageWork`, by name.
 pub fn stage_fields(w: &StageWork) -> [(&'static str, u64); 19] {
     [
         ("formation", w.formation),
@@ -253,7 +253,7 @@ pub fn stages_equal_totals(attempts: &[AttemptRecord]) -> bool {
 }
 
 /// Work by precision: each precision's attempts, their own stages and their
-/// shared stages (counted in full against the case, K4 RETURN §14), and the
+/// shared stages (counted in full against the case), and the
 /// charged totals, which equal the stage sums on every attempt (T3 KF3).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PrecisionWork {

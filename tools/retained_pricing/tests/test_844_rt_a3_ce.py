@@ -1,4 +1,4 @@
-"""RT-A3 increment 3 (retained-pricing-rules.md §8.44): constant-effort supports on the exact route add no owner on D1.
+"""RT-A3 increment 3 (§8.44): constant-effort supports on the exact route add no owner on D1.
 
 RTA3CE-ID classifies the pressure-2 reader's two hanger-reference arguments in `applied_load_row` (IN128); its guard
 binds them to the hanger record. D1.6 refuses every hanger and every support family outside the five it lists, so no

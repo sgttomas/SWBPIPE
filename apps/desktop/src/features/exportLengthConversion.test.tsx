@@ -1,9 +1,9 @@
-// Export length conversion (DEL-02-02 Design `project-unit-selection.md` §7, C2): the
+// Export length conversion: the
 // PCF export converts each length by its own stored unit with the exact factors
 // (1 in = 25.4 mm, 1 ft = 304.8 mm), and refuses by name a unit with no routine exact
 // conversion. Expected millimetres are hand-computed from the invented inputs. The .mbf
 // export's TypeScript builder is retired (DEL-17-04 A-6, slice 4b.2b): the native writer
-// owns the MBF's unit arithmetic (Design `desktop-mbf-export-import.md` §3.4).
+// owns the MBF's unit arithmetic.
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import demoModelFixture from "../../../../fixtures/product_preview/invented_demo_model.json";
@@ -234,7 +234,7 @@ describe("a length with no routine exact conversion is refused by name", () => {
   });
 
   // A missing length key ("" or absent) is PCF-PROJECT-UNIT-MISSING, which takes
-  // precedence (DEL-02-02 Design §7.4, §7.5): exportProjectUnitRefusal.test.tsx.
+  // precedence: exportProjectUnitRefusal.test.tsx.
   it.each([
     { length: "cm", named: '"cm"' }
   ])("PCF: coordinates in $named", ({ length, named }) => {

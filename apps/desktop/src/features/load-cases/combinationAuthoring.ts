@@ -1,8 +1,8 @@
-// RT-A4 on the desktop (DEL-05-02 Work `absolute-sum-srss-combinations.md` §2, §5; owned by
+// RT-A4 on the desktop (owned by
 // DEL-07-03): the combination editor's operand rules. Each term names a typed operand, a load
 // case (`{"load_case": id, "factor": f}`) or a combination (`{"combination": id, "factor": f}`).
 // A bare reference (minuend_id, subtrahend_id, operand_ids) resolves to the load case when one
-// has the id and to a combination only otherwise (§2, r1 F3); the editor shows that resolution
+// has the id and to a combination only otherwise (r1 F3); the editor shows that resolution
 // and never rewrites a reference. It prevents the obvious refusals in place (self-reference, a
 // choice that would close a cycle, a repeated operand) with the reason shown, and leaves every
 // other judgement to the operation engine, whose refusals are reported by name.
@@ -11,7 +11,7 @@ import type { Combination } from "./combinationOperands";
 
 export type OperandKind = "load_case" | "combination";
 
-/** The bases whose expression is `terms` (§2): at least one term, finite factors, no repeated operand. */
+/** The bases whose expression is `terms`: at least one term, finite factors, no repeated operand. */
 export const TERMS_BASES = ["mechanics", "absolute_sum", "srss"] as const;
 export const UNSIGNED_BASES = ["absolute_sum", "srss"] as const;
 
@@ -33,11 +33,11 @@ const findCombination = (model: PreviewModel, id: string) => (model.combinations
 export type ResolvedReference = {
   id: string;
   kind: OperandKind | "unknown";
-  /** A combination also has this id; the bare reference names the load case (§2). */
+  /** A combination also has this id; the bare reference names the load case. */
   shadowsCombination: boolean;
 };
 
-/** §2 (r1 F3): a bare reference names the load case with the id, else the combination. */
+/** (r1 F3): a bare reference names the load case with the id, else the combination. */
 export function resolveReference(model: PreviewModel, id: string): ResolvedReference {
   const loadCase = hasLoadCase(model, id);
   const combination = Boolean(findCombination(model, id));
@@ -124,7 +124,7 @@ export function termDraftText(term: TermDraft): string {
   return `${term.kind === "combination" ? `combination ${term.ref || "TBD"}` : term.ref || "TBD"} x ${term.factor.trim() || "TBD"}`;
 }
 
-/** Why a term list cannot be queued for combination `targetId`, or null when it can (§2). */
+/** Why a term list cannot be queued for combination `targetId`, or null when it can. */
 export function termsDraftProblem(model: PreviewModel, terms: readonly TermDraft[], targetId: string): string | null {
   if (terms.length === 0) return "add at least one term";
   const seen = new Set<string>();
@@ -162,7 +162,7 @@ export function retainedCombinationMembers(combination: Combination): string[] {
   return Object.keys(combination).filter((key) => !edited.has(key));
 }
 
-/** A support the solve may consume as a fixed-load source (§5.1): the constant-effort hanger type or family, not nonlinear. The solve decides whether it consumes it. */
+/** A support the solve may consume as a fixed-load source: the constant-effort hanger type or family, not nonlinear. The solve decides whether it consumes it. */
 export function constantEffortSupportIds(model: PreviewModel): string[] {
   return model.supports
     .filter((support) => {

@@ -328,7 +328,7 @@ fn tampered_documents_are_refused() {
 }
 
 // ---------------------------------------------------------------------------
-// Cross-member substitution (§2.3 item 5).
+// Cross-member substitution.
 // ---------------------------------------------------------------------------
 
 type RequestEdit = fn(&mut Value);
@@ -408,7 +408,7 @@ fn binding_cases() -> Vec<(&'static str, RequestEdit, &'static str)> {
         // Units and display policy.
         ("audit unit system", |r| *at(r, "/audit_manifest/unit_system_ref") = json!("invented-other:units"), BINDING_MISMATCH),
         ("summary unit_system_ref", |r| *at(r, "/report/calculation_report/model_input_summary/unit_system_ref/ref_id") = json!("unit-system:invented-other"), BINDING_MISMATCH),
-        // §2.3 item 5: `conversion_performed` is whether a displayed value is stored in Pa; the other value refuses.
+        // `conversion_performed` is whether a displayed value is stored in Pa; the other value refuses.
         ("conversion_performed", |r| {
             let flag = at(r, "/report/calculation_report/model_input_summary/unit_display_summary/conversion_performed");
             *flag = json!(flag != &json!(true));
@@ -504,7 +504,7 @@ fn a_desktop_origin_naming_another_input_manifest_is_refused() {
 /// reference, the report's and the handoff records' references and the
 /// origin's qualification name another input manifest, with the derivative
 /// hash recomputed, is refused. The runner names its audit manifest by its
-/// run, so the rule is the desktop's (§2.4).
+/// run, so the rule is the desktop's.
 #[test]
 fn a_desktop_audit_manifest_id_other_than_its_input_manifest_reference_is_refused() {
     let old = desktop();
@@ -525,7 +525,7 @@ fn a_desktop_audit_manifest_id_other_than_its_input_manifest_reference_is_refuse
 }
 
 // ---------------------------------------------------------------------------
-// Displayed content (§2.3 item 6).
+// Displayed content.
 // ---------------------------------------------------------------------------
 
 #[test]
@@ -577,7 +577,7 @@ fn a_comparison_section_with_its_own_runs_is_accepted() {
 }
 
 // ---------------------------------------------------------------------------
-// Rule check (§2.3 item 7) and the W-19 headline.
+// Rule check and the W-19 headline.
 // ---------------------------------------------------------------------------
 
 /// A rule-check package: one failed and one incomplete check under the
@@ -883,7 +883,7 @@ fn round2_carrier_checksum_subjects_cannot_be_coherently_relabelled() {
 }
 
 // ---------------------------------------------------------------------------
-// Checksum subjects (DEL-08-01 Design §2.4, "Checksum subjects"): one refusal
+// Checksum subjects: one refusal
 // per record kind, generated from the request's own payload references.
 // ---------------------------------------------------------------------------
 
@@ -1081,7 +1081,7 @@ fn round3_rendered_rule_pack_checksum_must_name_the_pack_type() {
         "a model_payload checksum was rendered as a rule-pack checksum");
 }
 
-/// W-11 (DEL-08-01 Design `exact-route-report-sections.md` §6, slice (a)):
+/// W-11 (slice (a)):
 /// package bytes are unchanged for every current input. The base commit's
 /// container and package-identity hashes, captured on main without W-11
 /// (`aed4de9fbd`; equal to the `3a104e1e71` capture), of the committed runner

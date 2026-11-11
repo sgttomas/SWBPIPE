@@ -1,4 +1,4 @@
-"""DEL-04-09 I3a (design §5.3): the
+"""DEL-04-09: the
 independent Python modal reader (`tests/verifiers/modal_evidence.py`) over the
 committed corpus (`fixtures/results/modal_corpus.json`) and fixtures
 (`fixtures/results/modal_*.json`).
@@ -23,7 +23,7 @@ from tests.verifiers import modal_evidence as me
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "fixtures/results"
 CORPUS = json.loads((RESULTS / "modal_corpus.json").read_text(encoding="utf-8"))["entries"]
-# Point-sum evaluation-order boundaries (Design §5.3.4), in the corpus entry format.
+# Point-sum evaluation-order boundaries, in the corpus entry format.
 SUM_ORDER = json.loads((RESULTS / "modal_sum_order_boundaries.json").read_text(encoding="utf-8"))["entries"]
 
 
@@ -229,7 +229,7 @@ def test_every_solved_fixture_is_validated_up_to_its_stated_scope():
             assert verdict["refusal_codes"] and verdict["health"] == "not_assessed"
             continue
         units = verdict["relations"]["units"]
-        # Every value has its catalog unit (Design §5.3.5).
+        # Every value has its catalog unit.
         assert units["status"] == "passed" and not units.get("scope"), units
         if name.startswith("modal_state_"):
             # A linearized state case's partition comes from the reported support states, whose
@@ -244,7 +244,7 @@ def test_every_solved_fixture_is_validated_up_to_its_stated_scope():
 
 
 def test_the_equilibrated_basis_list_is_closed_and_states_every_such_rule():
-    """Design §5.3.5: a kind whose rule is `equilibrated_basis` is in modal-1's closed list,
+    """a kind whose rule is `equilibrated_basis` is in modal-1's closed list,
     and every listed kind has that rule; the trace leaves the list empty."""
     listed = {kind for kind, _, _, rules in me.KINDS
               if any(rule["unit_status"] == "equilibrated_basis" for rule in rules.values())}

@@ -22,7 +22,7 @@
 //! for now** (a stated limitation). No diagnostic message is read: admission
 //! reads the typed evidence and diagnostic codes and severities only.
 //!
-//! **Linearization (§1.3's table).** Exactly one final state per built
+//! **Linearization.** Exactly one final state per built
 //! nonlinear support, by support id (a missing, duplicate or unexpected id
 //! refuses), and only the table's behaviour and state pairs: one-way,
 //! lift-off and gap are active (rigid) or inactive (free); friction is
@@ -49,7 +49,7 @@ use std::collections::{BTreeSet, HashMap};
 /// only to name the reason (never its message).
 const LOOP_NOT_CONVERGED: &str = "NONLINEAR_SUPPORT_LOOP_NOT_CONVERGED";
 
-/// How one nonlinear support enters the modal model (§1.3's table).
+/// How one nonlinear support enters the modal model.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ModalSupportTreatment {
     /// Active or sticking: its DOF is added to the restrained set; an imposed
@@ -107,7 +107,7 @@ pub(crate) enum StateCaseRefusal {
     /// No evidence, and the solve's blocking diagnostic codes.
     MissingEvidence(Vec<String>),
     CaseMismatch { expected: String, found: String },
-    /// R-4 §3.7 S6: the evidence's consumed motion is not the bound case's.
+    /// the evidence's consumed motion is not the bound case's.
     MotionMismatch,
     ModeMismatch { requested: PreviewSolverMode, solved: PreviewSolverMode },
     /// Only the dense path is built; the state solve runs only in its mode.
@@ -231,7 +231,7 @@ fn behavior_name(behavior: NonlinearSupportBehavior) -> &'static str {
     }
 }
 
-/// §1.3's table: `Some(true)` rigid, `Some(false)` free, `None` not admitted.
+/// `Some(true)` rigid, `Some(false)` free, `None` not admitted.
 fn state_is_rigid(behavior: NonlinearSupportBehavior, state: ActiveSetState) -> Option<bool> {
     match (behavior, state) {
         (NonlinearSupportBehavior::Friction, ActiveSetState::Sticking) => Some(true),
@@ -384,7 +384,7 @@ pub(crate) fn solve_modal_state_case(prepared: &Prepared, mode: PreviewSolverMod
             return Err(state_case_refusal(diagnostics, case_id, &StateCaseRefusal::SolveFailed(error.to_string())));
         }
     };
-    // R-4 §3.7 S6: the state case's own motion, by the static resolvers.
+    // the state case's own motion, by the static resolvers.
     let motion = CaseMotionEvidence::resolve(
         &prepared.model,
         &prepared.model.load_cases[bound.case_index],

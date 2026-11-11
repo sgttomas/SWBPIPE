@@ -1,4 +1,3 @@
-// G7/G8 (DEL-07-03 design §3; DEL-09-01 run sheet §3.8, §3.10, §3.11):
 // the reference system's reference-configuration members, its three analysis states
 // and its copied pressure regions, entered with the fill and copy controls, then
 // queued and applied through the wasm operation engine, equal the fixture's.
@@ -56,8 +55,8 @@ function enterCommon() {
 }
 
 it("enters the reference system's load/reference state with fills and copies", async () => {
-  // The run sheet's model at §3.8: geometry, supports, self-weight cases and RG regions of
-  // RS-SUS only (entered once, §3.10); the reference configuration without members; no states.
+  // The model: geometry, supports, self-weight cases and RG regions of
+  // RS-SUS only (entered once); the reference configuration without members; no states.
   let model = structuredClone(fixture);
   model.reference_configurations![0].member_references = [];
   for (const loadCase of model.load_cases) {
@@ -65,7 +64,7 @@ it("enters the reference system's load/reference state with fills and copies", a
     if (loadCase.id !== "load:RS-SUS") delete loadCase.pressure_regions;
   }
 
-  // §3.8: one member typed, the other 25 filled.
+  // one member typed, the other 25 filled.
   let queue = renderState(model, "load:RS-SUS");
   click("Add member to reference configuration 1");
   const m1 = "Reference configuration 1 member 1";
@@ -79,7 +78,7 @@ it("enters the reference system's load/reference state with fills and copies", a
   model = await queuedAndApplied(model, queue);
   expect(model.reference_configurations).toEqual(fixture.reference_configurations);
 
-  // §3.11, RS-SUS: one element state typed, filled to every pipe.
+  // RS-SUS: one element state typed, filled to every pipe.
   queue = renderState(model, "load:RS-SUS");
   click("Add element state");
   change("Element state 1 pipe", "pipe:RS-P010");
@@ -138,7 +137,7 @@ it("enters the reference system's load/reference state with fills and copies", a
   model = await queuedAndApplied(model, queue);
   expect(caseOf(model, "load:RS-OPE").analysis_state).toEqual(caseOf(fixture, "load:RS-OPE").analysis_state);
 
-  // §3.10: RS-SUS's five regions copied to RS-OPE and RS-SAM with their own ids.
+  // RS-SUS's five regions copied to RS-OPE and RS-SAM with their own ids.
   for (const caseId of ["load:RS-OPE", "load:RS-SAM"]) {
     queue = vi.fn();
     render(<PressureAuthoringPanel model={model} selection={{ type: "load", id: caseId }} loadCaseId={caseId} onQueueIntent={queue} />);

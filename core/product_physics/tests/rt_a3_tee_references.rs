@@ -1,5 +1,4 @@
-//! RT-A3 increment 1 (DEL-04-07 Design `pressure-contract.md`, "Tees and
-//! pressure junctions"): tees and pressure junctions on the exact route
+//! tees and pressure junctions on the exact route
 //! against the frozen independent references
 //! (`validation/references/rt_a3_tee/`), through PP's public entry in both
 //! solver modes.

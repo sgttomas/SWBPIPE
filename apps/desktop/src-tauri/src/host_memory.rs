@@ -3,7 +3,7 @@
 //!
 //! - Capacity: `sysctlbyname("hw.memsize")` (u64; equals `ProcessInfo.physicalMemory`).
 //! - Headroom (owner, 2026-10-26: memory macOS can reclaim cheaply also
-//!   counts; DEL-04-07 `memory-budget-decision.md`, "Headroom counting"):
+//!   counts):
 //!   three live counters, read one after another: the free list
 //!   `vm.page_free_count` (the kernel's free queue, without the speculative
 //!   pages), the file-backed pages on the pageable queues

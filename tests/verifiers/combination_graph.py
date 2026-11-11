@@ -1,4 +1,4 @@
-"""RT-A4 (DEL-05-02 Work ``absolute-sum-srss-combinations.md`` sections 2-5): the verifiers' view of a
+"""the verifiers' view of a
 combination's operands, an independent test-only mirror of ``core/reporting/result_export/src/combination_graph.rs``.
 
 A term names a load case or a combination by kind; a subtraction's or envelope's id names the load case when one

@@ -1,4 +1,4 @@
-/** W-11 (DEL-08-01 Design `exact-route-report-sections.md` §2.1 and §2.3): the
+/** the
  * closed statement table of the exact-route reports. Each entry is one producer
  * limitation string, named by the SHA-256 of its UTF-8 bytes, with the report's
  * reviewed statement for it. A statement is the producer string verbatim,
@@ -25,7 +25,7 @@ function entry(producer_sha256: string, statement: string): ExactReportStatement
   return Object.freeze({ producer_sha256, statement });
 }
 
-/** The 19 entries, in the producer's composition order (§1.3). */
+/** The 19 entries, in the producer's composition order. */
 export const EXACT_REPORT_STATEMENTS: readonly ExactReportStatement[] = Object.freeze([
   // S1 identity, pressure-2
   entry("4a480b1611429ca62a3800143b85f9ac3039901383f1dd210376e0ea0f3ba0d4",

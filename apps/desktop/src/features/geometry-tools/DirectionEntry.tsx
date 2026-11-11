@@ -1,4 +1,4 @@
-// B5 (DEL-07-01 Design `split-and-slope-entry.md` §3): the end-point entry aid. It computes the
+// the end-point entry aid. It computes the
 // end point from the start node and a length with a direction, an angle from the horizontal, or a
 // "1 in n" slope, shows the exact coordinates, and on "Use these coordinates" hands exactly those
 // numbers to the form that emits the existing operation. It writes nothing itself.

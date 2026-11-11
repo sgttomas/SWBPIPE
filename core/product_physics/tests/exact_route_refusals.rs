@@ -307,7 +307,7 @@ fn a1_precedence_follows_emission_order() {
         }
     }
 
-    // S6 (R-4 §3.7): an undeclared support state is refused by its own code;
+    // an undeclared support state is refused by its own code;
     // the nonlinear support itself is no longer a refused family.
     let envelope = run_all(&with_support(Base::Y0, gap(Base::Y0), false));
     assert_blocked(&envelope, Base::Y0);

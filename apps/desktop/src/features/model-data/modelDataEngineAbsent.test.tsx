@@ -1,4 +1,4 @@
-// W-13 §5.3 (S2 review): without the wasm engine that holds the document
+// without the wasm engine that holds the document
 // validator, the browser-preview store refuses to store or open a document by
 // name (it never adopts an unchecked document), and the diagnostics list says
 // the model-data slots were not checked. Invented data only.

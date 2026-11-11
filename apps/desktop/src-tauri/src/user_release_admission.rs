@@ -21,7 +21,7 @@
 //! report package's route-010 vocabulary (`report_package::user_release`). The
 //! detector finds the marks library applies have written into a model; it
 //! cannot find a library origin a user has erased, and it does not show that
-//! any value is the user's own (the reliance limit, §2.7).
+//! any value is the user's own (the reliance limit).
 //!
 //! Every walk here stops at its first site and holds its path on its own
 //! stack frames ([`StackPath`]): it allocates nothing per level and builds
@@ -55,7 +55,7 @@ pub(crate) const LEGACY_HANGER_MEMBERS: [&str; 4] = ["library_kind", "library_id
 /// string is text only.
 const UNCHECKABLE_FINDINGS: [&str; 4] =
     ["nesting deeper than 127 containers", "reserved RawValue token key", "input too large to price", "the priced parse overflows"];
-/// The non-project private classes (§2.7).
+/// The non-project private classes.
 pub(crate) const NON_PROJECT_PRIVATE_CLASSES: [&str; 7] = [
     "private_material_data",
     "private_component_data",
@@ -156,8 +156,7 @@ pub(crate) fn pointer_bound(text_bytes: u64) -> u64 {
 }
 
 /// The refusal formatting allowance of route 010's ingress lease (W-18b,
-/// DEL-08-01 Design `report-user-release.md` §2.5 "Refusals on route 010" and
-/// §2.7 "Cost"; Codex round 2 at #1673 and round 1 at #1682): every route-010
+/// Codex round 2 at #1673 and round 1 at #1682): every route-010
 /// check refuses at its first finding, and its walks allocate nothing per
 /// level and build only the reported site, which the growth-plus-site bound
 /// covers. Formatting one refusal then holds, at once, at most four strings
@@ -301,7 +300,7 @@ fn embedded_holds_legacy(parsed: &Value) -> bool {
     .is_break()
 }
 
-/// The first library site of the bound model `M` (§2.7): rule 1, then rule 2,
+/// The first library site of the bound model `M`: rule 1, then rule 2,
 /// then rule 3, each in document order. Rule 3 (b) first prescans every
 /// candidate (allocating nothing) and grows the command's ingress `lease`
 /// once by the largest checkable candidate's priced parse
@@ -397,7 +396,7 @@ pub(crate) fn refuse_library_referenced(model: &Value, lease: &mut Lease) -> Res
     }
 }
 
-/// Route 010's step 5, rule-pack half (§2.7): the model is
+/// Route 010's step 5, rule-pack half: the model is
 /// rule-pack-referenced when the one walk finds any `rule_pack_refs[]` entry
 /// (or a `rule_pack_refs` member that is not a list), or when the input
 /// manifest records any active rule pack (or its `active_rule_packs` is not a
@@ -422,7 +421,7 @@ pub(crate) fn refuse_rule_pack_referenced(model: &Value, input_manifest: &Value)
     }
 }
 
-/// Route 010's step 6 (§2.7, defence): any object whose own
+/// Route 010's step 6 (defence): any object whose own
 /// `privacy_classification` or `privacy_class` is a non-project private class
 /// is refused, naming the member's pointer under `root` (for example
 /// `/request` or `/model`). A label can add a refusal; no label grants
@@ -474,7 +473,7 @@ fn builder_boundary() -> Value {
     })
 }
 
-/// Route 010's step 8 (§2.5): Record Run's binding checks
+/// Route 010's step 8: Record Run's binding checks
 /// (`analysis_runs::check_record_for_values`) of the run record `R` against
 /// the source `S`, the input manifest `I` and its bound SHA-256, then route
 /// 010's own: the record's analysis status is exactly `HUMAN_REVIEW_REQUIRED`,

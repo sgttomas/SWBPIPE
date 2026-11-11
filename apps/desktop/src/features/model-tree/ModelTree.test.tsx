@@ -15,7 +15,7 @@ function largeModel(): PreviewModel {
     provenance: "test"
   }));
   return {
-    // `angle` is declared: the bend these tests create takes its angle unit from it (W-17 §3: no `rad` is assumed).
+    // `angle` is declared: the bend these tests create takes its angle unit from it (no `rad` is assumed).
     project: { id: "p", name: "Project", description: "", units: { length: "m", angle: "rad" } },
     schema_version: "0.2.0",
     analysis_status: { mechanics: "NOT_RUN", rule_check: "NOT_RUN", professional_acceptance: "NOT_REVIEWED" },

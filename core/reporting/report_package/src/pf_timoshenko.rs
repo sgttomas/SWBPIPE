@@ -17,7 +17,7 @@ use open_pipe_stress_result_export::semantic_contract::{
 use serde_json::{json, Value};
 
 pub const PF_TIMOSHENKO_SECTIONS_MISMATCH: &str = "REPORT-PACKAGE-PF-TIMOSHENKO-SECTIONS-MISMATCH";
-/// The arc disclosure's diagnostic code (pf-timoshenko.md §4, "Named arc disclosure").
+/// The arc disclosure's diagnostic code.
 pub const REALIZED_ARCS_DIAGNOSTIC: &str = "PF_TIMOSHENKO_REALIZED_ARCS_EULER_BERNOULLI";
 /// The id infix of the projection's limitation entries.
 pub const LIMITATION_INFIX: &str = ":pf-timoshenko:";

@@ -1,4 +1,4 @@
-// W-17 (DEL-02-02 Design `project-unit-selection.md` §3): the entity editors on
+// the entity editors on
 // a document missing project unit keys. Selecting a node, a pipe, a component or
 // a load does not throw; a field whose default unit is a missing key has no
 // default (nothing is assumed), names the key and is refused until a unit is

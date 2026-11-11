@@ -153,7 +153,7 @@ fn assert_not_demoted_by_s11g(envelope: &MechanicsEnvelope, case: &str, label: &
     assert!(!d.message.contains("S11-G"), "{label}: {}", d.message);
 }
 
-/// K-D5's closure (DEL-04-01 kd5-member-relative-bound.md §§1, 4.2): ρ is
+/// K-D5's closure: ρ is
 /// formed from the intended loads re-formed at p, so a formed-term ledger
 /// defect that the load-row guard judged on a Passed report is now judged by
 /// D5C-1 on the closed residual, at the solve. The verdict pinned here: the
@@ -964,8 +964,8 @@ fn assert_source_block_codes_at_the_solve(envelope: &MechanicsEnvelope, entry: E
 /// report is Passed, and S1.RZ's exact net defect is V1's independent
 /// Fraction figure 2.3594e-8 (S11G_CHECK check 1), about 48x its threshold,
 /// with P = 0 (no floor on a UDL row). Pin: Sensitive on every view; the
-/// only integrity code is SENSITIVE. Under K-D5's closure (DEL-04-01
-/// kd5-member-relative-bound.md §§1, 4.2) the same defect is caught at the
+/// only integrity code is SENSITIVE. Under K-D5's closure
+/// the same defect is caught at the
 /// solve: D5C-1 on the closed residual demotes S1:RZ (trigger about 96, twice
 /// the guard's 48), so the report is Sensitive and the load-row guard is a
 /// no-op. HELP_HUMAN, 2026-10-12 (W1 routing, agreed on T3's behalf): the
@@ -993,7 +993,7 @@ fn t1_udl_w1e8_is_demoted_on_both_entries_and_modes() {
 
 /// T2: UDL-W1e80 (typed, both modes; the captured entry refuses it).
 /// Precondition: S1.RZ's defect is V1's 2.6328e64 against a 1e-17 threshold.
-/// Caught at the solve by K-D5's D5C-1 on the closed residual (§§1, 4.2);
+/// Caught at the solve by K-D5's D5C-1 on the closed residual;
 /// an expected outcome under HELP_HUMAN's 2026-10-12 W1-routing ruling.
 #[test]
 fn t2_udl_w1e80_is_demoted_on_the_typed_entry() {
@@ -1154,13 +1154,13 @@ fn probe_a(g: f64, order: [f64; 3]) -> Value {
 /// negated operand), so the load-row statistic is the 0.3 term's alone and
 /// S11-G adds nothing. Kills Sum|eps| (M6) and the a-priori bound (M4).
 ///
-/// K-D5 (DEL-04-01 kd5-member-relative-bound.md §§1, 3.1-3.3): at G = 1e8 the
+/// K-D5: at G = 1e8 the
 /// certified rows pass: CHECKS_PASSED. At G = 1e80 the intended net 0.3 N/m
 /// sits under a cancellation of about 3e80, beyond what p = 128 with the
-/// load enclosure radii (2^-120 level, §1's table) and the evaluation radius
+/// load enclosure radii (2^-120 level) and the evaluation radius
 /// can certify: every group has B far above 1e-9 q (B ~ 1e48 against q ~ 1),
 /// so the unified predicate demotes the case with its sentence. Its circular
-/// maximum is named unavailable and its signed rows stay published (§3.2);
+/// maximum is named unavailable and its signed rows stay published;
 /// before the summary fix this case was refused with
 /// ELEMENT_FORCE_RECOVERY_FAILED, which kills that regression.
 #[test]
@@ -1348,7 +1348,7 @@ fn collinear_run(end: [f64; 3], stations: &[f64]) -> Value {
 /// row is below 1e-3 of its threshold, and S11-G adds no sentence. Kills
 /// dropping the floor (M11).
 ///
-/// K-D5 (DEL-04-01 kd5-member-relative-bound.md §§1, 3.2): the two skew runs
+/// K-D5: the two skew runs
 /// V1 found firing are now Sensitive at the solve. Fully restrained and
 /// uniformly heated, their true rotations are only the residue of the
 /// binary64 node coordinates (body rotation scale about 2e-17 to 5e-17 rad).
@@ -1460,8 +1460,8 @@ pub(crate) fn db1(delta_t: f64) -> Value {
 /// threshold); two thermal members meeting there raise revision 2's
 /// whole-row floor so that it would be silent (0.0076 at N ~ 1e6, 0.76 at
 /// N ~ 1e4, computed here from the ledger rows). Sensitive, naming S1:UY.
-/// Kills the whole-row floor (M17). Under K-D5's closure (DEL-04-01
-/// kd5-member-relative-bound.md §§1, 4.2) the net defect is caught at the
+/// Kills the whole-row floor (M17). Under K-D5's closure
+/// the net defect is caught at the
 /// solve: D5C-1 on the closed residual demotes S1:UY (trigger about 3e4), and
 /// the floor never enters that rule. HELP_HUMAN, 2026-10-12 (W1 routing,
 /// agreed on T3's behalf): the solve demotion, and on the captured entry the
@@ -1497,8 +1497,8 @@ fn t6b_floor_never_hides_a_net_defect() {
 }
 
 /// I4's pinned INPLANE formation rows (S11-F `FORMATION_PINS`): (case, member,
-/// location, mode, [My, Mz]). K-D5 (DEL-04-01 kd5-member-relative-bound.md
-/// §§3.1, 3.4) publishes them as certified recoveries: each is now exactly the
+/// location, mode, [My, Mz]). K-D5
+/// publishes them as certified recoveries: each is now exactly the
 /// intended +/-1e-8 N*m in both modes (main published 0.99999937e-8 to
 /// 1.0000058e-8, mode-dependent).
 const INPLANE_PINS: &[(&str, &str, &str, &str, [f64; 2])] = &[
@@ -1581,11 +1581,11 @@ fn element_pair(envelope: &MechanicsEnvelope, member: &str, location: &str) -> [
 /// "R-b' alone" test. F- and M-G1e80-GnG-INPLANE, typed, both modes.
 /// Precondition: no formed term (the load-row guard cannot fire), the
 /// ordinary report is Passed, and R-b''s retired binary64 statistic still
-/// fires on I4's ends. K-D5's repair (DEL-04-01 kd5-member-relative-bound.md
-/// §§3.1-3.4, 4.2) publishes I4's rows as certified recoveries, exactly the
+/// fires on I4's ends. K-D5's repair
+/// publishes I4's rows as certified recoveries, exactly the
 /// intended +/-1e-8 N*m, inside R1's exact intervals: the unified predicate
 /// passes them, so the case is CHECKS_PASSED with no S11-G sentence (one of
-/// §4.2's Sensitive -> Passed moves). The protective intent is kept by the
+/// Sensitive -> Passed moves). The protective intent is kept by the
 /// repaired values themselves (pinned bits and R1's intervals).
 #[test]
 fn t11_inplane_rows_are_demoted_by_rb_prime_alone() {
@@ -1689,7 +1689,7 @@ fn t12_accurate_small_moment_rows_below_the_floor_stay_passed() {
 /// R-b's two clauses hold at end i (the design's precondition, asserted);
 /// R-b' is silent there anyway, below its floor.
 ///
-/// K-D5 (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 6) changed three
+/// K-D5 changed three
 /// declared things on this already-Sensitive case against main's bytes: the
 /// two linear limitation sentences, the current maximum declaration literals,
 /// and the fallback maximum's enclosure (its arithmetic transport widens it;
@@ -1701,7 +1701,7 @@ fn t12_accurate_small_moment_rows_below_the_floor_stay_passed() {
 /// producer (every other assertion still runs first); a rerun without it then
 /// checks the new bytes.
 ///
-/// RF §5.5: the case's source attempt used to decline at the 0.4 replay
+/// the case's source attempt used to decline at the 0.4 replay
 /// screen for work alone, which metered charging lifts. Its request now also
 /// carries a zero full-span uniform member load (`uniform:0`, 0 N/m). That
 /// load is a fixture control, not a modelling input: it exists only to force
@@ -1723,7 +1723,7 @@ fn t13_committed_fallback_uz_is_byte_identical() {
         (PreviewSolverMode::DenseScrutiny, include_str!("../../reporting/result_export/tests/fixtures/load_reference_fallback_uz-dense_scrutiny.raw.json")),
     ] {
         let envelope = run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap();
-        // The role (RF §5.5): an ordinary pressure-2 publication whose source
+        // The role: an ordinary pressure-2 publication whose source
         // attempt declines by name, not by work.
         assert_eq!(envelope.producer.semantic_contract_id, "openpipestress.result_semantics/0.3.0/pressure-2", "{mode:?}");
         assert!(
@@ -1932,7 +1932,7 @@ fn arc_rows<'a>(view: &'a GuardView, source: &str) -> Vec<&'a FormationRow> {
         .collect()
 }
 
-/// T15's preconditions (T4-I9 DESIGN_R01 §5): the certificate is Ok; every
+/// T15's preconditions: the certificate is Ok; every
 /// loaded arc row carries `source` as a formed (not CannotBound) term with a
 /// positive bound; no loaded row fires and each exact statistic is below 1;
 /// and the paths differ: the same row with the term CannotBound fires with
@@ -1978,7 +1978,7 @@ fn assert_checks_passed(envelope: &MechanicsEnvelope, label: &str) {
     );
 }
 
-/// T15 (T4-U1b, R-1; DESIGN_R01 §5): a realized arc carrying a uniform load
+/// T15 (T4-U1b, R-1): a realized arc carrying a uniform load
 /// is certified, and the case publishes `CHECKS_PASSED` on both entries and
 /// in both modes. Before T4-U1b its consistent vector was CannotBound and the
 /// case was demoted (S11-G SF-2).
@@ -2111,7 +2111,7 @@ fn t15b_certified_arcs_pass_at_utm_and_small_angles() {
     assert!(defects > 0, "non-vacuity: some arc row has A_net != 0");
 }
 
-/// T15c (DESIGN_R01 §7.2; R-2: a natural refusal, no seam): T15's model at
+/// T15c (R-2: a natural refusal, no seam): T15's model at
 /// k = 1e36, 1e37 and 1e38, where ρ̂ ≥ 1/2 refuses the certificate. At guard
 /// level every loaded arc row is CannotBound and fires with that reason
 /// (M16, MU3, MU8). End to end these k never publish: the captured entry
@@ -2160,7 +2160,7 @@ fn t15c_curved_uniform_load_without_certificate_is_cannot_bound() {
     }
 }
 
-/// T15d (DESIGN_R01 §8, A-5): at k = 1e10 the binary64 inverse of F loses
+/// T15d (A-5): at k = 1e10 the binary64 inverse of F loses
 /// digits like cond(F)·u while the certificate's radius stays small: the
 /// row fires by the exact formation defect, not by the radius, and the case
 /// is not published as `CHECKS_PASSED`. Kills MU2 (intended := v).
@@ -2212,7 +2212,7 @@ fn t15d_large_flexibility_arc_formation_defect_is_caught() {
     }
 }
 
-/// V3 (DESIGN_R01 §6.1): perturbation controls on T15's certified arc. The
+/// V3: perturbation controls on T15's certified arc. The
 /// largest arc component pushed as v + 2·T0 with its certified record fires;
 /// v + T0/2 stays silent when the base statistic is below 1/2.
 #[test]
@@ -2302,7 +2302,7 @@ fn udl_body(model: &mut Value, prefix: &str, origin: f64) {
 /// A body like `udl_body` with a soft 10 m cantilever branch from S1 (OD
 /// 2 mm, wall 0.2 mm) carrying a 2e-6 N tip force. The branch tip's rotation
 /// (about 1e-3 rad) sets the body's rotation scale, so K-D5's per-DOF rule
-/// (DEL-04-01 kd5-member-relative-bound.md §1, D5C-1 on the closed w) passes
+/// (D5C-1 on the closed w) passes
 /// the S1:RZ formation defect, while the tiny tip force leaves the load-row
 /// guard's coupled moment scale (about 0.2 N*m) unchanged, so the guard still
 /// fires there: a Passed report with a load-row finding.
@@ -2325,7 +2325,7 @@ fn udl_body_with_soft_branch(model: &mut Value, prefix: &str, origin: f64) {
 /// RF-CANCEL-UDL-W1e8 with a soft branch (its own RZ row fires the load-row
 /// guard on a Passed report, `udl_body_with_soft_branch`). The load-row
 /// demotion comes first; the recovery guard's later amendment is a no-op: its
-/// sentence does not appear (kd5-member-relative-bound.md §3.3, "the load-row
+/// sentence does not appear ("the load-row
 /// sentence stands first (I5 ruling 1)"). Under K-D5's repair the earlier
 /// F-INPLANE trigger is repaired and passes (T11), so probe A replaces it.
 /// (T4-U1b, O-8: the earlier trigger, a curved uniform load, is now
@@ -2745,7 +2745,7 @@ fn c1_request(force: f64, moment: f64) -> Value {
 /// captured invocation was republished under CP3 SF-1). Owner: T3's composite
 /// SOURCE_BLOCKS_FINALIZATION_FAILED item (the "demoted-ordinary" receipt
 /// form), which must close before T3 closes. Since the pre-0.4 failure
-/// unification (DEL-04-08 Design `pre04-failure-unification.md`) no captured
+/// unification no captured
 /// invocation takes that refusal: a selected source that cannot finalize
 /// republishes every case on its ordinary route, on both routes.
 ///
@@ -2757,7 +2757,7 @@ fn c1_request(force: f64, moment: f64) -> Value {
 /// single-case captured invocation of case B is demoted and not refused. The
 /// control (m = 0.5, R-b' silent) publishes with a receipt, case A qualified.
 ///
-/// K-D5 (DEL-04-01 kd5-member-relative-bound.md §§3.1-3.4, 4.2): C1 no longer
+/// K-D5: C1 no longer
 /// reaches the residual. Case B's tip moment is now its certified recovery,
 /// exactly |m|, so the unified predicate passes it while R-b''s retired
 /// binary64 statistic would still fire there: case B is CHECKS_PASSED on the
@@ -2769,9 +2769,9 @@ fn c1_request(force: f64, moment: f64) -> Value {
 /// (`residual_case_b`): N05's pipe carries cancelling uniform loads (G, n, -G)
 /// along global y with G = 8e15 N/m (below the captured entry's 2^53 limit)
 /// and n = 1e-8 N/m, on C1's soft basis. Its report is Passed; the load
-/// enclosure radii (2^-120 level, §1) enter every group's remainder R, so
+/// enclosure radii (2^-120 level) enter every group's remainder R, so
 /// against the tiny net B exceeds RD(1e-9)·q (the anchor's force group has
-/// B/q of about 6e-9) and the unified predicate fires after routing (§3.3). Typed: demoted with the unified sentence, no receipt;
+/// B/q of about 6e-9) and the unified predicate fires after routing. Typed: demoted with the unified sentence, no receipt;
 /// alone on the captured entry: demoted, not refused; beside case A on the
 /// captured entry: refused, fail-closed. Control: n = 0.3 N/m lifts the body
 /// scale, the predicate is silent and the invocation publishes with both
@@ -3222,7 +3222,7 @@ fn t21_selection_is_declined_for_a_formation_finding() {
 /// ordinary route never attempts a Passed case, so nothing is charged, no
 /// attempt is counted and nothing fails. Kills restoring the charged attempt
 /// (M23). UDL-W1e8 itself is now Sensitive at the solve (K-D5's closure,
-/// DEL-04-01 kd5-member-relative-bound.md §§1, 4.2; T1), so the Passed
+/// T1), so the Passed
 /// guard-fired case is the same body with a soft branch
 /// (`udl_body_with_soft_branch`), whose RZ row still fires the load-row guard.
 #[test]

@@ -96,7 +96,7 @@ pub(crate) fn freeze_fault_of_case(request: usize) -> Option<TraceFault> {
         _ => None,
     })
 }
-/// B2-P hook (PLAN §1.2.4; B2-C §2.6): the operand preparation of `not_required` case `index`
+/// B2-P hook (PLAN §1.2.4): the operand preparation of `not_required` case `index`
 /// (request index) refuses, through the real section preparation (its first member's diameter
 /// is 0, as `fail_preparation_of_case` does for a case attempt). Each combination that needs it
 /// becomes `retained_unavailable` with `operand_preparation_failure`.
@@ -119,14 +119,14 @@ pub(crate) fn combination_call_fault(index: usize) -> bool {
 pub(crate) fn fault_next_combination_freeze() { arm(|a| a.combination_freeze = true); }
 /// At a combination's observables stage: whether the armed freeze fault fires (consumed).
 pub(crate) fn combination_freeze_fault() -> bool { consume(|a| std::mem::take(&mut a.combination_freeze)) }
-/// B2-P hook: the serializer's meter-chain check (B2-C §2.7) reads its Calls as unchained (each
+/// B2-P hook: the serializer's meter-chain check reads its Calls as unchained (each
 /// later Call's `invocation_before` one past the previous Call's `invocation_after`), so a
 /// successor with a combination Call refuses with `work_counter_inconsistent` (`work.charged`).
 pub(crate) fn break_next_meter_chain() { arm(|a| a.meter_chain = true); }
 /// At the serializer's meter-chain check: whether the armed fault fires (consumed).
 pub(crate) fn meter_chain_fault() -> bool { consume(|a| std::mem::take(&mut a.meter_chain)) }
 /// RV123 (B2-P round 2) S-1: the batch Run of case `index` (request index) reads as refused
-/// `ledger_unavailable` (B2-C §2.4 (i), row 2). After the Call its outcome is replaced by
+/// `ledger_unavailable`. After the Call its outcome is replaced by
 /// `Refused { LedgerUnavailable(Accumulator(NonFinite)) }`, keeping its attempt records, so the
 /// Run's records and work still conserve. The case is then `unavailable` with a CaseSource, and a
 /// combination naming it is `operand_source_unavailable`, with no rebuild, preparation or Call.

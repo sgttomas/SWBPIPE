@@ -1,4 +1,4 @@
-// Operating-case slice 1b (DEL-05-02 Work `operating-case.md` "As built (1b)", recorded runs): 1b
+// Operating-case slice 1b (recorded runs): 1b
 // restated the preview-physics combination policy (v2 -> v3), so the preview-physics-2 digest moved
 // (e7b93f41 -> f41b9d3e) while its rows and limitations did not. Main's records at bbf384dec
 // (fixtures/persistence/recorded_pre_rt_a5_1b_pf, verbatim) bind e7b93f41: they read on the

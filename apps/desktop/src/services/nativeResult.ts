@@ -1,4 +1,4 @@
-/** C1 native custody, slice 4 (DEL-04-05 `c1-native-custody-plan.md`): the webview's handle on a
+/** C1 native custody, slice 4: the webview's handle on a
  * fresh solve result held natively (`solve_jobs::HeldResult`), and the one access layer to it.
  *
  * - **The handle.** A `NativeResult` carries the envelope members S states (`header.envelope`:
@@ -98,14 +98,14 @@ export type NativeCustody = Readonly<{
   binding: NativeBinding;
   /** The pressure-source recovery facts (page 0, no case texts), for routes that carry them. */
   recovery: SourceRecovery | null;
-  /** RT-A4 §10.4: a restored run recorded before RT-A4: the registry table the native reopen read it
+  /** a restored run recorded before RT-A4: the registry table the native reopen read it
    * under and its native readers (S, row semantics, detail filter, navigator) read it under, held
    * with the handle (`stored_custody`, never a request's); null for every other result. */
   recordedTable?: ContractBinding | null;
   /** That run's recorded dispatch with no model (`recordedReaderDispatch(result, table)`), the route a
    * display surface classifies it under (`displayRoute`); display only, never a standing. */
   recordedVerdict?: ReaderDispatch | null;
-  /** DEL-07-05 numerical health of a restored run (RT-A4 §10.4 review F2): the standalone historical
+  /** DEL-07-05 numerical health of a restored run: the standalone historical
    * standing `standaloneNumericalHealth` reads a reopened run's health with, for the result alone (no
    * model, no hold): under a recorded table the recorded dispatch's (`recordedResultStanding`), else
    * the bare verdict's (`numericalResultStanding` with no model). S's `numerical_health` was read with
@@ -159,7 +159,7 @@ export function createNativeResult(custody: NativeCustody): NativeResult {
 }
 
 /* -------------------------------------------------------------------------- *
- * The diagnostics presentation facts (RT-A3 §4 on a native handle)
+ * The diagnostics presentation facts (on a native handle)
  * -------------------------------------------------------------------------- */
 
 /** S's header member carrying the diagnostics presentation facts (Rust `diagnostics_presentation`). */
