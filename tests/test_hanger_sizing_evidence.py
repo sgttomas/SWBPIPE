@@ -1,4 +1,4 @@
-"""DEL-04-11 slice 1d-α (`execution/PKG-04/DEL-04-11/Work/hanger-sizing.md` §8.3): the
+"""DEL-04-11 slice 1d-α (design §8.3): the
 independent Python verifier (`tests/verifiers/hanger_sizing_evidence.py`) over the committed
 corpus (`fixtures/results/hanger_sizing_*.json`), the closed schema
 (`schemas/hanger_sizing_result.schema.json`), the headless `size-hangers` verb's documents, and
@@ -125,7 +125,6 @@ def test_admission_refuses_duplicate_keys_and_numbers_outside_the_profile():
 
 
 def test_the_verifiers_fixed_lists_are_the_schemas():
-    # The design text against these schema lists is a document check (tools/validation/test_hanger_sizing_design.py).
     defs = SCHEMA["$defs"]
     assert tuple(item["const"] for item in defs["Limitations"]["prefixItems"]) == hs.LIMITATIONS
     assert tuple(item["const"] for item in defs["BasisStatement"]["prefixItems"]) == hs.BASIS_STATEMENT

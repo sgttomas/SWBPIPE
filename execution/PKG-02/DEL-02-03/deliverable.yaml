@@ -8,6 +8,11 @@ needs:
     review.
   gating: true
 - from: DEL-05-04
+  condition: >-
+    The analysis status semantics give each of the seven statuses one meaning and one authority,
+    and the status schema admits exactly the six automatic statuses as software output.
+  gating: true
+- from: DEL-05-04
   when: Examining that no surface writes a status outside the vocabulary
   condition: >-
     Every schema and interface that carries an analysis status (results, analysis run, headless
@@ -17,19 +22,18 @@ needs:
 - from: DEL-05-04
   when: Presenting a human acceptance reference
   condition: >-
-    A human acceptance record whose bound hash differs from the hash of the content presented is
-    reported as not applying to it.
+    Where the product presents a human acceptance record with content, a record whose bound hash
+    differs from that content's hash is presented as not applying to it.
   gating: true
 code_paths:
-# The boundary record. schemas/analysis_status.schema.yaml is also listed by DEL-05-04, which owns
-# the status envelope in it; which of the two owns the status vocabulary that file states is not
-# settled between the scopes.
+# The boundary record. The status vocabulary and the status envelope
+# (schemas/analysis_status.schema.yaml) are DEL-05-04's.
 - schemas/analysis_boundary.schema.yaml
-- schemas/analysis_status.schema.yaml
 - docs/architecture/code_neutral_analysis_boundary.md
 - fixtures/analysis_boundary/**
 - tests/test_analysis_boundary_schema.py
 checks:
 - tests/test_analysis_boundary_schema.py
-# Shared with DEL-05-04, whose envelope it also examines.
+# DEL-05-04's check of its status schema. Here it observes that the boundary schema's status
+# enumerations equal that schema's.
 - tests/test_analysis_status_schema.py

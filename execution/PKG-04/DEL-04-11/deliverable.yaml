@@ -70,13 +70,14 @@ needs:
   gating: true
 - from: DEL-10-05
   condition: >-
-    The headless runner hosts a hanger-sizing command that takes the sizing input and publishes the
-    result document, and supplies no engineering value of its own.
+    The headless runner hosts the `size-hangers` command: it passes the sizing input to this
+    deliverable's entry and returns that entry's document unchanged, and supplies no engineering
+    value of its own (DEL-10-05 REQ-015, AC-011).
   gating: true
 - from: DEL-07-05
   condition: >-
-    The results viewer defines how a results table states its units, limitations and claims, which
-    the hanger table and its detail view follow.
+    A results table states its units, the published frame of each row, the limitations of the route
+    that produced it and the result's standing, which the hanger table and its detail view follow.
   gating: false
 - from: DEL-07-07
   condition: >-
@@ -85,13 +86,16 @@ needs:
   gating: false
 - from: DEL-08-01
   condition: >-
-    The report generator defines a report section's structure, its claims contract and its privacy
-    rules for library references, which the hanger-sizing section follows.
+    A section contributed by another deliverable enters a report only through the assembled section
+    model: under a governed section, with registered boundary wording and no claim of its own,
+    showing a library reference as safe metadata only, and passing the report's gates
+    (DEL-08-01 REQ-020). The hanger-sizing section is such a section.
   gating: false
 - from: DEL-08-04
   condition: >-
-    The CSV serializer exports a results table by kind and lists every exported table in its
-    coverage guard.
+    Every results table in the desktop exports to CSV through the one serializer, the hanger table
+    through the adapter DEL-08-04 holds beside it, and a table without CSV export is detected as a
+    failure (DEL-08-04 REQ-014, AC-002).
   gating: false
 - from: DEL-04-05
   condition: >-
@@ -106,7 +110,6 @@ code_paths:
 - fixtures/results/hanger_sizing_*.json
 - tests/verifiers/hanger_sizing_evidence.py
 - tests/test_hanger_sizing_*.py
-- tools/validation/test_hanger_sizing_design.py
 - core/runner/headless/tests/size_hangers_cli.rs
 - validation/references/hanger_sizing/**
 - apps/desktop/src/features/results/HangerSizing*
@@ -121,7 +124,6 @@ code_paths:
 checks:
 - core/analysis/hanger_sizing/tests/*.rs
 - tests/test_hanger_sizing_*.py
-- tools/validation/test_hanger_sizing_design.py
 - core/runner/headless/tests/size_hangers_cli.rs
 - apps/desktop/src/features/results/HangerSizingPanel.test.tsx
 - apps/desktop/src/features/results/hangerSizing*.test.ts

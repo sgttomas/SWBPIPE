@@ -61,7 +61,7 @@ This is DEL-00-04's version rule applied to the model document.
 - Automatic rotation of backup copies. It needs a stated model of what else may write to the folder and a promise the product can support; until then the product deletes no backup.
 - Which volumes a backup folder may be on, beyond a local folder that supports cloning.
 
-**Boundary.** The document format and its validator are DEL-02-01's, the unit catalog DEL-02-02's, the status vocabulary DEL-02-03's. The canonical JSON implementation and the audit manifest are DEL-08-02's. Saved model states and recorded runs are DEL-14-01's and DEL-14-02's; the report package's contents are DEL-08-01's; storage paths and the local-first controls are DEL-12-01's; the operation engine is DEL-16-06's; the open and save surfaces in the desktop are DEL-07-11's. This deliverable defines no second shape for an object another schema owns.
+**Boundary.** The document format and its validator are DEL-02-01's, the unit catalog DEL-02-02's, the status vocabulary DEL-05-04's and the human acceptance record's binding DEL-02-03's. The canonical JSON implementation and the audit manifest are DEL-08-02's. Saved model states and recorded runs are DEL-14-01's and DEL-14-02's; the report package's contents are DEL-08-01's; storage paths and the local-first controls are DEL-12-01's; the operation engine is DEL-16-06's; the open and save surfaces in the desktop are DEL-07-11's. This deliverable defines no second shape for an object another schema owns.
 
 ## Completion and Reliance Basis — Epistemology
 

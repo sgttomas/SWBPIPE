@@ -25,8 +25,9 @@ needs:
   gating: true
 - from: DEL-01-02
   condition: >-
-    The boundary policy states that a public rule-pack example uses invented or permissively
-    sourced data and embeds no protected formula, table or private content.
+    The boundary policy states that a public example rule pack uses invented, non-code values
+    only and carries a clear non-engineering notice (DEL-01-02 REQ-006), and that public content
+    holds no protected standards text, table or formula and no private content.
   gating: true
 - from: DEL-02-01
   condition: >-

@@ -26,10 +26,10 @@ needs:
   gating: true
 - from: DEL-05-03
   condition: >-
-    The Timoshenko straight-member formulation is defined once: the energy-matched annular shear
-    factor kappa_E (`timoshenko_annulus_energy_v1`) in a fixed binary64 operation order, the shear
-    area A_s = kappa_E A, phi = 12EI/(G A_s L^2) and the exact static two-node stiffness, with the
-    rule for which members a model selects as Timoshenko. The kernel's code forms its element from
+    The shear model is defined once: the energy-matched annular shear factor kappa_E
+    (`timoshenko_annulus_energy_v1`) in a fixed binary64 operation order, the shear area
+    A_s = kappa_E A and phi = 12EI/(G A_s L^2), with the rule for which straight members a document
+    selects as Timoshenko (DEL-05-03 REQ-011, AC-004). The kernel forms its Timoshenko element from
     that definition; a change to the definition changes the kernel element with it.
   gating: true
 code_paths:

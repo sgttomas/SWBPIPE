@@ -86,14 +86,10 @@ code_paths:
 - core/product_physics/tests/w9_solver_benchmarks.rs
 - validation/references/w16_imposed_motion/**
 - core/product_physics/tests/w16_imposed_motion.rs
-# The reference system. Its specification and run sheet are the two files under this deliverable's
-# folder; the generator reads the specification from there.
-- execution/PKG-09/DEL-09-01/Work/reference-system.md
-- execution/PKG-09/DEL-09-01/Work/reference-system-run-sheet.md
+# The reference system: its fixture, generator output and independent references.
 - fixtures/reference_system/**
 - validation/references/reference_system/**
 - tests/test_reference_system_fixture.py
-- tools/validation/test_reference_system_ledger.py
 # Not decided: which deliverable's criteria govern the required-output qualification gate below.
 # No criterion of this scope governs it. Its exact-pressure fixtures, tool and test
 # (validation/qualification/fixtures/exact_pressure/**, tools/validation/qualification_exact_pressure.py,
@@ -113,7 +109,6 @@ checks:
 - core/product_physics/tests/w9_solver_benchmarks.rs
 - core/product_physics/tests/w16_imposed_motion.rs
 - tests/test_reference_system_fixture.py
-- tools/validation/test_reference_system_ledger.py
 - tests/test_qualification_gate.py
 - tests/test_qualification_physics.py
 - tests/test_qualification_physics_structure.py

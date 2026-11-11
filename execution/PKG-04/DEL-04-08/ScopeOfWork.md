@@ -46,7 +46,7 @@ A verified bound states that a published value lies within a stated distance of 
 
 **This deliverable owns** the two families' receipts, tables and formation definitions, and their publication and classification law; the producer's retained, source-recovery and source-receipt parts; the product reader for these statements, with its command-line and WebAssembly bindings; the test verifier; the reader-outcome records and corpora; and the memory-pricing law with its pricing tool.
 
-**Inputs from neighbours** (`deliverable.yaml`): DEL-04-01 (the kernel's retained-precision lanes, their error proof and the exact boundary), DEL-04-07 (product solve integration and the memory budget), DEL-05-01 (primitive load records), DEL-05-05 (the distributed user-load contract), DEL-05-03 (section bases and stress definitions), DEL-05-02 (combination semantics and the base-route readers), DEL-02-02 (units), DEL-08-02 (canonical JSON), DEL-00-06 (the diagnostics contract) and DEL-10-05 (the headless runner). These deliverables keep their scope.
+**Inputs from neighbours** (`deliverable.yaml`): DEL-04-01 (the kernel's retained-precision lanes, their error proof and the exact boundary), DEL-04-07 (product solve integration and the memory budget), DEL-05-01 (primitive load records), DEL-05-05 (the distributed user load), DEL-04-02 (the consistent equivalent nodal loads and station recovery), DEL-05-03 (section bases and stress definitions), DEL-05-02 (combination semantics and the base-route readers), DEL-02-02 (units), DEL-08-02 (canonical JSON), DEL-00-06 (the diagnostics contract) and DEL-10-05 (the headless runner). These deliverables keep their scope.
 
 ### CLM-003 — Where the method runs
 

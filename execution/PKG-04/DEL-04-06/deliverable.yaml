@@ -63,8 +63,7 @@ needs:
     refuses work over the budget by name, and can cancel a worker and release its memory.
   gating: true
 code_paths:
-# The diagnostics crate is this deliverable's. DEL-05-04 and DEL-09-05 also list its lib.rs, as
-# the evidence their status and validation criteria read.
+# The diagnostics crate is this deliverable's; no other deliverable lists it.
 - core/solver/diagnostics/**
 # The topology checks and the on-demand model checks. The modules sit in DEL-04-07's product crate
 # and in the operation applier; these files are this deliverable's.

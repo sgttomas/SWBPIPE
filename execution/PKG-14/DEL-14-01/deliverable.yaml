@@ -53,6 +53,9 @@ code_paths:
 # DEL-14-03.
 - apps/desktop/src-tauri/src/model_states.rs
 - apps/desktop/src/services/modelStateService.ts
+# Memory admission for reads of stored states and runs. The file is DEL-14-02's; this
+# deliverable's part is the admission of a state read.
+- apps/desktop/src-tauri/src/stored_read.rs
 # DEL-07-08 owns the History panel and its interaction. This hook is listed here for what it does
 # with a state: the parent of the next saved state and the saved basis after a state is opened.
 - apps/desktop/src/features/history/useModelStateHistory.ts

@@ -35,7 +35,7 @@ It serves SOW-076 under OBJ-015 and OBJ-016 (`execution/_Decomposition/SOFTWARE_
 
 **Boundary.** The workspace presents and routes. The following belong elsewhere:
 
-- the design-knowledge and constraint records and the constraint engine: DEL-13-01, DEL-13-02 and DEL-13-03;
+- the design-knowledge and constraint records and the constraint engine: DEL-13-01, DEL-13-02 and DEL-13-03. The constraint panels show constraint records and findings; editing a constraint record is DEL-07-02's;
 - state and run records: DEL-14-01 and DEL-14-02. The comparison engines: DEL-14-03 and DEL-14-04. Mapping, tolerance and comparison export forms: DEL-14-05. CSV export of a comparison view: DEL-08-04;
 - the operation form, validation and preview, the acceptance record and receipt, agent controls, and application: DEL-16-01, DEL-16-02, DEL-16-03, DEL-16-04 and DEL-16-06;
 - moving queued single changes into one batch: DEL-07-02/REQ-017;

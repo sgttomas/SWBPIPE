@@ -91,8 +91,7 @@ uses a runner-local target directory. This establishes only the named core
 tests and compilation: desktop memory controls, persistence, WebView2, native
 journeys, packaging and retained-memory qualification need their own Windows
 evidence. Parallels Windows on Arm and emulated x64 runs are labelled separately.
-The proposed native-service boundaries and remaining work are in DEL-10-04
-`Work/windows-port.md`.
+DEL-10-04 owns the Windows port.
 
 On a relevant PR, desktop coverage is a production build and one Chromium
 project (`chromium-desktop`) running core specs: the R2 smoke and save/reopen
@@ -275,7 +274,7 @@ with the unchanged ordinary route otherwise, as `retained_facade_tests.rs`'s
 `registered()` does. When product_physics is selected, the numerical job also runs the six
 retained W1 stack witnesses at the default debug profile, one process each: an
 early warning, since only the qualification host's registered sweep is VER-004's
-record (DEL-04-08 Design `stack-headroom-repair.md`). The hosted numerical job
+record (DEL-04-08). The hosted numerical job
 runs three parallel matrix shards, with fail-fast disabled:
 
 | Shard | Selected manifests |

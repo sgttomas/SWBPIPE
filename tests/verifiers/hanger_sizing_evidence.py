@@ -1,5 +1,5 @@
 """Independent test-only verifier of hanger-sizing result documents (DEL-04-11
-`execution/PKG-04/DEL-04-11/Work/hanger-sizing.md` §8.3.7).
+design §8.3.7).
 
 It establishes three standings, each passed, failed (with the first difference) or
 not_checked, and states nothing about mechanics:

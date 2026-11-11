@@ -4,8 +4,9 @@ needs:
 - from: DEL-09-01
   condition: >-
     A run of the mechanics benchmark suite reports, per case, each expected value beside the
-    observed value with the tolerance applied, and the suite fails when a required family or
-    benchmark is missing or a case disagrees with its independent reference.
+    observed value with units and the solver version; every case is compared at the governed
+    tolerance and at none looser; and the suite fails when a required family or benchmark is missing
+    or a case disagrees with its independent reference.
   gating: true
   when: Recording the solver gate for a change that affects mechanics.
 - from: DEL-09-02

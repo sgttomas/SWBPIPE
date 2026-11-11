@@ -19,8 +19,9 @@ needs:
   gating: true
 - from: DEL-07-08
   condition: >-
-    The review surface shows a batch's generated preview before it offers Apply, and passes only
-    the person's own Apply or Reject as the decision on a batch.
+    The review queue shows a pending batch with the engine's validate-only preview, offers Apply
+    only once the batch is validated and the preview is shown, and passes the engine no decision but
+    the user's own Apply or Reject.
   gating: true
 - from: DEL-02-05
   condition: >-

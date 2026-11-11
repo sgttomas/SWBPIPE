@@ -8,6 +8,13 @@ needs:
     annular shear factor), the member orientation transform, the fixed six-degree-of-freedom
     element ordering and the unit-basis dimension tags.
   gating: true
+- from: DEL-09-01
+  when: Examining the criteria against the frozen benchmark packages
+  condition: >-
+    The mechanics benchmark suite holds `validation/references/w9_benchmarks`, each expected value
+    with a derivation that imports, reads and runs no product code and a provenance record
+    (DEL-09-01 AC-005).
+  gating: false
 code_paths:
 # The element crate. Its load-vector and recovery functions are called by DEL-05-01 (weight and
 # free strain) and DEL-05-05 (member loads), which decide the load values and which loads a user

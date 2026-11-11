@@ -113,7 +113,9 @@ needs:
 # (DEL-05-02, DEL-04-08); tests/size_hangers_cli.rs (DEL-04-11); the exact-route, joint and
 # objective-connector tests (DEL-04-07, DEL-03-06); src/redaction_binding.rs is shared with
 # DEL-12-02, whose control it binds; the export-results handling and its package tests are shared
-# with DEL-08-01.
+# with DEL-08-01. The runner tests also read the runner requests and outputs under
+# validation/witness/inputs and validation/witness/generated, which DEL-09-04 holds as the
+# reproduction procedure's inputs and expected evidence.
 code_paths:
 - core/runner/headless/**
 - schemas/headless_runner.schema.yaml

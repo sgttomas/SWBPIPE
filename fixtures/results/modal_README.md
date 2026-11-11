@@ -1,6 +1,6 @@
 # Modal result fixtures (DEL-04-09 I3a)
 
-Maintained test fixtures of the experimental modal result family `openpipestress.modal_result` 0.1.0 (`execution/PKG-04/DEL-04-09/Work/modal-analysis.md` §5.3). They are not run evidence, and every document carries the labelled **TEST-LOCAL, EXPERIMENTAL** parameter set it was formed with. All models are invented.
+Maintained test fixtures of the experimental modal result family `openpipestress.modal_result` 0.1.0 (DEL-04-09). They are not run evidence, and every document carries the labelled **TEST-LOCAL, EXPERIMENTAL** parameter set it was formed with. All models are invented.
 
 | File | What it is |
 |---|---|

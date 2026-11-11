@@ -1096,7 +1096,7 @@ where
 }
 
 /// RT-U4 C1 residual U1's diagnostic SQLite measurement (tests only,
-/// `#[ignore]`d; DEL-04-05 `Work/c1-u1-sqlite-measurement.md`).
+/// `#[ignore]`d; DEL-04-05).
 #[cfg(test)]
 #[path = "stored_read_sqlite_u1.rs"]
 mod sqlite_u1;

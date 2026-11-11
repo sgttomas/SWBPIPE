@@ -26,13 +26,16 @@ needs:
 - from: DEL-12-02
   when: A PCF or its package is written to a file
   condition: >-
-    Every governed route returns its controlled export before anything is exposed, and when the
-    export is blocked no output file is written.
+    Every sink through which the product exposes project-derived content is reached only through a
+    catalogued route's wrapper; every route returns its controlled export before exposure, and when
+    the export is blocked no output file is written.
   gating: true
 - from: DEL-15-04
   condition: >-
-    The external-prover boundary identifies text that states an authority claim (certification,
-    approval, code compliance) so that a package can refuse it.
+    The authority-wording screen is one check shared by the handoff and export records that need it,
+    and finds wording of approval, certification, sealing, authentication, compliance, external
+    validation, acceptance or prover status in a string, a list or a nested record, whatever its
+    letter case.
   gating: false
 # The Python profile, writer and package builder, the schema and the invented fixtures.
 # apps/desktop/src/features/pcf-export/PcfExportPanel.tsx is shared with DEL-07-12: the PCF text
@@ -48,5 +51,7 @@ checks:
 - apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
 - apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx
 - apps/desktop/src/App.test.tsx
+# Also examines DEL-02-02's refusal of an export with a missing project unit, on other export
+# routes as well as this one; DEL-07-12 lists it too.
 - apps/desktop/src/features/exportProjectUnitRefusal.test.tsx
 - apps/desktop/e2e/r2-smoke.spec.ts

@@ -1,5 +1,5 @@
 //! The native size-and-read entry, increment 3c part 1 (DEL-04-11
-//! `Work/hanger-sizing.md` §8.3, §13): its reply on the committed corpus inputs
+//! design §8.3, §13): its reply on the committed corpus inputs
 //! (`fixtures/results/hanger_sizing_input_*.json`), the reply's agreement with
 //! the desktop adapter's evidence shape and hash
 //! (`apps/desktop/src/features/results/hangerSizingView.ts`), the refusals that

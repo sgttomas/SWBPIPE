@@ -206,7 +206,7 @@ fn main() -> ExitCode {
 
 const SIZE_HANGERS: &str = "size-hangers";
 
-/// `size-hangers` (DEL-04-11 `Work/hanger-sizing.md` §8.3.2): hanger sizing on
+/// `size-hangers` (DEL-04-11 design §8.3.2): hanger sizing on
 /// its own admission path. It takes no `CliInput.request` (no `RunnerRequest`,
 /// operation metadata or input-manifest reference is read or synthesized); the
 /// input text goes to the sizing crate's path-aware admission and pipeline. It

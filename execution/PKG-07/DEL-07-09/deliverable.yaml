@@ -3,9 +3,10 @@ name: Interactive operation vocabulary and tool palette contract
 needs:
 - from: DEL-16-01
   condition: >-
-    The operation taxonomy names every change kind the operation engine admits, each with its
-    target types, field path and value form, so that a vocabulary item can be bound only to kinds
-    that exist.
+    The operation taxonomy is a closed set of operation kinds, change kinds and target types; each
+    change kind states its target types, field path and value form; and each kind the operation
+    route applies is matched to the taxonomy and to the vocabulary or named as a stated difference,
+    so that a vocabulary item is bound only to kinds that exist.
   gating: true
 - from: DEL-16-06
   condition: >-
@@ -15,9 +16,10 @@ needs:
 - from: DEL-07-01
   when: Relying on the one route to the model
   condition: >-
-    Every palette command is drawn from this deliverable's catalogue and opens the form or tool
-    that builds its operation, changing nothing itself; completing it produces operations of the
-    kinds the vocabulary binds its row to, and the model is unchanged until Apply.
+    The tool palette offers every NORMATIVE-NOW item of the vocabulary in its group, each command
+    opening the form or tool that builds its operation; a roadmap item is listed as not available
+    and cannot be invoked; and no palette command changes the model by any route other than the one
+    operation route.
   gating: false
 - from: DEL-02-02
   condition: >-

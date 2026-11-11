@@ -1,4 +1,4 @@
-//! Publication of a sizing result (DEL-04-11 `Work/hanger-sizing.md` §8.3, slice
+//! Publication of a sizing result (DEL-04-11 design §8.3, slice
 //! 1d-α): the closed document `openpipestress.hanger_sizing.result` 1.0.0
 //! (`schemas/hanger_sizing_result.schema.json`) and the headless pipeline that
 //! forms it from one input text (§8.3.2): admission, shape, library import

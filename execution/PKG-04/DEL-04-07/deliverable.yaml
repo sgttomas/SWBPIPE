@@ -23,15 +23,16 @@ needs:
   gating: true
 - from: DEL-05-04
   condition: >-
-    The analysis status semantics define what the mechanics, rule-check and professional-acceptance
-    states and the integrity standing of a result mean, so that the status a solve publishes has one
-    meaning for every reader.
+    The analysis status semantics define what the mechanics, rule-check and human-acceptance
+    statuses mean and that software never emits human acceptance, so that the status a solve
+    publishes has one meaning for every reader.
   gating: true
 - from: DEL-00-06
   condition: >-
-    The result schema defines the mechanics envelope a solve publishes, including for each
-    diagnostic its code, class, severity, source, affected object, message, remediation and
-    provenance.
+    The diagnostic and result-envelope contract fixes the fields of each diagnostic a solve
+    publishes (code, class, severity, source, affected object, message, remediation and
+    provenance) and requires a solve's envelope to state its outcome kind, a mechanics result
+    apart from invalid input and an incomplete model.
   gating: true
 - from: DEL-03-08
   condition: >-
@@ -82,9 +83,9 @@ needs:
   gating: true
 - from: DEL-04-06
   condition: >-
-    The diagnostic records map kernel, sparse-solver, support, load and non-convergence failures to
-    named records with code, class, severity, source and affected reference, including a non-
-    convergence failure for an iteration that ends at its cap.
+    The diagnostic records map kernel, support, load and non-convergence failures to named records
+    with code, class, severity, source and affected reference, including a non-convergence failure
+    for an iteration that ends at its cap.
   gating: true
 - from: DEL-05-01
   condition: >-
@@ -131,6 +132,20 @@ needs:
     The invented reference system is maintained as a model document with an independent record of
     its weights, containing the families of exit criterion 1.
   gating: true
+- from: DEL-09-01
+  when: Examining the solve entries against the frozen benchmark packages
+  condition: >-
+    The mechanics benchmark suite holds `validation/references/w9_benchmarks` and the other
+    benchmark packages of PRD §22.2, each expected value with a derivation that imports, reads and
+    runs no product code and a provenance record (DEL-09-01 AC-005).
+  gating: false
+- from: DEL-09-03
+  when: Judging convergence of the nonlinear iteration
+  condition: >-
+    The nonlinear validation suite holds the governed convergence limits of each support class: no
+    support changes state in the final iteration, within the iteration cap, and a case may tighten
+    a limit and never loosen one (DEL-09-03 REQ-007, AC-004).
+  gating: false
 - from: DEL-07-07
   when: Running a solve in the desktop
   condition: >-
@@ -143,7 +158,14 @@ code_paths:
 # (DEL-04-08), modal (DEL-04-09), topology and model checks (DEL-04-06), imposed motion, skew and
 # the constant-effort and variable-spring support law (DEL-04-03), self-weight and loads (DEL-05-01, DEL-05-05), combinations (DEL-05-02), pressure
 # geometry and section bases (DEL-03-08, DEL-05-03) and components (DEL-03-03 to DEL-03-06); this
-# deliverable owns their composition. In apps/desktop/src-tauri/, the memory pool, its leases and
+# deliverable owns their composition. Within the shared modules, this deliverable's section and
+# mass adapter is the mass-per-length computation in self_weight.rs (the plan, component weight and
+# generation evidence there are DEL-05-01's), annulus_geometry.rs, and the annulus area and
+# section-property computation in pressure_exact.rs and pressure_exact/source_geometry.rs, where the
+# cap, Poisson-eigenload and pressure-group load pairs are also this deliverable's (the section-basis
+# derivation and the pressure stresses there are DEL-05-03's). core/product_physics/tests/
+# w9_solver_benchmarks.rs and w16_imposed_motion.rs fall under the crate glob and are DEL-09-01's
+# benchmark runs. In apps/desktop/src-tauri/, the memory pool, its leases and
 # the priced parses are this deliverable's (REQ-008); the solve job's lifecycle in the same files
 # is DEL-07-07's.
 - core/product_physics/**

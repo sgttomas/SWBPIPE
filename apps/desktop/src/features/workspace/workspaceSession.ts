@@ -1631,7 +1631,7 @@ export function useWorkspaceSession() {
     setOperationTab("review");
   }
 
-  /** G9 (DEL-07-02 `Work/queued-changes-batch.md`): moves the person's queued single
+  /** G9 (DEL-07-02): moves the person's queued single
    * changes, in the order they were queued, into batch review as one batch. Nothing is
    * applied here: Apply entire batch validates and applies all of them or none, and a
    * change whose `before` depends on another queued change is refused by name there,

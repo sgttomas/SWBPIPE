@@ -1,4 +1,4 @@
-"""DEL-04-09 I3a (`execution/PKG-04/DEL-04-09/Work/modal-analysis.md` §5.3): the
+"""DEL-04-09 I3a (design §5.3): the
 independent Python modal reader (`tests/verifiers/modal_evidence.py`) over the
 committed corpus (`fixtures/results/modal_corpus.json`) and fixtures
 (`fixtures/results/modal_*.json`).

@@ -34,8 +34,10 @@ needs:
   gating: false
 - from: DEL-15-04
   condition: >-
-    The external-prover boundary identifies text that states an authority claim (certification,
-    approval, code compliance) so that a package can refuse it.
+    The authority-wording screen is one check shared by the handoff and export records that need it,
+    and finds wording of approval, certification, sealing, authentication, compliance, external
+    validation, acceptance or prover status in a string, a list or a nested record, whatever its
+    letter case.
   gating: false
 # The Python builder, reader and writer, the two schemas and the invented fixture. In
 # apps/desktop/src/features/stress-neutral/** the builder and validator functions that the panel

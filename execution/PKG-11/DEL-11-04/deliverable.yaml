@@ -41,10 +41,13 @@ needs:
   gating: true
 - from: DEL-01-02
   condition: >-
-    The boundary policy states that public examples use invented or permissively sourced data,
-    names the content a public example may not contain, and defines the provenance record with
-    its redistribution and review status values. Every data set of an example carries that
-    record.
+    The boundary policy states that public examples use invented or permissively sourced data
+    and contain no protected standards text, protected table, proprietary formula, private
+    rule-pack content or private project data, and that a public example rule pack uses
+    invented, non-code values only and carries a clear non-engineering notice. It defines the
+    provenance record every public data record carries, with its redistribution and review
+    status values. Every data set of an example carries that record, and the examples use
+    invented data only.
   gating: true
 - from: DEL-08-05
   condition: >-
@@ -55,6 +58,9 @@ needs:
   gating: false
 code_paths:
 - examples/models/invented/**
+# This deliverable's test of its own example files. DEL-06-05 and DEL-09-05 cite it as a check
+# only. It compares the checksum the fake-rule-pack example cites with DEL-06-05's pack, so a
+# change to that pack's content changes the example file here.
 - tests/test_invented_example_models.py
 checks:
 - tests/test_invented_example_models.py

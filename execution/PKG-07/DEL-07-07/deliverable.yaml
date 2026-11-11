@@ -120,6 +120,7 @@ code_paths:
 - apps/desktop/src/services/solveTimeline.ts
 - apps/desktop/src/services/solveTimelineCodes.ts
 - apps/desktop/scripts/solveTimelineCodes.mjs
+- apps/desktop/scripts/solveTimelineCodes.d.mts
 # The committed cases and emulations the native and reference readings are held equal on.
 - apps/desktop/scripts/native-replay-merge.mjs
 - apps/desktop/src/test/nativeReplayStore.ts
@@ -140,6 +141,9 @@ code_paths:
 - apps/desktop/src/test-support/native-reopen/native_reopen_replies.json
 # A reference module with its own contract test; the desktop does not call it.
 - core/gui/solve_execution/engine.py
+# The boundary helper the GUI reference modules of DEL-07-03, DEL-07-04, DEL-07-05, DEL-07-07 and
+# DEL-07-08 import; each lists it.
+- core/gui/pkg02_boundary.py
 checks:
 - apps/desktop/src/features/solve/SolvePanel.test.tsx
 - apps/desktop/src/features/solve/SolveProgressPanel.test.tsx

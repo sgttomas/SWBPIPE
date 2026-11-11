@@ -1,5 +1,5 @@
-//! Result injection for the desktop performance measurement (RT-U4, DEL-04-05
-//! `Work/criterion-9-measurement.md`, "Desktop measurement").
+//! Result injection for the desktop performance measurement (RT-U4,
+//! DEL-04-05).
 //!
 //! Compiled only with the `native-smoke` cargo feature, which no product build
 //! enables: this module is declared under `#[cfg(feature = "native-smoke")]`

@@ -12,6 +12,28 @@ needs:
     The result envelope distinguishes invalid input, incomplete model, mechanics result, rule-check
     result and human-review-needed, and carries diagnostics that a status envelope can reference.
   gating: false
+- from: DEL-10-05
+  when: Examining the interface part of AC-001 on the headless runner
+  condition: >-
+    The analysis status of every runner result is one of the six automatic statuses, a rule-check
+    outcome maps only to the three user-rule statuses, and no output states compliance,
+    certification, sealing or approval (DEL-10-05 AC-010).
+  gating: false
+- from: DEL-14-02
+  when: Examining the interface part of AC-001 on the analysis-run record
+  condition: >-
+    The analysis statuses of a run record are those of this vocabulary, and no status, field or
+    label of a run states approval, certification, sealing, authentication or code compliance
+    (DEL-14-02 AC-011).
+  gating: false
+- from: DEL-06-03
+  when: Examining the rule-check part of AC-002
+  condition: >-
+    A rule-check run emits only the three user-rule statuses, leaves the mechanics status and every
+    mechanics result unchanged when a rule input is missing, and reports no outcome within or
+    exceeding the limit on a basis whose required values are not all present (DEL-06-03 AC-002,
+    AC-011, REQ-008).
+  gating: false
 code_paths:
 # The status envelope schema and the semantics document. DEL-02-03 also lists the schema; the
 # status vocabulary and the envelope are this deliverable's, and the analysis boundary record

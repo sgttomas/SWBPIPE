@@ -9,8 +9,9 @@ needs:
   gating: true
 - from: DEL-04-06
   condition: >-
-    The diagnostic records classify a condition ratio against supplied thresholds, map kernel and
-    sparse-solver failures to named records, and are produced in a fixed order for the same input.
+    The diagnostic records classify a condition ratio against supplied thresholds, map each kernel
+    failure, a singular system included, to a named blocking record, and are produced in a fixed
+    order for the same input (DEL-04-06 REQ-005, REQ-008, AC-003).
   gating: true
 - from: DEL-04-07
   condition: >-
@@ -35,9 +36,11 @@ needs:
 - from: DEL-07-07
   when: Measuring exit criterion 9
   condition: >-
-    A desktop solve runs in a worker that reads and parses the model, calls the solve entry,
-    serializes the result and verifies it; the result then passes to the display, which decodes,
-    verifies and paints it. A change to these stages changes what the harness must time.
+    A solve job's worker reads and parses the model, calls the product solve entry, serializes the
+    result and verifies it; the host then takes the result into custody, and the display reads its
+    summary and pages and paints them. Each stage boundary is marked on the solve timeline with
+    its fixed code (DEL-07-07 REQ-013). A change to these stages changes what the harness must
+    time.
   gating: false
 - from: DEL-02-01
   when: Generating the reference racks

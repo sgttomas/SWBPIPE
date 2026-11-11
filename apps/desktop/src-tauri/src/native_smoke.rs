@@ -14,8 +14,8 @@
 //!   The key is held only in this process's memory until the embedded agent's
 //!   next Start with a provider saved with no key takes it, once
 //!   ([`take_provider_secret`]); it is never written, logged, given to the
-//!   webview or read from or saved to the Keychain (RT-E1 D4, DEL-16-06
-//!   `Work/agent-journey-scenario.md`).
+//!   webview or read from or saved to the Keychain (RT-E1 D4,
+//!   DEL-16-06).
 //!
 //! The harness substitutes exactly two things for a person at the machine: it
 //! names the file the next model-document chooser returns (`native_smoke_choose`;

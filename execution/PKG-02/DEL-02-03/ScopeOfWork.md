@@ -11,29 +11,18 @@ package_objective_refs: [OBJ-001, OBJ-011]
 
 ## Purpose and Objective Traceability
 
-A reader of any SWBPIPE status can tell who is speaking. The solver says only that the mechanics were solved or that the model is incomplete. The rule evaluator says only what the user's own rule pack computed. Acceptance of the work is a person's record, made outside the software and bound to what that person reviewed. This deliverable defines those three authorities and the status vocabulary that keeps them apart, so that no result, report or interface can present a software computation as code compliance or as professional approval.
+A reader of any SWBPIPE status can tell who is speaking. The solver says only that the mechanics were solved or that the model is incomplete. The rule evaluator says only what the user's own rule pack computed. Acceptance of the work is a person's record, made outside the software and bound to what that person reviewed. This deliverable defines those three authorities and the record that keeps them apart, so that no result, report or interface can present a software computation as code compliance or as professional approval.
 
 It serves SOW-002 under OBJ-001 and OBJ-011 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-02, row DEL-02-03), and PRD §5.1, §5.4, §5.5, §5.9, §17.5 and §21.1 to §21.3. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names it. It carries the release target's standing statement that SWBPIPE computes mechanics and evaluates the user's rule packs and does not certify, approve or establish code compliance, and it supports criterion 13, whose documentation states the same.
 
-- **OUT-001** — The code-neutral analysis boundary: the analysis status vocabulary, the authority model, and the boundary record that separates the mechanics solve, the user-rule check and human acceptance.
+- **OUT-001** — The code-neutral analysis boundary: the authority model and the boundary record that separates the mechanics solve, the user-rule check and human acceptance.
 
 ## Deliverable Definition — Ontology
 
 **Terms the boundary implements.**
 
-- *Analysis status vocabulary.* Seven statuses, each with one authority (`docs/TYPES.md` §4):
-
-  | Status | Meaning | Authority |
-  |---|---|---|
-  | `MODEL_INCOMPLETE` | Physical data required for solving is missing | Software finding |
-  | `MECHANICS_SOLVED` | The numerical mechanics solve completed | Solver result only |
-  | `RULE_INPUTS_INCOMPLETE` | Mechanics may be solved, but values the rule pack requires are missing | Rule-pack finding |
-  | `USER_RULE_CHECKED` | The user's rule pack evaluated the result | Software computation using user data |
-  | `USER_RULE_FAILED` | The user's rule pack produced a failing result | Software computation using user data |
-  | `HUMAN_REVIEW_REQUIRED` | The result needs competent engineering review before reliance | Always true for professional use |
-  | `HUMAN_APPROVED_FOR_PROJECT` | A person has recorded project-specific acceptance outside the solver | Human record only |
-
-- *Automatic status.* A status the software may emit: the first six. `HUMAN_APPROVED_FOR_PROJECT` is never one, and there is no status for code compliance, certification, sealing, approval or authentication.
+- *Analysis status vocabulary.* The seven statuses DEL-05-04 defines, each with the meaning and authority it gives them (`docs/TYPES.md` §4). The boundary record carries them and adds none.
+- *Automatic status.* One of the six statuses software may emit, as DEL-05-04 defines them. `HUMAN_APPROVED_FOR_PROJECT` is never one, and there is no status for code compliance, certification, sealing, approval or authentication.
 - *Authority model.* Three authorities, declared on every boundary record: the mechanics solve is a solver result only; the user-rule check is a software computation using user data; human acceptance is an external record bound by hash to the evidence reviewed.
 - *Boundary record.* One record for one analysis subject, with a part for each authority: the mechanics solve (status, result reference, evidence hashes); the user-rule check (status, the user's rule-pack reference, evaluation reference, evidence hashes); the missing inputs; the diagnostics; references to human acceptance records; and the professional-boundary statement, whose claim fields are fixed false. `schemas/analysis_boundary.schema.yaml` describes it.
 - *Rule-pack reference.* The identity of the user's rule pack: its id, version, checksum, source notice, redistribution status and provenance. Rule content is not part of it.
@@ -51,7 +40,7 @@ It serves SOW-002 under OBJ-001 and OBJ-011 (`execution/_Decomposition/SOFTWARE_
 
 **Undecided.** Where a human acceptance record is stored, and how one is marked stale when the content it binds changes, are not decided. Whether a surface carries one status per authority, as the boundary record does, or a set of statuses for the subject, as the status envelope does, is not decided.
 
-**Boundary.** This deliverable defines the authorities and the boundary record, and the boundary record carries the vocabulary of `docs/TYPES.md` §4. The status envelope is DEL-05-04's; each emitter (DEL-04-07, DEL-06-03, PKG-06, PKG-08) decides when its own statuses are emitted; the display form and wording of a status are DEL-01-04's. DEL-05-04 also states the vocabulary and the meaning of each status; which of the two scopes owns that statement is not settled. The solver's own status and diagnostics are DEL-04-06's and DEL-04-07's; rule evaluation is PKG-06's; reports are PKG-08's. The claims a product text may make are DEL-01-04's. It is independent of the solver library, the rule expression grammar, the API transport and the project container: it names none and changes with none. It implements no solving, no rule evaluation, no views and no acceptance workflow.
+**Boundary.** This deliverable defines the authorities and the boundary record. The status vocabulary, the meaning of each status and the status envelope are DEL-05-04's, and the boundary record carries that vocabulary; each emitter (DEL-04-07, DEL-06-03, PKG-06, PKG-08) decides when its own statuses are emitted; the display form and wording of a status are DEL-01-04's. The solver's own status and diagnostics are DEL-04-06's and DEL-04-07's; rule evaluation is PKG-06's; reports are PKG-08's. The claims a product text may make are DEL-01-04's. It is independent of the solver library, the rule expression grammar, the API transport and the project container: it names none and changes with none. It implements no solving, no rule evaluation, no views and no acceptance workflow.
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -61,7 +50,7 @@ A status says what a named authority established. A boundary record establishes 
 
 Requirement numbers are those of the earlier `DEL-02-03-Rnn` series.
 
-- **REQ-001** — The status vocabulary is exactly the seven statuses of the table above.
+- **REQ-001** — The boundary record's status vocabulary is exactly the seven statuses DEL-05-04 defines.
 - **REQ-002** — There is no automatic code-compliance status, and no status, field or text of the boundary claims certification, sealing, approval, authentication or code compliance for reliance (PRD §21.2).
 - **REQ-003** — The mechanics part of a record states that the solver's output is a mechanics result only.
 - **REQ-004** — A user-rule check requires the user's own rule-pack reference. The public model bundles no proprietary or protected code content.
@@ -72,7 +61,7 @@ Requirement numbers are those of the earlier `DEL-02-03-Rnn` series.
 - **REQ-009** — The boundary record's public schema is JSON Schema 2020-12.
 - **REQ-010** — Every adapter, plugin, API or schema surface that can read or write an analysis status goes through validation, diagnostics and the data-boundary controls. There is no unvalidated path that writes a status (also cited as DEL-02-03:1).
 - **REQ-011** — The boundary model selects no solver library, rule expression grammar, API transport or project container.
-- **REQ-012** — `USER_RULE_FAILED` means an evaluated user-defined rule failed, and `USER_RULE_CHECKED` means the user-rule evaluation completed with no blocking missing input.
+- **REQ-012** — The user-rule part of a record holds `USER_RULE_FAILED` only where an evaluated user-defined rule failed and `USER_RULE_CHECKED` only where the user-rule evaluation completed with no blocking missing input, the meanings DEL-05-04 gives them.
 
 ### Acceptance criteria
 

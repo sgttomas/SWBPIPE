@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The embedded agent's W9-A journey in the real app window (RT-E1 D4).
 
-DEL-16-06 `Work/agent-journey-scenario.md`. Launch a native-smoke build of the
+DEL-16-06: launch a native-smoke build of the
 app (a private copy whose bundle holds the pinned stock supplier) with
 `apps/desktop/native-smoke/agent-journey.js` on stdin. The driver works the
 window as a person would and clicks Batch review's own Apply as a

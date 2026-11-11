@@ -1,7 +1,7 @@
 # F1 modal references: continuum (class b), mesh convergence and inertia-risk witnesses
 
 Frozen, independently derived expectations for DEL-04-09, F1 modal analysis
-([design](../../../../execution/PKG-04/DEL-04-09/Work/modal-analysis.md) §2.2,
+([scope](../../../../execution/PKG-04/DEL-04-09/ScopeOfWork.md); modal design §2.2,
 §2.6, §3.3, §3.4 check 4, §4.1–§4.3; AC-003, AC-004). They give:
 
 - closed-form continuum frequencies for beams, rods, lumped controls, a

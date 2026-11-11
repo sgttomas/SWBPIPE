@@ -1,6 +1,6 @@
 //! The proposed projection-size bound B_doc of Design §5.3.8 ("Projection
 //! size: a proposed bound from format and input lengths",
-//! `execution/PKG-04/DEL-04-09/Work/modal-analysis.md`), computed reader-side
+//! DEL-04-09), computed reader-side
 //! from each committed document and asserted against its canonical length.
 //!
 //! This is a transcription of the Design's numbers, not of `document.rs`: the

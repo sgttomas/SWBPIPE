@@ -97,20 +97,23 @@ needs:
 - from: DEL-10-02
   when: Showing the adapter-framework review panel
   condition: >-
-    The adapter framework validates an adapter's declaration and privacy standing and returns its
-    findings.
+    The adapter framework judges an adapter's declaration against its declaration contract and
+    returns an accepted, refused or quarantined outcome with findings that carry code, severity,
+    path, message and remediation, and an operation result validates against that contract.
   gating: true
 - from: DEL-10-03
   when: Showing the local-FEA handoff panel
   condition: >-
-    The local-FEA handoff data contract defines the record handed off, with its units, identities
-    and unsupported-behaviour entries.
+    The local-FEA handoff contract is a schema a complete package validates against and a package
+    lacking a part is refused; the package builder gives a package whose declared result unit equals
+    the unit of every result row it refers to, names each omitted row in a diagnostic, and states
+    that no conversion was performed.
   gating: true
 - from: DEL-10-05
   when: Showing the headless-runner review panel
   condition: >-
-    The headless runner reads and writes structured records with stated schemas, which a panel can
-    show without running it.
+    A request and a result of the headless runner each validate against the runner contract, so that
+    a panel can show such a record without running the runner.
   gating: true
 - from: DEL-09-04
   when: Showing validation evidence
@@ -138,6 +141,9 @@ code_paths:
 # handoffPackageSave.ts and HandoffSaveDialog.tsx are DEL-15-03's save request.
 - apps/desktop/src/features/handoff/**
 - apps/desktop/src/features/headless-runner/**
+# LocalFeaHandoffPanel.tsx is also listed by DEL-10-03: the package builder and its unit rule in it
+# (buildLocalFeaHandoffPacket, referencedResultUnits, localFeaHandoffRefusal) are DEL-10-03's, and
+# the view is this deliverable's.
 - apps/desktop/src/features/local-fea-handoff/**
 # The export and import dialogs. mbfExportCancel.ts, mbfExportSession.ts, mbfImportCancel.ts and
 # mbfImportSession.ts are also listed by DEL-17-04, which owns the native commands they drive.

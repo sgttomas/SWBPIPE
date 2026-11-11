@@ -27,7 +27,8 @@ needs:
   gating: true
 - from: DEL-01-01
   condition: >-
-    The project's licence is MIT and its text is the repository's licence file.
+    The project's licence is MIT and its text is the repository's licence file, and the release
+    policy names the five release disclosures a public release carries.
   gating: true
 code_paths:
 # The build: root workspace manifest, desktop build configuration, the WebAssembly engine build,

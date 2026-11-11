@@ -20,9 +20,10 @@ needs:
   gating: true
 - from: DEL-12-05
   condition: >-
-    The threat model lists an overclaim of compliance, approval or certification and private data
-    leaving through the embedded agent beyond the provider the user configured, and names for each
-    threat the control it expects and the deliverable or policy that owns it.
+    The threat inventory includes an overclaim of compliance, approval or certification, and private
+    data or a credential leaving through the embedded agent beyond the provider the user configured;
+    every threat has its controls or open decisions, and each control named is one the product has,
+    one a named deliverable's scope commits to, or one a project policy states.
   gating: false
 # A reference module that builds rationale records and scans them for prohibited claims; the
 # product does not call it.

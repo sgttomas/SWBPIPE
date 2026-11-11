@@ -1,7 +1,7 @@
 // The embedded agent's workspace snapshot publishes the model hash only for the model
 // revision it was computed for. It once compared two different revision counters, so in
 // the real app Start always refused with "Open a model and wait for its fingerprint"
-// (first exposed by the RT-E1 webview journey; DEL-16-06 `Work/agent-live-session.md`).
+// (first exposed by the RT-E1 webview journey; DEL-16-06).
 // Start refuses with AGENT-WORKSPACE-NOT-READY exactly when the snapshot publishes no
 // hash. Past that check, Start goes on to the native host, which jsdom lacks; that later
 // failure is not the refusal under test.

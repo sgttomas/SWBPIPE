@@ -15,13 +15,16 @@ needs:
 - from: DEL-12-02
   when: A package is written to a file
   condition: >-
-    Every governed route returns its controlled export before anything is exposed, and when the
-    export is blocked no output file is written.
+    Every sink through which the product exposes project-derived content is reached only through a
+    catalogued route's wrapper; every route returns its controlled export before exposure, and when
+    the export is blocked no output file is written.
   gating: true
 - from: DEL-15-04
   condition: >-
-    The external-prover boundary identifies text that states an authority claim (certification,
-    approval, code compliance) so that a package can refuse it.
+    The authority-wording screen is one check shared by the handoff and export records that need it,
+    and finds wording of approval, certification, sealing, authentication, compliance, external
+    validation, acceptance or prover status in a string, a list or a nested record, whatever its
+    letter case.
   gating: false
 # The native package's own code. No desktop, API or command-line entry is part of this deliverable:
 # the desktop panel that presents a native package, apps/desktop/src/features/native-package/**,

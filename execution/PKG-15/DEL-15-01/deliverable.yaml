@@ -68,6 +68,9 @@ code_paths:
 - fixtures/handoff/retired_0_8_0_witness.swbhandoff/**
 - fixtures/handoff/verifier_parity_cases.json
 - fixtures/handoff/canonical_text_vectors.json
+# The independent verifier of handoff packages, which imports no product code. DEL-04-08 lists
+# tests/verifiers/** by glob for its own verifiers; this file is this deliverable's.
+- tests/verifiers/handoff_package.py
 # The product's own implementation of this contract's verification rules (verify_handoff_package and
 # manifest_binding_findings) lives in DEL-15-03's files, apps/desktop/src-tauri/src/handoff_package.rs
 # and handoff_package_publish.rs, beside the save that uses it. This deliverable states the rules and

@@ -1,6 +1,6 @@
 //! RT-U4 C1 residual U1: a bounded diagnostic measurement of the SQLite
 //! memory on the native Save Project's write path that the per-command
-//! ledger does not price (DEL-04-05 `Work/c1-u1-sqlite-measurement.md`).
+//! ledger does not price (DEL-04-05).
 //!
 //! Evidence only. Nothing here charges, limits or configures anything: no
 //! heap limit, no `sqlite3_config`, no change to the App. Both tests are

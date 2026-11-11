@@ -61,9 +61,15 @@ needs:
 - from: DEL-17-02
   when: Round-tripping a project through the portable package
   condition: >-
-    The package and manifest contracts define the members of the portable package and the hash the
-    manifest gives for each.
+    A package lists every member it emits, and a hash recorded for a JSON member or a manifest is
+    computed on the project's canonical JSON hash basis.
   gating: true
+- from: DEL-13-04
+  when: Examining the round trip of a physical model through the persistence envelope
+  condition: >-
+    Every committed document in the transform reference format validates against that format, and
+    the transform derives an analytical model from a physical one.
+  gating: false
 code_paths:
 # The persistence envelope, its contract document and the headless persistence service.
 - schemas/project_persistence.schema.yaml

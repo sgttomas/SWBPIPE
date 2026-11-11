@@ -10,8 +10,8 @@ metadata:
 **Status:** companion to `docs/RELEASE_TARGET_v1.0.md`, for exit criterion 3:
 "Every remaining refusal of a capability these criteria require is listed in the
 release limitations and accepted by the owner." This is the single list. Each entry is drafted by the
-lane that owns the refusal and links to the deliverable `Work/` text that
-explains it. An entry records a refusal and its reason. It does not accept
+lane that owns the refusal and names the deliverable that
+governs it. An entry records a refusal and its reason. It does not accept
 it: acceptance is the owner's act (F-PIP-3, release target "Reserved to the owner"), recorded in
 the entry's status only when the owner gives it. The release notes'
 "Known Limitations And Open Risks" section (`docs/RELEASE_NOTES_TEMPLATE.md`)
@@ -27,7 +27,7 @@ Each entry is one subsection:
 - **What is refused:** in the user's terms.
 - **Why:** the engineering or source reason, in one or two sentences.
 - **What the user does instead:** the supported alternative, if any.
-- **Basis:** the deliverable and `Work/` section that governs it.
+- **Basis:** the deliverable that governs it.
 - **Status:** `owner's acceptance pending` until the owner rules; then the
   owner's words and date. A refusal later removed by a landed row is marked
   `withdrawn` with the PR, not deleted.
@@ -55,9 +55,8 @@ the entry, and the entry names the PR.
 - **What the user does instead:** after applying the agent's components, realize
   each bend with Insert bend at corner and enter k, the SIFs and their source in
   the component inspector, then let the agent continue.
-- **Basis:** DEL-16-06 `Work/embedded-agent-host.md`, "Catalog version 4" and
-  "Author routes and the trust boundary"; DEL-16-03
-  `Work/operation-authorship.md`. Made standing by PR #27 (catalog v4) with
+- **Basis:** DEL-16-06 (catalog version 4; author routes and the trust
+  boundary); DEL-16-03 (operation authorship). Made standing by PR #27 (catalog v4) with
   the applier refusal from PR #23.
 - **Status:** owner's acceptance pending.
 
@@ -70,5 +69,5 @@ the entry, and the entry names the PR.
 - **What is refused:** a pressure junction, meaning a node where two or more pressure regions of one load case end, where any of those regions declares its terminal at the node `separately_supported_or_compensated`.
 - **Why:** the junction's pressure load is the sum of its terminals' caps. A compensated terminal would remove its member's share from the pipe solve, so the fitting's load would be analysed incomplete without notice.
 - **What the user does instead:** declare `transfers_to_wall` at every terminal of the node. Where a branch's thrust really is carried by a separate device, model that device as a connector or support. A compensated terminal at a region's own closure, away from any junction, is admitted.
-- **Basis:** DEL-04-07 [`Work/pressure-contract.md`](../execution/PKG-04/DEL-04-07/Work/pressure-contract.md), "Tees and pressure junctions (RT-A3 increment 1)"; made standing by RT-A3 increment 1 (PR #45).
+- **Basis:** DEL-04-07 [scope](../execution/PKG-04/DEL-04-07/ScopeOfWork.md), tees and pressure junctions (RT-A3 increment 1); made standing by RT-A3 increment 1 (PR #45).
 - **Status:** owner's acceptance pending.

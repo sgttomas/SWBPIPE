@@ -1,5 +1,5 @@
-//! F1 modal analysis, product side (DEL-04-09 Design
-//! `execution/PKG-04/DEL-04-09/Work/modal-analysis.md`), increment I2a: the
+//! F1 modal analysis, product side
+//! (DEL-04-09), increment I2a: the
 //! modal request and its refusals (§1.4), the state case's post-lowering
 //! binding (Agent 0 decision D-L), the preparation that mirrors the static
 //! entry's pre-formation sequence, the mass on the self-weight basis (§2.2 to

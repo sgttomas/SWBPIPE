@@ -684,7 +684,7 @@ fn inclined_coupled(px: f64) -> (NonlinearFrameSolveInput, AssembledForce) {
     (input, force)
 }
 
-/// RT-A3 P step 4 (DEL-04-07 `Work/rt-a3-p-scale-repair.md` §3): in sparse
+/// RT-A3 P step 4 (DEL-04-07 design §3): in sparse
 /// mode the coupling solves moved from dense Cholesky to the skyline LDL, so
 /// φ⁰'s bits may move. The move stays inside the published bound: with the
 /// old and the new coupling the loop reaches the same states in the same

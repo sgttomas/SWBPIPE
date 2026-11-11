@@ -1,5 +1,5 @@
-//! RT-A3 S6 on the full reference system (DEL-09-01 `Work/reference-system.md`
-//! §5, §6 and §10; DEL-04-07 `Work/route-unification-r4.md` §3.7): the actual
+//! RT-A3 S6 on the full reference system (DEL-09-01
+//! design §5, §6 and §10; DEL-04-07 design §3.7): the actual
 //! maintained topology, fittings, spring and support families and cases
 //! RS-SUS, RS-OPE and RS-SAM with RS-EXP and RS-dSAM, solved through PP's
 //! public entry and read by the RE reader, with every family the exact route

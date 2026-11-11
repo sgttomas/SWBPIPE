@@ -1,4 +1,4 @@
-//! Publication, slice 1d-α (DEL-04-11 `Work/hanger-sizing.md` §8.3): the
+//! Publication, slice 1d-α (DEL-04-11 design §8.3): the
 //! headless pipeline's documents and refusals, the reader's standings over the
 //! committed corpus (`fixtures/results/hanger_sizing_*.json`), the schema's
 //! fixed members against the crate's, and the existing readers' actual handling

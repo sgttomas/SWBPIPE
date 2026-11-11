@@ -7,11 +7,11 @@ needs:
     wrong dimension, so that every quantity in a document, the node-proximity tolerance included,
     can be checked against it.
   gating: true
-- from: DEL-02-03
+- from: DEL-05-04
   condition: >-
-    The analysis status vocabulary names the automatic statuses, keeps human acceptance outside
-    them and has no status that asserts code compliance, so that the status labels a document
-    carries assert none.
+    The status schema admits exactly the six automatic statuses as software output, human
+    acceptance exists only as a separate record, and no status is named for compliance,
+    certification or approval, so that the status labels a document carries assert none.
   gating: true
 - from: DEL-16-06
   condition: >-
@@ -40,17 +40,22 @@ needs:
 - from: DEL-05-01
   when: Examining a document whose cases use operating conditions
   condition: >-
-    A load case's use of operating conditions resolves, before validation, into the per-case
-    records the solve consumes, and a missing set, condition or value refuses the case by name.
+    A case's condition use resolves, before validation, into ordinary loads of the case; a
+    document whose cases use conditions solves as the document with those loads authored; and a
+    case that names a missing set, condition or value is refused by name.
   gating: true
 - from: DEL-03-07
   when: Examining the warning for a quarantined disposition
   condition: >-
-    The library import quarantines a record whose redistribution status says protected content is
-    suspected or whose review status is quarantined.
+    A library, record or value whose redistribution status says protected content is suspected, or
+    whose review status is quarantined, is quarantined by the library import.
   gating: true
 code_paths:
 # The format: the schema, the load-reference schema, and the typed members the product reads.
+# In schemas/model.schema.yaml the typed, closed Component record is this deliverable's; the
+# members of the bend, branch, rigid and expansion-joint families in it, with the
+# curved_bend_macro_element consumption value, the eccentric offset and the objective_connector
+# definition, are DEL-03-03's to DEL-03-06's, which list the file too.
 - schemas/model.schema.yaml
 - schemas/load_reference_state.schema.json
 - core/product_physics/src/model_fields.rs

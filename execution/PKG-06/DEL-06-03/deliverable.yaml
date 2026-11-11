@@ -86,8 +86,7 @@ needs:
     slot states its value with its unit.
   gating: true
 code_paths:
-# DEL-05-04 also lists this module's source for the status vocabulary it mirrors; the checker and
-# its findings are this deliverable's.
+# The checker and its findings; no other deliverable lists this module.
 - core/rules/completeness_checker/**
 # The run. Its bounded entry and interval tests are listed under DEL-06-02, where the question
 # they answer is recorded as undecided.

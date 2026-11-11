@@ -54,8 +54,8 @@ needs:
     identified for each basis.
   gating: true
 - from: DEL-05-01
-  condition: A load case flagged as a hydrostatic test condition carries that flag in the model and in
-    the result's load-case records.
+  condition: A load case that declares the hydrostatic test condition is marked as a test case in the model
+    and in the published result.
   gating: true
 - from: DEL-02-01
   condition: The model document gives nodes, pipes, components, materials, sections, supports, loads and

@@ -92,7 +92,7 @@ SYNTHETIC_BASES_INPUTS = {
     'fixtures/canonical_hash/cases.json',
 }
 
-# The reference-system fixture check (DEL-09-01 Work/reference-system.md): its generator and files, its frozen
+# The reference-system fixture check (DEL-09-01): its generator and files, its frozen
 # references (validation/references/reference_system/), and the product inputs its EX solve and self-weight capture
 # read: the runner and its path dependencies (prefixes and exact files). Full runs include it through BROAD.
 REFERENCE_SYSTEM_TEST = 'tests/test_reference_system_fixture.py'

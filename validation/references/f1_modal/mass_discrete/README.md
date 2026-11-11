@@ -1,9 +1,9 @@
 # F1 modal references: mass model and class (a) discrete eigen references
 
 Frozen, independently derived expectations for DEL-04-09 (F1 modal analysis):
-the mass model of
-[Design §2](../../../../execution/PKG-04/DEL-04-09/Work/modal-analysis.md)
-(AC-001), and the class (a) formulation-matched discrete eigen references of
+the mass model of Design §2
+([DEL-04-09](../../../../execution/PKG-04/DEL-04-09/ScopeOfWork.md),
+AC-001), and the class (a) formulation-matched discrete eigen references of
 Design §4.1 (AC-003). No product code exists yet that consumes them.
 
 **Status: references with a refutation record.** They were derived and

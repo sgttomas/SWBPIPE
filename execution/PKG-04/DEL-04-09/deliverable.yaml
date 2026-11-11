@@ -26,8 +26,9 @@ needs:
 - from: DEL-04-04
   condition: >-
     The classifier gives each nonlinear support's final state in a solved case and defines how each
-    state enters the system; an active one-way or lift-off support, a closed gap and sticking
-    friction are rigid constraints, and an inactive, open or sliding support is free.
+    state enters the system: an active one-way or lift-off support, a closed gap and sticking
+    friction are the rigid restraint on the support's degree of freedom, an inactive or open
+    support is free, and a sliding support is free in its tangential degree of freedom.
   gating: true
 - from: DEL-02-01
   when: Before a model containing a snubber is admitted.
@@ -44,8 +45,9 @@ needs:
   gating: true
 - from: DEL-04-06
   condition: >-
-    An unrestrained or mechanism model is detected and refused by name, with the diagnostic naming
-    what is unrestrained, before any eigen-solve.
+    A model with no support, a part with no support and a mechanism are each detected and named by
+    a blocking diagnostic that locates the unrestrained degree of freedom, and no result is
+    published for them (DEL-04-06 AC-001).
   gating: true
 - from: DEL-04-07
   condition: >-
@@ -58,11 +60,16 @@ needs:
   gating: true
 - from: DEL-05-01
   condition: >-
-    Self-weight defines the mass per length of each member on each route and which components'
-    weights it applies, can be inspected on the intact model without clearing, adding or renaming a
-    case, records the acceleration of each applied component-weight primitive, and resolves the
-    contents density of a named load case, where the case resolves one, into the mass per length
-    self-weight uses.
+    Self-weight names the mass basis of each route, gives each pipe's load per length as its mass
+    per length on that basis times the stated gravity, applies a mapped rigid-family component's
+    own weight in place of its pipe's distributed weight, and is generated and inspected without
+    changing anything in the model (DEL-05-01 REQ-015, AC-002).
+  gating: true
+- from: DEL-05-01
+  when: Where the mass model reads a state case's contents density or a component weight's acceleration.
+  condition: >-
+    Self-weight resolves the contents density of a named load case into the mass per length it
+    uses, and records the acceleration of each applied component-weight primitive.
   gating: true
 - from: DEL-03-05
   condition: >-
@@ -92,6 +99,17 @@ needs:
   condition: >-
     The performance harness times a benchmark in an exclusive window with its build named and
     reports a timing profile.
+  gating: false
+- from: DEL-07-05
+  condition: >-
+    A results table states its units, the published frame of each row, the limitations of the route
+    that produced it and the result's standing, which the modes table follows.
+  gating: false
+- from: DEL-08-01
+  condition: >-
+    A section contributed by another deliverable enters a report only through the assembled section
+    model: under a governed section, with registered boundary wording and no claim of its own, and
+    passing the report's gates (DEL-08-01 REQ-020). The modal analysis section is such a section.
   gating: false
 - from: DEL-10-05
   when: Before a modal request can be run headless.

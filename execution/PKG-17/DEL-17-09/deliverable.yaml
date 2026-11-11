@@ -19,8 +19,10 @@ needs:
   gating: true
 - from: DEL-10-01
   condition: >-
-    The public API boundary denies permissions by default and admits undecided as the only grant
-    state, and names no transport, endpoint, runtime, loader or granted permission.
+    In the public API boundary every permission is denied by default, no permission can be in a
+    granted state, how a grant is given and persists is recorded as undecided, and neither the
+    contract nor its document names a transport, an endpoint, a runtime, a loader or a granted
+    permission.
   gating: true
 - from: DEL-10-02
   condition: >-
@@ -31,13 +33,16 @@ needs:
 - from: DEL-12-02
   when: A registry is written to a file
   condition: >-
-    Every governed route returns its controlled export before anything is exposed, and when the
-    export is blocked no output file is written.
+    Every sink through which the product exposes project-derived content is reached only through a
+    catalogued route's wrapper; every route returns its controlled export before exposure, and when
+    the export is blocked no output file is written.
   gating: true
 - from: DEL-15-04
   condition: >-
-    The external-prover boundary identifies text that states an authority claim (certification,
-    approval, code compliance) so that a record can refuse it.
+    The authority-wording screen is one check shared by the handoff and export records that need it,
+    and finds wording of approval, certification, sealing, authentication, compliance, external
+    validation, acceptance or prover status in a string, a list or a nested record, whatever its
+    letter case.
   gating: false
 # The Python registry builder, the schema and the invented template and fixture. The desktop panel
 # apps/desktop/src/features/export-adapter-sdk/ExportAdapterSdkPanel.tsx is DEL-07-12's and

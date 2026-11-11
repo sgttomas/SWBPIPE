@@ -22,10 +22,11 @@ needs:
   gating: true
 - from: DEL-04-03
   condition: >-
-    The linear support model's restraint partition and spring assembly accept a restraint or
-    spring that is present only in a dynamic stiffness: axis restraints, the nullspace basis for a
-    rigid skew restraint, and the rank-one term k·d·dᵀ/(dᵀd) for a finite skew stiffness, admitted
-    exactly where the static path admits skew.
+    The linear support model defines a restraint on a global axis, a skewed rigid restraint
+    enforced exactly (dᵀu = 0, never by a penalty stiffness) and a skewed spring as the rank-one
+    term k·d·dᵀ/(dᵀd); it admits a snubber's authored direction as it admits a support's, and
+    refuses by name each skewed case it cannot represent exactly or attribute uniquely
+    (DEL-04-03 REQ-010, AC-004).
   gating: true
 - from: DEL-04-07
   condition: >-
@@ -59,13 +60,15 @@ needs:
   gating: false
 - from: DEL-07-05
   condition: >-
-    The results viewer defines how a results table states its units, its limitations and its claims,
-    which the spectrum results view follows.
+    A results table states its units, the published frame of each row, the limitations of the route
+    that produced it and the result's standing, which the spectrum results table follows.
   gating: false
 - from: DEL-08-01
   condition: >-
-    The report generator defines a report section's structure and claims contract, which the
-    response-spectrum section follows.
+    A section contributed by another deliverable enters a report only through the assembled section
+    model: under a governed section, with registered boundary wording and no claim of its own, and
+    passing the report's gates (DEL-08-01 REQ-020). The response-spectrum section is such a
+    section.
   gating: false
 - from: external:nrc-nureg-cr
   when: If a published response-spectrum problem is compared.

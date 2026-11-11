@@ -21,9 +21,9 @@ needs:
 - from: DEL-13-03
   when: Showing constraint findings
   condition: >-
-    The constraint engine evaluates a model against its constraints and returns each violation,
-    unresolved input and warning as a finding with the governed diagnostic fields and the entities
-    concerned.
+    The constraint engine evaluates a model against its constraints and returns each violation and
+    each missing-data finding as a finding with the fields of the diagnostic contract, a class of
+    the constraint format and the entities it concerns, in a stable order.
   gating: true
 - from: DEL-14-01
   condition: >-
@@ -127,8 +127,10 @@ code_paths:
 - apps/desktop/src/features/diff-preview/**
 - apps/desktop/src/features/operations/**
 - apps/desktop/src/features/toolkit/BatchReviewPanel.tsx
-# Proposal review. The offline intake folder is shared with DEL-16-01 and DEL-16-04, which own the
-# proposal's form and controls.
+# Proposal review. In the offline intake folder OfflineProposalIntakePanel.tsx and index.ts are also
+# listed by DEL-16-01, which owns reading a file as a batch; review of the queued proposal is this
+# deliverable's and the author stamp is DEL-16-03's. workflowSupport.ts there is support shared with
+# DEL-07-03's hanger selection, self-weight authoring and library apply.
 - apps/desktop/src/features/agent-proposals/**
 - apps/desktop/src/features/offline-proposal-intake/**
 # Shared with DEL-07-07, DEL-07-11 and DEL-14-04, each for the calls it makes.
@@ -137,6 +139,9 @@ code_paths:
 # test. No criterion of this scope covers either.
 - apps/desktop/src/features/design-workspace/**
 - core/gui/design_workspace/**
+# The boundary helper the GUI reference modules of DEL-07-03, DEL-07-04, DEL-07-05, DEL-07-07 and
+# DEL-07-08 import; each lists it.
+- core/gui/pkg02_boundary.py
 checks:
 - apps/desktop/src/App.test.tsx
 - apps/desktop/src/features/workspace/exactCurrentPanels.test.tsx

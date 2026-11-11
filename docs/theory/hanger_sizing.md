@@ -13,9 +13,9 @@ metadata:
 This note explains how SWBPIPE sizes variable spring hangers and constant-effort
 supports from the user's own hanger catalogue. It covers the inputs, the method,
 its assumptions and its limitations. It is written from the implemented engine
-(`core/analysis/hanger_sizing`) and its governing design
-(`execution/PKG-04/DEL-04-11/Work/hanger-sizing.md`); where the two are cited, the
-design governs and the code follows it.
+(`core/analysis/hanger_sizing`) and its governing scope
+(`execution/PKG-04/DEL-04-11/ScopeOfWork.md`); where the two are cited, the
+scope governs and the code follows it.
 
 Every rule below is a mechanics or arithmetic statement written for SWBPIPE. No
 supplier catalogue, supplier selection procedure or standards text is used, and
@@ -332,7 +332,6 @@ solution in `tests/derived_solves.rs`.
 
 ## Source notes
 
-- Governing design: `execution/PKG-04/DEL-04-11/Work/hanger-sizing.md`.
 - Commitments: `execution/PKG-04/DEL-04-11/ScopeOfWork.md`.
 - Implementation:
   - `core/analysis/hanger_sizing/src/lib.rs` (arithmetic);

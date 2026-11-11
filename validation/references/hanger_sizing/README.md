@@ -2,7 +2,7 @@
 
 Independent reference values for DEL-04-11 hanger sizing.
 
-- **Basis:** `execution/PKG-04/DEL-04-11/Work/hanger-sizing.md` §4.2 (one origin,
+- **Basis:** the DEL-04-11 hanger-sizing design, §4.2 (one origin,
   the installed position), §6 (loads, variation, travel and allowance, fit tests,
   family policy and selection) and §7 (the verification pass). It covers R-3
   (the arithmetic, the fit tests and both selection rules), R-3b (refusal when

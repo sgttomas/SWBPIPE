@@ -32,11 +32,10 @@ needs:
   when: Comparing the calculator with the product's adapter.
 - from: DEL-09-02
   condition: >-
-    The calculation witness for the section-property case evaluates the closed-form area, section
-    modulus and torsion constant of a circular annulus for stated invented dimensions, with their
-    units, and imports and runs no product code.
+    A calculation witness evaluates its closed forms without product code, and its committed
+    renderings equal what is generated from it.
   gating: false
-  when: Examining the calculator against closed-form annulus values.
+  when: Examining the calculator against the witness's closed-form area, section modulus and torsion constant of a circular annulus.
 code_paths:
 - core/section_properties/**
 # The product's own annulus algebra (core/product_physics/src/annulus_geometry.rs and

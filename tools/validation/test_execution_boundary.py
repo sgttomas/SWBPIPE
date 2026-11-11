@@ -103,9 +103,9 @@ EXEC_PROBES = {
 def test_python_execution_edges_are_rejected_even_in_document_readers(tmp_path, name):
     repo = Repo(tmp_path)
     repo.write("tools/probe.py", EXEC_PROBES[name])
-    repo.write("tools/validation/test_hanger_sizing_design.py", EXEC_PROBES[name])  # a declared reader gains nothing
+    repo.write("tools/release/check_release_readiness.py", EXEC_PROBES[name])  # a declared reader gains nothing
     found = repo.findings()
-    assert {("exec", "tools/probe.py"), ("exec", "tools/validation/test_hanger_sizing_design.py")} <= found
+    assert {("exec", "tools/probe.py"), ("exec", "tools/release/check_release_readiness.py")} <= found
     assert {kind for kind, _ in found} <= {"exec", "read"}
 
 
@@ -201,8 +201,8 @@ def test_unpacked_mapping_defaults_reaching_execution_are_rejected(tmp_path, met
     probe = ('import runpy\nfrom pathlib import Path\npaths = {}\n'
              f'arguments = ("entry", {default})\n{sink}\n')
     repo.write("tools/probe.py", probe)
-    repo.write("tools/validation/test_hanger_sizing_design.py", probe)
-    assert {("exec", "tools/probe.py"), ("exec", "tools/validation/test_hanger_sizing_design.py")} <= repo.findings()
+    repo.write("tools/release/check_release_readiness.py", probe)
+    assert {("exec", "tools/probe.py"), ("exec", "tools/release/check_release_readiness.py")} <= repo.findings()
 
 
 @pytest.mark.parametrize("method", ["get", "pop"])
@@ -247,7 +247,7 @@ def test_product_reads_need_a_declared_document_reader_and_unknown_uses_are_expo
     repo = Repo(tmp_path)
     read = 'from pathlib import Path\nSPEC = Path("execution/PKG-01/x.md")\ntext = SPEC.read_text()\n'
     repo.write("tools/product.py", read)
-    repo.write("tools/validation/test_reference_system_ledger.py", read)
+    repo.write("tools/release/check_release_readiness.py", read)
     repo.write("tools/git_reader.py", 'import subprocess\nsubprocess.run(["git", "show", "HEAD:execution/PKG-01/x.md"])\n')
     repo.write("tools/unknown.py", 'import helper\nhelper.consume("execution/PKG-01/x.md")\n')
     assert repo.findings() == {("read", "tools/product.py"), ("read", "tools/git_reader.py"),

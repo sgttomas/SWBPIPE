@@ -33,8 +33,8 @@ It serves SOW-034 and SOW-064 under OBJ-011 and OBJ-018 (`execution/_Decompositi
 
 **Boundary.** PRD §21 states the professional boundary; this deliverable keeps no separate policy document that restates it. It supplies the words. The following use them and belong elsewhere:
 
-- the status tokens and their schema: DEL-02-03;
-- the desktop's table of status labels: DEL-05-04;
+- the status tokens, their schema and the desktop's table of status labels: DEL-05-04;
+- the boundary record that states who produced each status and on what evidence: DEL-02-03;
 - emitting the notice in a report: DEL-08-01;
 - linting a report for prohibited claims: DEL-08-05;
 - the user guide's statement that SWBPIPE does not determine code compliance: DEL-11-01;
@@ -105,7 +105,7 @@ The policy is wording. It is adequate when an author of any product surface can 
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-034 OBJ-011 | REQ-002 REQ-013 | AC-001 | VER-001 | Owner ruling: DEC-102 gives the labels and their rules. The token set is read from `docs/TYPES.md` §4, which is DEL-02-03's vocabulary, not from the registry |
+| OUT-001 | SOW-034 OBJ-011 | REQ-002 REQ-013 | AC-001 | VER-001 | Owner ruling: DEC-102 gives the labels and their rules. The token set is read from `docs/TYPES.md` §4, which is DEL-05-04's vocabulary, not from the registry |
 | OUT-001 | SOW-034 OBJ-011 | REQ-001 REQ-006 REQ-007 | AC-002 | VER-003 | Owner ruling: PRD §21.2 lists the prohibited claims; the reviewer compares the wording with it |
 | OUT-002 | SOW-034 OBJ-011 | REQ-003 REQ-010 | AC-003 | VER-002 | Owner ruling: the notice text of PRD §19.3, read from the PRD and not from the template |
 | OUT-002 | SOW-034 OBJ-011 | REQ-003 | AC-004 | VER-003 | Owner ruling: `docs/CONTRACT.md` OPS-K-REPORT-1 lists the disclosures |

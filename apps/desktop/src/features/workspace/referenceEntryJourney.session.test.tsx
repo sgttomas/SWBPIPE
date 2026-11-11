@@ -1,6 +1,6 @@
 // The reference-entry journey (RT-G2/RT-G3; exit criterion 7 as context): the reference system
-// entered from a blank load/reference model, following DEL-09-01
-// `Work/reference-system-run-sheet.md` §2–§3.12 in order, through the desktop's own surfaces
+// entered from a blank load/reference model, following the
+// DEL-09-01 run sheet §2–§3.12 in order, through the desktop's own surfaces
 // (the units dialog, the pressure, material, section, component and support forms, the run
 // sheet's grid, the load manager with its fills and copies, the self-weight plan, batch review
 // and Review/Apply) and one workspace session running the real wasm operation engine. At the end

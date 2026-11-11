@@ -1,4 +1,4 @@
-// G7/G8 draft helpers (DEL-07-03 `Work/authoring-speed.md` §3). Invented ids.
+// G7/G8 draft helpers (DEL-07-03 design §3). Invented ids.
 import { describe, expect, it } from "vitest";
 import { addEverySource, copyAnalysisState, copyPressureRegions, ELEMENT_STATE_UNEDITED, fillFromTemplate, fillTargets, rederiveRegionId, SUPPORT_STATE_UNEDITED, supportStateCopyRefusal } from "./bulkFill";
 

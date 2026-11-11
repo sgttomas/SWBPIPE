@@ -1,7 +1,7 @@
 id: DEL-01-04
 name: Professional responsibility and product-claims policy
 needs:
-- from: DEL-02-03
+- from: DEL-05-04
   condition: >-
     The analysis-status vocabulary is the six automatic statuses (model incomplete, mechanics
     solved, rule inputs incomplete, user-rule checked, user-rule failed, human review required),

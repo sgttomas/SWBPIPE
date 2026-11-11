@@ -68,6 +68,12 @@ needs:
     The report linter returns suspected protected content in a report as a finding with the
     IP-boundary class, a severity and a review route.
   gating: true
+- from: DEL-08-01
+  when: Showing the state of a report flow after an IP-boundary finding
+  condition: >-
+    A report is blocked when the protected-content lint reports a blocking finding before or after
+    rendering, and a blocked report names its reasons and is not saved, printed or packaged.
+  gating: true
 - from: DEL-07-06
   condition: >-
     The accessibility baseline states the target for workspace controls: a keyboard alternative for
@@ -89,6 +95,9 @@ code_paths:
 - apps/desktop/src/features/missing-data/**
 # A reference module with its own contract test; the desktop does not call it.
 - core/gui/warnings/**
+# The boundary helper the GUI reference modules of DEL-07-03, DEL-07-04, DEL-07-05, DEL-07-07 and
+# DEL-07-08 import; each lists it.
+- core/gui/pkg02_boundary.py
 checks:
 - tests/test_missing_data_warning_ux.py
 - apps/desktop/src/features/rule-check/RuleCheckRunPanel.test.tsx

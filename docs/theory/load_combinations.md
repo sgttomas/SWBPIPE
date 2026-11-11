@@ -16,9 +16,7 @@ absolute sums and SRSS, and combinations whose operands are other combinations. 
 covers the inputs, the method, its assumptions and its limitations. It is written
 from the implemented kernel (`core/loads/load_case_algebra`), the two product
 routes (`core/product_physics`: `preview_physics.rs`, `exact_combinations.rs`,
-`combination_plan.rs`) and their governing designs (DEL-05-02 Work
-`absolute-sum-srss-combinations.md`, `exact-combinations.md` and
-`pf-nonlinear-operand-standing.md`); where they differ, the design governs.
+`combination_plan.rs`) and their governing scope (DEL-05-02); where they differ, the scope governs.
 
 Every rule is a mechanics or arithmetic statement written for SWBPIPE. No design
 code's combination rules, factors or acceptance limits are encoded or shipped. The
@@ -59,7 +57,7 @@ multisets (`difference_basis_derivation`). A reader with the model re-derives
 G-1 from the model; a reader without it re-derives the verdict from those two
 multisets, which checks the record's internal derivation, not that the record is
 true to the model: a coherent forgery cannot be authenticated without the model
-(DEL-05-02 Work `operating-case.md` §6). The
+(DEL-05-02 design §6). The
 label "expansion" and any code-range meaning belong to the user's rule pack.
 
 ## Method

@@ -1,5 +1,5 @@
-// Combination and combination-term deletes on the applier contract of #115 (DEL-05-02 Work
-// `absolute-sum-srss-combinations.md` §10.5; DEL-07-03 `Work/combination-editor.md`), through
+// Combination and combination-term deletes on the applier contract of #115 (DEL-05-02
+// design §10.5; DEL-07-03), through
 // the load manager and the real wasm operation engine. Each delete is built by the panel from
 // the stored record or term (historical display where the engine keeps it, canonical JSON
 // otherwise), checked by the engine before it is queued, and applied with

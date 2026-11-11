@@ -1,7 +1,7 @@
 # Held-status solve references (`minuend_final`)
 
-Frozen, independently derived expectations for DEL-05-02 Work
-[`operating-case.md`](../../../execution/PKG-05/DEL-05-02/Work/operating-case.md) §7.2 and §7.9
+Frozen, independently derived expectations for the operating case of
+[DEL-05-02](../../../execution/PKG-05/DEL-05-02/ScopeOfWork.md), design §7.2 and §7.9
 (H-1 to H-18, with H-1b, H-6b, H-14r, H-15a/b/c, H-16a/b and H-17c). They are read by the product
 tests of the held-status solve.
 

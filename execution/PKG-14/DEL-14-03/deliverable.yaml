@@ -35,6 +35,9 @@ code_paths:
 - apps/desktop/src/features/comparison/stateComparison.ts
 # The headless comparison.
 - core/comparison/model_state/engine.py
+# Only the two commands that admit and read a pair of saved states for a comparison are this
+# deliverable's; the file is DEL-14-01's.
+- apps/desktop/src-tauri/src/model_states.rs
 # The committed invented pairs both implementations are run on.
 - fixtures/comparison/model_state_comparison_golden.json
 checks:

@@ -54,9 +54,9 @@ needs:
   gating: true
 - from: DEL-07-11
   condition: >-
-    The workspace session holds the live model with its hash and revision, registers a batch in
-    the review queue unchangeably, takes an applied document as its current model, and keeps the
-    replaced document as one undo step.
+    The workspace session holds the working model with its hash and revision, registers a queued
+    batch unchanged, takes an applied document as the working model, and keeps the document it
+    replaced as one checkpoint that undo restores.
   gating: true
 - from: DEL-07-07
   condition: >-
@@ -72,8 +72,10 @@ needs:
   gating: true
 - from: DEL-07-08
   condition: >-
-    Batch review shows a registered batch's operations, preview, basis, declared assumptions and
-    attribution, and applies it only on the person's Apply.
+    The review queue shows a registered batch's operations, author, model basis and declared
+    assumptions equal to the batch as registered and the engine's validate-only preview, offers
+    Apply only once the batch is validated and the preview is shown, and passes the engine no
+    decision but the user's own Apply or Reject.
   gating: true
 - from: DEL-09-01
   condition: >-
@@ -96,6 +98,9 @@ code_paths:
 # the same subjects, is this deliverable's.
 - core/model_operations/operation_applier/**
 - fixtures/model_operations/contract_corpus/**
+# The published form of the outcome is schemas/operation_outcome.schema.json, which DEL-16-02 lists
+# for both modes; the members an application adds to it (the acceptance record, the hash applied to
+# and the resulting hash) are this deliverable's.
 # The desktop's routing adapters to the engine.
 - apps/desktop/src/services/operationService.ts
 - apps/desktop/src/services/operationBatchService.ts

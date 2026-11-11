@@ -45,9 +45,10 @@ needs:
   gating: true
 - from: DEL-03-02
   condition: >-
-    The section, component and hanger library formats define each record's members with unit,
-    dimension and provenance, define no default for a required value, and report a missing one as a
-    completeness finding with a diagnostic.
+    The section and component library formats define each record's members with unit, dimension and
+    provenance and report a required value a record lacks as a completeness finding with a
+    diagnostic; in the hanger format a document lacking a required member is invalid and an absent
+    optional value stays absent; and no format defines a default.
   gating: true
 - from: DEL-03-07
   when: Importing a private library
@@ -153,6 +154,9 @@ code_paths:
 # test. No criterion of this scope covers either.
 - apps/desktop/src/features/editor-contract/**
 - core/gui/editors/**
+# The boundary helper the GUI reference modules of DEL-07-03, DEL-07-04, DEL-07-05, DEL-07-07 and
+# DEL-07-08 import; each lists it.
+- core/gui/pkg02_boundary.py
 checks:
 - apps/desktop/src/features/rule-packs/RulePackManagerPanel.test.tsx
 - apps/desktop/src/features/rule-packs/CheckDefinitionsEditor.test.tsx

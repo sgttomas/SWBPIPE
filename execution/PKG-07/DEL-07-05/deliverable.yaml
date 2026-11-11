@@ -128,8 +128,14 @@ code_paths:
 - apps/desktop/e2e/result-overlays.spec.ts
 - apps/desktop/e2e/rotation-glyph/
 - apps/desktop/e2e/rotation-glyph.spec.ts
+# The numerical-health indicator's module in the operation engine's crate; the rest of that crate
+# is DEL-16-06's.
+- core/model_operations/operation_applier/src/numerical_health.rs
 # A reference module with its own contract test; the desktop does not call it.
 - core/gui/results_viewer/**
+# The boundary helper the GUI reference modules of DEL-07-03, DEL-07-04, DEL-07-05, DEL-07-07 and
+# DEL-07-08 import; each lists it.
+- core/gui/pkg02_boundary.py
 checks:
 - apps/desktop/src/features/results/ResultsPanel.test.tsx
 - apps/desktop/src/App.resultPaging.test.tsx

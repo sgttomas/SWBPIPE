@@ -1,4 +1,4 @@
-// G7/G8 (DEL-07-03 `Work/authoring-speed.md` §3; DEL-09-01 run sheet §3.8, §3.10, §3.11):
+// G7/G8 (DEL-07-03 design §3; DEL-09-01 run sheet §3.8, §3.10, §3.11):
 // the reference system's reference-configuration members, its three analysis states
 // and its copied pressure regions, entered with the fill and copy controls, then
 // queued and applied through the wasm operation engine, equal the fixture's.

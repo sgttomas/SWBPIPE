@@ -14,9 +14,10 @@ needs:
   gating: true
 - from: DEL-04-07
   condition: >-
-    The assembled iteration supplies each iterate's displacements and reactions at every nonlinear
-    support, measured from the support's ground, with the normal and tangential reactions of each
-    friction support, and ends in the reference states on the frozen nonlinear references.
+    The assembled nonlinear iteration assembles and solves each iterate, leaves the classification
+    of every iterate to this classifier, under the governed convergence tolerances and iteration
+    caps, and ends in the support states of the independent nonlinear references (DEL-04-07
+    CLM-002, AC-002).
   gating: true
 - from: DEL-04-06
   condition: >-
@@ -25,6 +26,15 @@ needs:
     no diagnostic, a warning-level non-convergence or a failure-level non-convergence, and
     provides a record stating that a tolerance policy is undecided.
   gating: true
+- from: DEL-09-03
+  when: Examining classification and convergence against the hand calculations
+  condition: >-
+    The nonlinear validation suite holds the hand calculations under
+    `validation/hand_calcs/nonlinear`, which import no product code, and the governed convergence
+    limits of each support class: no support changes state in the final iteration, within the
+    iteration cap, and a case may tighten a limit and never loosen one (DEL-09-03 REQ-007, AC-003,
+    AC-004).
+  gating: false
 code_paths:
 - core/solver/nonlinear_supports/**
 checks:

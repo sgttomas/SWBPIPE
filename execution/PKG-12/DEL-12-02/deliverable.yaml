@@ -30,9 +30,11 @@ needs:
   gating: true
 - from: DEL-08-01
   condition: >-
-    A report is rendered, previewed, saved, printed and packaged only from the controlled copy its
-    route returns, and a blocked report produces none of them. A user release is recorded in the
-    report and its package, bound to the model and result it covers, and stated in the notice.
+    Each report output (render and preview, HTML save, print, package save and user-released
+    package save) leaves the desktop by its governed route, and a blocked report is rendered only
+    with its blocking reasons and is not saved, printed or packaged. A user release is recorded in
+    that one report and its package and nowhere else, bound to the model hash and result identity,
+    and stated in the report's notice.
   gating: true
 - from: DEL-03-07
   condition: >-
@@ -65,6 +67,8 @@ code_paths:
 # The shared invented corpus and the input-reading sweeps.
 - fixtures/redaction_export_controls/**
 # The native disposition screens, shared with the saves that call them (DEL-08-01, DEL-15-01).
+# Which dispositions are blocked is what DEL-03-07 quarantines or rejects on import, so a change
+# to those outcomes changes this screen.
 - apps/desktop/src-tauri/src/export_disposition_screen.rs
 # Only the re-check of route evidence and the disposition screening are this deliverable's; the
 # package admission, its bindings and the save are DEL-08-01's.

@@ -1,7 +1,7 @@
 //! RT-A3 reducer increment 2b on the full reference system (DEL-09-01
-//! `Work/reference-system.md` §5 RS-R1; DEL-04-07 `pressure-contract.md`,
-//! "Eccentric reducer pressure step"; DEL-03-05 `eccentric-reducer-offset.md`
-//! §3.7 and `rigid-component-stiffness-scaling.md` §2.7, §3): the RS-R1
+//! design §5 RS-R1; DEL-04-07, the eccentric reducer pressure step;
+//! DEL-03-05, the eccentric reducer offset and rigid component
+//! stiffness scaling): the RS-R1
 //! connecting path through PP's public entry, with weight, pressure, the
 //! temperature modulus state, thermal eigenstrain and boundary motion together.
 //!

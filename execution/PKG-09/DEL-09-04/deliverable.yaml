@@ -4,8 +4,9 @@ needs:
 - from: DEL-09-01
   condition: >-
     Every mechanics benchmark case has its inputs, its independently derived expected values with
-    their derivation and its provenance record, and a run reports each expected value beside the
-    observed value with the solver version and the tolerance applied.
+    their derivation and its provenance record; a run reports each expected value beside the
+    observed value with units and the solver version; and every case is compared at the governed
+    tolerance of its reference class and at none looser.
   gating: true
   when: Generating the mechanics case pages and writing the element verification section.
 - from: DEL-09-02

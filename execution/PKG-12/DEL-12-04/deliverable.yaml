@@ -41,8 +41,9 @@ needs:
   gating: true
 - from: DEL-16-06
   condition: >-
-    The model-provider credential is held in the operating system's credential store and is never
-    written to a project, a report, a log or a diagnostic.
+    The model-provider key the person enters goes only to the operating system's keychain, and a
+    locked keychain or a missing key gives an explicit unavailable state with no file used in its
+    place.
   gating: true
 - from: DEL-00-06
   condition: >-

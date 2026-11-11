@@ -33,9 +33,9 @@ needs:
   gating: true
 - from: DEL-04-01
   condition: >-
-    The frame kernel assembles a two-node element's stiffness over its nodes' twelve degrees of
-    freedom into the global stiffness beside the other members and solves it deterministically in
-    the sparse and dense modes.
+    The frame kernel assembles the global stiffness of the frame system, the connector and tie-rod
+    elements among its members, and repeated runs of the same model, solver version and settings
+    are bit-identical in each of the sparse and dense modes.
   gating: true
 - from: DEL-04-07
   condition: >-

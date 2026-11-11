@@ -105,7 +105,23 @@ deliverables stay with this project's Agent 0, through a Library workflow.
 
 ## Work and verification
 
-`Work/` holds the current account: findings with their reasons, working artifacts and outputs. Revise it in place rather than appending history; never rewrite fidelity copies, frozen snapshots or accepted evidence. How the work went (approval quotes, review rounds, retries, run IDs, check results) belongs in the PR description, which states what changed, why, what was checked and what remains open. Cite SHAs or hashes only where they pin something a result relies on. State a fact once and link to it.
+There is the work, which is the code, and what expresses its goal, which is
+the scopes of work; the scope leads (the Library's
+`workflows/scope-of-work/WORKFLOW.md`, "What a scope says").
+
+Start with what you are trying to accomplish. Read the scopes you think
+relevant and what you find along the way. Plan. Implement and learn. Reconcile
+a scope only if the thing being made, or its description within the six parts,
+materially changed; correct an affected need in the same PR. Describe the
+change at a high level in the PR. The session ends there and discovery starts
+anew next session.
+
+If you conclude that a criterion is wrong, cannot be met or no longer serves
+its purpose, do not change it, weaken its check or build around it. Say what
+you found and what you would change. Decide it only within an explicit
+delegation; otherwise it goes to the owner. The other criteria stay in force.
+
+Never rewrite fidelity copies, frozen snapshots or accepted evidence. How the work went (approval quotes, review rounds, retries, run IDs, check results) belongs in the PR description, which states what changed, why, what was checked and what remains open. Cite SHAs or hashes only where they pin something a result relies on. State a fact once and link to it.
 
 - **What the repository keeps.** Produce the work and the minimum information
   needed to review, use or recover it. A record needs a concrete consumer,
@@ -123,7 +139,7 @@ deliverables stay with this project's Agent 0, through a Library workflow.
   owner asks to keep them. Before removal, check for wanted uncommitted work;
   remove worktrees with `git worktree remove` so Git's records stay consistent.
 
-Code that runs (implementation, tests, generators, harnesses) lives outside `execution/`, in the project's code locations, and deliverables link to it; `Work/` may keep documentation-only examples that are never run.
+Code that runs (implementation, tests, generators, harnesses) lives outside `execution/`, in the project's code locations, and deliverables link to it.
 
 Use focused checks for ordinary changes. Numerical meaning, persistence,
 permissions and destructive operations require targeted regression checks and
@@ -221,10 +237,9 @@ For implementation and closeout in this repository:
 ## Working locality
 
 Work at this repository root. Start from the affected
-`execution/PKG-nn/DEL-nn-nn/` and its ScopeOfWork, `Work/` and dependency
-conditions. Consult `docs/PRD.md` and its companions for requirements and
-interfaces involved in this slice, not as a compulsory census. References
-written before 2026-10-30 to a deliverable's `Design/` mean its `Work/`.
+`execution/PKG-nn/DEL-nn-nn/`: its `ScopeOfWork.md` and the dependency
+conditions in `deliverable.yaml`. Consult `docs/PRD.md` and its companions for
+requirements and interfaces involved in this slice, not as a compulsory census.
 
 From the repository root:
 
@@ -235,8 +250,8 @@ python3 -m tools.deliverables --project . neighborhood DEL-nn-nn
 `tools/deliverables/README.md` gives the other queries (`impact`, `touches`,
 `check`, `dag-diff`). Update needs only when their conditions change.
 
-Each implementation return must reconcile its affected `ScopeOfWork.md`,
-`Work/`, dependency conditions in `deliverable.yaml`. The implementation
+Each implementation return must reconcile its affected `ScopeOfWork.md` and
+dependency conditions in `deliverable.yaml`. The implementation
 manager owns this reconciliation: it carries the rule into every brief and
 names the affected deliverables, and TASKs report the effects of their slices.
 Update changed meaning in the same PR; leave unchanged declarations alone, and
@@ -250,7 +265,7 @@ a wrong output or block the goal.
 
 ## Build and verification
 
-**Windows development.** macOS is the release baseline and leads. The SWBPIPE Agent 0 owns shared code, schemas and design and decides changes to them; Windows work adds platform implementations at the native boundaries in `execution/PKG-10/DEL-10-04/Work/windows-port.md` and does not change shared behaviour without Agent 0's agreement. Where a Windows change overlaps macOS work, the macOS work integrates first and the Windows change merges main and regenerates generated files with their generators, never by hand. A Windows change must pass the macOS checks unchanged. Local host resources go to macOS work first; Windows evidence comes from hosted Windows runners. Coordinate through draft PRs that list the shared files they touch before editing; talk directly between sessions for timing, conflicts and the AC-004 measurement window; record agreed shared-design decisions by editing the governing text.
+**Windows development.** macOS is the release baseline and leads. The SWBPIPE Agent 0 owns shared code, schemas and design and decides changes to them; Windows work adds platform implementations at the native boundaries DEL-10-04 owns (`execution/PKG-10/DEL-10-04/ScopeOfWork.md`) and does not change shared behaviour without Agent 0's agreement. Where a Windows change overlaps macOS work, the macOS work integrates first and the Windows change merges main and regenerates generated files with their generators, never by hand. A Windows change must pass the macOS checks unchanged. Local host resources go to macOS work first; Windows evidence comes from hosted Windows runners. Coordinate through draft PRs that list the shared files they touch before editing; talk directly between sessions for timing, conflicts and the AC-004 measurement window; record agreed shared-design decisions by editing the governing text.
 
 Registered checks are in `software-workflow.json`. From the repository root,
 select by project-relative changed paths:

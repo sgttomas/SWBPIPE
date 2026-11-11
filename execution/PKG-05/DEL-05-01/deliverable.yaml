@@ -73,6 +73,13 @@ needs:
     generator that imports no product code.
   when: Examining the reference-system criteria
   gating: false
+- from: DEL-09-01
+  condition: >-
+    The mechanics benchmark suite holds the hand calculations under
+    `validation/hand_calcs/mechanics/`, each expected value with a derivation that imports, reads
+    and runs no product code and a provenance record (DEL-09-01 AC-005).
+  when: Examining the closed-form and generation criteria against the hand calculations
+  gating: false
 - from: DEL-16-06
   condition: >-
     A plan of structured operations reaches the model only on the person's acceptance, is applied
@@ -89,7 +96,8 @@ code_paths:
 # and its inspection are this deliverable's; the mass-per-length computation there is DEL-04-07's
 # section and mass adapter, on DEL-05-03's section bases. Static-equivalent generation, the
 # thermal load and the formed load primitives are in lib.rs and certified_loads.rs, which
-# DEL-05-05 also lists for the user loads formed there.
+# DEL-05-05 also lists for the user loads formed there. In lib.rs the constant-effort and
+# variable-spring classification, their loads and the not-consumed warning are DEL-04-03's.
 - core/product_physics/src/self_weight.rs
 - core/product_physics/src/operating_conditions.rs
 - core/product_physics/src/operating_conditions/**

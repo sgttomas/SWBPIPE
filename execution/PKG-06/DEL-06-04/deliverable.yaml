@@ -22,8 +22,8 @@ needs:
   gating: true
 - from: DEL-02-05
   condition: >-
-    The project store is one local store in the application's local data folder, opened and
-    migrated in one place, and persistence transmits nothing.
+    The project store is one local store in the application's local data folder, with its own
+    schema version, and persistence transmits nothing (DEL-02-05 REQ-013).
   gating: true
 - from: external:owner
   condition: >-

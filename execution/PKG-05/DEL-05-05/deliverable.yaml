@@ -37,6 +37,13 @@ needs:
     A diagnostic record has the fields code, class, severity, source, affected object, message,
     remediation and provenance.
   gating: false
+- from: DEL-09-01
+  condition: >-
+    The mechanics benchmark suite holds the hand calculations under
+    `validation/hand_calcs/mechanics/`, each expected value with a derivation that imports, reads
+    and runs no product code and a provenance record (DEL-09-01 AC-005).
+  when: Examining the criteria against the hand calculations
+  gating: false
 code_paths:
 # The user-load crate. The product solve does not link it; only the mechanics benchmark suite
 # (DEL-09-01) does. Whether it stays part of this deliverable is not decided (see the scope).
@@ -44,7 +51,8 @@ code_paths:
 # On the product route a user load is applied in the product solve crate, through DEL-05-01's
 # preparation and DEL-04-02's element: the nodal and uniform member loads and their formed load
 # primitives are in these two files, which DEL-05-01 lists for the loads it generates and
-# DEL-04-07 for their composition.
+# DEL-04-07 for their composition. In lib.rs the constant-effort and variable-spring
+# classification, their loads and the not-consumed warning are DEL-04-03's.
 - core/product_physics/src/lib.rs
 - core/product_physics/src/certified_loads.rs
 # The desktop's user-load vocabulary: which target, directions and dimension each kind takes. The

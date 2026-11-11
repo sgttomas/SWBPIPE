@@ -48,8 +48,6 @@ DOCUMENT_TESTS = {
     "docs/security/secret_private_library_handling.md": ["-m", "pytest", "--noconftest", "-q", "tests/security/test_secret_private_library_handling.py::test_changed_files_do_not_embed_disallowed_example_content"],
     "docs/architecture/plugin_boundary.md": ["tests/test_api_boundary_contract.py"],
     "docs/local_analysis/local_fea_handoff_guidance.md": ["tests/test_local_fea_handoff_contract.py"],
-    "execution/PKG-04/DEL-04-11/Work/hanger-sizing.md": ["-m", "pytest", "--noconftest", "-q", "tools/validation/test_hanger_sizing_design.py"],
-    "execution/PKG-09/DEL-09-01/Work/reference-system.md": ["-m", "pytest", "--noconftest", "-q", "tools/validation/test_reference_system_ledger.py"],
 }
 
 

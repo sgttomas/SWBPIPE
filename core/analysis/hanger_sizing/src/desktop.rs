@@ -1,4 +1,4 @@
-//! The native size-and-read entry (DEL-04-11 `Work/hanger-sizing.md` §8.3,
+//! The native size-and-read entry (DEL-04-11 design §8.3,
 //! increment 3c part 1): the crate API the desktop's capped worker process runs
 //! as its hanger-sizing task, whose reply the webview's display adapter
 //! (`apps/desktop/src/features/results/hangerSizingView.ts`) takes as the

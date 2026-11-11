@@ -167,6 +167,8 @@ code_paths:
 - core/reporting/result_export/tests/fixtures/load_reference*
 - fixtures/results/loadReference*.cases.json
 - fixtures/results/pressure_*_mechanics_*.json
+# The two globs below also match *.stress_neutral.json files. Those are packages DEL-17-06's
+# builders wrote and are that deliverable's; the reader's inputs here are the other matches.
 - fixtures/results/pressure_load_state_*.json
 - fixtures/results/pressure_source_load_state_*.json
 - fixtures/results/pressure_v3_arc_reader_corpus.json

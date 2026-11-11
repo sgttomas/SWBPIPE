@@ -4,9 +4,10 @@ needs:
 - from: DEL-05-03
   condition: >-
     Stress recovery returns the axial, bending and torsional stress components at a member's ends
-    and stations from its resultants and explicit section properties, the pressure-derived hoop
-    and longitudinal components where pressure is selected, and the range between two states, each
-    with its component name, sign convention and unit.
+    and stations from its resultants and explicit section properties, the pressure-derived hoop and
+    longitudinal components on a pressurized member, and a stress range as the component-wise
+    absolute difference of two recovered states, each under the stated sign convention and with its
+    unit.
   gating: true
   when: Recovering the stresses of a benchmark case.
 - from: DEL-04-02
@@ -30,8 +31,9 @@ needs:
   when: Solving the pressure-derived hoop and longitudinal cases.
 - from: DEL-08-04
   condition: >-
-    A result envelope carries each value with its unit and dimension, structured diagnostics and
-    the mechanics status, and the export validator refuses an envelope that lacks them.
+    A result export document carries each value with its unit and dimension, structured diagnostics
+    and the mechanics status, and the form check refuses, with a named diagnostic, a document that
+    fails the schema or lacks a unit, the diagnostics or a status.
   gating: true
   when: Validating the output of a suite run as a result envelope.
 - from: DEL-10-05

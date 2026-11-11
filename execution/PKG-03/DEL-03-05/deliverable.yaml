@@ -34,16 +34,15 @@ needs:
   gating: true
 - from: DEL-05-01
   condition: >-
-    Self-weight generation emits, for a selected member that is the body of a rigid-family
-    component with a weight and a centre of gravity, a nodal force along gravity and the nodal
-    moments of that force about the component's node, in place of the member's distributed
-    self-weight, and records which it did.
+    A self-weight plan gives a selected pipe that a rigid-family component maps the component's
+    own weight: the force W along gravity at the component's node and the moments r × F of that
+    force about the node, with the pipe's distributed weight omitted. The plan's evidence names
+    the component's weight, node and centre of gravity.
   gating: true
 - from: DEL-05-03
   condition: >-
-    Stress recovery publishes a member's stress rows on the section it was given, and the case's
-    stress maximum and headline are formed without the rows of a scaled component body, so that
-    those rows are published, marked and left out of both.
+    A stress row marked as a reference-section result of a scaled body is published and is
+    excluded from its basis's maximum and headline.
   gating: true
 - from: DEL-06-03
   condition: >-

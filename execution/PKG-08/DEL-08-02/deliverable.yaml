@@ -29,6 +29,9 @@ code_paths:
 - core/serialization/canonical_json/**
 - fixtures/canonical_hash/**
 - core/reporting/audit_manifest/**
+# The desktop's seam to the canonical JSON form and SHA-256, which every desktop hashing surface
+# calls.
+- apps/desktop/src/services/hashService.ts
 checks:
 - core/serialization/canonical_json/src/lib.rs
 - core/serialization/canonical_json/tests/checked_profile.rs

@@ -42,8 +42,9 @@ It serves SOW-041 and SOW-065 under OBJ-001, OBJ-012 and OBJ-014 (`execution/_De
 
 **Boundary.** This deliverable owns what a document may contain and whether a given document is well formed. It owns no meaning beyond that:
 
-- Physical validity, admission and what each solve input means belong to the solve (DEL-04-07) and to each member's owner: components (PKG-03), linear supports and direction (DEL-04-03), nonlinear supports (DEL-04-04), loads, condition resolution and the test condition (DEL-05-01), combinations (DEL-05-02), the load and reference state (DEL-05-05), modal data (DEL-04-09), snubbers and spectra (DEL-04-10), and the default node-proximity tolerance (DEL-04-06).
-- The unit catalog is DEL-02-02's. The version check, the project store and round-trip persistence are DEL-02-05's. The analysis status vocabulary is DEL-02-03's.
+- Physical validity, admission and what each solve input means belong to the solve (DEL-04-07) and to each member's owner: components (PKG-03), linear supports and direction (DEL-04-03), nonlinear supports (DEL-04-04), loads, condition resolution and the test condition (DEL-05-01), combinations (DEL-05-02), user loads (DEL-05-05), modal data (DEL-04-09), snubbers and spectra (DEL-04-10), and the default node-proximity tolerance (DEL-04-06).
+- No deliverable's scope states what the load and reference-state group means to a solve. This scope fixes only its shape.
+- The unit catalog is DEL-02-02's. The version check, the project store and round-trip persistence are DEL-02-05's. The analysis status vocabulary is DEL-05-04's.
 - The operation engine that applies changes is DEL-16-06's; this deliverable defines the change kinds that write its own model-data and model-settings members and operating-condition sets with their assignment and use. The desktop surfaces that edit them are DEL-07-02's.
 - Constraint evaluation, design-knowledge entry and candidate generation are PKG-13's and are not in v1.0. The physical-to-analytical transform and its own model shape are DEL-13-04's. State- and run-level assumptions, tags and notes are DEL-14-01's and DEL-14-02's.
 - It implements no numerical solving and no library population.

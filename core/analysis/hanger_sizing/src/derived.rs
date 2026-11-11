@@ -1,4 +1,4 @@
-//! The derived solves of hanger sizing (DEL-04-11 `Work/hanger-sizing.md` §2 to §5
+//! The derived solves of hanger sizing (DEL-04-11 design §2 to §5
 //! and §7). Each derived solve is a modified copy of the caller's solve request,
 //! `{model, materials}`, sent through the product's public JSON solve entry, the
 //! one the model's own cases use. The stored model is never changed, and nothing

@@ -43,8 +43,8 @@ needs:
 - from: DEL-16-03
   when: Applying queued changes as one batch
   condition: >-
-    An applied batch is recorded once, with one acceptance record, one receipt holding every
-    operation and each operation's author, whichever surface produced the batch.
+    An applied batch has exactly one decision record and one outcome record, whichever surface
+    produced the batch, and the outcome record holds every operation with its author.
   gating: true
 - from: DEL-04-03
   condition: >-
@@ -104,8 +104,8 @@ code_paths:
 - apps/desktop/src/features/workspace/sessionEvents.ts
 # The editing surfaces for the model-data members DEL-02-01 defines, constraints and equipment
 # interfaces as unevaluated records among them (ConstraintsPanel.tsx). In this folder
-# desktopEmission.golden.test.ts is DEL-02-01's, AssumptionsPanel.tsx is shared with DEL-13-01,
-# which owns the design-knowledge record it edits, and RulePackModelReferences.tsx is DEL-07-03's:
+# desktopEmission.golden.test.ts is DEL-02-01's, AssumptionsPanel.tsx edits the model document's
+# unresolved assumptions, a member DEL-02-01 defines, and RulePackModelReferences.tsx is DEL-07-03's:
 # the model's rule-pack references, shown in its rule-pack manager.
 - apps/desktop/src/features/model-data/**
 - apps/desktop/src/features/model-workspace/**

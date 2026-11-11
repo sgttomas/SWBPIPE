@@ -1,5 +1,5 @@
 //! The Rust product reader of a hanger-sizing result (DEL-04-11
-//! `Work/hanger-sizing.md` §8.3.7). It lives in this crate because a reader in
+//! design §8.3.7). It lives in this crate because a reader in
 //! `result_export` would form a dependency cycle through `product_physics` (§13).
 //!
 //! Each standing is reported as passed, failed (with the first difference) or

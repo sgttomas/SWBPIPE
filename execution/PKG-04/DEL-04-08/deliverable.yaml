@@ -25,9 +25,15 @@ needs:
   gating: true
 - from: DEL-05-05
   condition: >-
-    The distributed user-load contract defines a full-span uniform load on a straight member as its
-    consistent equivalent nodal load ((L/2)w at each end and moments of (L/12)(d x w)) and defines
-    the member's end and station recovery with the span terms.
+    A distributed user load over the whole span of a straight member enters the solve as the
+    member's work-consistent equivalent nodal loads in global axes, never as a lumped
+    approximation (DEL-05-05 REQ-007).
+  gating: true
+- from: DEL-04-02
+  condition: >-
+    The straight pipe element gives the equivalent nodal loads of a full-span uniform load as wL/2
+    and moments of wL²/12 at each end, and recovers end and station resultants that satisfy statics
+    with the loads between them (DEL-04-02 AC-002, AC-003).
   gating: true
 - from: DEL-05-03
   condition: >-
@@ -45,9 +51,11 @@ needs:
   gating: true
 - from: DEL-02-02
   condition: >-
-    The unit catalog gives each unit's conversion to the consistent basis with committed witness
-    values, so that the reader's raw and normalized projections and the test verifier agree with it
-    bit for bit.
+    The unit catalog gives each unit's conversion to the canonical unit as a record with its factor
+    or offset representation, converts deterministically, and each conversion agrees with the value
+    formed from the unit's public definition at its witness tolerance (DEL-02-02 REQ-006, REQ-007,
+    AC-001), so that the reader's raw and normalized projections and the test verifier can be held
+    to it.
   gating: true
 - from: DEL-08-02
   condition: >-
@@ -57,8 +65,9 @@ needs:
   gating: true
 - from: DEL-00-06
   condition: >-
-    The result schema admits typed notices and diagnostics bound to a case, with code, severity,
-    source and message, and no diagnostic may claim certification or compliance.
+    The diagnostic contract admits typed notices and diagnostics that name their affected object,
+    a case included, with code, severity, source and message, and no diagnostic claims
+    certification or compliance.
   gating: false
 - from: DEL-10-05
   condition: >-
@@ -75,6 +84,8 @@ code_paths:
 # the retained and exact-route identities (REQ-006) are this deliverable's.
 # tests/verifiers/** also holds the verifiers of DEL-03-05, DEL-04-09, DEL-04-11 and DEL-05-03,
 # each listed by its owner; the retained and base-reader verifiers there are this deliverable's.
+# section_basis.rs and tests/verifiers/section_basis.py are listed here for the reader they sit in
+# and by DEL-05-03 for the section-basis rederivation they carry.
 - core/product_physics/src/retained_*.rs
 - core/product_physics/src/retained_tests_hooks/**
 - core/product_physics/src/build_identity.rs
@@ -109,6 +120,8 @@ code_paths:
 - core/analysis_runs/rust_reader.py
 - tests/verifiers/**
 - tests/retained_precision_corpus.py
+- tests/test_retained_precision_*.py
+- tests/test_retained_pricing_tool.py
 - tests/base_reader_corpus.py
 - tests/test_u4b_retained_tau.py
 - tests/test_u4b_source_derived_not_qualified.py
