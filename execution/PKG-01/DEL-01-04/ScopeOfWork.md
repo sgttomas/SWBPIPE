@@ -24,7 +24,7 @@ It serves SOW-034 and SOW-064 under OBJ-011 and OBJ-018 (`execution/_Decompositi
 
 - *Permitted claim* and *prohibited claim.* The classes of PRD §21.1 and §21.2. The software may claim mechanics results computed from recorded inputs, user-rule checks computed from user-supplied rules and data, diagnostics, provenance and validation evidence for software behaviour. It may not claim or imply that it certifies, seals, approves or authenticates engineering work, declares code compliance for professional reliance, replaces the engineer of record or project-specific review, provides standards-body approval, or makes public example data suitable for project use.
 - *Authority domain.* Who a statement speaks for: the mechanics solve, the user-rule check, or human acceptance (`docs/SPEC.md` §4.3). A fourth marking, evidence status, says what evidence stands behind a result.
-- *Boundary statement.* A registered sentence with an identifier, one canonical text, any listed short variants, and the surfaces it belongs on and must not appear on. The statements in use are the content boundary (`BS-IP`), the validation posture (`BS-VALID`) and the numerical-health statement with its display forms (`NQ-HEALTH`). The acceptance sentence (`BS-ACCEPT`) is withdrawn from every product surface, emitted notice and project document, and the maturity sentence (`BS-MATURITY`) from every surface; nothing replaces either.
+- *Boundary statement.* A registered sentence with an identifier, one canonical text, any listed short variants, and the surfaces it belongs on and must not appear on. The statements in use are the content boundary (`BS-IP`), the validation posture (`BS-VALID`) and the numerical-health statement (`NQ-HEALTH`). The acceptance sentence (`BS-ACCEPT`) is withdrawn from every product surface, emitted notice and project document, and the maturity sentence (`BS-MATURITY`) from every surface; nothing replaces either.
 - *Display form.* The registered label of a status or evidence token. A label is shown with its authority domain, with its token reachable in place, and no label exists outside the registry's table. The forms of the user-rule statuses show an outcome as within or exceeding the user's limit, never as passed or failed, so that no outcome reads as compliance (`docs/RELEASE_TARGET_v1.0.md`, rule packs; PRD FR-RULE-003, §17.5); this includes the form of `USER_RULE_FAILED`.
 - *Evidence-status label.* `INTERNALLY_VERIFIED` for internal benchmark, regression or rule-check evidence; `PROVER_CORRELATED` for a recorded comparison with an external prover. `ENGINEER_ACCEPTED` is reserved for a future human acceptance record and has no display form.
 - *Required notice.* The notice of PRD §19.3, carried by every generated report.
@@ -65,7 +65,7 @@ The policy is wording. It is adequate when an author of any product surface can 
 - **REQ-010** — Product claims frame SWBPIPE as an analysis-grade piping design engine and stress-model authoring environment only with acceptance and professional judgment left to the responsible engineer. Design-authoring records, comparison outputs, handoff packages, export metadata and external-prover references are presented as review aids, not as validation or acceptance (SOW-064; OBJ-018; PRD §4.3, §5.1).
 - **REQ-011** — The registry is the single source of boundary language. A surface that needs boundary language uses a registered statement or a listed short variant word for word, one boundary per surface, and composes no prohibition list of its own.
 - **REQ-012** — The registry records each withdrawal with what it covers: the acceptance sentence on product surfaces, emitted notices and project documents, and the maturity sentence on every surface. A withdrawn statement has no replacement.
-- **REQ-013** — The registry holds the display-form table for the automatic statuses and the emitted evidence-status labels, with its three rules.
+- **REQ-013** — The registry holds the display-form table for the automatic statuses and the emitted evidence-status labels, with its rules.
 
 ### Acceptance criteria
 
@@ -86,7 +86,7 @@ The policy is wording. It is adequate when an author of any product surface can 
 - *A registry, not a policy essay.* The professional boundary is stated once, in PRD §21. This deliverable registers the words that carry it; it writes no second statement of the boundary.
 - *Entries a test can read.* Each statement is an entry under its own identifier with its canonical text, short variants and placement rules, and the display forms are one table, so that product code and tests can read them as a contract input.
 - *Label the result, not the product.* Evidence status attaches to an individual result, report or case. The product carries no global hedge.
-- *The notice is quoted, not paraphrased.* The template holds the PRD §19.3 text exactly, so that every report takes the notice from one source.
+- *The notice is quoted, not paraphrased.* The template holds the PRD §19.3 text exactly.
 
 **How each criterion is examined.**
 

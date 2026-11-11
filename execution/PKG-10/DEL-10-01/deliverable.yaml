@@ -40,10 +40,13 @@ needs:
     At each product boundary a quantity with an unknown unit or a unit of the wrong dimension is
     refused with a unit finding, and a missing unit is never accepted as dimensionless.
   gating: false
+- from: DEL-05-04
+  condition: >-
+    The analysis-status vocabulary is seven statuses of which a software surface may emit six.
+  gating: true
 - from: DEL-02-03
   condition: >-
-    The analysis-status vocabulary is seven statuses of which a software surface may emit six, and
-    human acceptance appears only as a reference with bound evidence.
+    Human acceptance appears only as a reference with bound evidence.
   gating: true
 - from: DEL-02-05
   when: Where an operation carries a model snapshot hash

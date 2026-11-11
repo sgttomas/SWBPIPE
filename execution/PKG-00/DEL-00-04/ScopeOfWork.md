@@ -92,6 +92,6 @@ It serves SOW-059 under OBJ-013 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 | OUT-001 | SOW-059 OBJ-013 | REQ-002 | AC-002 | VER-002 | The criterion states the expected result: for an older, a newer, a missing and a malformed version, a refusal that names the version and its status; the comparison is the document's bytes before and after the attempt |
 | OUT-001 | SOW-059 OBJ-013 | REQ-003 | AC-003 | VER-003 | Outside source: RFC 8785 and its test vectors, and SHA-256 (FIPS 180-4), computed without product code |
 | OUT-001 | SOW-059 OBJ-013 | REQ-004 | AC-004 | VER-001 | `docs/PRD.md` FR-MOD-001 states what must survive; the comparison is the authored input against the reopened document |
-| OUT-001 | SOW-059 OBJ-013 | REQ-005 | AC-005 | VER-004 | `docs/PRD.md` §5.4 and `docs/IP_AND_DATA_BOUNDARY.md` say what is private or protected; the protected-content scan and the reviewer's reading of the public schemas, fixtures and examples against them |
+| OUT-001 | SOW-059 OBJ-013 | REQ-005 | AC-005 | VER-004 | `docs/PRD.md` §5.4 and `docs/IP_AND_DATA_BOUNDARY.md`; protected-content scan and reviewer |
 | OUT-001 | SOW-059 OBJ-013 | REQ-006 | AC-006 | VER-004 | Decomposition AB-00-04 states the profile; the deletion and offline scenarios state what must happen |
-| OUT-001 | SOW-059 OBJ-013 | REQ-007 | AC-007 | VER-005 | The criterion states the rule; the comparison is each schema's change against its declared version, and the reviewer judges a change the check cannot classify |
+| OUT-001 | SOW-059 OBJ-013 | REQ-007 | AC-007 | VER-005 | Additive changes raise the minor version; the comparison is each schema's change against its declared version |

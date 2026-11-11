@@ -46,10 +46,9 @@ needs:
   gating: false
 - from: DEL-02-03
   condition: >-
-    The analysis status vocabulary states which statuses software may emit, among them three
-    user-rule statuses (rule inputs incomplete, user-rule checked, user-rule failed) and human
-    review required, with no automatic status for human approval, compliance or certification,
-    so the statuses a check may declare are drawn from those.
+    The analysis status vocabulary has three user-rule statuses (rule inputs incomplete, user-rule
+    checked, user-rule failed) and human review required, and no automatic status for compliance,
+    certification or approval, so the statuses a check may declare are a subset of it.
   gating: true
 code_paths:
 # The schema. Its expression definitions (the expression node, the expression quantity and the

@@ -40,7 +40,7 @@ The threat model is adequate when a reader who holds only the document can name,
 ### Requirements
 
 - **REQ-001** — The model identifies private project, code, rule-pack, material, component, report, diagnostic, plugin and import, and supply-chain assets, and marks each protected or private-sensitive where it is (OBJ-010; PRD §20.3).
-- **REQ-002** — The model keeps the local-first default and assumes no cloud operation (PRD §20.4; DEL-12-01/REQ-003).
+- **REQ-002** — The model keeps the local-first default and assumes no cloud operation unless one is approved as DEL-12-01/REQ-003 provides (PRD §20.4).
 - **REQ-003** — The telemetry threats assume telemetry disabled by default and opt-in if ever implemented, with no private engineering or code data transmitted without explicit user action (PRD §20.5).
 - **REQ-004** — The export, report, shared-model and bug-report threats include redaction and explicit warning controls for protected and private values (SOW-040; PRD §20.3).
 - **REQ-005** — The model requires that public report templates and examples reproduce no protected standards content, proprietary formula, protected table or private project data (`docs/CONTRACT.md` OPS-K-IP-1, OPS-K-REPORT-2).

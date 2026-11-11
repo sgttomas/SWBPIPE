@@ -83,7 +83,7 @@ It serves SOW-057 and SOW-062 under OBJ-013 (`execution/_Decomposition/SOFTWARE_
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-057 SOW-062 OBJ-013 | REQ-001 REQ-004 | AC-001 | VER-001 | Decomposition AB-00-02 and `docs/SPEC.md` §1 name the layers; the comparison is against the repository tree and manifests |
-| OUT-001 | SOW-057 OBJ-013 | REQ-004 | AC-004 | VER-001 | The reviewer's comparison of the map's layout statements with the repository tree and with the choices the owning deliverables have made; SOW-057 lets folder names change without a change of layer responsibility |
+| OUT-001 | SOW-057 OBJ-013 | REQ-004 | AC-004 | VER-001 | The reviewer's comparison of the map's layout statements with the repository tree and with the choices the owner or the owning deliverables have made; SOW-057 lets folder names change without a change of layer responsibility |
 | OUT-002 | SOW-057 SOW-062 OBJ-013 | REQ-002 | AC-002 | VER-002 | Decomposition AB-00-02 states the direction; the comparison is against the manifests and imports |
 | OUT-002 | SOW-062 OBJ-013 | REQ-003 | AC-003 | VER-002 | Decomposition AB-00-02 and `docs/SPEC.md` §1 state the rule; the comparison is each adapter and plugin module's placement and its writes to the model document, the store and report output |
-| OUT-002 | SOW-057 OBJ-013 | REQ-005 | AC-005 | VER-002 VER-003 | Decomposition AB-00-02; the seeded violations state what must fail, and the reviewer did not write the map. The formal review of REQ-005's evidence sufficiency is separate from these checks passing |
+| OUT-002 | SOW-057 OBJ-013 | REQ-005 | AC-005 | VER-002 VER-003 | Decomposition AB-00-02; the seeded violations state what must fail, and the reviewer did not write the map |

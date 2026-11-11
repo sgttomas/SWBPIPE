@@ -81,5 +81,5 @@ It serves SOW-060 under OBJ-013 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 | OUT-001 | SOW-060 OBJ-013 | REQ-001 | AC-001 | VER-001 | Decomposition AB-00-05; the criterion states the expected result, an unchanged hash and unchanged run records |
 | OUT-001 | SOW-060 OBJ-013 | REQ-002 | AC-002 | VER-002 | `docs/PRD.md` §5.3 and decomposition AB-00-05; the comparison is the model against the operation history |
 | OUT-001 | SOW-060 OBJ-013 | REQ-003 | AC-003 | VER-001 | `docs/PRD.md` FR-GUI-005; the criterion states the expected result, hash equality with the model before and after the edit |
-| OUT-001 | SOW-060 OBJ-013 | REQ-004 | AC-004 | VER-003 | Decomposition AB-00-05; the journey states what must be selected in the other two surfaces |
+| OUT-001 | SOW-060 OBJ-013 | REQ-004 | AC-004 | VER-003 | Decomposition AB-00-05 and the allocation of tree and inspector behaviour to DEL-07-02; the journey states what must be selected |
 | OUT-001 | SOW-060 OBJ-013 | REQ-005 | AC-005 | VER-003 | Decomposition AB-00-06 and `docs/SPEC.md` §8 name the six classes; the comparison is the class in the envelope |

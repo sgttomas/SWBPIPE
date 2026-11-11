@@ -29,7 +29,7 @@ It serves SOW-062 under OBJ-013 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - *Denied by default.* A plugin's or adapter's declaration grants nothing. A capability exists only by an explicit grant, and a grant never lifts a control.
 - *Boundary checks.* What an adapter establishes before data enters core workflows: units and dimensions, provenance, redistribution status, diagnostics for whatever is missing or wrong, and the public or private class of the data.
 - *Controls that are never bypassed.* Domain and schema validation, rule-pack sandboxing, result envelopes, and report boundary controls.
-- *Named format.* An import or export format that the decomposition, the release target or an owner ruling names. Those named are the project package (a multi-member archive, `.opsproj`), the native JSON export package, CAEPIPE MBF, the CAEPIPE result CSV, stress-neutral CSV and JSON, the conservative PCF subset, GLB/glTF review geometry, and CSV export of result tables.
+- *Named format.* An import or export format that the decomposition or the release target names, or that a recorded decision adds, made by the owner or within the delegation in force. Those named are the project package (a multi-member archive, `.opsproj`), the native JSON export package, CAEPIPE MBF, the CAEPIPE result CSV, stress-neutral CSV and JSON, the conservative PCF subset, GLB/glTF review geometry, and CSV export of result tables.
 
 **The five handoffs.**
 
@@ -43,7 +43,7 @@ It serves SOW-062 under OBJ-013 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 
 Automation reaches the product from outside through a local command-line runner: a single foreground process that takes a JSON request and returns JSON, with no daemon, network listener, telemetry or hidden write.
 
-**Boundary.** This deliverable defines the map and the obligations; it implements no API, plugin, importer, exporter or format. Its own file is the map. AC-002 and AC-003 are observed on the code of the deliverables below, and a shortfall is repaired there.
+**Boundary.** This deliverable defines the map and the obligations; it implements no API, plugin, importer, exporter or format. Its own file is the map. AC-002 and AC-003, and the correlation and idempotency part of AC-005, are observed on the code of the deliverables below, and a shortfall is repaired there.
 
 - DEL-10-01 owns the public API and plugin boundary contract; DEL-02-04 owns what an extension may touch in the domain.
 - DEL-10-02 owns the adapter framework; the deliverables of PKG-17 own each export format; DEL-10-03 owns the local FEA handoff contract; the deliverables of PKG-15 own the handoff package.
@@ -60,7 +60,7 @@ Automation reaches the product from outside through a local command-line runner:
 - **REQ-001** — The map says which boundaries are internal implementation contracts and which may become public extension APIs (decomposition AB-00-07).
 - **REQ-002** — Adapters validate units, provenance, redistribution status, diagnostics, and the private or public class of data before that data enters core workflows.
 - **REQ-003** — Plugins and adapters do not bypass domain validation, rule-pack sandboxing, result envelopes or report boundary controls (`docs/SPEC.md` §4.5).
-- **REQ-004** — An import or export format is part of the map only where the decomposition or an owner ruling names it. A choice no one has made is stated as undecided.
+- **REQ-004** — An import or export format is part of the map only where it is a named format. A choice no one has made is stated as undecided.
 - **REQ-005** — The obligations at the storage, report, private-library, local FEA and external-automation handoffs are defined, each as a check its owning boundary applies. The map selects no concrete format, target compatibility, runtime grant or validation outcome, and none is to be inferred from it; meeting the obligations is the work of the deliverables that own each boundary. One part has no owning criterion: no deliverable commits that correlation and idempotency are preserved at the external-automation handoff, so that part is examined here on the product until one does.
 
 ### Acceptance criteria
@@ -68,7 +68,7 @@ Automation reaches the product from outside through a local command-line runner:
 - **AC-001** — The map lists every seam between the layers and marks each internal or public. Every operation the public API contract exposes falls under a seam the map marks public, and nothing the map marks internal is exposed there.
 - **AC-002** — Data offered to any adapter with a missing or incompatible unit, missing provenance, unknown redistribution status or private content bound for a public destination is stopped at the adapter with a diagnostic that names the item, and none of it enters the model.
 - **AC-003** — No plugin or adapter can cause a model change, a rule evaluation, a result or a report that did not pass domain validation, the rule sandbox, a result envelope and the report controls. A declaration that requests a bypass, or a capability that has not been granted, is refused.
-- **AC-004** — The map and the public API contract name as an import or export format only one the decomposition, the release target or an owner ruling names, and no adapter is declared for any other. Each undecided format choice appears as one statement of what is undecided.
+- **AC-004** — The map and the public API contract name as an import or export format only a named format, and no adapter is declared for any other. Each undecided format choice appears as one statement of what is undecided.
 - **AC-005** — For each of the five handoffs the map names the owning boundary and its deliverable, and states what that boundary preserves and what it never does, as in the table above. No handoff obligation selects a concrete format, target compatibility, runtime grant or validation outcome. At the external-automation handoff the product preserves correlation and idempotency, as the table says.
 
 ## Production and Verification Method — Praxeology

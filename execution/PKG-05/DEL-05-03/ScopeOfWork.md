@@ -57,11 +57,11 @@ in that operation order, without fused multiply-add. κ_E is the energy-matched 
 
 **Boundary.** This deliverable defines stresses, sections and the shear selection. The following belong elsewhere:
 
-- the frame element's stiffness, which is formed from the shear definition above, and the kernel's integrity check: DEL-04-01. A change to the definition changes that element with it;
+- the frame element's stiffness, which is formed from the shear definition above, and the kernel's integrity check, with the definition of which recovery a case's stresses and maxima are formed from and the bound an established case's stresses carry through the resultants they scale (DEL-04-01/REQ-015): DEL-04-01. A change to the shear definition changes that element with it;
 - a member's end actions and station resultants, and the Timoshenko behaviour of member loads: DEL-04-02;
 - the area, second moment, section modulus and torsion constant of an annulus as formulas, and mass per length: DEL-03-08. The product's computation of them, the pressure loads, the solve and the publication of every row (DEL-04-07/REQ-010, DEL-04-07/AC-011): DEL-04-07;
 - the desktop's pressure authoring, whose code DEL-07-03 lists, and its model-settings editor, whose code DEL-02-01 lists, are where a document's shear selection is written. The default written there and the authoring clause of AC-004 remain this deliverable's;
-- a verified bound on a published stress: DEL-04-08. Ranges and combinations across load cases as published results: DEL-05-02;
+- a retained-precision or retained-source verified bound on a published stress: DEL-04-08. Ranges and combinations across load cases as published results: DEL-05-02;
 - the stress rows' place in the result and export formats: DEL-08-04. The stress benchmark suite: DEL-09-02. The local-analysis handoff: DEL-10-03;
 - stress-intensification and flexibility factors as component data: DEL-03-03, DEL-03-04. Pressure-dependent corrections of those factors are outside the product;
 - code stress equations, stress categories, allowables and the choice of a governing basis: the user's rule pack (PKG-06).
@@ -103,7 +103,7 @@ A recovered stress is a statement about the discrete model's forces and the sect
 
 **Method choices that define the module.**
 
-- Stresses are closed-form functions of the published actions and the section; nothing is fitted or interpolated between stations. A member's maximum is found from the polynomial stress field between stations, not by sampling more stations.
+- Stresses are closed-form functions of a member's actions and the section; nothing is fitted or interpolated between stations. Which recovery of the actions they are formed from, the certified recovery retained at precision or the fallback recovery from the published actions, is defined once, by DEL-04-01/REQ-015. A member's maximum is found from the polynomial stress field between stations, not by sampling more stations.
 - The exact route forms its three section geometries once per pipe and uses them by name; no later step forms a wall from the dimensions again.
 - A quantity a reader must reproduce is defined by its operation sequence, not by a formula and a tolerance.
 - The shear selection is per document, not per member.

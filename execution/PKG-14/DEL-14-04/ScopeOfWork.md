@@ -36,7 +36,7 @@ It serves SOW-073 and SOW-072 under OBJ-016 (`execution/_Decomposition/SOFTWARE_
 
 **Boundary.**
 
-- **CLM-001** — Run records, the received results they bind and their verified read are DEL-14-02's. What a result row means, and whether a result may be relied on numerically, come from its producers and the product reader (DEL-04-07, DEL-04-08), as the run record carries them.
+- **CLM-001** — Run records, the received results they bind and their verified read are DEL-14-02's. What a result row means, and whether a result may be relied on numerically, come from its producers (DEL-04-07) and the result readers (DEL-05-02 for an ordinary result, DEL-04-08 for a retained-precision or retained-source result), as the run record carries them.
 - **CLM-002** — Mapping records, tolerance profiles and the common comparison-result interface are DEL-14-05's. This deliverable owns the arithmetic of a delta and the execution of the comparison, and it defines no tolerance value. The unit catalog and its conversions are DEL-02-02's.
 - **CLM-003** — Comparing the entities of two model states is DEL-14-03's. The comparison view and the selection of two runs in the desktop are DEL-07-08's; the CSV file of the comparison table and the mapping of a comparison into the result export are DEL-08-04's; the comparison sections of a report are DEL-08-06's.
 - **CLM-004** — Outside the product: comprehensive ingestion of a commercial prover's results, external validation, and any statement that a run is acceptable.

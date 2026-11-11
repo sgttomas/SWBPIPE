@@ -54,7 +54,10 @@ needs:
     The frame kernel judges each solve against its intended system. For every load term the solve
     supplies as primitives it re-forms the term, and it gives the established recovery of straight
     members, arcs, connectors, tie rods and supports, including once on the converged state of a
-    nonlinear case; a formed term without primitives makes the check unavailable.
+    nonlinear case; a formed term without primitives makes the check unavailable. It defines which
+    recovery a published row and the stresses and maxima derived from it come from: the recovery
+    retained at the check's precision where the check passes, and the fallback recovery from the
+    published binary64 rows otherwise (DEL-04-01/REQ-015).
   gating: true
 - from: DEL-04-01
   when: Publishing the normal-stress maximum along a realized arc
@@ -145,10 +148,11 @@ needs:
 - from: DEL-05-03
   when: Publishing stress rows, member maxima and headlines
   condition: >-
-    The stress recovery gives member stresses and section quantities from published end and station
-    actions as fixed binary64 sequences, defines the nominal and reduced section bases on which
-    exact-route stresses are published, and defines the Timoshenko shear factor and the rule for
-    which members a model selects as Timoshenko.
+    The stress recovery defines member stresses as functions of a member's end and station actions
+    and its section, and section quantities as fixed binary64 sequences over the published rows,
+    defines the nominal and reduced section bases on which exact-route stresses are published, and
+    defines the Timoshenko shear factor and the rule for which members a model selects as
+    Timoshenko.
   gating: true
 - from: DEL-03-06
   when: Solving a model that contains an expansion joint

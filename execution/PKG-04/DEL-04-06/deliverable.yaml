@@ -58,7 +58,9 @@ needs:
     built model cannot represent, as an explicit, named diagnostic; refuses an incomplete, invalid
     or unsupported model on every entry with the same named diagnostic and affected object; and
     lets no entry reach the kernel past a primitive's validation (DEL-04-07/CLM-001,
-    DEL-04-07/AC-001).
+    DEL-04-07/AC-001). DEL-04-07 does not state that its checks before stiffness formation can be
+    run alone, without solving, in their fixed order, which DEL-04-06/REQ-013 relies on; that part
+    is not allocated.
   gating: true
 - from: DEL-07-07
   when: Running the on-demand model checks in the desktop

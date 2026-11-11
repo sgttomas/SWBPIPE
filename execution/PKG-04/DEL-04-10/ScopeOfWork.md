@@ -170,13 +170,13 @@ Every combined response is an unsigned magnitude.
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | OBJ-003 SOW-082 | REQ-001 | AC-001 | VER-001 | The criterion states the expected refusals, each named in REQ-001, and the absence of defaults (PRD §5.5) |
+| OUT-001 | OBJ-003 SOW-082 | REQ-001 | AC-001 | VER-001 | SOW-082 and PRD §5.5 (no defaults); each refusal is named in REQ-001 |
 | OUT-002 | OBJ-003 SOW-082 | REQ-002 REQ-003 REQ-004 CLM-001 | AC-002 | VER-002 | Outside source: closed-form and hand-calculation references in `validation/references/f2_spectrum`, whose generator imports no product code. Repeat-run identity is the product's own earlier output and only guards against change |
 | OUT-003 | OBJ-003 SOW-082 | REQ-005 | AC-003 | VER-003 | Outside source for the snubber response: closed-form references in `validation/references/f2_spectrum`. Unchanged static results are the product's own earlier output and only guard against change |
 | OUT-004 | OBJ-003 SOW-082 | REQ-006 | AC-004 | VER-004 | Outside source: a verifier that imports no producer code, recomputing from the recorded rules. The committed documents are the product's own earlier output and only guard against change |
-| OUT-005 | OBJ-003 SOW-082 | REQ-007 CLM-002 CLM-003 | AC-005 | VER-005 | The criterion states the expected refusals and disclosures, those REQ-007 names |
-| OUT-005 | OBJ-003 SOW-082 | REQ-008 | AC-006 | VER-006 | Outside source: references with an independent generator (release target exit criterion 2); the screening class is set before comparison under the release target's benchmark method; the verification tolerance is stated with its measured margin |
-| OUT-005 | OBJ-003 SOW-082 | REQ-009 | AC-007 | VER-007 | The criterion states the expected surfaces, with no pre-set spectrum or method (PRD §5.5) |
+| OUT-005 | OBJ-003 SOW-082 | REQ-007 CLM-002 CLM-003 | AC-005 | VER-005 | SOW-082; the refusals are those REQ-007 names |
+| OUT-005 | OBJ-003 SOW-082 | REQ-008 | AC-006 | VER-006 | Outside source: references with an independent generator (release target exit criterion 2); the screening class is set before comparison under the release target's benchmark method; the governed analytic tolerance for the verification tolerance |
+| OUT-005 | OBJ-003 SOW-082 | REQ-009 | AC-007 | VER-007 | Release target exit criterion 1 and PRD §5.5 |
 | OUT-005 | OBJ-003 SOW-082 | REQ-010 | AC-008 | VER-008 | Outside source: `docs/claims_registry.md` and PRD §21.2 |
 | OUT-006 | OBJ-003 SOW-082 | REQ-011 | AC-009 | VER-002 VER-005 | Where independent support motion is admitted, outside source: two-group closed-form references in `validation/references/f2_spectrum`, whose generator imports no product code; otherwise the criterion states the expected refusal |
 | OUT-005 | OBJ-003 SOW-082 | REQ-007 REQ-009 | AC-010 | VER-010 | Release target exit criterion 1 names the reference system. The method's correctness rests on AC-002; the reference system's values have no reference of their own |

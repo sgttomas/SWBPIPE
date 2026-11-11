@@ -8,8 +8,8 @@ needs:
   gating: true
 - from: DEL-00-06
   condition: >-
-    A diagnostic carries code, class, severity, source, affected object, message, remediation and
-    provenance, and a boundary may declare local classes.
+    A diagnostic carries code, class, severity, source, affected object, message and remediation,
+    and provenance where the finding concerns a sourced value, and a boundary may declare local classes.
   gating: true
 - from: DEL-15-01
   when: Examining AC-009 against an exported package's manifest

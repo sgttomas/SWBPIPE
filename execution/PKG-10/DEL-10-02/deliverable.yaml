@@ -47,7 +47,7 @@ needs:
     At each product boundary a quantity with an unknown unit or a unit of the wrong dimension is
     refused with a unit finding, and a missing unit is never accepted as dimensionless.
   gating: true
-- from: DEL-02-03
+- from: DEL-05-04
   condition: >-
     The analysis-status vocabulary is seven statuses of which a software surface may emit six, and
     no surface admits a compliance, certification, sealing or approval status as software output.
@@ -56,7 +56,7 @@ needs:
   when: An adapter imports a material, section or component library
   condition: >-
     The library import boundary returns accepted as public, accepted as private and local,
-    quarantined or rejected for a library, with a finding at the path of each fault.
+    review required, rejected or quarantined for a library, with a finding at the path of each fault.
   gating: true
 - from: DEL-12-01
   when: An adapter exports or imports private project, library or rule data

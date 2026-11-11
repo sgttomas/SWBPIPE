@@ -90,7 +90,7 @@ Requirement numbers 001 to 007 are those of the earlier `R-DEL-06-03-0nn` series
 
 **How each criterion is examined.**
 
-- **VER-001** — AC-001, AC-002 and AC-008, executable check: runs constructed packs with each defect of an input and with a blocking validation finding, and observes the outcome, the finding, the absence of an evaluated value and the mechanics status before and after.
+- **VER-001** — AC-001, AC-002 and AC-008, executable check: runs constructed packs with each defect of an input and with a blocking validation finding, and observes the outcome, the finding, the absence of an evaluated value where the defect blocks and the warning carried with the evaluated outcome where it does not, and the mechanics status before and after.
 - **VER-002** — AC-003, AC-004 and AC-009, executable check: runs packs on an invented two-case model with a combination and on solved results that hold refused rows, tie rods and held operands, and observes each outcome's basis, bound row and findings, on a rerun and with the rows reordered.
 - **VER-003** — AC-005 and AC-007, comparison with a named reference: outcomes and aggregates worked by hand from the four ordering relations and the units' public definitions on invented values.
 - **VER-004** — AC-006, executable check: runs a pack with a private-library input against a local library that holds the record, and against one that does not, and searches the pack document for the value.

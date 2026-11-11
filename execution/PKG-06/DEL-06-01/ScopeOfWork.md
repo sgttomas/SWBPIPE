@@ -74,7 +74,7 @@ Requirement numbers are those of the earlier `REQ-06-01-0nn` series.
 - **AC-008** — A pack classified as a public invented example validates only with the invented-example redistribution status, a completed protected-content review, an accepted review status and a source notice. A pack that claims a public classification with any other standing is rejected by a named finding.
 - **AC-009** — A formula declaration admits only declarative forms, its code-execution member can only be false, and a formula given as an expression tree must name the grammar.
 - **AC-010** — The schema text, its descriptions and its fixtures contain no protected standards text, table, formula or allowable and no proprietary or private value. Every fixture value is invented.
-- **AC-011** — The statuses a check can declare are analysis statuses that software may emit, and none is human approval. The format has no member or value that asserts approval, certification or code compliance, and a professional-boundary record that asserts one does not validate.
+- **AC-011** — The statuses a check can declare are rule inputs incomplete, user-rule checked, user-rule failed and human review required. The format has no member or value that asserts approval, certification or code compliance, and a professional-boundary record that asserts one does not validate.
 
 ## Production and Verification Method — Praxeology
 

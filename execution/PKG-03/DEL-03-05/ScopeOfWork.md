@@ -34,7 +34,7 @@ It serves SOW-009 under OBJ-004 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 
 **Boundary.** This scope states the family's definition and the criteria it meets. DEL-04-07 composes it into the product solve, admits it on each route, and owns the pressure step where a reducer changes the bore between pressure regions. DEL-05-01 generates self-weight loads, into which the component's weight enters as this definition states. DEL-05-03 owns stress recovery and the case's stress maximum and headline. DEL-02-01 owns the model document and DEL-03-02 the component library format. DEL-07-03 and DEL-07-02 own the creation and inspector forms. A directional stiffness set is an expansion joint's (DEL-03-06). Stepped-reducer element formulations are not provided (PRD §7).
 
-**Not decided.** How a component's orientation is given: whether it is the direction of the mapped member or a member the component declares. Which local modifiers a reducer carries and what each multiplies.
+**Not decided.** How a component's orientation is given: whether it is the direction of the mapped member or a member the component declares. Which local modifiers a reducer carries and what each multiplies. Which deliverable carries AC-011's statement into the report: DEL-08-01 states no such commitment and this scope declares no need on it.
 
 ## Completion and Reliance Basis — Epistemology
 

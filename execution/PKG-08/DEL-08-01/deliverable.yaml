@@ -37,8 +37,8 @@ needs:
   gating: true
 - from: DEL-01-04
   condition: The report notice template holds the PRD section 19.3 notice word for word with the disclosure
-    slots a report fills and the human acceptance block, and the claims registry gives one display form for
-    each automatic analysis status and the registered boundary statements.
+    slots a report fills, and the claims registry gives one display form for each automatic analysis status
+    and the registered boundary statements.
   gating: true
 - from: DEL-05-04
   condition: The analysis statuses keep mechanics solved, rule inputs incomplete, user-rule checked or failed

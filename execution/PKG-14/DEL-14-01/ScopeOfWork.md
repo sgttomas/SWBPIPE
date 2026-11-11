@@ -63,7 +63,7 @@ A state's hash establishes that the content read is the content saved. It says n
 - **REQ-012** — A stored state whose snapshot, record or identity no longer agrees with its recorded hashes is refused by name on every read and is never presented as a valid state. Source: SOW-071 (deterministic hashes); PRD §15.1.
 - **REQ-013** — A state's labels can be edited after it is saved without changing its identity, its snapshot or any hash of its record. Source: PRD FR-CMP-001, §16.3.
 - **REQ-014** — A state saved from a session that was opened from a saved state names that state as its parent. Source: PRD §15.1 (new states are created from existing states).
-- **REQ-015** — A saved state's domain truth is its canonical JSON snapshot and record, and the project store holds them as a projection that can be rebuilt from them. A project's saved states travel with the project in its portable package and come back from it with the same snapshots, records, labels and hashes. Source: SOW-071; decomposition AB-00-04.
+- **REQ-015** — A saved state's domain truth is its canonical JSON snapshot, record and labels, and the project store holds them as a projection that can be rebuilt from them. A project's saved states travel with the project in its portable package and come back from it with the same snapshots, records, labels and hashes. Source: SOW-071; decomposition AB-00-04.
 
 ### Acceptance criteria
 

@@ -47,7 +47,7 @@ It serves SOW-031 and SOW-049 under OBJ-009 (`execution/_Decomposition/SOFTWARE_
 
 - The external FEA formats a package may be written in, and which tools.
 - How global results map onto shell or solid boundary conditions for any particular solver.
-- Whether a package may carry result values converted to its declared units. Routine engineering unit conversion is permitted as a solution; a package that used it would need a witness for each converted value.
+- Whether a package may carry result values converted to its declared units. This contract converts nothing (REQ-013). Routine engineering unit conversion is open to the project as a resolution under the engineering-judgment delegation of `AGENTS.md`; a package that used it would need a change to REQ-013 and a witness for each converted value.
 
 ## Completion and Reliance Basis — Epistemology
 

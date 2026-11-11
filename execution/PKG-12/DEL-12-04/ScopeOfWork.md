@@ -47,7 +47,7 @@ It serves SOW-040 and SOW-029 under OBJ-010 (`execution/_Decomposition/SOFTWARE_
 - DEL-03-07 decides whether a library is admitted and what the local library store keeps. DEL-06-04 keeps a rule pack's identity, checksum and privacy standing. DEL-02-05 owns the store. This deliverable describes and guards references to what they hold; it stores no library.
 - DEL-12-01 owns where private libraries live. DEL-12-02 owns the redaction of values on an export route; this guard decides references, not values. DEL-12-03 owns the telemetry guard that rejects private-library and credential content.
 - DEL-16-06 owns the one credential the product holds, the model-provider key of the embedded agent, and its custody in the operating system's credential store. REQ-004 applies to it.
-- DEL-10-02 and DEL-00-07 own the adapter and plugin boundary and its grants. DEL-08-05's release scan and the real-secret check it runs, which is DEL-09-05's, own the search for real secrets in a release.
+- DEL-10-02 and DEL-00-07 own the adapter and plugin boundary and its grants. DEL-08-05 and the owner's release scan own the search for real secrets in a release.
 - This deliverable is not a secret store, an encryption scheme, a key-management scheme or an integration with an external secret manager, and it requires no cloud service.
 
 **Not decided.**

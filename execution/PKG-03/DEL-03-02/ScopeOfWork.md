@@ -30,7 +30,7 @@ It serves SOW-018 under OBJ-004 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 
 **Boundary.** These formats define documents. DEL-03-07 decides whether an imported library is accepted and applies the rules the formats leave to the import boundary, among them the refusal of a working load range in a 1.0.0 document and of a range whose ends differ in unit or whose minimum is not below its maximum. DEL-04-11 owns what the working load range means in sizing. DEL-03-03 to DEL-03-06 own what each component family means in a model and a solve. DEL-03-08 calculates section properties. DEL-07-03 owns the library editors and DEL-07-09 the palette coverage of them. No catalogue is bundled.
 
-**Not decided.** Which public sources are accepted for redistributable section and component values. Until one is, no example value is drawn from a public source: the examples' values are invented or omitted.
+**Not decided.** Which public sources are accepted for redistributable section and component values.
 
 ## Completion and Reliance Basis — Epistemology
 

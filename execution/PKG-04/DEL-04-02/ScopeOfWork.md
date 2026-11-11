@@ -100,7 +100,7 @@ It serves SOW-006 under OBJ-003 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 | OUT-001 | SOW-006 OBJ-003 | REQ-004 | AC-002 | VER-001 VER-002 | Outside source: fixed-end actions in closed form (wL/2 and ±wL²/12 for a full-span load), and `validation/references/w16_timoshenko_partial_wind`, whose values are not computed through the product's element |
 | OUT-001 | SOW-006 OBJ-003 | REQ-005 | AC-003 | VER-001 VER-002 | Outside source: statics in closed form |
 | OUT-001 | SOW-006 OBJ-003 | REQ-004 | AC-004 | VER-003 | The criterion states the expected value; PRD §5.5 requires that the element supply no load |
-| OUT-001 | SOW-006 OBJ-003 | REQ-003 REQ-007 | AC-005 | VER-003 | PRD §5.5 and §12.8 and `docs/CONTRACT.md` OPS-K-DATA-2 state the expected refusals. The refusal of a point force on a Timoshenko member follows from no governing requirement; whether it stays is undecided (Ontology) |
+| OUT-001 | SOW-006 OBJ-003 | REQ-003 REQ-007 | AC-005 | VER-003 | PRD §5.5 and §12.8 and `docs/CONTRACT.md` OPS-K-DATA-2 state the expected refusals. The refusal of a point force on a Timoshenko member rests on no ruling: it is undecided (Ontology) |
 | OUT-001 | SOW-006 OBJ-003 | REQ-008 | AC-006 | VER-003 | PRD §5.6 and `docs/CONTRACT.md` OPS-K-UNIT-1 state the expected refusal |
 | OUT-001 | SOW-006 OBJ-003 | REQ-007 | AC-007 | VER-004 | The reviewer's reading against PRD §21.2 and `docs/claims_registry.md` |
 | OUT-001 | SOW-006 OBJ-003 | REQ-006 | AC-008 | VER-003 | The product's own earlier output, which only guards against change |

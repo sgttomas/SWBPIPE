@@ -40,10 +40,11 @@ It serves SOW-072 under OBJ-016 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - Whether a modal result and a hanger-sizing result are recorded as analysis runs. DEL-04-09 and DEL-04-11 leave the same question open for their results.
 - How result payloads that are not JSON are partitioned for hashing.
 - Which members a project's recorded runs occupy in the portable package, and which deliverable's package writer and reader carry them there (REQ-018). DEL-14-01 states the same for saved states.
+- Where a record takes the solver's version and build reference from (REQ-003). DEL-04-07's published result does not state them, and DEL-08-02/REQ-012 does not list them in the input manifest.
 
 **Boundary.**
 
-- **CLM-001** — What a result means belongs to its producers: the solve and the published result to DEL-04-07, the stress rows to DEL-05-03, the ordinary result reader and its base semantic tables to DEL-05-02, verified bounds and the reader of retained-precision statements to DEL-04-08. This deliverable records a result's identity, standing and classification as the reader gives them and re-derives none of them.
+- **CLM-001** — What a result means belongs to its producers: the solve and the published result to DEL-04-07, the stress rows to DEL-05-03, the ordinary result reader and its base semantic tables to DEL-05-02, verified bounds and the reader of retained-precision and retained-source statements to DEL-04-08. This deliverable records a result's identity, standing and classification as the reader gives them and re-derives none of them.
 - **CLM-002** — Saved model states are DEL-14-01's. The canonical JSON form, the form of a hash record, the audit manifest and what an input manifest must list are DEL-08-02's. The project store is DEL-02-05's, the status vocabulary DEL-05-04's, the diagnostic record DEL-00-06's, and the local keeping and checksum of rule packs DEL-06-04's.
 - **CLM-003** — Comparing two runs is DEL-14-04's. Holding a result in the native process and showing it are DEL-07-07's and DEL-07-05's; recording a run from the History panel is DEL-07-08's interaction. The result export document is DEL-08-04's and the run sections of a report DEL-08-06's.
 - **CLM-004** — Outside the product: comprehensive ingestion of a commercial prover's outputs, external validation, and any record of professional acceptance.
@@ -71,7 +72,7 @@ A run record establishes which inputs and which build produced a result, and tha
 - **REQ-015** — A stored run whose record, received result, input manifest or state binding no longer agrees with its recorded hashes is refused by name on every read. Source: SOW-072 (result hashes).
 - **REQ-016** — A recorded run's labels, run-level assumptions among them, can be edited without changing its record, its hashes or its binding. Source: PRD FR-MOD-006.
 - **REQ-017** — A recorded run keeps its own format. It is listed, read and compared by its project's identity, and no model-document version check is applied to it, so the runs of a project whose model document is of a retired version remain reachable.
-- **REQ-018** — A recorded run's domain truth is its canonical JSON record with the received result and input manifest it binds, and the project store holds them as a projection that can be rebuilt from them. A project's recorded runs travel with the project in its portable package and come back from it with the same bytes, binding and hashes. Source: SOW-072; decomposition AB-00-04.
+- **REQ-018** — A recorded run's domain truth is its canonical JSON record with the received result and input manifest it binds, and its labels, and the project store holds them as a projection that can be rebuilt from them. A project's recorded runs travel with the project in its portable package and come back from it with the same bytes, labels, binding and hashes. Source: SOW-072; decomposition AB-00-04.
 
 ### Acceptance criteria
 

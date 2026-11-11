@@ -60,7 +60,7 @@ Requirement numbers 001 to 012 are those of the earlier `R-06-04-0nn` series.
 - **REQ-010** — A stored pack keeps the unit metadata of every numeric input and value: what is opened is what was saved (also cited as DEL-06-04:4).
 - **REQ-011** — Storage follows the project persistence contract (`docs/architecture/persistence_contract.md`; decomposition AB-00-04): packs are kept in the user's local project store, whose domain truth is the canonical JSON payload and whose index is a rebuildable projection, with no hosted database, daemon, required network or direct plugin or adapter SQL access; a pack that travels in the portable project package travels as a canonical-JSON member of it. The encryption default, access-control policy, permission persistence and secret handling stay with PKG-12.
 - **REQ-012** — No adapter or plugin places a pack in the local store or in a run around validation, the privacy standing, the protected-content check, the checksum or the report controls.
-- **REQ-013** — The grammar version a pack declares is bound by its checksum, so that the checksum identifies the grammar the pack's formulas are read under.
+- **REQ-013** — The grammar version a pack declares is bound by its checksum.
 
 ### Acceptance criteria
 

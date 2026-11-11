@@ -14,9 +14,9 @@ needs:
     the primitives raised them.
   gating: true
 - from: DEL-04-08
-  when: Building a record of a retained-precision result
+  when: Building a record of a retained-precision or retained-source result
   condition: >-
-    The reader of retained-precision statements gives each one either a named refusal or a
+    The reader of retained-precision and retained-source statements gives each one either a named refusal or a
     standing, with the class of each row, in its native, WebAssembly and Python bindings, and
     refuses an older result version by name.
   gating: true

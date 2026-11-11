@@ -74,7 +74,7 @@ It serves SOW-061 under OBJ-013 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 **How each criterion is examined.**
 
 - **VER-001** — AC-001 and AC-003, executable check: observes every schema with a diagnostics member for the required fields, and validates the diagnostics and envelopes emitted by each kind of output on inputs that provoke each class.
-- **VER-002** — AC-002, executable check: carries diagnostics across each boundary pair (solver to result export, runner to export, run record to report) and observes every field other than the class against the original, and the class against the receiving boundary's stated mapping where that boundary's schema requires its own vocabulary.
+- **VER-002** — AC-002, executable check: carries diagnostics across each boundary pair (solver to result export, runner to export, run record to report) and observes every field other than the class against the original, and the class against the original or, where the receiving boundary's schema requires its own vocabulary, against that boundary's stated mapping.
 - **VER-003** — AC-004, executable check: submits an invalid input, an incomplete model, a solvable model and a rule check with missing data, and observes the outcome kind of each envelope from its fields.
 - **VER-004** — AC-005, judgment by a reviewer who did not write the diagnostics: examines the code, class and message vocabularies against `docs/claims_registry.md`, with an executable check for prohibited claim terms.
 

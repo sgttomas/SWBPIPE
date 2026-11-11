@@ -49,7 +49,7 @@ It serves SOW-021 and SOW-077 under OBJ-006 (`execution/_Decomposition/SOFTWARE_
 
 An editor establishes that a value was entered with a unit and a stated source. It establishes nothing about whether the value is right, or whether its source permits its use.
 
-The project's own checks of REQ-011, VER-005's executable check among them, establish the behaviour they observe; they are not a security validation. That private library and rule-pack data stay private is not presented or relied on as validated until an independent security validation, which the owner authorizes, has examined it. Only the owner releases this restriction.
+The project's own checks of REQ-011, VER-005's executable check among them, establish the behaviour they observe; they are not a security validation. That private library and rule-pack data stay private is not presented or relied on as validated until an independent security validation, which the owner authorizes, has examined it. Only the owner releases this restriction. The editors' usability is part of the desktop's and is held to the restriction on independent usability validation that DEL-07-06 states in its Completion and Reliance Basis.
 
 ### Requirements
 

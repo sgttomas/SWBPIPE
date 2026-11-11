@@ -14,8 +14,8 @@ needs:
 - from: DEL-00-06
   condition: >-
     The diagnostic contract fixes the fields a diagnostic record carries (code, class, severity,
-    source, affected object, message, remediation, provenance), and lets a boundary declare its
-    own class vocabulary where its schema needs one.
+    source, affected object, message, remediation, provenance) and the six warning classes, and
+    lets a boundary declare its own class vocabulary where its schema needs one.
   gating: true
 - from: DEL-00-07
   condition: >-

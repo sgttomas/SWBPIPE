@@ -39,7 +39,7 @@ It serves SOW-070 under OBJ-015 and OBJ-018 (`execution/_Decomposition/SOFTWARE_
 - The report workflow passes no agent rationale to downstream runtime integrations, and no report infers human or professional approval from agent rationale or from an applied agent proposal.
 - Generating route or support candidates is not this deliverable's. Its ownership is unassigned and the feature is deferred to v0.2.
 
-**Staged.** The scan of agent-authored text for prohibited claims (AC-004) belongs to milestone R7 of PRD §24, and AC-004 applies from that milestone. The embedded agent of v1.0 comes before it. Until then REQ-004 is met on agent surfaces by what the product itself controls: the host's stamps and statuses, the fixed boundary record and the product's own strings (AC-005), and the absence of any agent route to acceptance (AC-003). Until then a prohibited claim the agent writes in its own text is not blocked, and it gains no standing.
+**Staged.** The scan of agent-authored text for prohibited claims belongs to milestone R7 of PRD §24: AC-004, and REQ-010's blocking of prohibited claims, apply from that milestone. The embedded agent of v1.0 comes before it. Until then, on agent surfaces, REQ-004 rests on what the product itself controls: the host's stamps and statuses, the fixed boundary record and the product's own strings (AC-005), and the absence of any agent route to acceptance (AC-003). Until then a prohibited claim the agent writes in its own text is not blocked, and it gains no standing.
 
 ## Completion and Reliance Basis — Epistemology
 

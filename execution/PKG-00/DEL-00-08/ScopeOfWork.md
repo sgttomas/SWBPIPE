@@ -50,15 +50,15 @@ It serves SOW-063 under OBJ-013 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - **REQ-002** — Solver and rule-engine deliverables include deterministic verification before release use (`docs/CONTRACT.md` OPS-K-SOLVER-1).
 - **REQ-003** — Public examples, reports, templates and tests pass protected-content and provenance checks where applicable (`docs/CONTRACT.md` OPS-K-IP-1 and OPS-K-REPORT-2).
 - **REQ-004** — Architecture acceptance gates are defined for this package's rules, and they claim no product release quality.
-- **REQ-005** — A CI or tooling choice is part of the strategy only where an owner ruling selects it. A choice no one has made is stated as undecided.
+- **REQ-005** — The strategy's test baseline is the one DEL-00-01 records, and it changes as DEL-00-01 says a baseline choice changes; a coverage floor is set as *Coverage* states. Any other CI or tooling choice is made under the delegation in force and recorded with the change that makes it, and a change to the repository's required checks goes to the owner as `AGENTS.md` provides. A choice no one has made is stated as undecided.
 
 ### Acceptance criteria
 
 - **AC-001** — The strategy maps each of the fourteen layers to the obligations it verifies, the kind of evidence and the checks that realise it. Every invariant of `docs/CONTRACT.md` whose enforcement is a test, a validator or CI is assigned to at least one layer, and every layer has at least one check that runs with the project's checks.
-- **AC-002** — Every solver and rule-engine crate has at least one check that compares its output with expected values that come from outside the product, such as a closed-form or hand calculation or a frozen reference produced without product code, at the governed tolerance of its reference class. Repeated runs of those checks give identical results, and no fixture carries a tolerance looser than the governed one.
+- **AC-002** — Every solver and rule-engine crate has at least one check that compares its output with a frozen reference whose generator imports no product code, at the governed tolerance of its reference class. Repeated runs of those checks give identical results, and no fixture carries a tolerance looser than the governed one.
 - **AC-003** — Every public example, report template, fixture and test file is covered by the protected-content scan, and each one that carries engineering values has a provenance record. A seeded protected-content marker fails the scan.
 - **AC-004** — Every executable check that DEL-00-01 to DEL-00-07 name for an architecture rule runs in the architecture layer. The layer's result is reported as architecture conformance, and no test result, gate record or summary of any layer states release readiness, validation of the product or professional approval.
-- **AC-005** — The strategy names no CI provider, tool or threshold that an owner ruling has not selected, and no check fails on a coverage number.
+- **AC-005** — Every CI provider, tool and threshold the strategy names is in the test baseline or is selected by a recorded decision made as REQ-005 states, and no check fails on a coverage number.
 
 ## Production and Verification Method — Praxeology
 
@@ -71,9 +71,9 @@ It serves SOW-063 under OBJ-013 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 **How each criterion is examined.**
 
 - **VER-001** — AC-001, judgment by a reviewer who did not write the strategy, with an executable check: the reviewer examines the map against the enforcement column of `docs/CONTRACT.md` and `docs/SPEC.md` §10, and the check observes that each layer has at least one registered check that runs.
-- **VER-002** — AC-002, executable check with judgment by a reviewer who did not write the check: the check observes for each solver and rule-engine crate a comparison with expected values whose source is outside the product, the tolerance each fixture uses against the governed one, and repeat-run identity; the reviewer judges the source of any expected value the check cannot trace.
+- **VER-002** — AC-002, executable check: observes for each solver and rule-engine crate a comparison with a frozen reference whose generator imports no product code, the tolerance each fixture uses against the governed one, and repeat-run identity.
 - **VER-003** — AC-003, executable check: runs the protected-content scan and the provenance check over the public examples, templates, fixtures and tests, with a seeded marker that must fail.
-- **VER-004** — AC-004 and AC-005, judgment by the same reviewer, with an executable check: the reviewer examines the architecture layer against the checks DEL-00-01 to DEL-00-07 name, the wording of test and gate outputs against `docs/claims_registry.md`, and each tooling choice against its ruling; the check observes that no coverage threshold is configured to fail.
+- **VER-004** — AC-004 and AC-005, judgment by the same reviewer, with an executable check: the reviewer examines the architecture layer against the checks DEL-00-01 to DEL-00-07 name, the wording of test and gate outputs against `docs/claims_registry.md`, and each tooling choice against the recorded decision that selects it; the check observes that no coverage threshold is configured to fail.
 
 ## Governing Values and Decisions — Axiology
 
@@ -85,8 +85,8 @@ It serves SOW-063 under OBJ-013 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-063 OBJ-013 | REQ-001 | AC-001 | VER-001 | Decomposition AB-00-08 names the layers and `docs/CONTRACT.md` the obligations; a reviewer who did not write the strategy compares the map against them |
+| OUT-001 | SOW-063 OBJ-013 | REQ-001 | AC-001 | VER-001 | Decomposition AB-00-08 names the layers and `docs/CONTRACT.md` the obligations; a reviewer who did not write the strategy |
 | OUT-001 | SOW-063 OBJ-013 | REQ-002 | AC-002 | VER-002 | `docs/CONTRACT.md` OPS-K-SOLVER-1 and the governed tolerance of each reference class; each reference's own values come from outside the product. The comparison shows agreement with those values; a regression golden shows only consistency with earlier output |
 | OUT-001 | SOW-063 OBJ-013 | REQ-003 | AC-003 | VER-003 | `docs/IP_AND_DATA_BOUNDARY.md` and `docs/CONTRACT.md` OPS-K-IP-1; the seeded marker states what must fail |
 | OUT-002 | SOW-063 OBJ-013 | REQ-004 | AC-004 | VER-004 | Decomposition AB-00-08 and `docs/PRD.md` §21.2; the comparison is the checks named in the scopes of DEL-00-01 to DEL-00-07 |
-| OUT-001 | SOW-063 OBJ-013 | REQ-005 | AC-005 | VER-004 | Each tooling choice is compared with the decision that selects it in the decision log (decomposition §12); the coverage configuration is examined for a threshold that can fail |
+| OUT-001 | SOW-063 OBJ-013 | REQ-005 | AC-005 | VER-004 | Each tooling choice is compared with the recorded decision that selects it, in the decision log (decomposition §12) or the change that made it; the coverage configuration is examined for a threshold that can fail |

@@ -39,7 +39,7 @@ It serves SOW-045 under OBJ-005 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - Whether the catalog's dimensionless symbol and the grammar's `ratio` reference denote one unit.
 - Whether a rule comparison takes a tolerance. Comparisons are exact in binary64.
 - What a rule check does with a solver value that is published as an interval.
-- Whether a validation finding may quote the display-only rendering of an expression, which may be displayed (*Expression*). AC-009 excludes it, under threat STM-007.
+- Whether a validation finding may quote the display-only rendering of an expression. The rule expression text syntax (`execution/_Coordination/_DECISIONS/D-02b_rule_expression_text_syntax.md`) permits it; AC-009 excludes it, under threat STM-007.
 
 **Boundary.** This deliverable evaluates and type-checks expressions. The pack format, and where a pack declares its variables, are DEL-06-01's. Binding data to variables, converting bound values to declared units, the outcome of a check and how a finding appears in a run result are DEL-06-03's. The binding of the grammar version into the pack checksum is DEL-06-04's. The expression composer is DEL-07-03's, and unit definitions and conversions are DEL-02-02's. Evaluation of expressions on behalf of a plugin or adapter is outside v1.0, as `docs/RELEASE_TARGET_v1.0.md` states for rule packs (also cited as DEL-06-02:3).
 
@@ -56,7 +56,7 @@ Requirement numbers 001 to 011 are those of the earlier `REQ-06-02-0nn` series.
 - **REQ-003** — All expression inputs, intermediate quantities, comparisons and outputs are unit-aware and dimensionally checked.
 - **REQ-004** — A missing variable, a missing required value, a unit mismatch, an invalid reference and an unsupported expression form each produce an explicit finding and never a default.
 - **REQ-005** — A variable binds only to a declared rule-pack variable, a solver result field or a user-supplied design-basis input.
-- **REQ-006** — The grammar is the declarative typed tree defined above, within its sandbox boundary. A change to the grammar, an extension included, is made only by the owner's decision, as a new grammar version.
+- **REQ-006** — The grammar is the declarative typed tree defined above, within its sandbox boundary. A change to the grammar is made only as a new grammar version (*Grammar version*). An extension not yet adopted enters, as an additive minor version, only on the decision that governs it under the delegation in force, recorded with the change. A breaking change enters, as a new major version, only on a recorded ruling of the owner.
 - **REQ-007** — Public artifacts of the evaluator include no protected standards text, table, code-derived formula, material allowable, SIF or flexibility data, proprietary vendor data, owner standard or private rule pack.
 - **REQ-008** — An evaluation result is never represented as code compliance, certification, sealing, approval or professional reliance (PRD §21.2).
 - **REQ-009** — Evaluation keeps mechanics solved, user-rule checked, incomplete data and human approval as separate states.

@@ -102,7 +102,7 @@ REQ-001 to REQ-013 keep the numbers of the earlier `REQ-11-02` series.
 |---|---|---|---|---|---|
 | OUT-001 | SOW-033 OBJ-001 | REQ-001 REQ-002 REQ-005 REQ-008 REQ-009 REQ-010 REQ-013 | AC-001 | VER-001 | The content groups are SOW-033's developer documentation as this scope's requirements divide it. The headings are read from the guide, and every path is checked against the repository tree, which the guide does not write |
 | OUT-001 | SOW-033 OBJ-001 | REQ-001 REQ-007 REQ-008 | AC-002 | VER-002 | Outside source: the layer map of DEL-00-02, the diagnostic and envelope contract of DEL-00-06 and the adapter and plugin rule of DEL-00-07, read from those documents and not from the guide |
-| OUT-001 | SOW-033 OBJ-001 | REQ-002 REQ-003 | AC-003 | VER-002 VER-003 | `docs/CONTRACT.md` OPS-K-MECH-1 and OPS-K-MECH-2 and PRD §21.2, against which the governing-source comparison and the reviewer read the solver content |
+| OUT-001 | SOW-033 OBJ-001 | REQ-002 REQ-003 | AC-003 | VER-002 VER-003 | `docs/CONTRACT.md` OPS-K-MECH-1 and OPS-K-MECH-2 and PRD §21.2 |
 | OUT-001 | SOW-033 OBJ-002 | REQ-005 REQ-006 | AC-004 | VER-002 | Outside source: the rule-pack format of DEL-06-01 and the evaluator boundary of DEL-06-02, read from their documents |
 | OUT-001 | SOW-033 OBJ-001 | REQ-009 | AC-005 | VER-002 | Outside source: the test strategy of DEL-00-08 assigns the evidence kinds |
 | OUT-001 | SOW-033 OBJ-002 | REQ-004 REQ-010 REQ-011 | AC-006 | VER-003 | PRD §20.1 lists what the public repository may not contain and the quarantine route is DEL-01-02's policy. The reviewer reads the guide's text and examples against them |

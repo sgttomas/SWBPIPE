@@ -21,10 +21,10 @@ needs:
   gating: true
 - from: DEL-00-06
   condition: >-
-    A diagnostic carries its code, class, severity, source, affected object, message,
-    remediation and provenance, and the product has six warning classes. The guide's
-    troubleshooting section is organised by those six classes and quotes the codes the product
-    emits.
+    A diagnostic carries its code, class, severity, source, affected object, message and
+    remediation, and provenance where the finding concerns a sourced value, and the product has
+    six warning classes. The guide's troubleshooting section is organised by those six classes
+    and quotes the codes the product emits.
   gating: true
 - from: DEL-04-07
   condition: >-

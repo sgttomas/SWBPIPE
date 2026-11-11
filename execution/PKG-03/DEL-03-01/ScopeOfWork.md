@@ -32,7 +32,7 @@ It serves SOW-017 under OBJ-004 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 
 **Boundary.** This deliverable defines the document. DEL-03-07 decides whether an imported library is accepted, held for review, quarantined or refused, and gates the local library store. DEL-07-03 owns the editor in which a user authors a library. DEL-02-02 owns units and dimensions. DEL-02-01 owns the model's own material entity, and DEL-05-02 owns how a solve selects or interpolates a material's temperature points. Pipe section, component and hanger libraries are DEL-03-02's. Applying a library record to a model entity, reporting a library reference that no longer resolves and choosing a hanger record are DEL-07-03's. The format carries no engineering value of its own.
 
-**Not decided.** Which public sources are accepted for redistributable material values. Until one is, no example value is drawn from a public source: the example's values are invented or omitted.
+**Not decided.** Which public sources are accepted for redistributable material values.
 
 ## Completion and Reliance Basis — Epistemology
 

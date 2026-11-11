@@ -67,9 +67,9 @@ needs:
   gating: false
 - from: DEL-07-03
   condition: >-
-    The desktop's load manager authors a document's pressure regions, with its pressure contract,
-    as model operations; that is the path on which an exact-route document's shear selection,
-    whose default this scope states, is first written.
+    The desktop's load manager authors a document's pressure regions as model operations; that is
+    the path on which an exact-route document's shear selection, whose default this scope states,
+    is first written.
   gating: false
   when: Examining the authored default of the shear selection
 code_paths:

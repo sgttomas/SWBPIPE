@@ -74,10 +74,11 @@ needs:
 # apps/desktop/src/features/caepipe-mbf/, which DEL-07-12 also lists, the modules named here carry
 # the commands' request retirement and session rules and are this deliverable's; the dialogs, the
 # panel and their presentation modules are DEL-07-12's. The authored MBF cases under
-# validation/caepipe_correlation/authored/ are listed by DEL-17-05, which runs them; their
-# importer expectations are examined here.
+# validation/caepipe_correlation/authored/ are this deliverable's (REQ-022); DEL-17-05, which
+# runs them through the user's CAEPIPE, also lists them.
 code_paths:
 - core/handoff/caepipe_mbf/**
+- validation/caepipe_correlation/authored/**
 - core/handoff/caepipe_mbf_engine/**
 - core/handoff/caepipe_mbf_wasm/**
 - schemas/caepipe_mbf_export.schema.json

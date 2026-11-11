@@ -23,7 +23,7 @@ It serves SOW-036 under OBJ-006 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 **Terms the baseline implements.**
 
 - *Workspace control.* Any control, status indicator or drawn mark of the desktop workspace that a user reads or operates: buttons, fields, tabs, tree and table rows, menus, badges, legends and the viewport's selectable items.
-- *Accessibility target.* The WCAG 2.2 level AA criteria selected for the controls of the interactive desktop workspace, its review and results controls among them. They include Keyboard (2.1.1), Focus Visible (2.4.7), Contrast (Minimum) (1.4.3) at 4.5:1 for text, Non-text Contrast (1.4.11) at 3:1 for graphical objects and control boundaries, and Target Size (Minimum) (2.5.8) at 24 by 24 CSS pixels, applied as that criterion states it.
+- *Accessibility target.* The WCAG 2.2 level AA criteria selected for the controls of the desktop's modelling workspace: the command band and its search, the model tree, the properties and active-task panels with their side-rail drawers, the viewport's camera, selection, visibility and measurement controls, the review and results dock, and the theme and density settings. They include Keyboard (2.1.1), Focus Visible (2.4.7), Contrast (Minimum) (1.4.3) at 4.5:1 for text, Non-text Contrast (1.4.11) at 3:1 for graphical objects and control boundaries, and Target Size (Minimum) (2.5.8) at 24 by 24 CSS pixels, applied as that criterion states it.
 - *Design token.* A named value for a colour, a size, a space or a type step. One token source generates the stylesheet every surface uses.
 - *Theme.* Light or dark, following the system setting unless the user chooses one. *Density.* Comfortable or compact.
 - *Presentation conventions.* What every surface shares: type, spacing and control size taken from one scale; tabular figures in tables; hover, pressed, selected, focus and disabled states that are distinct, each with a signal other than colour; and a comfortable and a compact density.
@@ -54,7 +54,7 @@ The project's own examination, VER-006's checks among it, shows whether the use 
 - **REQ-001** — Model creation, missing data, results, assumptions, provenance and findings are each visible for review on a surface a user can reach without a pointer.
 - **REQ-002** — Every panel and every review workflow of the workspace can be reached and operated by keyboard alone, with visible focus and a focus order that follows the reading order.
 - **REQ-003** — Every icon action, status indicator and compact control has a text label or a tooltip and an accessible name that says what it does or states.
-- **REQ-004** — Workspace controls meet the accessibility target in every theme and density.
+- **REQ-004** — The controls the accessibility target covers meet it in every theme and density.
 - **REQ-005** — Each large tree and results table offers search or filtering, and a way to copy what it shows, operable by keyboard.
 - **REQ-006** — Inline validation shows the class of each finding as DEL-07-04 presents it, with the six classes distinguishable without colour.
 - **REQ-007** — A displayed dimensional value shows its unit.
@@ -63,13 +63,13 @@ The project's own examination, VER-006's checks among it, shows whether the use 
 - **REQ-011** — Colour is never the only signal of a state, a class, a status or a selection.
 - **REQ-012** — The workspace offers a light and a dark theme that follow the system setting unless the user chooses one, and a comfortable and a compact density. The choice is a user preference.
 - **REQ-013** — One token source generates the stylesheet. No workspace surface sets a colour, a space, a control size or a type step outside the tokens.
-- **REQ-014** — Every workspace surface follows the presentation conventions, and in either density every target meets Target Size (Minimum) (2.5.8).
+- **REQ-014** — Every workspace surface follows the presentation conventions, and in either density every target of a control the accessibility target covers meets Target Size (Minimum) (2.5.8).
 - **REQ-016** — *Usability.* Each use case AC-007 lists completes in the desktop with no step outside it, and each is tested thoroughly before the owner is asked. The owner then uses the desktop and gives the owner's verdict (`docs/RELEASE_TARGET_v1.0.md`, exit criterion 8).
 
 ### Acceptance criteria
 
 - **AC-001** — Starting from the first focusable control, every panel of the workspace and every step of creating a model and reviewing missing data, results, assumptions, provenance and findings can be completed by keyboard alone, with focus visible and moving in reading order.
-- **AC-002** — In each theme and each density, every workspace control's text contrast is at least 4.5:1, every graphical object's and control boundary's contrast is at least 3:1, and every target meets Target Size (Minimum) (2.5.8).
+- **AC-002** — In each theme and each density, for the controls the accessibility target covers: every control's text contrast is at least 4.5:1, every graphical object's and control boundary's contrast is at least 3:1, and every target meets Target Size (Minimum) (2.5.8).
 - **AC-003** — Every icon action, status indicator and compact control has an accessible name; every state, class, status and selection has a signal other than colour; every displayed dimensional value has a unit; and no text the baseline supplies states or implies a claim PRD §21.2 prohibits.
 - **AC-004** — Undo and redo are enabled only when a reversible edit exists and name the edit they will reverse or reapply, and after each undo and redo the findings shown are those of the model as it then stands.
 - **AC-005** — The stylesheet equals the one generated from the token source; the theme follows the system setting and the user's choice; switching density changes control size; and the model document is unchanged by any preference.
