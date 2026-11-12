@@ -2,6 +2,7 @@
 name = "open_pipe_stress_rule_pack_lifecycle"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
 description = "Private rule-pack lifecycle and checksum handling for OpenPipeStress"
 publish = false
 

@@ -48,10 +48,12 @@ It serves SOW-014 under OBJ-003 and OBJ-005 (`execution/_Decomposition/SOFTWARE_
 - code-specific combinations, factors, stress categories and limits: the user's rule pack (PKG-06). The rule-pack expression evaluator: DEL-06-02;
 - the reader of retained-precision and retained-source statements, their tables, the test verifier that shares no code with the readers, and the comparison of the readers' native and WebAssembly outcomes: DEL-04-08. What each row's value is, and its publication: DEL-04-07, with the stress rows defined by DEL-05-03.
 
-**Not decided.**
+**Withheld in v1.0.**
 
-- What a combination that includes a hydrostatic test case means. DEL-05-01 withholds it until that is defined.
-- Whether the held-status subtrahend is offered on the exact pressure route.
+- A combination that includes a hydrostatic test case is withheld by name (DEL-05-01). v1.0 does not define what such a combination means.
+- The held-status subtrahend (REQ-013) is offered on the pressure-free route only. On the exact route a subtraction that asks for it is refused by name.
+
+Each is a release limitation (exit criterion 3; LIM-003 and LIM-004 in `docs/RELEASE_LIMITATIONS_v1.0.md`).
 
 ## Completion and Reliance Basis — Epistemology
 

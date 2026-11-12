@@ -2,6 +2,7 @@
 name = "open_pipe_stress_protected_content_linter"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
 description = "Report protected-content lint support for OpenPipeStress"
 publish = false
 

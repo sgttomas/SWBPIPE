@@ -19,6 +19,7 @@ with an owner or gate.
 | Field | Value |
 |---|---|
 | Release label | `[release label]` |
+| Licence | MIT; see [LICENSE](../LICENSE) |
 | Source revision | `[commit hash or working-tree evidence record]` |
 | Release date | `[date]` |
 | Release authority | `[human/project authority record or TBD]` |

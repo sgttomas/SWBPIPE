@@ -2,6 +2,7 @@
 name = "open_pipe_stress_release_timing"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
 description = "DEL-04-05 release timing driver: the desktop solve worker's engine stages, timed (observation only)"
 publish = false
 

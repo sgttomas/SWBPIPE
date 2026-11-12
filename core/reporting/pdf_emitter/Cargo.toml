@@ -2,6 +2,7 @@
 name = "open_pipe_stress_pdf_emitter"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
 description = "Hash-bound deterministic PDF emitter and full-report-package assembly for OpenPipeStress (DEC-061)"
 publish = false
 

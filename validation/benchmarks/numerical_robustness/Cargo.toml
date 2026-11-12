@@ -2,6 +2,7 @@
 name = "piping_numerical_robustness"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
 description = "VP-ROBUST: R1's frozen references against the W1a kernel method (V-K) and the product lane (V-P)"
 publish = false
 

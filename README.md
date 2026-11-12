@@ -28,8 +28,8 @@ are development evidence, not a released or accepted engineering product.
 
 The [v1.0 release target](docs/RELEASE_TARGET_v1.0.md) defines the required
 capabilities and exit criteria; it is not a list of features already delivered.
-The [release limitations](docs/RELEASE_LIMITATIONS_v1.0.md) distinguish recorded
-limitations from those accepted by the owner. Package version strings and older
+The [release limitations](docs/RELEASE_LIMITATIONS_v1.0.md) record each
+remaining refusal and whether Agent 0 has declared it acceptable. Package version strings and older
 0.1.0 documentation do not change the v1.0 publication target.
 
 ## Start here
@@ -81,6 +81,6 @@ contracts for forward work.
 
 ## License and professional boundaries
 
-See the [MIT License](LICENSE.md), [IP and data boundary](docs/IP_AND_DATA_BOUNDARY.md)
+See the [MIT License](LICENSE), [IP and data boundary](docs/IP_AND_DATA_BOUNDARY.md)
 and [validation strategy](docs/VALIDATION_STRATEGY.md). Product claims retain their
 stated scope and qualification limits.

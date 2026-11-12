@@ -2,6 +2,7 @@
 name = "open_pipe_stress_report_renderer"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
 description = "Deterministic hash-bound single-file HTML calculation-report renderer for OpenPipeStress (DEC-021)"
 publish = false
 

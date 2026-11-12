@@ -66,7 +66,7 @@ needs:
   condition: >-
     A command the headless runner hosts passes its input to the owning deliverable's entry and
     returns that entry's document unchanged, and the runner supplies no engineering value to it
-    (DEL-10-05/REQ-015, DEL-10-05/AC-011), so that a spectrum command, where one is hosted,
+    (DEL-10-05/REQ-015, DEL-10-05/AC-011), so that the spectrum command this deliverable builds
     supplies no spectrum, scale factor, damping, interpolation, combination or missing-mass input
     and returns the solve's refusals unchanged.
   gating: false
