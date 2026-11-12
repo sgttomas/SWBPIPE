@@ -54,11 +54,24 @@ SCHEMA_CHANGE = ("schemas/load_reference_state.schema.json gained `allOf` in 0c4
                  "m3_view.schema_supported refuses, so the shared M3 judge self-test stops with SchemaUnsupported")
 
 
-def names_product_path(text: str) -> bool:
-    """A literal names a product path when it is not empty, contains no whitespace, and any segment
-    between runs of either separator is a product root."""
-    return bool(text) and not re.search(r"\s", text) and any(
-        segment in PRODUCT_ROOTS for segment in re.split(r"[\\/]+", text))
+PROSE = "prose in a docstring or message, not a path"
+
+
+def literal_text(value: str | bytes) -> str:
+    return value.decode("latin-1") if isinstance(value, bytes) else value
+
+
+def names_product_path(value: str | bytes) -> bool:
+    """A str or bytes literal (bytes read as latin-1) names a product path when a segment between runs
+    of either separator is exactly a product root's name. There is no whitespace exemption."""
+    return bool(PRODUCT_ROOTS & set(re.split(r"[\\/]+", literal_text(value))))
+
+
+def literal_key(value: str | bytes) -> str:
+    """How an allowance names a literal: the text itself, or for text over 120 characters its full
+    SHA-256 (of the text as UTF-8), so the key stays exact without copying a docstring."""
+    text = literal_text(value)
+    return text if len(text) <= 120 else "sha256:" + hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
 @dataclass(frozen=True)
@@ -91,7 +104,7 @@ class Package:
     foreign: dict = field(default_factory=dict)  # {module: ("pkg/path/file.py", reason)}
     external: dict = field(default_factory=dict)  # {module: reason}; not in the repository
     calls: dict = field(default_factory=dict)  # {(file, call name): reason}
-    literals: dict = field(default_factory=dict)  # {(file, literal): reason}
+    literals: dict = field(default_factory=dict)  # {(file, literal_key): reason}
     checks: tuple = ()
     not_regenerated: tuple = ()  # ((what, reason), ...)
     other_test: str | None = None  # a maintained test that regenerates this package, and its state
@@ -152,7 +165,12 @@ PACKAGES: dict[str, Package] = {
                   for f, lit in (("generators/u8_reference.py", "core"), ("generators/u8_reference.py", "tests"),
                                  ("generators/u8_reference.py", "fixtures"),
                                  ("generators/u8_reference.py",
-                                  "core/product_physics/tests/fixtures/pressure_reference/SOURCE_ODWALL_EXPECTATIONS.json"))}),
+                                  "core/product_physics/tests/fixtures/pressure_reference/SOURCE_ODWALL_EXPECTATIONS.json"))}
+        | {("generators/u8_reference.py", "sha256:750991cf70d266602d089e05b6e30b4ec410e1510c90a7fe1aa5866667c2c587"):
+               PROSE + " (the module docstring, 'T4-U8 independent references: the Timoshenko straight member')",
+           ("generators/u8_reference.py",
+            "core/product_physics/tests/fixtures/pressure_reference/SOURCE_ODWALL_EXPECTATIONS.json (sha256 "):
+               PROSE + " (provenance text in the output, before the fixture's digest)"}),
     "pf_timoshenko": _plain(
         "pf_reference.py", deliverables="DEL-05-03",
         calls={("generators/pf_reference.py", "spec_from_file_location"):
@@ -179,7 +197,14 @@ PACKAGES: dict[str, Package] = {
         "DEL-04-07", sums=(Sums("SHA256SUMS"),),
         literals={("_run_records/derive_rebuilt_references.py",
                    "PP/tests/fixtures/pressure_reference/SOURCE_ODWALL_EXPECTATIONS.json"):
-                  "provenance text in the output naming the twin fixture, which is read by path only to compare (README)"},
+                  "provenance text in the output naming the twin fixture, which is read by path only to compare (README)",
+                  **{("_run_records/derive_rebuilt_references.py", "sha256:" + h): PROSE + f" ({where})" for h, where in (
+                      ("ed963108f9141f9e54c5bc89a757a2c70bffd778f875dedbed7509efef06f202",
+                       "case_twin_separate's docstring, 'PP/tests/pressure_runtime.rs model(...), state 4 of'"),
+                      ("db269f86abb6bef157d4ac47e05d16c58c764ad6f066ce0f155242d98e7f2acb",
+                       "provenance text in the output, 'PP/tests/pressure_section_geometry.rs: fixture(...)'"),
+                      ("1675b92658af244462d80da455f6d2a644445d59c52f80bcd1736ab7771e1fc0",
+                       "provenance text in the output, 'PP/tests/pressure_runtime.rs model(...) at ed012c7ccf'"))}},
         checks=(Check(("_run_records/check_reference_json.py", "rebuilt_reference_cases.json")),),
         not_regenerated=(("rebuilt_reference_cases.json",
                           "the README gives no check mode: derive_rebuilt_references.py only writes to a given path "
@@ -210,6 +235,10 @@ PACKAGES: dict[str, Package] = {
                          ("kd5_models/", "needs D1's and T3's V1 modules from outside the repository (README)"))),
     "t4_i12": Package(
         "DEL-03-06", sums=(Sums("SHA256SUMS"),),
+        literals={("generators/u3_reference.py", "sha256:1f41f3fc1223aabb5f3a3846acc9df1bd40692fd11621e947ccbd38fd5053b07"):
+                      PROSE + " (a case description in the output, 'The invented demo (P/fixtures/product_preview/...')",
+                  ("generators/u3_round02.py", "sha256:c82e855e308e0d325ae0c4c5167a17bff83c0201965c6d6b0e367bc7ec88cf1a"):
+                      PROSE + " (a source note in the output, 'the demo fixture's SH-140 hanger, verbatim (P/fixtures/...')"},
         not_regenerated=(("u3_reference_cases.json",
                           "the README gives no check mode: both commands write to a given output path"),)),
     "t4_o13": Package(
@@ -291,7 +320,11 @@ PACKAGES: dict[str, Package] = {
                   **{("declared_problem/twins.py", lit):
                      "the declared-problem harness converts these product inputs into requests and runs the product "
                      "on them (declared_problem/README.md, Files)"
-                     for lit in ("fixtures/product_preview/pressure_source/", "fixtures/results/j7_rf_census_inputs.json")}},
+                     for lit in ("fixtures/product_preview/pressure_source/", "fixtures/results/j7_rf_census_inputs.json")},
+                  ("declared_problem/twins.py", "sha256:85266a950e23d06a82d6c40fb0dc84024df83b87a6415a7d6b0e5a5e4c5e422b"):
+                      PROSE + " (expand_dag's docstring, 'The corpus DAG decoder: the same rule as `expand` in tools/...')",
+                  ("generators/o4_source_twins.py", "sha256:b254cc83854a629ba22bf420bfaf8bc442d41c9b0f684d43905473e55660bd24"):
+                      PROSE + " (the module docstring, 'O4 source-control twins: Timoshenko and nonzero-allowance ...')"},
         checks=(Check(("generators/o4_reference.py", "--workers", "1"),
                       known_failure="the generator binds kd5t_engine.py by SHA-256 c91f28c6…, and kd5_timoshenko changed "
                                     "that file in cdf98fd8c (2026-10-28) after O4 was frozen; reported, not repaired",
@@ -383,8 +416,10 @@ def _pinned_by_own_list(rel: str) -> str | None:
 @pytest.mark.parametrize("literal, flagged", [
     ("core/x.py", True), ("../core/x.py", True), ("/Users/someone/repo/tools/a.py", True),
     ("C:\\repo\\fixtures\\a.json", True), ("core", True), ("schemas//x.json", True),
+    ("core/my file.py", True), ("/Volumes/My Drive/repo/core/x.py", True), (b"core/x.py", True),
+    ("core/ is not read", True), (b"tools\\a.py", True),
     ("the core of it", False), ("score/card", False), ("validation/references/t4_u6/oracle.json", False),
-    ("", False), ("coreutils", False),
+    ("", False), ("coreutils", False), (b"score/card", False), ("prose that mentions core and tools", False),
 ])
 def test_product_path_rule(literal, flagged):
     assert names_product_path(literal) is flagged
@@ -535,11 +570,12 @@ def test_generators_are_independent(name):
                         used["calls"].add((rel, called))
                     else:
                         problems.append(f"{rel}:{node.lineno}: calls {called}")
-            elif isinstance(node, ast.Constant) and isinstance(node.value, str) and names_product_path(node.value):
-                if (rel, node.value) in pkg.literals:
-                    used["literals"].add((rel, node.value))
+            elif isinstance(node, ast.Constant) and isinstance(node.value, (str, bytes)) and names_product_path(node.value):
+                key = (rel, literal_key(node.value))
+                if key in pkg.literals:
+                    used["literals"].add(key)
                 else:
-                    problems.append(f"{rel}:{node.lineno}: names a product path {node.value!r}")
+                    problems.append(f"{rel}:{node.lineno}: names a product path {node.value!r:.200} (key {key[1]!r})")
     for kind, table in (("siblings", pkg.siblings), ("foreign", pkg.foreign), ("external", pkg.external),
                         ("calls", pkg.calls), ("literals", pkg.literals)):
         problems += [f"allowance no longer used: {kind} {key!r}" for key in sorted(set(table) - used[kind], key=repr)]
