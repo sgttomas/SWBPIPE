@@ -60,20 +60,9 @@ fn row(id: &str, kind: &str, entity: &str, value: f64, combination: &str) -> Res
     }
 }
 
-/// publish's row loop, restated: (combination rows, magnitude index).
+/// publish's own row pass (`row_indexes`): (combination rows, magnitude index).
 fn indexes(results: &[ResultItem]) -> (HashMap<&str, Vec<usize>>, MagnitudeRows<'_>) {
-    let mut combination_rows: HashMap<&str, Vec<usize>> = HashMap::new();
-    let mut magnitude_rows: MagnitudeRows<'_> = HashMap::new();
-    for (i, row) in results.iter().enumerate() {
-        let Some(basis) = row.basis_ref.as_ref().filter(|b| b.ref_type == "combination") else { continue };
-        if row.kind == MODULUS_RECORD {
-            continue;
-        }
-        combination_rows.entry(basis.ref_id.as_str()).or_default().push(i);
-        if row.kind == SUPPORT_FORCE || row.kind == SUPPORT_MOMENT {
-            magnitude_rows.entry((basis.ref_id.as_str(), row.kind.as_str(), row.entity_ref.as_str())).or_default().push(i);
-        }
-    }
+    let RowIndexes { combination_rows, magnitude_rows, .. } = row_indexes(results);
     (combination_rows, magnitude_rows)
 }
 
@@ -87,32 +76,37 @@ fn candidates_scan(results: &[ResultItem], combination_rows: &HashMap<&str, Vec<
 #[test]
 fn support_magnitude_candidates_match_the_scan_for_zero_one_and_two_rows() {
     let c = "comb:x";
-    let mut results = vec![
-        row("r:fx", SUPPORT_COMPONENT, "support:a", 3.0, c),
-        row("r:fy", SUPPORT_COMPONENT, "support:a", 4.0, c),
-        row("r:fz", SUPPORT_COMPONENT, "support:a", 12.0, c),
-        row("r:mod", MODULUS_RECORD, "support:a", 0.0, c),
-        row("r:other", SUPPORT_FORCE, "support:a", 13.0, "comb:y"),
-        row("r:mag", SUPPORT_FORCE, "support:a", 13.0, c),
-    ];
-    let derived = vec![Derived { json: Value::Null, rows: vec![0, 1, 2], bound: 0.0, floor_scale: 1.0, verdict: "established" }];
-    let formed: HashMap<(String, String, String, usize), usize> =
-        ["support:a", "support:b"].into_iter().map(|s| ((s.to_string(), "node".to_string(), "support_force".to_string(), 0), 0)).collect();
-    let magnitude = |results: &[ResultItem], entity: &str| {
-        let (combination_rows, magnitude_rows) = indexes(results);
-        let scan = candidates_scan(results, &combination_rows, c, SUPPORT_FORCE, entity).unwrap_or_default();
-        let indexed = magnitude_rows.get(&(c, SUPPORT_FORCE, entity)).cloned().unwrap_or_default();
-        assert_eq!(scan, indexed, "{entity}: candidates in row order");
-        magnitude_group(results, c, &group(entity, "node", "support_force_magnitude", Some(0.0)), "support_force", &formed, &derived, &magnitude_rows)
-            .map(|d| d.rows)
-    };
-    assert_eq!(magnitude(&results, "support:a"), Some(vec![5]), "one candidate");
-    assert_eq!(magnitude(&results, "support:b"), None, "zero candidates");
-    results.push(row("r:mag2", SUPPORT_FORCE, "support:a", 13.0, c));
-    assert_eq!(magnitude(&results, "support:a"), None, "two candidates");
-    let (_, magnitude_rows) = indexes(&results);
-    assert_eq!(magnitude_rows[&(c, SUPPORT_FORCE, "support:a")], vec![5, 6]);
-    assert!(magnitude_rows.keys().all(|(_, kind, _)| *kind != MODULUS_RECORD));
+    // Both magnitude kinds, through publish's own row pass.
+    for (kind, components, magnitude_kind) in
+        [(SUPPORT_FORCE, "support_force", "support_force_magnitude"), (SUPPORT_MOMENT, "support_moment", "support_moment_magnitude")]
+    {
+        let mut results = vec![
+            row("r:fx", SUPPORT_COMPONENT, "support:a", 3.0, c),
+            row("r:fy", SUPPORT_COMPONENT, "support:a", 4.0, c),
+            row("r:fz", SUPPORT_COMPONENT, "support:a", 12.0, c),
+            row("r:mod", MODULUS_RECORD, "support:a", 0.0, c),
+            row("r:other", kind, "support:a", 13.0, "comb:y"),
+            row("r:mag", kind, "support:a", 13.0, c),
+        ];
+        let derived = vec![Derived { json: Value::Null, rows: vec![0, 1, 2], bound: 0.0, floor_scale: 1.0, verdict: "established" }];
+        let formed: HashMap<(String, String, String, usize), usize> =
+            ["support:a", "support:b"].into_iter().map(|s| ((s.to_string(), "node".to_string(), components.to_string(), 0), 0)).collect();
+        let magnitude = |results: &[ResultItem], entity: &str| {
+            let (combination_rows, magnitude_rows) = indexes(results);
+            let scan = candidates_scan(results, &combination_rows, c, kind, entity).unwrap_or_default();
+            let indexed = magnitude_rows.get(&(c, kind, entity)).cloned().unwrap_or_default();
+            assert_eq!(scan, indexed, "{kind} {entity}: candidates in row order");
+            magnitude_group(results, c, &group(entity, "node", magnitude_kind, Some(0.0)), components, &formed, &derived, &magnitude_rows)
+                .map(|d| d.rows)
+        };
+        assert_eq!(magnitude(&results, "support:a"), Some(vec![5]), "{kind}: one candidate");
+        assert_eq!(magnitude(&results, "support:b"), None, "{kind}: zero candidates");
+        results.push(row("r:mag2", kind, "support:a", 13.0, c));
+        assert_eq!(magnitude(&results, "support:a"), None, "{kind}: two candidates");
+        let (_, magnitude_rows) = indexes(&results);
+        assert_eq!(magnitude_rows[&(c, kind, "support:a")], vec![5, 6]);
+        assert!(magnitude_rows.keys().all(|(_, kind, _)| *kind != MODULUS_RECORD));
+    }
 }
 
 /// The replaced scans of D-6's premise.

@@ -460,21 +460,7 @@ pub(crate) fn publish(combinations: &[super::PreviewCombination], case_ids: &[&s
     let pressure: Vec<Value> = evidence.get("pressure").and_then(Value::as_array).cloned().unwrap_or_default();
     let results = &envelope.results;
     let index = CaseIndex::new(results);
-    let mut by_sources: HashMap<(&str, Vec<&str>), Vec<usize>> = HashMap::new();
-    let mut combination_rows: HashMap<&str, Vec<usize>> = HashMap::new();
-    // A combination's support magnitude rows by (combination, kind, entity), in row order.
-    let mut magnitude_rows: MagnitudeRows<'_> = HashMap::new();
-    for (i, row) in results.iter().enumerate() {
-        let Some(basis) = row.basis_ref.as_ref().filter(|b| b.ref_type == "combination") else { continue };
-        if row.kind == MODULUS_RECORD {
-            continue;
-        }
-        combination_rows.entry(basis.ref_id.as_str()).or_default().push(i);
-        by_sources.entry((basis.ref_id.as_str(), row.source_result_refs.iter().map(String::as_str).collect())).or_default().push(i);
-        if row.kind == SUPPORT_FORCE || row.kind == SUPPORT_MOMENT {
-            magnitude_rows.entry((basis.ref_id.as_str(), row.kind.as_str(), row.entity_ref.as_str())).or_default().push(i);
-        }
-    }
+    let RowIndexes { by_sources, combination_rows, magnitude_rows } = row_indexes(results);
     // Each operand case's groups by (entity, location, group): the first position.
     let mut group_index: HashMap<&str, HashMap<(&str, &str, &str), usize>> = HashMap::new();
     let mut pressure_index: Option<PressureIndex<'_>> = None;
@@ -672,6 +658,34 @@ pub(crate) fn publish(combinations: &[super::PreviewCombination], case_ids: &[&s
 /// A combination's support magnitude rows (`SUPPORT_FORCE`, `SUPPORT_MOMENT`; no
 /// `MODULUS_RECORD`) by (combination, kind, entity), in row order.
 type MagnitudeRows<'a> = HashMap<(&'a str, &'a str, &'a str), Vec<usize>>;
+
+/// The rows of combinations (no `MODULUS_RECORD`), each list in row order:
+/// by combination and source rows, by combination, and the support magnitude
+/// rows by (combination, kind, entity).
+struct RowIndexes<'a> {
+    by_sources: HashMap<(&'a str, Vec<&'a str>), Vec<usize>>,
+    combination_rows: HashMap<&'a str, Vec<usize>>,
+    magnitude_rows: MagnitudeRows<'a>,
+}
+
+/// `publish`'s one pass over the rows.
+fn row_indexes(results: &[super::ResultItem]) -> RowIndexes<'_> {
+    let mut by_sources: HashMap<(&str, Vec<&str>), Vec<usize>> = HashMap::new();
+    let mut combination_rows: HashMap<&str, Vec<usize>> = HashMap::new();
+    let mut magnitude_rows: MagnitudeRows<'_> = HashMap::new();
+    for (i, row) in results.iter().enumerate() {
+        let Some(basis) = row.basis_ref.as_ref().filter(|b| b.ref_type == "combination") else { continue };
+        if row.kind == MODULUS_RECORD {
+            continue;
+        }
+        combination_rows.entry(basis.ref_id.as_str()).or_default().push(i);
+        by_sources.entry((basis.ref_id.as_str(), row.source_result_refs.iter().map(String::as_str).collect())).or_default().push(i);
+        if row.kind == SUPPORT_FORCE || row.kind == SUPPORT_MOMENT {
+            magnitude_rows.entry((basis.ref_id.as_str(), row.kind.as_str(), row.entity_ref.as_str())).or_default().push(i);
+        }
+    }
+    RowIndexes { by_sources, combination_rows, magnitude_rows }
+}
 
 /// The first position of each (entity, location, group) among an operand's groups:
 /// the group a scan of them in order finds first.
