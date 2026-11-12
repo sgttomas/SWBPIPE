@@ -1,6 +1,6 @@
 {
  "document": "swbpipe.hydrostatic_test_references",
- "status": "candidate frozen references; derived and cross-checked by the author, not yet independently refuted",
+ "status": "candidate frozen references; derived and cross-checked by the author",
  "generator": "generators/hydrostatic_test_reference.py",
  "units": {
   "force": "N",
@@ -543,8 +543,9 @@
    }
   }
  },
- "alternative_readings": {
-  "open_reading_4_contents_on_nominal_bore": {
+ "counterfactuals": {
+  "negative_control_contents_on_nominal_bore": {
+   "label": "negative control: contents mass on the nominal bore (radius R - t); DEL-05-03's section bases table assigns contents mass to the pressure bore (radius R - t_r), so a correct result shows neither value",
    "w_ordinary": {
     "unit": "N/m",
     "exact": "37045637057/80000000*pi",

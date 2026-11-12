@@ -72,3 +72,6 @@ def test_the_closed_forms_keep_their_values():
     assert held["node:b.uz"]["value"] == 0.0
     assert cases["HT-2S-CE-HELD"]["expected_outcome"]["constant_effort_applied_force"][0]["applied_force"]["value"] == 0.0
     assert cases["HT-2S-SPRING-ORDINARY"]["test_condition"] is None
+    wrong_bore = doc["counterfactuals"]["negative_control_contents_on_nominal_bore"]
+    assert wrong_bore["w_test"]["value"] != doc["derived"]["w_test"]["value"]
+    assert "alternative_readings" not in doc

@@ -18,8 +18,7 @@ are invented. The package states mechanics only: it contains no test pressure
 factor, test procedure, code rule or tolerance, and no value in it states or
 implies compliance. The comparison tolerance is the consuming scope's.
 
-Status: candidate references, derived and cross-checked by their author. They
-have not yet been independently refuted.
+Status: candidate references, derived and cross-checked by their author.
 
 ## Files
 
@@ -183,12 +182,19 @@ under both settings, and each carries `"pressure_elongation": "independent"`:
    2(λ + μ)C₁ + λε_z, and σ_θ depends only on those, so the hoop and radial
    values below do not depend on ε_z and hence not on the setting.
 
-The only quantity of these models that depends on the setting is the axial
-displacement of the free end, and it is not given. The axial forces do not
-depend on it: a free body cut across the pipe and closed by the end cap gives
-the wall force N_w = p·A_bore, and the effective force S = N_w − p·A_bore = 0,
-under either setting, so the axial membrane stress σ_m = N_w/A_b of each basis
-is also the same in both. They are not emitted as rows.
+The quantity of these models that depends on the setting is the axial
+displacement field, and no row of it is given. A free body cut across the
+pipe and closed by the end cap gives the wall force N_w = p·A_bore and the
+effective force S = N_w − p·A_bore = 0 under either setting, so the elastic
+axial strain S/(E·A_nominal) is zero. With the setting off the axial
+displacement is therefore zero everywhere. With it on, the closed-end free
+strain ε = (1 − 2ν)·p·A_bore/(E·A_nominal) is uniform and unrestrained beyond
+`support:a`, so u_x(x) = ε·x at every node, interior nodes included. At p_test
+ε = 14848273/200462500000 ≈ 7.407008e−5; in HT-2S-SPRING-HELD, for example,
+`node:b` moves a·ε = 638475739/2004625000000 ≈ 3.1850134e−4 m and the free end
+2a·ε ≈ 6.3700267e−4 m. The axial forces and the axial membrane stress
+σ_m = N_w/A_b of each basis are the same under both settings; they are not
+emitted as rows.
 
 ## Item 1: held supports on two equal spans
 
@@ -269,6 +275,15 @@ Model M1, one simply supported span L1: R_A = R_B = w·L1/2.
 | HT-1S-TEST | test, 1015 kg/m³ | 1566.205 | 4463.684 |
 | negative control `contents_double_counted` (of HT-1S-TEST) | section + test | 2053.222 | 5851.683 |
 | negative control `contents_omitted` (of HT-1S-TEST) | none | 994.7339 | 2834.992 |
+
+A further negative control is the weight with contents on the wrong bore.
+DEL-05-03's section bases table assigns contents mass to the pressure bore
+(radius R − t_r), and every weight above uses it. Contents on the nominal bore
+(radius R − t), a mass basis the scope does not admit, would give
+w_ordinary ≈ 1454.779 N/m and w_test ≈ 1534.555 N/m; these are kept in
+`references.json` under `counterfactuals` /
+`negative_control_contents_on_nominal_bore` as values a correct result must
+not show.
 
 ## Item 4: test pressure, thick-wall stresses
 
@@ -353,6 +368,18 @@ All are exact equalities in Q(π) (381 recorded, all agree; the last records the
   displacement, stress and weight is unchanged, the methods still agree, and
   the largest relative change of any value is 9.7e−16.
 
+## What the package does not cover
+
+- The axial displacement field, which depends on the pressure elongation
+  setting, and the axial forces and membrane stress, which do not (see
+  "Pressure elongation"); none is emitted as a row.
+- Combinations. No scenario combines a test case with another case, so the
+  package gives no evidence for the named withholding of a combination that
+  includes a hydrostatic test case (DEL-05-01, "Not decided"). That refusal's
+  expectation is set by the criterion itself, and the engine unit's own
+  negative test covers it.
+- Comparison tolerances, which are the consuming scope's.
+
 ## Open readings
 
 Each is a place where the scope text could carry a value two ways. The
@@ -376,13 +403,7 @@ package computes under the first reading; the choice is the integrator's.
    `springs_and_constant_effort` on a model with no spring or constant-effort
    support. Computed: the result states the choice and an empty set of held
    supports. Other reading: it states only that nothing was held.
-4. **Section that carries contents.** The mass-basis name of DEL-05-01, the
-   pressure-bore row of DEL-05-03's table and DEL-03-08's effective wall all
-   put contents on the bore of radius R − t_r. Computed on that bore. The
-   weaker reading, contents on the nominal bore (radius R − t), gives
-   w_ordinary ≈ 1454.779 N/m and w_test ≈ 1534.555 N/m
-   (`alternative_readings` in `references.json`).
-5. **Scope of a refusal.** The refusal scenarios say the test case is
+4. **Scope of a refusal.** The refusal scenarios say the test case is
    refused with no partial result. Whether the other cases of the same
    document still solve, and whether an imposed displacement at a held
    spring's base is a contradiction to refuse or moot (the spring's stiffness

@@ -357,7 +357,7 @@ def derive(inp, chk):
            s["w_test"] - s["w_ordinary"], g * (inp["rho_c_test"] - inp["rho_c_section"]) * s["A_bore"])
     chk.eq("weights: double counted - test = section contents weight",
            s["w_double_counted"] - s["w_test"], g * s["mu_contents_section"])
-    # alternative reading (README, open reading 4): contents on the nominal bore pi r_n^2
+    # negative control (README, item 3): contents on the nominal bore pi r_n^2, which DEL-05-03 does not admit
     s["alt_w_ordinary_nominal_bore"] = g * (s["mu_metal"] + inp["rho_c_section"] * PI * r_n * r_n + s["mu_insulation"])
     s["alt_w_test_nominal_bore"] = g * (s["mu_metal"] + inp["rho_c_test"] * PI * r_n * r_n + s["mu_insulation"])
     return s
@@ -892,7 +892,10 @@ def document():
     pressure_stresses = {p: {b: {k: value(v, unit="Pa", pressure_elongation="independent") for k, v in vals.items()}
                              for b, vals in bases.items()} for p, bases in lame_sets.items()}
     alternative = {
-        "open_reading_4_contents_on_nominal_bore": {
+        "negative_control_contents_on_nominal_bore": {
+            "label": "negative control: contents mass on the nominal bore (radius R - t); DEL-05-03's section "
+                     "bases table assigns contents mass to the pressure bore (radius R - t_r), so a correct "
+                     "result shows neither value",
             "w_ordinary": value(s["alt_w_ordinary_nominal_bore"], unit="N/m"),
             "w_test": value(s["alt_w_test_nominal_bore"], unit="N/m"),
         },
@@ -919,7 +922,7 @@ def document():
     ctrl_rows = sum(len(x["rows"]) for c in cases for x in c["negative_controls"])
     return {
         "document": "swbpipe.hydrostatic_test_references",
-        "status": "candidate frozen references; derived and cross-checked by the author, not yet independently refuted",
+        "status": "candidate frozen references; derived and cross-checked by the author",
         "generator": GENERATOR,
         "units": {"force": "N", "moment": "N*m", "translation": "m", "stress": "Pa", "load_per_length": "N/m"},
         "theory": "small-displacement linear elasticity; straight runs along global X; Euler-Bernoulli flexure, or "
@@ -946,7 +949,7 @@ def document():
         "derived": derived,
         "weights_negative_controls": negative_weights,
         "pressure_stresses": pressure_stresses,
-        "alternative_readings": alternative,
+        "counterfactuals": alternative,
         "binary64_input_check": b64,
         "refusals": refusals,
         "crosscheck": chk.items,
