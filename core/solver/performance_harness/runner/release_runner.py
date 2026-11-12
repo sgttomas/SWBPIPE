@@ -94,9 +94,10 @@ _DEFAULT = (
     # (rack_model.py), so nonlinear-ex runs the same active-set loop as nonlinear-pf on the same
     # supports and restrained DOFs, and the cap refuses criterion 9's 2,000 nodes before any case.
     ('nonlinear-ex', 2000, 60, 2, 'refused:NONLINEAR_DENSE_MEMORY_LIMIT_EXCEEDED'),
-    ('nonlinear-ex', 250, 120, 30, 'solved'),
-    ('nonlinear-ex', 500, 240, 90, 'solved'),
-    ('nonlinear-ex', 1000, 900, 300, 'solved'),
+    # A stack-sampled run on main c407e3db0 (not a timing) ended in 24 s at 1,000 nodes.
+    ('nonlinear-ex', 250, 120, 15, 'solved'),
+    ('nonlinear-ex', 500, 240, 30, 'solved'),
+    ('nonlinear-ex', 1000, 900, 60, 'solved'),
 )
 
 SUBSETS = {
@@ -110,6 +111,10 @@ SUBSETS = {
     # One window for the growth law of both exact-route profiles below the nonlinear cap.
     'scaling': lambda r: not r['attribute'] and r['profile'] in ('linear-ex', 'nonlinear-ex')
     and r['nodes'] in (250, 500, 1000),
+    # The same, then the linear rack at criterion 9's size, where a longer window allows it.
+    'scaling-2000': lambda r: not r['attribute'] and (
+        (r['profile'] in ('linear-ex', 'nonlinear-ex') and r['nodes'] in (250, 500, 1000))
+        or (r['profile'], r['nodes']) == ('linear-ex', 2000)),
     'linear': lambda r: r['profile'] == 'linear-ex',
     'nonlinear-pf': lambda r: r['profile'] == 'nonlinear-pf',
     'nonlinear-ex': lambda r: r['profile'] == 'nonlinear-ex',
@@ -209,7 +214,7 @@ def format_plan(plan, budget_s=WINDOW_BUDGET_S):
     total = plan_total_s(plan)
     out.append('total estimate: %d s (%.1f min); window budget %d s; runs whose estimate exceeds the remaining '
                'budget are skipped, and each timeout is capped at the remaining budget.' % (total, total / 60, budget_s))
-    out.append('estimates: dry runs of these rack models with this driver on a shared development host, not '
+    out.append('estimates: they order and bound the window; none is a '
                'measurements. budget: the phys_footprint kill (the product budget); rss_cap: the emergency ps RSS kill. '
                'A run id ending -attr takes stack snapshots; its timings are not measurements.')
     return '\n'.join(out) + '\n'
