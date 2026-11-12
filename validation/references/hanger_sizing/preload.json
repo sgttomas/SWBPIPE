@@ -1,0 +1,877 @@
+{
+  "schema": "swbpipe.hanger_sizing_reference.preload/1",
+  "basis": "Independent reference for the variable spring preload (DEL-04-03 REQ-014 and AC-009; DEL-04-11 REQ-014 and AC-014). A variable spring hanger is a spring of its rate k on UZ plus its cold load F_cold as a constant force along +Z, acting in every load case. It carries F_cold - k (u - g), where u is the node's UZ displacement from the drawn geometry and g the displacement of the spring's base along its axis (zero unless stated); that is its published support force. A held spring (a test case whose test condition is springs_and_constant_effort) is a rigid UZ restraint at zero displacement, and neither its stiffness nor its cold load acts; its published force is the restraint's reaction. Straight horizontal Euler-Bernoulli beams along +X with axial deformation, shear neglected, small displacements, one circular tube section: d = D - 2t, A = pi (D^2 - d^2)/4, I = pi (D^4 - d^4)/64. Z is vertical, positive up; SI units (m, N, Pa, N/m). Every load is a stored nodal force along Z; no self-weight, contents weight or line load is generated. Every published force is the force the support exerts on the pipe, positive along +Z. Values containing E I contain pi; they are computed exactly at rational lower and upper bounds of pi (Machin's formula, 120 digits) and emitted rounded to the nearest binary64, which agrees at both bounds. With each input replaced by its binary64 value only the stated properties are checked again (the held reactions, the held hanger at zero, every acting spring's force positive, the unloaded span lifted); emitted values are not compared there, and a few move by one unit in the last place. Each closed form agrees exactly with an exact-rational stiffness solve. Every value is invented. See README.md for the derivations. In an expected block, a null or an absent member means that this reference supplies no expectation for that quantity; a product comparison must not assert that the product publishes nothing there. The exceptions, where a null or an empty list is itself the expectation, are listed in comparison_semantics.",
+  "comparison_semantics": {
+    "general": "In an expected block, a null or an absent member means that this reference supplies no expectation for that quantity; a product comparison must not assert that the product publishes nothing there. The exceptions, where a null or an empty list is itself the expectation, are listed in comparison_semantics.",
+    "expected_null_or_empty": [
+      "published_applied_force_n null for a held spring (PA-HT): the held spring publishes no applied force, for the reason in applied_force_null_reason (DEL-04-11 REQ-014; DEL-05-01 held support). That absence is expected.",
+      "applied_force_null_reason {}: no hanger in the case has a null applied force. It explains the rows and is not a product quantity."
+    ],
+    "inputs_not_expectations": [
+      "test_condition null (no test condition), includes [] (the case includes no stored load) and spring_base_displacements [] (no base moves) describe the document."
+    ]
+  },
+  "models": [
+    {
+      "id": "P-A",
+      "description": "Span with one spring hanger. Nodes N1..N5 at x = 0, 2, 4, 6, 8 m; members M1..M4; S-1 (N1) and S-5 (N5) rigid UZ; G-1 (N1: UX, UY, RX) and G-5 (N5: UY) restrain the out-of-plane and axial motion, UX at N1 only. Spring hanger SH-3 at N3 (UZ): k = 150000 N/m, cold load 6000 N. Stored loads F-A -5000 N at N2, F-B -7000 N at N4, F-C -3000 N at N4, F-H1 -4000 N at N2 and F-H2 -4000 N at N4 (test water). Closed form: simply supported 8 m span, f(x, a) = b x (L^2 - b^2 - x^2) / (6 E I L) with b = L - a and x <= a (symmetric); u_3 = (sum_j f(4, x_j) F_j + f(4, 4)(F_cold + k g)) / (1 + k f(4, 4)); spring force F_cold - k (u_3 - g); end reactions by statics. Held: two 4 m spans, three-moment M_B = -3 L (P1 + P2)/32, R_S1 = P1/2 + M_B/L, R_S5 = P2/2 + M_B/L, R_SH3 = (P1 + P2)/2 - 2 M_B/L, with P1 and P2 the downward loads at N2 and N4.",
+      "section": {
+        "outside_diameter_m": 0.25,
+        "wall_thickness_m": 0.01,
+        "elastic_modulus_pa": 200000000000.0,
+        "poisson_ratio": 0.3
+      },
+      "nodes": {
+        "N1": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "N2": [
+          2.0,
+          0.0,
+          0.0
+        ],
+        "N3": [
+          4.0,
+          0.0,
+          0.0
+        ],
+        "N4": [
+          6.0,
+          0.0,
+          0.0
+        ],
+        "N5": [
+          8.0,
+          0.0,
+          0.0
+        ]
+      },
+      "members": [
+        {
+          "id": "M1",
+          "end_nodes": [
+            "N1",
+            "N2"
+          ]
+        },
+        {
+          "id": "M2",
+          "end_nodes": [
+            "N2",
+            "N3"
+          ]
+        },
+        {
+          "id": "M3",
+          "end_nodes": [
+            "N3",
+            "N4"
+          ]
+        },
+        {
+          "id": "M4",
+          "end_nodes": [
+            "N4",
+            "N5"
+          ]
+        }
+      ],
+      "supports": [
+        {
+          "id": "S-1",
+          "node": "N1",
+          "kind": "rigid",
+          "dofs": [
+            "UZ"
+          ]
+        },
+        {
+          "id": "S-5",
+          "node": "N5",
+          "kind": "rigid",
+          "dofs": [
+            "UZ"
+          ]
+        },
+        {
+          "id": "G-1",
+          "node": "N1",
+          "kind": "rigid",
+          "dofs": [
+            "UX",
+            "UY",
+            "RX"
+          ]
+        },
+        {
+          "id": "G-5",
+          "node": "N5",
+          "kind": "rigid",
+          "dofs": [
+            "UY"
+          ]
+        },
+        {
+          "id": "SH-3",
+          "node": "N3",
+          "kind": "variable_spring_hanger",
+          "dofs": [
+            "UZ"
+          ],
+          "stiffness_n_per_m": 150000.0,
+          "cold_load_n": 6000.0
+        }
+      ],
+      "stored_loads": [
+        {
+          "id": "F-A",
+          "kind": "nodal_force",
+          "node": "N2",
+          "direction": "+Z",
+          "value_n": -5000.0
+        },
+        {
+          "id": "F-B",
+          "kind": "nodal_force",
+          "node": "N4",
+          "direction": "+Z",
+          "value_n": -7000.0
+        },
+        {
+          "id": "F-C",
+          "kind": "nodal_force",
+          "node": "N4",
+          "direction": "+Z",
+          "value_n": -3000.0
+        },
+        {
+          "id": "F-H1",
+          "kind": "nodal_force",
+          "node": "N2",
+          "direction": "+Z",
+          "value_n": -4000.0
+        },
+        {
+          "id": "F-H2",
+          "kind": "nodal_force",
+          "node": "N4",
+          "direction": "+Z",
+          "value_n": -4000.0
+        }
+      ],
+      "load_cases": [
+        {
+          "id": "PA-WT",
+          "description": "Weight: F-A and F-B; the cold load acts.",
+          "includes": [
+            {
+              "load": "F-A",
+              "factor": 1.0
+            },
+            {
+              "load": "F-B",
+              "factor": 1.0
+            }
+          ],
+          "spring_base_displacements": [],
+          "test_condition": null,
+          "expected": {
+            "u_hanger_m": {
+              "SH-3": -0.0019236636147800458
+            },
+            "u_nodes_m": {
+              "N1": 0.0,
+              "N2": -0.0015217305838224253,
+              "N3": -0.0019236636147800458,
+              "N4": -0.0017669143975592176,
+              "N5": 0.0
+            },
+            "published_support_force_n": {
+              "SH-3": 6288.549542217007,
+              "S-1": 2355.7252288914965,
+              "S-5": 3355.7252288914965
+            },
+            "published_applied_force_n": {
+              "SH-3": 6000.0
+            },
+            "applied_force_null_reason": {},
+            "force_plus_spring_twin": {
+              "SH-3": {
+                "plain_spring_force_n": 288.5495422170069,
+                "applied_force_n": 6000.0,
+                "displacements": "identical to u_nodes_m"
+              }
+            }
+          }
+        },
+        {
+          "id": "PA-EMPTY",
+          "description": "No load of its own; the cold load still acts and lifts the span.",
+          "includes": [],
+          "spring_base_displacements": [],
+          "test_condition": null,
+          "expected": {
+            "u_hanger_m": {
+              "SH-3": 0.0051297696394134555
+            },
+            "u_nodes_m": {
+              "N1": 0.0,
+              "N2": 0.003526716627096751,
+              "N3": 0.0051297696394134555,
+              "N4": 0.003526716627096751,
+              "N5": 0.0
+            },
+            "published_support_force_n": {
+              "SH-3": 5230.534554087982,
+              "S-1": -2615.267277043991,
+              "S-5": -2615.267277043991
+            },
+            "published_applied_force_n": {
+              "SH-3": 6000.0
+            },
+            "applied_force_null_reason": {},
+            "force_plus_spring_twin": {
+              "SH-3": {
+                "plain_spring_force_n": -769.4654459120184,
+                "applied_force_n": 6000.0,
+                "displacements": "identical to u_nodes_m"
+              }
+            }
+          }
+        },
+        {
+          "id": "PA-BASE",
+          "description": "F-A and F-B with SH-3's base moved g = -0.004 m along +Z.",
+          "includes": [
+            {
+              "load": "F-A",
+              "factor": 1.0
+            },
+            {
+              "load": "F-B",
+              "factor": 1.0
+            }
+          ],
+          "spring_base_displacements": [
+            {
+              "support": "SH-3",
+              "dof": "UZ",
+              "value_m": -0.004
+            }
+          ],
+          "test_condition": null,
+          "expected": {
+            "u_hanger_m": {
+              "SH-3": -0.0024366405787213915
+            },
+            "u_nodes_m": {
+              "N1": 0.0,
+              "N2": -0.0018744022465321003,
+              "N3": -0.0024366405787213915,
+              "N4": -0.002119586060268893,
+              "N5": 0.0
+            },
+            "published_support_force_n": {
+              "SH-3": 5765.496086808209,
+              "S-1": 2617.2519565958955,
+              "S-5": 3617.2519565958955
+            },
+            "published_applied_force_n": {
+              "SH-3": 6000.0
+            },
+            "applied_force_null_reason": {},
+            "force_plus_spring_twin": {
+              "SH-3": {
+                "plain_spring_force_n": -234.50391319179127,
+                "applied_force_n": 6000.0,
+                "displacements": "identical to u_nodes_m"
+              }
+            }
+          }
+        },
+        {
+          "id": "PA-B",
+          "description": "Case B of the superposition statement: F-C only.",
+          "includes": [
+            {
+              "load": "F-C",
+              "factor": 1.0
+            }
+          ],
+          "spring_base_displacements": [],
+          "test_condition": null,
+          "expected": {
+            "u_hanger_m": {
+              "SH-3": 0.0033664113258650803
+            },
+            "u_nodes_m": {
+              "N1": 0.0,
+              "N2": 0.002417844707952452,
+              "N3": 0.0033664113258650803,
+              "N4": 0.0020500689873472634,
+              "N5": 0.0
+            },
+            "published_support_force_n": {
+              "SH-3": 5495.0383011202375,
+              "S-1": -1997.519150560119,
+              "S-5": -497.519150560119
+            },
+            "published_applied_force_n": {
+              "SH-3": 6000.0
+            },
+            "applied_force_null_reason": {},
+            "force_plus_spring_twin": {
+              "SH-3": {
+                "plain_spring_force_n": -504.961698879762,
+                "applied_force_n": 6000.0,
+                "displacements": "identical to u_nodes_m"
+              }
+            }
+          }
+        },
+        {
+          "id": "PA-AB",
+          "description": "The loads of PA-WT and PA-B solved directly, with one cold load.",
+          "includes": [
+            {
+              "load": "F-A",
+              "factor": 1.0
+            },
+            {
+              "load": "F-B",
+              "factor": 1.0
+            },
+            {
+              "load": "F-C",
+              "factor": 1.0
+            }
+          ],
+          "spring_base_displacements": [],
+          "test_condition": null,
+          "expected": {
+            "u_hanger_m": {
+              "SH-3": -0.0036870219283284215
+            },
+            "u_nodes_m": {
+              "N1": 0.0,
+              "N2": -0.0026306025029667244,
+              "N3": -0.0036870219283284215,
+              "N4": -0.003243562037308705,
+              "N5": 0.0
+            },
+            "published_support_force_n": {
+              "SH-3": 6553.053289249263,
+              "S-1": 2973.4733553753686,
+              "S-5": 5473.473355375369
+            },
+            "published_applied_force_n": {
+              "SH-3": 6000.0
+            },
+            "applied_force_null_reason": {},
+            "force_plus_spring_twin": {
+              "SH-3": {
+                "plain_spring_force_n": 553.0532892492632,
+                "applied_force_n": 6000.0,
+                "displacements": "identical to u_nodes_m"
+              }
+            }
+          }
+        },
+        {
+          "id": "PA-HT",
+          "description": "Test case holding springs (springs_and_constant_effort), test pressure 6 MPa: SH-3 is a rigid UZ restraint at zero; neither its stiffness nor its cold load acts.",
+          "includes": [
+            {
+              "load": "F-A",
+              "factor": 1.0
+            },
+            {
+              "load": "F-B",
+              "factor": 1.0
+            },
+            {
+              "load": "F-H1",
+              "factor": 1.0
+            },
+            {
+              "load": "F-H2",
+              "factor": 1.0
+            }
+          ],
+          "spring_base_displacements": [],
+          "test_condition": {
+            "held_supports": "springs_and_constant_effort",
+            "test_pressure_pa": 6000000.0
+          },
+          "expected": {
+            "u_hanger_m": {
+              "SH-3": 0.0
+            },
+            "u_nodes_m": {
+              "N1": 0.0,
+              "N2": -0.0004137476856808371,
+              "N3": 0.0,
+              "N4": -0.0006589314994176294,
+              "N5": 0.0
+            },
+            "published_support_force_n": {
+              "S-1": 2625.0,
+              "SH-3": 13750.0,
+              "S-5": 3625.0
+            },
+            "published_applied_force_n": {
+              "SH-3": null
+            },
+            "applied_force_null_reason": {
+              "SH-3": "held in a test case: the spring is a rigid restraint and its cold load does not act"
+            }
+          }
+        },
+        {
+          "id": "PA-HT-NONE",
+          "description": "The same test case with held supports 'none': SH-3 acts as in any case, with its cold load.",
+          "includes": [
+            {
+              "load": "F-A",
+              "factor": 1.0
+            },
+            {
+              "load": "F-B",
+              "factor": 1.0
+            },
+            {
+              "load": "F-H1",
+              "factor": 1.0
+            },
+            {
+              "load": "F-H2",
+              "factor": 1.0
+            }
+          ],
+          "spring_base_displacements": [],
+          "test_condition": {
+            "held_supports": "none",
+            "test_pressure_pa": 6000000.0
+          },
+          "expected": {
+            "u_hanger_m": {
+              "SH-3": -0.006625952450909047
+            },
+            "u_nodes_m": {
+              "N1": 0.0,
+              "N2": -0.004969089995680807,
+              "N3": -0.006625952450909047,
+              "N4": -0.005214273809417599,
+              "N5": 0.0
+            },
+            "published_support_force_n": {
+              "SH-3": 6993.892867636357,
+              "S-1": 6003.053566181821,
+              "S-5": 7003.053566181821
+            },
+            "published_applied_force_n": {
+              "SH-3": 6000.0
+            },
+            "applied_force_null_reason": {},
+            "force_plus_spring_twin": {
+              "SH-3": {
+                "plain_spring_force_n": 993.8928676363571,
+                "applied_force_n": 6000.0,
+                "displacements": "identical to u_nodes_m"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "P-B",
+      "description": "Two spring hangers on one span. Nodes N1..N7 at x = 0, 2, ..., 12 m; S-1 (N1) and S-7 (N7) rigid UZ; G-1 (N1: UX, UY, RX), G-7 (N7: UY). SH-3 at N3 (x = 4): k = 120000 N/m, cold load 5000 N; SH-5 at N5 (x = 8): k = 200000 N/m, cold load 7500 N. Stored loads F-1 -6000 N at N2, F-2 -9000 N at N4, F-3 -4000 N at N6. Closed form: the two hanger equations u_i + sum_j f_ij k_j u_j = sum_l f_il F_l + sum_j f_ij (F_cold,j + k_j g_j) for the simply supported 12 m span, solved by Cramer's rule.",
+      "section": {
+        "outside_diameter_m": 0.25,
+        "wall_thickness_m": 0.01,
+        "elastic_modulus_pa": 200000000000.0,
+        "poisson_ratio": 0.3
+      },
+      "nodes": {
+        "N1": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "N2": [
+          2.0,
+          0.0,
+          0.0
+        ],
+        "N3": [
+          4.0,
+          0.0,
+          0.0
+        ],
+        "N4": [
+          6.0,
+          0.0,
+          0.0
+        ],
+        "N5": [
+          8.0,
+          0.0,
+          0.0
+        ],
+        "N6": [
+          10.0,
+          0.0,
+          0.0
+        ],
+        "N7": [
+          12.0,
+          0.0,
+          0.0
+        ]
+      },
+      "members": [
+        {
+          "id": "M1",
+          "end_nodes": [
+            "N1",
+            "N2"
+          ]
+        },
+        {
+          "id": "M2",
+          "end_nodes": [
+            "N2",
+            "N3"
+          ]
+        },
+        {
+          "id": "M3",
+          "end_nodes": [
+            "N3",
+            "N4"
+          ]
+        },
+        {
+          "id": "M4",
+          "end_nodes": [
+            "N4",
+            "N5"
+          ]
+        },
+        {
+          "id": "M5",
+          "end_nodes": [
+            "N5",
+            "N6"
+          ]
+        },
+        {
+          "id": "M6",
+          "end_nodes": [
+            "N6",
+            "N7"
+          ]
+        }
+      ],
+      "supports": [
+        {
+          "id": "S-1",
+          "node": "N1",
+          "kind": "rigid",
+          "dofs": [
+            "UZ"
+          ]
+        },
+        {
+          "id": "S-7",
+          "node": "N7",
+          "kind": "rigid",
+          "dofs": [
+            "UZ"
+          ]
+        },
+        {
+          "id": "G-1",
+          "node": "N1",
+          "kind": "rigid",
+          "dofs": [
+            "UX",
+            "UY",
+            "RX"
+          ]
+        },
+        {
+          "id": "G-7",
+          "node": "N7",
+          "kind": "rigid",
+          "dofs": [
+            "UY"
+          ]
+        },
+        {
+          "id": "SH-3",
+          "node": "N3",
+          "kind": "variable_spring_hanger",
+          "dofs": [
+            "UZ"
+          ],
+          "stiffness_n_per_m": 120000.0,
+          "cold_load_n": 5000.0
+        },
+        {
+          "id": "SH-5",
+          "node": "N5",
+          "kind": "variable_spring_hanger",
+          "dofs": [
+            "UZ"
+          ],
+          "stiffness_n_per_m": 200000.0,
+          "cold_load_n": 7500.0
+        }
+      ],
+      "stored_loads": [
+        {
+          "id": "F-1",
+          "kind": "nodal_force",
+          "node": "N2",
+          "direction": "+Z",
+          "value_n": -6000.0
+        },
+        {
+          "id": "F-2",
+          "kind": "nodal_force",
+          "node": "N4",
+          "direction": "+Z",
+          "value_n": -9000.0
+        },
+        {
+          "id": "F-3",
+          "kind": "nodal_force",
+          "node": "N6",
+          "direction": "+Z",
+          "value_n": -4000.0
+        }
+      ],
+      "load_cases": [
+        {
+          "id": "PB-WT",
+          "description": "Weight: F-1, F-2 and F-3; both cold loads act.",
+          "includes": [
+            {
+              "load": "F-1",
+              "factor": 1.0
+            },
+            {
+              "load": "F-2",
+              "factor": 1.0
+            },
+            {
+              "load": "F-3",
+              "factor": 1.0
+            }
+          ],
+          "spring_base_displacements": [],
+          "test_condition": null,
+          "expected": {
+            "u_hanger_m": {
+              "SH-3": -0.005748053546897046,
+              "SH-5": -0.004302841464756829
+            },
+            "u_nodes_m": {
+              "N1": 0.0,
+              "N2": -0.0038253275712861147,
+              "N3": -0.005748053546897046,
+              "N4": -0.006110262780245648,
+              "N5": -0.004302841464756829,
+              "N6": -0.0024075271158279293,
+              "N7": 0.0
+            },
+            "published_support_force_n": {
+              "SH-3": 5689.766425627646,
+              "SH-5": 8360.568292951366,
+              "S-1": 3586.6329519311143,
+              "S-7": 1363.0323294898742
+            },
+            "published_applied_force_n": {
+              "SH-3": 5000.0,
+              "SH-5": 7500.0
+            },
+            "applied_force_null_reason": {},
+            "force_plus_spring_twin": {
+              "SH-3": {
+                "plain_spring_force_n": 689.7664256276455,
+                "applied_force_n": 5000.0,
+                "displacements": "identical to u_nodes_m"
+              },
+              "SH-5": {
+                "plain_spring_force_n": 860.5682929513658,
+                "applied_force_n": 7500.0,
+                "displacements": "identical to u_nodes_m"
+              }
+            }
+          }
+        },
+        {
+          "id": "PB-EMPTY",
+          "description": "No load of its own; both cold loads act.",
+          "includes": [],
+          "spring_base_displacements": [],
+          "test_condition": null,
+          "expected": {
+            "u_hanger_m": {
+              "SH-3": 0.016979286559054712,
+              "SH-5": 0.01732960315116397
+            },
+            "u_nodes_m": {
+              "N1": 0.0,
+              "N2": 0.00971054228264007,
+              "N3": 0.016979286559054712,
+              "N4": 0.019727611583375743,
+              "N5": 0.01732960315116397,
+              "N6": 0.010017069300735672,
+              "N7": 0.0
+            },
+            "published_support_force_n": {
+              "SH-3": 2962.4856129134346,
+              "SH-5": 4034.079369767206,
+              "S-1": -3319.6835318646918,
+              "S-7": -3676.881450815949
+            },
+            "published_applied_force_n": {
+              "SH-3": 5000.0,
+              "SH-5": 7500.0
+            },
+            "applied_force_null_reason": {},
+            "force_plus_spring_twin": {
+              "SH-3": {
+                "plain_spring_force_n": -2037.5143870865652,
+                "applied_force_n": 5000.0,
+                "displacements": "identical to u_nodes_m"
+              },
+              "SH-5": {
+                "plain_spring_force_n": -3465.920630232794,
+                "applied_force_n": 7500.0,
+                "displacements": "identical to u_nodes_m"
+              }
+            }
+          }
+        },
+        {
+          "id": "PB-BASE",
+          "description": "PB-WT's loads with SH-5's base moved g = +0.003 m along +Z.",
+          "includes": [
+            {
+              "load": "F-1",
+              "factor": 1.0
+            },
+            {
+              "load": "F-2",
+              "factor": 1.0
+            },
+            {
+              "load": "F-3",
+              "factor": 1.0
+            }
+          ],
+          "spring_base_displacements": [
+            {
+              "support": "SH-5",
+              "dof": "UZ",
+              "value_m": 0.003
+            }
+          ],
+          "test_condition": null,
+          "expected": {
+            "u_hanger_m": {
+              "SH-3": -0.0050159148199471,
+              "SH-5": -0.003404565697297009
+            },
+            "u_nodes_m": {
+              "N1": 0.0,
+              "N2": -0.0034292683593663766,
+              "N3": -0.0050159148199471,
+              "N4": -0.0051727744459600326,
+              "N5": -0.003404565697297009,
+              "N6": -0.0018660979934620517,
+              "N7": 0.0
+            },
+            "published_support_force_n": {
+              "SH-3": 5601.909778393652,
+              "SH-5": 8780.913139459402,
+              "S-1": 3505.089101251098,
+              "S-7": 1112.0879808958482
+            },
+            "published_applied_force_n": {
+              "SH-3": 5000.0,
+              "SH-5": 7500.0
+            },
+            "applied_force_null_reason": {},
+            "force_plus_spring_twin": {
+              "SH-3": {
+                "plain_spring_force_n": 601.909778393652,
+                "applied_force_n": 5000.0,
+                "displacements": "identical to u_nodes_m"
+              },
+              "SH-5": {
+                "plain_spring_force_n": 1280.9131394594017,
+                "applied_force_n": 7500.0,
+                "displacements": "identical to u_nodes_m"
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "superposition": {
+    "model": "P-A",
+    "case_a": "PA-WT",
+    "case_b": "PA-B",
+    "direct_case": "PA-AB",
+    "factors": {
+      "PA-WT": 1.0,
+      "PA-B": 1.0
+    },
+    "statement": "The direct solve of the loads of A plus B carries one cold load. The naive sum of the solved states of A and B (factor sum 2) carries it twice. Their difference, naive minus direct, is exactly the response to one extra cold load alone, which is case PA-EMPTY.",
+    "direct_u_nodes_m": {
+      "N1": 0.0,
+      "N2": -0.0026306025029667244,
+      "N3": -0.0036870219283284215,
+      "N4": -0.003243562037308705,
+      "N5": 0.0
+    },
+    "naive_sum_u_nodes_m": {
+      "N1": 0.0,
+      "N2": 0.0008961141241300266,
+      "N3": 0.0014427477110850345,
+      "N4": 0.0002831545897880458,
+      "N5": 0.0
+    },
+    "naive_minus_direct_u_nodes_m": {
+      "N1": 0.0,
+      "N2": 0.003526716627096751,
+      "N3": 0.0051297696394134555,
+      "N4": 0.003526716627096751,
+      "N5": 0.0
+    },
+    "direct_published_support_force_n": {
+      "SH-3": 6553.053289249263,
+      "S-1": 2973.4733553753686,
+      "S-5": 5473.473355375369
+    },
+    "naive_sum_published_support_force_n": {
+      "SH-3": 11783.587843337245,
+      "S-1": 358.20607833137757,
+      "S-5": 2858.2060783313777
+    },
+    "naive_minus_direct_published_support_force_n": {
+      "SH-3": 5230.534554087982,
+      "S-1": -2615.267277043991,
+      "S-5": -2615.267277043991
+    },
+    "equals_case": "PA-EMPTY"
+  }
+}
