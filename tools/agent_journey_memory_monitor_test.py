@@ -219,7 +219,7 @@ def test_run_monitor_checks_at_admission_ready_exit_and_success_use_owned_cleanu
     run_root = root / "run"
     run_root.mkdir()
     args = SimpleNamespace(mode="live", app=bundle / "MacOS" / "app", model="invented",
-        context_window=32768, endpoint="unused", turn_timeout=1, deadline=10, release_grace=0,
+        context_window=32768, endpoint="http://127.0.0.1:9/v1", turn_timeout=1, deadline=10, release_grace=0,
         process_probe=root / "unused-probe", cancel_file=root / "cancel", memory_heartbeat=root / "heartbeat.json")
     app = FakeApp()
     app.stdin, app.stderr = io.BytesIO(), None
@@ -243,7 +243,7 @@ def test_run_monitor_checks_at_admission_ready_exit_and_success_use_owned_cleanu
     monkeypatch.setattr(journey.native_launch_guard, "SECOND_LOOK_SECONDS", 0)
     monkeypatch.setattr(journey, "Lines", lambda *a: lines)
     monkeypatch.setattr(journey, "Scope", lambda *a: observer)
-    monkeypatch.setattr(journey, "anchor_start", lambda *a: anchor)
+    monkeypatch.setattr(journey, "anchor_start", lambda *a, **k: anchor)
     monkeypatch.setattr(journey, "cleanup_anchor", lambda value: events.append(("rescue", value)))
     monkeypatch.setattr(journey, "answer_gate", lambda p, value: events.append(("gate", value)) or True)
     monkeypatch.setattr(journey, "residents", lambda *a: [])

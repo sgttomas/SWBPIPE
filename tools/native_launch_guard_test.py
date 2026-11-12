@@ -4,6 +4,10 @@ invented executable. The account's real Library, home folders, temporary and cac
 screen are never read: every check gets invented ones, and every name in them is invented."""
 from __future__ import annotations
 
+# Its directory scans read only folders the tests make under pytest's temporary folder, never
+# repository files (tools/ci/python_test_reads.py).
+CI_READS = ()
+
 import ast
 import json
 import os
@@ -63,8 +67,22 @@ def account(tmp_path, monkeypatch):
     monkeypatch.setattr(guard, "check_launch", lambda *a: {"launch": "invented"})
     monkeypatch.setattr(guard, "SETTLE_SECONDS", 0)
     monkeypatch.setattr(guard, "SECOND_LOOK_SECONDS", 0)
-    return SimpleNamespace(real=real, library=real / "Library", temp=temp.resolve(), cache=cache.resolve(),
-                           evidence=evidence.resolve(), exe=executable(tmp_path), tmp=tmp_path)
+    yield SimpleNamespace(real=real, library=real / "Library", temp=temp.resolve(), cache=cache.resolve(),
+                          evidence=evidence.resolve(), exe=executable(tmp_path), tmp=tmp_path)
+    open_up(tmp_path)  # whatever the test ended by, nothing it made stays unremovable
+
+
+def open_up(path):
+    """Give back owner access to every folder under `path`, so that removal never meets a folder a
+    test left unreadable; links are not followed."""
+    try:
+        os.chmod(path, 0o700)
+        entries = list(os.scandir(path))
+    except OSError:
+        return
+    for entry in entries:
+        if entry.is_dir(follow_symlinks=False):
+            open_up(entry.path)
 
 
 def no_writers(monkeypatch):
@@ -93,7 +111,7 @@ def in_cache(account, *parts):
 
 def web_view_data(run):
     data = run.home / "Library" / "WebKit" / EXE / "WebsiteData"
-    data.mkdir(parents=True)
+    data.mkdir(parents=True, exist_ok=True)
     (data / "salt").write_bytes(b"12345678")
 
 
@@ -275,7 +293,7 @@ def test_a_start_after_the_kit_folder_was_replaced_by_a_link_is_refused(account,
 
 def test_a_kit_folder_that_is_a_link_refuses_the_kit(account):
     foreign = account.tmp / "foreign"
-    foreign.mkdir()
+    foreign.mkdir(mode=0o700)  # private, so only the link itself can refuse it
     (account.temp / guard.KIT_DIR).symlink_to(foreign)
     with pytest.raises(guard.LaunchRefused, match="kit_folder_unopenable"):
         guard.Kit()
@@ -384,6 +402,8 @@ def write_json(path, data):
 # (c) Two runs sharing one evidence folder.
 def test_two_runs_sharing_an_evidence_folder_each_remove_only_their_own(account, monkeypatch):
     no_writers(monkeypatch)
+    monkeypatch.setattr(guard, "_process_table", lambda: {os.getpid(): (1, 1, 0, "", "x")})
+    monkeypatch.setattr(guard, "_open_under", lambda home: set())
     one, two = new_run(account, "one").begin(), new_run(account, "two").begin()
     with pytest.raises(FileExistsError):
         new_run(account, "one").begin()  # a record of that name exists: never written over
@@ -484,8 +504,8 @@ def test_a_child_the_run_started_and_has_not_seen_end_withholds(account):
     finally:
         child.kill()
         child.wait()
+    assert outcome["throwawayHome"]["cleanup"] == "withheld" and run.home.is_dir(), outcome["throwawayHome"]
     writers = outcome["throwawayHome"]["writers"]
-    assert outcome["throwawayHome"]["cleanup"] == "withheld" and run.home.is_dir()
     assert any("started by the run" in " ".join(w["why"]) for w in writers)
     assert run.generations[0]["start"] is not None and outcome["throwawayHome"]["coverage"]["processRows"] > 0
 
@@ -626,16 +646,19 @@ def test_no_inherited_descriptor_reaches_the_child(account, monkeypatch):
     assert descriptors <= {0, 1, 2, 3}, descriptors  # the standard streams and the listing's own
 
 
-@pytest.mark.parametrize("option", [{"pass_fds": (0,)}, {"close_fds": False}, {"preexec_fn": lambda: None},
-                                    {"env": {}}, {"cwd": "/"}, {"start_new_session": True}, {"stdout": 5},
-                                    {"stderr": subprocess.STDOUT}])
-def test_process_options_outside_the_allowlist_are_refused(account, monkeypatch, option):
+@pytest.mark.parametrize("option, refusal", [
+    ({"pass_fds": (0,)}, "process_option_not_allowed:pass_fds"), ({"close_fds": False}, "process_option_not_allowed:close_fds"),
+    ({"preexec_fn": lambda: None}, "process_option_not_allowed:preexec_fn"), ({"env": {}}, "process_option_not_allowed:env"),
+    ({"cwd": "/"}, "process_option_not_allowed:cwd"), ({"start_new_session": True}, "process_option_not_allowed:start_new_session"),
+    ({"stdout": 5}, "stream_not_allowed:stdout"), ({"stderr": subprocess.STDOUT}, "stream_not_allowed:stderr")])
+def test_process_options_outside_the_allowlist_are_refused(account, monkeypatch, option, refusal):
     no_writers(monkeypatch)
     monkeypatch.setattr(guard, "_POPEN", lambda *a, **k: pytest.fail("started"))
     run = new_run(account).begin()
     try:
-        with pytest.raises(guard.LaunchRefused, match="process_option_not_allowed|stream_not_allowed"):
+        with pytest.raises(guard.LaunchRefused) as raised:
             run.start("app", [str(account.exe)], **option)
+        assert str(raised.value) == refusal
     finally:
         run.finish()
 
@@ -671,7 +694,8 @@ PLAN = {"provider": {"endpoint": "http://127.0.0.1:9/v1", "model": "m", "context
     lambda p: p.update(extra="x"),
     lambda p: p["provider"].update(endpoint="file:///invented"),
     lambda p: p["provider"].update(endpoint="unix:/invented.sock"),
-    lambda p: p.update(turns=["/Users/invented/Documents/secret"]),
+    lambda p: p["provider"].update(endpoint="ws://127.0.0.1:9/v1"),
+    lambda p: p.update(turns=["/invented/Documents/secret"]),
     lambda p: p.update(resultProbe="~/invented"),
     lambda p: p["timeoutsMs"].update(ui="1"),
     lambda p: p["provider"].update(socket="/invented.sock"),
@@ -693,12 +717,10 @@ def test_the_plan_is_held_to_its_closed_shape(change):
 ])
 def test_an_evidence_folder_under_the_accounts_folders_or_the_repository_is_refused(account, where, refusal):
     path = where(account)
+    if "invented-evidence-folder" not in str(path):
+        path.mkdir()  # never created inside the repository: the location alone refuses
     with pytest.raises(guard.LaunchRefused, match=refusal):
-        if "invented-evidence-folder" in str(path):
-            guard.check_evidence(path)  # never created inside the repository
-        else:
-            path.mkdir()
-            guard.check_evidence(path)
+        guard.check_evidence(path)
 
 
 def test_an_evidence_folder_that_is_a_link_a_file_or_has_a_link_on_its_path_is_refused(account):
@@ -885,7 +907,10 @@ def quiet(account, monkeypatch):
     return account
 
 
-@pytest.mark.parametrize("top", guard.WATCHED_TOPS)
+WATCHED = ("WebKit", "Caches", "HTTPStorages", "Application Support", "Preferences", "Saved Application State", "Logs")
+
+
+@pytest.mark.parametrize("top", WATCHED)
 @pytest.mark.parametrize("name", NAMES)
 @pytest.mark.parametrize("change", ["created", "modified", "removed"])
 def test_each_change_under_each_watched_folder_for_each_name_is_a_product_change(quiet, top, name, change):
@@ -1020,9 +1045,14 @@ def test_a_product_named_entry_of_any_other_shape_in_the_cache_folder_trips_the_
     assert report["verdict"] == "product" and report["helperCache"]["changes"] == []
 
 
-def test_the_cache_folder_fails_closed_and_is_never_named_by_its_path(quiet, monkeypatch):
+def test_the_cache_folder_is_named_by_what_it_is_never_by_its_path(quiet):
+    in_cache(quiet, BUNDLE, "data")
+    before = guard.snapshot(NAMES, quiet.library, quiet.real, quiet.cache)
+    assert f"{guard.CACHE_TOP}/{BUNDLE}/data" in before["entries"] and str(quiet.cache) not in json.dumps(before)
+
+
+def test_the_cache_folder_fails_closed(quiet, monkeypatch):
     run = new_run(quiet).begin()
-    assert str(quiet.cache) not in json.dumps(run.before)
     report = compared(quiet, lambda: quiet.cache.chmod(0), run, keep_open=True)
     quiet.cache.chmod(0o700)
     monkeypatch.setattr(guard, "user_cache_dir", lambda: None)

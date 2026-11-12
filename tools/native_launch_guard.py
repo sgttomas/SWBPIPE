@@ -270,7 +270,9 @@ def _process_table():
 
 def _lsof_lines(argv):
     status, out, err = _read(argv)
-    if status not in (0, 1) or (status == 1 and (out.strip() or err.strip())):
+    # lsof exits 1 also when it found holders but not the named folder itself open; anything on
+    # standard error (warnings are suppressed with -w) or any other status is a failed listing.
+    if status not in (0, 1) or err.strip():
         raise OSError(f"lsof exit {status}")
     return out.decode("utf-8", "replace").splitlines()
 
@@ -478,17 +480,9 @@ class Kit:
 def check_evidence(evidence):
     """The run's evidence folder: absolute, a real folder with no link on its path, and neither
     under the account's Desktop, Documents, Downloads or Library nor under this repository."""
-    path = Path(evidence)
-    if not path.is_absolute():
+    if not Path(evidence).is_absolute():
         raise LaunchRefused("evidence_not_absolute")
-    try:
-        st = os.lstat(path)
-    except OSError:
-        raise LaunchRefused("evidence_missing") from None
-    if not stat.S_ISDIR(st.st_mode):
-        raise LaunchRefused("evidence_not_a_real_folder")
-    if os.path.realpath(path) != os.path.normpath(path):
-        raise LaunchRefused("evidence_path_has_a_link")
+    path = Path(os.path.normpath(evidence))
     real = Path(os.path.realpath(real_home()))
     for folder in PROTECTED_FOLDERS:
         if path == real / folder or (real / folder) in path.parents:
@@ -496,6 +490,14 @@ def check_evidence(evidence):
     repository = Path(os.path.realpath(Path(__file__).resolve().parents[1]))
     if path == repository or repository in path.parents:
         raise LaunchRefused("evidence_under_the_repository")
+    try:
+        st = os.lstat(path)
+    except OSError:
+        raise LaunchRefused("evidence_missing") from None
+    if not stat.S_ISDIR(st.st_mode):
+        raise LaunchRefused("evidence_not_a_real_folder")
+    if os.path.realpath(path) != str(path):
+        raise LaunchRefused("evidence_path_has_a_link")
     return path
 
 
@@ -1335,13 +1337,21 @@ class Run:
         except Exception as error:  # noqa: BLE001
             self.registry_errors.append(f"{state}: {type(error).__name__}")
 
+    def _drop(self):
+        try:
+            self.kit.drop_entry(self.entry["id"])
+        except FileNotFoundError:
+            pass
+        except Exception as error:  # noqa: BLE001
+            self.registry_errors.append(f"drop: {type(error).__name__}")
+
     def _remove(self, retain, outcome):
         if self.entry is None or self.kit is None:
             return {"cleanup": "not created", "removed": False}
         name = self.entry["home"]
         result = {"home": str(self.home), "statement": RESIDUAL_STATEMENT}
         if not self.kit.exists(name):
-            self.kit.drop_entry(self.entry["id"])
+            self._drop()
             return {**result, "cleanup": "not created", "removed": False}
         if self.entry["state"] == "creating":
             # Made, but its record was not completed: it stays in the inventory, never removed blind.
@@ -1382,8 +1392,9 @@ class Run:
             result["registryErrors"] = self.registry_errors
             return {**result, "cleanup": "reappeared", "removed": True, "secondLook": "reappeared",
                     "reason": "the home's path reappeared after removal; it is a left home and the SWBPIPE Agent 0 must be told"}
-        self.kit.drop_entry(self.entry["id"])
-        return {**result, "cleanup": "removed", "removed": True, "secondLook": "not reappeared"}
+        self._drop()
+        return {**result, "cleanup": "removed", "removed": True, "secondLook": "not reappeared",
+                "registryErrors": self.registry_errors}
 
     def __enter__(self):
         return self.begin()
