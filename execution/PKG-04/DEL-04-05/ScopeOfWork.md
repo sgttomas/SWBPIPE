@@ -67,7 +67,7 @@ A measurement on one host is evidence about that host. Whether exit criterion 9 
 
 - The engine is timed by a driver that performs the desktop solve worker's own steps on the product's public entry; the desktop is timed in the running application, through marks that change no behaviour.
 - One process runs at a time, in an exclusive window, under a footprint watch at the per-invocation budget. Attribution runs, which sample stacks to tie memory to code, are never used as timings.
-- Where nothing may be installed on the base machine, the timing driver supervises its own runs with the runner's watch, classification and records.
+- Where nothing may be installed on the base machine, the timing driver supervises its own runs using the runner's footprint-watch and classification rules, writes corresponding records that name its readings, and can additionally use the driver's lifetime-maximum footprint read at exit, including after a kill.
 - Peak physical footprint, not resident set size, judges the budget, because it is what the product itself enforces.
 - No projection is applied to times measured on a host that is not a base machine.
 - Result bytes are not kept unless asked; records are.

@@ -162,7 +162,9 @@ def test_an_unstaged_edit_of_a_linked_product_source_makes_the_identity_dirty(tm
     copy_workspace(copy)
     assert (copy / CRATE / "Cargo.toml").is_file() and (copy / EDITED).is_file()
     commit = new_repository(copy, "the copy, clean")
-    env = isolated_env(copy.parent)
+    # Cargo keeps HOME (rustup and cargo find their toolchain there); no GIT_* variable reaches it.
+    # The build script isolates its own git calls in any case (the next test sets GIT_DIR).
+    env = {name: value for name, value in os.environ.items() if not name.startswith("GIT_")}
 
     clean = build_identity(copy, target, env)
     assert (clean["source_commit"], clean["source_dirty"]) == (commit, False), clean
