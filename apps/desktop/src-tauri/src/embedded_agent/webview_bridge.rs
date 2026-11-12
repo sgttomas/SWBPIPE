@@ -269,7 +269,7 @@ mod tests {
             base_instructions: "invented".into(),
         })
         .unwrap();
-        for event in p.handle_frame(json!({"id":2,"result":{"thread":{"id":"thread-1"},"approvalPolicy":"never","sandbox":{"type":"readOnly","networkAccess":false}}}), &basis(2)).unwrap().events { b.observe(&event).unwrap(); }
+        for event in p.handle_frame(json!({"id":2,"result":crate::embedded_agent::protocol::fixture::thread_start_result("thread-1")}), &basis(2)).unwrap().events { b.observe(&event).unwrap(); }
         p.submit_text("invented".into()).unwrap();
         for event in p
             .handle_frame(
@@ -421,7 +421,7 @@ mod tests {
     fn terminal_turn_retires_unclaimed_work() {
         let (mut b, mut p, _) = setup();
         let reference = offer(&mut b, &mut p, 1);
-        for e in p.handle_frame(json!({"method":"turn/completed","params":{"thread":{"id":"thread-1"},"threadId":"thread-1","turn":{"id":"turn-1","status":"completed","items":[]}}}), &basis(2)).unwrap().events { b.observe(&e).unwrap(); }
+        for e in p.handle_frame(json!({"method":"turn/completed","params":{"threadId":"thread-1","turn":{"id":"turn-1","status":"completed","items":[]}}}), &basis(2)).unwrap().events { b.observe(&e).unwrap(); }
         assert_eq!(
             b.claim(origin(), &reference, &basis(2)).unwrap_err(),
             Refusal::Closed

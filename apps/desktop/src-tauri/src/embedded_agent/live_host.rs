@@ -445,6 +445,18 @@ impl Owner {
             (self.live_index, self.live.as_ref().and_then(Live::terminal))
         {
             self.retire_terminal(index, end);
+            // A protocol end names its closed, payload-free cause when the
+            // supplier's frames caused it, so the panel can say why.
+            if self.failure == Some("protocol") {
+                if let Some(refusal) = self
+                    .live
+                    .as_mut()
+                    .and_then(Live::driver)
+                    .and_then(|driver| driver.refusal())
+                {
+                    self.failure = Some(refusal.class());
+                }
+            }
         }
         if let Some(live) = &mut self.live {
             if !live.joined() {
@@ -546,6 +558,9 @@ impl Owner {
                             owner.turn_active = true;
                             owner.turn_id = Some(turn_id.clone());
                             owner.turn_status = "in_progress";
+                        }
+                        Event::Reconnecting(on) => {
+                            owner.turn_status = reconnecting_status(owner.turn_status, *on);
                         }
                         Event::TurnCompleted { status, .. } => {
                             owner.turn_active = false;
@@ -1069,8 +1084,30 @@ fn validate_actual(
     Ok(())
 }
 
+/// The turn standing while the runtime retries inside the active turn: set
+/// only from in progress, and returned to in progress when it clears. Every
+/// other standing is left as it is; the turn's end sets its own.
+fn reconnecting_status(current: &'static str, on: bool) -> &'static str {
+    match (current, on) {
+        ("in_progress", true) => "reconnecting",
+        ("reconnecting", false) => "in_progress",
+        (other, _) => other,
+    }
+}
+
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn reconnecting_is_a_turn_standing_set_and_cleared_only_from_in_progress() {
+        assert_eq!(super::reconnecting_status("in_progress", true), "reconnecting");
+        assert_eq!(super::reconnecting_status("reconnecting", true), "reconnecting");
+        assert_eq!(super::reconnecting_status("reconnecting", false), "in_progress");
+        for other in ["none", "starting", "completed", "interrupted", "failed"] {
+            assert_eq!(super::reconnecting_status(other, true), other);
+            assert_eq!(super::reconnecting_status(other, false), other);
+        }
+    }
+
     use super::super::protocol::{Protocol, ThreadOptions};
     use super::*;
     use crate::memory_pool::{test_host::ScriptedHost, MemoryPool};
@@ -1132,7 +1169,7 @@ mod tests {
             base_instructions: "invented".into(),
         })
         .unwrap();
-        for event in p.handle_frame(json!({"id":2,"result":{"thread":{"id":"thread-1"},"approvalPolicy":"never","sandbox":{"type":"readOnly","networkAccess":false}}}),&basis).unwrap().events{w.bridge.observe(&event).unwrap();}
+        for event in p.handle_frame(json!({"id":2,"result":crate::embedded_agent::protocol::fixture::thread_start_result("thread-1")}),&basis).unwrap().events{w.bridge.observe(&event).unwrap();}
         p.submit_text("invented".into()).unwrap();
         for event in p
             .handle_frame(
