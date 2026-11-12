@@ -28,7 +28,7 @@ curious about what my intentions are if you haven't gleaned it through how the
 project is constructed and how meaning is conveyed throughout."
 
 What that means here, within the extent, conditions and reservations of that
-grant:
+grant, including any limit on passing those decisions on:
 
 - Decisions follow perspective. Agent 0 decides what the target needs,
   including changes to scopes, criteria and holds, and records each decision
@@ -96,10 +96,11 @@ the files and say the check was unavailable.
 Correct a scope's description only when the thing being made has materially
 changed or the description is materially wrong, and correct a need the work
 showed to be wrong, missing or no longer applicable in the same pull request. A changed commitment or criterion
-is the owner's, unless an explicit delegation covers it. If a criterion looks wrong, cannot be met or no longer serves its purpose, and
-no explicit delegation covers it, do not change it, weaken its check or build around it: say what you found and
-what you would change, and carry on with what it does not affect; the other
-criteria stay in force. Treat an
+is the owner's, unless an explicit delegation covers it. If a criterion looks wrong, cannot be met or no longer serves its purpose, say
+what you found and what you would change. Decide the correction only within an
+explicit delegation; otherwise it goes to the owner. Never weaken its check,
+build around it or present an unmet criterion as passed. Carry on with what it
+does not affect; the other criteria stay in force. Treat an
 assumption you were given that turns out false the same way, taking it and its
 consequence to whoever integrates your work.
 
