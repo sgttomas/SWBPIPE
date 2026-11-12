@@ -305,9 +305,16 @@ describe("a replaced project never keeps an inherited default unit (Codex P2 on 
     expect(byId("create-support-stiffness-unit-notice")).toHaveTextContent("project.units.length is empty; choose one");
     expectFormControlValue(byId("create-material-thermal-unit"), "");
     expect(byId("create-material-thermal-unit-notice")).toHaveTextContent("project.units.temperature is empty; choose one");
-    expect(byId("queue-create-support-intent")).toBeDisabled();
+    // The typed stiffness stood beside the inherited unit: it is cleared and the form says so
+    // (DEL-02-02 AC-011), so nothing can be queued with the inherited N/m. Stiffness is
+    // optional: what remains queueable is a support with no stiffness, which the person sees.
+    expect(byId("create-support-stiffness")).toHaveValue("");
+    expect(byId("create-support-unit-cleared")).toHaveTextContent("The stiffness unit changed from N/m to none with the project units; the values beside it were cleared.");
     fireEvent.click(byId("queue-create-support-intent"));
-    expect(queue).not.toHaveBeenCalled();
+    for (const [intent] of queue.mock.calls) {
+      expect(intent.change.after).not.toContain("N/m");
+      expect(JSON.parse(intent.change.after)).not.toHaveProperty("properties");
+    }
   });
 });
 

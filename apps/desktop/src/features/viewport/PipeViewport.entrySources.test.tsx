@@ -292,29 +292,79 @@ describe("viewport direction entry and picker search", () => {
     </DisplayUnitsProvider>
   );
   const routeEndNew = () => fireEvent.click(document.querySelector<HTMLInputElement>('input[name="route-end-mode"][value="new"]')!);
+  const method = () => screen.getByLabelText("Route end: Entry method") as HTMLSelectElement;
   const length = () => screen.getByLabelText("Route end: Length along the element") as HTMLInputElement;
+  const typeLength = (value: string) => {
+    fireEvent.change(method(), { target: { value: method().options[1].value } });
+    fireEvent.change(length(), { target: { value } });
+  };
   const search = (testId: string) => within(byId(testId)).getByRole("combobox") as HTMLInputElement;
 
   it("a new project session starts the direction entry and the picker search empty", () => {
     const view = render(tree(demo(), 1));
     routeEndNew();
-    fireEvent.change(length(), { target: { value: "2.5" } });
+    typeLength("2.5");
     fireEvent.change(search("viewport-create-pipe-material"), { target: { value: "steel" } });
     view.rerender(tree(demo(), 1));
     expect(length().value).toBe("2.5");
     expect(search("viewport-create-pipe-material").value).toBe("steel");
     view.rerender(tree(demo(), 2));
     routeEndNew();
-    expect(length().value).toBe("");
+    expect(method().value).toBe("");
+    expect(screen.queryByLabelText("Route end: Length along the element")).toBeNull();
     expect(search("viewport-create-pipe-material").value).toBe("");
   });
 
   it("Cancel route starts the direction entry afresh", () => {
     render(tree(demo(), 1));
     routeEndNew();
-    fireEvent.change(length(), { target: { value: "2.5" } });
+    typeLength("2.5");
+    expect(length().value).toBe("2.5");
     fireEvent.click(byId("cancel-pipe-draft"));
     routeEndNew();
-    expect(length().value).toBe("");
+    expect(method().value).toBe("");
+    expect(screen.queryByLabelText("Route end: Length along the element")).toBeNull();
   });
 });
+
+// The pipe and route-end drafts are discarded by any model change, as before; when the
+// change moves the project length unit in this session while numbers stood beside the
+// project's unit, the form says so (DEL-02-02 REQ-022 and AC-011).
+describe("viewport route drafts when the project length unit moves", () => {
+  const withUnits = (units: Record<string, string>): PreviewModel => {
+    const model = demo();
+    model.project.units = { ...model.project.units, ...units } as PreviewModel["project"]["units"];
+    return model;
+  };
+  const tree = (model: PreviewModel) => (
+    <DisplayUnitsProvider initialPreference="SI">
+      <PipeViewport model={model} modelIndex={modelIndexFor(model, 1, 0)} selection={{ type: "node", id: "node:N-110" }} onSelect={vi.fn()} onQueueIntent={vi.fn()} onArmCreationTool={vi.fn()} />
+    </DisplayUnitsProvider>
+  );
+  const notice = "The length unit changed from m to mm with the project units; the values beside it were cleared.";
+
+  it("pipe: the diameter is gone and the form says which unit changed", async () => {
+    const view = render(tree(withUnits({ length: "m" })));
+    type("viewport-create-pipe-od", "0.168");
+    view.rerender(tree(withUnits({ length: "mm" })));
+    await waitFor(() => expect(byId("viewport-create-pipe-unit-cleared")).toHaveTextContent(notice));
+    expect(byId("viewport-create-pipe-od")).toHaveValue("");
+  });
+
+  it("route end: the coordinates are gone and the form says which unit changed", async () => {
+    const view = render(tree(withUnits({ length: "m" })));
+    fireEvent.click(document.querySelector<HTMLInputElement>('input[name="route-end-mode"][value="new"]')!);
+    type("viewport-route-end-x", "1.5");
+    view.rerender(tree(withUnits({ length: "mm" })));
+    await waitFor(() => expect(byId("viewport-create-pipe-unit-cleared")).toHaveTextContent(notice));
+  });
+
+  it("a model change that leaves the length unit says nothing about units", async () => {
+    const view = render(tree(withUnits({ length: "m" })));
+    type("viewport-create-pipe-od", "0.168");
+    view.rerender(tree(withUnits({ length: "m", pressure: "MPa" })));
+    await waitFor(() => expect(byId("viewport-create-pipe-od")).toHaveValue(""));
+    expect(screen.queryByTestId("viewport-create-pipe-unit-cleared")).toBeNull();
+  });
+});
+

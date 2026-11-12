@@ -550,6 +550,7 @@ export function PipeViewport({
   const [componentUnitClearNotice, setComponentUnitClearNotice] = useState<string | null>(null);
   // Remounts the route's direction-entry aid on a new project session and on Cancel route.
   const [directionEntryEpoch, setDirectionEntryEpoch] = useState(0);
+  const [routeUnitClearNotice, setRouteUnitClearNotice] = useState<string | null>(null);
   const [pipeEndpointPickMode, setPipeEndpointPickMode] = useState<PipeEndpointPickMode>(null);
   const [routingPlane, setRoutingPlane] = useState<RoutingPlane>("XZ");
   const [routingAxis, setRoutingAxis] = useState<RoutingAxisConstraint>("Free");
@@ -612,6 +613,7 @@ export function PipeViewport({
     () => modelIndex ?? modelIndexFor(model, 0, 0),
     [model, modelIndex]
   );
+  const routeUnitRef = useRef({ unit: defaultLengthUnit, session: activeModelIndex.sessionGeneration });
   const renderTransformResolution = useMemo(() => {
     try {
       return { transform: createRenderTransform(activeModelIndex.geometryBounds), issue: null as string | null };
@@ -1106,6 +1108,19 @@ export function PipeViewport({
 
   useEffect(() => {
     clearPointerPlacement();
+    // Any model change discards the route drafts, as before. When it also moves the
+    // project length unit within this session while numbers stood beside the project's
+    // unit, the form says so (DEL-02-02 REQ-022 and AC-011).
+    const previousRouteUnit = routeUnitRef.current;
+    routeUnitRef.current = { unit: defaultLengthUnit, session: activeModelIndex.sessionGeneration };
+    if (previousRouteUnit.session === activeModelIndex.sessionGeneration && previousRouteUnit.unit !== defaultLengthUnit) {
+      const typed = (values: string[]) => values.some((value) => value.trim() !== "");
+      const pipeNumbers = pipeDraft.lengthUnit === previousRouteUnit.unit && typed([pipeDraft.outsideDiameter, pipeDraft.wallThickness]);
+      const endNumbers = newEndDraft.coordinateUnit === previousRouteUnit.unit && typed([newEndDraft.x, newEndDraft.y, newEndDraft.z]);
+      if (pipeNumbers || endNumbers) {
+        setRouteUnitClearNotice(unitMoveNotice([{ key: "length", label: "length", from: previousRouteUnit.unit || "none", to: defaultLengthUnit || "none" }]));
+      }
+    }
     const continuation = pendingAppliedRoute.current;
     if (continuation && modelCommitToken === continuation.commitToken) {
       pendingAppliedRoute.current = null;
@@ -1726,6 +1741,7 @@ export function PipeViewport({
     setComponentDraft(defaultComponentDraft(model, selection, queuedIntents));
     setNodeUnitClearNotice(null);
     setComponentUnitClearNotice(null);
+    setRouteUnitClearNotice(null);
   }, [activeModelIndex.sessionGeneration]);
 
   useEffect(() => {
@@ -1813,6 +1829,7 @@ export function PipeViewport({
   function cancelPipeDraft() {
     clearPointerPlacement();
     setDirectionEntryEpoch((current) => current + 1);
+    setRouteUnitClearNotice(null);
     invalidateDraftReview("Route canceled. No reviewed operation can be applied.");
     setContinuePipe(false);
     setPipeDraft(emptyPipeDraft(defaultLengthUnit));
@@ -1956,6 +1973,7 @@ export function PipeViewport({
   }
 
   function updatePipeDraft(field: keyof PipeDraft, value: string) {
+    setRouteUnitClearNotice(null);
     if (field === "from" || field === "to") clearPointerPlacement();
     invalidateDraftReview();
     setPipeDraft((current) => ({ ...current, [field]: value }));
@@ -1965,6 +1983,7 @@ export function PipeViewport({
   }
 
   function updateNewEndDraft(field: keyof NodeDraft, value: string) {
+    setRouteUnitClearNotice(null);
     if (field === "x" || field === "y" || field === "z" || field === "coordinateUnit") {
       clearPointerPlacement();
     } else {
@@ -3350,6 +3369,7 @@ export function PipeViewport({
             >
               Cancel pipe draft
             </button>
+            {routeUnitClearNotice ? <p role="status" data-testid="viewport-create-pipe-unit-cleared">{routeUnitClearNotice}</p> : null}
             <button
               data-testid="queue-explicit-pipe-intent"
               disabled={!pipeDraftValid || draftReviewBusy}
