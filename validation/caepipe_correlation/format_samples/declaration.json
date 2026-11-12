@@ -1,0 +1,21 @@
+{
+  "document_kind": "swbpipe.caepipe_sitting.format_sample_declaration",
+  "note": "The maintained declaration of format samples for tools/caepipe_correlation/sitting_pack.py: small invented, hand-authored models outside the benchmark set, each run only to see how the external program prints the sections named in `prints`. Each entry binds an id to a model file beside this declaration by its SHA-256; the file needs an invented-provenance sidecar <stem>.provenance.json (produced_by_caepipe false). A sample is designated here before its first run, never by a plan; a benchmark model, under any id, is never a format sample. Entries: id, file, sha256, title, prints, and an optional instruction (what is done by hand before analysing).",
+  "samples": [
+    {
+      "id": "fs-dyn-batch",
+      "file": "fs-dyn-batch.mbf",
+      "sha256": "42d117601aee276b6a883f546a1e7da0f4216eae705e996af8433fc1926b9bc1",
+      "title": "Invented format sample: modes requested in the file, run by the batch command",
+      "prints": "whether the batch command, given a file whose dynamics options request modes, prints any modal section, and which section titles, column headers and unit rows it prints"
+    },
+    {
+      "id": "fs-dyn-window",
+      "file": "fs-dyn-window.mbf",
+      "sha256": "8e48d86a120d0007d658fcc8c0a933d1c61a3365a170dcb957cf03f01dabfdd7",
+      "title": "Invented format sample: modal and response-spectrum prints from the program's window",
+      "prints": "the section titles, column headers and unit rows of the frequency, participation, mode shape and response-spectrum prints",
+      "instruction": "In the program's window apply the spectrum FSSPEC1 in X, Y and Z with factors 1, 1 and 0.67, tick the modal and response-spectrum load cases, analyse, and print every result of every load case to file."
+    }
+  ]
+}

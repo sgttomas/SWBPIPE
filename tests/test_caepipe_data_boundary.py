@@ -34,6 +34,9 @@ from core.handoff.caepipe_external.harness import ENV_VAR, RUN_RECORD_KIND  # no
 from core.handoff.caepipe_external.print_csv import DOCUMENT_KIND as PARSED_CSV_KIND  # noqa: E402
 from core.handoff.caepipe_mbf.importer import REPORT_KIND as IMPORT_REPORT_KIND  # noqa: E402
 from tools.caepipe_correlation.run_pilot import MANIFEST_KIND, PARSER_DIAGNOSTICS_KIND  # noqa: E402
+from tools.caepipe_correlation.sitting_pack import (  # noqa: E402
+    PRIVATE_RECORD_KINDS as SITTING_RECORD_KINDS, PRIVATE_RECORD_NAMES as SITTING_RECORD_NAMES,
+)
 
 
 FORBIDDEN_SEGMENTS = {"caepipe-oracle", "caepipe_out", "oracle_cases"}
@@ -45,12 +48,14 @@ FORBIDDEN_HARNESS_FILES = {"Invoke-CaepipeRoundTrip.ps1", "round_trip.lock"}
 PRIVATE_LAYER_NAMES = {"caepipe_results.json", "parser_diagnostics.json", "comparison.json", "run_record.json",
                        "guest_log.json", "guest_stdout.txt", "guest_stderr.txt", "case_manifest.json",
                        "import_outcome.json", "export_guest_log.json", "export_guest_stdout.txt",
-                       "export_guest_stderr.txt", "benchmark_comparison.json"}
+                       "export_guest_stderr.txt", "benchmark_comparison.json",
+                       # The sitting pack's private records (tools/caepipe_correlation/sitting_pack.py).
+                       *SITTING_RECORD_NAMES}
 # The private MBF import regression's outcome record (tests/test_caepipe_private_mbf_import.py).
 IMPORT_OUTCOME_KIND = "swbpipe.caepipe_mbf_import_outcome"
 PRIVATE_DOCUMENT_KINDS = {PARSED_CSV_KIND, PARSER_DIAGNOSTICS_KIND, COMPARISON_RECORD_KIND, SERIES_RECORD_KIND,
                           RUN_RECORD_KIND, MANIFEST_KIND, IMPORT_REPORT_KIND, IMPORT_OUTCOME_KIND,
-                          BENCHMARK_RECORD_KIND}
+                          BENCHMARK_RECORD_KIND, *SITTING_RECORD_KINDS}
 # The target tool's output markers: the leading label of its results files and its section titles.
 OUTPUT_MARKERS = {
     "file_label": b"Caepipe",

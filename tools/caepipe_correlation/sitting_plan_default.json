@@ -1,0 +1,51 @@
+{
+  "document_kind": "swbpipe.caepipe_sitting.plan",
+  "plan_version": "1",
+  "note": "The built-in default plan of tools/caepipe_correlation/sitting_pack.py. Parts run in the order listed: what cannot be redone later comes first, so a sitting cut short leaves the least behind. A case is placed in the first part that selects it. estimate is filled by whoever plans the sitting and is printed as an estimate, not a condition. A format sample is named here by its id only; it must be declared in validation/caepipe_correlation/format_samples/declaration.json.",
+  "parts": [
+    {
+      "id": "part-0",
+      "title": "Dry run",
+      "buys": "Three small cases taken through the whole hand route and back through ingest --check and the parser on this host before anything else is run, so that a capture failure is found on the first day.",
+      "estimate": null,
+      "kind": "dry_run",
+      "select": {"model_ids": ["cpb-g1-05", "cpb-g8-01", "cpb-g6-02"]},
+      "format_samples": [{"id": "fs-dyn-batch"}]
+    },
+    {
+      "id": "part-1",
+      "title": "Pressurised default series",
+      "buys": "The cases that carry the exact pressure contract. Without them the pressure route is compared on no case.",
+      "estimate": null,
+      "kind": "benchmark",
+      "select": {"model_members": ["pressure_contract"]}
+    },
+    {
+      "id": "part-2",
+      "title": "Format observations",
+      "buys": "Records of how the program writes and reads files, kept to settle interoperation facts the cited public pages do not state. They are stored as returned and not interpreted by ingest.",
+      "estimate": null,
+      "kind": "observations",
+      "format_samples": [{"id": "fs-dyn-window"}]
+    },
+    {
+      "id": "part-3",
+      "title": "Sealed captures",
+      "buys": "The program's output for cases whose SWBPIPE side is not ready yet, captured while a run is still possible. They are stored sealed. There is no unsealing command: every route that parses or screens a result refuses a sealed capture, and unsealing is a later change with its own review.",
+      "estimate": null,
+      "kind": "sealed_capture",
+      "sealed_reason": "SWBPIPE's side of these cases is not ready; the capture stays sealed; there is no unsealing command.",
+      "select": {},
+      "empty_reason": "No family is named yet whose SWBPIPE side is not ready; the plan for the sitting names them."
+    },
+    {
+      "id": "part-4",
+      "title": "Tranche 1 remainder",
+      "buys": "Tranche 1 cases a plan names for a further run, by family, with the members of one series next to each other and smaller models first.",
+      "estimate": null,
+      "kind": "benchmark",
+      "select": {},
+      "empty_reason": "Tranche 1's cases already have complete stored results; this part selects nothing unless a plan names cases for it."
+    }
+  ]
+}

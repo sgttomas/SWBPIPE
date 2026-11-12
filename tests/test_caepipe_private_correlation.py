@@ -46,7 +46,7 @@ def stored_cases(config: HarnessConfig) -> list[str]:
     known = {case["case_id"] for case in run_pilot.load_cases()}
     found = []
     for case_dir in sorted((config.exchange_root / "cases").glob("*")):
-        if case_dir.name not in known:
+        if case_dir.name not in known or (case_dir / "sealed").exists():  # a sealed capture is never read
             continue
         if (case_dir / "comparison" / "comparison.json").is_file() and any((case_dir / "caepipe_out").glob("model*.csv")):
             found.append(case_dir.name)
