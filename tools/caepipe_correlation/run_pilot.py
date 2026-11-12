@@ -137,6 +137,7 @@ from core.handoff.caepipe_external.harness import (  # noqa: E402
     ContainmentError,
     contained,
     contained_dir,
+    open_attempt,
     stored_run_record,
     write_private,
 )
@@ -160,8 +161,14 @@ BENCHMARK_RETRY_WAIT_S = 120.0
 BENCHMARK_EXCLUSIVE_WAIT_S = 1800.0
 BENCHMARK_POLL_S = 30.0
 BENCHMARK_RECORD = "benchmark_comparison.json"
+BENCHMARK_REPLACES = ("parsed/caepipe_results.json", "parsed/parser_diagnostics.json",
+                      f"comparison/{BENCHMARK_RECORD}", "case_manifest.json")
 MANIFEST_KIND = "openpipestress.caepipe_correlation.case_manifest"
 PARSER_DIAGNOSTICS_KIND = "openpipestress.caepipe_print_csv.parser_diagnostics"
+# Stored paths a live case or benchmark model writes after a successful round trip: the harness keeps and verifies
+# each existing one before anything stored changes (`run_caepipe_round_trip(replaces=...)`).
+WRITER_REPLACES = ("parsed/caepipe_results.json", "parsed/parser_diagnostics.json", "comparison/comparison.json",
+                   "case_manifest.json")
 LAYER_PRIVACY = {
     "swbpipe": "SWBPIPE request and result from the invented public case; kept with the private run",
     "caepipe_in": "SWBPIPE-derived MBF and writer maps; no CAEPIPE output",
@@ -346,6 +353,10 @@ def _sha256(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
+def _json_bytes(value: Any) -> bytes:
+    return (json.dumps(value, indent=2, sort_keys=True) + "\n").encode("utf-8")
+
+
 def _write_json(root: Path, path: Path, value: Any) -> None:
     write_private(root, path, json.dumps(value, indent=2, sort_keys=True) + "\n")
 
@@ -404,11 +415,20 @@ def _run_case(case: Mapping[str, Any], config: HarnessConfig, *, runner: str, of
     paths = case_paths(config, case_id)
     analytic = hand_calcs.analytic_values(case_id)
     alternative = hand_calcs.alternative_analytic_values(case_id)
+    # A live case stages what it would write in a new attempt folder; the harness places it only after the guest's
+    # exchange root is established and every stored file the case replaces is kept and verified. Offline writes as is.
+    attempt = None if offline else open_attempt(config, case_id)
+
+    def put(relative: str, value: Any) -> None:
+        if attempt is not None:
+            attempt.stage(relative, _json_bytes(value))
+        else:
+            _write_json(root, paths["root"].joinpath(*relative.split("/")), value)
 
     body, output, error = solve_swbpipe(runner, case)
-    _write_json(root, paths["swbpipe"] / "request.json", body)
+    put("swbpipe/request.json", body)
     if output is not None:
-        _write_json(root, paths["swbpipe"] / "result.json", output)
+        put("swbpipe/result.json", output)
     if error:
         emit(f"{case_id}: route=not_run; SWBPIPE not solved ({error})")
         return False
@@ -429,9 +449,10 @@ def _run_case(case: Mapping[str, Any], config: HarnessConfig, *, runner: str, of
             emit(f"{case_id}: route={route}; {reason}; no comparison record")
             return False
     in_dir = paths["caepipe_in"]
-    write_private(root, in_dir / "model.mbf", mbf_text.encode("utf-8"))
-    _write_json(root, in_dir / "id_map.json", mbf.sidecar(mbf_sha256))
-    _write_json(root, in_dir / "mbf_render.json", {
+    if offline:
+        write_private(root, in_dir / "model.mbf", mbf_text.encode("utf-8"))  # live: the harness stages the MBF
+    put("caepipe_in/id_map.json", mbf.sidecar(mbf_sha256))
+    put("caepipe_in/mbf_render.json", {
         "profile_id": mbf.to_dict()["profile_id"], "status": mbf.status, "layout_row_count": mbf.layout_row_count,
         "diagnostics": mbf.diagnostics, "loss_report": mbf.loss_report, "assumptions": mbf.assumptions,
         "writer_text_sha256": _sha256(writer_text), "mbf_sha256": mbf_sha256,
@@ -439,7 +460,7 @@ def _run_case(case: Mapping[str, Any], config: HarnessConfig, *, runner: str, of
     })
 
     if not offline:
-        record = round_trip(config, case_id, mbf_text)
+        record = round_trip(config, case_id, mbf_text, attempt=attempt, replaces=WRITER_REPLACES)
         if record.get("route") in REFUSED_ROUTES:  # nothing in caepipe_out was cleared or written
             emit(f"{case_id}: route={record['route']}; {record.get('reason')}; no comparison record")
             return False
@@ -651,7 +672,12 @@ def run_cases(cases: list[Mapping[str, Any]], config: HarnessConfig, *, runner: 
     for case in cases:
         results[case["case_id"]] = run_case(case, config, runner=runner, offline=offline, hand_calcs=hand_calcs,
                                             emit=emit, round_trip=round_trip)
-        if export_mbf:
+        if export_mbf and not results[case["case_id"]]:
+            # A refused or failed case is not followed by its export step.
+            emit(f"{case['case_id']}: export route=not_run; the case's live round trip did not complete; "
+                 "no exported MBF")
+            results[f"{case['case_id']} export"] = False
+        elif export_mbf:
             results[f"{case['case_id']} export"] = export_case(case, config, emit=emit, export=export)
     for key, ok in run_series(config, runner=runner, hand_calcs=hand_calcs, emit=emit).items():
         results[key] = results.get(key, True) and ok
@@ -744,9 +770,13 @@ def run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, runn
 
 
 def _benchmark_manifest(root: Path, paths: Mapping[str, Path], entry: Mapping[str, Any], *, offline: bool,
-                        outcome: str, route: str, attempt: int, **extra: Any) -> None:
-    """The model's private run record (the case manifest), written for every live attempt and every record."""
-    _write_json(root, paths["manifest"], {
+                        outcome: str, route: str, attempt: int, case_attempt: Any = None, **extra: Any) -> None:
+    """The model's private run record (the case manifest), written for every live attempt and every record: over the
+    stored manifest only offline or once the harness has placed this attempt's staged files (after keeping the
+    stored manifest); otherwise as a new `case_manifest.json` in the attempt folder, beside any refusal record."""
+    write = (lambda value: case_attempt.write_record("case_manifest.json", value)) \
+        if case_attempt is not None and not case_attempt.placed else (lambda value: _write_json(root, paths["manifest"], value))
+    write({
         "document_kind": MANIFEST_KIND,
         "case_id": entry["model_id"],
         "created": _now(),
@@ -771,11 +801,19 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
     model_id = entry["model_id"]
     root = config.exchange_root.resolve()
     paths = case_paths(config, model_id)
+    # As for a live case: what this attempt would write is staged until the harness places it (`run_case`).
+    case_attempt = None if offline else open_attempt(config, model_id)
+
+    def put(relative: str, value: Any) -> None:
+        if case_attempt is not None:
+            case_attempt.stage(relative, _json_bytes(value))
+        else:
+            _write_json(root, paths["root"].joinpath(*relative.split("/")), value)
 
     def outcome(status: str, route: str, reason: str, **extra: Any) -> tuple[str, str, str]:
         if not offline:
             _benchmark_manifest(root, paths, entry, offline=offline, outcome="no_record", route=route,
-                                attempt=attempt, reason=reason, **extra)
+                                attempt=attempt, case_attempt=case_attempt, reason=reason, **extra)
         if status == NOT_RUN:
             emit(f"{model_id}: route={route}; {reason}; no benchmark record")
         return status, route, reason
@@ -783,9 +821,9 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
     body, output, error = solve_swbpipe(runner, {
         "case_id": model_id, "model": entry["model"],
         "source_location": f"validation/caepipe_benchmark/models/{model_id}.json"})
-    _write_json(root, paths["swbpipe"] / "request.json", body)
+    put("swbpipe/request.json", body)
     if output is not None:
-        _write_json(root, paths["swbpipe"] / "result.json", output)
+        put("swbpipe/result.json", output)
     if error:
         return outcome(NOT_RUN, "not_run", f"SWBPIPE not solved ({error})")
     mbf = render_caepipe_mbf_si(entry["model"], title=entry["model_id"],
@@ -802,22 +840,25 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
         if csv_path is None:
             return outcome(NOT_RUN, route, reason)
     in_dir = paths["caepipe_in"]
-    write_private(root, in_dir / "model.mbf", mbf_text.encode("utf-8"))
-    _write_json(root, in_dir / "id_map.json", mbf.sidecar(mbf_sha256))
-    _write_json(root, in_dir / "mbf_render.json", {
+    if offline:
+        write_private(root, in_dir / "model.mbf", mbf_text.encode("utf-8"))  # live: the harness stages the MBF
+    put("caepipe_in/id_map.json", mbf.sidecar(mbf_sha256))
+    put("caepipe_in/mbf_render.json", {
         "profile_id": mbf.to_dict()["profile_id"], "status": mbf.status, "layout_row_count": mbf.layout_row_count,
         "piping_code": entry["piping_code"], "diagnostics": mbf.diagnostics, "loss_report": mbf.loss_report,
         "assumptions": mbf.assumptions, "mbf_sha256": mbf_sha256})
     if not offline:
         try:
-            record = round_trip(config, model_id, mbf_text, gui_fallback=gui_fallback)
+            record = round_trip(config, model_id, mbf_text, gui_fallback=gui_fallback, attempt=case_attempt,
+                                replaces=BENCHMARK_REPLACES)
         except Exception as error:
             emit(f"{model_id}: round trip raised {type(error).__name__}: {error}")
             _guard_stop(config, model_id, getattr(error, "settings_guard", None), emit)
             return outcome(RETRY, "round_trip_raised", f"the round trip raised {type(error).__name__}")
         if record.get("route") in REFUSED_ROUTES:
-            # Refused before anything ran or was cleared: the model's stored run record (the case manifest) is
-            # left as it is, and the run stops, since no later model would reach the guest's exchange folder either.
+            # Refused before anything stored changed: the attempt's manifest is a new file in its attempt folder, the
+            # stored one is left as it is, and the run stops (no later model would reach the exchange folder either).
+            outcome(RETRY, record["route"], str(record.get("reason")))
             emit(f"{model_id}: route={record['route']}; {record.get('reason')}; stopped")
             raise RunStopped(model_id)
         # The guard comes first: any other outcome still stops the run on it.
@@ -839,6 +880,7 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
     comparison_path = paths["comparison"] / BENCHMARK_RECORD
     _write_json(root, comparison_path, comparison)
     _benchmark_manifest(root, paths, entry, offline=offline, outcome="recorded", route=route, attempt=attempt,
+                        case_attempt=case_attempt,
                         exported_model_hash=mbf_sha256, target_tool=comparison["target_tool"],
                         target_version=comparison["target_version"], product_label=comparison["product_label"],
                         trial_first_launch_date=config.trial_first_launch_date,

@@ -514,12 +514,16 @@ def fake_benchmark(tmp_path, monkeypatch):
     state = {"calls": [], "outcomes": [], "session": [], "alive": [], "sleeps": [], "events": [],
              "clean": {"settings_guard": {"status": "unchanged"}}}
 
-    def round_trip(config_, case_id, mbf_text, **kwargs):
+    def round_trip(config_, case_id, mbf_text, *, attempt=None, replaces=(), **kwargs):
         state["calls"].append((case_id, kwargs))
         state["events"].append(("round_trip", case_id))
         outcome = state["outcomes"].pop(0) if state["outcomes"] else state["clean"]
         if isinstance(outcome, BaseException):
             raise outcome
+        # As the harness does once the exchange root is established and the stored files are kept: the staged files
+        # (with the MBF) go to their stored paths.
+        attempt.stage("caepipe_in/model.mbf", mbf_text.encode("utf-8"))
+        attempt.place()
         sha = hashlib.sha256(mbf_text.encode("utf-8")).hexdigest()
         out = case_paths(config_, case_id)["caepipe_out"]
         (out / "model.csv").write_text(invented_print(), encoding="utf-8")

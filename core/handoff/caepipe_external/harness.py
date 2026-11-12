@@ -15,13 +15,22 @@ model back to MBF (`caepipe_out/exported.mbf`) for the DEL-17-04 import
 regression. Everything it writes under
 `caepipe_out/` is CAEPIPE output or derived from it and stays private.
 
-A live step never costs a stored result: it clears nothing until the guest root holding this exchange folder is
-resolved by content (the guest's SHA-256 of a marker the host has just written there with content chosen for the
-run, under the configured root or else under exactly one other drive letter the guest lists; the configuration
-is never written) and the step's input and script are seen there, and it removes or replaces nothing in
-`caepipe_out/` until that layer has been copied to `kept/<UTC stamp>/caepipe_out/` in the case folder and the
-copy verified file by file by SHA-256. A step stopped by either check writes its run record to `refused/` in the
-case folder, not over the stored one.
+A live step changes nothing already stored for a case (any file of its case folder: inputs, maps, requests,
+results, records, logs, exports, derived records, the case manifest) until (a) the guest root holding this exchange
+folder is established by content and (b) every stored file the step would remove or replace has been copied to
+`kept/<stamp>/` in the case folder and verified file by file by SHA-256, the originals hashed again after the copy.
+What the step proposes to write is staged first in a new `attempts/<stamp>/` folder and placed only after (a) and
+(b). For (a) the host creates, exclusively in that attempt folder, a marker with random content chosen for the step;
+the guest's SHA-256 of it must equal the host's, under the configured root or else under exactly one other plain
+drive letter the guest's `net use` lists (only the letter is replaced; every other drive is asked for that one hash
+at that one path and nothing else). The resolved root serves that step only; the configuration is never written.
+A step refused by either check leaves every stored file of the case as it was; its full run record is a new file
+in its attempt folder. The harness removes, before or without a kept copy, only files it created in the same step
+and identifies by their own content: the marker and its run lock.
+
+Limits of (a): the guest is taken to answer truthfully and its drive mappings to stay put during the step; a live
+synchronised replica of the exchange folder could show the marker (results stay bound by hash on the host); only
+the letter is replaced, so the folder is not searched for at another relative path.
 Its records are regression and handoff evidence only.
 
 An optional `settings_guard` in the configuration names the guest registry key under
@@ -156,21 +165,25 @@ GUARD_SECTION_BUDGET_S = 120.0
 # the call's timeout (and the section budget inside the restore). Writes keep their single settled retry.
 GUARD_READ_ATTEMPTS = 6
 GUARD_READ_BACKOFF_S = 2.0
-# A live step that writes first resolves, read only, which guest root is this exchange folder, by content: the guest
-# hashes this run's marker under the configured root, else under each other drive letter it lists, and the step's
-# input and the harness's script under the one that matches (`_resolve_exchange_root`); then, before anything in caepipe_out/ is removed or replaced, it copies the
-# layer to KEPT_DIR/<UTC stamp>/caepipe_out/ in the case folder and verifies the copy (`_keep_outputs`). A step
-# stopped by either clears and writes nothing in caepipe_out/; its run record goes to REFUSED_DIR/<UTC stamp>-<step>.json
-# in the case folder, so the stored run record, results and logs stay as they were.
+# A live step changes nothing already stored in a case's folder until (a) the guest root holding this exchange
+# folder is established by content (`_resolve_exchange_root`) and (b) every stored file the step will remove or
+# replace is copied to KEPT_DIR/<stamp>/ in the case folder and verified (`_keep_case_files`). What the step proposes
+# to write is staged first in a new ATTEMPTS_DIR/<stamp>/ folder (`CaseAttempt`) and placed only after both. A step
+# refused by either leaves every stored file as it was; its full run record is a new file in its attempt folder.
 EXCHANGE_UNAVAILABLE_ROUTE = "exchange_drive_unavailable"
 EXCHANGE_AMBIGUOUS_ROUTE = "exchange_drive_ambiguous"
+EXCHANGE_CHECK_FAILED_ROUTE = "exchange_check_failed"
 KEPT_COPY_FAILED_ROUTE = "kept_copy_failed"
-REFUSED_ROUTES = (EXCHANGE_UNAVAILABLE_ROUTE, EXCHANGE_AMBIGUOUS_ROUTE, KEPT_COPY_FAILED_ROUTE)
+REFUSED_ROUTES = (EXCHANGE_UNAVAILABLE_ROUTE, EXCHANGE_AMBIGUOUS_ROUTE, EXCHANGE_CHECK_FAILED_ROUTE,
+                  KEPT_COPY_FAILED_ROUTE)
 KEPT_DIR = "kept"
-REFUSED_DIR = "refused"
-# Written by the host into the case's caepipe_in/ just before each check, with content chosen for that run: only
-# the guest that sees this exchange folder at its configured root can report its hash.
-EXCHANGE_MARKER = "exchange_check.txt"
+ATTEMPTS_DIR = "attempts"
+# Stored layers a caller may stage files for (besides the case manifest); caepipe_out/ is kept whole instead.
+STAGEABLE_LAYERS = ("swbpipe", "caepipe_in", "parsed", "comparison")
+# Created exclusively by the host in the step's new attempt folder just before the check, with random content chosen
+# for that step: only a guest root that is this exchange folder can report its hash. Removed at the end of the step
+# only when it still holds exactly that content (`_remove_marker`).
+EXCHANGE_MARKER = "exchange_marker.txt"
 EXCHANGE_CHECK_SCRIPT = r"""$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue'
 $items = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('@PAYLOAD@')) | ConvertFrom-Json
 foreach ($item in $items) {
@@ -518,17 +531,21 @@ def _win(*parts: str) -> str:
 
 def run_caepipe_round_trip(config: HarnessConfig, case_id: str, mbf_text: str, *, timeout_s: float = 600,
                            runner: Callable[..., subprocess.CompletedProcess] = subprocess.run,
-                           gui_fallback: bool = True) -> dict[str, Any]:
+                           gui_fallback: bool = True, attempt: "CaseAttempt | None" = None,
+                           replaces: tuple[str, ...] | list[str] = ()) -> dict[str, Any]:
     """Solve one MBF with the user's CAEPIPE in the configured virtual machine and record what happened.
 
     The guest work is done in three `prlctl exec <vm> --current-user cmd /c <command>`
     steps (prepare, solve, collect) so each step's exit status is recorded on its
-    own. Before them, and before anything in caepipe_out/ or the guest is cleared, the guest root holding this
-    exchange folder is resolved by content and the case's input MBF and the harness's script are seen there
-    (`_resolve_exchange_root`; `exchange_drive_unavailable` or `exchange_drive_ambiguous` otherwise; every guest
-    path of the step is then formed from that root), and the earlier outputs are copied to `kept/<UTC stamp>/caepipe_out/` and verified
-    (`kept_copy_failed` otherwise); either refusal clears and writes nothing in caepipe_out/, and its run record,
-    returned with a `reason`, is written to `refused/<UTC stamp>-round_trip.json` in the case folder instead.
+    own. Before them, nothing already stored for the case changes: the MBF is staged in the step's attempt
+    folder (`attempt`, a `CaseAttempt`, opened here when not given; a caller stages its own files there and
+    declares in `replaces` the stored paths it will write after a successful step); the guest root holding this
+    exchange folder is resolved by content, with the staged MBF and the harness's script seen there
+    (`_resolve_exchange_root`; every guest path of the step is then formed from that root); and caepipe_out/ and
+    every existing stored file the attempt stages or replaces are copied to `kept/<stamp>/` and verified
+    (`_keep_case_files`). Only then are the staged files placed. A step refused there (`exchange_drive_unavailable`,
+    `exchange_drive_ambiguous`, `exchange_check_failed` or `kept_copy_failed`) leaves every stored file as it was;
+    its full run record, returned with a `reason`, is `refusal_record.json` in the attempt folder.
     A failed prepare step stops before solving (`prepare_failed`). Outputs are
     collected, even when the solve step fails, only when the guest reports solving
     an MBF whose SHA-256 equals the host's (otherwise `input_hash_mismatch`).
@@ -539,7 +556,8 @@ def run_caepipe_round_trip(config: HarnessConfig, case_id: str, mbf_text: str, *
     """
 
     return _locked(config, case_id, lambda paths, harness_dir: _round_trip(
-        config, case_id, mbf_text, paths, harness_dir, timeout_s, runner, gui_fallback))
+        config, case_id, mbf_text, paths, harness_dir, timeout_s, runner, gui_fallback,
+        attempt if attempt is not None else open_attempt(config, case_id), tuple(replaces)))
 
 
 def _locked(config: HarnessConfig, case_id: str, work: Callable[[dict[str, Path], Path], dict[str, Any]]) -> dict[str, Any]:
@@ -561,12 +579,18 @@ def _locked(config: HarnessConfig, case_id: str, work: Callable[[dict[str, Path]
     except FileExistsError as error:
         raise RuntimeError(f"another CAEPIPE round trip holds {lock}; runs are never parallel (remove a stale lock "
                            "only when no run is active)") from error
+    content = f"{os.getpid()} {_now()} {case_id} {secrets.token_hex(8)}\n".encode("ascii")
     try:
-        os.write(handle, f"{os.getpid()} {_now()} {case_id}\n".encode("ascii"))
+        os.write(handle, content)
         os.close(handle)
         return work(paths, harness_dir)
     finally:
-        lock.unlink(missing_ok=True)
+        # Removed only when it still holds exactly what this run wrote: a file this run created.
+        try:
+            if lock.is_file() and not lock.is_symlink() and lock.read_bytes() == content:
+                lock.unlink()
+        except OSError:
+            pass
 
 
 # A new solve also clears the previous solve's MBF export, which no longer describes the solved model.
@@ -604,7 +628,7 @@ def _clear_outputs(root: Path, out: Path) -> None:
 
 
 def _stamp() -> str:
-    """A UTC timestamp for a kept or refused folder name, to the microsecond (sortable, no `:`)."""
+    """A UTC timestamp for an attempt or kept folder name, to the microsecond (sortable, no `:`)."""
     return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S.%fZ")
 
 
@@ -616,43 +640,144 @@ def _file_sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _exchange_check(config: HarnessConfig, step: Callable[[str, str], dict[str, Any]],
-                    needs: Mapping[str, tuple[str, str]], name: str = "exchange_check") -> dict[str, Any]:
-    """Establish, read only, that the configured guest exchange root is this exchange folder.
+def _case_relpath(rel: str) -> tuple[str, ...]:
+    """The parts of a stored path a step may stage or declare it replaces: `case_manifest.json`, or one file in the
+    `swbpipe`, `caepipe_in`, `parsed` or `comparison` layer."""
 
-    `needs` is {label: (guest path, SHA-256 the host holds)}. One guest step hashes each path as the guest sees it
-    (`Get-FileHash`, as the guest script hashes the model it solves) and prints `sha256 <label> <hex>`, `missing
-    <label>` or `unreadable <label>`; the paths travel as encoded data (`EXCHANGE_CHECK_SCRIPT`), never as command
-    words, and nothing is created, deleted or opened for writing. `ready` only when the step exits 0 and every
-    label's hash equals the host's; a missing drive, a missing or unreadable file, a file whose hash differs (another
-    folder at the configured root) and a guest that does not answer are each `unavailable`, with every label's state."""
-
-    record = step(name, _exchange_check_command([(label, path) for label, (path, _) in needs.items()]))
-    reported: dict[str, str] = {}
-    for line in (record.get("stdout") or "").splitlines():
-        parts = line.split()
-        if len(parts) == 3 and parts[0] == "sha256" and re.fullmatch(r"[0-9a-f]{64}", parts[2]):
-            reported.setdefault(parts[1], parts[2])
-        elif len(parts) == 2 and parts[0] in ("missing", "unreadable"):
-            reported.setdefault(parts[1], parts[0])
-    states = {}
-    for label, (_, expected) in needs.items():
-        found = reported.get(label)
-        states[label] = ("matches" if found == expected.lower() else "not_answered" if found is None
-                         else found if found in ("missing", "unreadable") else "differs")
-    if record["exit_status"] == 0 and all(state == "matches" for state in states.values()):
-        return {"status": "ready", "files": states}
-    if record["exit_status"] != 0 or all(state == "not_answered" for state in states.values()):
-        why = f"the guest did not answer the exchange check (exit status {record['exit_status']})"
-    else:
-        why = "the configured guest exchange root is not shown to be this exchange folder (" + ", ".join(
-            f"{label} {state}" for label, state in states.items() if state != "matches") + ")"
-    return {"status": "unavailable", "files": states, "reason": why}
+    parts = tuple(rel.split("/"))
+    if parts == ("case_manifest.json",) or (len(parts) == 2 and parts[0] in STAGEABLE_LAYERS
+                                            and parts[1] not in ("", ".", "..") and "\\" not in parts[1]):
+        return parts
+    raise ValueError(f"{rel!r} is not a stored case path a step may stage or replace")
 
 
-def _exchange_check_command(items: list[tuple[str, str]]) -> str:
-    """The guest command of `_exchange_check`: PowerShell with the labels and paths passed as encoded data."""
+@dataclass
+class CaseAttempt:
+    """One live attempt of a step for one case: a new folder `attempts/<UTC stamp>/` in the case folder, created
+    exclusively, holding what the step proposes to write (`staged/<stored path>`), the exchange check's marker while
+    the step runs, and any refusal record or attempt manifest. Nothing in it is a stored path; the staged files are
+    placed at their stored paths only after the exchange root is established and every stored file the step
+    replaces is kept and verified (`place`)."""
 
+    root: Path
+    case_root: Path
+    case_id: str
+    stamp: str
+    staged: list[str] = field(default_factory=list)
+    replaces: list[str] = field(default_factory=list)
+    placed: bool = False
+
+    @property
+    def folder(self) -> Path:
+        return self.case_root / ATTEMPTS_DIR / self.stamp
+
+    @property
+    def relative(self) -> str:
+        return self.folder.relative_to(self.root).as_posix()
+
+    @property
+    def guest_parts(self) -> tuple[str, ...]:
+        return ("cases", self.case_id, ATTEMPTS_DIR, self.stamp)
+
+    def stage(self, rel: str, data: bytes | str) -> None:
+        """Write what the step proposes for the stored path `rel` into `staged/`, never over a staged file."""
+        parts = _case_relpath(rel)
+        if self.placed:
+            raise RuntimeError("this attempt's staged files are already placed")
+        target = contained(self.root, contained_dir(self.root, self.folder.joinpath("staged", *parts[:-1])) / parts[-1])
+        with open(target, "xb") as handle:
+            handle.write(data.encode("utf-8") if isinstance(data, str) else data)
+        self.staged.append(rel)
+
+    def declare_replaces(self, rels) -> None:
+        for rel in rels:
+            _case_relpath(rel)
+            if rel not in self.replaces:
+                self.replaces.append(rel)
+
+    def targets(self) -> list[str]:
+        """Every stored path (other than caepipe_out/, kept whole) the step will replace: staged and declared."""
+        return list(dict.fromkeys([*self.staged, *self.replaces]))
+
+    def write_record(self, name: str, value: Any) -> str:
+        """Write a new file `name` (JSON) in the attempt folder, never over an existing one; its path relative to the
+        exchange folder."""
+        if not re.fullmatch(r"[a-z_]+\.json", name):
+            raise ValueError(f"attempt record name {name!r} is not allowed")
+        target = contained(self.root, self.folder / name)
+        with open(target, "x", encoding="utf-8") as handle:
+            handle.write(json.dumps(value, indent=2, sort_keys=True, default=str) + "\n")
+        return target.relative_to(self.root).as_posix()
+
+    def place(self) -> None:
+        """Write each staged file to its stored path. Call only after `_resolve_exchange_root` and
+        `_keep_case_files` have succeeded for this attempt."""
+        for rel in self.staged:
+            parts = _case_relpath(rel)
+            source = contained(self.root, self.folder.joinpath("staged", *parts))
+            write_private(self.root, contained(self.root, self.case_root.joinpath(*parts)), source.read_bytes())
+        self.placed = True
+
+
+def open_attempt(config: HarnessConfig | Path, case_id: str) -> CaseAttempt:
+    """A new attempt folder for `case_id` (`CaseAttempt`), created exclusively; nothing stored is touched."""
+
+    paths = case_paths(config, case_id)
+    root = (config.exchange_root if isinstance(config, HarnessConfig) else Path(config)).resolve()
+    parent = contained_dir(root, paths["root"] / ATTEMPTS_DIR)
+    for _ in range(5):
+        stamp = _stamp()
+        try:
+            contained(root, parent / stamp).mkdir()
+        except FileExistsError:
+            continue
+        contained(root, parent / stamp / "staged").mkdir()
+        return CaseAttempt(root=root, case_root=paths["root"], case_id=case_id, stamp=stamp)
+    raise OSError("no new attempt folder could be created")
+
+
+@dataclass
+class _Marker:
+    path: Path
+    data: bytes
+    sha256: str
+    outcome: str | None = None
+
+
+def _create_marker(attempt: CaseAttempt) -> _Marker:
+    """This step's marker: a new file in the attempt folder, created exclusively, with random content chosen now."""
+
+    data = f"swbpipe exchange check {secrets.token_hex(32)}\n".encode("ascii")
+    path = contained(attempt.root, attempt.folder / EXCHANGE_MARKER)
+    with open(path, "xb") as handle:
+        handle.write(data)
+    return _Marker(path=path, data=data, sha256=_sha256(data))
+
+
+def _remove_marker(root: Path, marker: _Marker | None) -> str:
+    """Remove the marker this step created, only after re-reading it and finding exactly the content this step wrote;
+    otherwise leave it. The one deletion the harness makes before or without a kept copy. Idempotent."""
+
+    if marker is None:
+        return "not created"
+    if marker.outcome is not None:
+        return marker.outcome
+    try:
+        path = contained(root, marker.path)
+        if path.is_symlink() or not path.is_file():
+            outcome = "left: no longer a regular file"
+        elif path.read_bytes() != marker.data:
+            outcome = "left: its content is not the content this step wrote"
+        else:
+            path.unlink()
+            outcome = "removed"
+    except (OSError, ContainmentError) as error:
+        outcome = f"left: {type(error).__name__}"
+    marker.outcome = outcome
+    return outcome
+
+
+def _exchange_check_text(items: list[tuple[str, str]]) -> str:
     for label, path in items:
         _quote(path)  # only allow-listed guest paths, as every other guest command
         if not re.fullmatch(r"[a-z_]+", label):
@@ -660,18 +785,67 @@ def _exchange_check_command(items: list[tuple[str, str]]) -> str:
     payload = json.dumps([{"label": label, "path": path} for label, path in items], sort_keys=True)
     script = EXCHANGE_CHECK_SCRIPT.replace("@PAYLOAD@", base64.b64encode(payload.encode("utf-8")).decode("ascii"))
     encoded = base64.b64encode(script.encode("utf-16-le")).decode("ascii")
-    command = f"powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand {encoded}"
+    return f"powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand {encoded}"
+
+
+def _exchange_check_command(items: list[tuple[str, str]]) -> str:
+    """The guest command of one exchange check group: PowerShell with the labels and paths passed as encoded data.
+    ValueError when it would exceed the guest command limit."""
+
+    command = _exchange_check_text(items)
     if len(command) > LITERAL_COMMAND_LIMIT:
-        raise ValueError("the exchange check's guest command is too long")
+        raise ValueError("an exchange check's guest command would exceed the guest command limit")
     return command
 
 
-def _write_marker(root: Path, paths: Mapping[str, Path]) -> str:
-    """Write this run's marker (fresh random content) into the case's caepipe_in/; return its SHA-256."""
+def _exchange_check_groups(items: list[tuple[str, str]]) -> list[list[tuple[str, str]]]:
+    """`items` in order, in as few consecutive groups as keep each group's command within the limit."""
 
-    data = f"swbpipe exchange check {secrets.token_hex(32)}\n".encode("ascii")
-    write_private(root, paths["caepipe_in"] / EXCHANGE_MARKER, data)
-    return _sha256(data)
+    groups: list[list[tuple[str, str]]] = []
+    for item in items:
+        if groups and len(_exchange_check_text([*groups[-1], item])) <= LITERAL_COMMAND_LIMIT:
+            groups[-1].append(item)
+        else:
+            _exchange_check_command([item])  # a single path that cannot fit raises here
+            groups.append([item])
+    return groups
+
+
+def _exchange_check(config: HarnessConfig, step: Callable[[str, str], dict[str, Any]],
+                    needs: Mapping[str, tuple[str, str]], name: str = "exchange_check") -> dict[str, Any]:
+    """Hash, read only, each guest path of `needs` ({label: (guest path, SHA-256 the host holds)}) as the guest sees it.
+
+    The guest prints `sha256 <label> <hex>`, `missing <label>` or `unreadable <label>` (`EXCHANGE_CHECK_SCRIPT`,
+    `Get-FileHash` as the guest script uses); the paths travel as encoded data, never as command words, in as many
+    guest steps as keep each command within the limit. `ready` only when every step exits 0 and every label's hash
+    equals the host's; otherwise `unavailable`, with every label's state. ValueError when a path cannot fit."""
+
+    reported: dict[str, str] = {}
+    exits = []
+    for number, group in enumerate(_exchange_check_groups([(label, path) for label, (path, _) in needs.items()]), 1):
+        record = step(name if number == 1 else f"{name}_{number}", _exchange_check_command(group))
+        exits.append(record["exit_status"])
+        labels = {label for label, _ in group}
+        for line in (record.get("stdout") or "").splitlines():
+            parts = line.split()
+            if len(parts) == 3 and parts[0] == "sha256" and parts[1] in labels and re.fullmatch(r"[0-9a-f]{64}",
+                                                                                                  parts[2]):
+                reported.setdefault(parts[1], parts[2])
+            elif len(parts) == 2 and parts[0] in ("missing", "unreadable") and parts[1] in labels:
+                reported.setdefault(parts[1], parts[0])
+    states = {}
+    for label, (_, expected) in needs.items():
+        found = reported.get(label)
+        states[label] = ("matches" if found == expected.lower() else "not_answered" if found is None
+                         else found if found in ("missing", "unreadable") else "differs")
+    if all(code == 0 for code in exits) and all(state == "matches" for state in states.values()):
+        return {"status": "ready", "files": states}
+    if any(code != 0 for code in exits) or all(state == "not_answered" for state in states.values()):
+        why = f"the guest did not answer the exchange check (exit status {', '.join(map(str, exits))})"
+    else:
+        why = "the configured guest exchange root is not shown to be this exchange folder (" + ", ".join(
+            f"{label} {state}" for label, state in states.items() if state != "matches") + ")"
+    return {"status": "unavailable", "files": states, "reason": why}
 
 
 def _listed_drive_letters(text: str) -> list[str]:
@@ -688,124 +862,141 @@ def _listed_drive_letters(text: str) -> list[str]:
     return sorted(letters)
 
 
-def _marker_path(guest_root: str, case_id: str) -> str:
-    return _win(guest_root, "cases", case_id, "caepipe_in", EXCHANGE_MARKER)
-
-
-def _resolve_exchange_root(config: HarnessConfig, step: Callable[[str, str], dict[str, Any]], case_id: str,
-                           marker_sha256: str,
+def _resolve_exchange_root(config: HarnessConfig, step: Callable[[str, str], dict[str, Any]],
+                           marker_parts: tuple[str, ...], marker_sha256: str,
                            inputs: Callable[[str], dict[str, tuple[str, str]]]) -> dict[str, Any]:
-    """The guest exchange root for this step, resolved by content, never by name or letter alone.
+    """The guest exchange root for this step, resolved by content, never by name or letter alone; read only.
 
-    The configured root is the exchange folder only when the guest's SHA-256 of this run's marker under it equals the
-    host's (`_exchange_check`); the step's inputs (`inputs(root)`: {label: (guest path, SHA-256)}) are checked in the
-    same guest step. Only when the marker does not match there is the guest's `net use` listing read, and each other
-    listed drive letter (`_listed_drive_letters`, the configured root with its letter replaced, which must be a guest
-    path the configuration would accept) is asked for that one hash at that one path, in letter order, in one step.
-    Exactly one match: that root, with its inputs checked, is `ready` for this step only (the configuration is never
-    written); several: `ambiguous`; none, or a failed input check: `unavailable`. The result records the configured
-    and the used letter and whether they differ."""
+    The configured root is the exchange folder only when the guest's SHA-256 of this step's marker (at
+    `marker_parts` below the root) equals the host's; the step's inputs (`inputs(root)`) are checked in the same
+    check. Only when the marker does not match there is the guest's `net use` listing read, and each other listed
+    drive letter (the configured root with its letter replaced, a guest path the configuration would accept) is
+    asked for that one hash at that one path, in letter order and bounded groups. Exactly one match: that root,
+    with its inputs checked, is `ready` for this step only (the configuration is never written); several:
+    `ambiguous`; none, or a failed input check: `unavailable`; an oversize or unexpected condition: `failed`. The
+    result records the configured and the used letter and whether they differ.
+
+    Limits: the guest is taken to answer truthfully and its drive mappings to stay put during the step; a live
+    synchronised replica of the exchange folder could show the marker; only the letter is replaced, so the folder
+    is not searched for at another relative path."""
 
     configured = config.guest_exchange_root
     letter = configured[:2].upper()
     result: dict[str, Any] = {"configured_letter": letter, "listing": "not asked"}
-    first = _exchange_check(config, step, {"marker": (_marker_path(configured, case_id), marker_sha256),
-                                           **inputs(configured)})
-    result["configured_check"] = first["files"]
-    if first["files"]["marker"] == "matches":
-        if first["status"] != "ready":
-            return {**result, "status": "unavailable", "reason": first["reason"]}
-        return {**result, "status": "ready", "root": configured, "used_letter": letter, "differed": False}
-    listing = step("drive_listing", "net use")
-    listed = _listed_drive_letters(listing.get("stdout") or "") if listing["exit_status"] == 0 else []
-    candidates = [other for other in listed if other != letter
-                  and valid_guest_path(other + configured[2:] + "\\", directory=True)]
-    result["listing"] = {"exit_status": listing["exit_status"], "letters_tested": candidates}
-    unseen = first["reason"]
-    if not candidates:
-        return {**result, "status": "unavailable",
-                "reason": f"{unseen}, and the guest lists no other drive letter to test"}
-    labels = {f"drive_{other[0].lower()}": other for other in candidates}
-    probe = _exchange_check(config, step, {label: (_marker_path(other + configured[2:], case_id), marker_sha256)
-                                           for label, other in labels.items()}, name="exchange_check_drives")
-    passed = [other for label, other in labels.items() if probe["files"][label] == "matches"]
-    result["listing"]["letters_matched"] = passed
-    if len(passed) > 1:
-        return {**result, "status": "ambiguous",
-                "reason": f"{unseen}, and this run's marker matches under several drive letters "
-                          f"({', '.join(passed)}); none is taken"}
-    if not passed:
-        return {**result, "status": "unavailable",
-                "reason": f"{unseen}, and this run's marker matches under no other drive letter "
-                          f"({', '.join(candidates)} tested)"}
-    resolved = passed[0] + configured[2:]
-    second = _exchange_check(config, step, {"marker": (_marker_path(resolved, case_id), marker_sha256),
-                                            **inputs(resolved)}, name="exchange_check_resolved")
-    result["resolved_check"] = second["files"]
-    if second["status"] != "ready":
-        return {**result, "status": "unavailable", "reason": f"under {passed[0]}: {second['reason']}"}
-    return {**result, "status": "ready", "root": resolved, "used_letter": passed[0], "differed": True}
+    try:
+        first = _exchange_check(config, step, {"marker": (_win(configured, *marker_parts), marker_sha256),
+                                               **inputs(configured)})
+        result["configured_check"] = first["files"]
+        if first["files"]["marker"] == "matches":
+            if first["status"] != "ready":
+                return {**result, "status": "unavailable", "reason": first["reason"]}
+            return {**result, "status": "ready", "root": configured, "used_letter": letter, "differed": False}
+        listing = step("drive_listing", "net use")
+        listed = _listed_drive_letters(listing.get("stdout") or "") if listing["exit_status"] == 0 else []
+        candidates = [other for other in listed if other != letter
+                      and valid_guest_path(other + configured[2:] + "\\", directory=True)]
+        result["listing"] = {"exit_status": listing["exit_status"], "letters_tested": candidates}
+        unseen = first["reason"]
+        if not candidates:
+            return {**result, "status": "unavailable",
+                    "reason": f"{unseen}, and the guest lists no other drive letter to test"}
+        labels = {f"drive_{other[0].lower()}": other for other in candidates}
+        probe = _exchange_check(config, step, {label: (_win(other + configured[2:], *marker_parts), marker_sha256)
+                                               for label, other in labels.items()}, name="exchange_check_drives")
+        passed = [other for label, other in labels.items() if probe["files"][label] == "matches"]
+        result["listing"]["letters_matched"] = passed
+        if len(passed) > 1:
+            return {**result, "status": "ambiguous",
+                    "reason": f"{unseen}, and this step's marker matches under several drive letters "
+                              f"({', '.join(passed)}); none is taken"}
+        if not passed:
+            return {**result, "status": "unavailable",
+                    "reason": f"{unseen}, and this step's marker matches under no other drive letter "
+                              f"({', '.join(candidates)} tested)"}
+        resolved = passed[0] + configured[2:]
+        second = _exchange_check(config, step, {"marker": (_win(resolved, *marker_parts), marker_sha256),
+                                                **inputs(resolved)}, name="exchange_check_resolved")
+        result["resolved_check"] = second["files"]
+        if second["status"] != "ready":
+            return {**result, "status": "unavailable", "reason": f"under {passed[0]}: {second['reason']}"}
+        return {**result, "status": "ready", "root": resolved, "used_letter": passed[0], "differed": True}
+    except Exception as error:  # an oversize command or anything unexpected: a named refusal, never an escape
+        return {**result, "status": "failed",
+                "reason": f"the exchange check could not be made ({type(error).__name__}: {error})"}
 
 
 def _copy_kept(source: Path, target: Path) -> None:
     shutil.copy2(source, target, follow_symlinks=False)
 
 
-def _keep_outputs(root: Path, out: Path, case_root: Path) -> dict[str, Any]:
-    """Copy every file of `out` (caepipe_out/) to a new `KEPT_DIR/<UTC stamp>/caepipe_out/` in the case folder and
-    verify the copy against the original by file list and SHA-256, before anything in `out` is removed or replaced.
+def _keep_case_files(root: Path, case_root: Path, stamp: str, targets: list[str]) -> dict[str, Any]:
+    """Copy every stored file the step will remove or replace to a new `KEPT_DIR/<stamp>/` in the case folder, at
+    its path relative to the case folder, and verify the copy by file list and SHA-256 before anything is changed.
 
-    `{"status": "empty"}` when `out` holds no file (nothing to keep); `kept` with the kept folder (relative to the
-    case folder) and each file's SHA-256 when the copy equals the original, which is also hashed again after the
-    copy; `failed` with the reason otherwise (an I/O error, a list or hash that differs), the partial copy left in
-    place. Links and anything but regular files in `out` are refused first (`_refuse_links`)."""
+    The files are every file of caepipe_out/ (which a step clears or rewrites) and each existing file among
+    `targets` (stored paths the step stages or declares it replaces). The originals are hashed before the copy and
+    again after it; the copy must list exactly those files with the first hashes, and the second hashes must equal
+    the first. `empty` when there is nothing to keep; `kept` with the folder (relative to the case folder) and every
+    file's SHA-256; `failed` with the reason, the partial copy left in place. Links and non-regular files are refused
+    (ContainmentError) before anything is copied."""
 
+    out = contained(root, case_root / "caepipe_out")
     _refuse_links(root, out)
-    names = sorted(entry.name for entry in out.iterdir())
+    relpaths = {f"caepipe_out/{entry.name}" for entry in out.iterdir()}
+    for rel in targets:
+        path = contained(root, case_root.joinpath(*_case_relpath(rel)))
+        if path.exists():
+            if not path.is_file():
+                raise ContainmentError(f"{rel} in the case folder is not a regular file; refused")
+            relpaths.add(rel)
+    names = sorted(relpaths)
     if not names:
-        return {"status": "empty"}
+        return {"status": "empty", "files": {}}
     relative = None
     try:
-        original = {name: _file_sha256(contained(root, out / name)) for name in names}
-        stamp_dir = contained(root, contained_dir(root, case_root / KEPT_DIR) / _stamp())
-        relative = f"{KEPT_DIR}/{stamp_dir.name}/caepipe_out"
-        stamp_dir.mkdir()  # new: an existing folder of the same name is never written into
-        kept = contained_dir(root, stamp_dir / "caepipe_out")
-        for name in names:
-            _copy_kept(contained(root, out / name), contained(root, kept / name))
-        copied = {entry.name: _file_sha256(entry) for entry in kept.iterdir()
-                  if entry.is_file() and not entry.is_symlink()}
-        listed = sorted(entry.name for entry in kept.iterdir())
-        again = {name: _file_sha256(contained(root, out / name)) for name in names}
-        current = sorted(entry.name for entry in out.iterdir())
+        original = {rel: _file_sha256(contained(root, case_root.joinpath(*rel.split("/")))) for rel in names}
+        kept_root = contained(root, contained_dir(root, case_root / KEPT_DIR) / stamp)
+        relative = f"{KEPT_DIR}/{stamp}"
+        kept_root.mkdir()  # new: an existing folder of the same name is never written into
+        for rel in names:
+            parts = rel.split("/")
+            target = contained(root, contained_dir(root, kept_root.joinpath(*parts[:-1])) / parts[-1])
+            _copy_kept(contained(root, case_root.joinpath(*parts)), target)
+        listed = sorted(path.relative_to(kept_root).as_posix() for path in kept_root.rglob("*")
+                        if path.is_file() or path.is_symlink())
+        copied = {rel: _file_sha256(kept_root.joinpath(*rel.split("/"))) for rel in listed
+                  if not kept_root.joinpath(*rel.split("/")).is_symlink()}
+        again = {rel: _file_sha256(contained(root, case_root.joinpath(*rel.split("/")))) for rel in names}
+        current = sorted(f"caepipe_out/{entry.name}" for entry in out.iterdir())
     except OSError as error:
         return {"status": "failed", "path": relative, "reason": f"the copy could not be made ({type(error).__name__})"}
-    if listed != names or current != names:
-        return {"status": "failed", "path": relative, "reason": "the kept copy's file list differs from caepipe_out/"}
+    if listed != names or current != sorted(rel for rel in names if rel.startswith("caepipe_out/")):
+        return {"status": "failed", "path": relative, "reason": "the kept copy's file list differs from the originals"}
     if copied != original or again != original:
-        return {"status": "failed", "path": relative, "reason": "a kept file's SHA-256 differs from its original"}
+        return {"status": "failed", "path": relative,
+                "reason": "a kept file's SHA-256 differs from its original, or an original changed during the copy"}
     return {"status": "kept", "path": relative, "files": original}
 
 
-def _write_refused(root: Path, case_root: Path, step_name: str, record: Mapping[str, Any]) -> str:
-    """Write the run record of a refused step to `REFUSED_DIR/<UTC stamp>-<step_name>.json` in the case folder, never
-    over an existing file; return its path relative to the exchange folder."""
+def _write_harness_script(root: Path, harness_dir: Path, script_bytes: bytes) -> None:
+    """The harness's copy of its guest script in `_harness/` (outside every case folder), written only when absent or
+    different from the repository's script."""
 
-    folder = contained_dir(root, case_root / REFUSED_DIR)
-    target = contained(root, folder / f"{_stamp()}-{step_name}.json")
-    with open(target, "x", encoding="utf-8") as handle:
-        handle.write(json.dumps(record, indent=2, sort_keys=True) + "\n")
-    return target.relative_to(Path(root).resolve()).as_posix()
+    target = contained(root, harness_dir / GUEST_SCRIPT.name)
+    if not (target.is_file() and target.read_bytes() == script_bytes):
+        write_private(root, target, script_bytes)
 
 
 def _refusal(exchange: Mapping[str, Any], kept: Mapping[str, Any] | None) -> tuple[str, str]:
-    """(route, reason) of a step that the exchange check or the kept copy stopped."""
+    """(route, reason) of a step that the exchange root resolution or the kept copy stopped."""
 
     if exchange["status"] == "ambiguous":
         return EXCHANGE_AMBIGUOUS_ROUTE, exchange["reason"]
+    if exchange["status"] == "failed":
+        return EXCHANGE_CHECK_FAILED_ROUTE, exchange["reason"]
     if exchange["status"] != "ready":
         return EXCHANGE_UNAVAILABLE_ROUTE, exchange["reason"]
-    return KEPT_COPY_FAILED_ROUTE, f"the earlier outputs were not kept: {kept['reason']}"
+    return KEPT_COPY_FAILED_ROUTE, f"the stored files were not kept: {kept['reason']}"
 
 
 def _guest_read(config: HarnessConfig, runner: Callable[..., subprocess.CompletedProcess], timeout_s: float,
@@ -1842,7 +2033,8 @@ def restore_recorded_settings(config: HarnessConfig, changed_values: list[Mappin
 
 def _round_trip(config: HarnessConfig, case_id: str, mbf_text: str, paths: dict[str, Path], harness_dir: Path,
                 timeout_s: float, runner: Callable[..., subprocess.CompletedProcess],
-                gui_fallback: bool = True) -> dict[str, Any]:
+                gui_fallback: bool = True, attempt: "CaseAttempt | None" = None,
+                replaces: tuple[str, ...] = ()) -> dict[str, Any]:
     # A guarded round trip turns SIGTERM into a catchable cancellation for its whole lifetime, so a termination
     # request is recorded like a Ctrl-C instead of ending the process with the guard's log unwritten.
     # The same holds for an exception at any reporting or persistence step: it leaves with the guard result attached
@@ -1852,23 +2044,35 @@ def _round_trip(config: HarnessConfig, case_id: str, mbf_text: str, paths: dict[
     with _catchable_termination(guarded, live):
         try:
             return _round_trip_body(config, case_id, mbf_text, paths, harness_dir, timeout_s, runner, gui_fallback,
-                                    live)
+                                    live, attempt, replaces)
         except BaseException as error:
             if guarded and live.get("guard_state") is not None:
                 _recover_guard_result(error, live, config.exchange_root, paths["caepipe_out"])
             raise
+        finally:
+            # The marker goes on every path, an exception included, and only when it holds this step's content.
+            try:
+                _remove_marker(config.exchange_root.resolve(), live.get("marker"))
+            except Exception:
+                pass
 
 
 def _round_trip_body(config: HarnessConfig, case_id: str, mbf_text: str, paths: dict[str, Path], harness_dir: Path,
                      timeout_s: float, runner: Callable[..., subprocess.CompletedProcess],
-                     gui_fallback: bool = True, live: dict[str, Any] | None = None) -> dict[str, Any]:
+                     gui_fallback: bool = True, live: dict[str, Any] | None = None,
+                     attempt: "CaseAttempt | None" = None, replaces: tuple[str, ...] = ()) -> dict[str, Any]:
     started = _now()
     root = config.exchange_root
+    live = {} if live is None else live
+    attempt = attempt if attempt is not None else open_attempt(config, case_id)
+    if attempt.case_id != case_id or attempt.case_root != paths["root"] or attempt.placed:
+        raise ValueError("the attempt given is not a new attempt of this case")
     mbf_bytes = mbf_text.encode("utf-8")
     mbf_sha256 = _sha256(mbf_bytes)
-    write_private(root, paths["caepipe_in"] / "model.mbf", mbf_bytes)
+    attempt.stage("caepipe_in/model.mbf", mbf_bytes)
+    attempt.declare_replaces(replaces)
     script_bytes = GUEST_SCRIPT.read_bytes()
-    write_private(root, harness_dir / GUEST_SCRIPT.name, script_bytes)
+    _write_harness_script(root, harness_dir, script_bytes)
     out = paths["caepipe_out"]
     work = _win(config.guest_work_root, case_id)
     guest_mbf = _win(work, "model.mbf")
@@ -1886,36 +2090,63 @@ def _round_trip_body(config: HarnessConfig, case_id: str, mbf_text: str, paths: 
     def step(name: str, command: str) -> dict[str, Any]:
         return _guest_step(config, runner, timeout_s, steps, name, command)
 
-    # Nothing is cleared, here or in the guest, until the guest root that holds this exchange folder is resolved by
-    # content, this case's input MBF and the harness's script are seen there, and the earlier outputs are kept.
+    # Nothing stored for the case changes, here or in the guest, until the guest root that holds this exchange folder
+    # is resolved by content, with the staged MBF and the harness's script seen there, and every stored file the
+    # step replaces is kept and verified.
     _refuse_links(root, out)
-    exchange = _resolve_exchange_root(config, step, case_id, _write_marker(root, paths), lambda guest_root: {
-        "model": (_win(guest_root, "cases", case_id, "caepipe_in", "model.mbf"), mbf_sha256),
-        "script": (_win(guest_root, HARNESS_DIR, GUEST_SCRIPT.name), _sha256(script_bytes))})
-    kept = _keep_outputs(root, out, paths["root"]) if exchange["status"] == "ready" else None
+    try:
+        marker = _create_marker(attempt)
+    except OSError as error:  # a file already at the marker's name is never overwritten
+        marker = None
+        exchange = {"status": "failed", "reason": f"this step's marker could not be created ({type(error).__name__})"}
+    else:
+        live["marker"] = marker
+        exchange = _resolve_exchange_root(config, step, (*attempt.guest_parts, EXCHANGE_MARKER), marker.sha256,
+                                          lambda guest_root: {
+            "model": (_win(guest_root, *attempt.guest_parts, "staged", "caepipe_in", "model.mbf"), mbf_sha256),
+            "script": (_win(guest_root, HARNESS_DIR, GUEST_SCRIPT.name), _sha256(script_bytes))})
+    kept = _keep_case_files(root, paths["root"], attempt.stamp, attempt.targets()) \
+        if exchange["status"] == "ready" else None
     if exchange["status"] != "ready" or kept["status"] == "failed":
         route, reason = _refusal(exchange, kept)
+        marker_outcome = _remove_marker(root, marker)
+        # Every member of a run record (DEL-17-05 REQ-004, AC-002), with explicit not-attempted values.
         refused = {
             "document_kind": RUN_RECORD_KIND, "schema_version": "1", "deliverable": "DEL-17-05", "case_id": case_id,
             "configuration_surface": {"environment_variable": ENV_VAR, "config_file": CONFIG_NAME,
                                       "checked": list(config.checked), "warnings": list(config.warnings)},
             "executable_path_as_configured": config.guest_executable, ACKNOWLEDGEMENT_KEY: config.acknowledged,
             "mbf": {"path": "caepipe_in/model.mbf", "guest_path": guest_mbf, "sha256": mbf_sha256,
-                    "bytes": len(mbf_bytes)},
+                    "bytes": len(mbf_bytes), "staged": f"{attempt.relative}/staged/caepipe_in/model.mbf"},
             "guest_mbf_sha256": None, "input_hash_verified": False,
             "guest_script": {"repository_path": GUEST_SCRIPT_REPOSITORY_PATH,
-                             "exchange_copy": f"{HARNESS_DIR}/{GUEST_SCRIPT.name}", "sha256": _sha256(script_bytes)},
+                             "exchange_copy": f"{HARNESS_DIR}/{GUEST_SCRIPT.name}", "sha256": _sha256(script_bytes),
+                             "run_from": None},
+            "command_shape": {"batch": BATCH_COMMAND_SHAPE, "attempted": False,
+                              "gui_print_fallback": {"allowed": gui_fallback, "used": False,
+                                                     "label": "print_to_file_fallback"},
+                              "host_invocation": "prlctl exec <vm_name> --current-user cmd /c <guest command>"},
             "steps": [{key: value for key, value in item.items() if key not in ("stdout", "stderr")}
                       | {"stdout_chars": len(item.get("stdout") or ""), "stderr_chars": len(item.get("stderr") or "")}
                       for item in steps],
-            "route": route, "reason": reason, "exchange_check": exchange, "kept_outputs": kept,
-            "caepipe_out": "untouched: nothing was cleared or written there; the stored run record is unchanged",
+            "working_directory": work,
+            "expected_batch_csv_path": _win(work, "model.csv"),
+            "observed_csv_path": {"guest": None, "host": None},
+            "print_file": {"collected": None, "layout": None},
+            "route": route, "reason": reason,
+            "exit_status": "not_attempted",
+            "stdout_file": None, "stderr_file": None, "guest_log": None,
+            "outputs_collected": [], "outputs_sha256": {},
+            "exchange_check": exchange, "kept_outputs": kept, "exchange_marker": marker_outcome,
+            "attempt_folder": attempt.relative, "staged": list(attempt.staged),
+            "stored_files": "untouched: nothing stored for the case was cleared, replaced or written",
             "timestamps": {"started": started, "finished": _now()}, "boundary_note": BOUNDARY_NOTE,
         }
-        refused["refused_record"] = _write_refused(root, paths["root"], "round_trip", refused)
-        refused["reason"] = f"{reason}; nothing in caepipe_out was cleared or written; recorded at " \
+        refused["refused_record"] = attempt.write_record("refusal_record.json", refused)
+        refused["reason"] = f"{reason}; nothing stored for the case was changed; recorded at " \
                             f"{refused['refused_record']}"
         return refused
+    attempt.place()  # both safeguards hold: the staged files go to their stored paths
     # For this step only, every guest path is formed from the root resolved by content.
     config = dataclasses.replace(config, guest_exchange_root=exchange["root"])
     guest_case = _win(config.guest_exchange_root, "cases", case_id)
@@ -2175,6 +2406,9 @@ def _round_trip_body(config: HarnessConfig, case_id: str, mbf_text: str, paths: 
             "boundary_note": BOUNDARY_NOTE,
             "exchange_check": exchange,
             "kept_outputs": kept,
+            "exchange_marker": _remove_marker(root, marker),
+            "attempt_folder": attempt.relative,
+            "staged": list(attempt.staged),
         }
         if error is not None:
             record["harness_error"] = f"{type(error).__name__}: {error}"
@@ -2233,59 +2467,92 @@ def run_caepipe_mbf_export(config: HarnessConfig, case_id: str, mbf_sha256: str,
     """Export one case's stored solved model back to MBF with the user's CAEPIPE.
 
     The stored solve must be bound to the MBF with `mbf_sha256` by its run record; otherwise the route is
-    `not_bound`, nothing is run, any earlier export outputs are removed and the run record's export entry
+    `not_bound`, nothing is run, nothing stored changes, and a refusal record in a new attempt folder
     states why. The guest opens a copy of `caepipe_out/model.mod` in a CAEPIPE
     instance it starts, exports it with File > Export to MBF... and stops that instance. The harness collects
     `caepipe_out/exported.mbf` only when the guest reports opening a model whose SHA-256 equals the stored one,
     keeps it only when its SHA-256 equals the one the guest reported, and records the export in the run record's
     `mbf_export` entry, which binds it to the solve by both hashes.
 
-    As for the round trip, nothing is removed until the guest root holding this exchange folder is resolved by
-    content and the stored model and the harness's script are seen there (`exchange_drive_unavailable` or
-    `exchange_drive_ambiguous` otherwise) and the earlier outputs are kept
-    and verified (`kept_copy_failed` otherwise, also on the `not_bound` path, which asks no guest); a refused step
-    leaves caepipe_out/ untouched and records itself in `refused/<UTC stamp>-mbf_export.json`.
+    As for the round trip, nothing stored changes until the guest root holding this exchange folder is resolved by
+    content with the stored model and the harness's script seen there (`exchange_drive_unavailable`,
+    `exchange_drive_ambiguous` or `exchange_check_failed` otherwise) and caepipe_out/ is kept and verified
+    (`kept_copy_failed` otherwise). A refused step, `not_bound` included (which asks no guest), changes nothing
+    stored and records itself as `refusal_record.json` in a new attempt folder.
     """
 
     return _locked(config, case_id, lambda paths, harness_dir: _mbf_export(
         config, case_id, mbf_sha256, paths, harness_dir, timeout_s, runner))
 
 
+def _export_refusal_entry(route: str, reason: str, mbf_sha256: str, *, mod_sha256: str | None, guest_mod: str | None,
+                          work: str | None, script_sha256: str, steps: list[dict[str, Any]], exchange: Any, kept: Any,
+                          marker_outcome: str, attempt: CaseAttempt, started: str) -> dict[str, Any]:
+    """An export step's entry for a refused step: every member of an export entry, with not-attempted values."""
+
+    return {
+        "route": route, "reason": reason, "solved_mbf_sha256": mbf_sha256,
+        "mod": {"path": "caepipe_out/model.mod", "guest_path": guest_mod, "sha256": mod_sha256},
+        "guest_mod_sha256": None, "mod_hash_verified": False,
+        "exported_mbf": {"path": None, "sha256": None, "bytes": None}, "guest_exported_mbf_sha256": None,
+        "guest_script": {"repository_path": GUEST_SCRIPT_REPOSITORY_PATH,
+                         "exchange_copy": f"{HARNESS_DIR}/{GUEST_SCRIPT.name}", "sha256": script_sha256,
+                         "run_from": None},
+        "command_shape": {"attempted": False,
+                          "description": "the guest script opens a copy of the solved model in a CAEPIPE instance it "
+                                         "starts (File > Open...), writes it with File > Export to MBF... and stops "
+                                         "that instance",
+                          "host_invocation": "prlctl exec <vm_name> --current-user cmd /c <guest command>"},
+        "steps": [{key: value for key, value in item.items() if key not in ("stdout", "stderr")}
+                  | {"stdout_chars": len(item.get("stdout") or ""), "stderr_chars": len(item.get("stderr") or "")}
+                  for item in steps],
+        "working_directory": work, "exit_status": "not_attempted", "stdout_file": None, "stderr_file": None,
+        "guest_log": None, "exchange_check": exchange, "kept_outputs": kept, "exchange_marker": marker_outcome,
+        "attempt_folder": attempt.relative,
+        "stored_files": "untouched: nothing stored for the case was removed, replaced or written",
+        "timestamps": {"started": started, "finished": _now()},
+    }
+
+
 def _mbf_export(config: HarnessConfig, case_id: str, mbf_sha256: str, paths: dict[str, Path], harness_dir: Path,
                 timeout_s: float, runner: Callable[..., subprocess.CompletedProcess]) -> dict[str, Any]:
+    root = config.exchange_root.resolve()
+    attempt = open_attempt(config, case_id)
+    live: dict[str, Any] = {}
+    try:
+        return _mbf_export_body(config, case_id, mbf_sha256, paths, harness_dir, timeout_s, runner, attempt, live)
+    finally:
+        # The marker goes on every path, an exception included, and only when it holds this step's content.
+        try:
+            _remove_marker(root, live.get("marker"))
+        except Exception:
+            pass
+
+
+def _mbf_export_body(config: HarnessConfig, case_id: str, mbf_sha256: str, paths: dict[str, Path], harness_dir: Path,
+                     timeout_s: float, runner: Callable[..., subprocess.CompletedProcess], attempt: CaseAttempt,
+                     live: dict[str, Any]) -> dict[str, Any]:
     started = _now()
     root = config.exchange_root
     out = paths["caepipe_out"]
     _refuse_links(root, out)
     run_record = stored_run_record(root, out)
     mod = contained(root, out / "model.mod")
+    script_bytes = GUEST_SCRIPT.read_bytes()
     reason = solved_model_binding(run_record, mbf_sha256, mod)
     if reason:
-        # An earlier export is no longer bound to the current MBF: it is removed, and the run record's export
-        # entry says why, so no consumer can read a stale file as the current model's export. No guest work
-        # follows, so the guest is not asked; the earlier outputs are kept and verified first all the same.
-        kept = _keep_outputs(root, out, paths["root"])
-        if kept["status"] == "failed":
-            route, why = _refusal({"status": "ready"}, kept)
-            path = _write_refused(root, paths["root"], "mbf_export", {
-                "document_kind": RUN_RECORD_KIND, "case_id": case_id, "route": route, "reason": why,
-                "not_bound_reason": reason, "solved_mbf_sha256": mbf_sha256, "kept_outputs": kept,
-                "caepipe_out": "untouched: nothing was removed or written there",
-                "timestamps": {"started": started, "finished": _now()}, "boundary_note": BOUNDARY_NOTE})
-            return {"route": route, "reason": f"{why}; nothing in caepipe_out was removed or written; recorded at "
-                                              f"{path}", "kept_outputs": kept}
-        for entry in out.iterdir():
-            if entry.name.lower() in EXPORT_OUTPUTS and entry.is_file():
-                contained(root, entry).unlink()
-        refused = {"route": "not_bound", "reason": reason, "solved_mbf_sha256": mbf_sha256, "kept_outputs": kept,
-                   "timestamps": {"started": started, "finished": _now()}}
-        if run_record is not None:
-            write_private(root, out / "run_record.json",
-                          json.dumps({**run_record, "mbf_export": refused}, indent=2, sort_keys=True) + "\n")
-        return {"route": "not_bound", "reason": reason}
+        # The stored solve is not of the current MBF: nothing is run and nothing stored changes; the refusal is a new
+        # record in the attempt folder. (The stored export stays bound, by its own run record, to the stored solve.)
+        entry = _export_refusal_entry("not_bound", reason, mbf_sha256, mod_sha256=None, guest_mod=None, work=None,
+                                      script_sha256=_sha256(script_bytes), steps=[], exchange="not asked: no guest "
+                                      "work follows", kept=None, marker_outcome="not created", attempt=attempt,
+                                      started=started)
+        path = attempt.write_record("refusal_record.json", {
+            **(run_record or {"document_kind": RUN_RECORD_KIND, "case_id": case_id}), "mbf_export": entry})
+        return {**entry, "refused_record": path,
+                "reason": f"{reason}; nothing stored for the case was changed; recorded at {path}"}
     mod_sha256 = _sha256(mod.read_bytes())
-    script_bytes = GUEST_SCRIPT.read_bytes()
-    write_private(root, harness_dir / GUEST_SCRIPT.name, script_bytes)
+    _write_harness_script(root, harness_dir, script_bytes)
 
     work = _win(config.guest_work_root, case_id, "export")
     guest_mod, guest_mbf = _win(work, "model.mod"), _win(work, EXPORTED_MBF)
@@ -2300,26 +2567,29 @@ def _mbf_export(config: HarnessConfig, case_id: str, mbf_sha256: str, paths: dic
     def step(name: str, command: str) -> dict[str, Any]:
         return _guest_step(config, runner, timeout_s, steps, name, command)
 
-    # Nothing is removed, here or in the guest, until the guest root that holds this exchange folder is resolved by
-    # content, the stored solved model and the harness's script are seen there, and the earlier outputs are kept.
-    exchange = _resolve_exchange_root(config, step, case_id, _write_marker(root, paths), lambda guest_root: {
-        "model": (_win(guest_root, "cases", case_id, "caepipe_out", "model.mod"), mod_sha256),
-        "script": (_win(guest_root, HARNESS_DIR, GUEST_SCRIPT.name), _sha256(script_bytes))})
-    kept = _keep_outputs(root, out, paths["root"]) if exchange["status"] == "ready" else None
+    # Nothing stored changes, here or in the guest, until the guest root that holds this exchange folder is resolved
+    # by content, with the stored solved model and the harness's script seen there, and caepipe_out/ is kept.
+    try:
+        marker = _create_marker(attempt)
+    except OSError as error:  # a file already at the marker's name is never overwritten
+        marker = None
+        exchange = {"status": "failed", "reason": f"this step's marker could not be created ({type(error).__name__})"}
+    else:
+        live["marker"] = marker
+        exchange = _resolve_exchange_root(config, step, (*attempt.guest_parts, EXCHANGE_MARKER), marker.sha256,
+                                          lambda guest_root: {
+            "model": (_win(guest_root, "cases", case_id, "caepipe_out", "model.mod"), mod_sha256),
+            "script": (_win(guest_root, HARNESS_DIR, GUEST_SCRIPT.name), _sha256(script_bytes))})
+    kept = _keep_case_files(root, paths["root"], attempt.stamp, attempt.targets()) \
+        if exchange["status"] == "ready" else None
     if exchange["status"] != "ready" or kept["status"] == "failed":
         route, why = _refusal(exchange, kept)
-        refused = {"route": route, "reason": why, "solved_mbf_sha256": mbf_sha256,
-                   "mod": {"path": "caepipe_out/model.mod", "guest_path": guest_mod, "sha256": mod_sha256},
-                   "exchange_check": exchange, "kept_outputs": kept,
-                   "steps": [{key: value for key, value in item.items() if key not in ("stdout", "stderr")}
-                             | {"stdout_chars": len(item["stdout"]), "stderr_chars": len(item["stderr"])}
-                             for item in steps],
-                   "caepipe_out": "untouched: nothing was removed or written there; the stored run record is "
-                                  "unchanged",
-                   "timestamps": {"started": started, "finished": _now()}}
-        path = _write_refused(root, paths["root"], "mbf_export", {**run_record, "mbf_export": refused})
-        return {**refused, "refused_record": path,
-                "reason": f"{why}; nothing in caepipe_out was removed or written; recorded at {path}"}
+        entry = _export_refusal_entry(route, why, mbf_sha256, mod_sha256=mod_sha256, guest_mod=guest_mod, work=work,
+                                      script_sha256=_sha256(script_bytes), steps=steps, exchange=exchange, kept=kept,
+                                      marker_outcome=_remove_marker(root, marker), attempt=attempt, started=started)
+        path = attempt.write_record("refusal_record.json", {**run_record, "mbf_export": entry})
+        return {**entry, "refused_record": path,
+                "reason": f"{why}; nothing stored for the case was changed; recorded at {path}"}
     # For this step only, every guest path is formed from the root resolved by content.
     config = dataclasses.replace(config, guest_exchange_root=exchange["root"])
     guest_out = _win(config.guest_exchange_root, "cases", case_id, "caepipe_out")
@@ -2412,6 +2682,8 @@ def _mbf_export(config: HarnessConfig, case_id: str, mbf_sha256: str, paths: dic
         "timestamps": {"started": started, "finished": _now()},
         "exchange_check": exchange,
         "kept_outputs": kept,
+        "exchange_marker": _remove_marker(root, marker),
+        "attempt_folder": attempt.relative,
     }
     write_private(root, out / "run_record.json",
                   json.dumps({**run_record, "mbf_export": entry}, indent=2, sort_keys=True) + "\n")

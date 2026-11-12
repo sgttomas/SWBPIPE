@@ -53,6 +53,13 @@ def stored_cases(config: HarnessConfig) -> list[str]:
     return found
 
 
+def copy_case_tree(source: Path, target: Path) -> None:
+    """Copy a stored case for the offline re-run, leaving out the harness's kept copies and attempt folders, which no
+    reader treats as a current result."""
+    shutil.copytree(source, target, ignore=lambda folder, names: [
+        name for name in names if Path(folder) == source and name in ("kept", "attempts")])
+
+
 def test_stored_caepipe_correlation_classifications_are_stable(tmp_path):
     config = resolve_harness_config(os.environ, require_vm_tools=False)
     if isinstance(config, HarnessSkip):
@@ -66,7 +73,7 @@ def test_stored_caepipe_correlation_classifications_are_stable(tmp_path):
 
     copy_root = tmp_path / "exchange"
     for case_id in case_ids:
-        shutil.copytree(config.exchange_root / "cases" / case_id, copy_root / "cases" / case_id)
+        copy_case_tree(config.exchange_root / "cases" / case_id, copy_root / "cases" / case_id)
     copy = HarnessConfig(exchange_root=copy_root, vm_name="not-used-offline", guest_executable="not-used-offline",
                          guest_exchange_root="not-used-offline", guest_work_root="not-used-offline", prlctl=None,
                          acknowledged=True, trial_first_launch_date=config.trial_first_launch_date)
