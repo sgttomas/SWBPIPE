@@ -34,7 +34,7 @@ procedure unchanged.
 | Manual deliverable | `DEL-09-04` |
 | Decision basis | `D-33` / `DEC-065` |
 | Runner policy | local foreground process; JSON stdin or `--input`; JSON stdout; optional explicit `--output`; no network, daemon, telemetry, hidden filesystem mutation, or direct SQL access |
-| Exit-code policy (`DEC-065`) | exit 0 only when no blocking diagnostic is present; exit 1 with blocking diagnostics; exit 2 reserved for usage/malformed input |
+| Exit-code policy (`DEC-065`) | exit 0 only when no blocking diagnostic is present; exit 1 with blocking diagnostics; exit 2 reserved for usage/malformed input; exit 3 (DEL-10-05 AC-002, AC-013) when a result was formed and a destination asked for could not be written whole |
 | Evidence state | `DRAFT_EVIDENCE` |
 | Public benchmark/release tolerance state | `TBD`; not settled by this slice |
 
@@ -117,21 +117,28 @@ openpipestress-runner read <reader> [--input <reader-input.json>|-]
   carry no run evidence and are not regenerated.
 - **`--output`.** The file holds the same JSON as stdout. It is written
   only when the export is not blocked, and for `export-results` only on
-  exit 0. It is published first, whole or not at all (a temporary file in the
-  same directory, then moved into place), and stdout is written only after
-  that. The two destinations are not one act: a path that cannot be written
-  exits 2 with no file at the path, no temporary file and nothing on stdout;
-  if stdout fails after the file is published, the file stands whole, stderr
-  names it, and the exit is 2; with no output file, a stdout that fails part
-  way exits 2 and what reached it is not a result. Exit 0 or 1 says every
-  destination asked for was written whole. Trust evidence by verifying its
-  binding (`bound`), never by an exit status alone.
+  exit 0. The runner creates its output file and never replaces one: a path at
+  which anything already exists is refused before anything is formed (exit 2,
+  `OUTPUT_PATH_EXISTS` on stderr, nothing on stdout, the existing file
+  untouched), so give each run a new path. The file is created exclusively at
+  the named path (nothing else is written) and written before stdout. The two
+  destinations are not one act: a path that cannot be created, or a failure
+  while the file is written, exits 3 with nothing on stdout and no file left by
+  this run; if stdout fails after the file is written, the file stands whole,
+  stderr names it, and the exit is 3; with no output file, a stdout that fails
+  part way exits 3 and what reached it is not a result. A run killed during the
+  write can leave a partial file, which fails verification
+  (`verify_bytes`). Exit 0 or 1 says every destination asked for was written
+  whole. Trust evidence by verifying its binding (`bound`), never by an exit
+  status alone.
 - **Exit codes.** 0 when no blocking diagnostic is present and the export
   is not blocked; 1 with a blocking diagnostic or a blocked export; 2 for a
   usage error, an unreadable input file, input that is not a JSON object of
   the expected shape (`HEADLESS_RUNNER_CLI_INPUT_JSON_INVALID`), an
-  unsupported verb (`HEADLESS_RUNNER_CLI_UNSUPPORTED_COMMAND`), an
-  unwritable `--output` path, or a stdout that fails (see `--output`).
+  unsupported verb (`HEADLESS_RUNNER_CLI_UNSUPPORTED_COMMAND`) or an
+  `--output` path at which something already exists; 3 when a result was
+  formed and the `--output` file or stdout could not be written whole (see
+  `--output`).
 - **`read`.** Returns one product reader's verdict as JSON on stdout. It
   exits 0 when the reader passes the statement, 1 when it refuses it, and 2
   when the invocation or input is unusable. It takes no `--output` or intent
@@ -204,7 +211,7 @@ EOF
 | C4 | `"$RUNNER" solve --explicit-local-private-intent --input $I/tp_runner_015_final_cli_solve_input.json --output "$SCRATCH/c04.json"` | 1 | The legacy-content refusal control (Part 1 case 1): job state `COMPLETED`, mechanics `MODEL_INCOMPLETE`, blocking `PRESSURE_MODEL_REAUTHOR_REQUIRED` for each legacy nonzero pressure load and `LEGACY_FINITE_CONNECTOR_REAUTHOR_REQUIRED`, result validation `HEADLESS_RUNNER_RESULT_REFS_MISSING`, empty `result_refs`. | `test_final_runner_refuses_legacy_pressure_demo_as_explicit_control`; 2026-10-19 note |
 | C5 | `"$RUNNER" run-benchmark --explicit-local-private-intent --input $I/tp_runner_015_final_cli_benchmark_stub_input.json --output "$SCRATCH/c05.json"` | 1 | `HEADLESS_RUNNER_BENCHMARK_PAYLOAD_MISSING` (Part 1 case 3). | Part 1 case 3; source |
 | C6–C10 | The five Part 2 commands, with `"$RUNNER"` in place of `cargo run … --` and outputs under `"$SCRATCH"` | 0, 0, 0, 1, 1 | As the Part 2 fixture table states. | Part 2 |
-| C11 | `"$RUNNER" export-results --explicit-local-private-intent --input $I/del1005_export_results_success_input.json --output "$SCRATCH/c11.json"` | 0 | `payload.report_package` is present, with `container_bytes` whose SHA-256 equals `container_sha256_hex`; a repeat run gives the same bytes. | `test_final_runner_subprocess_export_results_success_is_deterministic_and_zip_exact` |
+| C11 | `"$RUNNER" export-results --explicit-local-private-intent --input $I/del1005_export_results_success_input.json --output "$SCRATCH/c11.json"` | 0 | `payload.report_package` is present, with `container_bytes` whose SHA-256 equals `container_sha256_hex`; a repeat run, with `--output "$SCRATCH/c11-repeat.json"` (the runner never replaces a file), gives the same bytes. | `test_final_runner_subprocess_export_results_success_is_deterministic_and_zip_exact` |
 | C12 | `"$RUNNER" export-results --explicit-local-private-intent --input "$SCRATCH/export_stale_identity_input.json" --output "$SCRATCH/c12.json"` | 1 | The stale identity is refused: `HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_INVALID` with `REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH` in its message; no `report_package`; no `c12.json`. | `test_final_runner_export_results_refuses_unlinked_solver_identity` |
 | C13 | `printf '{' \| "$RUNNER" validate-input --explicit-local-private-intent` | 2 | `HEADLESS_RUNNER_CLI_INPUT_JSON_INVALID`. | `test_final_runner_subprocess_malformed_input_exits_two` |
 

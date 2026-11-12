@@ -387,6 +387,20 @@ fn withheld_code(member: Option<&Value>) -> Option<&str> {
         .filter(|code| *code == WITHHELD_BLOCKED || *code == WITHHELD_UNJUDGED)
 }
 
+/// The name a result file that is not one whole JSON document fails by (a run
+/// killed while it wrote its output file can leave a partial file).
+pub const NOT_ONE_DOCUMENT: &str = "result: not one JSON document";
+
+/// [`verify`] over a result as kept bytes (an output file or captured standard
+/// output): bytes that are not one whole JSON document, such as a partial file,
+/// fail by [`NOT_ONE_DOCUMENT`].
+pub fn verify_bytes(raw: &[u8], output: &[u8]) -> Result<Checked, Vec<String>> {
+    match serde_json::from_slice::<Value>(output) {
+        Ok(emitted) => verify(raw, &emitted),
+        Err(_) => Err(vec![NOT_ONE_DOCUMENT.to_string()]),
+    }
+}
+
 /// Check an emitted result against the request bytes it is said to answer,
 /// from those bytes alone. `Err` lists every evidence member whose recomputed
 /// value differs, by dotted name (`request.raw_sha256`,

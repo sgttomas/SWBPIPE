@@ -293,6 +293,19 @@ def verify(raw: bytes, emitted: Any) -> list[str]:
     return report
 
 
+NOT_ONE_DOCUMENT = "result: not one JSON document"
+
+
+def verify_bytes(raw: bytes, output: bytes) -> list[str]:
+    """`verify` over a result as kept bytes (an output file or captured standard output): bytes that are not one
+    whole JSON document, such as a partial file left by a run killed while it wrote, fail by NOT_ONE_DOCUMENT."""
+    try:
+        emitted = json.loads(output.decode("utf-8"), object_pairs_hook=_unique_members, parse_constant=_refuse_constant)
+    except (UnicodeDecodeError, ValueError, RecursionError):
+        return [NOT_ONE_DOCUMENT]
+    return verify(raw, emitted)
+
+
 BOUND = "bound"
 NOT_BOUND_WITHHELD = "not bound: withheld"
 NOT_BOUND_UNAVAILABLE = "not bound: unavailable"

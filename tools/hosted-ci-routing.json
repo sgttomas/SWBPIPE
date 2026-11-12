@@ -276,7 +276,7 @@
       "core/rules/rule_check_runner/Cargo.toml": "b433d3eec2112c518f51ac9f83cfdc6469fef33cdaa9e1020bd8b814e5e15c85",
       "core/rules/rule_pack_document/Cargo.toml": "1675122e0a21560f7d8a1963267661ff75e7f97948cf177c7dbf6ed9f9d31bc6",
       "core/rules/rule_pack_lifecycle/Cargo.toml": "811d32918f3d13d8d2a9115ebb6ce9b0243078626bc426d8dbd97224eb2dbd56",
-      "core/runner/headless/Cargo.toml": "b327c3e0eb053d94bee7dbf978728e3e2317c89b20d871af5991efa6dc8514c4",
+      "core/runner/headless/Cargo.toml": "a1d8a82aa56c376f214e09eef4dc17f7aa1341edfc675aee6947713fc6e041e3",
       "core/serialization/canonical_json/Cargo.toml": "fb2259bdfcb6adebc877b46e4e1b3126fdf1b08c0b6441a5e4ba49ab75e670a0",
       "core/solver/curved_bend/Cargo.toml": "5d7cf1288eac698c209aa4fd7493fa669aa57494950e75374ac07248001502d8",
       "core/solver/diagnostics/Cargo.toml": "33f62709325dd0aee1a7e4996ee1424e2dcbc9fd54418704f87c8f39e64b875c",
@@ -3595,7 +3595,7 @@
         ]
       },
       "core/runner/headless/src/bin/openpipestress-runner.rs": {
-        "sha256": "4434fd094b72c9f520aae0d8108d358d930cb74b09b27fab7645a2ccb2dd1cf2",
+        "sha256": "2d848996998faee3467264de2a94fcfb1b826b392d5cf7103aad5d3e9d955a89",
         "source_trees": [
           "core/runner/headless/Cargo.toml"
         ],

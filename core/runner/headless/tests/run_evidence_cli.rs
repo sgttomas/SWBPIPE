@@ -560,17 +560,43 @@ fn a_result_outside_the_profile_binds_nothing_and_an_edit_under_it_is_never_veri
     );
 }
 
-/// Review round 1, finding 3: an output path that cannot be written (an existing directory)
-/// exits 2 with nothing on standard output; the file is written before standard output.
+/// Review round 1, finding 3, and the rule that the run never replaces a file:
+/// an output path at which something exists (here a directory) is refused before
+/// anything is formed (exit 2, nothing on standard output); a path that cannot be
+/// created (a missing folder) exits 3 with nothing on standard output and nothing
+/// created. The byte-for-byte check of a pre-existing file is in
+/// `tests/test_run_evidence.py` and the binary's unit test.
 #[test]
-fn an_unwritable_output_path_exits_2_and_prints_no_result() {
-    let directory = std::env::temp_dir().join(format!("run-evidence-unwritable-{}", std::process::id()));
+fn an_existing_or_uncreatable_output_path_prints_no_result() {
+    let directory = std::env::temp_dir().join(format!("run-evidence-output-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&directory);
     std::fs::create_dir_all(&directory).unwrap();
-    let path = directory.to_string_lossy().into_owned();
     let input = solve_admitted();
-    let out = run(&["solve", "--explicit-local-private-intent", "--output", &path], input.as_bytes());
+    let existing = directory.to_string_lossy().into_owned();
+    let out = run(&["solve", "--explicit-local-private-intent", "--output", &existing], input.as_bytes());
     assert_eq!(out.code, 2, "{}", out.stderr);
+    assert!(out.stdout.is_empty(), "{}", out.stdout);
+    assert!(out.stderr.contains("OUTPUT_PATH_EXISTS"), "{}", out.stderr);
+    let missing = directory.join("missing-folder").join("result.json").to_string_lossy().into_owned();
+    let out = run(&["solve", "--explicit-local-private-intent", "--output", &missing], input.as_bytes());
+    assert_eq!(out.code, 3, "{}", out.stderr);
     assert!(out.stdout.is_empty(), "{}", out.stdout);
     assert!(out.stderr.contains("cannot write"), "{}", out.stderr);
     std::fs::remove_dir_all(&directory).unwrap();
+}
+
+/// A run killed during the write can leave a partial file: a truncated result
+/// fails verification by name.
+#[test]
+fn a_truncated_result_fails_verification_by_name() {
+    let input = solve_admitted();
+    let out = intent_run("solve", &input);
+    assert_eq!(run_evidence::verify_bytes(input.as_bytes(), out.stdout.as_bytes()), Ok(Checked::Verified));
+    for cut in [out.stdout.len() / 2, out.stdout.len() - 3, 1] {
+        assert_eq!(
+            run_evidence::verify_bytes(input.as_bytes(), &out.stdout.as_bytes()[..cut]),
+            Err(vec![run_evidence::NOT_ONE_DOCUMENT.to_string()]),
+            "{cut}"
+        );
+    }
 }

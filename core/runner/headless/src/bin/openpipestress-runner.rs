@@ -157,6 +157,15 @@ fn main() -> ExitCode {
             return ExitCode::from(2);
         }
     };
+    // The run creates its output file and never replaces one: an output path at
+    // which anything already exists is wrong usage, refused before anything is
+    // read or formed (exit 2), and what is there is left untouched.
+    if let Some(path) = args.output_path.as_deref() {
+        if std::fs::symlink_metadata(path).is_ok() {
+            eprintln!("openpipestress-runner: OUTPUT_PATH_EXISTS: --output {path}: something already exists at that path; the runner creates its output file and never replaces one");
+            return ExitCode::from(2);
+        }
+    }
 
     let input = match read_input(args.input_path.as_deref()) {
         Ok(input) => input,
@@ -186,7 +195,7 @@ fn main() -> ExitCode {
     // Run evidence (REQ-017): formed only after the control has passed the
     // output, over the controlled output exactly as it is emitted. A blocked
     // output carries none (a digest of a private value would let a guess be
-    // confirmed), and neither does a run that exits 2 (no result is formed).
+    // confirmed), and neither does a run that forms no result (exit 2).
     // The request itself is judged by the same control the output had, with the
     // intent as invoked; where that control would block it, the request and
     // model digests are withheld and the result digest is kept.
@@ -219,18 +228,24 @@ fn main() -> ExitCode {
     .expect("controlled CLI output must serialize as JSON");
     let document = format!("{rendered}\n");
 
-    // Two destinations are not published as one act. The output file comes
-    // first, whole or not at all (a temporary file in the same directory moved
-    // into place); standard output only after it is in place:
-    // - the file cannot be published: no file at the path, no temporary file,
-    //   nothing on standard output, exit 2;
-    // - standard output fails after the file is published: the file stands
-    //   whole, standard error names it, exit 2 (not every destination was
-    //   written whole);
-    // - no output file and standard output fails part way: exit 2; what reached
+    // Two destinations are not written as one act. The output file comes first,
+    // at the path the caller named and nowhere else, created exclusively by this
+    // run; standard output only after the file is written whole:
+    // - the file cannot be created (something appeared at the path since the
+    //   check above, a missing folder, no permission): nothing is written or
+    //   removed, nothing goes to standard output, exit 3;
+    // - a failure while the file is written: the file this run created is
+    //   removed, nothing goes to standard output, exit 3;
+    // - standard output fails after the file is written: the file stands whole,
+    //   standard error names it, exit 3;
+    // - no output file and standard output fails part way: exit 3; what reached
     //   standard output is not a result.
-    // Exit 0 or 1 says every destination asked for was written whole. Evidence
-    // is trusted by verifying its binding, never by an exit status alone.
+    // Exit 3 says a result was formed and a destination asked for could not be
+    // written whole (a run that formed no result keeps exit 2). Exit 0 or 1 says
+    // every destination asked for was written whole. A run killed during the
+    // write can leave a partial file, which fails verification. Evidence is
+    // trusted by verifying its binding, never by an exit status alone.
+    let destination_failed = ExitCode::from(if code == 2 { 2 } else { 3 });
     let output_path = args
         .output_path
         .as_deref()
@@ -238,7 +253,7 @@ fn main() -> ExitCode {
     if let Some(path) = output_path {
         if let Err(error) = write_output_file(path, document.as_bytes()) {
             let _ = writeln!(io::stderr(), "openpipestress-runner: cannot write {path}: {error}");
-            return ExitCode::from(2);
+            return destination_failed;
         }
     }
     let mut stdout = io::stdout().lock();
@@ -246,14 +261,14 @@ fn main() -> ExitCode {
         let _ = match output_path {
             Some(path) => writeln!(
                 io::stderr(),
-                "openpipestress-runner: cannot write standard output: {error}; {path} was published whole before it and stands"
+                "openpipestress-runner: cannot write standard output: {error}; {path} was written whole before it and stands"
             ),
             None => writeln!(
                 io::stderr(),
                 "openpipestress-runner: cannot write standard output: {error}; what reached it is not a result"
             ),
         };
-        return ExitCode::from(2);
+        return destination_failed;
     }
 
     ExitCode::from(if code == 2 {
@@ -267,28 +282,20 @@ fn main() -> ExitCode {
 
 const SIZE_HANGERS: &str = "size-hangers";
 
-/// Write `bytes` to `path` whole or not at all: to a temporary file in the same
-/// directory, then moved into place. On any failure the temporary file is
-/// removed and nothing is left at `path` by this run.
+/// Write `bytes` to `path`, the only file the run writes. The file is created
+/// exclusively (it fails if anything exists at the path), so "this run created
+/// it" is established by how it was opened, not by its name: a failure to
+/// create it writes and removes nothing, and only a file this run created is
+/// removed when the write then fails. A run killed during the write can leave a
+/// partial file, which fails verification.
 fn write_output_file(path: &str, bytes: &[u8]) -> io::Result<()> {
-    let target = std::path::Path::new(path);
-    let name = target.file_name().ok_or_else(|| {
-        io::Error::new(io::ErrorKind::InvalidInput, "the output path names no file")
-    })?;
-    let directory = target
-        .parent()
-        .filter(|parent| !parent.as_os_str().is_empty())
-        .unwrap_or_else(|| std::path::Path::new("."));
-    let temporary = directory.join(format!(
-        ".{}.openpipestress-runner-{}.tmp",
-        name.to_string_lossy(),
-        std::process::id()
-    ));
-    let placed = std::fs::write(&temporary, bytes).and_then(|()| std::fs::rename(&temporary, target));
-    if placed.is_err() {
-        let _ = std::fs::remove_file(&temporary);
+    let mut file = std::fs::File::create_new(path)?;
+    let written = file.write_all(bytes).and_then(|()| file.sync_all());
+    if written.is_err() {
+        drop(file);
+        let _ = std::fs::remove_file(path);
     }
-    placed
+    written
 }
 
 /// What a verb or a hosted command that takes a request writes: the controlled
@@ -1256,6 +1263,29 @@ mod tests {
             }
         })
         .to_string()
+    }
+
+    /// DEL-10-05 AC-013: the output file is created exclusively. A file that
+    /// appears at the path after the run's first check is never replaced: the
+    /// creation fails, nothing is written or removed, and the file is byte for
+    /// byte what it was. A missing folder creates nothing.
+    #[test]
+    fn the_output_file_is_created_exclusively_and_never_replaces_one() {
+        let dir = std::env::temp_dir().join(format!("runner-output-exclusive-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        let existing = dir.join("existing.json");
+        std::fs::write(&existing, b"the caller's earlier file").unwrap();
+        let error = write_output_file(existing.to_str().unwrap(), b"a result").unwrap_err();
+        assert_eq!(error.kind(), io::ErrorKind::AlreadyExists);
+        assert_eq!(std::fs::read(&existing).unwrap(), b"the caller's earlier file");
+        let fresh = dir.join("fresh.json");
+        write_output_file(fresh.to_str().unwrap(), b"a result").unwrap();
+        assert_eq!(std::fs::read(&fresh).unwrap(), b"a result");
+        let missing = dir.join("missing-folder").join("out.json");
+        assert!(write_output_file(missing.to_str().unwrap(), b"a result").is_err());
+        assert!(std::fs::symlink_metadata(dir.join("missing-folder")).is_err());
+        std::fs::remove_dir_all(&dir).unwrap();
     }
 
     #[test]

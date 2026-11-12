@@ -172,7 +172,8 @@ def source_read_dependencies(project, manifests, declarations=None):
                           'canonicalize', 'exists', 'try_exists', 'copy', 'write', 'create_dir', 'create_dir_all',
                           'remove_file', 'remove_dir', 'remove_dir_all', 'rename', 'File'}
             file_methods = set(re.findall(r'\bFile\s*::\s*(\w+)', syntax))
-            if (fs_names - allowed_fs or file_methods - {'open', 'create', 'from_raw_fd', 'from_raw_handle'}
+            # `create_new` (exclusive creation) opens for writing only, as `create` does; it reads nothing.
+            if (fs_names - allowed_fs or file_methods - {'open', 'create', 'create_new', 'from_raw_fd', 'from_raw_handle'}
                     or ('File' in fs_names and not file_methods)):
                 raise ValueError('Unresolved filesystem API in ' + source.relative_to(project).as_posix())
             if re.search(r'\buse\s+[^;]*\bfs\s*::[^;]*\*', syntax):

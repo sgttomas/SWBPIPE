@@ -714,6 +714,17 @@ class ReachabilitySafetyTests(unittest.TestCase):
                 self.assertIn('filesystem', result['fallback_reasons'][0])
 
 
+    def test_exclusive_creation_is_a_write_not_an_unresolved_reader(self):
+        """`File::create_new` (the headless runner's output file, DEL-10-05 AC-013) opens for writing only, as
+        `File::create` does: it neither falls back nor needs a runtime read declaration."""
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp)
+            writer = self.crate(project, 'writer')
+            (project / writer.parent / 'src/lib.rs').write_text(
+                'pub fn write(path: &str) { let _ = std::fs::File::create_new(path); }')
+            self.assertEqual(ci.source_read_dependencies(project, [writer], EMPTY_READS), {})
+
+
     def test_external_input_audits_require_explicit_shape_and_reason(self):
         with tempfile.TemporaryDirectory() as tmp:
             project = Path(tmp)

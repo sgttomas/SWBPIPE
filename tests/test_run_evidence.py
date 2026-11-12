@@ -285,21 +285,43 @@ def test_the_parse_depth_is_the_profiles(runner):
     assert rv.verify(refused_input, emitted) == rv.WITHHELD_REPORT
 
 
-def test_an_unwritable_output_path_exits_2_prints_nothing_and_leaves_no_file(runner, tmp_path):
-    """Review round 1, finding 3: the output file is written first (temporary file in the same directory, moved
-    into place) and standard output only after; an existing directory as the path exits 2 with nothing on
-    standard output, nothing new at the path and no temporary file left."""
-    target = tmp_path / "an-existing-directory"
-    target.mkdir()
-    returncode, stdout, stderr = runner(["solve", "--explicit-local-private-intent", "--output", str(target)],
+def test_an_output_path_where_something_exists_is_refused_and_left_untouched(runner, tmp_path):
+    """The run creates its output file and never replaces one: a file or a directory already at the output path is
+    refused before anything is formed (exit 2, nothing on standard output), and stays byte for byte as it was."""
+    earlier = tmp_path / "earlier.json"
+    earlier.write_bytes(b"the caller's earlier file\n")
+    directory = tmp_path / "an-existing-directory"
+    directory.mkdir()
+    for target in (earlier, directory):
+        returncode, stdout, stderr = runner(["solve", "--explicit-local-private-intent", "--output", str(target)],
+                                            _solve_admitted(), stderr=True)
+        assert returncode == 2 and stdout == b"" and b"OUTPUT_PATH_EXISTS" in stderr, target
+    assert earlier.read_bytes() == b"the caller's earlier file\n"
+    assert list(directory.iterdir()) == []
+    assert sorted(path.name for path in tmp_path.iterdir()) == ["an-existing-directory", "earlier.json"]
+
+
+def test_an_output_path_that_cannot_be_created_exits_3_and_writes_nothing(runner, tmp_path):
+    """A result was formed and the destination could not be created (a missing folder): exit 3, nothing on standard
+    output, nothing created. A writable path is written whole, and nothing else is written beside it."""
+    missing = tmp_path / "missing-folder" / "result.json"
+    returncode, stdout, stderr = runner(["solve", "--explicit-local-private-intent", "--output", str(missing)],
                                         _solve_admitted(), stderr=True)
-    assert returncode == 2 and stdout == b"" and b"cannot write" in stderr
-    assert sorted(path.name for path in tmp_path.iterdir()) == ["an-existing-directory"]
-    assert list(target.iterdir()) == []
+    assert returncode == 3 and stdout == b"" and b"cannot write" in stderr
+    assert list(tmp_path.iterdir()) == []
     written = tmp_path / "result.json"
     returncode, stdout = runner(["solve", "--explicit-local-private-intent", "--output", str(written)], _solve_admitted())
     assert returncode == 0 and written.read_bytes() == stdout
-    assert sorted(path.name for path in tmp_path.iterdir()) == ["an-existing-directory", "result.json"]
+    assert [path.name for path in tmp_path.iterdir()] == ["result.json"]
+
+
+def test_a_truncated_result_file_fails_verification_by_name(runner):
+    """A run killed during the write can leave a partial file; a partial file fails verification."""
+    raw = _solve_admitted()
+    stdout = runner(["solve", "--explicit-local-private-intent"], raw)[1]
+    assert rv.verify_bytes(raw, stdout) == []
+    for cut in (len(stdout) // 2, len(stdout) - 3, 1):
+        assert rv.verify_bytes(raw, stdout[:cut]) == [rv.NOT_ONE_DOCUMENT], cut
 
 
 def _run_with_standard_output_closed(args: list[str], stdin: bytes) -> tuple[int, bytes]:
@@ -315,23 +337,23 @@ def _run_with_standard_output_closed(args: list[str], stdin: bytes) -> tuple[int
     return process.wait(timeout=600), stderr
 
 
-def test_a_failure_of_standard_output_after_the_file_is_published_leaves_it_whole_and_exits_2(tmp_path):
+def test_a_failure_of_standard_output_after_the_file_is_written_leaves_it_whole_and_exits_3(tmp_path):
     """Review round 1, finding 3, second order of failure: the file stands whole and its evidence verifies;
-    standard error names it; exit 2 says not every destination was written whole."""
+    standard error names it; exit 3 says a result was formed and a destination could not be written whole."""
     written = tmp_path / "result.json"
     raw = _solve_admitted()
     returncode, stderr = _run_with_standard_output_closed(
         ["solve", "--explicit-local-private-intent", "--output", str(written)], raw)
-    assert returncode == 2
-    assert b"was published whole before it and stands" in stderr and str(written).encode() in stderr
+    assert returncode == 3
+    assert b"was written whole before it and stands" in stderr and str(written).encode() in stderr
     assert rv.verify(raw, _strict(written.read_bytes())) == []
     assert sorted(path.name for path in tmp_path.iterdir()) == ["result.json"]
 
 
-def test_a_failure_of_standard_output_with_no_output_file_exits_2():
-    """Standard output is the only destination and fails: exit 2, and what reached it is not a result."""
+def test_a_failure_of_standard_output_with_no_output_file_exits_3():
+    """Standard output is the only destination and fails: exit 3, and what reached it is not a result."""
     returncode, stderr = _run_with_standard_output_closed(["solve", "--explicit-local-private-intent"], _solve_admitted())
-    assert returncode == 2 and b"what reached it is not a result" in stderr
+    assert returncode == 3 and b"what reached it is not a result" in stderr
 
 
 def _request_digests(command: str, raw: bytes) -> list[str]:
