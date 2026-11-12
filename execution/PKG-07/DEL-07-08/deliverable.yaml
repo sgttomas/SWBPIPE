@@ -113,12 +113,19 @@ needs:
     result, and guards every command that replaces the working model.
   gating: true
 - from: DEL-07-01
-  when: Drawing the comparison overlay
+  when: Drawing the comparison overlay's marks in the three-dimensional viewport (not yet used)
+  condition: >-
+    The viewport provides one scene with the model's nodes and members addressable by identifier
+    and lets an overlay add and remove its own drawn resources (DEL-07-01/REQ-002).
+  gating: true
+- from: DEL-07-01
+  when: Drawing the comparison overlay's schematic
   condition: >-
     The viewport pane can hold a read-only mode over the authoring viewport: while the mode shows,
     the viewport stays mounted with its model, selection, camera and drafts unchanged, hidden and
-    inert, so the mode opens no second WebGL context; and the viewport's camera presets (Isometric,
-    Front and Top, with Y up) are the basis of the mode's fixed views.
+    inert, so the mode opens no second WebGL context; the viewport's camera presets (Isometric,
+    Front and Top, with Y up) are the basis of the mode's fixed views; and a model's up direction
+    is the one the desktop's rule derives from its weight loads (modelUp.ts).
   gating: true
 - from: DEL-07-05
   when: Opening a recorded run for review
@@ -156,10 +163,13 @@ code_paths:
 # DEL-07-03's hanger selection, self-weight authoring and library apply.
 - apps/desktop/src/features/agent-proposals/**
 - apps/desktop/src/features/offline-proposal-intake/**
-# The comparison overlay's read-only mode of the viewport pane; its view model is
-# features/comparison/comparisonOverlay.ts above. The mode holds PipeViewport.tsx (DEL-07-01's)
-# inert through its comparisonOverlayActive property.
+# The comparison overlay's schematic, a read-only mode of the viewport pane; its view model and
+# its banner, legend and list of marks (shared with a later viewport presentation) are under
+# features/comparison above. The mode holds PipeViewport.tsx (DEL-07-01's) inert through its
+# comparisonOverlayActive property. modelUp.ts is the desktop's rule for a model's up direction,
+# which the schematic uses now and the three-dimensional viewport is to use.
 - apps/desktop/src/features/viewport/ComparisonOverlayMode.tsx
+- apps/desktop/src/features/viewport/modelUp.ts
 # Shared with DEL-07-07, DEL-07-11 and DEL-14-04, each for the calls it makes.
 - apps/desktop/src/services/previewService.ts
 # A review-export panel mounted in the workspace and a reference module with its own contract
@@ -189,4 +199,5 @@ checks:
 - apps/desktop/src/features/toolkit/BatchReviewPanel.test.tsx
 - apps/desktop/src/features/comparison/comparisonOverlay.test.ts
 - apps/desktop/src/features/viewport/ComparisonOverlayMode.test.tsx
+- apps/desktop/src/features/viewport/modelUp.test.ts
 - apps/desktop/src/features/history/comparisonOverlay.session.test.tsx

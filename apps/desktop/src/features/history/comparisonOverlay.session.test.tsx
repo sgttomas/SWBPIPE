@@ -21,6 +21,7 @@ import { buildAnalysisRunPreview } from "../../services/previewService";
 import { jsonTextKeepingNegativeZero } from "../../services/jsonText";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
 import { CURRENT_RUN_ID } from "../comparison/runComparisonSides";
+import { comparisonOverlayScene } from "../comparison/comparisonOverlay";
 import { StateComparisonView } from "../comparison/StateComparisonView";
 import { useModelStateHistory, type ModelStateHistoryDeps } from "./useModelStateHistory";
 
@@ -104,9 +105,11 @@ describe("the comparison overlay's session functions, for two saved states", () 
     expect(overlay.ids).toEqual([FIRST.state_id, SECOND.state_id]);
     expect(overlay.leftText).toBe(`"Basis" (${FIRST.state_id})`);
     expect(overlay.rightText).toBe(`"Revision" (${SECOND.state_id})`);
-    // The marks are the shown comparison's rows: the same result the table reads.
-    expect(overlay.scene.marks.map((mark) => [mark.ref, mark.markClass])).toEqual(hook.current.stateComparison!.comparison.rows.map((row) => [row.id, row.classification]));
-    const marked = overlay.scene.drawn.filter((entity) => entity.classes[0] !== "unchanged").map((entity) => [entity.ref, entity.classes.join(" ")]);
+    // The marks are the shown comparison's rows: the same result the table reads. The session holds
+    // the marks and the two models; the schematic builds what it draws from them.
+    const scene = comparisonOverlayScene(overlay.kind, overlay.marks, overlay.models.left, overlay.models.right);
+    expect(overlay.marks.map((mark) => [mark.ref, mark.markClass])).toEqual(hook.current.stateComparison!.comparison.rows.map((row) => [row.id, row.classification]));
+    const marked = scene.drawn.filter((entity) => entity.classes[0] !== "unchanged").map((entity) => [entity.ref, entity.classes.join(" ")]);
     expect(marked).toEqual([["node:N-4", "added"], [(everySlotModel as Json).supports[0].id, "changed"]]);
 
     // Already shown: turned on again without another read.
@@ -274,15 +277,16 @@ describe("the comparison overlay's session functions, for two runs", () => {
     await act(async () => { shown = await hook.current.showComparisonOverlay("runs", CURRENT_RUN_ID, earlier.run.recording_id); });
     expect(shown, hook.current.historyMessage).toBe(true);
     const overlay = hook.current.comparisonOverlay!;
+    const scene = comparisonOverlayScene(overlay.kind, overlay.marks, overlay.models.left, overlay.models.right);
     expect(overlay.kind).toBe("runs");
     expect(overlay.ids).toEqual([earlier.run.recording_id, CURRENT_RUN_ID]);
     // The later run's solved model is drawn: every member of the model it is bound to.
-    const drawnMembers = overlay.scene.drawn.filter((entity) => entity.family === "pipe_segment" && !entity.ghost).map((entity) => entity.ref).sort();
+    const drawnMembers = scene.drawn.filter((entity) => entity.family === "pipe_segment" && !entity.ghost).map((entity) => entity.ref).sort();
     expect(drawnMembers).toEqual(MODEL.pipe_segments.map((pipe) => pipe.id).sort());
     // The two solver modes give differing displacements: some member or node is marked as differing.
-    expect(overlay.scene.counts.find((count) => count.markClass === "nonzero_delta")!.total).toBeGreaterThan(0);
+    expect(scene.counts.find((count) => count.markClass === "nonzero_delta")!.total).toBeGreaterThan(0);
     // A row naming no entity of either model (as the solver's) is counted, not drawn.
-    expect(overlay.scene.notDrawn.every((entry) => entry.reason === "not_in_either_model")).toBe(true);
+    expect(scene.notDrawn.every((entry) => entry.reason === "not_in_either_model")).toBe(true);
 
     // Another solve replaces the current run: the comparison closes, and its overlay with it.
     (deps as Json).runSlot = { ...live, result: structuredClone(DENSE) };

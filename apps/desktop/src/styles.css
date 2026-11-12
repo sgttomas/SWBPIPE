@@ -4859,25 +4859,41 @@ body { min-width: 760px; min-height: 540px; }
 .workspace-pane-viewport:has(> .comparison-overlay) { position: relative; }
 .viewport-shell[data-comparison-overlay="true"] { visibility: hidden; }
 .comparison-overlay {
-  position: absolute; inset: 0; z-index: 1; display: grid; grid-template-rows: auto auto minmax(0, 1fr);
+  position: absolute; inset: 0; z-index: 1; container-type: inline-size; display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(12rem, 18rem);
+  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-areas: "banner banner" "tools legend" "drawing legend";
   background: var(--canvas-bg); color: var(--text-primary);
 }
 .comparison-overlay-banner {
-  display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4);
+  grid-area: banner; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4);
   padding: var(--space-2) var(--space-4); background: var(--surface-raised); border-bottom: var(--border-width-hairline) solid var(--border-strong);
 }
 .comparison-overlay-banner > p { flex: 1 1 20rem; margin: 0; }
-.comparison-overlay-tools {
-  display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3);
-  padding: var(--space-1) var(--space-4); background: var(--surface-raised); border-bottom: var(--border-width-hairline) solid var(--border-hairline);
+.comparison-overlay .comparison-overlay-tools {
+  grid-area: tools; padding: var(--space-1) var(--space-4); background: var(--surface-raised); border-bottom: var(--border-width-hairline) solid var(--border-hairline);
 }
-.comparison-overlay-view, .comparison-overlay-labels, .comparison-overlay-pan { display: inline-flex; align-items: center; gap: var(--space-1); }
-.comparison-overlay-drawing { touch-action: none; }
-.comparison-overlay-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(12rem, 18rem); min-height: 0; }
-.comparison-overlay-drawing { width: 100%; height: 100%; min-height: 0; }
-.comparison-overlay-legend { overflow: auto; padding: var(--space-2) var(--space-4); background: var(--surface-raised); border-left: var(--border-width-hairline) solid var(--border-hairline); }
-.comparison-overlay-legend ul { list-style: none; margin: var(--space-2) 0; padding: 0; display: grid; gap: var(--space-2); }
-.comparison-overlay-legend li { display: flex; align-items: center; gap: var(--space-2); }
+.comparison-overlay-tools .viewport-legend-field { margin-bottom: 0; grid-template-columns: auto minmax(0, auto); }
+.comparison-overlay-drawing { grid-area: drawing; width: 100%; height: 100%; min-width: 0; min-height: 0; touch-action: none; }
+.comparison-overlay-legend {
+  grid-area: legend; overflow: auto; padding: var(--space-2) var(--space-4); font-size: 11px;
+  background: var(--surface-raised); border-left: var(--border-width-hairline) solid var(--border-hairline);
+}
+.comparison-overlay-legend ul { list-style: none; margin: var(--space-1) 0; padding: 0; display: grid; gap: var(--space-1); }
+.comparison-overlay-classes li { display: flex; align-items: center; gap: var(--space-2); }
+.comparison-overlay-not-drawn { margin: var(--space-1) 0; color: var(--text-secondary); overflow-wrap: anywhere; }
+.comparison-overlay-marks button { width: 100%; text-align: start; font-size: 11px; overflow-wrap: anywhere; }
+.comparison-overlay-marks button[aria-current="location"] { outline: var(--border-width-focusRing) solid var(--border-focus); outline-offset: -2px; }
+.comparison-overlay-mark-glyph { font-weight: 600; }
+.comparison-overlay-sample[data-ghost="true"] { opacity: 0.55; }
+@container (max-width: 40rem) {
+  .comparison-overlay {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr) minmax(0, 40%);
+    grid-template-areas: "banner" "tools" "drawing" "legend";
+  }
+  .comparison-overlay-legend { border-left: 0; border-top: var(--border-width-hairline) solid var(--border-hairline); }
+}
 .comparison-overlay-sample { flex: none; }
 .comparison-overlay-line, .comparison-overlay-point { fill: none; stroke: var(--canvas-deformGhost); stroke-width: 1.5px; }
 .comparison-overlay-point { fill: var(--canvas-glyphFill); }
@@ -4906,4 +4922,5 @@ body { min-width: 760px; min-height: 540px; }
 .comparison-overlay-entity[role="button"] { cursor: pointer; }
 .comparison-overlay-entity:focus-visible { outline: none; }
 .comparison-overlay-entity:focus-visible > :is(line, circle) { stroke: var(--canvas-selection); }
+.comparison-overlay-entity[data-located="true"] > .comparison-overlay-halo { stroke: var(--canvas-hover); }
 tr[data-overlay-focus="true"] { outline: var(--border-width-focusRing) solid var(--border-focus); outline-offset: -2px; }

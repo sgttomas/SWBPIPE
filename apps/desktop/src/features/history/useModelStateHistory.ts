@@ -51,11 +51,10 @@ import type { StoredDocumentExportTarget } from "../model-file/storedDocumentExp
 import { RULE_PACKS_NOT_RESOLVED, type UnreadableRow } from "../../services/historyListEntries";
 import { compareRunInputs, RunComparisonRefusal, type RunComparison } from "../comparison/runComparison";
 import {
-  comparisonOverlayScene,
   runOverlayMarks,
   stateOverlayMarks,
   type ComparisonOverlayKind,
-  type ComparisonOverlayScene
+  type OverlayMark
 } from "../comparison/comparisonOverlay";
 import type { EntityFamily } from "../comparison/stateComparison";
 import { CURRENT_RUN_ID, currentRunBytes, currentRunSide, currentRunUnavailableReason, recordedRunSide, type RunComparisonSide } from "../comparison/runComparisonSides";
@@ -176,14 +175,19 @@ export function sameCurrentRun(identity: CurrentRunIdentity, slot: CurrentRunSlo
   return identity.result === slot.result && identity.analysisRun === slot.analysisRun && identity.inputManifest === slot.inputManifest;
 }
 
-/** The comparison overlay as the session shows it: the scene drawn and the two sides in words. */
+/** The comparison overlay as the session shows it: the contract every presentation of the overlay
+ * reads (the schematic now; marks in the three-dimensional viewport later). It holds the marks and
+ * the two compared models, not anything built for one presentation; each presentation turns them
+ * into what it places and reports its own counts and what it did not place. */
 export type ShownComparisonOverlay = {
   kind: ComparisonOverlayKind;
   /** The two compared sides' identifiers (state ids, or recording ids and `CURRENT_RUN_ID`), left first. */
   ids: readonly [string, string];
   leftText: string;
   rightText: string;
-  scene: ComparisonOverlayScene;
+  marks: readonly OverlayMark[];
+  /** The two compared model documents (for runs, the solved models the runs are bound to), left the earlier. */
+  models: Readonly<{ left: unknown; right: unknown }>;
 };
 
 /** A request to show one entity's rows in the shown comparison's table (from the overlay). */
@@ -209,7 +213,7 @@ export function comparisonOverlayUnavailableReason(result: StateComparisonResult
     : "A compared run's solved model is not held with this comparison; compare again to draw it on the model.";
 }
 
-/** The overlay of a shown comparison: the marks its result gives, drawn on the later side's model. */
+/** The overlay of a shown comparison: the marks its result gives and the two compared models. */
 export function shownComparisonOverlay(result: StateComparisonResult | RunComparisonResult): ShownComparisonOverlay | null {
   if (comparisonOverlayUnavailableReason(result) !== null) return null;
   if (isStateComparisonResult(result)) {
@@ -219,7 +223,8 @@ export function shownComparisonOverlay(result: StateComparisonResult | RunCompar
       ids: [state.left.state_id, state.right.state_id],
       leftText: modelStateDescription(state.left),
       rightText: modelStateDescription(state.right),
-      scene: comparisonOverlayScene("states", stateOverlayMarks(state.comparison), state.models!.left, state.models!.right)
+      marks: stateOverlayMarks(state.comparison),
+      models: { left: state.models!.left, right: state.models!.right }
     };
   }
   const run = result;
@@ -228,7 +233,8 @@ export function shownComparisonOverlay(result: StateComparisonResult | RunCompar
     ids: [run.left.id, run.right.id],
     leftText: run.left.description,
     rightText: run.right.description,
-    scene: comparisonOverlayScene("runs", runOverlayMarks(run.comparison), run.left.model, run.right.model)
+    marks: runOverlayMarks(run.comparison),
+    models: { left: run.left.model, right: run.right.model }
   };
 }
 

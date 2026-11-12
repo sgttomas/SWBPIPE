@@ -111,6 +111,8 @@ export const NOT_DRAWN_LABELS: Readonly<Record<NotDrawnReason, string>> = Object
 export type DrawnOverlayEntity = Readonly<{
   ref: string;
   family: EntityFamily;
+  /** The entity's name as the model tree shows it: its record's label, else its reference. */
+  label: string;
   classes: readonly OverlayClass[];
   ghost: boolean;
   geometry: Readonly<{ kind: "point"; at: OverlayPoint }> | Readonly<{ kind: "segment"; from: OverlayPoint; to: OverlayPoint }>;
@@ -173,6 +175,10 @@ function drawnIndex(document: unknown): DrawnIndex {
   return index;
 }
 
+function labelOf(record: PlainObject, ref: string): string {
+  return typeof record.label === "string" && record.label ? record.label : ref;
+}
+
 function geometryOf(index: DrawnIndex, family: EntityFamily, record: PlainObject): DrawnOverlayEntity["geometry"] | null {
   const nodeAt = (id: unknown) => (typeof id === "string" ? index.nodes.get(id) ?? null : null);
   if (family === "node") {
@@ -213,7 +219,7 @@ export function comparisonOverlayScene(kind: ComparisonOverlayKind, marks: reado
   for (const { family, id } of later.order) {
     const geometry = geometryOf(later, family, later.byRef.get(id)!.record);
     if (!geometry) continue;
-    drawn.push({ ref: id, family, classes: sorted(id), ghost: false, geometry });
+    drawn.push({ ref: id, family, label: labelOf(later.byRef.get(id)!.record, id), classes: sorted(id), ghost: false, geometry });
     drawnRefs.add(id);
   }
   const ghostRefs = new Set<string>();
@@ -243,7 +249,7 @@ export function comparisonOverlayScene(kind: ComparisonOverlayKind, marks: reado
       notDrawn.push({ mark, reason: "no_position" });
       continue;
     }
-    drawn.push({ ref: mark.ref, family: inEarlier.family, classes: sorted(mark.ref), ghost: true, geometry });
+    drawn.push({ ref: mark.ref, family: inEarlier.family, label: labelOf(inEarlier.record, mark.ref), classes: sorted(mark.ref), ghost: true, geometry });
     ghostRefs.add(mark.ref);
   }
   const counts = styles.map((style): OverlayClassCount => {

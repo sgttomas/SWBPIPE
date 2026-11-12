@@ -25,7 +25,7 @@ export function ComparisonOverlayControl({ link, testId }: { link: ComparisonOve
       data-testid={testId}
       aria-pressed={link.shown}
       disabled={disabled}
-      title={disabled ? link.unavailable ?? undefined : link.shown ? "The comparison is drawn on the model in the viewport; press to leave it." : "Draw this comparison on the model in the viewport (read-only)."}
+      title={disabled ? link.unavailable ?? undefined : link.shown ? "The comparison is shown as a schematic in the viewport pane; press to leave it." : "Show this comparison as a read-only schematic in the viewport pane."}
       onClick={link.shown ? link.onHide : link.onShow}
     >
       Show on the model

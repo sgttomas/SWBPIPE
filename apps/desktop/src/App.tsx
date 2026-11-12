@@ -1002,9 +1002,7 @@ function AppSession() {
           <div className="workspace-pane workspace-pane-viewport">
             {comparisonOverlay ? (
               <ComparisonOverlayMode
-                scene={comparisonOverlay.scene}
-                leftText={comparisonOverlay.leftText}
-                rightText={comparisonOverlay.rightText}
+                overlay={comparisonOverlay}
                 onLeave={hideComparisonOverlay}
                 onActivate={(ref, family) => { requestComparisonRow(ref, family); setActiveSection("project"); }}
               />
