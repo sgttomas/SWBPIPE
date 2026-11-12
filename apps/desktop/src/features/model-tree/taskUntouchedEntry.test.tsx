@@ -3,7 +3,10 @@
 // changes under the open task (an applied change, Undo, Redo). Editing is an event:
 // retyping the stored digits is still an edit, so is choosing a unit, and an edited entry is
 // not replaced when the stored value changes. What becomes of an edited entry when its unit
-// changes is not decided here. Invented data only.
+// changes is not decided here. Nor is whether an edited entry may still be added once the
+// stored value it was made against has changed: no test here adds or applies an edited entry
+// AFTER such a change, so that none records as intended what the fuller rule decides.
+// Invented data only.
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -81,18 +84,17 @@ describe("the property task's entry while the model changes under it", () => {
     fireEvent.change(value(), { target: { value: "200000000000" } });
     restore({ value: 195000000000, unit: "Pa" });
     expect(value()).toHaveValue("200000000000");
-    expect(add()).toBeEnabled();
   });
 
-  it("an edited entry is left as the person typed it, and queues what they typed", async () => {
+  it("an edited entry queues what the person typed, and is left as typed when the stored value then changes", async () => {
     const { queue, restore } = await modulusTask();
     fireEvent.change(value(), { target: { value: "210000000000" } });
-    restore({ value: 195000000000, unit: "Pa" });
-    expect(value()).toHaveValue("210000000000");
     fireEvent.click(add());
     expect(queue).toHaveBeenCalledTimes(1);
     expect(queue.mock.calls[0][0].change.after).toBe(JSON.stringify({ value: 210000000000, unit: "Pa" }));
-    expect(queue.mock.calls[0][0].change.before).toBe("195000000000");
+    expect(queue.mock.calls[0][0].change.before).toBe("200000000000");
+    restore({ value: 195000000000, unit: "Pa" });
+    expect(value()).toHaveValue("210000000000");
   });
 
   it("choosing a unit is an edit: the digits shown beside it then are the person's entry and do not follow", async () => {
@@ -100,12 +102,12 @@ describe("the property task's entry while the model changes under it", () => {
     changeFormControl(screen.getByTestId("editor-intent-unit"), { target: { value: "psi" } });
     expect(screen.getByText("New elastic modulus (psi)")).toBeInTheDocument();
     expect(value()).toHaveValue("200000000000");
+    fireEvent.click(add());
+    expect(queue.mock.calls[0][0].change.after).toBe(JSON.stringify({ value: 200000000000, unit: "psi" }));
     restore({ value: 195000000000, unit: "Pa" });
     // Not 195000000000 beside psi: digits the person never saw beside the unit they chose.
     expect(screen.getByText("New elastic modulus (psi)")).toBeInTheDocument();
     expect(value()).toHaveValue("200000000000");
-    fireEvent.click(add());
-    expect(queue.mock.calls[0][0].change.after).toBe(JSON.stringify({ value: 200000000000, unit: "psi" }));
   });
 
   it("choosing the unit already shown changes nothing and is not an edit: the entry still follows", async () => {
