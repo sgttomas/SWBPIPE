@@ -39,6 +39,9 @@ function failureText(failure:string|null):string|null {
   case 'supplier_resource_unavailable':case 'supplier_pin_mismatch':case 'supplier_resource_invalid':return 'The bundled agent runtime could not be verified.';
   case 'message_limit':return 'Conversation output exceeded the session limit. The agent stopped.';
   case 'protocol':return 'The agent protocol session ended with an error.';
+  case 'runtime_tool_activity':return 'The agent runtime used a tool of its own, which this application does not admit. The session was ended.';
+  case 'unadmitted_item':return 'The agent runtime reported an item this application does not admit. The session was ended.';
+  case 'malformed_report':return 'The agent runtime sent a message this application could not read. The session was ended.';
   default:return 'The agent session stopped. Check its configuration before starting again.';
  }
 }

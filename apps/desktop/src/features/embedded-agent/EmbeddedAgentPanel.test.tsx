@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { EmbeddedAgentPanel } from './EmbeddedAgentPanel';
 import type { EmbeddedAgentSession, AgentSessionView } from '../../services/embeddedAgentSession';
@@ -19,6 +19,16 @@ function setup(configured=true){
  return {session,port,emit};
 }
 describe('minimal embedded agent panel',()=>{
+ it.each([
+  ['runtime_tool_activity','The agent runtime used a tool of its own, which this application does not admit. The session was ended.'],
+  ['unadmitted_item','The agent runtime reported an item this application does not admit. The session was ended.'],
+  ['malformed_report','The agent runtime sent a message this application could not read. The session was ended.'],
+ ])('says in plain words why the runtime session was ended (%s)',async(failure,words)=>{
+  const {session,emit}=setup();render(<EmbeddedAgentPanel session={session} active onReview={()=>{}}/>);
+  await screen.findByText('Start agent');act(()=>emit({failure}));
+  const shown=await screen.findByText(words);
+  expect(shown.textContent).not.toMatch(/approv|certif|complian|your fault|you /i);
+ });
  it('does no availability or provider IO until its page is opened',async()=>{
   const {session,port}=setup();const page=render(<EmbeddedAgentPanel session={session} active={false} onReview={()=>{}}/>);
   expect(port.availability).not.toHaveBeenCalled();page.rerender(<EmbeddedAgentPanel session={session} active onReview={()=>{}}/>);

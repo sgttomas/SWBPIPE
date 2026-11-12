@@ -106,6 +106,8 @@ pub struct SessionDriver {
     registry: SolveJobRegistry,
     pump: Pump,
     terminal: Option<Terminal>,
+    // A frame held two members with the same name; it was never interpreted.
+    duplicate_member: bool,
     // One disconnect batch, reported once; no history or redispatch queue.
     lost: Option<EventBatch>,
     // At most one frame batch deferred across a Busy final observation.
@@ -116,6 +118,15 @@ pub struct SessionDriver {
 impl SessionDriver {
     pub fn last_rejection(&self) -> Option<protocol::RpcRejection> {
         self.protocol.last_rejection()
+    }
+    /// Why the supplier's frames ended the session, if they did: a closed,
+    /// payload-free class (a duplicate member, or the protocol's refusal).
+    pub fn refusal(&self) -> Option<protocol::Refusal> {
+        if self.duplicate_member {
+            Some(protocol::Refusal::Malformed)
+        } else {
+            self.protocol.refusal()
+        }
     }
 
     /// Stream destructors must be nonblocking, including constructor refusals;
@@ -178,6 +189,7 @@ impl SessionDriver {
             registry,
             pump,
             terminal: None,
+            duplicate_member: false,
             lost: None,
             deferred: None,
             session,
@@ -386,6 +398,10 @@ impl SessionDriver {
                 .is_err()
             {
                 self.close(Terminal::Admission);
+            } else if frame.duplicate_member {
+                // A protocol violation: no Value was built for this frame.
+                self.duplicate_member = true;
+                self.close(Terminal::Protocol);
             } else {
                 let backing = Arc::new(frame.lease);
                 let handled = self.protocol.handle_frame(frame.value, &self.basis);
@@ -535,6 +551,13 @@ mod tests {
         fn frame(&self, v: Value) {
             let mut s = self.state.lock().unwrap();
             s.0.extend(serde_json::to_vec(&v).unwrap());
+            s.0.push_back(b'\n');
+            self.wake.notify_all();
+        }
+        /// One raw frame, for bytes a json macro cannot express.
+        fn raw(&self, bytes: &[u8]) {
+            let mut s = self.state.lock().unwrap();
+            s.0.extend(bytes);
             s.0.push_back(b'\n');
             self.wake.notify_all();
         }
@@ -882,10 +905,41 @@ mod tests {
             h.input.frame(json!({"method":"item/started","params":{"threadId":"thread-1","turnId":"turn-1","item":{"id":"item","type":kind}}}));
             let o = h.wait(|o| o.terminal.is_some());
             assert_eq!(o.terminal, Some(Terminal::Protocol), "{kind}");
+            assert_eq!(
+                h.d().refusal(),
+                Some(if kind == json!("commandExecution") {
+                    protocol::Refusal::ToolActivity
+                } else {
+                    protocol::Refusal::UnadmittedItem
+                }),
+                "{kind}"
+            );
             assert!(matches!(
                 o.events.unwrap().events(),
                 [Event::ToolLost { .. }]
             ));
+            assert_eq!(h.control(|d| d.submit_text("again")), Err(Refusal::Closed));
+        }
+    }
+    #[test]
+    fn duplicate_member_frame_ends_the_session_as_a_protocol_violation() {
+        for raw in [
+            &br#"{"method":"item/started","params":{"threadId":"thread-1","turnId":"turn-1","item":{"id":"i","type":"commandExecution","type":"userMessage"}}}"#[..],
+            &br#"{"method":"item/started","params":{"threadId":"thread-1","turnId":"turn-1","item":{"id":"i","t\u0079pe":"commandExecution","type":"userMessage"}}}"#[..],
+        ] {
+            let mut h = Harness::new();
+            h.active();
+            h.call("rpc");
+            let _requested = h.event();
+            h.input.raw(raw);
+            let o = h.wait(|o| o.terminal.is_some());
+            assert_eq!(o.terminal, Some(Terminal::Protocol));
+            assert_eq!(h.d().refusal(), Some(protocol::Refusal::Malformed));
+            assert!(matches!(
+                o.events.unwrap().events(),
+                [Event::ToolLost { .. }]
+            ));
+            assert!(h.wait(|_| true).events.is_none());
             assert_eq!(h.control(|d| d.submit_text("again")), Err(Refusal::Closed));
         }
     }

@@ -445,6 +445,18 @@ impl Owner {
             (self.live_index, self.live.as_ref().and_then(Live::terminal))
         {
             self.retire_terminal(index, end);
+            // A protocol end names its closed, payload-free cause when the
+            // supplier's frames caused it, so the panel can say why.
+            if self.failure == Some("protocol") {
+                if let Some(refusal) = self
+                    .live
+                    .as_mut()
+                    .and_then(Live::driver)
+                    .and_then(|driver| driver.refusal())
+                {
+                    self.failure = Some(refusal.class());
+                }
+            }
         }
         if let Some(live) = &mut self.live {
             if !live.joined() {
