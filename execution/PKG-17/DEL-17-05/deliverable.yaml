@@ -26,6 +26,20 @@ needs:
     with elongation off in every case; with it, elongation applies in each named case that has pressure regions; and
     a pressure region's terminals state whether they transfer to the wall.
   gating: true
+- from: DEL-04-07
+  when: Solving SWBPIPE's side of a benchmark model
+  condition: >-
+    The exact route admits a model that carries the pressure contract with either admitted shear model, an explicit
+    zero corrosion allowance, an explicit empty list of pressure regions on every case, an isotropic material stated
+    by elastic modulus and Poisson's ratio, and support motion stated as boundary motion in a case's analysis state,
+    for every family the benchmark models use.
+  gating: true
+- from: DEL-05-03
+  when: Deriving the shear-corrected closed forms of a benchmark model
+  condition: >-
+    The shear coefficient of the circular annulus, the area and the shear modulus it applies to are stated, and a
+    published nodal rotation is the rotation of the section.
+  gating: false
 - from: DEL-10-05
   when: Comparing SWBPIPE's results with the prover's
   condition: >-

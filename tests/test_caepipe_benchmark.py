@@ -435,7 +435,9 @@ def tranche_1() -> list[dict]:
 # writer's refusals. The exact route takes support motion only in a case's analysis_state, which the writer refuses
 # with the load/reference-state group (core/handoff/caepipe_mbf/si_writer.py, reference configurations and
 # analysis_state). These are not compared.
-MODEL_FILE_REFUSED = {f"cpb-g8-{index:02d}": ["MBF-SI-REFERENCE-CONFIGURATION-UNSUPPORTED"] for index in range(1, 5)}
+# Keyed by (model id, shear model), so that one member starting to be written while the other is refused fails.
+MODEL_FILE_REFUSED = {(f"cpb-g8-{index:02d}", shear): ["MBF-SI-REFERENCE-CONFIGURATION-UNSUPPORTED"]
+                      for index in range(1, 5) for shear in benchmark_models.EXACT_SHEAR_MEMBERS}
 # The twins the exact route refuses, per shear model, each with its refusal codes. Must match exactly.
 EXACT_ROUTE_REFUSED: dict[tuple[str, str], list[str]] = {}
 # Closed forms the shear term changes, per model: (model id, count).
@@ -547,15 +549,15 @@ def test_the_model_file_condition():
             assert {key: value for key, value in condition.items() if key != "differences" or value} == \
                 member["model_file"]
             if twin.status != "written":
-                refused.setdefault(document["model_id"], set()).add(tuple(condition["writer_refusals"]))
+                refused[(document["model_id"], member["shear_model"])] = condition["writer_refusals"]
                 assert member["model_file"]["equal_to_pressure_free"] is False
                 continue
             assert twin.text.encode() == tracked.text.encode(), (document["model_id"], condition["differences"])
             assert all(twin.to_dict()[name] == tracked.to_dict()[name] for name in benchmark_models.BINDING_MAPS)
             assert member["model_file"]["equal_to_pressure_free"] is True
-        assert entry["comparable_with_stored_results"] is (document["model_id"] not in MODEL_FILE_REFUSED)
-    assert {model: [list(codes) for codes in sorted(found)] for model, found in refused.items()} == {
-        model: [codes] for model, codes in MODEL_FILE_REFUSED.items()}
+        assert entry["comparable_with_stored_results"] is not any(
+            (document["model_id"], shear) in MODEL_FILE_REFUSED for shear in benchmark_models.EXACT_SHEAR_MEMBERS)
+    assert refused == MODEL_FILE_REFUSED
 
 
 def test_a_differing_model_file_line_is_listed_with_its_record():
