@@ -111,6 +111,8 @@ The default-exclusion rule above governs *public redistribution and committed/ex
 
 The following are sections 1 to 3 of the correlation pilot's design, restored unchanged from lines 9 to 103 of `execution/PKG-17/DEL-17-05/Work/caepipe-correlation-pilot.md` at commit 0d2d37260.
 
+The restored text below records the pilot's design as it was written. Where it describes the harness stopping the instance it started, the print fallback through the program's window, or the export step's writes and removals in a case's output folders, DEL-17-05's requirements govern instead: the harness in force runs the documented batch pattern alone, stops no process that shows a window, and a live step or a screen changes nothing already stored in the exchange folder and removes nothing from it.
+
 ## 1. Activation and purpose
 
 PRD §22.5 makes activation "owner-gated on lawful access to the external tool". The

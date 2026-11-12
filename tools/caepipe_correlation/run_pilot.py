@@ -7,46 +7,62 @@ From the project root:
     python3 -m tools.caepipe_correlation.run_pilot --authored [--case ID ...] [--export-only | --no-export]
     python3 -m tools.caepipe_correlation.run_pilot --authored --authored-dir PATH [--case ID ...]
     python3 -m tools.caepipe_correlation.run_pilot --benchmark MANIFEST [--case ID ...] [--batch N]
-        [--batch-size N] [--runner PATH] (--offline | --freeze-file PATH --exclusive-file PATH [--pace-s S])
+        [--batch-size N] [--runner PATH] (--offline | --freeze-file PATH --exclusive-file PATH [--pace-s S]
+        [--liveness-wait-s S])
 
 Per case: the independent hand calculation, the SWBPIPE solve (headless runner),
 the SI MBF (with the case's deliberate fault injection, if any), the live
 CAEPIPE round trip through the configured virtual machine (skipped with
---offline, which reuses the CSV already stored in caepipe_out/), the parsed
+--offline, which screens the CSV of the case's current run), the parsed
 CAEPIPE results, the three-way comparison record and the case manifest, all
 under the private exchange folder named by SWBPIPE_CAEPIPE_EXCHANGE. A CSV is
 compared only when its run record binds it to the current MBF: the host MBF hash
 and the hash the guest reported for the MBF it solved both equal the current
 MBF's hash.
 
+Nothing stored is changed (the harness module states the rule): a live step writes
+a new run folder `cases/<id>/runs/<NNNNNN>/` and a screen a new folder
+`cases/<id>/screens/<NNNNNN>/`, every file created exclusively; each becomes the
+case's current one only once it is complete, through a new selection
+`cases/<id>/selections/<NNNNNN>.json`, which states its source (a run folder, or
+`already_stored`: the results already in the case's own folders). A case with no
+selection is read where its results already are; a case whose selections cannot be
+trusted, or whose source is sealed, is refused by name (route=selection_untrusted)
+and never read elsewhere. A live step is refused under its own name while another
+step holds the run lock, while a guest script of an ended run or an instance of the
+program it did not start runs in the guest, and while the newest holder's run
+recorded the saved settings' before-state without their comparison, until
+`python3 -m tools.caepipe_correlation.clear_settings_stop` records a clearance.
+The screen modes (--offline, the benchmark's --offline and the series step) need no
+guest, no prlctl and no guest configuration.
+
 After the selected cases, every hypothesis series in
 validation/caepipe_correlation/series/ is evaluated from its members' stored
-comparison records and written privately to series/<hypothesis_id>.json in the
-exchange folder; every case whose declarations name an evaluated hypothesis and
+comparison records and written privately as the next new record
+series/<hypothesis_id>/<NNNNNN>.json in the exchange folder; every case whose declarations name an evaluated hypothesis and
 whose stored record carries a different series status is then rebuilt offline
 from its stored CSV, so its causes use the series status (Design §6, §7).
 
---export-mbf adds the export step after each case's live round trip: the guest
-opens the case's solved model in a CAEPIPE instance it starts, writes it back to
-MBF with File > Export to MBF... and stops that instance; the harness collects
-caepipe_out/exported.mbf and binds it to the run record by hash (Design §3, §5).
---export-only runs only that step, from each case's stored solve, which its run
-record must bind to the current MBF, and needs no runner. In the exchange folder it
-writes the case's caepipe_out/ files (the export, its guest logs and the run
-record's export entry), the harness copy of the guest script and run lock in
-_harness/, and creates the case's layer folders if they are missing.
+The export step operates the program's windows and is not in force: --export-mbf and --export-only (with or
+without --authored) are each refused by name (window_route_unavailable) before anything is started, with a complete
+run record in the step's new run folder and nothing else, and --authored asks for no export by default. This changes
+back when the listed-window requirement (DEL-17-05 REQ-023, a pointer, not yet placed) enables the route. Once
+enabled: --export-mbf adds the export step after each case's live round trip, in which the guest opens the case's
+solved model in a CAEPIPE instance it starts and writes it back to MBF with File > Export to MBF..., and the harness
+collects exported.mbf into the export's own new run folder and binds it there by hash (Design §3, §5); --export-only
+runs only that step, from each case's current solve, which its run record must bind to the current MBF, and needs no
+runner.
 
 --authored runs the authored cases of validation/caepipe_correlation/authored/
 instead: invented, hand-written MBF files listed in its manifest, each exercising
 one importer mapping or one named refusal (DEL-17-04 Design §18.3). Per case the
-live round trip imports (and solves) the authored MBF as written, and the export
-step then writes the model back to caepipe_out/exported.mbf; with --export-only
-only the export step runs. No SWBPIPE solve, CSV comparison or series step runs,
+live round trip imports (and solves) the authored MBF as written; no export step runs unless --export-only asks
+for it alone, which is refused while the route is not in force. No SWBPIPE solve, CSV comparison or series step runs,
 and no runner is needed. --authored-dir takes the cases from another directory
 with the same manifest layout instead; it must lie inside the exchange folder,
 with no symbolic link on the way, so private authored files stay private, and its
-case ids must not name a tracked writer or authored case, whose case folders the
-run would otherwise replace. --no-export leaves out the export step; --authored-dir
+case ids must not name a tracked writer or authored case, whose stored results the
+run would otherwise be mixed with. --no-export states the default (no export step); --authored-dir
 runs never export (only the solve and its printed results are wanted there), and
 need the configuration's settings_guard. Before the first case and before each round
 trip no instance of the tool may be running that the run did not start. Each round
@@ -70,7 +86,7 @@ benchmark run needs the configuration's settings_guard, --freeze-file and
 --exclusive-file. It paces the models --pace-s apart (default 60 s). Before each
 model it stops if the freeze file exists, holds while the exclusive file names a
 running process (up to 30 min), checks that the guest answers `cmd /c ver`
-(once more after 2 min) and that no instance of the tool is running. A model
+(once more after --liveness-wait-s, default 2 min) and that no instance of the tool is running. A model
 whose round trip raised or left no CSV, with a clean settings check, is retried
 once 2 min later. The run stops at the first unclean settings check, a failed
 check before a model, or a round trip that raised twice; the GUI print fallback
@@ -115,7 +131,6 @@ from core.handoff.caepipe_external import (  # noqa: E402
     HarnessSkip,
     build_comparison_record,
     canonical_model_hash,
-    case_paths,
     read_caepipe_print_csv,
     resolve_harness_config,
     run_caepipe_mbf_export,
@@ -132,11 +147,23 @@ from core.handoff.caepipe_external.harness import (  # noqa: E402
     CSV_ROUTES,
     EXPORT_ROUTE,
     EXPORTED_MBF,
+    REFUSED_ROUTES,
+    RUNS_DIR,
+    SCREEN_RECORD_KIND,
+    SCREENS_DIR,
+    CaseFolder,
     ContainmentError,
+    ExistingPath,
+    SelectionError,
     contained,
-    contained_dir,
+    current_case,
+    exchange_tree,
+    open_folder,
+    outputs_sealed,
+    publish,
+    reserve_folder,
+    solve_ineligible,
     stored_run_record,
-    write_private,
 )
 from core.handoff.caepipe_mbf import render_caepipe_mbf_si  # noqa: E402
 from tools.caepipe_correlation import benchmark_models  # noqa: E402
@@ -215,7 +242,8 @@ def authored_mbf_bytes(case: Mapping[str, Any], directory: Path = AUTHORED_DIR) 
 def external_authored_dir(root: Path, path: str) -> Path:
     """The --authored-dir directory, checked: inside the exchange folder with no symbolic link on the way.
 
-    Its manifest's case ids must not name a tracked writer or authored case: their case folders would be replaced.
+    Its manifest's case ids must not name a tracked writer or authored case: their stored results would be mixed with
+    the run's.
     """
     directory = contained(root, Path(os.path.abspath(path)))
     if not directory.is_dir():
@@ -345,19 +373,32 @@ def _sha256(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-def _write_json(root: Path, path: Path, value: Any) -> None:
-    write_private(root, path, json.dumps(value, indent=2, sort_keys=True) + "\n")
+def _json_bytes(value: Any) -> bytes:
+    return (json.dumps(value, indent=2, sort_keys=True) + "\n").encode("utf-8")
 
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
+def _file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for block in iter(lambda: handle.read(1 << 20), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
 def bound_csv(root: Path, paths: Mapping[str, Path], record: Mapping[str, Any] | None,
               mbf_sha256: str) -> tuple[Path | None, str, str]:
-    """(CSV, route, reason): the CSV only when the run record binds it to the current MBF, else None and why."""
+    """(CSV, route, reason): the CSV only when the run record binds it to the current MBF, else None and why.
+
+    `paths["root"]` is the folder holding the run's caepipe_out/: a run folder, or the case's own folder for a case
+    with no selection (`current_case`). A run record that marks its outputs sealed binds nothing that is read."""
     if record is None:
         return None, "unbound_output", "no valid caepipe_out/run_record.json binds a CSV to this MBF"
+    if outputs_sealed(record):
+        return None, "sealed", "the run record marks its outputs sealed; they are not read"
     if (record.get("mbf") or {}).get("sha256") != mbf_sha256:
         return None, "stale", "the stored CAEPIPE output was produced from a different MBF"
     route = str(record.get("route") or "unknown_route")
@@ -390,24 +431,42 @@ def run_case(case: Mapping[str, Any], config: HarnessConfig, *, runner: str, off
     try:
         return _run_case(case, config, runner=runner, offline=offline, hand_calcs=hand_calcs, emit=emit,
                          round_trip=round_trip, hypothesis_series=hypothesis_series or {})
+    except SelectionError as error:
+        emit(f"{case['case_id']}: route=selection_untrusted; {error}; no comparison record")
+        return False
     except ContainmentError as error:
         emit(f"{case['case_id']}: route=containment_violation; {error}; no comparison record")
         return False
 
 
+def _screen_read(root: Path, view: Any, csv_path: Path) -> dict[str, Any]:
+    """What a screen read, by path and SHA-256: the run's record and the CSV it binds (the run is left as it is)."""
+    record_path = contained(root, view.run / "caepipe_out" / "run_record.json")
+    return {"run": view.source, "selection": view.selection,
+            "files": {"caepipe_out/run_record.json": _file_sha256(record_path),
+                      str(csv_path.relative_to(view.run)): _file_sha256(csv_path)}}
+
+
+def _write_screen_record(folder: CaseFolder, case_id: str, read: Mapping[str, Any], mode: str) -> None:
+    folder.record("screen_record.json", {
+        "document_kind": SCREEN_RECORD_KIND, "case_id": case_id, "mode": mode, "read": dict(read),
+        "created": _now(), "boundary_note": BOUNDARY_NOTE,
+        "note": "a screen writes only new files in its own folder; the run it read is unchanged"})
+
+
 def _run_case(case: Mapping[str, Any], config: HarnessConfig, *, runner: str, offline: bool, hand_calcs: Any,
               emit: Callable[[str], None], round_trip: Callable[..., dict[str, Any]],
               hypothesis_series: Mapping[str, Mapping[str, Any]]) -> bool:
+    """One case: live, a new run folder written by the harness and then completed and published here; offline, a
+    new screen folder of the case's current run. Nothing stored is written in either."""
     case_id = case["case_id"]
     root = config.exchange_root.resolve()
-    paths = case_paths(config, case_id)
+    # A screen first resolves where the case is read (an untrusted selection or a linked folder stops it here).
+    view = current_case(root, case_id) if offline else None
     analytic = hand_calcs.analytic_values(case_id)
     alternative = hand_calcs.alternative_analytic_values(case_id)
 
     body, output, error = solve_swbpipe(runner, case)
-    _write_json(root, paths["swbpipe"] / "request.json", body)
-    if output is not None:
-        _write_json(root, paths["swbpipe"] / "result.json", output)
     if error:
         emit(f"{case_id}: route=not_run; SWBPIPE not solved ({error})")
         return False
@@ -419,70 +478,115 @@ def _run_case(case: Mapping[str, Any], config: HarnessConfig, *, runner: str, of
         emit(f"{case_id}: route=not_run; MBF refused ({', '.join(codes)})")
         return False
     fault = case.get("fault_injection")
-
     mbf_sha256 = _sha256(mbf_text)
+    inputs = {
+        "swbpipe/request.json": _json_bytes(body),
+        "swbpipe/result.json": _json_bytes(output),
+        "caepipe_in/id_map.json": _json_bytes(mbf.sidecar(mbf_sha256)),
+        "caepipe_in/mbf_render.json": _json_bytes({
+            "profile_id": mbf.to_dict()["profile_id"], "status": mbf.status, "layout_row_count": mbf.layout_row_count,
+            "diagnostics": mbf.diagnostics, "loss_report": mbf.loss_report, "assumptions": mbf.assumptions,
+            "writer_text_sha256": _sha256(writer_text), "mbf_sha256": mbf_sha256,
+            "fault_injection": dict(fault) if fault else None}),
+    }
+
+    def comparison(folder: CaseFolder, csv_path: Path, route: str, mode: str) -> tuple[dict[str, str], str]:
+        parsed = read_caepipe_print_csv(csv_path)
+        written = {"parsed/caepipe_results.json": folder.record("parsed/caepipe_results.json", parsed)["sha256"],
+                   "parsed/parser_diagnostics.json": folder.record("parsed/parser_diagnostics.json", {
+                       "document_kind": PARSER_DIAGNOSTICS_KIND,
+                       **{key: parsed[key] for key in ("parser_version", "diagnostics", "sections_parsed",
+                                                       "sections_skipped")}})["sha256"]}
+        record = build_comparison_record(case, swbpipe_model=case["model"], swbpipe_result_payload=payload,
+                                         mbf_result=mbf, mbf_text=mbf_text, parsed_caepipe=parsed, analytic=analytic,
+                                         alternative_analytic=alternative, hypothesis_series=hypothesis_series)
+        written["comparison/comparison.json"] = folder.record("comparison/comparison.json", record)["sha256"]
+        written["case_manifest.json"] = folder.record("case_manifest.json", {
+            "document_kind": MANIFEST_KIND,
+            "case_id": case_id,
+            "created": _now(),
+            "mode": mode,
+            "folder": folder.relative,
+            "internal_model_hash": canonical_model_hash(case["model"]),
+            "writer_text_sha256": _sha256(writer_text),
+            "exported_model_hash": _sha256(mbf_text),
+            "target_tool": record["target_tool"],
+            "target_version": record["target_version"],
+            "product_label": record["product_label"],
+            "trial_first_launch_date": config.trial_first_launch_date,
+            "route": route,
+            "csv": str(csv_path.relative_to(root / "cases" / case_id)),
+            "hypothesis_series_used": sorted(record["hypothesis_series"]),
+            "layer_privacy": LAYER_PRIVACY,
+            "boundary_note": BOUNDARY_NOTE,
+        })["sha256"]
+        return written, f"cases/{case_id}/{folder.relative}/comparison/comparison.json"
+
     if offline:
-        # Checked before caepipe_in/ is rewritten, so the MBF that produced a stale output is kept.
-        csv_path, route, reason = bound_csv(root, paths, stored_run_record(root, paths["caepipe_out"]), mbf_sha256)
+        # A screen of the case's current run: read only after the binding is checked; everything new goes into a new
+        # screen folder, which becomes current once complete.
+        csv_path, route, reason = bound_csv(root, {"root": view.run},
+                                            stored_run_record(root, view.run / "caepipe_out"), mbf_sha256)
         if csv_path is None:
             emit(f"{case_id}: route={route}; {reason}; no comparison record")
             return False
-    in_dir = paths["caepipe_in"]
-    write_private(root, in_dir / "model.mbf", mbf_text.encode("utf-8"))
-    _write_json(root, in_dir / "id_map.json", mbf.sidecar(mbf_sha256))
-    _write_json(root, in_dir / "mbf_render.json", {
-        "profile_id": mbf.to_dict()["profile_id"], "status": mbf.status, "layout_row_count": mbf.layout_row_count,
-        "diagnostics": mbf.diagnostics, "loss_report": mbf.loss_report, "assumptions": mbf.assumptions,
-        "writer_text_sha256": _sha256(writer_text), "mbf_sha256": mbf_sha256,
-        "fault_injection": dict(fault) if fault else None,
-    })
+        read = _screen_read(root, view, csv_path)
+        with exchange_tree(config) as tree:
+            screen = reserve_folder(tree, case_id, SCREENS_DIR)
+            for relative, data in sorted(inputs.items()):
+                screen.create(relative, data)
+            screen.create("caepipe_in/model.mbf", mbf_text.encode("utf-8"))
+            written, shown = comparison(screen, csv_path, route, "offline")
+            _write_screen_record(screen, case_id, read, "offline")
+            publish(tree, case_id, screen=screen.relative, also=written, expect_run=view.source,
+                    reason="an offline screen of the current run")
+        emit(f"{case_id}: route={route}; comparison record written: {shown}")
+        return True
 
-    if not offline:
-        csv_path, route, reason = bound_csv(root, paths, round_trip(config, case_id, mbf_text), mbf_sha256)
-        if csv_path is None:
-            emit(f"{case_id}: route={route}; {reason}; no comparison record")
-            return False
-
-    parsed = read_caepipe_print_csv(csv_path)
-    _write_json(root, paths["parsed"] / "caepipe_results.json", parsed)
-    _write_json(root, paths["parsed"] / "parser_diagnostics.json", {
-        "document_kind": PARSER_DIAGNOSTICS_KIND,
-        **{key: parsed[key] for key in ("parser_version", "diagnostics", "sections_parsed", "sections_skipped")}})
-    record = build_comparison_record(case, swbpipe_model=case["model"], swbpipe_result_payload=payload,
-                                     mbf_result=mbf, mbf_text=mbf_text, parsed_caepipe=parsed, analytic=analytic,
-                                     alternative_analytic=alternative, hypothesis_series=hypothesis_series)
-    comparison_path = paths["comparison"] / "comparison.json"
-    _write_json(root, comparison_path, record)
-    _write_json(root, paths["manifest"], {
-        "document_kind": MANIFEST_KIND,
-        "case_id": case_id,
-        "created": _now(),
-        "mode": "offline" if offline else "live",
-        "internal_model_hash": canonical_model_hash(case["model"]),
-        "writer_text_sha256": _sha256(writer_text),
-        "exported_model_hash": _sha256(mbf_text),
-        "target_tool": record["target_tool"],
-        "target_version": record["target_version"],
-        "product_label": record["product_label"],
-        "trial_first_launch_date": config.trial_first_launch_date,
-        "route": route,
-        "csv": str(csv_path.relative_to(paths["root"])),
-        "hypothesis_series_used": sorted(record["hypothesis_series"]),
-        "layer_privacy": LAYER_PRIVACY,
-        "boundary_note": BOUNDARY_NOTE,
-    })
+    record = round_trip(config, case_id, mbf_text, files=inputs)
+    if record.get("route") in REFUSED_ROUTES:  # nothing stored was changed
+        emit(f"{case_id}: route={record['route']}; {record.get('reason')}; no comparison record")
+        return False
+    run_root = root / "cases" / case_id / record["run_folder"]
+    csv_path, route, reason = bound_csv(root, {"root": run_root}, record, mbf_sha256)
+    if csv_path is None:
+        emit(f"{case_id}: route={route}; {reason}; no comparison record")
+        return False
+    with exchange_tree(config) as tree:
+        folder = open_folder(tree, case_id, record["run_folder"])
+        written, shown = comparison(folder, csv_path, route, "live")
+        # Published only now, with every file the run completes checked (`publish`).
+        publish(tree, case_id, run=folder.relative, also=written, reason="a live solve with its comparison record")
     # Operational status only: the counts by outcome and cause stay in the private record's summary.
-    emit(f"{case_id}: route={route}; comparison record written: {comparison_path.relative_to(root)}")
+    emit(f"{case_id}: route={route}; comparison record written: {shown}")
     return True
 
 
 def _stored_comparison(root: Path, case_id: str) -> dict[str, Any] | None:
-    path = contained(root, root / "cases" / case_id / "comparison" / "comparison.json")
+    """The case's current comparison record: its selected screen's, else its run's (`current_case`); a case with no
+    selection is read in its own folder. SelectionError when its selections cannot be trusted."""
+    view = current_case(root, case_id)
+    path = contained(root, view.comparison_root / "comparison" / "comparison.json")
     try:
-        record = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else None
+        record = json.loads(path.read_text(encoding="utf-8")) if path.is_file() and not path.is_symlink() else None
     except (OSError, UnicodeDecodeError, json.JSONDecodeError):
         return None
     return record if isinstance(record, dict) else None
+
+
+def _new_series_record(tree: Any, hypothesis: str, value: Mapping[str, Any]) -> str:
+    """A series record as the next numbered new file `series/<hypothesis>/<NNNNNN>.json`; earlier ones are kept."""
+    tree.ensure_dir(("series", hypothesis))
+    for _ in range(1000):
+        numbers = [int(name[:6]) for name in tree.listdir(("series", hypothesis))
+                   if len(name) == 11 and name.endswith(".json") and name[:6].isdigit()]
+        name = f"{max(numbers, default=0) + 1:06d}.json"
+        try:
+            tree.record(("series", hypothesis, name), {**value, "record": f"series/{hypothesis}/{name}"})
+        except ExistingPath:
+            continue
+        return f"series/{hypothesis}/{name}"
+    raise ContainmentError(f"no new series record could be written for {hypothesis}")
 
 
 def run_series(config: HarnessConfig, *, runner: str, hand_calcs: Any, emit: Callable[[str], None] = print,
@@ -490,7 +594,9 @@ def run_series(config: HarnessConfig, *, runner: str, hand_calcs: Any, emit: Cal
                cases: list[Mapping[str, Any]] | None = None) -> dict[str, bool]:
     """Evaluate every hypothesis series and rebuild the records whose series status changed.
 
-    Returns {case id: rebuilt} for each case rebuilt offline. The series records are private (Design §8).
+    Returns {case id: rebuilt} for each case rebuilt offline. Each series record is a new numbered file
+    (`series/<hypothesis>/<NNNNNN>.json`), and each rebuild a new screen of the case (`run_case(offline=True)`):
+    nothing stored is changed. The series records are private (Design §8).
     """
     root = config.exchange_root.resolve()
     cases = list(cases if cases is not None else load_cases())
@@ -498,26 +604,29 @@ def run_series(config: HarnessConfig, *, runner: str, hand_calcs: Any, emit: Cal
     by_id = {case["case_id"]: case for case in cases}
     statuses: dict[str, dict[str, Any]] = {}
     try:
-        for definition in definitions:
-            hypothesis = definition["hypothesis_id"]
-            member_ids = [member["case_id"] for member in definition.get("members") or []]
-            current = {}
-            for case_id in member_ids:
-                if case_id in by_id:
-                    mbf, _, mbf_text = render_case_mbf(by_id[case_id])
-                    if mbf.status == "written":
-                        current[case_id] = _sha256(mbf_text)
-            records = {case_id: _stored_comparison(root, case_id) for case_id in member_ids}
-            result = evaluate_hypothesis_series(definition, records, current_mbf_sha256=current)
-            relative = Path("series") / f"{hypothesis}.json"
-            result.update(definition=f"validation/caepipe_correlation/series/{hypothesis}.json", created=_now(),
-                          record=str(relative), boundary_note=BOUNDARY_NOTE)
-            contained_dir(root, root / "series")
-            _write_json(root, root / relative, result)
-            statuses[hypothesis] = result
-            emit(f"series {hypothesis}: series record written: {relative}")
+        with exchange_tree(config) as tree:
+            for definition in definitions:
+                hypothesis = definition["hypothesis_id"]
+                member_ids = [member["case_id"] for member in definition.get("members") or []]
+                current = {}
+                for case_id in member_ids:
+                    if case_id in by_id:
+                        mbf, _, mbf_text = render_case_mbf(by_id[case_id])
+                        if mbf.status == "written":
+                            current[case_id] = _sha256(mbf_text)
+                records = {case_id: _stored_comparison(root, case_id) for case_id in member_ids}
+                result = evaluate_hypothesis_series(definition, records, current_mbf_sha256=current)
+                result.update(definition=f"validation/caepipe_correlation/series/{hypothesis}.json", created=_now(),
+                              boundary_note=BOUNDARY_NOTE)
+                relative = _new_series_record(tree, hypothesis, result)
+                result["record"] = relative
+                statuses[hypothesis] = result
+                emit(f"series {hypothesis}: series record written: {relative}")
+    except SelectionError as error:
+        emit(f"series: route=selection_untrusted; {error}; no further series record")
+        return {"series": False}
     except ContainmentError as error:
-        emit(f"series: containment_violation; {error}; no series record")
+        emit(f"series: containment_violation; {error}; no further series record")
         return {"series": False}
 
     rebuilt: dict[str, bool] = {}
@@ -526,7 +635,12 @@ def run_series(config: HarnessConfig, *, runner: str, hand_calcs: Any, emit: Cal
                         if item.get("hypothesis") in statuses})
         if not named:
             continue
-        stored = _stored_comparison(root, case["case_id"])
+        try:
+            stored = _stored_comparison(root, case["case_id"])
+        except ContainmentError as error:
+            emit(f"rebuild for series: {case['case_id']}: route=selection_untrusted; {error}; no comparison record")
+            rebuilt[case["case_id"]] = False
+            continue
         if stored is None:
             continue
         wanted = {hypothesis: series_summary(statuses[hypothesis]) for hypothesis in named}
@@ -540,22 +654,35 @@ def run_series(config: HarnessConfig, *, runner: str, hand_calcs: Any, emit: Cal
 
 def export_case(case: Mapping[str, Any], config: HarnessConfig, *, emit: Callable[[str], None] = print,
                 export: Callable[..., dict[str, Any]] = run_caepipe_mbf_export) -> bool:
-    """Export the case's stored solved model to caepipe_out/exported.mbf when its run record binds it to the MBF."""
+    """Export the case's current solved model into a new run folder when its run record binds it to the MBF, and
+    publish the export once it is checked complete."""
     case_id = case["case_id"]
     mbf, _, mbf_text = render_case_mbf(case)
     if mbf.status != "written":
         emit(f"{case_id}: export route=not_run; MBF refused; no exported MBF")
         return False
+    return _export_and_publish(config, case_id, _sha256(mbf_text), emit=emit, export=export)
+
+
+def _export_and_publish(config: HarnessConfig, case_id: str, mbf_sha256: str, *, emit: Callable[[str], None],
+                        export: Callable[..., dict[str, Any]]) -> bool:
     try:
-        entry = export(config, case_id, _sha256(mbf_text))
+        entry = export(config, case_id, mbf_sha256)
+        route = entry["route"]
+        if route == EXPORT_ROUTE:
+            with exchange_tree(config) as tree:
+                publish(tree, case_id, export=entry["run_folder"], expect_run=(entry.get("solve_run") or {}).get("source"),
+                        reason="an export of the current run")
     except ContainmentError as error:
         emit(f"{case_id}: export route=containment_violation; {error}; no exported MBF")
         return False
-    route = entry["route"]
     if route == EXPORT_ROUTE:
-        emit(f"{case_id}: export route={route}; exported MBF written: cases/{case_id}/caepipe_out/{EXPORTED_MBF}")
+        emit(f"{case_id}: export route={route}; exported MBF written: "
+             f"cases/{case_id}/{entry['run_folder']}/caepipe_out/{EXPORTED_MBF}")
         return True
-    reason = entry.get("reason") or f"the guest export did not complete (cases/{case_id}/caepipe_out/run_record.json)"
+    where = f"cases/{case_id}/{entry['run_folder']}/caepipe_out/run_record.json" if entry.get("run_folder") else \
+        f"cases/{case_id}"
+    reason = entry.get("reason") or f"the guest export did not complete ({where})"
     emit(f"{case_id}: export route={route}; {reason}; no exported MBF")
     return False
 
@@ -580,12 +707,13 @@ def run_authored_case(case: Mapping[str, Any], config: HarnessConfig, *, export_
                       emit: Callable[[str], None] = print,
                       round_trip: Callable[..., dict[str, Any]] = run_caepipe_round_trip,
                       export: Callable[..., dict[str, Any]] = run_caepipe_mbf_export,
-                      directory: Path = AUTHORED_DIR, no_export: bool = False, gui_fallback: bool = True) -> bool:
+                      directory: Path = AUTHORED_DIR, no_export: bool = False, gui_fallback: bool = False) -> bool:
     """Import (and solve) one authored MBF as written, then export the model back to caepipe_out/exported.mbf.
 
     With `no_export` the round trip alone runs. With `settings_guard` configured, the saved-settings check is
     enforced before anything else is looked at: any status but `unchanged`, an exception during the round trip,
-    or (with `gui_fallback=False`) a batch run that left no CSV raises RunStopped, so no further case runs.
+    or a batch run that left no CSV (no fallback is attempted) raises RunStopped, so no further case runs. No command
+    passes `gui_fallback=True`; the harness refuses it by name (`window_route_unavailable`) until DEL-17-05 REQ-023.
     """
     case_id = case["case_id"]
     data = authored_mbf_bytes(case, directory)
@@ -594,8 +722,9 @@ def run_authored_case(case: Mapping[str, Any], config: HarnessConfig, *, export_
     try:
         if not export_only:
             try:
-                record = (round_trip(config, case_id, data.decode("ascii")) if gui_fallback else
-                          round_trip(config, case_id, data.decode("ascii"), gui_fallback=False))
+                # A request for the fallback reaches the harness, which refuses it; no command makes one.
+                record = (round_trip(config, case_id, data.decode("ascii"), gui_fallback=True) if gui_fallback else
+                          round_trip(config, case_id, data.decode("ascii")))
             except Exception as error:
                 if not guarded:
                     raise
@@ -603,32 +732,36 @@ def run_authored_case(case: Mapping[str, Any], config: HarnessConfig, *, export_
                 _guard_stop(config, case_id, getattr(error, "settings_guard", None), emit)
                 emit(f"{case_id}: the round trip did not end cleanly; stopped")
                 raise RunStopped(case_id) from error
+            if record.get("route") in REFUSED_ROUTES:  # refused by name; nothing stored was changed
+                emit(f"{case_id}: route={record['route']}; {record.get('reason')}; no exported MBF")
+                return False
             # The guard comes first: a rejected hash or any other early return still stops the run on it.
             _guard_stop(config, case_id, record.get("settings_guard"), emit)
-            if not gui_fallback and record.get("route") == "batch_no_csv":
-                emit(f"{case_id}: route=batch_no_csv; the GUI fallback is refused for this run; stopped")
+            if record.get("route") == "batch_no_csv":
+                emit(f"{case_id}: route=batch_no_csv; the batch run left no result file and no fallback is attempted "
+                     "(the print fallback through the program's window waits for DEL-17-05 REQ-023); stopped")
                 raise RunStopped(case_id)
             if record.get("mbf", {}).get("sha256") != mbf_sha256 or record.get("guest_mbf_sha256") != mbf_sha256:
                 emit(f"{case_id}: route={record.get('route')}; the guest did not report importing this MBF; "
                      "no exported MBF")
                 return False
+            ineligible = solve_ineligible(record)
+            if ineligible:  # recorded in its run folder, never published, and no export reads it
+                emit(f"{case_id}: route={record.get('route')}; {ineligible}; not published; no exported MBF")
+                return False
+            # The run becomes current only once it is checked complete (`publish`); the export then reads it.
+            with exchange_tree(config) as tree:
+                publish(tree, case_id, run=record["run_folder"], reason="an authored round trip")
             settings = record.get("settings_guard")
             emit(f"{case_id}: route={record.get('route')}; round trip recorded: "
-                 f"cases/{case_id}/caepipe_out/run_record.json"
+                 f"cases/{case_id}/{record['run_folder']}/caepipe_out/run_record.json"
                  + (f"; settings {settings['status']}" if settings else ""))
             if no_export:
                 return True
-        entry = export(config, case_id, mbf_sha256)
     except ContainmentError as error:
         emit(f"{case_id}: route=containment_violation; {error}; no exported MBF")
         return False
-    route = entry["route"]
-    if route == EXPORT_ROUTE:
-        emit(f"{case_id}: export route={route}; exported MBF written: cases/{case_id}/caepipe_out/{EXPORTED_MBF}")
-        return True
-    reason = entry.get("reason") or f"the guest export did not complete (cases/{case_id}/caepipe_out/run_record.json)"
-    emit(f"{case_id}: export route={route}; {reason}; no exported MBF")
-    return False
+    return _export_and_publish(config, case_id, mbf_sha256, emit=emit, export=export)
 
 
 def run_cases(cases: list[Mapping[str, Any]], config: HarnessConfig, *, runner: str, offline: bool, hand_calcs: Any,
@@ -643,7 +776,12 @@ def run_cases(cases: list[Mapping[str, Any]], config: HarnessConfig, *, runner: 
     for case in cases:
         results[case["case_id"]] = run_case(case, config, runner=runner, offline=offline, hand_calcs=hand_calcs,
                                             emit=emit, round_trip=round_trip)
-        if export_mbf:
+        if export_mbf and not results[case["case_id"]]:
+            # A refused or failed case is not followed by its export step.
+            emit(f"{case['case_id']}: export route=not_run; the case's live round trip did not complete; "
+                 "no exported MBF")
+            results[f"{case['case_id']} export"] = False
+        elif export_mbf:
             results[f"{case['case_id']} export"] = export_case(case, config, emit=emit, export=export)
     for key, ok in run_series(config, runner=runner, hand_calcs=hand_calcs, emit=emit).items():
         results[key] = results.get(key, True) and ok
@@ -772,8 +910,8 @@ def run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, runn
 
     Returns (status, route, reason): `recorded`, `not_run` (SWBPIPE not solved, MBF refused, containment, or no
     stored bound CSV offline), or `retry` (the round trip raised, or left no bound CSV, with a clean settings check).
-    Raises RunStopped when the round trip's saved-settings check is not clean, or when the batch run left no CSV and
-    the GUI fallback is off."""
+    Raises RunStopped when the round trip's saved-settings check is not clean, or when the batch run left no CSV (no
+    fallback is attempted)."""
     model_id = benchmark_run_id(entry)
     try:
         return _run_benchmark_model(entry, config, runner=runner, offline=offline, emit=emit, round_trip=round_trip,
@@ -783,10 +921,11 @@ def run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, runn
         return NOT_RUN, "containment_violation", str(error)
 
 
-def _benchmark_manifest(root: Path, paths: Mapping[str, Path], entry: Mapping[str, Any], *, offline: bool,
-                        outcome: str, route: str, attempt: int, **extra: Any) -> None:
-    """The model's private run record (the case manifest), written for every live attempt and every record."""
-    _write_json(root, paths["manifest"], {
+def _benchmark_manifest(folder: CaseFolder, entry: Mapping[str, Any], *, offline: bool, outcome: str, route: str,
+                        attempt: int, **extra: Any) -> str:
+    """The model's private run record for this attempt (the case manifest): a new `case_manifest.json` in the
+    attempt's own run or screen folder, never anywhere else. Returns its SHA-256."""
+    return folder.record("case_manifest.json", {
         "document_kind": MANIFEST_KIND,
         "case_id": benchmark_run_id(entry),
         "created": _now(),
@@ -801,25 +940,33 @@ def _benchmark_manifest(root: Path, paths: Mapping[str, Path], entry: Mapping[st
         "piping_code": entry["piping_code"],
         "internal_model_hash": canonical_model_hash(entry["model"]),
         **extra,
+        "folder": folder.relative,
         "layer_privacy": LAYER_PRIVACY,
         "boundary_note": BOUNDARY_NOTE,
-    })
+    })["sha256"]
 
 
 def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, runner: str, offline: bool,
                          emit: Callable[[str], None], round_trip: Callable[..., dict[str, Any]], gui_fallback: bool,
                          attempt: int) -> tuple[str, str, str]:
+    """One benchmark model. Live: the harness writes a new run folder; this attempt's manifest is a new file in it
+    (never the stored one), and the run is published only with its comparison. Offline: a new screen of the model's
+    current run. A model whose SWBPIPE solve or MBF render fails writes nothing. A declared run is recorded under its
+    run id (`benchmark_run_id`), which names its case folder, its selection and every record; a capture-only run is
+    refused before anything is resolved, reserved or written."""
     model_id = benchmark_run_id(entry)
     if entry.get("capture_only"):
         # Refused before anything is resolved or written (capture_refusal says why).
         return capture_refusal(entry, emit)
     root = config.exchange_root.resolve()
-    paths = case_paths(config, model_id)
 
-    def outcome(status: str, route: str, reason: str, **extra: Any) -> tuple[str, str, str]:
-        if not offline:
-            _benchmark_manifest(root, paths, entry, offline=offline, outcome="no_record", route=route,
-                                attempt=attempt, reason=reason, **extra)
+    def outcome(status: str, route: str, reason: str, run_folder: str | None = None) -> tuple[str, str, str]:
+        if run_folder:
+            with exchange_tree(config) as tree:
+                folder = open_folder(tree, model_id, run_folder)
+                if not folder.exists("case_manifest.json"):
+                    _benchmark_manifest(folder, entry, offline=offline, outcome="no_record", route=route,
+                                        attempt=attempt, reason=reason)
         if status == NOT_RUN:
             emit(f"{model_id}: route={route}; {reason}; no benchmark record")
         return status, route, reason
@@ -827,9 +974,6 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
     body, output, error = solve_swbpipe(runner, {
         "case_id": model_id, "model": entry["model"],
         "source_location": f"validation/caepipe_benchmark/models/{entry['model_id']}.json"})
-    _write_json(root, paths["swbpipe"] / "request.json", body)
-    if output is not None:
-        _write_json(root, paths["swbpipe"] / "result.json", output)
     if error:
         return outcome(NOT_RUN, "not_run", f"SWBPIPE not solved ({error})")
     mbf = render_caepipe_mbf_si(entry["model"], title=entry["model_id"],
@@ -840,60 +984,94 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
         return outcome(NOT_RUN, "not_run", f"MBF refused ({', '.join(codes)})")
     mbf_text = benchmark_models.run_mbf_text(entry, mbf.text)  # a series run's OPPRES line substituted
     mbf_sha256 = _sha256(mbf_text)
+    inputs = {
+        "swbpipe/request.json": _json_bytes(body),
+        "swbpipe/result.json": _json_bytes(output),
+        "caepipe_in/id_map.json": _json_bytes(mbf.sidecar(mbf_sha256)),
+        "caepipe_in/mbf_render.json": _json_bytes({
+            "profile_id": mbf.to_dict()["profile_id"], "status": mbf.status, "layout_row_count": mbf.layout_row_count,
+            "piping_code": entry["piping_code"], "diagnostics": mbf.diagnostics, "loss_report": mbf.loss_report,
+            "assumptions": mbf.assumptions, "mbf_sha256": mbf_sha256}),
+    }
+
+    def record_benchmark(folder: CaseFolder, csv_path: Path, route: str) -> tuple[dict[str, str], str]:
+        parsed = read_caepipe_print_csv(csv_path)
+        written = {"parsed/caepipe_results.json": folder.record("parsed/caepipe_results.json", parsed)["sha256"],
+                   "parsed/parser_diagnostics.json": folder.record("parsed/parser_diagnostics.json", {
+                       "document_kind": PARSER_DIAGNOSTICS_KIND,
+                       **{key: parsed[key] for key in ("parser_version", "diagnostics", "sections_parsed",
+                                                       "sections_skipped")}})["sha256"]}
+        comparison = build_benchmark_record(entry, swbpipe_result_payload=output["payload"], mbf_result=mbf,
+                                            mbf_text=mbf_text, parsed_caepipe=parsed)
+        relative = f"comparison/{BENCHMARK_RECORD}"
+        written[relative] = folder.record(relative, comparison)["sha256"]
+        case_root = root / "cases" / model_id
+        written["case_manifest.json"] = _benchmark_manifest(
+            folder, entry, offline=offline, outcome="recorded", route=route, attempt=attempt,
+            exported_model_hash=mbf_sha256, target_tool=comparison["target_tool"],
+            target_version=comparison["target_version"], product_label=comparison["product_label"],
+            trial_first_launch_date=config.trial_first_launch_date, csv=str(csv_path.relative_to(case_root)),
+            comparison=f"{folder.relative}/{relative}")
+        return written, f"cases/{model_id}/{folder.relative}/{relative}"
+
     if offline:
-        # Checked before caepipe_in/ is rewritten, so the MBF that produced a stale output is kept.
-        csv_path, route, reason = bound_csv(root, paths, stored_run_record(root, paths["caepipe_out"]), mbf_sha256)
+        view = current_case(root, model_id)
+        csv_path, route, reason = bound_csv(root, {"root": view.run},
+                                            stored_run_record(root, view.run / "caepipe_out"), mbf_sha256)
         if csv_path is None:
             return outcome(NOT_RUN, route, reason)
-    in_dir = paths["caepipe_in"]
-    write_private(root, in_dir / "model.mbf", mbf_text.encode("utf-8"))
-    _write_json(root, in_dir / "id_map.json", mbf.sidecar(mbf_sha256))
-    _write_json(root, in_dir / "mbf_render.json", {
-        "profile_id": mbf.to_dict()["profile_id"], "status": mbf.status, "layout_row_count": mbf.layout_row_count,
-        "piping_code": entry["piping_code"], "diagnostics": mbf.diagnostics, "loss_report": mbf.loss_report,
-        "assumptions": mbf.assumptions, "mbf_sha256": mbf_sha256})
-    if not offline:
-        try:
-            record = round_trip(config, model_id, mbf_text, gui_fallback=gui_fallback)
-        except Exception as error:
-            emit(f"{model_id}: round trip raised {type(error).__name__}: {error}")
-            _guard_stop(config, model_id, getattr(error, "settings_guard", None), emit)
-            return outcome(RETRY, "round_trip_raised", f"the round trip raised {type(error).__name__}")
-        # The guard comes first: any other outcome still stops the run on it.
-        _guard_stop(config, model_id, record.get("settings_guard"), emit)
-        if not gui_fallback and record.get("route") == "batch_no_csv":
-            outcome(RETRY, "batch_no_csv", "the batch run left no CSV and the GUI fallback is off")
-            emit(f"{model_id}: route=batch_no_csv; the GUI fallback is off for this run; stopped")
-            raise RunStopped(model_id)
-        csv_path, route, reason = bound_csv(root, paths, record, mbf_sha256)
-        if csv_path is None:
-            return outcome(RETRY, route, reason)
-    parsed = read_caepipe_print_csv(csv_path)
-    _write_json(root, paths["parsed"] / "caepipe_results.json", parsed)
-    _write_json(root, paths["parsed"] / "parser_diagnostics.json", {
-        "document_kind": PARSER_DIAGNOSTICS_KIND,
-        **{key: parsed[key] for key in ("parser_version", "diagnostics", "sections_parsed", "sections_skipped")}})
-    comparison = build_benchmark_record(entry, swbpipe_result_payload=output["payload"], mbf_result=mbf,
-                                        mbf_text=mbf_text, parsed_caepipe=parsed)
-    comparison_path = paths["comparison"] / BENCHMARK_RECORD
-    _write_json(root, comparison_path, comparison)
-    _benchmark_manifest(root, paths, entry, offline=offline, outcome="recorded", route=route, attempt=attempt,
-                        exported_model_hash=mbf_sha256, target_tool=comparison["target_tool"],
-                        target_version=comparison["target_version"], product_label=comparison["product_label"],
-                        trial_first_launch_date=config.trial_first_launch_date,
-                        csv=str(csv_path.relative_to(paths["root"])),
-                        comparison=str(comparison_path.relative_to(paths["root"])))
+        read = _screen_read(root, view, csv_path)
+        with exchange_tree(config) as tree:
+            screen = reserve_folder(tree, model_id, SCREENS_DIR)
+            for relative, data in sorted(inputs.items()):
+                screen.create(relative, data)
+            screen.create("caepipe_in/model.mbf", mbf_text.encode("utf-8"))
+            written, shown = record_benchmark(screen, csv_path, route)
+            _write_screen_record(screen, model_id, read, "benchmark_offline")
+            publish(tree, model_id, screen=screen.relative, also=written, expect_run=view.source,
+                    reason="an offline benchmark screen of the current run")
+        emit(f"{model_id}: route={route}; benchmark record written: {shown}")
+        return RECORDED, route, ""
+
+    try:
+        record = round_trip(config, model_id, mbf_text, gui_fallback=gui_fallback, files=inputs)
+    except Exception as error:
+        emit(f"{model_id}: round trip raised {type(error).__name__}: {error}")
+        _guard_stop(config, model_id, getattr(error, "settings_guard", None), emit)
+        return outcome(RETRY, "round_trip_raised", f"the round trip raised {type(error).__name__}",
+                       getattr(error, "run_folder", None))
+    run_folder = record.get("run_folder")
+    if record.get("route") in REFUSED_ROUTES:
+        # Refused with nothing stored changed: the attempt's manifest is a new file in its own run folder, and the run
+        # stops (no later model would reach the exchange folder either).
+        outcome(RETRY, record["route"], str(record.get("reason")), run_folder)
+        emit(f"{model_id}: route={record['route']}; {record.get('reason')}; stopped")
+        raise RunStopped(model_id)
+    # The guard comes first: any other outcome still stops the run on it.
+    _guard_stop(config, model_id, record.get("settings_guard"), emit)
+    if record.get("route") == "batch_no_csv":
+        outcome(RETRY, "batch_no_csv", "the batch run left no CSV and no fallback is attempted", run_folder)
+        emit(f"{model_id}: route=batch_no_csv; the batch run left no result file and no fallback is attempted (the "
+             "print fallback through the program's window waits for DEL-17-05 REQ-023); stopped")
+        raise RunStopped(model_id)
+    csv_path, route, reason = bound_csv(root, {"root": root / "cases" / model_id / run_folder}, record, mbf_sha256)
+    if csv_path is None:
+        return outcome(RETRY, route, reason, run_folder)
+    with exchange_tree(config) as tree:
+        folder = open_folder(tree, model_id, run_folder)
+        written, shown = record_benchmark(folder, csv_path, route)
+        publish(tree, model_id, run=folder.relative, also=written, reason="a live benchmark solve with its record")
     # Operational status only: the classification counts stay in the private record.
-    emit(f"{model_id}: route={route}; benchmark record written: {comparison_path.relative_to(root)}")
+    emit(f"{model_id}: route={route}; benchmark record written: {shown}")
     return RECORDED, route, ""
 
 
 def _benchmark_gate(model_id: str, config: HarnessConfig, stops: BenchmarkStops, *,
                     liveness: Callable[[HarnessConfig], dict[str, Any]],
                     precondition: Callable[[HarnessConfig], dict[str, Any]], sleep: Callable[[float], None],
-                    emit: Callable[[str], None]) -> str | None:
+                    emit: Callable[[str], None], liveness_wait_s: float = BENCHMARK_RETRY_WAIT_S) -> str | None:
     """Before each live model: the freeze file, a pending exclusive job, the guest's liveness (checked again once
-    after BENCHMARK_RETRY_WAIT_S) and the no-foreign-instance precondition. None when the model may start, else why
+    after `liveness_wait_s`) and the no-foreign-instance precondition. None when the model may start, else why
     the run stops."""
     if stops.freeze.exists():
         return "the freeze file is present"
@@ -908,8 +1086,8 @@ def _benchmark_gate(model_id: str, config: HarnessConfig, stops: BenchmarkStops,
     alive = liveness(config)
     if alive["status"] != "alive":
         emit(f"{model_id}: liveness {alive['status']}; {alive.get('reason', '')}; "
-             f"checking again in {BENCHMARK_RETRY_WAIT_S:g} s")
-        sleep(BENCHMARK_RETRY_WAIT_S)
+             f"checking again in {liveness_wait_s:g} s")
+        sleep(liveness_wait_s)
         alive = liveness(config)
         if alive["status"] != "alive":
             return f"liveness {alive['status']}; {alive.get('reason', '')}"
@@ -928,14 +1106,15 @@ def run_benchmark(models: list[Mapping[str, Any]], config: HarnessConfig, *, run
                   precondition: Callable[[HarnessConfig], dict[str, Any]] | None = None,
                   liveness: Callable[[HarnessConfig], dict[str, Any]] | None = None,
                   stops: BenchmarkStops | None = None, pace_s: float = BENCHMARK_PACE_S,
-                  sleep: Callable[[float], None] | None = None) -> int:
+                  sleep: Callable[[float], None] | None = None,
+                  liveness_wait_s: float = BENCHMARK_RETRY_WAIT_S) -> int:
     """Run the models one at a time, in serial batches; the exit status of main.
 
     A live run paces the models `pace_s` apart, passes `_benchmark_gate` before each attempt, and retries a model
     once, BENCHMARK_RETRY_WAIT_S later, when its round trip raised or left no bound CSV with a clean settings check.
     A model that still left no CSV is recorded as such and the run goes on; a round trip that raised twice, a gate
-    that fails, or an unclean settings check stops the run. The GUI fallback is on only when the settings guard
-    restores the whole key, whose restore covers the settings that route writes (Design §5)."""
+    that fails, an unclean settings check, or a batch run that left no CSV (`batch_no_csv`) stops the run: no
+    fallback through the program's window is attempted (it waits for DEL-17-05 REQ-023)."""
     captures = [entry for entry in models if entry.get("capture_only")]
     if captures:
         for entry in captures:
@@ -954,7 +1133,7 @@ def run_benchmark(models: list[Mapping[str, Any]], config: HarnessConfig, *, run
     check = precondition or check_no_foreign_instance
     alive = liveness or check_guest_alive
     sleep = sleep or time.sleep
-    gui_fallback = bool(config.settings_guard is not None and config.settings_guard.restores_whole_key)
+    gui_fallback = False  # the print fallback through the program's window waits for DEL-17-05 REQ-023
     results, started = [], False
     for number, members in chosen:
         emit(f"batch {number}/{len(batches)}: {', '.join(benchmark_run_id(entry) for entry in members)}")
@@ -967,7 +1146,7 @@ def run_benchmark(models: list[Mapping[str, Any]], config: HarnessConfig, *, run
                         if started:
                             sleep(pace_s if attempt == 1 else BENCHMARK_RETRY_WAIT_S)
                         stop = _benchmark_gate(model_id, config, stops, liveness=alive, precondition=check,
-                                               sleep=sleep, emit=emit)
+                                               sleep=sleep, emit=emit, liveness_wait_s=liveness_wait_s)
                         if stop is not None:
                             emit(f"stopped before {model_id}: {stop}")
                             return 1
@@ -1007,7 +1186,8 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
                         help="with --authored, take the cases from this directory's manifest.json (inside the exchange "
                              "folder) instead of the tracked ones; implies --no-export and needs settings_guard")
     parser.add_argument("--no-export", action="store_true",
-                        help="with --authored, run the round trip only (no export step)")
+                        help="with --authored, run the round trip only (no export step; the default while the "
+                             "export is not in force)")
     parser.add_argument("--runner", help=f"openpipestress-runner executable (default: ${RUNNER_ENV})")
     parser.add_argument("--benchmark", metavar="MANIFEST",
                         help="run the generated benchmark models of this manifest (two-way comparison, guarded "
@@ -1025,19 +1205,26 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
                              "exclusive job, which holds the run")
     parser.add_argument("--pace-s", type=float, default=BENCHMARK_PACE_S, metavar="S",
                         help=f"with a live --benchmark run, seconds between models (default {BENCHMARK_PACE_S:g})")
+    parser.add_argument("--liveness-wait-s", type=float, default=BENCHMARK_RETRY_WAIT_S, metavar="S",
+                        help="with a live --benchmark run, seconds before the guest's liveness is checked once more "
+                             f"(default {BENCHMARK_RETRY_WAIT_S:g})")
     args = parser.parse_args(argv)
     benchmark_only = (args.batch is not None or args.batch_size != BENCHMARK_BATCH_SIZE or args.freeze_file
-                      or args.exclusive_file or args.pace_s != BENCHMARK_PACE_S or args.series is not None)
+                      or args.exclusive_file or args.pace_s != BENCHMARK_PACE_S
+                      or args.liveness_wait_s != BENCHMARK_RETRY_WAIT_S or args.series is not None)
     if args.benchmark and (args.authored or args.authored_dir or args.no_export or args.export_mbf
                            or args.export_only):
         parser.error("--benchmark takes only --case, --series, --offline, --batch, --batch-size, --freeze-file, "
-                     "--exclusive-file, --pace-s and --runner")
+                     "--exclusive-file, --pace-s, --liveness-wait-s and --runner")
     if not args.benchmark and benchmark_only:
-        parser.error("--series, --batch, --batch-size, --freeze-file, --exclusive-file and --pace-s need --benchmark")
+        parser.error("--series, --batch, --batch-size, --freeze-file, --exclusive-file, --pace-s and "
+                     "--liveness-wait-s need --benchmark")
     if args.batch_size < 1:
         parser.error("--batch-size must be at least 1")
     if not (args.pace_s >= 0.0):
         parser.error("--pace-s must be a non-negative number")
+    if not (0.0 <= args.liveness_wait_s < float("inf")):
+        parser.error("--liveness-wait-s must be a non-negative number")
     if args.benchmark and not args.offline and not (args.freeze_file and args.exclusive_file):
         parser.error("a live --benchmark run needs --freeze-file and --exclusive-file")
     if args.benchmark:
@@ -1082,10 +1269,10 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
         results = []
         try:
             for case in cases:
+                # The default asks for no export while the route is refused (window_route_unavailable); it asks for
+                # the export again when DEL-17-05 REQ-023 enables it. Only --export-only asks for it now, and is refused.
                 results.append(run_authored_case(case, config, export_only=args.export_only, directory=directory,
-                                                 no_export=args.no_export or bool(args.authored_dir),
-                                                 gui_fallback=not args.authored_dir
-                                                 or config.settings_guard.restores_whole_key))
+                                                 no_export=True))
         except RunStopped as stopped:
             print(f"stopped after {stopped}: the guarded round trip did not end cleanly; no further case ran")
             return 1
@@ -1133,7 +1320,7 @@ def benchmark_main(args: argparse.Namespace, environ: Mapping[str, str]) -> int:
     stops = None if args.offline else BenchmarkStops(freeze=Path(args.freeze_file),
                                                      exclusive=Path(args.exclusive_file))
     return run_benchmark(models, config, runner=runner, offline=args.offline, batch_size=args.batch_size,
-                         batch=args.batch, stops=stops, pace_s=args.pace_s)
+                         batch=args.batch, stops=stops, pace_s=args.pace_s, liveness_wait_s=args.liveness_wait_s)
 
 
 if __name__ == "__main__":

@@ -16,8 +16,12 @@ the reference to derive them): `equal_within_writer_tolerance`, `differs`, or `r
 refused. For a refused case it compares refusals: `refused_alike` when the export's import is refused with the
 manifest's named code, `refused_differently` when it is refused otherwise, and `differs` when it imports.
 
-All outcomes, field names and refusal codes stay in `cases/<id>/imported/import_outcome.json` inside the exchange
-folder, written only on an explicit recording run (SWBPIPE_CAEPIPE_IMPORT_RECORD=1). Standard output and assertion
+Each case is read where its current results are (`current_case`: the export and run its selection names, or the
+case's own folders when it has no selection); a case whose selections cannot be trusted is reported as `refused`
+and fails the check. All outcomes, field names and refusal codes stay in the exchange folder, each recording run
+adding a new numbered file `cases/<id>/imported/<NNNNNN>.json` (created exclusively, never rewritten; the
+highest-numbered one, or an older `import_outcome.json` when there is none, is the recorded classification),
+written only on an explicit recording run (SWBPIPE_CAEPIPE_IMPORT_RECORD=1). Standard output and assertion
 messages carry operational status only: the case id, checked or skipped and why, and the private record's path.
 The check fails when a case's classification moves from the recorded one, naming only the case and the path.
 
@@ -47,7 +51,8 @@ for extra in (ROOT, ROOT / "tests"):
         sys.path.insert(0, str(extra))
 
 import caepipe_mbf_canonical as canon  # noqa: E402
-from core.handoff.caepipe_external.harness import EXPORT_ROUTE, contained, contained_dir, write_private  # noqa: E402
+from core.handoff.caepipe_external.harness import (  # noqa: E402
+    EXPORT_ROUTE, ExistingPath, SelectionError, contained, current_case, exchange_tree, outputs_sealed)
 from core.handoff.caepipe_mbf.importer import (  # noqa: E402
     IMPORT_PROFILE_ID, import_caepipe_mbf, inside_git_work_tree, load_sidecar)
 from core.handoff.caepipe_mbf import render_caepipe_mbf_si  # noqa: E402
@@ -159,21 +164,36 @@ def classify_authored(case: Mapping[str, Any], authored: bytes, exported: bytes)
     return {**outcome, "classification": "differs" if outcome["fields"] else "equal_within_writer_tolerance"}
 
 
-def bound_export(root: Path, case_dir: Path, exported: bytes, *, solved: str | None = None) -> bool:
-    """True when the run record's export entry names a successful export with these exact bytes and, with `solved`,
-    the export is of the model imported from the MBF with that SHA-256 (an authored case's file)."""
-
+def export_record(root: Path, export_dir: Path) -> dict | None:
+    """The run record in `export_dir`/caepipe_out, read before anything it describes, or None."""
     try:
-        record = json.loads(contained(root, case_dir / "caepipe_out" / "run_record.json").read_text(encoding="utf-8"))
+        record = json.loads(contained(root, export_dir / "caepipe_out" / "run_record.json").read_text(encoding="utf-8"))
     except (OSError, ValueError):
-        return False
-    entry = record.get("mbf_export") if isinstance(record, dict) else None
-    if not isinstance(entry, dict) or entry.get("route") != EXPORT_ROUTE:
+        return None
+    return record if isinstance(record, dict) else None
+
+
+def bound_export(record: Mapping[str, Any] | None, exported_sha256: str, *, solved: str | None = None) -> bool:
+    """True when the export's run record names a successful export with this exact SHA-256 and, with `solved`, the
+    export is of the model imported from the MBF with that SHA-256 (an authored case's file). A record that marks
+    its outputs sealed binds nothing that is read."""
+
+    entry = record.get("mbf_export") if isinstance(record, Mapping) else None
+    if not isinstance(entry, dict) or entry.get("route") != EXPORT_ROUTE or outputs_sealed(record):
         return False
     exported_mbf = entry.get("exported_mbf")
     if solved is not None and (entry.get("solved_mbf_sha256") != solved or (record.get("mbf") or {}).get("sha256") != solved):
         return False
-    return isinstance(exported_mbf, dict) and exported_mbf.get("sha256") == hashlib.sha256(exported).hexdigest()
+    return isinstance(exported_mbf, dict) and exported_mbf.get("sha256") == exported_sha256
+
+
+def file_sha256(path: Path) -> str:
+    """The SHA-256 of a file, read in blocks for the hash alone."""
+    digest = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for block in iter(lambda: handle.read(1 << 20), b""):
+            digest.update(block)
+    return digest.hexdigest()
 
 
 def check_exchange(root: Path, *, record: bool, emit: Callable[[str], None] = print,
@@ -186,15 +206,26 @@ def check_exchange(root: Path, *, record: bool, emit: Callable[[str], None] = pr
     authored_cases = authored if authored is not None else ([] if cases is not None else load_authored_cases())
     for kind, case in [("writer", item) for item in writer_cases] + [("authored", item) for item in authored_cases]:
         case_id = case["case_id"]
-        case_dir = contained(root, root / "cases" / case_id)
-        exported_path = contained(root, case_dir / "caepipe_out" / "exported.mbf")
-        sidecar_path = contained(root, case_dir / "caepipe_in" / "id_map.json")
-        record_path = contained(root, case_dir / "imported" / "import_outcome.json")
-        relative = record_path.relative_to(root).as_posix()
+        try:
+            view = current_case(root, case_id)
+        except SelectionError as error:
+            statuses.append(CaseStatus(case_id, "refused", f"selection_untrusted: {error}"))
+            emit(f"{statuses[-1].case_id}: {statuses[-1].status}; {statuses[-1].detail}")
+            continue
+        exported_path = contained(root, view.export / "caepipe_out" / "exported.mbf")
+        sidecar_path = contained(root, view.run / "caepipe_in" / "id_map.json")
+        recorded_path = latest_outcome(root, case_id)
+        relative = recorded_path.relative_to(root).as_posix() if recorded_path else None
         authored_bytes = authored_mbf_bytes(case) if kind == "authored" else b""
-        if not exported_path.is_file():
+        # The sealed flag is read first: the export (and the identity map beside its solve) is opened only when
+        # neither run record marks its outputs sealed, and then hashed before its content is read.
+        record_ = export_record(root, view.export)
+        if outputs_sealed(record_) or outputs_sealed(export_record(root, view.run)):
+            statuses.append(CaseStatus(case_id, "refused", "sealed: a run record marks its outputs sealed; they are "
+                                                           "not read"))
+        elif not exported_path.is_file():
             statuses.append(CaseStatus(case_id, "skipped", "no caepipe_out/exported.mbf"))
-        elif not bound_export(root, case_dir, exported_path.read_bytes(),
+        elif not bound_export(record_, file_sha256(exported_path),
                               solved=hashlib.sha256(authored_bytes).hexdigest() if kind == "authored" else None):
             statuses.append(CaseStatus(case_id, "skipped", "caepipe_out/exported.mbf is not bound to a successful "
                                                            "export by caepipe_out/run_record.json"))
@@ -203,19 +234,48 @@ def check_exchange(root: Path, *, record: bool, emit: Callable[[str], None] = pr
         else:
             outcome = (classify_authored(case, authored_bytes, exported_path.read_bytes()) if kind == "authored"
                        else classify(case, exported_path.read_bytes(), load_sidecar(sidecar_path)))
+            outcome["read"] = {"export": view.export_relative, "run": view.source, "selection": view.selection}
             if record:
-                contained_dir(root, record_path.parent)
-                write_private(root, record_path, json.dumps(outcome, indent=2, sort_keys=True) + "\n")
-                statuses.append(CaseStatus(case_id, "recorded", relative))
-            elif not record_path.is_file():
-                statuses.append(CaseStatus(case_id, "skipped", f"no recorded classification at {relative}; "
-                                                               f"record with {RECORD_VAR}=1"))
+                statuses.append(CaseStatus(case_id, "recorded", new_outcome(root, case_id, outcome)))
+            elif recorded_path is None:
+                statuses.append(CaseStatus(case_id, "skipped", f"no recorded classification at cases/{case_id}/"
+                                                               f"imported; record with {RECORD_VAR}=1"))
             else:
-                recorded = json.loads(record_path.read_text(encoding="utf-8")).get("classification")
+                recorded = json.loads(recorded_path.read_text(encoding="utf-8")).get("classification")
                 moved = recorded != outcome["classification"]
                 statuses.append(CaseStatus(case_id, "moved" if moved else "checked", relative))
         emit(f"{statuses[-1].case_id}: {statuses[-1].status}; {statuses[-1].detail}")
     return statuses
+
+
+def latest_outcome(root: Path, case_id: str) -> Path | None:
+    """The recorded classification of a case: its highest-numbered `imported/<NNNNNN>.json`, else an older
+    `imported/import_outcome.json`, else None."""
+    folder = contained(root, root / "cases" / case_id / "imported")
+    if not folder.is_dir():
+        return None
+    numbered = sorted(name for name in os.listdir(folder) if len(name) == 11 and name.endswith(".json")
+                      and name[:6].isdigit())
+    if numbered:
+        return contained(root, folder / numbered[-1])
+    legacy = contained(root, folder / "import_outcome.json")
+    return legacy if legacy.is_file() else None
+
+
+def new_outcome(root: Path, case_id: str, outcome: Mapping[str, Any]) -> str:
+    """A recording as the next numbered new file `cases/<id>/imported/<NNNNNN>.json`; earlier ones are kept."""
+    with exchange_tree(root) as tree:
+        tree.ensure_dir(("cases", case_id, "imported"))
+        for _ in range(1000):
+            numbers = [int(name[:6]) for name in tree.listdir(("cases", case_id, "imported"))
+                       if len(name) == 11 and name.endswith(".json") and name[:6].isdigit()]
+            name = f"{max(numbers, default=0) + 1:06d}.json"
+            try:
+                tree.record(("cases", case_id, "imported", name), outcome)
+            except ExistingPath:
+                continue
+            return f"cases/{case_id}/imported/{name}"
+    raise RuntimeError(f"no new import outcome could be recorded for {case_id}")
 
 
 def selected_cases(environ: Mapping[str, str]) -> tuple[list[Mapping[str, Any]], list[Mapping[str, Any]]] | str:
@@ -241,6 +301,8 @@ def test_private_exported_mbfs_keep_their_recorded_classification():
     statuses = check_exchange(root, record=os.environ.get(RECORD_VAR) == "1", cases=selected[0], authored=selected[1])
     if all(status.status == "skipped" for status in statuses):
         pytest.skip("no correlation case in the exchange folder has an exported MBF and a recorded classification")
+    refused = [status.case_id for status in statuses if status.status == "refused"]
+    assert not refused, f"cases whose selections cannot be trusted: {', '.join(refused)}"
     moved = [f"{status.case_id} ({status.detail})" for status in statuses if status.status == "moved"]
     assert not moved, f"import classification moved from the private record: {', '.join(moved)}"
 
@@ -281,7 +343,7 @@ def test_record_check_and_move_print_operational_status_only(tmp_path):
     root = invented_exchange(tmp_path, case)
     assert exchange_root({ENV_VAR: str(root)}) == root.resolve()
     lines: list[str] = []
-    record = f"cases/{case['case_id']}/imported/import_outcome.json"
+    record = f"cases/{case['case_id']}/imported/000001.json"
     assert [status.status for status in check_exchange(root, record=False, emit=lines.append, cases=[case])] == ["skipped"]
     assert [status.status for status in check_exchange(root, record=True, emit=lines.append, cases=[case])] == ["recorded"]
     stored = json.loads((root / record).read_text(encoding="utf-8"))
@@ -292,7 +354,8 @@ def test_record_check_and_move_print_operational_status_only(tmp_path):
     statuses = check_exchange(root, record=False, emit=lines.append, cases=[case])
     assert [status.status for status in statuses] == ["moved"]
     assert lines == [
-        f"{case['case_id']}: skipped; no recorded classification at {record}; record with {RECORD_VAR}=1",
+        f"{case['case_id']}: skipped; no recorded classification at cases/{case['case_id']}/imported; record with "
+        f"{RECORD_VAR}=1",
         f"{case['case_id']}: recorded; {record}",
         f"{case['case_id']}: checked; {record}",
         f"{case['case_id']}: moved; {record}",
@@ -326,12 +389,14 @@ def test_an_edited_export_is_classified_privately_as_refused_or_differs(tmp_path
     exported.write_bytes(exported.read_bytes().replace(b"\r\nPIPE\r\n", b"\r\nSOILS\r\nS1,0,1\r\nPIPE\r\n"))
     bind(exported)
     check_exchange(root, record=True, emit=lambda line: None, cases=[case])
-    stored = json.loads((root / "cases" / case["case_id"] / "imported" / "import_outcome.json").read_text(encoding="utf-8"))
+    stored = json.loads(latest_outcome(root, case["case_id"]).read_text(encoding="utf-8"))
     assert stored["classification"] == "refused" and "MBF-IMPORT-SECTION-UNSUPPORTED" in stored["refusal_codes"]
     exported.write_bytes(exported.read_bytes().replace(b"\r\nSOILS\r\nS1,0,1", b"").replace(b"X6000", b"X6100"))
     bind(exported)
     check_exchange(root, record=True, emit=lambda line: None, cases=[case])
-    stored = json.loads((root / "cases" / case["case_id"] / "imported" / "import_outcome.json").read_text(encoding="utf-8"))
+    second = latest_outcome(root, case["case_id"])
+    assert second.name == "000002.json"  # a new recording; the first is kept
+    stored = json.loads(second.read_text(encoding="utf-8"))
     assert stored["classification"] == "differs" and stored["fields"]
 
 
@@ -406,7 +471,7 @@ def rebind(path: Path, exported: bytes, solved: str) -> None:
 
 def recorded_class(root: Path, case_id: str, case: Mapping[str, Any]) -> str:
     check_exchange(root, record=True, emit=lambda line: None, cases=[], authored=[case])
-    stored = json.loads((root / "cases" / case_id / "imported" / "import_outcome.json").read_text(encoding="utf-8"))
+    stored = json.loads(latest_outcome(root, case_id).read_text(encoding="utf-8"))
     assert stored["case_kind"] == "authored" and stored["document_kind"] == OUTCOME_KIND
     return stored["classification"]
 
@@ -416,7 +481,7 @@ def test_a_mapped_authored_case_is_classified_privately(tmp_path):
     authored = authored_mbf_bytes(case)
     root = authored_exchange(tmp_path, case, authored)
     lines: list[str] = []
-    record = "cases/cpa-11-z-vertical-supports/imported/import_outcome.json"
+    record = "cases/cpa-11-z-vertical-supports/imported/000001.json"
     assert [item.status for item in check_exchange(root, record=True, emit=lines.append, cases=[],
                                                    authored=[case])] == ["recorded"]
     assert [item.status for item in check_exchange(root, record=False, emit=lines.append, cases=[],
