@@ -351,8 +351,10 @@ export function ComparisonOverlayMode({ overlay, onLeave, onActivate }: Comparis
           const asPoint = points.length === 1 || collapsed;
           const stack = stacks.get(entity) ?? 0;
           const glyphY = anchor.y - glyphSize * 0.4 + stack * glyphSize * 1.15;
-          const label = labelPlacement(`${entity.label}${entity.ghost ? " (earlier only)" : ""}`, anchor.x, glyphSize * 0.9, visible, labelSize);
-          const labelX = label.side === "start" ? anchor.x + glyphSize * 0.9 : anchor.x - glyphSize * 0.9;
+          // The label clears the whole glyph string, which is centred on the anchor and can hold several glyphs.
+          const gap = [...glyphs].length * glyphSize * 0.3 + glyphSize * 0.4;
+          const label = labelPlacement(`${entity.label}${entity.ghost ? " (earlier only)" : ""}`, anchor.x, gap, visible, labelSize);
+          const labelX = label.side === "start" ? anchor.x + gap : anchor.x - gap;
           return (
             <g
               key={`${entity.ghost ? "ghost" : "drawn"}:${entity.ref}`}
