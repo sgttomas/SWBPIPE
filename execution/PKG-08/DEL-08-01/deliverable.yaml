@@ -79,7 +79,8 @@ needs:
   when: Keeping and reading the project's report list.
   gating: true
 - from: DEL-14-02
-  condition: A recorded run is found in its project by its record hash.
+  condition: A recorded run states the hash of the result it received, and a project's recorded runs
+    can be found by that hash.
   when: Showing a saved-package entry with its run.
   gating: false
 - from: DEL-14-02
