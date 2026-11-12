@@ -734,7 +734,7 @@ for (const theme of APPEARANCE_THEMES) {
               name: "Model tree filter label",
               locator: page.getByTestId("model-tree-controls").getByText("Filter model", { exact: true }),
             },
-            { name: "Model tree visible count", locator: page.getByTestId("model-tree-filter-summary") },
+            { name: "Model tree entity count", locator: page.getByTestId("model-tree-filter-summary") },
           ]),
         ];
 

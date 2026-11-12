@@ -720,7 +720,7 @@ test("zero RAF DOM class requires exact input and mutation records without fabri
 for (const variant of ["complete", "pending-mutation"] as const) {
   test(`real input DOM observer binds stopped publication and pending mutation: ${variant}`, async ({ page }) => {
     await installInstrumentation(page, { causalFeedbackMarkers: true });
-    await page.goto("data:text/html,<div class='panel model-tree'><input data-testid='model-tree-filter-input'><span data-testid='model-tree-filter-summary'>1 of 1 model entities visible</span><div data-testid='model-tree-virtual'><button role='treeitem' data-testid='tree-row-pipe-p' aria-level='1' aria-posinset='1' aria-setsize='1'><strong>Initial</strong></button></div></div>");
+    await page.goto("data:text/html,<div class='panel model-tree'><input data-testid='model-tree-filter-input'><span data-testid='model-tree-filter-summary'>1 of 1 model entities match the filter</span><div data-testid='model-tree-virtual'><button role='treeitem' data-testid='tree-row-pipe-p' aria-level='1' aria-posinset='1' aria-setsize='1'><strong>Initial</strong></button></div></div>");
     await page.evaluate(() => {
       const model = { projectId: "project", generation: 1, identityHash: "fixture", indexGeneration: "i1", projectSessionGeneration: 1 };
       let publication: any = { actionSequence: 1, generation: 1, query: "", visibleCount: 1, inputAt: null, inputEventTimeStamp: null, publishedAt: 0 };
@@ -815,7 +815,7 @@ for (const variant of ["complete", "stopped-model-drift"] as const) {
         rows: [{ testId: "tree-row-project-p", label: "Project", level: 1, position: 1, setSize: 1 }] },
       candidateExpectation: { projectId: "p", modelIdentityHash: "fixture" }
     } });
-    await page.goto("data:text/html,<div data-testid='viewport-canvas'><canvas width='64' height='64'></canvas></div><div class='panel model-tree'><input data-testid='model-tree-filter-input'><span data-testid='model-tree-filter-summary'>1 of 1 model entities visible</span><div data-testid='model-tree-virtual'><button role='treeitem' data-testid='tree-row-project-p' aria-level='1' aria-posinset='1' aria-setsize='1'><strong>Project</strong></button></div></div>");
+    await page.goto("data:text/html,<div data-testid='viewport-canvas'><canvas width='64' height='64'></canvas></div><div class='panel model-tree'><input data-testid='model-tree-filter-input'><span data-testid='model-tree-filter-summary'>1 model entity</span><div data-testid='model-tree-virtual'><button role='treeitem' data-testid='tree-row-project-p' aria-level='1' aria-posinset='1' aria-setsize='1'><strong>Project</strong></button></div></div>");
     await requireHealthyWebGl1(page);
     const result = await page.evaluate(async (variant) => {
       const causal = (globalThis as any).__uifHarness.causal;
@@ -903,7 +903,7 @@ for (const variant of ["two-epochs", "same-epoch", "no-clear", "stale-submission
         rows: [{ testId: "tree-row-project-p", label: "Project", level: 1, position: 1, setSize: 1 }] },
       candidateExpectation: { projectId: "p", modelIdentityHash: "fixture", priorRenderSubmissionSequence: 0 }
     } });
-    await page.goto("data:text/html,<div data-testid='viewport-canvas'><canvas width='64' height='64'></canvas></div><div class='panel model-tree'><input data-testid='model-tree-filter-input'><span data-testid='model-tree-filter-summary'>1 of 1 model entities visible</span><div data-testid='model-tree-virtual'><button role='treeitem' data-testid='tree-row-project-p' aria-level='1' aria-posinset='1' aria-setsize='1'><strong>Project</strong></button></div></div>");
+    await page.goto("data:text/html,<div data-testid='viewport-canvas'><canvas width='64' height='64'></canvas></div><div class='panel model-tree'><input data-testid='model-tree-filter-input'><span data-testid='model-tree-filter-summary'>1 model entity</span><div data-testid='model-tree-virtual'><button role='treeitem' data-testid='tree-row-project-p' aria-level='1' aria-posinset='1' aria-setsize='1'><strong>Project</strong></button></div></div>");
     await requireHealthyWebGl1(page);
     const result = await page.evaluate(async (variant) => {
       const causal = (globalThis as any).__uifHarness.causal;
