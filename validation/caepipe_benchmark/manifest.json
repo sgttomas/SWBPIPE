@@ -3162,7 +3162,7 @@
       "elongation_load_case": "case:sustained",
       "family": "P7",
       "file": "models/cpb-p7-01.json",
-      "file_sha256": "4e584e5492813fad52b55b096f02ce4477a74657839825e5297f2a9520c997c0",
+      "file_sha256": "74210daf198cac1e01233d4a10206b9ad523be77343c146d645ef612dac8f0df",
       "layout_row_count": 4,
       "model_hash": "e568ac8a0b1e00a1e7c62a64abba00ef62e0f37d922620d4e05f08e6712ef642",
       "model_id": "cpb-p7-01",
@@ -3389,7 +3389,7 @@
       "swept": "k"
     },
     "pressure-bend-opening": {
-      "description": "the closed cantilever L of P7 in its pressure-default and pressure-elongation-on runs. Pressure elongation does not turn the free end of a closed cantilever (build_p7), so SWBPIPE's change of that rotation between the runs is 0 and the target program's change isolates the bend opening of its Bourdon switch. The same pair of an anchored L (P4) does not isolate it: between anchors the legs' elongation bends the L and turns its ends too",
+      "description": "the closed cantilever L of P7 in its pressure-default and pressure-elongation-on runs. It measures any additional in-plane angular response of the free end associated with the target program's Bourdon switch, with its bend pressure correction field held off. Under the stated linear model, uniform free axial strain is excluded as an explanation of a rotation change (build_p7), so SWBPIPE's change of that rotation between the runs is 0. HYPOTHESIS: the target program's change, if any, is bend opening by its switch. The series cannot by itself identify that program's internal formula, establish a general law of bend opening, or exclude every undocumented effect of the switch. The same pair of an anchored L (P4) does not serve: between anchors the legs' elongation bends the L and turns its ends too",
       "hypothesis": "bend_bourdon_opening",
       "members": [
         {
@@ -3410,7 +3410,7 @@
       "swept": "run"
     },
     "pressure-bourdon-expansion-capture": {
-      "description": "the target program's alternative placement of Bourdon, captured only. No SWBPIPE state of these models equals it, since their expansion cases carry no pressure; its printed results are screened against nothing",
+      "description": "the target program's alternative placement of Bourdon, in the expansion load cases. For this run: no SWBPIPE state on these models equals it, because the models' expansion cases carry no pressure; so the run has nothing to be screened against today, and it stays a sealed capture unless a SWBPIPE state that equals it is defined. The capture-only path that collects its result without reading it is a separate change; until it lands, run_pilot refuses this run by name (capture_path_unavailable)",
       "kind": "run_state",
       "mbf": "the writer's output with its one OPPRES line 0,0,0,1,0 replaced by 0,1,0,1,0 (Bourdon effect on, pressure correction for bends off, Bourdon in the expansion load cases): not writer output, with its own hash (substituted_mbf_text)",
       "members": [
