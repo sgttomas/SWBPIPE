@@ -159,6 +159,7 @@
         "apps/desktop/native-smoke/agent-journey.js",
         "fixtures/model_operations/agent_w9a_journey.json",
         "fixtures/model_operations/agent_w9a_capture_outcomes.json",
+        "fixtures/embedded_agent/use_cases/**",
         "validation/references/w9_benchmarks/references.json",
         "software-workflow.json",
         "fixtures/embedded_agent/agent-witness-pin.json",

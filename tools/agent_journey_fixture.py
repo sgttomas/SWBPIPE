@@ -35,8 +35,12 @@ Two provider modes:
   (`SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY=stdin`); the key is never written, logged
   or put in the plan, the environment or the report.
 
-Running a use case in stub mode on macOS (every build and launch inside the
-host's slot wrapper; the repository root is the checkout under test):
+Running a use case in stub mode on macOS (the repository root is the checkout
+under test). Host job limits apply throughout: every build, test and launch
+runs inside the host's slot wrapper; pytest uses at most 4 parallel workers
+(`-n 4` or fewer); cargo, including the cargo that `npm run build:wasm` and
+`npm run build` drive, gets CARGO_BUILD_JOBS=4 and RUST_TEST_THREADS=4 through
+the environment.
 1. Build from the head under test as `apps/desktop/native-smoke/run.mjs` does,
    without running its journeys: `npm ci`; in `apps/desktop`, `npm run
    build:wasm` and `npm run build`; then in `apps/desktop/src-tauri`, with
@@ -47,20 +51,32 @@ host's slot wrapper; the repository root is the checkout under test):
 2. Build the two probes: `clang -O2 -o <dir>/agent_host_process_probe
    tools/agent_host_process_probe.c` and `rustc -O --edition 2021 -o
    <dir>/agent_host_sandbox_probe tools/agent_host_sandbox_probe.rs`.
-3. Copy a bundle that already holds the pinned supplier (never modify the
-   original; never download, re-sign or alter the supplier) to a fresh private
-   directory with `ditto`, replace `Contents/MacOS/openpipestress-desktop` in
-   the copy with the executable from step 1, and confirm the copy's
+3. The window takes the foreground of a shared screen, so a launch goes in
+   this order: slot first (a job inside the slot wrapper that, once it holds a
+   slot, opens nothing and waits for a go signal), then the foreground (agree
+   the screen with whoever else uses it), then go. One run per go; a job not
+   given its go within its wait exits having launched nothing.
+4. On go, first check that the screen session is not locked (`/usr/sbin/ioreg
+   -n Root -d1 -a`: no `CGSSessionScreenIsLocked` true; a locked session paints
+   no window); if it is locked, launch nothing. Then copy a bundle that
+   already holds the pinned supplier (never modify the original; never
+   download, re-sign or alter the supplier) to a fresh private directory with
+   `ditto`, replace `Contents/MacOS/openpipestress-desktop` in the copy with
+   the executable from step 1, and confirm the copy's
    `Contents/Resources/agent-supplier/codex*` has the SHA-256 in
    `fixtures/embedded_agent/agent-witness-pin.json` (the controller refuses
    otherwise).
-4. Run `python3 tools/agent_journey_fixture.py --mode stub --use-case <id>
+5. Run `python3 tools/agent_journey_fixture.py --mode stub --use-case <id>
    --app <copy>/Contents/MacOS/openpipestress-desktop --process-probe <probe>
-   --boundary-probe <probe> --output <fresh directory>`; `--min-free-gib`
-   lowers the free-memory gate when no model runs. The result is
-   `<output>/result.json`; the last line printed summarises it.
-5. Confirm with `ps` that nothing runs from the copy or the run's HOME, then
+   --boundary-probe <probe> --output <fresh directory>`, bounded with
+   `--deadline` and `--release-grace` to the time agreed for the screen;
+   `--min-free-gib` lowers the free-memory gate when no model runs. The result
+   is `<output>/result.json`; the last line printed summarises it.
+6. Confirm with `ps` that nothing runs from the copy or the run's HOME, then
    remove the copy and the output's private `home`.
+A run that fails by a timeout while the host is heavily loaded is reported as
+a possible load effect, not chased as a defect, until it has also failed on a
+quiet host.
 """
 from __future__ import annotations
 
