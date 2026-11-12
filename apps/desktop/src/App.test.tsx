@@ -9252,18 +9252,23 @@ describe("SWBPIPE desktop preview", () => {
       "Blank Local Model",
     );
 
+    // DEL-07-07 REQ-008: "The Solve command is withheld, naming the findings" while a
+    // solve-blocking finding stands. A blank model's checks return three, so no solve starts.
+    const previewServiceForSolve = await import("./services/previewService");
+    const solveStart = vi.spyOn(previewServiceForSolve, "startPreviewMechanicsJob");
+    const { readSolveTimeline } = await import("./services/solveTimeline");
+    const timelineBefore = readSolveTimeline()?.sequence ?? null;
     fireEvent.click(await runMechanicsButton());
-    await waitFor(
-      () => {
-        expect(solveJobSummary().textContent).toContain(
-          "state=failed",
-        );
-        expect(solveJobSummary().textContent).toContain(
-          "result_rows=0",
-        );
-      },
-      { timeout: 10000 },
-    );
+    const withheld = await screen.findByRole("region", { name: "Solve is withheld" });
+    expect(within(withheld).getByTestId("solve-withheld-summary")).toHaveTextContent("3 solve-blocking findings stand for this model.");
+    for (const code of ["NODE_INPUT_MISSING", "PIPE_INPUT_MISSING", "LOAD_INPUT_MISSING"]) {
+      expect(within(withheld).getByRole("button", { name: new RegExp(`^${code} blocking`) })).toBeInTheDocument();
+    }
+    expect(solveJobSummary().textContent).toContain("state=not_started");
+    expect(solveJobSummary().textContent).toContain("result_rows=0");
+    expect(solveStart).not.toHaveBeenCalled();
+    expect(readSolveTimeline()?.sequence ?? null).toBe(timelineBefore);
+    expect(screen.queryByTestId("solve-progress-job")).not.toBeInTheDocument();
     fireEvent.click(screen.getByTestId("menu-file"));
     expect(
       screen.getByTestId("menu-item-file.save-report-package"),
