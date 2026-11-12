@@ -116,7 +116,7 @@ pub(crate) struct ExactPressurePipeState {
     /// T4-U2: a realized curved bend's pressure data (H-2); `None` on a
     /// straight member.
     pub arc: Option<ArcPressure>,
-    /// RT-L2 (DEL-04-07 `pressure-elongation.md` §4): whether this case includes
+    /// RT-L2 (DEL-04-07): whether this case includes
     /// pressure elongation (`PreviewModel::pressure_elongation_included`). Included:
     /// κ = 2ν on a straight member and the arc's K_b·u_free(ε_p) push and
     /// u_free(ε_th + ε_p) recovery. Not included: κ = 1 (the cap pair alone), no arc
@@ -777,7 +777,7 @@ fn assemble_pressure_case(
         evidence: Vec::new(),
         joint_pressures: BTreeMap::new(),
     };
-    // RT-L2 (`pressure-elongation.md` §4): one boolean per case.
+    // RT-L2: one boolean per case.
     let elongation_included = model.pressure_elongation_included(&case.id);
     let mut factor_groups = BTreeMap::new();
     let mut cap_terms = vec![Vec::new(); output.cap_loads.len()];
@@ -1640,7 +1640,7 @@ fn finish_source_groups(
         output.assembly_evidence["cancellation_screen_exception"] = json!({"basis":CANCELLATION_EXCEPTION_BASIS,
             "residual_to_source_ratio":ratio,"residual_to_source_ratio_limit":CANCELLATION_RESIDUAL_RATIO_LIMIT});
     }
-    // RT-L2 (`pressure-elongation.md` §5): a case with pressure regions states
+    // RT-L2: a case with pressure regions states
     // whether it includes pressure elongation; a pressure-free case is unchanged.
     if case.pressure_regions.as_ref().is_some_and(|regions| !regions.is_empty()) {
         output.assembly_evidence["pressure_elongation"] =
@@ -2175,7 +2175,7 @@ fn collinear_run(
 #[path = "joint_pressure_tests.rs"]
 mod joint_pressure_tests;
 
-/// RT-L2 test support (DEL-04-07 `pressure-elongation.md` §7 item 1): a pre-switch
+/// RT-L2 test support (DEL-04-07): a pre-switch
 /// test model's meaning on the current engine, every pressurised case including
 /// pressure elongation. A no-op without a pressure contract, without a pressurised
 /// case, or when the model already states the setting.

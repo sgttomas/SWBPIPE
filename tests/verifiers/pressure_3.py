@@ -92,7 +92,7 @@ V2_RETIRED_TEXT = (f"{SOURCE_EXACT_PRESSURE_V2_RETIRED}: 2.0.0/exact_straight_pr
 RETIRED_PRESSURE_1_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
 SOURCE_PRESSURE_1_RETIRED = "SOURCE_PRESSURE_1_RETIRED"
 PRESSURE_1_RETIRED_TEXT = f"{SOURCE_PRESSURE_1_RETIRED}: pressure-1 results are no longer read; re-run the analysis"
-# RT-L2 (DEL-04-07 Design pressure-elongation.md §5): the retired pressure-2 identity, refused by name.
+# RT-L2 (DEL-04-07): the retired pressure-2 identity, refused by name.
 RETIRED_PRESSURE_2_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
 SOURCE_PRESSURE_2_RETIRED = "SOURCE_PRESSURE_2_RETIRED"
 PRESSURE_2_RETIRED_TEXT = f"{SOURCE_PRESSURE_2_RETIRED}: pressure-2 results predate the pressure elongation setting and are no longer read; re-solve the model"
@@ -372,7 +372,7 @@ def _shape(value: Any, keys: set[str], detail: str) -> None:
     _require(isinstance(value, Mapping) and set(value) == keys, detail)
 
 
-# RT-L2 (DEL-04-07 Design pressure-elongation.md §5; Rust `physics_evidence::elongation_included`,
+# RT-L2 (DEL-04-07; Rust `physics_evidence::elongation_included`,
 # `case_elongation`): every pressure region of a case states whether the case includes pressure
 # elongation. Included: the straight Poisson coefficient is sign*2nu and a realized arc carries its signed
 # nonzero free strain; not included: sign*1 and exactly zero. The refusal names are Rust's.

@@ -5857,7 +5857,7 @@ fn resolve_delete_load_case(
         );
         return None;
     }
-    // DEL-04-07 `pressure-elongation.md` §3.1: a case the pressure-elongation setting names
+    // DEL-04-07: a case the pressure-elongation setting names
     // stays until the user removes it from the setting.
     if load_case_named_by_pressure_elongation(model, target_ref) {
         let setting = open_pipe_stress_product_physics::model_settings::PRESSURE_ELONGATION_CASES_PATH;

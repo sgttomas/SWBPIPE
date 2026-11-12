@@ -246,8 +246,7 @@ fn the_vectors_state_the_table_statements_and_the_section_texts() {
             let statement = entry["statement"].as_str().unwrap();
             let text = text.as_str().unwrap();
             assert_eq!(Some(statement), exact_statement_for(&producer_sha256(text)));
-            // The report's WinAnsi form: '-' for U+2212 and 'nu' for ν (DEL-04-07 `pressure-elongation.md`,
-            // "Formulation limitations"); the producer text and its hash are unchanged.
+            // The report's WinAnsi form: '-' for U+2212 and 'nu' for ν (DEL-04-07); the producer text and its hash are unchanged.
             let text = text.replace('\u{2212}', "-").replace('\u{3bd}', "nu");
             assert!(statement == text || format!("{statement} {OMITTED_SENTENCE}") == text, "{name} {index}");
         }

@@ -298,7 +298,7 @@ fn request(reference: &Value, route: Route, a: Authoring) -> Value {
         }
     }
     model["load_cases"] = json!([case]);
-    // The references are today's mechanics: a pressurised case includes pressure elongation (RT-L2 §7).
+    // The references are today's mechanics: a pressurised case includes pressure elongation (RT-L2).
     pressure_elongation::with_elongation_if_pressurised(&json!({"model": model, "materials": []}))
 }
 

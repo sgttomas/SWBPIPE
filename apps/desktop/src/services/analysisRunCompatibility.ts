@@ -49,8 +49,7 @@ const RECORD_TABLES: Readonly<Record<string, RecordTable>> = Object.freeze({
 } as Record<string, RecordTable>);
 /** Recorded-run table bases: each is read by the record validator only as the recorded basis
  * of exactly its current table. The pressure-2 bases that model documents 0.8.0 and 0.9.0,
- * RT-A3 and RT-A4 added are not carried into pressure-3 (RT-L2, DEL-04-07 Design
- * `pressure-elongation.md` §5): a pressure-2 record follows the retired-identity rule and is
+ * RT-A3 and RT-A4 added are not carried into pressure-3 (RT-L2, DEL-04-07): a pressure-2 record follows the retired-identity rule and is
  * refused by name (SOURCE_PRESSURE_2_RETIRED). None is current. Python's twin is
  * `compatibility.py` `RECORDED_RUN_TABLE_BASES`. */
 const RECORDED_RUN_TABLE_BASES: ReadonlyArray<Readonly<{ id: string; recorded: string; current: string }>> = Object.freeze([]);

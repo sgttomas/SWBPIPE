@@ -22,7 +22,7 @@ Modes:
 `--pressure-elongation {absent,all,none}` (default: $SWBPIPE_PRESSURE_ELONGATION,
 else absent) sets `model_settings.pressure_elongation` in the written
 documents through the shared `tools/validation/pressure_elongation.py`
-(DEL-04-07 `Work/pressure-elongation.md` §7); the oracle is today's mechanics,
+(DEL-04-07); the oracle is today's mechanics,
 pressure elongation included, whatever the switch.
 """
 import argparse

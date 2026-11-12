@@ -74,8 +74,8 @@ pub(super) fn member(
 }
 /// The straight pressure model's wall increment is kappa*pAi and its
 /// effective increment (kappa-1)*pAi: kappa = 2nu when the case includes
-/// pressure elongation, kappa = 1 when it does not (RT-L2, DEL-04-07
-/// `pressure-elongation.md` §4.3), where S = N_m is the recovery itself.
+/// pressure elongation, kappa = 1 when it does not (RT-L2, DEL-04-07), where
+/// S = N_m is the recovery itself.
 /// Coefficients are formed at p, with Ai on the pressure bore (D-5).
 pub(super) fn pressure_adjustment(
     recovery: &CertifiedMemberRecovery,

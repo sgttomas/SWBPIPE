@@ -57,7 +57,7 @@ pub(crate) const REGION_KEYS: &[&str] = &[
     "pressure_elongation",
 ];
 
-/// RT-L2 (DEL-04-07 Design `pressure-elongation.md` §5): every pressure region of a case
+/// RT-L2 (DEL-04-07): every pressure region of a case
 /// states whether the case includes pressure elongation (the closed-end free pressure
 /// strain). Included: the straight Poisson group's coefficient is sign·2ν and a realized
 /// arc carries its signed nonzero free strain; not included: sign·1 and exactly zero.

@@ -348,7 +348,7 @@ impl ExactSectionBases {
     /// the split of the former single-annulus recovery). The membrane stress
     /// of each basis is [`Self::membrane`].
     ///
-    /// RT-L2 (DEL-04-07 `pressure-elongation.md` §4.3): κ = 2ν when the case
+    /// RT-L2 (DEL-04-07): κ = 2ν when the case
     /// includes pressure elongation (today's arithmetic and operation order,
     /// with the two-difference split of 2ν − 1); κ = 1 when it does not, where
     /// N_w = N_m + pAi and S = N_m exactly, the arc's form.

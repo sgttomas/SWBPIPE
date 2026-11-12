@@ -748,8 +748,8 @@ impl Validator {
 
     // ---- §3.8 model settings ------------------------------------------------
 
-    /// `model_settings.pressure_elongation` (model document 0.9.0; DEL-04-07
-    /// `pressure-elongation.md` §3.1): a closed record whose one required member
+    /// `model_settings.pressure_elongation` (model document 0.9.0; DEL-04-07): a
+    /// closed record whose one required member
     /// `operating_load_cases` is an array of strings. A malformed shape takes the
     /// closed-record path (`MODEL-SLOT-SHAPE`); the content takes product_physics'
     /// named refusals, which the solve and the applier also give.

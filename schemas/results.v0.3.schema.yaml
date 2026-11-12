@@ -2955,7 +2955,7 @@
                   "included",
                   "not_included"
                 ],
-                "description": "RT-L2 (DEL-04-07 Design pressure-elongation.md §5): whether this case includes pressure elongation, the closed-end free pressure strain (1 - 2nu)pAi/(E As). Included: the straight Poisson group's coefficient is sign*2nu and a realized arc carries its signed nonzero free strain; not_included: sign*1 and exactly zero. Every pressure region of a case states the same value."
+                "description": "RT-L2 (DEL-04-07): whether this case includes pressure elongation, the closed-end free pressure strain (1 - 2nu)pAi/(E As). Included: the straight Poisson group's coefficient is sign*2nu and a realized arc carries its signed nonzero free strain; not_included: sign*1 and exactly zero. Every pressure region of a case states the same value."
               }
             }
           }

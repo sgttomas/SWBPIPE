@@ -29,7 +29,7 @@ SOURCE_PRECISION_1_RETIRED = "SOURCE_PRECISION_1_RETIRED"
 # Rust's `current_header` refuses it.
 RETIRED_PRESSURE_1_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
 SOURCE_PRESSURE_1_RETIRED = "SOURCE_PRESSURE_1_RETIRED"
-# RT-L2 (DEL-04-07 Design pressure-elongation.md §5): pressure-2 is retired for pressure-3 (per-case pressure
+# RT-L2 (DEL-04-07): pressure-2 is retired for pressure-3 (per-case pressure
 # elongation); a stored pressure-2 result is refused by name (re-run), as Rust's `current_header` refuses it.
 RETIRED_PRESSURE_2_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
 SOURCE_PRESSURE_2_RETIRED = "SOURCE_PRESSURE_2_RETIRED"

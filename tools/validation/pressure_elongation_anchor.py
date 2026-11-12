@@ -1,4 +1,4 @@
-"""Regression anchor for the pressure-elongation switch (DEL-04-07 `Work/pressure-elongation.md` §7 item 1).
+"""Regression anchor for the pressure-elongation switch (DEL-04-07).
 
 "Included" must be today's mechanics exactly. For every entry of
 `pressure_elongation_inventory.json` this re-produces each pressure document with the
@@ -98,15 +98,16 @@ WIRE_MODES = {wire: short for short, wire in MODES.items()}
 
 # ----------------------------------------------------------------------------- exclusions
 # The only bytes allowed to differ between a switched ("all") solve and today's envelope.
-# Design §3.1 and §5 name exactly these; extend only with a reason recorded here.
+# The setting, the per-case label, the identity and the added statements are exactly these;
+# extend only with a reason recorded here.
 EXCLUDED_KEYS = frozenset({
-    "pressure_elongation",  # §3.1 the setting member (echoed models); §5 the per-case label
+    "pressure_elongation",  # the setting member (echoed models); the per-case label
 })
 IDENTITY_SUBSTITUTIONS = (
-    ("pressure-3", "pressure-2"),  # §5 the semantic identity pressure-2 -> pressure-3, in any string
+    ("pressure-3", "pressure-2"),  # the semantic identity pressure-2 -> pressure-3, in any string
 )
 LIMITATIONS_KEY = "limitations"
-ADDED_LIMITATION_STATEMENTS = frozenset({  # §5 the three fixed statements, dropped from any `limitations` list
+ADDED_LIMITATION_STATEMENTS = frozenset({  # the three fixed statements, dropped from any `limitations` list
     "Pressure elongation is not included in any load case: the closed-end free pressure strain is omitted; "
     "pressure thrust at unbalanced locations is applied.",
     "Pressure elongation is included only in the operating load cases the model settings name, as the "
@@ -114,7 +115,7 @@ ADDED_LIMITATION_STATEMENTS = frozenset({  # §5 the three fixed statements, dro
     "section area; it is not a thin-wall mean-diameter form.",
     "Pressure elongation is set, but none of the cases it names carries pressure; it has no effect.",
 })
-# §5 the bend statement's pressure clause, revised to say the push applies only in a case that includes
+# The bend statement's pressure clause, revised to say the push applies only in a case that includes
 # pressure elongation; the solve's revised clause is mapped back to today's before comparing.
 BEND_CLAUSE_SUBSTITUTIONS = (
     ("each owns the term -c_b (c_b its own end caps along the end tangents) and, in a load case that includes "

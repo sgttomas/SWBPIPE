@@ -1,4 +1,4 @@
-// RT-L2 (DEL-04-07 Design `pressure-elongation.md` §3.3 and §5): each load case's result
+// RT-L2 (DEL-04-07): each load case's result
 // header states "Pressure elongation included" or "Pressure elongation not included" from the
 // case's pressure evidence; a combination states nothing of its own.
 import { render, screen } from "@testing-library/react";
