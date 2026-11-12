@@ -1,4 +1,5 @@
-"""Seeded generator of the invented CAEPIPE benchmark models, tranche 1 (DEL-17-05 Design §11, RT-V2).
+"""Seeded generator of the invented CAEPIPE benchmark models, tranches 1 and 2 (DEL-17-05, REQ-018 and AC-007;
+the "Benchmark method" section of docs/RELEASE_TARGET_v1.0.md).
 
 From the project root:
 
@@ -11,7 +12,7 @@ materials and loads come from the seed and the family definitions below, never f
 standard or CAEPIPE output. `--check` regenerates in memory and compares with the tracked files byte for byte
 (exit 1 on any difference).
 
-Families G1-G8 (Design §11.1): straight spans, single bends, Z and U loops, multi-plane runs, branch tees, risers,
+Tranche 1, families G1-G8: straight spans, single bends, Z and U loops, multi-plane runs, branch tees, risers,
 support mixes and anchor movements. G1-G4 take their corner or series points plus a Latin hypercube drawn from
 `random.Random(seed)`; G5-G8 enumerate their configurations (and G5 its tee series) and sample the rest by the
 hypercube. The generator uses only `random()` from it, whose sequence for an integer seed is stable across Python
@@ -21,12 +22,23 @@ libm, so the same seed gives the same bytes on every platform.
 Closed-form Euler-Bernoulli values are attached to the straight members whose response has one (G1, G8); they
 are the third, independent value of the comparison.
 
+Tranche 2, families P1-P7, is pressurised: closed straights between anchors, closed cantilevers, cantilevers with
+one non-transferring terminal, single bends, Z runs, one tee and one closed cantilever L, each on the exact pressure
+contract with its pressure regions in the sustained case beside weight and its thermal change in a case of its own.
+Its families are appended after tranche 1's, so tranche 1 consumes the same draws and its files keep their bytes.
+Every tranche 2 model file has three declared runs (`PRESSURE_RUN_SERIES`), each a series over the same files:
+`pressure-default`, `pressure-elongation-on` and `pressure-bourdon-expansion-capture`, the latter two variant runs
+whose MBF has its OPPRES line substituted (`substituted_mbf_text`). `series_document` gives the document each run
+solves and screens, with that run's closed forms and inexact inputs. Closed forms derived from the Lame
+closed-cylinder stresses, Hooke's law and statics are attached per series state where the state changes them.
+
 Nothing here runs either program, and nothing here records a result.
 """
 
 from __future__ import annotations
 
 import argparse
+import copy
 from decimal import Decimal, localcontext
 import hashlib
 import json
@@ -125,6 +137,7 @@ if str(PROJECT) not in sys.path:
     sys.path.insert(0, str(PROJECT))
 
 from core.handoff.caepipe_external.correlation import canonical_model_hash  # noqa: E402
+from core.handoff.caepipe_mbf import render_caepipe_mbf_si  # noqa: E402
 
 
 GENERATOR_VERSION = "caepipe-benchmark-generator-1"
@@ -141,6 +154,7 @@ SUSTAINED = "case:sustained"
 EXPANSION = "case:expansion"
 OPERATING = "operating"
 SIX = ["UX", "UY", "UZ", "RX", "RY", "RZ"]
+# The text every tranche 1 model carries; it is kept so that their bytes do not change.
 PROVENANCE = ("invented CAEPIPE benchmark input (DEL-17-05, RT-V2); seeded generator; not library, component, "
               "catalog, standard or code-rule data")
 
@@ -157,6 +171,128 @@ DELTA_T_RANGE = (50.0, 250.0)  # K
 SHEAR = "shear_deformation"
 BEND_K = "bend_flexibility_application"
 BEND_SHEAR = "bend_transverse_shear"
+
+# -- tranche 2: pressure ---------------------------------------------------------------------------------------------
+PRESSURE_PROVENANCE = ("invented CAEPIPE benchmark input (DEL-17-05, tranche 2); seeded generator; not library, "
+                       "component, catalog, standard or code-rule data")
+# The exact pressure contract (DEL-04-07), with the contract's default shear model.
+PRESSURE_CONTRACT = {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "timoshenko_annulus_energy_v1"}
+PRESSURE_BASIS = "internal_differential_zero_external_v1"
+TRANSFERS = "transfers_to_wall"
+COMPENSATED = "separately_supported_or_compensated"
+# Internal gauge pressure, invented: 1 to 50 bar, log-uniform, three significant digits, authored in whole pascals
+# so that the writer's bar value is exact.
+PRESSURE_RANGE_BAR = (1.0, 50.0)
+# Inputs of the pressurised cases that are not held equal, named per run state and per case (`_pressure_inexact`):
+# - pressure_thrust_convention: whether and where the target program applies the end thrust of pressure. The MBF
+#   carries no terminal closure, so no pressurised case holds it equal; carried by the pressure-closure series, whose
+#   members are one target-program input with SWBPIPE's terminal closure changed.
+# - pressure_elongation_convention: on the pressure-elongation-on run only, on each case the substituted Bourdon
+#   options can touch. The correspondence it rests on is the hypothesis below, which that run tests.
+# - bend_bourdon_opening: on the pressure-elongation-on run only, on bend models: the target program's Bourdon switch
+#   may act on bends, and SWBPIPE's elongation setting does not open bends (DEL-04-07 REQ-009 is off). Measured,
+#   within the limits stated there, by the pressure-bend-opening series. On the default run both options are off on
+#   both sides, so it is not named.
+ELONGATION = "pressure_elongation_convention"
+THRUST = "pressure_thrust_convention"
+BEND_BOURDON = "bend_bourdon_opening"
+SERIES_DEFAULT = "pressure-default"
+SERIES_ELONGATION_ON = "pressure-elongation-on"
+SERIES_BOURDON_EXPANSION = "pressure-bourdon-expansion-capture"
+# The pressure options record (OPPRES) of an MBF. Format facts only, from the vendor's public import page
+# (CAEPIPE-IMPORT-MBF in DEL-17-01's Source_Basis_Register.md; https://docs.sstcae.com/users_manual/import_mbf.htm,
+# section "Format of .MBF", fetched 2026-11-12): its fields in order are the pressure stress option; the Bourdon
+# effect, 0 off, 1 on; the pressure correction for bends, 0 off, 1 on; the peak pressure factor; and, from version
+# 13.00, whether Bourdon is included in the expansion load cases (0) or the sustained load cases (1).
+OPPRES_SOURCE = ("https://docs.sstcae.com/users_manual/import_mbf.htm, section \"Format of .MBF\" (CAEPIPE-IMPORT-MBF, "
+                 "execution/PKG-17/DEL-17-01/Source_Basis_Register.md), fetched 2026-11-12")
+OPPRES_FIELDS = ["pressure stress option", "Bourdon effect: 0 off, 1 on", "pressure correction for bends: 0 off, 1 on",
+                 "peak pressure factor", "from version 13.00: Bourdon included in the expansion load cases (0) or the "
+                 "sustained load cases (1)"]
+OPPRES_WRITER_LINE = "0,0,0,1,0"  # what the writer writes (core/handoff/caepipe_mbf/si_writer.py OPPRES_LINE)
+# The three runs of every tranche 2 model file: the OPPRES line each run's MBF carries, and what SWBPIPE solves.
+PRESSURE_RUN_SERIES = {
+    SERIES_DEFAULT: {
+        "kind": "run_state", "parameter": "pressure_options", "oppres_line": OPPRES_WRITER_LINE,
+        "mbf": "the writer's output as written",
+        "swbpipe": ("the tracked model document as it is, without model_settings.pressure_elongation, solved on a "
+                    "build whose model document has that setting (absent, it solves with pressure elongation off)"),
+        "screened": True,
+        "description": "Bourdon effect off on the target program's side; pressure elongation off on SWBPIPE's"},
+    SERIES_ELONGATION_ON: {
+        "kind": "run_state", "parameter": "pressure_options", "oppres_line": "0,1,0,1,1",
+        "variant_of": SERIES_DEFAULT, "hypothesis": ELONGATION,
+        "mbf": ("the writer's output with its one OPPRES line 0,0,0,1,0 replaced by 0,1,0,1,1 (Bourdon effect on, "
+                "pressure correction for bends off, Bourdon in the sustained load cases): not writer output, with its "
+                "own hash (substituted_mbf_text)"),
+        "swbpipe": ("series_document(document, 'pressure-elongation-on'): the tracked model with "
+                    "model_settings.pressure_elongation naming case:sustained, the case that carries pressure"),
+        "screened": True,
+        "description": ("Bourdon effect on, placed in the sustained load cases, against SWBPIPE's pressure elongation "
+                        "on in case:sustained. As far as the public page states, the fifth field at 1 places Bourdon "
+                        "in the target program's sustained and operating printed cases; pressure_elongation_convention "
+                        "is named on those cases (case:sustained and operating) and not on case:expansion")},
+    SERIES_BOURDON_EXPANSION: {
+        "kind": "run_state", "parameter": "pressure_options", "oppres_line": "0,1,0,1,0",
+        "variant_of": SERIES_DEFAULT,
+        "mbf": ("the writer's output with its one OPPRES line 0,0,0,1,0 replaced by 0,1,0,1,0 (Bourdon effect on, "
+                "pressure correction for bends off, Bourdon in the expansion load cases): not writer output, with its "
+                "own hash (substituted_mbf_text)"),
+        "swbpipe": None,
+        "screened": False,
+        "description": ("the target program's alternative placement of Bourdon, in the expansion load cases. For this "
+                        "run: no SWBPIPE state on these models equals it, because the models' expansion cases carry no "
+                        "pressure; so the run has nothing to be screened against today. It is declared here, and "
+                        "run_pilot refuses it by name (capture_path_unavailable) and collects nothing for it: the path "
+                        "that would collect its result is a separate change")},
+}
+# The correspondence the pressure-elongation-on run tests; stated so that it is never assumed.
+PRESSURE_HYPOTHESIS = {
+    "statement": ("HYPOTHESIS, which the pressure-elongation-on series tests and does not assume: the target "
+                  "program's Bourdon effect switch, with Bourdon in the sustained load cases, corresponds on straight "
+                  "pipe to SWBPIPE's pressure elongation, the closed-end free pressure strain (1 - 2 nu) p A_i/(E A_s), "
+                  "applied in case:sustained. Nothing about the target program is stated beyond the format facts of "
+                  "its OPPRES record."),
+    "format_source": OPPRES_SOURCE,
+    "oppres_fields": OPPRES_FIELDS,
+    "refuted_by": ("on the closed straights P1 and P2, the target program's change between the pressure-default and "
+                   "pressure-elongation-on runs differs, beyond the screening profile, from the closed forms' change: "
+                   "each anchor's axial reaction changing by (1 - 2 nu) p A_i (P1), or the free end's axial "
+                   "displacement changing by (1 - 2 nu) p A_i L/(E A_s) (P2); or its axial results there do not "
+                   "change at all"),
+}
+
+
+# The options headings whose single data line a declared run may substitute as a whole line (DEL-17-05 REQ-005: the
+# maintained short list of options records; a substitution changes no node, element or support). The scope's list
+# also names the dynamics options record; its heading joins this constant with the first run that substitutes it.
+# For each heading: the data line the writer writes, and the replacement lines the declared runs use.
+SUBSTITUTABLE_OPTION_HEADINGS = ("OPPRES",)
+_SUBSTITUTION_LINES = {
+    "OPPRES": (OPPRES_WRITER_LINE, frozenset(declared["oppres_line"] for declared in PRESSURE_RUN_SERIES.values())),
+}
+
+
+def substituted_mbf_text(writer_text: str, line: str, *, heading: str = "OPPRES") -> str:
+    """The MBF of a run whose `heading` record carries `line`: the writer's text with the single data line that
+    follows that heading replaced as a whole line. Refused unless the heading is in SUBSTITUTABLE_OPTION_HEADINGS,
+    `line` is one a declared run uses for it (so it carries no carriage return or line feed), and the heading
+    occurs exactly once, followed by the line the writer writes. The result is not writer output and has its own
+    hash."""
+    if heading not in SUBSTITUTABLE_OPTION_HEADINGS:
+        raise ValueError(f"{heading!r} is not an options heading whose data line a run may substitute")
+    if not isinstance(line, str) or "\r" in line or "\n" in line:
+        raise ValueError("a replacement line must not contain a carriage return or line feed")
+    written, declared = _SUBSTITUTION_LINES[heading]
+    if line not in declared:
+        raise ValueError(f"the {heading} line {line!r} is not one a declared run substitutes")
+    marker = f"\r\n{heading}\r\n"
+    base = f"{marker}{written}\r\n"
+    if writer_text.count(marker) != 1 or writer_text.count(base) != 1:
+        raise ValueError(f"the MBF must carry the {heading} heading exactly once, followed by the line {written}")
+    if line == written:
+        return writer_text
+    return writer_text.replace(base, f"{marker}{line}\r\n")
 
 
 # -- sampling ------------------------------------------------------------------------------------------------------
@@ -206,11 +342,16 @@ def _perpendicular(direction) -> dict[str, float]:
 
 
 class Builder:
-    """One invented SWBPIPE preview model (model document 0.9.0), built node by node in metres."""
+    """One invented SWBPIPE preview model (model document 0.9.0), built node by node in metres. With `pressure`, the
+    model takes the exact pressure contract: an E and Poisson ratio material basis, explicit zero corrosion
+    allowances, and the regions of `region` in the sustained case (the expansion case lists none)."""
 
-    def __init__(self, model_id: str, material: int) -> None:
+    def __init__(self, model_id: str, material: int, *, pressure: bool = False) -> None:
         self.model_id = model_id
         self.material = MATERIALS[material]
+        self.pressure = pressure
+        self.provenance = PRESSURE_PROVENANCE if pressure else PROVENANCE
+        self.regions: list[dict[str, Any]] = []
         self.nodes: list[dict[str, Any]] = []
         self.positions: dict[str, tuple[float, float, float]] = {}
         self.pipes: list[dict[str, Any]] = []
@@ -224,7 +365,7 @@ class Builder:
         node_id = f"node:{name}"
         position = tuple(float(f"{value:.12g}") + 0.0 for value in position)
         self.positions[node_id] = position
-        self.nodes.append({"id": node_id, "position": dict(zip("xyz", position)), "provenance": PROVENANCE})
+        self.nodes.append({"id": node_id, "position": dict(zip("xyz", position)), "provenance": self.provenance})
         return node_id
 
     def pipe(self, name: str, start: str, end: str, od_mm: float, wall_mm: float, *, y_reference=None) -> str:
@@ -233,10 +374,22 @@ class Builder:
         self.pipes.append({
             "id": pipe_id, "from": start, "to": end, "material": self.material[0],
             "section": {"outside_diameter": q(od_mm / 1000.0, "m"), "wall_thickness": q(wall_mm / 1000.0, "m")},
-            "y_reference": y_reference or _perpendicular(direction), "provenance": PROVENANCE,
+            "y_reference": y_reference or _perpendicular(direction), "provenance": self.provenance,
         })
+        if self.pressure:
+            self.pipes[-1]["section"]["corrosion_allowance"] = q(0.0, "m")
         self.sections[pipe_id] = (od_mm, wall_mm)
         return pipe_id
+
+    def region(self, name: str, members: list[str], pressure_pa: float, start: tuple[str, str],
+               end: tuple[str, str]) -> None:
+        """One pressure region of the sustained case: its member pipes in chain order and its two terminals, each
+        (node, closure transfer)."""
+        self.regions.append({
+            "id": f"region:{name}", "member_pipe_ids": list(members), "pressure_basis": PRESSURE_BASIS,
+            "pressure": q(pressure_pa, "Pa"), "provenance": self.provenance,
+            "terminals": [{"node_ref": node, "closure_transfer": closure, "provenance": self.provenance}
+                          for node, closure in (start, end)]})
 
     def run(self, prefix: str, points: list[str], od_mm: float, wall_mm: float) -> list[str]:
         """Straight pipes joining consecutive nodes."""
@@ -252,7 +405,7 @@ class Builder:
         d1, d2 = _unit(_sub(ti, p)), _unit(_sub(r, ti))
         angle = cr_acos(max(-1.0, min(1.0, sum(a * b for a, b in zip(d1, d2)))))
         self.components.append({
-            "id": f"component:{name}", "kind": "bend", "node": near, "provenance": PROVENANCE,
+            "id": f"component:{name}", "kind": "bend", "node": near, "provenance": self.provenance,
             "geometry": {"bend_pipe_ref": pipe_id, "bend_radius": q(radius_m, "m"), "bend_angle": q(angle, "rad"),
                          "bend_geometry_source_reference": "invented benchmark bend (seeded generator)"},
             "modifiers": {"flexibility_factor_user_value": q(k, "none"),
@@ -266,7 +419,7 @@ class Builder:
 
     def support(self, name: str, node: str, restraints: list[str], family: str | None) -> str:
         support_id = f"support:{name}"
-        entry = {"id": support_id, "node": node, "restraints": list(restraints), "provenance": PROVENANCE}
+        entry = {"id": support_id, "node": node, "restraints": list(restraints), "provenance": self.provenance}
         if family is not None:
             entry["family"] = family
         self.supports.append(entry)
@@ -276,7 +429,7 @@ class Builder:
         support_id = f"support:{name}"
         self.supports.append({"id": support_id, "node": node, "family": "spring", "restraints": [dof],
                               "stiffness": {"dof": dof, "value": q(stiffness_n_per_m, "N/m")},
-                              "provenance": PROVENANCE})
+                              "provenance": self.provenance})
         return support_id
 
     def weight_per_length(self, pipe_id: str) -> float:
@@ -290,24 +443,24 @@ class Builder:
                 "id": f"load:weight:{pipe['id']}", "category": "weight",
                 "target": {"type": "element", "pipe": pipe["id"]}, "direction": "global_y",
                 "magnitude": q(self.weight_per_length(pipe["id"]), "N/m"), "dimension": "force_per_length",
-                "provenance": PROVENANCE + "; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area"})
+                "provenance": self.provenance + "; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area"})
 
     def add_thermal(self, delta_t: float) -> None:
         for pipe in self.pipes:
             self.expansion.append({
                 "id": f"load:thermal:{pipe['id']}", "category": "thermal",
                 "target": {"type": "element", "pipe": pipe["id"]}, "direction": "global_x",
-                "magnitude": q(delta_t, "degC"), "dimension": "temperature_interval", "provenance": PROVENANCE})
+                "magnitude": q(delta_t, "degC"), "dimension": "temperature_interval", "provenance": self.provenance})
 
     def force(self, name: str, node: str, direction: str, newtons: float) -> None:
         self.sustained.append({"id": f"load:{name}", "category": "concentrated_force",
                                "target": {"type": "node", "node": node}, "direction": direction,
-                               "magnitude": q(newtons, "N"), "dimension": "force", "provenance": PROVENANCE})
+                               "magnitude": q(newtons, "N"), "dimension": "force", "provenance": self.provenance})
 
     def moment(self, name: str, node: str, direction: str, newton_metres: float) -> None:
         self.sustained.append({"id": f"load:{name}", "category": "concentrated_moment",
                                "target": {"type": "node", "node": node}, "direction": direction,
-                               "magnitude": q(newton_metres, "N*m"), "dimension": "moment", "provenance": PROVENANCE})
+                               "magnitude": q(newton_metres, "N*m"), "dimension": "moment", "provenance": self.provenance})
 
     def move(self, name: str, support: str, dof: str, value: float) -> None:
         translation = dof.startswith("U")
@@ -315,14 +468,38 @@ class Builder:
             "id": f"load:{name}", "category": "imposed_displacement",
             "target": {"type": "support", "support": support, "dof": dof}, "direction": dof,
             "magnitude": q(value, "m" if translation else "rad"),
-            "dimension": "displacement" if translation else "rotation", "provenance": PROVENANCE})
+            "dimension": "displacement" if translation else "rotation", "provenance": self.provenance})
 
     def model(self) -> dict[str, Any]:
         name, e, nu, alpha, _ = self.material
         cases = []
         for case_id, loads in ((SUSTAINED, self.sustained), (EXPANSION, self.expansion)):
             if loads:
-                cases.append({"id": case_id, "primitive_loads": loads, "provenance": PROVENANCE})
+                cases.append({"id": case_id, "primitive_loads": loads, "provenance": self.provenance})
+                if self.pressure:
+                    cases[-1]["pressure_regions"] = self.regions if case_id == SUSTAINED else []
+        if self.pressure:
+            return {
+                "schema_version": "0.9.0",
+                "document_kind": "openpipestress.product_preview.model",
+                "pressure_contract": dict(PRESSURE_CONTRACT),
+                "project": {"id": f"project:{self.model_id}", "name": f"project:{self.model_id}",
+                            "units": {"length": "m", "force": "N", "temperature": "degC", "angle": "rad",
+                                      "stress": "Pa", "pressure": "Pa"}},
+                "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
+                                    "rule_check": "not_performed_user_rule_inputs_missing",
+                                    "professional_acceptance": "not_provided"},
+                "nodes": self.nodes,
+                "pipe_segments": self.pipes,
+                "materials": [{"id": name, "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+                               "elastic_modulus": q(e, "Pa"), "poisson_ratio": q(nu, "1"),
+                               "thermal_expansion_coefficient": q(alpha, "1/degC"), "temperature_points": [],
+                               "provenance": self.provenance}],
+                "supports": self.supports,
+                "components": self.components,
+                "load_cases": cases,
+                "combinations": [],
+            }
         return {
             "schema_version": "0.9.0",
             "document_kind": "openpipestress.product_preview.model",
@@ -336,7 +513,7 @@ class Builder:
             "pipe_segments": self.pipes,
             "materials": [{"id": name, "elastic_modulus": q(e, "Pa"), "shear_modulus": q(e / (2.0 * (1.0 + nu)), "Pa"),
                            "thermal_expansion_coefficient": q(alpha, "1/degC"), "temperature_points": [],
-                           "provenance": PROVENANCE}],
+                           "provenance": self.provenance}],
             "supports": self.supports,
             "components": self.components,
             "load_cases": cases,
@@ -378,9 +555,10 @@ def corner_bend(builder: Builder, name: str, before: str, ti, after_direction, r
 
 
 # -- closed forms (Euler-Bernoulli, binary64) ------------------------------------------------------------------------
-def closed(quantity: str, component: str, case: str, value: float, unit: str, formula: str, **target: str) -> dict:
+def closed(quantity: str, component: str, case: str, value: float, unit: str, formula: str, *,
+           basis: str = "Euler-Bernoulli closed form; invented inputs", **target: str) -> dict:
     return {"quantity": quantity, "component": component, "load_case": case, **target, "value": value, "unit": unit,
-            "formula": formula, "basis": "Euler-Bernoulli closed form; invented inputs"}
+            "formula": formula, "basis": basis}
 
 
 def cantilever_closed_forms(b: Builder, anchor: str, tip: str, pipe: str, span: float, tip_force: float,
@@ -795,6 +973,370 @@ def build_g8(model_id: str, spec: Spec) -> tuple[dict, list[dict], dict]:
     return b.model(), closed_forms, {SUSTAINED: [SHEAR, *bends], EXPANSION: [SHEAR, *bends]}
 
 
+# -- tranche 2: pressurised families ---------------------------------------------------------------------------------
+# A family builder of tranche 2 returns (model, closed forms valid in every series state, inexact inputs,
+# {series: closed forms valid in that series state only}).
+#
+# Closed forms of pressure (derived here; no product code is imported for them). A straight pipe of outside radius
+# r_o and inside radius r_i, internal gauge pressure p, zero external pressure, isotropic and linear elastic (E, nu):
+#   Lame's thick-cylinder solution gives sigma_r = a - b/r^2 and sigma_t = a + b/r^2 with sigma_r(r_i) = -p and
+#   sigma_r(r_o) = 0, so a = p r_i^2/(r_o^2 - r_i^2) and sigma_r + sigma_t = 2a = 2 p A_i/A_s at every radius, where
+#   A_i = pi r_i^2 is the bore area and A_s = pi (r_o^2 - r_i^2) the wall area.
+#   With both ends closed and the end load carried by the wall (both terminals transfer to the wall), axial
+#   equilibrium of a cut through the closed pipe gives sigma_z A_s = p A_i, so sigma_z = p A_i/A_s.
+#   Hooke's law: eps_z = (sigma_z - nu (sigma_r + sigma_t))/E = (1 - 2 nu) p A_i/(E A_s), the closed-end free
+#   pressure strain, uniform along the run.
+# Pressure elongation ON (the strain is applied): a run between two anchors is held at its length, so each anchor
+# carries E A_s eps_z = (1 - 2 nu) p A_i; a cantilever's free end moves by eps_z L and its anchor carries nothing.
+# Pressure elongation OFF (the strain is not applied): a closed region with both terminals transferring is
+# self-equilibrated (its end loads cancel through the wall) and nothing else acts axially, so reactions and axial
+# displacement are zero.
+# Unbalanced thrust (one terminal separately supported or compensated, the other transferring): the transferring
+# terminal's end load p A_i acts on the pipe at that terminal, along the member away from the region; on a
+# cantilever it is statically determinate, so the anchor carries -p A_i along that direction whatever the axial
+# strain law, in both series states.
+# Sign convention, as for tranche 1's closed forms: a reaction is the support's action on the pipe in global axes;
+# a displacement is the node's, in global axes. Every straight here runs along +X from the anchor at the origin.
+PRESSURE_BASIS_TEXT = "Lame closed cylinder, axial equilibrium and Hooke's law; invented inputs"
+STATICS_BASIS_TEXT = "Statics of a cantilever under an end load; invented inputs"
+
+
+def pressure_pa(bar: float) -> float:
+    """A bar value of three significant digits in whole pascals (exact in binary64 and in the writer's bar)."""
+    return float(round(bar * 1.0e5))
+
+
+def pressure_areas(od_mm: float, wall_mm: float) -> tuple[float, float]:
+    """(A_i bore area m2, A_s wall area m2)."""
+    ro, ri = od_mm / 2000.0, (od_mm - 2.0 * wall_mm) / 2000.0
+    return math.pi * cr_pow(ri, 2), math.pi * (cr_pow(ro, 2) - cr_pow(ri, 2))
+
+
+def _pressure_inexact(*, bends: bool, expansion: list[str] | None = None) -> dict[str, dict[str, list[str]]]:
+    """{run: {case: inputs not held equal}} of a pressurised model, for the two screened runs (see ELONGATION).
+    The expansion case carries no pressure on SWBPIPE's side and, with Bourdon placed in the sustained cases, none
+    of the substituted options as far as the public page states, so it keeps tranche 1's naming."""
+    shape = [BEND_K, BEND_SHEAR] if bends else []
+    expansion = list(expansion if expansion is not None else ([SHEAR, *shape] if bends else []))
+    default_sustained = [SHEAR, *shape, THRUST]
+    on_sustained = [*default_sustained, ELONGATION, *([BEND_BOURDON] if bends else [])]
+    out = {}
+    for run, sustained in ((SERIES_DEFAULT, default_sustained), (SERIES_ELONGATION_ON, on_sustained)):
+        out[run] = {SUSTAINED: sustained, EXPANSION: expansion,
+                    OPERATING: sorted(set(sustained) | set(expansion))}
+    return out
+
+
+def _no_state_forms() -> dict[str, list[dict]]:
+    return {SERIES_DEFAULT: [], SERIES_ELONGATION_ON: []}
+
+
+def _straight_spec(point: list[float], config: str, sampling: str) -> Spec:
+    """A straight run's parameters from six unit samples: span, OD, D/t, material, pressure, delta T."""
+    od, dt, _ = section(point[1], point[2])
+    return {"config": config, "sampling": sampling, "span": scale(point[0], 1.0, 12.0, digits=3), "od": od, "dt": dt,
+            "material": min(2, int(point[3] * 3)),
+            "pressure_bar": scale(point[4], *PRESSURE_RANGE_BAR, log=True, digits=3),
+            "delta_t": scale(point[5], *DELTA_T_RANGE)}
+
+
+def p1_closed_straights(rng: random.Random) -> list[Spec]:
+    specs = []
+    # Two opposite corners of (span, OD, D/t, pressure, delta T), then four Latin hypercube points.
+    for low, material in ((True, 1), (False, 2)):
+        pick = _corner(low)
+        specs.append({"config": "anchored", "sampling": "corner", "span": pick((1.0, 12.0)), "od": pick(OD_RANGE),
+                      "dt": pick(DT_RANGE), "material": material, "pressure_bar": pick(PRESSURE_RANGE_BAR),
+                      "delta_t": pick(DELTA_T_RANGE)})
+    specs += [_straight_spec(point, "anchored", "lhs") for point in latin_hypercube(rng, 4, 6)]
+    return specs
+
+
+def build_p1(model_id: str, spec: Spec) -> tuple[dict, list[dict], dict, dict]:
+    """One member between two anchors, closed at both (both terminals transfer to the wall)."""
+    b = Builder(model_id, spec["material"], pressure=True)
+    od, wall = spec["od"], float(f"{spec['od'] / spec['dt']:.4g}")
+    span, p = spec["span"], pressure_pa(spec["pressure_bar"])
+    a, end = b.node("A", (0, 0, 0)), b.node("B", (span, 0, 0))
+    pipe = b.pipe("P1", a, end, od, wall)
+    anchor_a, anchor_b = b.anchor("A", a), b.anchor("B", end)
+    b.region("R1", [pipe], p, (a, TRANSFERS), (end, TRANSFERS))
+    b.add_weight()
+    b.add_thermal(spec["delta_t"])
+    _, e, nu, alpha, _ = b.material
+    bore, wall_area = pressure_areas(od, wall)
+    thrust = (1.0 - 2.0 * nu) * p * bore
+    every = [closed("reaction_force", "x", EXPANSION, e * wall_area * alpha * spec["delta_t"], "N",
+                    "E A_s alpha dT (support on pipe at the start)", support=anchor_a)]
+    by_state = {
+        SERIES_DEFAULT: [
+            closed("reaction_force", "x", SUSTAINED, 0.0, "N", "0 (closed region, elongation off)",
+                   basis=PRESSURE_BASIS_TEXT, support=anchor_a),
+            closed("reaction_force", "x", SUSTAINED, 0.0, "N", "0 (closed region, elongation off)",
+                   basis=PRESSURE_BASIS_TEXT, support=anchor_b)],
+        SERIES_ELONGATION_ON: [
+            closed("reaction_force", "x", SUSTAINED, thrust, "N", "(1 - 2 nu) p A_i (support on pipe at the start)",
+                   basis=PRESSURE_BASIS_TEXT, support=anchor_a),
+            closed("reaction_force", "x", SUSTAINED, -thrust, "N", "-(1 - 2 nu) p A_i (support on pipe at the end)",
+                   basis=PRESSURE_BASIS_TEXT, support=anchor_b)],
+    }
+    return b.model(), every, _pressure_inexact(bends=False), by_state
+
+
+def p2_p3_cantilevers(rng: random.Random) -> list[Spec]:
+    """Four geometries, each built closed (P2) and with one terminal separately supported or compensated (P3). The
+    first two pairs are pressure-closure series: one target-program input, SWBPIPE's anchor terminal changed."""
+    points = latin_hypercube(rng, 4, 6)
+    closed_specs, open_specs = [], []
+    for index, point in enumerate(points):
+        base = _straight_spec(point, "closed", "lhs")
+        series = [f"pressure-closure-{index + 1:02d}"] if index < 2 else []
+        closed_specs.append({**base, "family": "P2", "series": series, "anchor_closure": TRANSFERS})
+        open_config = "open_at_anchor" if index < 2 else "open_at_free_end"
+        open_specs.append({**base, "family": "P3", "config": open_config, "series": series,
+                           "anchor_closure": TRANSFERS if open_config == "open_at_free_end" else COMPENSATED})
+    return closed_specs + open_specs
+
+
+def build_p2_p3(model_id: str, spec: Spec) -> tuple[dict, list[dict], dict, dict]:
+    """A cantilever along +X: anchor at A, one member, the free end B capped or open."""
+    b = Builder(model_id, spec["material"], pressure=True)
+    od, wall = spec["od"], float(f"{spec['od'] / spec['dt']:.4g}")
+    span, p = spec["span"], pressure_pa(spec["pressure_bar"])
+    a, tip = b.node("A", (0, 0, 0)), b.node("B", (span, 0, 0))
+    pipe = b.pipe("P1", a, tip, od, wall)
+    anchor = b.anchor("A", a)
+    free_closure = COMPENSATED if spec["config"] == "open_at_free_end" else TRANSFERS
+    b.region("R1", [pipe], p, (a, spec["anchor_closure"]), (tip, free_closure))
+    b.add_weight()
+    b.add_thermal(spec["delta_t"])
+    _, e, nu, alpha, _ = b.material
+    bore, wall_area = pressure_areas(od, wall)
+    every = [closed("displacement", "x", EXPANSION, alpha * spec["delta_t"] * span, "m", "alpha dT L", node=tip),
+             closed("reaction_force", "x", EXPANSION, 0.0, "N", "0 (free thermal growth)", support=anchor)]
+    by_state: dict[str, list[dict]] = _no_state_forms()
+    if spec["config"] == "closed":
+        every.append(closed("reaction_force", "x", SUSTAINED, 0.0, "N",
+                            "0 (closed region on a cantilever: self-equilibrated, free axial strain)",
+                            basis=PRESSURE_BASIS_TEXT, support=anchor))
+        by_state[SERIES_DEFAULT].append(closed("displacement", "x", SUSTAINED, 0.0, "m",
+                                               "0 (closed region, elongation off)", basis=PRESSURE_BASIS_TEXT,
+                                               node=tip))
+        by_state[SERIES_ELONGATION_ON].append(closed(
+            "displacement", "x", SUSTAINED, (1.0 - 2.0 * nu) * p * bore * span / (e * wall_area), "m",
+            "(1 - 2 nu) p A_i L/(E A_s)", basis=PRESSURE_BASIS_TEXT, node=tip))
+    elif spec["config"] == "open_at_anchor":
+        # The free end's cap transfers p A_i to the wall along +X; the anchor holds it.
+        every.append(closed("reaction_force", "x", SUSTAINED, -p * bore, "N",
+                            "-p A_i (the capped free end's thrust along +X, held by the anchor)",
+                            basis=STATICS_BASIS_TEXT, support=anchor))
+    else:
+        # The anchor end's cap transfers p A_i to the wall along -X at the anchor; the anchor holds it.
+        every.append(closed("reaction_force", "x", SUSTAINED, p * bore, "N",
+                            "p A_i (the capped anchor end's thrust along -X, held by the anchor)",
+                            basis=STATICS_BASIS_TEXT, support=anchor))
+    return b.model(), every, _pressure_inexact(bends=False), by_state
+
+
+def p4_bends(rng: random.Random) -> list[Spec]:
+    specs = []
+    grid = ((1.5, 90.0), (3.0, 45.0))
+    for (rd, angle), point in zip(grid, latin_hypercube(rng, len(grid), 8)):
+        od, dt, _ = section(point[0], point[1])
+        common = {"rd": rd, "angle": angle, "od": od, "dt": dt, "clear_1": scale(point[2], 1.0, 5.0, digits=3),
+                  "clear_2": scale(point[3], 1.0, 5.0, digits=3), "material": min(2, int(point[4] * 3)),
+                  "pressure_bar": scale(point[5], *PRESSURE_RANGE_BAR, log=True, digits=3),
+                  "delta_t": scale(point[6], *DELTA_T_RANGE)}
+        k_high = float(f"{3.0 + 12.0 * point[7]:.3g}")
+        for k in (1.0, k_high):
+            specs.append({**common, "k": k, "sampling": "corner", "series": [f"pressure-k-rd{rd:g}-a{angle:g}"]})
+    return specs
+
+
+def build_p4(model_id: str, spec: Spec) -> tuple[dict, list[dict], dict, dict]:
+    """An anchored L in the X-Z plane: straight, realized bend, straight, one closed region over all three."""
+    b = Builder(model_id, spec["material"], pressure=True)
+    od, wall = spec["od"], float(f"{spec['od'] / spec['dt']:.4g}")
+    radius = spec["rd"] * od / 1000.0
+    theta = math.radians(spec["angle"])
+    tangent = radius * cr_tan(theta / 2.0)
+    a = b.node("A", (0, 0, 0))
+    ti = (spec["clear_1"] + tangent, 0.0, 0.0)
+    near, far, bend, end = corner_bend(b, "BEND1", a, ti, (cr_cos(theta), 0.0, cr_sin(theta)), radius,
+                                       spec["clear_2"], spec["k"], od, wall)
+    tip = b.node("B", end)
+    first = b.pipe("P1", a, near, od, wall)
+    last = b.pipe("P2", far, tip, od, wall)
+    b.anchor("A", a)
+    b.anchor("B", tip)
+    b.region("R1", [first, bend, last], pressure_pa(spec["pressure_bar"]), (a, TRANSFERS), (tip, TRANSFERS))
+    b.add_weight()
+    b.add_thermal(spec["delta_t"])
+    return b.model(), [], _pressure_inexact(bends=True), _no_state_forms()
+
+
+def p5_z(rng: random.Random) -> list[Spec]:
+    specs = []
+    for point in latin_hypercube(rng, 1, 10):
+        od, dt, _ = section(point[0], point[1])
+        common = {"config": "z", "sampling": "lhs", "od": od, "dt": dt, "rd": scale(point[2], 1.0, 5.0, digits=3),
+                  "clear_1": scale(point[3], 1.0, 4.0, digits=3), "height": scale(point[4], 1.0, 4.0, digits=3),
+                  "width": scale(point[5], 1.0, 4.0, digits=3), "material": min(2, int(point[6] * 3)),
+                  "pressure_bar": scale(point[7], *PRESSURE_RANGE_BAR, log=True, digits=3),
+                  "delta_t": scale(point[8], *DELTA_T_RANGE)}
+        k_high = float(f"{3.0 + 12.0 * point[9]:.3g}")
+        for k in (1.0, k_high):
+            specs.append({**common, "k": k, "series": ["pressure-k-z"]})
+    return specs
+
+
+def build_p5(model_id: str, spec: Spec) -> tuple[dict, list[dict], dict, dict]:
+    """An anchored Z in the X-Z plane, one closed region over every member."""
+    b = Builder(model_id, spec["material"], pressure=True)
+    od, wall = spec["od"], float(f"{spec['od'] / spec['dt']:.4g}")
+    radius = spec["rd"] * od / 1000.0
+    x, z = (1.0, 0.0, 0.0), (0.0, 0.0, 1.0)
+    first, last = _polyline(b, (0.0, 0.0, 0.0), [x, z, x], [spec["clear_1"], spec["height"], spec["width"]], radius,
+                            spec["k"], od, wall, None, 0.0)
+    b.anchor("A", first)
+    b.anchor("B", last)
+    # The members in chain order: _polyline adds each straight after the bend that ends it.
+    by_start = {pipe["from"]: pipe["id"] for pipe in b.pipes}
+    chain, node = [], first
+    while node != last:
+        pipe_id = by_start[node]
+        chain.append(pipe_id)
+        node = next(pipe["to"] for pipe in b.pipes if pipe["id"] == pipe_id)
+    b.region("R1", chain, pressure_pa(spec["pressure_bar"]), (first, TRANSFERS), (last, TRANSFERS))
+    b.add_weight()
+    b.add_thermal(spec["delta_t"])
+    return b.model(), [], _pressure_inexact(bends=True), _no_state_forms()
+
+
+def p6_tee(rng: random.Random) -> list[Spec]:
+    point = latin_hypercube(rng, 1, 8)[0]
+    od, dt, _ = section(point[0], point[1])
+    return [{"config": "anchored_legs", "sampling": "lhs", "ratio": scale(point[2], 0.3, 1.0, digits=3), "od": od,
+             "dt": dt, "run": scale(point[3], 2.0, 10.0, digits=3), "branch": scale(point[4], 1.0, 4.0, digits=3),
+             "material": min(2, int(point[5] * 3)),
+             "pressure_bar": scale(point[6], *PRESSURE_RANGE_BAR, log=True, digits=3),
+             "delta_t": scale(point[7], *DELTA_T_RANGE)}]
+
+
+def build_p6(model_id: str, spec: Spec) -> tuple[dict, list[dict], dict, dict]:
+    """A tee with three anchored legs, one member and one closed region per leg, meeting at a pressure junction."""
+    b = Builder(model_id, spec["material"], pressure=True)
+    od, wall = spec["od"], float(f"{spec['od'] / spec['dt']:.4g}")
+    branch_od = float(f"{od * spec['ratio']:.4g}")
+    branch_wall = float(f"{branch_od / spec['dt']:.4g}")
+    run, branch = spec["run"], spec["branch"]
+    a, tee, c = b.node("A", (0, 0, 0)), b.node("T", (run / 2, 0, 0)), b.node("C", (run, 0, 0))
+    end = b.node("E", (run / 2, 0.0, branch))
+    west, east = b.run("R", [a, tee, c], od, wall)
+    leg = b.pipe("BR1", tee, end, branch_od, branch_wall)
+    for name, node in (("A", a), ("C", c), ("E", end)):
+        b.anchor(name, node)
+    p = pressure_pa(spec["pressure_bar"])
+    b.region("WEST", [west], p, (a, TRANSFERS), (tee, TRANSFERS))
+    b.region("EAST", [east], p, (tee, TRANSFERS), (c, TRANSFERS))
+    b.region("BRANCH", [leg], p, (tee, TRANSFERS), (end, TRANSFERS))
+    b.add_weight()
+    b.add_thermal(spec["delta_t"])
+    return b.model(), [], _pressure_inexact(bends=False, expansion=[SHEAR]), _no_state_forms()
+
+
+def p7_bend_opening(rng: random.Random) -> list[Spec]:
+    point = latin_hypercube(rng, 1, 7)[0]
+    od, dt, _ = section(point[0], point[1])
+    return [{"config": "closed_cantilever_l", "sampling": "lhs", "rd": 1.5, "angle": 90.0, "k": 1.0, "od": od,
+             "dt": dt, "clear_1": scale(point[2], 1.0, 4.0, digits=3), "clear_2": scale(point[3], 1.0, 4.0, digits=3),
+             "material": min(2, int(point[4] * 3)),
+             "pressure_bar": scale(point[5], *PRESSURE_RANGE_BAR, log=True, digits=3),
+             "delta_t": scale(point[6], *DELTA_T_RANGE), "series": ["pressure-bend-opening"]}]
+
+
+def build_p7(model_id: str, spec: Spec) -> tuple[dict, list[dict], dict, dict]:
+    """A closed cantilever L in the X-Z plane: anchor A, a straight along +X, a realized 90-degree bend with k = 1, a
+    straight along +Z to the capped free end B; one region, both terminals transferring.
+
+    What it measures (the pressure-bend-opening series, declared before any run): any additional in-plane angular
+    response of the free end associated with the target program's Bourdon switch, with its bend pressure correction
+    field held off. The cantilever is statically determinate, so a free axial strain makes no internal force.
+    Elongation of a straight leg translates what lies beyond it without turning it, and a uniform axial strain of the
+    arc scales it without changing the angle between its ends; so, under this linear model, uniform free axial strain
+    is excluded as an explanation of a change of the free end's rotation. Weight and the end and kink thrusts are the
+    same in both runs, so SWBPIPE's change of that rotation between the pressure-default and pressure-elongation-on
+    runs is 0 (tests/test_caepipe_benchmark.py checks it on a build with the setting). That the target program's
+    change, if any, is the bend opening of its switch is a hypothesis: the series cannot by itself identify that
+    program's internal formula, establish a general law of bend opening, or exclude every undocumented effect of the
+    switch.
+
+    Its expansion case is a uniform temperature change of a homogeneous cantilever anchored at one end, with no
+    pressure and no mechanical load: free growth with no elastic force, shear or moment, so no shear or bend input
+    can change it, and none is named there."""
+    b = Builder(model_id, spec["material"], pressure=True)
+    od, wall = spec["od"], float(f"{spec['od'] / spec['dt']:.4g}")
+    radius = spec["rd"] * od / 1000.0
+    a = b.node("A", (0, 0, 0))
+    ti = (spec["clear_1"] + radius, 0.0, 0.0)  # tangent length R for 90 degrees
+    near, far, bend, end = corner_bend(b, "BEND1", a, ti, (0.0, 0.0, 1.0), radius, spec["clear_2"], spec["k"], od,
+                                       wall)
+    tip = b.node("B", end)
+    first = b.pipe("P1", a, near, od, wall)
+    last = b.pipe("P2", far, tip, od, wall)
+    b.anchor("A", a)
+    b.region("R1", [first, bend, last], pressure_pa(spec["pressure_bar"]), (a, TRANSFERS), (tip, TRANSFERS))
+    b.add_weight()
+    b.add_thermal(spec["delta_t"])
+    return b.model(), [], _pressure_inexact(bends=True, expansion=[]), _no_state_forms()
+
+
+TRANCHE_2 =("P1", "P2-P3", "P4", "P5", "P6", "P7")
+
+
+def elongation_on_model(model: dict[str, Any], load_case: str) -> dict[str, Any]:
+    """`model` with model_settings.pressure_elongation naming `load_case`; the argument is not changed."""
+    out = copy.deepcopy(model)
+    settings = out.setdefault("model_settings", {})
+    settings["pressure_elongation"] = {"operating_load_cases": [load_case]}
+    return out
+
+
+def series_document(document: dict[str, Any], series: str) -> dict[str, Any]:
+    """The benchmark document of one run of a tranche 2 model; deterministic, and nothing is written to the tracked
+    set. `pressure-default`: the tracked model as it is. `pressure-elongation-on`: the tracked model with the setting
+    naming its elongation_load_case. Either carries the closed forms valid in every state plus that state's, and that
+    run's inexact inputs. `pressure-bourdon-expansion-capture`: the tracked model, marked `capture_only`, with no
+    closed form and no inexact input, since no SWBPIPE state of these models equals that run (its declaration says
+    why); it is declared, and run_pilot refuses it by name and collects nothing for it. Every run
+    document names its `oppres_line` (the MBF's OPPRES line, substituted by `substituted_mbf_text`) and its
+    `run_id`, distinct per run."""
+    if series not in PRESSURE_RUN_SERIES or series not in document.get("series", []):
+        raise ValueError(f"{document.get('model_id')} has no {series!r} run")
+    out = copy.deepcopy(document)
+    out.pop("closed_form_by_series", None)
+    out.pop("inexact_inputs_by_series", None)
+    out["series_run"] = series
+    out["run_id"] = f"{document['model_id']}--{series}"
+    out["oppres_line"] = PRESSURE_RUN_SERIES[series]["oppres_line"]
+    if PRESSURE_RUN_SERIES[series]["screened"]:
+        out["closed_form"] = [*document["closed_form"], *document["closed_form_by_series"][series]]
+        out["inexact_inputs"] = copy.deepcopy(document["inexact_inputs_by_series"][series])
+    else:
+        out["capture_only"] = True
+        out["closed_form"] = []
+        out["inexact_inputs"] = {}
+    if series == SERIES_ELONGATION_ON:
+        out["model"] = elongation_on_model(document["model"], document["elongation_load_case"])
+    return out
+
+
+def run_mbf_text(document: dict[str, Any], writer_text: str) -> str:
+    """The MBF a benchmark document's run carries: the writer's text, with the OPPRES line of a series run."""
+    line = document.get("oppres_line")
+    return writer_text if line is None else substituted_mbf_text(writer_text, line)
+
+
 FAMILIES: tuple[tuple[str, str, Callable[[random.Random], list[Spec]], Callable[..., Any]], ...] = (
     ("G1", "straight spans: cantilever, guided, continuous, fixed-fixed", g1_straight, build_g1),
     ("G2", "single bends: anchored L, R/D 1-5, 45 and 90 degrees, user k", g2_bends, build_g2),
@@ -804,6 +1346,18 @@ FAMILIES: tuple[tuple[str, str, Callable[[random.Random], list[Spec]], Callable[
     ("G6-G7", "risers and support mixes: anchors, guides, line stops, vertical supports, springs", g6_g7_supports,
      build_g6_g7),
     ("G8", "anchor displacement and rotation", g8_movements, build_g8),
+    # Tranche 2, appended after tranche 1 so that tranche 1 consumes the same draws.
+    ("P1", "pressurised closed straights between anchors, one member, both terminals transferring",
+     p1_closed_straights, build_p1),
+    ("P2-P3", "pressurised cantilevers, one member: closed (P2), or with one terminal separately supported or "
+              "compensated so that an unbalanced thrust acts (P3)", p2_p3_cantilevers, build_p2_p3),
+    ("P4", "pressurised single bends: anchored L, one closed region, user k 1 and a higher k", p4_bends, build_p4),
+    ("P5", "pressurised anchored Z, one closed region, user k 1 and a higher k", p5_z, build_p5),
+    ("P6", "pressurised tee: three anchored legs, one closed region per leg meeting at a pressure junction", p6_tee,
+     build_p6),
+    ("P7", "pressurised closed cantilever L, one realized bend with k = 1: in-plane angular response of the free end",
+     p7_bend_opening,
+     build_p7),
 )
 
 SERIES = {
@@ -811,11 +1365,54 @@ SERIES = {
                  "description": "cantilevers of one span and OD with D/t 10, 20, 40, 100"},
     "tee-ratio": {"swept": "ratio", "hypothesis": "branch_flexibility",
                   "description": "anchored in-plane tees with branch/run OD ratio 0.3, 0.5, 0.75, 1.0"},
+    **{f"pressure-closure-{index:02d}": {
+        "swept": "anchor_closure", "hypothesis": THRUST,
+        "description": ("one pressurised cantilever with its anchor terminal transferring to the wall (closed) and "
+                        "separately supported or compensated (open): the same target-program input, since the MBF "
+                        "carries no terminal closure, with SWBPIPE's end thrust changed")} for index in (1, 2)},
+    "pressure-bend-opening": {
+        "swept": "run", "hypothesis": BEND_BOURDON, "runs": [SERIES_DEFAULT, SERIES_ELONGATION_ON],
+        "observed": "case:sustained rotation about Y of the free end node:B",
+        "swbpipe_change": 0.0,
+        "description": ("the closed cantilever L of P7 in its pressure-default and pressure-elongation-on runs. It "
+                        "measures any additional in-plane angular response of the free end associated with the "
+                        "target program's Bourdon switch, with its bend pressure correction field held off. Under the "
+                        "stated linear model, uniform free axial strain is excluded as an explanation of a rotation "
+                        "change (build_p7), so SWBPIPE's change of that rotation between the runs is 0. HYPOTHESIS: "
+                        "the target program's change, if any, is bend opening by its switch. The series cannot by "
+                        "itself identify that program's internal formula, establish a general law of bend opening, or "
+                        "exclude every undocumented effect of the switch. The same pair of an anchored L (P4) does "
+                        "not serve: between anchors the legs' elongation bends the L and turns its ends too")},
+}
+TRANCHES = {
+    "1": {"families": ["G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8"], "description": "linear static models"},
+    "2": {"families": ["P1", "P2", "P3", "P4", "P5", "P6", "P7"],
+          "description": ("pressurised linear static models on the exact pressure contract, each file run in the "
+                          "pressure-default, pressure-elongation-on and pressure-bourdon-expansion-capture series "
+                          "(each model's runs); no model document carries model_settings")},
 }
 
 
 def _dump(value: Any) -> str:
     return json.dumps(value, indent=2, sort_keys=True, ensure_ascii=True, allow_nan=False) + "\n"
+
+
+def writer_mbf_text(document: dict[str, Any]) -> str:
+    """The writer's MBF text of a benchmark model, titled by its model id, as the runner renders it."""
+    return render_caepipe_mbf_si(document["model"], title=document["model_id"],
+                                 reference_temperature_c=document["reference_temperature_c"],
+                                 piping_code=document["piping_code"]).text
+
+
+def layout_rows(document: dict[str, Any]) -> int:
+    """The writer's layout row count for a model, which must be written without refusal."""
+    result = render_caepipe_mbf_si(document["model"], title=document["model_id"],
+                                   reference_temperature_c=document["reference_temperature_c"],
+                                   piping_code=document["piping_code"])
+    if result.status != "written":
+        raise ValueError(f"{document['model_id']}: the writer refused it: "
+                         f"{sorted({item['code'] for item in result.diagnostics if item['severity'] == 'error'})}")
+    return result.layout_row_count
 
 
 def generate(seed: int = DEFAULT_SEED) -> dict[str, str]:
@@ -824,15 +1421,20 @@ def generate(seed: int = DEFAULT_SEED) -> dict[str, str]:
     files: dict[str, str] = {}
     entries = []
     series: dict[str, dict[str, Any]] = {}
+    counters: dict[str, int] = {}
     for family, description, sample, build in FAMILIES:
-        for index, spec in enumerate(sample(rng)):
+        pressurised = family in TRANCHE_2
+        for spec in sample(rng):
             sub_family = spec.get("family", family)
-            model_id = f"cpb-{sub_family.lower()}-{index + 1:02d}"
-            if family == "G6-G7":
-                model_id = f"cpb-{sub_family.lower()}-{index % 3 + 1:02d}"
-            model, closed_forms, inexact = build(model_id, spec)
+            counters[sub_family] = counters.get(sub_family, 0) + 1
+            model_id = f"cpb-{sub_family.lower()}-{counters[sub_family]:02d}"
+            built = build(model_id, spec)
+            model, closed_forms, inexact = built[:3]
+            if pressurised:
+                inexact = inexact[SERIES_DEFAULT]  # the tracked document is the pressure-default run's model
             operating = sorted(set(inexact.get(SUSTAINED, [])) | set(inexact.get(EXPANSION, [])))
             parameters = {key: value for key, value in spec.items() if key not in ("sampling", "series", "family")}
+            member_of = [*(PRESSURE_RUN_SERIES if pressurised else ()), *spec.get("series", [])]
             document = {
                 "document_kind": MODEL_KIND,
                 "model_id": model_id,
@@ -841,7 +1443,7 @@ def generate(seed: int = DEFAULT_SEED) -> dict[str, str]:
                 "generator": {"version": GENERATOR_VERSION, "seed": seed},
                 "sampling": spec["sampling"],
                 "parameters": parameters,
-                "series": spec.get("series", []),
+                "series": member_of,
                 "piping_code": PIPING_CODE,
                 "reference_temperature_c": REFERENCE_TEMPERATURE_C,
                 "inexact_inputs": {SUSTAINED: inexact.get(SUSTAINED, []), EXPANSION: inexact.get(EXPANSION, []),
@@ -849,9 +1451,16 @@ def generate(seed: int = DEFAULT_SEED) -> dict[str, str]:
                 "closed_form": closed_forms,
                 "provenance": {"origin": "invented", "license": "project-original",
                                "redistribution_status": "public_permissive", "produced_by_caepipe": False,
-                               "contributor_note": PROVENANCE},
+                               "contributor_note": PRESSURE_PROVENANCE if pressurised else PROVENANCE},
                 "model": model,
             }
+            if pressurised:
+                document["tranche"] = "2"
+                # The load case that carries pressure: the one model_settings.pressure_elongation names in the
+                # pressure-elongation-on run.
+                document["elongation_load_case"] = SUSTAINED
+                document["closed_form_by_series"] = built[3]
+                document["inexact_inputs_by_series"] = built[2]
             text = _dump(document)
             relative = f"models/{model_id}.json"
             files[relative] = text
@@ -859,17 +1468,46 @@ def generate(seed: int = DEFAULT_SEED) -> dict[str, str]:
                 series.setdefault(name, {**SERIES.get(name, {"swept": "k", "hypothesis": BEND_K,
                                                              "description": "one bend geometry with k = 1 and a "
                                                                             "higher k"}), "members": []})
-                series[name]["members"].append({"model_id": model_id, "value": spec.get(series[name]["swept"])})
-            entries.append({"model_id": model_id, "family": sub_family, "sampling": spec["sampling"],
-                            "parameters": parameters, "series": spec.get("series", []), "file": relative,
-                            "model_hash": canonical_model_hash(model),
-                            "file_sha256": hashlib.sha256(text.encode("ascii")).hexdigest()})
+                if "runs" in series[name]:
+                    series[name]["members"] += [{"model_id": model_id, "run": run} for run in series[name]["runs"]]
+                else:
+                    series[name]["members"].append({"model_id": model_id, "value": spec.get(series[name]["swept"])})
+            entry = {"model_id": model_id, "family": sub_family, "tranche": "2" if pressurised else "1",
+                     "sampling": spec["sampling"], "parameters": parameters, "series": member_of, "file": relative,
+                     "model_hash": canonical_model_hash(model),
+                     "file_sha256": hashlib.sha256(text.encode("ascii")).hexdigest()}
+            if pressurised:
+                writer_text = writer_mbf_text(document)
+                entry["layout_row_count"] = layout_rows(document)
+                entry["elongation_load_case"] = SUSTAINED
+                entry["runs"] = []
+                for name, declared in PRESSURE_RUN_SERIES.items():
+                    run = series_document(document, name)
+                    mbf = {"oppres_line": declared["oppres_line"],
+                           "sha256": hashlib.sha256(run_mbf_text(run, writer_text).encode("utf-8")).hexdigest()}
+                    if declared["oppres_line"] == OPPRES_WRITER_LINE:
+                        mbf["source"] = "writer output"
+                    else:
+                        mbf.update(source="substituted", base_line=OPPRES_WRITER_LINE, writer_output=False,
+                                   writer_sha256=hashlib.sha256(writer_text.encode("utf-8")).hexdigest())
+                    entry["runs"].append({
+                        "series": name, "run_id": run["run_id"], "file": relative,
+                        "variant_of": declared.get("variant_of"), "mbf": mbf, "screened": declared["screened"],
+                        "swbpipe_model_hash": canonical_model_hash(run["model"]) if declared["screened"] else None,
+                        "swbpipe_model_settings": run["model"].get("model_settings") if declared["screened"] else None,
+                        "closed_forms": len(run["closed_form"])})
+                    series.setdefault(name, {**declared, "members": []})
+                    series[name]["members"].append({"model_id": model_id, "run_id": run["run_id"],
+                                                    "elongation_load_case": SUSTAINED})
+            entries.append(entry)
     files["manifest.json"] = _dump({
         "document_kind": MANIFEST_KIND,
         "generator": {"version": GENERATOR_VERSION, "module": "tools/caepipe_correlation/benchmark_models.py",
                       "seed": seed, "rng": "random.Random(seed).random() only"},
-        "tranche": "1",
-        "requirement": "RT-V2 (docs/RELEASE_TARGET_v1.0.md section 3); DEL-17-05 Design section 11",
+        "tranches": TRANCHES,
+        "pressure_hypothesis": PRESSURE_HYPOTHESIS,
+        "requirement": ("DEL-17-05 REQ-018 and AC-007 (execution/PKG-17/DEL-17-05/ScopeOfWork.md); the Benchmark "
+                        "method section of docs/RELEASE_TARGET_v1.0.md"),
         "piping_code": PIPING_CODE,
         "materials": [{"id": name, "elastic_modulus_pa": e, "poisson_ratio": nu, "thermal_expansion_per_k": alpha,
                        "density_kg_per_m3": rho} for name, e, nu, alpha, rho in MATERIALS],
