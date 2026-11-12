@@ -56,7 +56,9 @@ needs:
   when: Computing the hashes a result carries
   condition: >-
     Every surface of the product that hashes JSON uses one canonical form, so that equal values
-    give equal digests through the desktop, the headless runner and the model editor.
+    give equal digests through the desktop, the headless runner and the model editor, and the
+    checked profile refuses by name a value it cannot carry, so that no digest is formed over
+    another form.
   gating: true
 - from: DEL-08-04
   condition: >-
@@ -75,6 +77,12 @@ needs:
   condition: >-
     The export control classes each output value and blocks a private value from leaving the
     process unless local-private intent is explicit, in which case it passes with a warning.
+  gating: true
+- from: DEL-12-02
+  when: Forming run evidence
+  condition: >-
+    The local-private control either passes an output or blocks it whole, and a blocked output
+    carries nothing derived from a private value, so that a blocked result carries no run evidence.
   gating: true
 - from: DEL-09-01
   when: Running a mechanics benchmark suite
@@ -131,8 +139,12 @@ code_paths:
 - tests/test_headless_runner_contract.py
 - tests/test_load_reference_headless_artifacts.py
 - tests/test_pressure_headless_artifacts.py
+- tests/test_run_evidence.py
+- tests/verifiers/run_evidence.py
 checks:
 - tests/test_headless_runner_contract.py
 - core/runner/headless/tests/user_release_runner_refused.rs
 - core/runner/headless/tests/load_reference_cli.rs
 - core/runner/headless/tests/pressure_export.rs
+- core/runner/headless/tests/run_evidence_cli.rs
+- tests/test_run_evidence.py

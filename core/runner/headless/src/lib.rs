@@ -15,6 +15,7 @@ pub mod benchmark_binding;
 pub mod reader_binding;
 pub mod redaction_binding;
 pub mod result_envelope_binding;
+pub mod run_evidence;
 #[cfg(test)]
 mod load_reference_route_tests;
 

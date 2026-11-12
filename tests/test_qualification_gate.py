@@ -105,6 +105,54 @@ class GateTests(unittest.TestCase):
         self.assertIn('Required: 1 cases / 2 assertions', (self.root / 'run-1/summary.md').read_text())
         self.assertEqual(json.loads((self.root / 'run-1/ledger.json').read_text()), result)
 
+    def write_process_with_run_evidence(self, wrapper, *, over_other_bytes=False, edit_result=False, mode='sparse_interactive'):
+        """A fake runner that attaches run evidence (DEL-10-05 REQ-017) formed over the stdin it received,
+        by the test-only verifier's `form`; optionally over other bytes, or with the result edited afterwards."""
+        self.write_process(code='import json, sys\n'
+                           f'sys.path.insert(0, {str(PROJECT)!r})\n'
+                           'from tests.verifiers import run_evidence as rv\n'
+                           'raw = sys.stdin.buffer.read()\n'
+                           f'out = json.loads({json.dumps(wrapper)!r})\n'
+                           f'formed_over = raw + b" " if {over_other_bytes!r} else raw\n'
+                           'out["run_evidence"] = rv.form(formed_over, out, {"command": "solve", '
+                           f'"solver_mode": {mode!r}, "explicit_local_private_intent": False}})\n'
+                           f'if {edit_result!r}:\n    out["summary"]["redacted_count"] = 7\n'
+                           'print(json.dumps(out))\n')
+
+    def test_run_evidence_over_the_sent_input_is_admitted_and_any_other_refused(self):
+        self.write_process_with_run_evidence(self.wrapper)
+        result = self.run_case()
+        self.assertEqual(result['outcome'], 'all_required_assertions_matched')
+        stdout = json.loads((self.root / f'run-{self.counter}/case-0000/stdout.bin').read_bytes())
+        self.assertEqual(set(stdout), set(gate.CONTROL_MEMBERS) | {gate.RUN_EVIDENCE})
+        for options, reason in (({'over_other_bytes': True}, 'run evidence does not verify: request'),
+                                ({'edit_result': True}, 'run evidence does not verify: result'),
+                                ({'mode': 'dense_scrutiny'}, 'run evidence names another invocation')):
+            self.write_process_with_run_evidence(self.wrapper, **options)
+            result = self.run_case()
+            self.assert_complete_denominator(result, 'error')
+            self.assertIn(reason, result['cases'][0]['reason'])
+
+    def test_unwrap_refuses_run_evidence_it_cannot_check_or_an_unknown_member(self):
+        sent = json.dumps(self.input).encode()
+        from tests.verifiers import run_evidence as rv
+        wrapper = deepcopy(self.wrapper)
+        wrapper['run_evidence'] = rv.form(sent, self.wrapper, {'command': 'solve', 'solver_mode': 'sparse_interactive',
+                                                                'explicit_local_private_intent': True})
+        packet = json.dumps(wrapper).encode()
+        self.assertEqual(gate.unwrap(packet, self.input, 'sparse_interactive', runner_input=sent)[0]['run_id'],
+                         self.wrapper['payload']['mechanics_envelope']['run_id'])
+        with self.assertRaisesRegex(gate.AdmissionError, 'runner input was not supplied'):
+            gate.unwrap(packet, self.input, 'sparse_interactive')
+        rebound = deepcopy(wrapper)
+        rebound['run_evidence']['producer'] = {'synthetic': 'another'}
+        with self.assertRaisesRegex(gate.AdmissionError, 'does not verify: binding_sha256'):
+            gate.unwrap(json.dumps(rebound).encode(), self.input, 'sparse_interactive', runner_input=sent)
+        extra = deepcopy(self.wrapper)
+        extra['evidence'] = {}
+        with self.assertRaisesRegex(gate.AdmissionError, 'unsupported controlled wrapper'):
+            gate.unwrap(json.dumps(extra).encode(), self.input, 'sparse_interactive', runner_input=sent)
+
     def test_ledger_exists_before_process_starts(self):
         original = capture
         def observing(*args, **kwargs):
@@ -373,9 +421,9 @@ class GateTests(unittest.TestCase):
         def observe_record(path, value):
             publications.append((value['publication_phase'], value['outcome']))
             return real_record(path, value)
-        def observe_bytes(raw, request, mode):
+        def observe_bytes(raw, request, mode, **options):
             parsed_hashes.append(sha256_bytes(raw))
-            return real_unwrap(raw, request, mode)
+            return real_unwrap(raw, request, mode, **options)
         with patch.object(gate, 'atomic_record', observe_record), patch.object(gate, 'unwrap', observe_bytes):
             result = self.run_case()
         self.assertEqual(result['outcome'], 'all_required_assertions_matched')

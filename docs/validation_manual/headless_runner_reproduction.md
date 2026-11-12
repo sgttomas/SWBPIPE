@@ -67,7 +67,8 @@ openpipestress-runner read <reader> [--input <reader-input.json>|-]
   `validate-input` needs only `request`.
 - **Output wrapper.** Once the input is read, stdout is the local-private
   export control object: `payload`, `decisions`, `findings`, `blocked`,
-  `summary`. The runner's own output document is `payload`. Argument errors
+  `summary`, and, when the control passes the output, `run_evidence`. The
+  runner's own output document is `payload`. Argument errors
   print a message and the usage text to stderr and exit 2; an unreadable
   input file prints only the read error to stderr and exits 2. Neither
   writes stdout.
@@ -76,6 +77,24 @@ openpipestress-runner read <reader> [--input <reader-input.json>|-]
   `true`, `payload` is `null`, the findings carry
   `LOCAL_PRIVATE_INTENT_REQUIRED`, and the exit is 1. Every command in this
   procedure passes the flag except the step that shows this control.
+- **Run evidence** (DEL-10-05 REQ-017). Every output the control passes, for
+  each verb and for `size-hangers`, ends with a `run_evidence` member:
+  `evidence_version` `1.0.0`; `canonical_profile` `openpipestress_jcs_ijson_v1`;
+  `invocation` (`command`, `solver_mode` (the mode `solve` ran with, else
+  `null`), `explicit_local_private_intent`); `producer` (runner and product
+  component names and versions, `build_ref`, `retained_build_identity`);
+  `request` (`raw_sha256` of the input bytes, `canonical_sha256` of the input
+  in the profile); `model` (`pointer` and `canonical_sha256` for `solve` and
+  `size-hangers`, else `absent`); `result` (`canonical_sha256` of the output
+  less `run_evidence`); and `binding_sha256` over the rest. Expect
+  `request.raw_sha256` to equal `shasum -a 256` of the input file, and two runs
+  of one input to give the same `result.canonical_sha256`. A digest the profile
+  cannot form is `{"unavailable": "<code>"}`. A blocked output and a run that
+  exits 2 carry none, nor does `read`. It is not a signature. The
+  independent check is `tests/verifiers/run_evidence.py` (`verify(input_bytes,
+  output)`). Committed outputs made before this change, including the
+  `validation/witness/generated/` witnesses and the dated evidence bundles,
+  carry no run evidence and are not regenerated.
 - **`--output`.** The file holds the same JSON as stdout. It is written
   only when the export is not blocked, and for `export-results` only on
   exit 0.

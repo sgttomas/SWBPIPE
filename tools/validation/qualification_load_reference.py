@@ -522,7 +522,8 @@ def current_model(model) -> None:
 # Transport: wrapper, raw header, standing and identity binding
 # --------------------------------------------------------------------------
 
-def unwrap(raw: bytes, request: dict, mode: str, *, limit: int = LIMIT) -> tuple[dict, list[dict]]:
+def unwrap(raw: bytes, request: dict, mode: str, *, limit: int = LIMIT,
+           runner_input: bytes | None = None) -> tuple[dict, list[dict]]:
     """Controlled wrapper and exact pressure-2 raw0.2 envelope carrying the load/reference-state group.
 
     Refuses anything but the closed identity. Numerical standing is only shape
@@ -530,7 +531,9 @@ def unwrap(raw: bytes, request: dict, mode: str, *, limit: int = LIMIT) -> tuple
     """
     require(mode in MODES, 'unsupported actual mode')
     doc = strict_json_limited(raw, limit)
-    require(type(doc) is dict and set(doc) == {'payload', 'decisions', 'findings', 'blocked', 'summary'}, 'unsupported controlled wrapper')
+    require(type(doc) is dict and set(doc) in (gate.CONTROL_MEMBERS, gate.CONTROL_MEMBERS | {gate.RUN_EVIDENCE}), 'unsupported controlled wrapper')
+    if gate.RUN_EVIDENCE in doc:
+        gate.verify_run_evidence(doc, runner_input, mode)
     require(doc['blocked'] is False and type(doc['payload']) is dict, 'controlled output blocked')
     gate._diagnostics(doc['findings'], 'wrapper')
     summary = doc['summary']
@@ -1030,7 +1033,8 @@ def run_selection(run_path: Path, executable: Path, source_root: Path, output_di
                 # not the 8 MiB bound-input limit (which stays on bound files).
                 stdout_bytes = gate.read_captured_bytes(output_dir / prefix / 'stdout.bin', process['stdout_sha256'],
                                                         process['stdout_bytes'], output_limit_bytes)
-                mechanics, rows = unwrap(stdout_bytes, prepared['request'], mode, limit=output_limit_bytes)
+                mechanics, rows = unwrap(stdout_bytes, prepared['request'], mode, limit=output_limit_bytes,
+                                    runner_input=prepared['runner_input'])
                 case_ledger['observed_result_identity'] = {k: mechanics[k] for k in ('document_kind', 'schema_version', 'run_id', 'model_ref')}
                 try:
                     standing, standing_error = numerical_standing(mechanics, prepared['request_cases']), None
