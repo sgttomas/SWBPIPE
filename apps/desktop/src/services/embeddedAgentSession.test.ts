@@ -78,7 +78,8 @@ describe('workspace-owned live embedded agent adapter',()=>{
   let deep:unknown={leaf:1};for(let i=0;i<40;i++)deep=[deep];
   for(const [after,expected] of [[review,/carries modifiers \(k, SIFs, stiffness and their source\) at terms\[0\]\.modifiers, a person-entered value an agent cannot write; nothing was queued\./],
    [JSON.stringify({id:'node:n',position:{x:0,y:0,z:0,bend_realization:{}}}),/carries bend_realization \(a bend realization\) at position\.bend_realization,/],
-   [JSON.stringify(deep),/carries an after value nested deeper than 32 levels or with more than 50000 members, which is not checked for values only the person enters, so nothing was queued\. Propose it in smaller operations\./]] as [string,RegExp][]){
+   [JSON.stringify(deep),/carries an after value nested deeper than 32 levels or with more than 50000 members, which is not checked for values only the person enters, so nothing was queued\. Propose it in smaller operations\./],
+   [JSON.stringify(Array.from({length:50_001},()=>0)),/carries an after value nested deeper than 32 levels or with more than 50000 members, which is not checked for values only the person enters, so nothing was queued\./]] as [string,RegExp][]){
    vi.useFakeTimers();const {session,owner,call}=setup();
    call('swbpipe_propose_operations',{operations:[{operation_id:'operation-1',change:{change_kind:'create_combination',after}}],assumptions:[]});await session.start('revision');await session.poll();await drain();
    const outcome=JSON.parse(session.actual('invented-session:1')!.outcome);
