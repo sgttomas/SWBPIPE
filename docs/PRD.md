@@ -736,7 +736,7 @@ The product shall support:
 
 - pipe dead weight;
 - contents weight;
-- insulation, lining, refractory, and coating weight (v1.0 exception: lining, refractory and coating weight are not provided in v1.0; see `docs/RELEASE_LIMITATIONS_v1.0.md`, LIM-007);
+- insulation, lining, refractory, and coating weight;
 - component weight;
 - internal pressure metadata;
 - temperature and thermal expansion;
@@ -749,6 +749,8 @@ The product shall support:
 - wind load;
 - seismic static-equivalent load;
 - user-defined occasional load.
+
+For v1.0, lining, refractory and coating weight are not provided; see `docs/RELEASE_LIMITATIONS_v1.0.md`, LIM-007. They remain part of the product capability required above.
 
 ### 12.6 Load Cases and Combination Cases
 
