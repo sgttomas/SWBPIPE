@@ -174,13 +174,23 @@ fn problem(
     refs: &[&str],
     message: impl Into<String>,
 ) {
+    finding(diagnostics, code, "blocking", refs, message);
+}
+
+fn finding(
+    diagnostics: &mut Vec<Diagnostic>,
+    code: &str,
+    severity: &str,
+    refs: &[&str],
+    message: impl Into<String>,
+) {
     let mut finding = diag(
         &format!(
             "diagnostic:pressure-runtime:{}:{code}",
             stable_suffix(&refs.join(":"))
         ),
         code,
-        "blocking",
+        severity,
         message,
         refs.iter().map(|value| value.to_string()).collect(),
     );
@@ -1641,6 +1651,9 @@ fn finish_source_groups(
         "cancellation_screen":if screen.is_finite(){Some(screen)}else{None},"screen_limit":1e-9,"screen_roundoff_multiplier":32,
         "screen_is_not_numerical_qualification":true});
     if let Some(record) = exception {
+        if let Some(Some((_, interior))) = &family {
+            departure_thrust_warning(model, case, interior, &record, diagnostics);
+        }
         output.assembly_evidence["cancellation_screen_exception"] = record;
     }
     // RT-L2: a case with pressure regions states
@@ -1657,6 +1670,28 @@ fn finish_source_groups(
 /// thrust of the bore and alignment differences between adjacent members that
 /// the region's representation guards admit.
 pub(crate) const CANCELLATION_EXCEPTION_BASIS: &str = "straight_region_interior_cap_pairs_representation_guard_departure_thrust";
+
+/// DEL-04-07 (REQ-009's scope, the cancellation screen): the warning every case
+/// admitted under the screen's exception carries, whatever its standing. Its
+/// references are the case, the region and the node the exception record names.
+pub(crate) const DEPARTURE_THRUST_WARNING_CODE: &str = "PRESSURE_REGION_DEPARTURE_THRUST_RETAINED";
+/// The warning's whole, fixed message.
+pub(crate) const DEPARTURE_THRUST_WARNING_MESSAGE: &str = "Small differences in bore or alignment between adjacent members of this pressure region, within the region's representation limits, produce pressure thrust at interior nodes in this model. The solver retains that thrust. The exception to the pressure cancellation screen that admitted this case does not establish that the thrust's effect is negligible; the case's numerical standing concerns the recorded geometry, not an idealised region of equal bores and exact collinearity.";
+
+/// Pushes [`DEPARTURE_THRUST_WARNING_CODE`] for a case whose exception record
+/// is being set: the region is the one whose two members meet at the record's node.
+fn departure_thrust_warning(
+    model: &PreviewModel,
+    case: &PreviewLoadCase,
+    interior: &[(usize, String, [usize; 2])],
+    record: &Value,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    let node = record["node_ref"].as_str().unwrap_or_default();
+    if let Some((_, region, _)) = interior.iter().find(|(index, ..)| model.nodes[*index].id == node) {
+        finding(diagnostics, DEPARTURE_THRUST_WARNING_CODE, "warning", &[&case.id, region, node], DEPARTURE_THRUST_WARNING_MESSAGE);
+    }
+}
 
 /// DEL-04-07, the consistency check of the cancellation-screen exception.
 ///

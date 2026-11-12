@@ -1199,6 +1199,76 @@
           "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
         }
       ]
+    },
+    {
+      "reason": "DEL-04-07: on a result with combinations, the cancellation-screen exception's warning (PRESSURE_REGION_DEPARTURE_THRUST_RETAINED) names no combination and is still copied: the admitting reader binds its presence, whole message and references to the exception record. Another warning naming no combination beside it is quoted as supplied text.",
+      "contract_evidence": {
+        "combination_gates": [
+          {
+            "combination_id": "comb:invented",
+            "withheld": false,
+            "reason": null
+          }
+        ]
+      },
+      "diagnostics": [
+        {
+          "id": "diagnostic:invented:departure",
+          "code": "PRESSURE_REGION_DEPARTURE_THRUST_RETAINED",
+          "severity": "warning",
+          "message": "Small differences in bore or alignment between adjacent members of this pressure region, within the region's representation limits, produce pressure thrust at interior nodes in this model. The solver retains that thrust. The exception to the pressure cancellation screen that admitted this case does not establish that the thrust's effect is negligible; the case's numerical standing concerns the recorded geometry, not an idealised region of equal bores and exact collinearity.",
+          "source": "core/product_physics/src/pressure_runtime.rs",
+          "affected_refs": [
+            "case:invented",
+            "region:invented",
+            "node:invented"
+          ]
+        },
+        {
+          "id": "diagnostic:invented:other",
+          "code": "INVENTED_CODE",
+          "severity": "warning",
+          "message": "invented message",
+          "source": "core/product_physics/src/pressure_runtime.rs",
+          "affected_refs": [
+            "case:invented",
+            "region:invented",
+            "node:invented"
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "code": "PRESSURE_REGION_DEPARTURE_THRUST_RETAINED",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "warning",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics/src/pressure_runtime.rs"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "case:invented, region:invented, node:invented"
+          },
+          "message": "Small differences in bore or alignment between adjacent members of this pressure region, within the region's representation limits, produce pressure thrust at interior nodes in this model. The solver retains that thrust. The exception to the pressure cancellation screen that admitted this case does not establish that the thrust's effect is negligible; the case's numerical standing concerns the recorded geometry, not an idealised region of equal bores and exact collinearity.",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        },
+        {
+          "code": "INVENTED_CODE",
+          "class": "ASSUMPTION_WARNING",
+          "severity": "warning",
+          "source": {
+            "ref_type": "diagnostic_source",
+            "ref_id": "core/product_physics/src/pressure_runtime.rs"
+          },
+          "affected_object": {
+            "ref_type": "affected_refs",
+            "ref_id": "case:invented, region:invented, node:invented"
+          },
+          "message": "Supplied diagnostic text, unverified (not a combination certificate statement): \"invented message\"",
+          "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
+        }
+      ]
     }
   ]
 }

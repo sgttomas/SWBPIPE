@@ -666,3 +666,134 @@ fn the_readers_recompute_the_exception_from_the_published_groups() {
         assert_eq!(refused(&forged, &set("/cancellation_screen_exception", Some(record))), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_FAMILY");
     }
 }
+
+const WARNING: &str = "PRESSURE_REGION_DEPARTURE_THRUST_RETAINED";
+const WARNING_MESSAGE: &str = "Small differences in bore or alignment between adjacent members of this pressure region, within the region's representation limits, produce pressure thrust at interior nodes in this model. The solver retains that thrust. The exception to the pressure cancellation screen that admitted this case does not establish that the thrust's effect is negligible; the case's numerical standing concerns the recorded geometry, not an idealised region of equal bores and exact collinearity.";
+
+fn warnings(output: &Value) -> Vec<Value> {
+    output["diagnostics"].as_array().unwrap().iter().filter(|d| d["code"] == WARNING).cloned().collect()
+}
+
+fn exact_case<'a>(output: &'a Value, case: &str) -> &'a Value {
+    output["contract_evidence"]["exact_cases"].as_array().unwrap().iter().find(|c| c["load_case_id"] == case).unwrap()
+}
+
+/// DEL-04-07: a case admitted under the cancellation screen's exception
+/// carries the named warning once, at warning severity, with the fixed
+/// message and the references [case, region, the record's node]; a case the
+/// original screen admits carries none. The readers refuse a record without
+/// its warning, a warning without a record, a changed message and a wrong node.
+#[test]
+fn a_case_admitted_under_the_exception_carries_its_warning_and_the_readers_bind_it() {
+    use open_pipe_stress_result_export::semantic_contract::validate_pressure_evidence;
+    let x = [[0.0; 3], [3.0, 0.0, 0.0], [LENGTH, 0.0, 0.0]];
+    let refused = |document: &Value| validate_pressure_evidence(document).unwrap_err();
+    let without = |document: &Value| {
+        let mut document = document.clone();
+        document["diagnostics"].as_array_mut().unwrap().retain(|d| d["code"] != WARNING);
+        document
+    };
+    for mode in MODES {
+        let admitted = serde_json::to_value(solve(chain(&x, &[0.12, next_up(0.12, 1)], &[0, 2]), mode)).unwrap();
+        let record = assert_screen(&admitted, true, "admitted");
+        let found = warnings(&admitted);
+        assert_eq!(found.len(), 1, "{mode:?}");
+        assert_eq!(found[0]["severity"], "warning");
+        assert_eq!(found[0]["message"], WARNING_MESSAGE);
+        assert_eq!(found[0]["affected_refs"], json!([CASE, REGION, record["node_ref"]]));
+        validate_pressure_evidence(&admitted).unwrap();
+        let original = serde_json::to_value(solve(chain(&x, &[0.12, 0.12], &[0, 2]), mode)).unwrap();
+        assert_screen(&original, false, "original screen");
+        assert!(warnings(&original).is_empty(), "{mode:?}");
+        // A record without its warning.
+        assert_eq!(refused(&without(&admitted)), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING_MISSING");
+        // A warning without a record.
+        let mut unrecorded = original.clone();
+        unrecorded["diagnostics"].as_array_mut().unwrap().push(found[0].clone());
+        assert_eq!(refused(&unrecorded), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING_UNRECORDED");
+        // A changed message.
+        let mut changed = without(&admitted);
+        let mut warning = found[0].clone();
+        warning["message"] = json!(WARNING_MESSAGE.replace("not establish", "establish"));
+        changed["diagnostics"].as_array_mut().unwrap().push(warning);
+        assert_eq!(refused(&changed), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING");
+        // A wrong node.
+        let mut moved = without(&admitted);
+        let mut warning = found[0].clone();
+        warning["affected_refs"][2] = assembly(&admitted)["node_order"][0].clone();
+        moved["diagnostics"].as_array_mut().unwrap().push(warning);
+        assert_eq!(refused(&moved), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING");
+    }
+}
+
+/// DEL-04-07, the warning's words against two models. One case with two
+/// pressure regions, a straight run whose interior node falls in the family
+/// and the arc corpus's L line (not straight-only): the eligibility rule
+/// admits no case with a realized arc, so the case is refused by the original
+/// screen and no warning is published. Two cases, one admitted and one passing
+/// the original screen: the warning stands on the admitted case only, and its
+/// references name that case's region and node.
+#[test]
+fn the_warning_names_the_admitted_case_s_region_and_node_only() {
+    let corpus: Value = serde_json::from_str(&std::fs::read_to_string(
+        current_model::project_root().join("fixtures/results/pressure_v3_arc_reader_corpus.json")).unwrap()).unwrap();
+    let case = corpus["cases"].as_array().unwrap().iter().find(|c| c["label"] == "U2-L-ANCH-PTW-K2 0.3.0 sparse_interactive").unwrap();
+    let mut document = pressure_elongation::without_elongation(&case["document"]);
+    let model = &mut document["model"];
+    let template = model["pipe_segments"][0].clone();
+    let od = template["section"]["outside_diameter"]["value"].as_f64().unwrap();
+    for (k, x) in [0.0, 3.0, LENGTH].iter().enumerate() {
+        model["nodes"].as_array_mut().unwrap().push(node(&format!("node:P{k}"), [*x, 10.0, 0.0]));
+    }
+    for (k, outside) in [od, next_up(od, 1)].iter().enumerate() {
+        let mut member = template.clone();
+        member["id"] = json!(format!("pipe:P{k}"));
+        member["from"] = json!(format!("node:P{k}"));
+        member["to"] = json!(format!("node:P{}", k + 1));
+        member["section"]["outside_diameter"]["value"] = json!(outside);
+        model["pipe_segments"].as_array_mut().unwrap().push(member);
+    }
+    model["supports"].as_array_mut().unwrap().extend([anchor("support:P0", "node:P0"), anchor("support:P2", "node:P2")]);
+    let mut straight = model["load_cases"][0]["pressure_regions"][0].clone();
+    straight["id"] = json!("region:straight");
+    straight["member_pipe_ids"] = json!(["pipe:P0", "pipe:P1"]);
+    straight["terminals"] = json!([terminal("node:P0", true), terminal("node:P2", true)]);
+    model["load_cases"][0]["pressure_regions"].as_array_mut().unwrap().push(straight);
+    for mode in MODES {
+        let output = serde_json::to_value(solve(document.clone(), mode)).unwrap();
+        assert_eq!(output["status"]["mechanics"], "MODEL_INCOMPLETE", "{mode:?}");
+        let blocking = output["diagnostics"].as_array().unwrap().iter().filter(|d| d["severity"] == "blocking").map(|d| d["code"].clone()).collect::<Vec<_>>();
+        assert_eq!(blocking, [json!("PRESSURE_ASSEMBLY_CANCELLATION_UNRESOLVED")], "{mode:?}");
+        assert!(warnings(&output).is_empty(), "{mode:?}");
+    }
+    // Two cases over two disjoint runs: the first admitted, the second's bit-equal members pass the original screen.
+    let x = [[0.0; 3], [3.0, 0.0, 0.0], [LENGTH, 0.0, 0.0]];
+    let mut input = chain(&x, &[0.12, next_up(0.12, 1)], &[0, 2]);
+    let model = &mut input["model"];
+    for (k, x) in [0.0, 3.0, LENGTH].iter().enumerate() {
+        model["nodes"].as_array_mut().unwrap().push(node(&format!("node:D{k}"), [*x, 5.0, 0.0]));
+    }
+    for k in 0..2 {
+        model["pipe_segments"].as_array_mut().unwrap().push(pipe(&format!("pipe:D{k}"), &format!("node:D{k}"), &format!("node:D{}", k + 1), 0.12, 0.01, "material:one"));
+    }
+    model["supports"].as_array_mut().unwrap().extend([anchor("support:D0", "node:D0"), anchor("support:D2", "node:D2")]);
+    let mut second = model["load_cases"][0].clone();
+    second["id"] = json!("case:second");
+    second["pressure_regions"][0]["id"] = json!("region:second");
+    second["pressure_regions"][0]["member_pipe_ids"] = json!(["pipe:D0", "pipe:D1"]);
+    second["pressure_regions"][0]["terminals"] = json!([terminal("node:D0", true), terminal("node:D2", true)]);
+    model["load_cases"].as_array_mut().unwrap().push(second);
+    for mode in MODES {
+        let output = serde_json::to_value(solve(input.clone(), mode)).unwrap();
+        assert_eq!(output["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}: {}", output["diagnostics"]);
+        let record = exact_case(&output, CASE)["pressure_rhs_assembly"]["cancellation_screen_exception"].clone();
+        assert_eq!(record["node_ref"], "node:C1", "{mode:?}");
+        assert!(exact_case(&output, "case:second")["pressure_rhs_assembly"].get("cancellation_screen_exception").is_none());
+        let found = warnings(&output);
+        assert_eq!(found.len(), 1, "{mode:?}");
+        assert_eq!(found[0]["affected_refs"], json!([CASE, REGION, "node:C1"]), "{mode:?}");
+        open_pipe_stress_result_export::semantic_contract::validate_pressure_evidence(&output).unwrap();
+        let verdict = open_pipe_stress_result_export::reader_verdict::validate("pressure", &output, Some(&input["model"]), None);
+        assert_eq!(verdict["ok"], true, "{mode:?}: {verdict}");
+    }
+}

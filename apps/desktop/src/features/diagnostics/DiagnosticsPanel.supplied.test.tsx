@@ -11,7 +11,7 @@ import { registerRetainedPrecision, retainedPrecisionRegistration } from "../res
 import { DiagnosticsPanel } from "./DiagnosticsPanel";
 import { buildDiagnosticInterpretation } from "../results/resultInterpretation";
 import { readerValidate, ResultReaderError } from "../results/resultReader";
-import { documentCombinationIdentities, presentedResultDiagnostics, SUPPLEMENTAL_DIAGNOSTIC_LABEL } from "../results/suppliedDiagnostics";
+import { DEPARTURE_THRUST_WARNING_CODE, documentCombinationIdentities, presentedResultDiagnostics, SUPPLEMENTAL_DIAGNOSTIC_LABEL, suppliedDiagnosticMessage } from "../results/suppliedDiagnostics";
 import { diagnosticsForSections } from "../report/renderableReportInput";
 import type { Diagnostic, MechanicsResult, PreviewModel } from "../../types";
 
@@ -150,5 +150,37 @@ describe("Diagnostics panel: supplied diagnostic text", () => {
     const { listed, explanation } = shown(result, result.diagnostics[0]);
     expect(listed).toEqual([CLAIM, CLAIM]);
     expect(explanation.startsWith(`${CLAIM} It is linked to model.`)).toBe(true);
+  });
+});
+
+// DEL-04-07: the cancellation-screen exception's warning. The pressure readers bind its presence, its whole
+// message and its references to the exception record, so on a result the reader admitted it is a product
+// diagnostic, copied as it stands even where the result has combinations and the warning names none of them;
+// a result the reader refuses attests nothing, and the warning is then quoted as supplied text like any other.
+describe("Diagnostics panel: the cancellation-screen exception's warning", () => {
+  const MESSAGE = "Small differences in bore or alignment between adjacent members of this pressure region, within the region's representation limits, produce pressure thrust at interior nodes in this model. The solver retains that thrust. The exception to the pressure cancellation screen that admitted this case does not establish that the thrust's effect is negligible; the case's numerical standing concerns the recorded geometry, not an idealised region of equal bores and exact collinearity.";
+  const warning = (refs: string[]): Diagnostic => ({ id: "diagnostic:pressure-runtime:invented:PRESSURE_REGION_DEPARTURE_THRUST_RETAINED", code: DEPARTURE_THRUST_WARNING_CODE,
+    severity: "warning", source: "core/product_physics/src/pressure_runtime.rs", affected_refs: refs, message: MESSAGE }) as Diagnostic;
+
+  it("is copied on a reader-admitted result with combinations and quoted where the reader admitted nothing", () => {
+    const combinations = new Set(["comb:invented"]);
+    const refs = ["case:invented", "region:invented", "node:invented"];
+    expect(suppliedDiagnosticMessage(warning(refs), combinations, true)).toBe(MESSAGE);
+    expect(suppliedDiagnosticMessage(warning(refs), combinations, false)).toBe(supplied(MESSAGE));
+    expect(suppliedDiagnosticMessage({ ...warning(refs), code: "INVENTED_CODE" }, combinations, true)).toBe(supplied(MESSAGE));
+    expect(suppliedDiagnosticMessage(warning(refs), new Set(), false)).toBe(MESSAGE);
+  });
+
+  it("is refused by the reader on a case without the exception's record, and then quoted as supplied", () => {
+    const e = exCantilever();
+    const result = e.document;
+    const caseId = (result.contract_evidence as { exact_cases: { load_case_id: string }[] }).exact_cases[0].load_case_id;
+    const forged = warning([caseId, "region:invented", "node:invented"]);
+    result.diagnostics.push(forged);
+    let refusal: unknown = null;
+    try { readerValidate("pressure", result); } catch (error) { refusal = error; }
+    expect((refusal as ResultReaderError | null)?.code).toBe("SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING_UNRECORDED");
+    const { listed } = shown(result, forged);
+    expect(listed).toEqual([supplied(MESSAGE)]);
   });
 });

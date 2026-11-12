@@ -612,6 +612,45 @@ def rhs_screen(rhs: Mapping[str, Any], cid: str, elongation: bool | None, region
     _require(screen is None if not math.isfinite(expected) else (_number(screen) and struct.pack("<d", float(screen)) == struct.pack("<d", expected)), "SOURCE_PHYSICS_RHS_SCREEN_RECOMPUTED")
 
 
+DEPARTURE_THRUST_WARNING_CODE = "PRESSURE_REGION_DEPARTURE_THRUST_RETAINED"
+DEPARTURE_THRUST_WARNING_MESSAGE = (
+    "Small differences in bore or alignment between adjacent members of this pressure region, within the region's "
+    "representation limits, produce pressure thrust at interior nodes in this model. The solver retains that thrust. "
+    "The exception to the pressure cancellation screen that admitted this case does not establish that the thrust's "
+    "effect is negligible; the case's numerical standing concerns the recorded geometry, not an idealised region of "
+    "equal bores and exact collinearity.")
+
+
+def departure_thrust_warnings(source: Mapping[str, Any]) -> None:
+    """DEL-04-07 (Rust ``physics_evidence::departure_thrust_warnings``), read after every exception record has been
+    checked: the warning stands on a case exactly when its record does, once, at warning severity, with the fixed
+    message and the references [case, region, node], the region being the one whose terms meet at the record's node.
+    A record without its warning, a warning on a case without a record, and a warning of another form are each
+    refused by name."""
+    expected = []
+    for case in source["contract_evidence"]["exact_cases"]:
+        rhs = case["pressure_rhs_assembly"]
+        record = rhs.get("cancellation_screen_exception")
+        if record is None:
+            continue
+        node = record["node_ref"]
+        regions = [g["terms"][0]["region_id"] for g in rhs["groups"] if g["node_ref"] == node and g["terms"]]
+        _require(bool(regions), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_FAMILY")
+        expected.append([case["load_case_id"], regions[0], node])
+    diagnostics = source.get("diagnostics")
+    warnings = [d for d in (diagnostics if isinstance(diagnostics, list) else []) if isinstance(d, Mapping) and d.get("code") == DEPARTURE_THRUST_WARNING_CODE]
+    for warning in warnings:
+        refs = warning.get("affected_refs")
+        case = refs[0] if isinstance(refs, list) and refs else None
+        _require(any(item[0] == case for item in expected), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING_UNRECORDED")
+        _require(warning.get("severity") == "warning" and warning.get("message") == DEPARTURE_THRUST_WARNING_MESSAGE and refs in expected,
+                 "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING")
+    for refs in expected:
+        count = sum(1 for warning in warnings if warning.get("affected_refs") == refs)
+        _require(count != 0, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING_MISSING")
+        _require(count == 1, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING")
+
+
 def rhs_elongation(rhs: Mapping[str, Any], keys: set[str], elongation: bool | None) -> set[str]:
     """The assembly's keys: a case with pressure regions states its setting there too, equal to its regions'."""
     if elongation is None:
@@ -866,6 +905,7 @@ def _physics(source: Mapping[str, Any]) -> None:
             for geometry in (region.get("geometry") if isinstance(region.get("geometry"), list) else [])
             if isinstance(geometry, Mapping) and geometry.get("member_kind") == ARC_MEMBER_KIND},
             [region for region in evidence["pressure"] if isinstance(region, Mapping) and region.get("load_case_id") == cid])
+    departure_thrust_warnings(source)
     owners: dict[tuple[str, str], str] = {}
     bindings: set[str] = set()
     regions: set[tuple[str, str]] = set()

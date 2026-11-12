@@ -1314,6 +1314,7 @@ pub(crate) fn validate_physics_evidence_in(
             &evidence["connector"],
         )?;
     }
+    departure_thrust_warnings(source)?;
     // W-7: one global end row per member, end and component; none on a composite.
     // Checked after the published rows' own coverage, so a missing local or wall
     // end row is refused by that coverage, not by the global row derived from it.
@@ -1787,7 +1788,50 @@ fn assembled_is_group_sum(v: &Value) -> Check {
 /// (DEL-04-07; product physics `CANCELLATION_EXCEPTION_BASIS`).
 pub(crate) const CANCELLATION_EXCEPTION_BASIS: &str = "straight_region_interior_cap_pairs_representation_guard_departure_thrust";
 /// The exception record's members.
-const EXCEPTION_RECORD_KEYS: [&str; 7] = ["basis", "node_ref", "member_pipe_ids", "member_lengths_m", "region_span_m", "thrust_to_bore_force_ratio", "consistency_bound_ratio"];
+/// DEL-04-07: the warning every case admitted under the cancellation-screen
+/// exception carries (product physics `DEPARTURE_THRUST_WARNING_CODE`).
+pub const DEPARTURE_THRUST_WARNING_CODE: &str = "PRESSURE_REGION_DEPARTURE_THRUST_RETAINED";
+/// Its whole, fixed message (product physics `DEPARTURE_THRUST_WARNING_MESSAGE`).
+pub const DEPARTURE_THRUST_WARNING_MESSAGE: &str = "Small differences in bore or alignment between adjacent members of this pressure region, within the region's representation limits, produce pressure thrust at interior nodes in this model. The solver retains that thrust. The exception to the pressure cancellation screen that admitted this case does not establish that the thrust's effect is negligible; the case's numerical standing concerns the recorded geometry, not an idealised region of equal bores and exact collinearity.";
+
+/// DEL-04-07: the warning stands on a case exactly when its exception record
+/// does (read after every record has been checked): one warning per record,
+/// of warning severity, with the fixed message and the references [case,
+/// region, node], the region being the one whose terms meet at the record's
+/// node. A record without its warning, a warning on a case without a record,
+/// and a warning of another form are each refused by name.
+fn departure_thrust_warnings(source: &Value) -> Check {
+    let mut expected = Vec::new();
+    for case in array(&source["contract_evidence"]["exact_cases"])? {
+        let rhs = &case["pressure_rhs_assembly"];
+        let Some(record) = rhs.get("cancellation_screen_exception") else { continue };
+        let node = &record["node_ref"];
+        let region = array(&rhs["groups"])?.iter().filter(|group| group["node_ref"] == *node)
+            .find_map(|group| group["terms"].as_array().and_then(|terms| terms.first()))
+            .map(|term| term["region_id"].clone())
+            .ok_or("SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_FAMILY")?;
+        expected.push(json!([case["load_case_id"], region, node]));
+    }
+    let warnings = array(&source["diagnostics"])?.iter().filter(|d| d["code"] == DEPARTURE_THRUST_WARNING_CODE).collect::<Vec<_>>();
+    for warning in &warnings {
+        let case = &warning["affected_refs"][0];
+        require(expected.iter().any(|refs| refs[0] == *case), "RHS_SCREEN_EXCEPTION_WARNING_UNRECORDED")?;
+        require(
+            warning["severity"] == "warning"
+                && warning["message"] == DEPARTURE_THRUST_WARNING_MESSAGE
+                && expected.contains(&warning["affected_refs"]),
+            "RHS_SCREEN_EXCEPTION_WARNING",
+        )?;
+    }
+    for refs in &expected {
+        let count = warnings.iter().filter(|warning| warning["affected_refs"] == *refs).count();
+        require(count != 0, "RHS_SCREEN_EXCEPTION_WARNING_MISSING")?;
+        require(count == 1, "RHS_SCREEN_EXCEPTION_WARNING")?;
+    }
+    Ok(())
+}
+
+const EXCEPTION_RECORD_KEYS: [&str; 7] =["basis", "node_ref", "member_pipe_ids", "member_lengths_m", "region_span_m", "thrust_to_bore_force_ratio", "consistency_bound_ratio"];
 /// The constants of the consistency bound (product physics
 /// `BORE_DEPARTURE_RATIO`, `ALIGNMENT_DEPARTURE_RATIO`,
 /// `FORMATION_ALLOWANCE_RATIO`, `SUBNORMAL_ALLOWANCE`).

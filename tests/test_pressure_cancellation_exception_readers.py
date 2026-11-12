@@ -17,7 +17,7 @@ import math
 
 import pytest
 
-from tests.verifiers.pressure_3 import rhs_screen
+from tests.verifiers.pressure_3 import DEPARTURE_THRUST_WARNING_MESSAGE, departure_thrust_warnings, rhs_screen
 
 CASE = "case:P"
 
@@ -144,3 +144,42 @@ def test_a_passing_screen_stands_alone() -> None:
     rhs_screen(deepcopy(rhs), CASE, False, regions)
     rhs["cancellation_screen"] = None
     _refused(rhs, regions, "SOURCE_PHYSICS_RHS_SCREEN")
+
+
+def _document(label: str) -> dict:
+    """A source holding one admitted case and its warning, as the producer publishes them (Rust
+    ``pressure_runtime::departure_thrust_warning``): [case, region, the record's node]."""
+    rhs, regions = _admitted(label)
+    node = rhs["cancellation_screen_exception"]["node_ref"]
+    warning = {"id": "diagnostic:pressure-runtime:invented:PRESSURE_REGION_DEPARTURE_THRUST_RETAINED", "code": "PRESSURE_REGION_DEPARTURE_THRUST_RETAINED",
+               "severity": "warning", "message": DEPARTURE_THRUST_WARNING_MESSAGE, "source": "core/product_physics/src/pressure_runtime.rs",
+               "affected_refs": [CASE, regions[0]["region_id"], node]}
+    return {"contract_evidence": {"exact_cases": [{"load_case_id": CASE, "pressure_rhs_assembly": rhs}]}, "diagnostics": [warning]}
+
+
+def _warning_refused(document: dict, code: str) -> None:
+    with pytest.raises(ValueError) as refusal:
+        departure_thrust_warnings(document)
+    assert str(refusal.value).endswith(": " + code), str(refusal.value)
+
+
+@pytest.mark.parametrize("label", sorted(ASSEMBLIES))
+def test_the_warning_stands_exactly_with_the_record(label: str) -> None:
+    departure_thrust_warnings(_document(label))
+    # A record without its warning.
+    document = _document(label)
+    document["diagnostics"] = []
+    _warning_refused(document, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING_MISSING")
+    # A warning without a record (the original screen admitted the case).
+    document = _document(label)
+    document["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"].pop("cancellation_screen_exception")
+    _warning_refused(document, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING_UNRECORDED")
+    # A changed message.
+    document = _document(label)
+    document["diagnostics"][0]["message"] = DEPARTURE_THRUST_WARNING_MESSAGE.replace("not establish", "establish")
+    _warning_refused(document, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING")
+    # A wrong node.
+    document = _document(label)
+    rhs = document["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]
+    document["diagnostics"][0]["affected_refs"][2] = rhs["node_order"][0]
+    _warning_refused(document, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING")
