@@ -25,6 +25,10 @@ export const HANGER_SIZING_MODEL_CHANGED_TEXT =
   "The model has changed since this sizing run, so its selections are not offered for application. Size again to apply a selection.";
 export const HANGER_SIZING_MODEL_NOT_HASHABLE_TEXT =
   "The present model's solve request cannot be hashed, so this result cannot be shown to be bound to it and its selections are not offered for application.";
+export const HANGER_SIZING_LIBRARY_CHANGED_TEXT =
+  "The hanger library has changed since this sizing run, so its selections are not offered for application. Size again to apply a selection.";
+export const HANGER_SIZING_LIBRARY_UNAVAILABLE_TEXT =
+  "The hanger library this sizing run used is no longer stored or cannot be read, so its selections are not offered for application. Size again to apply a selection.";
 export const HANGER_SIZING_NO_FIT_TEXT = "No record fits this support, so there is nothing to apply.";
 /** Shown beside an application that includes a variable spring, until the solve applies a variable spring's cold load
  * (DEL-04-11 REQ-014); kept consistent with the results standing line (`results/hangerPreload.ts`). Remove this
@@ -109,6 +113,15 @@ async function offerFor(document: HangerSizingSizedDocument, candidate: HangerSi
     kind: "offered", support, hangerId: selected.hanger_id, target,
     application: { run, loads: { family: "variable_spring", coldLoadN: selected.f_cold_n, hotLoadN: design[0].f_n, designOperatingCase: designCase } }
   };
+}
+
+/** The library as the person has it stored now, read again at the act: its document, or `unavailable` when it is no
+ * longer stored, cannot be read, or has blocking import findings. */
+export type StoredLibraryRead = Readonly<{ kind: "read"; document: unknown }> | Readonly<{ kind: "unavailable" }>;
+
+/** Whether `library` is the library `document` binds: the one it names, with the checked hash it binds. */
+export async function hangerSizingLibraryBound(document: HangerSizingSizedDocument, library: unknown): Promise<boolean> {
+  return (await libraryReason(document, library)) === null;
 }
 
 /** For each candidate of `document`, whether its selection is offered for application to `model`, and why not. */

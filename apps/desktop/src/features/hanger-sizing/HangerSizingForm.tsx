@@ -18,6 +18,7 @@ import type { HangerSizingFamilyPolicy } from "../results/hangerSizingResult";
 import { VirtualMultiTargetPicker } from "../workspace/VirtualTargetPicker";
 import type { OperationBatch } from "../../services/operationBatchService";
 import { HangerSizingApply } from "./HangerSizingApply";
+import type { StoredLibraryRead } from "./sizedSelection";
 import { assembleHangerSizingInput, EMPTY_HANGER_SIZING_FORM, WEIGHT_SUPPORT_STATE, type HangerSizingFormState } from "./hangerSizingRequest";
 
 export const HANGER_SIZING_FORM_TITLE = "Size hangers";
@@ -92,6 +93,19 @@ export function HangerSizingForm({ model, busy = false, onQueueBatch }: Props) {
     setLibraries(result.entries.filter((entry) => entry.library_kind === "hanger"));
   }
 
+  /** The hanger library stored now under `libraryId`, read again for an application act (REQ-008): its document only
+   * when it opens with no blocking import finding. */
+  async function readStoredLibrary(libraryId: string): Promise<StoredLibraryRead> {
+    try {
+      const result = await openLocalLibrary(projectId, "hanger", libraryId);
+      if (result.route !== "tauri_backend" || !result.envelope) return { kind: "unavailable" };
+      if (!result.envelope.validation.accepted || result.envelope.validation.has_blocking_findings) return { kind: "unavailable" };
+      return { kind: "read", document: result.envelope.document };
+    } catch {
+      return { kind: "unavailable" };
+    }
+  }
+
   async function chooseLibrary(libraryId: string) {
     const generation = ++librarySelection.current;
     update({ libraryId });
@@ -141,6 +155,10 @@ export function HangerSizingForm({ model, busy = false, onQueueBatch }: Props) {
   }
 
   const reply = shown?.completion.kind === "replied" ? shown.completion : null;
+  // The library the form holds now under the id the shown result names, if it holds one: a reopened library under that
+  // id withdraws the result's application unless it is the one the result binds.
+  const boundLibraryId = reply?.document.status === "sized" ? reply.document.inputs.library.library_id : null;
+  const currentLibrary = boundLibraryId !== null && library !== null && library.libraryId === boundLibraryId ? library.document : undefined;
   const failure = shown?.completion.kind === "failed" ? shown.completion : null;
   return (
     <section id="hanger-sizing" aria-label="Hanger sizing" data-testid="hanger-sizing-form">
@@ -212,8 +230,9 @@ export function HangerSizingForm({ model, busy = false, onQueueBatch }: Props) {
       ) : null}
       {failure ? <p role="alert" data-testid="hanger-sizing-failure"><code>{failure.code}</code>: {failure.message}</p> : null}
       {reply && shown ? <HangerSizingPanel document={reply.document} evidence={reply.evidence} library={shown.library} /> : null}
-      {reply && shown && reply.document.status === "sized" && onQueueBatch
-        ? <HangerSizingApply document={reply.document} library={shown.library} model={model} busy={busy || running} onQueueBatch={onQueueBatch} />
+      {reply && shown && reply.document.status === "sized" && boundLibraryId !== null && onQueueBatch
+        ? <HangerSizingApply document={reply.document} library={shown.library} currentLibrary={currentLibrary}
+            readStoredLibrary={() => readStoredLibrary(boundLibraryId)} model={model} busy={busy || running} onQueueBatch={onQueueBatch} />
         : null}
     </section>
   );
