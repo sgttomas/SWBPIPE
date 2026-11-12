@@ -714,19 +714,21 @@ describe("local-private rendered report (W-3)", () => {
     expect(screen.getByTestId("rendered-report-preview")).toHaveAttribute("srcdoc", unblockedOutcome().html);
 
     // The save sink is the local-private HTML route under the panel's own intent;
-    // it shows no second intent control and the public save link is absent.
+    // it shows no second intent control and the public save control is absent. In
+    // the desktop runtime it is the native save (a button), not a download link,
+    // and the print is the native print, not an iframe
+    // (`renderedReportNativeRoutes.test.tsx`; DEL-08-01 REQ-022).
     expect(screen.queryByTestId("rendered-report-save")).not.toBeInTheDocument();
     const save = screen.getByTestId("rendered-report-save-local-private");
     expect(save.closest("[data-route-id]")).toHaveAttribute("data-route-id", "DREP-HTML-SAVE-005");
-    expect(save).toHaveAttribute("href", `data:text/html;charset=utf-8,${encodeURIComponent(unblockedOutcome().html)}`);
+    expect(save.tagName).toBe("BUTTON");
+    expect(save).not.toHaveAttribute("href");
     expect(screen.queryByTestId("rendered-report-save-local-private-local-private-intent")).not.toBeInTheDocument();
     expect(screen.getByTestId("rendered-report-save-local-private-redaction-summary")).toHaveTextContent("blocked=false");
 
     fireEvent.click(screen.getByTestId("rendered-report-print"));
-    expect(screen.getByTestId("rendered-report-print-frame")).toHaveAttribute(
-      "srcdoc",
-      unblockedOutcome().derived_print_html
-    );
+    await waitFor(() => expect(invokeMock.mock.calls.some(([command]) => command === "print_rendered_report")).toBe(true));
+    expect(screen.queryByTestId("rendered-report-print-frame")).not.toBeInTheDocument();
   });
 
   it("clears a shown private render when the selection is turned off and never reuses it publicly", async () => {
