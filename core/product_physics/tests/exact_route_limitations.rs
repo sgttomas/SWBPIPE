@@ -65,7 +65,7 @@ const LOAD_STATE_SOURCE_REQUEST: &str =
 /// A pressure-free (`preview-physics-2`) model.
 const PRESSURE_FREE_MODEL: &str = include_str!("fixtures/preview_physics_invented_model.json");
 
-/// The committed exact corpora (§1.3), each with its published limitation
+/// The committed exact corpora, each with its published limitation
 /// lists found wherever an object carries a producer and a formulation basis.
 const EXACT_CORPORA: [(&str, &str); 15] = [
     ("pressure_v3_straight_reader_corpus", include_str!("../../../fixtures/results/pressure_v3_straight_reader_corpus.json")),
@@ -501,7 +501,7 @@ fn source_control_with(load_state: bool, connectors: bool, bends: bool) -> Value
     request
 }
 
-/// The guard (§2.2): the producer emits no `pressure-source-1` list for a model
+/// The guard: the producer emits no `pressure-source-1` list for a model
 /// with an objective connector or a realized bend. For each of the six shapes,
 /// the retained-source control with the component added asks for source
 /// recovery, the source method refuses it by name, and the case publishes on

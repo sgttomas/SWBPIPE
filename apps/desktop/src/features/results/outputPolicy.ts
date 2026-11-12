@@ -57,7 +57,7 @@ export const RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE = "RETAINED-PRECISION-O
 /** Decision 12: reworded so that it no longer says every output is unavailable. */
 export const N_RETAINED_PRECISION_OUTPUT = "This output of retained-precision results (preview-physics-retained-1) is not available on the desktop; only the result JSON and stress-neutral exports admit a numerically eligible result. The result remains readable here; this is not a finding about the result.";
 export const RETAINED_PRECISION_OUTPUT_REFUSAL = `${RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE}: ${N_RETAINED_PRECISION_OUTPUT}`;
-/** B3b (B3-D §7; B3D-14): the exact successor's own reason; the preview text is untouched. */
+/** B3b: the exact successor's own reason; the preview text is untouched. */
 export const N_RETAINED_PHYSICS_OUTPUT = "This output of retained-precision results (physics-retained-1) is not available on the desktop; only the result JSON and stress-neutral exports admit a numerically eligible result. The result remains readable here; this is not a finding about the result.";
 export const RETAINED_PHYSICS_OUTPUT_REFUSAL = `${RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE}: ${N_RETAINED_PHYSICS_OUTPUT}`;
 /** An admitted surface refuses a gated route that is not numerically eligible. The
@@ -72,7 +72,7 @@ export const OUTPUT_ROUTE_NOT_REGISTERED_REFUSAL = `${OUTPUT_ROUTE_NOT_REGISTERE
  * The first seventeen are T1's group a (named by their test-id prefixes).
  *
  * DEL-17-04's model batch file export (`caepipe-mbf`) is not one of them since its
- * follow-up to slice 4b.2b (Design `desktop-mbf-export-import.md` §3.1): its native
+ * follow-up to slice 4b.2b: its native
  * writer takes only the session's canonical model text, its hash, the settings and the
  * route evidence (`review_mbf_export`, `save_mbf_export`), and its files hold no result
  * data, so no route's result refuses it. Its own admission, the local-private route
@@ -127,7 +127,7 @@ export const OUTPUT_POLICY: Readonly<Record<SourceContract, RouteOutputPolicy>> 
       "result-export": "admitted_when_eligible", "stress-neutral": "admitted_when_eligible",
     }),
   }),
-  // B3b (B3-D §7, decision 21): the exact successor, admitted by the same two T6 panels only.
+  // B3b (decision 21): the exact successor, admitted by the same two T6 panels only.
   retained_physics: Object.freeze({
     gate: "per_surface",
     reason: RETAINED_PHYSICS_OUTPUT_REFUSAL,

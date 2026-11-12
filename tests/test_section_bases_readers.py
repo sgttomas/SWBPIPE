@@ -1,4 +1,4 @@
-"""T4-U6/U8 (DEL-05-03 `section-bases-and-timoshenko.md` §1-§3.1, §5, §8): the test-only verifiers read the D-5
+"""the test-only verifiers read the D-5
 section bases and the D-6 beam theory, and refuse each reader mutant.
 
 The documents are the regenerated committed pressure-2 fixtures, which are the producer's §2.5 output (both stress
@@ -203,7 +203,7 @@ def test_the_shaped_interface_is_read_on_coincident_and_distinct_bases_under_bot
 
 
 def test_pressure_1_reader_refuses_cross_basis_stress(base):
-    # §8: one basis for both families (reduced rows copied from nominal) on distinct bases.
+    # one basis for both families (reduced rows copied from nominal) on distinct bases.
     doc = distinct(base)
     rows = _rows(doc)
     for row in doc["results"]:
@@ -237,7 +237,7 @@ def _case_sections_and_pressures(doc):
 
 
 def test_pressure_1_reader_refuses_nominal_lame_at_the_pressure_bore(base):
-    """§8, §2.1: the nominal-basis Lame rows evaluated at the pressure bore. On distinct bases every nominal hoop row is
+    """the nominal-basis Lame rows evaluated at the pressure bore. On distinct bases every nominal hoop row is
     published as 2p*Ai/A_n at the outer surface and that plus p at the inner, with Ai = pi*r_i,r^2 the pressure bore's
     area and A_n the nominal area: neither the nominal annulus's own hoop nor the reduced twin's (Rust's twin is
     section_bases.rs's test of the same name)."""
@@ -318,7 +318,7 @@ def _set_model_section(model, pipe, key, value):
 
 
 def test_pressure_1_model_checks_bind_each_section_input_to_the_model(base):
-    """§1, §5 (FINAL-B): G2 binds each case section's captured D, t, c_m (0.0 when the model has none) and c_a to the
+    """G2 binds each case section's captured D, t, c_m (0.0 when the model has none) and c_a to the
     model's section of that pipe, bit for bit after the unit catalog: each one ulp off is refused by name, as is a
     signed zero and a pipe's section swapped with another's (Rust's twin is section_bases.rs's test of the same name)."""
     code = "^SOURCE_PHYSICS_MODEL_SECTION_GEOMETRY$"
@@ -476,7 +476,7 @@ def _arc_corpus_entry(label):
 
 
 def test_pressure_1_reader_refuses_beam_theory_contradicting_the_contract(base):
-    """§5: a straight member's beam theory is the captured contract's shear model (G2, against the model); kappa and A_s
+    """a straight member's beam theory is the captured contract's shear model (G2, against the model); kappa and A_s
     stay the evidence reader's. Rust's twin is section_bases.rs's test of the same name."""
     eb, tim = sb.EULER_BERNOULLI, sb.TIMOSHENKO
     euler = distinct(base)
@@ -557,7 +557,7 @@ def test_pressure_1_model_checks_take_realized_arcs_from_the_model():
 
 
 def test_pressure_1_reader_binds_the_case_section_marker_to_the_region_arc(arc):
-    """§2.5: the region marks exactly the members the case sections mark (Rust's twin is section_bases.rs's test of the
+    """the region marks exactly the members the case sections mark (Rust's twin is section_bases.rs's test of the
     same name)."""
     pressure_3.validate_pressure_evidence(arc)
     region = next(r for r in arc["contract_evidence"]["pressure"] if any("member_kind" in g for g in r["geometry"]))
@@ -602,7 +602,7 @@ def test_pressure_source_1_composite_refuses_arcs_by_name_and_reads_one_straight
 
 
 def test_pressure_source_1_and_physics_retained_1_bind_the_section_beam_theory_to_the_invocation():
-    """§5 and O4 (§3.4): each captured section states the beam theory its contract selects for a straight member
+    """each captured section states the beam theory its contract selects for a straight member
     (``physics_source._actual_materials``, also G8 step 5, whose exact namespace still admits euler_bernoulli only);
     a contract naming no admitted model fails closed. Rust's twin is physics_source.rs's
     ``actual_materials_bind_each_section_beam_theory_to_the_contract_selection``."""
@@ -694,7 +694,7 @@ def test_the_d5_geometry_is_rederived_in_its_fixed_order(base):
 
 
 def test_u6_joint_face_area_is_the_d5_pressure_bore():
-    """§1, §2.3, §2.5: a joint face's bore area is the region geometry's ``pressure_bore.Ai_m2``, on distinct bases (a
+    """a joint face's bore area is the region geometry's ``pressure_bore.Ai_m2``, on distinct bases (a
     nonzero corrosion allowance puts the pressure bore off the nominal bore). Rust's twin is connector_evidence.rs
     ``u6_joint_face_area_is_the_d5_pressure_bore``."""
     p, ae, od, wall, allowance = 2.0e6, 0.0125, 0.1143, 0.006, 0.0015
@@ -769,7 +769,7 @@ def test_pressure_source_1_admits_mill_tolerance_and_physics_retained_1_refuses_
         broken["request"]["model"]["pipe_segments"][0]["section"]["mill_tolerance"] = bad
         with pytest.raises(ValueError, match="^PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE$"):
             contract.check_invocation(broken)
-    # O4 (§4.7): physics-retained-1's G8 namespace admits the nonzero mill tolerance within the section sum, and
+    # physics-retained-1's G8 namespace admits the nonzero mill tolerance within the section sum, and
     # refuses one that is not a finite length >= 0 or that reaches the wall; the named decline is retired.
     assert not hasattr(rp, "MILL_TOLERANCE_DECLINE") and not hasattr(rp, "_exact_mill_tolerances")
     assert rp._exact_namespace(changed["request"]["model"]) and rp._exact_namespace(invocation["request"]["model"])

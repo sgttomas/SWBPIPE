@@ -16,7 +16,7 @@ This deliverable is the standing check that the solver computes frame and piping
 It serves SOW-026 under OBJ-008 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-09, row DEL-09-01) and PRD §22.1, §22.2 and §22.4. In `docs/RELEASE_TARGET_v1.0.md`, exit criterion 2 names this deliverable for the reference system: the system passes closed-form or hand-calculation references frozen in `validation/references/` with an independent generator. Criteria 1, 6, 7 and 17 are examined on the reference system this deliverable maintains; their owners are other deliverables.
 
 - **OUT-001** — The mechanics benchmark suite: invented models for cantilevers, frames, thermal growth, imposed displacement, stiffness transforms and the other solver benchmarks of PRD §22.2, each with its independently derived expected results, its derivation, its provenance record, and the comparison of the product's solve with them.
-- **OUT-002** — The reference system of exit criterion 1: its specification, its generated model document, its run sheet, its named key results and its independent references.
+- **OUT-002** — The reference system of exit criterion 1: its specification (`fixtures/reference_system/SPECIFICATION.md`), its generated model document, its run sheet (`fixtures/reference_system/RUN_SHEET.md`), its named key results and its independent references.
 
 ## Deliverable Definition — Ontology
 
