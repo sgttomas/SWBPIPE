@@ -215,7 +215,7 @@ def format_plan(plan, budget_s=WINDOW_BUDGET_S):
     out.append('total estimate: %d s (%.1f min); window budget %d s; runs whose estimate exceeds the remaining '
                'budget are skipped, and each timeout is capped at the remaining budget.' % (total, total / 60, budget_s))
     out.append('estimates: they order and bound the window; none is a '
-               'measurements. budget: the phys_footprint kill (the product budget); rss_cap: the emergency ps RSS kill. '
+               'measurement. budget: the phys_footprint kill (the product budget); rss_cap: the emergency ps RSS kill. '
                'A run id ending -attr takes stack snapshots; its timings are not measurements.')
     return '\n'.join(out) + '\n'
 
