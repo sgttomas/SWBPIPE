@@ -7,7 +7,7 @@ release target's benchmark method.
 - **Case C:** one pipe, a cantilever in one plane and a propped cantilever in the other.
 - **Case D:** the pipe on the space diagonal with a skew tip spring.
 
-**Status: candidate references, not yet refuted.**
+**Status: references with a refutation record (`REFUTATION.md`).**
 
 **Independence.**
 
@@ -30,9 +30,10 @@ release target's benchmark method.
 | `predicted_formulation_difference.json` | per case id and compared quantity: consistent against lumped at the same member count |
 | `generators/pinned.py` | hash-pinned import of `closed_form/generators/{numerics,rules,continuum,fe,beams}.py` |
 | `generators/pack_c.py`, `pack_d.py`, `pack_summary.py`, `pack_predicted.py`, `generate.py` | case C, case D, the summary, the predicted formulation difference and the driver |
+| `REFUTATION.md` | the refutation record (authored; verified by hash, not generated) |
 | `SHA256SUMS` | hashes of every file above |
 
-To check or regenerate (standard library only, single process, about 10 s):
+To check or regenerate (standard library only, single process, about 12 s):
 
     python3 generators/generate.py --check
     python3 generators/generate.py --write
@@ -219,7 +220,7 @@ Where fewer than six finite modes exist, all of them are periodic.
 
 | Model | Modes in the periodic set |
 |---|---|
-| Consistent N = 1 | Y1, Z1, Y2, RX1, X1. Z1 has no nodal translation and is normalized by rotation (DEL-04-09 REQ-005 case (b), the only such mode in this pack); it participates through the consistent coupling to restrained DOFs |
+| Consistent N = 1 | Y1, Z1, Y2, RX1, X1. Z1 has no nodal translation and is normalized by rotation (DEL-04-09 REQ-005 case (b)): it is the only bending mode in this pack normalized by rotation, and every torsion mode (RX) is case (b) too. Z1 participates through the consistent coupling to restrained DOFs |
 | Lumped N = 1 | Y1 and X1 only; no finite Z-plane mode, because its only Z-plane DOF is a massless rotation |
 | Lumped N = 2 | Y1, Z1, Y2, X1, X2 |
 | Every other model | Y1, Z1, Y2, Z2, Y3, Z3 |
@@ -248,8 +249,10 @@ with the correction on, f_r = 1.25 Hz and FLAT (a_r = 2.5 m/s²).
 
 **Deviations.** Every response carries `rel_dev` against the Rayleigh continuum with the case's own
 periodic set: six modes, or Y1 and Z1 for the truncation case. Per-mode values are matched to the
-continuum mode of the same plane and index. At N = 1 and N = 2 the FE models have fewer modes, so
-their deviations include the missing modes.
+continuum mode of the same plane and index. `rel_dev` is (value − continuum)/|continuum|, so for a
+negative quantity its sign is the opposite of value/continuum − 1. The consistent N = 1 and the lumped
+N = 1 and N = 2 models have fewer than six bending modes in their periodic sets, so their combined
+deviations include the missing modes.
 
 ## Case D
 

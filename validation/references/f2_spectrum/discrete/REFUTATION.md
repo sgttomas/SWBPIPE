@@ -294,3 +294,49 @@ formulas.
 - The product, `../closed_form/` and any CAEPIPE comparison.
 - The 16-digit experiment in R5 is a decimal stand-in for binary64, not a
   product eigensolver.
+
+## Additions after the first record
+
+A further refuting TASK, not the author of this package and not the writer of the record above,
+examined what was added to or changed in this package after that record (the member-axis end-force blocks of C9, the δ_c cluster statements, C7's two bases, the fraction moving with the supports, and the renamed rule keys), as committed on
+`claude/dynamics-references` at c8c602df6. This section is its record. Governing texts: DEL-04-10
+CLM-001 (with Repeated modes), REQ-002 to REQ-004; DEL-04-09 REQ-002, REQ-003 (δ_c = 2⁻²⁰), REQ-005.
+
+**Verdict.** Nothing refuted: no value, formula or statement checked below disagrees.
+
+**Independence.** The conditions are those of the benchmark-pack record (`../benchmark_pack/REFUTATION.md`). No product code was read, imported or run,
+and no CAEPIPE material was read. The scripts use the standard library only, are my own, run with
+`python3 -I`, one process at a time, in a scratch directory outside the repository, and import no
+package generator. Every check starts from published inputs, contributions or eigenvalues, or from
+first principles (B6's A), with rules written from CLM-001's text.
+
+| Item | What | Checks | Largest disagreement |
+|---|---|---|---|
+| B1 frame | My Gram–Schmidt frame from the binary64 node coordinates and `y_reference` against the README's closed forms x = (1,1,1)/√3, y = (−1,−1,2)/√6, z = (1,−1,0)/√2, `derived_model.member_frames` (rows and lengths) and the block's `frames`, C9 and C9-CHAIN | 448 | 3.4e-40 |
+| B1 rotation, C9-Y | Every published global signed end-force contribution (8 members × 12 components × 6 modes) rotated by Λ = rows (x, y, z) against `element_end_forces_member_axes.contributions_signed` | 576 | 4.4e-40 of the mode's scale |
+| B1 balance, C9-CHAIN-Y | No global end forces are published, so: P1.i (rotated back) = SA force and moment; P8.j = S1 force, zero moment; P_k.j + P_{k+1}.i = 0 at every interior node; 23 modes | 1,242 | 2.9e-40 |
+| B1 combinations | SRSS, CQC (ρ of CLM-001 at the binary64 0.05, units' lowest f), GROUPING, TEN_PERCENT, ABSOLUTE_SUM formed by me on the member-axis contributions; `per_direction_combined` = the request's rule; `combined` (one direction); every `mutations` entry | 2,784 | 7.1e-40 |
+| B1 keys and units | The member-axis keys equal `derived_model.member_axes_quantities` (96 each); F in N, M in N·m | 2 cases | — |
+| B2 | δ_c chaining recomputed from the published eigenvalues of every case (all ten files), λ_{i+1} − λ_i ≤ 2⁻²⁰ λ_{i+1}: membership of every `scope_clusters` entry and its standing (lowest) frequency; `frequency_list` against the clusters' frequencies; `adjacent_pairs_within_delta_c` (C8, C9, C9-CHAIN, C10-W2, C10-W3), their stated gaps, and `min_relative_eigenvalue_gap_all_modes` | 279 clusters, 167 frequencies, 5 pair lists | exact; gaps to the published 3 digits |
+| B3 | C7 `basis_1` and `basis_2`: the pair's cluster sum from each basis's vectors against its `cluster_sum_signed` and the analysis's cluster sum; each of the five rules over the two units (the pair's sum and the published sum of modes 3 and 4) per direction and over directions (SRSS); basis_1 against basis_2; against the analysis's SRSS, CQC and GROUPING and its `combined` | 744 | 5.2e-40 |
+| B4 | C6A (rigid skew snubber SN2) and C6B (no skew constraint): reduced DOF count 30 − 13 − 1 = 16 and 30 − 12 = 18, equal to `n_reduced_dofs` and to the number of listed modes; `fraction_moving_with_supports` = 1 − Σ over every finite mode m_eff/T_k and `all_finite_modes_cumulative_fraction` per direction | 12 + 2 | 1.6e-40 |
+| B5 discrete | All five renamed rules recomputed from the published contributions in C9-CHAIN-Y (where GROUPING and TEN_PERCENT differ: groups (21, 22), (23); pairs (21, 22), (22, 23)), every C3, C4 and C10 analysis, and C8-I-FLAT | 4,455 | 3.1e-33 (C10-W3, a quantity whose cluster contributions cancel 1219 − 1219 → 2e-4, at the 40-digit rounding of its inputs); 7e-40 elsewhere |
+
+About 10,500 checks.
+
+Notes (not refutations):
+
+- B1: the README's statement that the member-axis block's flush scale is its own was not tested.
+- B5: in C10-W3, with near-cancelling cluster contributions, a combination recomputed from the
+  published 40-digit contributions can differ from the published one by about 1e-33 relative. This
+  comes from the inputs' rounding; a reader recomputing at the verification tolerance is unaffected.
+
+Not checked:
+
+- No model was re-solved for Part B (as assigned). The C9-CHAIN member-axis contributions are
+  therefore confirmed by equilibrium against the published SA and S1 values, not by a rotation of
+  global end forces, which that case does not publish.
+- B4: p_rᵀM_r⁻¹p_r was not formed from an assembled mass. The corrected statement was checked
+  through its stated equal form, 1 − Σ m_eff/T_k over a modal set shown to span the whole reduced
+  space.
+- This package's generators, and their regeneration, were not run for this section.

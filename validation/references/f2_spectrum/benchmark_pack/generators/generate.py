@@ -29,8 +29,8 @@ import pack_summary  # noqa: E402
 import pack_predicted  # noqa: E402
 
 SCHEMA = "swbpipe.f2_spectrum.benchmark_pack/v1"
-STATUS = "candidate references, not yet refuted"
-AUTHORED = ["README.md"]
+STATUS = "references with a refutation record (REFUTATION.md)"
+AUTHORED = ["README.md", "REFUTATION.md"]
 GENERATORS = ["generators/pinned.py", "generators/pack_c.py", "generators/pack_d.py", "generators/pack_summary.py",
               "generators/pack_predicted.py", "generators/generate.py"]
 NUMBER_FORMAT = ("Inputs are binary64 ('binary64' shortest round trip, 'hex', 'exact' rational). Derived reals are "

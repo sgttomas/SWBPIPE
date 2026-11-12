@@ -276,7 +276,7 @@ def respond(merged, planes_modes, table, count):
         plane = "Y" if q in Y_Q else "Z"
         if any(x is None for x in contrib[q]):
             comb[q] = None
-            contrib[q] = [None if e[1] == plane else x for e, x in zip(sel, contrib[q])]
+            contrib[q] = [None for _ in sel]  # a location that is not a node has no value in any mode
         elif not any(e[1] == plane for e in sel):
             comb[q] = None
         else:
