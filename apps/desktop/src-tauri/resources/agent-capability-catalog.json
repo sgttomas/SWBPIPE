@@ -1882,7 +1882,7 @@
       "availability": "admitted live webview workspace",
       "sourceRoute": "workspaceSession.ts handleRun; previewService.ts startPreviewMechanicsJob/takePreviewMechanicsJobResult",
       "canonicalUnits": "node coordinates: exact project.units.length; result values: source row unit, no display conversion",
-      "basisPolicy": "Current claimed/live basis required at job admission. Completion binds natively the job (made after the call was claimed, named by no other completion), its mode, its result and its solved status, and binds the evaluated model hash by the webview's account until the job's model hash is recorded natively; the binding holds even if the live revision advances; no result implies current-state applicability."
+      "basisPolicy": "Current claimed/live basis required at job admission. Completion binds natively the job (made after the call was claimed, which shows order, not cause; named by no other completion), its mode, the digest of its result bytes and its solved status; the evaluated model hash and the values a result page returns rest on the webview's account; the binding holds even if the live revision advances; no result implies current-state applicability."
     },
     {
       "name": "swbpipe_read_results",
