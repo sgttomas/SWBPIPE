@@ -62,6 +62,14 @@ function expectNoCurrentOnlyVerdict(where: string, text: string) {
   for (const marker of CURRENT_ONLY_VERDICTS) expect(text.includes(marker), `${where}: "${marker}"`).toBe(false);
 }
 
+/** RT-L2 (DEL-04-07 REQ-009): the refusal of a pressure-2 result, and of a successor whose base is one. */
+const PRESSURE_2_RETIRED_TEXT = "SOURCE_PRESSURE_2_RETIRED: pressure-2 results predate the pressure elongation setting and are no longer read; re-solve the model";
+/** Whether a recorded statement's base identity statement (its first limitation) names a pressure-2 result. */
+function pressure2Base(source: MechanicsResult): boolean {
+  const first = (source.formulation_basis as { limitations?: unknown[] } | undefined)?.limitations?.[0];
+  return typeof first === "string" && first.startsWith("3.0.0/exact_pressure_v3 under pressure-2 semantics.");
+}
+
 type Opened = { source: MechanicsResult; record: AnalysisRunEnvelope; model: PreviewModel };
 /** `twin` is the statement's current counterpart in fixtures/results (the same rows and metadata;
  * only its formulation basis, and a successor's receipt, differ): the oracle of what the panel
@@ -177,6 +185,17 @@ describe("a reopened run recorded before RT-A4 shows no current-only verdict on 
     const source = context.mechanicsResult!;
     const binding = { id: source.producer!.semantic_contract_id, sha256: variant.sha256 };
     expect(context.recordedTableRead).toEqual(binding);
+    // RT-L2 (DEL-04-07 REQ-009): a successor whose base is a pressure-2 result is refused by name,
+    // with its message to re-solve, in the reader and in the panel; it is not read under its table.
+    if (pressure2Base(source)) {
+      const dispatch = recordedReaderDispatch(source, binding) as { ok: boolean; error?: { code: string; detail: string } };
+      expect([dispatch.ok, dispatch.error?.code, dispatch.error?.detail]).toEqual([false, "SOURCE_PRESSURE_2_RETIRED", PRESSURE_2_RETIRED_TEXT]);
+      expect(context.historicalReaderFindings).toContain(PRESSURE_2_RETIRED_TEXT);
+      render(<HistoricalRunPanel context={context} />);
+      expect(screen.getByTestId("numerical-result-standing").textContent).toContain("Needs recompute.");
+      expect(screen.getByTestId("historical-run-context").textContent).toContain(PRESSURE_2_RETIRED_TEXT);
+      return;
+    }
     expect(recordedReaderDispatch(source, binding).ok).toBe(true);
     // The standing stays historical, labelled with its table; the retained restriction stays.
     render(<HistoricalRunPanel context={context} />);
@@ -282,6 +301,11 @@ describe("a recorded comparison of two pre-RT-A4 runs under the same table shows
     const { source, model } = variant.open();
     const binding = { id: source.producer!.semantic_contract_id, sha256: variant.sha256 };
     const standing = recordedResultStanding(source, binding, model);
+    if (pressure2Base(source)) {
+      // RT-L2 (DEL-04-07 REQ-009): refused by name; nothing of it is compared.
+      expect(standing).toEqual({ contract: "unsupported", status: "needs_recompute", eligible: false, findings: [PRESSURE_2_RETIRED_TEXT] });
+      return;
+    }
     const input = { rows: flattenRunResult(source, binding), standing, semantic_identity: resultSemanticIdentity(source, binding), context: {}, diagnostics: [] } as never;
     const side = (id: string) => ({ kind: "recorded", id, description: id, createdAt: null, state: null, standing, recordedTableRead: binding, input } as unknown as RunComparisonSide);
     const { comparison, view, csv } = await renderComparison(side("a"), side("b"), source.model_ref);
