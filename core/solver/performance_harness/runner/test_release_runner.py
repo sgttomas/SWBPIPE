@@ -156,6 +156,44 @@ class Plan(unittest.TestCase):
             self.assertIn(r['run_id'], text)
 
 
+class WritePlan(unittest.TestCase):
+    """`--write-plan`: the plan file of the driver's supervise mode has the runner's plan as its one source."""
+
+    def test_the_plan_file_is_the_selected_plan(self):
+        with tempfile.TemporaryDirectory() as folder:
+            models = os.path.join(folder, 'models')
+            os.makedirs(models)
+            listed = rr.model_name('linear-ex', 250)
+            with open(os.path.join(models, 'manifest.json'), 'w') as fh:
+                json.dump({'models': {listed: {'sha256': 'a' * 64, 'stats': {'nodes': 250}}}}, fh)
+            path = os.path.join(folder, 'plan.json')
+            out = io.StringIO()
+            with mock.patch.object(k6, 'launch', side_effect=AssertionError('launched')), redirect_stdout(out):
+                self.assertEqual(rr.main(['--write-plan', path, '--subset', 'window', '--models', models,
+                                          '--budget-s', '600', '--quiet-wait-s', '30']), 0)
+            with open(path) as fh:
+                document = json.load(fh)
+        window = rr.select(rr.default_plan(), 'window')
+        self.assertEqual(document['schema'], rr.PLAN_SCHEMA)
+        self.assertEqual((document['window_budget_s'], document['quiet_wait_s']), (600, 30))
+        self.assertEqual([{k: r[k] for k in rr.PLAN_RUN_KEYS} for r in document['runs']],
+                         [{k: r[k] for k in rr.PLAN_RUN_KEYS} for r in window])
+        self.assertEqual([r['model'] for r in document['runs']], [rr.model_name(r['profile'], r['nodes']) for r in window])
+        by_model = {r['model']: r for r in document['runs']}
+        self.assertEqual((by_model[listed]['expected_model_sha256'], by_model[listed]['model_stats']),
+                         ('a' * 64, {'nodes': 250}))
+        others = [r for r in document['runs'] if r['model'] != listed]
+        self.assertTrue(others and all(r['expected_model_sha256'] is None for r in others), 'unlisted: no check')
+        self.assertNotIn(folder, json.dumps(document))
+
+    def test_attribution_runs_are_refused(self):
+        with self.assertRaises(ValueError):
+            rr.plan_document(rr.select(rr.default_plan(), 'window2'))
+        with tempfile.TemporaryDirectory() as folder, redirect_stdout(io.StringIO()), \
+                mock.patch('sys.stderr', io.StringIO()), self.assertRaises(SystemExit):
+            rr.main(['--write-plan', os.path.join(folder, 'plan.json'), '--subset', 'window2'])
+
+
 class Classification(unittest.TestCase):
     def test_ok(self):
         self.assertEqual(rr.classify(launched(), driver(), BUDGET), ('ok', None))

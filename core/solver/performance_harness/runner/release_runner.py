@@ -205,6 +205,37 @@ def plan_total_s(plan):
     return sum(r['estimate_s'] for r in plan)
 
 
+# The plan file the self-supervising driver reads (`release_timing --supervise PLAN --out DIR`).
+PLAN_SCHEMA = 'release-timing-plan-v1'
+PLAN_RUN_KEYS = ('order', 'run_id', 'profile', 'nodes', 'mode', 'timeout_s', 'footprint_budget_bytes',
+                 'rss_cap_bytes', 'estimate_s', 'expect', 'attribute')
+
+
+def plan_document(plan, budget_s=WINDOW_BUDGET_S, quiet_wait_s=QUIET_WAIT_S, models_dir=None):
+    """`plan` as the plan file the driver's supervise mode reads: each run's plan entry, its model's
+    file name, and, where `models_dir`'s manifest lists the model, its sha256 and generator stats.
+    That supervisor takes no stack snapshots, so an attribution run is refused here."""
+    attributed = [r['run_id'] for r in plan if r.get('attribute')]
+    if attributed:
+        raise ValueError('the self-supervising driver takes no stack snapshots; leave out %s' % ', '.join(attributed))
+    manifest = read_manifest(models_dir).get('models', {}) if models_dir else {}
+    runs = []
+    for r in plan:
+        name = model_name(r['profile'], r['nodes'])
+        listed = manifest.get(name) or {}
+        runs.append(dict({k: r[k] for k in PLAN_RUN_KEYS}, model=name, expected_model_sha256=listed.get('sha256'),
+                         model_stats=listed.get('stats')))
+    return {'schema': PLAN_SCHEMA, 'window_budget_s': budget_s, 'quiet_wait_s': quiet_wait_s, 'runs': runs}
+
+
+def write_plan(path, plan, budget_s=WINDOW_BUDGET_S, quiet_wait_s=QUIET_WAIT_S, models_dir=None):
+    document = plan_document(plan, budget_s, quiet_wait_s, models_dir)
+    with open(path, 'w') as fh:
+        json.dump(document, fh, indent=1, sort_keys=True)
+        fh.write('\n')
+    return document
+
+
 def format_plan(plan, budget_s=WINDOW_BUDGET_S):
     out = ['order run_id                        profile       nodes mode    estimate_s timeout_s budget_GiB '
            'rss_cap_GiB expect']
@@ -897,6 +928,9 @@ def main(argv=None):
     parser.add_argument('--generate', action='store_true', help="generate the plan's models and the manifest")
     parser.add_argument('--run', action='store_true', help="run the plan (one process at a time)")
     parser.add_argument('--packet', action='store_true', help='write OUT/packet.json from the records')
+    parser.add_argument('--write-plan', metavar='FILE',
+                        help="write the selected runs as the plan file of the driver's supervise mode (with --models, "
+                             "each model's sha256 from the manifest)")
     parser.add_argument('--subset', default='all', help='%s, or comma-separated run ids' % ', '.join(SUBSETS))
     parser.add_argument('--mode', choices=MODES, default='sparse')
     parser.add_argument('--footprint-budget-bytes', type=int, default=BASE_MACHINE_BUDGET_BYTES,
@@ -922,6 +956,12 @@ def main(argv=None):
         parser.error(str(error))
     if args.plan:
         sys.stdout.write(format_plan(plan, args.budget_s))
+        return 0
+    if args.write_plan:
+        try:
+            write_plan(args.write_plan, plan, args.budget_s, args.quiet_wait_s, args.models)
+        except ValueError as error:
+            parser.error(str(error))
         return 0
     if args.generate:
         if not args.models:
