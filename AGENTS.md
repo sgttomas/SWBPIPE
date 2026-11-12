@@ -417,8 +417,12 @@ revision or branch on which its re-verification runs, is neither composed nor
 landed by a containing head, and no PR built on it is landed by either route
 before it has itself landed. Pricing and independent numerical scrutiny still
 bind to the exact source they examined; a hosted run stands in for neither.
-Agent 0 says on each PR landed this way which head carried it, the heads it
-included and the `main` commit it ran against. Agents working under that Agent 0's assignment report a PR ready to
+Before merging, Agent 0 identifies on the carrying PR the hosted run, the
+`main` commit it ran against and the participating PRs, links each required
+review and consultation at its exact commit, identifies the merge and
+regeneration evidence, and records its comparison of shared behaviour and
+interfaces and its grounds that every included PR satisfies the exclusions.
+Agent 0 says on each PR landed this way which head carried it. Agents working under that Agent 0's assignment report a PR ready to
 merge and wait for that Agent 0 to merge it. A Type 1 the owner started directly reports its PR ready to this project's Agent 0; where the owner works with it alone and no Agent 0 holds the project, it holds that perspective and merges under this grant. Explicit holds and reserved decisions
 apply. This grant excludes protection bypasses, history rewrites, force pushes,
 permission changes and releases. Use [Git conventions](#git-conventions) below.
