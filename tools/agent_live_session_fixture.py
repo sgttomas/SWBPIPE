@@ -21,7 +21,7 @@ import subprocess
 import threading
 import time
 
-try:  # the application's launch environment: HOME and CFFIXED_USER_HOME, one throwaway home
+try:  # every start of the application goes through the launch helper's run
     from tools import native_launch_guard
 except ImportError:  # run as a script from tools/
     import native_launch_guard
@@ -161,14 +161,14 @@ def send(app, cmd):
     app.stdin.flush()
 
 
-def anchor_start(probe, sdk, app):
+def anchor_start(probe, sdk, app, cwd):
     # SDK id is still reserved by its original app-held Child. Join only while
     # that app is alive, before opening its protocol gate. Anchor retains group.
     if app.poll() is not None:
         raise Refusal("app_lost_before_anchor")
     anchor = subprocess.Popen([str(probe), "--anchor"], process_group=sdk,
                               stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                              stderr=subprocess.DEVNULL, env={})
+                              stderr=subprocess.DEVNULL, env={}, cwd=str(cwd))
     ready, _, _ = select.select([anchor.stdout], [], [], 5)
     if not ready or anchor.stdout.readline(128) != f"anchor_group={sdk}\n".encode():
         anchor.kill()
@@ -210,8 +210,9 @@ def validate_terminal(records, mode, trigger):
 
 
 def run_case(args, name, mode, trigger, root, key=None):
-    state = root / name
-    state.mkdir(mode=0o700)
+    case_root = root / name  # the case's evidence, outside the throwaway home
+    case_root.mkdir(mode=0o700)
+    state = None
     app = None
     anchor = None
     observer = None
@@ -228,12 +229,14 @@ def run_case(args, name, mode, trigger, root, key=None):
         if records:
             records.drain()
 
-    record = None
+    run = native_launch_guard.Run(args.app, case_root, "home", names=native_launch_guard.product_names(args.app))
     try:
         try:
-            record = native_launch_guard.make_home(root, name)
-            app = native_launch_guard.start([str(args.app), "--native-agent-session-fixture"], record,
-                                            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+            run.begin()
+            state = run.work / "state"  # the session's state, inside the throwaway home
+            state.mkdir(mode=0o700)
+            app = run.start("fixture", [str(args.app), "--native-agent-session-fixture"],
+                            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
         except native_launch_guard.LaunchRefused as refusal:
             raise Refusal(f"launch_refused_{refusal}") from None
         result["app"] = {"pid": app.pid}
@@ -252,8 +255,9 @@ def run_case(args, name, mode, trigger, root, key=None):
         observer = Scope(sdk)
         if observer.exited:
             raise Refusal("supplier_exited_before_gate")
-        anchor = anchor_start(args.process_probe, sdk, app)
+        anchor = anchor_start(args.process_probe, sdk, app, cwd=case_root)
         result["anchor"] = {"pid": anchor.pid, "group": sdk}
+        run.attribute(group=sdk)
         send(app, "GO")
         bounded_wait(lambda: records.has("thread_ready"), time.monotonic() + 30, check=safety)
         if mode != "idle" or trigger == "roundtrip":
@@ -303,18 +307,21 @@ def run_case(args, name, mode, trigger, root, key=None):
         safety()
         if not observer.exited or observer.status is None or (trigger != "roundtrip" and (not os.WIFEXITED(observer.status) or os.WEXITSTATUS(observer.status) != 0)):
             raise Refusal("supplier_nonzero_or_signal")
-        # Marker removal is separate from process proof. Native FINISH removed
-        # its own scope; crash orphan files are removable only after this proof.
+        # After a killed application the host's own clean up has not run. What it leaves is
+        # reported, never removed here: removing it safely is the stale session recovery's work.
+        # One existence check of this run's own supplier folder, never a listing, never opened.
+        leftover = []
         if trigger == "crash":
-            import shutil
             scope = result["supplier"]["scope"]
-            marker = state / "embedded-agent.scope"
-            runtime = Path("/private/tmp") / ("swbpipe-agent-" + scope)
-            if marker.read_text() != scope or len(scope) != 48 or any(c not in "0123456789abcdef" for c in scope):
-                raise Refusal("marker_identity")
-            shutil.rmtree(runtime)
-            marker.unlink()
-        if list(state.iterdir()):
+            if len(scope) != 48 or any(c not in "0123456789abcdef" for c in scope):
+                raise Refusal("scope_identity")
+            if os.path.lexists(Path("/private/tmp") / ("swbpipe-agent-" + scope)):
+                leftover.append({"what": "the supplier's private folder for this run's scope", "left": True,
+                                 "path": "/private/tmp/swbpipe-agent-" + scope})
+            if os.path.lexists(state / "embedded-agent.scope"):
+                leftover.append({"what": "the session's marker, inside the throwaway home", "left": True})
+            result["left"] = leftover
+        if [p for p in state.iterdir() if not (trigger == "crash" and p.name == "embedded-agent.scope")]:
             raise Refusal("retained_state")
         safety()
         result["passed"] = True
@@ -344,7 +351,7 @@ def run_case(args, name, mode, trigger, root, key=None):
                                    if r["record"] in {"ready","custody_retained"}),None)
                         if held and held["appPid"]==app.pid:
                             try:
-                                anchor=anchor_start(args.process_probe,held["sdkPid"],app)
+                                anchor=anchor_start(args.process_probe,held["sdkPid"],app,cwd=case_root)
                                 result["anchor"]={"pid":anchor.pid,"group":held["sdkPid"]}
                                 break
                             except Exception:
@@ -384,16 +391,18 @@ def run_case(args, name, mode, trigger, root, key=None):
                 result["passed"] = False
                 result["failure"] = "final_safety_unconfirmed"
             observer.close()
-        # The throwaway home this case made, and nothing else, whatever the outcome: listed
-        # beside it first (names, sizes, times), then removed.
-        if record is not None:
-            gone = app is None or app.poll() is not None
-            try:
-                result["throwawayHome"] = native_launch_guard.remove_home(
-                    record, root, processes_gone=gone, started=[app.pid] if app else [], private=[Path(args.app).parent])
-            except Exception as error:  # noqa: BLE001
-                result["throwawayHome"] = {"cleanup": "failed", "home": record["home"], "removed": False, "reason": type(error).__name__}
-            if result["throwawayHome"]["cleanup"] not in ("removed", "not created"):
+        # The run's end, whatever the outcome: the comparison made and persisted, then the
+        # throwaway home this case made removed, and nothing else, then the look that it has not
+        # reappeared. A termination signal is re-raised only after all of that.
+        gone = app is None or app.poll() is not None
+        try:
+            run.finish(retain=not gone)
+        finally:
+            outcome = run.outcome or {}
+            result["launchGuard"] = outcome.get("comparison") or {"compared": False, "verdict": "not compared"}
+            result["throwawayHome"] = outcome.get("throwawayHome") or {"cleanup": "failed", "removed": False}
+            if result["launchGuard"].get("verdict") != "clean" or \
+                    result["throwawayHome"].get("cleanup") not in ("removed", "not created"):
                 result["passed"] = False
     return result
 

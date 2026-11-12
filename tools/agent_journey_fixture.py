@@ -35,7 +35,6 @@ import json
 import math
 import os
 from pathlib import Path
-import plistlib
 import re
 import subprocess
 import sys
@@ -55,7 +54,6 @@ REFERENCES = PROJECT / "validation" / "references" / "w9_benchmarks" / "referenc
 PIN = PROJECT / "fixtures" / "embedded_agent" / "agent-witness-pin.json"
 DRIVER = PROJECT / "apps" / "desktop" / "native-smoke" / "agent-journey.js"
 TAURI_CONF = PROJECT / "apps" / "desktop" / "src-tauri" / "tauri.conf.json"
-GUARD_SETTLE_SECONDS = 20  # the web view's helpers may write after the application exits
 GUARD_EXIT = 5  # the launch guard did not find the run clean: never a pass
 STEPS = ["new blank", "provider and start", "turn 1", "apply", "turn 2", "observe", "stop"]
 TURNS = [
@@ -497,7 +495,7 @@ class Lines:
 
 def preflight(args, root, guard):
     """The live-session fixture's standalone preflight: probes only, no supplier or relay."""
-    state = root / "preflight"
+    state = guard.run.work / "preflight"  # inside the throwaway home
     state.mkdir(mode=0o700)
     app = guard.launch("preflight", [str(args.app), "--native-agent-session-fixture"], {}, stdin=subprocess.PIPE,
                        stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
@@ -518,86 +516,65 @@ def preflight(args, root, guard):
 
 
 class LaunchGuard:
-    """Every start of the application executable in a run goes through `launch`, which has the
-    helper (tools/native_launch_guard.py) start it: inside the slot wrapper, on an unlocked console,
-    with an environment the helper builds from its allowlist (both home variables set to the run's
-    throwaway home, TMPDIR inside it, the strict chooser variable) and a working directory inside
-    the home. The web view does not honour HOME alone: without CFFIXED_USER_HOME it keeps its data
-    under the account's real Library. `start` lists the real Library and makes the home (under the
-    system's temporary folder, its record in the run's root) before the first start; `finish`
-    compares after the run, lists the home into the run's root and removes the home, whatever the
-    outcome; where something that could still write to it may be alive it withholds the home, the
-    run fails and the path is named."""
+    """The journey's one run of the launch helper (tools/native_launch_guard.py, `Run`): every start
+    of the application executable in the journey, the preflight included, goes through `launch`,
+    which the helper's run alone performs. `start` admits the run, takes the Library baseline and
+    makes the throwaway home; `finish` compares, persists the comparison, removes the home and
+    looks again that it has not reappeared, whatever the outcome."""
 
     library = None  # the real Library; offline tests alone set another
     cache = None  # the system's per-user cache folder; offline tests alone set another
+    real = None  # the account's home for the four folder times; offline tests alone set another
 
     def __init__(self, app, root):
         self.root = Path(root).resolve()
         self.names = launch_names(app)
-        # The private copy of the application: its executable, worker and supplier live under it.
-        self.private = [Path(app).parents[2]] if Path(app).parent.name == "MacOS" else [Path(app).parent]
-        self.launches, self.started, self.before, self.record = [], [], None, None
+        self.run = native_launch_guard.Run(app, self.root, "home", names=self.names)
+        for name in ("library", "cache", "real"):
+            if getattr(self, name) is not None:
+                setattr(self.run, name, getattr(self, name))
+        self.launches = []
 
     @property
     def home(self):
-        return Path(self.record["home"]) if self.record else None
+        return self.run.home
 
     def start(self):
-        native_launch_guard.check_launch()
-        self.before = native_launch_guard.snapshot(self.names, self.library, cache=self.cache)
-        self.record = native_launch_guard.make_home(self.root, "home")
+        try:
+            self.run.begin()
+        except native_launch_guard.LaunchRefused as refusal:
+            raise Refusal(f"launch_refused_{refusal}") from None
 
     def launch(self, role, argv, extra, **popen):
-        if self.before is None or self.record is None:
-            raise Refusal("launch_guard_not_started")
         try:
-            process = native_launch_guard.start(argv, self.record, extra, **popen)
+            process = self.run.start(role, argv, extra, web_view=role == "app", **popen)
         except native_launch_guard.LaunchRefused as refusal:
             raise Refusal(f"launch_refused_{refusal}") from None
         self.launches.append(role)
-        self.started.append(process.pid)
         return process
 
     def finish(self, result, processes_gone=True, groups=()):
-        """The comparison, the disclosure and the positive half; never raises."""
-        report = {"compared": False, "launches": list(self.launches)}
+        """Never raises but for a termination signal, which it re-raises once the home is handled."""
+        for group in groups:
+            self.run.attribute(group=group)
         try:
-            if self.launches:
-                time.sleep(GUARD_SETTLE_SECONDS)
-                report = {**native_launch_guard.compare(self.before, self.record, library=self.library, cache=self.cache),
-                          "launches": list(self.launches)}
-                # Only a launch of the window can leave web view data; a preflight alone cannot.
-                if "app" not in self.launches and report["verdict"] == "no web view data":
-                    report["verdict"] = "clean"
-            else:
-                report.update(compared=True, verdict="clean", note="nothing was launched")
-        except Exception as error:  # noqa: BLE001
-            report.update(compared=False, verdict="not compared", error=type(error).__name__)
-        result["launchGuard"] = report
-        # Always, whatever the outcome: listed into the run's root, then removed, unless something
-        # that could still write to it may be alive.
-        if self.record:
-            try:
-                outcome = native_launch_guard.remove_home(self.record, self.root, processes_gone, started=self.started,
-                                                          groups=groups, private=self.private)
-            except Exception as error:  # noqa: BLE001
-                outcome = {"cleanup": "failed", "home": str(self.home), "removed": False, "reason": type(error).__name__}
-            result["throwawayHome"] = outcome
-            if outcome["cleanup"] != "removed":
-                report["verdict"] = f"throwaway home {outcome['cleanup']}: {outcome['home']}"
+            outcome = self.run.finish(retain=not processes_gone)
+        finally:
+            outcome = self.run.outcome or {}
+            report = dict(outcome.get("comparison") or {"compared": False, "verdict": "not compared"})
+            report["launches"] = list(self.launches)
+            result["launchGuard"] = report
+            result["launchRecord"] = {k: outcome.get(k) for k in ("confinement", "sockets", "residual", "admissions")}
+            home = outcome.get("throwawayHome") or {"cleanup": "failed", "home": str(self.home), "removed": False}
+            result["throwawayHome"] = home
+            if home.get("cleanup") not in ("removed", "not created"):
+                report["verdict"] = f"throwaway home {home.get('cleanup')}: {home.get('home')}"
 
 
 def launch_names(app):
     """The names the web view files data under: the bundle identifier (the built bundle's, and
     the configured one) and the executable's name."""
-    names = {Path(app).name, json.loads(TAURI_CONF.read_text())["identifier"]}
-    try:
-        with open(Path(app).parents[1] / "Info.plist", "rb") as handle:
-            names.add(plistlib.load(handle)["CFBundleIdentifier"])
-    except (OSError, KeyError, ValueError, IndexError):
-        pass
-    return sorted(names)
+    return native_launch_guard.product_names(app, extra=[json.loads(TAURI_CONF.read_text())["identifier"]])
 
 
 def require_comparison(result):
@@ -641,7 +618,7 @@ def journey(args, key, root, guard, result):
     result["preflight"] = preflight(args, root, guard)
     if not result["preflight"]["passed"]:
         raise Refusal("preflight")
-    home, gate, report_path = guard.home, root / "gate", root / "report.json"
+    home, gate, report_path = guard.home, guard.run.gate_path, guard.run.report_path
     reference = w9a_reference()
     operations = json.loads(FIXTURE.read_text())["routes"]["PF"]["operations"]
     stub = StubProvider(TURNS) if args.mode == "stub" else None
@@ -657,8 +634,9 @@ def journey(args, key, root, guard, result):
                 "treeTypes": sorted(TREE_TYPES.values()),
                 "timeoutsMs": {"ui": 60000, "start": 60000, "turn": args.turn_timeout * 1000}}
         env = {"SWBPIPE_NATIVE_SMOKE_DRIVER": "-",
-               "SWBPIPE_NATIVE_SMOKE_PLAN": json.dumps(plan), "SWBPIPE_NATIVE_SMOKE_REPORT": str(report_path),
-               "SWBPIPE_NATIVE_SMOKE_AGENT_GATE": str(gate), "SWBPIPE_NATIVE_SMOKE_AGENT_GATE_MODE": "handshake"}
+               "SWBPIPE_NATIVE_SMOKE_PLAN": json.dumps(plan), "SWBPIPE_NATIVE_SMOKE_REPORT": native_launch_guard.RUN_OWNED,
+               "SWBPIPE_NATIVE_SMOKE_AGENT_GATE": native_launch_guard.RUN_OWNED,
+               "SWBPIPE_NATIVE_SMOKE_AGENT_GATE_MODE": "handshake"}
         if key is not None:
             env["SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY"] = "stdin"
         app = guard.launch("app", [str(args.app)], env, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL,
@@ -696,7 +674,7 @@ def journey(args, key, root, guard, result):
                     observer = Scope(sdk)
                     if observer.exited:
                         raise Refusal("supplier_exited_before_gate")
-                    anchor = anchor_start(args.process_probe, sdk, app)
+                    anchor = anchor_start(args.process_probe, sdk, app, cwd=root)
                 except Exception as error:  # noqa: BLE001
                     refused = str(error) if isinstance(error, Refusal) else type(error).__name__
                     result["anchorRefused"] = refused

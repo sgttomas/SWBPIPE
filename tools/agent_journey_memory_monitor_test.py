@@ -228,13 +228,19 @@ def test_run_monitor_checks_at_admission_ready_exit_and_success_use_owned_cleanu
     observer = SimpleNamespace(exited=False, status=0, invalid=None, sample=lambda: not app.alive, close=Mock())
     anchor = SimpleNamespace(pid=5432, kill=Mock(), wait=Mock(), stdin=io.BytesIO(), stdout=io.BytesIO())
     events, checks = [], []
-    launch = Mock(return_value=app)
+    def started(*a, **k):
+        (Path(k["cwd"]) / "report.json").write_text("{}")  # the run-owned report, inside the home
+        return app
+    launch = Mock(side_effect=started)
     monkeypatch.setattr(journey, "sha256", lambda p: json.loads(journey.PIN.read_text())["codex"]["binarySha256"])
     monkeypatch.setattr(journey, "preflight", lambda *a: {"passed": True})
     monkeypatch.setattr(journey.subprocess, "Popen", launch)
     monkeypatch.setattr(journey.native_launch_guard, "_POPEN", launch)  # the helper's own start
     monkeypatch.setattr(journey.native_launch_guard, "check_launch", lambda *a: {})
     monkeypatch.setattr(journey.native_launch_guard, "temp_root", lambda: root)
+    monkeypatch.setattr(journey.native_launch_guard, "strict_chooser_lead", lambda path: True)
+    monkeypatch.setattr(journey.native_launch_guard, "possible_writers", lambda *a, **k: ([], {}))
+    monkeypatch.setattr(journey.native_launch_guard, "SECOND_LOOK_SECONDS", 0)
     monkeypatch.setattr(journey, "Lines", lambda *a: lines)
     monkeypatch.setattr(journey, "Scope", lambda *a: observer)
     monkeypatch.setattr(journey, "anchor_start", lambda *a: anchor)
@@ -243,10 +249,11 @@ def test_run_monitor_checks_at_admission_ready_exit_and_success_use_owned_cleanu
     monkeypatch.setattr(journey, "residents", lambda *a: [])
     monkeypatch.setattr(journey, "pid_live", lambda *a: False)
     monkeypatch.setattr(journey, "judge", lambda *a: [])
-    monkeypatch.setattr(journey.LaunchGuard, "library", root / "no-library")  # never the real Library in a test
-    (root / "invented-cache").mkdir(exist_ok=True)
+    for name in ("invented-library", "invented-cache", "invented-home"):
+        (root / name).mkdir(exist_ok=True)
+    monkeypatch.setattr(journey.LaunchGuard, "library", root / "invented-library")  # never the real Library in a test
     monkeypatch.setattr(journey.LaunchGuard, "cache", root / "invented-cache")  # nor the system's per-user cache folder
-    (run_root / "report.json").write_text("{}")
+    monkeypatch.setattr(journey.LaunchGuard, "real", root / "invented-home")  # nor the account's home folders
     monkeypatch.setattr(journey, "RETAINED", root / "retained")
     monkeypatch.setattr(journey.time, "sleep", lambda *a: None)
     def health(*a):

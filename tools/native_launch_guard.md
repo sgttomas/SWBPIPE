@@ -1,18 +1,18 @@
 # Native launch guard
 
-`tools/native_launch_guard.py` confines every scripted launch of the desktop application to a
-throwaway home that the kit makes and removes, and then checks the consequences. Every runner
-that starts the application executable uses it: Python runners import it and call its `start`,
-and other runners call its command line.
+`tools/native_launch_guard.py` keeps scripted launches of the desktop application inside a
+throwaway home that the kit makes and removes, and then checks the consequences. One object,
+`Run`, owns a launch from admission to removal, and it is the only way the kit starts the
+application; the module has no other start. The agent journey controller
+(`tools/agent_journey_fixture.py`) and the agent live-session fixture
+(`tools/agent_live_session_fixture.py`, every case) use it. The native-smoke runner (`run.mjs`)
+and the other Node runners do not yet.
 
-Protection comes first by confinement, built in, and then by observation:
-
-1. **Confinement.** The helper builds the whole launch: the environment from an allowlist, never
-   from the caller's own; both home variables set to the throwaway home; `TMPDIR` and the working
-   directory inside it; the strict chooser variable on every launch.
-2. **Observation.** The real `Library` and the system's per-user cache folder are compared before
-   and after, the throwaway home is listed, and four home folders' times are read. Nothing else on
-   the disk is watched, and the record says so.
+What the application is confined to, and nothing more: it is confined as to where it reads and
+writes its own files, and as to what environment it is handed. Observation of the consequences
+comes second. With no operating system boundary around the application itself, sockets elsewhere
+in the account stay reachable to it, and home redirection cannot change that. Every run's record
+carries both sentences.
 
 The helper launches on macOS only; on any other system it refuses to launch.
 
@@ -20,193 +20,204 @@ The helper launches on macOS only; on any other system it refuses to launch.
 
 The system web view does not honour `HOME` alone. With only `HOME` set, it keeps its website data
 under the account's real `Library`, in folders named for the product's bundle identifier or its
-executable's name. That data is local storage, caches, statistics and security databases, and a
-person's own copy of the application keeps its data in the same folders. With `CFFIXED_USER_HOME`
-set to the same throwaway home as well, the data goes under the throwaway home's own `Library`,
-and removing the home removes it. The kit refuses to launch without both.
+executable's name. With `CFFIXED_USER_HOME` set to the same throwaway home as well, the data goes
+under the throwaway home's own `Library`, and removing the home removes it. The kit refuses to
+launch without both.
 
-## The launch
+## A run
 
-- **The home.** `make-home` creates it under the system's own per-user temporary folder
-  (`getconf DARWIN_USER_TEMP_DIR` on macOS) as `swbpipe-<label>-<random>`, with `tmp` and `work`
-  inside it. It records the device and inode of the home, `tmp`, `work` and every folder up to the
-  temporary folder in `<label>-record.json`, in the caller's evidence folder outside the home.
-  **Interface change:** a caller can no longer name the home; the kit makes it, and every later
-  command takes the record.
-- **The environment** is built entirely by the helper:
-  - `PATH=/usr/bin:/bin`, `LANG`;
+```python
+run = native_launch_guard.Run(executable, evidence_folder, "home", names=...)
+run.begin()                       # admission, baseline, home
+process = run.start("app", [str(executable)], {DRIVER: "-", PLAN: plan_json, REPORT: RUN_OWNED},
+                    web_view=True, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+...
+outcome = run.finish(retain=False)  # comparison persisted, home removed, second look
+```
+
+### `begin`
+
+1. **Evidence folder.** It must be absolute, a real folder with no link on its path, and neither
+   under the account's `Desktop`, `Documents`, `Downloads` or `Library` nor under this repository.
+2. **Admission**, again before every start:
+   - **System:** macOS.
+   - **Screen:** the system registry's console-user entries for this account are found, agree
+     with one another (conflicting or ambiguous entries refuse), are on the console, and carry no
+     locked key; a locked key present with any value refuses. Two further signs are not used: the
+     screen saver, because which process runs while it is active could not be established by a
+     harmless read; display sleep, because the display's power value while asleep could not be
+     established by a harmless read.
+   - **Slot:** an ancestor of the process is the slot wrapper's lock program (`/usr/bin/lockf`),
+     alive, of this account, with a slot lock file (`cargo_job.lock` or `cargo_job.slotN.lock`)
+     open, read with the system's open-files lister. With `guard_dir`, the lock file must be in
+     that folder; the record says whether it was given. The kit takes no lock and touches nothing
+     of the wrapper's. **Limit:** a lock program started by hand with a file of that name open
+     would pass. Hosted runners have no slot wrapper, so they refuse.
+   - **Strict chooser lead:** the executable's bytes contain the strict chooser variable's name.
+     This is a lead and not a proof; the tie is the comparison test against the product's own
+     constants, which reports "could not compare" until the product change is on main.
+   - **Left homes:** the inventory below. Every left home is reported by name; the launch is
+     refused only when the kit cannot establish that no process started from a left home is alive.
+
+   What admission established is kept in the run's record.
+3. **Baseline.** The listing below. An incomplete baseline refuses the launch: an unreadable or
+   linked watched top folder, an unreadable product-named folder, a folder changed during the
+   walk, a walk too deep.
+4. **The home.** The kit keeps its own folder, `swbpipe-launch-kit`, under the system's per-user
+   temporary folder (`getconf DARWIN_USER_TEMP_DIR`), private to this account, holding a
+   `registry` and the `homes`. It writes the run's own record (with a token only the run holds)
+   into the evidence folder, enters the home in the registry, and only then makes the home with
+   its `tmp` and `work` folders, recording their device and inode. A failure after the folder is
+   made and before the entry is complete leaves the entry in the inventory. A caller cannot name
+   the home or supply a record: the registry is the authority.
+
+### `start`
+
+- **Environment**, built entirely by the helper, never from the caller's:
+  - `PATH=/usr/bin:/bin` (fixed), `LANG`;
   - `HOME` and `CFFIXED_USER_HOME`, both the throwaway home;
-  - `TMPDIR`, the home's `tmp`;
+  - `TMPDIR`, the home's `tmp` (the bundled database library also reads it for its temporary files);
   - `SWBPIPE_NATIVE_SMOKE_STRICT_CHOOSER=1`;
-  - the kit's own named variables a caller passes (driver, plan, report, gate, gate mode, and the
-    provider-key marker, whose only allowed value is `stdin`: the key itself comes on standard
-    input).
+  - the kit's own variables a caller passes, each with a value the kit owns: the driver only on
+    standard input (`-`); the provider key only as the marker `stdin`; the report and the gate
+    only as `run-owned`, which the helper replaces with fixed files inside the home's `work`; the
+    gate mode only `handshake`; the plan only as JSON in its closed shape (no other key, every
+    value of its type, an http(s) endpoint, no string that looks like a path).
 
-  Nothing is read or copied from the caller's environment. A caller's variable is refused by
-  name: the injection variables, any `DYLD_`, `LD_` or `XDG_` variable, proxy variables,
-  credential-like names (key, token, secret, password, credential, auth), and any other name not
-  on the list.
-- **The working directory** is the home's `work` folder, whatever the caller's own.
-- **Every start goes through `start`,** the preflight included. It takes neither an environment
-  nor a working directory from its caller. It checks the screen and the slot, builds the
-  specification, checks it again, and returns the handle. Because the preflight starts the same
-  executable with the same environment, the frameworks it loads resolve their per-user locations
-  to the throwaway home too.
+  Refused by name: the injection variables, `DYLD_`, `LD_` and `XDG_` variables, proxy variables,
+  credential-like names, and anything else not on the list.
+- **Working directory:** the home's `work`, whatever the caller's own.
+- **Process options:** only `stdin`, `stdout` and `stderr`, each a pipe or nothing; every other
+  descriptor is closed, and passed descriptors, a pre-start callback, a new session, another
+  environment or working directory are refused.
+- **Identity:** the process handle, and its identifier and start time together (its generation),
+  are recorded at once, in the run and in the registry; a start time that cannot be read leaves
+  the generation unestablished, which withholds removal.
 - **The solve worker.** The journey's solve starts a solve worker: the application's own
-  executable, with its environment cleared and not sandboxed, which inherits the application's
-  working directory and so is inside the throwaway home too.
-- **Before any start** the kit refuses unless:
-  - **System.** It is macOS.
-  - **Screen.** The system registry's console-user entry for this account is found, is on the
-    console, and carries no locked key. Anything it cannot read or parse refuses. Two further
-    signs are not used:
-    - the screen saver, because which process runs while it is active could not be established
-      by a harmless read;
-    - display sleep, because the display's power value while asleep could not be established by
-      a harmless read.
-  - **Slot.** An ancestor of the process is the slot wrapper's lock program (`/usr/bin/lockf`),
-    alive, of this account, with a slot lock file (`cargo_job.lock` or `cargo_job.slotN.lock`)
-    open, read with the system's open-files lister. The lock program runs its command only while
-    it holds that lock. With `--guard-dir`, the lock file must be in that folder; the record says
-    whether it was given. The kit takes no lock and touches nothing of the wrapper's.
-    **Limit:** a lock program started by hand with a file of that name open would pass. Hosted
-    runners have no slot wrapper, so they refuse.
+  executable, with its environment cleared and not sandboxed. It inherits the application's
+  working directory, inside the throwaway home, but not the home variables, `TMPDIR` or the strict
+  chooser variable; its confinement depends on a product change carried in another pull request.
+
+### `finish`
+
+Comparison made and persisted first, then the home's removal, then a second look, then the run's
+record. Whatever raises on the way, the later steps still run. The terminate, interrupt and hang
+up signals are handled while a run is open, so these steps run and the signal is re-raised
+afterwards; an interrupt during the waits skips nothing. A kill that cannot be caught leaves the
+home to the inventory.
+
+## The listing
+
+Names, sizes and times only, by `lstat` through folder descriptors. Each folder entered is opened
+without following a link and checked to be the folder that was seen, so neither a top folder that
+is a link nor a folder swapped for a link during the walk leads anywhere.
+
+- **Walked in full:** the `Library`'s `WebKit`, `Caches`, `HTTPStorages`, `Application Support`,
+  `Preferences`, `Saved Application State` and `Logs` (the application's log folder lies there),
+  and the system's per-user cache folder (named in records by what it is, never by its path).
+- **One level deep, by name:** every other top folder of the `Library`, for a product-named child.
+- **Four folder times:** the home folder, `Desktop`, `Documents` and `Downloads`, by a single
+  `lstat` each, never listed. A change is reported, not concluded from.
+- **Matching:** a path component equal to a watched name (the bundle identifier, the executable's
+  name, and the executable's name in its underscore form) or beginning with one followed by a
+  dot; after a plus sign, also one followed by a hyphen.
+
+| Class | What it covers | Effect |
+| --- | --- | --- |
+| product | A created, modified or removed product-named entry; an unreadable product-named folder. | The run stops (exit 1). |
+| web view helper cache | Changes inside `com.apple.WebKit.{Networking,WebContent,GPU}+<name>…` directly under the system's per-user cache folder. Whether both home variables redirect these folders is not established; where they do not, it is a write outside the throwaway home that confinement does not reach: observed, not prevented. | The run stops, always (exit 6). |
+| others | Any other entry created or modified in the window: counted per folder, named only directly under `Preferences` and `Preferences/ByHost`, never opened, edited or removed. | Never fails the run. |
+| nothing | Nothing changed. | — |
+
+**Fail closed.** An unreadable or linked watched top folder, a cache folder the system does not
+give, a folder changed during the walk, or a walk too deep fails the comparison (exit 5). An
+unreadable folder that is not product-named is counted, never named, and the record says "N
+folders could not be listed and were not watched"; a different count after the run than at the
+baseline fails the comparison.
+
+**Positive half.** A file must be found under the throwaway home's `Library/WebKit` or
+`Library/Caches` after a run that opened a window, or the run fails (exit 3). Any file there
+satisfies it; it does not identify the web view's own data.
+
+**Window.** Two launches whose windows overlap cannot be told apart. The journey controller takes
+a host-wide lock; other runners are not serialised by this helper.
+
+**What was watched,** stated in every report: nothing outside these folders and the throwaway
+home. A clean comparison establishes neither that nothing was read nor that nothing was written
+elsewhere on the disk.
+
+## Removal
+
+Before the throwaway home is removed, no process the kit started or can attribute to the launch
+is alive. The check (macOS only; on any other system it cannot run, so the home is withheld)
+counts as a possible writer:
+
+- a process the run started and has not seen end;
+- a recorded generation still alive (identifier and start time both matching), or one whose start
+  time could not be read;
+- a descendant of such a generation;
+- a process in a group attributed to the run;
+- a process whose executable lies under the home or the private copy;
+- a process with a file or its working directory open under the home.
+
+An incomplete or unparsable listing of processes or open files refuses; it never reads as an empty
+result. The record says what coverage was achieved.
+
+**The residual risk, in the record's words:** a system started web view helper that holds the
+home's path only in memory, with no open file and no working directory there and an executable
+that is not ours, cannot be seen; if one wrote after removal it would recreate a folder under the
+system's temporary location; nothing of the account's own data is touched; the left home
+inventory finds it at the next admission.
+
+Removal itself goes through the kit's own folder descriptors, never a path resolved again: the
+home is opened without following a link, its device and inode are checked after opening, it is
+emptied one name at a time through folder descriptors that follow nothing (links inside are
+unlinked, never followed; depth is bounded), and the emptied folder is checked again before its
+name is removed. Any mismatch refuses and is recorded. Some seconds later the kit looks again; a
+path that has reappeared is recorded as **reappeared** (exit 7), stays a left home, and the
+SWBPIPE Agent 0 must be told.
+
+## Left homes
+
+Every registry entry not removed, and every folder under the kit's `homes` that the registry does
+not hold, is reported by name at every admission (`left-homes` prints the same). A left home is
+removed only by the run that made it, by its token, after the same writer check
+(`remove-left-home --record <the run's record>`); nobody removes another's, and ownership is never
+judged by a folder's name.
 
 ## The strict chooser
 
-`SWBPIPE_NATIVE_SMOKE_STRICT_CHOOSER=1` is set on every launch. When the application is built
-with the matching mode, a file chooser asked for with no answer queued ends it with exit status
-86, before any system dialog; nothing else of the kit's uses 86. The test compares these two
-constants with the product's own copy in `native_smoke.rs`, and reports "could not compare"
-(skipped, never passed) where that copy is absent.
+`SWBPIPE_NATIVE_SMOKE_STRICT_CHOOSER=1` is set on every launch. Once the product change lands, a
+file chooser asked for with no answer queued ends the application with exit status 86, before any
+system dialog; nothing of the kit's uses 86. **Limit:** queued answers are not matched to their
+operation, so a wrong chooser can consume a queued answer (writing inside the throwaway home). A
+download link in the web view opens a dialog that no queued answer intercepts, so no journey
+presses one.
 
-**Limit:** queued answers are not matched to their operation, so a wrong chooser can consume a
-queued answer (writing inside the throwaway home). A download link in the web view opens a dialog
-that no queued answer intercepts, so no journey presses one.
+## The helper's own programs
 
-## Around the run
-
-- **The comparison.** The real `Library` is listed by names, sizes and times only, under
-  `WebKit`, `Caches`, `HTTPStorages`, `Application Support`, `Preferences` and
-  `Saved Application State`. No file there is opened, no link is followed, and nothing is
-  written, removed or changed. Wait about 20 seconds after the application exits before
-  comparing, because the web view's helpers may still write.
-
-  | Class | What it covers | Effect |
-  | --- | --- | --- |
-  | product | A created, modified or removed entry, at any depth, whose path has a component equal to a watched name (the bundle identifier, the executable's name) or beginning with one followed by a dot; or a product-named folder that could not be listed after the run. | The run stops (exit 1). |
-  | others | Any other entry created or modified in the window. The operating system's own services and other software write such records whenever an application opens a window. | Never fails the run. |
-  | nothing | Nothing changed. | — |
-
-  The others are counted per folder and named, with size and time, only directly under
-  `Preferences` and `Preferences/ByHost`. They are never opened, edited or removed.
-- **The system's per-user cache folder** (the folder the system gives for its per-user caches, a
-  sibling of the temporary folder; records name it by what it is, never by its path) is listed
-  and compared the same way: product-named entries, `lstat` only, failing closed, the window's
-  others counted and never named. Nobody removes anything there, the kit included.
-  - The web view's helper processes, which the system starts, keep folders there named
-    `com.apple.WebKit.Networking+<executable>-<suffix>`, and likewise for `WebContent` and `GPU`,
-    with the executable's name in its underscore form. So a watched name also matches after a
-    plus sign, followed by a hyphen, and in the underscore form.
-  - The system gives this folder independently of the home: its answer is the same with both
-    home variables set elsewhere. Whether both variables redirect the helpers' folders is not
-    established. Where they do not, it is a write outside the throwaway home that confinement does
-    not reach: observed by the comparison, not prevented.
-  - Changes inside such a helper folder directly under the cache folder are their own class,
-    **web view helper cache**, reported apart from the product changes. Any other product-named
-    entry there, of any other shape, is a product change like one under the `Library`.
-  - One switch, `HELPER_CACHE_COUNTS_AS_CLEAN`, decides whether a run whose only product-named
-    changes are that class counts as clean. Its default is the strict one: the run stops
-    (exit 6).
-- **Failing closed.** If one of the six folders cannot be listed, or a folder becomes unreadable
-  during the run, the comparison fails (exit 5). A folder unreadable both before and after is
-  counted in the report as a stated limit: a product-named entry inside it would not be seen.
-- **Four folder times.** The modification times of the home folder, `Desktop`, `Documents` and
-  `Downloads` are read before and after by a single `lstat` each. Nothing inside them is listed or
-  opened. A change is reported with the run and not concluded from.
-- **Positive half.** The throwaway home's own `Library` must hold web view data under `WebKit` or
-  `Caches`, or the run fails with its own status (exit 3). That tests that the redirection
-  worked; the listing tests that nothing leaked.
-- **Window.** The report names the window it compared. Two launches whose windows overlap cannot
-  be told apart, so launches through this kit are serialised.
-- **What was watched.** The report states, in one sentence, that nothing outside the real
-  `Library`'s six folders, the system's per-user cache folder and the throwaway home was watched. A clean comparison establishes
-  neither that nothing was read nor that nothing was written elsewhere on the disk.
-
-## End of every run
-
-This applies to a pass, a failure, a timeout, an exception and an interrupt alike. `remove-home`
-writes the home's listing (names, sizes, times; bounded) to `<label>-listing.json` in the evidence
-folder, outside the home, then removes the home and nothing else.
-
-- The record is checked twice: once before anything else and again immediately before removal.
-  The home, `tmp`, `work` and every folder up to the temporary folder must have the same device
-  and inode, be real folders, and the temporary folder must still be the system's answer. A link,
-  a replaced folder or a home the kit did not make is refused.
-- Links inside the home are unlinked, not followed, and the path is verified gone afterwards.
-- A failed listing is recorded and the home is still removed.
-- Keep what a failed run needs (reports, journals) outside the home.
-
-`cleanup` is one of `removed`, `withheld`, `failed`, `refused` or `not created`.
-
-### When a home is withheld
-
-A home is not removed while anything that could still write to it may be alive. In that case it
-is listed, left in place and named, and the run fails (exit 4). The check runs inside
-`remove-home`, and no caller can skip it. If the check cannot run, the home is withheld too.
-
-The check combines four tests, because no single one covers the web view's helpers, which the
-system starts on the application's behalf outside its process group and without its environment.
-A process of this account counts as a possible writer if any of these holds:
-
-- its executable lies under the home or a private copy the caller names (the application, its
-  engine worker, the supplier);
-- it descends, by parent process id at the moment of the check, from a process the run started;
-- it is in a process group the run started;
-- it has a file or its working directory open under the home, from the system's open-files
-  lister, read-only. This test is what finds the web view's helpers.
-
-The check exists for macOS only. There it uses the run's started processes and their
-descendants, the started groups, the private copy's executables, and the system's read-only
-listing of this account's processes' open files and working directories under the home. A test
-based on another process's environment is not available on macOS and is not claimed. On any other
-system the check cannot run, so a home is withheld, and the helper refuses to launch at all.
-
-**What the check cannot see:** a process that has outlived the application, been re-parented away
-from it, runs an executable outside the private copy, and holds nothing open under the home at
-that moment. The 20-second wait before the comparison stays for that reason.
-
-The kit stops only processes it started itself, by their handles. Removing a home left by an
-earlier run belongs to the runner whose run left it; until commands for that arrive, a withheld
-home is named in the run's record.
+Every program the helper runs (`/bin/ps`, `/usr/sbin/lsof`, `/usr/sbin/ioreg`,
+`/usr/bin/getconf`) is named by its absolute path and given the helper's own minimal environment,
+never the caller's.
 
 ## Command line
 
 ```sh
 python3 -I tools/native_launch_guard.py check-launch [--guard-dir <slot guard folder>]
-python3 -I tools/native_launch_guard.py make-home --evidence <evidence folder> [--label home]
-python3 -I tools/native_launch_guard.py spec --record <record.json> [--set NAME=VALUE]...
-python3 -I tools/native_launch_guard.py snapshot --name <bundle id> --name <executable name> --out <before.json>
-python3 -I tools/native_launch_guard.py compare --before <before.json> --record <record.json> [--out <report.json>]
-python3 -I tools/native_launch_guard.py remove-home --record <record.json> --evidence <evidence folder> \
-    [--started PID]... [--group PGID]... [--private PATH]... [--processes-not-gone]
+python3 -I tools/native_launch_guard.py left-homes
+python3 -I tools/native_launch_guard.py remove-left-home --record <the run's record.json>
 ```
-
-`spec` prints the environment and working directory a non-Python runner must use exactly; it
-checks the screen and the slot only through `check-launch`, which such a runner calls first.
 
 | Exit status | Meaning |
 | --- | --- |
-| 0 | Clean: nothing changed, or others only; a home made, specified or removed. |
+| 0 | Clean; a home removed. |
 | 1 | A product entry changed: stop. |
 | 2 | Refused or unusable input. |
 | 3 | No web view data in the throwaway home. |
-| 4 | The home was not removed (withheld or failed); the output names the path. |
-| 5 | The comparison failed: a folder could not be listed. |
-| 6 | The web view's helpers' cache folders changed under the system's per-user cache folder (while the switch is strict). |
+| 4 | The home was not removed (withheld or failed). |
+| 5 | The comparison failed. |
+| 6 | The web view helpers' cache folders changed under the system's per-user cache folder. |
+| 7 | The home's path reappeared after removal. |
 
-The application itself ends with 86 when a chooser is asked with no answer queued.
-
-A Node runner calls it with `execFileSync("/usr/bin/python3", ["-I", guardPath, ...])`. Isolated
-mode means no `PYTHONPATH`, no user site and no script directory on the path; the tool needs only
-the standard library. If `python3` is absent or the call fails, the runner does not launch.
+A Node runner calls it with `execFileSync("/usr/bin/python3", ["-I", guardPath, ...])`; a Node
+runner's own launches come under the helper in the second pull request.
