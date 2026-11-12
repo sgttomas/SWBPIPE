@@ -8,7 +8,7 @@ in [`../reference_system/`](../reference_system/README.md), which this package l
 
 | Id | Check | Basis |
 |---|---|---|
-| EQ-6 | For RS-WIN, RS-EQX, RS-EQY, RS-EQZ: the reaction force resultant of its difference from RS-SUS (RS-dWIN, RS-dEQX, RS-dEQY, RS-dEQZ), and that resultant's moment about the origin, equal minus the generated load's force and moment | closed form: `references.json` `key_values.<system>.<case>` |
+| EQ-6 | The reaction force resultant of RS-dWIN (RS-WIN − RS-SUS), and its moment about the origin, equal minus the generated wind force and moment. For each of RS-dEQX, RS-dEQY, RS-dEQZ, the reaction resultant and its moment about the origin equal minus the g-factor times the weight the same gravity gives the model, component weights included | closed form: `references.json` `key_values.<system>.<case>`, the `expected_RS-d…` entries |
 | EQ-1 (RS-HYD) | The sum of the vertical (Z) reaction components over every support, held supports included, equals W_total with the test contents | closed form: `key_values.<system>.RS-HYD.W_total_N` |
 | EQ-2 (RS-HYD) | The horizontal (X, Y) reaction resultant is zero, and the reaction moment resultant about the origin equals minus the weight's moment about the origin | closed form: `key_values.<system>.RS-HYD.weight_moment_about_origin_N_m` |
 | EQ-4 | On every signed component row, RS-EQ-SRSS and RS-EQ-ABS equal their definitions over the operand rows of RS-dEQX, RS-dEQY, RS-dEQZ, so SRSS ≤ ABS | exact identity (this README) |
@@ -18,15 +18,18 @@ fixture model file. All model data are invented (spec §1). The methods are elem
 fence applies (F-PIP-2; claims taxonomy per DEC-081). Agreement here is evidence, not acceptance (F-PIP-3).
 Tolerances are not set here; the consumer applies the criterion it adopts.
 
-Status: candidate references, derived and cross-checked by their author TASK. They have not yet been
-independently refuted, and five open readings (below) await the integrator's resolution.
+Status: candidate references, derived and cross-checked by their author TASK. One independent refutation
+re-derived every value and found no arithmetic error. Its one finding was repaired: the seismic rule decided on
+2026-11-12 is now the expected path (below). Four open readings (below) await the integrator's resolution. The
+seismic values are conditional on the stated assumption g = 9.80665 m/s² for the seismic case's gravity
+(see "Specification observations").
 
 ## Files
 
 | File | Role |
 |---|---|
 | `generators/rs_pending_reference.py` | the generator: Python 3 standard library only, exact rational arithmetic, controlled evaluation of π and √n |
-| `references.json` | key values for both systems, the open readings' alternative values, per-section masses, the member and component tables, the consistency check and 34 cross-check results |
+| `references.json` | key values for both systems, the two seismic controls, the open readings' alternative values, per-section masses, the member and component tables, the consistency check and 34 cross-check results |
 | `SHA256SUMS` | hashes of the three files above (`shasum -a 256 -c SHA256SUMS` in this directory) |
 
 `python3 -I generators/rs_pending_reference.py` rebuilds every output in memory and compares it byte for byte
@@ -52,9 +55,10 @@ The specification adopts families in stages (§10). Where that changes mass or e
 - **fixture_today**: the system as the fixture carries it today: RS-R1 pending, RS-P150 a plain S270 member with
   its own distributed weight (§10, "pending; RS-P150 is in tranche 1 as a plain S270 member").
 
-The constant-effort, lift-off, friction, gap supports and the snubber change neither mass nor exposure. Under the
-primary readings the two systems differ only in RS-HYD; wind and seismic are the same in both (the reducer's
-member keeps its pipe mass for seismic, OR-1, and its S270 diameter for wind).
+The constant-effort, lift-off, friction, gap supports and the snubber change neither mass nor exposure. The two
+systems differ in RS-HYD and in the seismic cases, by the reducer alone: in the full system RS-R1's 300 N at its
+centre of gravity replaces RS-P150's distributed weight and so its distributed seismic load. Wind is the same in
+both (RS-P150 keeps its S270 diameter).
 
 ## Bases
 
@@ -81,11 +85,25 @@ RS-P130, RS-P140, RS-P150, RS-P160, RS-P170, RS-P190, RS-P200. Every one of them
 the wind is normal to its whole length and no projection of the length arises. For the arc RS-P085 the area the
 wind sees is exactly arc length × projected diameter (Pappus: the swept annulus R·θ·D_p).
 
-**Seismic** (DEL-05-01: "on every member, a load per length equal to the user's g-factor for each global axis,
-times gravity, times the member's mass per length"; spec §8.1): a · g · μ per length along the positive axis,
-a = 0.30 (X), 0.30 (Y), 0.20 (Z), on every member except RS-P180 (spec §5.1), each with its pipe μ (OR-1).
-So F = a·g·M·e and M_O = a·g·(S × e), with M the total mass and S = Σ m·r its first moment:
-S × X = (0, S_z, −S_y), S × Y = (−S_z, 0, S_x), S × Z = (S_y, −S_x, 0).
+**Seismic**, by the rule SWBPIPE's Agent 0 decided on 2026-11-12, in DEL-05-01's wording: "for each global axis,
+the user's g-factor times the weight the weight case gives the model: on every member, a load per length equal to
+the g-factor times gravity times the member's mass per length; and for a member whose component weight the weight
+case applies, in place of that load, the force equal to the g-factor times the component's weight W at the
+component's node, with the moments of that force about the node from the centre-of-gravity vector. A member whose
+component weight the weight case does not apply keeps its distributed seismic load, as it keeps its distributed
+weight. The component's force is the g-factor times W, a force; no gravity divides it." With a = 0.30 (X),
+0.30 (Y), 0.20 (Z), along the positive axis: a · g · μ per length on every member except RS-P180 (spec §5.1) and
+the mapped members, and a · W at each component's centre of gravity (the force at the node with its moment about
+the node is the same force acting at the centre of gravity). Which component weights the weight case applies is the
+specification's (§5, §8.1: "component weights at their centres of gravity in place of their members' distributed
+weight"): RS-F1, RS-V1, RS-F2 in both systems and RS-R1 in the full system. RS-R1 is pending in the fixture today
+(§10), so there RS-P150 keeps its distributed weight and its distributed seismic load. The specification leaves no
+component's case unclear, so this adds no open reading.
+
+So the seismic weight W_s is the weight the weight case gives the model with the operating contents (the generator
+checks this against its separate weight routine, total and first moment). F = a·W_s·e and M_O = a·(S × e), with
+S = Σ w·r the first moment of W_s: S × X = (0, S_z, −S_y), S × Y = (−S_z, 0, S_x), S × Z = (S_y, −S_x, 0). The
+total mass M = W_s / g is reported for reference only.
 
 **Hydrotest weight** (DEL-05-01 REQ-014 and AC-010, "its weight includes contents at the selected test density,
 once"; spec §8.1, §8.3): every member except RS-P180 with each section's contents density replaced by
@@ -98,15 +116,16 @@ length R·π/2 and ∫ r ds = R[(π/2)C + e₁ + e₂]; it carries μ and wind p
 
 ## Members
 
-Length, section, and how each member enters. "Seismic" is the primary reading; under it RS-P180 is the only
-member without seismic mass. Every member's mass per length by constituent is its section's row above.
+Length, section, and how each member enters. "Seismic" follows the decided rule: a mapped member's distributed
+load is replaced by its component's a·W, exactly as its weight is, and RS-P180 carries none. Every member's mass
+per length by constituent is its section's row above.
 
 | Member | From → to | Section | Length (m) | Centroid (m) | Wind | Seismic | RS-HYD weight |
 |---|---|---|---|---|---|---|---|
 | RS-P010 | 010 → 020 | S270 | 0.4 | (0.2, 0, 1) | — | μ | distributed |
-| RS-P020 | 020 → 030 | S270 | 0.15 | (0.475, 0, 1) | — | μ | RS-F1 350 N |
-| RS-P030 | 030 → 040 | S270 | 0.6 | (0.85, 0, 1) | — | μ | RS-V1 2600 N |
-| RS-P040 | 040 → 050 | S270 | 0.15 | (1.225, 0, 1) | — | μ | RS-F2 350 N |
+| RS-P020 | 020 → 030 | S270 | 0.15 | (0.475, 0, 1) | — | RS-F1: a·350 N | RS-F1 350 N |
+| RS-P030 | 030 → 040 | S270 | 0.6 | (0.85, 0, 1) | — | RS-V1: a·2600 N | RS-V1 2600 N |
+| RS-P040 | 040 → 050 | S270 | 0.15 | (1.225, 0, 1) | — | RS-F2: a·350 N | RS-F2 350 N |
 | RS-P050 | 050 → 060 | S270 | 2.2 | (2.4, 0, 1) | — | μ | distributed |
 | RS-P060 | 060 → 070 | S270 | 2.1 | (4.55, 0, 1) | — | μ | distributed |
 | RS-P065 | 070 → 075 (arc B1) | S270 | 0.2π | arc | — | μ | distributed |
@@ -119,7 +138,7 @@ member without seismic mass. Every member's mass per length by constituent is it
 | RS-P120 | 120 → 130 | S270 | 4 | (6, 13, 7) | yes | μ | distributed |
 | RS-P130 | 130 → 140 | S270 | 3 | (6, 16.5, 7) | yes | μ | distributed |
 | RS-P140 | 140 → 150 | S270 | 2 | (6, 19, 7) | yes | μ | distributed |
-| RS-P150 | 150 → 160 | S270 | √257/40 = 0.40078 | (6, 20.2, 6.9875) | yes | μ | full: RS-R1 300 N; today: distributed |
+| RS-P150 | 150 → 160 | S270 | √257/40 = 0.40078 | (6, 20.2, 6.9875) | yes | full: RS-R1 a·300 N; today: μ | full: RS-R1 300 N; today: distributed |
 | RS-P160 | 160 → 170 | S220 | 2.6 | (6, 21.7, 6.975) | yes | μ | distributed |
 | RS-P170 | 170 → 180 | S220 | 2 | (6, 24, 6.975) | yes | μ | distributed |
 | RS-P180 | 180 → 190 | S220 | 0.6 | (6, 25.3, 6.975) | excluded | none (OR-2) | none |
@@ -150,17 +169,21 @@ Rigid-family components (spec §5; centre of gravity = body midpoint + offset, g
 ## Key values
 
 Generated loads (force and moment about the origin). The expected reaction resultants of EQ-6 are their
-negatives; `references.json` holds both, exactly. Under the primary readings wind and seismic are the same in
-both systems.
+negatives (the `expected_RS-d…` entries); `references.json` holds both, exactly.
 
-| Case | Force (N) | Moment about the origin (N·m) |
-|---|---|---|
-| RS-WIN | (8274.00962903341, 0, 0) | (0, 54013.28236095945, -99699.62081912628) |
-| RS-EQX | (13348.770716885005, 0, 0) | (0, 73171.44621186137, -133485.71407124103) |
-| RS-EQY | (0, 13348.770716885005, 0) | (-73171.44621186137, 0, 74599.9086391575) |
-| RS-EQZ | (0, 0, 8899.180477923337) | (88990.47604749403, -49733.272426104995, 0) |
+| Case | System | Force (N) | Moment about the origin (N·m) |
+|---|---|---|---|
+| RS-WIN | both | (8274.00962903341, 0, 0) | (0, 54013.28236095945, -99699.62081912628) |
+| RS-EQX | full | (14010.967471694581, 0, 0) | (0, 73835.75668234036, -132703.4004272364) |
+| RS-EQY | full | (0, 14010.967471694581, 0) | (-73835.75668234036, 0, 74963.32462992267) |
+| RS-EQZ | full | (0, 0, 9340.64498112972) | (88468.93361815759, -49975.54975328178, 0) |
+| RS-EQX | fixture_today | (14049.695869912632, 0, 0) | (0, 74106.371364889, -133485.71407124103) |
+| RS-EQY | fixture_today | (0, 14049.695869912632, 0) | (-74106.371364889, 0, 75195.69501923099) |
+| RS-EQZ | fixture_today | (0, 0, 9366.463913275089) | (88990.47604749403, -50130.463346153985, 0) |
 
-Total seismic mass M = 4537.319307777547 kg (every member's pipe mass except RS-P180).
+Seismic weight W_s and total mass M = W_s / g: full 46703.2249056486 N, M = 4762.403563464445 kg; fixture_today
+46832.31956637544 N, M = 4775.56755531965 kg. Each W_s is that system's RS-SUS weight (below and "Consistency"),
+so each seismic force is the g-factor times it: 0.30 × 46832.31956637544 = 14049.6958699 N.
 
 Hand check for wind: 245.7 × (24.8 + √257/40 + 0.2π) + 214.2 × 9.0 = 6346.2096 + 1927.8 = 8274.0096 N.
 
@@ -205,45 +228,47 @@ are excluded. No values are frozen. The generator carries a reference implementa
 `rn_sqrt`, exact `Fraction` arithmetic with a correctly rounded square root, ties to even) and checks it on six
 invented triples.
 
+## Seismic rule: decided; two controls
+
+The former open reading OR-1 (the seismic mass of a member a rigid-family component maps) is closed by the rule
+decided on 2026-11-12 ("Bases"). Two controls stay in `references.json` `seismic_controls`, labelled. They are not
+expected values: a solve that reproduces one of them has implemented a rule other than the decided one.
+
+| Rule | System | M (kg) | EQX F_x (N) | EQX M (N·m) | EQY M (N·m) | EQZ F_z (N) | EQZ M (N·m) |
+|---|---|---|---|---|---|---|---|
+| expected: the decided rule | full | 4762.404 | 14010.967 | (0, 73835.757, −132703.400) | (−73835.757, 0, 74963.325) | 9340.645 | (88468.934, −49975.550, 0) |
+| expected: the decided rule | today | 4775.568 | 14049.696 | (0, 74106.371, −133485.714) | (−74106.371, 0, 75195.695) | 9366.464 | (88990.476, −50130.463, 0) |
+| control: the rule before 2026-11-12 (pipe mass on a mapped member, component weight left out) | both | 4537.319 | 13348.771 | (0, 73171.446, −133485.714) | (−73171.446, 0, 74599.909) | 8899.180 | (88990.476, −49733.272, 0) |
+| control: double count (member pipe mass and component weight) | full | 4904.417 | 14428.771 | (0, 75024.321, −135303.714) | (−75024.321, 0, 75981.409) | 9619.180 | (90202.476, −50654.272, 0) |
+| control: double count | today | 4873.826 | 14338.771 | (0, 74395.446, −133485.714) | (−74395.446, 0, 75441.409) | 9559.180 | (88990.476, −50294.272, 0) |
+
 ## Open readings
 
 Where the text may not settle a value, the references take the reading the text best supports, and
 `references.json` `open_readings` gives each alternative's values beside it, for both systems, for the cases it
-moves. Each changes one reading from the primary set.
-
-**OR-1. Seismic mass of a member a rigid-family component maps** (RS-P020, RS-P030, RS-P040; RS-P150 in the full
-system). *Primary:* the member's own pipe μ, no component mass. DEL-05-01 defines seismic "on every member" from
-"the member's mass per length", and substitutes the component's weight only in the self-weight plan; spec §9.2's
-EQ-6 speaks of "the total mass on the generator's stated mass basis", a per-length basis.
-
-| Reading | System | M (kg) | EQX F_x (N) | EQX M (N·m) | EQY M (N·m) | EQZ F_z (N) | EQZ M (N·m) |
-|---|---|---|---|---|---|---|---|
-| primary: member μ | both | 4537.319 | 13348.771 | (0, 73171.446, −133485.714) | (−73171.446, 0, 74599.909) | 8899.180 | (88990.476, −49733.272, 0) |
-| component W/g at CoG instead | full | 4762.404 | 14010.967 | (0, 73835.757, −132703.400) | (−73835.757, 0, 74963.325) | 9340.645 | (88468.934, −49975.550, 0) |
-| component W/g at CoG instead | today | 4775.568 | 14049.696 | (0, 74106.371, −133485.714) | (−74106.371, 0, 75195.695) | 9366.464 | (88990.476, −50130.463, 0) |
-| both member and component | full | 4904.417 | 14428.771 | (0, 75024.321, −135303.714) | (−75024.321, 0, 75981.409) | 9619.180 | (90202.476, −50654.272, 0) |
-| both member and component | today | 4873.826 | 14338.771 | (0, 74395.446, −133485.714) | (−74395.446, 0, 75441.409) | 9559.180 | (88990.476, −50294.272, 0) |
-
-(The "component instead" mass on today's fixture is RS-SUS's W_total / g, the mass basis of the self-weight.)
+moves. Each changes one reading from the primary set, the decided seismic rule included, so the seismic
+alternatives below are computed on that rule.
 
 **OR-2. Seismic mass of the replaced span RS-P180.** *Primary:* none: spec §5.1 excludes it "from weight
 generation and from every primitive load" and refuses a load on it. Wind on it is excluded by §8.1 in every
-reading. *Alternative:* its S220 μ over 0.600 m: M = 4583.695 kg; EQX F_x 13485.208 N, M (0, 74123.095,
-−136937.572); EQY M (−74123.095, 0, 75418.531); EQZ F_z 8990.139 N, M (91291.715, −50279.021, 0) (both systems).
+reading. *Alternative:* its S220 μ over 0.600 m added: full M = 4808.779 kg, EQX F_x 14147.405 N, M (0, 74787.405,
+−136155.259), EQY M (−74787.405, 0, 75781.947), EQZ F_z 9431.603 N, M (90770.173, −50521.298, 0); today
+M = 4821.943 kg, EQX F_x 14186.133 N, M (0, 75058.020, −136937.572), EQY M (−75058.020, 0, 76014.318), EQZ F_z
+9457.422 N, M (91291.715, −50676.212, 0).
 
 **OR-3. Realized bends.** *Primary:* the arc, length R·π/2, for mass, wind and weight; RS-P085 is in the marked
 range by id and table order.
 
 | Reading | System | RS-WIN F_x; M | M (kg); EQX F_x | RS-HYD W |
 |---|---|---|---|---|
-| tangent legs to the corner (2R) | both / full | 8316.192; (0, 54311.340, −99696.838) | 4580.127; 13474.711 | 50765.117 (full) |
-| tangent legs to the corner (2R) | today | as above | as above | 50930.911 |
+| tangent legs to the corner (2R) | full | 8316.192; (0, 54311.340, −99696.838) | 4805.211; 14136.907 | 50765.117 |
+| tangent legs to the corner (2R) | today | 8316.192; (0, 54311.340, −99696.838) | 4818.375; 14175.636 | 50930.911 |
 | RS-P085 not exposed to wind | both | 8119.632; (0, 52955.076, −99677.182) | unchanged | unchanged |
 
 **OR-4. Insulation.** *Primary:* every section carries §4.2's insulation on every member, mapped members
 included; it adds its mass, and the projected diameter is OD + 2 t_i (DEL-05-01's definition of wind says so).
-*Alternative:* bare pipe: RS-WIN F_x 5640.930 N, M (0, 36785.376, −66825.181); M = 4158.299 kg, EQX F_x
-12233.695 N; RS-HYD W 46704.207 N (full), 46835.774 N (today).
+*Alternative:* bare pipe: RS-WIN F_x 5640.930 N, M (0, 36785.376, −66825.181) (both); M = 4394.711 kg, EQX F_x
+12929.218 N, RS-HYD W 46704.207 N (full); M = 4404.385 kg, EQX F_x 12957.678 N, RS-HYD W 46835.774 N (today).
 
 **OR-5. Which contents the test density replaces.** *Primary:* the contents of every member that carries
 distributed weight, once; a component-mapped member carries none, since its component's weight replaces it, and
@@ -256,14 +281,18 @@ gravity; §8.3 changes only the contents density).
 | + 1000 kg/m³ in each mapped member's reduced bore | 50971.769 | (−482179.828, 271977.922, 0) | 50933.679 | (−481410.404, 271749.380, 0) |
 | + only (1000 − 820) kg/m³ there | 50429.150 | (−478802.692, 270655.694, 0) | 50558.245 | (−481410.404, 271430.262, 0) |
 
-## Specification points to note (not open readings)
+## Specification observations (not open readings)
 
-- §2 says the seismic case "enters `gravity_acceleration` explicitly" but gives no value. 9.80665 m/s², the weight
-  case's gravity, is used. A different value scales every seismic value in proportion.
-- The g-factors act along the positive global axis. A load in the opposite direction (for Z, along gravity)
+These are with the lane that holds the specification, as they stand:
+- **Seismic gravity.** §2 says the seismic case "enters `gravity_acceleration` explicitly" but gives no value. These
+  references use 9.80665 m/s², the weight case's gravity, as a stated assumption; that lane is writing the value
+  into §8.1. Until it is on `main`, every seismic value here is conditional on it. Under the decided rule a seismic
+  force is a·W_s, and W_s is proportional to g on the distributed members only (the component weights are forces),
+  so a different value would move each seismic value, but not in simple proportion.
+- **Sense of a positive g-factor.** Taken along the positive global axis. The opposite sense (for Z, along gravity)
   reverses the sign of each seismic force and moment.
-- RS-P150 carries the S270 section (§3.2) though RS-R1 runs from 270 to 220 mm. Its wind and seismic per length
-  use S270 in both systems.
+- **RS-P150 under the reducer.** RS-P150 carries section S270 (§3.2) though RS-R1 runs from 270 to 220 mm. Its wind
+  diameter, and its distributed seismic load and weight in the fixture today, use S270.
 
 ## What the generator does not read
 
@@ -281,7 +310,9 @@ ends of the bounding interval give the same.
 Cross-checks, all 34 agreeing: the transcription against the specification (four); each arc's corner,
 tangency and centre exactly, and its first moment against Simpson quadrature (six); RS-P150's length √257/40 and
 its drop as half the OD difference (two); each section's μ in a second factored form, operating and test (six);
-the existing package's RS-SUS weight and moment (two); the seismic mass, the hydrotest weight and the wind force
+the existing package's RS-SUS weight and moment (two); the seismic weight, the hydrotest weight and the wind force
 again as per-section length sums (five); the exposed members lying in X = 6 m (one); the zero moment components
-(two); the systems' agreement for wind and seismic under the primary readings (four); the EQ-4 helper (one); and
-the README quoting every nonzero frozen key value (one).
+(two); the seismic weight equal to the weight case's with the operating contents, total and first moment, per
+system (two); the systems' agreement for wind (one) and their seismic difference equal to the reducer's
+substitution, force and moment (one); the EQ-4 helper (one); and the README quoting every nonzero frozen key value
+(one).

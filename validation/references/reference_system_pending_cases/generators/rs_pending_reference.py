@@ -15,7 +15,9 @@ Bases (README, "Bases"):
   insulation       rho_i * pi * ((R + t_i)^2 - R^2)                OD to OD + 2 t_i
   realized arc     length R * pi/2; first moment R * [(pi/2) C + e1 + e2]
   wind             p * C_s * (D + 2 t_i) per length, along +X, on the marked members
-  seismic          a * g * mu per length, along the positive axis, on every member except the replaced span
+  seismic          the g-factor times the weight the weight case gives the model (decided 2026-11-12): a * g * mu
+                   per length on every member except the replaced span and the members whose component weight the
+                   weight case applies, and a * W at each such component's centre of gravity; positive axis
   hydrotest weight mu with rho_c replaced by the test contents density, times g along -Z; rigid-family component
                    weights at their centres of gravity in place of their members' distributed weight
 
@@ -442,12 +444,16 @@ def accumulate(items):
     return total, fm
 
 
-def seismic_mass(system, mapped_mode="member", replaced_span=False, arc_mode="arc", insulation=True):
-    """Total mass (kg) and its first moment (kg m) on which static seismic generation acts.
+def seismic_weight(system, mapped_mode="component", replaced_span=False, arc_mode="arc", insulation=True):
+    """The weight (N) the seismic g-factors multiply, and its first moment (N m): the seismic force along an axis
+    is a times it, and the moment about the origin a times (first moment x axis).
 
-    mapped_mode "member": every member carries its own pipe mass per length, the component-mapped ones included,
-    and no component mass is added (primary reading). "component": the component's mass W/g at its centre of
-    gravity in place of its member's. "both": the member's and the component's."""
+    mapped_mode "component" (the decided rule, SWBPIPE Agent 0, 2026-11-12, in DEL-05-01): every member carries
+    g * mu per length, except a member whose component weight the weight case applies, which carries instead the
+    component's weight W at its centre of gravity (the force a * W at the node with its moments about the node from
+    the centre-of-gravity vector; a * W is a force and no gravity divides it). So the seismic weight is the weight
+    the weight case gives the model. Controls: "member", the rule before 2026-11-12 (pipe mass on a mapped member,
+    component weight left out); "both", the double count (the member's pipe weight and the component's weight)."""
     comp_of = mapped(system)
     items, rows = [], {}
     for pid, _, _, sid in MEMBERS:
@@ -455,15 +461,15 @@ def seismic_mass(system, mapped_mode="member", replaced_span=False, arc_mode="ar
             continue
         if pid in comp_of and mapped_mode == "component":
             continue
-        mu = X.q(section(sid, insulation=insulation)["total"], 1)
-        item = line_items(pid, mu, arc_mode)
+        q = X.q(section(sid, insulation=insulation)["total"] * G, 1)
+        item = line_items(pid, q, arc_mode)
         items.append(item)
         rows[pid] = item
     if mapped_mode in ("component", "both"):
         for pid, cid in comp_of.items():
-            m = F(RIGID[cid][2]) / G
+            w = F(RIGID[cid][2])
             pos = component_position(cid)
-            item = (X.q(m), [X.q(m * pos[i]) for i in range(3)])
+            item = (X.q(w), [X.q(w * pos[i]) for i in range(3)])
             items.append(item)
             rows[cid] = item
     return accumulate(items), rows
@@ -545,12 +551,12 @@ def case_values(system, readings=None):
                                          r.get("insulation", True))
     f, m = resultant_along(wind_total, wind_fm, 0)
     out["RS-WIN"] = (f, m)
-    (mass, mfm), _ = seismic_mass(system, r.get("mapped", "member"), r.get("replaced_span", False),
-                                  r.get("arc", "arc"), r.get("insulation", True))
+    (sw, swfm), _ = seismic_weight(system, r.get("mapped", "component"), r.get("replaced_span", False),
+                                   r.get("arc", "arc"), r.get("insulation", True))
     for case, (a, axis) in SEISMIC.items():
-        scale = a * G
-        f, m = resultant_along(mass * scale, [x * scale for x in mfm], axis)
+        f, m = resultant_along(sw * a, [x * a for x in swfm], axis)
         out[case] = (f, m)
+    mass = sw * (1 / G)  # reported only: the total mass, the seismic weight over g
     (w, wfm), _ = test_weight(system, RHO_TEST, r.get("mapped_contents"), r.get("arc", "arc"),
                               r.get("insulation", True))
     out["RS-HYD"] = weight_resultant(w, wfm)
@@ -581,14 +587,24 @@ SYSTEMS = {
                      "carrying its own distributed weight; RS-F1, RS-V1, RS-F2 as specified",
 }
 
+SEISMIC_RULE = ("decided by SWBPIPE Agent 0 on 2026-11-12, in DEL-05-01's wording: for each global axis, the g-factor "
+                "times the weight the weight case gives the model: on every member a load per length a * g * mu; for "
+                "a member whose component weight the weight case applies, in place of that load, the force a * W at "
+                "the component's node with its moments about the node from the centre-of-gravity vector; a member "
+                "whose component weight the weight case does not apply keeps its distributed load. Which component "
+                "weights the weight case applies is the specification's (§5, §8.1: component weights at their "
+                "centres of gravity in place of their members' distributed weight): RS-F1, RS-V1, RS-F2 in both "
+                "systems and RS-R1 in the full system; RS-R1 is pending in the fixture today (§10), where RS-P150 "
+                "keeps its distributed weight and so its distributed seismic load. This closes the former open "
+                "reading OR-1.")
+
+SEISMIC_CONTROLS = [
+    ("control: the rule before 2026-11-12: pipe mass on a mapped member, component weight left out",
+     {"mapped": "member"}),
+    ("control: double count: the mapped member's pipe mass and the component's weight both", {"mapped": "both"}),
+]
+
 OPEN_READINGS = [
-    ("OR-1", "Seismic mass of a member a rigid-family component maps (RS-P020, RS-P030, RS-P040; RS-P150 in the "
-             "full system)",
-     "the mapped member's own pipe mass per length, no component mass (DEL-05-01: seismic is generated 'on every "
-     "member' from 'the member's mass per length'; only the self-weight plan substitutes the component's weight)",
-     [("component mass W/g at its centre of gravity in place of the member's", {"mapped": "component"}),
-      ("both the member's pipe mass and the component mass", {"mapped": "both"})],
-     ("RS-EQX", "RS-EQY", "RS-EQZ")),
     ("OR-2", "Seismic mass of the replaced span RS-P180",
      "none (spec §5.1: the replaced span is 'excluded from weight generation and from every primitive load'; a load "
      "on it is refused)",
@@ -616,10 +632,12 @@ OPEN_READINGS = [
 ]
 
 PRIMARY_READINGS = {
-    "seismic": "a * g * mu on every member except RS-P180, along the positive global axis of the g-factor; g = "
-               "9.80665 m/s^2 (§2's gravity, as the seismic case's gravity_acceleration: §2 says the seismic case "
-               "enters it explicitly but gives no value); mu on the exact route's bases (README); component-mapped "
-               "members carry their pipe mu and no component mass (OR-1)",
+    "seismic": "the decided rule (seismic_rule): a times the weight the weight case gives the model, along the "
+               "positive global axis of the g-factor: a * g * mu on every member except RS-P180 and the members "
+               "whose component weight the weight case applies, and a * W at each such component's centre of "
+               "gravity; mu on the exact route's bases (README). Conditional on the stated assumption g = 9.80665 "
+               "m/s^2 for the seismic case's gravity_acceleration (§2 says the seismic case enters it explicitly but "
+               "gives no value; the lane holding the specification is writing it into §8.1)",
     "wind": "900 Pa * 0.7 * (OD + 2 t_i) per length along +X ('global_x') on RS-P070, RS-P080, RS-P085, RS-P090, "
             "RS-P100, RS-P110, RS-P120, RS-P130, RS-P140, RS-P150, RS-P160, RS-P170, RS-P190, RS-P200; every exposed "
             "member lies in the plane X = 6 m, so its full length is normal to the wind; RS-P150 takes its S270 "
@@ -630,6 +648,16 @@ PRIMARY_READINGS = {
     "arcs": "quarter-circle arcs of length R pi/2 carry mass and wind per length like any member (OR-3)",
 }
 
+
+SPEC_OBSERVATIONS = [
+    "seismic gravity: §2 says the seismic case enters gravity_acceleration explicitly but gives no value; 9.80665 "
+    "m/s^2 is a stated assumption, and every seismic value is conditional on it until the value is in §8.1 on main "
+    "(the distributed part of the seismic weight scales with g, the component weights do not)",
+    "sense of a positive g-factor: taken along the positive global axis; the opposite sense (for Z, along gravity) "
+    "reverses every seismic force and moment",
+    "RS-P150 carries section S270 (§3.2) under the reducer RS-R1 (270 to 220 mm): its wind diameter, and its "
+    "distributed seismic load in the fixture today, use S270",
+]
 
 def build():
     CROSS.clear()
@@ -657,18 +685,25 @@ def build():
 
     # Second routes for the totals.
     for system in SYSTEMS:
-        (mass, _), rows = seismic_mass(system)
+        (sw, swfm), rows = seismic_weight(system)
+        comp_of = mapped(system)
         alt = X()
         for sid in SECTIONS:
             Ls = X()
             for pid, _, _, s in MEMBERS:
-                if s == sid and pid != REPLACED_SPAN:
+                if s == sid and pid != REPLACED_SPAN and pid not in comp_of:
                     for L, _ in segments(pid, "arc"):
                         Ls = Ls + L
-            alt = alt + Ls * X.q(section(sid)["total"], 1)
-        cross_check(f"{system}: seismic mass equals per-section length sums times mass per length", alt == mass)
+            alt = alt + Ls * X.q(section(sid)["total"] * G, 1)
+        alt = alt + X.q(sum(F(RIGID[c][2]) for c in comp_of.values()))
+        cross_check(f"{system}: seismic weight equals per-section length sums of unmapped members times weight per "
+                    f"length, plus component weights", alt == sw)
+        # EQ-6 as decided: the seismic weight is the weight the weight case gives the model (operating contents),
+        # computed by the separate weight routine, total and first moment.
+        (wop, wopfm), _ = test_weight(system, rho_c=None)
+        cross_check(f"{system}: seismic weight and its first moment equal the weight case's (operating contents)",
+                    sw == wop and swfm == wopfm)
         (w, _), _ = test_weight(system)
-        comp_of = mapped(system)
         alt = X()
         for sid in SECTIONS:
             Ls = X()
@@ -700,15 +735,38 @@ def build():
         _, mx = values[s]["RS-EQX"]
         cross_check(f"{s}: RS-EQZ moment has no Z component and RS-EQX moment no X component",
                     mz[2] == X() and mx[0] == X())
-    # The two systems agree wherever RS-R1 does not enter (wind, and seismic under the primary reading).
-    for case in ("RS-WIN", "RS-EQX", "RS-EQY", "RS-EQZ"):
-        cross_check(f"{case}: full and fixture-today systems agree under the primary readings",
-                    values["full"][case] == values["fixture_today"][case])
+    # Wind does not see RS-R1: the two systems agree.
+    cross_check("RS-WIN: full and fixture-today systems agree",
+                values["full"]["RS-WIN"] == values["fixture_today"]["RS-WIN"])
+    # Seismic differs between the systems by the reducer alone: the full system replaces RS-P150's distributed
+    # load by RS-R1's weight at its centre of gravity.
+    q150, fm150 = line_items("RS-P150", X.q(section("S270")["total"] * G, 1), "arc")
+    w_r1, pos_r1 = F(RIGID["RS-R1"][2]), component_position("RS-R1")
+    d_w, d_fm = X.q(w_r1) - q150, [X.q(w_r1 * pos_r1[i]) - fm150[i] for i in range(3)]
+    ok = True
+    for case, (a, axis) in SEISMIC.items():
+        f, m = resultant_along(d_w * a, [x * a for x in d_fm], axis)
+        ff, mf = values["full"][case]
+        ft, mt = values["fixture_today"][case]
+        ok = ok and all(ff[i] - ft[i] == f[i] and mf[i] - mt[i] == m[i] for i in range(3))
+    cross_check("RS-EQX, RS-EQY, RS-EQZ: full minus fixture-today equals a times (RS-R1's weight at its centre of "
+                "gravity less RS-P150's distributed weight), force and moment", ok)
     check_srss_rounding()
 
     key = {s: case_records(values[s]) for s in SYSTEMS}
     for s in SYSTEMS:
         key[s]["total_seismic_mass_kg"] = values[s]["_mass"].record()
+
+    controls = []
+    for text, change in SEISMIC_CONTROLS:
+        per_system = {}
+        for s in SYSTEMS:
+            v = case_values(s, change)
+            rec = case_records(v)
+            per_system[s] = {c: {k: rec[c][k] for k in rec[c] if not k.startswith("expected")}
+                             for c in ("RS-EQX", "RS-EQY", "RS-EQZ")}
+            per_system[s]["total_seismic_mass_kg"] = v["_mass"].record()
+        controls.append({"control": text, "values": per_system})
 
     alternatives = []
     for oid, question, primary, alts, cases in OPEN_READINGS:
@@ -725,8 +783,8 @@ def build():
             entry["alternatives"].append({"reading": text, "values": per_system})
         alternatives.append(entry)
 
-    return {"key": key, "alternatives": alternatives, "consistency": consistency, "context": context,
-            "tables": tables()}
+    return {"key": key, "alternatives": alternatives, "controls": controls, "consistency": consistency,
+            "context": context, "tables": tables()}
 
 
 def tables():
@@ -752,7 +810,11 @@ def tables():
         row = {"member": pid, "from": f"RS-{frm}", "to": f"RS-{to}", "section": f"RS-{sid}",
                "kind": "arc" if pid in ARCS else "straight", "length_m": L.record(),
                "wind_exposed": pid in exposed,
-               "seismic_mass": "none: replaced span" if pid == REPLACED_SPAN else "pipe mass per length",
+               "seismic": ("none: replaced span" if pid == REPLACED_SPAN else
+                           f"replaced by a * W of {full_map[pid]} at its centre of gravity (both systems)"
+                           if pid in today_map else
+                           f"replaced by a * W of {full_map[pid]} at its centre of gravity (full system); a * g * mu "
+                           f"(fixture today)" if pid in full_map else "a * g * mu"),
                "hydrotest_weight": ("none: replaced span" if pid == REPLACED_SPAN else
                                     f"replaced by {full_map[pid]} (both systems)" if pid in today_map else
                                     f"replaced by {full_map[pid]} (full system); distributed (fixture today)"
@@ -837,7 +899,9 @@ def document(result):
     return {
         "document": "swbpipe.reference_system_pending_case_references",
         "status": "candidate frozen references; derived and cross-checked by the author TASK, not yet independently "
-                  "refuted; five open readings (README) await the integrator's resolution",
+                  "refuted; repaired after one independent refutation (the decided seismic rule made the expected "
+                  "path); four open readings (README) await the integrator's resolution; the seismic values are "
+                  "conditional on the stated assumption g = 9.80665 m/s^2",
         "specification": "DEL-09-01 reference-system specification §9.2: EQ-6 for RS-WIN, RS-EQX, RS-EQY, RS-EQZ; "
                          "EQ-1 and EQ-2 for RS-HYD; EQ-4 is an identity stated in the README",
         "inputs": f"{SPEC_REL}, transcribed in the generator and checked against the file on every run; no product "
@@ -847,10 +911,14 @@ def document(result):
         "origin": "global (0, 0, 0) m; moments are sum of r x F about it",
         "systems": SYSTEMS,
         "primary_readings": PRIMARY_READINGS,
+        "seismic_rule": SEISMIC_RULE,
+        "specification_observations": SPEC_OBSERVATIONS,
         "checks": {
-            "EQ-6": "for each of RS-WIN, RS-EQX, RS-EQY, RS-EQZ, the reaction force resultant of its difference from "
-                    "RS-SUS (RS-dWIN, RS-dEQX, RS-dEQY, RS-dEQZ) and that resultant's moment about the origin "
-                    "(sum over supports of r_node x F + M) equal minus the generated load's resultant and moment",
+            "EQ-6": "the reaction force resultant of RS-dWIN and its moment about the origin (sum over supports of "
+                    "r_node x F + M) equal minus the generated wind force and moment; for each of RS-dEQX, RS-dEQY, "
+                    "RS-dEQZ, the reaction resultant and its moment about the origin equal minus the g-factor times "
+                    "the weight the same gravity gives the model, component weights included (key_values: the "
+                    "expected_RS-d* entries)",
             "EQ-1 (RS-HYD)": "the sum of the vertical (Z) reaction components over every support, held supports "
                              "included, equals W_total",
             "EQ-2 (RS-HYD)": "the horizontal (X, Y) reaction resultant is zero and the reaction moment resultant "
@@ -859,6 +927,7 @@ def document(result):
         "tolerance": "not set here: the consumer applies the criterion it adopts",
         "crosscheck": list(CROSS),
         "key_values": result["key"],
+        "seismic_controls": result["controls"],
         "open_readings": result["alternatives"],
         "consistency": result["consistency"],
         "context": result["context"],
